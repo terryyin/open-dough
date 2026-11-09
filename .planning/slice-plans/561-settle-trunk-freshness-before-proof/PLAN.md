@@ -124,6 +124,12 @@ does not observe the new early-refactor ordering. Select native sessions later
 by unresolved risk under ADR 0005, before releasing affected behavior or with an
 explicit human-owned exception. No paid native run is authorized here.
 
+## Execution complete
+
+Product advice: no change. The selected ordering correction is delivered; native
+acceptance, a verified containing release and ordinary-use evaluation remain
+owned by SEED-053 and ODF-465/477/429, with no new adoption decision.
+
 ## Verification and delivery
 
 Follow [AGENTS.md behavior review](../../../AGENTS.md#behavior-review) and
@@ -177,7 +183,7 @@ Scratch changes were reverted before the seed/plan writes; `git diff --exit-code
   `codex/settle-trunk-freshness-before-expensive-proof-an`; origin/main is the
   authorized integration target. Publisher `dashboard-territory.local-open-dough`,
   agent `yusuke-chan`, starting revision
-  `5030bb8b1f9faa11566646a94159bdb9d66d5eff`, accepted claim and current candidate
+  `5030bb8b1f9faa11566646a94159bdb9d66d5eff`, accepted claim
   `14c211d145385d2fbbc50fb032781d3e45046354`. No second start or claim.
   Default checkout `/Users/terryyin/git/open-dough` is separate from execution.
 - Checkout setup: Node 24.21.0; `node scripts/setup-native.mjs npm` and
@@ -206,6 +212,13 @@ Scratch changes were reverted before the seed/plan writes; `git diff --exit-code
   implementation and supplies no authority to Take it.
 
 ## Learnings
+
+Execution retrospective completed against published `931d31c108c97bee3a60076fad331f47bf66f486`
+(suffix base `14c211d145385d2fbbc50fb032781d3e45046354`), retaining accepted
+proof and independent refactor. No implementation correction or product backlog
+change is advised. Process review recorded one recurrence at DearDough ODF-396;
+CI remains pending on the retained execution-branch observer. Completion edits
+are `records-only`. Native/release/ordinary-use work retains its existing owners.
 
 The initial runner attempt selected system Bash 3.2 and refused before tests;
 putting the already-installed Homebrew Bash first on PATH resolved the route.
