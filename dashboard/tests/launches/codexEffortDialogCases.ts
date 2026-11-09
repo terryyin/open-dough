@@ -62,7 +62,7 @@ test("model changes preserve compatible effort and retain incompatible selection
   await model.selectOption("native-luna");
   await effort.selectOption("low");
   await dialog.getByLabel("Host", { exact: true }).selectOption("claude");
-  await expect(effort).toHaveCount(0);
+  await expect(effort).toHaveValue("");
   await dialog.getByLabel("Host", { exact: true }).selectOption("codex");
   await expect(effort).toHaveValue("");
   await model.selectOption("native-sol");

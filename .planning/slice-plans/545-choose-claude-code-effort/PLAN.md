@@ -1,6 +1,7 @@
 # Choose Claude Code effort when starting a session
 
 **Source:** [Choose Claude Code effort when starting a session](../../seeds/SEED-280-choose-claude-code-effort.md#choose-claude-code-effort)
+**Source review:** [source review](source-review.md)
 
 **Identity:** SEED-280#choose-claude-code-effort
 
@@ -71,7 +72,7 @@ below; no paid native run is part of this plan.
 
 ### 1. Claude Code effort choice at session start
 Type: Behavior
-Status: planned
+Status: done
 Proof: the proof table rows above, plus the unchanged families under Local gates.
 
 Behavior: Claude Code selected in a Start session, follow-up, or story
@@ -79,6 +80,17 @@ workflow dialog → choose high and Start → `claude --bg … --model <m>
 --effort high <instruction>` runs and the record keeps `effort: "high"`;
 the default sends no `--effort`; a request with `effort: "extreme"` is
 refused before `claude` runs.
+
+Execution (2026-11-09, story-branch `claude/choose-claude-code-effort-when-starting-a-sessio`,
+published claim `8ad9f87d4`): accepted. Claude Code's levels are a static
+`efforts` host fact in `src/hostDescription.ts`; `LaunchReasoningEffort` renders
+a fixed-effort field for such a host. Proof: the two planned specs, the
+continuation case in `backend-tests/launches/agent-launch-uncertain-continuation.spec.ts`
+(the continued attempt carries the recorded `--effort max`), the Local gates
+families, and the whole `tests/launches` plus `backend-tests/launches` run.
+Learning: the new field joins the dialogs' tab order, so the two layout
+specs' tab sequences and the Codex host-switch case (which asserted Claude had
+no effort field) changed with it.
 
 ## Decisive premises
 

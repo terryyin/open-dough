@@ -6,6 +6,7 @@ import {
   launchEfforts,
 } from "./launchEffort.ts";
 import { hostName } from "./sessionCapabilities.ts";
+import { hostDescription } from "./hostDescription.ts";
 
 export function LaunchReasoningEffort({
   id,
@@ -24,6 +25,17 @@ export function LaunchReasoningEffort({
   readonly options: LaunchHostOptions | undefined;
   readonly error: string | undefined;
 }) {
+  const fixed = hostDescription(host).efforts;
+  if (fixed !== undefined)
+    return (
+      <FixedReasoningEffort
+        id={id}
+        host={host}
+        effort={effort}
+        onEffort={onEffort}
+        efforts={fixed}
+      />
+    );
   const { efforts, known } = launchEfforts(options, model);
   const needsSpecificModel =
     host === "cursor" && cursorNeedsSpecificModel(model);
@@ -93,6 +105,50 @@ export function LaunchReasoningEffort({
                     ? efforts.find((item) => item.effort === effort)
                         ?.description
                     : `${hostName(host)} resolves the configured model in the launch workspace. This explicit effort will be verified there before initial input.`)))}
+      </p>
+    </div>
+  );
+}
+
+// A host's fixed efforts, offered whatever the model: the host itself drops
+// an effort a model does not take.
+function FixedReasoningEffort({
+  id,
+  host,
+  effort,
+  onEffort,
+  efforts,
+}: {
+  readonly id: string;
+  readonly host: AgentLaunchRequest["host"];
+  readonly effort: string;
+  readonly onEffort: (effort: string) => void;
+  readonly efforts: readonly string[];
+}) {
+  const setting = `your ${hostName(host)} setting`;
+  return (
+    <div className="launch-dialog-field">
+      <label htmlFor={`${id}-effort`}>Reasoning effort</label>
+      <select
+        id={`${id}-effort`}
+        className="frame-input"
+        value={effort}
+        aria-describedby={`${id}-effort-feedback`}
+        onChange={(event) => {
+          onEffort(event.target.value);
+        }}
+      >
+        <option value="">{`Use ${setting}`}</option>
+        {efforts.map((item) => (
+          <option key={item} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+      <p id={`${id}-effort-feedback`} className="quiet" aria-live="polite">
+        {effort === ""
+          ? `${hostName(host)} starts with ${setting}.`
+          : "The chosen effort applies to this session only."}
       </p>
     </div>
   );

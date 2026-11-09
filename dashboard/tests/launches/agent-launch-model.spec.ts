@@ -2,7 +2,9 @@
 // ./agent-launch-story-card.spec.ts (../launchJourney.ts): one representative
 // dialog offers Model beside Host after its instruction field on Default, and a
 // chosen model reaches the synthetic `claude` (./fixtures/fake-claude) as
-// `--model`; another proves Default starts without `--model`. Dismiss/reopen
+// `--model`; another proves Default starts without `--model`. Claude Code's
+// Reasoning effort offers its own setting and five levels, a chosen one
+// reaches `claude` as `--effort`, and a host switch clears it. Dismiss/reopen
 // still walks every dialog kind. The real `claude` is never reached. How the
 // launch boundary takes a model across request kinds is
 // ../../backend-tests/launches/agent-launch-model-boundary.spec.ts.
@@ -51,6 +53,9 @@ async function actions(page: Page, launchJourney: LaunchJourney) {
 const modelOf = (dialog: Locator) =>
   dialog.getByRole("combobox", { name: "Model" });
 
+const effortOf = (dialog: Locator) =>
+  dialog.getByRole("combobox", { name: "Reasoning effort" });
+
 const modelArgs = (argv: readonly string[]) => {
   const at = argv.indexOf("--model");
   return at === -1 ? [] : argv.slice(at, at + 2);
@@ -87,6 +92,65 @@ test("the refinement dialog offers Model after the instruction on Default, and c
   expect(modelArgs(call?.argv ?? [])).toEqual(["--model", "opus"]);
 });
 
+test("the execution dialog offers Claude Code's efforts whatever the model, and Opus with high starts the session with --effort high", async ({
+  page,
+  dashboard,
+  launchJourney,
+}) => {
+  dashboard.claudeScenario("launched");
+  const { execution: action } = await actions(page, launchJourney);
+
+  await action.open();
+  const effort = effortOf(action.dialog);
+  const efforts = [
+    "Use your Claude Code setting",
+    "low",
+    "medium",
+    "high",
+    "xhigh",
+    "max",
+  ];
+  await expect(effort.locator("option")).toHaveText(efforts);
+  await expect(effort).toHaveValue("");
+  await modelOf(action.dialog).selectOption({ label: "Opus" });
+  await expect(effort.locator("option")).toHaveText(efforts);
+  await effort.selectOption({ label: "high" });
+  await action.dialog.getByRole("button", { name: "Start" }).click();
+
+  await expect(action.dialog).toBeHidden();
+  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  const argv = dashboard.claudeLaunchCalls()[0]?.argv ?? [];
+  const at = argv.indexOf("--model");
+  expect(argv.slice(at, at + 4)).toEqual([
+    "--model",
+    "opus",
+    "--effort",
+    "high",
+  ]);
+});
+
+test("low chosen for Claude Code, switching the host to Codex returns the effort to Use Codex setting", async ({
+  page,
+  launchJourney,
+}) => {
+  const { session: action } = await actions(page, launchJourney);
+
+  await action.open();
+  await effortOf(action.dialog).selectOption({ label: "low" });
+  await action.dialog
+    .getByRole("combobox", { name: "Host" })
+    .selectOption({ label: "Codex" });
+
+  // The dialog names its host.
+  const codexDialog = page.getByRole("dialog", {
+    name: "Start a session in Open Dough in Codex",
+  });
+  await expect(effortOf(codexDialog)).toHaveValue("");
+  await expect(effortOf(codexDialog).locator("option:checked")).toHaveText(
+    "Use Codex setting",
+  );
+});
+
 test("the session dialog left on Default starts the session without --model", async ({
   page,
   dashboard,
@@ -101,6 +165,7 @@ test("the session dialog left on Default starts the session without --model", as
   await expect(action.dialog).toBeHidden();
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--model");
+  expect(dashboard.claudeLaunchCalls()[0]?.argv).not.toContain("--effort");
 });
 
 for (const dismiss of ["Cancel", "Escape"] as const) {
@@ -159,7 +224,7 @@ test("Opus launched from a dialog, the same dialog opens again on Default", asyn
   expect(second?.argv).not.toContain("--model");
 });
 
-test("the dialog opens in the instruction field, and Tab reaches Record, Attach images, Host, Model, the session's tracking, Command details, Cancel, then Start", async ({
+test("the dialog opens in the instruction field, and Tab reaches Record, Attach images, Host, Model, Reasoning effort, the session's tracking, Command details, Cancel, then Start", async ({
   page,
   dashboard,
   launchJourney,
@@ -176,6 +241,7 @@ test("the dialog opens in the instruction field, and Tab reaches Record, Attach 
     dialog.getByRole("button", { name: "Attach images" }),
     dialog.getByRole("combobox", { name: "Host" }),
     modelOf(dialog),
+    effortOf(dialog),
     dialog.getByRole("radio", { name: "Standard" }),
     dialog.locator("summary", { hasText: "Command details" }),
     dialog.getByRole("button", { name: "Cancel" }),

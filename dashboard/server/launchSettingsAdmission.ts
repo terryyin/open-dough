@@ -12,14 +12,17 @@ export async function admitLaunchSettings(
   request: AgentLaunchRequest,
   host: LaunchHost,
 ): Promise<void> {
+  // A host's fixed efforts are its whole offering; Codex and Cursor efforts
+  // are checked against the chosen model's native offering below.
+  const efforts = host.description.efforts;
   if (
     request.effort !== undefined &&
-    request.host !== "codex" &&
-    request.host !== "cursor"
+    efforts !== undefined &&
+    !efforts.includes(request.effort)
   )
     throw new RefusedRequest(
       400,
-      "Reasoning effort is only offered for Codex or Cursor startup.",
+      `${host.name} reasoning effort must be one of ${efforts.join(", ")}.`,
     );
   const unoffered =
     host.description.unofferedModelExplanation ??

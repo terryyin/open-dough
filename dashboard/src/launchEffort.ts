@@ -1,6 +1,7 @@
 // Known models constrain effort; an unknown inherited model is checked in the
 // actual workspace at launch, without borrowing the catalog's recommendation.
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
+import { hostDescription, type HostIdentity } from "./hostDescription.ts";
 
 export function cursorNeedsSpecificModel(model: string): boolean {
   return model === "" || model === "auto";
@@ -27,8 +28,10 @@ export function effortBlocked(
   options: LaunchHostOptions | undefined,
   model: string,
   effort: string,
-  host?: string,
+  host: HostIdentity,
 ) {
+  const fixed = hostDescription(host).efforts;
+  if (fixed !== undefined) return effort !== "" && !fixed.includes(effort);
   const choices = launchEfforts(options, model);
   if (effort === "") {
     // Cursor multi-effort models without a listed bare id require an explicit

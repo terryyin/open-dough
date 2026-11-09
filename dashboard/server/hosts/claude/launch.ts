@@ -5,9 +5,9 @@ import { reportingInstruction } from "../../reportingInstruction.ts";
 // confirming the session it started through Claude Code's own session
 // listing, and failure in fixed categories. Raw stderr may name local paths or
 // echo configuration and is never forwarded, as with the `gh` boundary
-// (`./ghRead.ts`). Only a model the developer chose is passed; no permission,
-// effort, or session id is: the developer's own Claude Code settings apply,
-// and `--bg` chooses its own session id, which it prints.
+// (`./ghRead.ts`). Only a model and effort the developer chose are passed; no
+// permission or session id is: the developer's own Claude Code settings apply
+// otherwise, and `--bg` chooses its own session id, which it prints.
 
 import type { ExecException } from "node:child_process";
 import { stripVTControlCharacters } from "node:util";
@@ -150,6 +150,7 @@ export async function launchClaude(
     {
       instruction: claudeInstruction(request, established?.handoff),
       model: request.model,
+      effort: request.effort,
     },
     startedIn,
     signal,

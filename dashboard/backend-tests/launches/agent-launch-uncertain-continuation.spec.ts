@@ -42,11 +42,13 @@ const unresolvedStart = {
 test.describe("a story start whose launch wait expired", () => {
   test.use({ launchTimeoutMs: 3_000 });
 
-  test("blocks a fresh start of its story from any workflow, and is resumed only by its own continuation", async ({
+  test("blocks a fresh start of its story from any workflow, and is resumed only by its own continuation at its recorded effort", async ({
     dashboard,
   }) => {
     dashboard.claudeScenario("hang");
-    const accepted = answerOf(await accept(dashboard, refinementRequest));
+    const accepted = answerOf(
+      await accept(dashboard, { ...refinementRequest, effort: "max" }),
+    );
     const id = accepted.attempt?.id ?? "";
     expect(await settledOutcome(dashboard, id)).toMatchObject({
       kind: "uncertain",
@@ -81,6 +83,10 @@ test.describe("a story start whose launch wait expired", () => {
       reason: "refused",
     });
     expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
+    for (const call of dashboard.claudeLaunchCalls()) {
+      const at = call.argv.indexOf("--effort");
+      expect(call.argv.slice(at, at + 2)).toEqual(["--effort", "max"]);
+    }
   });
 });
 
