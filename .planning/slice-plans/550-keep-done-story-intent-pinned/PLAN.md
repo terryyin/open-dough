@@ -26,8 +26,8 @@ unobserved here. Latest accepted execution CI remains pending with this observer
 
 Initial setup/resource and slice 1/2 evidence remain in [source review](source-review.md).
 
-Latest delivery: slice 3 accepted on the execution branch at `db8ca909986425b77080466a47ba4ff8079040b0`,
-suffix base `fa740edaf788d556205ed349e0111d2213c4806b`; retained observer reused.
+Latest delivery: slice 4 accepted on the execution branch at `a7ce43a3309021de27117c12c1863a4e7db51759`,
+suffix base `db8ca909986425b77080466a47ba4ff8079040b0`; retained observer reused.
 
 ## Goal and scope
 
@@ -161,6 +161,10 @@ location for the Codex native + CLI completion arrangement; omitted callers keep
 Retain one Behavior boundary: authoritative result selection and its fallback/default-state proof form one
 cohesive loop. Completed slices/proof remain. No numeric exception or resplit is needed; safe stopping point is
 the original story complete under one completed-result rule, followed by full affected Intent and traced gates.
+
+## Execution complete
+
+Product advice: no change; completion/default/fetch ownership is coherent, with existing SEED-284/SEED-286 retaining test optimization work.
 
 ## Consumer trace and verification gates
 

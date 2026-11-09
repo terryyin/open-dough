@@ -107,12 +107,31 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: One published increment failed CI. Slice 4's existing `expectedBasis` repair passed the exact job, and run 42440063442 passed the Node shards.
   - Inference: The old call crossed a skill test case module into the shared Node preparation adapter. The focused selection did not exercise that import chain.
 
+- Execution: SEED-283#keep-done-story-intent-pinned (plan 550-keep-done-story-intent-pinned; first related implementation commit `c5edb96346b68c9397a775fbfc81c9357d40e13e`)
+  - Timestamp: unknown (2026-11-09)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION` at established claim `2ee6aa08a70a414caba882a971b77da90d06ac79`)
+  - Evidence: Slice 1's local full Intent proof passed, but [CI run 42557683177, dashboard 11/12](https://github.com/terryyin/open-dough/actions/runs/42557683177/job/128966952090) failed `configuration/project-hide-sessions.spec.ts`. Restoring a hidden project retained an uncatalogued selected Done story; the journey still expected current-tree locations failure after Done source selection had stopped using current-tree fallback. The accepted repair and unchanged whole hide/session/selection journey are retained at `fa740edaf:.planning/slice-plans/550-keep-done-story-intent-pinned/source-review.md`, CI repair section.
+  - Observed effect: One published increment required an owned CI repair, independent refactor/publication, and exact stash/restore of in-progress slice 2. Repair `fea15e65c` asserts retained identity, historical absence and no current browser; strict focused proof and the later whole Intent gate passed. Final candidate CI was still pending at retrospective.
+  - Inference: The dynamic hidden-project restore path consumed the changed Done fallback outside the Intent directory; the initial accepted consumer proof missed that enclosing journey. No product defect is inferred from that obsolete expectation. Separately, the read-only retrospective traced a still-readable catalogued Done workspace through `storyReviewRequest.ts`/`storyReviewSnapshot.ts` to a live snapshot rejected by `useHistoricalIntentLocations.tsx`, despite recoverable published history. Completion fixtures always remove that workspace; `review/story-review-story-branch-landed.spec.ts` explicitly preserves the readable-workspace lifetime. Root retains this original outcome gap for correction before execution completion. This code-path finding is not a fresh browser reproduction.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
 ## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
 Former local code: DD-261. [Meaning, evidence and response](docs/maintainer/findings/ODF-121.md).
 ## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
 Former local code: DD-262. [Meaning, evidence and response](docs/maintainer/findings/ODF-226.md).
+
+### Occurrences
+
+- Execution: SEED-283#keep-done-story-intent-pinned (plan 550-keep-done-story-intent-pinned; first related implementation commit `c5edb96346b68c9397a775fbfc81c9357d40e13e`)
+  - Timestamp: unknown (2026-11-09)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION` at established claim `2ee6aa08a70a414caba882a971b77da90d06ac79`)
+  - Evidence: `fa740edaf:.planning/slice-plans/550-keep-done-story-intent-pinned/source-review.md` retains the early focused and required whole Intent commands with `--reporter=line`, their output audit, and later default-reporter proof. `dashboard/playwright.config.ts` configures `tests/support/quietReporter.ts`, which rejects passing tests that print output; replacing it changes verdict policy.
+  - Observed effect: Early assertion passes did not establish the configured strict verdict. The coordinator audited the retained output without claiming the strict reporter ran, and all later required gates used the default reporter, including the final whole Intent exit-0 pass with no test output. No output-only defect or separate CI failure is attributed to this override.
+  - Inference: The presentation flag again weakened the initial acceptance evidence; the later strict gate repaired that proof limit. Net time cost is not established.
+
 ## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
 Former local code: DD-263. [Evidence and current response](docs/maintainer/findings/ODF-227.md).
 ## ODF-228 — Long proof starts without checking shared-host headroom <a id="odf-228"></a>
@@ -457,6 +476,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: Both implementation traces used installed `consumer-trace.mjs --base HEAD` with explicit effect terms while plan/source-review files were changed. The trace derived generic planning basenames as well. Retained proof at `3034cc09d84b22ebfc751c92a1889629ab33dce9:.planning/slice-plans/547-unify-intent-view-and-ci-proof/proof.md` names the trace/disposition records; current `/tmp/seed282-slice1-consumer-dispositions.md` and `/tmp/seed282-slice2-consumer-dispositions.md` measure 350,867 and 341,766 bytes, with 641 and 669 `excluded:` rows respectively. The slice 2 return reports 839 final consumer rows.
   - Observed effect: Hundreds of generic planning/history matches needed exclusions; coordinator reads of broad trace excerpts truncated and were followed by bounded caller/assertion inspection. The actual Intent and direct unit consumers were verified. No missed consumer is established.
   - Inference: The already-recorded automatic planning-basename noise recurred across both Behavior slices; the large disposition volume, rather than a missing observation, is the supported cost.
+
+- Execution: SEED-283#keep-done-story-intent-pinned (plan 550-keep-done-story-intent-pinned; first related implementation commit `c5edb96346b68c9397a775fbfc81c9357d40e13e`)
+  - Timestamp: unknown (2026-11-09)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION` at established claim `2ee6aa08a70a414caba882a971b77da90d06ac79`)
+  - Evidence: `/tmp/seed283-slice1-consumer-trace.md` and `/tmp/seed283-slice2-refactor-consumer-trace.md` explicitly derive generic `PLAN.md` and `source-review.md` basenames from changed execution records. `fa740edaf:.planning/slice-plans/550-keep-done-story-intent-pinned/source-review.md` retains the accepted dispositions: slice 2 had 506 rows; its independent refactor had 537 rows (77 reused, 460 unrelated excluded). Coordinator broad trace reads truncated and required bounded follow-up reads.
+  - Observed effect: Hundreds of unrelated planning/history entries needed exclusions while actual caller/assertion inspection was retrieved separately. The accepted traces preserve the relevant proof rather than dropping the records.
+  - Inference: Matches automatic planning-basename noise. The distinct hidden-project consumer miss is recorded under ODF-150; this record does not establish that the trace noise caused it or measure total runtime cost.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
