@@ -21,6 +21,8 @@
 32.1	src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs
 30.4	src/skills/dough-execute-plan/scripts/github-request-owner-start.test.mjs
 28.1	tests/git-publication-native-one-shot-workspaces.sh
+# Provisional local observation for the new comparison check, 2026-11-09; calibrate with its first CI timing.
+27.7	tests/support/native-admission-reuse.test.mjs
 25.7	tests/git-publication-native-admission.sh
 24.6	tests/git-publication-native-owned-context.sh
 21.7	tests/install-all-tools.sh
