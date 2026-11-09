@@ -95,7 +95,7 @@ test("from inside the checkout it prints the table and exits 0 when a summary ra
   assert.deepEqual([ranked.status, ranked.stderr], [0, ""]);
   assert.equal(
     lineOf(ranked.stdout, "Leads"),
-    "Leads          all 2 timed items, ranked by summed CI time",
+    "Leads          test cases: all 2 timed items, ranked by summed CI time",
   );
   assert.doesNotMatch(ranked.stdout, /tests\/other/);
 

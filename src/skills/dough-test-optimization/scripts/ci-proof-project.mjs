@@ -69,8 +69,9 @@ export async function projectOf(request, gitHub) {
 
 /**
  * What the summary records of the test selection for CI: no command, with
- * where to read it, and each in-scope entry's declared location, unit and
- * part statuses, from ENTRIES (./ci-proof-scope.mjs) and LOCATIONS.
+ * where to read it, and each in-scope entry's declared location and, for
+ * each unit it holds results in, that unit's part statuses, from ENTRIES
+ * (./ci-proof-scope.mjs) and LOCATIONS.
  * @param {import("./ci-proof-attempts.mjs").ProjectCi} ci
  * @param {readonly import("./ci-proof-scope.mjs").ScopeEntry[]} entries
  * @param {readonly { path: string; kind?: unknown; include?: unknown }[]} locations
@@ -94,14 +95,16 @@ export function selectionOf(ci, entries, locations) {
     entries: entries.map((entry) => ({
       path: entry.path,
       declared: declared(entry.path),
-      unit: entry.unit,
-      parts: [
-        `${entry.present} of ${entry.of} parts present`,
-        ...(entry.missing.length ? [`${entry.missing.length} missing`] : []),
-        ...(entry.ambiguous.length
-          ? [`${entry.ambiguous.length} ambiguous`]
-          : []),
-      ].join(", "),
+      units: entry.units.map(
+        ({ of, present, missing, ambiguous, ...unit }) => ({
+          ...unit,
+          parts: [
+            `${present} of ${of} parts present`,
+            ...(missing.length ? [`${missing.length} missing`] : []),
+            ...(ambiguous.length ? [`${ambiguous.length} ambiguous`] : []),
+          ].join(", "),
+        }),
+      ),
     })),
   };
 }

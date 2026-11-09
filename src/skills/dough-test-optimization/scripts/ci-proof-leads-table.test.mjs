@@ -24,12 +24,11 @@ const reportOf = (facts) => ({
   ...facts,
 });
 
-test("the table names the attempt, how it relates to the requested revision, the recorded selection and gaps, then totals, leads, folders and tail", () => {
+test("the table names the attempt, how it relates to the requested revision, the recorded selection with each unit an entry holds, and gaps, then every unit's totals and each unit's own leads, folders and tail", () => {
   const summary = makeMe.aCiProofSummary
     .withEntries(
       makeMe.aCiProofEntry
         .at("dashboard/tests")
-        .countingIn("tests")
         .withFile("dashboard/tests/runtime/watcher.spec.ts", {
           passed: 10,
           durationMs: 115_281,
@@ -41,8 +40,13 @@ test("the table names the attempt, how it relates to the requested revision, the
         .please(),
       makeMe.aCiProofEntry
         .at("tests")
-        .countingIn("checks")
+        .counting(1, "file")
         .withFile("tests/proof.sh", { durationMs: 54_400, untimed: 0 })
+        .please(),
+      makeMe.aCiProofEntry
+        .at("e2e")
+        .countingIn("checks")
+        .withFile("e2e/smoke.sh", { durationMs: 2000 })
         .please(),
     )
     .please();
@@ -60,12 +64,25 @@ test("the table names the attempt, how it relates to the requested revision, the
           {
             path: "tests",
             declared: "shell *.sh",
-            unit: "checks",
-            parts: "3 of 3 parts present",
+            units: [
+              { unit: "case", parts: "2 of 2 parts present" },
+              { unit: "file", parts: "1 of 3 parts present, 2 missing" },
+            ],
+          },
+          {
+            path: "e2e",
+            declared: "shell *.sh",
+            units: [
+              {
+                unit: "legacy",
+                label: "checks",
+                parts: "1 of 1 parts present",
+              },
+            ],
           },
         ],
       },
-      gaps: ["tests: 1 checks failed in this attempt"],
+      gaps: ["tests: 1 test file failed in this attempt"],
       ranking: rankingOf(summary),
     }),
   );
@@ -79,21 +96,33 @@ Attempt        run 41 attempt 1 (success) at ${revision}
 Compatibility  earlier: the attempt's revision is an ancestor of the requested one, 2 commits before it; 1 in-scope path changed since
   M  tests/proof.sh
 Selection      test-selection command not recorded in the summary; remedy: read it from .github/workflows/ci.yml
-  entry  declared    unit    parts
-  tests  shell *.sh  checks  3 of 3 parts present
+  entry  declared    unit             parts
+  tests  shell *.sh  test cases       2 of 2 parts present
+                     test files       1 of 3 parts present, 2 missing
+  e2e    shell *.sh  legacy (checks)  1 of 1 parts present
 Gaps           1
-  - tests: 1 checks failed in this attempt
-Scope totals   229.1 s summed CI time over 3 timed items; cases and means stay per unit
-  unit    entries  files  cases  time s  untimed
-  tests         1      2     14   174.7        0
-  checks        1      1      1    54.4        0
-Leads          all 3 timed items, ranked by summed CI time
-  #  time s  share  cases  unit    mean s  path
-  1   115.3  50.3%     10  tests    11.53  dashboard/tests/runtime/watcher.spec.ts
-  2    59.4  25.9%      4  tests    14.86  dashboard/tests/intent/gaps.spec.ts
-  3    54.4  23.7%      1  checks   54.40  tests/proof.sh
-Folders        none beyond the leads
-Tail           none
+  - tests: 1 test file failed in this attempt
+Scope totals   per unit; results, time, shares and means never cross units
+  unit             entries  paths  results  time s  untimed
+  test cases             1      2       14   174.7        0
+  test files             1      1        1    54.4        0
+  legacy (checks)        1      1        1     2.0        0
+Leads          test cases: all 2 timed items, ranked by summed CI time
+  #  time s  share  cases  mean s  path
+  1   115.3  66.0%     10   11.53  dashboard/tests/runtime/watcher.spec.ts
+  2    59.4  34.0%      4   14.86  dashboard/tests/intent/gaps.spec.ts
+Folders        test cases: none beyond the leads
+Tail           test cases: none
+Leads          test files: all 1 timed items, ranked by summed CI time
+  #  time s   share  files  mean s  path
+  1    54.4  100.0%      1   54.40  tests/proof.sh
+Folders        test files: none beyond the leads
+Tail           test files: none
+Leads          legacy (checks): all 1 timed items, ranked by summed CI time
+  #  time s   share  results  mean s  path
+  1     2.0  100.0%        1    2.00  e2e/smoke.sh
+Folders        legacy (checks): none beyond the leads
+Tail           legacy (checks): none
 `,
   );
 });
@@ -128,8 +157,11 @@ test("whatever a summary holds, the table stays within its byte limit, every lis
       entries: entries.map((entry) => ({
         path: entry.path,
         declared: "x".repeat(500),
-        unit: entry.unit ?? "",
-        parts: "1 of 1 parts present",
+        units: entry.evidence.map(({ unit, label }) => ({
+          unit,
+          label,
+          parts: "1 of 1 parts present",
+        })),
       })),
     },
     gaps: Array.from(
@@ -147,7 +179,7 @@ test("whatever a summary holds, the table stays within its byte limit, every lis
   assert.doesNotMatch(text, /output cut/);
   for (const more of [
     "490 more changed paths",
-    "30 more entries",
+    "30 more selection rows",
     "188 more gaps",
     "34 more units",
   ])
@@ -157,7 +189,8 @@ test("whatever a summary holds, the table stays within its byte limit, every lis
       .split("\n")
       .filter((line) => line.startsWith("  ") && /\.spec\.ts$/.test(line))
       .length,
-    10 + 20 + 0,
+    // Changed paths, then 3 ranked units sharing 20 leads: 7 each.
+    10 + 3 * 7,
   );
 
   const wideText = (index) => `${"試験".repeat(150)} ${index}`;

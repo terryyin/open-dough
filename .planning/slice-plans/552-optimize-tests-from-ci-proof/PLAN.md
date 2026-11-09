@@ -624,10 +624,10 @@ Story clause: "name its repository, revision, attempt, and selection"
 Disposition: proved by slice 4: the reader names the in-scope entries with kind, patterns, unit and part status and states the unrecorded command selection with its remedy (slice 3 `ci-proof-leads.test.mjs`), and `evidence-and-leads.md` "Read the retained CI proof" Selection bullet directs naming it from the CI configuration at the attempt's revision, an unconfirmed selection staying a gap; the slice 4 behavior review named Open Dough's from `ci.yml`
 Commitment: 7.4
 
-### G3. SEED-281's explicit units are not landed yet
-Reported: slice 3 — "SEED-281 has not landed: the contract and figures modules are unchanged on the fetched `origin/main` `e79f2dac5`. No summary carries explicit case or file units, so the reader keeps each entry's free-text `unit` apart. When SEED-281 lands, the scope and ranking modules must adopt its units."
+### G3. SEED-281's explicit units are not landed yet (first reported in slice 3)
+Reported: slice 7 — "SEED-281 has not landed: the contract and figures modules are unchanged on the fetched `origin/main` `e79f2dac5`. No summary carries explicit case or file units, so the reader keeps each entry's free-text `unit` apart. When SEED-281 lands, the scope and ranking modules must adopt its units."
 Story clause: "the explicit test case and test file units"
-Disposition: interim until slices 7
+Disposition: proved by slice 7: `ci-proof-scope-units.test.mjs` reads an entry holding test cases and test files as one entry with per-unit results, and a version 1 summary as legacy test results; `ci-proof-ranking.test.mjs` "units stay apart…"; the real Open Dough read (SEED-281 version 2 summary) ranks test cases and test files apart
 Commitment: 56.5, 56.6
 
 ### G4. The reader lists only the newest 100 push runs at their latest attempt

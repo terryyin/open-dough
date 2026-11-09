@@ -89,7 +89,16 @@ test("an adapter's proof answer with totals only states the absent breakdown as 
   ]);
   assert.match(
     rowsOf(totals.text),
-    /\n 1 1,830\.0 100\.0% 6,412 tests 0\.29 tests \(entry total, no file breakdown\)\n/,
+    /\n 1 1,830\.0 100\.0% 6,412 0\.29 tests \(entry total, no file breakdown\)\n/,
+  );
+  // A version 1 answer's results are legacy test results, never test cases.
+  assert.equal(
+    lineOf(totals.text, "Leads"),
+    "Leads          legacy (tests): all 1 timed items, ranked by summed CI time",
+  );
+  assert.match(
+    rowsOf(totals.text),
+    /\n tests python \*\*\/test_\*\.py legacy \(tests\) 1 of 1 parts present\n/,
   );
   assert.deepEqual(
     adapter
@@ -117,7 +126,6 @@ test("an adapter's proof answer with totals only states the absent breakdown as 
       .withEntries(
         makeMe.aCiProofEntry
           .at("tests")
-          .countingIn("tests")
           .withFile("tests/data_source/test_jobs_live_commands_sharadar.py", {
             passed: 2,
             durationMs: 60_500,
@@ -140,7 +148,7 @@ test("an adapter's proof answer with totals only states the absent breakdown as 
   assert.equal(lineOf(full.text, "Gaps"), "Gaps           none");
   assert.match(
     rowsOf(full.text),
-    /\n 1 60\.5 98\.1% 2 tests 30\.25 tests\/data_source\/test_jobs_live_commands_sharadar\.py\n/,
+    /\n 1 60\.5 98\.1% 2 30\.25 tests\/data_source\/test_jobs_live_commands_sharadar\.py\n/,
   );
   assert.equal(
     lineOf(full.text, "Selection"),

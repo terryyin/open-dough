@@ -1,11 +1,13 @@
 // How a lead reading's table (./ci-proof-leads-table.mjs) writes its text:
-// figures in fixed formats, shortened paths and reasons, aligned columns,
-// capped lists, and the whole within LEADS_TABLE_LIMIT_BYTES.
+// figures in fixed formats, results named in their unit, shortened paths and
+// reasons, aligned columns, capped lists, and the whole within
+// LEADS_TABLE_LIMIT_BYTES.
+import { unitNoun } from "./ci-proof-contract.mjs";
 
 const LEADS_TABLE_LIMIT_BYTES = 16 * 1024;
 
 const PATH_CHARACTERS = 96;
-const UNIT_CHARACTERS = 16;
+const UNIT_CHARACTERS = 24;
 
 const counts = new Intl.NumberFormat("en-US");
 const tenths = new Intl.NumberFormat("en-US", {
@@ -48,10 +50,16 @@ export const clip = (text, max) =>
   text.length <= max ? text : `${text.slice(0, max - 1)}…`;
 
 /**
- * UNIT, what an entry's runner counts, as a column shows it.
- * @param {string} unit
+ * One unit's results as a column or heading names them: "test cases",
+ * "test files", or legacy test results with the label their unit was
+ * spelled with, as provenance: "legacy (checks)".
+ * @param {import("./ci-proof-scope.mjs").ScopeUnit} unit
  */
-export const unitText = (unit) => clip(unit, UNIT_CHARACTERS);
+export const unitText = ({ unit, label }) =>
+  clip(
+    unit === "legacy" ? `legacy (${label ?? "no label"})` : unitNoun(unit, 2),
+    UNIT_CHARACTERS,
+  );
 
 /**
  * PATH cut to at most MAX characters in its middle, keeping both ends.

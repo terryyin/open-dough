@@ -166,8 +166,8 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 56.2 | "Reuse … the existing CI proof contract, including its attempt identity" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-check.mjs checkedSummary and summaryArtifactName reused; ci-proof-leads-retained.test.mjs identity refusals |
 | 56.3 | "Reuse … the existing CI proof contract, including its … timing units" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs: durationMs per item, each entry's own unit kept apart in leads, folders and tail |
 | 56.4 | "Reuse … the existing CI proof contract, including its … gap reporting" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs: the contract's missing and ambiguous part statuses and untimed results become gaps |
-| 56.5 | "Reuse … the explicit test case … units that SEED-281 adds wherever a summary carries them" | slice 3 | G3 |
-| 56.6 | "Reuse … the explicit … test file units that SEED-281 adds wherever a summary carries them" | slice 3 | G3 |
+| 56.5 | "Reuse … the explicit test case … units that SEED-281 adds wherever a summary carries them" | slice 7 | G3 |
+| 56.6 | "Reuse … the explicit … test file units that SEED-281 adds wherever a summary carries them" | slice 7 | G3 |
 | 57 | "Pilot the new default on one ordinary Pygardon pytest pass" | slice 7 | |
 | 57.q1 | Qualification (of 57): "in a subordinate Pygardon workspace of this execution" | slice 7 | |
 | 57.q2 | Qualification (of 57): "that reads the guidance from this repository's source" | slice 7 | |

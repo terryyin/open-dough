@@ -61,4 +61,27 @@ export class CiProofSummaryBuilder {
       entries: [...this.#entries],
     };
   }
+
+  /**
+   * The same summary as a version 1 collector, from before units, wrote
+   * it: each entry's one legacy result set inline, its label as the entry's
+   * `unit`.
+   * @returns {Record<string, unknown>}
+   */
+  pleaseInVersion1() {
+    const summary = this.please();
+    return {
+      ...summary,
+      schemaVersion: 1,
+      entries: summary.entries.map(({ path, evidence }) => {
+        const [only] = evidence;
+        if (evidence.length !== 1 || only?.unit !== "legacy")
+          throw new Error(
+            `${path}: a version 1 entry holds one legacy result set`,
+          );
+        const { label, ...results } = only;
+        return { path, ...results, unit: label };
+      }),
+    };
+  }
 }

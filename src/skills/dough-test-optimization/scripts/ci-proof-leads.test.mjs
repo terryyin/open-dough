@@ -51,7 +51,7 @@ const summaryOf = (run, ...more) =>
     .withEntries(
       makeMe.aCiProofEntry
         .at("tests")
-        .countingIn("checks")
+        .counting(1, "file")
         .withFile("tests/a.sh", { durationMs: 3000 })
         .withFile("tests/b.sh", { durationMs: 1000 })
         .please(),
@@ -79,7 +79,6 @@ test("a complete, successful attempt at the requested revision is read: the tabl
         { runId: 41, runAttempt: 1, revision: revisions.requested },
         makeMe.aCiProofEntry
           .at("e2e")
-          .countingIn("tests")
           .withFile("e2e/x.feature", { durationMs: 9000 })
           .please(),
       ),
@@ -107,12 +106,12 @@ test("a complete, successful attempt at the requested revision is read: the tabl
   );
   assert.match(
     rowsOf(text),
-    /\n tests shell \*\.sh checks 1 of 1 parts present\n/,
+    /\n tests shell \*\.sh test files 1 of 1 parts present\n/,
   );
   assert.equal(lineOf(text, "Gaps"), "Gaps           none");
   assert.match(
     rowsOf(text),
-    /\n 1 3\.0 75\.0% 1 checks 3\.00 tests\/a\.sh\n 2 1\.0 25\.0% 1 checks 1\.00 tests\/b\.sh\n/,
+    /\n 1 3\.0 75\.0% 1 3\.00 tests\/a\.sh\n 2 1\.0 25\.0% 1 1\.00 tests\/b\.sh\n/,
   );
   assert.doesNotMatch(text, /e2e/);
   assert.deepEqual(github.asked, [
@@ -128,12 +127,9 @@ test("a complete, successful attempt at the requested revision is read: the tabl
   );
   assert.match(
     rowsOf(e2e.text),
-    /\n e2e not an Intent location tests 1 of 1 parts present\n/,
+    /\n e2e not an Intent location test cases 1 of 1 parts present\n/,
   );
-  assert.match(
-    rowsOf(e2e.text),
-    /\n 1 9\.0 100\.0% 1 tests 9\.00 e2e\/x\.feature\n/,
-  );
+  assert.match(rowsOf(e2e.text), /\n 1 9\.0 100\.0% 1 9\.00 e2e\/x\.feature\n/);
 });
 
 test("with only an earlier attempt at an ancestor, its revision is labelled with the commits since and the in-scope paths changed since, and passed-over attempts are gaps", async (t) => {
@@ -210,7 +206,7 @@ test("with no successful attempt, the newest failed one is read and its failed a
         .withEntries(
           makeMe.aCiProofEntry
             .at("tests")
-            .countingIn("checks")
+            .counting(1, "file")
             .inParts(2, { missing: [2] })
             .withFile("tests/a.sh", { failed: 1, passed: 0, durationMs: 7000 })
             .please(),
@@ -232,11 +228,11 @@ test("with no successful attempt, the newest failed one is read and its failed a
   assert.deepEqual(gapsOf(text), [
     "the attempt read ended failure: its proof may be partial; its failed, missing and untimed results are listed here",
     "tests: part 2 of 2 missing; their results are not counted",
-    "tests: 1 checks failed in this attempt",
+    "tests: 1 test file failed in this attempt",
   ]);
   assert.match(
     rowsOf(text),
-    /\n tests shell \*\.sh checks 1 of 2 parts present, 1 missing\n/,
+    /\n tests shell \*\.sh test files 1 of 2 parts present, 1 missing\n/,
   );
   assert.ok(
     github.asked.includes(

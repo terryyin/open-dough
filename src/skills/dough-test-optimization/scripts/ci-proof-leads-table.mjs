@@ -33,7 +33,8 @@ const CHANGED_LINES = 10;
 /**
  * What one lead reading found. `attempt` names the attempt read, its
  * revision and how it ended; `compatibility` relates it to the requested
- * revision; `selection` is what the summary records of the test selection;
+ * revision; `selection` is what the summary records of the test selection,
+ * each entry with each unit it holds;
  * each gap is its reason, with its remedy when the reading names one;
  * `ranking` is absent, with `verdict` saying why, when nothing ranked.
  * @typedef {{
@@ -54,8 +55,9 @@ const CHANGED_LINES = 10;
  *     readonly entries: readonly {
  *       path: string;
  *       declared: string;
- *       unit: string;
- *       parts: string;
+ *       units: readonly (import("./ci-proof-scope.mjs").ScopeUnit & {
+ *         parts: string;
+ *       })[];
  *     }[];
  *   };
  *   readonly gaps: readonly (string | RemediedGap)[];
@@ -95,18 +97,21 @@ function attemptLines({ attempt, compatibility }) {
 
 function selectionLines({ selection }) {
   if (!selection) return [];
-  const rows = selection.entries.map((entry) => [
-    elide(entry.path),
-    clip(entry.declared, 40),
-    unitText(entry.unit),
-    entry.parts,
-  ]);
+  // One row for each unit an entry holds, the entry named on its first.
+  const rows = selection.entries.flatMap((entry) =>
+    entry.units.map((unit, index) => [
+      index === 0 ? elide(entry.path) : "",
+      index === 0 ? clip(entry.declared, 40) : "",
+      unitText(unit),
+      unit.parts,
+    ]),
+  );
   return [
     label("Selection", clip(selection.text, REASON_CHARACTERS)),
     ...capped(
       columns(["entry", "declared", "unit", "parts"], rows, []),
       SELECTION_LINES + 1,
-      "entries",
+      "selection rows",
     ),
   ];
 }

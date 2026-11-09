@@ -90,8 +90,9 @@ yourself. Do not ask the developer for percentages, batch sizes, or modes.
 
 ## Rank removable causes
 
-The reader ranks items by summed CI time and lists the folders and the tail
-beyond them. That is cost, not removable cost. Rank leads by the cost an
+Within each unit (test cases, test files, or legacy test results), the reader
+ranks items by summed CI time and lists the folders and the tail beyond them;
+time and shares never cross units. That is cost, not removable cost. Rank leads by the cost an
 experiment could plausibly remove: repeated setup, process starts, waits, and
 duplicate proof remove much; a test whose time is the behavior it proves
 removes little. Read the

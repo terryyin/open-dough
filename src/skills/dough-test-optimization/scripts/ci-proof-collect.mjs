@@ -24,6 +24,7 @@ import {
   attemptOf,
   fragmentProblems,
   summaryAttempt,
+  unitNoun,
   unitOf,
   zeroCounts,
 } from "./ci-proof-contract.mjs";
@@ -35,13 +36,10 @@ import {
 
 // What a unit's results are called, as Intent calls them; a legacy unit
 // also names the label it was spelled with.
-function unitWords({ unit, label }) {
-  if (unit === "case") return "test cases";
-  if (unit === "file") return "test files";
-  return label === null || label === undefined
-    ? "legacy test results"
-    : `legacy test results (${label})`;
-}
+const unitWords = ({ unit, label }) =>
+  unit !== LEGACY_UNIT || label === null || label === undefined
+    ? unitNoun(unit, 2)
+    : `${unitNoun(unit, 2)} (${label})`;
 
 // " for test files" after a declaration of a unit; nothing without one.
 const forUnit = ({ unit }) =>
