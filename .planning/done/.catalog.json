@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-284_read-distinct-attempts-and-hidden-waits.json",
+      "identity": "SEED-284#read-distinct-attempts-and-hidden-waits",
+      "completedAt": "2026-11-09T17:45:10.807Z",
+      "blob": "686f9bd6ede7ce6e1c368d67054fe27f62a1e063"
+    },
+    {
       "fileName": "SEED-289_consolidate-landed-proof-recovery.json",
       "identity": "SEED-289#consolidate-landed-proof-recovery",
       "completedAt": "2026-11-09T17:20:29.131Z",

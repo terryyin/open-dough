@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-284#read-distinct-attempts-and-hidden-waits",
+  "title": "Read distinct attempts, an adapter’s selection, and waits a mean hides",
+  "completedAt": "2026-11-09T17:45:10.807Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
