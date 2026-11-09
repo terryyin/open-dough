@@ -4,6 +4,7 @@
 33.0	backend-tests/sessions/agent-completion-binding.spec.ts
 30.0	backend-tests/observation/authenticated-read-retained-answers.spec.ts
 25.4	backend-tests/observation/authenticated-read-retained-answers-moved.spec.ts
+24.9	backend-tests/runtime/production-deployment.spec.ts
 23.9	backend-tests/intent/proof-record-entry.spec.ts
 23.6	backend-tests/observation/authenticated-read-output-bound.spec.ts
 22.9	backend-tests/launches/agent-launch-codex-model-boundary.spec.ts

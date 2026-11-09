@@ -1,5 +1,8 @@
 // A CI proof summary's units on the dashboard's read: through the read
-// boundary, the archive's one file (../../dashboard/server/zipEntry.ts)
+// boundary, the archive's one file
+// (../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs)
+// checked by the shared step every reader uses
+// (../../src/skills/dough-test-optimization/scripts/ci-proof-check.mjs):
 // validated by the collector's contract and read in its current version, a
 // version 1 summary's results become legacy evidence labelled with the unit
 // it spelled, and a version 2 summary keeps each unit's results apart in the
@@ -8,23 +11,23 @@
 // ./dashboard-ci-adapter-proof.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { onlyZipEntry } from "../../dashboard/server/zipEntry.ts";
 import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
+import { onlyZipEntry } from "../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs";
+import { checkedRetainedSummary } from "../../src/skills/dough-test-optimization/scripts/ci-proof-check.mjs";
 import {
   SUMMARY_READ_LIMIT_BYTES,
-  currentSummaryOf,
   fragmentFromPlaywrightRecord,
   fragmentsFromOutcomes,
   summarize,
-  summaryProblems,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import { locatedRecord } from "../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs";
 
 const sha = (digit) => digit.repeat(40);
 
 // How the dashboard reads a summary's zipped bytes: the archive's one file,
-// validated by the collector's contract, then read in the current version.
+// checked by the shared step: validated by the collector's contract, then
+// read in the current version.
 function readThroughBoundary(text) {
   const read = JSON.parse(
     onlyZipEntry(
@@ -33,11 +36,10 @@ function readThroughBoundary(text) {
       SUMMARY_READ_LIMIT_BYTES,
     ),
   );
-  assert.deepEqual(summaryProblems(read), []);
-  return ciProofSchema.parse({
-    kind: "summary",
-    summary: currentSummaryOf(read),
-  }).summary;
+  const checked = checkedRetainedSummary(read, "o/r");
+  assert.ok("summary" in checked, JSON.stringify(checked));
+  return ciProofSchema.parse({ kind: "summary", summary: checked.summary })
+    .summary;
 }
 
 test("a version 1 summary stays readable through the read boundary and the browser's parser, each entry's results legacy with the unit it spelled as their label (example 38)", () => {

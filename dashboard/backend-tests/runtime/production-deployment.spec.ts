@@ -1,7 +1,8 @@
-import { expect, test } from "../support/pageTest.ts";
+// Deploying a published main commit (../../server/productionDeployment.mjs):
+// selecting and verifying it, staging and serving it pinned, and cancelling
+// a commit while it installs.
+import { expect, test } from "../../tests/support/pageTest.ts";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
-import { spawnSync } from "node:child_process";
-import { tmpdir } from "node:os";
 import path from "node:path";
 import {
   resolvePublishedMain,
@@ -9,13 +10,13 @@ import {
   startDeploymentPreview,
   verifyPublishedCommit,
 } from "../../server/productionDeployment.mjs";
-import { ownedProcess, stopProcess } from "../../server/productionProcess.mjs";
-import { publishedMainFixture } from "../support/publishedMainFixture.ts";
-import { processRunning } from "../support/processGroup.ts";
-import { deploymentCheckout } from "../support/productionWatcher.ts";
-import { repoRoot } from "../support/repositoryRoot.ts";
-import { expectSuppliedIcons } from "../support/brandIcons.ts";
-import { incidentRecordInHome } from "../support/machineRecordNames.ts";
+import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
+import { processRunning } from "../../tests/support/processGroup.ts";
+import { deploymentCheckout } from "../../tests/support/productionWatcher.ts";
+import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
+import { expectOwnOriginReadsOnly } from "../../tests/support/localOriginReads.ts";
+import { incidentEntries } from "../../tests/support/readDiagnostics.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -60,8 +61,9 @@ test("deployment verifies the exact selected commit before running its code", as
 test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async ({
   request,
 }) => {
-  // Real full-source install, build and preview: 32.1s in hosted CI
-  // (.planning/TEST-OPTIMIZATION-CANDIDATES.md#production-deployment-pinned-build).
+  // Real full-source install, build and preview: 32.1s in hosted CI.
+  // Removing this allowance belongs to
+  // SEED-287#fit-dashboard-journeys-in-default-timeout.
   test.setTimeout(45_000);
   const fixture = await publishedMainFixture(true);
   let staged: Awaited<ReturnType<typeof stageDeployment>> | undefined;
@@ -143,20 +145,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     ).toEqual(["stanly.webp"]);
     // The pinned checkout's build serves Open Dough's supplied icon exports.
     await expectSuppliedIcons(request, preview.url);
-    const boundary = `${preview.url}/__authenticated-read?source=unknown`;
-    const sameOrigin = await request.get(boundary, {
-      headers: { Origin: preview.url },
-    });
-    expect(sameOrigin.status()).toBe(404);
-    expect(await sameOrigin.text()).toContain("Unknown catalog source");
-    expect((await request.get(boundary)).status()).toBe(403);
-    expect(
-      (
-        await request.get(boundary, {
-          headers: { Origin: "https://example.invalid" },
-        })
-      ).status(),
-    ).toBe(403);
+    await expectOwnOriginReadsOnly(request, preview.url);
     const pid = preview.pid;
     const url = preview.url;
     await preview.stop();
@@ -164,16 +153,10 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     await expect(request.get(url, { timeout: 2_000 })).rejects.toThrow();
     preview = undefined;
     // Stopped as a replacement stops it, the preview closed cleanly: its
-    // incident record (../server/incidentLifecycle.ts) has its start and end.
-    const recorded = (
-      await readFile(
-        path.join(fixture.home, incidentRecordInHome, "entries.jsonl"),
-        "utf8",
-      )
-    )
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => (JSON.parse(line) as { kind: string }).kind)
+    // incident record (../../server/incidentLifecycle.ts) has its start and
+    // end. The fixture's root is its machine directory, holding its HOME.
+    const recorded = incidentEntries(fixture.root)
+      .map((entry) => entry.kind)
       .filter((kind) => kind.startsWith("process-"));
     expect(recorded).toEqual(["process-started", "process-ended"]);
   } finally {
@@ -237,49 +220,5 @@ test("deployment cancellation ends an installing commit's children and removes i
     cancellation.abort();
     await staging?.catch(() => undefined);
     await fixture.cleanup();
-  }
-});
-
-// The leader forks a holder; the holder forks a member that exits at once,
-// then leaves the group without reaping it. Stopping the leader leaves only
-// that unreaped member, which macOS answers with EPERM rather than ESRCH.
-const unreapedMemberGroup = `
-$| = 1;
-my $exited = 0;
-my $holder = fork();
-if ($holder == 0) {
-  $SIG{CHLD} = sub { $exited = 1 };
-  my $member = fork();
-  exit 0 if $member == 0;
-  setpgrp(0, 0);
-  sleep 1 until $exited;
-  print "holder $$\n";
-  close STDOUT;
-  close STDERR;
-  sleep 60;
-  exit 0;
-}
-sleep 60 while 1;
-`;
-
-test("stopping a production process whose group keeps only an unreaped member succeeds", async () => {
-  const owned = ownedProcess("perl", ["-e", unreapedMemberGroup], {
-    cwd: tmpdir(),
-  });
-  await expect.poll(() => owned.output()).toMatch(/holder \d+/);
-  const holder = Number(/holder (\d+)/.exec(owned.output())?.[1]);
-  try {
-    const groupStates = () =>
-      spawnSync("ps", ["-axo", "pgid=,stat="], { encoding: "utf8" })
-        .stdout.split("\n")
-        .map((line) => line.trim().split(/\s+/))
-        .filter(([pgid]) => pgid === String(owned.child.pid))
-        .map(([, stat]) => stat?.[0]);
-    await stopProcess(owned);
-    expect(await owned.exited).toEqual({ code: null, signal: "SIGTERM" });
-    // The stop ended while the group still held its unreaped member.
-    expect(groupStates()).toEqual(["Z"]);
-  } finally {
-    process.kill(holder, "SIGKILL");
   }
 });

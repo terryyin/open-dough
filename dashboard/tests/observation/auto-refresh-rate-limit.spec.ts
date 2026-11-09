@@ -63,7 +63,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   page,
 }) => {
   // About twenty seconds of it are GitHub's waits passing by the request
-  // owner's real clock; see the pending optimization candidate
+  // owner's real clock; see the live optimization candidate
   // `auto-refresh-rate-limit-real-waits`.
   test.setTimeout(45_000);
   const origin = await openSettledAtA(page);

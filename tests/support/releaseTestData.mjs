@@ -82,7 +82,7 @@ export function releaseInstaller({ withheld, added }) {
  * @param {ReleaseFacts} facts
  * @returns {Release}
  */
-export function release({ withheld = [], removed = [], added = {}, ...facts }) {
+function release({ withheld = [], removed = [], added = {}, ...facts }) {
   const declared = declaredPayload();
   for (const prefix of withheld)
     if (!declared.some((path) => withholds(prefix, path)))
@@ -107,13 +107,14 @@ export function release({ withheld = [], removed = [], added = {}, ...facts }) {
   };
 }
 
-// A release as tests arrange it: `makeMe.aRelease.with(facts).please()`.
-export const releaseBuilder = {
+// `makeMe.aRelease`: `.with(facts).please()` gives the release of the facts
+// a test states.
+export class ReleaseBuilder {
   /** @param {ReleaseFacts} facts */
   with(facts) {
     return {
       /** @returns {Release} */
       please: () => release(facts),
     };
-  },
-};
+  }
+}

@@ -1,118 +1,80 @@
-// Parse a published Test Optimization Candidates record for Intent. The
-// format owner is dough-test-optimization's candidate-record reference:
-// exact title, four finding sections in order, `###` slug entries with labelled
-// fields, and `None.` for an empty finding section. Any other shape is
-// mismatched; this shows no partial guess. A leading summary in an older
-// published record is ignored.
+// Parse a published Test Optimization Candidates record for Intent into
+// either version's shape, by that version's section headings and entry fields
+// (`./testOptimizationCandidatesRecord.ts`). The format owner is
+// dough-test-optimization's candidate-record reference. Under the exact
+// title, the live record has one `## Live candidates` section; the earlier
+// four-section record has its four finding sections in order, after an
+// optional leading `## Latest pass` summary that Intent does not show. A
+// section holds `###` slug entries with its version's labelled fields, or
+// exactly `None.`. Only Profile-only exclusions may open with a note naming
+// the project's exclusion mechanism. Any other shape is mismatched; this
+// shows no partial guess.
+
+import {
+  findingEntryFields,
+  findingSections,
+  liveCandidateFields,
+  liveSectionHeading,
+  type CandidateFieldDefinition,
+  type FindingEntry,
+  type FindingSection,
+  type LiveCandidateEntry,
+  type RecordSection,
+  type TestOptimizationCandidatesRecord,
+} from "./testOptimizationCandidatesRecord.ts";
 
 export { testOptimizationCandidatesPath } from "./testOptimizationCandidatesPath.ts";
 
 const title = "# Test Optimization Candidates";
 
-const findingSections = [
-  "Pending candidates",
-  "Accepted necessary costs",
-  "Profile-only exclusions",
-  "Transferred obligations",
-] as const;
+const leadingPassSummary = "Latest pass";
 
-type FindingHeading = (typeof findingSections)[number];
+type FindingKey = (typeof findingSections)[number]["key"];
 
-// One authoritative field order and wording for parse and Intent display.
-export const candidateEntryFields = [
-  { label: "Locations / scope", key: "locations", required: true },
-  { label: "Observed cost", key: "observedCost", required: true },
-  { label: "Unique protection", key: "uniqueProtection", required: true },
-  {
-    label: "Alternatives attempted",
-    key: "alternativesAttempted",
-    required: true,
-  },
-  {
-    label: "Disposition / rationale",
-    key: "dispositionRationale",
-    required: true,
-  },
-  { label: "Date", key: "date", required: true },
-  {
-    label: "Human decision needed",
-    key: "humanDecisionNeeded",
-    required: false,
-  },
-  { label: "Evidence / follow-up", key: "evidence", required: true },
-] as const;
-
-type CandidateField = (typeof candidateEntryFields)[number];
-type RequiredCandidateField = Extract<CandidateField, { required: true }>;
-type OptionalCandidateField = Extract<CandidateField, { required: false }>;
-
-export type CandidateEntry = {
-  readonly slug: string;
-} & {
-  readonly [K in RequiredCandidateField["key"]]: string;
-} & {
-  readonly [K in OptionalCandidateField["key"]]?: string;
-};
-
-export type FindingSection =
-  | { readonly kind: "none" }
-  | { readonly kind: "entries"; readonly entries: readonly CandidateEntry[] };
-
-export type TestOptimizationCandidatesRecord = {
-  readonly pending: FindingSection;
-  readonly accepted: FindingSection;
-  readonly profileOnly: FindingSection;
-  readonly transferred: FindingSection;
-};
+// The one finding section that may open with a note before its entries.
+const noteSection: FindingKey = "profileOnly";
 
 export type ParsedTestOptimizationCandidates =
   | { readonly status: "mismatched" }
   | {
       readonly status: "record";
       readonly record: TestOptimizationCandidatesRecord;
-      // Both pending and accepted finding sections are exactly `None.`.
+      // The live section is `None.`, or a four-section record's pending and
+      // accepted finding sections are both exactly `None.`.
       readonly empty: boolean;
     };
 
-function splitSections(
-  text: string,
-): ReadonlyMap<FindingHeading, string> | undefined {
+const mismatched = { status: "mismatched" } as const;
+
+type Section = { readonly heading: string; readonly body: string };
+
+// The `##` sections under the exact title, or undefined without that title.
+function sectionsOf(text: string): readonly Section[] | undefined {
   const normalized = text.replace(/\r\n/g, "\n").trimEnd();
   if (!normalized.startsWith(`${title}\n`) && normalized !== title) {
     return undefined;
   }
   const body = normalized.slice(title.length).replace(/^\n/, "");
-  const headingPattern = /^## (.+)$/gm;
-  const matches = [...body.matchAll(headingPattern)];
-  if (matches[0]?.[1] === "Latest pass") matches.shift();
-  if (matches.length !== findingSections.length) return undefined;
-  const sections = new Map<FindingHeading, string>();
-  for (const [i, match] of matches.entries()) {
-    const heading = match[1];
-    const expected = findingSections[i];
-    if (
-      heading === undefined ||
-      expected === undefined ||
-      heading !== expected
-    ) {
-      return undefined;
-    }
-    const start = match.index + match[0].length;
-    const end = matches[i + 1]?.index ?? body.length;
-    sections.set(heading, body.slice(start, end).replace(/^\n/, "").trimEnd());
-  }
-  return sections;
+  const matches = [...body.matchAll(/^## (.+)$/gm)];
+  return matches.map((match, i) => ({
+    heading: match[1] ?? "",
+    body: body
+      .slice(match.index + match[0].length, matches[i + 1]?.index)
+      .replace(/^\n/, "")
+      .trimEnd(),
+  }));
 }
 
-const knownLabels: ReadonlySet<string> = new Set(
-  candidateEntryFields.map((field) => field.label),
-);
-
-function parseFields(body: string): Omit<CandidateEntry, "slug"> | undefined {
-  const lines = body.replace(/\r\n/g, "\n").split("\n");
+// An entry's labelled fields by key, or undefined when a label is unknown or
+// repeated, text precedes the first field, or a required field is missing.
+function parseFields(
+  body: string,
+  fields: readonly CandidateFieldDefinition[],
+): Record<string, string> | undefined {
+  const knownLabels = new Set(fields.map((field) => field.label));
   const values = new Map<string, string[]>();
   let current: string | undefined;
-  for (const line of lines) {
+  for (const line of body.split("\n")) {
     const field = /^- \*\*(.+):\*\*(?:\s(.*))?$/.exec(line);
     if (field !== null) {
       const label = field[1];
@@ -129,71 +91,95 @@ function parseFields(body: string): Omit<CandidateEntry, "slug"> | undefined {
     }
     values.get(current)?.push(line);
   }
-  const join = (label: string) =>
-    (values.get(label) ?? []).join("\n").trimEnd();
-  const entry = {} as Record<string, string>;
-  for (const field of candidateEntryFields) {
-    if (field.required) {
-      if (!values.has(field.label)) return undefined;
-      entry[field.key] = join(field.label);
+  const entry: Record<string, string> = {};
+  for (const field of fields) {
+    const value = values.get(field.label);
+    if (value === undefined) {
+      if (field.required) return undefined;
       continue;
     }
-    if (values.has(field.label)) {
-      entry[field.key] = join(field.label);
-    }
+    entry[field.key] = value.join("\n").trimEnd();
   }
-  return entry as Omit<CandidateEntry, "slug">;
+  return entry;
 }
 
-function parseFindingSection(body: string): FindingSection | undefined {
+function parseSection<Entry extends { readonly slug: string }>(
+  body: string,
+  fields: readonly CandidateFieldDefinition[],
+  noteAllowed: boolean,
+): RecordSection<Entry> | undefined {
   const trimmed = body.trim();
   if (trimmed === "None.") return { kind: "none" };
-  if (trimmed === "") return undefined;
-  const entryPattern = /^### (.+)$/gm;
-  const matches = [...trimmed.matchAll(entryPattern)];
-  if (matches.length === 0) return undefined;
+  const matches = [...trimmed.matchAll(/^### (.+)$/gm)];
   const first = matches[0];
-  if (first === undefined || trimmed.slice(0, first.index).trim() !== "") {
-    return undefined;
-  }
-  const entries: CandidateEntry[] = [];
+  if (first === undefined) return undefined;
+  const note = trimmed.slice(0, first.index).trim();
+  if (note !== "" && !noteAllowed) return undefined;
+  const entries: Entry[] = [];
   for (const [i, match] of matches.entries()) {
     const slug = match[1]?.trim();
     if (slug === undefined || slug === "") return undefined;
     const start = match.index + match[0].length;
     const end = matches[i + 1]?.index ?? trimmed.length;
-    const fields = parseFields(trimmed.slice(start, end).replace(/^\n/, ""));
-    if (fields === undefined) return undefined;
-    entries.push({ slug, ...fields });
+    const parsed = parseFields(
+      trimmed.slice(start, end).replace(/^\n/, ""),
+      fields,
+    );
+    if (parsed === undefined) return undefined;
+    // `fields` are Entry's: every required one is present.
+    entries.push({ slug, ...parsed } as Entry);
   }
-  return { kind: "entries", entries };
+  return note === ""
+    ? { kind: "entries", entries }
+    : { kind: "entries", entries, note };
 }
 
-// Parse published Markdown into the record shape, or mismatched with no
-// partial sections.
+function parseFourSections(
+  sections: readonly Section[],
+): ParsedTestOptimizationCandidates {
+  if (sections.length !== findingSections.length) return mismatched;
+  const findings = {} as Record<FindingKey, FindingSection>;
+  for (const [i, { heading, key }] of findingSections.entries()) {
+    const section = sections[i];
+    if (section?.heading !== heading) return mismatched;
+    const parsed = parseSection<FindingEntry>(
+      section.body,
+      findingEntryFields,
+      key === noteSection,
+    );
+    if (parsed === undefined) return mismatched;
+    findings[key] = parsed;
+  }
+  return {
+    status: "record",
+    empty:
+      findings.pending.kind === "none" && findings.accepted.kind === "none",
+    record: { version: "four-section", ...findings },
+  };
+}
+
+// Parse published Markdown into either version's record shape, or
+// mismatched with no partial sections.
 export function parseTestOptimizationCandidates(
   text: string,
 ): ParsedTestOptimizationCandidates {
-  const sections = splitSections(text);
-  if (sections === undefined) return { status: "mismatched" };
-  const findings = {} as Record<FindingHeading, FindingSection>;
-  for (const heading of findingSections) {
-    const body = sections.get(heading);
-    if (body === undefined) return { status: "mismatched" };
-    const parsed = parseFindingSection(body);
-    if (parsed === undefined) return { status: "mismatched" };
-    findings[heading] = parsed;
+  const sections = sectionsOf(text);
+  if (sections === undefined) return mismatched;
+  const [first] = sections;
+  if (sections.length === 1 && first?.heading === liveSectionHeading) {
+    const live = parseSection<LiveCandidateEntry>(
+      first.body,
+      liveCandidateFields,
+      false,
+    );
+    if (live === undefined) return mismatched;
+    return {
+      status: "record",
+      empty: live.kind === "none",
+      record: { version: "live", live },
+    };
   }
-  const pending = findings["Pending candidates"];
-  const accepted = findings["Accepted necessary costs"];
-  return {
-    status: "record",
-    empty: pending.kind === "none" && accepted.kind === "none",
-    record: {
-      pending,
-      accepted,
-      profileOnly: findings["Profile-only exclusions"],
-      transferred: findings["Transferred obligations"],
-    },
-  };
+  return parseFourSections(
+    first?.heading === leadingPassSummary ? sections.slice(1) : sections,
+  );
 }

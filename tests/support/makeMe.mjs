@@ -4,11 +4,10 @@
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
-import {
-  CiProofEntryBuilder,
-  CiProofEvidenceBuilder,
-} from "./ciProofEntryTestData.mjs";
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
+import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -44,7 +43,7 @@ import {
   ConfiguredProjectBuilder,
   PublishedSourceBuilder,
 } from "./projectConfigurationTestData.mjs";
-import { releaseBuilder } from "./releaseTestData.mjs";
+import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
@@ -117,7 +116,7 @@ export const makeMe = {
     return supplierAgreementBuilder;
   },
   get aRelease() {
-    return releaseBuilder;
+    return new ReleaseBuilder();
   },
   get aDoneRecord() {
     return new DoneRecordBuilder();
@@ -186,6 +185,9 @@ export const makeMe = {
   },
   get aCiProofFragment() {
     return new CiProofFragmentBuilder();
+  },
+  get aCiProofSummary() {
+    return new CiProofSummaryBuilder();
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();

@@ -4,14 +4,17 @@ import { expect, test } from "../support/pageTest.ts";
 import { existsSync } from "node:fs";
 import { rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { processRunning } from "../support/processGroup.ts";
-import { settledSkip } from "../support/productionWatcher.ts";
+import {
+  expectStillServing,
+  preparations,
+  settledSkip,
+} from "../support/productionWatcher.ts";
 import { builtCommitPrefixes } from "../support/productionBuildGate.ts";
-import { heldOnceFault } from "../support/productionFault.ts";
+import { faultCause, heldOnceFault } from "../support/productionFault.ts";
+import { pushExclusions } from "../support/productionQualificationFixture.ts";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import {
   prefixesOf,
-  pushExclusions,
   type ProductionUpdateJourney,
 } from "./productionUpdateJourney.ts";
 
@@ -41,9 +44,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       `Skipping production update ${d}: every change since ${baseline} is excluded by its CI push policy.`,
     );
     expect(await journey.work()).toEqual(before);
-    expect(processRunning(state.served.pid)).toBe(true);
-    await page.reload();
-    await expect(page).toHaveTitle("MAIN C");
+    await expectStillServing(state.served, page, "MAIN C");
   });
 
   test("npm watcher builds an accumulated and mixed range once at its latest commit", async () => {
@@ -91,10 +92,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       `every change since ${e} is excluded by its CI push policy.`,
     );
     expect(await journey.work()).toEqual(beforeG);
-    expect(processRunning(state.served.pid)).toBe(true);
-
-    await page.reload();
-    await expect(page).toHaveTitle("MAIN E");
+    await expectStillServing(state.served, page, "MAIN E");
   });
 
   // The recovery chain below steps one watcher through rejection, repair,
@@ -126,9 +124,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       })
       .toBeGreaterThan(2);
     expect(await journey.work()).toEqual(before);
-    expect(processRunning(state.served.pid)).toBe(true);
-    await page.reload();
-    await expect(page).toHaveTitle("MAIN E");
+    await expectStillServing(state.served, page, "MAIN E");
   });
 
   test("npm watcher activates a policy repair that qualifies only through the rejected application's retained paths", async () => {
@@ -161,7 +157,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     // R's held fault gate waits, so the next check compares S with Q, never
     // with R, and R is not retried. R's gate consumes the cause as it fails,
     // so S does not fail first.
-    const buildFault = path.join(fixture.home, "fault-build");
+    const buildFault = faultCause(fixture.home, "build");
     await writeFile(buildFault, "transient build cause");
     await writeFile(`${buildFault}-held`, "");
     r = await fixture.publish(
@@ -182,9 +178,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     expect(watcher.output()).toContain("TRANSIENT build FAILURE");
     expect(watcher.output()).toContain(`Keeping ${q} at ${state.served.url}`);
     expect(existsSync(buildFault)).toBe(false);
-    expect(processRunning(state.served.pid)).toBe(true);
-    await page.reload();
-    await expect(page).toHaveTitle("MAIN P");
+    await expectStillServing(state.served, page, "MAIN P");
   });
 
   test("npm watcher activates the next commit, compared with the last successful activation across the failed build", async () => {
@@ -194,9 +188,7 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
     await journey.replacedBy(s);
     expect(watcher.output()).not.toContain(`Skipping production update ${s}`);
     expect(watcher.output()).not.toContain(`Production update failed for ${s}`);
-    expect(
-      journey.count(new RegExp(`Preparing production dashboard ${r}\\.`, "g")),
-    ).toBe(1);
+    expect(preparations(watcher, r)).toBe(1);
     expect(watcher.output()).not.toMatch(
       new RegExp(`Production dashboard ${r} at`),
     );
@@ -219,8 +211,6 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       `Skipping production update ${t}: every change since ${s} is excluded by its CI push policy.`,
     );
     expect(await journey.work()).toEqual(beforeT);
-    expect(processRunning(state.served.pid)).toBe(true);
-    await page.reload();
-    await expect(page).toHaveTitle("MAIN R");
+    await expectStillServing(state.served, page, "MAIN R");
   });
 }

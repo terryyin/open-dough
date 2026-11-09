@@ -31,6 +31,7 @@ export {
   LEGACY_UNIT,
   PART_STATUSES,
   UNITS,
+  unitNoun,
   unitOf,
 } from "./ci-proof-evidence.mjs";
 

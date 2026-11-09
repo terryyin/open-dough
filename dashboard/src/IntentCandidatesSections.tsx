@@ -1,10 +1,12 @@
 // Recorded Test Optimization Candidates groups and entries for Intent
-// (`./IntentCandidatesRecord.tsx`): Pending, Accepted, and other sections
-// with every recorded field, driven by the parser's field order. Locations
-// open configured Intent files through the shared selection; evidence Markdown
-// links to those files do the same. Returning, the entry a test was opened
-// from comes into view, and takes the keyboard when the developer activates
-// the tab.
+// (`./IntentCandidatesRecord.tsx`): a live record's Live candidates, each
+// with its five facts, or a four-section record's Pending, Accepted, and
+// other sections, with the note that names its profile-only mechanism. Each
+// entry shows every recorded field, in its version's section and field order
+// (`./testOptimizationCandidatesRecord.ts`). Locations open configured Intent
+// files through the shared selection; evidence Markdown links to those files
+// do the same. Returning, the entry a test was opened from comes into view,
+// and takes the keyboard when the developer activates the tab.
 
 import { useEffect, useId, useRef } from "react";
 import type { IntentConfiguredInventory } from "./intentCandidatesLocationMatch.ts";
@@ -12,13 +14,16 @@ import { IntentCandidatesLocationsText } from "./IntentCandidatesLocationsText.t
 import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { RecordedMarkdownText } from "./RecordedMarkdownText.tsx";
+import { testOptimizationCandidatesPath } from "./testOptimizationCandidatesPath.ts";
 import {
-  candidateEntryFields,
-  testOptimizationCandidatesPath,
-  type CandidateEntry,
-  type FindingSection,
+  findingEntryFields,
+  findingSections,
+  liveCandidateFields,
+  liveSectionHeading,
+  type CandidateFieldDefinition,
+  type RecordSection,
   type TestOptimizationCandidatesRecord,
-} from "./testOptimizationCandidates.ts";
+} from "./testOptimizationCandidatesRecord.ts";
 
 // The entry a test was opened from, which takes the keyboard when the
 // developer returns to Optimization Candidates (`./IntentPage.tsx`).
@@ -28,31 +33,32 @@ export function focusReturnEntry(panel: HTMLElement | null) {
   panel?.querySelector<HTMLElement>(`[${returnEntryAttribute}]`)?.focus();
 }
 
-const findingGroupOrder = [
-  { heading: "Pending candidates", key: "pending" },
-  { heading: "Accepted necessary costs", key: "accepted" },
-  { heading: "Profile-only exclusions", key: "profileOnly" },
-  { heading: "Transferred obligations", key: "transferred" },
-] as const;
+// An entry of either version: its slug and recorded fields by key.
+type ShownEntry = { readonly slug: string } & {
+  readonly [key: string]: string | undefined;
+};
+
+// The record's revision and the selection its locations open into.
+type Reading = {
+  readonly source: PublishedSource;
+  readonly revision: string;
+  readonly inventory: IntentConfiguredInventory;
+  readonly onOpenLocation: OpenCandidateLocation;
+  readonly focusEntrySlug?: string;
+};
 
 function Field({
   label,
   fieldKey,
   value,
-  source,
-  revision,
-  inventory,
   entrySlug,
-  onOpenLocation,
+  reading: { source, revision, inventory, onOpenLocation },
 }: {
   readonly label: string;
-  readonly fieldKey: (typeof candidateEntryFields)[number]["key"];
+  readonly fieldKey: string;
   readonly value: string;
-  readonly source: PublishedSource;
-  readonly revision: string;
-  readonly inventory: IntentConfiguredInventory;
   readonly entrySlug: string;
-  readonly onOpenLocation: OpenCandidateLocation;
+  readonly reading: Reading;
 }) {
   return (
     <div className="intent-candidate-field">
@@ -84,21 +90,16 @@ function Field({
 
 function Entry({
   entry,
-  source,
-  revision,
-  inventory,
-  onOpenLocation,
-  focusEntrySlug,
+  fields,
+  reading,
 }: {
-  readonly entry: CandidateEntry;
-  readonly source: PublishedSource;
-  readonly revision: string;
-  readonly inventory: IntentConfiguredInventory;
-  readonly onOpenLocation: OpenCandidateLocation;
-  readonly focusEntrySlug?: string;
+  readonly entry: ShownEntry;
+  readonly fields: readonly CandidateFieldDefinition[];
+  readonly reading: Reading;
 }) {
   const headingId = useId();
   const articleRef = useRef<HTMLElement>(null);
+  const { focusEntrySlug } = reading;
   useEffect(() => {
     if (focusEntrySlug !== entry.slug) return;
     articleRef.current?.scrollIntoView({ block: "nearest" });
@@ -115,7 +116,7 @@ function Entry({
     >
       <h4 id={headingId}>{entry.slug}</h4>
       <dl>
-        {candidateEntryFields.map((field) => {
+        {fields.map((field) => {
           const value = entry[field.key];
           if (value === undefined) return null;
           return (
@@ -124,11 +125,8 @@ function Entry({
               label={field.label}
               fieldKey={field.key}
               value={value}
-              source={source}
-              revision={revision}
-              inventory={inventory}
               entrySlug={entry.slug}
-              onOpenLocation={onOpenLocation}
+              reading={reading}
             />
           );
         })}
@@ -137,22 +135,16 @@ function Entry({
   );
 }
 
-function FindingGroup({
+function RecordGroup({
   heading,
   section,
-  source,
-  revision,
-  inventory,
-  onOpenLocation,
-  focusEntrySlug,
+  fields,
+  reading,
 }: {
   readonly heading: string;
-  readonly section: FindingSection;
-  readonly source: PublishedSource;
-  readonly revision: string;
-  readonly inventory: IntentConfiguredInventory;
-  readonly onOpenLocation: OpenCandidateLocation;
-  readonly focusEntrySlug?: string;
+  readonly section: RecordSection<ShownEntry>;
+  readonly fields: readonly CandidateFieldDefinition[];
+  readonly reading: Reading;
 }) {
   const headingId = useId();
   return (
@@ -165,57 +157,74 @@ function FindingGroup({
       {section.kind === "none" ? (
         <p className="quiet">None.</p>
       ) : (
-        section.entries.map((entry) => (
-          <Entry
-            key={entry.slug}
-            entry={entry}
-            source={source}
-            revision={revision}
-            inventory={inventory}
-            onOpenLocation={onOpenLocation}
-            {...(focusEntrySlug === undefined ? {} : { focusEntrySlug })}
-          />
-        ))
+        <>
+          {section.note === undefined ? null : (
+            <p className="intent-candidate-note">
+              <RecordedMarkdownText
+                text={section.note}
+                source={reading.source}
+                revision={reading.revision}
+                containingFilePath={testOptimizationCandidatesPath}
+              />
+            </p>
+          )}
+          {section.entries.map((entry) => (
+            <Entry
+              key={entry.slug}
+              entry={entry}
+              fields={fields}
+              reading={reading}
+            />
+          ))}
+        </>
       )}
     </section>
   );
 }
 
+function Empty({ children }: { readonly children: string }) {
+  return (
+    <p className="intent-candidates-empty" role="status">
+      {children}
+    </p>
+  );
+}
+
 export function IntentCandidatesSections({
   record,
-  source,
-  revision,
   empty,
-  inventory,
-  onOpenLocation,
-  focusEntrySlug,
-}: {
+  ...reading
+}: Reading & {
   readonly record: TestOptimizationCandidatesRecord;
-  readonly source: PublishedSource;
-  readonly revision: string;
   readonly empty: boolean;
-  readonly inventory: IntentConfiguredInventory;
-  readonly onOpenLocation: OpenCandidateLocation;
-  readonly focusEntrySlug?: string;
 }) {
-  const focusProps = focusEntrySlug === undefined ? {} : { focusEntrySlug };
+  if (record.version === "live") {
+    return (
+      <>
+        {empty ? <Empty>This record has no live candidates.</Empty> : null}
+        <RecordGroup
+          heading={liveSectionHeading}
+          section={record.live}
+          fields={liveCandidateFields}
+          reading={reading}
+        />
+      </>
+    );
+  }
   return (
     <>
       {empty ? (
-        <p className="intent-candidates-empty" role="status">
+        <Empty>
           This record has no pending candidates or accepted necessary costs.
-        </p>
+        </Empty>
       ) : null}
-      {findingGroupOrder.map(({ heading, key }) => (
-        <FindingGroup
+      {findingSections.map(({ heading, key }) => (
+        <RecordGroup
           key={key}
           heading={heading}
           section={record[key]}
-          source={source}
-          revision={revision}
-          inventory={inventory}
-          onOpenLocation={onOpenLocation}
-          {...focusProps}
+          fields={findingEntryFields}
+          reading={reading}
         />
       ))}
     </>

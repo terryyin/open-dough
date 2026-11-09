@@ -5,8 +5,8 @@
 // in its unit, with its counts and optional time.
 import { fragment } from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 
-/** @typedef {import("./ciProofEntryTestData.mjs").CiProofUnitFacts} CiProofUnitFacts */
-/** @typedef {import("./ciProofEntryTestData.mjs").Counts} Counts */
+/** @typedef {import("./ciProofEvidenceTestData.mjs").CiProofUnitFacts} CiProofUnitFacts */
+/** @typedef {import("./ciProofEvidenceTestData.mjs").Counts} Counts */
 
 // One fragment, as the collector's own constructor writes it, of a GitHub
 // Actions run attempt unless an adapter attempt is named.

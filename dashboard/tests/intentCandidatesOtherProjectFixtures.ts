@@ -1,5 +1,6 @@
 // Doughnut- and Pygardon-shaped Test Optimization Candidates records for
-// Intent journeys (`./intent/intent-test-optimization-candidates-open.spec.ts`).
+// Intent journeys (`./intent/intent-test-optimization-candidates-open.spec.ts`,
+// `./intent/intent-test-optimization-candidates.spec.ts`).
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import {
@@ -122,9 +123,10 @@ export function publishPygardonConfiguredTests(
 
 export function publishDoughnutWithCandidates(
   page: Parameters<typeof publishIntentProject>[0],
+  record: string = doughnutCandidatesRecord,
 ) {
   return publishIntentProject(page, doughnut, doughnutFeatureSettings, {
-    [testOptimizationCandidatesPath]: doughnutCandidatesRecord,
+    [testOptimizationCandidatesPath]: record,
     [doughnutFeaturePath]: `Feature: notebook LFS
   Scenario: cold start
     Given a notebook
