@@ -2,15 +2,19 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
 import {
   fixture,
   gateRef,
+  git,
   repository,
   succeeded,
   until,
 } from "./local-test-suite-fixtures.mjs";
+import {
+  repositoryAtAdmissionGate,
+  startedChecks,
+} from "./local-test-suite-gates.mjs";
 
 for (const endedBy of ["failure", "SIGTERM", "SIGINT", "SIGKILL"]) {
   test(`${endedBy} releases admission and stale retirement finishes before competing waiters enter`, async (t) => {
@@ -28,8 +32,13 @@ for (const endedBy of ["failure", "SIGTERM", "SIGINT", "SIGKILL"]) {
       existsSync(path.join(first, "start-0")),
     );
     const predecessor = { PREVIOUS_CHECK: path.join(first, "pid-0") };
-    const waiting = repository(t, linked, second, predecessor);
-    const competing = repository(t, project, third, predecessor);
+    const original = git(project, "rev-parse", gateRef);
+    const waiting = repositoryAtAdmissionGate(t, linked, second, predecessor);
+    const competing = repositoryAtAdmissionGate(t, project, third, predecessor);
+    if (endedBy === "failure") {
+      assert.equal(await waiting.gate, original);
+      assert.equal(await competing.gate, original);
+    }
     if (endedBy === "failure") writeFileSync(path.join(first, "release"), "");
     else owner.child.kill(endedBy);
     const result = await owner.result;
@@ -53,9 +62,12 @@ for (const endedBy of ["failure", "SIGTERM", "SIGINT", "SIGKILL"]) {
       /^(?:[EZ].*)?$/,
       "the next suite entered while its predecessor's check was still running",
     );
-    await delay(150);
-    assert.ok(
-      !existsSync(path.join(other, "start-0")),
+    const successor = git(project, "rev-parse", gateRef);
+    const losing = entered === second ? competing : waiting;
+    assert.equal(await losing.blockedBy(successor), successor);
+    assert.equal(
+      startedChecks(other),
+      0,
       "competing stale reclaimers both entered",
     );
     writeFileSync(path.join(entered, "release"), "");

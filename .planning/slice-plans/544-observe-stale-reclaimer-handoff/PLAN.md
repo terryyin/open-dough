@@ -2,6 +2,8 @@
 
 **Source:** [Verify stale-reclaimer exclusion without a fixed wait](../../seeds/SEED-279-observe-stale-reclaimer-handoff.md#observe-stale-reclaimer-handoff)
 
+**Source review:** [Independent source-only commitments](source-review.md)
+
 **Identity:** SEED-279#observe-stale-reclaimer-handoff
 
 ## Goal and scope
@@ -119,11 +121,11 @@ these dispositions; refresh the trace against the delivered change.
 | `.planning/done/SEED-277_observe-local-suite-waits.json` | excluded: retained historical proof; no runtime consumer or mutable contract. |
 | `docs/maintainer/findings/ODF-405.md`, `docs/maintainer/project-test-findings.md`, `ProjectFindings.md` | excluded: historical observations do not consume the marker or require revision for this extension. |
 
-## Slice
+## Slices
 
 ### 1. A losing contender observes its successor before exclusion is asserted
 Type: Behavior
-Status: planned
+Status: done
 Proof: `npm test -- tests/support/local-test-suite-lifecycle.test.mjs tests/support/local-test-suite.test.mjs`; `npm run typecheck:dashboard`; staged lint before commit.
 
 Behavior: a full suite holds admission with two competing local suites → the
@@ -170,3 +172,35 @@ same observation, four exit variations, preservation proof and cleanup loop.
 The intermediate-retirement-record race was resolved by exact-owner waiting
 and included in the scratch design. No remaining slice-specific concern or
 human-owned decision was identified in this review.
+
+## Execution resume context
+
+- Mode: story-branch; workspace reused at `/Users/terryyin/git/open-dough/.worktrees/verify-stale-reclaimer-exclusion-without-a-fixed`; branch `codex/verify-stale-reclaimer-exclusion-without-a-fixed`.
+- Identity: `SEED-279#observe-stale-reclaimer-handoff`; publisher `dashboard-territory.local-open-dough`; agent `stanly-chan`.
+- Originating and integration checkout: `/Users/terryyin/git/open-dough`; authorized remote `origin`, trunk `main`.
+- Starting revision: `8ad9f87d454e99b1a49f684cee37d27f5f2e4247`; published claim and initial candidate: `98fd070b8f80c0cab24a2480f78c3377bc6538ad`.
+- Checkout setup: native npm, browser and check stages passed with locked dependencies and Node 24.21.0; Chromium 153.0.8010.12. AC power, awake; use `caffeinate -s -i` for proof.
+- Replanning: existing planned-execution authority retained; no scope changes authorized. No numeric project slice limit found; one coherent Behavior slice.
+- Hook: `.githooks/pre-commit` is check-only staged lint and script-triggered typecheck. Selective formatting: `node scripts/lint.mjs --fix`.
+- Observer: GitHub Actions `ci.yml`, whose checked-in push trigger covers the execution branch. Remote workflow verification initially held by GitHub-directed rate-limit wait (exit 75); retry after directed hold. Coordinator `stanly-seed279`; directory `/tmp/dough-ci-501/watch-sMmKcy`; PID 6913; stream session 55822; yielded cell `g8:11`; target `terryyin/open-dough` branch `codex/verify-stale-reclaimer-exclusion-without-a-fixed`; runtime `.agents/skills/dough-execute-plan` in this checkout. Claim trunk CI: `pendingCi: unobserved`.
+
+## Slice 1 accepted proof
+
+Implementation return: `/root/implement_slice`, uncommitted four-file change.
+Coordinator inspected the diff, controlled MakeMe fixture, real shell wrapper,
+Playwright admission caller and every observing assertion referenced in the
+source review. All 30 commitments observed; no open story gap.
+
+- `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm test -- tests/support/local-test-suite-lifecycle.test.mjs tests/support/local-test-suite.test.mjs` — exit 0. Both whole files selected: four handoffs and interrupted retirement; existing slot/first-observation, token refusal/cancellation, native Playwright defaults/selection, nested inheritance and independent/non-Git cases. Fixture copies actual admission module and controls check start/release; it does not supply admission results.
+- `PATH=/opt/homebrew/bin:$PATH npm run typecheck:dashboard` — exit 0. Shared JavaScript test-support contract accepted.
+- Consumer trace: `node .agents/skills/dough-execute-plan/scripts/consumer-trace.mjs --checkout . --base 98fd070b8f80c0cab24a2480f78c3377bc6538ad --path scripts/local-test-suite.mjs --path tests/support/local-test-suite-gates.mjs --term OPEN_DOUGH_TEST_ADMISSION_GATE --term repositoryAtAdmissionGate --term blockedBy`. Raw trace `/tmp/seed279-consumer-trace.md`; complete dispositions `/tmp/seed279-consumer-dispositions.md`. All six executable consumers run; source and admission rules reused. Global setup excluded because unchanged build/release does not consume opt-in marker; controlled native teardown invokes actual release. Remaining matches are unrelated symbols/imports, historical records, or other plan records. Original plan consumer dispositions remain valid; no uncovered affected consumer.
+- Watch cleanup: every gate observation closes in `finally`; run-result rejection settles pending observers, and fixture teardown awaits processes before removing directories. Zero-start, early-exit and watcher-error rejections preserved.
+- Bounded proof decision: focused files are short and cover changed seam/callers on this awake AC macOS host. No full local suite needed or launched; no expensive proof deferred.
+
+Independent refactor: `/root/refactor_slice` returned `## REFACTOR COMPLETE`,
+none — already clean. No edits or test reruns; accepted proof boundaries and
+consumer dispositions unchanged. All implicated files under 250 lines;
+whitespace checks passed. No architecture conflict or uncovered consumer.
+Source freshness: unchanged on trunk `82fc915034f4262553561a1c79de876040738677`
+against published base `98fd070b8f80c0cab24a2480f78c3377bc6538ad`. No named
+coordination sibling in this plan.
