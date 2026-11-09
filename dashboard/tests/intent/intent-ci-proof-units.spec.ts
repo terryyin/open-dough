@@ -34,13 +34,14 @@ import {
   summaryTextZipAnswer,
   type RecordedTest,
 } from "../support/ciProofCollected.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 
 // A location whose `check.spec.ts` reports both five test cases and its own
 // file outcome, and whose folder holds two source files: `a.spec.ts`
 // reporting five test cases, `b.spec.ts` only a failed file outcome.
 const tree = {
-  ".planning/open-dough.json": `${openDoughSettings}\n`,
+  ".planning/open-dough.json": intentSettingsText(openDoughSettings),
   "dashboard/tests/check.spec.ts": spec("check"),
   "dashboard/tests/folder/a.spec.ts": spec("a"),
   "dashboard/tests/folder/b.spec.ts": spec("b"),
