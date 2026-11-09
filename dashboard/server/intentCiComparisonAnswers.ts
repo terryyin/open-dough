@@ -1,11 +1,13 @@
 // Remembered done-story CI comparison answers for this dashboard process
 // (`./intentCiComparisonRead.ts`): keyed by repository and story identity.
 // Final, and remembered, when every endpoint is a completed build or a final
-// gap (ADR 0008: disposable derived view). A completed build may carry a timing
-// reason. Unavailable answers or slots, running endpoints, gaps awaiting a
-// later trunk build, and Taken (provisional) answers are read afresh.
+// gap (`finalSlot`, `./revisionBuildSlot.ts`; ADR 0008: disposable derived
+// view). A completed build may carry a timing reason. Unavailable answers or
+// slots, running endpoints, gaps awaiting a later trunk build, and Taken
+// (provisional) answers are read afresh.
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
+import { finalSlot } from "./revisionBuildSlot.ts";
 
 export function ciComparisonAnswerKey(
   repository: string,
@@ -37,10 +39,7 @@ export function isFinalCiComparisonAnswer(
   // Taken answers follow the live tip; never freeze them.
   if (answer.phase === "taken") return false;
   return [answer.baseline, answer.branch, answer.landed].every(
-    (slot) =>
-      slot.kind !== "running" &&
-      slot.kind !== "unavailable" &&
-      !(slot.kind === "none" && slot.awaitingLaterBuild === true),
+    (slot) => finalSlot(slot) !== undefined,
   );
 }
 

@@ -2,16 +2,9 @@
 // (`./authenticatedRead.ts`), once the request is accepted and its catalog
 // source and requested read (`./requestedRead.ts`) are known: its `gh` calls
 // are tracked for the request's lifetime, and any failure is worded for this
-// source and what was being read when it failed. Reads on a story branch are
-// performed in `./performedBranchRead.ts`, revision checks in
-// `./performedRevisionCheck.ts`, the records listed beside the backlog in
-// `./listedRecordsRead.ts`, the done catalog and the records it lists in
-// `./doneCatalogRead.ts`, Intent locations in `./intentLocationsRead.ts`,
-// Test Optimization Candidates in `./intentCandidatesRead.ts`, Intent's CI
-// status in `./intentCiStatusRead.ts` and its run's CI proof in
-// `./intentCiProofRead.ts`, containment
-// in `./containmentRead.ts`; failure naming in `./readingRequestedRead.ts`;
-// what a read comes to is `./readOutcome.ts`.
+// source and what was being read when it failed. Each kind of read is
+// performed by the module its case below calls; failure naming is in
+// `./readingRequestedRead.ts`, and what a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
@@ -39,6 +32,7 @@ import {
 } from "./intentLocationsRead.ts";
 import { performIntentCandidatesRead } from "./intentCandidatesRead.ts";
 import { performIntentCiComparisonRead } from "./intentCiComparisonRead.ts";
+import { performIntentCiHistoryRead } from "./intentCiHistoryRead.ts";
 import { performIntentCiProofRead } from "./intentCiProofRead.ts";
 import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
 import { projectFolder } from "./projectFolders.ts";
@@ -151,6 +145,8 @@ export async function perform(
               );
             case "intent-ci-comparison":
               return await performIntentCiComparisonRead(source, read, signal);
+            case "intent-ci-history":
+              return await performIntentCiHistoryRead(source);
             case "addition-at": {
               const added = await listedProfileAddition(
                 pinned,

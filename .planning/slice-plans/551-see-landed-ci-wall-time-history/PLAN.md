@@ -2,6 +2,7 @@
 
 **Identity:** SEED-285#see-landed-ci-wall-time-history
 **Source:** [selected story](../../seeds/SEED-285-landed-ci-timing-history.md#see-landed-ci-wall-time-history)
+**Source review:** [source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -94,7 +95,7 @@ PFE at `dcd7f0e3b`:
     dependency. Follow the project panel in the
     [mockups](intent-landed-ci-mockups.html), without average, exclusions or
     difference figures.
-  - Colour tokens go in `src/intent-ci-status.css`, light and dark.
+  - Colour tokens go in `src/intent-ci-history.css`, derived from the frame tokens, because the frame has no dark scheme.
 
 The common rule is "each recorded landing resolves through the Landed rule to
 one build, or to one gap with its reason". Pending, provenance and window are
@@ -130,7 +131,7 @@ wall-clock delay. A collector re-check interval may be configured short through
 ### 1. Show a collected exact landed build in Project Intent
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 1 rows above.
 
 A production dashboard records an accepted landing whose exact trunk build
@@ -153,6 +154,27 @@ Safe stopping point: the trend shows exact measured builds collected after
 Done. Pending landings simply have no point yet. Sizing: one landing-to-point
 proof loop through the existing Landed lookup, with new store, read and panel
 plumbing.
+
+Accepted proof (2026-11-09). Every run used `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`,
+Homebrew Bash first on PATH, and `--workers=2`.
+
+- **Focused (80 passed):**
+  `npm run test:dashboard -- backend-tests/intent tests/intent/intent-ci-status-wall-time.spec.ts backend-tests/launches/agent-launch-start-session-landing-admission.spec.ts backend-tests/intent/landed-ci-history-collection.spec.ts tests/intent/intent-ci-wall-time-history.spec.ts`
+  - `landed-ci-history-collection.spec.ts`: a real Story Branch integration's landing is collected with no page open, as one exact point. One `head_sha` listing is made, and a re-read asks GitHub nothing. A default test server collects nothing.
+  - `intent-ci-wall-time-history.spec.ts` at 390×844 covers:
+    - the heading, wall time, image name, keyboard path, item words and run link;
+    - the empty state, with the judgment and Proof intact.
+  - Failing-first runs and a nudge mutation failed as expected.
+- **Consumers (all passed):**
+  - Intent CI status and Proof journeys (42);
+  - landing and boundary-lifecycle specs (28);
+  - Intent request accounting (22);
+  - authenticated-read specs (31);
+  - typecheck exit 0.
+- **After the refactor pass:** the invalidated part was rerun: focused 24, CI status and Proof 42, request accounting 22, and node tests for the Landed lookup, all passed. The remaining runs were reused.
+- **Coordination boundary:** `tests/intent/intent-ci-comparison-retry.spec.ts` "Check again recovers a done Story Branch Baseline…" failed once under load. Its stale gap text satisfies the first wait, so one 5 s wait has to cover the whole re-read.
+  - The `make-intent-location-source-and-candidate-test-s` and `make-machine-local-project-configuration-test-se` executions already hold uncommitted repairs of that exact wait, so this execution writes no duplicate.
+  - Remaining gate: final target CI.
 
 ### 2. Keep collection trustworthy across pending CI and restarts
 
@@ -266,6 +288,21 @@ observations before implementation.
 - The history read acquires no CI data.
 - Only the production-environment dashboard collects. Both environments read
   the store.
+- A pass walks a project's trunk landings newest first and stops at 20
+  measured builds. Every final resolution, build or gap, is kept by landing
+  receipt, and each build once by run and attempt (slice 1).
+- Dashboard test servers run in the production environment, so the harness
+  sets `DOUGH_TEST_LANDED_CI_COLLECTION=off`. A collection spec turns it on through
+  `extraEnv` (slice 1).
+- The frame has no dark colour scheme. The history's colour tokens, in `src/intent-ci-history.css`, derive
+  from the frame tokens instead of adding dark values (slice 1).
+
+## Story obligations
+
+### G1. A landing nudged before its CI run exists is kept as a final gap
+Reported: slice 1 — "At acceptance, finalResolution keeps a none slot as final, and lookupResultBuild answers none with a no-build status when the landed revision has no run yet. The landing nudge follows the push, often before GitHub creates the run, so that landing would never be measured."
+Story clause: "It waits while CI is queued or running and takes the result when it completes."
+Disposition: receiving slice 2
 
 ## Preparation review
 

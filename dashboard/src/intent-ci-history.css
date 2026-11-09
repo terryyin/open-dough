@@ -1,0 +1,117 @@
+/* Project Intent's CI wall time history (./IntentCiHistory.tsx), after
+   Proof in CI status (./intent-ci-status.css): its heading row with the
+   measured count and dates, the cohort note, the latest measured build, the
+   chart in its own box (./IntentCiHistoryChart.tsx) and Builds and
+   evidence. The chart's marks take their own tokens: one series in the
+   frame's accent, a ring of the box's surface around each point, a
+   recessive grid and quiet axis words. They are drawn from the frame's own
+   tokens in either colour scheme, so they keep their contrast with whatever
+   surface the frame gives the box, which has no surface of its own for a
+   dark scheme. */
+:root {
+  --ci-history-mark: var(--accent);
+  --ci-history-ring: var(--raised-surface);
+  --ci-history-grid: var(--line);
+  --ci-history-words: var(--quiet);
+}
+
+.intent-ci-history {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+}
+
+.intent-ci-history-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin: 0 0 var(--space-1);
+}
+
+.intent-ci-history-extent {
+  color: var(--quiet);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.intent-ci-history-note {
+  margin: 0;
+  color: var(--quiet);
+  font-size: var(--text-sm);
+}
+
+.intent-ci-history-latest {
+  display: grid;
+  margin: var(--space-2) 0;
+}
+
+.intent-ci-history-latest dt {
+  order: 2;
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
+.intent-ci-history-latest dd {
+  order: 1;
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-strong);
+}
+
+.intent-ci-history-chart {
+  min-width: 0;
+  padding: var(--space-2) var(--space-1) 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+}
+
+.intent-ci-history-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.intent-ci-history-chart text {
+  fill: var(--ci-history-words);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.intent-ci-history-grid {
+  stroke: var(--ci-history-grid);
+  stroke-width: 1;
+}
+
+.intent-ci-history-line {
+  fill: none;
+  stroke: var(--ci-history-mark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.intent-ci-history-point {
+  fill: var(--ci-history-mark);
+  stroke: var(--ci-history-ring);
+  stroke-width: 2;
+}
+
+.intent-ci-history-evidence {
+  margin-top: var(--space-2);
+}
+
+.intent-ci-history-evidence summary {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.intent-ci-history-evidence ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  padding-inline-start: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}

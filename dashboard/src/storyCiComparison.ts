@@ -53,16 +53,21 @@ const requestedStatusField = {
 // (later). `laterWithoutResult` counts the revisions between the requested
 // revision and the build: later revisions passed over for an ancestor, later
 // trunk revisions included for a later build.
-const selection = z.enum(["exact", "ancestor", "equivalent", "later"]);
+export const buildSelectionSchema = z.enum([
+  "exact",
+  "ancestor",
+  "equivalent",
+  "later",
+]);
 
-export type StoryCiBuildSelection = z.infer<typeof selection>;
+export type StoryCiBuildSelection = z.infer<typeof buildSelectionSchema>;
 
 const buildSlot = z.object({
   kind: z.literal("build"),
   revision: z.string().min(1),
   subject: z.string().min(1),
   state: z.enum(["pass", "failed"]),
-  selection,
+  selection: buildSelectionSchema,
   laterWithoutResult: z.number().int().nonnegative(),
   laterRunning: z.literal(true).optional(),
   runUrl: z.string().min(1).optional(),
@@ -77,7 +82,7 @@ const runningSlot = z.object({
   kind: z.literal("running"),
   revision: z.string().min(1),
   subject: z.string().min(1),
-  selection,
+  selection: buildSelectionSchema,
   laterWithoutResult: z.number().int().nonnegative(),
   runUrl: z.string().min(1).optional(),
   runBranch: z.string().min(1).optional(),

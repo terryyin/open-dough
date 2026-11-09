@@ -178,6 +178,21 @@ this user on this machine has read it at -- so at most four ref requests an hour
 read per published revision. A check while the setting is Off, or while a feedback maintenance
 session is running, asks GitHub nothing. A failed check is asked again at the next one.
 
+The production dashboard server collects Project Intent's CI wall time history whether or not a
+page is open: each accepted landing it records starts a pass over this machine's recorded landings
+onto each configured project's ref, newest first, that stops once the history holds 20 measured
+builds for the project. Each landing not yet resolved costs, for a `ciWorkflow` project, one
+lookup of the workflow and one listing of its push runs at the landed revision (`head_sha=`), plus
+one read of each earlier attempt of a run whose latest attempt was cancelled; a confirmed skip
+and a cancelled landing then cost what Story Branch Landed's equivalent build and forward walk
+cost in the CI timing comparison above, CI proof reads included. A `ciAdapter` project's landing
+asks its adapter's `discover` and GitHub nothing. A final resolution is kept in
+`~/.open-dough/dashboard/landed-ci-history.json` and never asked again, by any dashboard process
+of this user on this machine; a landing whose build is still running, or whose read failed, is
+asked again by the pass the next recorded landing starts. A development server collects nothing.
+Showing the history asks GitHub nothing: it is read from that file with each read of the trunk's
+CI status judgment, and **Check again** reads it again the same way.
+
 Inspecting recent failed reads, the incident record that keeps them across processes, how an output
 bound is reported, and what the installed CI diagnostic retains are in [Read
 diagnostics](READ-DIAGNOSTICS.md); the diagnostics and the incident record ask GitHub nothing.
