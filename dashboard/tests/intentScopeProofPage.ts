@@ -34,41 +34,49 @@ async function expectOwnFigures(
   figures: readonly string[],
 ) {
   const group = scopeFigures(summary, path);
-  await group.waitFor({ state: "attached" });
-  const parts = group.getByRole("term").or(group.getByRole("definition"));
+  // Native parent and descendants are in DOM order. Keeping the parent in the
+  // raw array detects missing or duplicate empty containers while polling.
+  const parts = group
+    .or(group.getByRole("term"))
+    .or(group.getByRole("definition"));
   await expect
     .poll(() =>
       parts.evaluateAll((nodes) =>
-        nodes.map((node) => ({
-          tag: node.tagName,
-          role: node.getAttribute("role"),
-          text: node.textContent
-            .replace(/[\u200b\u00ad]/g, "")
-            .trim()
-            .replace(/\s+/g, " "),
-        })),
+        nodes.map((node, at) =>
+          at === 0
+            ? { parent: true }
+            : {
+                tag: node.tagName,
+                role: node.getAttribute("role"),
+                text: node.textContent
+                  .replace(/[\u200b\u00ad]/g, "")
+                  .trim()
+                  .replace(/\s+/g, " "),
+              },
+        ),
       ),
     )
-    .toEqual(
-      columns.flatMap((text, at) => [
+    .toEqual([
+      { parent: true },
+      ...columns.flatMap((text, at) => [
         { tag: "DT", role: null, text },
         { tag: "DD", role: null, text: figures[at] },
       ]),
-    );
+    ]);
 }
 
 // One observation of a native proof table's semantic parts. Role locators
 // exclude hidden output; tags/scopes preserve column/row-header/cell identity.
 // Expected words remain the caller's independent columns and rows.
+// The parent marker retains container cardinality in the same readiness read.
 export async function expectProofTableRows(
   table: Locator,
   columns: readonly string[],
   rows: readonly (readonly string[])[],
 ) {
-  await table.waitFor({ state: "attached" });
   const body = table.locator("tbody").getByRole("row");
   const parts = table
-    .getByRole("columnheader")
+    .or(table.getByRole("columnheader"))
     .or(body)
     .or(body.getByRole("rowheader"))
     .or(body.getByRole("cell"));
@@ -85,21 +93,26 @@ export async function expectProofTableRows(
   await expect
     .poll(() =>
       parts.evaluateAll((nodes) =>
-        nodes.map((node) => ({
-          tag: node.tagName,
-          scope: node.getAttribute("scope"),
-          role: node.getAttribute("role"),
-          text:
-            node.tagName === "TR"
-              ? null
-              : node.textContent
-                  .replace(/[\u200b\u00ad]/g, "")
-                  .trim()
-                  .replace(/\s+/g, " "),
-        })),
+        nodes.map((node, at) =>
+          at === 0
+            ? { parent: true }
+            : {
+                tag: node.tagName,
+                scope: node.getAttribute("scope"),
+                role: node.getAttribute("role"),
+                text:
+                  node.tagName === "TR"
+                    ? null
+                    : node.textContent
+                        .replace(/[\u200b\u00ad]/g, "")
+                        .trim()
+                        .replace(/\s+/g, " "),
+              },
+        ),
       ),
     )
     .toEqual([
+      { parent: true },
       ...columns.map((text) => expected("TH", "col", text)),
       ...rows.flatMap(([scope, ...cells]) => [
         expected("TR", null, null),

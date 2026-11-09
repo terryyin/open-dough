@@ -29,7 +29,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Production rendering](render-evidence.md) ·
-[HTTP teardown](server-close-evidence.md) ·
+[HTTP teardown](server-close-evidence.md) · [Static sort](static-sort-evidence.md) ·
 [Portable evaluation](portable-evidence.md).
 
 ## Ordered slices
@@ -181,15 +181,16 @@ supported static-render + actual live-binding strategy in slices 6–7; preserve
 supported old sort/file gains. Full context and decisive comparison are in
 [the checkpoint](ui-pilot-evidence.md). G1/G3 stay open through slice 7.
 
-Published `2f5b6a3` matches all 170 rule owners, all assertions pass. Of 77
-static variants, four cleanup prefixes remain 1,014–1,098 ms (G8); the old
-550–600 ms bootstrap gap is removed, leaving 14–98 ms before final trace bounds.
-Retain SSR. Step evidence supports consolidating redundant Show %/signed-sort
-states, batching existing relative figures and source identity text/attributes,
-and retaining native visibility checks. The matched six-case pilot saves only
-5–19 ms locally; retain solely for the bounded CI experiment against the
-38–123 ms upper-bound gap. Local proof does not settle G8. No CSS subset, lost
-oracle, target change or framework is selected. See render-evidence; G7 is repaired.
+Published `66f6a8d` matches all170 rule owners and passes every assertion.
+G8's targeted six improve complete CI uppers from919–1123 to505–851ms,
+including all four previous overruns. Of77 static rules,76 now meet the bound;
+ordinary Summary Landed sort newly exceeds it at1005prefix/1067upperms.
+Retain the useful correction; G8 stays open. Parallel own/table checks give no
+matched local gain and are rejected. Native parent+parts snapshots retain exact
+readiness/cardinality/semantic/literal proof and remove repeated attached waits.
+Whole local cost is inconclusive; observer42→36ms and removed CI wait work
+support only the bounded published experiment. No CSS subset/target change/
+framework. See static-sort-evidence; G7 is repaired, slice7 unstarted.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.
