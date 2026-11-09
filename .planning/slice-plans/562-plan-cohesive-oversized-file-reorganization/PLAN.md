@@ -244,3 +244,10 @@ confirmed no product/evidence changes remained.
   readers reused; installed copies and incidental matches excluded.
 - Refactor: `## REFACTOR COMPLETE` — already clean; ODF-152 decision fulfilled;
   all changed files ≤250.
+
+## Execution complete
+
+Product advice: no change. Delivered guidance matches the selected story;
+pending native acceptance and ordinary-use observation remain separately owned
+and do not create a new product recommendation here. Process review found no
+supported new finding to record.
