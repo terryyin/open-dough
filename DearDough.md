@@ -884,7 +884,7 @@ covered the candidate.
   - Observed effect: Slice 2's own checks could not show a clean repo-wide result, its delivery and the CI repair's start were held until the parallel writer finished, and both pairs raised machine load (40 at peak) during each other's Playwright proof.
   - Inference: Disjoint file ownership did not make the writers independent: repo-wide checks, the selective formatter and the CI repair stash all act on the whole checkout. A separate worktree per parallel writer, or running them in sequence, would likely have avoided the holds; wall-time saved by the overlap was not measured.
 
-## DD-474 — A trunk merge interpolated a converted fixture into a string, and neither typecheck nor lint flagged it
+## DD-474 — A trunk merge interpolated a converted fixture into a string, and the record claimed lint passed with it
 Slice 1 turned settings fixtures such as `openDoughSettings` from JSON strings
 into built `IntentSettings` objects. A sibling story landed on trunk in the
 meantime and added ``".planning/open-dough.json": `${openDoughSettings}\n` ``
@@ -897,6 +897,6 @@ merge, that line would have published `[object Object]`.
   - Tool: Claude Code
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `fa29cd591`)
-  - Evidence: A three-way merge of the shared files kept trunk's new line at `intent-ci-status-homepage.spec.ts:201`. `npm run typecheck:dashboard` and `npm run lint` both passed with it. The coordinator found it only by grepping the converted exports' new uses after the merge, and replaced it with `intentSettingsText(openDoughSettings)` in `e693a8c24`.
-  - Observed effect: A type change to a shared fixture went through the merged tree's static checks unnoticed. Only a targeted search, or a later failing journey, would have exposed it.
-  - Inference: When a merge brings new uses of exports whose type a slice changed, search those uses directly; a template literal accepts an object. An ESLint `restrict-template-expressions` rule would likely flag it, but whether the project wants that rule was not assessed.
+  - Evidence: A three-way merge of the shared files kept trunk's new line at `intent-ci-status-homepage.spec.ts:201`. `npm run typecheck:dashboard` passed with it; the record also said `npm run lint` passed, but a reproduction on 2026-11-09 (the line restored on `main` at `d0c7af0f8`, then `npx eslint` on that file) failed with `@typescript-eslint/restrict-template-expressions` and `@typescript-eslint/no-base-to-string`, which `eslint.config.mjs` has enforced as errors since `d0a949570`. The coordinator found it only by grepping the converted exports' new uses after the merge, and replaced it with `intentSettingsText(openDoughSettings)` in `e693a8c24`.
+  - Observed effect: The type change did not escape the project's static checks: the existing lint rules reject the merged line. The finding's report instead raised a decision about enabling a rule that was already enabled.
+  - Inference: The lint result recorded for the merged tree most likely came from a run that did not include the merged line. Before reporting that a check missed a defect, rerun that check on the defective tree and record its output.
