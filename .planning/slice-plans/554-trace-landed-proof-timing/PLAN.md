@@ -133,6 +133,7 @@ essential override belongs only in its individual test.
 ## Execution evidence
 
 - [Execution identity, supplier integrations, CI observer and final reporting](execution-context.md).
+- [Owned CI repair, causes, preservation and focused proof](ci-repair.md).
 - Slice proof: [entry](slice-1-acceptance.md), [folder/file](slice-2-acceptance.md), [recovery](slice-3-acceptance.md).
 - [Complete slice designs and next-slice proof routes](slice-design.md).
 - [Final independent refactor and mechanical gates](refactor-slice-1-final.md).

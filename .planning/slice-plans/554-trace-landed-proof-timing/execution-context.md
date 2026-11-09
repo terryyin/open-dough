@@ -26,7 +26,10 @@
 - Sourceproof: [entry](slice-1-acceptance.md), [supplier](consumer-trace-slice-1-supplier-final.md),
   [folder/file](slice-2-acceptance.md), [recovery](slice-3-acceptance.md).
   Independent refactor records retain renewed proof. Formatter/hooks/tsc passed.
-- Completion publication receipt will be `/tmp/trace-proof-285-completion-delivery.json`.
+- Completion record was accepted as `6f972615c0e49c7d6fdfa10ebb69b348e904c4c4`;
+  its receipt is `/tmp/trace-proof-285-completion-delivery.json`. Completion
+  observed failure and retained the live observer. [CI repair](ci-repair.md)
+  owns both failed attempts and the next delivery; no closure authority yet.
   Earlier temporary conflicts, observers and bases below are historical.
 
 Supplier integration checklist from read-only contract review: preserve proof,

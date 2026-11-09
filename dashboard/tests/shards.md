@@ -10,8 +10,8 @@ Node suite's shares are in [tests/test-shares.md](../../tests/test-shares.md).
 ## The split
 
 CI sets `OPEN_DOUGH_DASHBOARD_SPLIT=i/n` to select shard `i` of `n` whole
-spec files. `../longest-first` indexes three duration lists: ordinary journeys,
-agent journeys, and boundary tests. Each part records one
+spec files. `../longest-first` indexes duration lists for ordinary journeys,
+agent journeys, boundary tests, and subsequently measured additions. Each part records one
 `<seconds><TAB><file>` row per spec, longest first, with paths relative to the common `dashboard/`
 directory. Header lines `# Include: <relative-path>` name the parts; the
 reader combines their rows before the unchanged deal. Other `#` lines are comments.
