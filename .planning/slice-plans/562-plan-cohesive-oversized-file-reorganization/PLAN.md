@@ -3,6 +3,7 @@
 **Identity:** SEED-010#plan-cohesive-reorganization-of-oversized-files
 
 **Source:** [Selected story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -17,6 +18,44 @@ new/near-limit-file policy, executable-plan size policy (ODF-362), release or
 rollout. Record a verified containing release when known; otherwise retain that
 field as pending. Representative review establishes delivered guidance, not
 native adherence or measured improvement.
+
+## Story obligations
+
+### E1. No repository-wide cleanup
+Reported: slice 1 — "No repository-wide cleanup"
+Story clause: "No repository-wide cleanup"
+Disposition: excluded "No repository-wide cleanup"
+Commitment: 19
+
+### E2. No new size scanner
+Reported: slice 1 — "No new size scanner"
+Story clause: "new size scanner"
+Disposition: excluded "new size scanner"
+Commitment: 20
+
+### E3. No relaxed limit
+Reported: slice 1 — "No relaxed limit"
+Story clause: "relaxed limit"
+Disposition: excluded "relaxed limit"
+Commitment: 21
+
+### E4. No executable-plan size policy
+Reported: slice 1 — "No executable-plan size policy (ODF-362)"
+Story clause: "executable-plan size policy (ODF-362)"
+Disposition: excluded "executable-plan size policy (ODF-362)"
+Commitment: 22
+
+### E5. No general policy for new/near-limit files
+Reported: slice 1 — "No general policy for new/near-limit files"
+Story clause: "or general policy for new/near-limit files"
+Disposition: excluded "or general policy for new/near-limit files"
+Commitment: 23
+
+### E6. Release and rollout remain separate
+Reported: slice 1 — "Release and rollout remain separate work"
+Story clause: "Release and rollout remain separate work."
+Disposition: excluded "Release and rollout remain separate work."
+Commitment: 24
 
 ## Existing solutions and architecture
 
@@ -79,7 +118,7 @@ supports this guidance change without a new topic or ADR.
 ### 1. Carry the reorganization decision from planning through refactoring
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: all ownership rows above and the focused checks below; record the
 representative review's observations and limits in Learnings.
 
@@ -195,6 +234,13 @@ confirmed no product/evidence changes remained.
 
 ## Learnings
 
-- The response record itself provides the ordinary-small-edit example: it is
-  already oversized, with a demonstrated current/history seam. Its cost belongs
-  in this slice, not in a surprise post-implementation refactor.
+- ODF-152 itself was the ordinary oversized edit; current/history split belongs
+  in this slice, not a surprise post-implementation refactor.
+- Representative walk of revised planning/delegation/refactor entry points
+  covers examples 1–4; native host adherence and ordinary-use cost remain
+  pending (SEED-053 companion; ODF-152 release field).
+- Focused proof passed (`read-budget-guidance`, `settle-decisive-premises`,
+  `payload-declaration-links`). Consumer-trace: those three run; entry/finding
+  readers reused; installed copies and incidental matches excluded.
+- Refactor: `## REFACTOR COMPLETE` — already clean; ODF-152 decision fulfilled;
+  all changed files ≤250.
