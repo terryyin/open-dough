@@ -11,6 +11,7 @@ import {
 } from "./IntentStoryComparison.tsx";
 import type { LensStory, StorySummary } from "./IntentStorySummary.tsx";
 import { useOpenStoryReview } from "./pageStoryReviews.ts";
+import { shortRevision } from "./publishedWork.ts";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { defaultStoryComparison } from "./useStoryComparison.ts";
 
@@ -60,12 +61,14 @@ export function IntentHeader({
   outside,
   navigation,
   projectVisit,
+  browserRevision,
 }: {
   readonly summary: StorySummary | undefined;
   readonly source: string;
   readonly outside: number | undefined;
   readonly navigation: ReactNode;
   readonly projectVisit: boolean;
+  readonly browserRevision: string | undefined;
 }) {
   const story = summary?.story;
   return (
@@ -103,6 +106,15 @@ export function IntentHeader({
           />
         )}
       </div>
+      {story === undefined && browserRevision !== undefined && (
+        <p
+          className="intent-browser-revision"
+          aria-label="Test browser revision"
+        >
+          Test browser at{" "}
+          <code title={browserRevision}>{shortRevision(browserRevision)}</code>
+        </p>
+      )}
       {summary !== undefined && (
         <>
           <CompactComparisonState

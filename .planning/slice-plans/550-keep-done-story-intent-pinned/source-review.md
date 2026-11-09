@@ -11,7 +11,7 @@ equivalent/later-build provenance rules, assessment process, historical
 retention/migration, selection workflow, or common presentation owned by
 SEED-282. No new page, tab, layout, or technology choice is needed.
 
-## Inspected acceptance evidence
+## Slice 1 acceptance evidence
 
 Coordinator compared each source commitment with actual production, real published
 completion fixtures, authenticated revision arguments, and observing assertions.
@@ -59,6 +59,30 @@ without a new representation, path or observable behavior. Already-traced dispos
 `/root/slice1_refactor` inspected this lens consumer and its failed/held-read proof;
 all accepted proof boundaries remain unchanged. No commit or push occurred on refusal.
 
+## Slice 2 acceptance evidence
+
+Coordinator inspected the header/page shown-revision binding, the planning-only
+no-file journey, held/failure/retry/reopening, independent file-text and CI
+provenance, project switching, narrow/zoom, Done-return and maintained wording.
+Focused fourteen-case default-reporter proof and the four-case outside-Intent
+navigation consumer passed; typecheck passed. Initial full Intent gate was owned
+by `/root/slice2`, one worker under the AC sleep guard after load21 resource
+reassessment; other worktree runs are preserved. No dependent publication yet.
+Full gate: `caffeinate -s -i npm run test:dashboard -- tests/intent --workers=1`,
+owned by `/root/slice2`, session `14436`, Playwright PID `66269`, result directory
+`dashboard/test-results/2026-11-09T03-50-36.580Z-66269`; failed with the two G3 cases, as retained below.
+Focused pass: `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-revision-notice.spec.ts tests/intent/intent-revision-update-outcomes.spec.ts tests/intent/intent-revision-update-boundaries.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-story-views-narrow.spec.ts tests/intent/intent-revision-planning-only.spec.ts tests/intent/intent-revision-settings-update.spec.ts tests/intent/intent-project-visit-ci.spec.ts tests/intent/intent-done-project-refresh.spec.ts --workers=1` — fourteen passed, strict default reporter, no test output.
+Outside-Intent pass: `caffeinate -s -i npm run test:dashboard -- tests/navigation/development-intent-frame.spec.ts --workers=1` — four passed, strict default reporter, no output.
+Red proof before product edits: `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-revision-planning-only.spec.ts --workers=1` — missing browser label; retained artifacts at `2026-11-09T03-44-22.165Z-97837`.
+The same command's first green attempt exposed a harness mismatch (`innerText`
+capture versus `textContent` assertion); corrected to matching exact textContent
+capture/assertion, with no product workaround or reduced equality. Artifacts:
+`2026-11-09T03-44-50.182Z-54326`; the focused pass covers the corrected case.
+Implementation proof/report: `/tmp/seed283-slice2-report.md`; complete consumer
+trace/dispositions: `/tmp/seed283-slice2-consumer-dispositions.md`, all 506 rows
+owned (77 run pending full terminal, 429 excluded with concrete boundary reasons).
+
+
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
@@ -85,13 +109,13 @@ all accepted proof boundaries remain unchanged. No commit or push occurred on re
 | 20 | That journey preserves the story’s reading place. The returned story remains on its historical comparison. | slice 1 | observed: intent-done-project-refresh.spec.ts, restored exact scroll offset and unchanged original diff. |
 | 21 | Keep keyboard return. Existing navigation remains supported. | slice 1 | observed: intent-done-project-refresh.spec.ts, Enter on Back focuses Project Intent return control; existing active project visit journey retained. |
 | 22 | Keep independent reading places. Project and historical story reading retain their respective places. | slice 1 | observed: intent-done-project-refresh.spec.ts and intent-project-visit.spec.ts, independent project/story file, tab, candidate and scroll reading. |
-| 23 | Show the revision currently represented by the Project Intent test browser. Visible even with no file selected; names shown source, independently of comparison endpoints and CI proof provenance. | slice 2 | |
-| 24 | Keep that revision label after refresh. Includes a successful update whose commit changes only planning records and leaves test files looking identical. | slice 2 | |
-| 25 | Advance the shown revision only when the new locations answer is successfully shown. Merely observing a newer revision is insufficient. | slice 2 | |
-| 26 | Keep the prior shown revision during updating or after failure. A successful retry can advance it. | slice 2 | |
-| 27 | Keep the prior reading during updating or after failure. Failed locations retrieval does not replace the current reading. | slice 2 | |
-| 28 | Preserve existing updating and failure feedback. Applies while updating and after a failed update, respectively. | slice 2 | |
-| 29 | Preserve Retry. Failed locations retrieval retains Retry alongside the old label and reading. | slice 2 | |
+| 23 | Show the revision currently represented by the Project Intent test browser. Visible even with no file selected; names shown source, independently of comparison endpoints and CI proof provenance. | slice 2 | observed: intent-revision-planning-only.spec.ts: no-file home labels accepted source; intent-project-visit-ci.spec.ts: CI advances independently while browser label stays old; IntentHeader consumes shownRevision only. |
+| 24 | Keep that revision label after refresh. Includes a successful update whose commit changes only planning records and leaves test files looking identical. | slice 2 | observed: intent-revision-planning-only.spec.ts: planning-only commit preserves identical file text and persistent accepted label, including Development/Intent reopening and no-file home. |
+| 25 | Advance the shown revision only when the new locations answer is successfully shown. Merely observing a newer revision is insufficient. | slice 2 | observed: intent-revision-planning-only.spec.ts and intent-revision-notice.spec.ts: new observation retains A, held locations retains A, accepted locations moves label to B with exact authenticated revision arguments. |
+| 26 | Keep the prior shown revision during updating or after failure. A successful retry can advance it. | slice 2 | observed: intent-revision-update-outcomes.spec.ts and intent-revision-settings-update.spec.ts: held/network-failed/unreadable-settings updates and reopening preserve old label; accepted Retry advances it. |
+| 27 | Keep the prior reading during updating or after failure. Failed locations retrieval does not replace the current reading. | slice 2 | observed: intent-revision-update-outcomes.spec.ts: old text, selected feature, group and focus remain during failed update; accepted locations can advance label while independently failed text keeps old source. |
+| 28 | Preserve existing updating and failure feedback. Applies while updating and after a failed update, respectively. | slice 2 | observed: intent-revision-notice.spec.ts, intent-revision-update-outcomes.spec.ts and intent-revision-settings-update.spec.ts retain Updating and explicit failure feedback through the existing notice lifecycle. |
+| 29 | Preserve Retry. Failed locations retrieval retains Retry alongside the old label and reading. | slice 2 | observed: intent-revision-update-outcomes.spec.ts and intent-revision-settings-update.spec.ts: old reading and label retain Retry; successful retry requests/applies the requested revision and removes the notice. |
 | 30 | Explain missing historical evidence in its affected view. Covers comparison, locations/source, CI proof, or saved coverage; includes an unrecoverable comparison, failed locations read, or absent assessment. | slice 1 | observed: intent-story-completed-source.spec.ts, explicit history gap/no source browser; intent-ci-comparison-locations.spec.ts, historical source alert/Retry; intent-story-coverage.spec.ts and CI gaps retained. |
 | 31 | Distinguish reading, failed retrieval, absent evidence, and an explicit assessment result. These are distinct states; absence must not be presented as an assessment. | slice 1 | observed: intent-done-source-selection.spec.ts, comparison/locations held with no prior source; intent-ci-comparison-locations.spec.ts, failure/Retry; intent-story-coverage.spec.ts, loading/failure/absence/results. |
 | 32 | Preserve supported recovery. Existing Check again, retries, and explicit CI fallback explanations remain; recovery is offered only where supported. Historical comparison neither freezes unfinished CI nor makes its measured revision the source revision. | slice 1 | observed: intent-ci-comparison-locations.spec.ts, Retry requests completion and CI stays readable; existing CI retry/cancellation/equivalent/later-build journeys passed in broad run. |
@@ -111,3 +135,13 @@ Refactor proof passed: `caffeinate -s -i npm run test:dashboard -- tests/intent/
 Callback/gap proof passed: `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-retry.spec.ts tests/intent/intent-story-coverage.spec.ts --grep 'unrecoverable published history|coverage waits for the done record' --workers=1` (two whole journeys). All used strict default reporter with no test output.
 Traces: `/tmp/seed283-ci-repair-consumer-trace-final.md` and `/tmp/seed283-ci-refactor-navigation-trace.md`, all located consumers dispositioned. Config's arranged/expected identity value stayed identical, so its current whole-journey proof remains accepted. No production behavior changed.
 G3 is received by slice2 for the still-required final full Intent gate after sanctioned restoration. Its failed broad verdict remains retained; no whole-run success claimed from these focused passes. Same CI observer now honors GitHub-directed wait until2026-11-09T05:09:59.127Z, without lost coverage.
+
+CI repair accepted on the story branch at `fea15e65c8e28dfe49919d549a1001535c7510a5`, suffix base `c5edb96346b68c9397a775fbfc81c9357d40e13e`, same observer reused. Sanctioned stash restoration returned `resumed` and verified original contents/index; only its exact entry87eea98561846d4e48000f9c701af6c3e2787167 was dropped.
+The earlier slice2 full command ended exit1 with exactly the two owning-merge file failures; its old pending status above is superseded by that terminal observation. All focused revision/navigation positives remain retained. G3 stays received by slice2 until its new full run proves the combined restored label plus repaired navigation.
+
+## Final slice 2 gate
+
+`caffeinate -s -i npm run test:dashboard -- tests/intent --workers=1` passed exit0 on fea15e65 plus unchanged restored label work, session35088, terminalchunk36296c, resultdirectory2026-11-09T04-47-16.491Z-62976. Default strict quiet reporter emitted no test output; no product/test edits occurred during this run. This actual terminal pass settles G3 and observes the combined source/Proof repair and label promises23–29. Prior failures and their causal repairs remain retained above; all earlier pending-full statuses are historical and superseded by this pass.
+Updated handoff `/tmp/seed283-slice2-report.md` and `/tmp/seed283-slice2-consumer-dispositions.md` contain the final positive dispositions for all affected consumers and the preserved earlier failure history. No known implementation or proof gap remains before independent slice2 refactor/delivery.
+
+Independent `/root/slice2_refactor` returned `## REFACTOR COMPLETE`, none—already clean, no edits/tests. Root accepted its current authority/caller/geometry/proof inspection and preserved full35088 proof. All changed files<=250; traces `/tmp/seed283-slice2-refactor-consumer-trace.md` and `/tmp/seed283-slice2-refactor-consumer-dispositions.md` account537 rows (77 reused,460 unrelated excluded), no gap.

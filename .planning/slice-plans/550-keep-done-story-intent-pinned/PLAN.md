@@ -22,7 +22,7 @@ refinement within the unchanged story.
 
 GitHub observer: `terryyin/open-dough`, `ci.yml` (CI, 351271804), target the execution branch, coordinator
 `seed283-root`, `/tmp/dough-ci-501/watch-Fzp5fG`, PID `42590`, session `5842`, yielded cell `g83:10`, bound to
-this checkout. Claim's main CI is unobserved here. GitHub directed a wait until `2026-11-09T03:08:58.675Z`;
+this checkout. Claim's main CI is unobserved here. GitHub directed a wait until `2026-11-09T05:09:59.127Z`;
 same observer resumes itself.
 
 Initial proof budget: AC awake, load 7.50/9.77/11.92, free memory 54%; competing machine-local configuration
@@ -31,6 +31,9 @@ reassess before expensive launches; preserve other owners. Implementation owns f
 coordinator owns final gates and delivery. Source freshness: unchanged on `origin/main`
 `9215bdb8989a83ca82808b93ddc79be7c208b8e5`, base `2ee6aa08a70a414caba882a971b77da90d06ac79`; incoming changes
 contain no new SEED-282 behavior.
+
+Latest delivery: CI repair accepted on the execution branch at `fea15e65c8e28dfe49919d549a1001535c7510a5`,
+suffix base `c5edb96346b68c9397a775fbfc81c9357d40e13e`; retained observer reused.
 
 ## Goal and scope
 
@@ -87,9 +90,9 @@ the result the production historical reader must establish.
 
 | Final promise | Owner | Observable proof |
 | --- | --- | --- |
-| Historical locations/inventory/source and original diff survive later test rename/deletion/addition and settings change | 1 | Extend `intent-story-completed.spec.ts` and the real completion fixtures: advance trunk with changed test paths and removed/changed locations, then open Changed tests. Assert landing's location, unchanged source, modified/added/deleted/renamed diff, absence of later-only files, and equality with Review changes. Cover Trunk completion and the Story Branch/merge fixture in `intent-summary-story-comparison-file.spec.ts`. Record actual revision arguments; do not satisfy the browser by intercepting a fabricated historical answer. |
+| Historical locations/inventory/source and original diff survive later test rename/deletion/addition and settings change | 1 | Extend `intent-story-completed.spec.ts` and `intent-story-completed-source.spec.ts` with the real completion fixtures: advance trunk with changed test paths and removed/changed locations, then open Changed tests. Assert landing's location, unchanged source, modified/added/deleted/renamed diff, absence of later-only files, and equality with Review changes. Cover Trunk completion and the Story Branch/merge fixture in `intent-summary-story-comparison-file.spec.ts`. Record actual revision arguments; do not satisfy the browser by intercepting a fabricated historical answer. |
 | All three Done tabs lack project freshness controls and keep story evidence after a project visit/refresh | 1 | A controlled-clock Done journey observes a newer published trunk, switches all tabs, visits Project Intent and refreshes, then returns to the same story/file/Purpose or Proof/scroll. Assert no story revision notice/Show latest, fixed story comparison endpoints and saved coverage, project-only refresh, and keyboard return. Extend `intent-project-visit.spec.ts` using its existing isolation journey. |
-| Historical comparison/source/coverage gaps are distinct, explained, and do not silently show current tests | 1 | Update the shallow-history case in `intent-story-completed.spec.ts`; add a failed historical locations read with supported Retry. Assert the Done view never claims the current tree is its history or that missing evidence means no changes. Retain `intent-story-coverage.spec.ts`'s saved unavailable/no-assessment/failed-record states and CI-gap journeys; one unavailable source must not hide the other tabs. |
+| Historical comparison/source/coverage gaps are distinct, explained, and do not silently show current tests | 1 | Update the shallow-history case in `intent-story-completed-source.spec.ts`; add a failed historical locations read with supported Retry. Assert the Done view never claims the current tree is its history or that missing evidence means no changes. Retain `intent-story-coverage.spec.ts`'s saved unavailable/no-assessment/failed-record states and CI-gap journeys; one unavailable source must not hide the other tabs. |
 | Existing historical CI provenance and recovery remain supported | 1 | Retain `intent-ci-comparison-gaps.spec.ts`, `intent-ci-comparison-cancelled-landing.spec.ts`, `intent-ci-comparison-cancelled-landing-gaps.spec.ts`, and `intent-ci-comparison-retry.spec.ts` through the affected Intent suite. Extend only the cross-tab revision isolation observation; do not rewrite endpoint rules. |
 | Project browser's shown revision stays visible and advances after planning-only updates, including no file selection | 2 | Extend `intent-revision-notice.spec.ts` with unchanged test files plus a changed planning record: before refresh label remains old, during held read label stays old, success moves it to the new revision and keeps it visible. Observe with a selected file and after returning to the project browser's no-file homepage. Verify actual locations requests use that new revision. |
 | Failed updates keep old label/source, Retry applies the requested revision, and focus/reading survive | 2 | Extend `intent-revision-update-outcomes.spec.ts` and `intent-revision-update-boundaries.spec.ts`: retain old shown label through network/unreadable-settings failure and reopening; successful Retry advances it. Keep selected-path deletion explanation, project-switch isolation, keyboard focus and reading-place assertions. Project CI's independently followed revision is not labelled as the browser's shown source. |
@@ -128,7 +131,7 @@ already-present owners.
 ### 2. Show the Project Intent browser's current revision through refresh
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 2 rows above under the existing controlled page clock and
 authenticated request holds/failures.
 
@@ -173,7 +176,7 @@ sufficient suite run rather than repeating its covered cases.
 
 Focused development checks:
 
-- Slice 1: `npm run test:dashboard -- tests/intent/intent-story-completed.spec.ts tests/intent/intent-story-coverage.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-summary-story-comparison-file.spec.ts tests/intent/intent-story-changes-gaps.spec.ts --workers=2` plus the newly added historical-revision journey.
+- Slice 1: `npm run test:dashboard -- tests/intent/intent-story-completed.spec.ts tests/intent/intent-story-completed-source.spec.ts tests/intent/intent-story-coverage.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-summary-story-comparison-file.spec.ts tests/intent/intent-story-changes-gaps.spec.ts --workers=2` plus the newly added historical-revision journey.
 - Slice 2: `npm run test:dashboard -- tests/intent/intent-revision-notice.spec.ts tests/intent/intent-revision-update-outcomes.spec.ts tests/intent/intent-revision-update-boundaries.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-story-views-narrow.spec.ts --workers=2` plus its no-file/label assertions.
 - For changed dashboard code: `npm run typecheck:dashboard` and `npm run lint`.
 - Before delivery, `npm run test:dashboard -- tests/intent --workers=2` covers
@@ -235,7 +238,7 @@ Disposition: proved by slice 1: intent-story-completed-source.spec.ts, shallow h
 ### G3. Settle recurring owning-merge source and Proof failures
 Reported: slice 1 — "The later one-worker full Intent run failed the owning-merge original-diff assertion while it was still reading and timed out the unchanged-file journey at Proof; a prior passing run does not settle these failures."
 Story clause: "Its test browser uses the baseline-to-landed-result changes and the test-source locations, inventory, and unchanged-file source at landing."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: strict full Intent gate on fea15e65 plus restored label changes, session35088 terminal36296c exit0; repaired owning-merge diff, exact landed-source request and Proof observations all pass.
 
 ## Current decisions and preparation review
 
@@ -243,6 +246,3 @@ Disposition: receiving slice 2
 - Missing history is an explained gap, never current source or empty changes; preserve active meanings/recovery.
 - Project label follows accepted locations with existing update/failure/retry and independent reading scope.
 - SEED-282 requires no dependency agreement; its landed common frame is reused.
-
-Two cohesive Behavior slices retain mapped proof and safe stops; no scope change or resplitting. Preparation
-itself authorized no execution, Take, release or rollout; current execution uses the user's invocation.

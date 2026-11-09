@@ -16,6 +16,7 @@ import {
   returnToStory,
 } from "../intentModePage.ts";
 import {
+  browserRevision,
   expandIntentGroup,
   expandIntentFolders,
   fileReadingTab,
@@ -82,6 +83,7 @@ test("all Done tabs ignore project freshness and project refresh returns the sam
   await openProjectIntent(intent);
   await expect(intent.locator(".intent-locations")).toBeVisible();
   expect(locations).toEqual([completion, published]);
+  await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   await returnToStory(intent);
   await chooseStoryTab(intent, "Changed tests");
   await expandIntentGroup(intent, "dashboard/tests");
@@ -121,6 +123,7 @@ test("all Done tabs ignore project freshness and project refresh returns the sam
   ] as const) {
     await chooseStoryTab(intent, tab);
     await expect(revisionNotice(intent)).toHaveCount(0);
+    await expect(browserRevision(intent)).toHaveCount(0);
     await expect(
       intent.getByRole("button", { name: "Show latest", exact: true }),
     ).toHaveCount(0);
@@ -133,10 +136,14 @@ test("all Done tabs ignore project freshness and project refresh returns the sam
 
   await openProjectIntent(intent);
   await expect(revisionNotice(intent)).toBeVisible();
+  await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   await revisionNotice(intent)
     .getByRole("button", { name: "Show latest", exact: true })
     .click();
   await expect(revisionNotice(intent)).toHaveCount(0);
+  await expect(browserRevision(intent)).toContainText(
+    laterRevision.slice(0, 7),
+  );
   expect(locations).toEqual([completion, published, laterRevision]);
   await backToStory(intent).focus();
   await page.keyboard.press("Enter");
@@ -159,6 +166,9 @@ test("all Done tabs ignore project freshness and project refresh returns the sam
   await fileReadingTab(intent, "Proof").click();
   await expect(proofRegion(intent)).toBeVisible();
   await openProjectIntent(intent);
+  await expect(browserRevision(intent)).toContainText(
+    laterRevision.slice(0, 7),
+  );
   await returnToStory(intent);
   await expect(intentFile(intent, selected)).toHaveAttribute(
     "aria-pressed",
