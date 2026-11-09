@@ -93,9 +93,7 @@ smallest correction that preserves the proof.
   backend entries too. Move setup onto the actual proof-unit contract. The
   dashboard artifact helper also has positional part tuples and casts around
   fragment facts. Compare those helpers with the production fragment constructor
-  and preserve the real artifact encoding and collector proof. Reconcile with
-  the overlapping [CI summary correction](SEED-259-scan-intent-ci-summaries.md#correct-scan-intent-ci-summaries)
-  when this story is refined. [Skill fixture](../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs) · [Playwright converter](../../src/skills/dough-test-optimization/scripts/ci-proof-fragments.mjs) · [Artifact helper](../../dashboard/tests/support/ciProofArtifacts.ts)
+  and preserve the real artifact encoding and collector proof. [Skill fixture](../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs) · [Playwright converter](../../src/skills/dough-test-optimization/scripts/ci-proof-fragments.mjs) · [Artifact helper](../../dashboard/tests/support/ciProofArtifacts.ts)
 - **Installation and native checks.** The added-payload update check manually
   reconstructs an older installation from file presence and seeds one managed
   root. Establish whether that state is intentional migration evidence. If it
@@ -207,25 +205,155 @@ across dashboard tests.
 
 <a id="map-intent-and-ci-proof-test-data"></a>
 
-### Make Intent and CI proof test setup map directly to the domain
+### Make Intent location, source and candidate test setup map directly to the domain
 
 **Identity:** SEED-261#map-intent-and-ci-proof-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/548-map-intent-and-ci-proof-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a4b05455de5da3815abd369668726dd1e44525cc07195e10701c9619bf79b0d8","plan":"a3f68b06d31d1590d5fd98b9148d5f0bb48bc8ac20e990a9fd4395948cde8d0c"}}
+```
+
+#### Goal
+
+Maintainers reviewing Intent tests can see which locations a project
+declares, which published files each location selects at a revision, and
+which Test Optimization Candidates the project records, in the vocabulary of
+the product's settings, locations answer and candidates record. The same
+declaration or record reads the same way in integrated journeys, backend and
+frontend specs, and Node support tests, so a change to one of these contracts
+is followed in one place.
+
+#### Scope
+
+- Arrange valid Intent settings in `.planning/open-dough.json` through
+  `makeMe.intentSettings` and `makeMe.anIntentLocation`: a location's path,
+  its kind with optional include patterns or its source entries with
+  optional syntax, and its label when the case shows one. Publish them as
+  JSON with the project's other files at the published revision through the
+  existing published-file harness. Replace the per-fixture settings strings
+  in the Intent browse, Gherkin, candidates, boundary and story-worktree
+  fixtures, and the settings written inline in Intent specs.
+- Build a locations answer, a declared location with the files it selects
+  at a revision and its problem when one applies, through the same location
+  builder wherever a backend, frontend or Node test arranges that answer
+  instead of observing it. Type the frontend service substitute's locations
+  and candidates answers against the product's answers. Derive the
+  candidates' configured inventory with the product's
+  [`inventoryFromIntentLocations`](../../dashboard/src/intentCandidatesLocationMatch.ts)
+  instead of restating it.
+- Build Test Optimization Candidates records through
+  `makeMe.aTestOptimizationCandidatesRecord`, extended for entries in each
+  finding section with the facts a case states. Replace the hand-written
+  record Markdown in the Intent candidates fixtures and the backend
+  candidates read spec, and remove the suite-local `candidateRecordEntry`.
+- Keep literal what a case proves by its exact form: malformed, empty or
+  unreadable settings; declarations the reader must ignore, such as a
+  non-string label, unsafe or empty include patterns, and malformed source
+  entries; mismatched or partial record Markdown; recorded location
+  references matched as written; and authored test sources and Gherkin
+  features whose syntax, lines or wording are the subject. Independent
+  expectations stay as they are.
+- Keep real server reads, published-file serving, Git worktrees, fake GitHub
+  answers and injected read faults at their existing boundaries.
+- Scope limits: GitHub Actions runs, CI adapter attempts and coverage, and
+  CI proof data belong to the sibling stories below. In a mixed case, such as
+  a journey that publishes Intent settings and serves CI, convert the Intent
+  facts here and leave the CI setup for its story. Settings, locations and
+  candidates contracts and UI behavior do not change.
+- Evaluate each converted case against its original: the facts that drive
+  each outcome stay visible, assertions catch the same failure, and the shared
+  setup removes a translation or a second model.
+
+#### Key examples
+
+1. An Open Dough-shaped project declares `dashboard/tests` TypeScript specs
+   and `tests` shell checks. Intent lists both locations with their published
+   files. The test states both locations through MakeMe, the settings are
+   published from that value, and the expected tree is written independently.
+2. A project declares a usable Gherkin location, a missing path, an empty
+   folder, a `java` kind and a JavaScript location with include patterns.
+   The locations read lists the usable files and marks `no-matching-files`
+   and `unsupported-kind` as before. All five come from MakeMe with those
+   facts visible. A label of `42` or a malformed `sources` list that a case
+   proves is ignored stays literal JSON in that case.
+3. A candidates record holds a pending candidate naming a file by `path:line`
+   and an accepted necessary cost naming a case by `path::case`. MakeMe builds
+   the record with those entries, and opening each from Optimization
+   Candidates positions Purpose as before. An empty record still shows its
+   four sections with `None.`, and a record with a different heading stays
+   literal Markdown.
+4. The recorded-location matcher derives its configured inventory from
+   answered locations built through MakeMe, and the story overlay and the
+   frontend service substitute use the same answered-location shape. The
+   recorded reference strings stay literal.
+
+<a id="map-github-actions-ci-test-data"></a>
+
+### Make GitHub Actions run and attempt-job test setup map directly to the domain
+
+**Identity:** SEED-261#map-github-actions-ci-test-data
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Scope and value.** Convert Intent source/location and candidate setup,
-revision CI observation, attempts, mailbox records, and proof data across the
-dashboard, skill, and support tests. Correct path-based proof unit inference
-and any suite-only translations of attempt, fragment, or summary facts. A
-reviewer can trace what was checked, which attempt supplied evidence, and what
-is absent or measured zero.
+**Scope and value.** Convert the GitHub Actions workflow runs, run attempts
+and attempt jobs that tests arrange for a checked revision: dashboard base-CI
+judgment, CI status and story CI comparison endpoints (`CiRunAnswer`, `wall`,
+`actionsRunsAnswer` and the `storyCiComparison*` fixtures), the execution
+skill's GitHub observation, reuse and integrated-state fixtures, and the Node
+support revision lookups (about 33 files). A reviewer can see which run and
+attempt a case checks, at which revision, with what conclusion and timing.
+
+**Evaluation and stopping point.** Real Git histories, fake GitHub routing,
+request counting, held or failing reads and controlled clocks stay in the
+harness. Queued, in-progress, cancelled and missing runs stay distinct from a
+completed verdict. Suite-local run constructors are removed or delegate to
+MakeMe.
+
+<a id="map-ci-adapter-and-coverage-test-data"></a>
+
+### Make CI adapter attempt, queue and coverage test setup map directly to the domain
+
+**Identity:** SEED-261#map-ci-adapter-and-coverage-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Scope and value.** Convert CI adapter attempts and queue entries for a
+checked revision, and the execution mailbox's revision coverage records:
+dashboard adapter answers for base CI, CI status and comparisons, the
+execution skill's command adapter, revision coverage, queue and mailbox
+completion fixtures, and Node support adapter lookups (about 60 files). A
+reviewer can trace which adapter attempt supplied a verdict, which revisions
+were only queued, and what coverage the mailbox recorded.
+
+**Evaluation and stopping point.** A queue fact keeps no verdict. Pending,
+undiscovered, not-required and resolved coverage stay distinct. Adapter
+processes, mailbox workers, wake-ups and process lifetime stay in the harness.
+Suite-local attempt, queue and coverage constructors are removed or delegate
+to MakeMe.
+
+<a id="map-ci-proof-test-data"></a>
+
+### Make CI proof evidence test setup map directly to the domain
+
+**Identity:** SEED-261#map-ci-proof-test-data
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Scope and value.** Convert CI proof fragments, summaries, proof entries and
+runner proof records across the collector and converter tests, the Node
+support readers and scope comparisons, and the dashboard proof journeys
+(about 35 files). Correct path-based proof unit inference and the positional
+part tuples and casts around fragment facts named in the source findings
+above. A reviewer can trace what was checked, which attempt supplied
+evidence, and what is absent or measured zero.
 
 **Evaluation and stopping point.** Keep the same evidence distinctions and
 assertions in the existing proof producer, collector, and reader cases. Real
 artifact assembly, parse failures, and source positions still reach their
-respective boundaries. The evidence families are converted and usable on
-their own.
+respective boundaries. A summary and its fragments keep one attempt identity
+and checked revision. Proof fixtures are removed or delegate to MakeMe.
 
 <a id="map-installation-and-native-test-data"></a>
 
@@ -257,7 +385,13 @@ Queue published work first, then local launch and session work, Intent and CI
 Proof, and release and native checks. Terry split the launch and session block
 into five stories, queued in order: kept launch records and the machine
 store, live observation and attempts, completion and landing, Codex and
-Cursor sessions, then machine-local project configuration. The stories are organized
+Cursor sessions, then machine-local project configuration. Terry split the
+Intent and CI Proof block into four stories, queued in order: Intent
+locations, sources and candidates; GitHub Actions runs and attempt jobs; CI
+adapter attempts, queue entries and coverage; then CI proof evidence. CI proof
+comes last so its refinement maps onto the explicit test case and test file
+units of [SEED-281](SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof).
+The stories are organized
 by the domain facts they own, so each can finish its proof without waiting for
 an entire runner or layer to migrate. Queue order expresses Terry's requested
 priority and learning sequence. No blocking supplier agreement has been
