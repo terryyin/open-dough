@@ -195,6 +195,12 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.91 (checkout-bound installed guidance)
   - Evidence: Dashboard launch `003878bc-4c9f-4dde-8085-d287fbd399c1` combined full delegation, execution decisions and related references in one startup read. The tool reported 11,478 original output tokens and truncated the human-judgment passage.
   - Observed effect: The coordinator retrieved that passage separately. The existing boundary and targeted-retrieval guidance already called for scoped reads. No elapsed-time or aggregate-token cost was measured.
+- Execution: SEED-262#guard-native-fixture-identity-inputs (plan 542; first implementation `fc234b7f9c8ae40d8c1a60ecd5e1440ec32a0e3e`)
+  - Timestamp: unknown (2026-11-09 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Launch `4056a145-4d89-44ec-ba41-26da0eb37261`, startup reference read combined delegation, source review, decisions, retrieval and story-obligation guidance. The tool reported 11,478 original tokens for that result and truncated the human-judgment passage.
+  - Observed effect: The coordinator retrieved the missing passage separately. No missing authority was accepted; no aggregate token or elapsed cost was measured.
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
@@ -204,6 +210,15 @@ Former local code: DD-324. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
 ## ODF-322 — A projected delivery result drops the running command's handle <a id="odf-322"></a>
 Former local code: DD-325. The coordinator reduced a guarded delivery call to its output text, dropping the live command's session handle; the terminal receipt was recovered through checkout inspection and an exact-candidate resume. [Evidence and current response](docs/maintainer/findings/ODF-322.md).
+
+### Occurrences
+- Execution: SEED-262#guard-native-fixture-identity-inputs (plan 542; first implementation `fc234b7f9c8ae40d8c1a60ecd5e1440ec32a0e3e`)
+  - Timestamp: unknown (2026-11-09 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Launch `4056a145-4d89-44ec-ba41-26da0eb37261`, `/root/slice1` reported that its proof wrapper emitted output without its returned session handle. It confirmed the original processes ended, did not count that unobserved run, then followed replacement session `22530` to exit 0.
+  - Observed effect: The required three-check proof was repeated to obtain terminal evidence. This occurrence concerns a proof command rather than the original finding's delivery command; the same output-projection loss of the running handle was reported.
+
 ## ODF-324 — Native checks keep asking the developer after attribution is established <a id="odf-324"></a>
 Former local code: DD-327. Former branch-local code: DD-325 for SEED-144#branded-alert-click-automation only. Native acceptance kept requesting interactive developer rounds after attribution was established, including a full replay for a message-only change, until the developer withdrew. [Evidence and current response](docs/maintainer/findings/ODF-324.md).
 ## ODF-323 — A caller-written plan-status mutation survives a later delivery refusal <a id="odf-323"></a>
@@ -269,6 +284,13 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Slice 1's first guarded fresh delivery returned `operation: formatting`: the formatter's ESLint fix removed an unnecessary `as KeptLaunch` assertion in `dashboard/tests/terminals/agent-terminal-avatar.spec.ts`, then `no-unused-vars` failed on the now-unused `type KeptLaunch` import. Implementation and refactor briefs forbade hook-owned lint; both ran typecheck and Prettier only. In slice 4 the refactor pass found Prettier and `no-unnecessary-type-parameters` failures the implementer returned, because that brief allowed `npx eslint` on touched files.
   - Observed effect: One withheld delivery; removing the import cleared it and the retry published `681a9d6f8`. Slices 2–4, whose refactor briefs allowed ESLint on touched files, delivered first time.
   - Inference: Same class as the earlier rows; letting the refactor pass run ESLint read-only on touched files moved the catch before delivery.
+- Execution: SEED-262#guard-native-fixture-identity-inputs (plan 542; first implementation `fc234b7f9c8ae40d8c1a60ecd5e1440ec32a0e3e`)
+  - Timestamp: unknown (2026-11-09 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Launch `4056a145-4d89-44ec-ba41-26da0eb37261`, first slice-1 guarded fresh delivery returned `operation: formatting` with ShellCheck SC2016 on the intentionally literal sourced-helper script text in `tests/git-publication-fixture-identity.sh`, after implementation proof and independent refactor.
+  - Observed effect: Commit/publication were withheld. A local explanatory suppression preserved the exact test bytes; retry passed formatting, full lint and hooks and published `fc234b7f9`. No behavior proof was invalidated.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
