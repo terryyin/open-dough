@@ -186,6 +186,14 @@ observers; combine both in the final ordinary selection.
 
 ## Current decisions and learnings
 
+The first portable UI checkpoint at `80ef2d48` passed all 167 rules in CI but
+left 21 observed cleanup prefixes above one second (max 1,549 ms); nineteen
+reported durations exceeded it. Local batching also showed no isolated gain.
+G3 remains with slice 5. Hold dependent experiments while comparing the actual
+remaining cost and stronger existing-observer strategies; record that decision
+here before another implementation. The separate CI lint defect is repaired
+through its ordinary owned repair path, without weakening the timing promise.
+
 Slice 1's raw-history acquisition decision, load-27 counterexample and six
 fault controls are retained in execution-evidence and G2. One
 `PublishedStoryHistory` acquisition owner supplies authored parents, profile

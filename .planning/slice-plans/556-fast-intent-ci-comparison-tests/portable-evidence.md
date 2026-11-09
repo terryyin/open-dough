@@ -127,6 +127,27 @@ integration did overlap the required external consumer gate at 14:39:02.926–
 environment limits remain explicit; no arbitrarily starved-machine guarantee
 is inferred from any profile.
 
+### Published checkpoint result and lint repair
+
+Progress candidate `80ef2d480d18da013c29eb8705e1ba5c47590fd9` was accepted
+and registered. Run 42640995642 attempt 1 has no failing dashboard case:
+all 167 rule owners match and pass. The twelve retained reports show nineteen
+reported rule durations over one second (max 1,501 ms), 21 cleanup prefixes
+over it (max 1,549 ms), and 24 conservative next-start upper bounds over it.
+Thus the experiment did not establish portable acceptance. G3 stays open;
+remaining-observation analysis must choose a supported strategy before more
+dependent implementation. No passing rerun will substitute for a correction.
+
+That run's only failed job is full-tree lint: the earlier GitHub-memory stub
+inherited contextual `any` from an unannotated JavaScript acquisition function.
+Its argv is now explicitly `string[]`, matching the real literal argv caller
+and archive contract. This one-line type annotation emits byte-identical
+JavaScript (3,679 bytes). Current owner tests pass 3/3 at 4/5/1 ms, typecheck
+and whitespace pass. Independent refactor found no further edit; actual
+formatter/hooks and the repair publication remain coordinator-owned.
+The complete failed-job log and all twelve HTML reports account for the
+original diagnostic's inaccessible-log gap. No test failure was waived.
+
 ## Existing timeout follow-up
 
 SEED-284 commit `625936070c372a5559e3baf25ad3e88668b2e2c9` already moved the

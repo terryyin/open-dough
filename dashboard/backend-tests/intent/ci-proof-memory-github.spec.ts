@@ -24,7 +24,7 @@ test("a valid chosen artifact is extracted once and reused across repository cas
     .please();
   const requests: string[][] = [];
   const reader = ciProofArtifactReader({
-    listing(args) {
+    listing(args: string[]) {
       requests.push(args);
       return Promise.resolve({
         artifacts: [
