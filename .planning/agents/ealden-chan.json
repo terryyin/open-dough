@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-286#fast-intent-ci-comparison-tests",
+  "mode": "story-branch",
+  "branch": "codex/make-the-intent-ci-comparison-tests-sub-second",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
