@@ -1,6 +1,7 @@
 # Consolidate the landed proof recovery journey
 
 **Source:** [Minimal retrospective correction](../../seeds/SEED-289-landed-proof-recovery-correction.md#consolidate-landed-proof-recovery)
+**Source review:** [source-review.md](./source-review.md)
 
 **Identity:** SEED-289#consolidate-landed-proof-recovery
 
@@ -106,12 +107,12 @@ No unresolved behavior/engine premise remains for planning; the combined
 stronger journey is execution work and must be green before deletion. Reuse
 retained baselines only while relevant inputs/profile remain unchanged.
 
-## Ordered slice
+## Ordered slices
 
 ### 1. Give pending landed-CI recovery one complete integration proof
 
 Type: Structure
-Status: planned
+Status: done
 Proof: The strengthened older lifecycle journey and both separate final-build
 backfill variants pass through the existing real boundaries and independent
 expected values; every proof row above remains owned.
@@ -189,4 +190,22 @@ product-backlog recorder; it grants no execution authority.
 
 ## Learnings
 
-None beyond the evidenced duplicate and distinct assertion ownership above.
+Scoped multi-landing history returns prior builds as proof gaps beside the
+recovered selected point; entry/folder/zero assertions target `run/43/1` within
+that full response rather than expecting a single-entry array as in the removed
+one-landing duplicate. Post-change refactor extracted `expectCollectedScopePoints`
+and public wall-time history answer builders so the strengthened journey stays
+under the 250-line file-size check.
+
+## Accepted proof (slice 1)
+
+Focused command green after consolidation and after refactor (3 cases):
+
+```sh
+caffeinate -s -i npm run test:dashboard -- backend-tests/intent/landed-ci-history-lifecycle.spec.ts backend-tests/intent/landed-ci-scope-proof-lifecycle.spec.ts --workers=1 --reporter=list
+```
+
+Also `npm run typecheck:dashboard`. Strengthened older journey owns retained
+validated summary, dual-collector then OFF-reader scoped reads, expired
+exclusion, mixed order, exact wall-time, concurrency, and development
+no-acquisition; both final-build backfill variants remain in the newer file.

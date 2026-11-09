@@ -15,6 +15,8 @@
 
 import path from "node:path";
 import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
+import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
+import { expectCollectedScopePoints } from "../../tests/support/collectedScopeReadProofs.ts";
 import {
   startFakeGitHub,
   type FakeGitHub,
@@ -26,17 +28,25 @@ import {
   landedRecord,
   minutesAgo,
   observedKinds,
+  restartAsLandedCiReader,
 } from "../../tests/support/landedCiHistory.ts";
+import {
+  exactHistoryPoint,
+  noBuildHistoryGap,
+  pendingBuildHistoryGap,
+  publicHistoryAnswer,
+} from "../../tests/support/landedCiHistoryAnswers.ts";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import { serveCollectedTrunkRuns } from "../../tests/support/landedCiScopeProofs.ts";
 import {
   passedFrom,
   publishedLanding,
   runningFrom,
   serveTrunkRuns,
-  timeAfter,
   trunkRun,
 } from "../../tests/support/landedCiTrunk.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
+import { collectedScopeFileSummary } from "../../tests/support/scopeHistoryProofs.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -81,13 +91,34 @@ test("landings recorded before collection starts are collected by its first pass
     at: minutesAgo(10),
   });
   // Each build from when its landing was recorded: `measured` built in
-  // 6 min 5 s; `running` still running.
+  // 6 min 5 s; `running` still running. Recovered run 43 carries explicit
+  // case/file timings through the shared CLI summary producer.
   let runs: readonly CiRunAnswer[] = [
     trunkRun(expired.revision, 40, passedFrom(expired.at, 5 * 60_000)),
     trunkRun(measured.revision, 41, passedFrom(measured.at, 365_000)),
     trunkRun(running.revision, 43, runningFrom(running.at)),
   ];
-  serveTrunkRuns(github, origin, () => runs);
+  const recoveredSummary = collectedScopeFileSummary(
+    {
+      repository: "terryyin/open-dough",
+      runId: 43,
+      attempt: 1,
+      revision: running.revision,
+    },
+    [
+      ["folder/a.spec.ts", 200, 20],
+      ["folder/zero.spec.ts", 0, 0],
+      ["root.spec.ts", 300, 30],
+    ],
+  );
+  serveCollectedTrunkRuns(
+    github,
+    origin,
+    () => runs,
+    () => ({
+      43: { kind: "collected", artifactId: 430, text: recoveredSummary },
+    }),
+  );
   // Recorded before any server here started; `expired`'s Done record has
   // expired, so it is outside the retained history.
   keepLaunchRecords(home, [
@@ -96,48 +127,17 @@ test("landings recorded before collection starts are collected by its first pass
     landedRecord(measured),
     landedRecord(running),
   ]);
-  const measuredPoint = {
-    kind: "point",
-    revision: measured.revision,
-    runUrl: "https://ci.invalid/runs/41",
+  const measuredPoint = exactHistoryPoint(measured, {
     runId: 41,
-    runAttempt: 1,
-    startedAt: measured.at,
-    completedAt: timeAfter(measured.at, 365_000),
-    landings: [
-      {
-        revision: measured.revision,
-        receivedAt: measured.at,
-        provenance: "exact",
-      },
-    ],
-  };
+    durationMs: 365_000,
+  });
   // CI built past `unbuilt` without building it: a final No build gap.
-  const unbuiltGap = {
-    kind: "gap",
-    reason: "no-build",
-    revision: unbuilt.revision,
-    receivedAt: unbuilt.at,
-  };
-  const pendingHistory = {
-    status: 200,
-    body: {
-      entries: [
-        measuredPoint,
-        unbuiltGap,
-        {
-          kind: "gap",
-          reason: "pending",
-          waitsFor: "build",
-          revision: running.revision,
-          receivedAt: running.at,
-          runUrl: "https://ci.invalid/runs/43",
-          runId: 43,
-          runAttempt: 1,
-        },
-      ],
-    },
-  };
+  const unbuiltGap = noBuildHistoryGap(unbuilt);
+  const pendingHistory = publicHistoryAnswer([
+    measuredPoint,
+    unbuiltGap,
+    pendingBuildHistoryGap(running, 43),
+  ]);
 
   await test.step("the first pass collects the landings already recorded: a point, then the unbuilt landing, a final gap because CI built past it, and a pending gap at the end", async () => {
     const first = await startServer();
@@ -182,31 +182,11 @@ test("landings recorded before collection starts are collected by its first pass
       startServer(),
       startServer(),
     ]);
-    const measuredHistory = {
-      status: 200,
-      body: {
-        entries: [
-          measuredPoint,
-          unbuiltGap,
-          {
-            kind: "point",
-            revision: running.revision,
-            runUrl: "https://ci.invalid/runs/43",
-            runId: 43,
-            runAttempt: 1,
-            startedAt: running.at,
-            completedAt: timeAfter(running.at, 430_000),
-            landings: [
-              {
-                revision: running.revision,
-                receivedAt: running.at,
-                provenance: "exact",
-              },
-            ],
-          },
-        ],
-      },
-    };
+    const measuredHistory = publicHistoryAnswer([
+      measuredPoint,
+      unbuiltGap,
+      exactHistoryPoint(running, { runId: 43, durationMs: 430_000 }),
+    ]);
     await expect
       .poll(() => landedCiHistory(restarted))
       .toEqual(measuredHistory);
@@ -218,6 +198,28 @@ test("landings recorded before collection starts are collected by its first pass
       [running.receipt]: "build",
     });
     expect(Object.keys(kept.builds).sort()).toEqual(["run/41/1", "run/43/1"]);
+    await expect
+      .poll(() => retainedHistory(home)?.builds["run/43/1"]?.proof)
+      .toEqual({
+        kind: "summary",
+        summary: JSON.parse(recoveredSummary) as unknown,
+      });
+
+    const recoveredScopes = [
+      ["dashboard/tests", 500, 50],
+      ["dashboard/tests/folder", 200, 20],
+      ["dashboard/tests/folder/zero.spec.ts", 0, 0],
+    ] as const;
+    const recoveredScope = {
+      key: "run/43/1",
+      revision: running.revision,
+      through: running.at,
+      scopes: recoveredScopes,
+    };
+    await expectCollectedScopePoints(
+      [restarted.origin, second.origin],
+      recoveredScope,
+    );
 
     // The development server, started before them, reads what they
     // collected and has asked CI nothing, before or after.
@@ -227,5 +229,18 @@ test("landings recorded before collection starts are collected by its first pass
         isActionsRequest(request),
       ),
     ).toEqual([]);
+
+    await second.close();
+    const reader = await restartAsLandedCiReader(restarted, origin, "boundary");
+    try {
+      const asked = github.calls.length;
+      await expectCollectedScopePoints(
+        [reader.origin, reader.origin],
+        recoveredScope,
+      );
+      expect(github.calls).toHaveLength(asked);
+    } finally {
+      await reader.close();
+    }
   });
 });
