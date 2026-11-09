@@ -4,19 +4,22 @@
 // (`./useIntentCiHistory.ts`). Under a heading with how many builds are
 // measured and over which dates, it says the history is collected from
 // dashboard-recorded landings, gives the latest measured build's CI wall
-// time, draws the measured builds as a line of CI wall time by date that a
-// landing not measured yet breaks (`./IntentCiHistoryChart.tsx`), and lists
-// each point and gap under Builds and evidence in the history's order: a
-// point with its date, CI wall time, how it measures its landing and the run
-// attempt it was measured from, linked to its run; a gap with the date its
-// landing was recorded, why it is not measured yet, its landed revision and
-// the run attempt it waits on, linked to its run when there is one. So a
-// keyboard, a screen reader and a phone get the same evidence without colour
-// (`./ciHistoryWords.ts`). With no measured build it says so in words and
-// draws nothing, still listing any landing not measured yet. Until its first
-// read answers it says it is reading; a failed read says why, beside any
-// history already shown. The judgment and Proof keep their own reading;
-// nothing here changes them. Its look is `./intent-ci-history.css`'s.
+// time, draws the measured builds as a line of CI wall time by date that each
+// gap breaks (`./IntentCiHistoryChart.tsx`), and lists each point and gap
+// under Builds and evidence in the history's order: a point with its date, CI
+// wall time, each landing it stands for and how -- the landed revision's own
+// build, a reused equivalent or a later trunk build, with the build's
+// revision -- and the run attempt it was measured from, linked to its run; a
+// gap with the date its landing was recorded, why it has no CI wall time --
+// pending and what it waits for, or why it never will -- its landed revision,
+// or the build that failed or named no CI wall time and how it stands for
+// the landing, and the run attempt it names, linked to its run when there is
+// one. So a keyboard, a screen reader and a phone get the same evidence
+// without colour (`./ciHistoryWords.ts`). With no measured build it says so
+// in words and draws nothing, still listing any gap. Until its first read
+// answers it says it is reading; a failed read says why, beside any history
+// already shown. The judgment and Proof keep their own reading; nothing here
+// changes them. Its look is `./intent-ci-history.css`'s.
 
 import { useId } from "react";
 import type { BaseCiRunIdentity } from "./baseCiConfirmation.ts";
@@ -25,9 +28,12 @@ import {
   buildDateWords,
   gapReasonWords,
   historyAttemptWords,
+  landingWords,
   measuredBuildsWords,
+  pointLandingsWords,
   pointWallTimeWords,
-  provenanceWords,
+  standsForWords,
+  type HistoryWords,
 } from "./ciHistoryWords.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
 import {
@@ -83,29 +89,59 @@ function RunAttempt({
   );
 }
 
-// One measured build in words: "Nov 5 · 6 min 5 s · exact revision a1b2c3d ·
-// Run 41 · attempt 1", the run attempt linked to its run.
+// Words with each revision set as code.
+function Words({ words }: { readonly words: HistoryWords }) {
+  return (
+    <>
+      {words.map((part, index) =>
+        typeof part === "string" ? (
+          part
+        ) : (
+          <code key={index}>{shortSha(part.revision)}</code>
+        ),
+      )}
+    </>
+  );
+}
+
+// One measured build in words: "Nov 5 · 6 min 5 s · exact revision a1b2c3d
+// (SEED-9#e) · reused equivalent a1b2c3d for b2c3d4e (SEED-9#r1) · Run 41 ·
+// attempt 1", the run attempt linked to its run.
 function BuildEvidence({ point }: { readonly point: MeasuredPoint }) {
   return (
     <li>
       <time dateTime={point.startedAt}>{buildDateWords(point.startedAt)}</time>
-      {` · ${pointWallTimeWords(point)} · ${provenanceWords(point)} `}
-      <code>{shortSha(point.revision)}</code>
+      {` · ${pointWallTimeWords(point)} · `}
+      <Words words={pointLandingsWords(point)} />
       <RunAttempt run={point} />
     </li>
   );
 }
 
-// One landing not measured yet in words: "Nov 9 · Pending · CI queued or
-// running · landed revision b2c3d4e · Run 42 · attempt 1", the run attempt
-// it waits on linked to its run.
+// One landing with no CI wall time in words: "Nov 9 · Pending · CI queued or
+// running · landed revision b2c3d4e · Run 42 · attempt 1", or "Nov 9 ·
+// Failed · exact revision e5f6a7b (SEED-9#g) · Run 45 · attempt 1", the run
+// attempt it names linked to its run.
 function GapEvidence({ gap }: { readonly gap: LandedCiGap }) {
+  const build = gap.reason === "pending" ? undefined : gap.build;
   return (
     <li>
       <time dateTime={gap.receivedAt}>{buildDateWords(gap.receivedAt)}</time>
-      {` · ${gapReasonWords(gap)} · landed revision `}
-      <code>{shortSha(gap.revision)}</code>
-      <RunAttempt run={gap} />
+      {` · ${gapReasonWords(gap)} · `}
+      {build === undefined ? (
+        <>
+          {"landed revision "}
+          <Words words={landingWords(gap)} />
+          {gap.reason === "pending" && <RunAttempt run={gap} />}
+        </>
+      ) : (
+        <>
+          <Words
+            words={standsForWords(build.provenance, build.revision, [gap])}
+          />
+          <RunAttempt run={build} />
+        </>
+      )}
     </li>
   );
 }

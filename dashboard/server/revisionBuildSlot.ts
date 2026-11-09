@@ -3,6 +3,7 @@
 // revision is not the timed build shown. Proof selection stays in
 // `./baseCiRevisionLookup.ts`; status classification stays in
 // `./requestedRevisionCiStatus.ts`.
+import type { CiProofUnavailableReason } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
@@ -31,6 +32,13 @@ export type RevisionBuildSlot =
       // A cancelled landing's forward walk stopped at the read trunk head or
       // a running build (`./laterTrunkBuild.ts`): a later build may come.
       readonly awaitingLaterBuild?: true;
+      // Story Branch Landed's own build at the landing was cancelled or
+      // timed out, and no later trunk build stands for it.
+      readonly cancelled?: true;
+      // Why the CI proof of the build that would have stood for the landing
+      // -- a confirmed skip's equivalent build, or a cancelled landing's
+      // nearest later trunk build -- could not be used.
+      readonly unusableProof?: CiProofUnavailableReason;
     }
   | {
       readonly kind: "not-applicable";

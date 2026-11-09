@@ -225,7 +225,7 @@ Accepted proof (2026-11-09). Same wrapper and `--workers=2` as slice 1.
 ### 3. Show provenance, gaps and the 20-build window
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 3 rows above.
 
 These landings resolve through the same rule:
@@ -244,6 +244,34 @@ Safe stopping point: the complete story promise. Sizing: the lookup already
 yields each case. The work is mapping slot kinds to point or gap reasons,
 grouping by build, and the window. That is one presentation-and-grouping
 proof loop.
+
+Accepted proof (2026-11-09). Same wrapper and `--workers=2`.
+
+- **Node:** `bash scripts/test.sh tests/support/dashboard-later-trunk-landed.test.mjs tests/support/dashboard-story-branch-ci-adapter.test.mjs tests/support/dashboard-ci-adapter-revision-lookup.test.mjs` passed.
+- **Backend:** `npm run test:dashboard -- backend-tests/intent` (81 passed). New specs:
+  - `landed-ci-history-gaps`: expired, unreadable after an hour, and a build that ends before it starts read "not recorded";
+  - `landed-ci-history-pending-sources`: skip, cancelled and adapter pending states (G4);
+  - `landed-ci-history-window`: the store bound (G3).
+- **Journeys:** `tests/intent/intent-ci-wall-time-history{,-pending,-provenance,-window,-adapter}.spec.ts` and `intent-ci-status-wall-time.spec.ts` passed.
+  - Provenance: one point naming E, R1 and R2; the reused c3 point; "Equivalent timing unavailable"; the d6 later-build point naming G and F with no line break; Failed with its run link and no point.
+  - Window: the newest 20 of 35, in trunk order, with the gaps among and after them; "20 measured builds · Oct 16–Nov 4"; a rising, falling and varying line; no window chooser; a gaps-only history says none measured yet.
+  - Adapter: points and explained gaps.
+  - All run at 390×844 with the keyboard path.
+- **Comparison journeys** that reach the shared Landed rule (skipped, cancelled landing and gaps, landing gaps, adapter): 33 passed. **Consumers:** CI status and Proof (40) and request accounting (22).
+- **Failing first:** boundary specs 8 failed and journeys 3 failed against HEAD.
+- **Load-sensitive tests:** this execution's slice 1–2 collection spec and pending journey timed out at 30 s under load 37–54. They now land through a cheaper real publication path and seeded MakeMe records. Both pass `--repeat-each=3` at load 16–20, and the history sets passed 11 and 8. Commitment 6.2 is now observed by the lifecycle spec's execution landing and the provenance journey.
+- **Decisions:**
+  - provenance is per landing on a point;
+  - a landing is named by its short revision plus its story identity when it has one;
+  - `cancelled` and `not-recorded` are added as distinct gap reasons;
+  - an unreadable equivalent or later-build proof waits an hour as pending "CI not read yet" before it becomes final;
+  - date order equals trunk order for every case the story names.
+- **Shared Landed rule:** it gained optional `cancelled` and `unusableProof` no-build fields. The Done comparison answer is unchanged.
+- **After the refactor pass** (`landedCiObservation.ts` extracted, one run-attempt copy, one window order, shared test support), the reruns passed:
+  - the six `backend-tests/intent/landed-ci-history-*.spec.ts` (11);
+  - the five history journeys plus `intent-ci-status-wall-time.spec.ts` (11);
+  - the Landed lookup and `makeMe` node tests.
+- **Pre-delivery consumer gate:** `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<tmp> npm run --silent test:dashboard -- tests/intent backend-tests/intent backend-tests/launches --workers=4` selected 623 tests. All 623 passed, with strict status passed, in 8.2 min at load 6–15. Workers were raised from 2 because the load had dropped; coverage is unchanged.
 
 ## Consumer trace and verification gates
 
@@ -337,17 +365,23 @@ Disposition: proved by slice 2: dashboard/backend-tests/intent/landed-ci-history
 ### G2. Final gaps are kept but not listed
 Reported: slice 2 — "final gaps are kept but not answered, so a landing that becomes a final no-build simply leaves the list until slice 3 adds its wording (21.3.1)."
 Story clause: "A landing whose CI is still pending, whose build failed, or whose timing is unavailable (no build, unreadable, expired, no equivalent) breaks the line and is listed with a short reason distinct for each case."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/tests/intent/intent-ci-wall-time-history-window.spec.ts 'of 35 measured builds…' lists Pending, Failed, No build, Equivalent timing unavailable, CI proof expired and CI proof unreadable as distinct items; dashboard/backend-tests/intent/landed-ci-history-gaps.spec.ts answers expired, unreadable after the hour and not-recorded gaps
 
 ### G3. The history store is unbounded per project
 Reported: slice 2 — "the store is still unbounded per project (the plan's PFE asks for a bound). Stale pending entries beyond the window would show until slice 3's window hides them."
 Story clause: "A bounded machine-local store of observations and landing references"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/backend-tests/intent/landed-ci-history-window.spec.ts 'once a pass holds 20 measured builds…' keeps exactly the window's landings and builds, drops older landings and a stale pending one, and lists runs only for the new revisions
 
 ### G4. Pending states of skip, cancelled and adapter landings are unobserved
 Reported: slice 2 — "Not tested: the 'waiting for a later trunk build' pending gap; the skip waiting on a running earlier build; adapter projects' pending states."
 Story clause: "It waits while CI is queued or running and takes the result when it completes."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/backend-tests/intent/landed-ci-history-pending-sources.spec.ts 'a skip resting on a running build and a cancelled landing…' (pending with the running build's run, then the reused point; 'waiting for a later trunk build', then the later-build point) and 'a CI adapter project's landing whose attempt is queued or running…' (pending, then its exact point)
+
+### G5. Pygardon fills 20 builds more slowly than assumed
+Reported: slice 3 — "At acceptance, a read of the machine's launch records on 2026-11-09 found Pygardon's newest 20 recorded trunk landings span 3.3 days, so 20 measured builds take longer than the assumed 2–3 days."
+Story clause: "Recent Open Dough and Pygardon activity fills 20 builds in about 2–3 days, and Doughnut in about a week."
+Disposition: no user cost "The story also tests whether the dashboard observes enough landings to make such a trend useful.": the fill rate describes recent activity, not product behavior; the heading states the actual measured count and date span, so a slower Pygardon shows fewer builds or a longer span rather than a wrong trend, and the reading answers the learning question
+Commitment: 31, 31.2
 
 ## Preparation review
 

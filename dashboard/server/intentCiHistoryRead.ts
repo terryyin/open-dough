@@ -1,11 +1,13 @@
 // Intent's CI wall time history read for the local authenticated read
 // boundary (`./authenticatedRead.ts`): `intent=ci-history`, naming nothing
-// more. It answers the project's measured builds and the landings still
-// pending (`./landedCiHistoryEntries.ts`) from this machine's collected landed
-// CI history (`./landedCiHistoryStore.ts`) alone and asks no CI, Git or
-// GitHub, so opening or refreshing CI status acquires no CI data for it,
-// before or after a restart, in whichever dashboard process serves it.
-// Collection is `./landedCiCollection.ts`'s. Anything else is refused here.
+// more. It answers the window of the project's history -- its newest 20
+// measured builds as points naming the landings they measure, and its
+// landings no build measures as gaps with why (`./landedCiHistoryEntries.ts`)
+// -- from this machine's collected landed CI history
+// (`./landedCiHistoryStore.ts`) alone and asks no CI, Git or GitHub, so
+// opening or refreshing CI status acquires no CI data for it, before or after
+// a restart, in whichever dashboard process serves it. Collection is
+// `./landedCiCollection.ts`'s. Anything else is refused here.
 
 import { readingCiHistoryOf } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";

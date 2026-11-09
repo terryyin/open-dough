@@ -30,12 +30,14 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  * The facts a launch states after it started: the final report, whether the
  * developer read it, the revision the work landed at, when the developer
  * marked the session Done, and what that mark could not finish natively.
- * A landing is received under a fixed receipt unless it states its own.
+ * A landing is received under a fixed receipt unless it states its own, and
+ * names the story it landed for only when the case states it.
  * @typedef {{
  *   completion?: ReportFacts,
  *   reportRead?: boolean,
  *   landedRevision?: string,
  *   landingReceipt?: string,
+ *   landingIdentity?: string,
  *   doneAt?: string,
  *   doneProblem?: string,
  * }} LaunchOutcome
@@ -70,15 +72,21 @@ function finalReport(
   };
 }
 
-// The landing under the receipt the case states, if it states one.
+// The landing under the receipt the case states, if it states one, naming
+// the story the case states it landed for, if it states one.
 /**
  * @param {LaunchLandingBuilder} landing
  * @param {string | undefined} receipt
+ * @param {string | undefined} identity
  */
-function received(landing, receipt) {
-  return receipt === undefined
-    ? landing
-    : landing.deliveredAs({ delivery: landingDelivery, receipt });
+function received(landing, receipt, identity) {
+  const delivered =
+    receipt === undefined
+      ? landing
+      : landing.deliveredAs({ delivery: landingDelivery, receipt });
+  return identity === undefined
+    ? delivered
+    : delivered.capturedFrom({ repository: "open-dough", identity });
 }
 
 // What a launch's builder states about the launch after it started
@@ -107,15 +115,17 @@ export class LaunchOutcomeBuilder {
 
   /**
    * The session's work landed on `main` at this revision, received under a
-   * fixed receipt unless the case states the receipt the dashboard gave it.
+   * fixed receipt unless the case states the receipt the dashboard gave it,
+   * naming the story it landed for when the case states one.
    * @param {string} revision a 40-character commit id
-   * @param {{ receipt?: string }} [received]
+   * @param {{ receipt?: string, identity?: string }} [received]
    */
-  landedAt(revision, { receipt } = {}) {
+  landedAt(revision, { receipt, identity } = {}) {
     this.#outcome = {
       ...this.#outcome,
       landedRevision: revision,
       ...(receipt !== undefined && { landingReceipt: receipt }),
+      ...(identity !== undefined && { landingIdentity: identity }),
     };
     return this;
   }
@@ -145,6 +155,7 @@ export class LaunchOutcomeBuilder {
       reportRead,
       landedRevision,
       landingReceipt,
+      landingIdentity,
       doneAt,
       doneProblem,
     } = this.#outcome;
@@ -160,6 +171,7 @@ export class LaunchOutcomeBuilder {
             .comparing({ base: "c3".repeat(20), revision: landedRevision })
             .receivedAt(at),
           landingReceipt,
+          landingIdentity,
         ).please(),
       }),
       ...(doneAt !== undefined && { doneAt }),

@@ -1,45 +1,112 @@
 // This machine's landed CI history (`./landedCiHistoryStore.ts`) as Intent's
-// CI status reads it (`./intentCiHistoryRead.ts`): one list, oldest first, of
-// each measured build once as a point (`./landedCiMeasuredBuilds.ts`) and
-// each landing whose resolution is not final yet as a pending gap, with what
-// it waits for, at the time the dashboard recorded it. A point stands at its
-// build's start. A gap whose CI read named its run or link in a form the page
-// does not take is answered without them. Final gaps are kept but not yet
-// answered.
+// CI status reads it (`./intentCiHistoryRead.ts`): its window
+// (`./landedCiMeasuredBuilds.ts`) as one list, oldest first, of each
+// measured build once as a point naming every landing of the window it
+// measures and how, and each other landing of the window as a gap with why:
+// pending with what it waits for; failed, or naming no CI wall time, with the
+// build that measures it; or the reason its final resolution was kept with.
+// A point stands at its build's start, a gap at the time the dashboard
+// recorded its landing. A run link that is not a web address is left out,
+// keeping the run attempt it names.
 
 import {
   entryDate,
-  landedCiGapSchema,
+  runUrlSchema,
   type LandedCiEntry,
   type LandedCiGap,
+  type LandedCiPoint,
+  type MeasuredLanding,
 } from "../src/landedCiHistory.ts";
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
-import { measuredPoints } from "./landedCiMeasuredBuilds.ts";
+import {
+  measuredBuildOf,
+  provenanceOf,
+  windowLandings,
+} from "./landedCiMeasuredBuilds.ts";
+import {
+  keptRunOf,
+  type KeptRun,
+  type Observation,
+} from "./landedCiObservation.ts";
 
-// Each landing of the history still pending, as a gap.
-function pendingGaps(history: ProjectHistory): LandedCiGap[] {
-  const gaps: LandedCiGap[] = [];
-  for (const { revision, receivedAt, observed } of Object.values(
-    history.landings,
-  )) {
-    if (observed.kind !== "pending") continue;
-    const gap = {
+// A run attempt as the history answers it: its identity, and its link only
+// when that is a web address.
+function runOf(run: KeptRun) {
+  const { runUrl, ...identity } = keptRunOf(run);
+  return {
+    ...(runUrlSchema.safeParse(runUrl).success ? { runUrl } : {}),
+    ...identity,
+  };
+}
+
+type Landing = Pick<MeasuredLanding, "revision" | "receivedAt" | "identity">;
+
+// The gap of a landing of the window no build measures.
+function gapOf(
+  history: ProjectHistory,
+  landing: Landing,
+  observed: Observation,
+): LandedCiGap {
+  if (observed.kind === "pending")
+    return {
       kind: "gap",
       reason: "pending",
       waitsFor: observed.waitsFor,
-      revision,
-      receivedAt,
-    } as const;
-    const withRun = landedCiGapSchema.safeParse({ ...gap, ...observed.run });
-    const parsed = withRun.success ? withRun : landedCiGapSchema.safeParse(gap);
-    if (parsed.success) gaps.push(parsed.data);
-  }
-  return gaps;
+      ...landing,
+      ...(observed.run === undefined ? {} : runOf(observed.run)),
+    };
+  if (observed.kind === "gap")
+    return { kind: "gap", reason: observed.reason, ...landing };
+  const build = history.builds[observed.build];
+  const provenance = provenanceOf(observed.selection);
+  if (build === undefined || provenance === undefined)
+    return { kind: "gap", reason: "no-build", ...landing };
+  return {
+    kind: "gap",
+    reason: build.state === "failed" ? "failed" : "not-recorded",
+    ...landing,
+    build: { revision: build.revision, provenance, ...runOf(build) },
+  };
 }
 
-// The history's points and pending gaps, oldest first.
+// The history's window as its points and gaps, oldest first.
 export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
-  return [...measuredPoints(history), ...pendingGaps(history)].sort(
+  const measuring = new Map<string, MeasuredLanding[]>();
+  const gaps: LandedCiGap[] = [];
+  // Oldest first, so a point names its landings oldest first.
+  for (const kept of windowLandings(history).reverse()) {
+    const { revision, receivedAt, identity, observed } = kept;
+    const landing = {
+      revision,
+      receivedAt,
+      ...(identity === undefined ? {} : { identity }),
+    };
+    const key = measuredBuildOf(history, observed);
+    const provenance =
+      observed.kind === "build" ? provenanceOf(observed.selection) : undefined;
+    if (key === undefined || provenance === undefined) {
+      gaps.push(gapOf(history, landing, observed));
+      continue;
+    }
+    const measured = measuring.get(key) ?? [];
+    measured.push({ ...landing, provenance });
+    measuring.set(key, measured);
+  }
+  const points: LandedCiPoint[] = [];
+  for (const [key, landings] of measuring) {
+    const build = history.builds[key];
+    if (build?.startedAt === undefined || build.completedAt === undefined)
+      continue;
+    points.push({
+      kind: "point",
+      revision: build.revision,
+      ...runOf(build),
+      startedAt: build.startedAt,
+      completedAt: build.completedAt,
+      landings,
+    });
+  }
+  return [...points, ...gaps].sort(
     (a, b) =>
       Date.parse(entryDate(a)) - Date.parse(entryDate(b)) ||
       a.revision.localeCompare(b.revision),

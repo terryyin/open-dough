@@ -182,7 +182,10 @@ The production dashboard server collects Project Intent's CI wall time history w
 page is open: a pass runs when it starts, when it records an accepted landing, and every two
 minutes, over this machine's recorded landings onto each configured project's ref and the landings
 the history keeps, newest first, and stops once the history holds 20 measured builds for the
-project. A pass asks only about landings not yet final, so a pass with none asks GitHub nothing.
+project, counting a reused equivalent or later trunk build once however many landings it measures.
+A pass asks only about landings not yet final, so a pass with none asks GitHub nothing. The history
+keeps only those landings, so a landing older than the 20th measured build's is never asked about
+again, even while its launch record is kept.
 For a `ciWorkflow` project, a pass that has landings to resolve looks the workflow up once, then
 lists push runs once per revision it asks about (`head_sha=`): the landed revision, plus one read
 of each earlier attempt of a run whose latest attempt was cancelled; a confirmed skip and a
@@ -198,9 +201,12 @@ and never asked again, by any dashboard process of this user on this machine; a 
 failed read) is asked again every two minutes until it is final, so while builds run a project
 costs one workflow lookup and one listing per pending landing every two minutes. A failed read
 ends that project's pass, so CI that cannot be read costs one failed request per project every
-two minutes. A development server collects nothing. Showing the history asks GitHub nothing: it is
-read from that file with each read of the trunk's CI status judgment, and **Check again** reads
-it again the same way.
+two minutes. A confirmed skip's equivalent build, or a cancelled landing's later trunk build at the
+end of its forward walk, whose CI proof could not be read is asked again the same way: its
+artifact listing (and zip, when listed) every two minutes, for an hour after the landing was
+recorded, before the landing is a final gap. A development server collects nothing. Showing the
+history asks GitHub nothing: it is read from that file with each read of the trunk's CI status
+judgment, and **Check again** reads it again the same way.
 
 Inspecting recent failed reads, the incident record that keeps them across processes, how an output
 bound is reported, and what the installed CI diagnostic retains are in [Read

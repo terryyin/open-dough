@@ -15,10 +15,6 @@
 import path from "node:path";
 import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
 import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import {
   startFakeGitHub,
   type FakeGitHub,
 } from "../../tests/support/fakeGitHub.ts";
@@ -29,14 +25,15 @@ import {
   landedRecord,
   minutesAgo,
   observedKinds,
+} from "../../tests/support/landedCiHistory.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  passedBetween,
   publishedLanding,
-  recheckingLandedCi,
   serveTrunkRuns,
   trunkRun,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../tests/support/landedCiTrunk.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
-import type { StartOrigin } from "../../tests/support/startOrigin.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -44,37 +41,17 @@ test.use({ serverMode: "boundary" });
 // Marked Done longer ago than a Done record is kept (30 days).
 const expiredDoneAt = () => minutesAgo(31 * 24 * 60);
 
-// The servers a test starts on its origin's machine, all closed after it.
-const started: DashboardServer[] = [];
+// The GitHubs a test starts beside its own, all closed after it.
 const githubs: FakeGitHub[] = [];
 
 test.afterEach(async () => {
-  await Promise.all(started.splice(0).map((server) => server.close()));
   await Promise.all(githubs.splice(0).map((github) => github.close()));
 });
-
-// A boundary server in `environment` on the origin's machine, its `gh`
-// answered by `github`, collecting as a production dashboard does.
-async function dashboardOn(
-  origin: StartOrigin,
-  github: FakeGitHub,
-  environment: "production" | "development" = "production",
-): Promise<DashboardServer> {
-  const server = await startDashboardServer({
-    mode: "boundary",
-    environment,
-    github,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    extraEnv: recheckingLandedCi,
-  });
-  started.push(server);
-  return server;
-}
 
 test("landings recorded before collection starts are collected by its first pass; one still running stays a pending gap through a restart and is measured once by two collecting processes, from the history's own reference after its Done record expired; a development server reads the same history and asks CI nothing", async ({
   origin,
   github,
+  startServer,
 }) => {
   const home = path.join(origin.machine, "home");
   // Four landings on trunk, oldest first: `expired` recorded and marked Done
@@ -102,18 +79,16 @@ test("landings recorded before collection starts are collected by its first pass
   });
   // `measured` built in 6 min 5 s; `running` still running.
   let runs: readonly CiRunAnswer[] = [
-    trunkRun(expired.revision, 40, {
-      conclusion: "success",
-      createdAt: "2026-11-05T09:00:00Z",
-      startedAt: "2026-11-05T09:00:00Z",
-      completedAt: "2026-11-05T09:05:00Z",
-    }),
-    trunkRun(measured.revision, 41, {
-      conclusion: "success",
-      createdAt: "2026-11-05T10:00:00Z",
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:06:05Z",
-    }),
+    trunkRun(
+      expired.revision,
+      40,
+      passedBetween("2026-11-05T09:00:00Z", "2026-11-05T09:05:00Z"),
+    ),
+    trunkRun(
+      measured.revision,
+      41,
+      passedBetween("2026-11-05T10:00:00Z", "2026-11-05T10:06:05Z"),
+    ),
     trunkRun(running.revision, 43, {
       status: "in_progress",
       createdAt: "2026-11-05T10:30:00Z",
@@ -131,18 +106,32 @@ test("landings recorded before collection starts are collected by its first pass
   const measuredPoint = {
     kind: "point",
     revision: measured.revision,
-    provenance: "exact",
     runUrl: "https://ci.invalid/runs/41",
     runId: 41,
     runAttempt: 1,
     startedAt: "2026-11-05T10:00:00Z",
     completedAt: "2026-11-05T10:06:05Z",
+    landings: [
+      {
+        revision: measured.revision,
+        receivedAt: measured.at,
+        provenance: "exact",
+      },
+    ],
+  };
+  // CI built past `unbuilt` without building it: a final No build gap.
+  const unbuiltGap = {
+    kind: "gap",
+    reason: "no-build",
+    revision: unbuilt.revision,
+    receivedAt: unbuilt.at,
   };
   const pendingHistory = {
     status: 200,
     body: {
       entries: [
         measuredPoint,
+        unbuiltGap,
         {
           kind: "gap",
           reason: "pending",
@@ -158,7 +147,7 @@ test("landings recorded before collection starts are collected by its first pass
   };
 
   await test.step("the first pass collects the landings already recorded: a point, a pending gap at the end, and the unbuilt landing, recorded half an hour ago, a final gap because CI built past it", async () => {
-    const first = await dashboardOn(origin, github);
+    const first = await startServer();
     await expect
       .poll(() => observedKinds(keptLandedCiHistory(home)))
       .toEqual({
@@ -180,22 +169,20 @@ test("landings recorded before collection starts are collected by its first pass
   );
   runs = [
     ...runs.slice(0, 2),
-    trunkRun(running.revision, 43, {
-      conclusion: "success",
-      createdAt: "2026-11-05T10:30:00Z",
-      startedAt: "2026-11-05T10:30:00Z",
-      completedAt: "2026-11-05T10:37:10Z",
-    }),
+    trunkRun(
+      running.revision,
+      43,
+      passedBetween("2026-11-05T10:30:00Z", "2026-11-05T10:37:10Z"),
+    ),
   ];
   // A development server on the machine, asking a GitHub of its own.
   const developmentGitHub = await startFakeGitHub();
   githubs.push(developmentGitHub);
   serveTrunkRuns(developmentGitHub, origin, () => runs);
-  const development = await dashboardOn(
-    origin,
-    developmentGitHub,
-    "development",
-  );
+  const development = await startServer({
+    github: developmentGitHub,
+    environment: "development",
+  });
 
   await test.step("a development server reads the same history, still pending", async () => {
     expect(await landedCiHistory(development)).toEqual(pendingHistory);
@@ -203,8 +190,8 @@ test("landings recorded before collection starts are collected by its first pass
 
   await test.step("two collecting processes start after CI completes: the pending landing is measured once, from the history's own reference", async () => {
     const [restarted, second] = await Promise.all([
-      dashboardOn(origin, github),
-      dashboardOn(origin, github),
+      startServer(),
+      startServer(),
     ]);
     const measuredHistory = {
       status: 200,
@@ -214,13 +201,20 @@ test("landings recorded before collection starts are collected by its first pass
           {
             kind: "point",
             revision: running.revision,
-            provenance: "exact",
             runUrl: "https://ci.invalid/runs/43",
             runId: 43,
             runAttempt: 1,
             startedAt: "2026-11-05T10:30:00Z",
             completedAt: "2026-11-05T10:37:10Z",
+            landings: [
+              {
+                revision: running.revision,
+                receivedAt: running.at,
+                provenance: "exact",
+              },
+            ],
           },
+          unbuiltGap,
         ],
       },
     };

@@ -96,6 +96,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
   assert.deepEqual(atHead, {
     kind: "none",
     explanation: `${cancelled} No later trunk build has finished yet.`,
+    cancelled: true,
     awaitingLaterBuild: true,
   });
   assert.equal(isFinalCiComparisonAnswer(answerWith(atHead)), false);
@@ -116,6 +117,7 @@ test("a cancelled landing without later proof says why, and only a walk that may
   assert.deepEqual(stillRunning, {
     kind: "none",
     explanation: `${cancelled} A later trunk build at ${short(later1)} (run 63 #1) is still running, so no later trunk build has finished yet.`,
+    cancelled: true,
     awaitingLaterBuild: true,
   });
   assert.equal(isFinalCiComparisonAnswer(answerWith(stillRunning)), false);
@@ -136,7 +138,9 @@ test("a cancelled landing without later proof says why, and only a walk that may
   assert.deepEqual(prooflessBeforeRunning, {
     kind: "none",
     explanation: `${cancelled} The nearest later trunk build at ${short(later1)} (run 65 #1) published no CI proof summary. A later trunk build at ${short(later2)} (run 66 #1) is still running.`,
+    cancelled: true,
     awaitingLaterBuild: true,
+    unusableProof: "none",
   });
   assert.equal(
     isFinalCiComparisonAnswer(answerWith(prooflessBeforeRunning)),
@@ -160,6 +164,8 @@ test("a cancelled landing without later proof says why, and only a walk that may
   assert.deepEqual(capped, {
     kind: "none",
     explanation: `${cancelled} The nearest later trunk build at ${short(deep.later[0])} (run 71 #1) published no CI proof summary.`,
+    cancelled: true,
+    unusableProof: "none",
   });
   assert.equal(isFinalCiComparisonAnswer(answerWith(capped)), true);
 });
@@ -203,6 +209,7 @@ test("Story Branch Landed keeps a rerun attempt's own build and a timed-out land
   assert.deepEqual(slot, {
     kind: "none",
     explanation: "The CI build at the landing merge timed out.",
+    cancelled: true,
   });
   assert.ok(!timedOut.listed.includes(later1));
 });

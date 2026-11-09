@@ -1,19 +1,22 @@
 // Project Intent's CI wall time history in CI status
 // (../../src/IntentCiHistory.tsx) while a landing's CI is pending, on a real
-// bare origin (../support/startOrigin.ts) whose dashboard collects recorded
-// landings' CI and checks pending ones again at a test's pace: a landing
-// recorded while its CI runs is a pending gap after the last point, which CI
-// status reads again with each trunk reading and never on time alone, and
-// which becomes a point once its CI completes and the trunk reading
-// refreshes (SEED-285#see-landed-ci-wall-time-history example 2). The
-// measured point and the empty history are in
-// ./intent-ci-wall-time-history.spec.ts.
+// bare origin (../support/startOrigin.ts) whose dashboard collects the
+// landings this machine's launch records name and checks pending ones again
+// at a test's pace: a landing recorded while its CI runs is a pending gap
+// after the last point, which CI status reads again with each trunk reading
+// and never on time alone, and which becomes a point once its CI completes
+// and the trunk reading refreshes (SEED-285#see-landed-ci-wall-time-history
+// example 2). The measured point and the empty history are in
+// ./intent-ci-wall-time-history.spec.ts; a landing the publication reports
+// is collected in
+// ../../backend-tests/intent/landed-ci-history-collection.spec.ts.
 
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import {
+  dayWords,
   historyOf,
   openProjectCiStatus,
   publishTrunk,
@@ -24,13 +27,17 @@ import type { CiRunAnswer } from "../support/baseCiActions.ts";
 import {
   landedCiHistory,
   recheckingLandedCi,
-  resultToLand,
-  trunkRun,
+  storyLandingRecord,
 } from "../support/landedCiHistory.ts";
+import {
+  landedTrunk,
+  passedBetween,
+  trunkRun,
+} from "../support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
-import { land } from "../support/startSessionLandingContext.ts";
 import type { Page } from "@playwright/test";
 
 // How many times the page has asked for the trunk's CI status judgment
@@ -77,33 +84,37 @@ test.describe("checking pending landings again", () => {
     origin,
   }) => {
     await pausePageClockAt(page, new Date());
-    // The first landing's build took 6 min 5 s.
-    const first = await resultToLand(dashboard, "first.txt");
-    const firstRun = trunkRun(first.revision, 41, {
-      conclusion: "success",
-      createdAt: "2026-11-05T10:00:00Z",
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:06:05Z",
-    });
-    let runs: readonly CiRunAnswer[] = [firstRun];
-    await publishTrunk(page, origin, () => runs);
-    land(first.record, origin, dashboard.home);
-    await expect
-      .poll(() => landedCiHistory(dashboard))
-      .toMatchObject({
-        body: { entries: [{ kind: "point", revision: first.revision }] },
-      });
-    // The second lands while its CI runs.
-    const second = await resultToLand(dashboard, "second.txt");
-    runs = [
+    // Two landings on trunk from ad hoc sessions, a minute apart: the
+    // first's build took 6 min 5 s; the second landed while its CI runs.
+    const { landing } = landedTrunk(
+      origin,
+      [
+        { title: "first", kind: "code" },
+        { title: "second", kind: "code" },
+      ],
+      ["first", "second"],
+    );
+    const first = landing("first");
+    const second = landing("second");
+    const firstRun = trunkRun(
+      first.revision,
+      41,
+      passedBetween("2026-11-05T10:00:00Z", "2026-11-05T10:06:05Z"),
+    );
+    let runs: readonly CiRunAnswer[] = [
       firstRun,
       trunkRun(second.revision, 42, {
         status: "in_progress",
         createdAt: "2026-11-05T10:30:00Z",
       }),
     ];
-    const { receipt } = land(second.record, origin, dashboard.home).result
-      .landing;
+    await publishTrunk(page, origin, () => runs);
+    // The dashboard has recorded both landings; its next check collects
+    // them.
+    keepLaunchRecords(dashboard.home, [
+      storyLandingRecord(first, "ad hoc"),
+      storyLandingRecord(second, "ad hoc"),
+    ]);
     await expect
       .poll(() => landedCiHistory(dashboard))
       .toMatchObject({
@@ -123,11 +134,7 @@ test.describe("checking pending landings again", () => {
     const builds = history.getByRole("list", { name: "Builds and evidence" });
     const firstPoint = `Nov 5 · 6 min 5 s · exact revision ${shortSha(first.revision)} · Run 41 · attempt 1`;
     // The day the dashboard recorded it, on the reader's clock.
-    const recorded = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-    }).format(new Date(receipt.receivedAt));
-    const pendingGap = `${recorded} · Pending · CI queued or running · landed revision ${shortSha(second.revision)} · Run 42 · attempt 1`;
+    const pendingGap = `${dayWords(second.at)} · Pending · CI queued or running · landed revision ${shortSha(second.revision)} · Run 42 · attempt 1`;
 
     await test.step("CI status shows the pending gap after the last point, linked to its run", async () => {
       await expect(heading).toHaveText(
@@ -152,12 +159,11 @@ test.describe("checking pending landings again", () => {
     // Its CI completes in 7 min 10 s, and collection measures it.
     runs = [
       firstRun,
-      trunkRun(second.revision, 42, {
-        conclusion: "success",
-        createdAt: "2026-11-05T10:30:00Z",
-        startedAt: "2026-11-05T10:30:00Z",
-        completedAt: "2026-11-05T10:37:10Z",
-      }),
+      trunkRun(
+        second.revision,
+        42,
+        passedBetween("2026-11-05T10:30:00Z", "2026-11-05T10:37:10Z"),
+      ),
     ];
     await expect
       .poll(() => landedCiHistory(dashboard))

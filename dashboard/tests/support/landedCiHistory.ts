@@ -5,27 +5,22 @@
 // landings again in at a test's pace; an unattached Start session's result
 // committed in its isolated workspace, for the installed publication to land
 // (./startSessionLandingContext.ts), or a trunk landing already recorded in
-// the machine's launch records; trunk's builds served to the server's `gh`
-// with no page open; the history read (`intent=ci-history`,
-// ../../server/intentCiHistoryRead.ts) as the server answers it; and the
-// history file every dashboard process on the machine shares
-// (../../server/landedCiHistoryStore.ts), as collection left it.
+// the machine's launch records, for a story's execution or refinement or ad
+// hoc, and how the history read names a story's landing; the history read
+// (`intent=ci-history`, ../../server/intentCiHistoryRead.ts) as the server
+// answers it; and the history file every dashboard process on the machine
+// shares (../../server/landedCiHistoryStore.ts), as collection left it or as
+// a case keeps it. Trunk's changes and CI are ./landedCiTrunk.ts's.
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { expect } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import type { CiRunAnswer } from "./baseCiActions.ts";
-import { actionsForRuns } from "./baseCiActions.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { notFoundAnswer } from "../originAnswers.ts";
-import type { FakeGitHub } from "./fakeGitHub.ts";
-import { isActionsRequest } from "./ghActionsRequest.ts";
 import { commit } from "./launchLanding.ts";
-import { publishes } from "./publishedRepository.ts";
 import { rawRequest } from "./rawHttp.ts";
-import { originMain } from "./sessionDialog.ts";
-import type { StartOrigin } from "./startOrigin.ts";
 import {
   launched,
   type UnattachedPolicy,
@@ -65,24 +60,8 @@ export async function resultToLand(
 export const minutesAgo = (minutes: number) =>
   new Date(Date.now() - minutes * 60_000).toISOString();
 
-// A revision published on the origin's trunk for the landing titled `title`,
-// with the receipt and time the dashboard records that landing under.
-export async function publishedLanding(
-  origin: StartOrigin,
-  landing: {
-    readonly title: string;
-    readonly receipt: string;
-    readonly at: string;
-  },
-) {
-  return {
-    ...landing,
-    revision: await origin.publishRevision({
-      message: `Land ${landing.title}`,
-      files: { [`${landing.title}.txt`]: `${landing.title}\n` },
-    }),
-  };
-}
+// The story a recorded landing titled `title` landed for: `SEED-9#<title>`.
+const storyOf = (title: string) => ({ identity: `SEED-9#${title}`, title });
 
 // A trunk landing the dashboard recorded for an execution, kept in the
 // machine's launch records: the execution that landed it, its revision, the
@@ -98,48 +77,54 @@ export function landedRecord(
   doneAt?: string,
 ) {
   const record = makeMe.aLaunchRecord
-    .executing({ identity: `SEED-9#${landing.title}`, title: landing.title })
+    .executing(storyOf(landing.title))
     .launchedAt(landing.at)
     .landedAt(landing.revision, { receipt: landing.receipt });
   return (doneAt === undefined ? record : record.markedDoneAt(doneAt)).please();
 }
 
-// A push run of trunk's selected workflow at `revision`: run `id`, its first
-// attempt, linked under ci.invalid, with the facts the case states.
-export const trunkRun = (
-  revision: string,
-  id: number,
-  facts: Partial<CiRunAnswer>,
-): CiRunAnswer =>
-  makeMe.aCiRun
-    .with({
-      headSha: revision,
-      id,
-      attempt: 1,
-      url: `https://ci.invalid/runs/${String(id)}`,
-      ...facts,
+// A trunk landing the dashboard recorded, kept in the machine's launch
+// records, naming the story it landed for: `SEED-9#<title>`'s execution or
+// refinement; or an ad hoc session's, naming none.
+export function storyLandingRecord(
+  landing: {
+    readonly title: string;
+    readonly revision: string;
+    readonly receipt: string;
+    readonly at: string;
+  },
+  workflow: "execution" | "refinement" | "ad hoc",
+) {
+  const story = storyOf(landing.title);
+  const launch =
+    workflow === "execution"
+      ? makeMe.aLaunchRecord.executing(story)
+      : workflow === "refinement"
+        ? makeMe.aLaunchRecord.refining(story)
+        : makeMe.aLaunchRecord.adHoc({
+            instruction: `Land ${landing.title}`,
+            title: landing.title,
+          });
+  return launch
+    .launchedAt(landing.at)
+    .landedAt(landing.revision, {
+      receipt: landing.receipt,
+      ...(workflow === "ad hoc" ? {} : { identity: story.identity }),
     })
     .please();
-
-// Open Dough's trunk as GitHub answers the server's `gh` with no page open:
-// the origin's `main` as published when asked, with `runs` of that `main` as
-// the selected workflow's push runs, whichever revision or branch a listing
-// names; while `readable` says no, every Actions read is not found.
-export function serveTrunkRuns(
-  github: FakeGitHub,
-  origin: StartOrigin,
-  runs: (main: string) => readonly CiRunAnswer[],
-  readable: () => boolean = () => true,
-): void {
-  github.serve("terryyin/open-dough", async (call) => {
-    if (!readable() && isActionsRequest(call.request)) return notFoundAnswer();
-    const main = await originMain(origin);
-    return (
-      actionsForRuns(runs(main))(call.argv, main) ??
-      publishes({ revision: main })(call)
-    );
-  });
 }
+
+// A landing `storyLandingRecord` recorded for a story, as the history read
+// names it.
+export const answeredLanding = (landing: {
+  readonly title: string;
+  readonly revision: string;
+  readonly at: string;
+}) => ({
+  revision: landing.revision,
+  receivedAt: landing.at,
+  identity: storyOf(landing.title).identity,
+});
 
 // Open Dough's landed CI wall-time history as the server answers it now.
 export async function landedCiHistory(
@@ -152,6 +137,10 @@ export async function landedCiHistory(
   return { status: answer.status, body: JSON.parse(answer.body) as unknown };
 }
 
+// The machine's history file, which every dashboard process on it shares.
+const historyFile = (home: string) =>
+  path.join(home, ".open-dough/dashboard/landed-ci-history.json");
+
 // What the machine's history file keeps for Open Dough now: each landing's
 // observation by its receipt, and each build by its run and attempt; nothing
 // before collection first wrote it.
@@ -161,7 +150,7 @@ export function keptLandedCiHistory(home: string): {
   >;
   readonly builds: Readonly<Record<string, unknown>>;
 } {
-  const file = path.join(home, ".open-dough/dashboard/landed-ci-history.json");
+  const file = historyFile(home);
   const kept = existsSync(file)
     ? (JSON.parse(readFileSync(file, "utf8")) as Record<
         string,
@@ -169,6 +158,17 @@ export function keptLandedCiHistory(home: string): {
       >)
     : {};
   return kept["open-dough"] ?? { landings: {}, builds: {} };
+}
+
+// Keeps `history` as Open Dough's in the machine's history file, as
+// collection would have left it.
+export function keepLandedCiHistory(
+  home: string,
+  history: ProjectHistory,
+): void {
+  const file = historyFile(home);
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify({ "open-dough": history }));
 }
 
 // What each landing the history keeps resolved to, by its receipt.
@@ -179,3 +179,19 @@ export const observedKinds = (kept: ReturnType<typeof keptLandedCiHistory>) =>
       observed.kind,
     ]),
   );
+
+// Waits until the machine's history keeps what each of `landings` resolved
+// to, one landing at a time, newest first, as a collection pass walks and
+// keeps them, so each wait covers one landing's CI reads.
+export async function untilKept(
+  home: string,
+  landings: readonly { readonly receipt: string; readonly at: string }[],
+): Promise<void> {
+  const newestFirst = [...landings].sort(
+    (a, b) => Date.parse(b.at) - Date.parse(a.at),
+  );
+  for (const { receipt } of newestFirst)
+    await expect
+      .poll(() => observedKinds(keptLandedCiHistory(home))[receipt])
+      .toBeDefined();
+}

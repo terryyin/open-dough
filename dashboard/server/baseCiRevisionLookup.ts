@@ -192,7 +192,11 @@ export async function lookupResultBuild(
             exact,
             walkingProofAbsence(exact),
           );
-        return { kind: "none", explanation: exact.timedOutExplanation };
+        return {
+          kind: "none",
+          explanation: exact.timedOutExplanation,
+          cancelled: true,
+        };
       }
       const status = await requestedRevisionCiStatus(
         target,

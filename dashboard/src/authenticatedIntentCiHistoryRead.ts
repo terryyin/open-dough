@@ -1,8 +1,8 @@
 // Project Intent's CI wall time history, read through the local
 // authenticated read boundary (`../server/intentCiHistoryRead.ts`) with
-// `intent=ci-history`: the project's measured landed builds from this
-// machine's collected history, which asks CI nothing (`./landedCiHistory.ts`),
-// each with its CI wall time.
+// `intent=ci-history`: the window of the project's measured landed builds and
+// gaps from this machine's collected history, which asks CI nothing
+// (`./landedCiHistory.ts`), each point with its CI wall time.
 
 import { authenticatedGet, unexpectedAnswer } from "./authenticatedGet.ts";
 import { readingCiHistoryOf } from "./authenticatedReadRules.ts";
