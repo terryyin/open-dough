@@ -69,7 +69,14 @@ export async function showColumn(page: Page, column: ColumnName) {
     }
     const { x, y, width, height } = await box(toward);
     const shownTo = Math.min(y + height, window.height);
+    // The press is heard in a later turn, so the row standing still between
+    // two readings does not yet say it moved: wait for the row to name its
+    // new leftmost column and for that slide to end.
+    const row = page.locator(".board-row");
+    const from = await row.getAttribute("style");
     await page.mouse.click(x + width / 2, (Math.max(y, 0) + shownTo) / 2);
+    await expect(row).not.toHaveAttribute("style", from ?? "");
+    await expect(row).not.toHaveAttribute("data-sliding");
   }
   await rested();
 }

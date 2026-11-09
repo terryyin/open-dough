@@ -8,6 +8,7 @@
 
 import type { Page } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
+import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   intentDiff,
@@ -57,9 +58,9 @@ test("Intent's Review changes link opens a marked story's review on Intent's com
     await development.click();
     await openStoryReview(page, card);
     await markReviewed(review);
-    // Closing the review clears the selected story; select it again for Intent.
+    // Closing the review keeps the story selected for Intent (ADR 0008).
     await closeReview(page);
-    await card.getByRole("heading", { level: 3 }).click();
+    await expectSelected(card, true);
     await intentChoice.click();
   });
 

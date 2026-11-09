@@ -60,7 +60,8 @@ test("card, Recently done and sidebar review the retained report with attention,
   await page.keyboard.press("Meta+Shift+Escape");
   await expect(panel).toHaveCount(0);
   await expect(open).toBeFocused();
-  await expectSelected(card(notRefinedStory), false);
+  // Closing keeps the story selected (ADR 0008).
+  await expectSelected(card(notRefinedStory), true);
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });

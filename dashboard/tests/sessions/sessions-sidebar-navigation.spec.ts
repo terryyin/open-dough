@@ -5,8 +5,8 @@
 // card scrolls into view, highlighted as the selected story, its session entry
 // saying "Shown in terminal", and the sidebar entry is current. Another entry
 // moves the selection and both marks, the entry already shown is not attached
-// again, and closing the terminal clears the selection and the marks and
-// returns the keyboard to the entry. Nothing it does changes a story or a
+// again, and closing the terminal clears the marks, keeps the story selected
+// (ADR 0008), and returns the keyboard to the entry. Nothing it does changes a story or a
 // session. The page's own dashboard server launches and attaches the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
@@ -159,12 +159,15 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect(panel.getByRole("heading")).toHaveText(readyStory);
     });
 
-    await test.step("closing the terminal clears both marks and returns the keyboard to the entry", async () => {
+    await test.step("closing the terminal clears both marks, keeps the story selected, and returns the keyboard to the entry", async () => {
       await panel.getByRole("button", { name: "Close" }).click();
       await expect(panel).toHaveCount(0);
       await expect(shownMark).toHaveCount(0);
       await expect(page.locator(".in-side-panel")).toHaveCount(0);
-      await expectSelected(card(readyStory), false);
+      await expectSelected(card(readyStory), true);
+      for (const other of [takenStory, notRefinedStory]) {
+        await expectSelected(card(other), false);
+      }
       await expect(sidebar.locator("[aria-current]")).toHaveCount(0);
       await expect(entry(readyStory)).toBeFocused();
     });

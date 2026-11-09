@@ -3,6 +3,7 @@
 **Identity:** SEED-275#preserve-story-on-panel-close
 
 **Source:** [Keep the selected story when the Side panel closes](../../seeds/SEED-275-story-intent-tabs.md#preserve-story-on-panel-close)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -39,7 +40,7 @@ already states the preserve rule; no new ADR or North Star topic.
 ### 1. Preserve the selected story on every Side panel dismissal
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the table above; typecheck and the touched Intent, navigation, and
 session specs.
 
@@ -47,6 +48,30 @@ session specs.
 close the panel preserve the selection at dismissal. Intent reading and
 keyboard return to an available opener stay. Navigation and Intent guidance
 match. Opening a no-story session still clears.
+
+Accepted proof: typecheck; focused intent/sessions specs plus
+`navigation/story-card-selection.spec.ts` (9 passed); whole `intent`,
+`sessions`, `review`, and `navigation` directories (619/620, the one load flake
+repaired below); touch specs 71/71, every `focusByTouch` user ×5 85/85, all
+`showColumn` users 143/143. Commitments observed in
+[source-review.md](source-review.md).
+
+Learnings:
+
+- Removing clear-on-close reached more consumers than the premise named:
+  `session-workspace-retirement*.spec.ts`, `development-intent-frame-sessions`,
+  and `intent-story-changes-marked`, where a re-select workaround now toggled
+  the story off. Running `review` and `navigation` found them.
+- Local-only failures repaired under the failing-test policy: phone
+  `story-review-touch` timed out on slow CDP touch moves (`scrollByTouch` now
+  uses 4 moves per plain stroke); terminal touch Paste and readiness taps hit
+  `.xterm-screen` because xterm keeps stale rows until its ResizeObserver
+  refits and long macOS temp paths shrank the box enough to overflow the
+  toolbar (`.terminal-screen` now `overflow: clip`; `focusByTouch` waits for
+  the refit); `showColumn` treated a not-yet-started slide as settled (it now
+  waits for the row's `--leftmost` to change and `data-sliding` to clear).
+- Refactor: Intent reading-pane scroll helpers shared in
+  `dashboard/tests/intentPerspectivePage.ts`.
 
 ## Proof and delivery gates
 

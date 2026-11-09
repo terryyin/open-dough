@@ -1,7 +1,7 @@
 // Mark as done in the page's one terminal (../terminals/agent-terminal.spec.ts), on the
 // committed story-columns origin (../launchJourney.ts): while it marks, the panel
-// says so quietly; then the panel closes, clearing its story's selection, the
-// session leaves its card, and Recently done shows the entry Done under its
+// says so quietly; then the panel closes, keeping its story selected (ADR
+// 0008), the session leaves its card, and Recently done shows the entry Done under its
 // `done-` name, still openable.
 // How the boundary renames and stops the session is ../../backend-tests/sessions/agent-launch-done.spec.ts, how
 // the page reopens it is ./agent-terminal-done-reopen.spec.ts, and a card
@@ -122,8 +122,8 @@ test.describe("marking a session done from its terminal", () => {
     expect(await colourOf(marking)).toBe(await tokenColour(page, "--quiet"));
     release();
     await expect(panel).toHaveCount(0);
-    // The panel the mark closed leaves no selected story.
-    await expectSelected(card(readyStory), false);
+    // The panel the mark closed keeps the story selected.
+    await expectSelected(card(readyStory), true);
 
     await expect(listed).toHaveCount(0);
     await expect(sessionStateOf(entry)).toHaveText("Done");

@@ -3,8 +3,8 @@
 // ../src/dashboardRouteUrl.ts): the address that names them, Intent group
 // and folder expand helpers for the locations column, how many Intent
 // locations reads the page asks, Intent's not-configured content when the
-// project publishes no intent locations, the Purpose of the selected file,
-// and the notice of a newer revision (../src/IntentRevisionNotice.tsx).
+// project publishes no intent locations, the Purpose of the selected file
+// and the pane that scrolls its reading, and the notice of a newer revision (../src/IntentRevisionNotice.tsx).
 // Reading-mode strip helpers: ./intentModePage.ts. How a location header
 // reads: ./intentLocationHeaderLook.ts.
 
@@ -186,6 +186,38 @@ export function purposeRegion(intent: Locator) {
 // Intent's Proof of the selected file (../src/IntentFileReading.tsx).
 export function proofRegion(intent: Locator) {
   return intent.getByRole("region", { name: "Proof", exact: true });
+}
+
+// The pane that scrolls the selected file's reading.
+export const intentReadingPane = (intent: Locator) =>
+  intent.locator(".intent-reading");
+
+export const intentReadingScroll = (intent: Locator) =>
+  intentReadingPane(intent).evaluate((element) => element.scrollTop);
+
+// Scrolls the reading pane halfway, as the developer reading would, and
+// returns the offset it came to rest at.
+export async function scrollIntentReadingHalfway(intent: Locator) {
+  const offset = await intentReadingPane(intent).evaluate(
+    (element) =>
+      new Promise<number>((resolve) => {
+        const most = element.scrollHeight - element.clientHeight;
+        if (most < 40) {
+          resolve(0);
+          return;
+        }
+        element.addEventListener(
+          "scroll",
+          () => {
+            resolve(element.scrollTop);
+          },
+          { once: true },
+        );
+        element.scrollTo({ top: Math.floor(most / 2) });
+      }),
+  );
+  expect(offset).toBeGreaterThan(20);
+  return offset;
 }
 
 // Purpose and Proof tabs of the selected file.

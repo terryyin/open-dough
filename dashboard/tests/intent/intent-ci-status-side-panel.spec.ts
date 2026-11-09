@@ -2,9 +2,11 @@
 // lens and CI status read (../../src/pageSidePanel.ts, ../../src/intentCiTarget.ts):
 // reading a Taken story's final report from its card selects and highlights
 // that story, and Intent names it and judges its story branch; another
-// story's final report moves the selection there; closing the panel, or
-// showing a session attached to no story, clears it, and CI status judges
-// `main` again. A card's toggle selects without changing the panel. The
+// story's final report moves the selection there. A card's toggle selects
+// without changing the panel, and closing the panel keeps the story selected
+// then (ADR 0008), which Intent still judges. Showing a session attached to no
+// story clears it, CI status judges `main` again, and closing that session's
+// terminal leaves Intent at project scope. The
 // stories' saved workspaces are gone, so each card's session offers its final
 // report; the ad hoc session is listed by the synthetic `claude`
 // (./fixtures/fake-claude). The board is ../intentCiStoryBoard.ts.
@@ -37,7 +39,7 @@ function goneWorkspaceRecord(
     .please();
 }
 
-test("the Side panel's content selects its story for Intent's lens and CI status, and closing it or an ad hoc session clears it to main", async ({
+test("the Side panel's content selects its story for Intent's lens and CI status, closing it keeps the selection at that moment, and an ad hoc session clears it to main", async ({
   page,
   dashboard,
 }) => {
@@ -100,17 +102,21 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await development.click();
   });
 
-  await test.step("a card's toggle selects without changing the panel; closing the panel clears the selection, and CI status judges main", async () => {
+  await test.step("a card's toggle selects without changing the panel; closing the panel keeps that selection, which Intent still judges", async () => {
     await card(page, failing.title).locator("h3").click();
     await expectSelected(card(page, failing.title), true);
     await expectSelected(card(page, running.title), false);
     await expect(report).toContainText(running.title);
     await report.getByRole("button", { name: "Close", exact: true }).click();
     await expect(report).toHaveCount(0);
-    await expectSelected(card(page, failing.title), false);
+    await expectSelected(card(page, failing.title), true);
+    await expectSelected(card(page, running.title), false);
     const panel = await onIntent();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expectNamed(panel, "main");
+    await expect(intent).toHaveAttribute(
+      "data-selected-story",
+      `SEED-219#${failing.anchor}`,
+    );
+    await expectNamed(panel, failing.branch);
     await development.click();
   });
 
@@ -122,6 +128,18 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await sidebar.entry("Open Dough session").click();
     await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
     await expectSelected(card(page, failing.title), false);
+    const panel = await onIntent();
+    await expect(intent).not.toHaveAttribute("data-selected-story");
+    await expectNamed(panel, "main");
+  });
+
+  await test.step("closing that session's terminal with no story selected leaves Intent at project scope", async () => {
+    await development.click();
+    const terminal = page.getByRole("region", { name: "Terminal" });
+    await terminal.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(terminal).toHaveCount(0);
+    await expectSelected(card(page, failing.title), false);
+    await expectSelected(card(page, running.title), false);
     const panel = await onIntent();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expectNamed(panel, "main");

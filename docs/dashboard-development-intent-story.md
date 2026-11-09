@@ -53,11 +53,11 @@ whose accessible name and hover text explain it (for example "2 changed files
 outside Intent locations — open Review changes"). It is absent when no changed
 file is outside the locations. Activating it opens Review changes on Intent's
 comparison (All changes, uncommitted included) even for a story with a review
-mark. Closing that review clears the selected story, as any Side panel close
-does, and the keyboard returns to the chosen tab of Project Intent, which
-Intent then shows. A changed file's Purpose is Review changes' diff of
-it, and Proof holds that file's comparison when available. A story without a
-comparison, and a failed read with retry, each say so while the published tree
+mark. Closing that review keeps the selected story, as any Side panel close
+does, so Intent keeps the story's tab, file, and reading place, and the
+keyboard returns to the control that opened the review. A changed file's
+Purpose is Review changes' diff of it, and Proof holds that file's comparison
+when available. A story without a comparison, and a failed read with retry, each say so while the published tree
 stays usable; clearing the selected story removes the header and shows
 Project Intent, whose Proof is judged-run evidence. The story is a lens on Intent, not a separate
 definition of it, and its changed files are an initial view of its impact:
