@@ -37,6 +37,9 @@ Taken heading line is unchanged.
 ### Keep the selected story when the Side panel closes
 
 **Identity:** SEED-275#preserve-story-on-panel-close
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/546-preserve-story-on-panel-close/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"da4990c41554a636b622adc88ef1fd394dd0c33d5fe2a962c2b42a76616316dc","plan":"d19c266170baaf8cccf481db70e0bc73b3962e1a5f7393da3af05e2faf923f2a"}}
+```
 
 **Goal.** A developer can dismiss a review, terminal, or final report and
 continue working with the story they currently have selected.
