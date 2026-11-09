@@ -1,31 +1,31 @@
-import { comparisonBuildSource } from "../../dashboard/server/comparisonBuildSource.ts";
 // The cancelled-landing forward walk in Story Branch Landed
 // (`lookupResultBuild`, `laterTrunkCancelledSlot`): a cancelled landing
-// without later proof keeps its explanation and says why; its answer is
-// remembered only when the walk cannot gain a later build. Timed-out and
-// rerun-passed landings stay exact. Nothing unavailable, in any slot or as
-// the whole answer, is remembered either. The walk itself lives in
-// ./dashboard-later-trunk-build.test.mjs.
+// without later proof keeps its explanation and says why, naming the build
+// it could not use -- the nearest later trunk build whose proof is
+// unusable, and whether GitHub left that proof read unanswered, or else its
+// own cancelled build; its answer is remembered only when the walk cannot
+// gain a later build. Nothing unavailable, in any slot or as the whole
+// answer, is remembered either. The walk itself lives in
+// ./dashboard-later-trunk-build.test.mjs; timed-out and rerun-passed
+// landings, which stay exact, in ./dashboard-landed-exact-build.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { lookupResultBuild } from "../../dashboard/server/baseCiRevisionLookup.ts";
-import {
-  baselineAncestorLimit,
-  storyBranchLandedExactLookup,
-} from "../../dashboard/server/exactSkippedEquivalent.ts";
+import { baselineAncestorLimit } from "../../dashboard/server/exactSkippedEquivalent.ts";
+import { unreadableBy } from "../../dashboard/server/ciProofArtifact.ts";
 import { isFinalCiComparisonAnswer } from "../../dashboard/server/intentCiComparisonAnswers.ts";
 import { laterTrunkCancelledSlot } from "../../dashboard/server/laterTrunkBuild.ts";
+import { GitHubAcquisitionFailed } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import {
   absent,
+  exactFor,
   lookupOf,
+  ownBuild,
+  sourceFor,
   run,
   trunk,
   trunkOf,
 } from "./dashboard-later-trunk-fixture.mjs";
-
-function exactFor() {
-  return storyBranchLandedExactLookup(false, "main");
-}
 
 function answerWith(landed, slots = {}) {
   return {
@@ -74,7 +74,7 @@ test("an answer with anything unavailable is read again; a final gap is remember
   );
 });
 
-test("a cancelled landing without later proof says why, and only a walk that may still gain a build is not remembered", async (t) => {
+test("a cancelled landing without later proof says why and names the build it could not use, and only a walk that may still gain a build is not remembered", async (t) => {
   const repo = await trunk(t);
   const head = repo.later[3];
   const short = (sha) => sha.slice(0, 7);
@@ -83,23 +83,16 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const atHead = await lookupResultBuild(
     head,
     head,
-    comparisonBuildSource(
-      lookupOf({ [head]: [run(head, 61, "cancelled")] }).lookup,
-      repo.call,
-      "ci.yml",
-      {
-        repository: "terryyin/open-dough",
-        signal: new AbortController().signal,
-      },
-    ),
+    sourceFor(repo, lookupOf({ [head]: [run(head, 61, "cancelled")] }).lookup),
     "missing",
     exactFor(),
-    undefined,
   );
   assert.deepEqual(atHead, {
     kind: "none",
     explanation: `${cancelled} No later trunk build has finished yet.`,
+    cancelled: true,
     awaitingLaterBuild: true,
+    unusableBuild: ownBuild(head, 61),
   });
   assert.equal(isFinalCiComparisonAnswer(answerWith(atHead)), false);
 
@@ -107,26 +100,22 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const stillRunning = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    comparisonBuildSource(
+    sourceFor(
+      repo,
       lookupOf({
         [repo.landing]: [run(repo.landing, 62, "cancelled")],
         [later1]: [run(later1, 63, null, { status: "in_progress" })],
       }).lookup,
-      repo.call,
-      "ci.yml",
-      {
-        repository: "terryyin/open-dough",
-        signal: new AbortController().signal,
-      },
     ),
     "missing",
     exactFor(),
-    undefined,
   );
   assert.deepEqual(stillRunning, {
     kind: "none",
     explanation: `${cancelled} A later trunk build at ${short(later1)} (run 63 #1) is still running, so no later trunk build has finished yet.`,
+    cancelled: true,
     awaitingLaterBuild: true,
+    unusableBuild: ownBuild(repo.landing, 62),
   });
   assert.equal(isFinalCiComparisonAnswer(answerWith(stillRunning)), false);
 
@@ -134,25 +123,32 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const prooflessBeforeRunning = await laterTrunkCancelledSlot(
     repo.landing,
     cancelledRuns,
-    comparisonBuildSource(
+    sourceFor(
+      repo,
       lookupOf({
         [later1]: [run(later1, 65, "success")],
         [later2]: [run(later2, 66, null, { status: "in_progress" })],
       }).lookup,
-      repo.call,
-      "ci.yml",
-      {
-        repository: "terryyin/open-dough",
-        signal: new AbortController().signal,
-      },
     ),
     exactFor(),
     async () => absent("none"),
   );
+  // A later build as the walk names it: run 65 from noon for 3 min.
+  const laterBuild = (revision, runId) => ({
+    revision,
+    selection: "later",
+    runId,
+    runAttempt: 1,
+    startedAt: "2026-11-05T12:00:00Z",
+    completedAt: "2026-11-05T12:03:00Z",
+  });
   assert.deepEqual(prooflessBeforeRunning, {
     kind: "none",
     explanation: `${cancelled} The nearest later trunk build at ${short(later1)} (run 65 #1) published no CI proof summary. A later trunk build at ${short(later2)} (run 66 #1) is still running.`,
+    cancelled: true,
     awaitingLaterBuild: true,
+    unusableProof: "none",
+    unusableBuild: laterBuild(later1, 65),
   });
   assert.equal(
     isFinalCiComparisonAnswer(answerWith(prooflessBeforeRunning)),
@@ -167,63 +163,50 @@ test("a cancelled landing without later proof says why, and only a walk that may
   const capped = await laterTrunkCancelledSlot(
     deep.landing,
     runs[deep.landing],
-    comparisonBuildSource(lookupOf(runs).lookup, deep.call, "ci.yml", {
-      repository: "terryyin/open-dough",
-      signal: new AbortController().signal,
-    }),
+    sourceFor(deep, lookupOf(runs).lookup),
     exactFor(),
     async () => absent("none"),
   );
   assert.deepEqual(capped, {
     kind: "none",
     explanation: `${cancelled} The nearest later trunk build at ${short(deep.later[0])} (run 71 #1) published no CI proof summary.`,
+    cancelled: true,
+    unusableProof: "none",
+    unusableBuild: laterBuild(deep.later[0], 71),
   });
   assert.equal(isFinalCiComparisonAnswer(answerWith(capped)), true);
-});
 
-test("Story Branch Landed keeps a rerun attempt's own build and a timed-out landing exact without walking forward", async (t) => {
-  const repo = await trunk(t);
-  const [later1] = repo.later;
-  const exact = exactFor();
-  const rerun = lookupOf({
-    [repo.landing]: [run(repo.landing, 41, "success", { attempt: 2 })],
-    [later1]: [run(later1, 42, "success")],
-  });
-  const own = await lookupResultBuild(
-    repo.landing,
-    repo.landing,
-    comparisonBuildSource(rerun.lookup, repo.call, "ci.yml", {
-      repository: "terryyin/open-dough",
-      signal: new AbortController().signal,
-    }),
-    "missing",
-    exact,
-    undefined,
+  // No later build over the whole bound: final, naming its own build.
+  const unbuilt = await laterTrunkCancelledSlot(
+    deep.landing,
+    [run(deep.landing, 80, "cancelled")],
+    sourceFor(deep, lookupOf({}).lookup),
+    exactFor(),
+    async () => undefined,
   );
-  assert.equal(own.kind, "build");
-  assert.equal(own.runId, 41);
-  assert.equal(own.selection, "exact");
-  assert.equal(own.requestedStatus, undefined);
-  assert.ok(!rerun.listed.includes(later1));
-
-  const timedOut = lookupOf({
-    [repo.landing]: [run(repo.landing, 51, "timed_out")],
-    [later1]: [run(later1, 52, "success")],
-  });
-  const slot = await lookupResultBuild(
-    repo.landing,
-    repo.landing,
-    comparisonBuildSource(timedOut.lookup, repo.call, "ci.yml", {
-      repository: "terryyin/open-dough",
-      signal: new AbortController().signal,
-    }),
-    "missing",
-    exact,
-    undefined,
-  );
-  assert.deepEqual(slot, {
+  assert.deepEqual(unbuilt, {
     kind: "none",
-    explanation: "The CI build at the landing merge timed out.",
+    explanation: `${cancelled} No later trunk build finished within ${String(baselineAncestorLimit)} later trunk revisions.`,
+    cancelled: true,
+    unusableBuild: ownBuild(deep.landing, 80),
   });
-  assert.ok(!timedOut.listed.includes(later1));
+  assert.equal(isFinalCiComparisonAnswer(answerWith(unbuilt)), true);
+
+  // GitHub left the nearest later build's proof read unanswered.
+  const unanswered = unreadableBy(
+    new GitHubAcquisitionFailed("repos/o/r/actions/runs/71/artifacts", {
+      kind: "http",
+      status: 502,
+    }),
+  );
+  const unread = await laterTrunkCancelledSlot(
+    deep.landing,
+    runs[deep.landing],
+    sourceFor(deep, lookupOf(runs).lookup),
+    exactFor(),
+    async (build) => (build.runId === 71 ? unanswered : absent("none")),
+  );
+  assert.equal(unread.unusableProof, "unreadable");
+  assert.equal(unread.proofUnanswered, true);
+  assert.deepEqual(unread.unusableBuild, laterBuild(deep.later[0], 71));
 });

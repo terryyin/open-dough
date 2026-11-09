@@ -19,6 +19,12 @@ endpoint excluded. Compute the median once, exclude values strictly above
 fast values and zeros. Do not round before filtering or calculation. This is
 an inspectable reference, not causal attribution or statistical confidence.
 
+The delivered store retains 20 measured builds in total, not 20 predecessors
+per Done story. A retained selected build therefore has at most 19 prior
+samples, fewer for an older retained endpoint or after exclusions. This may
+span about a day on Open Dough; the actual count/span and insufficient-history
+state own that limitation. Do not extend retention to satisfy the minimum.
+
 Exclude reruns, slowdown flags, configurable thresholds/windows, more retention
 or backfill, historical rename inference, a separate Done wall-time chart and
 new CI acquisition. Planning authorizes no implementation or Take.
@@ -35,17 +41,24 @@ belongs with Intent under ADR 0000. The existing
 already establishes shared evidence interpretation and local derivation; no
 new architecture topic or aggregate store is needed.
 
-PFE at `0d92177ead4aaf8f9364afeddd9d5227d0208e52`, 2026-11-09:
+PFE originally at `0d92177ead4aaf8f9364afeddd9d5227d0208e52`, 2026-11-09;
+delivered-history contracts reconciled at `0c32a9335` later that day:
 
-- [Project history plan 551](../551-see-landed-ci-wall-time-history/PLAN.md)
+- [The delivered project history](../../../docs/dashboard-development-intent-ci-status.md)
   owns retained landing-to-attempt evidence, trunk ordering, distinct-build
   windows, project presentation and local read lifecycle.
   [Scope history plan 554](../554-trace-landed-proof-timing/PLAN.md) owns
   retained validated proof, supported entry/path/unit readings, Done endpoint
-  selection and entry/folder/file history. These owners are planned work in
-  this checkout, not available implementation contracts. Reconcile their
-  delivered owners before editing integration paths; preserve active owners'
-  uncommitted files. Do not duplicate collection, storage or resolution.
+  selection and entry/folder/file history. The project wall-time owner is now
+  delivered at `0c32a9335`: `landedCiCollection.ts`, `landedCiHistoryStore.ts`,
+  `landedCiMeasuredBuilds.ts` and `intentCiHistoryRead.ts` keep/read the newest
+  20 distinct measured builds and their gaps. Stored builds carry timings and
+  identities, not validated summaries. Scope history and proof retention remain
+  plan 554's work, including proof backfill for already-final wall-time builds.
+  Reconcile that extension before integrating completeness-based averages;
+  a wall-time point alone does not establish complete test proof. Preserve
+  active owners' uncommitted files. Do not duplicate collection, storage or
+  resolution.
 - Existing `publishedStoryEndpoints.ts` and `intentCiComparisonResolve.ts`
   distinguish the published Done endpoint from the measured Landed slot.
   Reuse that fact via the history reading context; story identity, completion
@@ -63,10 +76,11 @@ PFE at `0d92177ead4aaf8f9364afeddd9d5227d0208e52`, 2026-11-09:
   the existing story endpoint, while the new reference is `Prior-build average`.
 - `IntentCiComparisonSummary.tsx`, `IntentScopeProof.tsx` and
   `IntentFileProof.tsx` are the current reading owners. Extend their delivered
-  history presentation rather than creating another Intent route. The
-  [mockup](../551-see-landed-ci-wall-time-history/intent-landed-ci-mockups.html)
-  shows a horizontal reference for the displayed endpoint, not a rolling
-  historical curve. Its sample membership is illustrative, not the algorithm.
+  history presentation rather than creating another Intent route. Follow the
+  [delivered CI status history](../../../docs/dashboard-development-intent-ci-status.md)
+  and `IntentCiHistory.tsx` for dated points/gaps and readable build evidence.
+  Add one horizontal reference for the displayed endpoint, not a rolling
+  historical curve. The spent plan's mockup is no longer an active input.
 
 One common rule selects prior attempts, projects the requested comparable
 measure, records exclusion reasons, and derives the reference. Wall-time and
@@ -123,9 +137,10 @@ percentage. A selected measurement without usable proof retains any usable prior
 reference with an unavailable difference. No older evidence is fetched to fill
 the reference and no upstream read starts on browsing.
 
-First reconcile the published 551/554 collection/read payloads for completeness
-and trunk order; use the current owner. Build the common selection and reference
-rule within that reading domain, not a new persistence or provider path. Include
+First reconcile the delivered project-history owner and plan 554's proof
+extension for completeness and endpoint order; use the current owner.
+Build the common selection and reference rule within that reading domain,
+not a new persistence or provider path. Include
 all safety boundaries from the start: selected-attempt exclusion, no measured
 revision at/after endpoint, one attempt once, single-pass median filter, exact
 threshold, complete fast observations and separate wall-proof eligibility.
@@ -237,7 +252,7 @@ on 2026-11-09. `npm ci --ignore-scripts` succeeded; no product code was changed.
 | --- | --- | --- |
 | Existing timing and relative-change owners handle measured/zero/unrecorded input and precise scope differences | Shared-MakeMe Node probe below in this checkout, Node v24.21.0 | Complete 1200 ms and zero both measured; untimed entry has present part but no test timing; zero reference gives +1.2 s without relative; 1200→1500 gives +300 ms and +25%. Confirms distinct wall completeness and test timing. No new averaging behavior is claimed. |
 | Browser proof route can load the selected existing Intent scenarios | `npm run test:dashboard -- --list dashboard/tests/intent/intent-ci-status-execution-time.spec.ts dashboard/tests/intent/intent-ci-comparison.spec.ts` after local install | Exit 0. Settles runner/spec-import prefix only; actual new comparison journeys remain failing-first execution work. Tests use isolated FakeGitHub/local store, not production data. |
-| History and Done-source work can be consumed without duplicating owners | Read plans 550/551/554 and current endpoint/proof consumers | These are planned integration outcomes, not a claim that a history implementation exists. Independent common selection/calculation can start; every affected slice reconciles the delivered contract before its integration. No unobserved paid, credentialed, native or owner-held operation is assumed. |
+| History and Done-source work can be consumed without duplicating owners | Initial preparation read plans 550/551/554; amendment at `0c32a9335` read maintained Intent CI status/story docs and delivered collector/store/window/local reader | Project wall-time history is delivered with 20 measured builds total, gaps and shared-build references, but no stored proof summary. Plan 554 supplies validated proof retention/backfill and scoped readings; averages must not infer completeness from a wall-time point. Independent calculation can still start; reconcile proof extension before integration. This contract observation claims no new behavior proof. |
 
 ```sh
 node --input-type=module <<'NODE'
@@ -259,9 +274,23 @@ NODE
   enable the later story's automatic rerun or its separate 5% hypothesis.
 - The existing retained cohort bounds prior candidates. Exclusions do not cause
   acquisition or backfill, and missing/partial values never become zeros.
+  The delivered 20-build total permits at most 19 prior samples for a retained
+  measured endpoint; older Done results may have too few or no retained samples.
 - Read the selected represented endpoint separately from its measured attempt;
   shared equivalent and later-trunk sources require both identities.
 - A horizontal average reference belongs to the displayed endpoint. A whole
   curve of historical moving averages is outside this increment.
 - All planned proof is still owed. Preparation observations establish current
   reusable behavior and route availability, not execution completion.
+- The two SEED-288 follow-ups remain queued: do not assume shared pending
+  judgment or proof-free adapter equivalent timing is delivered. Wall-time
+  reuse without proof would still not satisfy this story's complete-proof
+  candidate rule.
+
+## Delivered-history amendment — 2026-11-09
+
+Terry's follow-up reconciles this plan with the delivered 20-build store and
+plan 554's proof-retention responsibility. Retain all three Behavior slices,
+their existing proof maps and calibration. No larger window, slice replacement,
+sizing exception, resplit or execution is introduced. Reassess against the
+actual published proof extension before dependent integration.

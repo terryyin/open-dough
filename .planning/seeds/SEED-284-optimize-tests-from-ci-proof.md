@@ -132,7 +132,7 @@ Roll out:
 - Reuse the candidate reader and the existing CI proof contract, including its
   attempt identity, timing units, and gap reporting, and the explicit test
   case and test file units that
-  [SEED-281](SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof)
+  SEED-281 (released in 0.3.93; see `src/skills/dough-test-optimization/references/ci-proof-summary.md`)
   adds wherever a summary carries them.
 - Pilot the new default on one ordinary Pygardon pytest pass, in a subordinate
   Pygardon workspace of this execution that reads the guidance from this

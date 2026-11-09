@@ -6,8 +6,10 @@
 // `./authenticatedIntentCiProofRead.ts`); or a selected done / Taken Trunk Mode
 // story's CI comparison (`./useIntentCiComparison.ts`) with each endpoint's
 // proof summary (`./useIntentCiComparisonEntries.ts`); or a Taken Story Branch
-// story's live judgment plus provisional comparison. Intent's CI status
-// homepage (`./IntentCiStatus.tsx`), a selected entry's or folder's Summary
+// story's live judgment plus provisional comparison. Beside the trunk's
+// judgment it reads the project's collected CI wall time history
+// (`./useIntentCiHistory.ts`) with each read of that judgment. Intent's CI
+// status homepage (`./IntentCiStatus.tsx`), a selected entry's or folder's Summary
 // (`./IntentScopeProof.tsx`), and a selected file's Proof
 // (`./IntentFileProof.tsx`) all read it, so selecting, drilling and returning
 // home ask CI nothing again. The judgment (`./useIntentCiJudgment.ts`) is read
@@ -36,6 +38,10 @@ import {
   type JudgedReading,
 } from "./useIntentCiJudgment.ts";
 import {
+  useIntentCiHistory,
+  type HistoryReading,
+} from "./useIntentCiHistory.ts";
+import {
   useIntentCiShownProof,
   type ShownProof,
 } from "./useIntentCiShownProof.ts";
@@ -60,6 +66,8 @@ export type CiEvidence =
       readonly story: string | undefined;
       readonly judged: JudgedReading;
       readonly proof: ShownProof | undefined;
+      // The trunk's: its collected CI wall time history.
+      readonly history?: HistoryReading;
       // Taken Story Branch: provisional comparison beside the live judgment.
       readonly comparison?: ComparisonReading;
       readonly comparisonStory?: string;
@@ -111,6 +119,12 @@ export function IntentCiEvidenceProvider({
     target.kind === "judged" ? target.head : undefined,
   );
   const proof = useIntentCiShownProof(source, judged.shown);
+  const history = useIntentCiHistory(
+    source,
+    target.kind === "judged" && target.story === undefined
+      ? judged.round
+      : undefined,
+  );
   const comparison = useIntentCiComparison(
     source,
     comparisonIdentity,
@@ -141,6 +155,7 @@ export function IntentCiEvidenceProvider({
       story: target.story,
       judged,
       proof,
+      ...(history === undefined ? {} : { history }),
       ...(target.comparisonIdentity === undefined
         ? {}
         : {

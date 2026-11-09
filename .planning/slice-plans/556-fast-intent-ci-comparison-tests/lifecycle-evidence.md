@@ -1,6 +1,9 @@
 # Slice 3: recover and remember
 
 Implementation base: `87433ea6f7f5f43e6486f4a5b6a525702165b092`.
+Published: `7d42e9768243fde3c0a2583fb5a8c37eb7e26f57`; its accepted execution
+branch receipt and reused observer registration are retained in
+`/tmp/seed286-execution-20261109/slice3-delivery-repaired.log`.
 
 ## Boundary and assertion ownership
 
@@ -121,7 +124,8 @@ Strict 8/8 at 1–4 ms, runner 873 ms, wall 1.23 s. Awake AC load
 Typecheck and whitespace checks passed; all 38 changed files preview at most
 250 formatted lines. Unchanged accepted proof remains valid. Source freshness
 at main `0c32a933570e3a7f2362b526618e64e59139ae22` reports the selected story
-and plan unchanged. Delivery is the coordinator's next gate.
+and plan unchanged. The later repaired fresh preparation passed formatting and
+the commit hook before the publication named above.
 
 The first fresh preparation stopped before commit/publication because lint
 forbids a conditional throw inside `finally`. The cleanup failure is now

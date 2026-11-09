@@ -1,0 +1,47 @@
+// The test of the landed CI wall-time history's boundary specs
+// (../../backend-tests/intent/landed-ci-history-*.spec.ts): a real start
+// origin and its GitHub (./preparationPage.ts), and `startServer`, which
+// starts a boundary dashboard server on the origin's machine that collects
+// recorded landings' CI and checks pending ones again at a test's pace
+// (`recheckingLandedCi`, ./landedCiHistory.ts), as a production dashboard
+// does, closing each such server once its test ends.
+
+import {
+  startDashboardServer,
+  type DashboardServer,
+} from "./dashboardServer.ts";
+import type { FakeGitHub } from "./fakeGitHub.ts";
+import { recheckingLandedCi } from "./landedCiHistory.ts";
+import { test as base } from "./preparationPage.ts";
+
+export { expect } from "./preparationPage.ts";
+
+// How a test's server differs from a production dashboard asking the test's
+// GitHub: it asks another, it runs in the development environment, or its
+// observation clock moves only as the test advances it.
+type ServerFacts = {
+  readonly github?: FakeGitHub;
+  readonly environment?: "development";
+  readonly observationClock?: true;
+};
+
+export const test = base.extend<{
+  startServer: (facts?: ServerFacts) => Promise<DashboardServer>;
+}>({
+  startServer: async ({ origin, github }, use) => {
+    const started: DashboardServer[] = [];
+    await use(async ({ github: answering = github, ...facts } = {}) => {
+      const server = await startDashboardServer({
+        mode: "boundary",
+        ...facts,
+        github: answering,
+        machine: origin.machine,
+        projectFolders: ["open-dough"],
+        extraEnv: recheckingLandedCi,
+      });
+      started.push(server);
+      return server;
+    });
+    await Promise.all(started.map((server) => server.close()));
+  },
+});

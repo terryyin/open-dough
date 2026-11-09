@@ -4,13 +4,13 @@
 // (every revision contains it) to the trunk head the comparison read, within
 // the Baseline bound. Passes over cancelled builds, revisions without a
 // build, and builds without usable proof; stops at a running build. The
-// landing's own status stays beside this source (`./baseCiRevisionLookup.ts`).
+// landing's own status stays beside this source (`./landedWithoutVerdict.ts`).
 import {
   nearestRevisionBuild,
   proofRunOf,
   type RevisionCiBuild,
 } from "./baseCiRevisionNearest.ts";
-import type { ListedRun } from "./baseCiNearest.ts";
+import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
 import {
   baselineAncestorLimit,
   type ExactResultLookup,
@@ -18,6 +18,7 @@ import {
 import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import { asSlot, type RevisionBuildSlot } from "./revisionBuildSlot.ts";
+import { landedRunOf, unusableProofOf } from "./unusableBuild.ts";
 import { shortSha } from "../src/baseCiWording.ts";
 import type { CiProofUnavailable } from "../src/ciProof.ts";
 import { laterBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
@@ -122,11 +123,30 @@ function noLaterProofWords(
     : `No later trunk build finished within ${String(baselineAncestorLimit)} later trunk revisions.`;
 }
 
+// The build a cancelled landing's slot names when no later build stands for
+// it: the nearest later build whose proof was unusable, with why
+// (`unusableProofOf`), when the walk passed one; otherwise the landing's own
+// cancelled build.
+function unusableOf(
+  walk: Exclude<LaterTrunkProofWalk, { kind: "found" }>,
+  landing: string,
+  listed: readonly ListedRun[],
+) {
+  if (walk.unavailable !== undefined) {
+    const { build, absence } = walk.unavailable;
+    return unusableProofOf(build, "later", absence);
+  }
+  const own = newestRunFor(listed, landing);
+  return own === undefined ? {} : { unusableBuild: landedRunOf(landing, own) };
+}
+
 // Landed's slot for a cancelled landing (`listed` is the landing's own runs):
 // the nearest later trunk build with usable proof, with the landing's own
 // Cancelled status beside it; otherwise the cancelled explanation and why no
-// later proof is in reach, awaiting a later build when the walk stopped at
-// the read trunk head or a running build.
+// later proof is in reach -- naming the nearest later build whose proof was
+// unusable, and why, when the walk passed one, or else the landing's own
+// build -- awaiting a later build when the walk stopped at the read trunk
+// head or a running build.
 export async function laterTrunkCancelledSlot(
   landing: string,
   listed: readonly ListedRun[],
@@ -155,8 +175,10 @@ export async function laterTrunkCancelledSlot(
   return {
     kind: "none",
     explanation: `${exact.cancelledExplanation} ${noLaterProofWords(walk)}`,
+    cancelled: true,
     ...(walk.kind === "running" || walk.at === "head"
       ? { awaitingLaterBuild: true as const }
       : {}),
+    ...unusableOf(walk, landing, listed),
   };
 }

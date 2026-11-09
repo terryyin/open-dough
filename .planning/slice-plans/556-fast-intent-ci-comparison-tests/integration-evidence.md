@@ -57,3 +57,56 @@ descendants, remain obligations in slices 4 and 5. New timeout overrides in
 the incoming cancellation UI cases do not satisfy this story's default-timeout
 promise; replacement and retirement remain owned here. No original assertion
 is silently dropped and no new timing claim is made by this integration.
+
+## Landed-history integration after slice 3
+
+Slice 3 published as `7d42e9768243fde3c0a2583fb5a8c37eb7e26f57`, accepted
+and registered on the execution branch. The next fixed incoming main is
+`e623ab1433514acf89b28cddff48a36d0b75c195`. The same installed
+history-preserving publisher/backlog adapter prepares this merge and stops
+before publication. This is still execution-branch publication, not landing.
+
+Incoming shared readers now retain internal gap provenance and an identity
+marker for unanswered proof. The collector uses one `ComparisonBuildSource`
+per pass, preserving its once-per-revision listing cache and the existing
+history/workflow/proof acquisition owner. Extracted exact-landing and nearest
+ancestor operations consume that same source. `asComparisonSlot` discards
+history-only provenance; `finalSlot` preserves the previous comparison finality
+predicate. No comparison semantics or new history feature is authored here.
+Artifact factories and the exact returned object's unanswered marker coexist.
+MakeMe retains both histories' getters, shared fact copying, history and launch
+landing additions. All 23 incoming assertions in adapted Node tests remain
+byte-identical. No comparison/Summary/Refresh cases changed in this batch.
+
+The backlog matches the incoming transitions: completed unit-proof and landed
+wall-time stories leave Taken; two landed-evidence and two unit-gap follow-ups
+head the queue in incoming order. This execution and other active stories
+remain Taken; other priorities and compatible done-record changes are retained.
+
+Typecheck, whitespace and these maintained Node owners passed:
+
+```sh
+PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/dashboard-ci-proof-read.test.mjs tests/support/dashboard-landed-exact-build.test.mjs tests/support/dashboard-later-trunk-landed.test.mjs tests/support/dashboard-later-trunk-build.test.mjs
+```
+
+Logs and the 22-consumer trace are `incoming-landed-typecheck.log`,
+`incoming-landed-node.log` and `incoming-landed-consumer-trace.md` under
+`/tmp/seed286-execution-20261109/`. They observe unanswered proof identity,
+exact reruns/timeouts, cancelled provenance/bounds/finality and real shared
+history acquisition. Collector behavior has a separate runtime gate because
+its catch can turn an integration defect into a pending answer:
+
+```sh
+/usr/bin/time -p caffeinate -s -i env OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed286-execution-20261109/incoming-landed-behavior.json OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE=/tmp/seed286-execution-20261109/incoming-landed-artifacts.jsonl npm run test:dashboard -- backend-tests/intent/ci-comparison backend-tests/intent/ci-proof-memory tests/intent/intent-ci-comparison-mounted backend-tests/intent/landed-ci-history-gaps.spec.ts backend-tests/intent/landed-ci-history-pending-proof.spec.ts backend-tests/intent/landed-ci-history-pending-sources.spec.ts tests/intent/intent-ci-wall-time-history.spec.ts tests/intent/intent-ci-comparison-retry.spec.ts
+```
+
+Strict 77/77 passed, runner 24,351 ms, wall 24.83 s. All 65 fast rules took
+at most 542 ms. Actual collector points and pending transitions, clean
+comparison output, Project history UI and actual retry API/upstream accounting
+settled correctly. The machine was awake on AC under `caffeinate -s -i`,
+load 2.64/2.65/2.96, free memory 60%; an external one-worker history selection
+was active. After load was 3.53/3.11/3.11, memory 60% free. Independent
+refactoring found no further edit; its 32-consumer trace is
+`incoming-landed-independent-refactor-consumer-trace.md` beside the proof logs.
+All thirteen reviewed files preview at most 247 formatted lines. Accepted
+proof remains valid; formatting and publication are the coordinator's gates.

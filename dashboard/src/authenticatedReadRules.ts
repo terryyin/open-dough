@@ -98,6 +98,11 @@ export function readingCiProofOf(
     : `the CI proof of run ${String(subject.runId)} attempt ${String(subject.runAttempt)} of ${repository}`;
 }
 
+// A project's collected CI wall time history (`../server/intentCiHistoryRead.ts`).
+export function readingCiHistoryOf(repository: string): string {
+  return `the CI wall time history of ${repository}`;
+}
+
 // A selected story's CI comparison (`../server/intentCiComparisonRead.ts`).
 export function readingCiComparisonOf(
   identity: string,

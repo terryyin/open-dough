@@ -5,9 +5,14 @@
 import { equivalentBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
 import type { CiProof } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
-import { nearestRevisionBuild, proofRunOf } from "./baseCiRevisionNearest.ts";
+import { proofRunOf } from "./baseCiRevisionNearest.ts";
 import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
-import { asSlot, type RevisionBuildSlot } from "./revisionBuildSlot.ts";
+import {
+  asSlot,
+  nearestAncestorBuild,
+  type RevisionBuildSlot,
+} from "./revisionBuildSlot.ts";
+import { unusableProofOf } from "./unusableBuild.ts";
 
 // How far a baseline walk may go beyond the story start when looking for a
 // completed trunk build (claim commits are almost never built). Shared with
@@ -51,20 +56,19 @@ export function storyBranchLandedExactLookup(
 }
 
 // When Landed confirms a skip at `target`, use only the nearest first-parent
-// ancestor build's proof (the equivalent build). Never walk past a build
-// without usable proof.
+// ancestor build's proof (the equivalent build), which a build without a
+// GitHub Actions run, such as a CI adapter's, never published. Never walk
+// past a build without usable proof; a gap for one names that build and why
+// its proof is unusable (`unusableProofOf`).
 export async function exactSkippedEquivalentSlot(
   target: string,
   source: ComparisonBuildSource,
   status: RequestedRevisionCiStatus,
 ): Promise<RevisionBuildSlot> {
-  const chain = await source.history.firstParents(
+  const equivalent = await nearestAncestorBuild(
     target,
-    baselineAncestorLimit + 1,
-  );
-  const equivalent = await nearestRevisionBuild(
-    chain.filter((sha) => sha !== target),
-    source.lookup,
+    source,
+    baselineAncestorLimit,
   );
   if (
     equivalent === undefined ||
@@ -73,17 +77,10 @@ export async function exactSkippedEquivalentSlot(
     return asSlot(undefined, status.explanation, status);
   }
   const run = proofRunOf(equivalent);
-  if (run === undefined) {
-    return asSlot(
-      undefined,
-      unavailableWords(equivalent.revision, {
-        kind: "unavailable",
-        reason: "none",
-      }),
-      status,
-    );
-  }
-  const proof = await source.proofOf(run);
+  const proof: CiProof =
+    run === undefined
+      ? { kind: "unavailable", reason: "none" }
+      : await source.proofOf(run);
   if (proof.kind === "summary") {
     return asSlot(
       {
@@ -95,9 +92,10 @@ export async function exactSkippedEquivalentSlot(
       status,
     );
   }
-  return asSlot(
-    undefined,
-    unavailableWords(equivalent.revision, proof),
-    status,
-  );
+  return {
+    kind: "none",
+    explanation: unavailableWords(equivalent.revision, proof),
+    requestedStatus: status,
+    ...unusableProofOf(equivalent, "equivalent", proof),
+  };
 }

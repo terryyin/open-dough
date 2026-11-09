@@ -44,13 +44,17 @@ type FreshResult =
 
 // The judged branch's reading: the judgment shown (only ever one of
 // `branch`), whether a read is under way, whether the shown judgment is a
-// previously retrieved one, a failed refresh beside it, and Check again.
+// previously retrieved one, a failed refresh beside it, Check again, and
+// which read of the branch this is, which changes each time the branch is
+// read and is undefined while there is no branch, so evidence read beside
+// the judgment (`./useIntentCiHistory.ts`) is read again with it.
 export type JudgedReading = {
   readonly shown: Judgment | undefined;
   readonly reading: boolean;
   readonly previouslyRetrieved: boolean;
   readonly refreshFailed: string | undefined;
   readonly checkAgain: () => void;
+  readonly round: string | undefined;
 };
 
 // BRANCH's judgment, read while BRANCH is given; HEAD is the branch's head
@@ -198,5 +202,6 @@ export function useIntentCiJudgment(
     checkAgain: () => {
       setCheck((n) => n + 1);
     },
+    round: key === undefined ? undefined : `${key}@${String(check)}`,
   };
 }

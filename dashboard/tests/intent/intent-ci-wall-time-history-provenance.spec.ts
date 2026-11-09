@@ -1,0 +1,163 @@
+// Project Intent's CI wall time history in CI status
+// (../../src/IntentCiHistory.tsx) for landings the CI timing comparison's
+// Landed rule measures by their own build or a confirmed skip's equivalent
+// build, or not at all, on a real bare origin (../support/startOrigin.ts)
+// whose dashboard collects the landings its launch records name, checking
+// them at a test's pace: an execution's exact build and the two
+// planning-only refinements that reuse it are one point naming all three,
+// counted once; a refinement reusing a trunk build no landing measured is a
+// reused point with that build's identity; one whose equivalent build has
+// its timing but published no CI proof summary is a "No CI proof summary"
+// gap naming that build and linked to its run, its timing unused
+// (SEED-285#see-landed-ci-wall-time-history examples 4 and 5). Each point's
+// CI wall time is the CI timing comparison's (`wallTimeMs`). Trunk builds no
+// landing resolves to are not shown, nor any average, difference, excluded
+// mark, slowdown or story's place. A phone reader reaches each item and link
+// by keyboard and tells points from gaps by their words. A cancelled
+// landing's later trunk build and a failed build are in
+// ./intent-ci-wall-time-history-later.spec.ts; the single exact point and
+// the empty history in ./intent-ci-wall-time-history.spec.ts; the window in
+// ./intent-ci-wall-time-history-window.spec.ts.
+
+import { shortSha } from "../../src/baseCiWording.ts";
+import { wallTimeMs, wholeSecondWords } from "../../src/ciProofTimeWords.ts";
+import {
+  chartOf,
+  dayWords,
+  evidenceOnPhone,
+  expectLinksByKeyboard,
+  publishTrunk,
+  runLink,
+} from "../intentCiHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+import {
+  landedCiHistory,
+  recheckingLandedCi,
+  storyLandingRecord,
+  untilKept,
+} from "../support/landedCiHistory.ts";
+import type { CiRunAnswer } from "../support/baseCiActions.ts";
+import {
+  landedTrunk,
+  passedBetween,
+  trunkRun,
+  usableProofOf,
+} from "../support/landedCiTrunk.ts";
+import { keepLaunchRecords } from "../support/launchStore.ts";
+import { expect, test } from "../support/preparationPage.ts";
+
+test.use({ extraEnv: recheckingLandedCi });
+
+// A run's CI wall time as the CI timing comparison words a build's: its
+// attempt's wall time (`wallTimeMs`) in whole seconds.
+function comparisonWallTimeWords(run: CiRunAnswer): string {
+  const ms = wallTimeMs(run.startedAt, run.completedAt);
+  if (ms === undefined) throw new Error("The run names no CI wall time.");
+  return wholeSecondWords(ms);
+}
+
+test("an execution's exact build and the refinements reusing it are one point naming all three, a refinement reusing a build no landing measured is a reused point with that build's identity, and one whose equivalent build published no CI proof is a gap saying so and naming that build, by keyboard on a phone", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  // Trunk's CI workflow is built, but no landing rests on it. E's execution
+  // builds a1; refinements R1 and R2 change planning only. c3 is built, but
+  // no recorded landing names it; R3 changes planning only. x is built
+  // without CI proof; R4 changes planning only.
+  const { revision, landing, landings } = landedTrunk(
+    origin,
+    [
+      { title: "ci", kind: "ci-workflow" },
+      { title: "e", kind: "code" },
+      { title: "r1", kind: "planning" },
+      { title: "r2", kind: "planning" },
+      { title: "c3", kind: "code" },
+      { title: "r3", kind: "planning" },
+      { title: "x", kind: "code" },
+      { title: "r4", kind: "planning" },
+    ],
+    ["e", "r1", "r2", "r3", "r4"],
+  );
+  const e = landing("e");
+  const r1 = landing("r1");
+  const r2 = landing("r2");
+  const r3 = landing("r3");
+  const r4 = landing("r4");
+  const ci = revision("ci");
+  const c3 = revision("c3");
+  const x = revision("x");
+  const a1Run = trunkRun(
+    e.revision,
+    41,
+    passedBetween("2026-11-05T10:00:00Z", "2026-11-05T10:06:05Z"),
+  );
+  const c3Run = trunkRun(
+    c3,
+    43,
+    passedBetween("2026-11-05T12:00:00Z", "2026-11-05T12:05:00Z"),
+  );
+  // a1's and c3's builds published their CI proof.
+  await publishTrunk(
+    page,
+    origin,
+    () => [
+      trunkRun(
+        ci,
+        39,
+        passedBetween("2026-11-05T09:00:00Z", "2026-11-05T09:03:00Z"),
+      ),
+      a1Run,
+      c3Run,
+      trunkRun(
+        x,
+        47,
+        passedBetween("2026-11-05T13:00:00Z", "2026-11-05T13:04:00Z"),
+      ),
+    ],
+    () => ({ 41: usableProofOf(a1Run), 43: usableProofOf(c3Run) }),
+  );
+  keepLaunchRecords(dashboard.home, [
+    storyLandingRecord(e, "execution"),
+    storyLandingRecord(r1, "refinement"),
+    storyLandingRecord(r2, "refinement"),
+    storyLandingRecord(r3, "refinement"),
+    storyLandingRecord(r4, "refinement"),
+  ]);
+  await untilKept(dashboard.home, landings);
+  await expect
+    .poll(async () => (await landedCiHistory(dashboard)).body)
+    .toMatchObject({
+      entries: [
+        { kind: "point", revision: e.revision },
+        { kind: "point", revision: c3 },
+        { kind: "gap", reason: "no-proof", revision: r4.revision },
+      ],
+    });
+  const { history, builds } = await evidenceOnPhone(page);
+
+  // Two builds measured: R1, R2 and R3 add none of their own.
+  await expect(history.getByRole("heading")).toHaveText(
+    "CI wall time history 2 measured builds · Nov 5",
+  );
+  const sha = shortSha;
+  await expect(builds.getByRole("listitem")).toHaveText([
+    `Nov 5 · ${comparisonWallTimeWords(a1Run)} · exact revision ${sha(e.revision)} (SEED-9#e) · reused equivalent ${sha(e.revision)} for ${sha(r1.revision)} (SEED-9#r1) and ${sha(r2.revision)} (SEED-9#r2) · Run 41 · attempt 1`,
+    `Nov 5 · ${comparisonWallTimeWords(c3Run)} · reused equivalent ${sha(c3)} for ${sha(r3.revision)} (SEED-9#r3) · Run 43 · attempt 1`,
+    `${dayWords(r4.at)} · No CI proof summary · reused equivalent ${sha(x)} for ${sha(r4.revision)} (SEED-9#r4) · Run 47 · attempt 1`,
+  ]);
+  await expect(history.getByRole("definition")).toHaveText(
+    comparisonWallTimeWords(c3Run),
+  );
+  // Trunk builds no landing resolves to are not shown.
+  await expect(builds).not.toContainText(sha(ci));
+  // No average, difference, excluded mark, slowdown flag or story's place.
+  await expect(history).not.toContainText(
+    /average|slower|faster|slowdown|exclu|selected landing/i,
+  );
+  await expectLinksByKeyboard(page, builds, [41, 43, 47].map(runLink));
+  const chart = await chartOf(history);
+  expect(chart.points).toHaveLength(2);
+  expect(chart.strokes).toEqual([2]);
+  await expectNoSidewaysScrollIn(page, history);
+});

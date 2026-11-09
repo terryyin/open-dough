@@ -178,6 +178,40 @@ this user on this machine has read it at -- so at most four ref requests an hour
 read per published revision. A check while the setting is Off, or while a feedback maintenance
 session is running, asks GitHub nothing. A failed check is asked again at the next one.
 
+The production dashboard server collects Project Intent's CI wall time history whether or not a
+page is open: a pass runs when it starts, when it records an accepted landing, and every two
+minutes, over this machine's recorded landings onto each configured project's ref and the landings
+the history keeps, newest first, and stops once the history holds 20 measured builds for the
+project, counting a reused equivalent or later trunk build once however many landings it measures.
+A pass asks only about landings not yet final, so a pass with none asks GitHub nothing. The history
+keeps only those landings, so a landing older than the 20th measured build's is never asked about
+again, even while its launch record is kept.
+For a `ciWorkflow` project, a pass that has landings to resolve looks the workflow up once, then
+lists push runs once per revision it asks about (`head_sha=`): the landed revision, plus one read
+of each earlier attempt of a run whose latest attempt was cancelled; a confirmed skip and a
+cancelled landing then cost what Story Branch Landed's equivalent build and forward walk cost in
+the CI timing comparison above, CI proof reads included. A landing whose Landed rule found no
+build, as when its push's run does not exist yet, also lists its nearest built ancestor's runs
+(already listed for the skip check) and, within an hour of its recording, each later trunk
+revision's, nearest first, up to the first with a run, at most 30; after that hour it is final
+and asked nothing more. A `ciAdapter` project's pass asks its adapter's `discover` once and
+GitHub nothing. A final resolution is kept in `~/.open-dough/dashboard/landed-ci-history.json`
+and never asked again, by any dashboard process of this user on this machine; a pending landing
+(its build queued or running, a cancelled landing awaiting a later trunk build, no run yet, or a
+failed read) is asked again every two minutes until it is final, so while builds run a project
+costs one workflow lookup and one listing per pending landing every two minutes. A failed read
+ends that project's pass, so CI that cannot be read costs one failed request per project every
+two minutes. A confirmed skip's equivalent build, or a cancelled landing's later trunk build at the
+end of its forward walk, whose CI proof read GitHub left unanswered (a wait it directed, a failed
+request, or an artifact listing that is not one) is asked again the same way, its artifact
+listing (and zip, when listed) with the listings the landing's resolution already makes, every
+two minutes until GitHub answers it, however long ago the landing was recorded, for as long as
+the landing stays in the history's window; that landing does not end the project's pass. An
+answer that settles the proof -- no summary, an expired one, or an archive that cannot be opened
+or is not that run's usable summary -- is final and asked nothing more. A development server
+collects nothing. Showing the history asks GitHub nothing: it is read from that file with each
+read of the trunk's CI status judgment, and **Check again** reads it again the same way.
+
 Inspecting recent failed reads, the incident record that keeps them across processes, how an output
 bound is reported, and what the installed CI diagnostic retains are in [Read
 diagnostics](READ-DIAGNOSTICS.md); the diagnostics and the incident record ask GitHub nothing.

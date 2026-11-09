@@ -172,6 +172,11 @@ export function installFakeClaude(
   env["DOUGH_MAINTENANCE_CHECK_MS"] = String(
     options.maintenanceCheckMs ?? 3_600_000,
   );
+  // No recorded landing's CI is collected on the server's own accord, so
+  // only a test about that collection sees the server ask CI for it
+  // (../../server/landedCiCollection.ts); such a test turns it back on
+  // through its `extraEnv` (./landedCiHistory.ts).
+  env["DOUGH_TEST_LANDED_CI_COLLECTION"] = "off";
   if (options.doneRenameWaitMs !== undefined) {
     env["DOUGH_DONE_RENAME_WAIT_MS"] = String(options.doneRenameWaitMs);
   }

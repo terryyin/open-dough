@@ -208,6 +208,9 @@ same acquisition owner; preserve their domain rules, errors and public results.
   whole-app navigation/transport integration. Preserve these boundaries before
   measuring; the target stays unchanged. Broader cases and loaded/CI timings
   remain execution acceptance work.
+- Slice 3's actual full-provider pilot passed at 444 ms; its seven lifecycle
+  cases passed at 148–523 ms, sharing one 461 ms immutable build. Summary/file
+  variants and final loaded/CI observations remain owned by slices 4 and 5.
 - Reuse ordinary portable snapshot/materialization if profitable; APFS clone
   and worker-scoped server reuse remain optional experiments, not premises.
 - Read the current delivered code at execution. Other active Intent stories

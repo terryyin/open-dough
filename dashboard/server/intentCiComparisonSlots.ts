@@ -79,7 +79,11 @@ export async function asComparisonSlot(
   };
 }
 
-export function gapFromUnread(judgment: BaseCiJudgment): StoryCiComparisonSlot {
+// An endpoint whose CI could not be read, with why.
+export function gapFromUnread(judgment: BaseCiJudgment): {
+  readonly kind: "unavailable";
+  readonly explanation: string;
+} {
   const reason =
     "reason" in judgment && typeof judgment.reason === "string"
       ? judgment.reason

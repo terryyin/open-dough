@@ -4,7 +4,9 @@
 // is extracted and checked (../../dashboard/server/zipEntry.ts). An archive
 // the local GitHub request owner passed on as text, as one an earlier Open
 // Dough started does, is unreadable with what the developer can do
-// (../../dashboard/server/ciProofArtifact.ts). Summaries broken down by
+// (../../dashboard/server/ciProofArtifact.ts), and, like an answer GitHub
+// does not label as an archive, left unanswered, so a later read may still
+// answer it. Summaries broken down by
 // file: ./dashboard-ci-proof-breakdown-read.test.mjs. Query-shape refusals:
 // ./dashboard-ci-proof-parse.test.mjs.
 import assert from "node:assert/strict";
@@ -16,6 +18,7 @@ import {
 } from "../../dashboard/server/zipEntry.ts";
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
 import {
+  isUnansweredProof,
   olderRequestOwnerDetail,
   unreadableBy,
 } from "../../dashboard/server/ciProofArtifact.ts";
@@ -123,23 +126,28 @@ test("an archive passed on as base64 keeps its bytes", () => {
   );
 });
 
-test("an archive the local GitHub request owner passed on as text is unreadable, saying what restarts the owner", () => {
+test("an archive the local GitHub request owner passed on as text is unreadable, saying what restarts the owner, and left unanswered", () => {
   const proof = unreadableOf(answerOf("application/zip", "PK\u0003\u0004"));
   assert.deepEqual(proof, {
     kind: "unavailable",
     reason: "unreadable",
     detail: olderRequestOwnerDetail,
   });
+  assert.equal(isUnansweredProof(proof), true);
   assert.equal(
     unavailableLine(proof),
     "This run's CI proof summary could not be read. This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one.",
   );
 });
 
-test("an answer GitHub does not label as an archive is unreadable as GitHub's", () => {
-  assert.deepEqual(unreadableOf(answerOf("text/html", "<html></html>")), {
+test("an answer GitHub does not label as an archive is unreadable as GitHub's, and left unanswered", () => {
+  const proof = unreadableOf(answerOf("text/html", "<html></html>"));
+  assert.deepEqual(proof, {
     kind: "unavailable",
     reason: "unreadable",
     detail: `GitHub request ${route} failed: GitHub's answer is not an archive`,
   });
+  assert.equal(isUnansweredProof(proof), true);
+  // An equal answer this read did not give is not one it left unanswered.
+  assert.equal(isUnansweredProof({ ...proof }), false);
 });
