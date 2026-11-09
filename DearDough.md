@@ -418,7 +418,12 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
   - Evidence: `/tmp/seed279-consumer-trace.md` derives PLAN.md/source-review.md, node:timers/promises and start-0 terms alongside the admission seam. The implementation return supplied 494 dispositions; the coordinator's combined trace read reported 13,829 original tokens and truncated.
   - Observed effect: Most matches needed unrelated/historical exclusions and the affected caller rows required a separate bounded retrieval. No missed consumer or general timing cost established.
-
+- Execution: SEED-275#align-story-tabs-records (plan 541; first implementation `0d0ac0a1f652ff3938933ff71b72de8d49d69154`)
+  - Timestamp: unknown (slice 2 before `0ab4b94e6ae91340b0d769e2afd6083c0b5ccf5d` on 2026-11-09)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance from established Take `82fc915034f4262553561a1c79de876040738677`.
+  - Evidence: `/tmp/seed275-slice2-consumer-trace.md` has 628 physical lines and 402 located-consumer rows matching the derived `PLAN.md` term; the slice-2 return explicitly attributes incidental matches to the concurrent coordinator-owned plan edit. The accepted plan at `0ab4b94e6` retains the trace locator and focused proof.
+  - Observed effect: a seven-file comment/title correction required repeated exclusions for unrelated planning, history and guidance; no missing consumer was found. Exact retired titles had no external selectors.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).

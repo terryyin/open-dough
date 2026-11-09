@@ -1,4 +1,4 @@
-// A selected story's CI timing comparison on Intent's homepage
+// CI timing comparison in the selected story's CI comparison tab
 // (`./IntentCiStatus.tsx`): the active comparison's title (Baseline with
 // Landed when Landed has proof, otherwise Branch or Provisional), framed as
 // observed builds, beside the relative scale's directions and **Show %**

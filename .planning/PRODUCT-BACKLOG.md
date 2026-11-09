@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Pilot native evidence reuse for Git publication admission](seeds/SEED-262-faster-dashboard-test-feedback.md#pilot-admission-native-evidence-reuse) — SEED-262#pilot-admission-native-evidence-reuse ([plan](slice-plans/544-pilot-admission-native-evidence-reuse/PLAN.md))
-- [Align story tab cost records, Taken heading, and wording](seeds/SEED-275-story-intent-tabs.md#align-story-tabs-records) — SEED-275#align-story-tabs-records ([plan](slice-plans/541-align-story-tabs-records/PLAN.md))
 - [Keep the selected story when the Side panel closes](seeds/SEED-275-story-intent-tabs.md#preserve-story-on-panel-close) — SEED-275#preserve-story-on-panel-close ([plan](slice-plans/546-preserve-story-on-panel-close/PLAN.md))
 - [Unify the Intent view and CI proof](seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof) — SEED-282#unify-intent-view-and-ci-proof ([plan](slice-plans/547-unify-intent-view-and-ci-proof/PLAN.md))
 - [Distinguish test cases and test files in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof) — SEED-281#distinguish-test-cases-and-files-in-ci-proof ([plan](slice-plans/547-distinguish-test-cases-and-files-in-ci-proof/PLAN.md))

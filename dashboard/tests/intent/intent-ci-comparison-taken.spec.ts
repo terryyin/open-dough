@@ -23,6 +23,8 @@ import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
 import { githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 import path from "node:path";
+import { parts } from "../dashboardPage.ts";
+import { storyTitle } from "../support/intentStoryPage.ts";
 
 test("a Taken Story Branch story keeps live CI status and shows a provisional comparison; a new branch head re-reads", async ({
   page,
@@ -38,7 +40,9 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
       exact: true,
     }),
   ).toBeVisible();
-  await expect(status).toContainText(`Story branch of ${setup.title}`);
+  await expect(status.locator(".intent-ci-story")).toHaveText("Story branch.");
+  await expect(status).not.toContainText(setup.title);
+  await expect(storyTitle(parts(page).intent)).toHaveText(setup.title);
   await expect(status.locator(".intent-ci-state")).toContainText(
     shortSha(setup.branchTip),
   );

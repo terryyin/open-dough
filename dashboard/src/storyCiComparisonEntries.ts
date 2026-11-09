@@ -1,4 +1,4 @@
-// Entry rows of a selected story's CI comparison on Intent's homepage
+// Entry rows in the selected story's CI comparison tab
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
 // through the shared scope comparison (`./ciScopeComparison.ts`), show the
 // measured Baseline execution time and, in Branch and Landed, one signed
@@ -6,7 +6,7 @@
 // positive Baseline (`./storyCiRelativeChange.ts`) (a new entry keeps
 // its measured time; a gap keeps its words), counted-results differences in
 // Counts, mark added and removed entries, and keep parts completeness from
-// the homepage's chosen build (`./ciScopeComparisonPrimary.ts`).
+// the comparison's chosen build (`./ciScopeComparisonPrimary.ts`).
 
 import { shortSha } from "./baseCiWording.ts";
 import type { CiProof, CiProofEntry } from "./ciProof.ts";

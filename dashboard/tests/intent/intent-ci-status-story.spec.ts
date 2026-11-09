@@ -5,7 +5,7 @@
 // selection replaces the judgment, never showing an earlier branch's result
 // under the new name, even when that answer arrives late; clearing the
 // selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7), with no
-// selected-story summary, which belongs to the Intent mode. A running
+// selected-story header, which belongs to the story's view. A running
 // head shows its nearest completed ancestor with its run, and Check again
 // after it finishes shows Passed. A push to the shown story branch, seen by
 // the page's revision check, reads its judgment again by itself; time alone,
@@ -29,6 +29,7 @@ import {
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { storyTitle } from "../support/intentStoryPage.ts";
 
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
   page,
@@ -44,15 +45,20 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     "Passed at 4774f60 (Add login)",
   );
 
-  await test.step("a Taken Story Branch Mode story: still CI status, names its branch, Failed with its run while main passes", async () => {
+  await test.step("a Taken Story Branch Mode story: CI comparison names its branch, Failed with its run while main passes", async () => {
     const before = calls.length;
     const panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, failing.branch);
-    await expect(panel).toContainText(`Story branch of ${failing.title}.`);
+    await expect(panel.locator(".intent-ci-story")).toHaveText("Story branch.");
+    await expect(panel).not.toContainText(failing.title);
+    await expect(storyTitle(intent)).toHaveText(failing.title);
+    await expect(intent.getByText(failing.title, { exact: true })).toHaveCount(
+      1,
+    );
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Failed at fa11ed0 (Break the login)",
     );
-    // CI status is Intent's homepage, so the Intent mode's story summary stays.
+    // The selected story's persistent header stays above its CI comparison tab.
     await expect(
       intent.getByRole("region", { name: "Selected story", exact: true }),
     ).toBeVisible();
@@ -149,7 +155,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   await test.step("clearing the selection shows main again", async () => {
     const panel = await toggleOnDevelopment(page, running.title);
     await expectNamed(panel, "main");
-    await expect(panel).not.toContainText("Story branch of");
+    await expect(panel.locator(".intent-ci-story")).toHaveCount(0);
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Passed at 4774f60 (Add login)",
     );

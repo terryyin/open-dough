@@ -1,4 +1,4 @@
-// Wording of a story's CI comparison on Intent's homepage
+// Wording in the selected story's CI comparison tab
 // (`./IntentCiComparison.tsx`): each endpoint's Build source cue (exact /
 // ancestor accessible words, or concise equivalent / later wording), each
 // build's measured CI wall time and time without runner waits in whole

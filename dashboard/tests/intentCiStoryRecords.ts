@@ -160,7 +160,8 @@ export function publishStoryCi(
         { sha: pushed, message, parents: [history[0]?.sha ?? ""] },
         ...history,
       ];
-      published.moveBranch(branch, { revision: pushed, files });
+      if (branch === "main") published.moveTrunk({ revision: pushed, files });
+      else published.moveBranch(branch, { revision: pushed, files });
     },
   };
 }

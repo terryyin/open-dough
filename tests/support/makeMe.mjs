@@ -42,7 +42,6 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
-
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
@@ -54,7 +53,7 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
-
+/** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
 /**
  * @template {object} Facts
  * @typedef {{ with(facts: Facts): { please(): Facts } }} FactBuilder
@@ -214,6 +213,10 @@ export const makeMe = {
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();
+  },
+  /** @returns {FactBuilder<CiRun>} */
+  get aCiRun() {
+    return { with: copyFacts };
   },
   /** @returns {FactBuilder<IncrementPublicationFacts>} */
   get anIncrementPublication() {

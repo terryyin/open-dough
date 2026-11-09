@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-275#align-story-tabs-records",
+  "title": "Align story tab cost records, Taken heading, and wording",
+  "completedAt": "2026-11-09T00:46:58.979Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
