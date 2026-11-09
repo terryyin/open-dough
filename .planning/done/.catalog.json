@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-intent-and-ci-proof-test-data.json",
+      "identity": "SEED-261#map-intent-and-ci-proof-test-data",
+      "completedAt": "2026-11-09T07:24:28.625Z",
+      "blob": "e467a333f8f3249fc18c78610a74f552b7078c3e"
+    },
+    {
       "fileName": "SEED-282_unify-intent-view-and-ci-proof.json",
       "identity": "SEED-282#unify-intent-view-and-ci-proof",
       "completedAt": "2026-11-09T02:13:41.676Z",
@@ -1914,42 +1920,6 @@
       "identity": "SEED-129#bounded-cursor-launch-wait",
       "completedAt": "2026-10-10T07:27:33.620Z",
       "blob": "9c91dd370ee8c0ef70c41748de70dc3b48819d4d"
-    },
-    {
-      "fileName": "SEED-123_dashboard-suite-stable-under-load.json",
-      "identity": "SEED-123#dashboard-suite-stable-under-load",
-      "completedAt": "2026-10-10T07:15:28.338Z",
-      "blob": "28c70b4dbbb0df8d329249d8606997d1c1d27f9a"
-    },
-    {
-      "fileName": "SEED-088_review-merged-one-shot-change.json",
-      "identity": "SEED-088#review-merged-one-shot-change",
-      "completedAt": "2026-10-10T06:00:40.847Z",
-      "blob": "0dad7eb91fda7ded549e2b79506bab1ef66b2a38"
-    },
-    {
-      "fileName": "SEED-122_running-cursor-sessions-sidebar-panel.json",
-      "identity": "SEED-122#running-cursor-sessions-sidebar-panel",
-      "completedAt": "2026-10-10T05:30:10.170Z",
-      "blob": "edfe79e7911a5c31b4dcc8b6bf3e644a531e23a8"
-    },
-    {
-      "fileName": "SEED-124_check-dashboard-fixture-consumers-locally.json",
-      "identity": "SEED-124#check-dashboard-fixture-consumers-locally",
-      "completedAt": "2026-10-10T05:10:21.265Z",
-      "blob": "5f2895aeb18e698ecb869b735e37427113fb32ca"
-    },
-    {
-      "fileName": "SEED-008_bound-managed-git-transport.json",
-      "identity": "SEED-008#bound-managed-git-transport",
-      "completedAt": "2026-10-10T05:00:45.059Z",
-      "blob": "adf91ae8e505316427a0da33e457b4173667dea3"
-    },
-    {
-      "fileName": "SEED-126_steady-dashboard-refresh.json",
-      "identity": "SEED-126#steady-dashboard-refresh",
-      "completedAt": "2026-10-10T04:46:33.383Z",
-      "blob": "aa0d0504a0031d859191e8df4aac98b6a4f5f5f4"
     }
   ],
   "unreadable": []

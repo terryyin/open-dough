@@ -36,6 +36,7 @@ import {
   pythonTest,
   shellCheck,
 } from "../intentCodeBrowseFixtures.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 test("Intent explains absent, unreadable, mismatched, and empty candidate records without disturbing location browsing", async ({
   page,
@@ -146,7 +147,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
       revision,
       files: {
         ...openDough.files,
-        ".planning/open-dough.json": `${openDoughSettings}\n`,
+        ".planning/open-dough.json": intentSettingsText(openDoughSettings),
         "dashboard/tests/intent-gherkin-browse.spec.ts": browseSpec,
         "tests/compare-versions.sh": shellCheck,
       },

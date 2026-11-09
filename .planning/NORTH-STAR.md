@@ -134,10 +134,10 @@ results and published workflow records.
 
 ## Agent launch as a requested assignment
 
-Starting agent work from the dashboard
-([SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md), beginning with
-[launch execution](../dashboard/AGENT-LAUNCH.md)) adds the dashboard's first
-action. Model it in the vocabulary the dashboard
+Starting agent work from the dashboard adds its first action, as proposed in
+[SEED-052](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-052-start-agent-work-from-dashboard.md)
+and delivered in [launch execution](../dashboard/AGENT-LAUNCH.md).
+Model it in the vocabulary the dashboard
 already reads, so later launch stories extend one model instead of adding
 parallel ones:
 
@@ -216,7 +216,7 @@ the read boundary topic above and ADR 0008's origin authority.
 ## A start establishes claim and workspace before the session
 
 The delivered execution start and its siblings in
-[SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md) (refinement's
+[the launch contract](../dashboard/AGENT-LAUNCH.md) (refinement's
 preparation start, Codex, Cursor) share one model, so each adds a row to a
 table, never a second flow. Model it in the launch vocabulary above.
 

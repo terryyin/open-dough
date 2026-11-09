@@ -19,6 +19,7 @@ import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { describedBacklog } from "../../tests/describedRevisions.ts";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
+import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -26,29 +27,17 @@ const knownSourceId = "open-dough";
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
 const settingsPath = ".planning/open-dough.json";
-const settings = JSON.stringify({
-  intent: {
-    locations: [{ path: "dashboard/tests", kind: "typescript" }],
-  },
-});
-const recordText = `# Test Optimization Candidates
-
-## Pending candidates
-
-None.
-
-## Accepted necessary costs
-
-None.
-
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+const settings = intentSettingsText(
+  makeMe.intentSettings
+    .withLocations(
+      makeMe.anIntentLocation
+        .at("dashboard/tests")
+        .ofKind("typescript")
+        .please(),
+    )
+    .please(),
+);
+const recordText = makeMe.aTestOptimizationCandidatesRecord.please();
 
 const revisionOf = (byte: string) => byte.repeat(20);
 

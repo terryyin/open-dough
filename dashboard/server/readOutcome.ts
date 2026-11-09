@@ -10,10 +10,8 @@ import type {
   IntentCiStatusAnswer,
   IntentCiStatusNone,
 } from "./intentCiStatusRead.ts";
-import type {
-  IntentLocation,
-  IntentSettingsProblem,
-} from "./intentLocationsSettings.ts";
+import type { IntentCandidatesAnswer } from "./intentCandidatesRead.ts";
+import type { IntentLocationsAnswer } from "./intentLocationsRead.ts";
 import type { ReportedFailure } from "./readFailureMessage.ts";
 
 // What a successful read answers, as the browser reader
@@ -82,26 +80,8 @@ type Answer =
       readonly accepted: string;
       readonly contained: boolean;
     }
-  // Intent locations at a revision (`./intentLocationsRead.ts`): null when
-  // the project has no configured locations or the settings are unusable;
-  // otherwise each location and the files its kind lists (or that location's
-  // problem). `settingsProblem` distinguishes malformed and unreadable
-  // settings from absence.
-  | {
-      readonly revision: string;
-      readonly locations: null | readonly IntentLocation[];
-      readonly settingsProblem?: IntentSettingsProblem;
-      readonly recovery?: ReportedFailure["recovery"];
-    }
-  // Test Optimization Candidates at a revision (`./intentCandidatesRead.ts`):
-  // null when absent; `candidatesProblem: "unreadable"` when the fixed path
-  // could not be read; otherwise the published Markdown text.
-  | {
-      readonly revision: string;
-      readonly candidates: string | null;
-      readonly candidatesProblem?: "unreadable";
-      readonly recovery?: ReportedFailure["recovery"];
-    }
+  | IntentLocationsAnswer
+  | IntentCandidatesAnswer
   // Intent's CI status: the judged branch, when it was checked, and the
   // selected check's judgment (`./intentCiStatusRead.ts`); or `none` when
   // the kept form finds nothing for that target.

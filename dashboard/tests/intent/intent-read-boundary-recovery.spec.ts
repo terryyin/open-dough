@@ -16,6 +16,7 @@ import {
 } from "../intentReadRecoveryPage.ts";
 import { httpErrorAnswer, noConnection } from "../originAnswers.ts";
 import { publishes } from "../support/fakeGitHub.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 for (const failure of ["settings", "listing"] as const) {
   test(`a boundary-classified transient Intent ${failure} failure recovers at the same revision`, async ({
@@ -26,7 +27,7 @@ for (const failure of ["settings", "listing"] as const) {
       revision: doughnut.revision,
       files: {
         ...doughnut.files,
-        [settingsPath]: doughnutSettings,
+        [settingsPath]: intentSettingsText(doughnutSettings),
         ...locationFiles,
       },
     });

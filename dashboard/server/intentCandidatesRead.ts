@@ -12,9 +12,22 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { isNotFound, rateLimitStop } from "./ghFailure.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
-import { readFailureRecovery } from "./readFailureMessage.ts";
+import {
+  readFailureRecovery,
+  type ReportedFailure,
+} from "./readFailureMessage.ts";
 import { parsePinnedIntentRead } from "./intentReadParameters.ts";
 import type { RefusedParameters } from "./refusedParameters.ts";
+
+// Test Optimization Candidates at a revision: null when absent;
+// `candidatesProblem: "unreadable"` when the fixed path could not be read;
+// otherwise the published Markdown text.
+export type IntentCandidatesAnswer = {
+  readonly revision: string;
+  readonly candidates: string | null;
+  readonly candidatesProblem?: "unreadable";
+  readonly recovery?: ReportedFailure["recovery"];
+};
 
 export type IntentCandidatesRead = {
   readonly kind: "intent-candidates-at";

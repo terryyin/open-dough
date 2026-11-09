@@ -7,7 +7,7 @@ import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
 import { olderGit } from "../support/storyReviewOlderGit.ts";
 import { observed, storyWorktree } from "../support/storyReviewWorktree.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 
 test("two ends select three commits in either direction, reset to one, and survive switching comparisons", async ({
   page,
@@ -40,9 +40,12 @@ test("two ends select three commits in either direction, reset to one, and survi
     name: "4 changed files",
     exact: true,
   });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["gone.txt", "image.png", "new.txt", "story.txt"]);
+  await expectTreeRows(files, [
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "story.txt",
+  ]);
   await files
     .getByRole("button", { name: "Renamed old.txt → new.txt", exact: true })
     .click();
@@ -61,9 +64,12 @@ test("two ends select three commits in either direction, reset to one, and survi
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["gone.txt", "image.png", "new.txt", "story.txt"]);
+  await expectTreeRows(files, [
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "story.txt",
+  ]);
   await review.getByRole("radio", { name: "All changes", exact: true }).check();
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
@@ -72,9 +78,12 @@ test("two ends select three commits in either direction, reset to one, and survi
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["gone.txt", "image.png", "new.txt", "story.txt"]);
+  await expectTreeRows(files, [
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "story.txt",
+  ]);
   expect(observed(workspace)).toEqual(before);
 });
 
@@ -110,9 +119,12 @@ olderGit(
       name: "4 changed files",
       exact: true,
     });
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual(["gone.txt", "image.png", "new.txt", "story.txt"]);
+    await expectTreeRows(files, [
+      "gone.txt",
+      "image.png",
+      "new.txt",
+      "story.txt",
+    ]);
     await expect(
       review.locator(".story-review-top").getByRole("status"),
     ).not.toContainText("cannot be compared");

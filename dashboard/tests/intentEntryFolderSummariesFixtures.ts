@@ -4,6 +4,7 @@
 // file.
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export { publishIntentProject } from "./publishIntentProject.ts";
 
@@ -67,18 +68,12 @@ const packagedFeature = `Feature: Packaged
     Given a packaged fixture
 `;
 
-export const pygardonSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        { path: featuresPath, kind: "gherkin" },
-        { path: packagedPath, kind: "gherkin" },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const pygardonSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation.at(featuresPath).ofKind("gherkin").please(),
+    makeMe.anIntentLocation.at(packagedPath).ofKind("gherkin").please(),
+  )
+  .please();
 
 export const pygardonFeatureSources = {
   [stooqPath]: stooqFeature,

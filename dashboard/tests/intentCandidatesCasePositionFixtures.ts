@@ -7,7 +7,7 @@
 import { expect, type Locator } from "@playwright/test";
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
-import { candidateRecordEntry as entry } from "./intentCandidatesRecordEntry.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { doughnutFeatureSettings } from "./intentCandidatesOtherProjectFixtures.ts";
 import {
   candidatesRecord,
@@ -40,40 +40,33 @@ export const doughnutCaseFeatureSource = [
 /** 1-based line of the unique scenario heading in the fixture. */
 export const doughnutUniqueScenarioLine = 35;
 
-export const doughnutCaseCandidatesRecord = `# Test Optimization Candidates
-
-## Pending candidates
-
-${entry("unique-scenario-once", {
-  locations: `\`${doughnutCaseFeaturePath}::${doughnutUniqueScenario}\``,
-  observedCost: "about 12s unique scenario",
-  uniqueProtection: "named scenario appears once",
-  alternativesAttempted: "none",
-  disposition: "pending — case positioning proof",
-  date: "2026-11-01",
-  evidence: "fixture",
-})}
-${entry("duplicate-scenario-name", {
-  locations: `\`${doughnutCaseFeaturePath}::shared scenario\``,
-  observedCost: "about 8s duplicated name",
-  uniqueProtection: "name appears twice so Purpose stays at the start",
-  alternativesAttempted: "none",
-  disposition: "pending — ambiguous case proof",
-  date: "2026-11-01",
-  evidence: "fixture",
-})}
-## Accepted necessary costs
-
-None.
-
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+export const doughnutCaseCandidatesRecord =
+  makeMe.aTestOptimizationCandidatesRecord
+    .pending(
+      "unique-scenario-once",
+      `\`${doughnutCaseFeaturePath}::${doughnutUniqueScenario}\``,
+      {
+        observedCost: "about 12s unique scenario",
+        uniqueProtection: "named scenario appears once",
+        alternativesAttempted: "none",
+        dispositionRationale: "pending — case positioning proof",
+        date: "2026-11-01",
+        evidence: "fixture",
+      },
+    )
+    .pending(
+      "duplicate-scenario-name",
+      `\`${doughnutCaseFeaturePath}::shared scenario\``,
+      {
+        observedCost: "about 8s duplicated name",
+        uniqueProtection: "name appears twice so Purpose stays at the start",
+        alternativesAttempted: "none",
+        dispositionRationale: "pending — ambiguous case proof",
+        date: "2026-11-01",
+        evidence: "fixture",
+      },
+    )
+    .please();
 
 export function publishDoughnutCasePosition(
   page: Parameters<typeof publishIntentProject>[0],

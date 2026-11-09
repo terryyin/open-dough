@@ -36,7 +36,7 @@ import {
   reviewBody,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
@@ -93,9 +93,9 @@ async function expectStoryWorktreeReviewedAlone(
   await expect(contextValues(review)).toHaveAccessibleName(
     contextWords({ branch, baseline: claim, workspace: shown("trunk-a") }),
   );
-  await expect
-    .poll(() => treeRows(review.getByRole("list", { name: "1 changed file" })))
-    .toEqual(["slice.txt"]);
+  await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+    "slice.txt",
+  ]);
 }
 
 test("worktrees without this story's published claim — the agent's earlier or other-story worktrees and an earlier agent's unpublished claim — are passed over, and the review reads the publishing agent's worktree alone", async ({

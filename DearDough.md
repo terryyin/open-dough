@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 473. Removed numbers are never reused.
+- Highest allocated local number: 474. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -870,3 +870,33 @@ covered the candidate.
   - Evidence: Plan 539 "Proof and delivery gates" names the whole runs before final delivery. The coordinator started them after slice 4's refactor return. `deliver-the-change.md` step 5 runs the freshness and named-sibling check after acceptance and refactoring. Trunk `aa559f948` then carried both named siblings, and merge `b630f4a47` changed shared MakeMe support.
   - Observed effect: About 2.6 hours of whole-suite time on the pre-merge tree were superseded; the dashboard suite and `npm test` ran again on the merge (about 45 minutes).
   - Inference: Fetching trunk and running the named-sibling check immediately before starting the plan's final whole-suite gate, rather than only at the done mark, would likely have merged first and needed one whole run.
+
+## ODF-338 — Concurrent slices invalidate proof in one checkout <a id="odf-338"></a>
+[Meaning, evidence and response](docs/maintainer/findings/ODF-338.md).
+
+### Occurrences
+- Execution: SEED-261#map-intent-and-ci-proof-test-data (plan 548-map-intent-and-ci-proof-test-data; first related implementation commit `e693a8c24205ee21aee0751a3aa1e6e086360a6a`)
+  - Timestamp: unknown (2026-11-09, about 10:55-13:00 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `fa29cd591`)
+  - Evidence: The coordinator ran slice 2's implementation beside a flake-repair agent, then slice 3 beside a `listRunsAt` memo repair, all in the one execution worktree. Slice 2's return reports repo-wide typecheck exit 2 and lint exit 1 caused only by the repair agent's untracked `dashboard/tests/intent/zz-scratch-cancelled.spec.ts`. `npm run format` (`scripts/lint.mjs --fix`) selects every changed file, so slice 2's guarded delivery waited for the repair to finish. CI run 42555314938 then failed on `47bf480b2` while both later writers were live, and the repair protocol's stash waited for both to return.
+  - Observed effect: Slice 2's own checks could not show a clean repo-wide result, its delivery and the CI repair's start were held until the parallel writer finished, and both pairs raised machine load (40 at peak) during each other's Playwright proof.
+  - Inference: Disjoint file ownership did not make the writers independent: repo-wide checks, the selective formatter and the CI repair stash all act on the whole checkout. A separate worktree per parallel writer, or running them in sequence, would likely have avoided the holds; wall-time saved by the overlap was not measured.
+
+## DD-474 — A trunk merge interpolated a converted fixture into a string, and the record claimed lint passed with it
+Slice 1 turned settings fixtures such as `openDoughSettings` from JSON strings
+into built `IntentSettings` objects. A sibling story landed on trunk in the
+meantime and added ``".planning/open-dough.json": `${openDoughSettings}\n` ``
+to `dashboard/tests/intent/intent-ci-status-homepage.spec.ts`. After the
+merge, that line would have published `[object Object]`.
+
+### Occurrences
+- Execution: SEED-261#map-intent-and-ci-proof-test-data (plan 548-map-intent-and-ci-proof-test-data; first related implementation commit `e693a8c24205ee21aee0751a3aa1e6e086360a6a`)
+  - Timestamp: unknown (2026-11-09, reconciliation with trunk `889985084` at about 10:30 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `fa29cd591`)
+  - Evidence: A three-way merge of the shared files kept trunk's new line at `intent-ci-status-homepage.spec.ts:201`. `npm run typecheck:dashboard` passed with it; the record also said `npm run lint` passed, but a reproduction on 2026-11-09 (the line restored on `main` at `d0c7af0f8`, then `npx eslint` on that file) failed with `@typescript-eslint/restrict-template-expressions` and `@typescript-eslint/no-base-to-string`, which `eslint.config.mjs` has enforced as errors since `d0a949570`. The coordinator found it only by grepping the converted exports' new uses after the merge, and replaced it with `intentSettingsText(openDoughSettings)` in `e693a8c24`.
+  - Observed effect: The type change did not escape the project's static checks: the existing lint rules reject the merged line. The finding's report instead raised a decision about enabling a rule that was already enabled.
+  - Inference: The lint result recorded for the merged tree most likely came from a run that did not include the merged line. Before reporting that a check missed a defect, rerun that check on the defective tree and record its output.

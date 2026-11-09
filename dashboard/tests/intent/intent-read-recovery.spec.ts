@@ -28,6 +28,7 @@ import {
 } from "../pageRequestNotes.ts";
 import { untilReported } from "../support/directedWait.ts";
 import { publishes } from "../support/fakeGitHub.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds while revision checks continue", async ({
   page,
@@ -164,7 +165,7 @@ test("malformed Intent settings stay visible until manual Retry", async ({
   page,
 }) => {
   await pausePageClockAt(page, opened);
-  await publishIntentProject(page, doughnut, "{not json", locationFiles);
+  await publishIntentProject(page, doughnut, "{not json\n", locationFiles);
   const reads = countLocationsReads(page);
 
   const intent = await openDoughnut(page);
@@ -192,7 +193,7 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
     revision: doughnut.revision,
     files: {
       ...doughnut.files,
-      ".planning/open-dough.json": doughnutSettings,
+      ".planning/open-dough.json": intentSettingsText(doughnutSettings),
       ...locationFiles,
     },
   });

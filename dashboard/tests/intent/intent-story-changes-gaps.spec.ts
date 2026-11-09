@@ -32,6 +32,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import {
   chooseStoryTab,
   expectOutsideCount,
+  expectStoryComparisonRead,
   expectStoryTab,
   intentFile,
   outsideCount,
@@ -121,6 +122,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
 
   failing = false;
   await problem.getByRole("button", { name: "Retry" }).click();
+  await expectStoryComparisonRead(intent);
   await expect(detail.locator(".intent-story-revisions")).toBeVisible();
   await expect(problem).toHaveCount(0);
   await expect(storyOnly(intent)).not.toBeChecked();

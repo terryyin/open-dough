@@ -127,4 +127,4 @@ recoverable from the project's plan and Git conventions.
 - [Maintainer guidance](../../AGENTS.md)
 - [ADR 0000 — Human decision ownership](./0000-use-adrs-accepted.md)
 - [ADR 0003 — Immutable release identity](./0003-tagged-release-versioning-accepted.md)
-- [SEED-007 — Standalone update in Claude Code](../../.planning/seeds/SEED-007-cross-tool-validation.md)
+- [SEED-007 — Accepted standalone update in Claude Code](https://github.com/terryyin/open-dough/blob/b136a8140453c0e2a93cc1da306b122b7af4eab5/.planning/seeds/SEED-007-cross-tool-validation.md#accept-standalone-client-workflow)

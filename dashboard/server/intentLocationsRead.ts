@@ -10,6 +10,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { parsePinnedIntentRead } from "./intentReadParameters.ts";
+import type { ReportedFailure } from "./readFailureMessage.ts";
 import type { RefusedParameters } from "./refusedParameters.ts";
 import {
   declaredLocations,
@@ -34,6 +35,17 @@ export {
   pathSelectedByIntentLocations,
   pathSelectedByLocations,
 } from "./intentLocationSelection.ts";
+
+// Intent locations at a revision: null when the project has no configured
+// locations or the settings are unusable; otherwise each location and the
+// files its kind lists (or that location's problem). `settingsProblem`
+// distinguishes malformed and unreadable settings from absence.
+export type IntentLocationsAnswer = {
+  readonly revision: string;
+  readonly locations: null | readonly IntentLocation[];
+  readonly settingsProblem?: IntentSettingsProblem;
+  readonly recovery?: ReportedFailure["recovery"];
+};
 
 export type IntentLocationsRead = {
   readonly kind: "intent-locations-at";

@@ -19,6 +19,7 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -88,12 +89,15 @@ test.describe("authenticated Intent locations problems (development environment)
     const refused = publishes({
       revision: refusedRevision,
       backlog,
-      files: { [settingsPath]: settings },
+      files: { [settingsPath]: intentSettingsText(settings) },
     });
     const listing = publishes({
       revision: listingRevision,
       backlog,
-      files: { [settingsPath]: settings, [featurePath]: featureText },
+      files: {
+        [settingsPath]: intentSettingsText(settings),
+        [featurePath]: featureText,
+      },
     });
     server.github.serve(everyRepository, (call) => {
       const { request } = call;

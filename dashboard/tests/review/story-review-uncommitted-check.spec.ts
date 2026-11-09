@@ -23,8 +23,8 @@ import { reviewBody } from "../support/reviewContextLine.ts";
 import {
   expectFileSelected,
   expectLineCounts,
+  expectTreeRows,
   fileRow,
-  treeRows,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
@@ -94,9 +94,12 @@ test("the check leaves uncommitted changes out of all changes and back without r
   // Off: the committed files, lines, and counts alone.
   await check(review).uncheck();
   const committed = review.getByRole("list", { name: "4 changed files" });
-  await expect
-    .poll(() => treeRows(committed))
-    .toEqual(["gone.txt", "image.png", "new.txt", "story.txt"]);
+  await expectTreeRows(committed, [
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "story.txt",
+  ]);
   await expect(
     review.getByRole("heading", { name: "4 changed files" }),
   ).toBeVisible();

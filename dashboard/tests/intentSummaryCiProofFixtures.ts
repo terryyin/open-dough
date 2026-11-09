@@ -37,6 +37,7 @@ import {
   playwrightRecord,
   type Producer,
 } from "./support/ciProofCollected.ts";
+import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
 const spec = (name: string) => `import { test } from "@playwright/test";
 test("${name}", async () => {});
@@ -44,7 +45,7 @@ test("${name}", async () => {});
 // The published tree: dashboard/tests lists its specs at any depth, and tests
 // only its root shell checks, so tests/support/check.sh is not listed.
 const published = {
-  ".planning/open-dough.json": `${openDoughSettings}\n`,
+  ".planning/open-dough.json": intentSettingsText(openDoughSettings),
   "dashboard/tests/root.spec.ts": spec("root"),
   "dashboard/tests/added.spec.ts": spec("added"),
   "dashboard/tests/folder/a.spec.ts": spec("a"),

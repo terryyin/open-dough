@@ -19,7 +19,8 @@ import {
   unchangedWorktree,
   writeAt,
 } from "../support/storyReviewWorktree.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { showCommits } from "../support/reviewRead.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 
 test("Uncommitted changes alone reads staged, unstaged and untracked files; through the oldest commit it equals All changes", async ({
   page,
@@ -52,9 +53,12 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
     name: "3 changed files",
     exact: true,
   });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["fresh", "  new.txt", "staged.txt", "unstaged.txt"]);
+  await expectTreeRows(files, [
+    "fresh",
+    "  new.txt",
+    "staged.txt",
+    "unstaged.txt",
+  ]);
   await files
     .getByRole("button", { name: "Modified staged.txt", exact: true })
     .click();
@@ -106,7 +110,7 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   expect(snapshot.commits).toEqual([]);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await showCommits(review);
   await expect(
     review
       .getByRole("list", { name: "Story commits", exact: true })
