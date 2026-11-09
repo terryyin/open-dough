@@ -165,7 +165,7 @@ refactor pass found nothing to change.
 
 ### 4. The Sessions catalog points to its actual test checkouts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 4. Run `'backend-tests/sessions/agent-launch-sessions-listing\.spec\.ts$'`. Repeat the isolated replay observation above with pre-change and converted inputs to compare saved rows, checkout paths, and workspace claims through the real reader.
 
 Arrange the six configured rows in `seedReplayProjects` through the same
@@ -176,6 +176,18 @@ counts. Git operations, launch record setup, and session expectations stay
 with their current owners. The opt-in `sessions-replay.spec.ts` measures
 timing and shares the writer. Use the deterministic listing and checkout
 proof for this conversion.
+
+Accepted proof: `seedReplayProjects` in
+`dashboard/tests/support/sessionsReplayProjects.ts` builds its six rows with
+`makeMe.aConfiguredProject`. It states `ref: "main"` because claims are read
+at the `origin/main` its own Git commands create, and it keeps the file write
+and every Git operation. The isolated replay observation, repeated with the
+pre-change and converted writer, gave a byte-identical 962-byte catalog, the
+same ordered rows, settings paths and published keys, 7, 7, 5, 2, 21 and 2
+linked worktrees, and the same 8 claims. Pointing the first row at a missing
+checkout removed only its claims in both. The listing spec (2 tests) and
+`npm run typecheck:dashboard` passed. No other synthetic saved row remains in
+the dashboard tests. The refactor pass found nothing to change.
 
 ## Readiness review
 
