@@ -36,8 +36,13 @@ also timed out `production-watcher.spec.ts`'s first-in-worker `beforeAll`
 past 30 s (12.9 s first step alone) and both variants of
 `backend-tests/review/story-review-completed.spec.ts:27` at 30.4 s (30.0 s
 alone at load 16–18; 14.4 s for its 5 cases in hosted CI); Terry routed both
-here. The Intent CI comparison family belongs to
-SEED-286#fast-intent-ci-comparison-tests.
+here. Project findings [DD-473](../../ProjectFindings.md#dd-473)
+(`review/story-review-story-branch-landed.spec.ts:27`, 31.7–34.4 s at load
+21–27), [DD-476](../../ProjectFindings.md#dd-476) (whole runs at load 13–36)
+and [DD-479](../../ProjectFindings.md#dd-479)
+(`backend-tests/launches/start-origin-isolation.spec.ts:140`, 30.0 s at load
+37) are further cases of the same margin. The Intent CI comparison family
+belongs to SEED-286#fast-intent-ci-comparison-tests.
 
 <a id="fit-dashboard-journeys-in-default-timeout"></a>
 
