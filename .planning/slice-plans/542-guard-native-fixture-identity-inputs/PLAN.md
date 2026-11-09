@@ -30,6 +30,13 @@
   `codex/guard-native-fixture-identity-inputs-against-dri`.
   It reported `CI_MONITOR_THROTTLED` and resumes automatically at
   `2026-11-09T00:08:55.816Z`; coverage verdicts remain pending.
+- After that directed wait, workflow diagnostic verified active `ci.yml`,
+  workflow ID `351271804`, display name `CI`.
+- Slice 1 delivery accepted `fc234b7f9c8ae40d8c1a60ecd5e1440ec32a0e3e`
+  on the remote story branch, suffix base
+  `a328505ac31b8da3f972b6eb6c47840170d90e80`; the same observer was reused.
+  Formatting, full lint and check-only commit hooks passed. No trunk
+  publication or default-checkout refresh occurs for this increment.
 - Pre-change proof passed at the claim revision:
   `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/seed262-guard-identity-baseline-times caffeinate -s -i bash scripts/test.sh tests/git-publication-fixture-identity.sh tests/native-evidence-identity.sh`.
   Local times: family check 11.7 s; native evidence check 17.4 s.
@@ -157,7 +164,7 @@ Accepted observations (2026-11-09):
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: A reached module uses division after a postfix operator, a regular
 expression after a keyword, a regular expression with a backtick or `/` in a
@@ -168,6 +175,43 @@ exits non-zero.
 Proof: a new `tests/support/native-import-closure.test.mjs` covering each
 shape, failing first on `i++ / 2`. Run it, both identity checks and
 `tests/native-stream-replay.sh`.
+
+Accepted observations (2026-11-09):
+
+- Red first: `PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash scripts/test.sh tests/support/native-import-closure.test.mjs`
+  failed exactly the postfix `++` and `--` cases with `unterminated / literal`;
+  the five-line token fix makes all nine direct CLI tests pass.
+- `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES=/tmp/seed262-guard-identity-slice2-times caffeinate -s -i bash scripts/test.sh tests/support/native-import-closure.test.mjs tests/git-publication-fixture-identity.sh tests/native-evidence-identity.sh tests/native-stream-replay.sh`
+  passed. Exact closure assertions retain real expression imports and spawned
+  modules while ignoring nested/escaped template text; keyword/class regex
+  stays readable. Missing modules and unterminated template, regex, string and
+  comment inputs fail with diagnostics and empty stdout.
+- Current host load rose to 10.2 on AC, so the same named coverage ran with
+  one slot. Native identity 18.3 s (36.3 scaled), family 10.1 s (20.0 scaled),
+  replay 9.8 s, direct tests 0.4 s. No timeout or budget changes.
+- Trace `/tmp/seed262-guard-identity-slice2-consumers.md` disposes every
+  consumer: both identity checks exercise evidence writers; the take identity
+  writer's three closure roots were separately observed below; generic names
+  and historical/descriptive path matches do not execute this contract.
+- `git diff --name-only -- tests/fixtures/native-streams` is empty; replay
+  passed. Source freshness unchanged against origin/main `82fc915034f4262553561a1c79de876040738677`.
+  Source commitments 4–8 and 10–12 observed; no gaps.
+- Independent refactor `/root/refactor2`: none — already clean, no edits,
+  proof unchanged, whitespace check passed; `REFACTOR COMPLETE` received.
+- GitHub directed a further observation wait until `2026-11-09T01:08:56.082Z`.
+  The same live observer remains armed; CI is pending, with no failure delivered.
+
+Additional take-writer proof, terminal exit 0 from this checkout:
+
+```sh
+PATH=/opt/homebrew/bin:$PATH caffeinate -s -i bash -c 'set -euo pipefail
+source_dir=$PWD
+source tests/support/product-backlog-native-take.sh
+take_write_evidence_inputs > /tmp/seed262-guard-identity-take-inputs
+for module in tests/support/render-published-backlog.mjs tests/support/native-host-stream.mjs src/skills/dough-product-backlog/scripts/product-backlog.mjs; do
+  awk -v module="$module" '\''$3 == module { found = 1 } END { exit !found }'\'' /tmp/seed262-guard-identity-take-inputs
+done'
+```
 
 ## Decisive premises
 
