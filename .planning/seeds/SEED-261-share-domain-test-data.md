@@ -361,23 +361,81 @@ and checked revision. Proof fixtures are removed or delegate to MakeMe.
 
 **Identity:** SEED-261#map-installation-and-native-test-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/549-map-installation-and-native-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bf8ac4617780d7e9728afb4494b3e6170cb705bd458470ef8fe4ed87c438c91e","plan":"288704bfd8873bdb0ec1a05b917bffa4cf47d624dd570f4e13184be9d883e614"}}
 ```
 
-**Scope and value.** Convert remaining release, payload, installed state,
-host-hook settings, native scenario and runner setup across `tests` and the
-skill suites. Reuse the same library through the Bash-to-Node boundary where
-the shell arranges domain data. Review partial installation and duplicated
-configuration setup against the actual release, settings and installation
-contracts. Keep platform and host differences visible where they determine
-the result.
+#### Goal
 
-**Evaluation and stopping point.** Real installer, update, subprocess, replay,
-and assessor checks retain their behavior and evidence. Valid synthetic
-records come from the shared library while raw inputs and retained evidence
-keep their provenance. Reconcile coverage across all five entries, including
-Node support jobs under `tests/support`, and remove any remaining obsolete
-domain constructors or builders without a useful test consumer.
+Maintainers can read installation and native-check setup in the same domain
+language as the rest of the tests, and change a shared fact in one place.
+Finish the conversion with real release and installation relationships and
+the existing independent behavioral proof intact.
+
+#### Scope
+
+- Convert remaining arranged release, payload, host-hook settings, native
+  starting project and runner-duration facts through the shared MakeMe entry
+  point. Shell scenarios use small Node writers for domain data; installation,
+  Git history, processes, clocks and teardown remain harness operations.
+  Reuse the release-source path already converted by published-work stories.
+- Establish ordinary installed baselines with the real installer. Preserve
+  the added-payload check's asymmetric predecessor as an explicit case:
+  an older verified shared root exists and the Claude root is absent. Do not
+  let a collection of present files silently stand for an ordinary complete
+  installation. Keep physical roots, source/version records, project-owned
+  configuration and host settings distinct.
+- Convert the native Take and closure scenarios' valid published starting
+  facts, and the worktree-preparation scenarios' starting repository facts.
+  Preserve the actual originating checkout, worktree topology, executable
+  inputs and preparation observations. A changed fixture dependency must
+  enter its evidence identity; replay and substitute-host results retain
+  their existing evidential limits.
+- Reconcile remaining setup across the five declared test entries and the
+  separately discovered `tests/support/*.test.mjs` jobs. Known residue includes
+  feedback-review dates, maintenance choice and observation facts, automatic
+  maintenance requests, and recorded job durations. Extend the existing
+  canonical builders where appropriate and remove displaced constructors
+  and builder variants with no useful test consumer. Keep the currently
+  separate project-registry and Intent/CI Proof stories' ownership intact.
+- Keep literal malformed and legacy examples, exact parser inputs, generated
+  product programs, captured native streams, assessor counterexamples,
+  commands and independent expectations in their proof roles. Builders stay
+  outside the managed installation payload. This story changes test setup;
+  it does not add installer policy, scheduling policy or native host behavior.
+
+#### Key examples
+
+1. Release 0.1.1 withholds the subsequently added skills. An ordinary old
+   installation, or the explicit older shared-root-only predecessor, is
+   updated to 0.1.2. Both physical roots then contain the declared new payload
+   and matching version records, while unrelated guidance and project-owned
+   configuration retain their bytes. The ADR delivery-to-use fixture also
+   retains its distinguishable old and improved released guidance.
+2. Each host has valid unrelated settings and handlers. Installing merges
+   the managed handlers once and preserves the unrelated settings. Exact
+   prior registration remains unwritten; an explicitly edited managed
+   handler still refuses before writes, including with force.
+3. A native Take scenario starts with one queued, refined planned story.
+   The real installed claim workflow moves that story to Taken. Closure
+   scenarios keep their declared starting revisions, concurrent source
+   changes and pending human files, so their existing publication and
+   observer-order checks still evaluate the same journey.
+4. A native preparation scenario has a non-bare originating checkout with no
+   remote and a sibling execution worktree. The locked Node and executable
+   wrapper cases keep their original project inputs, separate generated
+   state and preparation traces. Fresh, reuse and failed-preparation
+   observations still distinguish their existing outcomes; dependency hashes
+   include any shared fixture modules newly used by those scenarios.
+5. Feedback maintenance is enabled and the published review is due on
+   2026-10-28. A start already serving that date prevents another start for
+   it, including when its process has ended; a later due date can start.
+   The saved choice, published review, kept session and live attempt remain
+   distinct facts, and the existing due-row and settings journeys retain
+   their observations.
+6. Recorded jobs a, b and c each took five seconds and d took one. Dealing
+   them into two shares still yields a/c and b/d, longest first; unrecorded
+   jobs use the recorded median or the existing one-second fallback. Exact
+   timing-list and malformed parser examples keep their independent bytes.
 
 ## Ordering and scope
 
