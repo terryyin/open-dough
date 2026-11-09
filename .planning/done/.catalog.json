@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_pilot-admission-native-evidence-reuse.json",
+      "identity": "SEED-262#pilot-admission-native-evidence-reuse",
+      "completedAt": "2026-11-09T01:58:24.302Z",
+      "blob": "7c7e9f16c280ac3cfb6957a08e99a963f11eaf89"
+    },
+    {
       "fileName": "SEED-275_align-story-tabs-records.json",
       "identity": "SEED-275#align-story-tabs-records",
       "completedAt": "2026-11-09T00:46:58.979Z",

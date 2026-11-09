@@ -1,7 +1,6 @@
 // @ts-check
-// MakeMe: the one entry point for domain data that tests arrange. Each
-// `makeMe.aThing` access starts a fresh builder; its named methods state the
-// facts that drive the case and `.please()` returns the product value.
+// MakeMe: shared domain-data entry. Each `makeMe.aThing` starts a fresh builder;
+// named methods state facts and `.please()` returns the product value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
@@ -39,6 +38,7 @@ import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
+import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
@@ -68,6 +68,9 @@ function copyFacts(facts) {
 }
 
 export const makeMe = {
+  get aNativeEvidenceRecord() {
+    return new NativeEvidenceRecordBuilder();
+  },
   get aRepository() {
     return new RepositoryBuilder();
   },
