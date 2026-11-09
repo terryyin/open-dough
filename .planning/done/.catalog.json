@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-285_trace-landed-proof-timing.json",
+      "identity": "SEED-285#trace-landed-proof-timing",
+      "completedAt": "2026-11-09T15:37:19.219Z",
+      "blob": "a272fd85d7ec9e2d0481e90ef5a51c390a4d1602"
+    },
+    {
       "fileName": "SEED-284_optimize-tests-from-ci-proof.json",
       "identity": "SEED-284#optimize-tests-from-ci-proof",
       "completedAt": "2026-11-09T12:44:20.525Z",
@@ -1896,18 +1902,6 @@
       "identity": "SEED-123#dashboard-suite-passes-loaded-acceptance",
       "completedAt": "2026-10-10T21:38:19.872Z",
       "blob": "e1b47fbe7d325d0e6f9fc3b12e69de38b4fe5cb6"
-    },
-    {
-      "fileName": "SEED-121_recovery-holds-after-reuse-and-rerun.json",
-      "identity": "SEED-121#recovery-holds-after-reuse-and-rerun",
-      "completedAt": "2026-10-10T13:31:08.962Z",
-      "blob": "f4cffb5c40a9bf0bc0665c2bbab9a97917d0e092"
-    },
-    {
-      "fileName": "SEED-128_publish-dirty-preparation-before-execution.json",
-      "identity": "SEED-128#publish-dirty-preparation-before-execution",
-      "completedAt": "2026-10-10T12:57:24.598Z",
-      "blob": "36ba767869f482e393f7f72aebbe0f9bc16c0150"
     }
   ],
   "unreadable": []

@@ -103,6 +103,14 @@ export function readingCiHistoryOf(repository: string): string {
   return `the CI wall time history of ${repository}`;
 }
 
+export function readingCiScopeHistoryOf(
+  repository: string,
+  path: string,
+  revision: string,
+): string {
+  return `the collected test execution time history of ${path} through ${revision} of ${repository}`;
+}
+
 // A selected story's CI comparison (`../server/intentCiComparisonRead.ts`).
 export function readingCiComparisonOf(
   identity: string,

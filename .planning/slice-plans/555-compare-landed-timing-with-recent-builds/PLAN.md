@@ -47,15 +47,15 @@ delivered-history contracts reconciled at `0c32a9335` later that day:
 - [The delivered project history](../../../docs/dashboard-development-intent-ci-status.md)
   owns retained landing-to-attempt evidence, trunk ordering, distinct-build
   windows, project presentation and local read lifecycle.
-  [Scope history plan 554](../554-trace-landed-proof-timing/PLAN.md) owns
+  [Delivered scope history](../../../docs/dashboard-development-intent-ci-comparison.md) owns
   retained validated proof, supported entry/path/unit readings, Done endpoint
   selection and entry/folder/file history. The project wall-time owner is now
   delivered at `0c32a9335`: `landedCiCollection.ts`, `landedCiHistoryStore.ts`,
   `landedCiMeasuredBuilds.ts` and `intentCiHistoryRead.ts` keep/read the newest
   20 distinct measured builds and their gaps. Stored builds carry timings and
-  identities, not validated summaries. Scope history and proof retention remain
-  plan 554's work, including proof backfill for already-final wall-time builds.
-  Reconcile that extension before integrating completeness-based averages;
+  identities and retained validated proof summaries. Scope history includes
+  proof backfill for already-final wall-time builds. Reuse that delivered
+  proof contract when integrating completeness-based averages;
   a wall-time point alone does not establish complete test proof. Preserve
   active owners' uncommitted files. Do not duplicate collection, storage or
   resolution.

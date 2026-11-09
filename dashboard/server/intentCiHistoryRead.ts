@@ -1,22 +1,38 @@
-// Intent's CI wall time history read for the local authenticated read
-// boundary (`./authenticatedRead.ts`): `intent=ci-history`, naming nothing
-// more. It answers the window of the project's history -- its newest 20
-// measured builds as points naming the landings they measure, and its
-// landings no build measures as gaps with why (`./landedCiHistoryEntries.ts`)
-// -- from this machine's collected landed CI history
-// (`./landedCiHistoryStore.ts`) alone and asks no CI, Git or GitHub, so
-// opening or refreshing CI status acquires no CI data for it, before or after
-// a restart, in whichever dashboard process serves it. Collection is
-// `./landedCiCollection.ts`'s. Anything else is refused here.
+// Local collected project/scoped history. The shared retained window and
+// accepted landing ancestry determine its cohort; browsing acquires no CI.
 
-import { readingCiHistoryOf } from "../src/authenticatedReadRules.ts";
+import {
+  readingCiHistoryOf,
+  readingCiScopeHistoryOf,
+} from "../src/authenticatedReadRules.ts";
+import { z } from "zod";
+import { parseSafeRepositoryPath } from "./reachablePaths.ts";
+import { isPinnedRevision } from "./refusedParameters.ts";
+import { scopeHistoryOf } from "./ciScopeHistory.ts";
+import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
-import { keptLandedCiHistory } from "./landedCiHistoryStore.ts";
+import { readLandedCiHistory } from "./landedCiHistoryStore.ts";
+import {
+  mostCompleteLandingOrder,
+  windowedHistory,
+} from "./landedCiMeasuredBuilds.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 
-export type IntentCiHistoryRead = { readonly kind: "intent-ci-history" };
+export type IntentCiHistoryRead =
+  | {
+      readonly kind: "intent-ci-history";
+      readonly scope?: never;
+      readonly revision?: never;
+      readonly through?: never;
+    }
+  | {
+      readonly kind: "intent-ci-history";
+      readonly scope: string;
+      readonly revision: string;
+      readonly through: string;
+    };
 
 const historyRefusal =
   "A CI wall time history read names only the Intent request.";
@@ -27,6 +43,26 @@ export function parseIntentCiHistoryRead(
   params: URLSearchParams,
 ): IntentCiHistoryRead | RefusedParameters | undefined {
   if (params.get("intent") !== "ci-history") return undefined;
+  if (params.has("scope")) {
+    const names = ["intent", "scope", "revision", "through"];
+    const scope = parseSafeRepositoryPath(params.get("scope") ?? "");
+    const revision = params.get("revision");
+    const through = params.get("through");
+    if (
+      names.some((name) => params.getAll(name).length !== 1) ||
+      [...params.keys()].some(
+        (name) => name !== "source" && !names.includes(name),
+      ) ||
+      scope === undefined ||
+      !isPinnedRevision(revision) ||
+      !z.iso.datetime({ offset: true }).safeParse(through).success ||
+      through === null
+    )
+      return refused(
+        "A scoped CI history read names one repository scope, published landing revision and date.",
+      );
+    return { kind: "intent-ci-history", scope, revision, through };
+  }
   if (
     params.getAll("intent").length !== 1 ||
     [...params.keys()].some((name) => name !== "source" && name !== "intent")
@@ -37,14 +73,65 @@ export function parseIntentCiHistoryRead(
 }
 
 // What a CI wall time history read names as being read.
-export function readingIntentCiHistoryOf(source: PublishedSource): string {
-  return readingCiHistoryOf(source.repository);
+export function readingIntentCiHistoryOf(
+  source: PublishedSource,
+  read?: IntentCiHistoryRead,
+): string {
+  return read?.scope === undefined
+    ? readingCiHistoryOf(source.repository)
+    : readingCiScopeHistoryOf(source.repository, read.scope, read.revision);
 }
 
 export async function performIntentCiHistoryRead(
   source: PublishedSource,
+  read?: IntentCiHistoryRead,
+  signal?: AbortSignal,
+  localRepository?: string,
 ): Promise<Outcome> {
+  const stored = await readLandedCiHistory(source.id);
+  if (stored === undefined)
+    return {
+      kind: "failed",
+      message:
+        "The collected CI history could not be read. Retry the local history read.",
+      retryAfterSeconds: undefined,
+      recovery: undefined,
+    };
+  const retained = Object.values(stored.landings);
+  const localOrder = await readLandingOrder(
+    [
+      ...retained.flatMap((landing) =>
+        landing.repository === undefined ? [] : [landing.repository],
+      ),
+      ...(localRepository === undefined ? [] : [localRepository]),
+    ],
+    retained.map((landing) => landing.revision),
+    read?.revision,
+    signal,
+  );
+  const order =
+    mostCompleteLandingOrder(
+      retained,
+      [stored.trunkOrder, localOrder],
+      read?.revision,
+    ) ??
+    localOrder ??
+    stored.trunkOrder;
+  const history =
+    order === undefined
+      ? stored
+      : windowedHistory({ ...stored, trunkOrder: [...order] });
+  if (read?.scope !== undefined) {
+    return answered(
+      scopeHistoryOf(
+        history,
+        read.scope,
+        { revision: read.revision, at: read.through },
+        order,
+      ),
+    );
+  }
   return answered({
-    entries: historyEntries(await keptLandedCiHistory(source.id)),
+    entries: historyEntries(history),
   });
 }

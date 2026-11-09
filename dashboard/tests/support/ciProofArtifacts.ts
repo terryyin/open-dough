@@ -1,9 +1,5 @@
-// Fake GitHub answers for the CI proof of one Actions run attempt
-// (../../server/ciProofArtifact.ts): a summary built by the collector itself
-// from fragments (../../../src/skills/dough-test-optimization/scripts/
-// ci-proof-summary.mjs), so it is schema-valid; the run's artifact listing;
-// and the artifact's zip, a real archive as GitHub serves it. The collector
-// also writes a ciAdapter attempt's summary, named by its `attemptId`.
+// Actual collector summaries and ZIP artifacts for one Actions or adapter attempt.
+// Uses the published summary producer; GitHub answers retain the real wire shape.
 
 import { crc32, deflateRawSync } from "node:zlib";
 import {
@@ -11,7 +7,7 @@ import {
   summarize,
   summaryArtifactName,
 } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import type { CiProofFile } from "../../src/ciProof.ts";
+import type { CiProofEntry, CiProofFile } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 
 // The collector is untyped JavaScript; this names the one result it gives.
@@ -40,7 +36,7 @@ type Counts = {
 // What one part's results are counted in: test cases, test files, or
 // legacy results, `{ legacy: label }` naming the label their unit was
 // spelled with.
-export type ProofUnit = "case" | "file" | { readonly legacy: string };
+export type ProofUnit = "case" | "file" | { readonly legacy: string | null };
 
 // A part's file breakdown, as a fragment made `--by-file` carries it: one
 // aggregate per path inside its entry and how many counted results recorded
@@ -124,6 +120,59 @@ export function proofSummary(
     },
   });
   return summary;
+}
+
+// One complete part from the explicitly arranged canonical entry facts.
+export function proofSummaryForEntry(
+  run: ProofRun | AdapterProofAttempt,
+  entry: CiProofEntry,
+): unknown {
+  return proofSummary(
+    run,
+    entry.evidence.map((evidence): ProofDeclaration =>
+      evidence.unit === "legacy"
+        ? [entry.path, evidence.parts.length]
+        : [entry.path, evidence.parts.length, evidence.unit],
+    ),
+    entry.evidence.flatMap((evidence) =>
+      evidence.parts.flatMap((part): ProofPart[] => {
+        if (part.status !== "present") return [];
+        const unit: ProofUnit =
+          evidence.unit === "legacy"
+            ? { legacy: evidence.label }
+            : evidence.unit;
+        const figures = counts(
+          part.passed ?? 0,
+          part.failed ?? 0,
+          part.other ?? 0,
+        );
+        return evidence.files === undefined
+          ? [
+              part.durationMs === undefined
+                ? [entry.path, part.part, evidence.parts.length, unit, figures]
+                : [
+                    entry.path,
+                    part.part,
+                    evidence.parts.length,
+                    unit,
+                    figures,
+                    part.durationMs,
+                  ],
+            ]
+          : [
+              [
+                entry.path,
+                part.part,
+                evidence.parts.length,
+                unit,
+                figures,
+                part.durationMs,
+                { files: evidence.files, untimed: evidence.untimed ?? 0 },
+              ],
+            ];
+      }),
+    ),
+  );
 }
 
 // A zip archive holding `text` as its one deflated file `name`.

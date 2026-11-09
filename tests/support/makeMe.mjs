@@ -6,8 +6,8 @@ import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
 import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
-import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
+import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -34,25 +34,28 @@ import {
 } from "./ciTimingTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
+import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
+import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
 import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
 import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
-import {
-  ConfiguredProjectBuilder,
-  PublishedSourceBuilder,
-} from "./projectConfigurationTestData.mjs";
+import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
+import {
+  CiProofBuilder,
+  LandedCiResolutionBuilder,
+} from "./landedCiProofTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
-/** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
+
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
@@ -61,12 +64,23 @@ import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
+/** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
 /**
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
 
 export const makeMe = {
+  get aCiProof() {
+    return new CiProofBuilder();
+  },
+  get aLandedCiResolution() {
+    return new LandedCiResolutionBuilder();
+  },
+  /** @returns {FactBuilder<CiScopeHistory>} */
+  get aCiScopeHistory() {
+    return { with: copyFacts };
+  },
   get aNativeEvidenceRecord() {
     return new NativeEvidenceRecordBuilder();
   },
@@ -91,26 +105,7 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aStoryPreparation() {
-    return {
-      /**
-       * @template {StoryPreparation} Facts
-       * @param {Facts} facts
-       */
-      with(facts) {
-        return copyFacts(facts);
-      },
-      /**
-       * A refined story planned in `plan`, a path relative to its seed.
-       * @param {string} plan
-       */
-      plannedIn(plan) {
-        return this.with({
-          refinement: /** @type {const} */ ("refined"),
-          approach: /** @type {const} */ ("planned"),
-          plan,
-        });
-      },
-    };
+    return new StoryPreparationBuilder();
   },
   get aSupplierAgreement() {
     return supplierAgreementBuilder;

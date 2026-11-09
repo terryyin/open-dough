@@ -11,7 +11,6 @@
 // keeping the run attempt it names.
 
 import {
-  entryDate,
   runUrlSchema,
   type LandedCiEntry,
   type LandedCiGap,
@@ -33,7 +32,7 @@ import {
 
 // A run attempt as the history answers it: its identity, and its link only
 // when that is a web address.
-function runOf(run: KeptRun) {
+export function runOf(run: KeptRun) {
   const { runUrl, ...identity } = keptRunOf(run);
   return {
     ...(runUrlSchema.safeParse(runUrl).success ? { runUrl } : {}),
@@ -41,9 +40,9 @@ function runOf(run: KeptRun) {
   };
 }
 
-// The build a gap names as the history answers it: its revision, how it
-// stands for the landing, and its run attempt.
-const gapBuildOf = (
+// A build as public history names it: its revision, how it stands for the
+// landing, and its safely linked run attempt.
+export const historyBuildOf = (
   build: KeptRun & { readonly revision: string },
   provenance: Provenance,
 ) => ({ revision: build.revision, provenance, ...runOf(build) });
@@ -70,9 +69,12 @@ function gapOf(
       kind: "gap",
       reason,
       ...landing,
+      ...(reason === "unclassified" || reason === "identity"
+        ? { explanation: observed.explanation }
+        : {}),
       ...(build === undefined
         ? {}
-        : { build: gapBuildOf(build, build.provenance) }),
+        : { build: historyBuildOf(build, build.provenance) }),
     };
   }
   const build = history.builds[observed.build];
@@ -83,7 +85,7 @@ function gapOf(
     kind: "gap",
     reason: build.state === "failed" ? "failed" : "not-recorded",
     ...landing,
-    build: gapBuildOf(build, provenance),
+    build: historyBuildOf(build, provenance),
   };
 }
 
@@ -102,6 +104,17 @@ export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
     const key = measuredBuildOf(history, observed);
     const provenance =
       observed.kind === "build" ? provenanceOf(observed.selection) : undefined;
+    if (key !== undefined && !history.trunkOrder?.includes(revision)) {
+      const build = history.builds[key];
+      gaps.push({
+        kind: "gap",
+        reason: "pending",
+        waitsFor: "order",
+        ...landing,
+        ...(build === undefined ? {} : runOf(build)),
+      });
+      continue;
+    }
     if (key === undefined || provenance === undefined) {
       gaps.push(gapOf(history, landing, observed));
       continue;
@@ -124,9 +137,16 @@ export function historyEntries(history: ProjectHistory): LandedCiEntry[] {
       landings,
     });
   }
-  return [...points, ...gaps].sort(
-    (a, b) =>
-      Date.parse(entryDate(a)) - Date.parse(entryDate(b)) ||
-      a.revision.localeCompare(b.revision),
+  const positions = new Map(
+    history.trunkOrder?.map((revision, index) => [revision, index]),
   );
+  const position = (entry: LandedCiEntry): number =>
+    entry.kind === "point"
+      ? Math.min(
+          ...entry.landings.map(
+            (landing) => positions.get(landing.revision) ?? Infinity,
+          ),
+        )
+      : (positions.get(entry.revision) ?? Infinity);
+  return [...points, ...gaps].sort((a, b) => position(a) - position(b));
 }

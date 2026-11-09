@@ -33,19 +33,31 @@
 
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { configuredLimit } from "./configuredLimit.ts";
+
 import {
   keepLandedCiResolution,
+  keepLandedCiOrder,
+  keepLandedCiProof,
   keptLandedCiHistory,
   keptLandingReferences,
   type LandingReference,
   type ProjectHistory,
 } from "./landedCiHistoryStore.ts";
 import {
+  hasLandingOrder,
   measuredBuildOf,
   measuredWindow,
   newestFirst,
+  mostCompleteLandingOrder,
 } from "./landedCiMeasuredBuilds.ts";
+import { readLandingOrder } from "./launchLandingGit.ts";
+import {
+  collectedProofOf,
+  needsCollectedProof,
+} from "./landedCiCollectedProof.ts";
+
 import { landingResolution, passRead } from "./landedCiResolution.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
@@ -53,6 +65,7 @@ import {
   publishedProjects,
 } from "./projectConfiguration.ts";
 import { repeatUntilStopped } from "./repeatingCheck.ts";
+import { projectFolder } from "./projectFolders.ts";
 
 // How often recorded landings are collected again, so a pending one is
 // checked until it is final. A test may shorten it through the environment.
@@ -68,7 +81,8 @@ function collects(): boolean {
 }
 
 // The landings onto the project's configured ref that its records name, with
-// those the history keeps, each once by receipt, newest first.
+// those the history keeps, each once by receipt. Local and retained ancestry
+// order them before collection can select or prune measurements.
 function trunkLandings(
   source: PublishedSource,
   records: readonly LaunchRecord[],
@@ -80,7 +94,7 @@ function trunkLandings(
     byReceipt.set(landing.receipt, landing);
   for (const { landing } of records)
     if (landing?.target === target) byReceipt.set(landing.receipt, landing);
-  return [...byReceipt.values()].sort(newestFirst);
+  return [...byReceipt.values()];
 }
 
 export class LandedCiCollection {
@@ -142,26 +156,78 @@ export class LandedCiCollection {
     records: readonly LaunchRecord[],
   ): Promise<void> {
     let history = await keptLandedCiHistory(source.id);
-    const landings = trunkLandings(source, records, history);
+    const candidates = trunkLandings(source, records, history);
+    const localOrder = await readLandingOrder(
+      [
+        ...candidates.flatMap((landing) =>
+          landing.repository === undefined ? [] : [landing.repository],
+        ),
+        projectFolder(source).path,
+      ],
+      candidates.map((landing) => landing.revision),
+      undefined,
+      this.stopped.signal,
+    );
+    const order = mostCompleteLandingOrder(candidates, [
+      history.trunkOrder,
+      localOrder,
+    ]);
+    const landings = candidates.sort(newestFirst(order));
     const read = passRead(source, this.stopped.signal);
     const measured = new Set<string>();
     for (const landing of landings) {
-      if (this.ended() || measured.size >= measuredWindow) return;
+      if (this.ended()) return;
+      if (measured.size >= measuredWindow) break;
       const held = history.landings[landing.receipt]?.observed;
       if (held === undefined || held.kind === "pending") {
+        if (!hasLandingOrder(history, landing.revision, order)) {
+          history = await keepLandedCiResolution(
+            source.id,
+            landing,
+            { kind: "pending", waitsFor: "order" },
+            order,
+          );
+          continue;
+        }
         const resolved = await landingResolution(source, landing, read);
         // A read the end of collection cut short says nothing of its CI.
         if (this.ended()) return;
-        history = await keepLandedCiResolution(source.id, landing, resolved);
+        history = await keepLandedCiResolution(
+          source.id,
+          landing,
+          resolved,
+          order,
+        );
         // CI that cannot be read now is asked again at the next pass; a CI
         // proof that cannot be read is this landing's alone.
-        if (resolved.kind === "pending" && resolved.waitsFor === "read") return;
+        if (resolved.kind === "pending" && resolved.waitsFor === "read") break;
       }
       const observed = history.landings[landing.receipt]?.observed;
+      if (observed?.kind === "build") {
+        const retained = history.builds[observed.build];
+        if (retained !== undefined && needsCollectedProof(retained)) {
+          const signal = AbortSignal.any([
+            this.stopped.signal,
+            AbortSignal.timeout(readWaitLimitMs),
+          ]);
+          const { proof, pending } = await collectedProofOf(
+            source,
+            retained,
+            signal,
+          );
+          history = await keepLandedCiProof(
+            source.id,
+            observed.build,
+            proof,
+            pending,
+          );
+        }
+      }
       const build =
         observed === undefined ? undefined : measuredBuildOf(history, observed);
       if (build !== undefined) measured.add(build);
     }
+    if (order !== undefined) await keepLandedCiOrder(source.id, order);
   }
 
   // Ends collection and any read it waits on.

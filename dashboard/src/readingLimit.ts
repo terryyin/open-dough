@@ -1,8 +1,9 @@
 // The page's one record of GitHub's rate limit on the local `gh` login: the
-// page-clock time before which this page asks the local read boundary
-// nothing. `./authenticatedGet.ts` sets it where the boundary answers a read
-// as limited (`retryAfterSeconds`), and while it stands answers every read as
-// limited itself, without asking. A further limited answer only moves it
+// page-clock time before which this page withholds reads that acquire upstream
+// evidence. `./authenticatedGet.ts` sets it where the boundary answers a read
+// as limited (`retryAfterSeconds`), and while it stands answers each upstream read as
+// limited itself, without asking. Collected history reads remain local and
+// are not withheld by this upstream limit. A further limited answer only moves it
 // later; nothing but its time ends it, and it outlives the observed project,
 // since the limit is the login's, not a project's. The revision check
 // schedule (`./revisionCheckSchedule.ts`), the page's notice
@@ -36,7 +37,8 @@ export function noteLimit(retryAfterSeconds: number): void {
 }
 
 // When the standing limit ends, or undefined when none stands. A read asked
-// now is answered as limited without asking (and counted as withheld).
+// now for upstream evidence is answered as limited without asking (and counted
+// as withheld).
 export function standingLimit(): Date | undefined {
   return Date.now() < limitedUntil ? new Date(limitedUntil) : undefined;
 }

@@ -14,6 +14,11 @@
 
 import { z } from "zod";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
+import { ciProofSchema } from "../src/ciProof.ts";
+import {
+  currentSummaryOf,
+  summaryProblems,
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import {
   finalGapReasons,
   historyWallTimeMs,
@@ -37,13 +42,39 @@ const keptRunSchema = z.object({
 
 export type KeptRun = z.infer<typeof keptRunSchema>;
 
+// Stored summaries bypass the upstream readers. Apply their same readable
+// contract and canonical conversion locally before the current schema parses.
+const retainedProofSchema = z.preprocess((value, context) => {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !("kind" in value) ||
+    value.kind !== "summary" ||
+    !("summary" in value)
+  )
+    return value;
+  const problems = summaryProblems(value.summary) as readonly string[];
+  if (problems.length > 0) {
+    context.addIssue({
+      code: "custom",
+      message: `Invalid retained CI proof summary: ${problems.join("; ")}`,
+    });
+    return z.NEVER;
+  }
+  return { ...value, summary: currentSummaryOf(value.summary) as unknown };
+}, ciProofSchema);
+
 // One completed build as its CI read named it.
 export const keptBuildSchema = z.object({
   revision: commitIdSchema,
   state: z.enum(["pass", "failed"]),
   ...keptRunSchema.shape,
+  runBranch: z.string().min(1).optional(),
   startedAt: z.string().min(1).optional(),
   completedAt: z.string().min(1).optional(),
+  proof: retainedProofSchema.optional(),
+  // Absent in older records; a classified final answer is not acquired again.
+  proofPending: z.boolean().optional(),
 });
 
 export type KeptBuild = z.infer<typeof keptBuildSchema>;
@@ -75,7 +106,7 @@ export const observationSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     kind: z.literal("gap"),
-    reason: unmeasuredReasonSchema,
+    reason: unmeasuredReasonSchema.default("unclassified"),
     explanation: z.string().min(1),
     requestedStatus: requestedRevisionCiStatusSchema.optional(),
     build: namedBuildSchema.optional(),
@@ -147,9 +178,14 @@ function namedBuildOf(
 
 // One build's key: its run and attempt, a CI adapter's attempt, or, for a
 // build its CI read named neither of, its revision.
-function buildKeyOf(build: Extract<FinalResolution, { kind: "build" }>) {
+export function buildKeyOf(
+  build: Pick<
+    KeptBuild,
+    "revision" | "adapterAttempt" | "runId" | "runAttempt"
+  >,
+) {
   if (build.adapterAttempt !== undefined)
-    return `attempt/${String(build.adapterAttempt.attemptId)}`;
+    return `adapter/${JSON.stringify([String(build.adapterAttempt.runId), String(build.adapterAttempt.attemptId), build.revision])}`;
   if (build.runId !== undefined && build.runAttempt !== undefined)
     return `run/${String(build.runId)}/${String(build.runAttempt)}`;
   return `revision/${build.revision}`;
@@ -179,7 +215,7 @@ export function keptResolution(resolution: LandedResolution): {
     };
   }
   const key = buildKeyOf(resolution);
-  const { revision, state, startedAt, completedAt } = resolution;
+  const { revision, state, runBranch, startedAt, completedAt } = resolution;
   return {
     observed: { kind: "build", build: key, selection: resolution.selection },
     build: [
@@ -188,6 +224,7 @@ export function keptResolution(resolution: LandedResolution): {
         revision,
         state,
         ...keptRunOf(resolution),
+        ...(runBranch === undefined ? {} : { runBranch }),
         ...(startedAt === undefined ? {} : { startedAt }),
         ...(completedAt === undefined ? {} : { completedAt }),
       },
