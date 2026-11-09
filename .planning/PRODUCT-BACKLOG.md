@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Optimize tests from existing CI proof](seeds/SEED-284-optimize-tests-from-ci-proof.md#optimize-tests-from-ci-proof) — SEED-284#optimize-tests-from-ci-proof
 - [Keep Done story Intent pinned to the landed result](seeds/SEED-283-keep-done-story-intent-pinned.md#keep-done-story-intent-pinned) — SEED-283#keep-done-story-intent-pinned
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data
 - [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data
