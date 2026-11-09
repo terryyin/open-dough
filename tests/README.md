@@ -43,7 +43,11 @@ drive the case. Compose builders to keep related values consistent and give
 each test its own mutable data.
 
 Type builders against the production type, schema, or encoder input with
-`@ts-check` and JSDoc imports. Include the builder sources in the dashboard
+`@ts-check` and JSDoc imports. Builder modules import no dashboard module at
+runtime: native journeys hash makeMe's runtime import closure
+(`tests/support/native-import-closure.mjs`) as evidence identity, and
+`tests/native-evidence-identity.sh` fails when that closure reaches outside
+`tests/` and `src/`. Include the builder sources in the dashboard
 type-check. Organize builders by domain concept behind the one entry point.
 Return the canonical shape directly to every caller. Preserve actual storage
 and response distinctions, such as a persisted `LaunchRecord` and a live
