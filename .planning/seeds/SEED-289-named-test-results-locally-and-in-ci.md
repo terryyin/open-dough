@@ -35,24 +35,79 @@ lost time and developer decisions without a named cause.
 
 **Identity:** SEED-289#name-a-test-job-past-its-deadline
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/563-end-test-jobs-at-their-deadline/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"42e01225767dc66aa34ac1aa58457871b79fc36b36f017536cd8ef8282c0f0ab","plan":"5900107328626b7a26586592f3bd148dbf258a04b0709923e6f3d78c574c11d4"}}
 ```
 
-- **For / why.** Maintainers and agents running `scripts/test.sh` locally or in
-  CI learn which job overran, instead of a silent job cancel or a hung local
-  run that holds every worktree's whole-suite admission.
-- **Evaluation.** A job that runs past its deadline is ended; the run fails
-  naming that job and its elapsed time, still writes its timing and outcome
-  files, and releases `refs/dough/local-test-suite`. In CI the same report
-  appears before the job's `timeout-minutes`. Proof uses an observable event
-  or a controlled clock, not a wall-clock wait.
-- **Boundary.** The existing per-job and total budgets and their CI-only
-  judgment stay as they are; changing a budget is a separate decision. The
-  dashboard suite's existing deadline is out of scope.
-- **Value / learning.** Turns DD-426's unnamed cancel and DD-476's 47-minute
-  admission hold into one named failure.
-- **Safe stopping point.** A deadline that names the job and releases
-  admission locally is useful before the CI timing artifact is added.
+**Goal.** Maintainers and agents running `scripts/test.sh` locally or in CI
+receive a named, recorded failure when a check hangs or the CI run exhausts
+its available test time. The deadline actively ends stuck work; detecting
+slow tests or builds is not its purpose. An overrun must end without requiring
+someone to kill the run and unblock every worktree's whole-suite admission. This addresses
+DD-476's hung check and DD-426's unnamed hosted cancellation.
+
+**Scope.**
+
+- Give each runner job a 180-second wall-clock safety deadline, locally and in
+  CI. A runner job means one Bash check or one `node --test` file, matching the
+  runner's existing scheduler. Start its clock when that job starts, rather
+  than while it is queued or waiting for suite admission.
+- At expiry, stop the affected job and its owned process group with bounded
+  cleanup, fail the run, and report the job's label, deadline reason, elapsed
+  time, and useful captured output. A check ignoring TERM must not leave the
+  deadline path waiting indefinitely. Deliberately detached workers retain
+  their existing check-owned teardown contract.
+- As with an ordinary failed check, other queued checks may continue after
+  an individual job times out. The run still fails; an absolute CI cutoff
+  instead stops the whole run so reporting has time to finish.
+- Preserve timing and `passed`/`failed` outcome rows for jobs that started,
+  including the timed-out job. A completed local whole run releases
+  `refs/dough/local-test-suite` through its existing admission owner, so the
+  next waiting worktree can enter.
+- In CI, also bound the run against a 320-second absolute cutoff established
+  before dependency setup, following the existing dashboard model. Slow setup or
+  many uniformly slow checks must not defeat the report by reaching the
+  outer six-minute cancellation first. Stop running work, identify unfinished
+  jobs and work not started, and leave timing/outcome files available to the
+  existing artifact and CI proof steps. Unstarted checks have an unfinished
+  outcome and no invented execution time; CI proof must retain them as other,
+  rather than present them as passing or omit them as though no work remained.
+- Keep normal silent success, ordinary failure reporting, and signal handling.
+  A completed check leaves no deadline worker that can later kill other work.
+- Keep the existing normalized 64-second per-job and 694-job-second total
+  performance budgets and their CI-only, post-run judgment unchanged. These
+  measure performance at recorded runner speed; the safety deadline measures
+  wall time and must remain a separate policy.
+- The dashboard suite's deadline, performance-budget recalibration, hosted
+  font parity, automatic retries, and changes to test-level timeouts are
+  outside this increment.
+
+**Key examples.**
+
+1. A local whole run starts a check that announces readiness and then blocks.
+   Its safety deadline expires. The run names that check and its elapsed
+   time, records a failed outcome and timing, ends its owned processes, and
+   admits a whole run waiting in another worktree once the run ends.
+2. A check finishes silently before its deadline. Its outcome remains passed,
+   and a later check remains alive when the first check's old deadline would
+   have expired. Ordinary check failures retain their existing diagnostics.
+3. CI setup consumes part of the available time; no single check has yet
+   reached its own deadline when the absolute run cutoff arrives. The runner
+   ends with named unfinished checks and retained reports before the hosted
+   outer timeout. Checks not started are not reported as successes.
+4. The CI cutoff has already passed when the runner starts. It fails naming
+   the exhausted run deadline without starting checks, and leaves an honest
+   unfinished report for the selected checks for the existing artifact consumers.
+
+Proof advances a controlled clock or triggers an observable deadline event
+after job readiness; it never waits for wall-clock time to pass. The local
+deadline/report/admission journey is a useful safe stopping point before the
+CI cutoff and artifact journey is added.
+
+**Decision — Terry, 2026-11-10.** Accepted 180 seconds to actively stop a
+never-ending check and identify the failure. This is not a new threshold for
+detecting slow tests or builds. The CI cutoff follows the dashboard's existing
+320-second allowance before the six-minute outer bound, preserving time to
+save reports without changing either performance budget.
 
 <a id="match-hosted-fonts-in-ci-container"></a>
 
