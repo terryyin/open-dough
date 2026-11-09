@@ -141,6 +141,39 @@ TypeScript comparison confirmed all seven files match their prior runtime after
 excluding comments and titles; maximum file size is 248 lines. Setup, assertions,
 selectors, imports and selected spec paths are unchanged. `git diff --check` passed.
 
+## Retrospective
+
+Reviewed the original selected correction and execution-ready plan at the Take,
+then both attributable implementation commits: `0d0ac0a1f652ff3938933ff71b72de8d49d69154`
+(cost/heading/tests/docs) and `0ab4b94e6ae91340b0d769e2afd6083c0b5ccf5d`
+(comment/title wording). Their remote acceptance and observer registration are
+confirmed; the latter extends the former. Claim `82fc915034f4262553561a1c79de876040738677`
+is provenance. Concurrent trunk preparation, test-count queueing, and Claude
+effort work are excluded from this execution's manifest.
+
+Outcome review: the aggregate changes satisfy the original source, preserve
+ADR 0008's page-owned Selected story, and leave CI-follow implementation unchanged.
+The new integrated journey observes provider lifecycle through actual scope
+controls; its distinct zero/three/four request deltas justify retaining it.
+Reading/selection journeys survive the refactor with unchanged assertions.
+No product defect, architectural conflict, or actionable test-cleanup residue was
+found in the affected concept and relevant existing consumers. Existing broad
+Intent proof plus both focused returns and final hooks support this conclusion;
+remote CI remains pending under GitHub's directed API pause.
+
+Process review was enabled by project configuration and used this conversation,
+agent returns and tool results. It recorded this execution's recurrence under
+existing ODF-396 in `DearDough.md` (786 physical lines): the comment/title trace
+had 628 lines and 402 located rows matching automatically derived `PLAN.md`.
+No missed consumer was observed. No guidance or backlog was changed. The initial
+journey-setup error and unused moved-spec import were repaired before publication.
+
+## Execution complete
+
+Product advice: no change. This bounded correction aligns the request contract,
+its regression proof, and the visible Taken heading with the delivered story tabs;
+it supports the current direction without introducing another product outcome.
+
 ## Proof and delivery gates
 
 Run the focused specs and the whole `dashboard/tests/intent` directory once
