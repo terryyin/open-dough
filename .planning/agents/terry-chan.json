@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "terry-chan",
+  "email": "terry-chan@example.org",
+  "identity": "SEED-288#refresh-pending-landed-evidence",
+  "mode": "story-branch",
+  "branch": "codex/keep-done-ci-comparisons-refreshable-while-lande",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
