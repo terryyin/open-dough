@@ -13,12 +13,46 @@ that you cannot safely simplify, downgrade, or remove. A cost that fails
 either condition does not enter the record; resolve a clear opportunity
 during the optimization itself.
 
-A candidate leaves the record when it is fixed, accepted beside its owning
-test, or moved to a named story. Acceptance excludes nothing: normal
-verification and CI keep running the test. Delete the entry and keep no
-resolved archive: its evidence stays recoverable from the record's Git
-history and from the work that resolved it, and each live decision keeps one
-home.
+A candidate leaves the record when it is fixed,
+[accepted beside its owning test](#keep-accepted-cost-beside-its-test), or
+moved to a named story. Delete the entry and keep no resolved archive: its
+evidence stays recoverable from the record's Git history and from the work
+that resolved it, and each live decision keeps one home.
+
+## Keep accepted cost beside its test
+
+Accept a cost when it is inherent to unique protected behavior and no cheaper
+design preserves that protection. Record the acceptance beside the test,
+scenario, or shared fixture that owns the cost, at the narrowest scope that
+owns it: the one case or scenario, even when CI times only its whole file or
+feature, or the shared fixture or step when each of its users pays that same
+cost. [Runner output](evidence-and-leads.md#read-runner-output-by-bounded-extraction)
+can time a case that the summary does not. Use this project's native form: a
+tag or annotation with its reason beside it, or a short source comment.
+Explain why the cost is warranted: the work it pays for, the behavior only it
+protects, and the cheaper proof ruled out. Kept in source, the indicator
+moves with its test.
+
+An accepted-cost indicator changes no selection, execution, timeout, or
+verdict, because normal verification and CI must keep proving the behavior it
+protects.
+
+When you rank leads, read the indicators in the leads' tests. An accepted
+cost still counts in every timing and total, but not in a lead's removable
+cost while its reason holds. It covers only the cost it explains: its file's
+other cases, and avoidable setup around it, such as hooks, fixtures, and
+waits, stay open to improvement.
+
+Revisit an accepted cost when it grows materially beyond the work its
+indicator names, when its justification changes, or when new evidence
+identifies cheaper proof of the same behavior. Judge it as a candidate again,
+then update or remove its indicator with the result.
+
+Existing execution tags and profile-only markers keep their own meaning. Read
+each by what this project defines it to do: a tag that selects tests or
+names a host service they need still governs selection and execution, and a
+profile-only marker governs what a requested profiling run measures. Only an
+accepted-cost indicator records an accepted cost.
 
 ## Live format
 
@@ -87,6 +121,13 @@ transferred obligation to its named story or plan.
   Report the problem and never overwrite or guess at the file.
 - **Later passes:** read this record first and preserve its recorded
   decisions. Write the live format.
+- **First write converts:** a pass that writes a four-section record
+  rewrites it in the live format. Pending entries judged live become live
+  entries. Each recorded acceptance that current code and evidence still
+  substantiate moves beside its test with its rationale; judge any other as
+  a candidate. Fixed entries, transferred obligations, and profile-only
+  entries leave the record; the markers stay in source with their own
+  meaning.
 - **Cleanup:** before a spent plan is deleted, write each candidate that
   exists only in that plan and is still live into this record. When the
   story or plan that received a moved candidate or transferred obligation

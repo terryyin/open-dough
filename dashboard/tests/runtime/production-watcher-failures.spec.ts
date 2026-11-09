@@ -6,20 +6,26 @@
 // steps the shared watcher to its next state from the watcher's own output
 // and asserts that delta, staging at most one deployment of its own; after a
 // scenario ends the watcher, a restart at current main serves the next.
+// Accepted cost: each test's one real staging, which a prepared or prebuilt
+// deployment would bypass; only this chain proves that each failure keeps or
+// restores working production, or ends the watcher with cleanup. Setup and
+// waits around the stagings stay open to improvement.
 import { expect, test } from "../support/pageTest.ts";
-import { readdir, rename, rm, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { rename, rm, writeFile } from "node:fs/promises";
 import type { Page } from "@playwright/test";
 import { publishedMainFixture } from "../support/publishedMainFixture.ts";
-import { processRunning } from "../support/processGroup.ts";
+import type { PublishedMainFixture } from "../support/publishedMainFixture.ts";
 import {
-  faultGatedPackage,
+  faultCause,
+  faultGateChanges,
+  ownCauseFault,
   productionFault,
 } from "../support/productionFault.ts";
 import {
-  outputCount,
+  expectProductionEnded,
+  expectStillServing,
+  preparations,
   productionActivation,
-  productionDeployments,
   productionReplacement,
   shownActivation,
   startProductionWatcher,
@@ -29,14 +35,11 @@ import {
 
 test.describe.configure({ mode: "serial" });
 
-type Fixture = Awaited<ReturnType<typeof publishedMainFixture>>;
-
 // What a failed setup may leave undefined is closed by afterAll regardless;
 // every test reads the started ones through `started()`.
-let fixture: Fixture | undefined;
+let fixture: PublishedMainFixture | undefined;
 let watcher: ProductionWatcher | undefined;
 let page: Page | undefined;
-let deployments: string;
 let served: ProductionActivation;
 // The commit production serves, and the latest commit published main names.
 let servedCommit: string;
@@ -48,15 +51,9 @@ function started() {
   }
   return { fixture, page };
 }
-const preparing = (commit: string) =>
-  outputCount(
-    watcher,
-    new RegExp(`Preparing production dashboard ${commit}\\.`, "g"),
-  );
 
 test.beforeAll(async ({ browser }) => {
   fixture = await publishedMainFixture(true);
-  deployments = productionDeployments(fixture.home);
   page = await browser.newPage();
   // Every commit gates its own build and start on a machine-local transient
   // cause. Clearing it never changes source or commit and runs the real
@@ -64,8 +61,7 @@ test.beforeAll(async ({ browser }) => {
   servedCommit = await fixture.publish(
     {
       ...fixture.markerChanges("WORKING A"),
-      "package.json": await faultGatedPackage(fixture.development),
-      "production-fault.mjs": productionFault,
+      ...(await faultGateChanges(fixture.development)),
     },
     "Working A",
   );
@@ -87,10 +83,7 @@ test("a watcher serves the working commit whose build and start are gated", asyn
 test("a failed build keeps working production", async () => {
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
-  await writeFile(
-    path.join(fixture.home, "fault-build"),
-    "transient build cause",
-  );
+  await writeFile(faultCause(fixture.home, "build"), "transient build cause");
   const b = await fixture.publish(
     fixture.markerChanges("WORKING B"),
     "Working B",
@@ -102,9 +95,7 @@ test("a failed build keeps working production", async () => {
   expect(watcher.output()).toContain(
     `Keeping ${servedCommit} at ${served.url}`,
   );
-  expect(processRunning(served.pid)).toBe(true);
-  await page.reload();
-  await expect(page).toHaveTitle("WORKING A");
+  await expectStillServing(served, page, "WORKING A");
   latestCommit = b;
 });
 
@@ -113,9 +104,9 @@ test("a failed build keeps working production", async () => {
 test("after a failed build the same commit is retried until it builds", async () => {
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
-  await rm(path.join(fixture.home, "fault-build"));
+  await rm(faultCause(fixture.home, "build"));
   served = await productionReplacement(watcher, served, latestCommit);
-  expect(preparing(latestCommit)).toBeGreaterThanOrEqual(2);
+  expect(preparations(watcher, latestCommit)).toBeGreaterThanOrEqual(2);
   await page.reload();
   await expect(page).toHaveTitle("WORKING B");
   servedCommit = latestCommit;
@@ -130,19 +121,18 @@ test("a candidate whose preview start will fail is prepared while the working co
   const { fixture } = started();
   // The served commit's gate also reads HOME; make the start cause apply to
   // C only.
-  cFault = path.join(fixture.home, "fault-preview-c");
+  cFault = faultCause(fixture.home, "preview", "c");
   await writeFile(cFault, "transient candidate start cause");
   latestCommit = await fixture.publish(
     {
       ...fixture.markerChanges("WORKING C"),
-      "production-fault.mjs": productionFault.replace(
-        'existsSync(path.join(homedir(), "fault-" + phase))',
-        'existsSync(path.join(homedir(), "fault-" + phase + "-c"))',
-      ),
+      "production-fault.mjs": ownCauseFault("c"),
     },
     "Working C",
   );
-  await expect.poll(() => preparing(latestCommit), { timeout: 0 }).toBe(1);
+  await expect
+    .poll(() => preparations(watcher, latestCommit), { timeout: 0 })
+    .toBe(1);
 });
 
 test("a failed preview start restores the working commit", async () => {
@@ -169,7 +159,7 @@ test("after a failed preview start the same commit is retried until it serves", 
   if (watcher === undefined) throw new Error("No watcher");
   const { page } = started();
   served = await productionReplacement(watcher, served, latestCommit);
-  expect(preparing(latestCommit)).toBeGreaterThanOrEqual(2);
+  expect(preparations(watcher, latestCommit)).toBeGreaterThanOrEqual(2);
   await page.reload();
   await expect(page).toHaveTitle("WORKING C");
   servedCommit = latestCommit;
@@ -184,26 +174,21 @@ test("an unavailable origin keeps production and checks resume when it returns; 
   await expect
     .poll(() => watcher?.output() ?? "", { timeout: 0 })
     .toContain(`git ls-remote -- ${fixture.origin} refs/heads/main failed`);
-  expect(processRunning(served.pid)).toBe(true);
-  await page.reload();
-  await expect(page).toHaveTitle("WORKING C");
+  await expectStillServing(served, page, "WORKING C");
   expect(watcher.output()).toContain(
     `Keeping ${servedCommit} at ${served.url}`,
   );
   await rename(`${fixture.origin}.unavailable`, fixture.origin);
   const checks = watcher.checks();
   await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks);
-  if (watcher.child.pid === undefined) throw new Error("Missing watcher PID");
-  process.kill(-watcher.child.pid, "SIGHUP");
+  watcher.signal("SIGHUP");
   // The watcher stops without a failure. npm's own exit for a hung-up
   // group differs by npm version (the signal, or code 1), so it is not
   // what this checks.
   await watcher.exited;
   expect(watcher.output()).not.toContain("Production dashboard could not run");
   await watcher.stop();
-  expect(processRunning(served.pid)).toBe(false);
-  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
-  expect(await readdir(deployments)).toEqual([]);
+  await expectProductionEnded(request, served, fixture.home);
   watcher = undefined;
 });
 
@@ -220,8 +205,8 @@ test("a failed candidate whose restoration also fails reports both causes, exits
   const { fixture } = started();
   // D's own preview gate and the served commit's (which reads its own
   // cause) both fail.
-  await writeFile(path.join(fixture.home, "fault-preview"), "start cause");
-  await writeFile(path.join(fixture.home, "fault-preview-c"), "start cause");
+  await writeFile(faultCause(fixture.home, "preview"), "start cause");
+  await writeFile(faultCause(fixture.home, "preview", "c"), "start cause");
   const d = await fixture.publish(
     {
       ...fixture.markerChanges("WORKING D"),
@@ -239,9 +224,7 @@ test("a failed candidate whose restoration also fails reports both causes, exits
   );
   expect(watcher.output().match(/TRANSIENT preview FAILURE/g)).toHaveLength(2);
   expect(watcher.output()).not.toContain(`Production dashboard ${d} at`);
-  expect(processRunning(served.pid)).toBe(false);
-  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
-  expect(await readdir(deployments)).toEqual([]);
+  await expectProductionEnded(request, served, fixture.home);
   watcher = undefined;
   latestCommit = d;
 });
@@ -250,8 +233,8 @@ test("an unexpectedly ended preview ends the watcher with cleanup", async ({
   request,
 }) => {
   const { fixture } = started();
-  await rm(path.join(fixture.home, "fault-preview"));
-  await rm(path.join(fixture.home, "fault-preview-c"));
+  await rm(faultCause(fixture.home, "preview"));
+  await rm(faultCause(fixture.home, "preview", "c"));
   watcher = startProductionWatcher(fixture.development, fixture.env);
   served = await productionActivation(watcher, latestCommit);
   process.kill(-served.pid, "SIGKILL");
@@ -260,8 +243,6 @@ test("an unexpectedly ended preview ends the watcher with cleanup", async ({
   expect(watcher.output()).toContain(
     "Production dashboard could not run: Production dashboard exited unexpectedly (SIGKILL).",
   );
-  expect(processRunning(served.pid)).toBe(false);
-  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
-  expect(await readdir(deployments)).toEqual([]);
+  await expectProductionEnded(request, served, fixture.home);
   watcher = undefined;
 });

@@ -1,5 +1,9 @@
 // One serial production chain proves replacement, durable start completion,
 // shared machine records, published reads, policy decisions and shutdown.
+// Accepted cost: the real npm install, Vite build and preview behind each
+// activation, including the policy steps ./productionUpdatePolicies.ts adds
+// to this chain, which a prepared or prebuilt deployment would bypass. Setup
+// and waits around the activations stay open to improvement.
 import { expect, test } from "../support/pageTest.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { readFile, readdir, rm, writeFile } from "node:fs/promises";
@@ -7,6 +11,7 @@ import { processRunning } from "../support/processGroup.ts";
 import {
   checkedAfterActivation,
   deploymentCheckout,
+  productionBoundary,
   productionDeployments,
 } from "../support/productionWatcher.ts";
 import {
@@ -24,11 +29,8 @@ import {
 } from "./productionUpdateJourney.ts";
 import { productionUpdatePolicies } from "./productionUpdatePolicies.ts";
 import { launchRequest } from "../agentLaunchBoundary.ts";
-import type { Acceptance, MachineAnswer } from "../../src/agentLaunch.ts";
-import {
-  sessionsAudienceParameter,
-  sessionsHistoryAudience,
-} from "../../src/machineSessionsRevision.ts";
+import { attempts, machineSessions } from "../agentLaunchSessions.ts";
+import type { Acceptance } from "../../src/agentLaunch.ts";
 
 test.describe.configure({ mode: "serial" });
 const journey = productionUpdateJourney();
@@ -72,10 +74,10 @@ test("a commit held in its build is served exactly at the same URL while the nex
     host: "claude",
     instruction: "Keep this accepted start through the dashboard update.",
   };
-  const start = () =>
+  const start = (data = launch) =>
     request.post(`${state.served.url}/__agent-launch/accept`, {
       headers: { Origin: state.served.url },
-      data: launch,
+      data,
     });
   const accepted = (await (await start()).json()) as Extract<
     Acceptance,
@@ -104,33 +106,17 @@ test("a commit held in its build is served exactly at the same URL while the nex
   await expect.poll(async () => (await start()).status()).toBe(503);
   expect(processRunning(state.served.pid)).toBe(true);
   expect(watcher.output()).not.toContain(`Production dashboard ${b} at`);
-  const blocked = await request.post(
-    `${state.served.url}/__agent-launch/accept`,
-    {
-      headers: { Origin: state.served.url },
-      data: {
-        source: "open-dough",
-        workflow: "ad-hoc",
-        host: "claude",
-        instruction: "Wait for the dashboard update.",
-      },
-    },
-  );
+  const blocked = await start({
+    ...launch,
+    instruction: "Wait for the dashboard update.",
+  });
   expect(blocked.status()).toBe(503);
   hosts.claude.controls.releaseHeldClaude();
   await journey.replacedBy(b);
-  const sessions = await request.get(`${state.served.url}/__agent-launch`, {
-    headers: { Origin: state.served.url },
-  });
-  const established = (await sessions.json()) as MachineAnswer;
+  const boundary = productionBoundary(state.served.url, fixture.home);
   // A settled launch no longer needs attention, so its attempt is read with
   // the history rather than the regular answer.
-  const history = await request.get(
-    `${state.served.url}/__agent-launch?${sessionsAudienceParameter}=${sessionsHistoryAudience}`,
-    { headers: { Origin: state.served.url } },
-  );
-  const retained = (await history.json()) as Pick<MachineAnswer, "attempts">;
-  const attempt = [...established.attempts, ...retained.attempts].find(
+  const attempt = (await attempts(boundary)).find(
     (entry) => entry.id === accepted.attempt.id,
   );
   expect(attempt).toMatchObject({
@@ -141,7 +127,7 @@ test("a commit held in its build is served exactly at the same URL while the nex
   });
   if (attempt?.outcome?.kind !== "launched")
     throw new Error("The accepted attempt has no launched native session.");
-  expect(established.records).toContainEqual(
+  expect(await machineSessions(boundary)).toContainEqual(
     expect.objectContaining({
       request: expect.objectContaining(launch),
       session: expect.objectContaining(attempt.outcome.session),

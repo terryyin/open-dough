@@ -1,14 +1,20 @@
 // The public watcher's serial lifecycle; every test observes the next state.
+// Accepted cost: the real npm install, Vite build and preview behind each
+// activation, which a prepared or prebuilt deployment would bypass. Only
+// this chain proves activation, serving beside development, the Cursor
+// runner, replacement, stop and restart end to end. Setup and waits around
+// the activations stay open to improvement.
 import { expect, test } from "../support/pageTest.ts";
 import { readdir } from "node:fs/promises";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { openCursorTerminal } from "../support/cursorTerminal.ts";
 import { processGroup, runnersFor } from "../support/cursorRunnerJourney.ts";
 import { dashboardCommand } from "../support/dashboardCommand.ts";
 import { keptCursor } from "../support/keptCursorTurn.ts";
+import { expectOwnOriginReadsOnly } from "../support/localOriginReads.ts";
 import { processRunning } from "../support/processGroup.ts";
 import {
   deploymentCheckout,
+  expectProductionEnded,
   productionActivation,
   productionDeployments,
   productionReplacement,
@@ -31,7 +37,6 @@ let served: ProductionActivation;
 let runner: { port: number; pid: number };
 let cursorSessionId: string;
 let cursorClientPid: number;
-const sockets: { close(): void }[] = [];
 // Setup publishes pinned main and starts the watcher; the first test observes
 // its activation and the next starts development, so the shared hook holds
 // only the preparation.
@@ -39,13 +44,11 @@ test.beforeAll(async ({ browser }) => {
   ({ env, pinned } = await machine.start(browser));
 });
 test.afterAll(async () => {
-  for (const socket of sockets) socket.close();
   await machine.close();
 });
 
 test("npm watcher activates published main and starts the Cursor runner", async () => {
-  const watcher = machine.watcher;
-  if (watcher === undefined) throw new Error("No watcher");
+  const watcher = machine.running();
   ({ served, runner } = await machine.activated(pinned));
   expect(watcher.output()).toContain(
     `Preparing production dashboard ${pinned}.`,
@@ -57,8 +60,7 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
   browser,
   request,
 }) => {
-  const watcher = machine.watcher;
-  if (watcher === undefined) throw new Error("No watcher");
+  const watcher = machine.running();
   developmentUrl = await machine.developmentStarted(env);
   const { productionPage, developmentPage } = started();
   expect(served.url).not.toBe(developmentUrl);
@@ -89,20 +91,7 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
   await expect(fresh).toHaveTitle("PINNED MAIN");
   await expect(sourceMarker(fresh)).toHaveText("PINNED SOURCE");
   await fresh.close();
-  const readUrl = `${served.url}/__authenticated-read?source=unknown`;
-  expect((await request.get(readUrl)).status()).toBe(403);
-  expect(
-    (
-      await request.get(readUrl, {
-        headers: { Origin: "https://example.invalid" },
-      })
-    ).status(),
-  ).toBe(403);
-  const sameOrigin = await request.get(readUrl, {
-    headers: { Origin: served.url },
-  });
-  expect(sameOrigin.status()).toBe(404);
-  expect(await sameOrigin.text()).toContain("Unknown catalog source");
+  await expectOwnOriginReadsOnly(request, served.url);
   expect(
     (
       await request.post(`${served.url}/__agent-launch/accept`, {
@@ -131,8 +120,7 @@ test("the production command starts one Cursor runner outside the preview's proc
 });
 
 test("the next published main replaces production at the same URL and leaves the runner and its client in place", async () => {
-  const watcher = machine.watcher;
-  if (watcher === undefined) throw new Error("No watcher");
+  const watcher = machine.running();
   const { fixture, cursor, productionPage } = started();
   next = await fixture.publish(fixture.markerChanges("NEXT MAIN"), "Next main");
   const replaced = await productionReplacement(watcher, served, next);
@@ -142,12 +130,7 @@ test("the next published main replaces production at the same URL and leaves the
   expect(processRunning(runner.pid)).toBe(true);
   expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
   expect(runnersFor(fixture.home)).toBe(1);
-  const terminal = await openCursorTerminal(
-    machine.boundary(replaced.url),
-    cursorSessionId,
-  );
-  sockets.push(terminal.socket);
-  await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
+  await machine.followCursorSession(replaced.url, cursorSessionId);
   expect(cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
   served = replaced;
@@ -155,15 +138,12 @@ test("the next published main replaces production at the same URL and leaves the
 test("stopping the watcher ends production and its checkouts and leaves development, the runner and its client", async ({
   request,
 }) => {
-  const watcher = machine.watcher;
-  if (watcher === undefined) throw new Error("No watcher");
+  const watcher = machine.running();
   const { fixture, developmentPage } = started();
-  const deployments = productionDeployments(fixture.home);
   await watcher.stop();
   machine.watcher = undefined;
   await expect.poll(() => processRunning(served.pid)).toBe(false);
-  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
-  expect(await readdir(deployments)).toEqual([]);
+  await expectProductionEnded(request, served, fixture.home);
   await expect(sourceMarker(developmentPage)).toHaveText(
     "EDITED DEVELOPMENT SOURCE",
   );
@@ -225,12 +205,10 @@ test("a restart serves current main as its baseline with the same runner, and SI
   expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
   expect(processGroup(runner.pid)).toBe(runner.pid);
   expect(processGroup(runner.pid)).not.toBe(processGroup(restarted.pid));
-  const follow = await openCursorTerminal(
-    machine.boundary(restarted.url),
+  const follow = await machine.followCursorSession(
+    restarted.url,
     cursorSessionId,
   );
-  sockets.push(follow.socket);
-  await expect.poll(() => follow.output()).toContain("ctrl+c to stop");
   follow.send({ input: "after-restart" });
   await expect
     .poll(() => cursor.input(cursorClientPid))
@@ -238,15 +216,10 @@ test("a restart serves current main as its baseline with the same runner, and SI
   expect(cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
   expect(cursor.calls()).toHaveLength(1);
-  if (watcher.child.pid === undefined) throw new Error("Missing watcher PID");
-  process.kill(-watcher.child.pid, "SIGINT");
+  watcher.signal("SIGINT");
   await watcher.exited;
   await watcher.stop();
   expect(watcher.output()).not.toContain("could not run");
-  expect(processRunning(restarted.pid)).toBe(false);
-  await expect(
-    request.get(restarted.url, { timeout: 2_000 }),
-  ).rejects.toThrow();
-  expect(await readdir(deployments)).toEqual([]);
+  await expectProductionEnded(request, restarted, fixture.home);
   machine.watcher = undefined;
 });

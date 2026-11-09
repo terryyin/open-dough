@@ -22,9 +22,10 @@ Resolve each candidate into one of these outcomes:
 
 - **Fixed:** current code or retained CI proof shows the cost is gone, for
   example because later work removed it. The entry leaves the record.
-- **Accepted:** the cost is inherent to unique protected behavior and no
-  cheaper design preserves that protection. The entry leaves the record, and
-  the acceptance stays beside the owning test, as that reference says.
+- **Accepted:** the cost meets the
+  [acceptance rule](candidate-record.md#keep-accepted-cost-beside-its-test).
+  Record the acceptance beside the owning test as that rule says; the entry
+  leaves the record.
 - **Moved to a named story:** cheaper proof preserves the protection. Add the
   replacement or removal and its verification work to one plan for this
   pass, reusing an applicable active plan. Follow

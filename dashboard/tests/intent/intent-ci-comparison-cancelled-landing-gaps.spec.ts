@@ -83,8 +83,8 @@ test("a cancelled landing names the proofless build before a running build and r
   origin,
 }) => {
   // Two full comparison reads, each walking every head_sha listing through
-  // the fake `gh`; see the pending optimization candidate
-  // `intent-ci-comparison-two-read-journeys`.
+  // the fake `gh`. Removing this allowance belongs to
+  // SEED-286#fast-intent-ci-comparison-tests.
   test.setTimeout(60_000);
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
   const landing = setup.landingMerge ?? setup.completion;
@@ -136,8 +136,8 @@ test("a cancelled landing at the read trunk head waits for a later trunk build a
   origin,
 }) => {
   // Two full comparison reads, each walking every head_sha listing through
-  // the fake `gh`; see the pending optimization candidate
-  // `intent-ci-comparison-two-read-journeys`.
+  // the fake `gh`. Removing this allowance belongs to
+  // SEED-286#fast-intent-ci-comparison-tests.
   test.setTimeout(60_000);
   const setup = await publishFastForwardLandedStory(page, origin, true);
   const tip = setup.completion;

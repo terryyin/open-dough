@@ -10,6 +10,7 @@ import {
   developmentDashboard,
 } from "../support/dashboardCommand.ts";
 import { publishedMainFixture } from "../support/publishedMainFixture.ts";
+import type { PublishedMainFixture } from "../support/publishedMainFixture.ts";
 import { publishedMainHosts } from "../support/publishedMainHosts.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { configureDevelopmentProjects } from "../support/projectConfiguration.ts";
@@ -17,11 +18,11 @@ import { publishes } from "../support/fakeGitHub.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import {
   deploymentWork,
+  expectProductionEnded,
   outputCount,
   productionReplacement,
   shownActivation,
   startProductionWatcher,
-  productionDeployments,
   productionInspections,
   type ProductionActivation,
   type ProductionWatcher,
@@ -31,10 +32,8 @@ import {
   holdBuildPath,
   recordedBuilds,
 } from "../support/productionBuildGate.ts";
-import {
-  faultGatedPackage,
-  productionFault,
-} from "../support/productionFault.ts";
+import { faultGateChanges } from "../support/productionFault.ts";
+import { pushExclusions } from "../support/productionQualificationFixture.ts";
 import {
   expectSharedLaunchRecord,
   writeSharedLaunchRecord,
@@ -43,11 +42,10 @@ import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-type Fixture = Awaited<ReturnType<typeof publishedMainFixture>>;
 type Hosts = Awaited<ReturnType<typeof publishedMainHosts>>;
 type Shared = Awaited<ReturnType<typeof writeSharedLaunchRecord>>;
 type Started = {
-  fixture: Fixture;
+  fixture: PublishedMainFixture;
   hosts: Hosts;
   page: Page;
   watcher: ProductionWatcher;
@@ -62,8 +60,6 @@ type Started = {
   shared?: Shared;
 };
 
-export const pushExclusions =
-  '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
 export const revision = "a5".repeat(20);
 // The published project records no stories.
 export const backlog = describedBacklog(makeMe.aRepository.please());
@@ -75,7 +71,7 @@ export type ProductionUpdateJourney = ReturnType<
 
 export function productionUpdateJourney() {
   // Each resource is cleaned even when a later setup operation fails.
-  let fixture: Fixture | undefined;
+  let fixture: PublishedMainFixture | undefined;
   let hosts: Hosts | undefined;
   let development: ReturnType<typeof dashboardCommand> | undefined;
   let watcher: ProductionWatcher | undefined;
@@ -115,10 +111,7 @@ export function productionUpdateJourney() {
       "Main A",
     );
     const a = await fixture.publish(
-      {
-        "package.json": await faultGatedPackage(fixture.development),
-        "production-fault.mjs": productionFault,
-      },
+      await faultGateChanges(fixture.development),
       "Fault-gated A",
     );
     await fixture.installDevelopment();
@@ -213,10 +206,7 @@ export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
     journey.stopped();
     await expect.poll(() => processRunning(heldBuild)).toBe(false);
     await expect.poll(() => processRunning(state.served.pid)).toBe(false);
-    await expect(
-      request.get(state.served.url, { timeout: 2_000 }),
-    ).rejects.toThrow();
-    expect(await readdir(productionDeployments(fixture.home))).toEqual([]);
+    await expectProductionEnded(request, state.served, fixture.home);
     expect(await readdir(productionInspections(fixture.home))).toEqual([]);
     expect(await readFile(store, "utf8")).toBe(stored);
     expect((await stat(store)).ino).toBe(storeIdentity);

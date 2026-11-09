@@ -312,7 +312,7 @@ scratch breaks were each caught by their intended test.
 ### 6. Keep accepted costs beside their tests; Open Dough adopts
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership rows 9 and 10. Before the conversion, read this repository's
 current retained proof for each entry's files. Check that the source edits
 are comments only. Then run the affected dashboard specs once with
@@ -332,6 +332,39 @@ change:
 
 Add the guidance: the indicator rule, the revisit triggers, the meaning of
 existing tags and markers, and conversion on first write.
+
+Accepted 2026-11-09: `candidate-record.md` "Keep accepted cost beside its
+test" holds the indicator rule (narrowest owning scope, native form with its
+reason, no change to selection, execution, timeout or verdict), its use in
+ranking, the revisit triggers and the meaning of existing tags and markers;
+"Read and write rules" adds conversion on first write. Open Dough's record
+is live: only `auto-refresh-rate-limit-real-waits` stays, awaiting the
+request-owner clock decision. The three accepted costs are comments beside
+their tests (second server, ad hoc terminal, completion attention, completed
+review tail, and the three production-watcher serial chains), the fixed
+setup entry left, and pinned-build, hosted-margin and the touch review entry
+moved to SEED-287, the Intent comparison entry to SEED-286 (the story's
+move-to-a-named-story rule; SEED-287 was planted after this plan). Proof:
+the reader read run 42588627563 at `144981e5f` for each entry's files
+before converting; the 12 commented specs' TypeScript output is
+byte-identical; one run of them at 2 workers passed 54 and timed out two
+cases under load 24–27 that pass alone; the parser reads the record as
+live; a scratch Intent journey over the real record showed its slug and five
+facts (deleted after); the payload link, acquisition, routing and parser
+tests passed. Terry routed the two load timeouts
+(`production-watcher.spec.ts` `beforeAll`, `backend-tests/review/story-review-completed.spec.ts:27`)
+to SEED-287 for these two cases only, and approved the pointer update in its
+seed. Terry refused a 250-line exception for the five already-oversize files
+the slice touched and asked for a cohesive redesign rather than a size split:
+the watcher family's shared observations move into
+`support/productionWatcher.ts`, the fault-gate contract into
+`support/productionFault.ts`, the origin read guard into
+`support/localOriginReads.ts`, the chain machine owns its sockets; the
+page-free deployment spec moves to `backend-tests/runtime/` beside a new
+`production-process.spec.ts`; and the value review splits from a new
+`dashboard-accepted-cost-review.md`. `intent-ci-comparison-retry.spec.ts`
+left this diff: SEED-286's plan 556 redesigns it and removes its allowance
+and pointer.
 
 ### 7. Pilot one ordinary Pygardon pytest pass
 
@@ -543,6 +576,28 @@ row says otherwise.
   Journeys can use
   `makeMe.aTestOptimizationCandidatesRecord.live().candidate(slug, affected, facts)`
   with `publishOpenDoughWithCandidates(page, record)`.
+
+### Slice 6 guidance review (2026-11-09, key examples 4 and 5)
+
+- H.264 (Pygardon): its test now lives at `tests/media/test_clip_core.py:70`
+  (moved in `fcec0cec5`), while Pygardon's record still names the old path.
+  Under the guidance the acceptance moves beside the case on Pygardon's first
+  write, so the indicator moves with its test; its profile-only marker at
+  `:69` stays a profile-only marker and that entry leaves on conversion.
+- Worker stall (Pygardon): the indicator sits on
+  `tests/ci/test_ci_worker_hang.py::test_non_daemon_thread_at_exit_leaves_no_worker_process`
+  naming the real 10 s exit timeout; the file's 30.4 s still counts, the
+  10 s leaves the removable estimate, the other 11 cases stay eligible.
+- Doughnut: a scenario-level tag with its reason applies even when CI times
+  the whole feature; bounded extraction of the job log times each scenario.
+- Markers: Pygardon's `slow` and `host_docker` still govern selection and
+  execution; Pygardon's and Doughnut's profile-only markers govern only
+  requested profiling runs; only an accepted-cost indicator records one.
+- Open Dough (key example 5): one live entry with the clock decision, three
+  acceptances beside their tests, the fixed setup entry gone, and Intent
+  reads the live record. Until a release installs the new guidance, this
+  repository's installed v0.3.92 skill stops on the live record; the pilot
+  reads `src/skills`.
 
 ## Preparation review
 

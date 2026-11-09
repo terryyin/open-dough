@@ -2,8 +2,7 @@
 
 Retained local `npm run test:dashboard` optimization measurements from 2026-10-30.
 Hosted baseline, early local passes, and the latest local pass live in
-[dashboard test timings](dashboard-test-timings.md); current candidate
-dispositions live in
+[dashboard test timings](dashboard-test-timings.md); live candidates are in
 [Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md).
 
 ## Local `npm run test:dashboard` pass (SEED-191, 2026-10-30)

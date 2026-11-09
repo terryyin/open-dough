@@ -94,7 +94,9 @@ The reader ranks items by summed CI time and lists the folders and the tail
 beyond them. That is cost, not removable cost. Rank leads by the cost an
 experiment could plausibly remove: repeated setup, process starts, waits, and
 duplicate proof remove much; a test whose time is the behavior it proves
-removes little.
+removes little. Read the
+[accepted-cost indicators](candidate-record.md#keep-accepted-cost-beside-its-test)
+in a lead's tests before estimating what it could remove.
 
 - Examine individually material files, families, and fixtures in detail.
 - Group the many small costs by shared cause, such as per-case setup, process
@@ -108,11 +110,12 @@ removes little.
 A fresh profiling run is a run of the requested scope to discover or rank
 costs. Start one only on the developer's explicit request, which can be
 ordinary language, such as asking to time the whole suite. Run this project's
-own command for that scope in its ordinary local mode, using only approved
-profile exclusions, and report the limits of a filtered run. A failed or
-incomplete run supplies diagnostics, not a baseline. Keep raw profiles out of
-commits. Timing unmodified tests of a chosen lead during discovery, or a
-chosen lead's family before and after its experiment, is not a profiling run.
+own command for that scope in its ordinary local mode, applying only its
+existing profile-only markers, and report the limits of a filtered run. A
+failed or incomplete run supplies diagnostics, not a baseline. Keep raw
+profiles out of commits. Timing unmodified tests of a chosen lead during
+discovery, or a chosen lead's family before and after its experiment, is not
+a profiling run.
 
 When a gap blocks a decision that could pay off, recommend such a run with
 its expected cost, such as its duration and what it occupies, estimated from

@@ -1,9 +1,12 @@
 // Observe the public production watcher through its own reported activations
-// and its default machine-home deployment checkouts.
-import { expect, type Page } from "@playwright/test";
+// and its default machine-home deployment checkouts, and address the
+// production it serves.
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./dashboardCommand.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 import { processRunning } from "./processGroup.ts";
 import { recordedBuilds } from "./productionBuildGate.ts";
 
@@ -51,6 +54,12 @@ export function startProductionWatcher(
       }
       return completed;
     },
+    // Sends a terminal's signal to the watcher's whole npm group.
+    signal(name: NodeJS.Signals) {
+      if (command.child.pid === undefined)
+        throw new Error("Missing watcher PID");
+      process.kill(-command.child.pid, name);
+    },
   };
 }
 
@@ -65,6 +74,12 @@ export function deploymentCheckout(commit: string) {
 
 export function productionInspections(home: string) {
   return path.join(home, ".open-dough/dashboard/inspections");
+}
+
+// The served production as the shared boundary helpers address a dashboard:
+// its own URL as base and origin, and the machine HOME it shares.
+export function productionBoundary(url: string, home: string) {
+  return { baseURL: url, origin: url, home } as DashboardServer;
 }
 
 export function activationPattern(commit: string, restored = false) {
@@ -118,6 +133,18 @@ export async function productionReplacement(
   return replacement;
 }
 
+// Production keeps serving what it served: the same preview still runs, and
+// the page, reloaded, still shows that commit's title.
+export async function expectStillServing(
+  served: ProductionActivation,
+  page: Page,
+  title: string,
+) {
+  expect(processRunning(served.pid)).toBe(true);
+  await page.reload();
+  await expect(page).toHaveTitle(title);
+}
+
 // Waits for the watcher's first check of main after it reported serving the
 // commit. The watcher retires superseded deployment checkouts before it
 // checks main again, so by then they are gone, however long that took.
@@ -137,6 +164,17 @@ export function outputCount(
   expression: RegExp,
 ) {
   return watcher?.output().match(expression)?.length ?? 0;
+}
+
+// How often the watcher has begun preparing the commit.
+export function preparations(
+  watcher: ProductionWatcher | undefined,
+  commit: string,
+) {
+  return outputCount(
+    watcher,
+    new RegExp(`Preparing production dashboard ${commit}\\.`, "g"),
+  );
 }
 
 // Deployment work observed so far: install/build attempts the watcher began,
@@ -164,4 +202,16 @@ export async function settledSkip(
     .toContain(`Skipping production update ${commit}: `);
   const checks = watcher?.checks() ?? 0;
   await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks + 1);
+}
+
+// Production has ended: the preview it served no longer runs or answers, and
+// no deployment checkout remains in the machine HOME.
+export async function expectProductionEnded(
+  request: APIRequestContext,
+  served: ProductionActivation,
+  home: string,
+) {
+  expect(processRunning(served.pid)).toBe(false);
+  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
+  expect(await readdir(productionDeployments(home))).toEqual([]);
 }

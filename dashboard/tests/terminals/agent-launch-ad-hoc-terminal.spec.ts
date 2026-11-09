@@ -114,6 +114,9 @@ async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
   return { release, panel, rows, shows, sessionId, openTerminal };
 }
 
+// Accepted cost: one real ad hoc launch, the only full proof that its session
+// opens in the terminal at once with the keyboard in it. Its arguments are
+// proved in ../../backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
 test("starting with text opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
   page,
   dashboard,

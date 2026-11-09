@@ -66,10 +66,10 @@ Apply it across the authorized optimization scope, not just the current diff.
 ## Establish the baseline
 
 Read this project's
-[candidate record](references/candidate-record.md) when it exists, together with
-any approved profile exclusions it or the project already records. Follow that
-reference for accepted costs and later-pass preservation. Candidate proposals
-remain eligible and normal verification coverage stays intact.
+[candidate record](references/candidate-record.md) when it exists. Follow that
+reference for live candidates, for
+[accepted costs beside their tests](references/candidate-record.md#keep-accepted-cost-beside-its-test)
+and the existing tags and markers, and for later-pass preservation.
 
 Then discover from retained evidence through
 [evidence and leads](references/evidence-and-leads.md): read the requested
@@ -202,8 +202,10 @@ gain, and incomplete work. Do not claim speedup from fewer cases or lines
 alone.
 
 An admitted pass writes the candidates that remain live, with what was tried,
-to the [candidate record](references/candidate-record.md), following that
-reference for what stays live and for creation, preservation, and cleanup.
+to the [candidate record](references/candidate-record.md), and puts each cost
+it accepts [beside its test](references/candidate-record.md#keep-accepted-cost-beside-its-test),
+following that reference for what stays live and for creation, conversion,
+preservation, and cleanup.
 Retain a planned pass's plan and evidence for retrospective and
 [story wrap-up](../dough-story-wrap-up/SKILL.md).
 Emit `## TEST OPTIMIZATION COMPLETE` only when the pass's stop, or its

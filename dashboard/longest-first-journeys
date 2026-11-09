@@ -56,7 +56,6 @@
 25.2	tests/sessions/session-workspace-retirement-claude-done.spec.ts
 25.0	tests/stories/preparation-legend.spec.ts
 25.0	tests/stories/taken-agent-profile.spec.ts
-24.9	tests/runtime/production-deployment.spec.ts
 24.7	tests/observation/read-failure.spec.ts
 24.3	tests/navigation/story-reference-navigation.spec.ts
 24.3	tests/sessions/session-alerts.spec.ts

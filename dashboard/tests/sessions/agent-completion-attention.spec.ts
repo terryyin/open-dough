@@ -30,6 +30,11 @@ type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
 const nativeReport = "The saved conversation's final report.";
 
+// Accepted cost: one real launch with the installed report command, a
+// workspace removal and a dashboard restart. Only this journey carries an
+// attention report through column change, retirement, restart, Mark as read
+// and Mark as done; its refused deliveries are proved in
+// ../../backend-tests/sessions/agent-completion-identity.spec.ts.
 test("installed attention report stays open, durable and readable through column change, retirement, restart, Mark as read and Mark as done", async ({
   page,
   dashboard,

@@ -131,35 +131,35 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 43a | "A candidate that is fixed, accepted, or moved to a named story leaves the live record" (alternatives) | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" second paragraph (fixed, accepted beside its owning test, or moved to a named story); src/skills/dough-test-optimization/references/resolving-candidates.md outcomes each leave the record |
 | 43b | "…with its evidence recoverable from history" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" second paragraph (evidence recoverable from the record's Git history) |
 | 43.q1 | Qualification (of 43a–43b): "so the live decision has one home" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" second paragraph (each live decision keeps one home) |
-| 44a | "Put accepted necessary cost beside the owning test, scenario, or shared fixture" (alternatives) | slice 6 | |
-| 44.q1 | Qualification (of 44a): "at the narrowest scope that owns it" | slice 6 | |
-| 44b | "as a project-native tag, annotation, or short source comment" (alternatives) | slice 6 | |
-| 44c | "…explaining why that cost is warranted" | slice 6 | |
-| 45a | "The indicator guides lead selection" | slice 6 | |
-| 45b | "…while the cost still counts in timing" | slice 6 | |
-| 45c.1 | Restriction: "…and the test keeps its normal selection" | slice 6 | |
-| 45c.2 | Restriction: "…the test keeps its normal … execution" | slice 6 | |
-| 45c.3 | Restriction: "…the test keeps its normal … verdict" | slice 6 | |
-| 46 | "Revisit the accepted cost when it grows materially, its justification changes, or new evidence identifies cheaper equivalent proof" (alternative triggers) | slice 6 | |
-| 47.1 | Restriction: "An accepted cost in one case leaves other cases … open to improvement" | slice 6 | |
-| 47.2 | Restriction: "An accepted cost in one case leaves … avoidable setup open to improvement" | slice 6 | |
-| 48 | Restriction: "Existing execution tags keep their own meaning" | slice 6 | |
-| 49 | "Read existing profile-only markers by their actual semantics" | slice 6 | |
-| 50.1 | Restriction: "neither [existing execution tags] becomes an accepted-cost decision by inference" | slice 6 | |
-| 50.2 | Restriction: "neither [existing profile-only markers] becomes an accepted-cost decision by inference" | slice 6 | |
+| 44a | "Put accepted necessary cost beside the owning test, scenario, or shared fixture" (alternatives) | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" first paragraph (beside the test, scenario, or shared fixture that owns the cost); Open Dough's comments at agent-launch-second-server.spec.ts:37 and story-review-completed.spec.ts:71 |
+| 44.q1 | Qualification (of 44a): "at the narrowest scope that owns it" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" first paragraph (narrowest scope: the one case or scenario, or the shared fixture or step); Open Dough comments sit on single cases, file headers only on the three single serial chains |
+| 44b | "as a project-native tag, annotation, or short source comment" (alternatives) | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" first paragraph (a tag or annotation with its reason, or a short source comment) |
+| 44c | "…explaining why that cost is warranted" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" first paragraph (explain the work it pays for, the behavior only it protects, the cheaper proof ruled out); each Open Dough comment states its reason |
+| 45a | "The indicator guides lead selection" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" third paragraph (read the indicators when ranking leads); evidence-and-leads.md "Rank removable causes" pointer |
+| 45b | "…while the cost still counts in timing" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" third paragraph (an accepted cost still counts in every timing and total) |
+| 45c.1 | Restriction: "…and the test keeps its normal selection" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph (changes no selection); slice 6 comments-only check: 12 specs' TypeScript output byte-identical |
+| 45c.2 | Restriction: "…the test keeps its normal … execution" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph (changes no execution); slice 6 comments-only check |
+| 45c.3 | Restriction: "…the test keeps its normal … verdict" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph (changes no verdict); slice 6 comments-only check |
+| 46 | "Revisit the accepted cost when it grows materially, its justification changes, or new evidence identifies cheaper equivalent proof" (alternative triggers) | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" fourth paragraph (revisit when it grows materially, its justification changes, or cheaper proof appears) |
+| 47.1 | Restriction: "An accepted cost in one case leaves other cases … open to improvement" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" third paragraph (its file's other cases stay open); ad hoc terminal races left eligible |
+| 47.2 | Restriction: "An accepted cost in one case leaves … avoidable setup open to improvement" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" third paragraph (avoidable setup such as hooks, fixtures and waits stays open); watcher comments say setup and waits stay open |
+| 48 | Restriction: "Existing execution tags keep their own meaning" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" fifth paragraph (existing execution tags keep their own meaning); SKILL.md "Establish the baseline" |
+| 49 | "Read existing profile-only markers by their actual semantics" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" fifth paragraph (profile-only markers read by what the project defines); evidence-and-leads.md "Profile afresh only on request" |
+| 50.1 | Restriction: "neither [existing execution tags] becomes an accepted-cost decision by inference" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" fifth paragraph (only an accepted-cost indicator records an accepted cost) |
+| 50.2 | Restriction: "neither [existing profile-only markers] becomes an accepted-cost decision by inference" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" fifth paragraph (only an accepted-cost indicator records an accepted cost) |
 | 51.1 | "The skill … read[s] … the current published four-section record" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read either version"; src/skills/dough-test-optimization/references/resolving-candidates.md (in either version) |
 | 51.2 | "Intent read[s] … the current published four-section record" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates.spec.ts four-section journeys; tests/support/test-optimization-candidates.test.mjs four-section cases |
 | 51.q1 | Qualification (of 51.1–51.2): "with or without a leading pass summary" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates.spec.ts "Intent reads a four-section record and the note naming its profile-only mechanism without presenting its leading pass summary"; tests/support/test-optimization-candidates.test.mjs leading summary accepted |
 | 51.q2 | Qualification (of 51.1–51.2): "and with the note naming the profile-only mechanism that the published format asks for" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates.spec.ts same test (note text, revision-pinned link, note before the section's entries); tests/support/test-optimization-candidates.test.mjs profileOnly.note |
 | 51.3 | "The skill … read[s] … the live record" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read either version" and "Live format"; src/skills/dough-test-optimization/references/resolving-candidates.md stops on None. in either version |
 | 51.4 | "Intent read[s] … the live record" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts live journey; tests/support/test-optimization-candidates.test.mjs live cases |
-| 52 | "A project's record converts when a pass first writes it" | slice 6 | |
-| 53a | (On conversion) "substantiated accepted costs move to source with their rationale" | slice 6 | |
-| 53b | (On conversion) "fixed or transferred entries leave the live list" (alternatives) | slice 6 | |
-| 54 | "Open Dough adopts the change in this story" | slice 6 | |
-| 55a | "Its [Open Dough's] record converts" | slice 6 | |
-| 55b | "its substantiated accepted costs move beside their tests" | slice 6 | |
-| 55c | "Intent shows its live candidates" | slice 6 | |
+| 52 | "A project's record converts when a pass first writes it" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read and write rules" First write converts |
+| 53a | (On conversion) "substantiated accepted costs move to source with their rationale" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read and write rules" First write converts (accepted costs move beside their tests with their rationale); resolving-candidates.md Accepted outcome links the acceptance rule |
+| 53b | (On conversion) "fixed or transferred entries leave the live list" (alternatives) | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read and write rules" First write converts (fixed or transferred entries leave) |
+| 54 | "Open Dough adopts the change in this story" | slice 6 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md converted to the live format with one live entry; accepted-cost comments beside Open Dough's tests (slice 6) |
+| 55a | "Its [Open Dough's] record converts" | slice 6 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md (live format: one ## Live candidates section) |
+| 55b | "its substantiated accepted costs move beside their tests" | slice 6 | observed: comments at agent-launch-second-server.spec.ts:37, agent-launch-ad-hoc-terminal.spec.ts:117, agent-completion-attention.spec.ts:33, story-review-completed.spec.ts:71, and the production-watcher, -updates and -failures file headers |
+| 55c | "Intent shows its live candidates" | slice 6 | observed: slice 6 scratch Intent journey publishing the converted record: slug, five labels and facts rendered, affected test opened in Purpose (log in the job's slice6 scratch directory) |
 | 55d.1 | "…while still reading Pygardon's … four-section record[]" | slice 5 | observed: real Pygardon record at origin/main 0b9d3cb19 read as four-section by the new parser (PLAN.md Learnings "Slice 5 real records") |
 | 55d.2 | "…while still reading … Doughnut's four-section record[]" | slice 5 | observed: real Doughnut record at origin/main 7fca2c838 read as four-section by the new parser (PLAN.md Learnings "Slice 5 real records") |
 | 56.1 | "Reuse the candidate reader" | slice 5 | observed: dashboard/src/IntentCandidatesRecord.tsx keeps one parseTestOptimizationCandidates call; dashboard/src/testOptimizationCandidates.ts reads both versions |
@@ -179,17 +179,17 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 57.q3 | Qualification (of 57): "A timely, evidenced stop is a useful result when the available opportunities do not pay for the work" | slice 7 | |
 | 60 | Restriction: "No fresh profiling run of the requested scope without an explicit request" (restates 13) | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Establish context and mode"; src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request" |
 | 60.q1 | Qualification (rationale for 60): "Six recorded Open Dough passes spent about 146 minutes on baseline and final suite runs, and one more waited about 38 minutes for suite admission" | slice 4 | observed: rationale for 60, kept in the story's Restrictions; the guidance honors 60 (src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request") without another project's figures (ADR 0006) |
-| 61.1 | Restriction: "An accepted-cost indicator changes no selection" | slice 6 | |
-| 61.2 | Restriction: "An accepted-cost indicator changes no … execution" | slice 6 | |
-| 61.3 | Restriction: "An accepted-cost indicator changes no … timeout" | slice 6 | |
-| 61.4 | Restriction: "An accepted-cost indicator changes no … verdict" | slice 6 | |
-| 61.q1 | Qualification (rationale for 61.1–61.4): "because normal verification and CI must keep proving the behavior it protects" | slice 6 | |
+| 61.1 | Restriction: "An accepted-cost indicator changes no selection" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph; slice 6 comments-only check (no tag, filter or describe option changed) |
+| 61.2 | Restriction: "An accepted-cost indicator changes no … execution" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph; slice 6 comments-only check (no executed line changed) |
+| 61.3 | Restriction: "An accepted-cost indicator changes no … timeout" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph; slice 6 comments-only check (no timeout changed) |
+| 61.4 | Restriction: "An accepted-cost indicator changes no … verdict" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph; slice 6 comments-only check (no assertion changed) |
+| 61.q1 | Qualification (rationale for 61.1–61.4): "because normal verification and CI must keep proving the behavior it protects" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph (because normal verification and CI must keep proving the behavior it protects) |
 | 62a | Restriction: "A timing claim stays within its evidence" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentences |
 | 62b | Restriction: "an unsupported comparison stays open rather than borrowing a different measure" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentence |
 | 63 | Exclusion: "changing CI producers to retain more timing detail" | slice 3 | observed: slice 3 diff (commit after 304598724) touches no .github/ file and no collector module |
 | 63.q1 | Qualification (rationale for 63): "since existing retained artifacts are sufficient to start" | slice 3 | observed: slice 3 real run ranked Open Dough's retained summary as produced, with no producer change |
 | 64 | Exclusion: "converting other projects' records beyond what the Pygardon pilot pass writes" | slice 7 | |
-| 65 | Exclusion: "showing accepted-cost indicators in Intent" | slice 6 | |
+| 65 | Exclusion: "showing accepted-cost indicators in Intent" | slice 6 | observed: slice 6 changed no dashboard/src file; Intent shows no accepted-cost indicator |
 | 66 | Exclusion: "reading the landed CI timing history that SEED-285 collects" | slice 3 | observed: ci-proof-leads.mjs import closure reads only the CI listing, the attempt's summary or a --summary file |
 | K1.1 | Example: "Pygardon's adapter answers `proof` with totals only, to stay within 64 KiB, while its CI service retains the full 172 KB summary with 1,213 timed pytest files" | slice 3 | G1 |
 | K1.2 | Example: "The newest successful main attempt, `993fe414` at `3cb29aaf9`, predates 52 changed files" | slice 7 | |
@@ -215,25 +215,25 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 76 | "…uses compatible retained evidence at its actual scope" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read the retained CI proof" Gaps and Compatibility bullets |
 | 77 | "…and leaves an unsupported timing claim open" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentence |
 | 78 | "An explicit request for fresh profiling runs the appropriate project command" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request" (this project's own command for that scope) |
-| 79 | "Pygardon's minimal real H.264 round trip carries its accepted codec cost in source" | slice 6 | |
-| K4.1 | Example: "the record's path for it went stale when the file moved on 2026-11-08" | slice 6 | |
-| 80a | "The worker-stall test explains its real 10 s exit timeout" | slice 6 | |
-| 80b | "…while the other 11 cases of its 30.4 s file remain eligible" | slice 6 | |
-| 81 | "A Doughnut scenario tag applies to its scenario even when CI reports an aggregate for the whole feature" | slice 6 | |
-| K4.2 | Example: "the retained job log times each scenario" | slice 6 | |
-| 82.1 | "Pygardon's `slow` … marker[] … keep[s] [its] own meaning" | slice 6 | |
-| 82.2 | "Pygardon's … `host_docker` … marker[] … keep[s] [its] own meaning" | slice 6 | |
-| 82.3 | "Pygardon's … profile-only markers … keep their own meanings" | slice 6 | |
-| 82.4 | "…and Doughnut's profile-only tag keep[s] [its] own meaning" | slice 6 | |
-| 83 | "The rate-limit test stays a live candidate" | slice 6 | |
-| 83.q1 | Qualification (of 83): "while its valuable directed-time proof still needs a developer decision about a controllable clock in the released request owner" | slice 6 | |
-| 84a | "Its [Open Dough's] three accepted costs move beside their tests" | slice 6 | |
-| 84b | "…and leave the live list" | slice 6 | |
-| 85 | "…as does the fixed setup entry" [it leaves the live list] | slice 6 | |
-| 86.1 | "Intent reads Open Dough's live record" | slice 6 | |
+| 79 | "Pygardon's minimal real H.264 round trip carries its accepted codec cost in source" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (H.264 round trip) |
+| K4.1 | Example: "the record's path for it went stale when the file moved on 2026-11-08" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (stale record path; an indicator in source moves with its test) |
+| 80a | "The worker-stall test explains its real 10 s exit timeout" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (worker-stall case indicator names the real 10 s exit timeout) |
+| 80b | "…while the other 11 cases of its 30.4 s file remain eligible" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (the file's other 11 cases stay eligible) |
+| 81 | "A Doughnut scenario tag applies to its scenario even when CI reports an aggregate for the whole feature" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (scenario-level tag even when CI times the whole feature) |
+| K4.2 | Example: "the retained job log times each scenario" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (the retained job log times each scenario through bounded runner extraction) |
+| 82.1 | "Pygardon's `slow` … marker[] … keep[s] [its] own meaning" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (Pygardon slow keeps governing selection) |
+| 82.2 | "Pygardon's … `host_docker` … marker[] … keep[s] [its] own meaning" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (Pygardon host_docker keeps governing selection and execution) |
+| 82.3 | "Pygardon's … profile-only markers … keep their own meanings" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (Pygardon profile-only markers govern only requested profiling runs) |
+| 82.4 | "…and Doughnut's profile-only tag keep[s] [its] own meaning" | slice 6 | observed: PLAN.md Learnings "Slice 6 guidance review" (Doughnut's profile-only tag keeps its meaning) |
+| 83 | "The rate-limit test stays a live candidate" | slice 6 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md live entry auto-refresh-rate-limit-real-waits |
+| 83.q1 | Qualification (of 83): "while its valuable directed-time proof still needs a developer decision about a controllable clock in the released request owner" | slice 6 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md that entry's Decision or evidence needed (a test-controlled clock in the released request owner) |
+| 84a | "Its [Open Dough's] three accepted costs move beside their tests" | slice 6 | observed: comments beside the three accepted costs' tests (see 55b); story-review-completed-journey-landed-runs-tail, agent-launch-poles and long-integrated-journeys left .planning/TEST-OPTIMIZATION-CANDIDATES.md |
+| 84b | "…and leave the live list" | slice 6 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md holds only the rate-limit entry |
+| 85 | "…as does the fixed setup entry" [it leaves the live list] | slice 6 | observed: card-attention-launch-and-origin-setup (fixed) left .planning/TEST-OPTIMIZATION-CANDIDATES.md |
+| 86.1 | "Intent reads Open Dough's live record" | slice 6 | observed: slice 6 scratch Intent journey over the actual converted record (see 55c) |
 | 86.2 | "Intent reads … Pygardon's … four-section record[] with [its] leading pass summar[y]" | slice 5 | observed: real Pygardon record: four-section with its leading pass summary accepted, pending None., 4 accepted, 1 profile-only, 23 transferred (PLAN.md Learnings "Slice 5 real records") |
 | 86.3 | "Intent reads … Doughnut's four-section record[] with [its] leading pass summar[y]" | slice 5 | observed: real Doughnut record: four-section with its leading pass summary accepted, 2 pending, 4 accepted, 10 profile-only and its mechanism note, transferred None. (PLAN.md Learnings "Slice 5 real records") |
-| K5.1 | Example (current state): "Today Intent shows Open Dough's record as mismatched, because one entry has an extra field" | slice 6 | |
+| K5.1 | Example (current state): "Today Intent shows Open Dough's record as mismatched, because one entry has an extra field" | slice 6 | observed: slice 6 parse: the record at HEAD read mismatched, and with only its Repository baseline field removed read four-section |
 | K5.2 | Example (current state): "…and Doughnut's too, because of its profile-only mechanism note" | slice 5 | observed: HEAD's parser returned mismatched for the real Doughnut record and the new one reads it; tests/support/test-optimization-candidates.test.mjs note-refused scratch break caught |
 | K6.1 | Example: "Discovery finds no lead above the stated saving" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Stop bullet |
 | 87 | "…and reports why" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Stop bullet (reports why, with its evidence) |
