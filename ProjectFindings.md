@@ -15,7 +15,7 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-11-10):** Since `cf1ea1deb` six local findings arrived. [DD-426](#dd-426) and [DD-476](#dd-476) share one uncovered gap, `scripts/test.sh` has no per-job deadline (an unnamed hosted cancel; a 47-minute local hang holding suite admission), queued first as [SEED-289#name-a-test-job-past-its-deadline](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline). [DD-435](#dd-435)'s two CI-only layout failures (about 227k repair tokens) are queued second as [SEED-289#match-hosted-fonts-in-ci-container](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container). [DD-473](#dd-473) and [DD-479](#dd-479) are journeys that [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) already covers, so they are linked there rather than given new stories. The repaired project DD-478 is retired to the [history](docs/maintainer/project-findings-history.md#dd-478-retired-2026-11-10); its number collided with DearDough's separately allocated DD-478. [DD-347](#dd-347) is the same row-headroom mechanism as shared ODF-446 and is handed to shared collection. DD-466 and DD-467 remain one-offs, retained unqueued.
+**Maintenance assessment (2026-11-10):** Since `cf1ea1deb` six local findings arrived. [DD-426](#dd-426) and [DD-476](#dd-476) share one uncovered gap, `scripts/test.sh` has no per-job deadline (an unnamed hosted cancel; a 47-minute local hang holding suite admission), queued first as [SEED-289#name-a-test-job-past-its-deadline](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline). [DD-435](#dd-435)'s two CI-only layout failures (about 227k repair tokens) are queued second as [SEED-289#match-hosted-fonts-in-ci-container](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container). [DD-473](#dd-473) and [DD-479](#dd-479) are journeys that [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) already covers, so they are linked there rather than given new stories. The repaired project DD-478 is retired to the [history](docs/maintainer/project-findings-history.md#dd-478-retired-2026-11-10); its number collided with DearDough's separately allocated DD-478. [DD-347](#dd-347) is the same row-headroom mechanism as shared ODF-446 and moved there in shared collection. DD-466 and DD-467 remain one-offs, retained unqueued.
 
 **Maintenance assessment (2026-11-08):** [DD-442](docs/maintainer/project-maintenance-findings.md#dd-442) belongs to this repository’s historical trial preflight. The corrected third checkout rejected a later object. [DD-445](docs/maintainer/project-test-findings.md#dd-445) records two repaired timeout regressions and remaining hosted variance, alongside the existing dashboard fixture-cost work. [DD-452](docs/maintainer/project-findings-history.md#dd-452) is a repaired mismatch between this repository’s shell CI job and its selected proof. No new local story was selected. The three source sections are recoverable at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
 
@@ -229,26 +229,7 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
   - Observed effect: `tests/native-stream-replay.sh` failed until the value was corrected to 1050 by inspection.
   - Inference: the in-turn search for each started command can match an earlier identical line; review catches it only through the replay failure.
 
-## A guidance reference sits at its read-budget row limit (open, unqueued)
-
-<a id="dd-347"></a>
-
-### DD-347 — `source-freshness.md` has under 10 bytes left in the "Before finishing or stopping" read-budget row
-
-### Occurrences
-
-- Execution: SEED-010#source-freshness-for-planless-and-reamended-work (plan 357, first implementation commit cc6d397915db451e64772b3ee70f9cf46d8cbd63)
-  - Timestamp: unknown (2026-10-26, slices 1 and 2)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: modified; revision 9492019d; base 0.3.72
-  - Evidence: `src/skills/dough-execute-plan/scripts/read-budget-guidance.test.mjs` "each row fits one tool result on the smallest supported host" counts all of `references/source-freshness.md` toward the 30000-byte row; slice 1's first wording reached 30159 bytes and was rewritten; slice 2 added the base and after-decision route by tightening unrelated sentences in the same reference (4819 bytes before and after, `f3e0985c`), leaving about 7 bytes
-  - Observed effect: wording churn in sentences the slices did not otherwise change, and an agent-reported constraint carried into the next delegation.
-  - Inference: qualified. The next change to any reference in that row must first free bytes; the cost of this execution's rewording is not separately measured.
-  - Later evidence: the Story Branch integration `45989522` with sibling SEED-010#source-review-record-lifecycle, which grew `references/story-obligations.md` in the same row, failed trunk CI run 40209817350 at 30099 of 30000 bytes although neither side failed alone; the repair tightened `finish-or-stop.md`, `ci-completion-wait.md` and `source-freshness.md` to 29729.
-  - Later evidence: SEED-208#trustworthy-ci-completion slice 5 (2026-11-01) added the completion-accounting rule to `ci-monitor.md#await-the-applicable-revision-at-completion` and repair-review wording to `finish-or-stop.md`; the "Before finishing or stopping" row went from 29772 to 29991 bytes after removing one sentence and one clause that the same row already stated elsewhere.
-
-**Responsibility (2026-11-10):** the same concrete problem as shared [ODF-446](docs/maintainer/findings/ODF-446.md): a published-guidance read-budget row left with near-zero headroom. The rows are Execute Plan guidance, so this is a shared contract cost, not a project-owned one. These occurrences are retained here until shared collection adds them to ODF-446.
+<a id="dd-347"></a>DD-347 (`source-freshness.md` read-budget row headroom) moved to shared [ODF-446](docs/maintainer/findings/ODF-446.md) on 2026-11-10; source `220026a4e1b8409ffa81f50cd8e3130945ff8472:ProjectFindings.md`.
 
 ## A full local suite's shell wall includes admission wait (repaired, awaiting a re-profile)
 
@@ -513,3 +494,43 @@ selects no new implementation story.
   - Inference: Its real working-tree installations take over a third of the timeout unloaded and most of it under load. Reusing one prepared installation across the successive preparations, or splitting them, would restore margin.
 
 **Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+
+## A consumer selection built on the native import-closure tool drops crashed files (open, unqueued)
+
+<a id="dd-463"></a>
+
+### DD-463 — A reverse import-closure selection silently dropped importers
+
+`tests/support/native-import-closure.mjs` exits 1 (ENOENT) on a test file whose string literals contain import-like text. A proof selection that walks every test file through it and skips failures omits those files without notice.
+
+### Occurrences
+- Execution: SEED-262#tighten-repository-description-facts (plan 532-tighten-repository-description-facts; first related implementation commit `a271e923b623811f5f13e9a63963b1a234413210`)
+  - Timestamp: unknown (2026-11-08, slice 4 implementation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: `node tests/support/native-import-closure.mjs . src/skills/dough-execute-plan/scripts/consumer-trace.test.mjs` exits 1 reading a fixture path from a string. Slice 4's reverse-closure selection missed `consumer-trace.test.mjs` and `consumer-trace-terms.test.mjs`, which import an edited fixture; a `git grep` cross-check found them. Plan 532 premise P5 ("264 files") came from the same walk.
+  - Observed effect: The two missed files were added and passed; the whole `npm test` before landing covered any other omission.
+  - Inference: The tool hashes native evidence closures and was used off-label for consumer selection; a selection built from it should fail on a crashed file, or be cross-checked with `git grep` on the changed module's basename.
+
+**Responsibility (2026-11-10):** moved from DearDough.md during shared collection. `tests/support/native-import-closure.mjs` is this repository's test support, used off-label for proof selection; the shared guidance did not prescribe it. Source: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md`.
+
+## An empty focused path list runs the whole local suite (open, unqueued)
+
+<a id="dd-465"></a>
+
+### DD-465 — An empty focused path list ran the whole local suite
+
+`scripts/test.sh` with no path arguments runs the whole serialized local suite. A focused command built from a file list that silently came out empty therefore started a full run instead of failing.
+
+### Occurrences
+- Execution: SEED-262#migrate-backlog-scratch-repositories (plan 524-migrate-backlog-scratch-repositories; first related implementation commit `6c379369119c4bf540976b951a6d1a9aee88e9d7`)
+  - Timestamp: unknown (2026-11-08, slice 4 baseline, after `898ef65d6` at 2026-11-08T21:26:21+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
+  - Evidence: The coordinator's `grep -lE ... tests/support/*.test.mjs tests/*.test.mjs | tee s4-files.txt` aborted on zsh's unmatched `tests/*.test.mjs` glob, leaving the list empty; `bash scripts/test.sh $(cat s4-files.txt)` then ran without paths (`scripts/test.sh:24` treats no arguments as the full suite) until the 600 s tool timeout moved it to the background, where it was stopped.
+  - Observed effect: About ten minutes of a full-suite run under load 13-17 were spent on a two-run baseline of six files; the baseline was redone with `git grep` and a non-empty check.
+  - Inference: A focused-run guard that refuses an empty list would have stopped this at once; later briefs added "never pass an empty list" by hand.
+
+**Responsibility (2026-11-10):** moved from DearDough.md during shared collection. `scripts/test.sh` treats no path arguments as the full suite; the guard belongs to this repository's runner, not shared guidance. Source: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md`.

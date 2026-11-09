@@ -34,6 +34,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Settle trunk freshness before expensive proof and before delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof) — SEED-010#hold-delivery-on-freshness-before-expensive-proof
+- [Plan the cohesive reorganization of an already-oversized file a slice touches](seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files) — SEED-010#plan-cohesive-reorganization-of-oversized-files
 - [End a node test job at its deadline with a named result](seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline) — SEED-289#name-a-test-job-past-its-deadline
 - [Give the local CI container the hosted runner’s fonts](seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container) — SEED-289#match-hosted-fonts-in-ci-container
 - [Keep Done CI comparisons refreshable while landed evidence is pending](seeds/SEED-288-landed-ci-evidence-follow-ups.md#refresh-pending-landed-evidence) — SEED-288#refresh-pending-landed-evidence

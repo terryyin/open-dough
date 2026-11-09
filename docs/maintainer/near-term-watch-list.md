@@ -1,13 +1,14 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{"schemaVersion":1,"reviewed":"2026-11-08","reviewAfter":"2026-11-10"}
+{"schemaVersion":1,"reviewed":"2026-11-10","reviewAfter":"2026-11-17"}
 ```
 
-Reviewed 2026-11-08 (Asia/Singapore). Five production projects supplied post-local
-shared sources. Terry Talks skips process review. No encountered execution
-established an ordinary restriction decision using the independent-reason check.
-ODF-074 has post-response counterevidence. It does not satisfy the scope watch.
+Reviewed 2026-11-10 (Asia/Singapore). Five production projects supplied post-local
+shared sources: Open Dough, Doughnut, Pygardon, Lizard and Clipboard. Terry Talks
+skips process review. One encountered execution is a qualified scope-watch
+candidate; none established an ordinary restriction decision under the
+independent-reason check.
 
 <a id="scope-limits-and-required-restrictions"></a>
 
@@ -47,8 +48,18 @@ ODF-074 has post-response counterevidence. It does not satisfy the scope watch.
   Avoiding or questioning that restriction is useful only if required safety,
   correctness and delivery commitments remain intact; forced broader support or
   removal of a justified guard is a contrary effect. Count executions, not symptoms.
-- **Review after:** 2026-11-10 for release/use status at the next shared review;
+- **Qualified candidate (2026-11-10):** Open Dough SEED-262#migrate-clean-trunk-fixtures
+  (plan 514, Claude Code, 0.3.91, which contains the v0.3.75 response). The plan
+  kept the inherited `createCleanTrunkFixture` taking a description, while Key
+  example 6 says no non-native test calls it. The source-only review allocated that
+  commitment to slice 5, the brief stated that the source outranks the plan, and
+  slice 5 deleted the helper (`git grep createCleanTrunkFixture -- ':!.planning'`
+  is empty). Source: [Open Dough DD-462](https://github.com/terryyin/open-dough/blob/220026a4e1b8409ffa81f50cd8e3130945ff8472/DearDough.md),
+  pruned from the log as practice. Missing fact: whether the plan treated the
+  inherited signature as a required restriction or simply omitted the example.
+  The watch does not start from it.
+- **Review after:** 2026-11-17 for release/use status at the next shared review;
   assess effects seven calendar days after verified watch start. Without relevant
   use, keep the watch unexercised.
-- **Last assessed:** 2026-11-08 (Asia/Singapore). Five eligible sources and
+- **Last assessed:** 2026-11-10 (Asia/Singapore). Five eligible sources and
   relevant execution locators checked. First qualifying use remains pending.
