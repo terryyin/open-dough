@@ -47,14 +47,14 @@ their own scope.
 | 2a.2 | “so the same configuration facts can be … changed consistently” (Promise, purpose of 2) | slice 4 |  |
 | 2b | “across dashboard tests”: the consistency in 2a.1–2a.2 applies across dashboard tests (Qualification) | slice 4 |  |
 | 3 | Scope: “Arrange valid synthetic entries in … through a shared builder” (Promise) | slice 4 |  |
-| 3a.1 | entries in `projects-development.json` (Promise) | slice 2 |  |
+| 3a.1 | entries in `projects-development.json` (Promise) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" saves the MakeMe-built predecessor through the real appendConfiguredProject into projects-development.json; refuses() checks the folder holds only that file |
 | 3a.2 | entries in `projects-production.json` (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" saves MakeMe-built rows to projects-production.json through save()/configurationFile("preview") and asserts the preserved bytes |
 | 3b | “valid synthetic entries”: this describes what the shared builder arranges (contrast 9a.1–9a.3) (Qualification) | slice 1 | observed: makeMe.aConfiguredProject builds only the valid Zebra and Apple rows; the empty, malformed and wrong-shape cases in dashboard/tests/configuration/project-configuration.spec.ts keep their raw save() literals |
 | 3c | the shared builder is “typed against ConfiguredProject” (Promise) | slice 1 | observed: tests/support/projectConfigurationTestData.mjs ConfiguredProjectBuilder (makeMe.aConfiguredProject) JSDoc typed against ConfiguredProject in dashboard/server/projectConfiguration.ts; npm run typecheck:dashboard passed |
 | 4 | “Keep … explicit wherever they drive the case”, for each listed fact (Promise) | slice 4 |  |
 | 4a.1 | “project order” (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" states Zebra then Apple at the call site and asserts labels ["Zebra","Apple"] on start and restart |
 | 4a.2 | “environment” (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" saves and starts the preview (production) list; dashboard/backend-tests/runtime/boundary-server.spec.ts "each project environment answers the project list from its own configuration file" and serving-modes.spec.ts own-file test read each environment's file |
-| 4a.3 | “repository” (the source lists it as “repository and ref”) (Promise) | slice 2 |  |
+| 4a.3 | “repository” (the source lists it as “repository and ref”) (Promise) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" states the predecessor repository EXAMPLE/SAMPLE-APP (or another/sample-app for the id case) at the call site |
 | 4a.4 | “ref” (the source lists it as “repository and ref”) (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" states ref "trunk" and "default" at the call site; gh calls contain repos/example/zebra/commits/trunk |
 | 4a.5 | “local path” (Promise) | slice 3 |  |
 | 4a.6 | “visibility” (Promise) | slice 3 |  |
@@ -64,23 +64,23 @@ their own scope.
 | 5b | “have their harnesses delegate the data construction to MakeMe” (Promise, alternative B) | slice 4 |  |
 | 6 | “Cover …” each of the listed items (Promise) | slice 4 |  |
 | 6a.1 | “the ordered saved catalog” (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" passes with MakeMe-built rows byte-identical to the removed literal (7/7 spec tests passed) |
-| 6a.2 | “configured predecessors for project admission” (Promise) | slice 2 |  |
+| 6a.2 | “configured predecessors for project admission” (Promise) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" arranges the admission predecessor with makeMe.aConfiguredProject; both variants pass (backend selection 14 passed) |
 | 6a.3 | “configured predecessors for … settings” (Promise) | slice 3 |  |
 | 6a.4 | “the Sessions replay catalog” (Promise) | slice 4 |  |
 | 7 | “Keep … at their existing boundaries”, for each listed item (Exclusion, scope boundary) | slice 4 |  |
 | 7a.1 | “real server seeding” (Exclusion, scope boundary) | slice 1 | observed: production seeding unchanged: dashboard/tests/configuration/project-configuration.spec.ts "production seeds its four projects and shows a previously saved session" and boundary-server.spec.ts production list of the four seed ids pass |
-| 7a.2 | “Add … operations” (Exclusion, scope boundary) | slice 2 |  |
+| 7a.2 | “Add … operations” (Exclusion, scope boundary) | slice 2 | observed: refuses() still drives the real addProject; project-add-boundary.spec.ts (5) and dashboard/tests/configuration/project-add.spec.ts plus project-add-refusal.spec.ts (5) passed unchanged |
 | 7a.3 | “Hide … operations” (Exclusion, scope boundary) | slice 3 |  |
 | 7a.4 | “Remove operations” (Exclusion, scope boundary) | slice 3 |  |
 | 7a.5 | “Git checkout setup” (Exclusion, scope boundary) | slice 4 |  |
-| 7a.6 | “fake GitHub responses” (Exclusion, scope boundary) | slice 2 |  |
+| 7a.6 | “fake GitHub responses” (Exclusion, scope boundary) | slice 2 | observed: projectAdditionFixture and projectAddMachine keep fake gh; dashboard/backend-tests/configuration/project-add-validation.spec.ts "an unreadable GitHub repository is refused at its URL field" and "concurrent validated additions recheck admission and save exactly one append" observe its calls and passed |
 | 8 | “The default development harness can reuse the real production seed for its ordinary starting list”: this is allowed but not required, and covers only that harness's ordinary starting list (cf. 7a.1) (Qualification, permission) | slice 1 | observed: configureDevelopmentProjects still writes productionSeedProjects with wx; serving-modes.spec.ts dev server answers the four seed ids from its own development file |
 | 9 | “Preserve …” each of the listed items (Exclusion, scope boundary) | slice 4 |  |
 | 9a.1 | “literal malformed … examples” (Exclusion, scope boundary) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" keeps its literal malformed text |
 | 9a.2 | “literal … wrong-shape … examples” (Exclusion, scope boundary) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a saved document with the wrong shape is reported without replacement" keeps its literal wrong-shape text |
 | 9a.3 | “literal … empty-file examples” (Exclusion, scope boundary) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "an existing empty list stays empty" keeps its literal empty list |
-| 9a.4 | “exact Add inputs” (Exclusion, scope boundary) | slice 2 |  |
-| 9a.5 | “write faults” (Exclusion, scope boundary) | slice 2 |  |
+| 9a.4 | “exact Add inputs” (Exclusion, scope boundary) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" keeps the exact Add request { ...fixture.input, githubUrl: "git@github.com:Example/Sample-App.git" }; project-add-boundary.spec.ts body and the dialog inputs are unchanged |
+| 9a.5 | “write faults” (Exclusion, scope boundary) | slice 2 | observed: write-fault cases unchanged: dashboard/tests/configuration/system-settings-project-management.spec.ts "project settings errors retain the form draft and predecessor and allow explicit retry" and its -touch spec passed (4) with the predecessor bytes kept |
 | 9a.6 | “independent assertions” (Exclusion, scope boundary) | slice 4 |  |
 | 10 | “Keep any saved bytes captured from a real operation as evidence”: this applies only to bytes captured from a real operation (Exclusion, scope boundary) | slice 3 |  |
 | 11 | “Project configuration selects a published source and supplies a machine-local path”: this defines what the story treats as project configuration (cf. 1a.2, 1a.3) (Qualification, domain definition) | slice 1 | observed: tests/support/projectConfigurationTestData.mjs ConfiguredProjectBuilder composes the shared publishedSource facts with a required localPath |
@@ -106,14 +106,14 @@ their own scope.
 | E1.10 | “An existing … malformed file” (Example: trigger, case B of “empty or malformed”) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" saves malformed text |
 | E1.10.1 | “retains its bytes” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" file text still equals the malformed text |
 | E1.10.2 | “still gives the corresponding … error result” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" status says the project configuration could not be read, names the file, shows no project radios |
-| E2 | Key example 2: a saved predecessor already claims the repository or project ID (cf. 6a.2, 7a.2, 9a.4) (Example, journey) | slice 2 |  |
-| E2.1 | “A valid saved project already claims the repository or project ID in a different case” (Example: trigger, alternatives) | slice 2 |  |
-| E2.1a | … already claims “the repository … in a different case” (Example: trigger, alternative A) | slice 2 |  |
-| E2.1b | … already claims “the … project ID in a different case” (Example: trigger, alternative B) | slice 2 |  |
-| E2.2 | “Adding the same repository or ID is refused” (Example: outcome, alternatives) | slice 2 |  |
-| E2.2a | “Adding the same repository … is refused” (pairs with E2.1a) (Example: outcome, alternative A) | slice 2 |  |
-| E2.2b | “Adding the same … ID is refused” (pairs with E2.1b) (Example: outcome, alternative B) | slice 2 |  |
-| E2.3 | “with the predecessor intact” (Example: outcome) | slice 2 |  |
+| E2 | Key example 2: a saved predecessor already claims the repository or project ID (cf. 6a.2, 7a.2, 9a.4) (Example, journey) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" passes for both variants |
+| E2.1 | “A valid saved project already claims the repository or project ID in a different case” (Example: trigger, alternatives) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" predecessor claims the repository or the project ID in a different case |
+| E2.1a | … already claims “the repository … in a different case” (Example: trigger, alternative A) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" repository variant: predecessor repository EXAMPLE/SAMPLE-APP |
+| E2.1b | … already claims “the … project ID in a different case” (Example: trigger, alternative B) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" id variant: predecessor id SAMPLE-APP |
+| E2.2 | “Adding the same repository or ID is refused” (Example: outcome, alternatives) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" addProject rejects at field githubUrl |
+| E2.2a | “Adding the same repository … is refused” (pairs with E2.1a) (Example: outcome, alternative A) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" repository variant rejects with "example/sample-app is already configured." |
+| E2.2b | “Adding the same … ID is refused” (pairs with E2.1b) (Example: outcome, alternative B) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" id variant rejects with "The project id sample-app is already configured. Projects sharing an id would share session records." |
+| E2.3 | “with the predecessor intact” (Example: outcome) | slice 2 | observed: dashboard/backend-tests/configuration/project-add-validation.spec.ts "a case-insensitive duplicate repository\|id is refused without replacing saved projects" refuses() keeps the saved file bytes and configuredProjects() unchanged with no temporary file; configuredProjects() has length 1 |
 | E3 | Key example 3: configured long checkout path (cf. 6a.3, 4a.5, 11a.2) (Example, journey) | slice 3 |  |
 | E3.1 | “A configured long checkout path” (Example: trigger) | slice 3 |  |
 | E3.2 | “is shown in settings” (Example: outcome) | slice 3 |  |

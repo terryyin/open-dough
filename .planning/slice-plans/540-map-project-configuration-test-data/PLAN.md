@@ -119,13 +119,26 @@ are in [source-review.md](source-review.md).
 
 ### 2. A configured predecessor determines Add admission
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 2. Run `'backend-tests/configuration/project-add-(boundary|validation)\.spec\.ts$'` and `'dashboard/tests/configuration/project-add[^/]*\.spec\.ts$'`. The valid duplicate is refused and the predecessor stays intact.
 
 Arrange the valid duplicate rows through MakeMe and append them through the
 existing configuration operation. Keep the repository and ID variants and
 the exact request and expected refusal. Real Add, Git and GitHub validation,
 filesystem faults, and the resulting saved files keep their current proof roles.
+
+Accepted proof: both variants of "a case-insensitive duplicate … is refused
+without replacing saved projects" in
+`dashboard/backend-tests/configuration/project-add-validation.spec.ts` append
+a `makeMe.aConfiguredProject` predecessor through the real
+`appendConfiguredProject`. Its saved bytes and refusal match the replaced
+literal. The case-different id or repository, label, `previous-branch` ref and
+checkout stay at the call site because they distinguish the predecessor from
+what Add would save. The two named selections (14 and 5 tests), the
+write-fault cases in `system-settings-project-management*.spec.ts` (4 tests),
+and `npm run typecheck:dashboard` passed. The other Add specs arrange no
+synthetic saved row; their exact inputs and expected rows stay literal. The
+refactor pass found nothing to change.
 
 ### 3. Settings show the saved checkout path
 Type: Behavior
