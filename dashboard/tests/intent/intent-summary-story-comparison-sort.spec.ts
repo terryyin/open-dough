@@ -1,7 +1,7 @@
 // A selected done story's entry and folder Summary comparison sorts its table
 // of immediate folders and files by its columns (../../src/IntentScopeProof.tsx,
 // ../../src/IntentScopeComparisonTable.tsx, ../../src/CiProofTable.tsx):
-// Change by kind with unchanged rows last, Landed by its measured time with
+// Change by kind with unchanged rows last, Landed by its signed change with
 // removed and later-trunk gaps last, the scope's own compared figures above
 // it, and the sort kept while drilling down; at 200% zoom the table with its
 // Change column still fits its box. A sort by a column the next Summary table
@@ -40,7 +40,7 @@ import {
 const entry = "dashboard/tests";
 // The entry's children in the tree's order, as the comparison names them.
 const entryChildren = entryComparisonRows.slice(1).map(([name]) => name);
-// The entry's children by their landed time, descending, gaps after them.
+// The entry's children by their signed landed change, descending, uncomparable rows after them.
 const landedDescending = [
   "folder/",
   "renamed.spec.ts",
@@ -115,7 +115,7 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
     ]);
   });
 
-  await test.step("Landed descending orders the children by their landed time, removed and later-trunk gaps after them, the entry's figures unmoved above", async () => {
+  await test.step("Landed descending orders the children by their signed landed change, uncomparable rows after them, the entry's figures unmoved above", async () => {
     const landed = sortButton(table, "Landed");
     await landed.click();
     await landed.click();

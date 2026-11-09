@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Open Dough Intent timing mockups</title>
+</head>
+<body>
+<div id="od-intent-timing-demo">
+  <div class="od-window">
+    <header class="od-chrome">
+      <div class="od-brand"><span class="od-symbol" aria-hidden="true"></span><strong>Open Dough</strong></div>
+      <nav class="od-perspectives" aria-label="Perspective">
+        <button type="button" data-go="board">Development</button>
+        <button type="button" data-go="intent" aria-pressed="true">Intent</button>
+      </nav>
+      <span class="od-example">Example data</span>
+    </header>
+    <div class="od-content" id="od-intent-reading"></div>
+  </div>
+</div>
+<style>
+  #od-intent-timing-demo {
+    --od-page: light-dark(#f6f6f3, #1a1c1f);
+    --od-paper: light-dark(#ffffff, #22252a);
+    --od-line: light-dark(#d9dedd, #3b4249);
+    --od-ink: light-dark(#202a30, #e9eef2);
+    --od-quiet: light-dark(#4e5c66, #adb9c5);
+    --od-blue: light-dark(#1b5fa8, #a0cbff);
+    --od-blue-wash: light-dark(#e6eef8, #263c53);
+    --od-red: light-dark(#9c2c30, #ffaba9);
+    --od-red-wash: light-dark(#fbefee, #442b2e);
+    --od-amber: light-dark(#79521f, #f3c484);
+    color: var(--od-ink);
+    font: 14px/1.5 system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  #od-intent-timing-demo *, #od-intent-timing-demo *::before { box-sizing: border-box; }
+  #od-intent-timing-demo [hidden] { display: none !important; }
+  #od-intent-timing-demo .od-window { background: var(--od-page); border: 1px solid var(--od-line); border-radius: 13px; overflow: clip; }
+  #od-intent-timing-demo .od-chrome { min-height: 57px; background: var(--od-paper); border-bottom: 1px solid var(--od-line); padding: 8px 20px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  #od-intent-timing-demo .od-brand, #od-intent-timing-demo .od-perspectives { display: flex; align-items: center; gap: 8px; }
+  #od-intent-timing-demo .od-symbol { width: 18px; height: 18px; border: 4px solid var(--od-blue); border-radius: 50%; }
+  #od-intent-timing-demo .od-example { margin-inline-start: auto; }
+  #od-intent-timing-demo .od-example, #od-intent-timing-demo .od-meta { color: var(--od-quiet); font-size: 12px; }
+  #od-intent-timing-demo button { appearance: none; border: 1px solid transparent; border-radius: 6px; background: transparent; color: inherit; padding: 6px 9px; font: inherit; text-align: start; cursor: pointer; }
+  #od-intent-timing-demo button:focus-visible, #od-intent-timing-demo summary:focus-visible { outline: 2px solid var(--od-blue); outline-offset: 2px; }
+  #od-intent-timing-demo button:hover, #od-intent-timing-demo button[aria-pressed="true"] { background: var(--od-blue-wash); color: var(--od-blue); }
+  #od-intent-timing-demo h2, #od-intent-timing-demo h3, #od-intent-timing-demo h4, #od-intent-timing-demo p { margin: 0; }
+  #od-intent-timing-demo h2 { font-size: clamp(19px, 3vw, 25px); line-height: 1.25; letter-spacing: -.02em; font-weight: 650; }
+  #od-intent-timing-demo h3 { font-size: 16px; font-weight: 650; line-height: 1.35; }
+  #od-intent-timing-demo h4 { font-size: 14px; font-weight: 650; }
+  #od-intent-timing-demo .od-content { padding: 17px 20px 20px; }
+  #od-intent-timing-demo .od-heading, #od-intent-timing-demo .od-panel { display: grid; gap: 6px; min-width: 0; }
+  #od-intent-timing-demo .od-head-row, #od-intent-timing-demo .od-source, #od-intent-timing-demo .od-legend { display: flex; flex-wrap: wrap; align-items: center; column-gap: 14px; row-gap: 4px; }
+  #od-intent-timing-demo .od-head-row { justify-content: space-between; }
+  #od-intent-timing-demo .od-source { color: var(--od-quiet); overflow-wrap: anywhere; }
+  #od-intent-timing-demo .od-link { color: var(--od-blue); }
+  #od-intent-timing-demo .od-views { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 14px; border-bottom: 1px solid var(--od-line); }
+  #od-intent-timing-demo .od-views > button, #od-intent-timing-demo .od-views > span { padding: 7px 8px; }
+  #od-intent-timing-demo .od-views > [aria-current] { color: var(--od-blue); border-bottom: 2px solid var(--od-blue); border-radius: 0; }
+  #od-intent-timing-demo .od-panel, #od-intent-timing-demo .od-test-tree, #od-intent-timing-demo .od-done-card { border: 1px solid var(--od-line); border-radius: 10px; background: var(--od-paper); padding: 13px 16px; }
+  #od-intent-timing-demo .od-work-area { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 12px; }
+  #od-intent-timing-demo .od-with-tree { grid-template-columns: minmax(160px, .32fr) minmax(0, 1fr); }
+  #od-intent-timing-demo .od-test-tree { display: grid; gap: 4px; min-width: 0; }
+  #od-intent-timing-demo .od-test-tree button { display: flex; align-items: start; gap: 7px; overflow-wrap: anywhere; }
+  #od-intent-timing-demo .od-test-tree .od-folder { margin-inline-start: 10px; }
+  #od-intent-timing-demo .od-test-tree .od-file { margin-inline-start: 18px; }
+  #od-intent-timing-demo .od-breadcrumb { overflow-wrap: anywhere; }
+  #od-intent-timing-demo .od-proof-tabs { display: flex; gap: 4px; }
+  #od-intent-timing-demo .od-metrics { display: flex; flex-wrap: wrap; gap: 9px 24px; padding: 6px 0 3px; }
+  #od-intent-timing-demo .od-metric { display: grid; gap: 0; }
+  #od-intent-timing-demo .od-metric strong { font-size: 19px; letter-spacing: -.01em; font-weight: 650; }
+  #od-intent-timing-demo .od-graph { width: 100%; min-width: 0; }
+  #od-intent-timing-demo .od-graph svg { display: block; width: 100%; height: 164px; overflow: visible; }
+  #od-intent-timing-demo .od-graph text { fill: var(--od-quiet); font: 11px system-ui, sans-serif; }
+  #od-intent-timing-demo .od-gridline { stroke: var(--od-line); stroke-width: 1; }
+  #od-intent-timing-demo .od-observed { stroke: var(--od-blue); stroke-width: 2; fill: none; }
+  #od-intent-timing-demo .od-average { stroke: var(--od-quiet); stroke-width: 1.2; stroke-dasharray: 4 4; }
+  #od-intent-timing-demo .od-mark { fill: var(--od-blue); stroke: var(--od-paper); stroke-width: 1.6; }
+  #od-intent-timing-demo .od-selected-point { fill: var(--od-paper); stroke: var(--od-blue); stroke-width: 2.5; }
+  #od-intent-timing-demo .od-excluded-mark { fill: var(--od-paper); stroke: var(--od-amber); stroke-width: 2; }
+  #od-intent-timing-demo .od-legend { font-size: 12px; color: var(--od-quiet); }
+  #od-intent-timing-demo .od-legend span { display: inline-flex; gap: 5px; align-items: center; }
+  #od-intent-timing-demo .od-key { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--od-blue); }
+  #od-intent-timing-demo .od-key-average { width: 14px; height: 0; border: 0; border-top: 1px dashed var(--od-quiet); border-radius: 0; background: transparent; }
+  #od-intent-timing-demo .od-key-excluded { border: 2px solid var(--od-amber); background: var(--od-paper); }
+  #od-intent-timing-demo .od-details { border-top: 1px solid var(--od-line); padding-top: 7px; margin-top: 4px; }
+  #od-intent-timing-demo summary { color: var(--od-blue); cursor: pointer; }
+  #od-intent-timing-demo .od-evidence { display: grid; margin: 7px 0 2px; gap: 3px; padding-inline-start: 18px; }
+  #od-intent-timing-demo .od-chip { border: 1px solid var(--od-line); border-radius: 999px; color: var(--od-quiet); padding: 1px 7px; font-size: 12px; white-space: nowrap; }
+  #od-intent-timing-demo .od-chip-alert { background: var(--od-red-wash); color: var(--od-red); border-color: transparent; }
+  #od-intent-timing-demo .od-chip-progress { background: var(--od-blue-wash); color: var(--od-blue); border-color: transparent; }
+  #od-intent-timing-demo .od-done-card { display: grid; gap: 8px; margin-top: 10px; }
+  #od-intent-timing-demo .od-done-card button, #od-intent-timing-demo .od-standalone-link { justify-self: start; }
+  #od-intent-timing-demo .od-attempts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; border-top: 1px solid var(--od-line); margin-top: 4px; padding-top: 8px; }
+  #od-intent-timing-demo pre { margin: 4px 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  @media (max-width: 600px) {
+    #od-intent-timing-demo .od-chrome { gap: 4px 12px; padding-inline: 10px; }
+    #od-intent-timing-demo .od-content { padding: 12px 10px; }
+    #od-intent-timing-demo .od-with-tree { grid-template-columns: minmax(0, 1fr); }
+    #od-intent-timing-demo .od-test-tree { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+    #od-intent-timing-demo .od-test-tree .od-folder, #od-intent-timing-demo .od-test-tree .od-file { margin-inline-start: 0; }
+    #od-intent-timing-demo .od-panel, #od-intent-timing-demo .od-test-tree, #od-intent-timing-demo .od-done-card { padding-inline: 10px; }
+    #od-intent-timing-demo .od-metrics { column-gap: 12px; }
+  }
+  @media (pointer: coarse) {
+    #od-intent-timing-demo button, #od-intent-timing-demo summary { min-height: 44px; }
+  }
+</style>
+<script>
+  (() => {
+    const demo = document.getElementById("od-intent-timing-demo");
+    const reading = document.getElementById("od-intent-reading");
+    const story = "Keep test evidence visible during refresh";
+    const dates = ["Oct 26", "Oct 28", "Oct 31", "Nov 2", "Nov 3", "Nov 4", "Nov 5", "Nov 7", "Nov 9"];
+    const elapsedDays = [0, 2, 5, 7, 8, 9, 10, 12, 14];
+    const eligible = [0, 1, 2, 3, 6];
+    const excluded = { 5: "Incomplete proof", 7: "Slow outlier" };
+    const scopes = {
+      project: { values: [590, 602, 584, 608, null, 521, 628, 733, 642], ticks: [500, 580, 660, 740] },
+      entry: { values: [229, 232, 224, 236, null, null, 240, 289, 257], ticks: [210, 240, 270, 300] },
+      folder: { values: [101, 109, 103, 110, null, null, 114, 143, 125], ticks: [90, 110, 130, 150] },
+      file: { values: [17.8, 18.2, 18.1, 19.2, null, null, 19.7, 26.1, 22.4], ticks: [15, 19, 23, 27] }
+    };
+    const state = { view: "project", selected: false, tab: "comparison", scope: "entry", purpose: false };
+    const graphObserver = new ResizeObserver(([entry]) => drawGraph(entry.target, entry.contentRect.width));
+
+    function time(seconds) {
+      if (seconds < 60) return `${Number(seconds.toFixed(1))}s`;
+      const rounded = Math.round(seconds);
+      return `${Math.floor(rounded / 60)}m ${String(rounded % 60).padStart(2, "0")}s`;
+    }
+
+    function averageOf(values) {
+      return eligible.reduce((total, index) => total + values[index], 0) / eligible.length;
+    }
+
+    function drawGraph(graph, width) {
+      if (width < 1) return;
+      const { values, ticks } = scopes[graph.dataset.graph];
+      const end = Math.floor(width) - 21;
+      const start = 53;
+      const bottom = 129;
+      const top = 12;
+      const x = (i) => start + elapsedDays[i] * (end - start) / 14;
+      const y = (value) => bottom - (value - ticks[0]) / (ticks.at(-1) - ticks[0]) * (bottom - top);
+      const average = averageOf(values);
+      const tickIndexes = width < 480 ? [0, 3, 8] : [0, 2, 3, 6, 8];
+      let path = "";
+      const points = values.map((value, i) => {
+        if (value === null) return "";
+        path += `${i === 0 || values[i - 1] === null ? "M" : "L"}${x(i)} ${y(value)} `;
+        const reason = excluded[i] ?? (i === values.length - 1 ? "Selected landing" : "Measured build");
+        const style = excluded[i] ? "od-excluded-mark" : (i === values.length - 1 ? "od-selected-point" : "od-mark");
+        return `<circle class="${style}" cx="${x(i)}" cy="${y(value)}" r="${i === values.length - 1 ? 5 : 4}" data-tooltip="${dates[i]} · ${time(value)} · ${reason}" />`;
+      }).join("");
+      graph.innerHTML = `<svg width="${Math.floor(width)}" height="164" role="img" aria-label="${graph.dataset.graph === "project" ? "CI wall time" : "Test execution time"} by build date, with gaps and a prior-build average">
+        ${ticks.map((tick) => `<line class="od-gridline" x1="${start}" x2="${end}" y1="${y(tick)}" y2="${y(tick)}"/><text x="${start - 8}" y="${y(tick) + 4}" text-anchor="end">${time(tick)}</text>`).join("")}
+        <line class="od-average" x1="${start}" x2="${end}" y1="${y(average)}" y2="${y(average)}" />
+        <path class="od-observed" fill="none" d="${path}" />${points}
+        ${tickIndexes.map((i) => `<text x="${x(i)}" y="151" text-anchor="middle">${dates[i]}</text>`).join("")}
+      </svg>`;
+    }
+
+    function timingPanel(scope, isStory) {
+      const { values } = scopes[scope];
+      const latest = values.at(-1);
+      const average = averageOf(values);
+      const difference = latest - average;
+      const percentage = (difference / average * 100).toFixed(1);
+      const metric = scope === "project" ? "CI wall time" : "Test execution time";
+      return `<section class="od-panel" aria-label="${metric} history">
+        <div class="od-head-row"><h3>${metric} history</h3><span class="od-meta">${values.filter((value) => value !== null).length} measured builds · Oct 26–Nov 9</span></div>
+        <p class="od-meta">Collected from dashboard-recorded landings${isStory ? " · through the selected landing" : ""}</p>
+        <div class="od-metrics">
+          <div class="od-metric"><strong>${time(latest)}</strong><span class="od-meta">${isStory ? "Selected landing" : "Latest landing"}</span></div>
+          <div class="od-metric"><strong>${time(average)}</strong><span class="od-meta">Average · ${eligible.length} prior builds</span></div>
+          <div class="od-metric"><strong>${time(scope === "project" ? Math.round(difference) : difference)} slower</strong><span class="od-meta">+${percentage}% vs prior average</span></div>
+        </div>
+        <div class="od-graph" data-graph="${scope}"></div>
+        <div class="od-legend"><span><i class="od-key" aria-hidden="true"></i> Observed</span><span><i class="od-key od-key-average" aria-hidden="true"></i> Prior average</span><span><i class="od-key od-key-excluded" aria-hidden="true"></i> Excluded from average</span></div>
+        <details class="od-details"><summary>Builds and evidence</summary><ul class="od-evidence">
+          ${values.map((value, i) => `<li>${dates[i]} · ${value === null ? (i === 4 ? "Skipped · equivalent timing unavailable" : "Incomplete proof · timing unavailable") : time(value)}${value !== null && excluded[i] ? ` · ${excluded[i]}` : ""}${i === 8 && isStory ? " · Selected landing" : ""}</li>`).join("")}
+        </ul></details>
+        ${isStory && scope === "project" ? `<div class="od-attempts"><span class="od-chip od-chip-alert">Possible CI slowdown</span><span>Original 10m 42s · Rerun 10m 36s · Average 10m 02s</span><span class="od-meta">5% example threshold</span></div>` : ""}
+      </section>`;
+    }
+
+    function renderProject() {
+      return `<div class="od-heading">
+        <div class="od-head-row"><h2>Project Intent</h2>${state.selected ? '<button type="button" class="od-link" data-go="back-story">Back to selected story</button>' : '<span class="od-meta">No story selected</span>'}</div>
+        <p class="od-source">Open Dough <span>·</span> <code>main</code> <span>·</span> <code>92bd5a7</code></p>
+      </div>
+      <div class="od-views" aria-label="Project views"><span aria-current="page">CI status</span></div>
+      <div class="od-work-area">
+        <p class="od-source">Current CI <strong>Passed</strong><span>·</span><code>92bd5a7</code></p>
+        ${timingPanel("project", false)}
+        <button type="button" class="od-link od-standalone-link" data-go="story">Read latest Done story →</button>
+      </div>`;
+    }
+
+    function renderStory() {
+      const file = state.scope === "file";
+      const heading = { entry: "Test entry Summary", folder: "Folder Summary", file: "Test file" }[state.scope];
+      const trail = { entry: "dashboard/tests", folder: "dashboard/tests / intent", file: "dashboard/tests / intent / ci-status.spec.ts" }[state.scope];
+      const purposeOrProof = file ? `<div class="od-proof-tabs" aria-label="Test file reading">
+        <button type="button" data-go="purpose" aria-pressed="${state.purpose}">Purpose</button>
+        <button type="button" data-go="proof" aria-pressed="${!state.purpose}">Proof</button>
+      </div>` : "";
+      return `<div class="od-heading">
+        <div class="od-head-row"><p class="od-source">Selected story <span>·</span> <span class="od-chip">Done</span></p><button type="button" class="od-link" data-go="project">Project Intent</button></div>
+        <h2>${story}</h2><p class="od-source">Landed Nov 9 <span>·</span> <code>main @ 92bd5a7</code></p>
+      </div>
+      <nav class="od-views" aria-label="Story views">
+        <button type="button" data-go="comparison" ${state.tab === "comparison" ? 'aria-current="page"' : ""}>CI comparison</button>
+        <button type="button" data-go="tests" ${state.tab === "tests" ? 'aria-current="page"' : ""}>Changed tests</button>
+      </nav>
+      ${state.tab === "comparison" ? `<div class="od-work-area">
+        <p class="od-source"><span>Baseline <strong>10m 04s</strong></span><span>Branch <strong>10m 27s</strong></span><span>Landed <strong>10m 42s</strong></span></p>
+        ${timingPanel("project", true)}
+      </div>` : `<div class="od-work-area od-with-tree">
+        <nav class="od-test-tree" aria-label="Changed test scopes">
+          <h4>Test locations</h4>
+          <button type="button" data-go="entry" aria-pressed="${state.scope === "entry"}"><span aria-hidden="true">▾</span>dashboard/tests</button>
+          <button type="button" class="od-folder" data-go="folder" aria-pressed="${state.scope === "folder"}"><span aria-hidden="true">▾</span>intent</button>
+          <button type="button" class="od-file" data-go="file" aria-pressed="${file}"><span aria-hidden="true">·</span>ci-status.spec.ts</button>
+        </nav>
+        <div class="od-work-area">
+          <div class="od-heading"><h3>${heading}</h3><p class="od-meta od-breadcrumb">${trail}</p>${purposeOrProof}</div>
+          ${file && state.purpose ? '<section class="od-panel" aria-label="Purpose at landing"><h3>Purpose at landing</h3><pre>test("keeps prior CI proof visible during refresh", …)</pre></section>' : timingPanel(state.scope, true)}
+        </div>
+      </div>`}`;
+    }
+
+    function renderBoard() {
+      return `<div class="od-heading"><p class="od-meta">Development</p><h2>Recently done</h2></div>
+      <article class="od-done-card">
+        <div class="od-head-row"><h3>${story}</h3><span class="od-chip od-chip-alert">Possible CI slowdown</span></div>
+        <p class="od-source">Done Nov 9 <span>·</span> Original 10m 42s <span>·</span> Rerun 10m 36s <span>·</span> 5.6% slower than prior average</p>
+        <button type="button" class="od-link" data-go="story">View CI comparison →</button>
+      </article>
+      <article class="od-done-card">
+        <div class="od-head-row"><h3>Keep the changed test tree in place</h3><span class="od-chip od-chip-progress">CI rerun in progress</span></div>
+        <p class="od-source">Done Nov 9 <span>·</span> Attempt 2 of 2 <span>·</span> Waiting for CI timing</p>
+      </article>`;
+    }
+
+    function render(focus) {
+      graphObserver.disconnect();
+      demo.querySelector('[data-go="board"]').setAttribute("aria-pressed", String(state.view === "board"));
+      demo.querySelector('[data-go="intent"]').setAttribute("aria-pressed", String(state.view !== "board"));
+      reading.innerHTML = state.view === "board" ? renderBoard() : (state.view === "story" ? renderStory() : renderProject());
+      for (const graph of reading.querySelectorAll("[data-graph]")) {
+        drawGraph(graph, graph.clientWidth);
+        graphObserver.observe(graph);
+      }
+      if (focus) demo.querySelector(`button[data-go="${focus}"]`)?.focus({ preventScroll: true });
+    }
+
+    demo.addEventListener("click", (event) => {
+      const action = event.target.closest("button[data-go]")?.dataset.go;
+      if (!action) return;
+      let focus = action;
+      if (action === "board") state.view = "board";
+      else if (action === "intent") state.view = state.selected ? "story" : "project";
+      else if (action === "project") { state.view = "project"; focus = "back-story"; }
+      else if (action === "story" || action === "back-story") {
+        state.view = "story";
+        state.selected = true;
+        if (action === "story") state.tab = "comparison";
+        focus = action === "story" ? "comparison" : "project";
+      } else if (action === "comparison" || action === "tests") state.tab = action;
+      else if (action === "purpose" || action === "proof") state.purpose = action === "purpose";
+      else state.scope = action;
+      render(focus);
+    });
+
+    render();
+  })();
+</script>
+
+</body>
+</html>

@@ -1,8 +1,8 @@
 // Configured Intent locations browser, drawn once for each reading scope
 // (`./pageIntentReading.tsx`), each with its own selection, reading and
-// arrangement: Project Intent's CI status view (`./IntentProjectView.tsx`),
-// beside its Test Optimization Candidates record (`./IntentModeTabs.tsx`), or
-// the selected story's **Changed tests** view (`./IntentStoryView.tsx`), its
+// arrangement: Project Intent's CI status view (`./IntentPage.tsx`),
+// beside its Test Optimization Candidates record (`./IntentPage.tsx`), or
+// the selected story's **Changed tests** view (`./IntentPage.tsx`), its
 // panel named by the caller and hidden, still mounted, while another view
 // shows. Locations (book icon) and folders (folder icon) share toggle
 // (expansion only) and name (select; toggle once selected) controls; a toggle

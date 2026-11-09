@@ -17,7 +17,13 @@ import {
 } from "../../src/storyReviewContract.ts";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
-import { intentGroupToggle, purposeRegion } from "../intentPerspectivePage.ts";
+import {
+  intentGroupToggle,
+  intentReadingPane,
+  intentReadingScroll,
+  purposeRegion,
+  scrollIntentReadingHalfway,
+} from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   chooseStoryTab,
@@ -54,10 +60,6 @@ function intentReads(page: Page) {
   return reads;
 }
 
-const readingPane = (intent: Locator) => intent.locator(".intent-reading");
-const scrollOf = (intent: Locator) =>
-  readingPane(intent).evaluate((element) => element.scrollTop);
-
 // The deep spec selected with "Selected story only" on and `out` collapsed by
 // hand, its diff shown and Purpose scrolled halfway, as the developer would.
 // Proof stays on its own tab, so settling comparison no longer changes the
@@ -72,26 +74,7 @@ async function readDeepSpec(intent: Locator) {
     "aria-busy",
     "false",
   );
-  const offset = await readingPane(intent).evaluate(
-    (element) =>
-      new Promise<number>((resolve) => {
-        const most = element.scrollHeight - element.clientHeight;
-        if (most < 40) {
-          resolve(0);
-          return;
-        }
-        element.addEventListener(
-          "scroll",
-          () => {
-            resolve(element.scrollTop);
-          },
-          { once: true },
-        );
-        element.scrollTo({ top: Math.floor(most / 2) });
-      }),
-  );
-  expect(offset).toBeGreaterThan(20);
-  return offset;
+  return scrollIntentReadingHalfway(intent);
 }
 
 test("a file selected two folders deep, with Selected story only and Purpose scrolled, is shown the same after Development and back without reading again", async ({
@@ -109,9 +92,9 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   const reads = intentReads(page);
   for (const view of ["CI comparison", "Intent coverage"] as const) {
     await chooseStoryTab(intent, view);
-    await expect(readingPane(intent)).toBeHidden();
+    await expect(intentReadingPane(intent)).toBeHidden();
     await chooseStoryTab(intent, "Changed tests");
-    await expect.poll(() => scrollOf(intent)).toBe(offset);
+    await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   }
   const { development, intentChoice } = parts(page);
   await development.click();
@@ -137,7 +120,7 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   for (const name of ["boundary", "deep", "arriving"])
     await expect(folderToggle(intent, name, true)).toBeVisible();
   await expect(folderToggle(intent, "out", false)).toBeVisible();
-  await expect.poll(() => scrollOf(intent)).toBe(offset);
+  await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   expect(reads).toEqual([]);
 });
 
@@ -167,7 +150,7 @@ test("another project shows none of the reading place, and choosing the project 
   await expectStoryTab(intent, "CI comparison");
   await expect(ciPanel(intent)).toBeVisible();
   await chooseStoryTab(intent, "Changed tests");
-  await expect(readingPane(intent)).toContainText(
+  await expect(intentReadingPane(intent)).toContainText(
     "Choose a test, folder or location to read its Purpose and Proof.",
   );
   await expect(ciPanel(intent)).toHaveCount(0);
@@ -181,5 +164,5 @@ test("another project shows none of the reading place, and choosing the project 
   await expect(
     intent.locator('.intent-locations [aria-pressed="true"]'),
   ).toHaveCount(0);
-  expect(await scrollOf(intent)).toBe(0);
+  expect(await intentReadingScroll(intent)).toBe(0);
 });

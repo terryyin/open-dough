@@ -1,5 +1,5 @@
 // A selected Taken story's long title in the story's persistent header
-// (../../src/IntentStorySummary.tsx) shows once, in full, wrapping rather
+// (../../src/IntentHeader.tsx) shows once, in full, wrapping rather
 // than shortened, and stays above the story's views whichever is chosen; its
 // Intent coverage says the assessment comes with wrap-up. The rest of the
 // header: ./intent-story-changes.spec.ts.

@@ -6,7 +6,10 @@
 // the browser: ../../dashboard/tests/intent/intent-ci-comparison-relative.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { relativePercentWords } from "../../dashboard/src/ciProofTimeWords.ts";
+import {
+  executionTimeDifferenceWords,
+  relativePercentWords,
+} from "../../dashboard/src/ciProofTimeWords.ts";
 import {
   relativeDirectionOf,
   relativeReachOf,
@@ -49,4 +52,13 @@ test("percentages are signed whole numbers at the existing precision", () => {
   assert.equal(relativePercentWords(-0.5), "−50%");
   assert.equal(relativePercentWords(0.004), "0%");
   assert.equal(relativePercentWords(1.5), "+150%");
+});
+
+test("the same signed change keeps the chosen duration precision without changing its ratio", () => {
+  assert.deepEqual(timeChangeOf(340, 410, executionTimeDifferenceWords), {
+    text: "+70 ms",
+    changeMs: 70,
+    relative: 70 / 340,
+  });
+  assert.equal(timeChangeOf(340, 410).text, "+0 s");
 });

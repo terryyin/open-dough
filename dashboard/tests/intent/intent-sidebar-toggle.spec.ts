@@ -1,5 +1,5 @@
 // Hide files / Show files (../../src/FileBrowserToggle.tsx) in Project
-// Intent's strip on CI status (../../src/IntentModeTabs.tsx), or ending a
+// Intent's strip on CI status (../../src/IntentPage.tsx), or ending a
 // selected story's view row on Changed tests
 // (../../src/intentStoryTabs.tsx): hiding the locations column gives the
 // reading pane the content width (narrow, the height under the strip), with
@@ -210,9 +210,11 @@ test("with no story, the toggle is reached by Tab after the tabs, works with Ent
   await expect(filesToggle(intent)).toBeFocused();
   await page.keyboard.press("Enter");
   await expectFilesShown(intent, false);
-  await expect(intentModeBar(intent)).toHaveText(
-    "CI statusOptimization CandidatesShow files",
-  );
+  await expect(intentModeBar(intent).getByRole("tab")).toHaveText([
+    "CI status",
+    "Optimization Candidates",
+  ]);
+  await expect(filesToggle(intent)).toHaveAccessibleName("Show files");
   await expect(ciPanel(intent)).toBeVisible();
   await expectReadingFillsBrowser(intent);
 

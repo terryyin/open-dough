@@ -207,6 +207,12 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
   - Evidence: The pre-delegation combined reference read reported 11,478 original tokens and truncated execution-decisions; delivery-reference and acceptance batches also truncated. The coordinator then retrieved the affected human-judgment and publication passages separately.
   - Observed effect: Required context needed additional targeted reads under already-applicable boundary/targeted-retrieval guidance. No elapsed-time or total-token saving measured.
+- Execution: SEED-262#pilot-admission-native-evidence-reuse (plan 544-pilot-admission-native-evidence-reuse; first related implementation commit `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`)
+  - Timestamp: unknown (this execution on 2026-11-09, Asia/Singapore)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION` at established claim `ca082e09ffec4b551a8389265305f469de2208a5`)
+  - Evidence: Dashboard launch `081f90f5-b454-4c5d-9a1a-8e49e448f471` startup combined full delegation, source-review, execution-decision, retrieval and obligation references with other context; the result reported 17,415 original tokens and truncation. A later raw `/tmp/admission-manual-baseline.json` read reported 48,290 original tokens and truncation; the coordinator then retrieved a bounded JSON summary.
+  - Observed effect: Scoped workflow passages and baseline facts were read again after the broad outputs. Existing boundary-row and targeted-retrieval instructions already applied. No total token or elapsed cost was measured.
 
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
@@ -297,6 +303,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.92 (checkout-bound installed `.agents/skills/dough-update/VERSION`)
   - Evidence: Launch `4056a145-4d89-44ec-ba41-26da0eb37261`, first slice-1 guarded fresh delivery returned `operation: formatting` with ShellCheck SC2016 on the intentionally literal sourced-helper script text in `tests/git-publication-fixture-identity.sh`, after implementation proof and independent refactor.
   - Observed effect: Commit/publication were withheld. A local explanatory suppression preserved the exact test bytes; retry passed formatting, full lint and hooks and published `fc234b7f9`. No behavior proof was invalidated.
+- Execution: SEED-262#pilot-admission-native-evidence-reuse (plan 544-pilot-admission-native-evidence-reuse; first related implementation commit `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`)
+  - Timestamp: unknown (this execution on 2026-11-09, Asia/Singapore)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION` at established claim `ca082e09ffec4b551a8389265305f469de2208a5`)
+  - Evidence: Before accepted slice 1 `5dcb5f10b`, guarded fresh delivery returned `preparation-failed`, `operation: formatting`, with nine ESLint errors: `no-param-reassign` in the comparison entry and extracted identity/assessment helpers, and an unused fixture import. Both implementation and independent refactor briefs forbade hook-owned lint; their passing focused proof preceded this first lint feedback. The plan retained the refused operation and renewed refactor return.
+  - Observed effect: Commit/publication were withheld. The same refactor owner returned local result objects, resolved paths into local constants and removed the import; the affected CLI suite passed again (13.5s) before the same guarded preparation published. The gate worked, but one repair/proof/delivery loop followed the completed refactor.
+  - Inference: Same established late-feedback problem; this occurrence does not measure the counterfactual saving of a read-only lint check.
+
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
@@ -344,6 +358,17 @@ Former local code: DD-348. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
 ## ODF-377 — Source-only review launched without the full seed examples
 Former local code: DD-364. [Meaning, evidence and response](docs/maintainer/findings/ODF-377.md).
+
+### Occurrences
+- Execution: SEED-262#pilot-admission-native-evidence-reuse (plan 544-pilot-admission-native-evidence-reuse; first related implementation commit `5dcb5f10b5ef926c572f828921f8bf0a4b58369d`)
+  - Timestamp: unknown (this execution on 2026-11-09, Asia/Singapore)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION` at established claim `ca082e09ffec4b551a8389265305f469de2208a5`)
+  - Evidence: The launch of `/root/source_review` supplied condensed key examples. A later fresh `/root/source_exact_review` received the original Goal, Scope and complete example rows; `5dcb5f10b:.planning/slice-plans/544-pilot-admission-native-evidence-reuse/source-review.md` explicitly records the replacement and why. The retained history has the initial 45-commitment extraction and the replacement 67-commitment extraction.
+  - Observed effect: One corrective reviewer launch and commitment-table reallocation occurred before acceptance. All four examples were represented initially, so no final missing product promise is inferred; the first prompt still did not supply the full original source text the review contract requires.
+  - Inference: Matches incomplete source-only inputs, not an unnecessary unchanged-input repeat: the second launch corrected the input form. Counts describe the two extractions, not a measured coverage or token gain.
+
+
 ## ODF-378 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
 Former local code: DD-366. [Meaning, evidence and response](docs/maintainer/findings/ODF-378.md).
 ## ODF-379 — Delegated dashboard proof omitted its required sandbox wrapper
@@ -418,7 +443,20 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
   - Evidence: `/tmp/seed279-consumer-trace.md` derives PLAN.md/source-review.md, node:timers/promises and start-0 terms alongside the admission seam. The implementation return supplied 494 dispositions; the coordinator's combined trace read reported 13,829 original tokens and truncated.
   - Observed effect: Most matches needed unrelated/historical exclusions and the affected caller rows required a separate bounded retrieval. No missed consumer or general timing cost established.
+- Execution: SEED-275#align-story-tabs-records (plan 541; first implementation `0d0ac0a1f652ff3938933ff71b72de8d49d69154`)
+  - Timestamp: unknown (slice 2 before `0ab4b94e6ae91340b0d769e2afd6083c0b5ccf5d` on 2026-11-09)
+  - Tool: Codex
+  - Open Dough release: unknown; installed guidance from established Take `82fc915034f4262553561a1c79de876040738677`.
+  - Evidence: `/tmp/seed275-slice2-consumer-trace.md` has 628 physical lines and 402 located-consumer rows matching the derived `PLAN.md` term; the slice-2 return explicitly attributes incidental matches to the concurrent coordinator-owned plan edit. The accepted plan at `0ab4b94e6` retains the trace locator and focused proof.
+  - Observed effect: a seven-file comment/title correction required repeated exclusions for unrelated planning, history and guidance; no missing consumer was found. Exact retired titles had no external selectors.
 
+- Execution: SEED-282#unify-intent-view-and-ci-proof (plan 547-unify-intent-view-and-ci-proof; first related implementation commit `f95f1a2808ad5cc74b785c0cbbe9f972495bc03f`)
+  - Timestamp: unknown (2026-11-09, slice 1 and 2 consumer-trace acceptance)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION` at claim `b62745bec339504a683c736d59caa09f4d3b915c`)
+  - Evidence: Both implementation traces used installed `consumer-trace.mjs --base HEAD` with explicit effect terms while plan/source-review files were changed. The trace derived generic planning basenames as well. Retained proof at `3034cc09d84b22ebfc751c92a1889629ab33dce9:.planning/slice-plans/547-unify-intent-view-and-ci-proof/proof.md` names the trace/disposition records; current `/tmp/seed282-slice1-consumer-dispositions.md` and `/tmp/seed282-slice2-consumer-dispositions.md` measure 350,867 and 341,766 bytes, with 641 and 669 `excluded:` rows respectively. The slice 2 return reports 839 final consumer rows.
+  - Observed effect: Hundreds of generic planning/history matches needed exclusions; coordinator reads of broad trace excerpts truncated and were followed by bounded caller/assertion inspection. The actual Intent and direct unit consumers were verified. No missed consumer is established.
+  - Inference: The already-recorded automatic planning-basename noise recurred across both Behavior slices; the large disposition volume, rather than a missing observation, is the supported cost.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
@@ -761,6 +799,14 @@ every slice until acceptance.
   - Evidence: Plan 530 premise "Consumer set" (48 files from `grep -rlE '# Product backlog|## Backlog list' dashboard/tests`). Slice 2 found 13 `dashboard/backend-tests` specs outside it; slice 3 acceptance found about 20 helpers using `renderDoneRecord`/`withDoneCatalog` outside it (obligation G1). Slice 4 was added and migrated them (`84506544d`).
   - Observed effect: One extra slice (about 45 minutes of agent time) and two plan rewrites during execution; the source review's commitment 10 surfaced the gap at acceptance.
   - Inference: Deriving the inventory from the story's governing rule (the published-file encoders and file paths a fake GitHub serves) rather than from one literal symptom would likely have sized four slices up front.
+- Execution: SEED-275#preserve-story-on-panel-close (plan 546-preserve-story-on-panel-close; first related implementation commit `818481d9f42a226c90681ab6b6086cfae0c3a3a1`)
+  - Timestamp: unknown (2026-11-09, slice 1 implementation's directory run)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `26c51a258`)
+  - Evidence: Plan 546's premise "Named specs assert clear-on-close" came from a scratch run of 5 named intent/sessions specs, and its gate named only the `intent` and `sessions` directories. The story's rule covers every Side panel dismissal. The implementation's run of `intent`, `sessions`, `review` and `navigation` found 4 more consumers: `session-workspace-retirement*.spec.ts`, `navigation/development-intent-frame-sessions.spec.ts`, and `intent-story-changes-marked.spec.ts`.
+  - Observed effect: The same implementation agent fixed them within the slice. No extra slice and no failed CI. `development-intent-frame-sessions` sits outside the plan's gate directories, so only the consumer-trace widening caught it locally.
+  - Inference: A premise search for every spec that asserts selection after a Side panel close (`expectSelected(..., false)` or a missing `data-selected-story` after Close, Mark as done or delete) would have listed them up front.
 
 ## DD-469 — A trunk merge's proof selected changed specs, not consumers of the changed contract
 After merging trunk into a story branch, the coordinator proved the merge with

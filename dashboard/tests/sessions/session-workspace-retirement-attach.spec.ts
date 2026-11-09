@@ -114,7 +114,8 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     await page.keyboard.press("Meta+Shift+Escape");
     await expect(panel).toHaveCount(0);
     await expect(open).toBeFocused();
-    await expectSelected(card(notRefinedStory), false);
+    // Closing keeps the story selected (ADR 0008).
+    await expectSelected(card(notRefinedStory), true);
     expect(stored(dashboard.home)[0]?.session).toEqual(record.session);
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(

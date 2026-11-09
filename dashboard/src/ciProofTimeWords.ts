@@ -53,35 +53,6 @@ export function relativePercentWords(relative: number): string {
   return pct > 0 ? `+${String(pct)}%` : `−${String(Math.abs(pct))}%`;
 }
 
-// Percentage of a measured non-zero baseline duration only: "+10%", "−25%".
-// A measured zero baseline yields no percentage.
-export function durationPercentageWords(
-  baselineMs: number,
-  deltaMs: number,
-): string | undefined {
-  if (!(baselineMs > 0)) return undefined;
-  return relativePercentWords(deltaMs / baselineMs);
-}
-
-// Readable duration change: "8 s → 12 s (+4 s, +50%)", "4 s (no change)",
-// or "0 s → 2 s (+2 s)" with no percentage for a measured zero baseline.
-export function durationChangeWords(
-  baselineMs: number,
-  afterMs: number,
-  value: (ms: number) => string,
-  difference: (ms: number) => string,
-): string {
-  const before = value(baselineMs);
-  const after = value(afterMs);
-  const delta = afterMs - baselineMs;
-  if (delta === 0) return `${after} (no change)`;
-  const diff = difference(delta);
-  const pct = durationPercentageWords(baselineMs, delta);
-  return pct === undefined
-    ? `${before} → ${after} (${diff})`
-    : `${before} → ${after} (${diff}, ${pct})`;
-}
-
 export function wallTimeMs(
   startedAt: string | undefined,
   completedAt: string | undefined,

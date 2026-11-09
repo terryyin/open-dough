@@ -28,3 +28,7 @@ reader is right and the retained observation was wrong. Replay is not native
 behavioral evidence
 ([ADR 0005](../docs/adrs/0005-cross-tool-validation-accepted.md) §2);
 [native publication](native-publication.md) describes adding an accepted run.
+
+For `publication/admission-investigation`, use the
+[retained-result comparison and impact review](native-admission-reuse.md)
+before deciding whether existing evidence justifies reuse on its own host.

@@ -141,7 +141,6 @@ test("a Taken Story Branch story's Summary comparison is labelled provisional", 
     `Baseline No build ${shortSha(setup.baseline)}`,
     `Branch ${shortSha(setup.branchTip)}`,
     "Landed Not landed yet",
-    "Observed, not attributed",
   ]);
   await expectLabelInFull(
     labels,

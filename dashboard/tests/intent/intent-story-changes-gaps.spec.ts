@@ -139,7 +139,7 @@ test("without configured Intent locations the header names the selected story, C
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   await expect(
-    intent.locator(".intent-story-view > *").first(),
+    intent.locator(".intent-page-frame > *").first(),
   ).toHaveAttribute("aria-label", "Selected story");
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(storySummary(intent).getByRole("status")).toHaveText(

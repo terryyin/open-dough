@@ -1,4 +1,4 @@
-// Project Intent's chosen view (`./IntentModeTabs.tsx`), **CI status** or
+// Project Intent's chosen view (`./intentProjectTabs.ts`), **CI status** or
 // **Optimization Candidates**: disposable page state (ADR 0008), not part of
 // the URL, kept by the page (`./PageFrame.tsx`) beside story selection so it
 // outlasts Intent's own mount and a visit to the selected story. It belongs to
@@ -15,7 +15,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { IntentMode } from "./IntentModeTabs.tsx";
+import type { IntentMode } from "./intentProjectTabs.ts";
 import {
   useStorySelection,
   type SelectedStory,

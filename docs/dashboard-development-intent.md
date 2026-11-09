@@ -76,27 +76,25 @@ back keeps it, and a sorted column the next
 Summary table lacks (a timing column or **Change** between one run's figures
 and a story comparison) gives way to the browser's order there without being
 lost: a later table with that column, such as the comparison once it is read,
-is sorted by it again. With a story selected, the same Summary labels that story's CI timing
-comparison the same way: `Provisional` while the story is Taken; **Baseline**,
-**Branch** and **Landed**, each with the requested revision's status word
-(`Skipped`, `Cancelled`, `No build`) before the short revision whose proof is
-used, or a gap's word (`Not applicable`, `Not landed yet`), its full status as
-its full words; and `Observed, not attributed` for the observed-not-attributed
-statement; its group
-and table use **Baseline**, **Branch** and **Landed** for precise times with signed
-differences, shows counted-results differences in **Counts** (a gap endpoint
-shows its gap, not a difference), names each child's story change in a
-**Change** column after **Scope** (`added`, `modified`, `removed` or
-`renamed`, empty when unchanged; a rename takes its baseline from its old
-path, which its **Baseline** cell names) that sorts by kind in that order
-with unchanged rows last in either direction, explains per-row gaps, and shows the same
-count-border and duration-tint cues the homepage entry table classifies (see
-[CI timing comparison](dashboard-development-intent-ci-comparison.md)). The
-group's **Parts** shows completeness for the chosen build (landed, else
-branch, else baseline), and that build's proof labels what **Not in the rows
-above** holds and an entry it does not break down by file as one run's
-Summary does, `No file breakdown` naming it ("The Landed CI proof summary
-does not break tests down by file").
+is sorted by it again. A selected story's Summary and file Proof share the
+[CI comparison](dashboard-development-intent-ci-comparison.md) heading,
+observed-build framing, active endpoints and unused-Landed explanation.
+Short labels keep `Provisional` while Taken and **Baseline**, **Branch** and
+**Landed** with each requested revision's status and the short revision whose
+proof is used, or the endpoint's gap explanation. **Baseline** shows measured
+time; **Branch** and **Landed** show signed changes from it, preserving precise
+sub-second differences. Relative marks and the story's shared **Show %**
+preference use one scale for the displayed figures and immediate rows.
+Baseline sorts by measured time; Branch/Landed sort by signed change, with
+uncomparable rows last in either direction and ties in supplied order.
+**Counts** keeps counted-results differences and preserves gap endpoints;
+**Change** after **Scope** names `added`, `modified`, `removed` or `renamed` (empty when unchanged),
+sorting in that order with unchanged last in either direction. A rename uses
+its old Baseline path, named in that cell. The group's **Parts** keeps the
+chosen build's completeness (landed, else branch, else baseline); that build
+labels **Not in the rows above** and `No file breakdown`, as one run's Summary
+does. Comparison figures and tables use signed words and relative marks;
+location and file tree cues retain their count-border/duration-tint meaning.
 Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that
 folder's own summary. Execution time is precise enough to compare sub-minute
@@ -112,18 +110,24 @@ summary drills down: a child's name selects that folder or file as its tree
 name does and reveals it in the tree, keyboard-operable. A summary reads no
 file text and asks CI nothing again: home and every summary share one
 judgment, proof and comparison-endpoint read.
-Intent shows either **Project Intent**, the project's own evidence, or, with a
-story selected on the page, [that story's views](dashboard-development-intent-story.md).
-Project Intent is the landing with no selected story; the selected perspective
-choice names the page, so it then shows no heading of its own. Visited from a
-selected story, through **Project Intent** leading the story's header, it is
-headed **Project Intent** with **Back to selected story**, and the story stays
-selected: going either way moves the keyboard to the control that comes back.
-Below the banner the page does not scroll: the location tree fills the
-remaining height against the left edge, and it and the reading pane each
-scroll independently. Project Intent's strip of two views, **CI status** and
-**Optimization Candidates**, chooses what that content shows; it belongs to
-Intent and is not another perspective. Arrow keys, Home and End move between
+Intent uses one page implementation for **Project Intent**, the project's own
+evidence, and [a selected story's views](dashboard-development-intent-story.md).
+Both contexts keep the story view's persistent header, tab row, revision notice
+and reading area in the same order. With no story selected, the header says
+**No story selected** and the page offers the project's **CI status** and
+**Optimization Candidates** views. With a story selected, its title, actions and
+applicable views use that same arrangement. The active context identifies whose
+evidence is shown.
+**Project Intent** leading the story's header visits the project's own evidence;
+its header says **Project Intent** and offers **Back to selected story**. The
+story stays selected, and going either way moves the keyboard to the control
+that comes back. Clearing the selection returns to project **CI status** with
+**No story selected** in the persistent header.
+Below the header, views and revision notice, the page does not scroll: the
+location tree fills the remaining height against the left edge, and it and the
+reading pane each scroll independently. Project Intent's two views, **CI status**
+and **Optimization Candidates**, choose what that content shows; they belong to
+Intent and are not another perspective. Arrow keys, Home and End move between
 its tabs and only choose the view, so returning to **CI status** that way
 keeps what it was reading.
 **CI status** shows the location tree (Purpose locations only) beside the
@@ -133,9 +137,9 @@ whatever story is selected; with a file selected it offers **Purpose** and
 **Proof** tabs (Purpose first; kept across file selections in the same Intent
 visit), and with a location or folder its summary. Purpose is the published
 source or, in a selected story's **Changed tests**, its source diff; Proof is
-that file's published CI evidence from the view's evidence owner (judged-run
-results, or a story's baseline / branch / landed comparison), under the
-Summary's evidence labels.
+that file's published CI evidence from the view's evidence owner: judged-run
+results, or the story's shared signed comparison, under Summary's evidence
+labels.
 Directly activating the **CI status** tab (click, Enter or Space), even while
 already chosen, returns home: the selection clears and CI status shows.
 Expansion and reading choices stay. No separate return control.
@@ -145,12 +149,11 @@ or its scroll, and a project test the story changed shows its published text
 in Project Intent. A visit to Project Intent and back restores the story's
 chosen view and reading place.
 While a location tree shows, Review changes' **Hide files** / **Show files**
-toggle states whether the locations column is shown: in Project Intent it
-follows the strip's tabs on **CI status**, and with a story it ends the
-story's view row while **Changed tests** shows, in both cases reached by Tab
+toggle states whether the locations column is shown. It ends the common view
+row on project **CI status** or a story's **Changed tests**, reached by Tab
 after the tabs. Hiding removes the column and gives the reading pane the full
 width, or on a narrow screen, where the tree sits above it, the full height; it
-changes no selection or reading, and a selected story's header stays above it.
+changes no selection or reading, and the persistent header stays above it.
 **Show files** returns the column as it was: selection, open location and
 folders, **Selected story only** and the tree's scroll. Each reading place
 keeps its own choice across selections, the story's other views,

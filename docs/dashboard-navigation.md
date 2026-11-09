@@ -214,7 +214,7 @@ when the soft keyboard or orientation changes, keeping controls and Close reacha
 for the toolbar’s Paste key, composer Insert, and scroll-versus-navigate behavior. Chromium checks cover phone/tablet viewports, rotation, and desktop;
 they do not establish physical-device keyboard or remote-connectivity behavior.
 
-The selected story's card is highlighted with an inset accent ring and pale blue fill; inspecting a card opens its detail without it. Opening a story's terminal, final report, or review in the Side panel selects that story, and closing the Side panel or showing a session attached to no story clears it. A Session entry the Side panel shows keeps its own outline and "Shown in" mark, which identifies the session.
+The selected story's card is highlighted with an inset accent ring and pale blue fill; inspecting a card opens its detail without it. Opening a story's terminal, final report, or review in the Side panel selects that story, and showing a session attached to no story clears it. Closing the Side panel, including through **Mark as done** or deleting the shown session's record, keeps the story selected at that moment, so Intent stays on it; with no story selected, Intent stays at project scope. A Session entry the Side panel shows keeps its own outline and "Shown in" mark, which identifies the session.
 
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.

@@ -1,7 +1,8 @@
 // Changing perspective keeps sessions as they are (../intentPerspectivePage.ts):
 // a Sessions sidebar entry chosen from Intent opens its project's Development
 // stories and its session, and the terminal, a covering one too, stays shown
-// and attached once while the perspective changes beneath it. The page's own
+// and attached once while the perspective changes beneath it; closing it
+// keeps its story selected (ADR 0008). The page's own
 // dashboard server launches and attaches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
@@ -145,7 +146,7 @@ test.describe("with the three catalog projects' sessions", () => {
 test.describe("with a session to open", () => {
   test.use({ projectFolders: ["open-dough"] });
 
-  test("a covering terminal at a phone width stays shown and attached while Back and Forward change the perspective beneath it, and Close shows the perspective the address names", async ({
+  test("a covering terminal at a phone width stays shown and attached while Back and Forward change the perspective beneath it, and Close shows the perspective the address names on the story it keeps selected", async ({
     page,
     dashboard,
   }) => {
@@ -203,9 +204,15 @@ test.describe("with a session to open", () => {
       expect(attaches()[0]?.endedBy).toBeUndefined();
     });
 
-    await test.step("Close shows Open Dough's Intent, as the address names", async () => {
+    await test.step("Close shows Open Dough's Intent, as the address names, on the session's story it keeps selected", async () => {
       await closeSidePanel(panel);
-      await expectNotConfiguredIntent(page, "Open Dough");
+      const { intent } = parts(page);
+      await expect(intentChoice).toBeChecked();
+      await expectProjectChoice(page, "Open Dough");
+      await expect(intent).toHaveAttribute(
+        "data-selected-story",
+        story.identity,
+      );
       expectAddress(page, { project: null, perspective: "intent" });
       expect(attaches()).toHaveLength(1);
     });

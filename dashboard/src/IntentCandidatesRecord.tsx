@@ -18,7 +18,7 @@ import {
   type IntentConfiguredInventory,
 } from "./intentCandidatesLocationMatch.ts";
 import { IntentCandidatesSections } from "./IntentCandidatesSections.tsx";
-import type { IntentMode } from "./IntentModeTabs.tsx";
+import type { IntentMode } from "./intentProjectTabs.ts";
 import {
   intentRecoveryOf,
   useIntentReadRecovery,

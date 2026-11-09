@@ -3,9 +3,9 @@
 // (`./useShownIntentLocations.tsx`) through the authenticated read boundary
 // (`./IntentBrowser.tsx`), behind its one revision notice, which each view
 // shows under its tabs. Intent shows either
-// **Project Intent** (`./IntentProjectView.tsx`), the landing with no selected
+// **Project Intent** (`./IntentPage.tsx`), the landing with no selected
 // story, or, with a story selected on the page, that story's view
-// (`./IntentStoryView.tsx`), each from its own Intent CI evidence owner
+// (`./IntentPage.tsx`), each from its own Intent CI evidence owner
 // (`./IntentCiEvidence.tsx`): Project Intent judges the project's trunk, the
 // story's view reads the story's evidence. Each scope keeps its own reading
 // place, selection and Hide files choice (`./pageIntentReading.tsx`); which
@@ -20,8 +20,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { IntentCiEvidenceProvider } from "./IntentCiEvidence.tsx";
-import { backToStoryId } from "./IntentModeTabs.tsx";
-import { IntentProjectView } from "./IntentProjectView.tsx";
+import { backToStoryId } from "./intentProjectTabs.ts";
+import { IntentPage, toProjectIntentId } from "./IntentPage.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import {
   useStorySummary,
@@ -29,7 +29,6 @@ import {
   type StorySummary,
 } from "./IntentStorySummary.tsx";
 import { useIntentScope, type IntentScope } from "./intentStoryTabs.tsx";
-import { IntentStoryView, toProjectIntentId } from "./IntentStoryView.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
@@ -69,16 +68,13 @@ function IntentBody({
 }) {
   const { scope, chooseScope } = useIntentScope(selection);
   const shown = useShownIntentLocations(source, work);
-  const { settled, locations } = shown;
   const storyShown = storySummary !== undefined && scope === "story";
   // Project Intent's trunk evidence is read from its first showing on.
   const [projectVisited, setProjectVisited] = useState(!storyShown);
   if (!storyShown && !projectVisited) setProjectVisited(true);
-  // Without locations it waits for them to settle, lest the browser's
-  // homepage replacing the loading explanation judge twice.
-  const projectCiActive =
-    projectVisited &&
-    (locations !== undefined || (settled && project.mode === "ci"));
+  // CI starts independently of the locations read. The same mounted owner
+  // supplies the loading explanation and the browser once locations settle.
+  const projectCiActive = projectVisited && work !== undefined;
   // The control that comes back, focused once the other scope shows.
   const arrival = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -105,16 +101,18 @@ function IntentBody({
         {storyShown && (
           <IntentReadingScope name="story">
             <IntentWorkspaceSelectionProvider>
-              <IntentStoryView
-                summary={storySummary}
-                selection={selection}
-                story={story}
+              <IntentPage
                 source={source}
                 work={work}
                 shown={shown}
-                idPrefix={project.modeIdPrefix}
-                onProjectIntent={() => {
-                  visit("project");
+                project={project}
+                story={{
+                  summary: storySummary,
+                  selection,
+                  compared: story,
+                  onProjectIntent: () => {
+                    visit("project");
+                  },
                 }}
               />
             </IntentWorkspaceSelectionProvider>
@@ -130,7 +128,7 @@ function IntentBody({
         {!storyShown && (
           <IntentReadingScope name="project">
             <IntentWorkspaceSelectionProvider>
-              <IntentProjectView
+              <IntentPage
                 source={source}
                 work={work}
                 shown={shown}

@@ -3,9 +3,10 @@
 // review. Opening different content replaces what it showed, detaching a
 // terminal without ending its session, and returns to the normal split.
 // Each opening selects the content's story, or clears the page's selected
-// story for a session attached to no story; each close clears it. A card's
-// toggle may select another story while the panel stays as it is, so the
-// selection is set here rather than derived from what the panel shows.
+// story for a session attached to no story. Closing keeps whatever story is
+// selected then, as does Mark as done or deletion that closes the panel. A
+// card's toggle may select another story while the panel stays as it is, so
+// the selection is set here rather than derived from what the panel shows.
 // Session operations retain their host-qualified identity across
 // asynchronous answers; a review is not a session and has no session mark.
 // How the keyboard returns is `./keyboardReturn.ts`.
@@ -87,7 +88,6 @@ export function usePageSidePanel({
   );
   const empty = () => {
     setSidePanel(undefined);
-    selection.clear();
   };
   const openTerminal = useCallback<OpenTerminal>(
     (request) => {

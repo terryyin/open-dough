@@ -1,4 +1,4 @@
-// A selected done story's CI comparison (../../src/IntentStoryView.tsx) does
+// A selected done story's CI comparison (../../src/IntentPage.tsx) does
 // not wait for the Intent locations read: it is the story's default view
 // under its one header while that read is still held, and stays, without
 // reading CI again, once it settles; beside a failed locations read, Changed

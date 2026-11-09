@@ -1,4 +1,4 @@
-// The selected story's **Intent coverage** view (`./IntentStoryView.tsx`): a
+// The selected story's **Intent coverage** view (`./IntentPage.tsx`): a
 // completed story's saved assessment exactly as its published done record
 // stores it, read as Recently done reads that record (`./doneDetails.ts`).
 // Each state says only what is known: the whole saved report, its saved

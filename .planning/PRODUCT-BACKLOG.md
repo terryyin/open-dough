@@ -28,15 +28,20 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Pilot native evidence reuse for Git publication admission](seeds/SEED-262-faster-dashboard-test-feedback.md#pilot-admission-native-evidence-reuse) — SEED-262#pilot-admission-native-evidence-reuse ([plan](slice-plans/544-pilot-admission-native-evidence-reuse/PLAN.md))
-- [Align story tab cost records, Taken heading, and wording](seeds/SEED-275-story-intent-tabs.md#align-story-tabs-records) — SEED-275#align-story-tabs-records ([plan](slice-plans/541-align-story-tabs-records/PLAN.md))
-- [Keep the selected story when the Side panel closes](seeds/SEED-275-story-intent-tabs.md#preserve-story-on-panel-close) — SEED-275#preserve-story-on-panel-close ([plan](slice-plans/546-preserve-story-on-panel-close/PLAN.md))
-- [Unify the Intent view and CI proof](seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof) — SEED-282#unify-intent-view-and-ci-proof ([plan](slice-plans/547-unify-intent-view-and-ci-proof/PLAN.md))
 - [Distinguish test cases and test files in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof) — SEED-281#distinguish-test-cases-and-files-in-ci-proof ([plan](slice-plans/547-distinguish-test-cases-and-files-in-ci-proof/PLAN.md))
 - [Make machine-local project configuration test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data) — SEED-261#map-project-configuration-test-data ([plan](slice-plans/540-map-project-configuration-test-data/PLAN.md))
+- [Make Intent location, source and candidate test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data ([plan](slice-plans/548-map-intent-and-ci-proof-test-data/PLAN.md))
+- [Keep Done story Intent pinned to the landed result](seeds/SEED-283-keep-done-story-intent-pinned.md#keep-done-story-intent-pinned) — SEED-283#keep-done-story-intent-pinned ([plan](slice-plans/550-keep-done-story-intent-pinned/PLAN.md))
+- [See landed CI wall time change over time](seeds/SEED-285-landed-ci-timing-history.md#see-landed-ci-wall-time-history) — SEED-285#see-landed-ci-wall-time-history ([plan](slice-plans/551-see-landed-ci-wall-time-history/PLAN.md))
+- [Optimize tests from existing CI proof](seeds/SEED-284-optimize-tests-from-ci-proof.md#optimize-tests-from-ci-proof) — SEED-284#optimize-tests-from-ci-proof ([plan](slice-plans/552-optimize-tests-from-ci-proof/PLAN.md))
 
 ## Backlog list
 
-- [Make Intent and CI proof test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data
+- [Trace a Done story’s timing history into test Proof](seeds/SEED-285-landed-ci-timing-history.md#trace-landed-proof-timing) — SEED-285#trace-landed-proof-timing
+- [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds
+- [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
+- [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data
+- [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data
+- [Make CI proof evidence test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-proof-test-data) — SEED-261#map-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
 - [Give the dashboard a dark theme](seeds/SEED-278-dashboard-dark-theme.md#dashboard-dark-theme) — SEED-278#dashboard-dark-theme

@@ -1,7 +1,6 @@
 // @ts-check
-// MakeMe: the one entry point for domain data that tests arrange. Each
-// `makeMe.aThing` access starts a fresh builder; its named methods state the
-// facts that drive the case and `.please()` returns the product value.
+// MakeMe: shared domain-data entry. Each `makeMe.aThing` starts a fresh builder;
+// named methods state facts and `.please()` returns the product value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
@@ -43,10 +42,10 @@ import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
+import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
-
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 /** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
@@ -57,7 +56,7 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
-
+/** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
 /**
  * @template {object} Facts
  * @typedef {{ with(facts: Facts): { please(): Facts } }} FactBuilder
@@ -72,6 +71,9 @@ function copyFacts(facts) {
 }
 
 export const makeMe = {
+  get aNativeEvidenceRecord() {
+    return new NativeEvidenceRecordBuilder();
+  },
   get aRepository() {
     return new RepositoryBuilder();
   },
@@ -211,6 +213,10 @@ export const makeMe = {
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();
+  },
+  /** @returns {FactBuilder<CiRun>} */
+  get aCiRun() {
+    return { with: copyFacts };
   },
   /** @returns {FactBuilder<IncrementPublicationFacts>} */
   get anIncrementPublication() {

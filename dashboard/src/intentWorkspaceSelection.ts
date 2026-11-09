@@ -6,7 +6,7 @@
 // starts empty for each project. The location tree and Purpose read and set it
 // through this owner; Project Intent's candidate-record view shares it when
 // opening a recorded file; directly activating Project Intent's CI status tab
-// clears it to return home (`./IntentModeTabs.tsx`). A missing `scope` with a
+// clears it to return home (`./IntentPage.tsx`). A missing `scope` with a
 // non-empty path is a file, so candidate opens stay `{ path }` / `{ path,
 // caseTarget }`.
 

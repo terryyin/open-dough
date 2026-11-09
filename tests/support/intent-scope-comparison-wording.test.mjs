@@ -1,4 +1,4 @@
-// Readable before → after (Δ) wording for Intent's story CI comparison
+// Counts and signed timing words for Intent's shared CI comparison
 // (../../dashboard/src/ciScopeComparisonCounts.ts,
 // ../../dashboard/src/ciProofTimeWords.ts,
 // ../../dashboard/src/storyCiComparisonWording.ts): count cells, the
@@ -8,18 +8,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  durationChangeWords,
-  durationPercentageWords,
-  executionTimeDifferenceWords,
-  executionTimeWords,
-  wholeSecondDifferenceWords,
-  wholeSecondWords,
-} from "../../dashboard/src/ciProofTimeWords.ts";
-import {
   countsCellText,
   measuredCountsChangeWords,
 } from "../../dashboard/src/ciScopeComparisonCounts.ts";
 import { overallCountsWords } from "../../dashboard/src/storyCiComparisonCountsWords.ts";
+import { scopeComparisonCellsOf } from "../../dashboard/src/ciScopeComparison.ts";
+import { makeMe } from "./makeMe.mjs";
 
 const measured = (total, unit = "tests") => ({
   kind: "measured",
@@ -53,100 +47,21 @@ test("count cells read before → after with the difference in parentheses", () 
   );
 });
 
-test("a duration percentage appears only for a measured non-zero baseline", () => {
-  assert.equal(durationPercentageWords(8_000, 4_000), "+50%");
-  assert.equal(durationPercentageWords(4_000, -1_000), "−25%");
-  assert.equal(durationPercentageWords(0, 2_000), undefined);
-  assert.equal(
-    durationChangeWords(
-      8_000,
-      12_000,
-      executionTimeWords,
-      executionTimeDifferenceWords,
-    ),
-    "8.0 s → 12.0 s (+4.0 s, +50%)",
-  );
-  assert.equal(
-    durationChangeWords(0, 2_000, wholeSecondWords, wholeSecondDifferenceWords),
-    "0 s → 2 s (+2 s)",
-  );
-  assert.equal(
-    durationChangeWords(
-      4_000,
-      3_000,
-      executionTimeWords,
-      executionTimeDifferenceWords,
-    ),
-    "4.0 s → 3.0 s (−1.0 s, −25%)",
-  );
-  assert.equal(
-    durationChangeWords(
-      299_000,
-      330_000,
-      wholeSecondWords,
-      wholeSecondDifferenceWords,
-    ),
-    "4 min 59 s → 5 min 30 s (+31 s, +10%)",
-  );
-});
-
 test("overall counts keep tests and checks apart and say partial when a side is missing", () => {
   const baseline = {
     kind: "summary",
     entries: [
-      {
-        path: "dashboard/tests",
-        unit: "tests",
-        passed: 1098,
-        failed: 0,
-        other: 0,
-        parts: [],
-      },
-      {
-        path: "tests",
-        unit: "tests",
-        passed: 982,
-        failed: 0,
-        other: 0,
-        parts: [],
-      },
-      {
-        path: "scripts",
-        unit: "checks",
-        passed: 492,
-        failed: 0,
-        other: 0,
-        parts: [],
-      },
+      makeMe.aCiProofEntry.at("dashboard/tests").counting(1098).please(),
+      makeMe.aCiProofEntry.at("tests").counting(982).please(),
+      makeMe.aCiProofEntry.at("scripts").counting(492, "checks").please(),
     ],
   };
   const landed = {
     kind: "summary",
     entries: [
-      {
-        path: "dashboard/tests",
-        unit: "tests",
-        passed: 1100,
-        failed: 0,
-        other: 0,
-        parts: [],
-      },
-      {
-        path: "tests",
-        unit: "tests",
-        passed: 982,
-        failed: 0,
-        other: 0,
-        parts: [],
-      },
-      {
-        path: "scripts",
-        unit: "checks",
-        passed: 492,
-        failed: 0,
-        other: 0,
-        parts: [],
-      },
+      makeMe.aCiProofEntry.at("dashboard/tests").counting(1100).please(),
+      makeMe.aCiProofEntry.at("tests").counting(982).please(),
+      makeMe.aCiProofEntry.at("scripts").counting(492, "checks").please(),
     ],
   };
   assert.equal(
@@ -174,4 +89,45 @@ test("overall counts keep tests and checks apart and say partial when a side is 
     ),
     "No overall count: neither compared build has a usable total.",
   );
+});
+
+test("every compared scope carries precise signed timing and its comparable values, while added and gaps keep their meaning", () => {
+  const summary = (...entries) => ({ kind: "summary", entries });
+  const timed = (path, ms) => makeMe.aCiProofEntry.at(path).timed(ms).please();
+  const before = summary(timed("s/file", 340), timed("s/zero", 0));
+  const after = summary(
+    timed("s/file", 410),
+    timed("s/zero", 70),
+    timed("s/added", 410),
+  );
+  const cells = (path, precision = "precise") =>
+    scopeComparisonCellsOf(path, before, after, after, precision);
+  const precise = cells("s/file");
+  assert.deepEqual(precise.baseline, { text: "340 ms", ms: 340 });
+  assert.deepEqual(precise.branch, {
+    text: "+70 ms",
+    ms: 410,
+    changeMs: 70,
+    relative: 70 / 340,
+  });
+  assert.deepEqual(precise.landed, precise.branch);
+  assert.equal(cells("s/file", "whole-second").branch.text, "+0 s");
+  assert.deepEqual(cells("s/zero").branch, {
+    text: "+70 ms",
+    ms: 70,
+    changeMs: 70,
+  });
+  assert.deepEqual(cells("s/added").branch, { text: "410 ms", ms: 410 });
+  assert.deepEqual(
+    scopeComparisonCellsOf(
+      "s/file",
+      before,
+      { kind: "unavailable", line: "Proof expired" },
+      { kind: "no-build", explanation: "Build is still running." },
+      "precise",
+    ).branch,
+    { text: "Proof expired" },
+  );
+  const absent = cells("s/absent");
+  assert.deepEqual(absent.branch, { text: "not in the compared builds" });
 });

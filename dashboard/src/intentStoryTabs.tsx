@@ -1,7 +1,7 @@
-// The selected story's views in Intent (`./IntentStoryView.tsx`): **CI
+// The selected story's views in Intent (`./IntentPage.tsx`): **CI
 // comparison**, **Changed tests** and **Intent coverage**, in that order,
 // one Intent tablist (`./IntentTabs.tsx`) under the story's header
-// (`./IntentStorySummary.tsx`). The chosen view is disposable page state
+// (`./IntentHeader.tsx`). The chosen view is disposable page state
 // (ADR 0008) kept with the project's reading place
 // (`./pageIntentReading.tsx`) together with the selection it was chosen for
 // (`./pageStorySelection.tsx`), so every new selection, even of a story

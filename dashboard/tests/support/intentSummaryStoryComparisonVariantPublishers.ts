@@ -104,6 +104,7 @@ export async function publishSummaryComparisonTrunkStory(
 export async function publishTakenSummaryComparisonStory(
   page: Page,
   origin: StartOrigin,
+  mode: "story-branch" | "trunk" = "story-branch",
 ): Promise<{
   readonly identity: string;
   readonly title: string;
@@ -122,12 +123,13 @@ export async function publishTakenSummaryComparisonStory(
     agent: "Yui",
     story: storyA,
     queued: [storyB],
-    mode: "story-branch",
+    ...(mode === "trunk" ? { mode, slug: "taken-summary-ci" } : { mode }),
   });
   changeSummaryComparisonTests(workspace);
   writeAt(workspace, "src/story.ts", "taken story work\n");
   commitAll(workspace, "story implementation on the branch");
-  git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
+  if (mode === "trunk") push(workspace);
+  else git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
   const branchTip = git(workspace, "rev-parse", "HEAD");
   const claim = claimOf(origin.project, agent);
   const storyStart = git(origin.project, "rev-parse", `${claim}^`);

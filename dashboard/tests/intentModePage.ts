@@ -1,6 +1,6 @@
-// Project Intent's heading and views (../src/IntentModeTabs.tsx), the
+// Project Intent's heading and views (../src/IntentPage.tsx), the
 // Test Optimization Candidates record it shows, and the way between Project
-// Intent and the selected story (../src/IntentStoryView.tsx).
+// Intent and the selected story (../src/IntentPage.tsx).
 
 import { expect, type Locator } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
@@ -79,12 +79,16 @@ export async function returnToStory(intent: Locator) {
 // Hide files / Show files for the locations column: in Project Intent's strip
 // on CI status, or ending a selected story's view row on Changed tests.
 export const intentModeBar = (intent: Locator) =>
-  intent.locator(".intent-mode-bar");
+  intent.locator(
+    '.intent-page-frame[data-intent-context="project"] > .intent-page-tabbar',
+  );
 export const storyViewBar = (intent: Locator) =>
-  intent.locator(".intent-story-tabbar");
+  intent.locator(
+    '.intent-page-frame[data-intent-context="story"] > .intent-page-tabbar',
+  );
 export const filesToggle = (intent: Locator) =>
   intent
-    .locator(":is(.intent-mode-bar, .intent-story-tabbar)")
+    .locator(".intent-page-tabbar")
     .getByRole("button", { name: /^(Hide|Show) files$/ });
 
 // The toggle names what it does and states whether the column is shown.

@@ -9,6 +9,8 @@
 // (SEED-239#show-ci-status-on-intent-home example 1).
 
 import { expect, test } from "../dashboardTest.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 import { parts } from "../dashboardPage.ts";
 import {
   browseSpec,
@@ -34,7 +36,12 @@ import {
   intentGroupToggle,
   intentLocationName,
 } from "../intentPerspectivePage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
+import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  for (const release of releases.splice(0)) release();
+});
 
 test("CI status fills Intent's reading with nothing selected; the strip has no CI status mode; activating Intent again returns home from an entry, folder or file; not-configured shows it beside the explanation", async ({
   page,
@@ -68,11 +75,21 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
       "aria-selected",
       "true",
     );
-    // No story to return to, and no heading beside the perspective's name.
+    // The shared persistent header names the empty story context.
     await expect(
       intent.getByRole("button", { name: "Back to selected story" }),
     ).toHaveCount(0);
-    await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
+    await expect(
+      intent.getByRole("heading", { name: "No story selected", exact: true }),
+    ).toBeVisible();
+    await expect(intent.locator(".intent-page-frame")).toHaveCount(1);
+    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+      "data-intent-context",
+      "project",
+    );
+    await expect(intent.locator(".intent-page-frame > *").first()).toHaveClass(
+      "intent-header",
+    );
     const panel = await chooseCiStatus(intent);
     await expect(intent.locator(".intent-locations")).toBeVisible();
     await expect(
@@ -174,4 +191,57 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
       "Passed at a1b2c3d (Add login)",
     );
   });
+});
+
+test("project CI remains readable while locations load, fail and recover without another CI read", async ({
+  page,
+}) => {
+  publishProject(page, openDough, {
+    ".planning/open-dough.json": `${openDoughSettings}\n`,
+    "dashboard/tests/browse.spec.ts": browseSpec,
+  }).serveCi(
+    trunkCi(openDough.revision, () => [
+      { headSha: judged, conclusion: "success", url: runUrl },
+    ]),
+  );
+  const locations = await holdAuthenticatedReadsWhere(
+    page,
+    (params) => params.get("intent") === "locations",
+    releases,
+  );
+  const ciReads = { fresh: 0, kept: 0 };
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("intent") === "ci-status"
+    )
+      ciReads[url.searchParams.get("kept") === "1" ? "kept" : "fresh"] += 1;
+  });
+  await openUntilRead(page, "/?project=open-dough");
+  const { intent, intentChoice } = parts(page);
+  await intentChoice.click();
+  await expect(
+    intent.getByRole("heading", { name: "No story selected", exact: true }),
+  ).toBeVisible();
+  await expect(
+    intent.getByText("Reading Intent locations…", { exact: true }),
+  ).toBeVisible();
+  const status = ciPanel(intent).locator(".intent-ci-state");
+  await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
+  expect(locations.held()).toBeGreaterThan(0);
+  expect(ciReads).toEqual({ fresh: 1, kept: 1 });
+
+  locations.fail();
+  const failure = intent.getByRole("alert");
+  await expect(failure).toContainText(
+    "Intent locations for Open Dough could not be read",
+  );
+  await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
+  await failure.getByRole("button", { name: "Retry", exact: true }).click();
+  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(failure).toHaveCount(0);
+  await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
+  await untilPageReadsAnswered(page);
+  expect(ciReads).toEqual({ fresh: 1, kept: 1 });
 });

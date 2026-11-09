@@ -1,4 +1,4 @@
-// A selected story's CI timing comparison on Intent's homepage
+// CI timing comparison in the selected story's CI comparison tab
 // (`./IntentCiStatus.tsx`): the active comparison's title (Baseline with
 // Landed when Landed has proof, otherwise Branch or Provisional), framed as
 // observed builds, beside the relative scale's directions and **Show %**
@@ -27,23 +27,18 @@ import { EntryComparison } from "./IntentCiEntryComparison.tsx";
 import { CheckAgain } from "./IntentCiJudgedBranch.tsx";
 import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
 import {
-  RelativeTimingControls,
-  RelativeTimingProvider,
-} from "./IntentCiTimeChange.tsx";
-import { useKeptReading } from "./pageIntentReading.tsx";
+  IntentCiComparisonFrame,
+  ciTimingHeading,
+} from "./IntentCiComparisonFrame.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import {
   activeComparisonAfterSideOf,
   comparisonEntriesFromProofs,
   type ComparisonEndpointProofs,
 } from "./useIntentCiComparisonEntries.ts";
-import {
-  activeComparisonOf,
-  observedNotAttributedInFull,
-} from "./storyCiComparisonWording.ts";
+import { activeComparisonOf } from "./storyCiComparisonWording.ts";
 import type { ComparisonEntries } from "./storyCiComparisonEntries.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
-import { relativeScaleOf } from "./storyCiRelativeChange.ts";
 import "./intent-ci-cues.css";
 
 function endpointProofsOf(
@@ -80,10 +75,6 @@ function ComparisonShown({
   readonly proofs: ComparisonEndpointProofs | undefined;
   readonly checkAgainButton: ReactNode;
 }) {
-  const [showPercent, setShowPercent] = useKeptReading(
-    "ciShowPercent",
-    () => false,
-  );
   const taken = answer.phase === "taken";
   const active =
     proofs === undefined ? undefined : activeComparisonOf(answer, proofs);
@@ -96,54 +87,35 @@ function ComparisonShown({
         );
   const overall =
     active === undefined ? undefined : overallTimeChangesOf(answer, active);
-  const scale = relativeScaleOf(
-    overall === undefined || entries === undefined
-      ? []
-      : relativesOf(overall, entries),
-  );
   return (
-    <section
-      className="intent-ci-status intent-ci-story-comparison"
-      aria-label="CI timing comparison"
+    <IntentCiComparisonFrame
+      answer={answer}
+      proofs={proofs}
+      relatives={
+        overall === undefined || entries === undefined
+          ? []
+          : relativesOf(overall, entries)
+      }
     >
-      <div className="intent-ci-comparison-head">
-        <div>
-          <h3 className="intent-ci-comparison-active">
-            {active?.title ?? ciTimingHeading}
-          </h3>
-          <p className="intent-ci-comparison-framing">
-            {observedNotAttributedInFull}
-          </p>
-        </div>
-        <RelativeTimingControls
-          showPercent={showPercent}
-          onShowPercent={setShowPercent}
+      {proofs !== undefined && active !== undefined && (
+        <ActiveComparisonSummary
+          answer={answer}
+          proofs={proofs}
+          active={active}
         />
-      </div>
-      <RelativeTimingProvider value={{ scale, showPercent }}>
-        {proofs !== undefined && active !== undefined && (
-          <ActiveComparisonSummary
-            answer={answer}
-            proofs={proofs}
-            active={active}
-          />
-        )}
-        <ComparisonEndpointsTable
-          baseline={answer.baseline}
-          branch={answer.branch}
-          provisional={answer.provisional}
-          landed={answer.landed}
-          branchProvisional={taken && answer.mode === "story-branch"}
-        />
-        <EntryComparison entries={entries} />
-      </RelativeTimingProvider>
+      )}
+      <ComparisonEndpointsTable
+        baseline={answer.baseline}
+        branch={answer.branch}
+        provisional={answer.provisional}
+        landed={answer.landed}
+        branchProvisional={taken && answer.mode === "story-branch"}
+      />
+      <EntryComparison entries={entries} />
       {checkAgainButton}
-    </section>
+    </IntentCiComparisonFrame>
   );
 }
-
-// The heading while no comparison is shown.
-const ciTimingHeading = "CI timing changes";
 
 function ComparisonGap({
   children,

@@ -1,26 +1,34 @@
 // Closing Review changes opened by keyboard from the selected story's header
-// in Intent clears the selected story (ADR 0008); Intent shows no Board, so
-// the keyboard returns to the chosen tab of Project Intent, which Intent
-// then shows with its CI status (../../src/storyCardFocus.ts,
-// ../../src/IntentModeTabs.tsx). The header's count:
+// in Intent keeps the selected story (ADR 0008): Intent still shows the story
+// on Changed tests with the same file's Proof, its Purpose at the same
+// reading position, and the keyboard returns to the header's count that opened
+// the review (../../src/keyboardReturn.ts). The header's count:
 // ./intent-story-changes.spec.ts.
 
-import { ciPanel } from "../intentCiStatusPage.ts";
-import { intentModeTab } from "../intentModePage.ts";
+import type { Locator, Page } from "@playwright/test";
+import {
+  fileReadingTab,
+  intentReadingScroll,
+  proofRegion,
+  purposeRegion,
+  scrollIntentReadingHalfway,
+} from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   expectOutsideCount,
+  expectStoryTab,
+  intentFile,
   outsideCount,
   selectTakenStoryInIntent,
-  storySummary,
+  storyTitle,
 } from "../support/intentStoryPage.ts";
+import {
+  changeWithDeepSpec,
+  deepSpec,
+} from "../support/intentStoryWorktree.ts";
 
-test("closing Review changes opened by keyboard from the header returns the keyboard to Project Intent's CI status tab", async ({
-  page,
-  origin,
-}) => {
-  const { intent } = await selectTakenStoryInIntent(page, origin);
-  await expectOutsideCount(intent, 2);
+// Opens Review changes from the header's count and closes it, both by keyboard.
+async function reviewByKeyboard(page: Page, intent: Locator) {
   await outsideCount(intent).focus();
   await page.keyboard.press("Enter");
   const review = page.getByRole("region", { name: "Story review" });
@@ -28,12 +36,56 @@ test("closing Review changes opened by keyboard from the header returns the keyb
   await review.getByRole("button", { name: "Close", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(review).toHaveCount(0);
+}
 
-  await expect(intent).not.toHaveAttribute("data-selected-story");
-  await expect(storySummary(intent)).toHaveCount(0);
-  const home = intentModeTab(intent, "CI status");
-  await expect(home).toBeFocused();
-  await expect(home).toHaveAttribute("aria-selected", "true");
-  await expect(ciPanel(intent)).toBeVisible();
-  await expect(ciPanel(intent)).toContainText("CI status of main");
+// The story, its Changed tests view and the file Intent still shows, and the
+// keyboard back on the header's count.
+async function expectStoryReadingKept(intent: Locator) {
+  await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
+  await expect(storyTitle(intent)).toHaveText("Story A");
+  await expectStoryTab(intent, "Changed tests");
+  await expect(intentFile(intent, deepSpec)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(outsideCount(intent)).toBeFocused();
+}
+
+test("closing Review changes opened by keyboard from the header keeps the story's reading and returns the keyboard to the header's count", async ({
+  page,
+  origin,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const { intent } = await selectTakenStoryInIntent(
+    page,
+    origin,
+    changeWithDeepSpec,
+  );
+  await intentFile(intent, deepSpec).click();
+  await expectOutsideCount(intent, 2);
+
+  await test.step("Purpose keeps its reading position", async () => {
+    await expect(
+      purposeRegion(intent).locator(".story-review-code"),
+    ).toHaveAttribute("aria-busy", "false");
+    const offset = await scrollIntentReadingHalfway(intent);
+    await reviewByKeyboard(page, intent);
+    await expectStoryReadingKept(intent);
+    await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
+  });
+
+  await test.step("Proof stays the file's chosen reading", async () => {
+    await fileReadingTab(intent, "Proof").click();
+    const storyCi = proofRegion(intent).getByRole("button", {
+      name: "View story CI comparison",
+    });
+    await expect(storyCi).toBeVisible();
+    await reviewByKeyboard(page, intent);
+    await expectStoryReadingKept(intent);
+    await expect(fileReadingTab(intent, "Proof")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(storyCi).toBeVisible();
+  });
 });
