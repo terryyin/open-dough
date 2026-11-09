@@ -6,18 +6,18 @@
 // offered whether or not locations are configured. As Intent's landing, with no
 // selected story, it shows no heading, the perspective choice naming the page;
 // visited from a selected story, its heading names Project Intent and offers
-// **Back to selected story** (`./intentStoryTabs.tsx`). One segmented strip, an
-// Intent tablist (`./IntentTabs.tsx`) of Intent's own, not another perspective.
+// **Back to selected story** (`./intentStoryTabs.tsx`). The Project Intent views
+// tablist (`./IntentTabs.tsx`) chooses between this scope's views.
 // Directly activating CI status (click, Enter or Space), even while it is
 // chosen, returns home (`onHome`): the project's browsing selection clears
 // (`./intentWorkspaceSelection.ts`), leaving tree expansion and Purpose/Proof
 // reading choices as they were. Arrow keys, Home and End only choose the view,
 // so the reading stays; directly activating Optimization Candidates returns the
 // keyboard to the entry a test was opened from (`onCandidates`). While CI
-// status shows the locations tree, the strip offers Review changes' **Hide
+// status shows the locations tree, the tab row offers Review changes' **Hide
 // files** / **Show files** (`./FileBrowserToggle.tsx`) for the locations
-// column. The strip's chosen tab is where the keyboard returns when what held
-// it left an Intent page (`./storyCardFocus.ts`).
+// column. The chosen Project Intent tab is where the keyboard returns when
+// what held it left an Intent page (`./storyCardFocus.ts`).
 
 import { ArrowLeft } from "lucide-react";
 import {

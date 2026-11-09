@@ -1,16 +1,16 @@
-// Returning to Intent's CI status homepage by directly activating Project
-// Intent's CI status tab (../../src/IntentModeTabs.tsx,
-// ../../src/intentWorkspaceSelection.ts): with a selected story its CI
-// comparison view (../../src/intentStoryTabs.tsx) judges that story's branch
+// Directly activating Project Intent's CI status tab
+// (../../src/IntentModeTabs.tsx, ../../src/intentWorkspaceSelection.ts) or the
+// selected story's CI comparison tab (../../src/intentStoryTabs.tsx) returns
+// that scope to its CI view. The story's tab judges the selected story's branch
 // under its header, while Changed tests keeps the file it read, and a visit
 // to Project Intent judges main and browses in a selection of its own; arrow
 // keys, Home and End only choose the view, so a file read before Optimization
 // Candidates is still selected and read, until CI status itself is activated;
 // with a newer revision waiting behind its notice, returning home keeps that
 // notice and the shown revision, reading nothing newer.
-// The homepage journey from an entry, folder and file by click, Enter and
-// Space: ./intent-ci-status-homepage.spec.ts. Opening a candidate's file:
-// ./intent-test-optimization-candidates-open.spec.ts.
+// Project Intent's landing journey from an entry, folder and file by click,
+// Enter and Space: ./intent-ci-status-homepage.spec.ts. Opening a candidate's
+// file: ./intent-test-optimization-candidates-open.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
@@ -139,7 +139,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   await expect(intent.getByRole("region", { name: "Purpose" })).toBeVisible();
 });
 
-test("arrow keys, Home and End choose Intent again with the file still read; activating Intent from Optimization Candidates returns home", async ({
+test("arrow keys, Home and End choose CI status again with the file still read; activating CI status from Optimization Candidates returns home", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -171,7 +171,7 @@ test("arrow keys, Home and End choose Intent again with the file still read; act
     });
   }
 
-  await test.step("clicking Intent from Optimization Candidates returns home", async () => {
+  await test.step("clicking CI status from Optimization Candidates returns home", async () => {
     await candidates.click();
     await expectIntentModeChosen(intent, "Optimization Candidates");
     const panel = await activateIntentHome(intent);
@@ -182,7 +182,7 @@ test("arrow keys, Home and End choose Intent again with the file still read; act
   });
 });
 
-test("with a newer revision waiting behind its notice, activating Intent returns home and keeps the notice and the shown revision", async ({
+test("with a newer revision waiting behind its notice, activating CI status returns home and keeps the notice and the shown revision", async ({
   page,
 }) => {
   const files = publishedFiles(jobsFeatures);

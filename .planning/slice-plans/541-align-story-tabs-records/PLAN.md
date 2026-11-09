@@ -63,6 +63,7 @@ This plan is a retrospective correction of SEED-275#story-intent-tabs (plan
 - Existing planning authority allows in-scope refinement; no numeric slice budget is supplied. Keep one coherent proof loop per slice.
 - CI source: GitHub Actions, local push workflow `ci.yml` (CI). Provider diagnostic verified selector `ci.yml`, active workflow ID `351271804`, name `CI` after the directed request pause.
 - CI observer: coordinator `seed275-tabs`, key `ci-watch-execution:terryyin/open-dough:codex/align-story-tab-cost-records-taken-heading-and-w:seed275-tabs`, directory `/tmp/dough-ci-501/watch-0uCaJ7`, PID `20967`, session `28742`, yielded cell `g13:12`; checkout is the execution checkout above. GitHub subsequently directed a request pause until `2026-11-09T01:08:56.382Z`; observer retains coverage and resumes automatically.
+- Slice 1 accepted on the remote execution branch at `0d0ac0a1f652ff3938933ff71b72de8d49d69154`, suffix base `82fc915034f4262553561a1c79de876040738677`. Guarded selective formatting, staged lint/typecheck hooks, agent commit, push confirmation and observer registration all succeeded. This accepted revision is the base for slice 2.
 
 ## Outside-in proof
 
@@ -119,8 +120,26 @@ the final Intent gate or any repeated expensive proof.
 ### 2. Correct stale story tab wording
 
 Type: Structure
-Status: planned
+Status: done
 Proof: the third row; typecheck and the touched Intent specs.
+
+Implementation `/root/slice2` corrected comments and test titles in seven named
+files, with no runtime/assertion/fixture/selector changes.
+`caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-home-activation.spec.ts dashboard/tests/intent/intent-ci-status-story.spec.ts`
+passed (five tests in both files, no grep, terminal exit 0). Setup and assertions
+remain unchanged: story/header retention, independent Project Intent selection,
+keyboard versus direct activation, revision notice, branch judgment/request counts
+and selection replacement. Consumer trace `/tmp/seed275-slice2-consumer-trace.md`
+finds no external selectors using retired exact titles; file discovery and shard
+paths stay unchanged. Conditional wording categories absent from touched test
+titles required no invented edits. Proof ran on this macOS host on AC under
+`caffeinate -s -i`, load about 5.6, free memory 57%, with two workers.
+The prior whole Intent proof remains valid for unchanged runtime behavior.
+Independent refactor `/root/refactor2` returned `none — already clean` and
+`## REFACTOR COMPLETE`, with no edits or redundant test runs. Its read-only
+TypeScript comparison confirmed all seven files match their prior runtime after
+excluding comments and titles; maximum file size is 248 lines. Setup, assertions,
+selectors, imports and selected spec paths are unchanged. `git diff --check` passed.
 
 ## Proof and delivery gates
 

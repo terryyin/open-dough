@@ -5,7 +5,7 @@
 // selection replaces the judgment, never showing an earlier branch's result
 // under the new name, even when that answer arrives late; clearing the
 // selection returns to `main` (SEED-219 examples 2, 3, 4, 6, 7), with no
-// selected-story summary, which belongs to the Intent mode. A running
+// selected-story header, which belongs to the story's view. A running
 // head shows its nearest completed ancestor with its run, and Check again
 // after it finishes shows Passed. A push to the shown story branch, seen by
 // the page's revision check, reads its judgment again by itself; time alone,
@@ -45,7 +45,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     "Passed at 4774f60 (Add login)",
   );
 
-  await test.step("a Taken Story Branch Mode story: still CI status, names its branch, Failed with its run while main passes", async () => {
+  await test.step("a Taken Story Branch Mode story: CI comparison names its branch, Failed with its run while main passes", async () => {
     const before = calls.length;
     const panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, failing.branch);
@@ -58,7 +58,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Failed at fa11ed0 (Break the login)",
     );
-    // CI status is Intent's homepage, so the Intent mode's story summary stays.
+    // The selected story's persistent header stays above its CI comparison tab.
     await expect(
       intent.getByRole("region", { name: "Selected story", exact: true }),
     ).toBeVisible();

@@ -8,12 +8,13 @@
 // branch and when it was checked, and shows the judgment as
 // `./IntentCiJudgment.tsx` does, then the shown run's CI proof
 // (`./IntentCiProof.tsx`). A selected done story shows its CI timing comparison
-// (`./IntentCiComparison.tsx`), including entry rows in the homepage proof
+// (`./IntentCiComparison.tsx`), including entry rows in its comparison proof
 // table, with Check again to read it again. A selected Taken Story Branch story
 // keeps its live judgment and adds the provisional comparison. A selected Taken
 // Trunk Mode story shows its provisional trunk comparison. A selected story
 // without a branch to judge is named with why, and nothing is judged. Returning
-// home shows what the owner already read; it asks CI nothing again.
+// to the scope's CI view shows what its owner already read; it asks CI
+// nothing again.
 
 import { IntentCiComparison } from "./IntentCiComparison.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
