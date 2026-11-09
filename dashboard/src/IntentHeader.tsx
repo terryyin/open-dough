@@ -45,7 +45,7 @@ function StoryOutsideLocations({
           title: story.title,
           control: event.currentTarget,
           comparison: defaultStoryComparison,
-          ...(story.completed ? { completed: true } : {}),
+          ...(story.completed ? { completed: true, historical: true } : {}),
         });
       }}
     >

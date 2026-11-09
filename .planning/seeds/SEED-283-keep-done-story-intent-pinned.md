@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-283#keep-done-story-intent-pinned
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/550-keep-done-story-intent-pinned/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"50e53347378790928163b959ebb1676a2158a4d722895b0e6bb9cffd4033d6bf","plan":"d5f0b177081dfae804f9c3cd1530b4ec3f56467d925972cc177b8a7299671501"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/550-keep-done-story-intent-pinned/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"43744ea2e90d7bfb86aff3785d71aaba0330c82febb9e00e0c58fe9f43fe5b16","plan":"2b432d5a70b9d68e2c391c61458859c23f1a40fda28b0faef3655c224039f3e2"}}
 ```
 
 **Goal.** A developer reviewing a Done story can see what the story changed

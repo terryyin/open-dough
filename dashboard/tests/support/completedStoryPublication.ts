@@ -39,6 +39,7 @@ export function publishCompletedStory(
     missingAgent,
     completionConflict,
     intentCoverage,
+    retainWorkspace,
     identity = queuedIdentity,
   }: {
     workspace: string;
@@ -47,6 +48,7 @@ export function publishCompletedStory(
     missingAgent: boolean;
     completionConflict: boolean;
     intentCoverage?: IntentCoverage | undefined;
+    retainWorkspace?: boolean | undefined;
     identity?: string;
   },
 ) {
@@ -142,7 +144,9 @@ export function publishCompletedStory(
     completion = git(origin.project, "rev-parse", "HEAD");
     git(origin.project, "push", "--quiet", "--delete", "origin", branch);
   }
-  git(origin.project, "worktree", "remove", "--force", workspace);
-  git(origin.project, "branch", "--delete", "--force", branch);
+  if (retainWorkspace !== true) {
+    git(origin.project, "worktree", "remove", "--force", workspace);
+    git(origin.project, "branch", "--delete", "--force", branch);
+  }
   return completion;
 }

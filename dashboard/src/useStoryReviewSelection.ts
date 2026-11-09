@@ -10,27 +10,49 @@ import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 
-export function useStoryReviewSelection(
-  source: string,
-  identity: string,
-  round: number,
+export function useStoryReviewSelection({
+  source,
+  identity,
+  round,
   completed = false,
-  // A disabled selection reads nothing.
   enabled = true,
+  initial = "since",
+  historical: historicalComparison = false,
+}: {
+  readonly source: string;
+  readonly identity: string;
+  readonly round: number;
+  readonly completed?: boolean | undefined;
+  // A disabled selection reads nothing.
+  readonly enabled?: boolean;
   // The workspace choice it opens on.
-  initial: ShownComparison = "since",
-) {
+  readonly initial?: ShownComparison | undefined;
+  // Intent asks for a completed result rather than a retained workspace.
+  readonly historical?: boolean | undefined;
+}) {
   const workspaceRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
-    { source, identity, ...(completed ? { completed: "true" } : {}) },
+    {
+      source,
+      identity,
+      ...(completed ? { completed: "true" } : {}),
+      ...(historicalComparison ? { historical: "true" } : {}),
+    },
     storyReviewSchema,
     { round, enabled },
   );
   const [selection, setSelection] = useState<{
+    historical: boolean;
     of: StoryReview | undefined;
     run?: string;
     workspace: ShownComparison;
-  }>({ of: undefined, workspace: initial });
+  }>({ historical: historicalComparison, of: undefined, workspace: initial });
+  if (selection.historical !== historicalComparison)
+    setSelection({
+      historical: historicalComparison,
+      of: undefined,
+      workspace: initial,
+    });
   const answer = workspaceRead.answer;
   const runs = answer?.runs ?? [];
   if (
@@ -38,7 +60,11 @@ export function useStoryReviewSelection(
     workspaceRead.problem !== undefined &&
     selection.run !== undefined
   )
-    setSelection({ of: undefined, workspace: selection.workspace });
+    setSelection({
+      historical: historicalComparison,
+      of: undefined,
+      workspace: selection.workspace,
+    });
   if (
     answer !== undefined &&
     answer !== selection.of &&
@@ -54,6 +80,7 @@ export function useStoryReviewSelection(
           ? fallback?.key
           : selection.run;
     setSelection({
+      historical: historicalComparison,
       of: answer,
       workspace: selection.workspace,
       ...(run === undefined ? {} : { run }),
@@ -97,10 +124,15 @@ export function useStoryReviewSelection(
           ? undefined
           : historical.problem,
     onWorkspace: (workspace: ShownComparison) => {
-      setSelection({ of: answer, workspace });
+      setSelection({ historical: historicalComparison, of: answer, workspace });
     },
     onRun: (run: string) => {
-      setSelection({ of: answer, workspace: selection.workspace, run });
+      setSelection({
+        historical: historicalComparison,
+        of: answer,
+        workspace: selection.workspace,
+        run,
+      });
     },
   };
 }
