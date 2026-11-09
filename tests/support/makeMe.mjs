@@ -55,6 +55,11 @@ import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
+import {
+  PublishedWorkBuilder,
+  StoryCiComparisonBuilder,
+} from "./comparisonViewTestData.mjs";
+import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
@@ -95,6 +100,12 @@ export const makeMe = {
   },
   get aPublishedSource() {
     return new PublishedSourceBuilder();
+  },
+  get aPublishedWork() {
+    return new PublishedWorkBuilder();
+  },
+  get aStoryCiComparison() {
+    return new StoryCiComparisonBuilder();
   },
   get aConfiguredProject() {
     return new ConfiguredProjectBuilder();
@@ -183,6 +194,9 @@ export const makeMe = {
   },
   get aCiProof() {
     return new CiProofBuilder();
+  },
+  get aCiProofArtifact() {
+    return new CiProofArtifactBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();

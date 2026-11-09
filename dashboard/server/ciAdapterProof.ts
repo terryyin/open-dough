@@ -26,8 +26,6 @@ import { ciAdapterFailureOf } from "./ciAdapterFailure.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
 
-// Valid summaries read so far, by repository and attempt.
-const remembered = rememberedByKey<Record<string, unknown>>();
 const rememberedKey = (repository: string, attempt: CiAdapterProofAttempt) =>
   JSON.stringify([
     repository.toLowerCase(),
@@ -74,55 +72,63 @@ function mismatchOf(
 
 // The proof of `attempt` in `repository` as the adapter configured in
 // `folder` answers it: its summary, or why there is none to show.
-export async function readCiAdapterProof(
-  repository: string,
-  folder: string,
-  attempt: CiAdapterProofAttempt,
-  signal: AbortSignal,
-  // The adapter's time limit; the dashboard's adapter limit unless a test
-  // shortens it.
-  timeoutMs: number = ciAdapterTimeoutMs(),
-): Promise<CiProof> {
-  const key = rememberedKey(repository, attempt);
-  const rememberedSummary = remembered.get(key);
-  if (rememberedSummary !== undefined)
-    return { kind: "summary", summary: rememberedSummary } as CiProof;
-  let answer: { summary?: Record<string, unknown>; unavailable?: string };
-  try {
-    const { adapter } = ciConfiguration(folder);
-    if (adapter === undefined)
-      return unavailable(
-        "unreadable",
-        "this project's CI is not read through a ciAdapter",
+// Each reader owns its memory; production keeps the one below.
+export function ciAdapterProofReader(
+  commandProof: typeof readCommandProof = readCommandProof,
+) {
+  const remembered = rememberedByKey<Record<string, unknown>>();
+  return async (
+    repository: string,
+    folder: string,
+    attempt: CiAdapterProofAttempt,
+    signal: AbortSignal,
+    // The adapter's time limit; the dashboard's adapter limit unless a test
+    // shortens it.
+    timeoutMs: number = ciAdapterTimeoutMs(),
+  ): Promise<CiProof> => {
+    const key = rememberedKey(repository, attempt);
+    const rememberedSummary = remembered.get(key);
+    if (rememberedSummary !== undefined)
+      return { kind: "summary", summary: rememberedSummary } as CiProof;
+    let answer: { summary?: Record<string, unknown>; unavailable?: string };
+    try {
+      const { adapter } = ciConfiguration(folder);
+      if (adapter === undefined)
+        return unavailable(
+          "unreadable",
+          "this project's CI is not read through a ciAdapter",
+        );
+      answer = await commandProof(
+        adapter,
+        { repo: repository, branch: attempt.branch },
+        {
+          runId: attempt.runId,
+          attemptId: attempt.attemptId,
+          sha: attempt.revision,
+        },
+        {
+          signal,
+          cwd: folder,
+          timeoutMs,
+          answerBytes: SUMMARY_READ_LIMIT_BYTES,
+        },
       );
-    answer = await readCommandProof(
-      adapter,
-      { repo: repository, branch: attempt.branch },
-      {
-        runId: attempt.runId,
-        attemptId: attempt.attemptId,
-        sha: attempt.revision,
-      },
-      {
-        signal,
-        cwd: folder,
-        timeoutMs,
-        answerBytes: SUMMARY_READ_LIMIT_BYTES,
-      },
-    );
-  } catch (error) {
-    if (signal.aborted) throw error;
-    if (isMaxBuffer(error)) return ciProofTooLarge(SUMMARY_READ_LIMIT_BYTES);
-    return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
-  }
-  const { summary } = answer;
-  if (summary === undefined)
-    return unavailable("none", answer.unavailable ?? "");
-  const problems = summaryProblems(summary) as readonly string[];
-  if (problems.length > 0) return unavailable("invalid", problems.join("; "));
-  const mismatch = mismatchOf(summary, repository, attempt);
-  if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-  const current = currentSummaryOf(summary) as Record<string, unknown>;
-  remembered.set(key, current);
-  return { kind: "summary", summary: current } as CiProof;
+    } catch (error) {
+      if (signal.aborted) throw error;
+      if (isMaxBuffer(error)) return ciProofTooLarge(SUMMARY_READ_LIMIT_BYTES);
+      return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
+    }
+    const { summary } = answer;
+    if (summary === undefined)
+      return unavailable("none", answer.unavailable ?? "");
+    const problems = summaryProblems(summary) as readonly string[];
+    if (problems.length > 0) return unavailable("invalid", problems.join("; "));
+    const mismatch = mismatchOf(summary, repository, attempt);
+    if (mismatch !== undefined) return unavailable("mismatched", mismatch);
+    const current = currentSummaryOf(summary) as Record<string, unknown>;
+    remembered.set(key, current);
+    return { kind: "summary", summary: current } as CiProof;
+  };
 }
+
+export const readCiAdapterProof = ciAdapterProofReader();

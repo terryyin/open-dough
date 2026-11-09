@@ -44,7 +44,10 @@ AC, load 3.00/4.69/6.98 before and 7.71/5.92/7.11 after, free memory 55%
 after, with no competing local test process at launch. This establishes joined
 behavior, not an aggregate optimization gain. The selective formatter passed;
 the exact publication receipt is retained outside Git in
-`incoming-main-publication-context.json` beside the proof logs.
+`incoming-main-publish.log` beside the proof logs. The accepted merge is
+`87433ea6f7f5f43e6486f4a5b6a525702165b092`; both its push receipt and
+observer registration name that SHA. The local execution branch was then
+fast-forwarded through the backlog adapter to the same SHA.
 
 The current ordinary family has 87 cases in 29 files, versus the original
 75 in 26. The additions are seven unit cases, one extracted drilldown case,

@@ -59,6 +59,22 @@ export class CiProofBuilder {
     };
   }
 
+  /** @param {Pick<import("../../dashboard/src/ciProof.ts").CiAdapterProofAttempt, "attemptId" | "revision">} attempt @param {readonly import("../../dashboard/src/ciProof.ts").CiProofEntry[]} [entries] @param {string} [repository] */
+  summaryForAdapter(attempt, entries = [], repository = "example/project") {
+    return {
+      please: () => ({
+        kind: /** @type {const} */ ("summary"),
+        summary: {
+          schemaVersion: /** @type {const} */ (2),
+          repository,
+          attemptId: attempt.attemptId,
+          revision: attempt.revision,
+          entries: [...entries],
+        },
+      }),
+    };
+  }
+
   /** @param {import("../../dashboard/src/ciProof.ts").CiProofUnavailableReason} reason @param {string} [detail] */
   unavailable(reason, detail) {
     return {

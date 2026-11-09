@@ -31,6 +31,8 @@ to it. The source keeps that measurement distinction explicit.
 
 **Incoming integration:** [Published-history and compatibility evidence](integration-evidence.md).
 
+**Lifecycle proof:** [Memory, retry and mounted-provider evidence](lifecycle-evidence.md).
+
 ## Ordered slices
 
 ### 1. Get a fast answer for published story endpoints
@@ -79,7 +81,7 @@ proof behavior. Measure both the fast variants and retained real wiring.
 ### 3. Recover and remember comparisons without repeated infrastructure
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real server read/memory boundary with counted external operations;
 mounted real Check again control/read-state rules; retained full-app retry
 journey against held/failing/recovered responses.

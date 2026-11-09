@@ -132,14 +132,18 @@ function chosenArtifact(
   return only.id;
 }
 
-// Valid summaries read so far, by repository, run and attempt.
-const remembered = rememberedByKey<Record<string, unknown>>();
+type ArtifactReads = {
+  readonly listing: (args: string[], signal: AbortSignal) => Promise<unknown>;
+  readonly archive: (args: string[], signal: AbortSignal) => Promise<Buffer>;
+};
+
 const rememberedKey = (repository: string, run: CiProofRun) =>
   `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
 
 // The valid summary of `run`'s attempt as GitHub has it, in the current
 // version, not yet checked against the asked run, or why none can be read.
 async function readSummary(
+  reads: ArtifactReads,
   repository: string,
   run: CiProofRun,
   signal: AbortSignal,
@@ -147,7 +151,7 @@ async function readSummary(
   const name = summaryArtifactName(run.runAttempt);
   let archive: Buffer;
   try {
-    const listed: unknown = await readGitHubActions(
+    const listed: unknown = await reads.listing(
       [
         "api",
         `repos/${repository}/actions/runs/${String(run.runId)}/artifacts?name=${name}&per_page=100`,
@@ -156,7 +160,7 @@ async function readSummary(
     );
     const chosen = chosenArtifact(listed, name, run);
     if (typeof chosen !== "number") return chosen;
-    archive = await askGitHubArchive(
+    archive = await reads.archive(
       ["api", `repos/${repository}/actions/artifacts/${String(chosen)}/zip`],
       signal,
     );
@@ -186,20 +190,30 @@ async function readSummary(
 }
 
 // The proof of `run` in `repository`: its summary, or why there is none to
-// show.
-export async function readCiProofArtifact(
-  repository: string,
-  run: CiProofRun,
-  signal: AbortSignal,
-): Promise<CiProof> {
-  const key = rememberedKey(repository, run);
-  const rememberedSummary = remembered.get(key);
-  if (rememberedSummary !== undefined)
-    return { kind: "summary", summary: rememberedSummary } as CiProof;
-  const read = await readSummary(repository, run, signal);
-  if (read.kind !== "summary") return read;
-  const mismatch = mismatchOf(read.summary, repository, run);
-  if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-  remembered.set(key, read.summary);
-  return read;
+// show. Each reader owns its memory; production keeps the one below.
+export function ciProofArtifactReader(
+  reads: ArtifactReads = {
+    listing: readGitHubActions,
+    archive: askGitHubArchive,
+  },
+) {
+  const remembered = rememberedByKey<Record<string, unknown>>();
+  return async (
+    repository: string,
+    run: CiProofRun,
+    signal: AbortSignal,
+  ): Promise<CiProof> => {
+    const key = rememberedKey(repository, run);
+    const kept = remembered.get(key);
+    if (kept !== undefined)
+      return { kind: "summary", summary: kept } as CiProof;
+    const read = await readSummary(reads, repository, run, signal);
+    if (read.kind !== "summary") return read;
+    const mismatch = mismatchOf(read.summary, repository, run);
+    if (mismatch !== undefined) return unavailable("mismatched", mismatch);
+    remembered.set(key, read.summary);
+    return read;
+  };
 }
+
+export const readCiProofArtifact = ciProofArtifactReader();

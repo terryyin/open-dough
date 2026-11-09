@@ -7,8 +7,8 @@ key examples and exclusions for `SEED-286#fast-intent-ci-comparison-tests`.
 No project files were read during the source-only review. The retained source
 text below is the reviewer's actual returned commitments, qualifications,
 trigger/journey examples and exclusions, accepted unchanged by the coordinator.
-Slice and lifecycle allocations were subsequently supplied by the coordinator;
-no observations have been recorded.
+Slice and lifecycle allocations and execution observations were subsequently
+supplied by the coordinator.
 
 Original return note: “Source-only inventory; no project files read or changed.
 These are promises and qualifications, without assigning slices or acceptance
@@ -39,25 +39,25 @@ ownership.”
 | C019 | Proof covers proof gaps. | slice 2 | observed: ci-comparison-proof-gaps.spec.ts Baseline/Branch/equivalent restrictions and bounds; ci-comparison-cancelled-awaiting.spec.ts nearest unusable proof wording |
 | C020 | Proof covers timing gaps. | slice 2 | observed: ci-comparison-timing-gaps.spec.ts absent wall bounds/invalid chain and opaque identity without numeric proof metadata; real timing backend owner passed |
 | C021 | Proof covers adapter attempts. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-taken.spec.ts opaque attempt/branch/times/graph and running-tip ancestor; retained adapter browser discovery/proof/jobs/no-Actions wiring |
-| C022 | Proof covers retry behavior. | slice 3 | |
-| C023 | Proof covers remembered answers. | slice 3 | |
+| C022 | Proof covers retry behavior. | slice 3 | observed: ci-comparison-memory-recovery.spec.ts and mounted retry/gaps cases recover actual repeated reads; retained retry integrations passed in slice3-family.json. |
+| C023 | Proof covers remembered answers. | slice 3 | observed: Seven comparison-memory and eighteen proof-memory cases count actual repeated read/validation acquisition; default singleton Node owners and actual final API accounting passed. |
 | C024 | Proof covers comparison wording. | slice 4 | |
 | C025 | Proof covers comparison counts. | slice 4 | |
 | C026 | Proof covers comparison sorting. | slice 4 | |
 | C027 | Proof covers relative marks. | slice 4 | |
 | C028 | Proof covers navigation through Summary. | slice 4 | |
 | C029 | Proof covers navigation through file Proof. | slice 4 | |
-| C030 | Comparison remains visible while other Intent reads are held. | slice 3 | |
-| C031 | Comparison remains visible while other Intent reads fail. | slice 3 | |
+| C030 | Comparison remains visible while other Intent reads are held. | slice 3 | observed: intent-ci-comparison-locations.spec.ts held locations preserves one header and comparison; both Summary-file variants open Changed tests while comparison is held; strict72/72. |
+| C031 | Comparison remains visible while other Intent reads fail. | slice 3 | observed: intent-ci-comparison-locations.spec.ts failed locations leaves comparison visible and exposes Changed tests Retry; strict72/72. |
 | C032 | Actual assertions are inventoried before migration. | slice 5 | |
 | C033 | Resolution rules use browser-free server/domain tests. | slice 1 | observed: ci-comparison-{endpoints,selection,taken,published-endpoints}.spec.ts: fourteen in-process real rule cases at 0–15 ms in current ordinary 90-case profile; four history rules have zero observed subprocess acquisition |
-| C034 | Read-lifecycle rules use browser-free server/domain tests. | slice 3 | |
+| C034 | Read-lifecycle rules use browser-free server/domain tests. | slice 3 | observed: Browser-free ci-comparison-memory-*.spec.ts and ci-proof-memory-*.spec.ts exercise real read/cache/ZIP/schema/identity rules with external acquisition counters; 25/25 at 0–4 ms. |
 | C035 | Presentation uses frontend tests against prepared service answers. | slice 4 | |
 | C036 | Real UI actions use frontend tests against prepared service answers. | slice 4 | |
 | C037 | Explanatory history, attempts, proof, or records are arranged through the shared MakeMe API. | slice 5 | |
-| C038 | Final-answer memory has no time-to-live. | slice 3 | |
-| C039 | Finality is proved directly. | slice 3 | |
-| C040 | Request counts are proved directly. | slice 3 | |
+| C038 | Final-answer memory has no time-to-live. | slice 3 | observed: ci-comparison-memory-final.spec.ts returns the kept answer with zero further acquisition when supplied timing/build facts change; no elapsed wait or TTL. |
+| C039 | Finality is proved directly. | slice 3 | observed: Memory final/fresh/later cases keep completed timing reasons and final gaps, but reacquire unavailable/running/Taken/awaiting-later answers with exact counter deltas. |
+| C040 | Request counts are proved directly. | slice 3 | observed: Comparison memory counts endpoint/context/verify/run/proof/jobs separately; retained real retry distinguishes +1 comparison API/+3 proof API and another +3 on reselect from unchanged upstream. |
 | C041 | A small set of real Git journeys is retained. | slice 1 | observed: execution-evidence.md Slice 1 accepted proof: named core real Git integration owners retained; temporary UI predecessors owned by G1 |
 | C042 | A small set of real CI-provider journeys is retained. | slice 1 | observed: execution-evidence.md Slice 1 accepted proof: clean GitHub plus merged adapter integration owners, strict family 88/88 |
 | C043 | A small set of authenticated-read journeys is retained. | slice 1 | observed: intent-ci-comparison.spec.ts and intent-ci-comparison-adapter.spec.ts: actual authenticated read to rendered comparison, strict family 88/88 |
@@ -107,14 +107,14 @@ ownership.”
 | J008 | That stopped search remains refreshable. | slice 2 | observed: ci-comparison-cancelled-awaiting.spec.ts awaitingLaterBuild/nonfinal observations for running/head/unusable results |
 | J009 | A timed-out landing uses exact-only resolution. | slice 2 | observed: ci-comparison-exact-landing.spec.ts timed-out landing remains exact-only despite older/later usable proof |
 | J010 | An unexplained landing uses exact-only resolution. | slice 2 | observed: ci-comparison-exact-landing.spec.ts unexplained code landing retains exact no-build gap/status, excludes older/later proof |
-| J011 | For transiently unavailable comparison data, Check again disables during the read. | slice 3 | |
-| J012 | For transiently unavailable endpoint proof, Check again disables during the read. | slice 3 | |
-| J013 | The display recovers after the transient unavailable read. | slice 3 | |
-| J014 | A final Done answer is reused without a provider request. | slice 3 | |
-| J015 | Valid proof is reused without a provider request. | slice 3 | |
-| J016 | Taken answers are read fresh. | slice 3 | |
-| J017 | Running answers are read fresh. | slice 3 | |
-| J018 | Unavailable answers are read fresh. | slice 3 | |
+| J011 | For transiently unavailable comparison data, Check again disables during the read. | slice 3 | observed: intent-ci-comparison-mounted-retry.spec.ts HTTP failure case holds the next read, observes disabled Check again, then recovers three endpoints. |
+| J012 | For transiently unavailable endpoint proof, Check again disables during the read. | slice 3 | observed: Mounted retry Landed-proof failure case holds comparison retry and observes disabled Check again, then second Landed proof read switches Branch to Landed without changing busy semantics. |
+| J013 | The display recovers after the transient unavailable read. | slice 3 | observed: Mounted HTTP/whole-answer/proof recovery cases plus retained actual Baseline and shallow-history integrations recover the displayed result. |
+| J014 | A final Done answer is reused without a provider request. | slice 3 | observed: Real final Done memory cases observe zero new acquisition; retained retry Check again/reselect adds only API reads and keeps upstream unchanged. |
+| J015 | Valid proof is reused without a provider request. | slice 3 | observed: ci-proof-memory-github*.spec.ts and adapter*.spec.ts reuse valid summaries; maintained public default-singleton Node owners and actual retry upstream counts passed. |
+| J016 | Taken answers are read fresh. | slice 3 | observed: ci-comparison-memory-fresh.spec.ts reads Taken evidence again; mounted-head case ignores same-tip update and follows changed tip with one additional comparison read. |
+| J017 | Running answers are read fresh. | slice 3 | observed: ci-comparison-memory-fresh.spec.ts running Done answer becomes completed before it is kept; exact real read/provider counter deltas asserted. |
+| J018 | Unavailable answers are read fresh. | slice 3 | observed: ci-comparison-memory-recovery.spec.ts whole/slot gaps are read again; mounted failed controls remain usable over held repeated reads. |
 | J019 | With prepared comparison/proof answers, comparison retains endpoints and fallback. | slice 4 | |
 | J020 | With those answers, Summary retains endpoints and fallback. | slice 4 | |
 | J021 | With those answers, file Proof retains endpoints and fallback. | slice 4 | |
@@ -125,8 +125,8 @@ ownership.”
 | J026 | Sorting is retained. | slice 4 | |
 | J027 | Show % meaning is retained. | slice 4 | |
 | J028 | Drilling into those views causes no extra CI reads. | slice 4 | |
-| J029 | Held Changed tests cannot hide comparison. | slice 3 | |
-| J030 | Failed Changed tests cannot hide comparison. | slice 3 | |
+| J029 | Held Changed tests cannot hide comparison. | slice 3 | observed: Retained locations-held journey keeps comparison while Changed tests loads and after it settles, without another comparison read. |
+| J030 | Failed Changed tests cannot hide comparison. | slice 3 | observed: Retained locations-failed journey keeps comparison while Changed tests shows failure/Retry and later recovers the exact completion revision. |
 | J031 | With stored captured/legacy runs, Refresh retains the selected run after native-session replacement. | slice 5 | |
 | J032 | Deleting the chosen run selects the newest remaining capture. | slice 5 | |
 | J033 | Expiration selects the next run. | slice 5 | |
