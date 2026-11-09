@@ -163,7 +163,30 @@ competing test/typecheck; after 3.08/3.06/3.52/free 70%. Match owning spec
 files, not imported helper declaration locations, when counting cases.
 
 Independent reader/builder refactoring found no further edit, contradiction or
-uncovered consumer. Accepted proof remains valid; eight surviving owned files
-preview at most 246 formatted lines. Formatting and publication are the next
-coordinator gates. The exact retained publication context uses
-`incoming-shared-proof-publication-context.json` beside the proof logs.
+uncovered consumer. Eight surviving owned files preview at most 246 formatted
+lines. Formatting, publication and local adapter refresh passed. Accepted merge
+`d77917ebcc3ad52279bd7346f9f2fb9cefedc4b5` and observer registration match;
+the exact receipt is `shared-proof-integration-publish.log` beside the proof logs.
+
+## CI assertion repair during slice 5
+
+Run 42627028218 attempt 1 at slice-4 revision `7f656baa928bf0ac9ed290b3e4c5013f395f6814`
+failed one dashboard case. The CLI diagnostic could not read its log (HTTP 403),
+and artifact download returned HTTP 401. The connected GitHub app supplied the
+complete job log and twelve retained HTML reports without changing credentials.
+All 2,415 case outcomes show exactly one unexpected result, the Taken Story
+Branch mounted title assertion; no other failure or flaky result was hidden.
+
+The settled live status contains both its h3 title and the nested h4 Proof.
+The broad heading selector could pass before the asynchronous status arrived.
+Waiting for the real Proof heading reproduced the exact two-heading failure;
+the repair retains that observation and scopes the original exact title to h3.
+No production, harness, timeout or independent expected value changed.
+
+Whole wording-owner proof passed 31/31, maximum 173 ms, normal two workers,
+default tracing, awake AC under `caffeinate -s -i`, launch load 3.53/3.68/3.71
+with no competing heavy test. The red/green literal commands, actual observing
+assertions and 33 consumer dispositions are in `ci-repair-42627028218-return.md`
+and its linked logs under `/tmp/seed286-execution-20261109/`.
+The separate CI performance gap remains G3, owned by slice 5; this assertion
+repair does not claim that the portable timing target is met.

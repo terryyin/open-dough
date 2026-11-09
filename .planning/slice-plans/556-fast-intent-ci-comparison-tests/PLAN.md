@@ -233,3 +233,8 @@ Disposition: interim until slices 4, 5
 Reported: slice 1 — "loaded sub-second timing remains unproved/unsatisfied for those cases"
 Story clause: "Target less than 1,000 ms for each rule-focused test, including per-test arrangement, actions, assertions and cleanup."
 Disposition: proved by slice 1: raw-history-family-after.json has all 14 replacement rules at 0–15 ms; raw-history-no-acquisition-control-applied.json observes zero acquisition subprocesses; raw-fault-controls-summary.json catches all six endpoint faults. The old Git-per-rule cause is removed; final loaded/portable acceptance remains in slice 5, without claiming a new load-27 observation.
+
+### G3. Published CI rule timings exceed the target
+Reported: slice 5 — "Run 42627028218 attempt 1 matched all 164 rule owners; sixteen took 1,019–1,581 ms."
+Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
+Disposition: return

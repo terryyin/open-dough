@@ -125,7 +125,10 @@ for (const mode of ["story-branch", "trunk"] as const) {
           name: "CI status",
           exact: true,
         });
-        await expect(live.getByRole("heading")).toHaveText(
+        await expect(live.getByRole("heading", { level: 4 })).toHaveText(
+          "Proof",
+        );
+        await expect(live.getByRole("heading", { level: 3 })).toHaveText(
           "CI status of story/a",
         );
         await expect(live.locator(".intent-ci-story")).toHaveText(
