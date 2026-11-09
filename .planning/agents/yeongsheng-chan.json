@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-275#preserve-story-on-panel-close",
+  "mode": "story-branch",
+  "branch": "claude/keep-the-selected-story-when-the-side-panel-clos",
+  "host": "claude",
+  "model": "opus"
+}
