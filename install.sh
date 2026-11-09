@@ -297,6 +297,7 @@ managed_files=(
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
+  dough-test-optimization/references/evidence-and-leads.md
   dough-test-optimization/references/ci-proof-summary.md
   dough-test-optimization/scripts/ci-proof-collect.mjs
   dough-test-optimization/scripts/ci-proof-contract.mjs

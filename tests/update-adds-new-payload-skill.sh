@@ -23,6 +23,7 @@ new_managed_files=(
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
+  dough-test-optimization/references/evidence-and-leads.md
   dough-test-optimization/scripts/ci-proof-read.mjs
   dough-test-optimization/scripts/ci-proof-archive.mjs
   dough-test-optimization/scripts/ci-proof-check.mjs

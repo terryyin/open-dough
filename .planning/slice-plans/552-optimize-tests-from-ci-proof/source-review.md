@@ -41,83 +41,83 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 7.3 | "…name its … attempt" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs (run N attempt M) and ci-proof-leads-adapter.test.mjs (attemptId); slice 3 real run |
 | 7.4 | "…name its … selection" | slice 4 | G2 |
 | 8a | "When only an earlier compatible attempt is available, label its revision" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs "with only an earlier attempt at an ancestor…": labelled earlier, 1 commit before, 1 in-scope path changed (M tests/b.sh), out-of-scope docs/notes.md not listed |
-| 8b | "…and use it as a lead within the parts that still apply" | slice 4 | |
-| 9a | "Use failed or incomplete proof to diagnose problems" | slice 4 | |
+| 8b | "…and use it as a lead within the parts that still apply" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read the retained CI proof" Compatibility bullet; PLAN.md Learnings "Slice 4 behavior review" real walk used an earlier compatible attempt |
+| 9a | "Use failed or incomplete proof to diagnose problems" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read the retained CI proof" "Failed or incomplete attempts" bullet |
 | 9b | "…and report its gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs "with no successful attempt, the newest failed one is read…": failed attempt, its missing part and failed checks reported as gaps |
 | 10.1 | Restriction: "missing … parts stay gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs "missing and ambiguous parts stay gaps…" |
 | 10.2 | Restriction: "ambiguous … parts stay gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs "missing and ambiguous parts stay gaps…" |
 | 10.3 | Restriction: "untimed parts stay gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs "untimed results stay gaps…" and ci-proof-ranking.test.mjs "items that recorded no duration… never rank" |
-| 11 | "When the summary lacks the timing detail a lead needs, … use the project's retained full summary or runner output for that attempt" (alternatives) | slice 4 | |
+| 11 | "When the summary lacks the timing detail a lead needs, … use the project's retained full summary or runner output for that attempt" (alternatives) | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction"; PLAN.md Learnings "Slice 4 behavior review" runner reports |
 | 11.e1 | Example (of 11): "a file breakdown that an adapter answer omits" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-adapter.test.mjs "an adapter's proof answer with totals only…": gap with the --summary remedy, then ranked files from --summary |
-| 11.e2 | Example (of 11): "hook … timing" | slice 4 | |
-| 11.e3 | Example (of 11): "scenario … timing" | slice 4 | |
-| 11.e4 | Example (of 11): "worker timing" | slice 4 | |
-| 12a | "When the evidence still runs out, state the gap" | slice 4 | |
-| 12b | "…and stop the dependent investigation" | slice 4 | |
-| 13 | Restriction: "A fresh profiling run … starts only on an explicit request" | slice 4 | |
-| 13.q1 | Qualification (of 13): fresh profiling run means "a run of the requested scope to discover or rank costs" | slice 4 | |
-| 13.q2 | Qualification (of 13): the explicit request "can be given in ordinary language" | slice 4 | |
-| 14a | "When a gap blocks a decision that could pay off, recommend such a run" | slice 4 | |
-| 14b | "…with its expected cost" | slice 4 | |
-| 14c | "…and leave the choice to the developer" | slice 4 | |
-| 13.q3 | Qualification (of 13): "Timing a chosen lead's family before and after its experiment is not a profiling run" | slice 4 | |
+| 11.e2 | Example (of 11): "hook … timing" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction" (hook timing); PLAN.md Learnings "Slice 4 behavior review" hooks 26.9% |
+| 11.e3 | Example (of 11): "scenario … timing" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction" (scenario timing) |
+| 11.e4 | Example (of 11): "worker timing" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction" (worker timing); PLAN.md Learnings "Slice 4 behavior review" worker tail |
+| 12a | "When the evidence still runs out, state the gap" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", last paragraph |
+| 12b | "…and stop the dependent investigation" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", last paragraph (stop the dependent investigation) |
+| 13 | Restriction: "A fresh profiling run … starts only on an explicit request" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Establish context and mode"; src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request"; PLAN.md Learnings "Slice 4 behavior review" no profiling run |
+| 13.q1 | Qualification (of 13): fresh profiling run means "a run of the requested scope to discover or rank costs" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request", first sentence |
+| 13.q2 | Qualification (of 13): the explicit request "can be given in ordinary language" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request" (ordinary-language request) |
+| 14a | "When a gap blocks a decision that could pay off, recommend such a run" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request", second paragraph |
+| 14b | "…with its expected cost" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request", second paragraph (expected cost) |
+| 14c | "…and leave the choice to the developer" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request", second paragraph (choice left to the developer) |
+| 13.q3 | Qualification (of 13): "Timing a chosen lead's family before and after its experiment is not a profiling run" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request", last sentence; src/skills/dough-test-optimization/SKILL.md "Experiment, learn, and reassess" step 2 |
 | 15 | "Start with a short ranked list of leads, … ranked by estimated removable cost" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs "leads are the largest items by summed time, at most 20…" |
 | 15.q1 | Qualification (of 15): "roughly 10–20 when useful" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs: at most 20 leads; slice 3 real run lists 20 of 1,343 |
 | 15.q2 | Qualification (of 15): "at the granularity the evidence supports" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs: an entry without a breakdown ranks as one entry total; unplaced results and unbroken parts rank as labelled blocks |
-| 16a | "Before experimenting, state the smallest saving worth keeping for the scope" | slice 4 | |
-| 16b | "…and why" | slice 4 | |
-| 16.q1 | Qualification (of 16a–16b): "from its evidence or a target the developer supplied" (alternatives) | slice 4 | |
-| 17.1 | "The agent chooses the shortlist" | slice 4 | |
-| 17.2 | "The agent chooses the … evidence source" | slice 4 | |
-| 17.3 | "The agent chooses the … investigation depth" | slice 4 | |
-| 18.1 | Restriction: "without asking the developer for percentages" | slice 4 | |
-| 18.2 | Restriction: "without asking the developer for … batch sizes" | slice 4 | |
-| 18.3 | Restriction: "without asking the developer for … modes" | slice 4 | |
-| 19.1 | "Examine individually material files … in detail" | slice 4 | |
-| 19.2 | "Examine individually material … families … in detail" | slice 4 | |
-| 19.3 | "Examine individually material … fixtures in detail" | slice 4 | |
-| 20a | "Group the many small costs by shared cause" | slice 4 | |
-| 20.e1 | Example (of 20a): "per-case setup" | slice 4 | |
-| 20.e2 | Example (of 20a): "process starts" | slice 4 | |
-| 20.e3 | Example (of 20a): "waits" | slice 4 | |
-| 20.e4 | Example (of 20a): "a worker tail" | slice 4 | |
-| 20b | "…so a cost that no single file shows can still lead" | slice 4 | |
-| 21 | "Follow related tests when they share the cost or protect behavior a change could affect" (alternative triggers) | slice 4 | |
+| 16a | "Before experimenting, state the smallest saving worth keeping for the scope" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping"; src/skills/dough-test-optimization/SKILL.md "Establish the baseline"; PLAN.md Learnings "Slice 4 behavior review" saving about 470 s |
+| 16b | "…and why" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping" (a figure, its measure, and why); PLAN.md Learnings "Slice 4 behavior review" reason from the 9.2% range |
+| 16.q1 | Qualification (of 16a–16b): "from its evidence or a target the developer supplied" (alternatives) | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping" (developer target, otherwise derived from evidence) |
+| 17.1 | "The agent chooses the shortlist" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping", last paragraph |
+| 17.2 | "The agent chooses the … evidence source" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping", last paragraph |
+| 17.3 | "The agent chooses the … investigation depth" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping", last paragraph |
+| 18.1 | Restriction: "without asking the developer for percentages" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping", last paragraph |
+| 18.2 | Restriction: "without asking the developer for … batch sizes" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping", last paragraph |
+| 18.3 | Restriction: "without asking the developer for … modes" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "State the saving worth keeping", last paragraph |
+| 19.1 | "Examine individually material files … in detail" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 1 |
+| 19.2 | "Examine individually material … families … in detail" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 1 |
+| 19.3 | "Examine individually material … fixtures in detail" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 1; PLAN.md Learnings "Slice 4 behavior review" fixture "dashboard" |
+| 20a | "Group the many small costs by shared cause" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 2 |
+| 20.e1 | Example (of 20a): "per-case setup" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 2 (per-case setup) |
+| 20.e2 | Example (of 20a): "process starts" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 2 (process starts) |
+| 20.e3 | Example (of 20a): "waits" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 2 (waits) |
+| 20.e4 | Example (of 20a): "a worker tail" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 2 (a worker tail) |
+| 20b | "…so a cost that no single file shows can still lead" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes", bullet 2; PLAN.md Learnings "Slice 4 behavior review" fixture cost no file shows |
+| 21 | "Follow related tests when they share the cost or protect behavior a change could affect" (alternative triggers) | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Investigate a useful test family" (related behavior, variants, fixtures and consumers across files and layers) |
 | 22 | "File totals and case counts guide discovery" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-table.test.mjs: each lead row shows time, share, cases, unit and mean per case |
-| 23.1 | "runner reports and job evidence separate shared setup" | slice 4 | |
-| 23.2 | "runner reports and job evidence separate … parallel work" | slice 4 | |
-| 23.3 | "runner reports and job evidence separate … queue time" | slice 4 | |
-| 23.4 | "runner reports and job evidence separate … the work that controls elapsed time" | slice 4 | |
-| 24a | "Pick the most promising avoidable cost" | slice 4 | |
-| 24b | "…and make the smallest meaningful experiment" | slice 4 | |
-| 25 | "Rank again after a kept change" | slice 4 | |
-| 26 | "Stop when the remaining credible opportunities fall below the stated saving, cannot justify the effort, or cannot plausibly reach the agreed target" (alternative stop conditions) | slice 4 | |
-| 27.1 | "Discovery reads retained evidence" | slice 4 | |
-| 27.2 | "Discovery reads … related test code" | slice 4 | |
-| 27.q1 | Qualification (of 27.1–27.2, a permission): discovery "may time unmodified tests of a chosen lead" | slice 4 | |
-| 28 | "It [discovery] finishes before a published assignment" | slice 4 | |
-| 29a | "a supported stop at discovery reports its evidence" | slice 4 | |
-| 29b | Restriction: "…without admitting any work" | slice 4 | |
-| 30a | "The first experiment edit is admitted" | slice 4 | |
-| 30b | "…and runs as one bounded planless execution" | slice 4 | |
-| 30.q1 | Qualification (of 30a–30b): "under the ordinary request's authority" | slice 4 | |
-| 30.q2 | Qualification (of 30b): "through the project's existing delivery" | slice 4 | |
-| 31 | "Use a full plan when the evidence calls for dependent experiments, a shared harness redesign, or a consequential change in where behavior is proved" (alternative triggers) | slice 4 | |
-| 32 | "Keep the CI proof publishing recipe available for requests to set up a proof producer" | slice 4 | |
-| 33 | "Establish replacement proof before narrowing or removing coverage" | slice 4 | |
-| 34a | "Run the project's ordinary verification for the affected behavior" | slice 4 | |
-| 34b | "…and reuse comparable proof from CI produced by normal delivery" | slice 4 | |
-| 35.1 | "Report the scope of any measured gain" | slice 4 | |
-| 35.2 | "Report … the protection retained" | slice 4 | |
-| 35.3 | "Report … any unresolved measurement" | slice 4 | |
-| 36.1 | Restriction: "A CI case or file sum" is a distinct measure (from 36.2 and 36.3) | slice 4 | |
-| 36.2 | Restriction: "a CI job or workflow wall time" is a distinct measure | slice 4 | |
-| 36.3 | Restriction: "the developer's wait including suite admission" is a distinct measure | slice 4 | |
-| 37 | Restriction: "A claim about local elapsed time requires comparable local evidence" | slice 4 | |
-| 38.1 | "Compare like selections" | slice 4 | |
-| 38.2 | "Compare like … runner conditions" | slice 4 | |
-| 38.q1 | Qualification (of 38.1–38.2): "including replacement proof and shared setup where measured" | slice 4 | |
-| 39 | "Follow the project's failing and flaky test policy" | slice 4 | |
+| 23.1 | "runner reports and job evidence separate shared setup" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", bullet 1; PLAN.md Learnings "Slice 4 behavior review" hooks and fixture |
+| 23.2 | "runner reports and job evidence separate … parallel work" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", bullet 2; PLAN.md Learnings "Slice 4 behavior review" shards |
+| 23.3 | "runner reports and job evidence separate … queue time" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", bullet 3; PLAN.md Learnings "Slice 4 behavior review" queue at most 3 s |
+| 23.4 | "runner reports and job evidence separate … the work that controls elapsed time" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", bullet 4; PLAN.md Learnings "Slice 4 behavior review" shard 4/12 sets the wall |
+| 24a | "Pick the most promising avoidable cost" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Experiment bullet; PLAN.md Learnings "Slice 4 behavior review" chosen lead |
+| 24b | "…and make the smallest meaningful experiment" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Experiment bullet (smallest meaningful change) |
+| 25 | "Rank again after a kept change" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Experiment, learn, and reassess" step 4 |
+| 26 | "Stop when the remaining credible opportunities fall below the stated saving, cannot justify the effort, or cannot plausibly reach the agreed target" (alternative stop conditions) | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Stop bullet (agreed target defined) |
+| 27.1 | "Discovery reads retained evidence" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Establish the baseline", second paragraph |
+| 27.2 | "Discovery reads … related test code" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes" bullet 3 (read related test code) |
+| 27.q1 | Qualification (of 27.1–27.2, a permission): discovery "may time unmodified tests of a chosen lead" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Rank removable causes" bullet 3 and "Profile afresh only on request" last sentence; src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph |
+| 28 | "It [discovery] finishes before a published assignment" | slice 4 | observed: src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph (discovery publishes no admission); src/skills/dough-test-optimization/SKILL.md "Establish context and mode" (admitted at its first edit) |
+| 29a | "a supported stop at discovery reports its evidence" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Stop bullet |
+| 29b | Restriction: "…without admitting any work" | slice 4 | observed: src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph (a stop at discovery leaves no story, Taken entry, or wrap-up) |
+| 30a | "The first experiment edit is admitted" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Experiment bullet; src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph |
+| 30b | "…and runs as one bounded planless execution" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Experiment bullet; src/skills/dough-execute-plan/references/admit-accepted-work.md (each independent bounded experiment admitted planless at its first edit) |
+| 30.q1 | Qualification (of 30a–30b): "under the ordinary request's authority" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Experiment bullet (ordinary request's authority); src/skills/dough-execute-plan/references/admit-accepted-work.md (explicit planless authority for each independent bounded experiment) |
+| 30.q2 | Qualification (of 30b): "through the project's existing delivery" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Experiment, learn, and reassess" first paragraph (increment and repair publication) |
+| 31 | "Use a full plan when the evidence calls for dependent experiments, a shared harness redesign, or a consequential change in where behavior is proved" (alternative triggers) | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Plan bullet; src/skills/dough-execute-plan/references/admit-accepted-work.md (unselected before planning) |
+| 32 | "Keep the CI proof publishing recipe available for requests to set up a proof producer" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md description and "Establish context and mode" second paragraph; src/skills/dough-test-optimization/references/evidence-and-leads.md no-proof paragraph |
+| 33 | "Establish replacement proof before narrowing or removing coverage" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close", first sentence |
+| 34a | "Run the project's ordinary verification for the affected behavior" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close", first paragraph |
+| 34b | "…and reuse comparable proof from CI produced by normal delivery" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close", first paragraph (reuse comparable CI proof) |
+| 35.1 | "Report the scope of any measured gain" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close", second paragraph |
+| 35.2 | "Report … the protection retained" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close", second paragraph (protection retained) |
+| 35.3 | "Report … any unresolved measurement" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close", second paragraph (unresolved measurement) |
+| 36.1 | Restriction: "A CI case or file sum" is a distinct measure (from 36.2 and 36.3) | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" bullet 1 |
+| 36.2 | Restriction: "a CI job or workflow wall time" is a distinct measure | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" bullet 2 |
+| 36.3 | Restriction: "the developer's wait including suite admission" is a distinct measure | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" bullet 3 |
+| 37 | Restriction: "A claim about local elapsed time requires comparable local evidence" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" (local elapsed time and the developer's wait need comparable local evidence) |
+| 38.1 | "Compare like selections" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like"; PLAN.md Learnings "Slice 4 behavior review" same cases and selection compared across attempts |
+| 38.2 | "Compare like … runner conditions" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" (runner conditions) |
+| 38.q1 | Qualification (of 38.1–38.2): "including replacement proof and shared setup where measured" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" (replacement tests' cost and shared setup) |
+| 39 | "Follow the project's failing and flaky test policy" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close" (this project's failing and flaky test policy) |
 | 40 | "The Test Optimization Candidates record holds only live candidates" | slice 5 | |
 | 40.q1 | Qualification (of 40): live candidates are "material costs that still need deeper developer analysis" | slice 5 | |
 | 40.q2 | Qualification (of 40): "**and** protect valuable behavior that the agent cannot safely simplify, downgrade, or remove" (both 40.q1 and 40.q2 must hold) | slice 5 | |
@@ -177,15 +177,15 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 58.q1 | Qualification (of 58.1–58.3): "compared with Pygardon's recorded passes" | slice 1 | observed: PLAN.md "Evaluation basis for the pilot", fixed before slice 7 and checked against Pygardon history by slice 1 (Learnings "Slice 1 route") |
 | 59 | "A kept change publishes under Pygardon's own rules" | slice 7 | |
 | 57.q3 | Qualification (of 57): "A timely, evidenced stop is a useful result when the available opportunities do not pay for the work" | slice 7 | |
-| 60 | Restriction: "No fresh profiling run of the requested scope without an explicit request" (restates 13) | slice 4 | |
-| 60.q1 | Qualification (rationale for 60): "Six recorded Open Dough passes spent about 146 minutes on baseline and final suite runs, and one more waited about 38 minutes for suite admission" | slice 4 | |
+| 60 | Restriction: "No fresh profiling run of the requested scope without an explicit request" (restates 13) | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Establish context and mode"; src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request" |
+| 60.q1 | Qualification (rationale for 60): "Six recorded Open Dough passes spent about 146 minutes on baseline and final suite runs, and one more waited about 38 minutes for suite admission" | slice 4 | observed: rationale for 60, kept in the story's Restrictions; the guidance honors 60 (src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request") without another project's figures (ADR 0006) |
 | 61.1 | Restriction: "An accepted-cost indicator changes no selection" | slice 6 | |
 | 61.2 | Restriction: "An accepted-cost indicator changes no … execution" | slice 6 | |
 | 61.3 | Restriction: "An accepted-cost indicator changes no … timeout" | slice 6 | |
 | 61.4 | Restriction: "An accepted-cost indicator changes no … verdict" | slice 6 | |
 | 61.q1 | Qualification (rationale for 61.1–61.4): "because normal verification and CI must keep proving the behavior it protects" | slice 6 | |
-| 62a | Restriction: "A timing claim stays within its evidence" | slice 4 | |
-| 62b | Restriction: "an unsupported comparison stays open rather than borrowing a different measure" | slice 4 | |
+| 62a | Restriction: "A timing claim stays within its evidence" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentences |
+| 62b | Restriction: "an unsupported comparison stays open rather than borrowing a different measure" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentence |
 | 63 | Exclusion: "changing CI producers to retain more timing detail" | slice 3 | observed: slice 3 diff (commit after 304598724) touches no .github/ file and no collector module |
 | 63.q1 | Qualification (rationale for 63): "since existing retained artifacts are sufficient to start" | slice 3 | observed: slice 3 real run ranked Open Dough's retained summary as produced, with no producer change |
 | 64 | Exclusion: "converting other projects' records beyond what the Pygardon pilot pass writes" | slice 7 | |
@@ -204,17 +204,17 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 72.1 | "…and no request to pick a percentile" | slice 7 | |
 | 72.2 | "…no request to pick a … mode" | slice 7 | |
 | K2.1 | Example: "Open Dough's run 42550972063 times 1,343 files for 11,142 s, and the top 20 hold 9.8% of it" | slice 3 | observed: slice 3 real run (Learnings): run 42550972063 attempt 1, 1,343 timed items, 11,142.4 s; top 20 hold 9.79% by an independent recount |
-| K2.2 | Example: "One dashboard shard's retained Playwright report spends 26% of its test time in per-test hooks" | slice 4 | |
-| 73a | "The leads include that shared setup" | slice 4 | |
-| 73b | "…read from the runner report" | slice 4 | |
-| 73c | "…not only the top files" | slice 4 | |
-| 74a | "Once the report's 7-day retention has passed, the gap is stated" | slice 4 | |
-| 74b | "…and the file leads rest on the summary alone" | slice 4 | |
+| K2.2 | Example: "One dashboard shard's retained Playwright report spends 26% of its test time in per-test hooks" | slice 4 | observed: PLAN.md Learnings "Slice 4 behavior review" runner reports: hooks 26.9% (shard 5 26.4% of 926.2 s) |
+| 73a | "The leads include that shared setup" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction" (shared setup is a lead of its own); PLAN.md Learnings "Slice 4 behavior review" chosen lead |
+| 73b | "…read from the runner report" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction"; PLAN.md Learnings "Slice 4 behavior review" fixture read from the Playwright reports |
+| 73c | "…not only the top files" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction" (beside the top files) |
+| 74a | "Once the report's 7-day retention has passed, the gap is stated" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", last paragraph (retention passed: state the gap) |
+| 74b | "…and the file leads rest on the summary alone" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction", last paragraph (leads rest on the summary) |
 | K3.1 | Example: "A proof artifact is missing, untimed, partial, or belongs to a different attempt or selection" (alternative triggers) | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-gaps.test.mjs (no artifact, refused GitHub), ci-proof-scope.test.mjs (untimed, partial), ci-proof-leads-retained.test.mjs (another run, revision or repository refused); selection exposed on the Selection line (G2) |
 | 75 | "The agent exposes the gap" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-gaps.test.mjs and ci-proof-leads-adapter.test.mjs: each gap printed under Gaps with its remedy |
-| 76 | "…uses compatible retained evidence at its actual scope" | slice 4 | |
-| 77 | "…and leaves an unsupported timing claim open" | slice 4 | |
-| 78 | "An explicit request for fresh profiling runs the appropriate project command" | slice 4 | |
+| 76 | "…uses compatible retained evidence at its actual scope" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read the retained CI proof" Gaps and Compatibility bullets |
+| 77 | "…and leaves an unsupported timing claim open" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentence |
+| 78 | "An explicit request for fresh profiling runs the appropriate project command" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request" (this project's own command for that scope) |
 | 79 | "Pygardon's minimal real H.264 round trip carries its accepted codec cost in source" | slice 6 | |
 | K4.1 | Example: "the record's path for it went stale when the file moved on 2026-11-08" | slice 6 | |
 | 80a | "The worker-stall test explains its real 10 s exit timeout" | slice 6 | |
@@ -235,11 +235,11 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 86.3 | "Intent reads … Doughnut's four-section record[] with [its] leading pass summar[y]" | slice 5 | |
 | K5.1 | Example (current state): "Today Intent shows Open Dough's record as mismatched, because one entry has an extra field" | slice 6 | |
 | K5.2 | Example (current state): "…and Doughnut's too, because of its profile-only mechanism note" | slice 5 | |
-| K6.1 | Example: "Discovery finds no lead above the stated saving" | slice 4 | |
-| 87 | "…and reports why" | slice 4 | |
-| 88.1 | "…with no story" | slice 4 | |
-| 88.2 | "…[with no] Taken entry" | slice 4 | |
-| 88.3 | "…[with no] wrap-up" | slice 4 | |
-| 89a | "A lead worth trying is admitted at its first edit" | slice 4 | |
-| 89b | "…and delivered as one bounded experiment" | slice 4 | |
-| 90 | "a dependent sequence gets a plan" | slice 4 | |
+| K6.1 | Example: "Discovery finds no lead above the stated saving" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Stop bullet |
+| 87 | "…and reports why" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Stop bullet (reports why, with its evidence) |
+| 88.1 | "…with no story" | slice 4 | observed: src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph (no story) |
+| 88.2 | "…[with no] Taken entry" | slice 4 | observed: src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph (no Taken entry) |
+| 88.3 | "…[with no] wrap-up" | slice 4 | observed: src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph (no wrap-up) |
+| 89a | "A lead worth trying is admitted at its first edit" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Experiment bullet; src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph |
+| 89b | "…and delivered as one bounded experiment" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Experiment bullet (one bounded planless execution) |
+| 90 | "a dependent sequence gets a plan" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Plan bullet; src/skills/dough-execute-plan/references/admit-accepted-work.md (unselected before planning) |

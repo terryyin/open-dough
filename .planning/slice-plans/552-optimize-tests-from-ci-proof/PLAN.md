@@ -225,7 +225,7 @@ skill test jobs passed and the real table stayed byte-identical.
 ### 4. Start optimization from retained evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership rows 4–6. Record an AGENTS.md behavior review in Learnings.
 It walks this repository's retained proof through the reader to a ranked
 list, a stated saving, and a chosen lead or supported stop, with no edits.
@@ -250,6 +250,30 @@ proof → the skill directs the agent to:
 Update the description frontmatter, `SKILL.md`, a focused evidence-and-leads
 reference, and the mission rule in `admit-accepted-work.md`. Interim: until
 slice 5, passes still write the four-section record.
+
+Accepted 2026-11-09: `SKILL.md` (description and body: discovery
+unadmitted, "Decide: stop, experiment, or plan", measures),
+`references/evidence-and-leads.md` (new: reading the reader's table,
+bounded runner extraction, the saving worth keeping, removable-cost
+ranking, profiling only on request, like-for-like measures) and the one
+mission rule in `dough-execute-plan/references/admit-accepted-work.md`
+(optimization admitted at its first edit, `planless` for each independent
+bounded experiment the request reaches, `unselected` before a plan; a stop
+leaves nothing). The
+candidate record is unchanged until slice 5. Proof: the behavior review in
+Learnings; `bash scripts/test.sh` over `execution-increment-delivery`,
+`ci-github-acquisition`, `native-admission-reuse`,
+`established-session-guidance`, `workspace-ownership-lifecycle`,
+`payload-declaration-links`, `install-public-payload` and
+`update-adds-new-payload-skill` passed 8 of 8, and
+`bash scripts/check-self-installation.sh` passed; 294 links in the changed
+and linking guidance resolve. Terry allowed `install.sh` to grow by one line
+per new payload file for the rest of this story (2026-11-09); it is 339 with
+this reference. Refactor: each rule now has one home (admission timing in
+`admit-accepted-work.md`, measures in "Measure like for like"), and
+"profiling" left the general admit-before list; the coordinator then made the
+planless authority cover each independent experiment, matching "Take an
+independent next lead the same way" (already traced by that refactor).
 
 ### 5. Read live candidate records beside four-section records
 
@@ -452,6 +476,38 @@ row says otherwise.
   recorded, so Pygardon's pilot reads `-m "not slow and not host_docker"`
   from its CI configuration.
 
+### Slice 4 behavior review (2026-11-09, no edits, no profiling run)
+
+- **Invocation and context.** The description names retained proof, profiling
+  on request, `--resolve` and the producer recipe, which a request to publish
+  proof "for this skill" and the no-proof gap reach. Missing proof or a refused
+  route stays the table's gap; only a gap blocking a paying decision earns a
+  recommended profiling run with its cost. An unrecorded selection is read
+  from CI configuration at the attempt's revision, else stated as a gap.
+- **Real walk.** `node src/skills/dough-test-optimization/scripts/ci-proof-leads.mjs --revision origin/main`
+  at `e79f2dac5`: exit 0 in 6 s, byte-identical to slice 3's table. Selection
+  from `ci.yml` at `0eee12e4d`, unchanged since: `npm run test` in 3 shares,
+  `npm run test:dashboard` in 12 shards, unfiltered. Saving worth keeping:
+  about 5% of the browser-test CI sum (about 470 s). Tables at `0eee12e4d~1`
+  and `~3` put that sum at 10,048.5 and 9,197.8 s over the same 2,263 cases (a
+  9.2% range), and unchanged lead files moved 20–35%. No file lead (at most
+  1.0%) reaches it.
+- **Runner reports** (retained to 2026-11-16; scratch `hook-share.mjs`,
+  aggregates only). Results sum to the summary's 9,359.7 s, so file leads
+  include hooks. Hooks take 26.9% (shard 5: 26.4% of 926.2 s). `Fixture
+  "dashboard"` takes 1,540.8 s over about 1,229 uses, 16.5%, which no file
+  shows. Queue is at most 3 s. Shard 4/12 (289 s, tail 5.6 s) sets the 308 s
+  wall, so shard 6's 188 s worker tail sets none.
+- **Chosen lead:** the per-test dashboard server start, which clears the
+  saving if about a third is avoidable. Next, time unmodified tests' start
+  phases. A bounded start change is admitted `planless`. Sharing the server
+  breaks the isolation `dashboardServer.ts` promises: a harness redesign,
+  admitted `unselected` before its plan, with that question for Terry.
+- **On paper.** A stop reports leads, saving and gaps and writes nothing: no
+  story, Taken entry or wrap-up. A planless keep publishes through Execute
+  Plan's increment publication. It reports a focused interleaved gain and the
+  delivered attempt's CI sum, and leaves a full-suite claim open.
+
 ## Preparation review
 
 Plan refinement was not needed. Each slice has its own evaluator boundary:
@@ -474,7 +530,7 @@ Commitment: K1.1
 ### G2. The retained summary names no test selection
 Reported: slice 1 — "the contract (`ci-proof-contract.mjs`, `ci-proof-figures.mjs`) has no `selection` field and no Pygardon summary names one. The table's promised "selection" has no source in the summary and must come from elsewhere or be stated as a gap."
 Story clause: "name its repository, revision, attempt, and selection"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: the reader names the in-scope entries with kind, patterns, unit and part status and states the unrecorded command selection with its remedy (slice 3 `ci-proof-leads.test.mjs`), and `evidence-and-leads.md` "Read the retained CI proof" Selection bullet directs naming it from the CI configuration at the attempt's revision, an unconfirmed selection staying a gap; the slice 4 behavior review named Open Dough's from `ci.yml`
 Commitment: 7.4
 
 ### G3. SEED-281's explicit units are not landed yet
