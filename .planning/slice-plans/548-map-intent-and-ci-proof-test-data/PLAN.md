@@ -176,7 +176,7 @@ load-sensitive specs are an owned repair before execution completes.
 
 ### 2. Answered locations come from the same location builder
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 4. Run `backend-tests/intent/intent-story-overlay\.spec\.ts$`, `frontend-tests`, and `bash scripts/test.sh tests/support/intent-candidates-location-match.test.mjs tests/native-evidence-identity.sh`. Overlay placement, frontend Intent reads and matcher results are unchanged; omitting a selected file still fails the matcher.
 
 A test arranges a location answer → the location builder states the files it
@@ -187,6 +187,14 @@ spec, type the substitute's locations and candidates answers against the read
 answers and build its locations answer, and derive the matcher's three
 inventories from answered locations through
 `inventoryFromIntentLocations`. Recorded reference strings stay literal.
+
+Accepted: `makeMe.anIntentLocation…selecting(...files)` returns the answered
+location, typed `IntentLocation & { files: string[] }` because the browser's
+parsed location has mutable `files`. No arranged answer states a problem
+(problems appear only as independent expectations), so the builder adds no
+problem method yet. The two read answers are named `IntentLocationsAnswer`
+and `IntentCandidatesAnswer` beside their reads (types only). Overlay and
+`frontend-tests` ran 28 passed; the matcher and closure checks exited 0.
 
 ### 3. Optimization Candidates records come from the record builder
 Type: Behavior

@@ -1,6 +1,8 @@
 // Default substitute answers for frontend-only app journeys: projects,
 // backlog, files, machine, and host status the page reads on open.
 
+import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
+import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
@@ -69,8 +71,8 @@ export type FrontendServiceState = {
   revision: string;
   backlog: string;
   files: Record<string, string>;
-  locations: unknown;
-  candidates: unknown;
+  locations: IntentLocationsAnswer;
+  candidates: IntentCandidatesAnswer;
   machine: MachineAnswer;
   hostStatus: HostStatus | undefined;
   hostOptions: unknown;
@@ -91,12 +93,11 @@ export function defaultFrontendServiceState(
     locations: {
       revision: frontendRevision,
       locations: [
-        {
-          path: "dashboard/tests",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
-          files: ["dashboard/tests/example.spec.ts"],
-        },
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting("dashboard/tests/example.spec.ts")
+          .please(),
       ],
       recovery: undefined,
     },
@@ -127,7 +128,7 @@ export function putFrontendHostStatus(
 
 export function putFrontendCandidates(
   services: FrontendServiceState,
-  candidates: unknown,
+  candidates: IntentCandidatesAnswer,
 ): void {
   Object.assign(services, { candidates });
 }

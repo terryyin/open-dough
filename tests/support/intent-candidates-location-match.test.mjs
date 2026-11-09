@@ -1,24 +1,33 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  inventoryFromIntentLocations,
   matchRecordedLocationReference,
   splitPathAndCase,
 } from "../../dashboard/src/intentCandidatesLocationMatch.ts";
 import { segmentLocationReferences } from "../../dashboard/src/intentCandidatesLocationSegments.ts";
+import { makeMe } from "./makeMe.mjs";
 
 const recordPath = ".planning/TEST-OPTIMIZATION-CANDIDATES.md";
 
-const inventory = {
-  locationRoots: ["dashboard/tests", "tests"],
-  files: [
-    "dashboard/tests/agent-launch-second-server.spec.ts",
-    "dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts",
-    "dashboard/tests/story-review-completed.spec.ts",
-    "dashboard/tests/boundary/story-review-completed.spec.ts",
-    "dashboard/tests/intent-gherkin-browse.spec.ts",
-    "tests/compare-versions.sh",
-  ],
-};
+const inventory = inventoryFromIntentLocations([
+  makeMe.anIntentLocation
+    .at("dashboard/tests")
+    .ofKind("typescript")
+    .selecting(
+      "dashboard/tests/agent-launch-second-server.spec.ts",
+      "dashboard/tests/agent-launch-ad-hoc-terminal.spec.ts",
+      "dashboard/tests/story-review-completed.spec.ts",
+      "dashboard/tests/boundary/story-review-completed.spec.ts",
+      "dashboard/tests/intent-gherkin-browse.spec.ts",
+    )
+    .please(),
+  makeMe.anIntentLocation
+    .at("tests")
+    .ofKind("shell")
+    .selecting("tests/compare-versions.sh")
+    .please(),
+]);
 
 const match = (recorded) =>
   matchRecordedLocationReference(recorded, recordPath, inventory);
@@ -93,10 +102,13 @@ test("full path under a configured root but missing from files is not published"
 });
 
 test("full path outside configured roots is outside configured locations", () => {
-  const frontendOnly = {
-    locationRoots: ["frontend/src"],
-    files: ["frontend/src/devices.spec.ts"],
-  };
+  const frontendOnly = inventoryFromIntentLocations([
+    makeMe.anIntentLocation
+      .at("frontend/src")
+      .ofKind("typescript")
+      .selecting("frontend/src/devices.spec.ts")
+      .please(),
+  ]);
   assert.deepEqual(
     matchRecordedLocationReference(
       "tests/test_clip_core.py::test_clip_segments_h264_reencodes_video",
@@ -113,10 +125,11 @@ test("full path outside configured roots is outside configured locations", () =>
 
 test("full path under a configured root with the file absent is not published even when another root exists", () => {
   assert.deepEqual(
-    matchRecordedLocationReference("tests/test_clip_core.py", recordPath, {
-      locationRoots: ["dashboard/tests", "tests"],
-      files: inventory.files,
-    }),
+    matchRecordedLocationReference(
+      "tests/test_clip_core.py",
+      recordPath,
+      inventory,
+    ),
     {
       kind: "not-published",
       path: "tests/test_clip_core.py",
