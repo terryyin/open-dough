@@ -1,22 +1,16 @@
-// Touch review journeys: tap-sized controls and pane reading, then kept
-// context through rotation and panel controls. Uncommitted comparison ownership stays with
-// story-review-uncommitted-check.spec.ts.
+// Touch review journeys: opening story A's large comparison by touch, then
+// tap-sized controls and pane reading. Kept context through rotation and
+// panel controls is ./storyReviewTouchContext.ts; uncommitted comparison
+// ownership stays with story-review-uncommitted-check.spec.ts.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
+import type { Page } from "@playwright/test";
 import { expectSettledPage } from "../dashboardPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
-import { expectCovering, resizeUntilArranged } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./preparationPage.ts";
-import {
-  contextValues,
-  fileBrowser,
-  reviewBody,
-  reviewFeedback,
-} from "./reviewContextLine.ts";
+import { contextValues, fileBrowser, reviewBody } from "./reviewContextLine.ts";
 import {
   boxes,
   overflows,
@@ -24,11 +18,10 @@ import {
   scrollLeftOf,
   scrollTopOf,
 } from "./reviewPanes.ts";
+import { expectReviewRead } from "./reviewRead.ts";
 import {
-  chooseCommitsByTouch,
   chooseLargeChangesCommitByTouch,
   codePartGeometry,
-  leaveUncommittedOutByTouchLabel,
   readCodePartByTouch,
   readContextByTouch,
   reachReviewControl,
@@ -39,19 +32,10 @@ import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import { uncommittedLabel } from "./storyReviewMark.ts";
-import {
-  largeWorktree,
-  longA,
-  longB,
-  wideLine,
-} from "./storyReviewWorktree.ts";
-
-const control = (review: Locator, name: string) =>
-  review.getByRole("button", { name, exact: true });
-type Viewport = { width: number; height: number };
+import { largeWorktree, longA, wideLine } from "./storyReviewWorktree.ts";
 
 // Opens story A's large real comparison by touch, its review focused.
-async function openReviewByTouch(
+export async function openReviewByTouch(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
@@ -66,6 +50,7 @@ async function openReviewByTouch(
   await tapWhereShown(action);
   const review = page.getByRole("region", { name: "Story review" });
   await expect(reviewBody(review)).toBeFocused();
+  await expectReviewRead(review);
   const browser = fileBrowser(review);
   await expect(
     browser.getByRole("list", { name: "64 changed files" }),
@@ -75,10 +60,10 @@ async function openReviewByTouch(
   return { action, review, browser, comparison, all };
 }
 
-type TouchReview = Awaited<ReturnType<typeof openReviewByTouch>>;
+export type TouchReview = Awaited<ReturnType<typeof openReviewByTouch>>;
 
 // After the large-changes commit, All changes by touch, then the long file.
-async function chooseAllChangesFileByTouch({
+export async function chooseAllChangesFileByTouch({
   review,
   browser,
   comparison,
@@ -187,95 +172,4 @@ export async function chooseComparisonAndReadByTouch(
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
   expect(await scrollTopOf(code)).toBe(codeBeforeBrowserScroll);
   expect(await boxes(fixed)).toEqual(before);
-}
-
-// The chosen file and both panes' reading places, each reached by touch,
-// survive rotation, Maximize, hidden files, Next file and Refresh; explicit
-// Commits keeps its reading place through rotation too.
-export async function keepReviewContextThroughTouch(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-  portrait: Viewport,
-  landscape: Viewport,
-) {
-  const opened = await openReviewByTouch(page, dashboard, origin);
-  const { action, review, browser, comparison } = opened;
-  const diff = await chooseAllChangesFileByTouch(opened);
-  const code = diff.locator(".story-review-code");
-  await expect(code).toContainText("+first 0");
-  await scrollByTouch(page, code, -300);
-  await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
-  const browserAt = await scrollTopOf(browser);
-  await scrollByTouch(page, browser, 100);
-  await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
-  const selected = browser.getByRole("button", { name: `Added ${longA}` });
-  const codeAt = await scrollTopOf(code);
-  let reads = 0;
-  page.on("request", (request) => {
-    if (new URL(request.url()).pathname === storyReviewEndpoint) reads += 1;
-  });
-  for (const viewport of [landscape, portrait]) {
-    await resizeUntilArranged(review, viewport);
-    await expect(selected).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      comparison.getByRole("radio", { name: "All changes" }),
-    ).toBeChecked();
-    expect(await scrollTopOf(code)).toBe(codeAt);
-    expect((await box(code)).height).toBeGreaterThanOrEqual(40);
-    expect(await pageFits(page)).toBe(true);
-    if (viewport.width <= 800) await expectCovering(review);
-    else {
-      await tapWhereShown(control(review, "Maximize"));
-      await expect(control(review, "Restore")).toBeVisible();
-      expect(await scrollTopOf(code)).toBe(codeAt);
-      await tapWhereShown(control(review, "Restore"));
-      await expect(control(review, "Maximize")).toBeVisible();
-      expect(await scrollTopOf(code)).toBe(codeAt);
-    }
-  }
-  expect(reads).toBe(0);
-  const browserBeforeHide = await scrollTopOf(browser);
-  await tapWhereShown(control(review, "Hide files"));
-  await expect(browser).toBeHidden();
-  expect(await scrollTopOf(code)).toBe(codeAt);
-  await tapWhereShown(control(review, "Show files"));
-  await expect(selected).toHaveAttribute("aria-pressed", "true");
-  expect(await scrollTopOf(browser)).toBe(browserBeforeHide);
-  expect(await scrollTopOf(code)).toBe(codeAt);
-  await tapWhereShown(control(review, "Next file"));
-  const next = review.getByRole("region", { name: `Added ${longB}` });
-  await expect(next.locator(".story-review-code")).toContainText("+second 0");
-  expect(await scrollTopOf(next.locator(".story-review-code"))).toBe(0);
-  await tapWhereShown(control(review, "Refresh"));
-  await expect(reviewFeedback(review)).toHaveText(
-    /^Review refreshed: 64 changed files against baseline [0-9a-f]{7}\.$/,
-  );
-  await expect(
-    browser.getByRole("button", { name: `Added ${longB}` }),
-  ).toHaveAttribute("aria-pressed", "true");
-  // Hidden files: explicit Commits and its reading place survive rotation.
-  await chooseCommitsByTouch(review);
-  await expect(reviewFeedback(review)).toHaveText(
-    "Review refreshed: 64 changed files in the chosen range.",
-  );
-  await selectAddedFileByTouch(review, longB);
-  await tapWhereShown(control(review, "Hide files"));
-  const nextCode = next.locator(".story-review-code");
-  await scrollByTouch(page, nextCode, -180);
-  await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
-  const nextAt = await scrollTopOf(nextCode);
-  await resizeUntilArranged(review, landscape);
-  await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
-  ).toBeChecked();
-  await expect(next.getByRole("heading")).toHaveText(`Added ${longB}`);
-  expect(await scrollTopOf(nextCode)).toBe(nextAt);
-  expect((await box(nextCode)).height).toBeGreaterThanOrEqual(44);
-  expect(await pageFits(page)).toBe(true);
-  await leaveUncommittedOutByTouchLabel(review, browser, portrait);
-  await tapWhereShown(control(review, "Close"));
-  await expect(review).toHaveCount(0);
-  await expect(action).toBeFocused();
-  expect(await pageFits(page)).toBe(true);
 }

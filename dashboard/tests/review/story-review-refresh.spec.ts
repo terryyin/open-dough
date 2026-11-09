@@ -21,6 +21,7 @@ import {
   reviewBody,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
+import { expectReviewRead } from "../support/reviewRead.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { git, storyWorktree } from "../support/storyReviewWorktree.ts";
@@ -140,6 +141,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(action).toBeFocused();
     writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");
     await action.click();
+    await expectReviewRead(review);
     const reopened = review.getByRole("list", { name: "9 changed files" });
     await expect(
       reopened.getByRole("button", { name: "Added while-closed.txt" }),
@@ -163,6 +165,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(diff.getByText(edit, { exact: true })).toBeVisible();
     git(workspace, "checkout", merged, "--", "unstaged.txt");
     await review.getByRole("button", { name: "Refresh" }).press("Enter");
+    await expectReviewRead(review);
     const refreshed = review.getByRole("list", { name: "8 changed files" });
     await expect(
       refreshed.getByRole("button", { name: "Added fresh/new.txt" }),

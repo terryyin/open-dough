@@ -9,6 +9,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { treeFolder } from "../support/reviewTreeRows.ts";
+import { openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   changeModeOnly,
@@ -29,8 +30,7 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   changeModeOnly(workspace);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = await openReview(page, card);
   const files = review.getByRole("list", { name: "8 changed files" });
   const file = (name: string) =>
     files.getByRole("button", { name, exact: true });

@@ -14,6 +14,7 @@ import {
   scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
+import { expectReviewRead } from "../support/reviewRead.ts";
 import {
   expectOutsideCount,
   expectStoryTab,
@@ -32,6 +33,7 @@ async function reviewByKeyboard(page: Page, intent: Locator) {
   await outsideCount(intent).focus();
   await page.keyboard.press("Enter");
   const review = page.getByRole("region", { name: "Story review" });
+  await expectReviewRead(review);
   await expect(review.locator(".story-review-files")).toBeVisible();
   await review.getByRole("button", { name: "Close", exact: true }).focus();
   await page.keyboard.press("Enter");

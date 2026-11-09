@@ -5,6 +5,7 @@ import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
 import { integrateTrunk, markedWorktree } from "../support/storyReviewTrunk.ts";
+import { showCommits } from "../support/reviewRead.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { commitAll, writeAt } from "../support/storyReviewWorktree.ts";
 import { sixth } from "../support/storyReviewTrunk.ts";
@@ -24,7 +25,7 @@ for (const conflicted of [false, true]) {
     );
     const review = reviewRegion(page);
     expect(snapshot.mark).toBeUndefined();
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await showCommits(review);
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");

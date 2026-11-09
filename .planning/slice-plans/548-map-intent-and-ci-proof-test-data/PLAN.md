@@ -214,6 +214,15 @@ The 60 s review read bound is now `storyReviewWaitMs`, and `expectTreeRows`
 waits for the list within it before polling rows (52 call sites in 20 review
 specs). A scratch 6 s server delay reproduced the failure and passed with the
 repair; the review specs ran 52 passed and `backend-tests/review` 72 passed.
+The same 5 s first wait remained wherever a journey opened, refreshed or
+re-ranged a review. `expectReviewRead` (`dashboard/tests/support/reviewRead.ts`)
+now waits within `storyReviewWaitMs` for the review to stop reading, through
+`openReview`, `showCommits`, `refreshAndRead` and `chooseCommit`. Under a
+scratch 6 s read delay, 5 s-window failures fell from 32 to none; undelayed,
+the review and reached Intent journeys ran 208 passed. The one failure,
+`story-review-one-shot-choice-refresh.spec.ts:86`, is its four-launch setup
+exhausting the 30 s default under load 20+, equally on HEAD in paired runs;
+its timeout was left to the developer.
 
 ### 3. Optimization Candidates records come from the record builder
 Type: Behavior

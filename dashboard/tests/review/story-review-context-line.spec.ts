@@ -13,6 +13,7 @@ import {
   expectFixedWhileScrolled,
   fileBrowser,
 } from "../support/reviewContextLine.ts";
+import { openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { branch, storyWorktree } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
@@ -25,8 +26,7 @@ test("a story review's context line keeps to one line until activated and stays 
   const { workspace, merged } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = await openReview(page, card);
   const words = contextWords({
     branch,
     baseline: merged,

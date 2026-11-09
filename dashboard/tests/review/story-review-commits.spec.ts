@@ -4,6 +4,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
+import { showCommits } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
@@ -182,7 +183,7 @@ test("an empty plain commit names its range and lists no files", async ({
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await showCommits(review);
   await expect(
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();

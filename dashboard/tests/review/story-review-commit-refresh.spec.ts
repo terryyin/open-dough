@@ -16,6 +16,7 @@ import {
   unchangedWorktree,
   writeAt,
 } from "../support/storyReviewWorktree.ts";
+import { expectReviewRead, showCommits } from "../support/reviewRead.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
 import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
@@ -47,7 +48,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
     storyReviewFileEndpoint,
   );
   try {
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await showCommits(review);
     await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
     await expect(rows.first()).toContainText("second story commit");
     await expect(
@@ -98,6 +99,8 @@ test("the first Commits default uses the current snapshot, then new commits and 
   refreshed = nextSnapshot(page);
   await review.getByRole("button", { name: "Refresh", exact: true }).click();
   const landed = await refreshed;
+  // The refreshed snapshot moves the chosen range, which is read again.
+  await expectReviewRead(review);
   expect(landed.commits.map(({ subject }) => subject)).toEqual([
     "fourth story commit",
     "third story commit",
@@ -122,7 +125,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const feedback = review.locator(".story-review-top").getByRole("status");
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await showCommits(review);
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -168,6 +171,8 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
   refreshed = nextSnapshot(page);
   await review.getByRole("button", { name: "Refresh", exact: true }).click();
   const committed = await refreshed;
+  // The refreshed snapshot moves the chosen range, which is read again.
+  await expectReviewRead(review);
   expect(committed.uncommitted).toBeUndefined();
   await expect(rows.first()).toContainText("commit worktree changes");
   await expect(rows.first()).toHaveAttribute("aria-pressed", "true");

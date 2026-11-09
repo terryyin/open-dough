@@ -8,6 +8,7 @@
 import { PageObject } from "./fluentPageObject.ts";
 import { control } from "./sidePanelWidthPage.ts";
 import { expect } from "./support/preparationPage.ts";
+import { storyReviewWaitMs } from "../src/storyReviewContract.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
 import { reviewRegion } from "./support/storyReviewMark.ts";
 
@@ -45,10 +46,19 @@ export class StoryReview extends PageObject {
     );
   }
 
+  // The changed files list is named by its count, so it appears once the
+  // review has read its comparison, which the boundary may take up to its
+  // read bound to answer.
+  #expectListed(list: string) {
+    return expect(this.#files(list)).toBeVisible({
+      timeout: storyReviewWaitMs,
+    });
+  }
+
   // The changed files list, by its name.
   expectChangedFiles(list: string) {
     return this.cueHere(`Story review: lists ${list}`, () =>
-      expect(this.#files(list)).toBeVisible(),
+      this.#expectListed(list),
     );
   }
 
@@ -60,9 +70,10 @@ export class StoryReview extends PageObject {
 
   // One file among the changed files list, by its button's name.
   expectChangedFile(list: string, file: string) {
-    return this.cueHere(`Story review: ${list} has ${file}`, () =>
-      expect(this.#file(list, file)).toBeVisible(),
-    );
+    return this.cueHere(`Story review: ${list} has ${file}`, async () => {
+      await this.#expectListed(list);
+      await expect(this.#file(list, file)).toBeVisible();
+    });
   }
 
   expectNoText(text: string) {
