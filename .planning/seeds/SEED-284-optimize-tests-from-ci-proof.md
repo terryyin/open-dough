@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-284#read-distinct-attempts-and-hidden-waits
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/558-read-distinct-attempts-and-hidden-waits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a27428e4521cba6b3a9b2928c0afe6b48f64b3cd02ce2fd167d9f9dd896103c9","plan":"439502f44c9a4d574b73d65efaa34d3c55bfbf878df04b5e13ccedf66d2d2837"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/559-read-distinct-attempts-and-hidden-waits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2f47e249e2ef0a9be9becbecf4b7eb8cf1a93822ff6f13480af526898e22ddd9","plan":"ee7e827e897a57d545e205869943a5ff494998b8560b2f412dfb6dac55f3ea1d"}}
 ```
 
 **Goal.** A developer whose project asks this skill to optimize tests gets a
@@ -31,4 +31,4 @@ command the table's Source line names to the CI job and test command it
 reports; and a lead's mean per case is not taken as each case's cost before
 its cases' own waits or timings are read. The reader, the record formats and
 Intent stay unchanged. Plan:
-[558](../slice-plans/558-read-distinct-attempts-and-hidden-waits/PLAN.md).
+[559](../slice-plans/559-read-distinct-attempts-and-hidden-waits/PLAN.md).
