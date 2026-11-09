@@ -10,27 +10,21 @@ import {
   pygardonSettings,
 } from "./intentCodeBrowseFixtures.ts";
 import { candidateRecordEntry as entry } from "./intentCandidatesRecordEntry.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
-export const pygardonGherkinOnlySettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        {
-          path: "frontend/src",
-          kind: "typescript",
-          include: [
-            "**/*.spec.ts",
-            "**/*.spec.tsx",
-            "**/*.test.ts",
-            "**/*.test.tsx",
-          ],
-        },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const pygardonGherkinOnlySettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("frontend/src")
+      .ofKind("typescript", [
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+      ])
+      .please(),
+  )
+  .please();
 
 export const pygardonClipPath = "tests/test_clip_core.py";
 
@@ -116,21 +110,14 @@ None.
 None.
 `;
 
-export const doughnutFeatureSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        {
-          path: "e2e_test/features",
-          kind: "gherkin",
-          include: ["**/*.feature"],
-        },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const doughnutFeatureSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("e2e_test/features")
+      .ofKind("gherkin", ["**/*.feature"])
+      .please(),
+  )
+  .please();
 
 export function publishPygardonOutsideConfigured(
   page: Parameters<typeof publishIntentProject>[0],

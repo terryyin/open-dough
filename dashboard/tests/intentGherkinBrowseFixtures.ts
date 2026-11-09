@@ -3,6 +3,7 @@
 // `./intent/intent-gherkin-groups.spec.ts`, `./intent/intent-gherkin-layout.spec.ts`).
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export { publishIntentProject } from "./publishIntentProject.ts";
 
@@ -24,40 +25,30 @@ export const packagedFeature = `Feature: Packaged feature
     Then it passes
 `;
 
-export const doughnutSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [{ path: "e2e_test/features", kind: "gherkin" }],
-    },
-  },
-  null,
-  2,
-);
+export const doughnutSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation.at("e2e_test/features").ofKind("gherkin").please(),
+  )
+  .please();
 
-export const pygardonSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        { path: "e2e_test/features", kind: "gherkin" },
-        { path: "e2e_test/packaged/features", kind: "gherkin" },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const pygardonSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation.at("e2e_test/features").ofKind("gherkin").please(),
+    makeMe.anIntentLocation
+      .at("e2e_test/packaged/features")
+      .ofKind("gherkin")
+      .please(),
+  )
+  .please();
 
-export const exclusiveSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        { path: "e2e_test/features", kind: "gherkin" },
-        { path: "e2e_test/packaged/features", kind: "gherkin" },
-        { path: "empty_features", kind: "gherkin" },
-        { path: "frontend/src", kind: "java" },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const exclusiveSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation.at("e2e_test/features").ofKind("gherkin").please(),
+    makeMe.anIntentLocation
+      .at("e2e_test/packaged/features")
+      .ofKind("gherkin")
+      .please(),
+    makeMe.anIntentLocation.at("empty_features").ofKind("gherkin").please(),
+    makeMe.anIntentLocation.at("frontend/src").ofKind("java").please(),
+  )
+  .please();

@@ -22,35 +22,31 @@ import {
   shellCheck,
 } from "../intentCodeBrowseFixtures.ts";
 import { expectLabelledEntrySource } from "../intentCodeBrowsePage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test("Intent lists matched code test files under include patterns, omits helpers and product files, and reads exact text with the observed revision", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  const settings = JSON.stringify({
-    intent: {
-      locations: [
-        {
-          path: "dashboard/tests",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
-        },
-        {
-          path: "dashboard/frontend-tests",
-          label: "Dashboard Frontend Test",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
-        },
-        {
-          path: "dashboard/backend-tests",
-          label: "Dashboard Backend Test",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
-        },
-        { path: "tests", kind: "shell", include: ["*.sh"] },
-      ],
-    },
-  });
+  const settings = makeMe.intentSettings
+    .withLocations(
+      makeMe.anIntentLocation
+        .at("dashboard/tests")
+        .ofKind("typescript", ["**/*.spec.ts"])
+        .please(),
+      makeMe.anIntentLocation
+        .at("dashboard/frontend-tests")
+        .labelled("Dashboard Frontend Test")
+        .ofKind("typescript", ["**/*.spec.ts"])
+        .please(),
+      makeMe.anIntentLocation
+        .at("dashboard/backend-tests")
+        .labelled("Dashboard Backend Test")
+        .ofKind("typescript", ["**/*.spec.ts"])
+        .please(),
+      makeMe.anIntentLocation.at("tests").ofKind("shell", ["*.sh"]).please(),
+    )
+    .please();
   const groupedSources = [
     ["configuration", "project-add.spec.ts"],
     ["stories", "story-readiness.spec.ts"],

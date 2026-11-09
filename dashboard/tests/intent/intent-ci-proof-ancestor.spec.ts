@@ -49,6 +49,8 @@ import {
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const checksRow: ProofRow = ["tests", "5 passed checks", "No timings"];
 
@@ -58,11 +60,16 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   await page.setViewportSize({ width: 1280, height: 800 });
   const ancestor = { repository, runId: 12, attempt: 2, revision: signup };
   const ci = publishStoryCi(page, {
-    ".planning/open-dough.json": `${JSON.stringify({
-      intent: {
-        locations: [{ path: "tests", kind: "shell", include: ["*.sh"] }],
-      },
-    })}\n`,
+    ".planning/open-dough.json": intentSettingsText(
+      makeMe.intentSettings
+        .withLocations(
+          makeMe.anIntentLocation
+            .at("tests")
+            .ofKind("shell", ["*.sh"])
+            .please(),
+        )
+        .please(),
+    ),
     "tests/a.sh": "#!/usr/bin/env bash\n",
   });
   ci.runs.main = [

@@ -30,13 +30,14 @@ import {
 } from "../intentCiStatusPage.ts";
 import { intentModeTab } from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 test("CI status names main, its nearest Passed result, later commits without a result, the run, and when it was checked; the mode strip keeps its keys", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const published = publishProject(page, openDough, {
-    ".planning/open-dough.json": `${openDoughSettings}\n`,
+    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
     "dashboard/tests/browse.spec.ts": browseSpec,
   });
   published.serveCi(

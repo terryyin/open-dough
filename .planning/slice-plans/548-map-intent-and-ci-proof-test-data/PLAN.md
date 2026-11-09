@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-intent-and-ci-proof-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and boundaries
 
@@ -142,7 +143,7 @@ following [machine sleep on macOS](../../../tests/local-test-resources.md#machin
 
 ### 1. Published Intent settings come from the shared location builder
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 1 and 2. Run `backend-tests/intent/authenticated-read-intent-(locations|locations-problems|selection|candidates)\.spec\.ts$` and `tests/intent` with the gate above, plus `tests/sessions/recently-done-sessions-select`. The locations read and Intent browse list the same locations, files and problems; a changed stated kind or path fails the journey that shows it.
 
 A project publishes Intent settings stated through MakeMe → the server reads
@@ -159,6 +160,19 @@ activation journeys and the read boundary recovery journey, through it.
 Keep `{not json`, `{}`, unreadable settings, a `label` of `42`, and the
 malformed source declarations literal in the cases that prove them. The CI
 setup in mixed journeys stays for its sibling story.
+
+Accepted: settings encode once through `intentSettingsText`
+(`dashboard/tests/support/intentSettingsFile.ts`); `publishIntentProject`
+also takes the literal text a case proves. Slice 1 was re-applied over trunk
+`889985084` after completed SEED-282 changed the CI status home page, home
+activation and code browse journeys (the code browse helper it extracted
+replaced the refactor pass's local helpers). On that state typecheck and lint
+passed and `tests/intent tests/sessions/recently-done-sessions-select
+frontend-tests --workers=2` ran 301 passed, 2 failed at load 11–15: both
+`intent-ci-comparison-retry.spec.ts` cases (:75, :204), which reach no changed
+file and passed 18/18 alone at one worker. An earlier run timed out
+`intent-ci-comparison-cancelled-landing-gaps.spec.ts:130` (12/12 alone). Those
+load-sensitive specs are an owned repair before execution completes.
 
 ### 2. Answered locations come from the same location builder
 Type: Behavior

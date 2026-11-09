@@ -11,12 +11,9 @@
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
-
-export const intentLocations = [
-  { path: "dashboard/tests", kind: "typescript", include: ["**/*.spec.ts"] },
-  { path: "tests", kind: "shell", include: ["*.sh"] },
-];
+import { intentSettingsText } from "./intentSettingsFile.ts";
 
 // The story's changes as Review changes names each file's control.
 export const changed = {
@@ -30,13 +27,21 @@ export const changed = {
 } as const;
 
 // Intent settings naming the locations, as trunk publishes them.
-export const intentSettings = `${JSON.stringify({ intent: { locations: intentLocations } }, null, 2)}\n`;
+export const intentSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("dashboard/tests")
+      .ofKind("typescript", ["**/*.spec.ts"])
+      .please(),
+    makeMe.anIntentLocation.at("tests").ofKind("shell", ["*.sh"]).please(),
+  )
+  .please();
 
 // Trunk's files: Intent settings and the sources.
 export function publishIntentTrunk(project: string) {
   writeRevisionFiles(project, {
     files: {
-      ".planning/open-dough.json": intentSettings,
+      ".planning/open-dough.json": intentSettingsText(intentSettings),
       "dashboard/tests/a.spec.ts": lines("a"),
       "dashboard/tests/gone.spec.ts": lines("gone"),
       "dashboard/tests/boundary/kept.spec.ts": lines("kept"),

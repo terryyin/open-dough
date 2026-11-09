@@ -14,6 +14,7 @@ import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { describedBacklog } from "../../tests/describedRevisions.ts";
+import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -52,13 +53,16 @@ test.describe("authenticated Intent location selection (development environment)
         revision,
         backlog,
         files: {
-          [settingsPath]: JSON.stringify({
-            intent: {
-              locations: [
-                { path: "frontend/src", kind: "typescript", include },
-              ],
-            },
-          }),
+          [settingsPath]: intentSettingsText(
+            makeMe.intentSettings
+              .withLocations(
+                makeMe.anIntentLocation
+                  .at("frontend/src")
+                  .ofKind("typescript", include)
+                  .please(),
+              )
+              .please(),
+          ),
           [matchedPath]: matchedText,
           [unmatchedPath]: unmatchedText,
         },
@@ -128,7 +132,7 @@ test.describe("authenticated Intent location selection (development environment)
         revision,
         backlog,
         files: {
-          [settingsPath]: JSON.stringify(
+          [settingsPath]: intentSettingsText(
             makeMe.intentSettings.withLocations(checks).please(),
           ),
           [matchedPath]: matchedText,
