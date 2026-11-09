@@ -1,22 +1,14 @@
 // Touch review journeys: tap-sized controls and pane reading, then kept
 // context through rotation and panel controls. Uncommitted comparison ownership stays with
 // story-review-uncommitted-check.spec.ts.
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { expectSettledPage } from "../dashboardPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
 import { expectCovering, resizeUntilArranged } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./preparationPage.ts";
-import {
-  contextValues,
-  fileBrowser,
-  reviewBody,
-  reviewFeedback,
-} from "./reviewContextLine.ts";
+import { contextValues, reviewFeedback } from "./reviewContextLine.ts";
 import {
   boxes,
   overflows,
@@ -26,7 +18,6 @@ import {
 } from "./reviewPanes.ts";
 import {
   chooseCommitsByTouch,
-  chooseLargeChangesCommitByTouch,
   codePartGeometry,
   leaveUncommittedOutByTouchLabel,
   readCodePartByTouch,
@@ -35,63 +26,17 @@ import {
   selectAddedFileByTouch,
   visibleShortCodeLine,
 } from "./reviewTouchReading.ts";
-import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import { uncommittedLabel } from "./storyReviewMark.ts";
 import {
-  largeWorktree,
-  longA,
-  longB,
-  wideLine,
-} from "./storyReviewWorktree.ts";
+  chooseAllChangesFileByTouch,
+  openReviewByTouch,
+} from "./storyReviewTouchOpening.ts";
+import { longA, longB, wideLine } from "./storyReviewWorktree.ts";
 
 const control = (review: Locator, name: string) =>
   review.getByRole("button", { name, exact: true });
 type Viewport = { width: number; height: number };
-
-// Opens story A's large real comparison by touch, its review focused.
-async function openReviewByTouch(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-) {
-  const { workspace } = largeWorktree(origin);
-  writeFileSync(path.join(workspace, "touch-uncommitted.txt"), "uncommitted\n");
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  await expectSettledPage(page);
-  const action = card.getByRole("button", { name: "Review changes" });
-  await action.scrollIntoViewIfNeeded();
-  await tapWhereShown(action);
-  const review = page.getByRole("region", { name: "Story review" });
-  await expect(reviewBody(review)).toBeFocused();
-  const browser = fileBrowser(review);
-  await expect(
-    browser.getByRole("list", { name: "64 changed files" }),
-  ).toBeVisible();
-  const comparison = review.getByRole("radiogroup", { name: "Comparison" });
-  const all = comparison.locator("label", { hasText: "All changes" });
-  return { action, review, browser, comparison, all };
-}
-
-type TouchReview = Awaited<ReturnType<typeof openReviewByTouch>>;
-
-// After the large-changes commit, All changes by touch, then the long file.
-async function chooseAllChangesFileByTouch({
-  review,
-  browser,
-  comparison,
-  all,
-}: TouchReview) {
-  await chooseLargeChangesCommitByTouch(review, browser);
-  await reachReviewControl(review, all);
-  await tapWhereShown(all);
-  await expect(
-    comparison.getByRole("radio", { name: "All changes" }),
-  ).toBeChecked();
-  return selectAddedFileByTouch(review, longA);
-}
 
 export async function chooseComparisonAndReadByTouch(
   page: Page,
@@ -161,15 +106,7 @@ export async function chooseComparisonAndReadByTouch(
   expect(await pageFits(page)).toBe(true);
   await readCodePartByTouch(page, code, wide, 0, 11, "horizontal");
   expect((await codePartGeometry(wide, 0, 11)).visible).toBe(true);
-  await scrollByTouch(page, code, 1000);
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => {
-          resolve();
-        }),
-      ),
-  );
+  await scrollByTouch(page, code, 1000, "vertical", undefined, code);
   const readLine = await visibleShortCodeLine(code);
   const readText = readLine.text ?? "";
   expect(readText).toMatch(/^\+first [0-9]+$/);
@@ -204,10 +141,10 @@ export async function keepReviewContextThroughTouch(
   const diff = await chooseAllChangesFileByTouch(opened);
   const code = diff.locator(".story-review-code");
   await expect(code).toContainText("+first 0");
-  await scrollByTouch(page, code, -300);
+  await scrollByTouch(page, code, -300, "vertical", undefined, code);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
   const browserAt = await scrollTopOf(browser);
-  await scrollByTouch(page, browser, 100);
+  await scrollByTouch(page, browser, 100, "vertical", undefined, browser);
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
   const selected = browser.getByRole("button", { name: `Added ${longA}` });
   const codeAt = await scrollTopOf(code);
@@ -262,7 +199,7 @@ export async function keepReviewContextThroughTouch(
   await selectAddedFileByTouch(review, longB);
   await tapWhereShown(control(review, "Hide files"));
   const nextCode = next.locator(".story-review-code");
-  await scrollByTouch(page, nextCode, -180);
+  await scrollByTouch(page, nextCode, -180, "vertical", undefined, nextCode);
   await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
   const nextAt = await scrollTopOf(nextCode);
   await resizeUntilArranged(review, landscape);

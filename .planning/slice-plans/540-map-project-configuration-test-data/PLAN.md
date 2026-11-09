@@ -91,6 +91,40 @@ on `claude/make-machine-local-project-configuration-test-se`, remote `origin`
 `a5ddb0b30` is on `main` (starting revision `479f6f3b1`). CI is GitHub
 Actions `ci.yml` (verified selector) on pushes to the execution branch.
 
+Published on the execution branch: slices 1–4 as `eefe28d82`, `d8a9c92e7`,
+`a4914134b` and `1da8db9a5`; CI passed the first three. Local, unpublished:
+merge `2ddf739d3` of trunk `e8bbd6b9f` (one resolved conflict in
+`tests/support/makeMe.mjs`) and an uncommitted partial CI repair.
+
+CI repair, 2026-11-09. CI run 42557657479 on `1da8db9a5` failed
+`dashboard (5/12)`: `intent-ci-comparison-cancelled-landing-gaps.spec.ts`
+"…reads again when it finishes" timed out at 30 s with its second comparison
+read unfinished. The local full gates under load 13–36 (a VM and other
+worktrees' suites) also timed out Intent comparison and touch review cases,
+and a merged-state `npm test` hung in
+`tests/support/local-test-suite-lifecycle.test.mjs` until it was ended. Terry
+decided: 60 s case-local allowances for the four two-read comparison cases
+and the touch review case "chooses a comparison and file and reads within
+each pane", recorded as the pending candidates
+`intent-ci-comparison-two-read-journeys` and
+`story-review-touch-reading-strokes`; the remaining speedups queued as
+SEED-287#fit-dashboard-journeys-in-default-timeout, beside trunk's
+SEED-286#fast-intent-ci-comparison-tests for the comparison family; the
+Check again wait left to
+the sibling SEED-261 Intent story's `acfd70db4`; and, for a final local gate
+failing only on load-sensitive timeouts, a one-worker rerun of the failed
+files and CI's verdict. The repair also waits for `scrollend` before the
+tablet touch review reads a reading place, and the local-suite lifecycle gates
+read their marker files instead of `fs.watch` events, which macOS can drop.
+
+Final local gate on the merged state with the repair: `npm test` passed 525
+of 525 jobs at load 11–23. The dashboard run passed 2,262 of 2,271 at load
+17–23. Its eight failures, timeouts or missed 5 s observations in launch
+preparation, responsive session, side panel, deployment and completion
+recovery journeys that the change does not reach, all passed at one worker
+(16 tests, load 8–10) and are recorded in SEED-287. CI's verdict on the
+published revision decides the gate.
+
 ## Slices
 
 ### 1. An ordered saved catalog drives startup and restart

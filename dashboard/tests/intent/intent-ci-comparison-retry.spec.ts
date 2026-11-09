@@ -40,6 +40,10 @@ test("a Baseline listing that failed once is listed again on the next read, then
   page,
   origin,
 }) => {
+  // Two full comparison reads, each walking every head_sha listing through
+  // the fake `gh`; see the pending optimization candidate
+  // `intent-ci-comparison-two-read-journeys`.
+  test.setTimeout(60_000);
   const { baseline, listings } = await publishTrunkStoryWithBaseline(
     page,
     origin,
@@ -76,6 +80,10 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   page,
   origin,
 }) => {
+  // Two full comparison reads, each walking every head_sha listing through
+  // the fake `gh`; see the pending optimization candidate
+  // `intent-ci-comparison-two-read-journeys`.
+  test.setTimeout(60_000);
   const setup = await publishComparedStoryBranch(page, origin);
   let asked = 0;
   let baselineListings = 0;
