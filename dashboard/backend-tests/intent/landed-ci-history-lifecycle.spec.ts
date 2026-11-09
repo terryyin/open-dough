@@ -205,6 +205,10 @@ test("landings recorded before collection starts are collected by its first pass
         summary: JSON.parse(recoveredSummary) as unknown,
       });
 
+    // Equal scoped responses include the older build's proof gap too.
+    await expect
+      .poll(() => retainedHistory(home)?.builds["run/41/1"]?.proof)
+      .toEqual({ kind: "unavailable", reason: "none" });
     const recoveredScopes = [
       ["dashboard/tests", 500, 50],
       ["dashboard/tests/folder", 200, 20],
