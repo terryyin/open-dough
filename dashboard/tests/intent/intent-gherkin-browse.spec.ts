@@ -43,7 +43,9 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
+  await expect(
+    intent.getByRole("heading", { name: "No story selected", exact: true }),
+  ).toBeVisible();
   await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
   await expect(
     intent.locator(

@@ -1,5 +1,5 @@
 // Returning to Intent's CI status homepage by directly activating Project
-// Intent's CI status tab (../../src/IntentModeTabs.tsx,
+// Intent's CI status tab (../../src/IntentPage.tsx,
 // ../../src/intentWorkspaceSelection.ts): with a selected story its CI
 // comparison view (../../src/intentStoryTabs.tsx) judges that story's branch
 // under its header, while Changed tests keeps the file it read, and a visit
@@ -116,7 +116,13 @@ test("with a story selected, activating CI comparison judges that story's branch
   await test.step("Project Intent judges main and browses the same file in its own selection", async () => {
     await openProjectIntent(intent);
     await expect(intent).toHaveAttribute("data-selected-story", selected);
-    await expect(summary).toHaveCount(0);
+    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+      "data-intent-context",
+      "project",
+    );
+    await expect(
+      intent.getByRole("region", { name: "Project Intent", exact: true }),
+    ).toBeVisible();
     const trunk = ciPanel(intent);
     await expectNamed(trunk, "main");
     await expect(trunk.locator(".intent-ci-state")).toHaveText(

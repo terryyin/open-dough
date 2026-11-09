@@ -1,7 +1,7 @@
 // One control shows or hides a file browser: Review changes' browser for
 // whichever comparison is shown, and Intent's locations column, which leads
 // its words with a panel icon so a narrow view row can show the icon alone
-// (`./intent-story-summary.css`).
+// (`./intent-page.css`).
 
 import { PanelLeft } from "lucide-react";
 import { Icon } from "./Icon.tsx";

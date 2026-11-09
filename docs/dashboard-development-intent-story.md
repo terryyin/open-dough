@@ -2,22 +2,29 @@
 
 Part of [Development and Intent](dashboard-development-intent.md).
 
-With a story selected, Intent shows that story's views: one persistent
-header, which never collapses, led by **Project Intent** / Selected story,
-names it by its full title under its identity, marked **Done** once
-completed, and says briefly while its default Review changes comparison is
-reading, unavailable or failed, with **Retry** for a failure, followed by the
-revisions that comparison runs between or its full explanation. Below it the
-story's views are **CI comparison**, **Changed tests** and **Intent
-coverage**, in that order, as underlined tabs on one row with **Hide files**
-/ **Show files** at its end (narrow, smaller tabs and the toggle's panel
-icon alone, its words kept as its name); each new selection, even of a story cleared and
-selected again while Intent is hidden, opens **CI comparison**, and the
-chosen view, kept with the story's reading place, is otherwise kept.
+Intent uses the same page implementation and arrangement for Project Intent
+and a selected story: persistent header, applicable views, revision notice and
+reading area. With a story selected, the header never collapses. Led by
+**Project Intent** / Selected story, it names the story by its full title under
+its identity, marked **Done** once completed, and says briefly while its default
+Review changes comparison is reading, unavailable or failed, with **Retry** for
+a failure, followed by the revisions that comparison runs between or its full
+explanation. Below it the story's views are **CI comparison**, **Changed tests**
+and **Intent coverage**, in that order, as underlined tabs with **Hide files** /
+**Show files** ending their row (narrow, smaller tabs and the toggle's panel
+icon alone, its words kept as its name). Each new selection, even of a story
+cleared and selected again while Intent is hidden, opens **CI comparison**;
+the chosen view, kept with the story's reading place, is otherwise kept.
+With no story selected, the same persistent header says **No story selected**,
+and the views are project **CI status** and **Optimization Candidates**.
 **Project Intent** in the header visits the project's own evidence, the
 trunk's **CI status** and **Optimization Candidates**, without clearing the
-selection; there **Back to selected story** shows the story's chosen view
-with its reading place as it was, and Project Intent keeps its own. **CI
+selection. That visit explicitly names **Project Intent** in the header;
+**Back to selected story** restores the story's chosen view and reading place,
+and Project Intent keeps its own file, Purpose/Proof choice, expansion, scroll
+and Hide files choice. Going either way moves the keyboard to the control
+that comes back. Project Intent always uses published project text and trunk
+CI evidence, even while the story remains selected. **CI
 comparison** shows the story's CI evidence as [Intent CI
 status](dashboard-development-intent-ci-status.md) describes it as soon as CI
 answers, whether the locations are still being read, unavailable, or browsed,
@@ -58,8 +65,9 @@ does, and the keyboard returns to the chosen tab of Project Intent, which
 Intent then shows. A changed file's Purpose is Review changes' diff of
 it, and Proof holds that file's comparison when available. A story without a
 comparison, and a failed read with retry, each say so while the published tree
-stays usable; clearing the selected story removes the header and shows
-Project Intent, whose Proof is judged-run evidence. The story is a lens on Intent, not a separate
+stays usable; clearing the selected story returns to project **CI status** in
+the same arrangement, with **No story selected** in its header and judged-run
+evidence in Proof. The story is a lens on Intent, not a separate
 definition of it, and its changed files are an initial view of its impact:
 they do not by themselves establish every affected behavior or the regression
 proof it needs.

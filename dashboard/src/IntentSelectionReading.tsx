@@ -7,7 +7,7 @@
 // does not hold is explained instead (`./IntentRevisionNotice.tsx`). CI status
 // and a Summary read the scope's CI evidence owner (`./IntentCiEvidence.tsx`).
 // Activating Project Intent's CI status tab returns home
-// (`./IntentModeTabs.tsx`).
+// (`./IntentPage.tsx`).
 
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";

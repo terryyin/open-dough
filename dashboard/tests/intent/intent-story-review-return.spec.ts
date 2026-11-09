@@ -2,7 +2,7 @@
 // in Intent clears the selected story (ADR 0008); Intent shows no Board, so
 // the keyboard returns to the chosen tab of Project Intent, which Intent
 // then shows with its CI status (../../src/storyCardFocus.ts,
-// ../../src/IntentModeTabs.tsx). The header's count:
+// ../../src/IntentPage.tsx). The header's count:
 // ./intent-story-changes.spec.ts.
 
 import { ciPanel } from "../intentCiStatusPage.ts";

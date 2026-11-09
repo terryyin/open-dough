@@ -67,7 +67,7 @@ test("Intent highlights a selected Taken story's test changes over the published
   await test.step("the story's view sits under the banner, one persistent header, led by the way to Project Intent, heading its views", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(intent.locator(":scope > *").first()).toHaveClass(
-      "intent-story-view",
+      "intent-page-frame",
     );
     await expect(
       intent.getByRole("tablist", { name: "Project Intent views" }),

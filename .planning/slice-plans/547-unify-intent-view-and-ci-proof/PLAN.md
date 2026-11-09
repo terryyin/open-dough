@@ -4,64 +4,39 @@
 
 **Source:** [Unify the Intent view and CI proof](../../seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof)
 
+**Source review:** [Independent source commitments](source-review.md)
+
 ## Goal and scope
 
-Developers read project and selected-story Intent in one persistent
-header/tab/content arrangement and read one CI comparison language from the
-story through location, folder, and file evidence. Preserve independent
-project/story evidence and reading places, keyboard return, narrow/zoomed
-reading, and CI availability when locations cannot be read.
-
-The source owns the examples and restrictions. In particular, precise
-drill-down changes remain visible; each displayed comparison shares a
-symmetric relative scale of at least 50%, widened to its largest displayed
-relative change. Show % is the story reading preference across scopes.
-Baseline sorts by measured time and Branch/Landed by signed change, with
-uncomparable rows last and the outside row pinned last.
-
-No CI endpoint discovery, proof schema/collection, count-unit semantics,
-revision/retry policy, or coverage assessment change. SEED-281's test-case vs
-test-file work is independent. Preparation does not authorize implementation.
+One persistent header/tab/content arrangement for project and selected-story
+Intent, preserving separate evidence/reading places, keyboard, narrow/zoomed
+use and CI independent of locations. Share CI comparison language through
+location/folder/file, preserving precision, symmetric per-display scale
+(minimum 50%), one Show % preference, measured Baseline sort and signed
+Branch/Landed sort with uncomparable rows and pinned outside last.
+Source owns examples/restrictions. No endpoint discovery, proof schema,
+collection, count units, revision/retry or coverage change. SEED-281 is independent.
 
 ## Architecture and reuse
 
-Follow [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts):
-Selected story is page state; a Project Intent visit preserves it. Keep
-`IntentCiEvidence.tsx`'s context-specific evidence ownership and
-`pageIntentReading.tsx`'s separate disposable project/story reading scopes.
-Share the page presentation around optional story context rather than
-substituting one shared mutable evidence target. Preserve the currently shown
-evidence context independently of the retained Selected story.
-
-PFE inspected the current owners at `1d10644648ff861a257ba964418bd3459b9d0826`:
-
-- `IntentPerspective.tsx` already chooses context, activates evidence, and
-  manages return focus. `IntentStoryView.tsx` and `IntentProjectView.tsx`
-  duplicate page arrangement around shared `IntentBrowser.tsx`, `IntentTabs.tsx`,
-  and evidence/reading owners. Change that existing presentation into one
-  implementation, preserving applicable project and story views.
-- `ciScopeComparison.ts` and `ciScopeComparisonTiming.ts` already calculate
-  entry/folder/file cells, renamed Baseline paths, partial timing, and gaps.
-  `storyCiComparisonEntries.ts` privately converts those cells to signed
-  changes. Expose one precision-aware conversion for every compared scope,
-  keeping the domain classification and endpoint rules authoritative.
-- `IntentCiComparison.tsx` owns active comparison framing and the relative
-  provider/control; `IntentScopeComparisonTable.tsx` and `IntentFileProof.tsx`
-  use the same scope evidence without that presentation. Share that
-  presentation and reading preference at their existing boundaries.
-  Calculate relative scale from each displayed comparison's figures/rows,
-  with no new provider reads or unseen-descendant scan.
-- `CiProofTable.tsx`, `CiProofFigures.tsx`, and `ciProofSort.ts` already render
-  signed cells and sort their `changeMs` when `showsChange` is true. Carry the
-  common cell meaning through these consumers rather than making another
-  table or a separate drill-down sorter.
-
-This follows [ADR 0002, principles 2 and 5](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-and [ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md).
-The ADR index and relevant record statuses agree, with no applicable conflict
-or supersession. The established [North Star](../../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation)
-supports ordinary components and transient presentation state. No new topic,
-ADR, service, or persistence mechanism is needed.
+[ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts)
+keeps Selected story at page scope and project/story evidence and reading
+places independent. Share presentation around optional story context, while
+shown evidence context remains distinct from retained selection.
+PFE at `1d10644648ff861a257ba964418bd3459b9d0826` selected existing owners:
+- `IntentPerspective` orchestrates context, evidence and focus; duplicate
+  `IntentStoryView`/`IntentProjectView` arrangements share the browser/tabs.
+- `ciScopeComparison`/`ciScopeComparisonTiming` calculate scope evidence,
+  rename paths, precision and gaps; expose the private story signed conversion.
+- Share `IntentCiComparison` framing/relative control with Summary/File Proof
+  using held evidence and displayed figures/rows only, without provider reads.
+- `CiProofTable`, `CiProofFigures` and `ciProofSort` already consume signed
+  cells/changeMs; carry common meaning through them without another sorter.
+This fits [ADR 0002 principles 2/5](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+[ADR 0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md), and the
+[North Star](../../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation):
+ordinary components and transient presentation state, no new provider or store.
+Relevant Accepted statuses agree, with no supersession or conflict.
 
 ## Outside-in proof ownership
 
@@ -86,7 +61,7 @@ case site; do not replace product behavior with fixture-supplied results.
 ### 1. Read project and story Intent in one persistent page
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 1 rows above; relevant focused browser journeys, then the
 affected Intent consumer suite under the gate below.
 
@@ -196,45 +171,68 @@ use test.slow(), or override suite/file/group/hook timeouts.
 
 ## Decisive premises and retained observations
 
-Observed in this owned worktree on 2026-11-09 at
-`1d10644648ff861a257ba964418bd3459b9d0826`, with production and test paths
-unchanged apart from the reverted scratch faults. Commands used the normal
-dashboard Playwright config and Chromium fixtures.
-This machine was on AC with load 4.28/5.63/6.86, about 1.3 GiB free plus
-inactive memory, and no other observed test run. Two workers under the AC
-sleep guard were sufficient for these bounded observations. Initial fixture
-startup failed because this new worktree had no node_modules; `npm ci
---ignore-scripts --no-audit --no-fund` repaired that local setup, after which
-the same checks reached their observations.
-
-| Premise / consuming operation | Observation in the consuming form | Result and limit |
-| --- | --- | --- |
-| Slice 1 can preserve the actual project/story visit through existing evidence/reading owners | `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-project-visit.spec.ts tests/intent/intent-ci-comparison-relative.spec.ts --grep "a candidate's test\|relative changes share" --workers=2 --reporter=line` | Both passed, 10.1 s: real Taken worktree visit restored Purpose scroll, published project candidate, file Proof, keyboard returns, and asserted request reuse. This is preserved-behavior evidence, not proof of the new shared frame. |
-| The visit proof discriminates loss of scope isolation; the relative proof discriminates wrong signed text | Scratch remove `scopedKey`'s scope prefix and replace `timeChangeOf` text with "comparison disabled"; run the exact two-spec command above, then restore both files | Both failed: project visit could no longer show main CI after entering project context; entry Branch cell received disabled text instead of +30 s. Scratch edits were reverted before records. This establishes these checks' discrimination only at the observed boundaries. |
-| Slice 2's existing sort consumes signed changes rather than measured/relative time | `node --test tests/support/intent-ci-comparison-sort.test.mjs`; scratch force `valueOf` to return `cell.ms` and repeat, then restore | Baseline 4/4 passed; fault failed the entry ordering and adversarial signed-change cases (2/4), including added rows moving ahead of comparable changes. Final Summary case proves the current divergence and must be rewritten. |
-| Normal fixture route reaches published file Proof and precision-bearing expected rows | `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-project-visit.spec.ts tests/intent/intent-ci-comparison-relative.spec.ts tests/intent/intent-summary-story-comparison-file.spec.ts --grep "a candidate's test\|relative changes share\|compact comparison with clean merges" --workers=2 --reporter=line` after all scratch restores | 3/3 passed, 14.5 s. The clean file journey observes modified, added, and unchanged file timings and keyboard CI-return. The new signed/relative drill-down assertions are slice 2 work and must first fail on current behavior. |
-| Location/folder and sort fixtures reach the intended drill-down and current sorting, including rename lookup | `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-summary-story-comparison.spec.ts tests/intent/intent-summary-story-comparison-sort.spec.ts --workers=2 --reporter=line` | 3/3 passed, 15.5 s: both clean and owning-merge variants read precise location/folder figures and changed/renamed child rows; the sort journey observes current measured-time ordering, retained sort, missing-column fallback, and zoomed fit. These existing expectations must change where the promised signed presentation differs. |
-| The nested merge-edited file fixture exposes the source's 70 ms example | `caffeinate -s -i npm run test:dashboard -- tests/intent/intent-summary-story-comparison-file.spec.ts --grep 'own-conflict-extra' --workers=2 --reporter=line` | 1/1 passed, 14.6 s: the owning-merge variant reads the nested file's current 340 ms → 410 ms (+70 ms, +21%) cells. Slice 2 owns replacing that wording with the common signed-cell/mark presentation; the fixture does not supply the display behavior. |
-
-Reassess observations only when relevant code/fixture/environment changes
-invalidate them; unchanged retained proof needs no repeat. Before implementation
-capture the new shared-header and drill-down acceptance failures in the normal
-fixtures, then make them pass. Existing passes do not claim those new promises.
+[Retained preparation observations](proof.md#decisive-premises-and-retained-observations)
+record the literal commands, real fixture paths, settled context-isolation,
+comparison precision/sorting, request-reuse observations and scratch fault
+discrimination at `1d10644648ff861a257ba964418bd3459b9d0826` on this host.
+Reuse them while their boundaries hold. Slice 1's new shared-header and
+held-location promises now have current acceptance proof; slice 2 must capture
+its new signed drill-down acceptance failure before implementation.
 
 ## Current decisions and preparation review
 
-- Preserve page-owned selection and separate evidence/reading contexts; shared
-  layout changes no repository or machine-local authority.
-- Preserve precise drill-down timing and apply the existing relative-scale
-  rule to the currently displayed figures, with one kept Show % preference.
-- Keep signed display and its sorting atomic. Added/gap/zero handling comes
-  from current evidence classification, not a new per-scope exception set.
-- Preserve current endpoint discovery and recovery. No dependency on the
-  independent Side panel correction or test-unit story is introduced.
+Preserve page selection and independent evidence/reading contexts; share
+precision-aware comparison display and signed sorting atomically, using held
+evidence. Endpoint recovery stays unchanged. Two cohesive Behavior slices
+have one proof loop and safe stop each. No remaining preparation concern or
+new provider/store; no dependency on Side panel or test-unit work.
 
-Plan refinement was not needed: two cohesive Behavior slices own the page
-transition and the complete comparison drill-down respectively. Each has one
-observable proof loop and a safe stopping point; shared responsibilities are
-reused inside those slices rather than scheduled as speculative Structure.
-No remaining slice-specific concern was identified within the inspected
-boundaries. No execution or Take is authorized by this preparation.
+## Execution context
+
+Established start accepted 2026-11-09; story-branch mode, reused owned workspace:
+`/Users/terryyin/git/open-dough/.worktrees/unify-the-intent-view-and-ci-proof`,
+branch `codex/unify-the-intent-view-and-ci-proof`. Originating/execution checkout
+are this workspace; default/integration checkout `/Users/terryyin/git/open-dough`.
+Remote `origin`, trunk `main`; increment target is the execution branch.
+Publisher `dashboard-territory.local-open-dough`, agent `jackson-chan`.
+Starting revision `35b3db1a95ead4e19b5af3d5a907349c0fce7fa5`; accepted claim,
+initial published base/candidate `b62745bec339504a683c736d59caa09f4d3b915c`.
+Remote branch confirms claim; claim trunk CI unobserved. Checkout setup:
+`npm ci --ignore-scripts --no-audit --no-fund`, then dashboard typecheck passed.
+Check-only hook owns staged lint/typecheck; selective formatter `npm run format`.
+No numeric slice budget/hard limit; retain within-story planning authority.
+CI: GitHub Actions `terryyin/open-dough`, push `ci.yml`; initial native lookup
+held by directed rate limit. Observer `seed282-codex`, `/tmp/dough-ci-501/watch-bQpQj3`,
+PID `35239`, stream `9080`, yielded cell `g48:8`, this checkout, watching.
+MacOS awake on AC: `caffeinate -s -i`, at most two workers; recheck competing
+work/load/memory before expensive commands. Final slice 1 launch had load
+3.82/4.95/5.19, ~4.8 GiB free plus inactive, no competing browser runner.
+Do not duplicate SEED-275's active Side panel correction; ADR 0008 already
+requires preserved selection on close. Recheck trunk before integration.
+
+## Story obligations
+
+### G1. Project CI during held location loading
+Reported: slice 1 — "Acceptance inspection found that projectCiActive and the project fallback wait for locations to settle, while the source promises CI usable while locations load."
+Story clause: "usable CI while locations load or fail"
+Disposition: proved by slice 1: `intent-ci-status-homepage.spec.ts`, “project CI remains readable while locations load, fail and recover without another CI read” observes held load → location failure → Retry → tree with main CI visible and exactly one fresh plus one kept judgment request. Inspected production activation remains in the same mounted project evidence owner; final affected 68-test strict run passed.
+Commitment: C26a
+
+### G2. Observe Hide files across evidence-context visits
+Reported: slice 1 — "Coordinator acceptance inspection found no explicit cross-context Hide files assertion in project-visit or sidebar-toggle; existing observations cover separate views and mounts only."
+Story clause: "Hide files choice"
+Disposition: proved by slice 1: `dashboard/tests/intent/intent-sidebar-toggle.spec.ts`, “the hidden column stays hidden through a Project Intent visit”: lines 167–191 explicitly hide story, visit project with files shown, return to story still hidden, then retain it through Development. Coordinator inspected this previously missed block; current focused run passed, with full Intent run covering it again.
+Commitment: C10e
+
+## Slice 1 acceptance and proof
+
+Accepted the common page, separate evidence/reading owners, and independent
+project CI during held locations. [Retained proof](proof.md#slice-1-acceptance-and-proof)
+contains the literal commands, consumer dispositions, source comparison and
+resource decision: focused 9 passed; full 260 passed plus 3 obsolete heading
+assertions subsequently repaired; final affected strict 68 passed; typecheck
+and diff check passed. G1 and G2 are proved; no slice 1 gap remains.
+
+Independent refactor accepted: common header/style ownership and exact test
+helper extraction; focused 16/16 strict passed, typecheck/diffcheck passed.
+Details and command retained in [proof](proof.md#slice-1-independent-refactor).

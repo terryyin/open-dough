@@ -1,28 +1,23 @@
-/* A selected story in Intent (./IntentStoryView.tsx): its persistent
-   header (./IntentStorySummary.tsx), led by the way to Project Intent,
-   naming the story by its full title, the
-   count of changed files outside every location beside it, its identity and
-   what its comparison says; then the story's views (./intentStoryTabs.tsx)
-   with Hide files / Show files ending their row; then the chosen view. CI
-   comparison, an explanation in place of the locations, and Intent coverage
-   fill and scroll the remaining height; Changed tests is the locations
-   browser below (./intent-perspective.css). */
-.intent-story-view {
+/* Intent's shared page (./IntentPage.tsx): one persistent header and view
+   row for project evidence and an optional selected story. CI comparison,
+   location explanations and Intent coverage scroll within the frame;
+   the locations browser below keeps independent tree and reader scrolling. */
+.intent-page-frame {
   flex: none;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.intent-story-view[data-fills="true"] {
+.intent-page-frame[data-fills="true"] {
   flex: 1;
 }
 
-.intent-story-view[hidden] {
+.intent-page-frame[hidden] {
   display: none;
 }
 
-.intent-story-summary {
+.intent-header {
   flex: none;
   min-width: 0;
   padding: var(--space-1) clamp(0.75rem, 4vw, 1.5rem) var(--space-3);
@@ -30,11 +25,11 @@
   overflow-wrap: anywhere;
 }
 
-.intent-story-summary p {
+.intent-header p {
   margin: 0;
 }
 
-.intent-story-summary .intent-story-crumb {
+.intent-header .intent-story-crumb {
   color: var(--quiet);
   font-size: var(--text-xs);
 }
@@ -64,7 +59,7 @@
 }
 
 /* Done and the identity, quiet above the title. */
-.intent-story-summary .intent-story-meta {
+.intent-header .intent-story-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -120,7 +115,7 @@
 }
 
 /* The story's views, with Hide files / Show files at the row's end. */
-.intent-story-tabbar {
+.intent-page-tabbar {
   flex: none;
   display: flex;
   flex-wrap: wrap;
@@ -131,7 +126,7 @@
   padding: 0 clamp(0.75rem, 4vw, 1.5rem);
 }
 
-.intent-story-tabbar > .start-launch-button {
+.intent-page-tabbar > .start-launch-button {
   flex: none;
   margin-inline-start: auto;
   margin-block-end: var(--space-1);
@@ -141,16 +136,16 @@
 /* Narrow, the views and the files toggle share one row: smaller tabs, and
    the toggle's icon alone, its words kept as its name. */
 @media (max-width: 36rem) {
-  .intent-story-tabbar {
+  .intent-page-tabbar {
     flex-wrap: nowrap;
   }
 
-  .intent-story-tabbar .intent-tab {
+  .intent-page-tabbar .intent-tab {
     padding-inline: var(--space-1);
     font-size: var(--text-xs);
   }
 
-  .intent-story-tabbar .file-browser-toggle-words {
+  .intent-page-tabbar .file-browser-toggle-words {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -160,7 +155,7 @@
   }
 }
 
-.intent-story-panel {
+.intent-page-panel {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -170,11 +165,11 @@
   border-top: 1px solid var(--line);
 }
 
-.intent-story-panel[hidden] {
+.intent-page-panel[hidden] {
   display: none;
 }
 
-.intent-story-panel:focus-visible {
+.intent-page-panel:focus-visible {
   outline-offset: -3px;
 }
 
@@ -231,6 +226,6 @@
 }
 
 /* An explanation in place of the locations keeps the panel's inset. */
-.intent-story-panel > :is(.intent-not-configured, .intent-settings-problem) {
+.intent-page-panel > :is(.intent-not-configured, .intent-settings-problem) {
   margin: 0;
 }

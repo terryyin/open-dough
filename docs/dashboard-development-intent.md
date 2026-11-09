@@ -112,18 +112,24 @@ summary drills down: a child's name selects that folder or file as its tree
 name does and reveals it in the tree, keyboard-operable. A summary reads no
 file text and asks CI nothing again: home and every summary share one
 judgment, proof and comparison-endpoint read.
-Intent shows either **Project Intent**, the project's own evidence, or, with a
-story selected on the page, [that story's views](dashboard-development-intent-story.md).
-Project Intent is the landing with no selected story; the selected perspective
-choice names the page, so it then shows no heading of its own. Visited from a
-selected story, through **Project Intent** leading the story's header, it is
-headed **Project Intent** with **Back to selected story**, and the story stays
-selected: going either way moves the keyboard to the control that comes back.
-Below the banner the page does not scroll: the location tree fills the
-remaining height against the left edge, and it and the reading pane each
-scroll independently. Project Intent's strip of two views, **CI status** and
-**Optimization Candidates**, chooses what that content shows; it belongs to
-Intent and is not another perspective. Arrow keys, Home and End move between
+Intent uses one page implementation for **Project Intent**, the project's own
+evidence, and [a selected story's views](dashboard-development-intent-story.md).
+Both contexts keep the story view's persistent header, tab row, revision notice
+and reading area in the same order. With no story selected, the header says
+**No story selected** and the page offers the project's **CI status** and
+**Optimization Candidates** views. With a story selected, its title, actions and
+applicable views use that same arrangement. The active context identifies whose
+evidence is shown.
+**Project Intent** leading the story's header visits the project's own evidence;
+its header says **Project Intent** and offers **Back to selected story**. The
+story stays selected, and going either way moves the keyboard to the control
+that comes back. Clearing the selection returns to project **CI status** with
+**No story selected** in the persistent header.
+Below the header, views and revision notice, the page does not scroll: the
+location tree fills the remaining height against the left edge, and it and the
+reading pane each scroll independently. Project Intent's two views, **CI status**
+and **Optimization Candidates**, choose what that content shows; they belong to
+Intent and are not another perspective. Arrow keys, Home and End move between
 its tabs and only choose the view, so returning to **CI status** that way
 keeps what it was reading.
 **CI status** shows the location tree (Purpose locations only) beside the
@@ -145,12 +151,11 @@ or its scroll, and a project test the story changed shows its published text
 in Project Intent. A visit to Project Intent and back restores the story's
 chosen view and reading place.
 While a location tree shows, Review changes' **Hide files** / **Show files**
-toggle states whether the locations column is shown: in Project Intent it
-follows the strip's tabs on **CI status**, and with a story it ends the
-story's view row while **Changed tests** shows, in both cases reached by Tab
+toggle states whether the locations column is shown. It ends the common view
+row on project **CI status** or a story's **Changed tests**, reached by Tab
 after the tabs. Hiding removes the column and gives the reading pane the full
 width, or on a narrow screen, where the tree sits above it, the full height; it
-changes no selection or reading, and a selected story's header stays above it.
+changes no selection or reading, and the persistent header stays above it.
 **Show files** returns the column as it was: selection, open location and
 folders, **Selected story only** and the tree's scroll. Each reading place
 keeps its own choice across selections, the story's other views,

@@ -1,10 +1,10 @@
-// Intent's CI status (`./IntentProjectView.tsx`, `./IntentStoryView.tsx`,
+// Intent's CI status (`./IntentPage.tsx`,
 // `./IntentBrowser.tsx`): the selected check's judgment of the branch
 // `./intentCiTarget.ts` names (in Project Intent the project's trunk, in the
 // selected story's CI comparison its published story branch), as the scope's CI
 // evidence owner reads it (`./IntentCiEvidence.tsx`), filling Project Intent's
 // reading pane when nothing is selected and shown beside its location
-// explanations when locations are absent or unreadable. It always names the
+// explanations while locations load, are absent or unreadable. It always names the
 // branch and when it was checked, and shows the judgment as
 // `./IntentCiJudgment.tsx` does, then the shown run's CI proof
 // (`./IntentCiProof.tsx`). A selected done story shows its CI timing comparison

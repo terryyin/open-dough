@@ -21,7 +21,7 @@ import {
 } from "./testOptimizationCandidates.ts";
 
 // The entry a test was opened from, which takes the keyboard when the
-// developer returns to Optimization Candidates (`./IntentProjectView.tsx`).
+// developer returns to Optimization Candidates (`./IntentPage.tsx`).
 const returnEntryAttribute = "data-return-entry";
 
 export function focusReturnEntry(panel: HTMLElement | null) {

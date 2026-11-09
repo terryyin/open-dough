@@ -2,7 +2,7 @@
    (`./IntentCandidatesRecord.tsx`, `./IntentCandidatesLocationsText.tsx`); the
    open-link control is shared with summaries (`./intent-perspective.css`). */
 
-/* The Optimization Candidates reading mode (`./IntentModeTabs.tsx`): the
+/* The Optimization Candidates reading mode (`./IntentPage.tsx`): the
    record across the Intent content area, scrolling on its own. */
 .intent-candidates-panel {
   flex: 1;
