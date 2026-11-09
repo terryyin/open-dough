@@ -1,8 +1,9 @@
 // The time this server's shared observations (`./sharedObservation.ts`)
-// measure their reuse windows by: this machine's clock, unless a test names
-// a file (`DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE`) holding how many
-// milliseconds to run it ahead. A journey whose page clock is paused lets a
-// window end that way instead of waiting it out in real time. Production
+// measure their reuse windows by, and landed CI collection its wait for a
+// landing's own run (`./landedCiResolution.ts`): this machine's clock, unless
+// a test names a file (`DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE`) holding how
+// many milliseconds to run it ahead. A journey whose page clock is paused lets
+// a window end that way instead of waiting it out in real time. Production
 // names no file; a named file that is gone (its test has ended) runs nothing
 // ahead.
 

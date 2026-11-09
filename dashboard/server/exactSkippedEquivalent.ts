@@ -5,15 +5,14 @@
 import { equivalentBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
 import type { CiProof } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
-import { firstParentChain } from "./baseCiRevisionGit.ts";
-import {
-  nearestRevisionBuild,
-  proofRunOf,
-  type RevisionCiLookup,
-} from "./baseCiRevisionNearest.ts";
+import { proofRunOf, type RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import type { GitCall } from "./gitRunner.ts";
-import { asSlot, type RevisionBuildSlot } from "./revisionBuildSlot.ts";
+import {
+  asSlot,
+  nearestAncestorBuild,
+  type RevisionBuildSlot,
+} from "./revisionBuildSlot.ts";
 
 // How far a baseline walk may go beyond the story start when looking for a
 // completed trunk build (claim commits are almost never built). Shared with
@@ -74,10 +73,11 @@ export async function exactSkippedEquivalentSlot(
   exact: ExactResultLookup,
   status: RequestedRevisionCiStatus,
 ): Promise<RevisionBuildSlot> {
-  const chain = await firstParentChain(target, call, baselineAncestorLimit + 1);
-  const equivalent = await nearestRevisionBuild(
-    chain.filter((sha) => sha !== target),
+  const equivalent = await nearestAncestorBuild(
+    target,
     lookup,
+    call,
+    baselineAncestorLimit,
   );
   if (
     equivalent === undefined ||

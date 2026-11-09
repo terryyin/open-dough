@@ -94,34 +94,66 @@ time in whole seconds (`6 min 5 s`), as the
 a build's. An image named “CI wall time by build date”, drawn in the page
 without a chart library, places each measured build once at its date and CI
 wall time and joins them in date order, against whole-step time words; its
-words keep their size at phone width. **Builds and evidence**, a disclosure
-reached by Tab, lists each build in words: its date, CI wall time,
-`exact revision` with the short revision, and its run attempt
+words keep their size at phone width. A landing not measured yet is a
+pending gap: it stands at the date the dashboard recorded it, the line breaks
+there and draws nothing for it, so one after the last point leaves the line
+ended before it. **Builds and evidence**, a disclosure reached by Tab, lists
+each point and gap in that order, in words. A build gives its date, CI wall
+time, `exact revision` with the short revision, and its run attempt
 (`Run 41 · attempt 1`, or an adapter's `Attempt <attemptId>`) linked to its
-run, so a keyboard, a screen reader and a phone get the same evidence
-without colour. With no measured build, as for a project with no recorded
-landing, it says “No dashboard-recorded landings have been measured yet.”
-and draws nothing. The current judgment, its Proof and **Check again** keep
-their own reading. The history is read again with each trunk judgment
-(when Project Intent shows, when an observed trunk advance refreshes it, and
-on **Check again**), never on time alone, and reads only the collected local
-history, so it asks CI nothing, before or after a restart.
+run. A pending gap gives the date its landing was recorded, `Pending` and
+what it waits for, said as _not yet_: `no CI run yet`, `CI queued or
+running`, `waiting for a later trunk build` (its own build was cancelled) or
+`CI not read yet`; then `landed revision` with the short revision, and the
+run attempt it waits on, linked to its run, when there is one. So a
+keyboard, a screen reader and a phone get the same evidence without colour.
+With no measured build it says “No dashboard-recorded landings have been
+measured yet.” and draws nothing, still listing any pending gap. The current
+judgment, its Proof and **Check again** keep their own reading: collection
+finishing refreshes nothing on the page. The history is read again with
+each trunk judgment (when Project Intent shows, when an observed trunk
+advance refreshes it, and on **Check again**), never on time alone, and
+reads only the collected local history, so it asks CI nothing, before or
+after a restart, in a development or a production dashboard alike.
 
 A production dashboard collects that history in the background
-(`dashboard/server/landedCiCollection.ts`) whether or not a page is open:
-recording an accepted landing (see
-[Landed run records](../dashboard/STORY-REVIEW-LANDED-RUNS.md)) starts a pass
-over this machine's recorded landings onto each configured project's ref,
-newest first, until 20 measured builds are held for the project. Each
-landing resolves through the CI timing comparison's Story Branch Landed rule
-at its accepted revision, over the project's CI read: the `ciWorkflow` runs
-at that revision, or the `ciAdapter`'s discovery. A measured build is the
-landed revision's own passed build whose attempt has both a start and a
-completion; its CI wall time follows the comparison's definition. A final
-resolution is kept by the landing's receipt, with each build kept once by
-its run and attempt, in `~/.open-dough/dashboard/landed-ci-history.json`, and
-never resolved again; a landing whose CI is still running or could not be
-read is resolved again by the pass the next recorded landing starts. A
-development dashboard collects nothing and reads the same history. The file
-is derived local evidence: deleting it loses only the requests to rebuild it
-and evidence CI no longer keeps.
+(`dashboard/server/landedCiCollection.ts`) whether or not a page is open. A
+pass runs when the dashboard starts, so landings recorded before it started,
+or before collection existed, are collected by the same rebuild; when it
+records an accepted landing (see
+[Landed run records](../dashboard/STORY-REVIEW-LANDED-RUNS.md)); and every
+two minutes, so a pending landing is checked again until it is final. Passes
+never overlap. A pass walks this machine's recorded landings onto each
+configured project's ref, with the landings the history keeps itself, newest
+first, until 20 measured builds are held for the project. Each landing not
+final yet resolves through the CI timing comparison's Story Branch Landed
+rule at its accepted revision, over the project's CI read: the `ciWorkflow`
+runs at that revision, or the `ciAdapter`'s discovery. A measured build is
+the landed revision's own passed build whose attempt has both a start and a
+completion; its CI wall time follows the comparison's definition.
+
+A landing is pending while that rule's answer may still change: its build is
+queued or running; its cancelled build awaits a later trunk build; the CI
+could not be read (the pass then leaves that project until the next one); or
+the rule found no build that CI may still make. That last case covers a
+landing recorded before GitHub created its push's run: with no run at the
+landed revision and no confirmed skip, it waits for a run there until CI
+moves past it, that is, until a later first-parent trunk revision (up to the
+project folder's `origin/<ref>`, within 30 revisions) has a run, and for at
+most an hour after the landing was recorded, since GitHub creates a push's
+run within moments; and a landing whose skip rests on the nearest earlier
+build waits while that build is queued or running. Once CI ran at the landed
+revision, built past it without building it, or never ran for it within that
+hour, the gap is final.
+
+Each landing is kept by its receipt, with its own reference (revision, when
+it was recorded, its story), and each build once by its run and attempt, in
+`~/.open-dough/dashboard/landed-ci-history.json`. A final resolution is never
+resolved or replaced again; a pending one is replaced by what the landing
+resolves to next. So a restart, a repeated landing report, or a second
+production dashboard on the machine resumes collection and keeps one
+observation per landing and one entry per build, and a pending landing whose
+Done record has expired (after 30 days) is still resolved from the history's
+own reference. A development dashboard collects nothing and reads the same
+history. The file is derived local evidence: deleting it loses only the
+requests to rebuild it and evidence CI no longer keeps.

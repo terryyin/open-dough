@@ -4,18 +4,21 @@
 // landing and its Done mark, each with fixed receipts and references
 // (`./launchTestData.mjs`). A final report can also be arranged on its own
 // (`CompletionReportBuilder`), as can the submission a session reports it
-// with (`CompletionSubmissionBuilder`). The landing is the evidence
-// `./launchLandingEvidenceTestData.mjs` describes.
+// with (`CompletionSubmissionBuilder`, `./completionSubmissionTestData.mjs`).
+// The landing is the evidence `./launchLandingEvidenceTestData.mjs`
+// describes.
 
 import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
 import {
   fixedReceivedAt,
+  landingDelivery,
   reportingReference,
 } from "./launchLandingTestData.mjs";
 
+export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs";
+
 /** @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
 /** @typedef {import("../../dashboard/src/completionReport.ts").CompletionReport} CompletionReport */
-/** @typedef {import("../../dashboard/server/completionAdmission.ts").CompletionSubmission} CompletionSubmission */
 
 /**
  * The facts a final report states: its outcome and message, and, when they
@@ -27,10 +30,12 @@ import {
  * The facts a launch states after it started: the final report, whether the
  * developer read it, the revision the work landed at, when the developer
  * marked the session Done, and what that mark could not finish natively.
+ * A landing is received under a fixed receipt unless it states its own.
  * @typedef {{
  *   completion?: ReportFacts,
  *   reportRead?: boolean,
  *   landedRevision?: string,
+ *   landingReceipt?: string,
  *   doneAt?: string,
  *   doneProblem?: string,
  * }} LaunchOutcome
@@ -65,6 +70,17 @@ function finalReport(
   };
 }
 
+// The landing under the receipt the case states, if it states one.
+/**
+ * @param {LaunchLandingBuilder} landing
+ * @param {string | undefined} receipt
+ */
+function received(landing, receipt) {
+  return receipt === undefined
+    ? landing
+    : landing.deliveredAs({ delivery: landingDelivery, receipt });
+}
+
 // What a launch's builder states about the launch after it started
 // (`LaunchRecordBuilder`): its final report, whether the developer read it,
 // its landing and its Done mark.
@@ -90,11 +106,17 @@ export class LaunchOutcomeBuilder {
   }
 
   /**
-   * The session's work landed on `main` at this revision.
+   * The session's work landed on `main` at this revision, received under a
+   * fixed receipt unless the case states the receipt the dashboard gave it.
    * @param {string} revision a 40-character commit id
+   * @param {{ receipt?: string }} [received]
    */
-  landedAt(revision) {
-    this.#outcome = { ...this.#outcome, landedRevision: revision };
+  landedAt(revision, { receipt } = {}) {
+    this.#outcome = {
+      ...this.#outcome,
+      landedRevision: revision,
+      ...(receipt !== undefined && { landingReceipt: receipt }),
+    };
     return this;
   }
 
@@ -118,8 +140,14 @@ export class LaunchOutcomeBuilder {
    * @param {string} at an ISO date-time
    */
   outcomeFacts(at) {
-    const { completion, reportRead, landedRevision, doneAt, doneProblem } =
-      this.#outcome;
+    const {
+      completion,
+      reportRead,
+      landedRevision,
+      landingReceipt,
+      doneAt,
+      doneProblem,
+    } = this.#outcome;
     const report = completion && finalReport(completion, at);
     if (reportRead && !report)
       throw new Error("only a launch that reported can have its report read");
@@ -127,10 +155,12 @@ export class LaunchOutcomeBuilder {
       ...(report && { completion: report }),
       ...(reportRead && report && { reportRead: report.receipt }),
       ...(landedRevision && {
-        landing: new LaunchLandingBuilder()
-          .comparing({ base: "c3".repeat(20), revision: landedRevision })
-          .receivedAt(at)
-          .please(),
+        landing: received(
+          new LaunchLandingBuilder()
+            .comparing({ base: "c3".repeat(20), revision: landedRevision })
+            .receivedAt(at),
+          landingReceipt,
+        ).please(),
       }),
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
@@ -187,59 +217,5 @@ export class CompletionReportBuilder {
   /** @returns {CompletionReport} */
   please() {
     return finalReport(this.#report, fixedReceivedAt);
-  }
-}
-
-// What a session submits to report its completion: a quiet completion
-// (`completed` with no message) for the launch's fixed reporting reference
-// from `open-dough` on Codex, claiming no native session and starting a new
-// delivery, unless the case states otherwise. The dashboard answers it with a
-// delivery receipt; it is not the report the store keeps.
-export class CompletionSubmissionBuilder {
-  /** @type {CompletionSubmission} */
-  #submission = {
-    source: "open-dough",
-    host: "codex",
-    reference: reportingReference,
-    outcome: "completed",
-    message: "",
-  };
-
-  /**
-   * The accepted launch it reports for: its host and reporting reference.
-   * @param {Pick<CompletionSubmission, "host" | "reference">} launch
-   */
-  reportingFor(launch) {
-    this.#submission = { ...this.#submission, ...launch };
-    return this;
-  }
-
-  /** @param {string} session the native session the submitter claims to be */
-  fromSession(session) {
-    this.#submission = { ...this.#submission, session };
-    return this;
-  }
-
-  /** @param {string} delivery the earlier delivery this submission retries */
-  retrying(delivery) {
-    this.#submission = { ...this.#submission, delivery };
-    return this;
-  }
-
-  /** @param {CompletionSubmission["outcome"]} outcome */
-  withOutcome(outcome) {
-    this.#submission = { ...this.#submission, outcome };
-    return this;
-  }
-
-  /** @param {string} message the final report message */
-  saying(message) {
-    this.#submission = { ...this.#submission, message };
-    return this;
-  }
-
-  /** @returns {CompletionSubmission} */
-  please() {
-    return { ...this.#submission };
   }
 }

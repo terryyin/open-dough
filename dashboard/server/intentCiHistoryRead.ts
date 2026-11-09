@@ -1,16 +1,16 @@
 // Intent's CI wall time history read for the local authenticated read
 // boundary (`./authenticatedRead.ts`): `intent=ci-history`, naming nothing
-// more. It answers the project's measured builds
-// (`./landedCiMeasuredBuilds.ts`) from this machine's collected landed CI
-// history (`./landedCiHistoryStore.ts`) alone and asks no CI, Git or GitHub,
-// so opening or refreshing CI status acquires no CI data for it, before or
-// after a restart. Collection is `./landedCiCollection.ts`'s. Anything else is
-// refused here.
+// more. It answers the project's measured builds and the landings still
+// pending (`./landedCiHistoryEntries.ts`) from this machine's collected landed
+// CI history (`./landedCiHistoryStore.ts`) alone and asks no CI, Git or
+// GitHub, so opening or refreshing CI status acquires no CI data for it,
+// before or after a restart, in whichever dashboard process serves it.
+// Collection is `./landedCiCollection.ts`'s. Anything else is refused here.
 
 import { readingCiHistoryOf } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { historyEntries } from "./landedCiHistoryEntries.ts";
 import { keptLandedCiHistory } from "./landedCiHistoryStore.ts";
-import { measuredPoints } from "./landedCiMeasuredBuilds.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import { refused, type RefusedParameters } from "./refusedParameters.ts";
 
@@ -43,6 +43,6 @@ export async function performIntentCiHistoryRead(
   source: PublishedSource,
 ): Promise<Outcome> {
   return answered({
-    points: measuredPoints(await keptLandedCiHistory(source.id)),
+    entries: historyEntries(await keptLandedCiHistory(source.id)),
   });
 }

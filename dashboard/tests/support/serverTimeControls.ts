@@ -1,7 +1,7 @@
 // The server time a test may run itself instead of waiting it out: the clock
-// shared-observation reuse windows are measured by
-// (../../server/observationClock.ts) and the end of a launch wait
-// (../../server/launchWait.ts). Each is a file the server is told about
+// shared-observation reuse windows and landed CI collection's wait for a
+// landing's own run are measured by (../../server/observationClock.ts) and
+// the end of a launch wait (../../server/launchWait.ts). Each is a file the server is told about
 // through its environment; a server started without the option names no file.
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";

@@ -48,8 +48,9 @@
 // is due under this machine's standing authorization
 // (`./feedbackMaintenanceCheck.ts`), and the sessions answer says where
 // feedback maintenance stands from its last observation. Each landing it
-// records has its trunk CI collected in the background into this machine's
-// landed CI history (`./landedCiCollection.ts`). It also names the
+// records, and each recorded before it started, has its trunk CI collected in
+// the background into this machine's landed CI history, checked again until
+// final (`./landedCiCollection.ts`). It also names the
 // starts kept without a session and the starts running with their phases. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --

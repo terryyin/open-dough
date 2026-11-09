@@ -7,9 +7,13 @@
 // and lists it under Builds and evidence with its date, wall time, exact
 // revision and run link, reachable by keyboard on a phone without widening
 // the page; a project with no measured landing says so in words and draws no
-// chart (SEED-285#see-landed-ci-wall-time-history examples 1 and 9).
-// Collection and the history read's variants are in
-// ../../backend-tests/intent/landed-ci-history-collection.spec.ts.
+// chart (SEED-285#see-landed-ci-wall-time-history examples 1 and 9). A
+// landing whose CI is still pending is in
+// ./intent-ci-wall-time-history-pending.spec.ts. Collection and the history
+// read's variants are in
+// ../../backend-tests/intent/landed-ci-history-collection.spec.ts,
+// ../../backend-tests/intent/landed-ci-history-lifecycle.spec.ts and
+// ../../backend-tests/intent/landed-ci-history-pending.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
@@ -17,13 +21,13 @@ import {
   evidenceLabels,
   expectEvidenceLabels,
 } from "../ciEvidenceLabelsPage.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
-import { chooseCiStatus } from "../intentCiStatusPage.ts";
+import {
+  historyOf,
+  openProjectCiStatus,
+  publishTrunk,
+} from "../intentCiHistoryPage.ts";
 import { proofOf } from "../intentCiProofPage.ts";
-import { openUntilRead } from "../pageRequestNotes.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
-import { actionsForRuns } from "../support/baseCiActions.ts";
 import {
   collectingLandedCi,
   landedCiHistory,
@@ -31,38 +35,9 @@ import {
 } from "../support/landedCiHistory.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
 import { land } from "../support/startSessionLandingContext.ts";
-import type { Locator, Page } from "@playwright/test";
 
 test.use({ extraEnv: collectingLandedCi });
-
-const historyOf = (panel: Locator) =>
-  panel.getByRole("region", { name: "CI wall time history", exact: true });
-
-// Open Dough's trunk as published, its main followed as it moves, with
-// `runs` as the selected workflow's push runs.
-async function publishTrunk(
-  page: Page,
-  origin: StartOrigin,
-  runs: Parameters<typeof actionsForRuns>[0],
-) {
-  const committed = await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: await originMain(origin),
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  committed.serveActions(actionsForRuns(runs));
-}
-
-// Project Intent's CI status, with nothing selected.
-async function openProjectCiStatus(page: Page) {
-  await openUntilRead(page);
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  return chooseCiStatus(intent);
-}
 
 test("a collected landing's exact build is a point of CI wall time beside the trunk's judgment and Proof, listed with its date, wall time, exact revision and run, by keyboard on a phone", async ({
   page,
@@ -70,7 +45,7 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
   origin,
 }) => {
   const { record, revision } = await resultToLand(dashboard, "landed.txt");
-  await publishTrunk(page, origin, [
+  await publishTrunk(page, origin, () => [
     makeMe.aCiRun
       .with({
         headSha: revision,
@@ -88,7 +63,7 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
   // Collected without Intent, or any page, open.
   await expect
     .poll(() => landedCiHistory(dashboard))
-    .toMatchObject({ body: { points: [{ revision }] } });
+    .toMatchObject({ body: { entries: [{ kind: "point", revision }] } });
 
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await openProjectCiStatus(page);
@@ -142,7 +117,7 @@ test("a project with no recorded landing says no landing has been measured yet, 
   const subject = (
     await origin.originGit("log", "-1", "--format=%s", "main")
   ).trim();
-  await publishTrunk(page, origin, [
+  await publishTrunk(page, origin, () => [
     makeMe.aCiRun
       .with({
         headSha: head,

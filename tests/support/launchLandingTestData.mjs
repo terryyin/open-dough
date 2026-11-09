@@ -109,6 +109,16 @@ export class LandingSubmissionBuilder {
     return this;
   }
 
+  /**
+   * Carried by this delivery, as a publication reporting the same landing
+   * again carries it.
+   * @param {string} delivery
+   */
+  inDelivery(delivery) {
+    this.#submission = { ...this.#submission, delivery };
+    return this;
+  }
+
   /** @returns {LandingSubmission} */
   please() {
     const { base, revision, ...submission } = this.#submission;
