@@ -292,22 +292,77 @@ is followed in one place.
 
 **Identity:** SEED-261#map-github-actions-ci-test-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/553-map-github-actions-ci-test-data/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the unchanged fast-forward comparison test failed its default 30000 ms timeout under contention. The admitted baseline, MakeMe conversion, discrimination and restored observations never started while another full suite held admission. Reproduce and repair the test or environment as needed, and verify that exact probe under maintained admission before clearing readiness."],"basis":{"document":"020372126b3f29db6e96113e19edff485aa62977d8a84f3b6364094cbd2294e4","plan":"e37e297ec9b31389c20ad136c51cf5886858012e58ba23610592121ffa486033"}}
 ```
 
-**Scope and value.** Convert the GitHub Actions workflow runs, run attempts
-and attempt jobs that tests arrange for a checked revision: dashboard base-CI
-judgment, CI status and story CI comparison endpoints (`CiRunAnswer`, `wall`,
-`actionsRunsAnswer` and the `storyCiComparison*` fixtures), the execution
-skill's GitHub observation, reuse and integrated-state fixtures, and the Node
-support revision lookups (about 33 files). A reviewer can see which run and
-attempt a case checks, at which revision, with what conclusion and timing.
+#### Goal
 
-**Evaluation and stopping point.** Real Git histories, fake GitHub routing,
-request counting, held or failing reads and controlled clocks stay in the
-harness. Queued, in-progress, cancelled and missing runs stay distinct from a
-completed verdict. Suite-local run constructors are removed or delegate to
-MakeMe.
+Maintainers can read which GitHub Actions run and attempt a test checks, at
+which revision, with which conclusion and timing, in the same vocabulary
+across dashboard and execution tests. Shared MakeMe setup owns those arranged
+facts so a domain change has one construction rule and preserves the existing
+independent behavioral proof.
+
+#### Scope
+
+- Convert valid synthetic workflow runs, run attempts and attempt jobs in
+  dashboard base-CI judgment, Intent CI status and story comparisons, the
+  execution skill's GitHub observation, reuse and integrated-state fixtures,
+  and Node support revision selection. Include indirect consumers of the
+  shared run and job factories. Remove displaced constructors or have their
+  harnesses delegate to MakeMe.
+- Align the existing `aCiRun` with the production GitHub observation contract
+  instead of the dashboard's suite-local `CiRunAnswer`. Keep actual GitHub
+  REST responses and observed run/current-attempt projections distinct,
+  reusing the existing API encoding seam. State revision, run and attempt
+  identity, branch, event, conclusion and times at the call site whenever
+  they drive the case. Preserve repository and workflow ownership in reuse.
+- Preserve pending, queued, in-progress, cancelled, skipped, absent and
+  completed outcomes as distinct facts. An earlier completed attempt and a
+  current rerun keep their separate identities. Synthetic job setup states
+  the facts the consumer needs; no new restriction on opaque identities or
+  absent timing follows from conversion.
+- Keep real Git histories and executed commands, fake GitHub routing,
+  pagination, request counting, held or failing reads, controlled clocks,
+  process lifetime and teardown in the harness. Keep captured job timestamps,
+  log text, malformed/partial responses and exact encoder-input examples
+  literal where their form is under proof. Expectations stay independent.
+- CI adapter attempts, queue and coverage records, and CI proof fragments and
+  summaries belong to the sibling stories. In mixed fixtures, convert the
+  GitHub run/job facts only. This story changes test construction and exposed
+  mapping mistakes; it makes no new UI, provider-contract or CI-policy promise.
+
+#### Key examples
+
+1. A run at the checked revision is in progress while a strict ancestor has
+   completed. Base-CI judgment and revision lookup keep the running and
+   completed evidence distinct, use only eligible ancestor results, and do
+   not mistake a sibling or queued rerun for a completed verdict. For one run
+   whose latest attempt is cancelled, an earlier completed timed attempt at
+   that same revision remains selectable.
+2. A listed run 41, attempt 1, starts at 10:00 and completes at 10:03 for the
+   shown revision. Intent shows that attempt and CI wall time 3 min; absent
+   timing remains unavailable. A cancelled latest attempt does not erase an
+   earlier completed result's usable time.
+3. A story's Branch and Landed results refer to the same attempt. The
+   comparison retains the correct baseline and both endpoint identities,
+   shows the same attempt-job timing, and reads the shared attempt's jobs
+   once. A refused read can recover; settled evidence stops further reads.
+4. A workflow is still running when one attempt's job fails, or a failed
+   earlier attempt is discovered after a later success. The observer keeps
+   that failure actionable with its own run, attempt and job evidence,
+   including a failing job on a second page. Diagnostic log evidence remains
+   the original text.
+5. An exact-revision run has successful direct job proof with matching
+   repository, workflow and context. Reuse selects its current attempt; a
+   newer pending rerun or a changed/partial read chooses fresh execution.
+   A later successful retry can qualify, preserving an opaque source run ID
+   separately from the target's own completion.
+6. Accepted B has a `not_required` basis and no run; descendant C executes the
+   declared check successfully. With the integrated-state policy, the
+   observer can validate B at C while retaining B's own basis. Without that
+   policy B stays unresolved, and B's own failure remains a failure beside
+   C's green. Git ancestry and the command producing C's result stay real.
 
 <a id="map-ci-adapter-and-coverage-test-data"></a>
 
