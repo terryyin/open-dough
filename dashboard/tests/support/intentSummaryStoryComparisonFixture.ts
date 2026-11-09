@@ -7,6 +7,8 @@
 // Taken publishers in ./intentSummaryStoryComparisonVariantPublishers.ts.
 
 import type { Page } from "@playwright/test";
+import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   advanceCompletedTrunk,
@@ -49,6 +51,8 @@ export async function publishSummaryComparisonStory(
   // Owning merge-resolution edits, with an Intent test file edited by the
   // story's integration merge.
   variant?: "own-conflict-extra",
+  // Later published facts never become the Done story's source or diff.
+  later?: RevisionFacts,
 ): Promise<StoryCiComparisonSetup> {
   publishSummaryComparisonTrunk(origin.project);
   const baseline = await precedeClaimWithPlanning(origin);
@@ -70,13 +74,14 @@ export async function publishSummaryComparisonStory(
   const baselineIndex = fromStart.indexOf(baseline);
   const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
 
-  // A file added to trunk after the story: listed in Intent, absent from the
-  // compared builds' proofs.
+  // A file added to trunk after the story: absent from the Done browser
+  // and from the compared builds' proofs.
   writeAt(
     origin.project,
     "dashboard/tests/later.spec.ts",
     "later trunk file\n",
   );
+  if (later !== undefined) writeRevisionFiles(origin.project, later);
   commitAll(origin.project, "later trunk file after the story");
   push(origin.project);
 

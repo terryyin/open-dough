@@ -23,7 +23,6 @@ export type ShownIntentLocations = {
   readonly notice: ReactNode;
   // The revision whose locations are shown, once one is.
   readonly shownRevision: string | undefined;
-  readonly settled: boolean;
   readonly locations: readonly IntentLocation[] | undefined;
   // What shows in place of the locations browser until it can show.
   readonly explanation: ReactNode;
@@ -54,7 +53,6 @@ export function useShownIntentLocations(
   return {
     notice,
     shownRevision,
-    settled: settled !== undefined,
     locations:
       settled !== undefined && "locations" in settled
         ? settled.locations

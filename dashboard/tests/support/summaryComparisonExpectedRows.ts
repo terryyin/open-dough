@@ -2,7 +2,7 @@
 // ../intent/intent-summary-story-comparison.spec.ts against
 // ./intentSummaryStoryComparisonFixture.ts's breakdown proofs: precise
 // durations, counted-results differences, each child's Change, added / removed /
-// renamed / later-trunk gaps. Gap variants live in
+// renamed gaps. Gap variants live in
 // ./summaryComparisonGapExpectedRows.ts.
 
 import type { ComparisonScopeRows } from "../intentScopeProofPage.ts";
@@ -36,14 +36,6 @@ export const entryComparisonRows: ComparisonScopeRows = [
     "800 ms",
   ],
   ["gone.spec.ts", "removed", "1 → removed", "500 ms", "removed", "removed"],
-  [
-    "later.spec.ts",
-    "",
-    "no CI result",
-    "not in the compared builds",
-    "not in the compared builds",
-    "not in the compared builds",
-  ],
   // A shell check's own file outcome renamed into a Playwright spec's test
   // case: the units differ, so neither its count nor its time compares; each
   // endpoint keeps its own time, with no signed change.

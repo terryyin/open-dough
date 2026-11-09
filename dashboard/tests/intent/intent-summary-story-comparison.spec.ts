@@ -3,7 +3,7 @@
 // baseline, branch and landed precise durations with signed differences,
 // each from its own build (Branch measures an extra folder/a.spec.ts test),
 // Counts with signed differences (entry 4 → 6 test cases (+2) → 5 test cases (+1)), each child's Change, added /
-// removed / renamed / later-trunk gaps, and drill into a nested folder
+// removed / renamed gaps, and drill into a nested folder
 // (SEED-245#compare-story-intent-entry-folder-and-file-summaries examples 1,
 // 2 timing, 3–4, 6). An owning integration merge that edits an Intent test file
 // marks it as a story change (SEED-253 key example 1). Gap, Trunk Mode,

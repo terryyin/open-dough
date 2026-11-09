@@ -25,6 +25,8 @@ export type StoryReviewRequest = {
   readonly title: string;
   readonly control: HTMLElement;
   readonly completed?: boolean;
+  // Read the completed result even when its workspace remains readable.
+  readonly historical?: boolean;
   readonly comparison?: RequestedComparison;
 };
 

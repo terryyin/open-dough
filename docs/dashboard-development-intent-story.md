@@ -3,11 +3,13 @@
 Part of [Development and Intent](dashboard-development-intent.md).
 
 Intent uses the same page implementation and arrangement for Project Intent
-and a selected story: persistent header, applicable views, revision notice and
-reading area. With a story selected, the header never collapses. Led by
-**Project Intent** / Selected story, it names the story by its full title under
-its identity, marked **Done** once completed, and says briefly while its default
-Review changes comparison is reading, unavailable or failed, with **Retry** for
+and a selected story: persistent header, applicable views and reading area.
+The project revision notice and **Show latest** belong to Project Intent;
+none of a Done story's three views offers them. With a story selected, the
+header never collapses. Led by **Project Intent** / Selected story, it names
+the story by its full title under
+its identity, marked **Done** once completed, and says briefly while its
+comparison is reading, unavailable or failed, with **Retry** for
 a failure, followed by the revisions that comparison runs between or its full
 explanation. Below it the story's views are **CI comparison**, **Changed tests**
 and **Intent coverage**, in that order, as underlined tabs with **Hide files** /
@@ -41,13 +43,23 @@ older completion whose record was read without an assessment says none was
 saved; a record still being read says so, and one that could not be read says
 whether an assessment was saved is not known, with **Retry done story** for a
 failed read. An active story's view explains that the assessment runs during
-feature story wrap-up. Intent overlays that comparison's changed files on the
-published tree: styled by change kind, added files inserted, deleted files
+feature story wrap-up. Missing saved assessment is distinct from a negative
+assessment. Intent overlays that comparison's changed files on its source
+tree: styled by change kind, added files inserted, deleted files
 kept, a rename at its new path where a location selects it else at its old
-path. A completed story is named by its done record's title and compared
-through its published completion, whose revisions need not be the published
-revision Intent describes. Folders containing changes share one background; a
-location containing changes keeps its header background and carries a change
+path. A completed story is named by its done record's title. Its browser uses
+the published completion's test-source locations, inventory and unchanged-file
+source. A saved execution landing can recover this comparison when that landing
+is established as the same completion. Its changed files keep the baseline-to-result diff, even while a
+retained workspace has later edits. Its outside-location Review action opens
+that same historical comparison; ordinary card Review can still show the live
+workspace. Later trunk additions, renames, deletions or settings changes
+do not rewrite that history: a later-only test stays outside the tree, and a
+location removed from current settings remains available at the story's
+result. A project visit and refresh leave that source and comparison, the
+story selection, file, Purpose/Proof choice and reading place intact.
+Folders containing changes share one background; a location containing changes
+keeps its header background and carries a change
 mark on its leading edge. The first time Intent has the comparison, those
 folders and the first changed location open and everything else collapses.
 **Selected story only**, heading the tree and off at first, leaves just the
@@ -59,8 +71,8 @@ title line, in every view, as one compact button: an icon and the number,
 whose accessible name and hover text explain it (for example "2 changed files
 outside Intent locations — open Review changes"). It is absent when no changed
 file is outside the locations. Activating it opens Review changes on Intent's
-comparison (All changes, uncommitted included) even for a story with a review
-mark. Closing that review keeps the selected story, as any Side panel close
+comparison: the historical result for Done, or All changes with uncommitted
+work for an active story, even one with a review mark. Closing that review keeps the selected story, as any Side panel close
 does, so Intent keeps the story's tab, file, and reading place, and the
 keyboard returns to the control that opened the review. A changed file's
 Purpose is Review changes' diff of it, and Proof holds that file's comparison
@@ -70,9 +82,16 @@ observed-build framing, Baseline / Branch / Landed columns, signed changes and
 relative marks. Precise drill-down changes stay visible (`340 ms` to `410 ms`
 shows `+70 ms`). **Show %** is one preference across these scopes and CI
 comparison; each displayed scope uses one scale for its own figures and rows.
-A story without a comparison, and a failed read with retry, each say so while
-the published tree stays usable; clearing the selected story returns to
-project **CI status** in the same arrangement, with **No story selected** in
+For a Done story, a historical comparison or source that cannot be read is
+explained in **Changed tests**, with recovery where supported; the current
+project tree never stands in for missing history, and an unavailable
+comparison does not mean no tests changed. Reading, failed retrieval and
+absence remain distinct. CI comparison and saved Intent coverage stay usable
+independently of locations or source, and a source read failure offers its
+own retry. An active story without a comparison, and a failed read with
+retry, each say so while its published project tree stays usable.
+Clearing the selected story returns to project **CI status** in the same
+arrangement, with **No story selected** in
 its header and judged-run evidence in Proof. The story is a lens on Intent,
 not a separate definition of it, and its changed files are an initial view of its impact:
 they do not by themselves establish every affected behavior or the regression

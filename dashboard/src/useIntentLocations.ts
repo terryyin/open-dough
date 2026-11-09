@@ -95,12 +95,19 @@ function shownFromKept(
 export function useIntentLocations(
   source: PublishedSource,
   revision: string | undefined,
+  // Project refresh keeps the prior answer. Historical story reads must
+  // never lend another story's source while their own revision is read.
+  keepPrevious = true,
 ) {
   const [keptShownRevision, setKeptShownRevision] = useKeptReading<
     string | undefined
   >("shown-revision", () => undefined);
   const [read, setRead] = useState<LocationsRead>(() => ({
-    shown: shownFromKept(source, revision, keptShownRevision),
+    shown: shownFromKept(
+      source,
+      revision,
+      keepPrevious ? keptShownRevision : undefined,
+    ),
   }));
   const { retry, retryRead, recordSettled } = useIntentReadRecovery(
     source,
@@ -111,7 +118,8 @@ export function useIntentLocations(
     const controller = new AbortController();
     // A Retry reads as reading; another revision's answer stays shown.
     setRead(({ shown }) => ({
-      shown: keptWhileReading(shown, revision) ? shown : undefined,
+      shown:
+        keepPrevious && keptWhileReading(shown, revision) ? shown : undefined,
     }));
     void readIntentLocationsAt(source, revision, controller.signal)
       .then((locations) => {
@@ -130,7 +138,12 @@ export function useIntentLocations(
             recovery,
           );
           setRead(({ shown }) =>
-            settleFailedLocationsRead(shown, revision, failed, locations),
+            settleFailedLocationsRead(
+              keepPrevious ? shown : undefined,
+              revision,
+              failed,
+              locations,
+            ),
           );
           return;
         }
@@ -147,13 +160,25 @@ export function useIntentLocations(
         const failed = error instanceof ReadProblem ? error : undefined;
         recordSettled(intentRecoveryOf(failed));
         setRead(({ shown }) =>
-          settleFailedLocationsRead(shown, revision, failed, { failed }),
+          settleFailedLocationsRead(
+            keepPrevious ? shown : undefined,
+            revision,
+            failed,
+            { failed },
+          ),
         );
       });
     return () => {
       controller.abort();
     };
-  }, [source, revision, retry, recordSettled, setKeptShownRevision]);
+  }, [
+    source,
+    revision,
+    retry,
+    recordSettled,
+    setKeptShownRevision,
+    keepPrevious,
+  ]);
 
   // An answer already read shows as it is rendered, before the effect runs.
   const kept =
@@ -163,7 +188,9 @@ export function useIntentLocations(
   const shown: ShownLocations | undefined =
     revision !== undefined && kept !== undefined
       ? { revision, intent: kept }
-      : read.shown;
+      : keepPrevious || read.shown?.revision === revision
+        ? read.shown
+        : undefined;
   const failedUpdate =
     kept === undefined && read.failedUpdate?.revision === revision
       ? read.failedUpdate

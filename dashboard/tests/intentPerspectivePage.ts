@@ -235,3 +235,7 @@ export function revisionNotice(intent: Locator) {
     .getByRole("status")
     .filter({ hasText: "New revision available" });
 }
+
+// The accepted locations revision, independently of a selected file or CI.
+export const browserRevision = (intent: Locator) =>
+  intent.getByLabel("Test browser revision", { exact: true });

@@ -17,15 +17,21 @@ export function useStoryReviewRequest(
   // How many times Refresh asked for a new snapshot.
   round: number,
 ) {
-  const { source, identity, completed, comparison: asked } = request;
-  const selection = useStoryReviewSelection(
+  const {
+    source,
+    identity,
+    completed,
+    historical,
+    comparison: asked,
+  } = request;
+  const selection = useStoryReviewSelection({
     source,
     identity,
     round,
     completed,
-    true,
-    asked?.chosen,
-  );
+    initial: asked?.chosen,
+    historical,
+  });
   const [includeUncommitted, setIncludeUncommitted] = useState(
     (asked ?? defaultStoryComparison).includeUncommitted,
   );

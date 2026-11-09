@@ -1,7 +1,6 @@
-// Select a Recently done Story A, open Intent at its CI comparison, wait for
-// its CI timing comparison proofs, then choose Changed tests and open an
-// entry or folder Summary for the Summary comparison journeys in
-// ../intent-summary-story-comparison*.spec.ts.
+// Select a Recently done Story A and choose Changed tests. Source journeys
+// proceed while CI reads in parallel; comparison journeys first wait for
+// their CI timing proofs before opening an entry or folder Summary.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./preparationPage.ts";
@@ -19,26 +18,24 @@ import {
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { anyComparisonLabels } from "../ciEvidenceLabelsPage.ts";
 import { chooseStoryTab, expectStoryTab } from "./intentStoryPage.ts";
+import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
+
+export async function selectDoneStoryForChangedTests(
+  page: Page,
+  title = "Story A",
+) {
+  const selected = await selectDoneStoryInIntent(page, title);
+  await expectStoryTab(selected.intent, "CI comparison");
+  await chooseStoryTab(selected.intent, "Changed tests");
+  return selected;
+}
 
 export async function selectDoneStoryForSummaryComparison(
   page: Page,
   title = "Story A",
 ) {
-  await page.goto("/");
-  await showColumn(page, "Recently done");
-  const { recentlyDone, intentChoice, intent } = parts(page);
-  const card = recentlyDone.getByRole("article", {
-    name: title,
-    exact: true,
-  });
-  await card.getByRole("heading", { level: 3 }).click();
-  await expectSelected(card, true);
-  await intentChoice.click();
-  await expect(intent).toBeVisible();
-  const panel = intent.getByRole("region", {
-    name: "CI timing comparison",
-    exact: true,
-  });
+  const selected = await selectDoneStoryInIntent(page, title);
+  const { intent, panel } = selected;
   await expect(panel).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0, {
     timeout: readWaitLimitMs + 15_000,
@@ -48,7 +45,7 @@ export async function selectDoneStoryForSummaryComparison(
   ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
   await expectStoryTab(intent, "CI comparison");
   await chooseStoryTab(intent, "Changed tests");
-  return { intent, panel, card };
+  return selected;
 }
 
 export async function openSummaryComparison(intent: Locator, location: string) {

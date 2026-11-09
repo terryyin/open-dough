@@ -10,6 +10,17 @@ import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 
+export function installedBacklogScript(
+  workspace: string,
+  skillsDirectory = ".claude/skills",
+) {
+  return path.join(
+    workspace,
+    skillsDirectory,
+    "dough-product-backlog/scripts/product-backlog.mjs",
+  );
+}
+
 export function resolveStoryConflict(
   workspace: string,
   mergeArguments: readonly string[],
@@ -39,6 +50,9 @@ export function publishCompletedStory(
     missingAgent,
     completionConflict,
     intentCoverage,
+    retainWorkspace,
+    skillsDirectory,
+    identity = queuedIdentity,
   }: {
     workspace: string;
     branch: string;
@@ -46,6 +60,9 @@ export function publishCompletedStory(
     missingAgent: boolean;
     completionConflict: boolean;
     intentCoverage?: IntentCoverage | undefined;
+    retainWorkspace?: boolean | undefined;
+    skillsDirectory?: string | undefined;
+    identity?: string;
   },
 ) {
   const coverageArgs: string[] = [];
@@ -64,21 +81,18 @@ export function publishCompletedStory(
   execFileSync(
     process.execPath,
     [
-      path.join(
-        workspace,
-        ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
-      ),
+      installedBacklogScript(workspace, skillsDirectory),
       "complete",
       "--file",
       ".planning/PRODUCT-BACKLOG.md",
       "--identity",
-      queuedIdentity,
+      identity,
       ...coverageArgs,
     ],
     { cwd: workspace },
   );
   if (missingAgent) {
-    const record = `.planning/done/${doneRecordFileName(queuedIdentity)}`;
+    const record = `.planning/done/${doneRecordFileName(identity)}`;
     const facts = JSON.parse(
       readFileSync(path.join(workspace, record), "utf8"),
     ) as Record<string, unknown>;
@@ -140,7 +154,9 @@ export function publishCompletedStory(
     completion = git(origin.project, "rev-parse", "HEAD");
     git(origin.project, "push", "--quiet", "--delete", "origin", branch);
   }
-  git(origin.project, "worktree", "remove", "--force", workspace);
-  git(origin.project, "branch", "--delete", "--force", branch);
+  if (retainWorkspace !== true) {
+    git(origin.project, "worktree", "remove", "--force", workspace);
+    git(origin.project, "branch", "--delete", "--force", branch);
+  }
   return completion;
 }

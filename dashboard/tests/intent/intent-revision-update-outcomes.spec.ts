@@ -1,6 +1,6 @@
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry, including after Development →
-// Intent and when the latest settings are unreadable
+// Intent. Unreadable settings: ./intent-revision-settings-update.spec.ts
 // (../../src/useIntentLocations.ts, ../../src/useIntentFileRead.ts,
 // ../../src/IntentRevisionNotice.tsx). Malformed settings and held updates
 // across projects: ./intent-revision-update-boundaries.spec.ts.
@@ -10,14 +10,12 @@ import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
+  browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
 } from "../intentPerspectivePage.ts";
-import {
-  authenticatedReadRoute,
-  holdAuthenticatedReadsWhere,
-} from "../holdAuthenticatedReads.ts";
+import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 import { pygardon } from "../intentCodeBrowseFixtures.ts";
 import {
   featurePath,
@@ -36,7 +34,6 @@ const releases: (() => void)[] = [];
 test.afterEach(() => {
   for (const release of releases.splice(0)) release();
 });
-
 test("a failed update keeps the shown reading with its failure and Retry, which applies the update", async ({
   page,
 }) => {
@@ -60,6 +57,9 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   );
   await notice.getByRole("button", { name: "Show latest" }).click();
   await expect.poll(latest.held).toBe(1);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   latest.fail();
 
   // The locations at the shown revision stay browsable, with the selection,
@@ -72,6 +72,9 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   );
   await expect(notice).not.toContainText("Updating…");
   await expect(notice.getByRole("button")).toHaveText(["Retry"]);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   await expect(source).toContainText("Scenario: Archive a job");
   await expect(feature).toHaveAttribute("aria-pressed", "true");
   await expect(feature).toBeFocused();
@@ -96,6 +99,7 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
   );
   await notice.getByRole("button", { name: "Retry" }).click();
   await expect.poll(latestText.held).toBe(1);
+  await expect(browserRevision(intent)).toContainText(shortRevision(c));
   await expect(notice).toHaveCount(0);
   await expect(feature).toBeFocused();
   latestText.fail();
@@ -104,6 +108,7 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
     `${featurePath} could not be read at revision ${shortRevision(c)}; showing ${shortRevision(pygardon.revision)}. Retry`,
   );
   await expect(source).toContainText("Scenario: Archive a job");
+  await expect(browserRevision(intent)).toContainText(shortRevision(c));
   await purpose.getByRole("button", { name: "Retry" }).click();
   await expect(source).toContainText("Scenario: Purge a job");
   await expect(purpose.getByRole("alert")).toHaveCount(0);
@@ -157,6 +162,9 @@ test("Development → Intent during a held then failing update keeps the shown r
   await expect(intent).toHaveCount(0);
   await intentChoice.click();
   await expect.poll(again.held).toBe(1);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   await expect(source).toContainText("Scenario: Archive a job");
   await expect(feature).toHaveAttribute("aria-pressed", "true");
   again.fail();
@@ -170,6 +178,9 @@ test("Development → Intent during a held then failing update keeps the shown r
   await expect(revisionNotice(intent).getByRole("button")).toHaveText([
     "Retry",
   ]);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   await expect(source).toContainText("Scenario: Archive a job");
   await expect(feature).toHaveAttribute("aria-pressed", "true");
   await expect(intentGroupToggle(intent, "e2e_test/features")).toHaveAttribute(
@@ -179,57 +190,4 @@ test("Development → Intent during a held then failing update keeps the shown r
   expect(
     reads.filter((each) => each === `locations@${pygardon.revision}`),
   ).toEqual([`locations@${pygardon.revision}`]);
-});
-
-test("an unreadable settings answer at the latest revision keeps the shown reading with Retry, which applies the update", async ({
-  page,
-}) => {
-  const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
-    page,
-    files,
-  );
-  const c = "ef".repeat(20);
-  await moveTrunk(c, {
-    ...files,
-    [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
-  });
-  let unreadable = true;
-  await page.route(authenticatedReadRoute, async (route) => {
-    const params = new URL(route.request().url()).searchParams;
-    if (
-      unreadable &&
-      params.get("intent") === "locations" &&
-      params.get("revision") === c
-    ) {
-      await route.fulfill({
-        json: {
-          revision: c,
-          locations: null,
-          settingsProblem: "unreadable",
-          recovery: "transient",
-        },
-      });
-      return;
-    }
-    await route.fallback();
-  });
-  const notice = revisionNotice(intent);
-  await notice.getByRole("button", { name: "Show latest" }).click();
-  await expect(notice).toContainText(
-    `New revision available — showing ${shortRevision(pygardon.revision)}`,
-  );
-  await expect(notice).toContainText(
-    `Revision ${shortRevision(c)} could not be read: .planning/open-dough.json could not be read.`,
-  );
-  await expect(notice.getByRole("button")).toHaveText(["Retry"]);
-  await expect(source).toContainText("Scenario: Archive a job");
-  await expect(feature).toHaveAttribute("aria-pressed", "true");
-  await expect(intent.locator(".intent-settings-problem")).toHaveCount(0);
-
-  unreadable = false;
-  await notice.getByRole("button", { name: "Retry" }).click();
-  await expect(source).toContainText("Scenario: Purge a job");
-  await expect(revisionNotice(intent)).toHaveCount(0);
-  await untilPageReadsAnswered(page);
 });

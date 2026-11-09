@@ -3,8 +3,17 @@
 Part of [Development and Intent](dashboard-development-intent.md).
 
 A selected **done** story shows a **CI timing comparison** instead of a live
-branch judgment: baseline (newest completed build at or before the first claim
-parent), branch (final story-branch build from the landing's story-side parent,
+branch judgment. Its Changed tests browser separately reads locations,
+inventory and unchanged-file source at the story's published result, with
+the original baseline-to-result changes. The source revision and the measured
+build revision have separate meanings: equivalent or later-build proof does
+not move the browser to that build's source. A later project revision and a
+Project Intent refresh change none of the Done story's historical evidence.
+Its three views offer no project revision notice or **Show latest**; CI's
+**Check again** remains available under its existing recovery rules.
+
+The comparison endpoints are baseline (newest completed build at or before
+the first claim parent), branch (final story-branch build from the landing's story-side parent,
 or N/A in Trunk Mode), and landed (newest trunk-first owning merge or
 fast-forward tip — never a later completion-only commit, no measured-ancestor
 fallback across that landing). A confirmed skip may use only that landing's
@@ -134,6 +143,14 @@ story keeps the live judgment and adds that comparison (provisional latest
 branch build; Landed not yet landed); a new branch head re-reads it. A
 **Taken** Trunk Mode story shows the provisional trunk comparison (Branch N/A)
 instead of a no-branch gap.
+
+Historical comparison, source, CI proof and saved Intent coverage have
+independent reading, failure, absence and result states. Missing historical
+source never substitutes the current project tree or hides available CI and
+saved coverage. A missing comparison does not imply no changed tests; an
+absent assessment does not imply a negative assessment. Missing or unusable
+CI proof keeps its endpoint's provenance and explanation, with supported
+recovery, even when historical source is available.
 
 A done story's comparison ends with **Check again**, worded and placed as the
 judged branch's button and disabled while it reads. It reads the comparison

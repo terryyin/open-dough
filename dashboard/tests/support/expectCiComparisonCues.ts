@@ -31,12 +31,6 @@ export const summaryEntryComparisonCues = [
     countReason: "removed",
     durationReason: "removed",
   },
-  {
-    count: "none",
-    duration: "none",
-    countReason: "not in the compared builds",
-    durationReason: "not in the compared builds",
-  },
   // Renamed from a shell check's test file into a Playwright test case.
   {
     count: "none",

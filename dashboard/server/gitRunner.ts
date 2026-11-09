@@ -56,11 +56,34 @@ export const defaultGitOutputLimit = 1024 * 1024;
 
 export async function runGit(
   args: readonly string[],
+  call: GitCall,
+): Promise<GitOutput> {
+  return gitOutput(args, call, false);
+}
+
+// A mutation retains ownership until the child really closes, even when
+// execFile reports an abort error before that process has exited.
+export async function runGitUntilClosed(
+  args: readonly string[],
+  call: GitCall,
+): Promise<GitOutput> {
+  return gitOutput(args, call, true);
+}
+
+async function gitOutput(
+  args: readonly string[],
   { cwd, env, signal, input, maxBuffer }: GitCall,
+  untilClosed: boolean,
 ): Promise<GitOutput> {
   const { error, stdout, stderr } = await new Promise<
     GitOutput & { readonly error: ExecException | null }
   >((resolve) => {
+    let closed = false;
+    let result:
+      (GitOutput & { readonly error: ExecException | null }) | undefined;
+    const publish = () => {
+      if (result !== undefined && (!untilClosed || closed)) resolve(result);
+    };
     const child = execFile(
       "git",
       [...args],
@@ -72,9 +95,14 @@ export async function runGit(
         ...(signal === undefined ? {} : { signal }),
       },
       (error, stdout, stderr) => {
-        resolve({ error, stdout, stderr });
+        result = { error, stdout, stderr };
+        publish();
       },
     );
+    child.once("close", () => {
+      closed = true;
+      publish();
+    });
     if (input !== undefined) {
       // A call that ends without reading its input fails by its own exit.
       child.stdin?.on("error", () => undefined);

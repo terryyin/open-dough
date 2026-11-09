@@ -34,6 +34,11 @@
   font-size: var(--text-xs);
 }
 
+.intent-browser-revision {
+  color: var(--quiet);
+  font-size: var(--text-xs);
+}
+
 .intent-story-crumb-link {
   display: inline-flex;
   align-items: center;
