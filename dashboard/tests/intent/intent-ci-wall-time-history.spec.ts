@@ -15,13 +15,13 @@
 // ../../backend-tests/intent/landed-ci-history-lifecycle.spec.ts and
 // ../../backend-tests/intent/landed-ci-history-pending.spec.ts.
 
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import {
   evidenceLabels,
   expectEvidenceLabels,
 } from "../ciEvidenceLabelsPage.ts";
 import {
+  evidenceByKeyboard,
   historyOf,
   openProjectCiStatus,
   publishTrunk,
@@ -33,6 +33,7 @@ import {
   landedCiHistory,
   resultToLand,
 } from "../support/landedCiHistory.ts";
+import { passedBetween, trunkRun } from "../support/landedCiTrunk.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { land } from "../support/startSessionLandingContext.ts";
@@ -46,18 +47,11 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
 }) => {
   const { record, revision } = await resultToLand(dashboard, "landed.txt");
   await publishTrunk(page, origin, () => [
-    makeMe.aCiRun
-      .with({
-        headSha: revision,
-        id: 41,
-        attempt: 1,
-        conclusion: "success",
-        url: "https://ci.invalid/runs/41",
-        createdAt: "2026-11-05T10:00:00Z",
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:06:05Z",
-      })
-      .please(),
+    trunkRun(
+      revision,
+      41,
+      passedBetween("2026-11-05T10:00:00Z", "2026-11-05T10:06:05Z"),
+    ),
   ]);
   land(record, origin, dashboard.home);
   // Collected without Intent, or any page, open.
@@ -92,13 +86,8 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
   ).toBeVisible();
 
   // Builds and evidence, between Proof and Check again by keyboard.
-  const evidence = history.locator("summary");
-  await expect(evidence).toHaveText("Builds and evidence");
-  await panel.getByRole("button", { name: "Check again", exact: true }).focus();
-  await page.keyboard.press("Shift+Tab");
-  await expect(evidence).toBeFocused();
-  await page.keyboard.press("Enter");
-  const builds = history.getByRole("list", { name: "Builds and evidence" });
+  await expect(history.locator("summary")).toHaveText("Builds and evidence");
+  const builds = await evidenceByKeyboard(page, panel);
   await expect(builds.getByRole("listitem")).toHaveText([
     `Nov 5 · 6 min 5 s · exact revision ${shortSha(revision)} · Run 41 · attempt 1`,
   ]);
@@ -118,18 +107,11 @@ test("a project with no recorded landing says no landing has been measured yet, 
     await origin.originGit("log", "-1", "--format=%s", "main")
   ).trim();
   await publishTrunk(page, origin, () => [
-    makeMe.aCiRun
-      .with({
-        headSha: head,
-        id: 7,
-        attempt: 1,
-        conclusion: "success",
-        url: "https://ci.invalid/runs/7",
-        createdAt: "2026-11-05T09:00:00Z",
-        startedAt: "2026-11-05T09:00:00Z",
-        completedAt: "2026-11-05T09:03:00Z",
-      })
-      .please(),
+    trunkRun(
+      head,
+      7,
+      passedBetween("2026-11-05T09:00:00Z", "2026-11-05T09:03:00Z"),
+    ),
   ]);
 
   const panel = await openProjectCiStatus(page);

@@ -8,9 +8,10 @@
 // once, within the read boundary's wait. A resolution is final, or the
 // landing is pending: while its build is queued or running, while its
 // cancelled build awaits a later trunk build (`finalSlot`,
-// `./revisionBuildSlot.ts`), while the CI could not be read, and while the
-// Landed rule found no build for it that CI may still make, for a bounded
-// wait (`stillAwaited`).
+// `./revisionBuildSlot.ts`), while the CI could not be read, and, for a
+// bounded wait (`stillAwaited`), while the Landed rule found no build for it
+// that CI may still make or could not read the CI proof of the build that
+// would stand for it.
 
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -33,11 +34,12 @@ import {
   lookupContext,
   workflowOf,
 } from "./intentCiComparisonSlots.ts";
-import type {
-  LandedResolution,
-  LandingReference,
-  PendingResolution,
-} from "./landedCiHistoryStore.ts";
+import type { LandingReference } from "./landedCiHistoryStore.ts";
+import {
+  keptRunOf,
+  type LandedResolution,
+  type PendingResolution,
+} from "./landedCiObservation.ts";
 import { laterTrunkChain } from "./laterTrunkBuild.ts";
 import { observationNow } from "./observationClock.ts";
 import {
@@ -115,13 +117,7 @@ function waitingOn(
     "runUrl" | "runId" | "runAttempt" | "adapterAttempt"
   >,
 ): PendingResolution {
-  const { runUrl, runId, runAttempt, adapterAttempt } = build;
-  const run = {
-    ...(runUrl === undefined ? {} : { runUrl }),
-    ...(runId === undefined ? {} : { runId }),
-    ...(runAttempt === undefined ? {} : { runAttempt }),
-    ...(adapterAttempt === undefined ? {} : { adapterAttempt }),
-  };
+  const run = keptRunOf(build);
   return Object.keys(run).length === 0
     ? { kind: "pending", waitsFor }
     : { kind: "pending", waitsFor, run };
@@ -138,19 +134,22 @@ function pendingOf(slot: RevisionBuildSlot): PendingResolution {
 // How long a landing with no run of its own waits for one after the dashboard
 // recorded it: GitHub creates a push's run within moments, so one still
 // missing an hour later is not coming, as when the workflow does not run on
-// the trunk's pushes.
+// the trunk's pushes. A CI proof that could not be read is asked again for as
+// long, since GitHub may answer it at the next pass.
 const ownRunWaitMs = 60 * 60_000;
 
 // What a landing the Landed rule found no build for still waits for, if
-// anything. A skip rests on the nearest earlier build, so the landing waits
-// while that build is queued or running. With no run of its own at the
-// landed revision and no confirmed skip, it waits for a run there until CI
-// moves past it -- a later trunk revision, up to the read trunk head and
-// within the Baseline bound, has a run -- or for `ownRunWaitMs` after it was
-// recorded, on the server's observation clock (`./observationClock.ts`). A
-// landing recorded before its push's run exists is therefore pending, not a
-// final No build; one CI ran at, built past without building, or never ran
-// for within that wait, is final.
+// anything. While the CI proof of the build that would stand for it could
+// not be read, it waits to read it again, for `ownRunWaitMs` after it was
+// recorded, on the server's observation clock (`./observationClock.ts`);
+// after that, the proof is unreadable for good. A skip rests on the nearest
+// earlier build, so the landing waits while that build is queued or running.
+// With no run of its own at the landed revision and no confirmed skip, it
+// waits for a run there until CI moves past it -- a later trunk revision, up
+// to the read trunk head and within the Baseline bound, has a run -- or for
+// `ownRunWaitMs` after it was recorded. A landing recorded before its push's
+// run exists is therefore pending, not a final No build; one CI ran at, built
+// past without building, or never ran for within that wait, is final.
 async function stillAwaited(
   slot: FinalSlot<RevisionBuildSlot>,
   landing: LandingReference,
@@ -158,9 +157,11 @@ async function stillAwaited(
   { call, lookup }: Extract<PassRead, { kind: "read" }>,
 ): Promise<PendingResolution | undefined> {
   if (slot.kind !== "none") return undefined;
+  const { revision, receivedAt } = landing;
+  const waited = observationNow() - Date.parse(receivedAt) >= ownRunWaitMs;
+  if (slot.unusableProof === "unreadable") return waited ? undefined : unread;
   const status = slot.requestedStatus?.kind;
   if (status !== "no-build" && status !== "skipped") return undefined;
-  const { revision, receivedAt } = landing;
   const earlier = await nearestAncestorBuild(
     revision,
     lookup,
@@ -172,8 +173,7 @@ async function stillAwaited(
   const hasRun = async (sha: string) =>
     newestRunFor(await lookup.listRunsAt(sha), sha) !== undefined;
   if (await hasRun(revision)) return undefined;
-  if (observationNow() - Date.parse(receivedAt) >= ownRunWaitMs)
-    return undefined;
+  if (waited) return undefined;
   const later = await laterTrunkChain(
     revision,
     trunkHead,

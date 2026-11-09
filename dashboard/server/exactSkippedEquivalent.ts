@@ -65,7 +65,7 @@ export function storyBranchLandedExactLookup(
 
 // When Landed confirms a skip at `target`, use only the nearest first-parent
 // ancestor build's proof (the equivalent build). Never walk past a build
-// without usable proof.
+// without usable proof; a gap for one names why its proof is unusable.
 export async function exactSkippedEquivalentSlot(
   target: string,
   lookup: RevisionCiLookup,
@@ -87,14 +87,15 @@ export async function exactSkippedEquivalentSlot(
   }
   const run = proofRunOf(equivalent);
   if (run === undefined) {
-    return asSlot(
-      undefined,
-      unavailableWords(equivalent.revision, {
+    return {
+      kind: "none",
+      explanation: unavailableWords(equivalent.revision, {
         kind: "unavailable",
         reason: "none",
       }),
-      status,
-    );
+      requestedStatus: status,
+      unusableProof: "none",
+    };
   }
   const proof = await readCiProofArtifact(exact.repository, run, exact.signal);
   if (proof.kind === "summary") {
@@ -108,9 +109,10 @@ export async function exactSkippedEquivalentSlot(
       status,
     );
   }
-  return asSlot(
-    undefined,
-    unavailableWords(equivalent.revision, proof),
-    status,
-  );
+  return {
+    kind: "none",
+    explanation: unavailableWords(equivalent.revision, proof),
+    requestedStatus: status,
+    unusableProof: proof.reason,
+  };
 }

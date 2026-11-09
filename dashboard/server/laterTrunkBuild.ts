@@ -148,8 +148,9 @@ function noLaterProofWords(
 // Landed's slot for a cancelled landing (`listed` is the landing's own runs):
 // the nearest later trunk build with usable proof, with the landing's own
 // Cancelled status beside it; otherwise the cancelled explanation and why no
-// later proof is in reach, awaiting a later build when the walk stopped at
-// the read trunk head or a running build.
+// later proof is in reach -- naming why the nearest later build's proof was
+// unusable, when the walk passed one -- awaiting a later build when the walk
+// stopped at the read trunk head or a running build.
 export async function laterTrunkCancelledSlot(
   landing: string,
   listed: readonly ListedRun[],
@@ -181,8 +182,12 @@ export async function laterTrunkCancelledSlot(
   return {
     kind: "none",
     explanation: `${exact.cancelledExplanation} ${noLaterProofWords(walk)}`,
+    cancelled: true,
     ...(walk.kind === "running" || walk.at === "head"
       ? { awaitingLaterBuild: true as const }
       : {}),
+    ...(walk.unavailable === undefined
+      ? {}
+      : { unusableProof: walk.unavailable.absence.reason }),
   };
 }

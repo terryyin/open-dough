@@ -1,32 +1,85 @@
 // Project Intent's CI wall time history as the local authenticated read
 // boundary answers it (`../server/intentCiHistoryRead.ts`) and CI status
-// shows it (`./IntentCiHistory.tsx`): the project's dashboard-recorded trunk
-// landings as one ordered list, oldest first, of points and gaps. A point is
-// a measured build, with its revision, how it measures its landing, the run
-// attempt it was measured from, and that attempt's start and completion, from
-// which its CI wall time is read (`./ciProofTimeWords.ts`). A gap is a
-// landing not measured yet: its landed revision, when the dashboard recorded
-// it, what it waits for, and the run attempt it waits on when there is one.
-// An answer crossed a process boundary, so the page checks it as external
-// input; a run link is only ever a web address.
+// shows it (`./IntentCiHistory.tsx`): the window of the project's
+// dashboard-recorded trunk landings as one ordered list, oldest first, of
+// points and gaps. A point is one measured build: its revision, the run
+// attempt it was measured from, that attempt's start and completion, from
+// which its CI wall time is read, and the landings it measures, each with
+// how -- its own landed revision's build (exact), a confirmed skip's reused
+// equivalent build (equivalent), or the later trunk build a cancelled
+// landing joins (later). A gap is one landing with no CI wall time, and why:
+// pending, not measured yet, with what it waits for and the run attempt it
+// waits on; or, finally, the build that measures it failed, its own build was
+// cancelled with no later trunk build to stand for it, CI did not build it,
+// a skip's equivalent build has no timing, the CI proof of the build that
+// would stand for it expired or could not be read, or its build's attempt
+// named no CI wall time -- with that build and how it stands for the landing
+// when the gap names one. An answer crossed a process boundary, so the page
+// checks it as external input; a run link is only ever a web address.
 
 import { z } from "zod";
 import { runIdentityShape } from "./baseCiConfirmation.ts";
-import { wallTimeMs } from "./ciProofTimeWords.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 
 // A run link the page may follow.
-const runUrlSchema = z.url({ protocol: /^https?$/ });
+export const runUrlSchema = z.url({ protocol: /^https?$/ });
+
+// A moment as a CI read or the dashboard named it.
+const instantSchema = z.iso.datetime({ offset: true });
+
+// The CI wall time of an attempt that started at `startedAt` and completed
+// at `completedAt`; undefined unless both are moments and the completion is
+// after the start, so the history never shows a zero or invented time.
+export function historyWallTimeMs(
+  startedAt: string | undefined,
+  completedAt: string | undefined,
+): number | undefined {
+  if (
+    !instantSchema.safeParse(startedAt).success ||
+    !instantSchema.safeParse(completedAt).success
+  )
+    return undefined;
+  const ms = Date.parse(completedAt ?? "") - Date.parse(startedAt ?? "");
+  return ms > 0 ? ms : undefined;
+}
+
+// How a build measures, or stands for, a landing: the landed revision's own
+// build, a confirmed skip's reused equivalent build, or the later trunk build
+// a cancelled landing joins.
+export const provenances = ["exact", "equivalent", "later"] as const;
+
+export type Provenance = (typeof provenances)[number];
+
+// A recorded trunk landing: its landed revision, when the dashboard recorded
+// it, and the story it landed for, when it names one.
+const landingShape = {
+  revision: commitIdSchema,
+  receivedAt: instantSchema,
+  identity: z.string().min(1).optional(),
+};
+
+const measuredLandingSchema = z.object({
+  ...landingShape,
+  provenance: z.enum(provenances),
+});
+
+export type MeasuredLanding = z.infer<typeof measuredLandingSchema>;
+
+// A run attempt the history names, and its link.
+const runShape = {
+  runUrl: runUrlSchema.optional(),
+  ...runIdentityShape,
+};
 
 export const landedCiPointSchema = z.object({
   kind: z.literal("point"),
+  // The measured build's revision.
   revision: commitIdSchema,
-  // The landed revision's own completed build.
-  provenance: z.literal("exact"),
-  runUrl: runUrlSchema.optional(),
-  ...runIdentityShape,
-  startedAt: z.iso.datetime({ offset: true }),
-  completedAt: z.iso.datetime({ offset: true }),
+  ...runShape,
+  startedAt: instantSchema,
+  completedAt: instantSchema,
+  // The landings it measures, oldest first.
+  landings: z.array(measuredLandingSchema).min(1),
 });
 
 export type LandedCiPoint = z.infer<typeof landedCiPointSchema>;
@@ -39,24 +92,57 @@ export const pendingWaits = ["run", "build", "later-build", "read"] as const;
 
 export type PendingWait = (typeof pendingWaits)[number];
 
-export const landedCiGapSchema = z.object({
+// Why a landing will not be measured: the build that measures it failed; its
+// own build was cancelled or timed out with no later trunk build to stand for
+// it; CI did not build it; a confirmed skip has no equivalent build with
+// timing; the CI proof of the build that would stand for it expired, or could
+// not be read or used; or its build's attempt named no CI wall time.
+export const finalGapReasons = [
+  "failed",
+  "cancelled",
+  "no-build",
+  "no-equivalent",
+  "expired",
+  "unreadable",
+  "not-recorded",
+] as const;
+
+export type FinalGapReason = (typeof finalGapReasons)[number];
+
+const pendingGapSchema = z.object({
   kind: z.literal("gap"),
   // Not measured yet; collection asks again until it is final.
   reason: z.literal("pending"),
   waitsFor: z.enum(pendingWaits),
-  // The landed revision, and when the dashboard recorded the landing.
-  revision: commitIdSchema,
-  receivedAt: z.iso.datetime({ offset: true }),
+  ...landingShape,
   // The run attempt it waits on, when there is one.
-  runUrl: runUrlSchema.optional(),
-  ...runIdentityShape,
+  ...runShape,
 });
 
-export type LandedCiGap = z.infer<typeof landedCiGapSchema>;
+export type PendingGap = z.infer<typeof pendingGapSchema>;
+
+const finalGapSchema = z.object({
+  kind: z.literal("gap"),
+  reason: z.enum(finalGapReasons),
+  ...landingShape,
+  // The build that failed or named no CI wall time, and how it stands for
+  // the landing; none for a gap that names no build.
+  build: z
+    .object({
+      revision: commitIdSchema,
+      provenance: z.enum(provenances),
+      ...runShape,
+    })
+    .optional(),
+});
+
+export type FinalGap = z.infer<typeof finalGapSchema>;
+
+export type LandedCiGap = PendingGap | FinalGap;
 
 export const landedCiHistorySchema = z.object({
   entries: z.array(
-    z.discriminatedUnion("kind", [landedCiPointSchema, landedCiGapSchema]),
+    z.union([landedCiPointSchema, pendingGapSchema, finalGapSchema]),
   ),
 });
 
@@ -105,7 +191,7 @@ export function measuredHistoryOf(
       entries.push(entry);
       continue;
     }
-    const ms = wallTimeMs(entry.startedAt, entry.completedAt);
+    const ms = historyWallTimeMs(entry.startedAt, entry.completedAt);
     if (ms === undefined) return undefined;
     entries.push({ ...entry, wallTimeMs: ms });
   }

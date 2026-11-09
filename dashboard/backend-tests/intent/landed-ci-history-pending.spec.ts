@@ -4,8 +4,8 @@
 // collecting server checking its pending landings again at a test's pace:
 // the landing is a pending gap that waits -- before its run exists, while it
 // is queued or running, while its CI cannot be read -- and becomes its exact
-// point when CI completes, or a final gap once its run has not come for an
-// hour; a repeated landing report adds no second observation or point
+// point when CI completes, or a final No build gap once its run has not come
+// for an hour; a repeated landing report adds no second observation or point
 // (SEED-285#see-landed-ci-wall-time-history examples 2 and 3). The
 // dashboard's own lifecycle is in ./landed-ci-history-lifecycle.spec.ts.
 
@@ -13,35 +13,27 @@ import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiRunAnswer } from "../../tests/support/baseCiActions.ts";
 import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../tests/support/dashboardServer.ts";
-import {
   keptLandedCiHistory,
   landedCiHistory,
   landedRecord,
   minutesAgo,
   observedKinds,
-  publishedLanding,
   recheckingLandedCi,
   resultToLand,
+} from "../../tests/support/landedCiHistory.ts";
+import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  passedBetween,
+  publishedLanding,
   serveTrunkRuns,
   trunkRun,
-} from "../../tests/support/landedCiHistory.ts";
+} from "../../tests/support/landedCiTrunk.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
-import { expect, test } from "../../tests/support/preparationPage.ts";
 import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
 import { land } from "../../tests/support/startSessionLandingContext.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
-
-// The server a test starts on its origin's machine, closed after it.
-const started: DashboardServer[] = [];
-
-test.afterEach(async () => {
-  await Promise.all(started.splice(0).map((server) => server.close()));
-});
 
 // The history answering one landing as a pending gap, waiting as `waiting`
 // says, with the run it waits on when there is one.
@@ -55,9 +47,10 @@ const onePendingGap = (
   },
 });
 
-test("a landing whose push never gets a run, with no later trunk build either, waits as a pending gap for an hour after it was recorded and is then a final gap", async ({
+test("a landing whose push never gets a run, with no later trunk build either, waits as a pending gap for an hour after it was recorded and is then a final No build gap", async ({
   origin,
   github,
+  startServer,
 }) => {
   const home = path.join(origin.machine, "home");
   // The trunk's head, for which GitHub creates no run.
@@ -68,15 +61,7 @@ test("a landing whose push never gets a run, with no later trunk build either, w
   });
   serveTrunkRuns(github, origin, () => []);
   keepLaunchRecords(home, [landedRecord(quiet)]);
-  const server = await startDashboardServer({
-    mode: "boundary",
-    github,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    observationClock: true,
-    extraEnv: recheckingLandedCi,
-  });
-  started.push(server);
+  const server = await startServer({ observationClock: true });
 
   await expect
     .poll(() => landedCiHistory(server))
@@ -87,14 +72,24 @@ test("a landing whose push never gets a run, with no later trunk build either, w
       ),
     );
 
-  // An hour after it was recorded, its run has still not come.
+  // An hour after it was recorded, its run has still not come: it is a
+  // final No build gap.
   server.advanceObservationClock(60 * 60_000);
   await expect
     .poll(() => observedKinds(keptLandedCiHistory(home)))
     .toEqual({ [quiet.receipt]: "gap" });
   expect(await landedCiHistory(server)).toEqual({
     status: 200,
-    body: { entries: [] },
+    body: {
+      entries: [
+        {
+          kind: "gap",
+          reason: "no-build",
+          revision: quiet.revision,
+          receivedAt: quiet.at,
+        },
+      ],
+    },
   });
 });
 
@@ -113,14 +108,13 @@ test.describe("a server that collects", () => {
       github,
       origin,
       () => [
-        trunkRun(revision, 61, {
-          conclusion: "success",
-          createdAt: "2026-11-05T10:00:00Z",
-          startedAt: "2026-11-05T10:00:00Z",
-          completedAt: "2026-11-05T10:06:05Z",
-        }),
+        trunkRun(
+          revision,
+          61,
+          passedBetween("2026-11-05T10:00:00Z", "2026-11-05T10:06:05Z"),
+        ),
       ],
-      () => readable,
+      { readable: () => readable },
     );
     const { receipt } = land(record, origin, dashboard.home).result.landing;
 
@@ -225,12 +219,18 @@ test.describe("a server that collects", () => {
           {
             kind: "point",
             revision,
-            provenance: "exact",
             runUrl: "https://ci.invalid/runs/52",
             runId: 52,
             runAttempt: 1,
             startedAt: "2026-11-05T10:00:00Z",
             completedAt: "2026-11-05T10:06:05Z",
+            landings: [
+              {
+                revision,
+                receivedAt: receipt.receivedAt,
+                provenance: "exact",
+              },
+            ],
           },
         ],
       },

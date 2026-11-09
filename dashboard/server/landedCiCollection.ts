@@ -15,11 +15,13 @@
 // with the landings the history itself keeps, whose records may have expired.
 // For each configured project it walks the landings onto its configured ref,
 // newest first, until the history holds `measuredWindow` measured builds for
-// it, and resolves each landing whose resolution is not final yet over the
-// project's CI read for the pass (`./landedCiResolution.ts`). A final
-// resolution is kept and never resolved again; a pending one is kept until a
-// later pass resolves it again. CI that could not be read leaves that project
-// until the next pass.
+// it (`./landedCiMeasuredBuilds.ts`), and resolves each landing whose
+// resolution is not final yet over the project's CI read for the pass
+// (`./landedCiResolution.ts`). A final resolution is kept and never resolved
+// again; a pending one is kept until a later pass resolves it again. The
+// history keeps only that window, so a landing the walk no longer reaches is
+// neither kept nor asked about again. CI that could not be read leaves that
+// project until the next pass.
 //
 // Only a production project environment collects, as only it launches
 // feedback maintenance, so a development server sharing this machine's
@@ -37,7 +39,11 @@ import {
   type LandingReference,
   type ProjectHistory,
 } from "./landedCiHistoryStore.ts";
-import { measuredBuildOf } from "./landedCiMeasuredBuilds.ts";
+import {
+  measuredBuildOf,
+  measuredWindow,
+  newestFirst,
+} from "./landedCiMeasuredBuilds.ts";
 import { landingResolution, passRead } from "./landedCiResolution.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
@@ -45,9 +51,6 @@ import {
   publishedProjects,
 } from "./projectConfiguration.ts";
 import { repeatUntilStopped } from "./repeatingCheck.ts";
-
-// How many measured builds a pass resolves landings for, newest first.
-const measuredWindow = 20;
 
 // How often recorded landings are collected again, so a pending one is
 // checked until it is final. A test may shorten it through the environment.
@@ -75,9 +78,7 @@ function trunkLandings(
     byReceipt.set(landing.receipt, landing);
   for (const { landing } of records)
     if (landing?.target === target) byReceipt.set(landing.receipt, landing);
-  return [...byReceipt.values()].sort(
-    (a, b) => Date.parse(b.receivedAt) - Date.parse(a.receivedAt),
-  );
+  return [...byReceipt.values()].sort(newestFirst);
 }
 
 export class LandedCiCollection {

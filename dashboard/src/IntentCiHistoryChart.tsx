@@ -3,23 +3,25 @@
 // hand-written inline SVG, with no chart library, drawn at the width its box
 // is given so its words keep their size on a phone. Each point stands at its
 // build's start, earliest left, and at its CI wall time against whole-step
-// times that cover the measured range; the dates span the history's gaps too,
-// each at the date its landing was recorded. The line joins the points in the
-// history's order and breaks at each gap, drawing nothing for it, so a
-// landing not measured yet after the last point leaves the line ended before
-// it. One series in the frame's accent with a surface ring around each point,
-// a recessive grid and the axis words in quiet ink
+// times that cover the measured range, so a line that climbs is CI getting
+// slower; the dates span the history's gaps too, each at the date its landing
+// was recorded. The line joins the points in the history's order and breaks
+// at each gap -- pending, failed or unavailable -- drawing nothing for it, so
+// a failed build has no point and a gap after the last point leaves the line
+// ended before it; a landing a later build measures is in that build's point,
+// so it breaks nothing. One series in the frame's accent with a surface ring
+// around each point, a recessive grid and the axis words in quiet ink
 // (`./intent-ci-history.css`). To assistive technology it is one image named
-// for what it plots; Builds and evidence gives every point it draws, and every
-// gap, in words, as each point's hover does.
+// for what it plots; Builds and evidence gives every point it draws, and
+// every gap, in words, as each point's hover does.
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { shortSha } from "./baseCiWording.ts";
 import { wholeSecondWords } from "./ciProofTimeWords.ts";
 import {
   buildDateWords,
+  plainWords,
+  pointLandingsWords,
   pointWallTimeWords,
-  provenanceWords,
 } from "./ciHistoryWords.ts";
 import {
   entryDate,
@@ -197,7 +199,7 @@ function Plot({
           r={4}
         >
           <title>
-            {`${buildDateWords(point.startedAt)} · ${pointWallTimeWords(point)} · ${provenanceWords(point)} ${shortSha(point.revision)}`}
+            {`${buildDateWords(point.startedAt)} · ${pointWallTimeWords(point)} · ${plainWords(pointLandingsWords(point))}`}
           </title>
         </circle>
       ))}
