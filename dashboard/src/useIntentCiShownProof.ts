@@ -6,9 +6,9 @@
 // folder's Summary (`./IntentScopeProof.tsx`) say it in the same words
 // (`./ciProofAbsenceWording.ts`). An ambiguous adapter attempt is never read.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
-import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
+import { createCiProofReading, type ProofRead } from "./ciProofReading.ts";
 import { shortSha } from "./baseCiWording.ts";
 import {
   ciProofSubjectOf,
@@ -27,8 +27,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { shownRunOf, type ShownCiProofRun } from "./shownCiProofRun.ts";
 
 // The proof read's answer, or the boundary's own failure to answer it.
-export type ProofRead =
-  CiProof | { readonly kind: "unanswered"; readonly detail?: string };
+export type { ProofRead };
 
 // The shown judgment's proof: the attempt it shows, if any, and that
 // attempt's proof read once answered.
@@ -36,15 +35,6 @@ export type ShownProof = {
   readonly run: ShownCiProofRun | undefined;
   readonly read: ProofRead | undefined;
 };
-
-function boundaryUnanswered(error: unknown): ProofRead {
-  return {
-    kind: "unanswered",
-    ...(error instanceof Error && error.message !== ""
-      ? { detail: error.message }
-      : {}),
-  };
-}
 
 // The proof of the attempt JUDGMENT shows, read again with each judgment (so
 // Check again refreshes both) and kept only for the source, attempt and
@@ -64,28 +54,28 @@ export function useIntentCiShownProof(
     judgment === undefined || !readable
       ? undefined
       : `${source.id}|${JSON.stringify(ciProofSubjectOf(run))}|${judgment.checkedAt}`;
-  const [answer, setAnswer] = useState<
-    { readonly key: string; readonly read: ProofRead } | undefined
-  >(undefined);
+  const [owner] = useState(createCiProofReading);
+  const answer = useSyncExternalStore(
+    owner.subscribe,
+    owner.getSnapshot,
+    owner.getSnapshot,
+  );
   const runRef = useRef(run);
   runRef.current = run;
-
+  useEffect(
+    () => () => {
+      owner.dispose();
+    },
+    [owner],
+  );
   useEffect(() => {
     const shown = runRef.current;
-    if (key === undefined || shown === undefined) return;
-    const controller = new AbortController();
-    void readIntentCiProof(source, ciProofSubjectOf(shown), controller.signal)
-      .then((read) => {
-        if (!controller.signal.aborted) setAnswer({ key, read });
-      })
-      .catch((error: unknown) => {
-        if (!controller.signal.aborted)
-          setAnswer({ key, read: boundaryUnanswered(error) });
-      });
-    return () => {
-      controller.abort();
-    };
-  }, [source, key]);
+    void owner.select(
+      source,
+      key,
+      shown === undefined ? undefined : ciProofSubjectOf(shown),
+    );
+  }, [owner, source, key]);
 
   if (judgment === undefined || judgment.unpublished === true) return undefined;
   return {

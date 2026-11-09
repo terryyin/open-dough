@@ -2,7 +2,6 @@
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { StoryCiComparisonSlot } from "../../src/storyCiComparison.ts";
 import { test, expect } from "./pageTest.ts";
-import { test as mountedTest, mountComparison } from "./comparisonMountPage.ts";
 import { renderComparison } from "./comparisonRendering.ts";
 import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import { wallComparedFacts } from "./mountedComparisonFacts.ts";
@@ -50,48 +49,39 @@ test("adapter proof size limit is named separately for every endpoint", async ({
     );
 });
 
-mountedTest(
-  "invalid adapter Baseline and ambiguous Branch and Landed retain their own proof reasons",
-  async ({ page, comparisonServer, comparisonServices }) => {
-    const facts = wallComparedFacts();
-    const answer = makeMe.aStoryCiComparison
-      .with({
-        ...facts.answer,
-        baseline: adapterSlot(facts.answer.baseline, "1"),
-        branch: adapterSlot(facts.answer.branch, "2", true),
-        landed: {
-          ...adapterSlot(facts.answer.landed, "2", true),
-          revision: "b".repeat(40),
-        },
-      })
-      .please();
-    Object.assign(comparisonServices, {
-      comparison: () => ({ json: answer }),
-      proof: () => ({
-        json: {
-          runId: "pipeline",
-          attemptId: "1",
-          branch: "main",
-          revision: "a".repeat(40),
-          checkedAt: facts.answer.checkedAt,
-          proof: makeMe.aCiProof
-            .unavailable("invalid", "schemaVersion is not 1 or 2")
-            .please(),
-        },
-      }),
-    });
-    const panel = await mountComparison(page, comparisonServer, facts);
-    const gaps = panel.locator(".intent-ci-comparison-entries");
+test("invalid adapter Baseline and ambiguous Branch and Landed retain their own proof reasons", async ({
+  page,
+  comparisonRenderer,
+}) => {
+  const facts = wallComparedFacts();
+  const answer = makeMe.aStoryCiComparison
+    .with({
+      ...facts.answer,
+      baseline: adapterSlot(facts.answer.baseline, "1"),
+      branch: adapterSlot(facts.answer.branch, "2", true),
+      landed: {
+        ...adapterSlot(facts.answer.landed, "2", true),
+        revision: "b".repeat(40),
+      },
+    })
+    .please();
+  const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, [
+    makeMe.aCiProof
+      .unavailable("invalid", "schemaVersion is not 1 or 2")
+      .please(),
+    undefined,
+    undefined,
+  ]);
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const gaps = panel.locator(".intent-ci-comparison-entries");
+  await expect(gaps).toContainText(
+    "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2.",
+  );
+  for (const label of ["Branch", "Landed"])
     await expect(gaps).toContainText(
-      "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2.",
+      `${label} — This attempt is ambiguous at its revision: another discovered attempt is also attempt 2 at bbbbbbb.`,
     );
-    for (const label of ["Branch", "Landed"])
-      await expect(gaps).toContainText(
-        `${label} — This attempt is ambiguous at its revision: another discovered attempt is also attempt 2 at bbbbbbb.`,
-      );
-    expect(comparisonServices.proofs).toBe(1);
-  },
-);
+});
 
 test("adapter builds with no recorded wall time keep exact source words and hide attempt ids", async ({
   page,

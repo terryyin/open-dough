@@ -1,7 +1,6 @@
 // Endpoint-only gap words; imported by the mounted wording spec.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "./pageTest.ts";
-import { test as mountedTest, mountComparison } from "./comparisonMountPage.ts";
 import { renderComparison } from "./comparisonRendering.ts";
 import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import {
@@ -148,24 +147,21 @@ for (const reason of [
   "adapter CI service has no discovery access",
   "The CI adapter did not answer discovery within 2 seconds.",
 ]) {
-  mountedTest(
-    `every endpoint retains the unavailable discovery reason: ${reason}`,
-    async ({ page, comparisonServer, comparisonServices }) => {
-      const facts = wallComparedFacts();
-      const slot = { kind: "unavailable" as const, explanation: reason };
-      const answer = makeMe.aStoryCiComparison
-        .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
-        .please();
-      Object.assign(comparisonServices, {
-        comparison: () => ({ json: answer }),
-      });
-      const panel = await mountComparison(page, comparisonServer, facts);
-      await expect(panel.locator(".intent-ci-comparison-identity")).toHaveText([
-        reason,
-        reason,
-        reason,
-      ]);
-      expect(comparisonServices.proofs).toBe(0);
-    },
-  );
+  test(`every endpoint retains the unavailable discovery reason: ${reason}`, async ({
+    page,
+    comparisonRenderer,
+  }) => {
+    const facts = wallComparedFacts();
+    const slot = { kind: "unavailable" as const, explanation: reason };
+    const answer = makeMe.aStoryCiComparison
+      .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
+      .please();
+    const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, []);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
+    await expect(panel.locator(".intent-ci-comparison-identity")).toHaveText([
+      reason,
+      reason,
+      reason,
+    ]);
+  });
 }

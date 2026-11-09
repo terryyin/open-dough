@@ -1,4 +1,5 @@
-// Retained rule predecessors: real selected-owner acquisition counts, pending slice7.
+// Real target transitions and Taken judgment/comparison coupling. Fast reading
+// facets live in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   test,

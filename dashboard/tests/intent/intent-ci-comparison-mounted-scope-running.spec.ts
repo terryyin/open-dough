@@ -1,4 +1,5 @@
-// Retained rule predecessor: a running slot causes no proof read, pending slice7.
+// Real child navigation retains one provider for a running Landed fallback.
+// The fast request rule lives in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   test,
