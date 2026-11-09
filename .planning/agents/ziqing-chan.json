@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ziqing-chan",
+  "email": "ziqing-chan@example.org",
+  "identity": "SEED-289#name-a-test-job-past-its-deadline",
+  "mode": "story-branch",
+  "branch": "cursor/end-a-node-test-job-at-its-deadline-with-a-named",
+  "host": "cursor",
+  "model": "auto"
+}
