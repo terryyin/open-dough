@@ -22,12 +22,14 @@ PFE found existing owners rather than a need for another comparison model:
   1,491 ms, so it is insufficient as the fast presentation-rule boundary.
   A bounded scratch entry using the existing Vite config/build API and
   `frontendAppServer.ts` mounted real comparison components/providers and
-  exercised Show % and sorting in 593 ms. Use this small production-component
-  entry for frontend rule variants; share only the build/static-server harness,
-  with fresh component/reading state per case. No new runner, dependency,
-  hand-authored replacement DOM or production test flag is needed. Extend
-  existing service substitutes for retained app journeys as necessary. A
-  prepared answer never proves backend resolution or transport.
+  exercised Show % and sorting in 593 ms. That route supplied slices 3–4's real
+  mounted rules, but later CI disproved portable sub-second cost. The revised
+  slices 6–7 use existing Vite SSR plus actual production CSS/browser observation
+  for static rules and the production-used plain client reading owner for
+  lifecycle rules. Retain live controls/transport connections. See the decisive
+  [checkpoint and consuming probe](ui-pilot-evidence.md#supported-remaining-boundary).
+  No new runner/dependency, replacement DOM or production test flag is needed.
+  A prepared answer never proves backend resolution or transport.
 - `tests/support/makeMe.mjs` already owns repositories, published sources, CI
   runs, adapter attempts, jobs, proof entries, launches and Done/landing records.
   Extend these builders and add a canonical comparison answer/slot builder
@@ -65,11 +67,11 @@ equivalent cases by fault-detection purpose, not by filename or line coverage.
 
 | Source promise / important examples | Owning slice and observable signal |
 | --- | --- |
-| Minimal portable arrangement; every rule test <1,000 ms; no raised timeout; equivalent behavioral confidence | Every slice: strict ordinary-mode before/after profile including replacement cases, explicit MakeMe facts, default-timeout/static review and distinguishing failure control before predecessor removal. Final aggregate profile in slice 5. |
+| Minimal portable arrangement; every rule test <1,000 ms; no raised timeout; equivalent behavioral confidence | Every slice: strict ordinary-mode before/after profile including replacement cases, explicit MakeMe facts, default-timeout/static review and distinguishing failure control before predecessor removal. Final aggregate profile in slice 7. |
 | Published Done/Taken endpoints, both modes, owning merge/fast-forward and earlier completion; exact/ancestor and skipped/equivalent provenance; adapter attempt identity/timing | Slice 1: browser-free comparison boundary returns independently named endpoint revisions, statuses and proof identities; representative real Git/provider/authenticated reads still reach the rendered comparison. |
 | Cancelled landing's nearest usable later trunk build; proofless/unbuilt gaps, running/head/30-revision stops; exact-only timed-out/unexplained, bounded baseline/branch walks | Slice 2: arranged revision/run/proof cases assert selected build or precise gap, requested status and refreshability, plus retained cancelled-landing wiring. |
-| Unavailable answer/slot/proof recovers, Check again busy state and read counts; final Done/proof reuse; Taken/head and awaiting-later freshness | Slice 3: counted external operations through real read/cache owners; mounted production retry controls/read state for busy/callback rules; retain full-app held/failed/recovered transport journey. Observe both failure and recovery. |
-| Shared endpoints/fallback through homepage, tree, Summary and file Proof; signed whole-second vs precise scope timings, zero/gaps, counts, source cues, sorting, shared scales and Show % | Slice 4: canonical evidence through mounted production scope components/providers for sub-second rule variants, asserting values/accessibility and real controls. Retained whole-app navigation proves drilling adds no CI request and preferences carry between views; keep acquisition-to-scope proof. |
+| Unavailable answer/slot/proof recovers, Check again busy state and read counts; final Done/proof reuse; Taken/head and awaiting-later freshness | Slice 3 accepted server memory/acquisition proof remains. Slice 7 replaces mounted client variants with actual request-state rules, held fetch/abort witnesses and real React busy/recovery/selection connections. Observe failure and recovery. |
+| Shared endpoints/fallback through homepage, tree, Summary and file Proof; signed whole-second vs precise scope timings, zero/gaps, counts, source cues, sorting, shared scales and Show % | Slice 4's complete assertion maps constrain slice 6: actual production-rendered variants with real browser semantic/CSS/geometry observations, plus uniquely mapped live sort/Show %/drill controls. Retain acquisition, no-extra-CI-read and preference continuity connections. |
 | Comparison stays visible with held/failed locations/Changed tests reads | Slice 3: retained full-app request held until observable release/rejection, comparison remains usable; preserve retry/selection and enclosing assertions. |
 | Refresh retains selected captured run after new capture/session replacement, falls back newest → remaining → legacy gap after deletion/expiry | Slice 5: sub-second real record-reader/selection cases with directly stored MakeMe records; declared retained Refresh transport journey; actual launch/capture journeys prove record production. |
 
@@ -180,7 +182,7 @@ run; another story's one-worker Intent run was active. Preparation chose one
 worker and no full suite or 73-case timing run. Recheck headroom before actual
 profiling; leave unrelated processes with their owners.
 
-## Preparation review
+## Original preparation review
 
 Slice-plan refinement ran in place after independent proof/measurement review.
 Retain all five boundaries: each owns one feedback outcome, its real behavior,
@@ -195,3 +197,15 @@ was identified after the revised approach's consuming-profile observations.
 Every permanent replacement still owes discrimination, measured local feedback
 gain and final local/CI threshold evidence during execution. No execution,
 Take or story-completion claim is made by this plan.
+
+## Remaining-work refinement
+
+At `2023e150...`, rejected loader/observer pilots were restored before refinement.
+The actual SSR/static-browser consuming probe and independent boundary review
+support seven slices: retain completed 1–5, presentation plus its controls in 6,
+client request lifecycle plus aggregate acceptance in 7. The source's 130 texts
+and target are unchanged; C067 remains final target CI. The checkpoint records
+the measured remaining gap, supported different strategy and concrete limits.
+No sizing exception, >15-slice recommendation or human decision is outstanding.
+Retirement still requires fault-equivalent proof and each live connection;
+the current strategy does not claim the complete family or CI target already met.

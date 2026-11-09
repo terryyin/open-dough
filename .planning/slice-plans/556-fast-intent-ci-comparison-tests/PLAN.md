@@ -46,21 +46,10 @@ Status: done
 Proof: Normal Done/Taken endpoint cases through the real comparison boundary
 without browser/Git/provider subprocesses, and retained integrated acquisition.
 
-Given minimal published endpoint/history facts, runs and usable proof, reading
-the comparison quickly returns the existing baseline, branch, landed or
-provisional result in either execution mode, with correct owning merge,
-fast-forward, earlier-completion and skipped/equivalent provenance. Keep adapter
-attempt/run identity and workflow/job timing tied to the selected build.
-
-Reuse lookup and MakeMe owners; make only the necessary acquisition seam
-coherent with production callers. Establish replacement failure-detecting proof
-before retiring the corresponding expensive matrix. Retain representative real
-Git history → provider/adapter → authenticated answer → rendered comparison
-observations, with their unique assertions recorded. If immutable shared history
-reduces their measured cost, prove independent clones and cleanup in this slice.
-Preserve the actual merge/history semantics; arranging the selected endpoint
-cannot prove the algorithm that derives it. Reprofile this whole affected group,
-including retained integration, before retaining the experiment.
+Accepted: actual published-history algorithms over raw MakeMe external facts;
+14 rules at 0–15 ms, zero acquisition subprocesses, six wrong-endpoint faults
+caught. Real Git/provider/authenticated/rendered connections remain. Full
+decision, commands and proof are in execution-evidence and source-review.
 
 ### 2. Explain cancelled and proofless endpoints quickly
 
@@ -69,18 +58,9 @@ Status: done
 Proof: Minimal revision/run/proof cases at the comparison boundary, preserving
 one real cancelled-landing acquisition path and its independent provenance.
 
-Given a cancelled landing with later unbuilt/proofless/cancelled revisions,
-reading chooses the nearest later usable completed build and names how many
-trunk revisions it includes. Running/head stops stay refreshable; the fixed
-30-revision bound, nearest unusable-proof explanation, stopped-running evidence
-and no-later-result wording remain discriminated. Timed-out/unexplained remains
-exact-only; baseline/branch skip unusable proof within their own bounds.
-
-Use the same history/run/proof model as slice 1 rather than another resolver
-or one recognizer per example. Cover attempt selection and unavailable adapter
-proof where those distinctions drive this result. Replace heavy variants only
-after their replacement assertions distinguish wrong selection, boundary or
-proof behavior. Measure both the fast variants and retained real wiring.
+Accepted: 19 real selection/gap rules at 0–13 ms, preserving cancelled/later,
+running/head stops, exact-only timeout, attempts and the 30-revision bound.
+Wrong-bound fault caught; real cancelled acquisition retained. See gap-evidence.
 
 ### 3. Recover and remember comparisons without repeated infrastructure
 
@@ -90,22 +70,10 @@ Proof: Real server read/memory boundary with counted external operations;
 mounted real Check again control/read-state rules; retained full-app retry
 journey against held/failing/recovered responses.
 
-Given unavailable whole answers, slots or endpoint proof, repeat selection or
-Check again reads the correct evidence afresh and recovers in the same process.
-The button disables while a read is held. Final Done answers and valid proof
-reuse evidence without more provider requests; completed timing reasons are
-final, while Taken/head changes, running and awaiting-later results stay fresh.
-Comparison remains visible while locations/Changed tests reads are held or fail.
-
-Test API reads and upstream requests as separate counters, preserving the old
-request-accounting contract. Memory needs no elapsed-time wait; use a controlled
-clock for actual deadlines/backoff only. Start/settle/abort observable operations
-and clear/isolate cache state. Use the observed mounted-component route for
-busy/callback rules and actual production read logic for request/finality rules.
-Declare the full-app refresh, selection and held-read visibility journey as
-integration before timing; it proves their connection and is not a substitute
-for fast rule variants. Remove duplicate expensive retry setup only after both
-proof boundaries hold. Measure the failure and return journey as well as rules.
+Accepted: 25 actual reader/memory rules below 5 ms, separately counted API and
+upstream acquisition, and seven real mounted lifecycle cases. Real retry and
+held/failed Changed tests connections remain. See lifecycle-evidence. Mounted
+client lifecycle cost is superseded only after slice 7's equivalent proof.
 
 ### 4. Read the same comparison quickly at every scope
 
@@ -115,31 +83,16 @@ Proof: Sub-second mounted production comparison/Summary/Proof variants with
 real providers and controls; retained built-app comparison → entry/folder
 Summary → file Proof and return, plus real acquisition-to-scope proof.
 
-Given prepared comparison/proof and changed-file evidence, real navigation
-keeps active endpoints, fallback explanations and reading preferences consistent.
-Preserve signed timing words, whole-second overall versus precise scope times,
-zero Baseline behavior, count units, gaps/untimed/missing breakdown, source cues,
-sorting/ties/outside row, relative scales and Show %. Count requests to prove
-drilling reuses evidence and Summary does not read file text.
+Accepted: 87 real mounted presentation/lifecycle variants, original assertion
+maps, 15 predecessor files retired and eight narrowed; 18 comparison wiring
+owners. Ordinary 182-case pass and loaded 249-case pass preserved all original
+literal/physical/interaction checks. See presentation-evidence. Later CI
+disproved the portable timing premise; slices 6–7 replace only affected proof.
 
-Use the actual assertions in the 7 Summary files and the entry/relative/sort/
-drilldown consumers to assign distinct fault-detection purposes. Minimal
-frontend cases each own a coherent observation; do not join unrelated rules
-into one long branching journey. Use the observed production-component Vite
-entry and existing static server rather than whole-app selection in every
-rule case. Mount real scope owners with the actual reading/preference providers,
-production projections and controls, then unmount/reset after each test.
-Keep case data in MakeMe outside the browser bundle and pass canonical values
-into the mounted boundary. Extend no framework for hypothetical consumers.
-Retain full-app navigation/preference continuity and acquisition-to-rendered-scope
-proof for connections a mounted surface cannot establish. Declare these
-integration owners before measurement. Profile all replacement cases, per-test
-browser setup, shared bundle build and retained integration.
-
-### 5. Refresh stored review choices and verify portable rules
+### 5. Refresh stored review choices without incidental launches
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Sub-second cases through the real record store/selection boundary,
 including `reviewLandedRunsOf`, `preferredReviewRun`, `reviewRunKey` and retention;
 the three UI Refresh journeys with direct MakeMe setup; existing real one-shot
@@ -165,58 +118,100 @@ retained proof when those contracts remain unchanged. Reading their assertions
 alone is not executed preservation proof. Remove incidental launches only after
 the replacement rule proof and these integration obligations are established.
 
-Run the final ordinary local family selection including every replacement,
-retained comparison integration and both review Refresh cases, comparing against
-the original baseline. Verify portable correctness/timing in published CI and
-record observed environments and remaining unknowns; no finite profile proves
-an absolute bound on arbitrarily starved machines. Do not claim the target met
-while any rule-focused test remains over it or the local feedback path has no
-demonstrated improvement. Keep still-needed results in maintained test docs
-before wrap-up removes this plan.
+Accepted: three real-store rules at 14/270/15 ms, three direct-record Refresh
+journeys, and three current native launch/capture preservation journeys. Exact
+identity, replacement, deletion, retention and legacy-gap evidence is in
+refresh-evidence. Published progress and the whole-family local observation are
+in portable-evidence; they do not satisfy the still-open portable UI goal.
 
-Published CI found sixteen mounted rules at 1,019–1,581 ms (G3). Inspectable
-step data assigns the excess to repeated DOM assertions and actions, with
-shared hooks excluded. Keep the mounted production boundary and batch coherent
-DOM observations in existing assertion owners, preserving independent expected
-rows, cues, roles and sort states. Compare the simpler batched observer with the
-existing serial reads; measure all replacements locally and in published CI.
-No slower rule becomes integration, no setup moves into shared hooks, and no
-story promise changes. Refresh arrangement proceeds independently of these UI
-observers; combine both in the final ordinary selection.
+### 6. Read comparison presentation rules without client startup
+
+Type: Behavior
+Status: planned
+Proof: Actual production React rendering and CSS in a fresh browser page;
+independent literal/semantic/geometry expectations; actual control connections.
+
+Given canonical comparison/proof/overlay facts, render the real entry, Summary,
+tree and file Proof content with unchanged endpoints, reasons, labels, counts,
+units, cue attributes, relative scale membership and sort state. Reuse existing
+pure rules and Vite SSR compilation. Extract only necessary pure content from
+async shells and the frame preference binding, used by production itself.
+Keep actual aggregate scale/projection algorithms inside that content; never
+supply expected rows, ideal scale, private contexts or settled effect outcomes.
+
+The three-case capability consumed actual TSX/CSS and passed complete adjusted
+envelopes 195/191/287 ms; cold compilation/build and 5.85 s wall are separate.
+It permits this early family pilot, not retirement: first prove a complete
+Summary ancestor/layout, File Proof content and percent-on outlier at this
+boundary, with fault controls and original independent assertions. Preserve
+the actual 200% Verdana viewport, no sideways scrolling and unbroken words.
+CSS/role/title/cardinality are observed by the real browser, not a DOM model.
+Measure common immutable compilation separately and all per-case arrangement,
+projection, rendering, setContent, observations and page/context cleanup.
+
+Map all 80 presentation predecessors before retirement. Reuse fast domain
+sort/math/cue owners where fault-equivalent, including exact old time values;
+include those owners in ordinary feedback. Preserve real callbacks/Enter/Space,
+each column key, Show %, mixed-unit tree→Summary→Proof and preference continuity
+through uniquely mapped existing or narrowly added prepared-service connections
+declared before measurement. No measured predecessor is relabeled as wiring.
+Static variants and actual bindings must jointly detect every old fault before
+its old case retires. Keep seven lifecycle predecessors for slice 7.
+
+Pilot decision: retain only an observed useful total-cost route with credible
+margin against G3; otherwise restore this attempt and reassess before extension.
+Then measure all presentation replacements and publish their CI experiment.
+
+### 7. Recover selected readings quickly and verify the complete family
+
+Type: Behavior
+Status: planned
+Proof: Actual production comparison/proof request-state owner in process,
+held fetch/abort witnesses, retained React control and stale-paint connections;
+whole-family local/load and exact published CI timing.
+
+Given unavailable comparison/proof, held reads, a changed head or selection,
+the actual client owner ignores stale answers, aborts old requests, retries the
+same subject, disables Check again while busy and refreshes all three endpoint
+proofs after a successful comparison retry. Failure does not advance that round;
+same-head observation does not reread. Preserve numeric and adapter attempt
+identity/query validation, Taken Trunk provisional/Branch N/A and no retry.
+
+Modularize existing useIntentCiComparison/useSlotProof responsibility into a
+small production-used disposable owner, with hooks as React lifetime bindings.
+Use actual authenticated readers and external fetch Responses; retain server
+finality/memory as their existing sole owner. Add no frontend TTL/cache or
+universal request framework. Minimal MakeMe facts, exact query/counter deltas,
+controlled held promises and AbortSignals prove the seven old lifecycle rules.
+Keep real UI held-error/recovery, endpoint-proof recovery and both old-selection
+comparison/proof abort connections. Establish both boundaries before retirement.
+
+Run the ordinary local selection including every new/reused rule, all retained
+comparison/Refresh connections and separately reported native preservation.
+Compare against original 75/269.01 s and intermediate 188/87.35 s with load,
+concurrency, shared startup, rule cleanup and wiring separately stated. Obtain
+a representative loaded observation and exact published CI complete-case bounds.
+Every rule must remain below 1,000 ms and total local feedback must improve;
+an inconclusive CI bound remains open. Preserve defaults and fault detection.
+Move lasting ownership/commands/results to maintained test docs before wrap-up.
 
 ## Current decisions and learnings
 
-The first portable UI checkpoint at `80ef2d48` passed all 167 rules in CI but
-left 21 observed cleanup prefixes above one second (max 1,549 ms); nineteen
-reported durations exceeded it. Local batching also showed no isolated gain.
-G3 remains with slice 5. Hold dependent experiments while comparing the actual
-remaining cost and stronger existing-observer strategies; record that decision
-here before another implementation. The separate CI lint defect is repaired
-through its ordinary owned repair path, without weakening the timing promise.
-
-Slice 1's raw-history acquisition decision, load-27 counterexample and six
-fault controls are retained in execution-evidence and G2. One
-`PublishedStoryHistory` acquisition owner supplies authored parents, profile
-history, ordered/merge revisions, ancestry and author configuration to the
-existing comparison and Review algorithms. MakeMe supplies canonical external
-facts; actual Git acquisition retains its declared integration owner. No
-history cache, endpoint recognizer or changed domain rule is selected.
+The `80ef2d48` checkpoint leaves 21 cleanup prefixes over one second (max
+1,549 ms). Batching cannot close G3; loading/observer pilots were rejected and
+reverted. Existing real SSR removes incidental client startup: the three-case
+consuming probe passed at 195–287 ms with compilation separate. Select the
+supported static-render + actual live-binding strategy in slices 6–7; preserve
+supported old sort/file gains. Full context and decisive comparison are in
+[the checkpoint](ui-pilot-evidence.md). G1/G3 stay open through slice 7.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.
 - Retain integration by unique observed connection, not a fixed test count.
   Separate its cost without hiding it from total feedback measurements.
-- The 1,491 ms full-app probe invalidated using that route for every frontend
-  rule. The 593 ms mounted production-component probe supports a different
-  strategy within the same scope: mounted fast variants plus explicitly owned
-  whole-app navigation/transport integration. Preserve these boundaries before
-  measuring; the target stays unchanged. Broader cases and loaded/CI timings
-  remain execution acceptance work.
-- Slice 3's actual full-provider pilot passed at 444 ms; its seven lifecycle
-  cases passed at 148–523 ms, sharing one 461 ms immutable build. Summary/file
-  variants and final loaded/CI observations remain owned by slices 4 and 5.
-- Reuse ordinary portable snapshot/materialization if profitable; APFS clone
-  and worker-scoped server reuse remain optional experiments, not premises.
+- Reuse ADRs 0002/0008/0010: one comparison model, derived disposable reading
+  state, and measured useful gain. PFE found existing pure rule owners, actual
+  renderable components and the Vite SSR loader; no new framework/ADR is needed.
 - Read the current delivered code at execution. Other active Intent stories
   may add consumers, but their feature outcomes are not prerequisites for this
   test optimization; preserve their ownership and align changed contracts.
@@ -229,14 +224,14 @@ history cache, endpoint recognizer or changed domain rule is selected.
 ### G1. Retire browser rule variants after presentation proof
 Reported: slice 1 — "frontend assertion migration and predecessor retirement in slice 4"
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
-Disposition: interim until slices 4, 5
+Disposition: interim until slices 4, 6, 7
 
 ### G2. Actual-Git rule cases exceed the target under observed load
 Reported: slice 1 — "loaded sub-second timing remains unproved/unsatisfied for those cases"
 Story clause: "Target less than 1,000 ms for each rule-focused test, including per-test arrangement, actions, assertions and cleanup."
-Disposition: proved by slice 1: raw-history-family-after.json has all 14 replacement rules at 0–15 ms; raw-history-no-acquisition-control-applied.json observes zero acquisition subprocesses; raw-fault-controls-summary.json catches all six endpoint faults. The old Git-per-rule cause is removed; final loaded/portable acceptance remains in slice 5, without claiming a new load-27 observation.
+Disposition: proved by slice 1: raw-history-family-after.json has all 14 replacement rules at 0–15 ms; raw-history-no-acquisition-control-applied.json observes zero acquisition subprocesses; raw-fault-controls-summary.json catches all six endpoint faults. The old Git-per-rule cause is removed; final loaded/portable acceptance remains in slice 7, without claiming a new load-27 observation.
 
 ### G3. Published CI rule timings exceed the target
 Reported: slice 5 — "Run 42627028218 attempt 1 matched all 164 rule owners; sixteen took 1,019–1,581 ms."
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
-Disposition: return
+Disposition: receiving slice 7
