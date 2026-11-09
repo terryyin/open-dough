@@ -5,6 +5,7 @@ import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -34,14 +35,13 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
-import { release } from "./releaseTestData.mjs";
+import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
-/** @typedef {import("./releaseTestData.mjs").Release} Release */
 /** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
@@ -142,15 +142,7 @@ export const makeMe = {
     };
   },
   get aRelease() {
-    return {
-      /** @param {import("./releaseTestData.mjs").ReleaseFacts} facts */
-      with(facts) {
-        return {
-          /** @returns {Release} */
-          please: () => release(facts),
-        };
-      },
-    };
+    return new ReleaseBuilder();
   },
   get aDoneRecord() {
     return new DoneRecordBuilder();
@@ -213,6 +205,9 @@ export const makeMe = {
   },
   get aCiProofEntry() {
     return new CiProofEntryBuilder();
+  },
+  get aCiProofSummary() {
+    return new CiProofSummaryBuilder();
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();

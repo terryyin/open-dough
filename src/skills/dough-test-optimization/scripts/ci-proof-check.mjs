@@ -1,0 +1,77 @@
+// The check a CI proof read (./ci-proof-read.mjs) makes of a summary before
+// using it: valid by the collector contract (./ci-proof-contract.mjs), then
+// naming the asked attempt's repository, attempt and revision. Missing,
+// outdated or conflicting evidence is never a result.
+import { summaryProblems } from "./ci-proof-contract.mjs";
+
+/**
+ * The attempt a summary must name: its repository and revision, and a GitHub
+ * Actions run attempt's `runId` and `runAttempt` or a CI adapter attempt's
+ * `attemptId`.
+ * @typedef {{ readonly repository: string; readonly revision: string } & (
+ *   | { readonly runId: number; readonly runAttempt: number }
+ *   | { readonly attemptId: string }
+ * )} AskedAttempt
+ */
+
+/** @typedef {{ readonly summary: Record<string, unknown> }} UsableSummary */
+
+/**
+ * Why a summary that was read is not the asked attempt's: the collector
+ * contract's `problems` with it, or else the first identity fact it `names`
+ * otherwise, with its `value` there.
+ * @typedef {(
+ *   | { readonly why: "invalid"; readonly problems: readonly string[] }
+ *   | {
+ *       readonly why: "mismatched";
+ *       readonly names: "repository" | "run" | "attempt" | "revision";
+ *       readonly value: unknown;
+ *     }
+ * )} SummaryRefusal
+ */
+
+// The first identity fact by which SUMMARY, a valid summary, is not ASKED's:
+// what it `names` and its `value` there; undefined when it is ASKED's. The
+// repository is compared ignoring case. A GitHub Actions run attempt is
+// named by its `runId`, `runAttempt` and revision as written; a CI adapter's
+// attempt by its text `attemptId` and its revision lowered, as an adapter
+// may report a revision in either case, against the asked revision, which
+// is lower case.
+function identityMismatch(summary, asked) {
+  if (
+    typeof summary.repository !== "string" ||
+    summary.repository.toLowerCase() !== asked.repository.toLowerCase()
+  )
+    return { names: "repository", value: summary.repository };
+  if (asked.attemptId === undefined) {
+    if (summary.runId !== asked.runId)
+      return { names: "run", value: summary.runId };
+    if (summary.runAttempt !== asked.runAttempt)
+      return { names: "attempt", value: summary.runAttempt };
+    if (summary.revision !== asked.revision)
+      return { names: "revision", value: summary.revision };
+    return undefined;
+  }
+  if (summary.attemptId === undefined)
+    return { names: "run", value: summary.runId };
+  if (summary.attemptId !== asked.attemptId)
+    return { names: "attempt", value: summary.attemptId };
+  if (summary.revision.toLowerCase() !== asked.revision)
+    return { names: "revision", value: summary.revision };
+  return undefined;
+}
+
+/**
+ * VALUE as ASKED's summary: valid by the collector contract and naming the
+ * asked repository, attempt and revision; otherwise why it is not.
+ * @param {unknown} value
+ * @param {AskedAttempt} asked
+ * @returns {UsableSummary | SummaryRefusal}
+ */
+export function checkedSummary(value, asked) {
+  const problems = summaryProblems(value);
+  if (problems.length > 0) return { why: "invalid", problems };
+  const mismatch = identityMismatch(value, asked);
+  if (mismatch !== undefined) return { why: "mismatched", ...mismatch };
+  return { summary: value };
+}

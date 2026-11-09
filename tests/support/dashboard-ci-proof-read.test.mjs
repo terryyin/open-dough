@@ -1,19 +1,16 @@
 // Intent's CI proof read on the dashboard server: the judged result names
 // its GitHub Actions run's id and attempt, which key the read
-// (../../dashboard/server/baseCiNearest.ts), and one small zip's only file
-// is extracted and checked (../../dashboard/server/zipEntry.ts). An archive
-// the local GitHub request owner passed on as text, as one an earlier Open
-// Dough started does, is unreadable with what the developer can do
-// (../../dashboard/server/ciProofArtifact.ts). Summaries broken down by
-// file: ./dashboard-ci-proof-breakdown-read.test.mjs. Query-shape refusals:
-// ./dashboard-ci-proof-parse.test.mjs.
+// (../../dashboard/server/baseCiNearest.ts). An archive the local GitHub
+// request owner passed on as text, as one an earlier Open Dough started
+// does, is unreadable with what the developer can do
+// (../../dashboard/server/ciProofArtifact.ts). The shared read's artifact
+// choice, and the archive extraction and checks it names:
+// ../../src/skills/dough-test-optimization/scripts/ci-proof-read.test.mjs.
+// Summaries broken down by file: ./dashboard-ci-proof-breakdown-read.test.mjs.
+// Query-shape refusals: ./dashboard-ci-proof-parse.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { judgeNearest } from "../../dashboard/server/baseCiNearest.ts";
-import {
-  onlyZipEntry,
-  ZipEntryProblem,
-} from "../../dashboard/server/zipEntry.ts";
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
 import {
   olderRequestOwnerDetail,
@@ -69,30 +66,6 @@ test("a result whose run names no id and attempt names no run", () => {
 });
 
 const summaryText = '{"schemaVersion":1}\n';
-
-test("the archive's only file is inflated and checked against its recorded size and checksum", () => {
-  const archive = zipOf("ci-proof-summary.json", summaryText);
-  assert.equal(
-    onlyZipEntry(archive, "ci-proof-summary.json", 1024),
-    summaryText,
-  );
-});
-
-test("an archive that is not one small file of that name is a problem that says why", () => {
-  const archive = zipOf("ci-proof-summary.json", summaryText);
-  const problem = (bytes, name = "ci-proof-summary.json", limit = 1024) =>
-    assert.throws(() => onlyZipEntry(bytes, name, limit), ZipEntryProblem);
-  problem(Buffer.from("not a zip archive at all, only text"));
-  problem(archive, "other.json");
-  problem(archive, "ci-proof-summary.json", 4);
-  const twoFiles = Buffer.from(archive);
-  twoFiles.writeUInt16LE(2, twoFiles.length - 22 + 10);
-  problem(twoFiles);
-  const corrupted = Buffer.from(archive);
-  corrupted[30 + "ci-proof-summary.json".length] ^= 0xff;
-  problem(corrupted);
-  problem(archive.subarray(0, archive.length - 30));
-});
 
 const route = "repos/o/r/actions/artifacts/9/zip";
 const answerOf = (contentType, body, bodyEncoding) => ({

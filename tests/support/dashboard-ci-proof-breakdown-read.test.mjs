@@ -1,17 +1,17 @@
 // A CI proof summary broken down by file on the dashboard's read: it is
 // read whole up to the collector's shared limit
-// (../../dashboard/server/zipEntry.ts) and validated by the collector's
-// contract, and the browser's own parser keeps its breakdown
-// (../../dashboard/src/ciProof.ts). Other proof reads:
+// (../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs) and
+// validated by the collector's contract, and the browser's own parser keeps
+// its breakdown (../../dashboard/src/ciProof.ts). Other proof reads:
 // ./dashboard-ci-proof-read.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
 import {
   onlyZipEntry,
   ZipEntryProblem,
   ZipEntryTooLarge,
-} from "../../dashboard/server/zipEntry.ts";
-import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs";
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
 import {
   SUMMARY_READ_LIMIT_BYTES,

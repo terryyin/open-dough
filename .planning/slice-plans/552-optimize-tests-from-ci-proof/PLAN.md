@@ -127,7 +127,7 @@ with Terry, and record it before slice 7.
 ### 2. Share one CI proof read between Intent and agents
 
 Type: Structure
-Status: planned
+Status: done
 Proof: ownership row 1. Before the move, run
 `npm run test:dashboard -- tests/intent/intent-ci-proof-reasons.spec.ts tests/intent/intent-ci-proof-adapter-reasons.spec.ts tests/intent/intent-ci-proof.spec.ts tests/intent/intent-ci-proof-adapter.spec.ts tests/intent/intent-summary-ci-proof.spec.ts --workers=2`,
 then again after it, plus `bash scripts/test.sh` on the four
@@ -140,6 +140,31 @@ the adapter `proof` request, contract validation and identity matching move
 into one payload module beside the collector contract. `ciProofArtifact.ts`
 and `ciAdapterProof.ts` call it and keep their remembered answers, wording and
 `CiProof` mapping. External behavior is unchanged. Enables slice 3.
+
+Accepted 2026-11-09: one read path in
+`src/skills/dough-test-optimization/scripts/`. `ci-proof-read.mjs` chooses
+the artifact and asks the adapter's `proof` with
+`answerBytes: SUMMARY_READ_LIMIT_BYTES`; `ci-proof-archive.mjs` extracts the
+zip entry (from the deleted `dashboard/server/zipEntry.ts`);
+`ci-proof-check.mjs` holds `checkedSummary`, the one validation-then-identity
+step for both transports and for a `--summary` file. Reads answer `{summary}`
+or `{why, …}`; a failure to ask is thrown. The dashboard modules keep memory,
+wording (`proofOf`), timeouts and `CiProof` mapping. None of the three is in
+`managed_files` yet; slice 3 declares them with its reader. Proof: the five
+focused Intent specs passed 14 before and 14 after the move and again after
+refactoring
+(`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard -- <the five specs> --workers=2`);
+`npm run test:dashboard -- tests/intent --workers=2` passed 271 in 14.7 min
+at load 14–22, and refactoring changed neither dashboard module nor the
+read's exports; `bash scripts/test.sh tests/support/dashboard-ci-*.test.mjs`
+with the four `ci-proof-{read,read-adapter,archive,check}.test.mjs` files
+(15 tests), the `ci-command-adapter*` tests and the release-builder checks
+passed; `npm run typecheck:dashboard` passed. 46 scratch breaks of the
+identity, validation, expiry, ambiguity, size and archive checks were each
+caught by their intended test, and the modules were restored byte for byte.
+`makeMe.aCiProofSummary` builds summaries. Refactor: split into the three
+modules for the 250-line limit, and `makeMe.aRelease`'s builder moved into
+`releaseTestData.mjs`.
 
 ### 3. Rank optimization leads from retained CI proof
 
