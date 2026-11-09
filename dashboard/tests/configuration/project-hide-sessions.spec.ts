@@ -12,6 +12,7 @@ import {
 } from "../dashboardPage.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
+import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { openUntilRead, untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import {
   openSessionsSidebar,
@@ -154,9 +155,15 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
 
   await expect(tabs).toHaveText(allSeededLabels);
   await chooseProject(page, "Doughnut");
-  await expect(intentMain).toContainText(
-    "Intent locations for Doughnut could not be read.",
+  await expectProjectChoice(page, "Doughnut");
+  await expect(intentMain).toHaveAttribute("data-selected-story", identity);
+  await chooseStoryTab(intentMain, "Changed tests");
+  await expect(
+    intentMain.getByRole("tabpanel", { name: "Changed tests", exact: true }),
+  ).toContainText(
+    "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
   );
+  await expect(intentMain.locator(".intent-locations")).toHaveCount(0);
   await entry(sessionTitle).click();
   await untilPublishedWorkRead(page);
   await expectProjectChoice(page, "Doughnut");

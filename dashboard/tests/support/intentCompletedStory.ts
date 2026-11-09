@@ -13,16 +13,13 @@ import path from "node:path";
 import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
-import { showColumn } from "../boardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
-import { expectSelected } from "../storyCardSelection.ts";
 import {
   advanceCompletedTrunk,
   completedPublishedStory,
 } from "./completedPublishedStory.ts";
 import { publishIntentTrunk } from "./intentStoryWorktree.ts";
+import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
@@ -93,17 +90,10 @@ export async function selectCompletedStoryInIntent(
     repository: "terryyin/open-dough",
     follows: true,
   });
-  await page.goto("/");
-  await showColumn(page, "Recently done");
-  const { recentlyDone, intentChoice, intent } = parts(page);
-  const card = recentlyDone.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await card.getByRole("heading", { level: 3 }).click();
-  await expectSelected(card, true);
-  await beforeIntent?.();
-  await intentChoice.click();
-  await expect(intent).toBeVisible();
+  const { card, intent } = await selectDoneStoryInIntent(
+    page,
+    "Story A",
+    beforeIntent,
+  );
   return { card, intent, completion, published };
 }

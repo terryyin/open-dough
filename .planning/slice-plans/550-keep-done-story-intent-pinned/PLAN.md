@@ -232,6 +232,11 @@ Reported: slice 1 — "Coordinator inspection found that the shallow-history jou
 Story clause: "Each evidence source remains independently useful when another is unavailable."
 Disposition: proved by slice 1: intent-story-completed-source.spec.ts, shallow history keeps no historical browser and renders the exact saved report; default-reporter focused and refactor terminal passes.
 
+### G3. Settle recurring owning-merge source and Proof failures
+Reported: slice 1 — "The later one-worker full Intent run failed the owning-merge original-diff assertion while it was still reading and timed out the unchanged-file journey at Proof; a prior passing run does not settle these failures."
+Story clause: "Its test browser uses the baseline-to-landed-result changes and the test-source locations, inventory, and unchanged-file source at landing."
+Disposition: receiving slice 2
+
 ## Current decisions and preparation review
 
 - Story source comes from its established published result; diff/CI retain distinct provenance.

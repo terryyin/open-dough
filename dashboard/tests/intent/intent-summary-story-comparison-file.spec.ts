@@ -7,6 +7,8 @@
 // are in ./intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
+import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
   comparisonLabels,
   expectEvidenceLabels,
@@ -15,6 +17,7 @@ import {
 } from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
 import {
   fileReadingTab,
   proofRegion,
@@ -30,7 +33,7 @@ import {
   intentFile,
   storyTab,
 } from "../support/intentStoryPage.ts";
-import { selectDoneStoryForSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
+import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
   expectFileComparisonRow,
@@ -39,15 +42,38 @@ import {
   unchangedFileRow,
 } from "../support/summaryComparisonFileExpectedRows.ts";
 
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  for (const release of releases.splice(0)) release();
+});
+
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with ${variant ?? "clean merges"}`, async ({
     page,
     origin,
   }) => {
     const setup = await publishSummaryComparisonStory(page, origin, variant);
-    const { intent } = await selectDoneStoryForSummaryComparison(page);
+    const ci = await holdAuthenticatedReadsWhere(
+      page,
+      (params) => params.get("intent") === "ci-comparison",
+      releases,
+    );
+    const { intent } = await selectDoneStoryForChangedTests(page);
+    // Choosing Changed tests does not depend on the CI comparison finishing.
+    await expect.poll(() => ci.held()).toBeGreaterThan(0);
+    ci.release();
+    const nextDiff = (path: string) =>
+      page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname === storyReviewFileEndpoint &&
+          url.searchParams.get("path") === path
+        );
+      });
 
+    const modifiedRead = nextDiff("dashboard/tests/folder/a.spec.ts");
     await intentFile(intent, summaryComparisonChanges.modified).click();
+    await modifiedRead;
     const purpose = purposeRegion(intent);
     const purposeTab = fileReadingTab(intent, "Purpose");
     const proofTab = fileReadingTab(intent, "Proof");
@@ -66,6 +92,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     ).toHaveCount(0);
 
     await proofTab.click();
+    await untilPageReadsAnswered(page);
     const proof = proofRegion(intent);
     await expect(proofTab).toHaveAttribute("aria-selected", "true");
     // The file's Proof shares the Summary's comparison labels.
@@ -143,7 +170,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
 
     if (variant !== undefined)
       await test.step("a test file only the integration merge edited shows that edit and keeps Proof", async () => {
+        const editedRead = nextDiff("dashboard/tests/folder/nested/c.spec.ts");
         await intentFile(intent, summaryComparisonChanges.mergeEdited).click();
+        await editedRead;
         const edited = purposeRegion(intent);
         await expect(edited.locator(".intent-story-diff-name")).toHaveText(
           summaryComparisonChanges.mergeEdited,
@@ -178,7 +207,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       )
         unchangedReads.push(url.searchParams.get("revision") ?? "");
     });
-    const { intent } = await selectDoneStoryForSummaryComparison(page);
+    const { intent } = await selectDoneStoryForChangedTests(page);
     await intentFile(intent, "dashboard/tests/root.spec.ts").click();
     await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
       "aria-selected",
@@ -196,6 +225,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
     await expect(purposeOnly.getByRole("table")).toHaveCount(0);
     await fileReadingTab(intent, "Proof").click();
+    await untilPageReadsAnswered(page);
     const rootProof = proofRegion(intent);
     await expectFileComparisonRow(
       rootProof,
