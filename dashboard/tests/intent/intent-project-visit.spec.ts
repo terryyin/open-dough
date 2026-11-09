@@ -7,9 +7,8 @@
 // and Back to selected story shows the story's Changed tests with its file,
 // Proof or Purpose and scroll as they were. Project Intent's own file is kept
 // for its next visit, and activating CI status by keyboard returns it home.
-// Each new selection, even one cleared and selected again while Intent is
-// hidden, opens the story at CI comparison, and clearing the story lands on
-// Project Intent's CI status, whichever view the last visit ended on.
+// Selection transitions: ./intent-project-visit-selection.spec.ts.
+// CI follow cost during visits: ./intent-project-visit-ci.spec.ts.
 // Without a story Project Intent is Intent's landing:
 // ./intent-ci-status-homepage.spec.ts.
 
@@ -32,8 +31,6 @@ import {
   proofRegion,
   purposeRegion,
 } from "../intentPerspectivePage.ts";
-import { parts } from "../dashboardPage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   expectStoryTab,
@@ -225,43 +222,4 @@ test("a candidate's test the story changes reads as published in Project Intent,
   });
   // The record and the candidate's published text, each read once.
   expect(reads).toEqual(["candidates", `text ${candidatePath}`]);
-});
-
-test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after a visit that ended on Optimization Candidates", async ({
-  page,
-  origin,
-}) => {
-  const { card, intent } = await selectTakenStoryInIntent(page, origin);
-  await expectStoryTab(intent, "Changed tests");
-  await openProjectIntent(intent);
-  await chooseOptimizationCandidates(intent);
-  const { development, intentChoice } = parts(page);
-  const heading = card.getByRole("heading", { level: 3 });
-
-  await test.step("cleared and selected again while Intent is hidden: the story's CI comparison", async () => {
-    await development.click();
-    await heading.click();
-    await expectSelected(card, false);
-    await heading.click();
-    await expectSelected(card, true);
-    await intentChoice.click();
-    await expect(storySummary(intent)).toBeVisible();
-    await expectStoryTab(intent, "CI comparison");
-    await expect(backToStory(intent)).toHaveCount(0);
-    // Project Intent, visited for this new selection, opens on CI status.
-    await openProjectIntent(intent);
-    await expectIntentModeChosen(intent, "CI status");
-    await chooseOptimizationCandidates(intent);
-  });
-
-  await test.step("cleared after a visit on Optimization Candidates: Project Intent's CI status", async () => {
-    await development.click();
-    await heading.click();
-    await expectSelected(card, false);
-    await intentChoice.click();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expect(storySummary(intent)).toHaveCount(0);
-    await expectIntentModeChosen(intent, "CI status");
-    await expect(ciPanel(intent)).toContainText("CI status of main");
-  });
 });

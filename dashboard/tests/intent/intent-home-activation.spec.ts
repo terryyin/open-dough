@@ -103,7 +103,8 @@ test("with a story selected, activating CI comparison judges that story's branch
   const panel = await activateIntentHome(intent);
   await expectStoryTab(intent, "CI comparison");
   await expectNamed(panel, failing.branch);
-  await expect(panel).toContainText(`Story branch of ${failing.title}.`);
+  await expect(panel.locator(".intent-ci-story")).toHaveText("Story branch.");
+  await expect(panel).not.toContainText(failing.title);
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Failed at fa11ed0 (Break the login)",
   );

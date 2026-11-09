@@ -119,9 +119,7 @@ export function JudgedBranch({
       <h3>
         CI status of <code>{branch}</code>
       </h3>
-      {story !== undefined && (
-        <p className="intent-ci-story">Story branch of {story}.</p>
-      )}
+      {story !== undefined && <p className="intent-ci-story">Story branch.</p>}
       <p role="status" className="quiet">
         {status}
       </p>

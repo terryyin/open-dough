@@ -29,6 +29,7 @@ import {
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { storyTitle } from "../support/intentStoryPage.ts";
 
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
   page,
@@ -48,7 +49,12 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     const before = calls.length;
     const panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, failing.branch);
-    await expect(panel).toContainText(`Story branch of ${failing.title}.`);
+    await expect(panel.locator(".intent-ci-story")).toHaveText("Story branch.");
+    await expect(panel).not.toContainText(failing.title);
+    await expect(storyTitle(intent)).toHaveText(failing.title);
+    await expect(intent.getByText(failing.title, { exact: true })).toHaveCount(
+      1,
+    );
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Failed at fa11ed0 (Break the login)",
     );
@@ -149,7 +155,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
   await test.step("clearing the selection shows main again", async () => {
     const panel = await toggleOnDevelopment(page, running.title);
     await expectNamed(panel, "main");
-    await expect(panel).not.toContainText("Story branch of");
+    await expect(panel.locator(".intent-ci-story")).toHaveCount(0);
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Passed at 4774f60 (Add login)",
     );

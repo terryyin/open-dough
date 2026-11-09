@@ -4,6 +4,8 @@
 
 **Source:** [Align story tab cost records, Taken heading, and wording](../../seeds/SEED-275-story-intent-tabs.md#align-story-tabs-records)
 
+**Source review:** [Independent source commitments](source-review.md)
+
 ## Provenance and findings
 
 This plan is a retrospective correction of SEED-275#story-intent-tabs (plan
@@ -51,11 +53,22 @@ This plan is a retrospective correction of SEED-275#story-intent-tabs (plan
   without the title. The persistent header already shows the title once.
 - The wording pass changes comments and test titles only.
 
+## Execution context
+
+- Established Story Branch Mode checkout: `/Users/terryyin/git/open-dough/.worktrees/align-story-tab-cost-records-taken-heading-and-w`, branch `codex/align-story-tab-cost-records-taken-heading-and-w`.
+- Identity `SEED-275#align-story-tabs-records`; publisher `dashboard-territory.local-open-dough`; agent `ziqing-chan`.
+- Starting revision `a328505ac31b8da3f972b6eb6c47840170d90e80`; accepted claim `82fc915034f4262553561a1c79de876040738677` on `origin/main`. Claim CI is unobserved. Ordinary increments target the same-named remote execution branch.
+- Default/integration checkout: `/Users/terryyin/git/open-dough`; do not change its unrelated work.
+- Checkout setup: `npm ci`, then `npm run typecheck:dashboard`, both passed with the current lockfile.
+- Existing planning authority allows in-scope refinement; no numeric slice budget is supplied. Keep one coherent proof loop per slice.
+- CI source: GitHub Actions, local push workflow `ci.yml` (CI). Provider diagnostic verified selector `ci.yml`, active workflow ID `351271804`, name `CI` after the directed request pause.
+- CI observer: coordinator `seed275-tabs`, key `ci-watch-execution:terryyin/open-dough:codex/align-story-tab-cost-records-taken-heading-and-w:seed275-tabs`, directory `/tmp/dough-ci-501/watch-0uCaJ7`, PID `20967`, session `28742`, yielded cell `g13:12`; checkout is the execution checkout above. GitHub subsequently directed a request pause until `2026-11-09T01:08:56.382Z`; observer retains coverage and resumes automatically.
+
 ## Outside-in proof
 
 | Promise | Owner | Observable check |
 | --- | --- | --- |
-| Accurate, protected follow cost | 1 | Extend `intent-project-visit.spec.ts` with CI request counts: going to Project Intent and back asks CI nothing new; a trunk advance while the story shows reads exactly the trunk judgment; a story-branch push during a visit reads exactly the story judgment. The docs describe that. |
+| Accurate, protected follow cost | 1 | Protect `intent-project-visit-ci.spec.ts` with CI request counts: going to Project Intent and back asks CI nothing new; a trunk advance while the story shows reads exactly the trunk judgment; a story-branch push during a visit reads exactly the story judgment. The docs describe that. |
 | Taken title once | 1 | The Taken story's CI tab shows its title only in the header; the branch name and judgment assertions stay. |
 | Wording matches the delivered UI | 2 | The comments and test titles named above use the current names; the Intent suite still passes. |
 
@@ -64,13 +77,44 @@ This plan is a retrospective correction of SEED-275#story-intent-tabs (plan
 ### 1. State and prove the story tabs' CI follow cost and the Taken heading
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the first two rows above, through the real scope controls and the
 existing CI host fixtures with request counting; also run the
 `intent-ci-status*` and `intent-ci-comparison-taken` consumers.
 
 A maintainer reading the request docs sees the actual follow cost, and a
 change to it fails a test. A developer on a Taken story sees its title once.
+
+Implementation proof: `caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-project-visit.spec.ts dashboard/tests/intent/intent-ci-status-story.spec.ts dashboard/tests/intent/intent-ci-comparison-taken.spec.ts dashboard/tests/intent/intent-home-activation.spec.ts dashboard/tests/intent/intent-ci-status-story-gaps.spec.ts` passed (12 tests across five files, terminal exit 0).
+The visit journey observes zero repeat-visit judgment calls, three hidden-trunk
+refresh calls, and four story refresh calls during a visit, then the current
+result on returning without additional calls. Setup first visits Project Intent
+after selecting the story, because selecting through Development remounts
+Intent. The initial run caught that setup omission; corrected proof passed.
+The Taken status and comparison observations retain branch/judgment assertions,
+show the role-only line, and reject a title repeated below the persistent header.
+Consumer traces: `/tmp/seed275-slice1-consumer-trace.md` and
+`/tmp/seed275-ci-run-consumer-trace.md`; whole Intent consumer proof was completed by the coordinator after the independent refactor pass.
+
+Independent refactor `/root/refactor1` returned `## REFACTOR COMPLETE`. It split
+visit reading, CI-follow, and selection journeys into cohesive specs, extracted
+verbatim request-owner guidance into linked `dashboard/GITHUB-REQUEST-OWNER.md`,
+and shortened MakeMe whitespace. Every touched non-plan file is at most 250 lines.
+`caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-project-visit.spec.ts dashboard/tests/intent/intent-project-visit-ci.spec.ts dashboard/tests/intent/intent-project-visit-selection.spec.ts` passed (three tests, terminal exit 0).
+Heading proof and the follow contract stayed unchanged. Replacement CI journey
+proof retains the same setup and zero/three/four assertions; selection test body
+and extracted owner prose were compared verbatim. Trace and content/link evidence:
+`/tmp/seed275-refactor1-consumer-trace.md`.
+Post-refactor typecheck found an unused `parts` import in the reading spec;
+the coordinator removed it within the already-traced refactor boundary.
+`npm run typecheck:dashboard` then passed; runtime proof remains unchanged.
+
+Final local gates: `caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent` passed (terminal exit 0), as did `npm run typecheck:dashboard`. This covers every deferred Intent consumer in the implementation trace. The final whole-directory run used two workers on AC, load about 7.2 and free memory 55% at launch. Hook-owned staged lint remains part of guarded commit.
+
+Heavy-proof decision: this macOS host is on AC, load about 5.7 and free memory
+85% at implementation launch. Another worktree was running two launch-test
+workers. The bounded focused run used `caffeinate -s -i`; reconsider load before
+the final Intent gate or any repeated expensive proof.
 
 ### 2. Correct stale story tab wording
 

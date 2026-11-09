@@ -70,12 +70,15 @@ the adapter's own unavailability reason, its failed answer (timeout,
 over-limit answer, nonzero exit with its last stderr line, or an answer that
 is neither `summary` nor `unavailable`), invalid, wrong
 repository/attempt/revision, or ambiguous; or no completed GitHub Actions run
-or CI attempt. Proof is read again with each judgment — when the homepage is
-shown, the judged branch changes, the page's revision check finds that head
-moved while shown (new trunk revision, or a watched story-branch head whose
-story progress is read there; a story branch without a counted plan is not
-watched and is re-read on **Check again**), and on **Check again**, with no
-timed polling — and is shown whether Intent locations are configured, absent,
+or CI attempt. Proof is read again with each judgment — when Intent opens,
+the judged branch changes, the page's revision check finds that followed head
+moved, and on **Check again**, with no timed polling. After Project Intent first
+shows, its trunk CI stays followed while Intent is open, including when the story
+shows. A selected story's CI stays followed during Project Intent visits. Going
+between them reads neither judgment again; an observed trunk advance refreshes only
+the trunk reading, and an observed watched story-branch advance refreshes only the
+story reading (a story branch without a counted plan is not watched and is re-read
+on **Check again**). Proof is shown whether Intent locations are configured, absent,
 or unreadable: Project Intent's **CI status** shows it beside the
 explanation in place of the location tree, and its strip stands above those
 explanations, which **Optimization Candidates** also shows.
