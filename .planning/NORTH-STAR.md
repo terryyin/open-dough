@@ -112,26 +112,6 @@ candidate order and calibration questions. Validate the observed cohort and
 comparison before enabling repeat actions. Choose storage and provider details
 as the selected increments need them.
 
-## Test optimization reads the CI evidence Intent reads
-
-An optimization pass starts from the CI proof that Intent already reads. One
-installed-runtime path acquires a run attempt's summary from the project's
-configured CI, either a GitHub Actions summary artifact through the shared
-GitHub request owner or the CI adapter's `proof` answer. The collector
-contract then validates its attempt identity, units, timing, and gaps. Intent
-and a deterministic lead reader both use that path. The reader also accepts a
-summary the project retains elsewhere, and prints a bounded ranked table, so
-an agent never loads a raw summary into its context. Runner output beyond the
-summary remains project evidence, read by bounded extraction. The Test
-Optimization Candidates record keeps one format owner, the skill's
-candidate-record reference, and one Intent reader that accepts the
-four-section and live versions during rollout. Accepted necessary cost is a
-maintained verification decision beside its test, separate from observed CI
-results and published workflow records.
-[ADR 0001 — Dashboard product concepts](../docs/adrs/0001-ubiquitous-language-accepted.md#dashboard-product-concepts) ·
-[ADR 0008 — Durable project state](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state) ·
-[SEED-284](seeds/SEED-284-optimize-tests-from-ci-proof.md#optimize-tests-from-ci-proof)
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard adds its first action, as proposed in
