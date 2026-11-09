@@ -12,14 +12,16 @@
 // revision -- and the run attempt it was measured from, linked to its run; a
 // gap with the date its landing was recorded, why it has no CI wall time --
 // pending and what it waits for, or why it never will -- its landed revision,
-// or the build that failed or named no CI wall time and how it stands for
-// the landing, and the run attempt it names, linked to its run when there is
-// one. So a keyboard, a screen reader and a phone get the same evidence
-// without colour (`./ciHistoryWords.ts`). With no measured build it says so
-// in words and draws nothing, still listing any gap. Until its first read
-// answers it says it is reading; a failed read says why, beside any history
-// already shown. The judgment and Proof keep their own reading; nothing here
-// changes them. Its look is `./intent-ci-history.css`'s.
+// or the build it names and how that build stands for the landing -- the
+// build that failed or named no CI wall time, the build whose CI proof could
+// not be used, or the landing's own cancelled build -- and the run attempt it
+// names, linked to its run when there is one. So a keyboard, a screen reader
+// and a phone get the same evidence without colour (`./ciHistoryWords.ts`).
+// With no measured build it says so in words and draws nothing, still
+// listing any gap. Until its first read answers it says it is reading; a
+// failed read says why, beside any history already shown. The judgment and
+// Proof keep their own reading; nothing here changes them. Its look is
+// `./intent-ci-history.css`'s.
 
 import { useId } from "react";
 import type { BaseCiRunIdentity } from "./baseCiConfirmation.ts";
@@ -119,9 +121,10 @@ function BuildEvidence({ point }: { readonly point: MeasuredPoint }) {
 }
 
 // One landing with no CI wall time in words: "Nov 9 · Pending · CI queued or
-// running · landed revision b2c3d4e · Run 42 · attempt 1", or "Nov 9 ·
-// Failed · exact revision e5f6a7b (SEED-9#g) · Run 45 · attempt 1", the run
-// attempt it names linked to its run.
+// running · landed revision b2c3d4e · Run 42 · attempt 1", "Nov 9 · Failed ·
+// exact revision e5f6a7b (SEED-9#g) · Run 45 · attempt 1", or "Nov 9 · CI
+// proof expired · reused equivalent a1b2c3d for b2c3d4e (SEED-9#r1) · Run 41
+// · attempt 1", the run attempt it names linked to its run.
 function GapEvidence({ gap }: { readonly gap: LandedCiGap }) {
   const build = gap.reason === "pending" ? undefined : gap.build;
   return (

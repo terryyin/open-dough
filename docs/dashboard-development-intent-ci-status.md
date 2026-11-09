@@ -116,32 +116,37 @@ run. A landing a later build stands for is in that build's point, so it
 breaks nothing, and a build counts once in the heading.
 
 A gap is one landing with no CI wall time. It gives the date its landing was
-recorded and why, said as _not yet_ while it may still be measured: `Pending`
-and what it waits for, `no CI run yet`, `CI queued or running`,
-`waiting for a later trunk build` (its own build was cancelled) or
-`CI not read yet`, then `landed revision` and the landing, and the run
-attempt it waits on, linked to its run, when there is one. Once it never
-will be measured, it says why: `Failed` (the build that measures it failed,
-named as a point names it, with its run linked; a failed run can stop early,
-so its time is never drawn); `Cancelled` (its own build was cancelled or
-timed out, and no later trunk build stands for it); `No build` (CI did not
-build its revision and no skip was confirmed); `Equivalent timing unavailable`
-(a confirmed skip has no equivalent build, or its equivalent build published
-no CI proof summary, as a CI adapter's never does); `CI proof expired` or
-`CI proof unreadable` (the CI proof of the equivalent or later trunk build
-that would stand for it expired, or could not be read or used); or
-`CI wall time not recorded` (its build passed, but its attempt names no start,
-or no completion after its start; it is never shown as a zero). A run link
-that is not a web address is left out, keeping the run attempt's words. So a
-keyboard, a screen reader and a phone get the same evidence without colour.
-With no measured build it says “No dashboard-recorded landings have been
-measured yet.” and draws nothing, still listing any gap. The current
+recorded and why, said as _not yet_ while it may still be measured:
+`Pending` and what it waits for, `no CI run yet`, `CI queued or running`,
+`waiting for a later trunk build` (its own build was cancelled),
+`CI proof not read yet` (GitHub has not answered the read of the CI proof of
+the build that would stand for it) or `CI not read yet`, then
+`landed revision` and the landing, and the run attempt it waits on, linked
+to its run, when there is one. Once it never will be measured, it says why,
+and names the build the Landed rule named for it as a point names one, with
+its run linked: `Failed` (the build that measures it failed; a failed run
+can stop early, so its time is never drawn); `Cancelled` (its own build was
+cancelled or timed out, and no later trunk build stands for it: that build,
+`exact revision d4e5f6a (SEED-9#f)`); `No build` (CI did not build its
+revision and no skip was confirmed; no build is named);
+`Equivalent timing unavailable` (a confirmed skip has no equivalent build,
+or its equivalent build has no timing); `No CI proof summary` (the
+equivalent or later trunk build that would stand for it has its timing but
+published no CI proof summary, as a CI adapter's never does, so the Landed
+rule does not use it); `CI proof expired` or `CI proof unreadable` (that
+build's CI proof expired, or GitHub's answer could not be opened or used);
+or `CI wall time not recorded` (its build passed, but its attempt names no
+start, or no completion after its start; it is never shown as a zero). A run
+link that is not a web address is left out, keeping the run attempt's words.
+So a keyboard, a screen reader and a phone get the same evidence without
+colour. With no measured build it says “No dashboard-recorded landings have
+been measured yet.” and draws nothing, still listing any gap. The current
 judgment, its Proof and **Check again** keep their own reading: collection
-finishing refreshes nothing on the page. The history is read again with
-each trunk judgment (when Project Intent shows, when an observed trunk
-advance refreshes it, and on **Check again**), never on time alone, and
-reads only the collected local history, so it asks CI nothing, before or
-after a restart, in a development or a production dashboard alike.
+finishing refreshes nothing on the page. The history is read again with each
+trunk judgment (when Project Intent shows, when an observed trunk advance
+refreshes it, and on **Check again**), never on time alone, and reads only
+the collected local history, so it asks CI nothing, before or after a
+restart, in a development or a production dashboard alike.
 
 A production dashboard collects that history in the background
 (`dashboard/server/landedCiCollection.ts`) whether or not a page is open. A
@@ -161,24 +166,33 @@ equivalent build, the nearest earlier first-parent build, when that build
 has usable CI proof; and a cancelled landing by the nearest later trunk build
 with usable CI proof. A CI adapter's skip or cancelled landing has neither,
 so it is a gap. A measured build is such a build that passed, whose attempt
-has a start and a later completion; its CI wall time follows the
-comparison's definition.
+has a start and a later completion; its CI wall time is the comparison's,
+from the one definition both read (`wallTimeMs` in
+`dashboard/src/ciProofTimeWords.ts`).
 
 A landing is pending while that rule's answer may still change: its build is
 queued or running; its cancelled build awaits a later trunk build; the CI
-could not be read (the pass then leaves that project until the next one); or
-the rule found no build that CI may still make. That last case covers a
-landing recorded before GitHub created its push's run: with no run at the
-landed revision and no confirmed skip, it waits for a run there until CI
-moves past it, that is, until a later first-parent trunk revision (up to the
-project folder's `origin/<ref>`, within 30 revisions) has a run, and for at
-most an hour after the landing was recorded, since GitHub creates a push's
-run within moments; and a landing whose skip rests on the nearest earlier
-build waits while that build is queued or running. Once CI ran at the landed
+could not be read (the pass then leaves that project until the next one);
+GitHub has not answered the read of the CI proof of the build that would
+stand for it; or the rule found no build that CI may still make. That last
+case covers a landing recorded before GitHub created its push's run: with no
+run at the landed revision and no confirmed skip, it waits for a run there
+until CI moves past it, that is, until a later first-parent trunk revision
+(up to the project folder's `origin/<ref>`, within 30 revisions) has a run,
+and for at most an hour after the landing was recorded, since GitHub creates
+a push's run within moments; and a landing whose skip rests on the nearest
+earlier build waits while that build is queued or running. Once CI ran at the landed
 revision, built past it without building it, or never ran for it within that
-hour, the gap is final. A landing whose equivalent or later trunk build's CI
-proof could not be read is pending in the same way, `CI not read yet`, for an
-hour after it was recorded, and then a final `CI proof unreadable` gap.
+hour, the gap is final. Only GitHub's answer settles the CI proof of the
+equivalent or later trunk build that would stand for a landing. While GitHub
+leaves that read unanswered (a wait it directed, a request that failed, or
+an artifact listing that is not one), the landing is pending as
+`CI proof not read yet` and is read again at each pass, however long ago it
+was recorded, for as long as it stays in the history's window; unlike CI
+that could not be read, it does not stop the pass, which goes on to the
+older landings. Once GitHub answers that the proof is missing, expired, or
+an archive that cannot be opened or is not that run's usable summary, the
+gap is final, since a run attempt's artifact does not change.
 
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in

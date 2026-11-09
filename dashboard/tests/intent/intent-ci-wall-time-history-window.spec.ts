@@ -5,12 +5,13 @@
 // none from before, under a heading that says "20 measured builds" with their
 // date span and with no window to choose; its line rises where CI got slower,
 // falls where it got faster and wavers where it varied, breaking at each gap
-// (SEED-285#see-landed-ci-wall-time-history example 8). A history whose
-// landings are all gaps says none is measured yet and draws no chart. The
-// history is the one this machine's dashboards keep, as collection leaves
-// it; collection itself is in
-// ../../backend-tests/intent/landed-ci-history-collection.spec.ts and the
-// store's bound in ../../backend-tests/intent/landed-ci-history-window.spec.ts.
+// (SEED-285#see-landed-ci-wall-time-history example 8). The history is the
+// one this machine's dashboards keep, as collection leaves it; collection
+// itself is in ../../backend-tests/intent/landed-ci-history-collection.spec.ts
+// and ../../backend-tests/intent/landed-ci-history-gaps.spec.ts, the store's
+// bound in ../../backend-tests/intent/landed-ci-history-window.spec.ts, and
+// a history whose landings are all gaps in
+// ./intent-ci-wall-time-history-gaps.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
@@ -19,17 +20,9 @@ import {
   chartOf,
   dayWords,
   historyOf,
-  openProjectCiStatus,
+  openJudgedCiStatus,
 } from "../intentCiHistoryPage.ts";
-import {
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
-import { openDough } from "../intentCodeBrowseFixtures.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import type { Page } from "@playwright/test";
 
 const dayMs = 24 * 60 * 60_000;
 // The first landing's build started at noon on Oct 1, one each day after.
@@ -52,23 +45,6 @@ const revisionOf = (day: number) =>
 const receiptOf = (n: number) =>
   `cccccccc-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
-// Trunk's judged CI, published, and Project Intent's CI status opened on it.
-async function openCiStatus(page: Page) {
-  publishProject(page, openDough).serveCi(
-    trunkCi(openDough.revision, () => [
-      {
-        headSha: judged,
-        conclusion: "success",
-        url: runUrl,
-        id: 41,
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:03:00Z",
-      },
-    ]),
-  );
-  return historyOf(await openProjectCiStatus(page));
-}
-
 test("of 35 measured builds, CI status shows the newest 20 in trunk order with the gaps among and after them, under 20 measured builds and their dates, as a line that rises, falls and varies", async ({
   page,
   dashboard,
@@ -86,9 +62,10 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
     });
   }
   // A landing CI never built among the oldest; among the newest 20, another,
-  // one whose stand-in build's CI proof expired, a failed build, one whose
-  // stand-in build's CI proof could not be read, and a cancelled landing;
-  // one still pending after them.
+  // a skip whose equivalent build's CI proof expired, a failed build, a
+  // cancelled landing whose later trunk build's CI proof could not be read,
+  // and a landing whose own build was cancelled; one still pending after
+  // them.
   const quarter = dayMs / 4;
   const olderAt = firstStart + 5 * dayMs + quarter;
   const noBuildAt = firstStart + 20 * dayMs + quarter;
@@ -115,12 +92,18 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
       revision: "e5".repeat(20),
       receivedAt: at(expiredAt),
       reason: "expired",
+      build: {
+        revision: "b5".repeat(20),
+        provenance: "equivalent",
+        runId: 295,
+      },
     })
     .unmeasuredLanding({
       receipt: receiptOf(96),
       revision: "e6".repeat(20),
       receivedAt: at(unreadableAt),
       reason: "unreadable",
+      build: { revision: "b6".repeat(20), provenance: "later", runId: 296 },
     })
     .failedLanding({
       receipt: receiptOf(91),
@@ -135,6 +118,7 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
       revision: "e2".repeat(20),
       receivedAt: at(cancelledAt),
       reason: "cancelled",
+      build: { revision: "e2".repeat(20), provenance: "exact", runId: 292 },
     })
     .pendingLanding({
       receipt: receiptOf(93),
@@ -143,7 +127,7 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
       waitsFor: "build",
     });
   keepLandedCiHistory(dashboard.home, history.please());
-  const shown = await openCiStatus(page);
+  const shown = historyOf(await openJudgedCiStatus(page));
 
   const newest = [...wallSeconds.keys()].slice(15);
   const lastStart = firstStart + 34 * dayMs;
@@ -172,13 +156,13 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
     ...newest.filter((day) => day <= 20).map(point),
     `${dayWords(noBuildAt)} · No build · landed revision ${shortSha("e4".repeat(20))}`,
     ...newest.filter((day) => day > 20 && day <= 22).map(point),
-    `${dayWords(expiredAt)} · CI proof expired · landed revision ${shortSha("e5".repeat(20))}`,
+    `${dayWords(expiredAt)} · CI proof expired · reused equivalent ${shortSha("b5".repeat(20))} for ${shortSha("e5".repeat(20))} · Run 295 · attempt 1`,
     ...newest.filter((day) => day > 22 && day <= 25).map(point),
     `${dayWords(failedAt)} · Failed · exact revision ${shortSha("e1".repeat(20))} · Run 291 · attempt 1`,
     ...newest.filter((day) => day > 25 && day <= 28).map(point),
-    `${dayWords(unreadableAt)} · CI proof unreadable · landed revision ${shortSha("e6".repeat(20))}`,
+    `${dayWords(unreadableAt)} · CI proof unreadable · later trunk build ${shortSha("b6".repeat(20))} for ${shortSha("e6".repeat(20))} · Run 296 · attempt 1`,
     ...newest.filter((day) => day > 28 && day <= 30).map(point),
-    `${dayWords(cancelledAt)} · Cancelled · landed revision ${shortSha("e2".repeat(20))}`,
+    `${dayWords(cancelledAt)} · Cancelled · exact revision ${shortSha("e2".repeat(20))} · Run 292 · attempt 1`,
     ...newest.filter((day) => day > 30).map(point),
     `${dayWords(pendingAt)} · Pending · CI queued or running · landed revision ${shortSha("e3".repeat(20))}`,
   ]);
@@ -201,45 +185,4 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
     );
   }
   expect(chart.strokes).toEqual([6, 2, 3, 3, 2, 4]);
-});
-
-test("a history whose recorded landings are all gaps says none is measured yet, draws no chart, and lists each gap with its reason", async ({
-  page,
-  dashboard,
-}) => {
-  const noBuildAt = firstStart;
-  const pendingAt = firstStart + dayMs;
-  keepLandedCiHistory(
-    dashboard.home,
-    makeMe.aLandedCiHistory
-      .unmeasuredLanding({
-        receipt: receiptOf(0),
-        revision: "e0".repeat(20),
-        receivedAt: at(noBuildAt),
-        reason: "no-build",
-      })
-      .pendingLanding({
-        receipt: receiptOf(1),
-        revision: "e1".repeat(20),
-        receivedAt: at(pendingAt),
-        waitsFor: "run",
-      })
-      .please(),
-  );
-  const shown = await openCiStatus(page);
-
-  await expect(shown.getByRole("heading")).toHaveText("CI wall time history");
-  await expect(shown).toContainText(
-    "No dashboard-recorded landings have been measured yet.",
-  );
-  await expect(shown.getByRole("img")).toHaveCount(0);
-  await shown.locator("summary").click();
-  await expect(
-    shown
-      .getByRole("list", { name: "Builds and evidence" })
-      .getByRole("listitem"),
-  ).toHaveText([
-    `${dayWords(noBuildAt)} · No build · landed revision ${shortSha("e0".repeat(20))}`,
-    `${dayWords(pendingAt)} · Pending · no CI run yet · landed revision ${shortSha("e1".repeat(20))}`,
-  ]);
 });

@@ -253,7 +253,7 @@ Accepted proof (2026-11-09). Same wrapper and `--workers=2`.
   - `landed-ci-history-pending-sources`: skip, cancelled and adapter pending states (G4);
   - `landed-ci-history-window`: the store bound (G3).
 - **Journeys:** `tests/intent/intent-ci-wall-time-history{,-pending,-provenance,-window,-adapter}.spec.ts` and `intent-ci-status-wall-time.spec.ts` passed.
-  - Provenance: one point naming E, R1 and R2; the reused c3 point; "Equivalent timing unavailable"; the d6 later-build point naming G and F with no line break; Failed with its run link and no point.
+  - Provenance: one point naming E, R1 and R2; the reused c3 point; "Equivalent timing unavailable" (R4 reads "No CI proof summary" after the G8 return); the d6 later-build point naming G and F with no line break; Failed with its run link and no point.
   - Window: the newest 20 of 35, in trunk order, with the gaps among and after them; "20 measured builds · Oct 16–Nov 4"; a rising, falling and varying line; no window chooser; a gaps-only history says none measured yet.
   - Adapter: points and explained gaps.
   - All run at 390×844 with the keyboard path.
@@ -272,6 +272,28 @@ Accepted proof (2026-11-09). Same wrapper and `--workers=2`.
   - the five history journeys plus `intent-ci-status-wall-time.spec.ts` (11);
   - the Landed lookup and `makeMe` node tests.
 - **Pre-delivery consumer gate:** `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<tmp> npm run --silent test:dashboard -- tests/intent backend-tests/intent backend-tests/launches --workers=4` selected 623 tests. All 623 passed, with strict status passed, in 8.2 min at load 6–15. Workers were raised from 2 because the load had dropped; coverage is unchanged.
+- **Return after the retrospective (2026-11-09).** CI passed on `6f5be8b8a`. The execution retrospective's independent outcome review then found four story-promise gaps, recorded as `return` obligations G6–G9:
+  - an unreadable proof stops the walk and can finalize a transient failure;
+  - cancelled, expired and unreadable gaps lack their build link;
+  - an adapter skip's reason is misleading;
+  - the history has a second wall-time rule.
+  The same return covers trunk-ordered fixtures and collection-built coverage of cancelled landings. Slice 3 stays done; its return is delivered as a further increment.
+- **Return accepted proof (2026-11-09, load 4–11, `--workers=2`).**
+  - Node: `bash scripts/test.sh` over the Landed lookup, adapter lookup, CI proof read, later-trunk build, revision-nearest and proof-breakdown tests passed.
+  - `backend-tests/intent`: 84 passed. The history specs passed 14, and the gaps and lifecycle specs passed `--repeat-each=3` (18).
+  - History journeys: 11 passed. Comparison journeys reaching the shared Landed rule: 33 passed. CI proof journeys: 19 passed.
+  - Failing first against HEAD: node 2, backend 3 and journeys 4 failed.
+  - **G7 rule:** only GitHub's answer settles a CI proof. An unanswered read (a directed wait, a failed request, a malformed listing) waits as "CI proof not read yet" while the landing stays in the window, and collection steps past it. GitHub's answers (no summary, expired, unopenable, invalid, mismatched, too large) are final at once.
+  - **New wording:** G8's reason reads "No CI proof summary".
+  - **Corrected premise:** a GitHub cancelled landing with no later build stays pending until a later build comes or the 30-revision bound passes, so the collected Cancelled gap comes from a timed-out landing.
+  - **Developer findings left unchanged (shared Landed rule):** the cancelled walk passes over a later build whose proof read went unanswered, and the Done comparison keeps a transient unread Landed answer for the process lifetime.
+- **After the return's refactor pass.** `unusableBuild.ts` and `landedWithoutVerdict.ts` were extracted, spec families split into `landed-ci-history-pending-proof`, `intent-ci-wall-time-history-{later,gaps}` and `dashboard-landed-exact-build`, and `runLinkOf` is shared. The reruns passed:
+  - Node tests;
+  - `backend-tests/intent` (84);
+  - repeats (18);
+  - history journeys (11);
+  - every comparison consumer (76), including the retry spec.
+  The pre-delivery consumer gate `tests/intent backend-tests/intent backend-tests/launches --workers=4` passed 626 of 626 with strict status passed, in 8.0 min at load 6–24.
 
 ## Consumer trace and verification gates
 
@@ -365,7 +387,7 @@ Disposition: proved by slice 2: dashboard/backend-tests/intent/landed-ci-history
 ### G2. Final gaps are kept but not listed
 Reported: slice 2 — "final gaps are kept but not answered, so a landing that becomes a final no-build simply leaves the list until slice 3 adds its wording (21.3.1)."
 Story clause: "A landing whose CI is still pending, whose build failed, or whose timing is unavailable (no build, unreadable, expired, no equivalent) breaks the line and is listed with a short reason distinct for each case."
-Disposition: proved by slice 3: dashboard/tests/intent/intent-ci-wall-time-history-window.spec.ts 'of 35 measured builds…' lists Pending, Failed, No build, Equivalent timing unavailable, CI proof expired and CI proof unreadable as distinct items; dashboard/backend-tests/intent/landed-ci-history-gaps.spec.ts answers expired, unreadable after the hour and not-recorded gaps
+Disposition: proved by slice 3: dashboard/tests/intent/intent-ci-wall-time-history-window.spec.ts 'of 35 measured builds…' lists Pending, Failed, No build, CI proof expired, CI proof unreadable and Cancelled as distinct items; dashboard/tests/intent/intent-ci-wall-time-history-adapter.spec.ts lists Equivalent timing unavailable for T, whose equivalent has no timing; dashboard/backend-tests/intent/landed-ci-history-gaps.spec.ts answers expired, unreadable after the hour and not-recorded gaps
 
 ### G3. The history store is unbounded per project
 Reported: slice 2 — "the store is still unbounded per project (the plan's PFE asks for a bound). Stale pending entries beyond the window would show until slice 3's window hides them."
@@ -382,6 +404,27 @@ Reported: slice 3 — "At acceptance, a read of the machine's launch records on 
 Story clause: "Recent Open Dough and Pygardon activity fills 20 builds in about 2–3 days, and Doughnut in about a week."
 Disposition: no user cost "The story also tests whether the dashboard observes enough landings to make such a trend useful.": the fill rate describes recent activity, not product behavior; the heading states the actual measured count and date span, so a slower Pygardon shows fewer builds or a longer span rather than a wrong trend, and the reading answers the learning question
 Commitment: 31, 31.2
+
+
+### G6. Cancelled, expired and unreadable gaps drop the build the Landed rule named
+Reported: slice 3 — "Retrospective outcome review: a final-gap observation keeps no build (landedCiObservation.ts), so Cancelled, CI proof expired and CI proof unreadable gaps give no build identity or link, although the rule names the cancelled run, the equivalent build or the later build."
+Story clause: "a list gives each point and gap its date, wall time or gap reason, provenance (exact, reused equivalent, later trunk build) and build link"
+Disposition: proved by slice 3: dashboard/backend-tests/intent/landed-ci-history-gaps.spec.ts 'a final gap names the build…' answers each final gap's build with its run link, and dashboard/tests/intent/intent-ci-wall-time-history-gaps.spec.ts 'a history whose recorded landings are all gaps…' lists the Cancelled, CI proof expired and CI proof unreadable gaps with their builds and Run links reached by keyboard; dashboard/backend-tests/intent/landed-ci-history-gaps.spec.ts 'the CI timing comparison answers a Landed gap without the build…' keeps the Done comparison unchanged
+
+### G7. An unreadable proof stops the project's walk and can finalize a transient failure
+Reported: slice 3 — "Retrospective outcome review: landedCiResolution.ts returns waitsFor read for an unreadable proof, which ends the project's walk (landedCiCollection.ts), so an older landing whose CI completed stays pending for up to an hour; the hour counts from the landing's receivedAt, so a rebuild of landings older than an hour turns one transient GitHub acquisition failure or directed wait into a permanent CI proof unreadable gap."
+Story clause: "It waits while CI is queued or running and takes the result when it completes."
+Disposition: proved by slice 3: dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts 'a skip whose equivalent build's CI proof read GitHub does not answer waits…' measures the older landing past the waiting skip, and 'a skip recorded two hours ago…' reaches the reused point once GitHub answers; only GitHub's answer settles a CI proof
+
+### G8. An adapter skip whose equivalent has timing but no CI proof reads Equivalent timing unavailable
+Reported: slice 3 — "Retrospective outcome review: adapter builds have no proof read, so exactSkippedEquivalent.ts answers none and the history says Equivalent timing unavailable for a Pygardon skip although its equivalent build is plotted with its timing."
+Story clause: "is listed with a short reason distinct for each case"
+Disposition: proved by slice 3: dashboard/tests/intent/intent-ci-wall-time-history-adapter.spec.ts lists the adapter skip S as No CI proof summary naming its equivalent build and keeps Equivalent timing unavailable for T, whose equivalent has no timing; the provenance journey's R4 reads No CI proof summary
+
+### G9. The history adds a second CI wall time rule
+Reported: slice 3 — "Retrospective outcome review: slice 3 replaced the shared wallTimeMs with historyWallTimeMs, which reimplements the duration with stricter timestamp and positive-duration checks."
+Story clause: "reuses the CI timing comparison's Landed rule and wall-time definition"
+Disposition: proved by slice 3: dashboard/src/landedCiHistory.ts historyWallTimeMs computes through wallTimeMs; the provenance journey's wall-time words equal wholeSecondWords(wallTimeMs(...))
 
 ## Preparation review
 

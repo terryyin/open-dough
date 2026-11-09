@@ -6,9 +6,10 @@
 // measured build is a passed build that measures a landing -- its landed
 // revision's own, a confirmed skip's equivalent, or the later trunk build a
 // cancelled landing joins -- with a start and a later completion; its CI wall
-// time is `historyWallTimeMs`'s, never a zero. The window is the landings,
-// newest first, up to the one that brings the 20th distinct measured build,
-// with every older landing one of those builds also measures.
+// time is the CI timing comparison's, never a zero (`historyWallTimeMs`).
+// The window is the landings, newest first, up to the one that brings the
+// 20th distinct measured build, with every older landing one of those builds
+// also measures.
 
 import { historyWallTimeMs, type Provenance } from "../src/landedCiHistory.ts";
 import type { StoryCiBuildSelection } from "../src/storyCiComparison.ts";

@@ -11,14 +11,17 @@
 // pending, not measured yet, with what it waits for and the run attempt it
 // waits on; or, finally, the build that measures it failed, its own build was
 // cancelled with no later trunk build to stand for it, CI did not build it,
-// a skip's equivalent build has no timing, the CI proof of the build that
-// would stand for it expired or could not be read, or its build's attempt
-// named no CI wall time -- with that build and how it stands for the landing
-// when the gap names one. An answer crossed a process boundary, so the page
+// a skip has no equivalent build with timing, the build that would stand for
+// it published no CI proof or its CI proof expired or could not be read, or
+// its build's attempt named no CI wall time -- with the build the gap names
+// and how it stands for the landing: the build that failed or named no CI
+// wall time, the build whose CI proof could not be used, or the landing's
+// own cancelled build. An answer crossed a process boundary, so the page
 // checks it as external input; a run link is only ever a web address.
 
 import { z } from "zod";
 import { runIdentityShape } from "./baseCiConfirmation.ts";
+import { wallTimeMs } from "./ciProofTimeWords.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 
 // A run link the page may follow.
@@ -27,9 +30,10 @@ export const runUrlSchema = z.url({ protocol: /^https?$/ });
 // A moment as a CI read or the dashboard named it.
 const instantSchema = z.iso.datetime({ offset: true });
 
-// The CI wall time of an attempt that started at `startedAt` and completed
-// at `completedAt`; undefined unless both are moments and the completion is
-// after the start, so the history never shows a zero or invented time.
+// The CI wall time the history measures an attempt by: the CI timing
+// comparison's (`wallTimeMs`), accepted only when its start and completion
+// are both moments and the completion is after the start, so the history
+// never shows a zero or invented time; otherwise undefined.
 export function historyWallTimeMs(
   startedAt: string | undefined,
   completedAt: string | undefined,
@@ -39,8 +43,8 @@ export function historyWallTimeMs(
     !instantSchema.safeParse(completedAt).success
   )
     return undefined;
-  const ms = Date.parse(completedAt ?? "") - Date.parse(startedAt ?? "");
-  return ms > 0 ? ms : undefined;
+  const ms = wallTimeMs(startedAt, completedAt);
+  return ms !== undefined && ms > 0 ? ms : undefined;
 }
 
 // How a build measures, or stands for, a landing: the landed revision's own
@@ -86,22 +90,32 @@ export type LandedCiPoint = z.infer<typeof landedCiPointSchema>;
 
 // What a landing not measured yet waits for: a run of its own at the landed
 // revision (`run`), a build that is queued or running (`build`), a later
-// trunk build after its own was cancelled (`later-build`), or CI that could
-// not be read when collection last asked (`read`).
-export const pendingWaits = ["run", "build", "later-build", "read"] as const;
+// trunk build after its own was cancelled (`later-build`), the CI proof of
+// the build that would stand for it, whose read GitHub left unanswered
+// (`proof`), or CI that could not be read when collection last asked
+// (`read`).
+export const pendingWaits = [
+  "run",
+  "build",
+  "later-build",
+  "proof",
+  "read",
+] as const;
 
 export type PendingWait = (typeof pendingWaits)[number];
 
 // Why a landing will not be measured: the build that measures it failed; its
 // own build was cancelled or timed out with no later trunk build to stand for
 // it; CI did not build it; a confirmed skip has no equivalent build with
-// timing; the CI proof of the build that would stand for it expired, or could
-// not be read or used; or its build's attempt named no CI wall time.
+// timing; the build that would stand for it, with its timing, published no
+// CI proof; that build's CI proof expired, or could not be read or used; or
+// its build's attempt named no CI wall time.
 export const finalGapReasons = [
   "failed",
   "cancelled",
   "no-build",
   "no-equivalent",
+  "no-proof",
   "expired",
   "unreadable",
   "not-recorded",
@@ -125,8 +139,10 @@ const finalGapSchema = z.object({
   kind: z.literal("gap"),
   reason: z.enum(finalGapReasons),
   ...landingShape,
-  // The build that failed or named no CI wall time, and how it stands for
-  // the landing; none for a gap that names no build.
+  // The build the gap names, and how it stands for the landing: the build
+  // that failed or named no CI wall time, the build whose CI proof could not
+  // be used, or the landing's own cancelled build; none for a gap that names
+  // no build.
   build: z
     .object({
       revision: commitIdSchema,
