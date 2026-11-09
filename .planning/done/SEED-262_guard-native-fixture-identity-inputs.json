@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-262#guard-native-fixture-identity-inputs",
+  "title": "Guard native fixture identity inputs against drift",
+  "completedAt": "2026-11-09T00:35:12.502Z",
+  "developer": "Terry Yin",
+  "agent": "viktor-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
