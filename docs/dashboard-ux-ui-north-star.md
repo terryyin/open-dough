@@ -128,7 +128,7 @@ and evidence ordering across the reading pane:
 | Done story → **Changed tests** → entry or folder **Summary** | How has measured test execution time changed in this scope through the story's landing? |
 | Done story → **Changed tests** → test file **Proof** | What did CI measure for this file through the landing? **Purpose** continues to show its source or diff. |
 
-### Read landed CI timing
+### Read landed CI timing and follow up from Done
 
 Keep the history beside the existing evidence for the selected scope. Use a
 dated line with measured points and a clearly identified landing. Use CI wall
@@ -148,8 +148,13 @@ visible point was excluded. Give insufficient history its own explanation.
 The timing history reads the collected evidence as the developer browses.
 Existing live CI reads keep their explicit freshness and recovery cues.
 
-The [landed CI timing seed](../.planning/seeds/SEED-285-landed-ci-timing-history.md)
-records the comparison rule and its sample requirements.
+In Recently done, keep follow-up on the Done card. Show **CI rerun in progress**
+while the single automatic repeat is underway. If the repeat is still slow,
+use a red **Possible CI slowdown** indicator with text and a route to the
+comparison, where both attempts and their shared reference are visible. Show
+recovery and unavailable results in distinct words. The story remains Done
+throughout. Use the threshold and sample sizes in the mockups as illustrative
+values while refining the [landed CI timing stories](../.planning/seeds/SEED-285-landed-ci-timing-history.md).
 The [Architectural North Star](../.planning/NORTH-STAR.md#one-intent-workspace-with-landed-ci-evidence)
 describes evidence ownership and collection.
 

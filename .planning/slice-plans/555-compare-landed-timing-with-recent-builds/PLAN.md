@@ -255,7 +255,8 @@ NODE
 
 ## Current decisions and learnings
 
-- The initial rule calibrates the reference for reading recent timing.
+- The initial rule is the refinement's stated calibration, not a decision to
+  enable the later story's automatic rerun or its separate 5% hypothesis.
 - The existing retained cohort bounds prior candidates. Exclusions do not cause
   acquisition or backfill, and missing/partial values never become zeros.
 - Read the selected represented endpoint separately from its measured attempt;

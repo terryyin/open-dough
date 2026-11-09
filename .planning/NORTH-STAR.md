@@ -97,8 +97,20 @@ its explicit refresh keep their own observation lifecycle. Rebuild the history
 from recorded landings and available CI evidence, with gaps where evidence was
 missed or has expired. [ADR 0008 — Project dashboard domain and architecture](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
 
-The [landed CI timing seed](seeds/SEED-285-landed-ci-timing-history.md) records
-the history scope, comparable evidence, and initial calibration.
+**One repeat under project authority.** Treat a timing-triggered rerun as an
+explicitly enabled CI action against the original workflow run and landed
+revision. Use the same deterministic comparison that Intent shows, with the
+prior sample held fixed for both attempts. One landing may request one repeat.
+Keep request progress separate from observed CI outcomes, reconcile uncertain
+requests before deciding what happened, and preserve both attempts for review.
+The Done card and Intent read the same follow-up evidence. Git publication and
+story completion remain owned by the established workflow.
+[ADR 0008 — Observe workflow outcomes without owning them](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
+
+The [landed CI timing seed](seeds/SEED-285-landed-ci-timing-history.md) owns the
+candidate order and calibration questions. Validate the observed cohort and
+comparison before enabling repeat actions. Choose storage and provider details
+as the selected increments need them.
 
 ## Test optimization reads the CI evidence Intent reads
 
