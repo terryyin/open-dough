@@ -76,6 +76,7 @@ export async function startFrontendAppServer(
           }
           resolve();
         });
+        server.closeAllConnections();
       }),
   };
 }

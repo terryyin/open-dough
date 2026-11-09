@@ -231,10 +231,14 @@ Ordinary affected-group, loaded and CI measurements remain acceptance work.
   request hold, the workflow diagnostic succeeded at 09:12Z: selector `ci.yml`,
   workflow ID `351271804`, display name `CI`, active. The initial trunk claim
   retains `pendingCi: unobserved`; it is not registered on the branch observer.
-- Exact-checkout Codex observer is armed for `terryyin/open-dough`, target
-  `codex/make-the-intent-ci-comparison-tests-sub-second`, coordinator
-  `seed286-codex`, directory `/tmp/dough-ci-501/watch-YYQZ9S`, PID `5375`,
-  stream session `32919`, yielded cell `g186:51`. Its key is
-  `ci-watch-execution:terryyin/open-dough:codex/make-the-intent-ci-comparison-tests-sub-second:seed286-codex`.
-  Pass this coordinator and exact directory to every branch delivery. Do not
-  start a duplicate or manually poll its stream; normal completion owns shutdown.
+- Original observer `seed286-codex`, `/tmp/dough-ci-501/watch-YYQZ9S`, ended
+  at its eight-hour budget with CI_MONITOR_UNAVAILABLE; its 14 delivered records
+  were recovered and all owned failures assigned. PID 5375 exit was confirmed;
+  cell g186:51 completed. Its terminal result is not CI success or live coverage.
+- Replacement generation observes the same exact checkout/repository/branch:
+  coordinator `seed286-codex-render`, `/tmp/dough-ci-501/watch-06ti0d`,
+  PID `38050`, stream `66974`, cell `g186:525`. Key:
+  `ci-watch-execution:terryyin/open-dough:codex/make-the-intent-ci-comparison-tests-sub-second:seed286-codex-render`.
+  Managed resume confirmed accepted 2f5b6a3 and registered it without a push.
+  Use this coordinator/directory for later delivery; never restart the ended
+  generation or manually poll the stream. Final completion owns shutdown.

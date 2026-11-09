@@ -29,6 +29,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Production rendering](render-evidence.md) ·
+[HTTP teardown](server-close-evidence.md) ·
 [Portable evaluation](portable-evidence.md).
 
 ## Ordered slices
@@ -91,26 +92,6 @@ Proof: Sub-second cases through the real record store/selection boundary,
 including `reviewLandedRunsOf`, `preferredReviewRun`, `reviewRunKey` and retention;
 the three UI Refresh journeys with direct MakeMe setup; existing real one-shot
 launch/capture owners.
-
-Given captured and legacy records, Refresh keeps the chosen run after a newer
-capture and after native-session replacement. Deletion chooses the newest
-remaining capture, expiration chooses the next, then legacy evidence explains
-its gap. Arrange stored records and immutable comparison commits directly;
-starting native hosts is not the behavior of these Refresh cases. Preserve
-actual record persistence, replacement identity, ordering, expiration and view
-assertions. A frontend response alone cannot prove the store/reader transitions.
-Declare before measurement that record selection, replacement identity,
-deletion and expiration are rule cases subject to the sub-second target;
-the real store → Refresh transport → displayed choice is retained integration.
-Do not reclassify a slow rule case as wiring after observing its timing.
-
-Reuse launch/landing builders and production encoding. Inspect and run
-`tests/review/story-review-one-shot.spec.ts` and
-`tests/review/recently-done-one-shot-review.spec.ts` when the shared
-launch/capture contracts they observe change, or cite sufficient matching
-retained proof when those contracts remain unchanged. Reading their assertions
-alone is not executed preservation proof. Remove incidental launches only after
-the replacement rule proof and these integration obligations are established.
 
 Accepted: three real-store rules at 14/270/15 ms, three direct-record Refresh
 journeys, and three current native launch/capture preservation journeys. Exact
@@ -200,6 +181,13 @@ supported static-render + actual live-binding strategy in slices 6–7; preserve
 supported old sort/file gains. Full context and decisive comparison are in
 [the checkpoint](ui-pilot-evidence.md). G1/G3 stay open through slice 7.
 
+Published `2f5b6a3` matches all 170 rule owners, all assertions pass. Of 77
+static variants, four cleanup prefixes remain 1,014–1,098 ms (G8); the old
+550–600 ms bootstrap gap is removed, leaving 14–98 ms before final trace bounds.
+Retain the supported SSR route; quantify those four actual observer/lifecycle
+costs before a bounded correction. No lost assertion, timing change or new
+framework is selected. G7 separately repairs shared HTTP teardown liveness.
+
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.
 - Retain integration by unique observed connection, not a fixed test count.
@@ -235,6 +223,16 @@ Disposition: receiving slice 7
 Reported: slice 6 — "my extracted ScopeProofContent/FileProofContent unconditionally called useCiComparisonPreference, whereas original hook lived only inside comparison Frame; ProjectIntent has no story preference and crashes on ordinary judged scope."
 Story clause: "This story does not change Intent's comparison semantics"
 Disposition: proved by slice 6: render-evidence.md records the actual Project Summary/File Proof crash, comparison-only hook binding repair, six repeated counterexample passes, twelve affected current-source passes and the direct judged Summary pass; the missing-context guard is retained.
+
+### G7. Shared HTTP fixture can stall teardown with an accepted TCP socket
+Reported: slice 6 — "Tearing down \"comparisonServer\" exceeded the test timeout of 30000ms."
+Story clause: "No test in the family relies on a raised timeout."
+Disposition: proved by slice 6: server-close-evidence.md links the full failed trace, current actual-helper TCP counterexample, causal connection shutdown, final default-bound RED/three GREEN regression passes and three live-consumer passes; callback errors/default timeout are preserved.
+
+### G8. Four static rendering rules still exceed the CI complete-case target
+Reported: slice 6 — "Run 42668027365 attempt 1 matches all 170 rules; four of 77 static rendering rules have observed cleanup prefixes 1,014–1,098 ms and complete conservative upper bounds 1,038–1,123 ms."
+Story clause: "Target less than 1,000 ms for each rule-focused test, including per-test arrangement, actions, assertions and cleanup."
+Disposition: return
 
 ### G5. Keep scope acquisition and queued-selection observations
 Reported: slice 6 — "Additional exact scope gaps from9df: (1) mounted-gaps `a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint`: comparisons1/proofs2/expect.poll(statuses)2 after full exactlabels/framing/table; (2) mounted-fallback `Landed running preserves one Branch fallback through entry, folders and file Proof`: comparisons1/proofs2 after Branchheading+`Landed is not used: Build is still running.` atentry/folder/nested/file andfile+70ms; (3) mounted-gaps `selecting a queued story clears the previous Summary comparison and Baseline column`: actualMakeMequeuedSEED-B update clears priorfullentryoracle/frame/labels/Baseline/oldidentity, comparisons stays1/proofs3. No exact retainedcounted correspondence."
