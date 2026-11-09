@@ -135,7 +135,7 @@ guidance walk through both recipes (job tmp `s3/walk.mjs`); lint.
 ### 4. Make the protocol available in a tagged release
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership row 7; release preflight, remote commit/tag verification and
 a representative collector invocation from the tagged declared payload.
 
@@ -143,19 +143,23 @@ Behavior: a publisher following the normal update path can fetch the new
 protocol, collector and guidance from an immutable numeric Open Dough release.
 Landing untagged source alone does not fulfill this promise.
 
-Checkpoint: before any release write, stop for the developer's go-ahead. It
-authorizes running Dough Land `--keep-worktree` on this execution checkout to
-put slices 1–3 on trunk, then this release from the landed revision.
+Checkpoint: answered "ok" (2026-11-09) after slice 3's green run 42592705944.
+Dough Land `--keep-worktree` merged trunk `144981e5f` into the branch
+(`makeMe.mjs` conflict resolved; units journey re-encoded its settings through
+`intentSettingsText`, `e6de30d46`) and fast-forwarded `main` to `e6de30d46`;
+landing receipt recorded; worktree and branch retained.
 
-Run release-and-update-clients limited to the source release (no project
-updates or CI migrations): the next numeric patch above the highest fetched
-release unless the instruction names one, with reviewed notes and
-finalization intent for release-version. Inspect the full promoted diff, pass
-the self-installation check before any metadata/commit/tag write, commit
-payload changes first, publish trunk and the annotated tag without force, and
-verify remote tag/commit identity. An occupied tag or unsafe source state
-stops the release. Invoke the released collector in an isolated temporary
-directory; claim no other project's installation.
+Delivered: release `0.3.93` (`f97a3f1d2`, annotated tag `v0.3.93`) pushed
+atomically with `main`; source release only, no client updates or CI
+migrations.
+
+Accepted proof: before landing, full Node suite 541/541 and Intent suite
+280/281 on the merge (the one stale journey repaired, 6/6); trunk CI run
+42597350015 green with dashboard entries in test cases and `tests`/`src/skills`
+in test files; self-installation check passed; remote tag peels to the release
+commit on `origin/main`; the seven collector modules copied alone from the
+tagged payload wrote a valid version 2 summary keeping one path's test cases
+and test files apart.
 
 ## Story obligations
 
@@ -241,7 +245,6 @@ Story Branch Mode (`origin`, target `main`) in workspace
 `479f6f3b112bb7ebe295a1a9724cfce85dc9664d` stays the first published base.
 SEED-282 landed mid-slice (merge `0eee12e4d`, shared signed change), so slice
 1 was replayed onto trunk `9215bdb89` (local WIP `e0384b5d5`) with its unit
-rule in `afterCellOf`. Coordination: the retry-spec repair landed on trunk
-(`acfd70db4`); recheck `intent-ci-comparison-retry.spec.ts` after integrating
-trunk. SEED-286 (queued) owns the comparison family's load timeouts, which
-reach the new `intent-ci-comparison-units.spec.ts` when first in a worker.
+rule in `afterCellOf`. The retry spec passed after integrating trunk; SEED-286
+(queued) owns the comparison family's load timeouts, including the new
+`intent-ci-comparison-units.spec.ts` when first in a worker.
