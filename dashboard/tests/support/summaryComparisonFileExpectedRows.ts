@@ -11,8 +11,8 @@ export const modifiedFileRow: FileComparisonRow = [
   "dashboard/tests/folder/a.spec.ts modified",
   "1 → 2 tests (+1) → 1 tests (0)",
   "10.0 s",
-  "10.0 s → 17.0 s (+7.0 s, +70%)",
-  "10.0 s → 14.0 s (+4.0 s, +40%)",
+  "+7.0 s",
+  "+4.0 s",
 ];
 
 export const addedFileRow: FileComparisonRow = [
@@ -27,16 +27,16 @@ export const mergeEditedFileRow: FileComparisonRow = [
   "dashboard/tests/folder/nested/c.spec.ts modified",
   "1 tests (no change)",
   "340 ms",
-  "340 ms → 410 ms (+70 ms, +21%)",
-  "340 ms → 410 ms (+70 ms, +21%)",
+  "+70 ms",
+  "+70 ms",
 ];
 
 export const unchangedFileRow: FileComparisonRow = [
   "dashboard/tests/root.spec.ts",
   "1 tests (no change)",
   "1.2 s",
-  "1.2 s (no change)",
-  "1.2 s (no change)",
+  "0 ms",
+  "0 ms",
 ];
 
 export async function expectFileComparisonRow(
@@ -47,7 +47,9 @@ export async function expectFileComparisonRow(
   const table = proof.getByRole("table", { name: `CI proof of ${path}` });
   await expect(table.getByRole("columnheader")).toHaveText([
     "Scope",
-    ...comparisonTableColumns,
+    ...comparisonTableColumns.map((name) =>
+      name === "Branch" || name === "Landed" ? `${name} vs baseline` : name,
+    ),
   ]);
   const body = table.locator("tbody").getByRole("row");
   await expect(body).toHaveCount(1);

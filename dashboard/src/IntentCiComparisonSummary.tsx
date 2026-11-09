@@ -60,11 +60,6 @@ export function ActiveComparisonSummary({
   const timingCue = overallTimingCue(answer.baseline, active.slot);
   return (
     <div className="intent-ci-comparison-summary">
-      {active.landedUnusedReason !== undefined && (
-        <p className="intent-ci-comparison-active-reason">
-          Landed is not used: {active.landedUnusedReason}
-        </p>
-      )}
       <dl className="intent-ci-comparison-metrics">
         <div>
           <dt>Counts</dt>

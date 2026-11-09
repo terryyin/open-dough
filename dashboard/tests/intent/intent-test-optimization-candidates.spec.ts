@@ -1,6 +1,6 @@
 // Intent reads the published Test Optimization Candidates record at the
 // observed revision (../../src/IntentCandidatesRecord.tsx) on its own
-// Optimization Candidates tab (../../src/IntentModeTabs.tsx): entering Intent
+// Optimization Candidates tab (../../src/IntentPage.tsx): entering Intent
 // shows the Intent tab with locations and CI status; the record shows
 // labelled Pending and Accepted groups with every recorded field (example 1)
 // across the content area without the locations.

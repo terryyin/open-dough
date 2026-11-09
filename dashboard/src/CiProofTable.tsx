@@ -156,13 +156,8 @@ export function CiProofTable({
   readonly changes?: boolean;
 }) {
   const comparison = rows.some((row) => isComparisonCells(row.cells));
-  // Branch and Landed show their change from Baseline in a story CI
-  // comparison's entry rows.
-  const showsChange = rows.some(
-    (row) => isComparisonCells(row.cells) && row.cells.showsChange === true,
-  );
   const noteOf = (column: string) =>
-    showsChange && (column === "branch" || column === "landed")
+    comparison && (column === "branch" || column === "landed")
       ? "vs baseline"
       : undefined;
   const headers = figureHeadersFor(comparison, changes);

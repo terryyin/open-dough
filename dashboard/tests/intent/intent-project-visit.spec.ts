@@ -1,22 +1,15 @@
-// A visit from a selected story to Project Intent and back
-// (../../src/IntentPerspective.tsx, ../../src/IntentProjectView.tsx): the
-// story's header leads to Project Intent, which judges the trunk while the
-// story stays selected and opens a candidate's test, one the story also
-// changes, at its published text in Project Intent's own reading; returning
-// to the candidate gives it the keyboard without reading the record again,
-// and Back to selected story shows the story's Changed tests with its file,
-// Proof or Purpose and scroll as they were. Project Intent's own file is kept
-// for its next visit, and activating CI status by keyboard returns it home.
+// Project Intent visits (../../src/IntentPerspective.tsx, ../../src/IntentPage.tsx)
+// keep the selected story and each context's file, Proof/Purpose and scroll.
+// Project tests read published text and trunk CI; returning restores the
+// candidate's keyboard focus without rereading, then the story's reading.
 // Selection transitions: ./intent-project-visit-selection.spec.ts.
 // CI follow cost during visits: ./intent-project-visit-ci.spec.ts.
-// Without a story Project Intent is Intent's landing:
-// ./intent-ci-status-homepage.spec.ts.
+// No-story landing: ./intent-ci-status-homepage.spec.ts.
 
-import type { Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { ciPanel } from "../intentCiStatusPage.ts";
+import { projectReads } from "../intentProjectVisitPage.ts";
 import {
   backToStory,
   candidatesRecord,
@@ -38,7 +31,6 @@ import {
   expectStoryTab,
   intentFile,
   selectTakenStoryInIntent,
-  storySummary,
 } from "../support/intentStoryPage.ts";
 import {
   changed,
@@ -49,21 +41,6 @@ import { writeAt } from "../support/storyReviewWorktree.ts";
 
 // The spec the story modifies, which the trunk's record names as a candidate.
 const candidatePath = "dashboard/tests/a.spec.ts";
-
-// The page's reads, from now on, of the candidates record and of published
-// test text.
-function projectReads(page: Page) {
-  const reads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname !== authenticatedReadEndpoint) return;
-    const path = url.searchParams.get("path") ?? "";
-    if (url.searchParams.get("intent") === "test-optimization-candidates")
-      reads.push("candidates");
-    else if (path.startsWith("dashboard/tests/")) reads.push(`text ${path}`);
-  });
-  return reads;
-}
 
 test("a candidate's test the story changes reads as published in Project Intent, and returning restores the candidate and then the story's reading", async ({
   page,
@@ -93,7 +70,13 @@ test("a candidate's test the story changes reads as published in Project Intent,
     const offset = await scrollIntentReadingHalfway(intent);
     await openProjectIntent(intent);
     await expect(intent).toHaveAttribute("data-selected-story", selected ?? "");
-    await expect(storySummary(intent)).toHaveCount(0);
+    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+      "data-intent-context",
+      "project",
+    );
+    await expect(
+      intent.getByRole("region", { name: "Project Intent", exact: true }),
+    ).toBeVisible();
     await expectIntentModeChosen(intent, "CI status");
     await expect(ciPanel(intent)).toContainText("CI status of main");
     await expect(intent.locator(".intent-locations")).toBeVisible();

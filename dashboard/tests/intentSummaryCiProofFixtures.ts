@@ -134,7 +134,11 @@ export async function openIntent(
 
 // With a selected story, Summaries are read in its Changed tests view.
 export async function openSummary(intent: Locator, location: string) {
-  if ((await intent.getAttribute("data-selected-story")) !== null)
+  if (
+    (await intent
+      .locator('.intent-page-frame[data-intent-context="story"]')
+      .count()) > 0
+  )
     await chooseStoryTab(intent, "Changed tests");
   await intentLocationName(intent, location).click();
   const summary = summaryRegion(intent);

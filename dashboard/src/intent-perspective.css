@@ -1,7 +1,7 @@
 /* The Intent perspective (./IntentPerspective.tsx): not-configured prose, or
    a reading-mode strip over Purpose locations beside their source, or over
-   the candidates record or CI status. The perspective choice already
-   names the page, so it shows no heading of its own. Below the banner the
+   the candidates record or CI status. The persistent header names the
+   displayed evidence context. Below the banner the
    page itself does not scroll: the location browser runs the full remaining
    height against the page's left edge, and it and the reading pane each
    scroll on their own, both ways. */
@@ -79,7 +79,7 @@
   display: none;
 }
 
-/* Hide files (./IntentModeTabs.tsx) hides the locations column, still
+/* Hide files (./IntentPage.tsx) hides the locations column, still
    mounted so its scroll, open folders and summary return, and gives the
    reading pane the whole width (narrow, the whole height). */
 .intent-browser.intent-files-hidden {

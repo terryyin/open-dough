@@ -24,7 +24,6 @@ import type {
 } from "./ciScopeComparisonCues.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
-import { timeChangeOf } from "./storyCiRelativeChange.ts";
 
 export type ComparisonEndpointProof =
   | { readonly kind: "checking" }
@@ -58,15 +57,11 @@ export function comparisonEndpointProofsChecking(
 }
 
 // A compared scope's Counts words, the active after endpoint's counted
-// results and each endpoint's timing. Counts and timing sort by their
-// measured values, except that Branch and Landed sort by their signed change
-// when the cells show it (`showsChange`). Parts completeness belongs to the
-// selected scope's own figures.
+// results and each endpoint's timing. Baseline sorts by measured time;
+// Branch and Landed show and sort by signed change from it. Parts completeness
+// belongs to the selected scope's own figures.
 export type ComparisonEntryCells = {
   readonly counts: string;
-  // Branch and Landed show and sort by their change from Baseline (a story
-  // CI comparison's entry rows); otherwise by their measured time.
-  readonly showsChange?: true;
   readonly countedResults: CountedResults | undefined;
   readonly baseline: TimingCell;
   readonly branch: TimingCell;
@@ -194,36 +189,16 @@ export function comparisonEntriesOf(
     kind: "rows",
     rows: paths.map((path) => ({
       path,
-      cells: changeCellsOf(
-        scopeComparisonCellsOf(
-          path,
-          baseline,
-          branch,
-          landed,
-          "whole-second",
-          path,
-          undefined,
-          afterSide,
-        ),
+      cells: scopeComparisonCellsOf(
+        path,
+        baseline,
+        branch,
+        landed,
+        "whole-second",
+        path,
+        undefined,
+        afterSide,
       ),
     })),
-  };
-}
-
-// AFTER's signed change from a measured BASELINE when AFTER is measured too,
-// relative to a positive baseline; otherwise AFTER as it is: a new entry's
-// measured time or a gap's words. A measured zero baseline still gives a
-// change, but no relative one.
-function changeCellOf(baseline: TimingCell, after: TimingCell): TimingCell {
-  if (baseline.ms === undefined || after.ms === undefined) return after;
-  return { ...timeChangeOf(baseline.ms, after.ms), ms: after.ms };
-}
-
-function changeCellsOf(cells: ComparisonEntryCells): ComparisonEntryCells {
-  return {
-    ...cells,
-    showsChange: true,
-    branch: changeCellOf(cells.baseline, cells.branch),
-    landed: changeCellOf(cells.baseline, cells.landed),
   };
 }

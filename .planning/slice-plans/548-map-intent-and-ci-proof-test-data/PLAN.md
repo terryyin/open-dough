@@ -66,8 +66,8 @@ change.
   [test data architecture](../../../tests/README.md#test-data-architecture).
   The existing builders and product readers suffice; no North Star topic is
   needed.
-- **Coordination.** Taken
-  [SEED-282](../../seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof)
+- **Coordination.** Completed
+  [SEED-282](https://github.com/terryyin/open-dough/blob/79714ba4e401efc9e826cd9bb95918c3589f6cfa/.planning/seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof)
   rewrites Intent journeys that consume these fixtures, such as the CI status
   home page, home activation, project visit and the candidates journey, and
   Taken [SEED-281](../../seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof)

@@ -450,6 +450,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: `/tmp/seed275-slice2-consumer-trace.md` has 628 physical lines and 402 located-consumer rows matching the derived `PLAN.md` term; the slice-2 return explicitly attributes incidental matches to the concurrent coordinator-owned plan edit. The accepted plan at `0ab4b94e6` retains the trace locator and focused proof.
   - Observed effect: a seven-file comment/title correction required repeated exclusions for unrelated planning, history and guidance; no missing consumer was found. Exact retired titles had no external selectors.
 
+- Execution: SEED-282#unify-intent-view-and-ci-proof (plan 547-unify-intent-view-and-ci-proof; first related implementation commit `f95f1a2808ad5cc74b785c0cbbe9f972495bc03f`)
+  - Timestamp: unknown (2026-11-09, slice 1 and 2 consumer-trace acceptance)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION` at claim `b62745bec339504a683c736d59caa09f4d3b915c`)
+  - Evidence: Both implementation traces used installed `consumer-trace.mjs --base HEAD` with explicit effect terms while plan/source-review files were changed. The trace derived generic planning basenames as well. Retained proof at `3034cc09d84b22ebfc751c92a1889629ab33dce9:.planning/slice-plans/547-unify-intent-view-and-ci-proof/proof.md` names the trace/disposition records; current `/tmp/seed282-slice1-consumer-dispositions.md` and `/tmp/seed282-slice2-consumer-dispositions.md` measure 350,867 and 341,766 bytes, with 641 and 669 `excluded:` rows respectively. The slice 2 return reports 839 final consumer rows.
+  - Observed effect: Hundreds of generic planning/history matches needed exclusions; coordinator reads of broad trace excerpts truncated and were followed by bounded caller/assertion inspection. The actual Intent and direct unit consumers were verified. No missed consumer is established.
+  - Inference: The already-recorded automatic planning-basename noise recurred across both Behavior slices; the large disposition volume, rather than a missing observation, is the supported cost.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
 ## ODF-405 — Full local suite wall includes waiting for repository-wide admission

@@ -24,10 +24,7 @@ import { immediateChildrenOf, owningEntryOf } from "./ciScopeProof.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
-import {
-  ComparisonNamed,
-  ComparisonTable,
-} from "./IntentScopeComparisonTable.tsx";
+import { ComparisonTable } from "./IntentScopeComparisonTable.tsx";
 import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
 import { SingleProofTable } from "./IntentScopeSingleProofTable.tsx";
 import { childRowsOf } from "./IntentScopeSummaryRows.tsx";
@@ -102,12 +99,10 @@ export function IntentScopeProof({
   if (evidence.kind === "comparison") {
     return (
       <>
-        <ComparisonNamed evidence={evidence} />
         <ComparisonTable
           path={path}
           inventory={inventory}
-          proofs={evidence.proofs}
-          answer={evidence.answer}
+          evidence={evidence}
           treeFiles={treeFiles}
           onOpen={onOpen}
           sorting={sorting}

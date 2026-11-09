@@ -38,7 +38,9 @@ test("Intent names empty, missing, and unsupported locations while others browse
   await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
+  await expect(
+    intent.getByRole("heading", { name: "No story selected", exact: true }),
+  ).toBeVisible();
   await expectIntentGroupsCollapsed(intent);
 
   await test.step("commitment 55/57: unusable location names show Summary with path, 0 files, and the location explanation", async () => {

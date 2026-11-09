@@ -63,7 +63,7 @@ explanations remain supported: a historical comparison does not freeze an
 unfinished CI attempt or turn its measured revision into the source revision.
 It does not add historical retention/migration or a new selection workflow.
 The common Intent layout and comparison presentation remain
-[SEED-282](SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof)'s
+[SEED-282](https://github.com/terryyin/open-dough/blob/79714ba4e401efc9e826cd9bb95918c3589f6cfa/.planning/seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof)'s
 work; that story is not a prerequisite.
 
 **Key examples.**

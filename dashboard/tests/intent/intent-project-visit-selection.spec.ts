@@ -38,6 +38,10 @@ test("each new selection opens the story at CI comparison, even one cleared and 
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(storySummary(intent)).toBeVisible();
+    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+      "data-intent-context",
+      "story",
+    );
     await expectStoryTab(intent, "CI comparison");
     await expect(backToStory(intent)).toHaveCount(0);
     // Project Intent, visited for this new selection, opens on CI status.
@@ -53,6 +57,16 @@ test("each new selection opens the story at CI comparison, even one cleared and 
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(storySummary(intent)).toHaveCount(0);
+    await expect(
+      intent.getByRole("heading", { name: "No story selected", exact: true }),
+    ).toBeVisible();
+    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+      "data-intent-context",
+      "project",
+    );
+    await expect(
+      intent.getByRole("region", { name: "Project Intent", exact: true }),
+    ).toBeVisible();
     await expectIntentModeChosen(intent, "CI status");
     await expect(ciPanel(intent)).toContainText("CI status of main");
   });

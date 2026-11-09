@@ -13,8 +13,8 @@ export { keepInView, untilOwnMove } from "./pageMovement.ts";
 // marks onto what it renders. A card and the Board are focusable only so
 // that focus can be returned to them, so they stay out of the tab order. The
 // Intent perspective shows no Board; Project Intent's strip
-// (`./IntentModeTabs.tsx`) and a selected story's view row
-// (`./IntentStoryView.tsx`), one of which Intent shows, spread
+// (`./IntentPage.tsx`) and a selected story's view row
+// (`./IntentPage.tsx`), one of which Intent shows, spread
 // `intentHomeMarks`, and the chosen tab there, its row's one tab in the tab
 // order, is Intent's home.
 const storyCardAttribute = "data-story-card";

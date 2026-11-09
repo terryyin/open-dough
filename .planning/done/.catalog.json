@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-282_unify-intent-view-and-ci-proof.json",
+      "identity": "SEED-282#unify-intent-view-and-ci-proof",
+      "completedAt": "2026-11-09T02:13:41.676Z",
+      "blob": "7638428c63921f613b88d78c7cf72c638bc82c8f"
+    },
+    {
       "fileName": "SEED-275_preserve-story-on-panel-close.json",
       "identity": "SEED-275#preserve-story-on-panel-close",
       "completedAt": "2026-11-09T02:09:52.198Z",

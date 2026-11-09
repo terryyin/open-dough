@@ -19,6 +19,7 @@ import {
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
+import { IntentCiComparisonFrame } from "./IntentCiComparisonFrame.tsx";
 import { ComparisonNamed } from "./IntentScopeComparisonTable.tsx";
 import { changeKindWords } from "./CiProofFigures.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
@@ -92,22 +93,28 @@ export function IntentFileProof({
 
     return (
       <div className="intent-file-proof">
-        <ComparisonNamed evidence={evidence} />
-        {checking && (
-          <p className="intent-ci-reading" role="status">
-            Reading entry comparison…
-          </p>
-        )}
-        <FileProofTable
-          path={path}
-          scope={
-            <>
-              <ScopePath path={path} />
-              {marker !== undefined ? ` ${changeKindWords[marker]}` : ""}
-            </>
-          }
-          cells={cells}
-        />
+        <IntentCiComparisonFrame
+          answer={evidence.answer}
+          proofs={evidence.proofs}
+          relatives={[cells.branch.relative, cells.landed.relative]}
+        >
+          <ComparisonNamed evidence={evidence} />
+          {checking && (
+            <p className="intent-ci-reading" role="status">
+              Reading entry comparison…
+            </p>
+          )}
+          <FileProofTable
+            path={path}
+            scope={
+              <>
+                <ScopePath path={path} />
+                {marker !== undefined ? ` ${changeKindWords[marker]}` : ""}
+              </>
+            }
+            cells={cells}
+          />
+        </IntentCiComparisonFrame>
       </div>
     );
   }

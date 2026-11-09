@@ -99,3 +99,27 @@
     min-height: var(--control-size);
   }
 }
+
+/* In a narrow comparison table, keep the delta and percentage together and
+   put the same centred mark beneath them so every endpoint remains readable. */
+@container (max-width: 40rem) {
+  .intent-ci-comparison-frame .intent-ci-proof-box .intent-proof-rows :is(th, td) {
+    padding-inline: var(--space-1);
+  }
+
+  .intent-ci-time-change {
+    grid-template-columns: max-content auto;
+    gap: var(--space-1);
+  }
+
+  .intent-ci-time-change .intent-ci-time-mark {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 3.5rem;
+  }
+
+  .intent-ci-time-change .intent-ci-time-percent {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

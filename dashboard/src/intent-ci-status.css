@@ -61,7 +61,7 @@
    summary's metrics in one band, the builds and the entries each in a
    bordered box whose header row sits on a quiet band. It uses the reading
    pane's width. */
-.intent-ci-story-comparison {
+.intent-ci-comparison-frame {
   max-width: none;
 }
 
@@ -128,16 +128,16 @@
 /* The marks show which timings are faster or slower and the words carry
    every count and time difference, so the summary and entry rows keep their
    cue state without the tint or edge drawn for it elsewhere. */
-.intent-ci-story-comparison [class*="intent-ci-cue-duration-"] {
+.intent-ci-comparison-frame [class*="intent-ci-cue-duration-"] {
   background: none;
 }
 
-.intent-ci-story-comparison [class*="intent-ci-cue-count-"] {
+.intent-ci-comparison-frame [class*="intent-ci-cue-count-"] {
   box-shadow: none;
 }
 
-.intent-ci-story-comparison .intent-ci-comparison-overall-counts,
-.intent-ci-story-comparison .intent-ci-comparison-overall-timing {
+.intent-ci-comparison-frame .intent-ci-comparison-overall-counts,
+.intent-ci-comparison-frame .intent-ci-comparison-overall-timing {
   padding: 0;
 }
 
@@ -147,7 +147,7 @@
 }
 
 .intent-ci-comparison-box,
-.intent-ci-story-comparison .intent-ci-proof-box {
+.intent-ci-comparison-frame .intent-ci-proof-box {
   max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--line);
@@ -156,7 +156,7 @@
 }
 
 .intent-ci-comparison,
-.intent-ci-story-comparison .intent-proof-rows {
+.intent-ci-comparison-frame .intent-proof-rows {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--text-sm);
@@ -165,8 +165,8 @@
 
 .intent-ci-comparison th,
 .intent-ci-comparison td,
-.intent-ci-story-comparison .intent-proof-rows th,
-.intent-ci-story-comparison .intent-proof-rows td {
+.intent-ci-comparison-frame .intent-proof-rows th,
+.intent-ci-comparison-frame .intent-proof-rows td {
   text-align: left;
   vertical-align: middle;
   padding: 0.35rem 0.6rem;
@@ -174,18 +174,18 @@
 }
 
 .intent-ci-comparison tbody tr:last-child > *,
-.intent-ci-story-comparison .intent-proof-rows tbody tr:last-child > * {
+.intent-ci-comparison-frame .intent-proof-rows tbody tr:last-child > * {
   border-bottom: 0;
 }
 
 .intent-ci-comparison thead,
-.intent-ci-story-comparison .intent-proof-rows thead {
+.intent-ci-comparison-frame .intent-proof-rows thead {
   color: var(--quiet);
   background: var(--hover);
 }
 
 .intent-ci-comparison thead th,
-.intent-ci-story-comparison .intent-proof-rows thead th {
+.intent-ci-comparison-frame .intent-proof-rows thead th {
   font-size: var(--text-xs);
   font-weight: 600;
   vertical-align: bottom;
@@ -199,14 +199,6 @@
    scrolls them inside their box. */
 .intent-ci-comparison {
   min-width: 26rem;
-}
-
-.intent-ci-story-comparison .intent-proof-rows {
-  min-width: 34rem;
-}
-
-.intent-ci-story-comparison .intent-ci-scope-part {
-  white-space: nowrap;
 }
 
 .intent-ci-comparison th,

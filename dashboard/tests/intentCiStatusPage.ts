@@ -77,8 +77,9 @@ export function ciPanel(intent: Locator) {
 // while it shows, else the selected story's CI comparison view.
 async function ciTab(intent: Locator) {
   const project = intentModeTab(intent, "CI status");
-  return (await intent.getAttribute("data-selected-story")) === null ||
-    (await project.count()) > 0
+  return (await intent
+    .locator('.intent-page-frame[data-intent-context="project"]')
+    .count()) > 0
     ? project
     : intent
         .getByRole("tablist", { name: "Selected story views" })

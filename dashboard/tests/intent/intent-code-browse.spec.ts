@@ -21,48 +21,7 @@ import {
   publishIntentProject,
   shellCheck,
 } from "../intentCodeBrowseFixtures.ts";
-import type { Locator } from "@playwright/test";
-
-// A labelled Intent location lists its include-matched specs, omits helpers,
-// and opens exact source text under that location's canonical path.
-async function expectLabelledEntrySource(
-  intent: Locator,
-  locationPath: string,
-  label: string,
-  listedSpec: string,
-  omittedHelper: string,
-) {
-  const heading = intentLocationName(intent, locationPath);
-  await expect(heading).toContainText(label);
-  await expect(intentGroupToggle(intent, locationPath)).toHaveAccessibleName(
-    `Expand ${label}`,
-  );
-  await heading.click();
-  const summary = intent.getByRole("region", {
-    name: "Summary",
-    exact: true,
-  });
-  await expect(summary).toContainText(label);
-  await expect(summary).toContainText(locationPath);
-  await expandIntentGroup(intent, locationPath);
-  await expect(
-    intent.getByRole("button", {
-      name: `${locationPath}/${omittedHelper}`,
-      exact: true,
-    }),
-  ).toHaveCount(0);
-  await intent
-    .getByRole("button", {
-      name: `${locationPath}/${listedSpec}`,
-      exact: true,
-    })
-    .click();
-  await expect(
-    intent
-      .getByLabel(`${locationPath}/${listedSpec} source`)
-      .locator(".source-line-text"),
-  ).toHaveText(browseSpec.split("\n"));
-}
+import { expectLabelledEntrySource } from "../intentCodeBrowsePage.ts";
 
 test("Intent lists matched code test files under include patterns, omits helpers and product files, and reads exact text with the observed revision", async ({
   page,
@@ -139,7 +98,9 @@ test("Intent lists matched code test files under include patterns, omits helpers
   await openUntilRead(page, "/?project=open-dough");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  await expect(intent.getByRole("heading", { level: 2 })).toHaveCount(0);
+  await expect(
+    intent.getByRole("heading", { name: "No story selected", exact: true }),
+  ).toBeVisible();
   await expectIntentGroupsCollapsed(intent);
 
   await test.step("Ex 1: TypeScript specs among helpers; heading names patterns; selecting shows exact text, revision, and kind styling", async () => {
