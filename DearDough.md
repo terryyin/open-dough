@@ -7,8 +7,9 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 480. Removed numbers are never reused.
-- Recovery: `ecb5ddd89:DearDough.md` holds the two ODF-329 occurrences removed for SEED-285.
+- Highest allocated local number: 481. Removed numbers are never reused.
+- Recovery: `ecb5ddd89:DearDough.md` holds two earlier ODF-329 removals; `65e40e9d64b71db19955b49be68160baea07a104:DearDough.md` holds the three older ODF-329 rows removed for this SEED-285 review.
+- Retention choice: Two current execution-control findings replace three redundant older ODF-329 rows; two later local occurrences and catalog evidence preserve that issue.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -272,6 +273,15 @@ Former local code: DD-325. The coordinator reduced a guarded delivery call to it
   - Evidence: Launch `4056a145-4d89-44ec-ba41-26da0eb37261`, `/root/slice1` reported that its proof wrapper emitted output without its returned session handle. It confirmed the original processes ended, did not count that unobserved run, then followed replacement session `22530` to exit 0.
   - Observed effect: The required three-check proof was repeated to obtain terminal evidence. This occurrence concerns a proof command rather than the original finding's delivery command; the same output-projection loss of the running handle was reported.
 
+- Execution: SEED-285#trace-landed-proof-timing (plan 554; first implementation `d4130605530aa4aed22c3d2be0e7ff5ff89ad968`)
+  - Timestamp: 2026-11-09T12:04:47.771Z
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION` at `fcf4c0041`; no managed-copy edit)
+  - Evidence: Native session `01a1beb7-a487-7fd0-989e-e7d2ab99461d`, call `call_b85c30cb82d9477eb3b8bec9c4bd9415`: `text((await tools.exec_command(...yield_time_ms:1000)).output)` emitted only the parking summary while history-preserving integration still ran. Calls at 12:04:59Z and 12:05:32Z inspected PID 87564 and `/tmp/trace-proof-285-main-integration.json`.
+  - Observed effect: Two bounded process/receipt inspections recovered accepted `8a9c7ed156bf73241cc394ee77551be76ea352ed` after its session handle was discarded; publication was not repeated.
+  - Inference: Exact caller-output projection recurrence; this was not a demonstrated publisher/transport stall. Preserve the full result and follow its session to terminal evidence.
+
 ## ODF-324 — Native checks keep asking the developer after attribution is established <a id="odf-324"></a>
 Former local code: DD-327. Former branch-local code: DD-325 for SEED-144#branded-alert-click-automation only. Native acceptance kept requesting interactive developer rounds after attribution was established, including a full replay for a message-only change, until the developer withdrew. [Evidence and current response](docs/maintainer/findings/ODF-324.md).
 ## ODF-323 — A caller-written plan-status mutation survives a later delivery refusal <a id="odf-323"></a>
@@ -298,30 +308,6 @@ Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
 
 ### Occurrences
-- Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
-  - Timestamp: unknown (slice 2 delivery on 2026-11-08, before `21bf70ea2`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.91 (installed .claude/skills/dough-update/VERSION at the established Take `db42e79a7`)
-  - Evidence: Slice 2's first guarded fresh delivery returned `operation: formatting` with five `no-unsafe-assignment`/`no-unsafe-call` errors where dashboard callers used the new JSDoc builders `reviewedStorySeed` and `queuedSeedWithDependencies` in `tests/support/queued-repository.mjs`, which lacked `@returns`. The implementation agent's proof included `npm run typecheck:dashboard`; neither it nor the refactor pass ran ESLint.
-  - Observed effect: One withheld commit after focused proof and refactor; the coordinator added two `@returns {string}` lines and the retry published `21bf70ea2`. The slice 3 refactor brief asked for an ESLint check of changed files, and its delivery passed first time.
-
-- Execution: SEED-262#migrate-backlog-scratch-repositories (plan 524-migrate-backlog-scratch-repositories; first related implementation commit `6c379369119c4bf540976b951a6d1a9aee88e9d7`)
-  - Timestamp: unknown (2026-11-08, slice 3 and slice 5 delivery, before `898ef65d6` at 2026-11-08T21:26:21+08:00 and `c7780d49e` at 2026-11-08T22:07:18+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim)
-  - Evidence: Guarded fresh delivery returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` in an `Array.from({ length }, (_, index) => ...)` callback, in `tests/support/product-backlog-identity-evidence-fixture.mjs` (slice 3) and `tests/support/dashboard-later-trunk-fixture.mjs` (slice 5), after focused proof and refactor passes that ran only a read-only Prettier check.
-  - Observed effect: Two withheld deliveries; the same `[...Array(n).keys()].map(...)` rewrite and a focused rerun cleared each.
-  - Inference: Third execution with this exact diagnostic in one day; implementation briefs that forbid hook-owned lint leave this class to the delivery gate.
-- Execution: SEED-261#map-launch-and-session-test-data (plan 534-map-launch-and-session-test-data; first related implementation commit `681a9d6f8a9d16fd03cc5879984bb255abba4bdc`)
-  - Timestamp: unknown (slice 1 delivery on 2026-11-08, before `681a9d6f8` at 2026-11-08T23:34:13+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `e75b693ab`)
-  - Evidence: Slice 1's first guarded fresh delivery returned `operation: formatting`: the formatter's ESLint fix removed an unnecessary `as KeptLaunch` assertion in `dashboard/tests/terminals/agent-terminal-avatar.spec.ts`, then `no-unused-vars` failed on the now-unused `type KeptLaunch` import. Implementation and refactor briefs forbade hook-owned lint; both ran typecheck and Prettier only. In slice 4 the refactor pass found Prettier and `no-unnecessary-type-parameters` failures the implementer returned, because that brief allowed `npx eslint` on touched files.
-  - Observed effect: One withheld delivery; removing the import cleared it and the retry published `681a9d6f8`. Slices 2–4, whose refactor briefs allowed ESLint on touched files, delivered first time.
-  - Inference: Same class as the earlier rows; letting the refactor pass run ESLint read-only on touched files moved the catch before delivery.
 - Execution: SEED-262#guard-native-fixture-identity-inputs (plan 542; first implementation `fc234b7f9c8ae40d8c1a60ecd5e1440ec32a0e3e`)
   - Timestamp: unknown (2026-11-09 execution)
   - Tool: Codex
@@ -997,3 +983,16 @@ Source-review allocation gives each whole-story commitment to the slice that com
   - Evidence: `story-obligations.mjs list --slice 3` returned 96 commitments. The coordinator recorded 94 observations through one generated mapping. The retrospective's independent outcome review cited source-review rows 24 and 32.4 and `landedCiResolution.ts`/`landedCiObservation.ts` defects. Plan 551's obligations G6 to G9 returned them to slice 3 before the execution-complete record.
   - Observed effect: Slice 3 was accepted and published as `6f5be8b8a`, then reopened by four return obligations.
   - Inference: Concentrating whole-story commitments on the last slice makes its acceptance a bulk recording task, and per-id location checks thinned. An unanchored outcome review before the execution-complete record recovered them; a per-id check of each cited location against the commitment text would have caught the two record errors at acceptance.
+
+## DD-481 — Freshness chooses a pre-Take merge base despite another base containing the accepted Take
+The source-freshness gate takes one `git merge-base` as the Take. After published-sibling integration created multiple best bases, it selected the sibling's pre-Take base and rejected a valid ongoing execution before comparing its source.
+
+### Occurrences
+- Execution: SEED-285#trace-landed-proof-timing (plan 554; first implementation `d4130605530aa4aed22c3d2be0e7ff5ff89ad968`)
+  - Timestamp: 2026-11-09T10:32:44.223Z
+  - Tool: Codex
+  - Model: gpt-6.1-sol
+  - Open Dough release: 0.3.92 (installed source-freshness command; unchanged managed guidance)
+  - Evidence: Native session `01a1beb7-a487-7fd0-989e-e7d2ab99461d`, terminal call `call_1d5dbd7a47274ae6ad7c75c7303c324e` returned `refused/not-taken-at-base` at `db8ca909986425b77080466a47ba4ff8079040b0`. At 10:34:10Z, `git merge-base --all HEAD origin/main` (the preserved graph is `50f4f4f1` versus `1c784a6d6`) returned that SHA and accepted Take `8554eb19e1b0944f7261120ff38af38de5f40ab0`; trunk `1c784a6d6` and the Take both held this Taken story. Current source-freshness.mjs still uses one merge-base.
+  - Observed effect: The gate withheld the done boundary; read-only graph/backlog inspection diagnosed the mismatch. Published-main integration `fcf4c0041` made trunk the common base; the 11:03:46Z receipt returned unchanged for story/plan. No guard bypass or managed-copy edit occurred.
+  - Inference: A merge base is not necessarily the accepted Take when history-preserving sibling imports produce several best bases. Use the retained claim context or resolve all bases safely; do not waive source drift checking. Diagnosis/recovery are observed; later V2-contract proof renewal is not attributed solely to this false refusal. Distinct from ODF-403's already-absorbed text conflict and ODF-169's stale publication suffix.

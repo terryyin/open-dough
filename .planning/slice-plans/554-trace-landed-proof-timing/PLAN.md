@@ -79,6 +79,13 @@ remains available. Retain one summary/attempt and bounded proof/references using
 the existing lifecycle. Scope reading after restart uses persisted proof and
 adds no acquisition; separately account for unchanged live comparison reads.
 
+## Execution complete
+
+Product advice: One ready test-maintenance follow-up,
+[SEED-289#consolidate-landed-proof-recovery](../560-consolidate-landed-proof-recovery/PLAN.md),
+preserves every meaningful assertion in one restart journey. Preserve current
+queue priorities. No production defect or ADR conflict was found.
+
 ## Verification and delivery gates
 
 Use the installed execution workflow, independent refactor, consumer trace,
