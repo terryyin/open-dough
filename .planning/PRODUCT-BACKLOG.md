@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Distinguish test cases and test files in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof) — SEED-281#distinguish-test-cases-and-files-in-ci-proof ([plan](slice-plans/547-distinguish-test-cases-and-files-in-ci-proof/PLAN.md))
 - [Make machine-local project configuration test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data) — SEED-261#map-project-configuration-test-data ([plan](slice-plans/540-map-project-configuration-test-data/PLAN.md))
 - [Make Intent location, source and candidate test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data ([plan](slice-plans/548-map-intent-and-ci-proof-test-data/PLAN.md))
-- [Keep Done story Intent pinned to the landed result](seeds/SEED-283-keep-done-story-intent-pinned.md#keep-done-story-intent-pinned) — SEED-283#keep-done-story-intent-pinned ([plan](slice-plans/550-keep-done-story-intent-pinned/PLAN.md))
 
 ## Backlog list
 
