@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-275_align-story-tabs-records.json",
+      "identity": "SEED-275#align-story-tabs-records",
+      "completedAt": "2026-11-09T00:46:58.979Z",
+      "blob": "a8e2db7ca66347e8f18f6fc362fee749cd289770"
+    },
+    {
       "fileName": "SEED-262_share-done-catalog-record-reading.json",
       "identity": "SEED-262#share-done-catalog-record-reading",
       "completedAt": "2026-11-08T23:49:54.428Z",
