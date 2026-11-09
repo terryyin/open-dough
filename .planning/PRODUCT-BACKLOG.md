@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 - [Read distinct attempts, an adapter’s selection, and waits a mean hides](seeds/SEED-284-optimize-tests-from-ci-proof.md#read-distinct-attempts-and-hidden-waits) — SEED-284#read-distinct-attempts-and-hidden-waits ([plan](slice-plans/559-read-distinct-attempts-and-hidden-waits/PLAN.md))
-- [Settle trunk freshness before expensive proof and before delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof) — SEED-010#hold-delivery-on-freshness-before-expensive-proof ([plan](slice-plans/561-settle-trunk-freshness-before-proof/PLAN.md))
 
 ## Backlog list
 

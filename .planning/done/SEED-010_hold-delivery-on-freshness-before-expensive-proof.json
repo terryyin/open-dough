@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-010#hold-delivery-on-freshness-before-expensive-proof",
+  "title": "Settle trunk freshness before expensive proof and before delivery",
+  "completedAt": "2026-11-09T23:41:46.102Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "report": "**Caught — direct acceptance keeps the early freshness route.**\n\nStory: SEED-010#hold-delivery-on-freshness-before-expensive-proof, revision `82a87e059e61ea6a8f4f7fb351e3c8bbd766f907`.\nPromise: planned Story Branch acceptance reaches freshness settlement before dependent refactoring and expensive proof.\n\nIn an isolated detached scratch checkout, removed only the early-settlement instruction from `src/skills/dough-execute-plan/references/wrap-up.md#accept-proof`, leaving the actual Markdown fixture and assertions otherwise unchanged. This makes the direct acceptance entry omit its prerequisite. The maintained `source-freshness-guidance.test.mjs` test “planned Story Branch returns settle freshness before acceptance and refactoring” reached and failed `assert.ok(acceptance.includes(settlementLink))`.\n\nCommand: `PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh src/skills/dough-execute-plan/scripts/source-freshness-guidance.test.mjs`.\nBaseline passed; fault failed at the intended assertion; exact source restoration and the same command passed. Git status matched the original clean state, and the scratch worktree was removed. This demonstrates navigation-test protection, not native host adherence.\n\nTest runtime: measured runner job seconds — baseline 0.1s, fault 0.1s, restored 0.1s.\nHuman effort: unavailable; no separately measured human work for this check.\nAgent effort: unavailable; no separate token or active-time accounting.\n\n\n- **Invocation-to-report elapsed.** 64639 ms (measured), from 1794267580780 to 1794267645419 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n"
+  }
+}

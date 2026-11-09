@@ -147,7 +147,7 @@ and [plan 331](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a807
 installed execution and owned-repair guidance selecting the guarded fresh path,
 withholding dependent work after local failure, and retaining legitimate
 already-published recovery. Native acceptance is pending. The ordering extension also covers
-[SEED-010 freshness settlement](SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof).
+[SEED-010 freshness settlement](https://github.com/terryyin/open-dough/blob/82a87e059e61ea6a8f4f7fb351e3c8bbd766f907/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof).
 
 **Scope and evaluation:** Use installed guidance in a disposable repository
 with project-resolved requirements, real Git/hooks and an authorized local bare
