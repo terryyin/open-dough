@@ -38,6 +38,10 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import {
+  ConfiguredProjectBuilder,
+  PublishedSourceBuilder,
+} from "./projectConfigurationTestData.mjs";
 import { releaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
@@ -46,7 +50,6 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
-/** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -85,16 +88,10 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aPublishedSource() {
-    return {
-      /** @param {Omit<PublishedSource, "ref" | "backlogPath"> & Partial<Pick<PublishedSource, "ref" | "backlogPath">>} facts */
-      with({
-        ref = "main",
-        backlogPath = ".planning/PRODUCT-BACKLOG.md",
-        ...facts
-      }) {
-        return { please: () => ({ ...facts, ref, backlogPath }) };
-      },
-    };
+    return new PublishedSourceBuilder();
+  },
+  get aConfiguredProject() {
+    return new ConfiguredProjectBuilder();
   },
   /** @returns {FactBuilder<PublishedRevision>} */
   get aPublishedRevision() {

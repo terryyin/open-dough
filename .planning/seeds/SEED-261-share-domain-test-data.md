@@ -149,165 +149,83 @@ gain needs measurement.
 Effort is relative. The four conversion blocks are large, with scope and sizing to refine against real
 consumers. No calibrated story effort bands are established.
 
-<a id="map-project-configuration-test-data"></a>
-
-### Make machine-local project configuration test setup map directly to the domain
-
-**Identity:** SEED-261#map-project-configuration-test-data
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/540-map-project-configuration-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0f90a5ca633c93868256435472a2f159e1801b84f1d22cc2bec9fb900f58d290","plan":"27d4042f05b3192fc2b42b7a1d60dd86b6e52c92bc72e93b8424742594455da0"}}
-```
-
-#### Goal
-
-Maintainers can see which projects a test configures, which published source
-each project reads, and which checkout the machine uses. Use shared MakeMe
-setup so the same configuration facts can be read and changed consistently
-across dashboard tests.
-
-#### Scope
-
-- Arrange valid synthetic entries in `projects-development.json` and
-  `projects-production.json` through a shared builder typed against
-  [ConfiguredProject](../../dashboard/server/projectConfiguration.ts). Keep
-  project order, environment, repository and ref, local path, and visibility
-  explicit wherever they drive the case. Remove displaced constructors or
-  have their harnesses delegate the data construction to MakeMe.
-- Cover the ordered saved catalog, configured predecessors for project
-  admission and settings, and the Sessions replay catalog. Keep real server
-  seeding, Add, Hide and Remove operations, Git checkout setup, and fake
-  GitHub responses at their existing boundaries. The default development
-  harness can reuse the real production seed for its ordinary starting list.
-- Preserve literal malformed, wrong-shape and empty-file examples, exact
-  Add inputs, write faults, and independent assertions. Keep any saved bytes
-  captured from a real operation as evidence. Project configuration selects
-  a published source and supplies a machine-local path. Source-only fixtures,
-  published Intent settings, launch records, and session evidence have their
-  own scope.
-
-#### Key examples
-
-1. A saved production catalog puts Zebra on `trunk` before Apple on
-   `default`. The dashboard starts and restarts with Zebra selected, reads
-   the configured repository and ref, and preserves the saved file.
-   Development and production each read their own environment's list.
-   An existing empty or malformed file retains its bytes and still gives
-   the corresponding empty or error result.
-2. A valid saved project already claims the repository or project ID in a
-   different case. Adding the same repository or ID is refused with the
-   predecessor intact.
-3. A configured long checkout path is shown in settings even at narrow
-   width, while the published project list omits checkout paths.
-4. The Sessions replay starts with six configured projects and their real
-   test checkouts. The server reads the same ordered sources, resolves their
-   configured paths to the checkouts holding 44 linked worktrees, and keeps
-   the existing open, Done, and history listing proof.
-
-<a id="map-intent-and-ci-proof-test-data"></a>
-
-### Make Intent location, source and candidate test setup map directly to the domain
-
-**Identity:** SEED-261#map-intent-and-ci-proof-test-data
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/548-map-intent-and-ci-proof-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a4b05455de5da3815abd369668726dd1e44525cc07195e10701c9619bf79b0d8","plan":"a3f68b06d31d1590d5fd98b9148d5f0bb48bc8ac20e990a9fd4395948cde8d0c"}}
-```
-
-#### Goal
-
-Maintainers reviewing Intent tests can see which locations a project
-declares, which published files each location selects at a revision, and
-which Test Optimization Candidates the project records, in the vocabulary of
-the product's settings, locations answer and candidates record. The same
-declaration or record reads the same way in integrated journeys, backend and
-frontend specs, and Node support tests, so a change to one of these contracts
-is followed in one place.
-
-#### Scope
-
-- Arrange valid Intent settings in `.planning/open-dough.json` through
-  `makeMe.intentSettings` and `makeMe.anIntentLocation`: a location's path,
-  its kind with optional include patterns or its source entries with
-  optional syntax, and its label when the case shows one. Publish them as
-  JSON with the project's other files at the published revision through the
-  existing published-file harness. Replace the per-fixture settings strings
-  in the Intent browse, Gherkin, candidates, boundary and story-worktree
-  fixtures, and the settings written inline in Intent specs.
-- Build a locations answer, a declared location with the files it selects
-  at a revision and its problem when one applies, through the same location
-  builder wherever a backend, frontend or Node test arranges that answer
-  instead of observing it. Type the frontend service substitute's locations
-  and candidates answers against the product's answers. Derive the
-  candidates' configured inventory with the product's
-  [`inventoryFromIntentLocations`](../../dashboard/src/intentCandidatesLocationMatch.ts)
-  instead of restating it.
-- Build Test Optimization Candidates records through
-  `makeMe.aTestOptimizationCandidatesRecord`, extended for entries in each
-  finding section with the facts a case states. Replace the hand-written
-  record Markdown in the Intent candidates fixtures and the backend
-  candidates read spec, and remove the suite-local `candidateRecordEntry`.
-- Keep literal what a case proves by its exact form: malformed, empty or
-  unreadable settings; declarations the reader must ignore, such as a
-  non-string label, unsafe or empty include patterns, and malformed source
-  entries; mismatched or partial record Markdown; recorded location
-  references matched as written; and authored test sources and Gherkin
-  features whose syntax, lines or wording are the subject. Independent
-  expectations stay as they are.
-- Keep real server reads, published-file serving, Git worktrees, fake GitHub
-  answers and injected read faults at their existing boundaries.
-- Scope limits: GitHub Actions runs, CI adapter attempts and coverage, and
-  CI proof data belong to the sibling stories below. In a mixed case, such as
-  a journey that publishes Intent settings and serves CI, convert the Intent
-  facts here and leave the CI setup for its story. Settings, locations and
-  candidates contracts and UI behavior do not change.
-- Evaluate each converted case against its original: the facts that drive
-  each outcome stay visible, assertions catch the same failure, and the shared
-  setup removes a translation or a second model.
-
-#### Key examples
-
-1. An Open Dough-shaped project declares `dashboard/tests` TypeScript specs
-   and `tests` shell checks. Intent lists both locations with their published
-   files. The test states both locations through MakeMe, the settings are
-   published from that value, and the expected tree is written independently.
-2. A project declares a usable Gherkin location, a missing path, an empty
-   folder, a `java` kind and a JavaScript location with include patterns.
-   The locations read lists the usable files and marks `no-matching-files`
-   and `unsupported-kind` as before. All five come from MakeMe with those
-   facts visible. A label of `42` or a malformed `sources` list that a case
-   proves is ignored stays literal JSON in that case.
-3. A candidates record holds a pending candidate naming a file by `path:line`
-   and an accepted necessary cost naming a case by `path::case`. MakeMe builds
-   the record with those entries, and opening each from Optimization
-   Candidates positions Purpose as before. An empty record still shows its
-   four sections with `None.`, and a record with a different heading stays
-   literal Markdown.
-4. The recorded-location matcher derives its configured inventory from
-   answered locations built through MakeMe, and the story overlay and the
-   frontend service substitute use the same answered-location shape. The
-   recorded reference strings stay literal.
-
 <a id="map-github-actions-ci-test-data"></a>
 
 ### Make GitHub Actions run and attempt-job test setup map directly to the domain
 
 **Identity:** SEED-261#map-github-actions-ci-test-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/553-map-github-actions-ci-test-data/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the unchanged fast-forward comparison test failed its default 30000 ms timeout under contention. The admitted baseline, MakeMe conversion, discrimination and restored observations never started while another full suite held admission. Reproduce and repair the test or environment as needed, and verify that exact probe under maintained admission before clearing readiness."],"basis":{"document":"020372126b3f29db6e96113e19edff485aa62977d8a84f3b6364094cbd2294e4","plan":"e37e297ec9b31389c20ad136c51cf5886858012e58ba23610592121ffa486033"}}
 ```
 
-**Scope and value.** Convert the GitHub Actions workflow runs, run attempts
-and attempt jobs that tests arrange for a checked revision: dashboard base-CI
-judgment, CI status and story CI comparison endpoints (`CiRunAnswer`, `wall`,
-`actionsRunsAnswer` and the `storyCiComparison*` fixtures), the execution
-skill's GitHub observation, reuse and integrated-state fixtures, and the Node
-support revision lookups (about 33 files). A reviewer can see which run and
-attempt a case checks, at which revision, with what conclusion and timing.
+#### Goal
 
-**Evaluation and stopping point.** Real Git histories, fake GitHub routing,
-request counting, held or failing reads and controlled clocks stay in the
-harness. Queued, in-progress, cancelled and missing runs stay distinct from a
-completed verdict. Suite-local run constructors are removed or delegate to
-MakeMe.
+Maintainers can read which GitHub Actions run and attempt a test checks, at
+which revision, with which conclusion and timing, in the same vocabulary
+across dashboard and execution tests. Shared MakeMe setup owns those arranged
+facts so a domain change has one construction rule and preserves the existing
+independent behavioral proof.
+
+#### Scope
+
+- Convert valid synthetic workflow runs, run attempts and attempt jobs in
+  dashboard base-CI judgment, Intent CI status and story comparisons, the
+  execution skill's GitHub observation, reuse and integrated-state fixtures,
+  and Node support revision selection. Include indirect consumers of the
+  shared run and job factories. Remove displaced constructors or have their
+  harnesses delegate to MakeMe.
+- Align the existing `aCiRun` with the production GitHub observation contract
+  instead of the dashboard's suite-local `CiRunAnswer`. Keep actual GitHub
+  REST responses and observed run/current-attempt projections distinct,
+  reusing the existing API encoding seam. State revision, run and attempt
+  identity, branch, event, conclusion and times at the call site whenever
+  they drive the case. Preserve repository and workflow ownership in reuse.
+- Preserve pending, queued, in-progress, cancelled, skipped, absent and
+  completed outcomes as distinct facts. An earlier completed attempt and a
+  current rerun keep their separate identities. Synthetic job setup states
+  the facts the consumer needs; no new restriction on opaque identities or
+  absent timing follows from conversion.
+- Keep real Git histories and executed commands, fake GitHub routing,
+  pagination, request counting, held or failing reads, controlled clocks,
+  process lifetime and teardown in the harness. Keep captured job timestamps,
+  log text, malformed/partial responses and exact encoder-input examples
+  literal where their form is under proof. Expectations stay independent.
+- CI adapter attempts, queue and coverage records, and CI proof fragments and
+  summaries belong to the sibling stories. In mixed fixtures, convert the
+  GitHub run/job facts only. This story changes test construction and exposed
+  mapping mistakes; it makes no new UI, provider-contract or CI-policy promise.
+
+#### Key examples
+
+1. A run at the checked revision is in progress while a strict ancestor has
+   completed. Base-CI judgment and revision lookup keep the running and
+   completed evidence distinct, use only eligible ancestor results, and do
+   not mistake a sibling or queued rerun for a completed verdict. For one run
+   whose latest attempt is cancelled, an earlier completed timed attempt at
+   that same revision remains selectable.
+2. A listed run 41, attempt 1, starts at 10:00 and completes at 10:03 for the
+   shown revision. Intent shows that attempt and CI wall time 3 min; absent
+   timing remains unavailable. A cancelled latest attempt does not erase an
+   earlier completed result's usable time.
+3. A story's Branch and Landed results refer to the same attempt. The
+   comparison retains the correct baseline and both endpoint identities,
+   shows the same attempt-job timing, and reads the shared attempt's jobs
+   once. A refused read can recover; settled evidence stops further reads.
+4. A workflow is still running when one attempt's job fails, or a failed
+   earlier attempt is discovered after a later success. The observer keeps
+   that failure actionable with its own run, attempt and job evidence,
+   including a failing job on a second page. Diagnostic log evidence remains
+   the original text.
+5. An exact-revision run has successful direct job proof with matching
+   repository, workflow and context. Reuse selects its current attempt; a
+   newer pending rerun or a changed/partial read chooses fresh execution.
+   A later successful retry can qualify, preserving an opaque source run ID
+   separately from the target's own completion.
+6. Accepted B has a `not_required` basis and no run; descendant C executes the
+   declared check successfully. With the integrated-state policy, the
+   observer can validate B at C while retaining B's own basis. Without that
+   policy B stays unresolved, and B's own failure remains a failure beside
+   C's green. Git ancestry and the command producing C's result stay real.
 
 <a id="map-ci-adapter-and-coverage-test-data"></a>
 

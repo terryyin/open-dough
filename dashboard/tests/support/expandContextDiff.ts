@@ -2,6 +2,7 @@
 // changes on a card prepared with expandContextWorktree.
 
 import type { Locator, Page } from "@playwright/test";
+import { openReview } from "./reviewRead.ts";
 import { expandContextFile } from "./storyReviewWorktree.ts";
 
 export const expandFirstHunk = "@@ -51,7 +51,7 @@ line 50";
@@ -18,8 +19,7 @@ export const expandFirstHunkPrinted = [
 ];
 
 export async function openExpandDiff(page: Page, card: Locator) {
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = await openReview(page, card);
   const fileName = `Modified ${expandContextFile}`;
   const diff = review.getByRole("region", { name: fileName });
   const gap = (name: string) => diff.getByRole("list", { name });

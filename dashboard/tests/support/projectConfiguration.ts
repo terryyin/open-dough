@@ -50,23 +50,3 @@ export function configureDevelopmentProjects(home: string): void {
     if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
   }
 }
-
-// Saved projects unlike the initial catalog, with deliberate order and custom facts.
-export const customSavedProjects = [
-  {
-    id: "zebra",
-    label: "Zebra",
-    repository: "example/zebra",
-    ref: "trunk",
-    backlogPath: ".planning/PRODUCT-BACKLOG.md",
-    localPath: "~/work/zebra",
-  },
-  {
-    id: "apple",
-    label: "Apple",
-    repository: "example/apple",
-    ref: "default",
-    backlogPath: ".planning/PRODUCT-BACKLOG.md",
-    localPath: "~/elsewhere/apple",
-  },
-];

@@ -7,7 +7,8 @@
 // ./storyCiComparisonTakenFixture.ts; entry-proof Answers in
 // ./storyCiComparisonEntryProofs.ts; history readers in
 // ./storyCiComparisonHistory.ts and workflow files in
-// ./storyCiComparisonWorkflows.ts, re-exported here.
+// ./storyCiComparisonWorkflows.ts, re-exported here; the GitHub requests a
+// comparison read asked in ./storyCiComparisonRequests.ts.
 
 import type { ReportedAttemptJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
@@ -25,7 +26,6 @@ import {
   type ComparisonProofServe,
 } from "./storyCiComparisonEntryProofs.ts";
 import type { ActionsAnswerer, CommittedOrigin } from "../committedOrigin.ts";
-import type { GhCall } from "./fakeGitHub.ts";
 import {
   commitComparisonCiWorkflow,
   comparisonWorkflow,
@@ -69,18 +69,6 @@ export function wall(
 }
 
 type AttemptJobs = Record<string, readonly ReportedAttemptJob[]>;
-
-export function listedAttemptJobPages(calls: readonly GhCall[]): string[] {
-  return calls
-    .flatMap(({ request }) =>
-      request.kind === "actions-attempt-jobs"
-        ? [
-            `${String(request.runId)}/${String(request.attempt)}/${String(request.page)}`,
-          ]
-        : [],
-    )
-    .sort();
-}
 
 export type StoryCiComparisonSetup = {
   readonly identity: string;

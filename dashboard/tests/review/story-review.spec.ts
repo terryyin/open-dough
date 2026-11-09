@@ -19,7 +19,7 @@ import {
   reviewBody,
 } from "../support/reviewContextLine.ts";
 import { shownLineNumbers } from "../support/reviewLineNumbers.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import {
@@ -59,18 +59,16 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await expect(review).toContainText(`Story review ${queuedIdentity}`);
   await expect(reviewBody(review)).toBeFocused();
   const files = review.getByRole("list", { name: "7 changed files" });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual([
-      "fresh",
-      "  new.txt",
-      "gone.txt",
-      "image.png",
-      "new.txt",
-      "staged.txt",
-      "story.txt",
-      "unstaged.txt",
-    ]);
+  await expectTreeRows(files, [
+    "fresh",
+    "  new.txt",
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "staged.txt",
+    "story.txt",
+    "unstaged.txt",
+  ]);
   // Each file's control says its kind and full path in words.
   const fileNames = [
     "Added fresh/new.txt",

@@ -16,15 +16,38 @@ export function readAfterTouchFrame(reading: TouchReading) {
   });
 }
 
+// Whether a scrolling element has reported `scrollend` since this record of
+// it began: the page has then applied every movement of the gesture.
+type ScrollEnding = JSHandle<{ readonly ended: Promise<boolean> }>;
+
+function scrollEndingOf(scroller: Locator): Promise<ScrollEnding> {
+  return scroller.evaluateHandle((element) => ({
+    ended: new Promise<boolean>((resolve) => {
+      element.addEventListener(
+        "scrollend",
+        () => {
+          resolve(true);
+        },
+        { once: true },
+      );
+    }),
+  }));
+}
+
 // Send native finger movement explicitly: Linux Chromium's synthesized scroll
 // can deliver only touchstart/end. Split long drags into feasible in-view
-// strokes. No DOM scroll position is assigned to supply the result.
+// strokes. No DOM scroll position is assigned to supply the result. Given the
+// element every stroke scrolls (`scroller`), each stroke ends only once that
+// element reports `scrollend`: the browser acknowledges a lift before the
+// page has applied the stroke's last movement, so a reading place read
+// sooner can be a move short.
 export async function scrollByTouch(
   page: Page,
   area: Locator,
   distance: number,
   axis: "vertical" | "horizontal" = "vertical",
   untilShown?: TouchReading,
+  scroller?: Locator,
 ) {
   const bounds = await box(area);
   const browser = await page.context().newCDPSession(page);
@@ -59,6 +82,8 @@ export async function scrollByTouch(
     let timestamp = Date.now() / 1000 - strokes * (duration + 0.1);
     for (let stroke = 0; stroke < strokes; stroke += 1) {
       let shown = false;
+      const ending =
+        scroller === undefined ? undefined : await scrollEndingOf(scroller);
       await browser.send("Input.dispatchTouchEvent", {
         type: "touchStart",
         touchPoints: [point(0)],
@@ -81,6 +106,15 @@ export async function scrollByTouch(
         touchPoints: [],
         timestamp,
       });
+      if (ending !== undefined) {
+        await expect
+          .poll(
+            () => ending.evaluate(({ ended }) => ended),
+            "the stroke's scrolling comes to rest",
+          )
+          .toBe(true);
+        await ending.dispose();
+      }
       if (shown) return;
     }
   } finally {

@@ -7,7 +7,7 @@ import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
 import { markedWorktree, sixth } from "../support/storyReviewTrunk.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 
 test("a file renamed before and after conflicted integration stays flagged with its original old path and diff", async ({
   page,
@@ -52,9 +52,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
     name: "1 changed file",
     exact: true,
   });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["src", "  e.ts includes trunk's changes"]);
+  await expectTreeRows(files, ["src", "  e.ts includes trunk's changes"]);
   const name = "Renamed src/c.ts → src/e.ts, includes trunk's changes";
   await files.getByRole("button", { name, exact: true }).click();
   await expect(files.locator(".story-review-line-counts")).toHaveText("+1 −1", {

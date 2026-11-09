@@ -7,11 +7,12 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
+  expectTreeRows,
   nestedTreeRows,
   treeFolder,
-  treeRows,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { nestedWorktree } from "../support/storyReviewWorktree.ts";
@@ -28,7 +29,7 @@ test("a story's review folders collapse and expand", async ({
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });
   const files = review.getByRole("list", { name: "6 changed files" });
-  await expect(files).toBeVisible();
+  await expect(files).toBeVisible({ timeout: storyReviewWaitMs });
 
   await test.step("a collapsed folder hides its rows and tells its count, and expanding restores them as they were", async () => {
     // A nested folder collapsed first stays collapsed inside its parent.
@@ -42,16 +43,14 @@ test("a story's review folders collapse and expand", async ({
     await expect(
       treeFolder(review, "dashboard 3 changed files"),
     ).toHaveAttribute("aria-expanded", "false");
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual([
-        "dashboard 3 changed files",
-        "docs/adrs/drafts",
-        "  0009-tree.md",
-        "new",
-        "  a.ts",
-        "README.md",
-      ]);
+    await expectTreeRows(files, [
+      "dashboard 3 changed files",
+      "docs/adrs/drafts",
+      "  0009-tree.md",
+      "new",
+      "  a.ts",
+      "README.md",
+    ]);
     // The row shows the number; the words after it are read aloud only.
     const count = treeFolder(review, "dashboard 3 changed files").locator(
       ".story-review-folder-count",
@@ -73,26 +72,24 @@ test("a story's review folders collapse and expand", async ({
       "aria-expanded",
       "true",
     );
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual([
-        "dashboard",
-        "  server 1 changed file",
-        "  src",
-        "    a.tsx",
-        "    b.ts",
-        "docs/adrs/drafts",
-        "  0009-tree.md",
-        "new",
-        "  a.ts",
-        "README.md",
-      ]);
+    await expectTreeRows(files, [
+      "dashboard",
+      "  server 1 changed file",
+      "  src",
+      "    a.tsx",
+      "    b.ts",
+      "docs/adrs/drafts",
+      "  0009-tree.md",
+      "new",
+      "  a.ts",
+      "README.md",
+    ]);
     await treeFolder(review, "server 1 changed file").press("Enter");
     await expect(treeFolder(review, "server")).toHaveAttribute(
       "aria-expanded",
       "true",
     );
-    await expect.poll(() => treeRows(files)).toEqual(nestedTreeRows);
+    await expectTreeRows(files, nestedTreeRows);
   });
 
   await test.step("collapsing the folder holding the selected file keeps its diff", async () => {
@@ -127,22 +124,20 @@ test("a story's review folders collapse and expand", async ({
     writeFileSync(path.join(workspace, "scripts", "x.mjs"), "x\n");
     await review.getByRole("button", { name: "Refresh" }).click();
     const refreshed = review.getByRole("list", { name: "7 changed files" });
-    await expect
-      .poll(() => treeRows(refreshed))
-      .toEqual([
-        "dashboard",
-        "  server 1 changed file",
-        "  src",
-        "    a.tsx",
-        "    b.ts",
-        "docs/adrs/drafts",
-        "  0009-tree.md",
-        "new",
-        "  a.ts",
-        "scripts",
-        "  x.mjs",
-        "README.md",
-      ]);
+    await expectTreeRows(refreshed, [
+      "dashboard",
+      "  server 1 changed file",
+      "  src",
+      "    a.tsx",
+      "    b.ts",
+      "docs/adrs/drafts",
+      "  0009-tree.md",
+      "new",
+      "  a.ts",
+      "scripts",
+      "  x.mjs",
+      "README.md",
+    ]);
     await expect(treeFolder(review, "server 1 changed file")).toHaveAttribute(
       "aria-expanded",
       "false",
@@ -158,14 +153,12 @@ test("a story's review folders collapse and expand", async ({
     await expect(review).toHaveCount(0);
     await card.getByRole("button", { name: "Review changes" }).click();
     const reopened = review.getByRole("list", { name: "7 changed files" });
-    await expect
-      .poll(() => treeRows(reopened))
-      .toEqual([
-        ...nestedTreeRows.slice(0, -1),
-        "scripts",
-        "  x.mjs",
-        "README.md",
-      ]);
+    await expectTreeRows(reopened, [
+      ...nestedTreeRows.slice(0, -1),
+      "scripts",
+      "  x.mjs",
+      "README.md",
+    ]);
     for (const name of [
       "dashboard",
       "server",

@@ -31,6 +31,7 @@ import {
   summaryTextZipAnswer,
 } from "../support/ciProofCollected.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 test("a published CI summary for a sources location shows its group and file results at their paths", async ({
   page,
@@ -51,7 +52,7 @@ test("a published CI summary for a sources location shows its group and file res
     )
     .please();
   const ci = publishStoryCi(page, {
-    ".planning/open-dough.json": `${JSON.stringify(settings)}\n`,
+    ".planning/open-dough.json": intentSettingsText(settings),
     [shellTest]: "#!/usr/bin/env bash\n",
     [nodeTest]: "export {};\n",
   });

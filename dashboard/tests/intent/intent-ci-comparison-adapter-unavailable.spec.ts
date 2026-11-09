@@ -6,6 +6,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { landedAdapterComparisonAnswers } from "../support/storyCiComparisonAdapterAnswers.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
+import { checkComparisonAgain } from "../support/storyCiComparisonRetry.ts";
 
 test("unavailable adapter timing keeps the build, wall time and proof in a final comparison", async ({
   page,
@@ -86,12 +87,8 @@ test("unavailable adapter timing keeps the build, wall time and proof in a final
   // Every slot is a completed build. Later valid graphs cannot replace the
   // timing reasons in a final answer when the same comparison is read again.
   adapter.answer(answers);
-  const rechecked = page.waitForResponse(
-    (answer) =>
-      new URL(answer.url()).searchParams.get("intent") === "ci-comparison",
-  );
-  await panel.getByRole("button", { name: "Check again" }).click();
-  expect(await (await rechecked).json()).toMatchObject({
+  const rechecked = await checkComparisonAgain(page, panel);
+  expect(await rechecked.json()).toMatchObject({
     baseline: { timeWithoutRunnerWaits: { reason: rows[0].reason } },
     branch: { timeWithoutRunnerWaits: { reason: rows[1].reason } },
     landed: { timeWithoutRunnerWaits: { reason: rows[2].reason } },
