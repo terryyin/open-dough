@@ -3,8 +3,10 @@
 // precise A/B/C times, count differences and change kinds, including a test
 // file only the story's integration merge edited, and returns directly to the
 // story's CI comparison (../../src/intentStoryTabs.tsx), Changed tests keeping
-// the file and Proof for the way back. Added and unchanged files keep Proof; story-free source Purpose and judged-run Proof
-// are in ./intent-file-purpose-proof.spec.ts.
+// the file and Proof for the way back. Added, renamed-across-units and
+// unchanged files keep Proof. Landed unchanged source is covered in
+// ./intent-summary-story-comparison-source.spec.ts; story-free Purpose and
+// judged-run Proof are in ./intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
@@ -16,7 +18,6 @@ import {
   expectObservedNotAttributed,
 } from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
 import {
   fileReadingTab,
@@ -39,7 +40,7 @@ import {
   expectFileComparisonRow,
   mergeEditedFileRow,
   modifiedFileRow,
-  unchangedFileRow,
+  renamedFileRow,
 } from "../support/summaryComparisonFileExpectedRows.ts";
 
 const releases: (() => void)[] = [];
@@ -168,6 +169,32 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       ).toHaveText(summaryComparisonChanges.added);
     });
 
+    if (variant === undefined)
+      await test.step("a file renamed from a shell check's test file into a Playwright test case keeps each endpoint's own time, with no change, mark or cue across units", async () => {
+        await intentFile(intent, summaryComparisonChanges.renamed).click();
+        await fileReadingTab(intent, "Proof").click();
+        const renamedProof = proofRegion(intent);
+        await expectFileComparisonRow(
+          renamedProof,
+          "dashboard/tests/renamed.spec.ts",
+          renamedFileRow,
+        );
+        await expectProofRowCues(
+          renamedProof,
+          "dashboard/tests/renamed.spec.ts",
+          {
+            count: "none",
+            duration: "none",
+            countReason: "units not comparable",
+            durationReason: "units not comparable",
+          },
+        );
+        await expect(renamedProof.locator(".intent-ci-time-mark")).toHaveCount(
+          0,
+        );
+        await fileReadingTab(intent, "Purpose").click();
+      });
+
     if (variant !== undefined)
       await test.step("a test file only the integration merge edited shows that edit and keeps Proof", async () => {
         const editedRead = nextDiff("dashboard/tests/folder/nested/c.spec.ts");
@@ -191,54 +218,5 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         );
         await fileReadingTab(intent, "Purpose").click();
       });
-  });
-
-  test(`a done story's unchanged file reads its landed source and compact Proof with ${variant ?? "clean merges"}`, async ({
-    page,
-    origin,
-  }) => {
-    const setup = await publishSummaryComparisonStory(page, origin, variant);
-    const unchangedReads: string[] = [];
-    page.on("request", (request) => {
-      const url = new URL(request.url());
-      if (
-        url.pathname === authenticatedReadEndpoint &&
-        url.searchParams.get("path") === "dashboard/tests/root.spec.ts"
-      )
-        unchangedReads.push(url.searchParams.get("revision") ?? "");
-    });
-    const { intent } = await selectDoneStoryForChangedTests(page);
-    await intentFile(intent, "dashboard/tests/root.spec.ts").click();
-    await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    const purposeOnly = purposeRegion(intent);
-    await expect(purposeOnly).toContainText("root 11");
-    await expect(purposeOnly.locator(".intent-source-meta")).toContainText(
-      `at revision ${setup.completion.slice(0, 7)}`,
-    );
-    expect(unchangedReads).toEqual([setup.completion]);
-    await expect(
-      intentFile(intent, "dashboard/tests/later.spec.ts"),
-    ).toHaveCount(0);
-    await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
-    await expect(purposeOnly.getByRole("table")).toHaveCount(0);
-    await fileReadingTab(intent, "Proof").click();
-    await untilPageReadsAnswered(page);
-    const rootProof = proofRegion(intent);
-    await expectFileComparisonRow(
-      rootProof,
-      "dashboard/tests/root.spec.ts",
-      unchangedFileRow,
-    );
-    if (variant === undefined) {
-      await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
-        count: "none",
-        duration: "none",
-        countReason: "unchanged",
-        durationReason: "unchanged",
-      });
-    }
   });
 }

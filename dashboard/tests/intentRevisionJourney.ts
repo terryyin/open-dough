@@ -21,6 +21,7 @@ import {
   publishedFeature,
   settings,
 } from "./intentJobsFeatureFixtures.ts";
+import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
 // The jobs feature and another feature under the location.
 export const jobsFeatures = {
@@ -50,7 +51,7 @@ export function intentReads(page: Page) {
 // Pygardon's published files with Intent locations and `features`.
 export const publishedFiles = (features: Readonly<Record<string, string>>) => ({
   ...pygardon.files,
-  ".planning/open-dough.json": `${settings}\n`,
+  ".planning/open-dough.json": intentSettingsText(settings),
   ...features,
 });
 

@@ -41,6 +41,7 @@ import path from "node:path";
 import type { ReviewMark, StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
+import { fetchGitTarget } from "./gitTargetFetch.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { storyCommits } from "./storyReviewCommits.ts";
 import { compareReviewPoints, listedFrom } from "./storyReviewComparison.ts";
@@ -85,9 +86,7 @@ export async function storyReviewSnapshot(
     );
   }
   try {
-    await git(["fetch", "--quiet", remote, target], {
-      GIT_TERMINAL_PROMPT: "0",
-    });
+    await fetchGitTarget(remote, target, { ...call, signal });
   } catch (error) {
     return unavailable(
       `Trunk could not be fetched (target ${target} from remote ${remote}), so there is no baseline to compare with: ${gitProblem(error)}`,

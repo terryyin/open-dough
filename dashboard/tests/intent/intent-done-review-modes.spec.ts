@@ -79,13 +79,17 @@ test("switching the open review between live workspace and Done Intent waits for
   }
   await parts(page).development.click();
   await showColumn(page, "Recently done");
+  const ordinary = card.getByRole("button", { name: "Review changes" });
+  // Focus reveals its column using the remounted Board's current width.
+  await ordinary.focus();
+  await expect(ordinary).toBeInViewport();
   const heldLive = await holdNextReviewResponse(
     page,
     dashboard.origin,
     storyReviewEndpoint,
   );
   try {
-    await card.getByRole("button", { name: "Review changes" }).click();
+    await ordinary.click();
     expect(await (await heldLive.ready).json()).toMatchObject({
       kind: "snapshot",
     });
@@ -104,7 +108,5 @@ test("switching the open review between live workspace and Done Intent waits for
     await heldLive.delivery;
   }
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(ordinary).toBeFocused();
 });

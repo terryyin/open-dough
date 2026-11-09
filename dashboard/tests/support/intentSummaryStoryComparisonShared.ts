@@ -5,6 +5,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
+import { intentSettingsText } from "./intentSettingsFile.ts";
 import { intentSettings } from "./intentStoryWorktree.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
@@ -21,7 +22,7 @@ export const summaryComparisonChanges = {
 export function publishSummaryComparisonTrunk(project: string) {
   writeRevisionFiles(project, {
     files: {
-      ".planning/open-dough.json": intentSettings,
+      ".planning/open-dough.json": intentSettingsText(intentSettings),
       "dashboard/tests/folder/a.spec.ts": lines("a"),
       "dashboard/tests/folder/nested/c.spec.ts": lines("c"),
       "dashboard/tests/root.spec.ts": lines("root"),

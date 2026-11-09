@@ -465,3 +465,20 @@ selects no new implementation story.
   - Evidence: The slice 4 implementer's focused selection timed out on `dashboard/tests/review/story-review-story-branch-landed.spec.ts:27` at 31.7, 32.4 and 34.4 s under load averages of 21 to 27 from other worktrees' Playwright runs. Base `9f5e2f29` passed at 16.8 to 29.1 s in a temporary worktree, and the change passed at 13.2 to 28.2 s. The spec drives a real start, `history-preserving-publication.mjs integrate` and retirement. It passed in both later full gates (2241 and 2257 passed) at lower load.
   - Observed effect: Three focused failures that the change did not cause, plus base and diff comparison runs to show that.
   - Inference: The journey's unloaded time is about half its timeout, so external load alone can push it past 30 s. Splitting the setup from the reviewed reading, or reusing a prepared integration, would restore margin. Load attribution rests on start and end load readings only (see DD-275).
+
+## Whole local suites under external load fail untouched journeys (open, unqueued)
+
+<a id="dd-476"></a>
+
+### DD-476 — Whole local suites at load 13–36 spent hours on load-only failures, and one hung job held the shared admission
+
+### Occurrences
+
+- Execution: SEED-261#map-project-configuration-test-data (plan 540-map-project-configuration-test-data, first implementation commit eefe28d82a86fdf380d0c0de63ce66ccb32886e5)
+  - Timestamp: unknown (2026-11-09, whole runs from 10:03 to 16:12 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: Plan 540 required whole `npm test` and `npm run test:dashboard` before final delivery. At load 13–36 (a VM near 110% CPU plus other worktrees' suites), `npm test` passed 524/524 and 525/525 in 19 and 23 minutes. Dashboard runs failed 4 of 2,262 (68 min) and 8 of 2,271 (72 min) in journeys the change did not reach; the 8 failed files passed 16/16 at one worker. A merged-state `npm test` hung 47 minutes in `tests/support/local-test-suite-lifecycle.test.mjs` while holding `refs/dough/local-test-suite`; it was ended, and its `fs.watch` gate observation was repaired in `31fc793ac`. `scripts/test.sh` sets no per-job deadline. Hosted CI passed three of the four slice revisions.
+  - Observed effect: about 5.5 hours of whole-suite time and two developer decisions; the gate was finally judged by one-worker reruns and hosted CI.
+  - Inference: at this load the local whole-suite verdict mostly measures the machine; DD-473 is one such journey. Without a per-job deadline, a hung job blocks every worktree's whole runs. SEED-287 and SEED-286 address the journeys' cost.

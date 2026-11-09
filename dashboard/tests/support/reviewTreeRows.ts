@@ -6,8 +6,9 @@
 // out (../review/story-review-line-counts.spec.ts reads them).
 
 import { expect, type Locator } from "@playwright/test";
+import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 
-export const treeRows = (list: Locator) =>
+const treeRows = (list: Locator) =>
   list.evaluate((root) => {
     const rows: string[] = [];
     const walk = (folder: Element, depth: number) => {
@@ -24,6 +25,15 @@ export const treeRows = (list: Locator) =>
     walk(root, 0);
     return rows;
   });
+
+// The file browser `list` shows `rows`. The list is named by its count of
+// changed files, so it appears once the review has read that comparison,
+// which the boundary may take up to its read bound to answer; its rows then
+// follow the folders' disclosures.
+export async function expectTreeRows(list: Locator, rows: readonly string[]) {
+  await expect(list).toBeAttached({ timeout: storyReviewWaitMs });
+  await expect.poll(() => treeRows(list)).toEqual(rows);
+}
 
 // A folder's disclosure in the review, by its accessible name: the folder's
 // name, followed by its count while collapsed.

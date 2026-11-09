@@ -11,11 +11,13 @@ scope: unknown
 
 ## Why This Matters
 
-Maintainers need host-specific evidence for premise-verification and one-shot guidance. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) says evidence from one host does not transfer to another. The Cursor one-shot result is recorded in [SEED-028](SEED-028-track-ad-hoc-work.md#story-decomposition). The Pygardon premise miss is recoverable at `24b5cbc1a821382d38b726d6079ac55e01635391:.planning/seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding`.
+Maintainers need host-specific evidence for premise-verification and one-shot guidance. [ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) says evidence from one host does not transfer to another. The Pygardon premise miss is recoverable at `24b5cbc1a821382d38b726d6079ac55e01635391:.planning/seeds/SEED-044-verify-planning-premises.md#name-the-feature-that-runs-moved-seeding`.
 
-## Stories
+## Pending release acceptance
 
-The Cursor acceptance story is closed. Its evidence remains recoverable from the commit before this cleanup. The shared cases below stay because later premise work still uses them.
+The [0.3.67 release exception](../../CHANGELOG.md#0367---2026-10-21) left both
+requirements pending on Codex, Cursor, and Claude Code. Their remaining scope
+and evidence are recorded here for affected releases under ADR 0005.
 
 <a id="quiet-dashboard-completion"></a>
 
@@ -144,8 +146,7 @@ and [plan 331](https://github.com/terryyin/open-dough/blob/60c164841e0ca9178a807
 **For / outcome:** Developers using Codex, Cursor, or Claude Code can rely on
 installed execution and owned-repair guidance selecting the guarded fresh path,
 withholding dependent work after local failure, and retaining legitimate
-already-published recovery. This is an unqueued acceptance candidate; it grants
-no native-run, queue assignment, or implementation authority.
+already-published recovery. Native acceptance is pending.
 
 **Scope and evaluation:** Use installed guidance in a disposable repository
 with project-resolved requirements, real Git/hooks and an authorized local bare
@@ -228,19 +229,13 @@ implement, commit, push, or publish. Transcripts and written plans are under
 
 ## Shared one-shot cases
 
-[Claude Code's accepted evidence](SEED-028-track-ad-hoc-work.md#story-decomposition)
-covers `publication/one-shot-result`, `publication/one-shot-queued`,
-`publication/admission-investigation` and `publication/one-shot-escalation`.
-The [Cursor](#native-acceptance-cursor) story retains acceptance of these
-cases on its own host.
+[SEED-028's acceptance evidence](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-028-track-ad-hoc-work.md#story-decomposition)
+records the Claude Code and Cursor results for `publication/one-shot-result`,
+`publication/one-shot-queued`, `publication/admission-investigation` and
+`publication/one-shot-escalation`. The
+[release history](../../CHANGELOG.md) records the completed Codex acceptance.
 ADR 0005 requires acceptance before ordinary release of affected behavior.
-The [release history](../../CHANGELOG.md) records explicit maintainer exceptions
-that shipped this behavior with native acceptance still pending; those
-exceptions establish neither a pass nor closure of these requirements.
-
-## Priority and regrouping
-
-Keep the Cursor acceptance story in its backlog position; unrelated entries keep their order.
+Earlier release exceptions document the proof that was pending at the time.
 
 ## Breadcrumbs
 

@@ -13,6 +13,7 @@ import {
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { expect, test } from "../support/preparationPage.ts";
+import { refreshAndRead } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import {
@@ -149,7 +150,7 @@ test("opening, closing, refreshing, and replacing a review marks nothing", async
   await expect(review).toHaveCount(0);
   await openStoryReview(page, cardA);
   await unmarked();
-  await review.getByRole("button", { name: "Refresh" }).click();
+  await refreshAndRead(review);
   await expect(review.getByRole("status").first()).toHaveText(
     /^Review refreshed:/,
   );

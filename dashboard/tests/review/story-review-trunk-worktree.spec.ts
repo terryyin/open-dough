@@ -18,7 +18,7 @@ import { storyReviewMarkEndpoint } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { contextValues, contextWords } from "../support/reviewContextLine.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   comparison,
@@ -69,11 +69,10 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
         workspace: "~/git/open-dough/.worktrees/trunk-a",
       }),
     );
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "2 changed files" })),
-      )
-      .toEqual(["notes.md", "slice.txt"]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "2 changed files" }),
+      ["notes.md", "slice.txt"],
+    );
     await review.getByRole("radio", { name: "Commits", exact: true }).check();
     await expect(commits).toHaveCount(2);
     await expect(commits.first()).toHaveText("Uncommitted changes");
@@ -97,11 +96,10 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
     expect(published.baseline).not.toBe(published.head);
     expect(published.commits).toEqual([]);
     expect(published.uncommitted).toBeDefined();
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "2 changed files" })),
-      )
-      .toEqual(["notes.md", "slice.txt"]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "2 changed files" }),
+      ["notes.md", "slice.txt"],
+    );
     await review.getByRole("radio", { name: "Commits", exact: true }).check();
     await expect(commits).toHaveText(["Uncommitted changes"]);
     await review
@@ -125,10 +123,8 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
       .getByRole("radio", { name: "Since the review" })
       .check();
     await expectSinceTheReview(review, keptStoryAMark(dashboard));
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "1 changed file" })),
-      )
-      .toEqual(["a.ts"]);
+    await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+      "a.ts",
+    ]);
   });
 });

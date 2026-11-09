@@ -1,6 +1,8 @@
 // Default substitute answers for frontend-only app journeys: projects,
 // backlog, files, machine, and host status the page reads on open.
 
+import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
+import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
@@ -12,6 +14,7 @@ import {
   testOptimizationCandidatesPath,
 } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { intentSettingsText } from "./intentSettingsFile.ts";
 
 export const frontendRevision = openDough.revision;
 
@@ -50,7 +53,7 @@ const frontendPublished = backlogApart(
         },
         files: {
           [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
-          ".planning/open-dough.json": openDoughSettings,
+          ".planning/open-dough.json": intentSettingsText(openDoughSettings),
           ".planning/seeds/SEED-A-taken.md": `# Taken\n\n<a id="a"></a>\n\n### ${takenStory}\n\n**Identity:** SEED-A#a\n`,
           ".planning/seeds/SEED-B-ready.md": `# Ready\n\n<a id="b"></a>\n\n### ${readyStory}\n\n**Identity:** SEED-B#b\n\n**Goal:** Ready goal.\n`,
           ".planning/seeds/SEED-C-queued.md": `# Queued\n\n<a id="c"></a>\n\n### ${notRefinedStory}\n\n**Identity:** SEED-C#c\n`,
@@ -68,8 +71,8 @@ export type FrontendServiceState = {
   revision: string;
   backlog: string;
   files: Record<string, string>;
-  locations: unknown;
-  candidates: unknown;
+  locations: IntentLocationsAnswer;
+  candidates: IntentCandidatesAnswer;
   machine: MachineAnswer;
   hostStatus: HostStatus | undefined;
   hostOptions: unknown;
@@ -90,12 +93,11 @@ export function defaultFrontendServiceState(
     locations: {
       revision: frontendRevision,
       locations: [
-        {
-          path: "dashboard/tests",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
-          files: ["dashboard/tests/example.spec.ts"],
-        },
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting("dashboard/tests/example.spec.ts")
+          .please(),
       ],
       recovery: undefined,
     },
@@ -126,7 +128,7 @@ export function putFrontendHostStatus(
 
 export function putFrontendCandidates(
   services: FrontendServiceState,
-  candidates: unknown,
+  candidates: IntentCandidatesAnswer,
 ): void {
   Object.assign(services, { candidates });
 }

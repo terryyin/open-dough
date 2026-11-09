@@ -14,7 +14,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { openProjectIntent, returnToStory } from "../intentModePage.ts";
 import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
-import { entryProofs } from "../support/storyCiComparisonEntryProofs.ts";
+import { entryProofs } from "../support/storyCiComparisonEntrySummaries.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { rowNames, sortButton } from "../support/expectSortedColumns.ts";

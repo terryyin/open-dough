@@ -3,6 +3,7 @@ import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
 import { projectAddMachine } from "../support/projectAddMachine.ts";
 import { settings, back } from "../support/systemSettingsPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -100,14 +101,14 @@ test("long configured facts reflow at narrow width and 200 percent zoom with key
   writeFileSync(
     file,
     JSON.stringify([
-      {
-        id: "long-project",
-        label: "Long Project",
-        repository,
-        localPath,
-        ref: "main",
-        backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      },
+      makeMe.aConfiguredProject
+        .with({
+          id: "long-project",
+          label: "Long Project",
+          repository,
+          localPath,
+        })
+        .please(),
     ]),
   );
   const server = await fixture.start("preview");

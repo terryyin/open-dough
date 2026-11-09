@@ -25,6 +25,7 @@ import {
   reviewBody,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
+import { expectReviewRead, openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import {
@@ -51,8 +52,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   const { workspace, trunk } = unchangedWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = await openReview(page, card);
   await expect(contextValues(review)).toHaveAccessibleName(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
@@ -187,8 +187,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = await openReview(page, card);
   const files = review.getByRole("list", { name: "7 changed files" });
   await expect(files).toBeVisible();
   const refresh = review.getByRole("button", { name: "Refresh" });
@@ -198,6 +197,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   const unreachable = `${origin.machine}/unreachable.git`;
   git(workspace, "config", "remote.origin.url", unreachable);
   await refresh.press("Enter");
+  await expectReviewRead(review);
   const status = reviewFeedback(review);
   await expect(status).toContainText(
     "Trunk could not be fetched (target main from remote origin), so there is no baseline to compare with:",
@@ -209,6 +209,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
 
   git(workspace, "config", "remote.origin.url", reachable);
   await refresh.press("Enter");
+  await expectReviewRead(review);
   // The list, named by its seven files, is back.
   await expect(files).toBeVisible();
   await expect(status).not.toContainText("could not be fetched");

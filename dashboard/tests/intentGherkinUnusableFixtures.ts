@@ -3,6 +3,7 @@
 // Doughnut-like and Pygardon-like projects.
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const doughnut = {
   ...catalogPublications.doughnut,
@@ -19,14 +20,15 @@ export const usableFeature = `Feature: Usable
     Given a working location
 `;
 
-export const mixedSettings = JSON.stringify({
-  intent: {
-    locations: [
-      { path: "e2e_test/features", kind: "gherkin" },
-      { path: "no_such_dir", kind: "gherkin" },
-      { path: "empty_features", kind: "gherkin" },
-      { path: "frontend/src", kind: "java" },
-      { path: "scripts", kind: "javascript", include: ["**/*.test.mjs"] },
-    ],
-  },
-});
+export const mixedSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation.at("e2e_test/features").ofKind("gherkin").please(),
+    makeMe.anIntentLocation.at("no_such_dir").ofKind("gherkin").please(),
+    makeMe.anIntentLocation.at("empty_features").ofKind("gherkin").please(),
+    makeMe.anIntentLocation.at("frontend/src").ofKind("java").please(),
+    makeMe.anIntentLocation
+      .at("scripts")
+      .ofKind("javascript", ["**/*.test.mjs"])
+      .please(),
+  )
+  .please();

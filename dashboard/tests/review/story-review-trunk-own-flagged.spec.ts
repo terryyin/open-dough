@@ -15,7 +15,7 @@ import {
   contextValues,
   contextWords,
 } from "../support/reviewContextLine.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   nextSnapshot,
@@ -121,7 +121,7 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
     expect(later.published).toEqual({ trunk, commits: 2 });
     expect(flags(later.files)).toEqual(allFlaggedFrom(beforeStory));
     const files = review.getByRole("list", { name: "4 changed files" });
-    await expect.poll(() => treeRows(files)).toEqual(allRows);
+    await expectTreeRows(files, allRows);
     await expect(
       files
         .getByRole("button", { name: flagged })
@@ -149,9 +149,12 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
     ]);
     await uncommittedCheck(review).uncheck();
     const files = review.getByRole("list", { name: "3 changed files" });
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual(["src", "  a.ts", "  c.ts includes trunk's changes", "d.md"]);
+    await expectTreeRows(files, [
+      "src",
+      "  a.ts",
+      "  c.ts includes trunk's changes",
+      "d.md",
+    ]);
     await files.getByRole("button", { name: flagged }).press("Enter");
     await expectFlaggedDiff();
   });
@@ -177,7 +180,7 @@ test("a flagged file two story commits changed is diffed from trunk before the o
   expect(snapshot.published).toEqual({ trunk, commits: 3 });
   expect(flags(snapshot.files)).toEqual(allFlaggedFrom(beforeStory));
   const files = review.getByRole("list", { name: "4 changed files" });
-  await expect.poll(() => treeRows(files)).toEqual(allRows);
+  await expectTreeRows(files, allRows);
   await expect(
     files
       .getByRole("button", { name: flagged })

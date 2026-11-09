@@ -11,6 +11,7 @@ import {
   summarize,
   summaryArtifactName,
 } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import type { CiProofFile } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 
 // The collector is untyped JavaScript; this names the one result it gives.
@@ -36,11 +37,44 @@ type Counts = {
   readonly other: number;
 };
 
+// What one part's results are counted in: test cases, test files, or
+// legacy results, `{ legacy: label }` naming the label their unit was
+// spelled with.
+export type ProofUnit = "case" | "file" | { readonly legacy: string };
+
+// A part's file breakdown, as a fragment made `--by-file` carries it: one
+// aggregate per path inside its entry and how many counted results recorded
+// no duration.
+export type ProofBreakdown = {
+  readonly files: readonly CiProofFile[];
+  readonly untimed: number;
+};
+
 // One part's counts for one entry: [entry, part, of, unit, counts], with an
-// optional sixth durationMs (summed test execution time for that part).
+// optional sixth durationMs (summed test execution time for that part) and
+// a seventh file breakdown.
 export type ProofPart =
-  | readonly [string, number, number, string, Counts]
-  | readonly [string, number, number, string, Counts, number];
+  | readonly [string, number, number, ProofUnit, Counts]
+  | readonly [string, number, number, ProofUnit, Counts, number]
+  | readonly [
+      string,
+      number,
+      number,
+      ProofUnit,
+      Counts,
+      number | undefined,
+      ProofBreakdown,
+    ];
+
+// One declaration: an entry and its part count, and the unit its parts are
+// counted in when it declares one.
+export type ProofDeclaration =
+  readonly [string, number] | readonly [string, number, "case" | "file"];
+
+const unitOf = (unit: ProofUnit) =>
+  typeof unit === "string"
+    ? { unit }
+    : { unit: "legacy" as const, label: unit.legacy };
 
 export const counts = (passed: number, failed = 0, other = 0): Counts => ({
   passed,
@@ -49,10 +83,10 @@ export const counts = (passed: number, failed = 0, other = 0): Counts => ({
 });
 
 // The summary the collector writes for `run` from `parts`, declaring
-// `expect` (`<entry>` and its part count, in declaration order).
+// `expect` (`<entry>`, its part count and any unit, in declaration order).
 export function proofSummary(
   run: ProofRun | AdapterProofAttempt,
-  expect: readonly (readonly [string, number])[],
+  expect: readonly ProofDeclaration[],
   parts: readonly ProofPart[],
 ): unknown {
   const attempt =
@@ -61,19 +95,27 @@ export function proofSummary(
       : { attempt: run.attempt };
   const { summary } = (summarize as unknown as SummarizeFragments)({
     fragments: parts.map((proofPart, index) => {
-      const [entry, part, of, unit, partCounts, durationMs] = proofPart;
+      const [entry, part, of, unit, partCounts, durationMs, breakdown] =
+        proofPart;
       return {
         source: `fragment-${String(index)}.json`,
         value: fragment(
           { part, of, ...attempt, revision: run.revision },
           entry,
-          unit,
+          unitOf(unit),
           partCounts,
-          durationMs === undefined ? {} : { durationMs },
+          {
+            ...(durationMs === undefined ? {} : { durationMs }),
+            ...breakdown,
+          },
         ) as unknown,
       };
     }),
-    expect: expect.map(([entry, declared]) => ({ entry, parts: declared })),
+    expect: expect.map(([entry, declared, unit]) => ({
+      entry,
+      parts: declared,
+      ...(unit === undefined ? {} : { unit }),
+    })),
     run: {
       repository: run.repository,
       ...("attemptId" in run ? {} : { runId: run.runId }),

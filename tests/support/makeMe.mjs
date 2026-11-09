@@ -4,7 +4,11 @@
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
-import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import {
+  CiProofEntryBuilder,
+  CiProofEvidenceBuilder,
+} from "./ciProofEntryTestData.mjs";
+import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -36,18 +40,20 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
-import { release } from "./releaseTestData.mjs";
+import {
+  ConfiguredProjectBuilder,
+  PublishedSourceBuilder,
+} from "./projectConfigurationTestData.mjs";
+import { releaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
+import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
-/** @typedef {import("./releaseTestData.mjs").Release} Release */
-/** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
-/** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
@@ -76,16 +82,10 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aPublishedSource() {
-    return {
-      /** @param {Omit<PublishedSource, "ref" | "backlogPath"> & Partial<Pick<PublishedSource, "ref" | "backlogPath">>} facts */
-      with({
-        ref = "main",
-        backlogPath = ".planning/PRODUCT-BACKLOG.md",
-        ...facts
-      }) {
-        return { please: () => ({ ...facts, ref, backlogPath }) };
-      },
-    };
+    return new PublishedSourceBuilder();
+  },
+  get aConfiguredProject() {
+    return new ConfiguredProjectBuilder();
   },
   /** @returns {FactBuilder<PublishedRevision>} */
   get aPublishedRevision() {
@@ -114,37 +114,10 @@ export const makeMe = {
     };
   },
   get aSupplierAgreement() {
-    return {
-      /** @param {Omit<SupplierAgreement, "implementation" | "rationale" | "condition"> & Partial<Pick<SupplierAgreement, "implementation" | "rationale" | "condition">>} facts */
-      with({
-        supplier,
-        implementation = "Shared endpoint interpretation",
-        rationale = "The supplier must deliver the endpoint contract before this story can validate its consumer behavior; normal reconciliation cannot supply the missing contract.",
-        condition = "The selected endpoint contract is completed and integrated.",
-        ...facts
-      }) {
-        return {
-          please: () => ({
-            supplier: { identity: supplier.identity, href: supplier.href },
-            implementation,
-            rationale,
-            condition,
-            ...facts,
-          }),
-        };
-      },
-    };
+    return supplierAgreementBuilder;
   },
   get aRelease() {
-    return {
-      /** @param {import("./releaseTestData.mjs").ReleaseFacts} facts */
-      with(facts) {
-        return {
-          /** @returns {Release} */
-          please: () => release(facts),
-        };
-      },
-    };
+    return releaseBuilder;
   },
   get aDoneRecord() {
     return new DoneRecordBuilder();
@@ -207,6 +180,12 @@ export const makeMe = {
   },
   get aCiProofEntry() {
     return new CiProofEntryBuilder();
+  },
+  get aCiProofEvidence() {
+    return new CiProofEvidenceBuilder();
+  },
+  get aCiProofFragment() {
+    return new CiProofFragmentBuilder();
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();

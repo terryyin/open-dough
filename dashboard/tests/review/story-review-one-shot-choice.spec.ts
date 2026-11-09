@@ -1,6 +1,7 @@
 // Every retained run is a keyboard choice beside the marked live workspace.
 import { test, expect, stored } from "../support/codexStart.ts";
 import { reviewChoices, addLiveEdit } from "../support/oneShotReviewChoices.ts";
+import { refreshAndRead } from "../support/reviewRead.ts";
 import { openCapturedReview } from "../support/oneShotReview.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import {
@@ -29,7 +30,7 @@ test("keyboard choices show each retained captured or legacy run beside the live
   const mark = keptStoryAMark(dashboard);
   const refs = reviewedRefs(origin.project);
   addLiveEdit(choices.workspace);
-  await review.getByRole("button", { name: "Refresh" }).click();
+  await refreshAndRead(review);
   await expect(review).toContainText(
     "Review refreshed: 1 changed file since the review",
   );

@@ -10,6 +10,17 @@ import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 
+export function installedBacklogScript(
+  workspace: string,
+  skillsDirectory = ".claude/skills",
+) {
+  return path.join(
+    workspace,
+    skillsDirectory,
+    "dough-product-backlog/scripts/product-backlog.mjs",
+  );
+}
+
 export function resolveStoryConflict(
   workspace: string,
   mergeArguments: readonly string[],
@@ -40,6 +51,7 @@ export function publishCompletedStory(
     completionConflict,
     intentCoverage,
     retainWorkspace,
+    skillsDirectory,
     identity = queuedIdentity,
   }: {
     workspace: string;
@@ -49,6 +61,7 @@ export function publishCompletedStory(
     completionConflict: boolean;
     intentCoverage?: IntentCoverage | undefined;
     retainWorkspace?: boolean | undefined;
+    skillsDirectory?: string | undefined;
     identity?: string;
   },
 ) {
@@ -68,10 +81,7 @@ export function publishCompletedStory(
   execFileSync(
     process.execPath,
     [
-      path.join(
-        workspace,
-        ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
-      ),
+      installedBacklogScript(workspace, skillsDirectory),
       "complete",
       "--file",
       ".planning/PRODUCT-BACKLOG.md",

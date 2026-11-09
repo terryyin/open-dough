@@ -1,16 +1,16 @@
 // One common literal file diff serves workspace and fixed historical comparisons.
 // The same admission also answers revision-consistent file text at those trees.
 import type { ServerResponse } from "node:http";
-import type {
-  ReviewedFileDiff,
-  ReviewedFileText,
+import {
+  storyReviewWaitMs,
+  type ReviewedFileDiff,
+  type ReviewedFileText,
 } from "../src/storyReviewContract.ts";
 import type { AdmittedReviewedFile } from "./storyReviewAdmission.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 const outputLimit = 64 * 1024 * 1024;
-const reviewWaitMs = 60_000;
 
 type SideRead =
   | { readonly kind: "absent" }
@@ -109,7 +109,7 @@ export async function storyReviewFileResponse(
           };
         }
       },
-      reviewWaitMs,
+      storyReviewWaitMs,
     ),
   };
 }
@@ -141,7 +141,7 @@ export async function storyReviewFileTextResponse(
           tree: atTree.kind === "text" ? atTree.text : null,
         };
       },
-      reviewWaitMs,
+      storyReviewWaitMs,
     ),
   };
 }

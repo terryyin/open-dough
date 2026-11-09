@@ -20,10 +20,10 @@ const part = (number, extra = {}) => ({
   ...extra,
 });
 
-// An entry at PATH from PARTS, its counts the sum of theirs.
+// An entry at PATH whose test cases are PARTS, its counts the sum of theirs.
 const entryOf = (path, parts) => ({
   path,
-  unit: "tests",
+  unit: "case",
   passed: parts.reduce((sum, p) => sum + (p.passed ?? 0), 0),
   failed: parts.reduce((sum, p) => sum + (p.failed ?? 0), 0),
   other: 0,

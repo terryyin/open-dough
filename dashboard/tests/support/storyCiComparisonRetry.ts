@@ -1,11 +1,14 @@
 // Shared helpers for recovering an unavailable done-story CI timing
 // comparison (../intent/intent-ci-comparison-retry.spec.ts): the Actions
-// request a `gh` call asks, the comparison's Check again, the browser's
-// comparison and proof reads, and a done Trunk Mode story whose Baseline
-// listing a test answers.
+// request a `gh` call asks, the comparison's Check again and the read it
+// starts, the browser's comparison and proof reads, and a done Trunk Mode
+// story whose Baseline listing a test answers.
 
 import type { Locator, Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import {
+  authenticatedReadEndpoint,
+  readWaitLimitMs,
+} from "../../src/authenticatedReadRules.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { actionsRunsAnswer, actionsWorkflowAnswer } from "./baseCiActions.ts";
@@ -29,16 +32,30 @@ export function listedHeadSha(argv: readonly string[]): string | undefined {
 export const checkAgainOf = (panel: Locator) =>
   panel.getByRole("button", { name: "Check again", exact: true });
 
+const intentOf = (url: string) =>
+  url.includes(authenticatedReadEndpoint)
+    ? new URL(url).searchParams.get("intent")
+    : null;
+
+// Clicks the comparison's Check again and returns the answer to the
+// comparison read it starts. Like selecting the story
+// (./selectDoneStoryForCiComparison.ts), a fresh read walks many head_sha
+// lookups, so it waits through the shared read bound.
+export async function checkComparisonAgain(page: Page, panel: Locator) {
+  const answered = page.waitForResponse(
+    (response) => intentOf(response.url()) === "ci-comparison",
+    { timeout: readWaitLimitMs + 15_000 },
+  );
+  await checkAgainOf(panel).click();
+  return await answered;
+}
+
 // Comparison and proof reads the browser finished, a hold on the next
 // comparison reads until released, and a refusal of the next one.
 export async function watchComparisonReads(page: Page) {
   const finished = { comparison: 0, proof: 0 };
   let held: Promise<void> | undefined;
   let refused = false;
-  const intentOf = (url: string) =>
-    url.includes(authenticatedReadEndpoint)
-      ? new URL(url).searchParams.get("intent")
-      : null;
   page.on("requestfinished", (request) => {
     const intent = intentOf(request.url());
     if (intent === "ci-comparison") finished.comparison += 1;

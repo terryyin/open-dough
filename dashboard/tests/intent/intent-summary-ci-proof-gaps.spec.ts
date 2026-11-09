@@ -71,11 +71,11 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
   await expectScopeRows(summary, "dashboard/tests", [
     [
       "dashboard/tests",
-      "2 passed tests",
+      "2 passed test cases",
       "Part 3 missing",
       `2 of 3 parts present; ${missing}`,
     ],
-    ["folder/", "1 passed tests", "Part 3 missing, Part 2 no breakdown"],
+    ["folder/", "1 passed test case", "Part 3 missing, Part 2 no breakdown"],
     ["added.spec.ts", "no CI result", "no CI result"],
     ["root.spec.ts", "no CI result", "no CI result"],
   ]);
@@ -123,7 +123,7 @@ test("an entry-only summary keeps entry totals and labels the child breakdown un
       - listitem: No file breakdown , This CI proof summary does not break tests down by file
   `);
   await expectScopeRows(summary, "tests", [
-    ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
+    ["tests", "2 passed test files", "3.0 s", "1 of 1 part present"],
     ["root.sh", "no file breakdown", "no file breakdown"],
   ]);
   await childName(summary, "root.sh").click();

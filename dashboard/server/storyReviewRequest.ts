@@ -33,6 +33,12 @@ export type AdmittedStoryReview =
   | AdmittedWorkspaceReview
   | {
       readonly kind: "story-review";
+      readonly historical: PublishedSource;
+      readonly identity: string;
+      readonly runs: readonly ReviewLandedRun[];
+    }
+  | {
+      readonly kind: "story-review";
       readonly published: PublishedSource;
       readonly identity: string;
       readonly runs: readonly ReviewLandedRun[];
@@ -83,16 +89,19 @@ export async function storyReviewRequest(
     throw new RefusedRequest(400, "The review names two run identities.");
   if (found.run !== undefined)
     return { kind: "story-review", run: found.run, runs: found.runs };
+  if (historical === "true")
+    return {
+      kind: "story-review",
+      historical: found.source,
+      identity: found.identity,
+      runs: found.runs,
+    };
   const fallback = preferredReviewRun(
     found.runs,
     ({ record }) => record.landing,
   );
   const { source, identity } = found;
-  // Historical Intent reads a completed result, never the retained workspace.
-  const resolved =
-    historical === "true"
-      ? undefined
-      : await resolvedWorkspace(source, identity, found.records);
+  const resolved = await resolvedWorkspace(source, identity, found.records);
   const readable =
     resolved?.kind === "workspace" &&
     directoryState(resolved.established.workspace).kind === "available";

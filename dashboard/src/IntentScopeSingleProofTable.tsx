@@ -1,24 +1,19 @@
 // Summary of one judged CI proof for a selected entry or folder
-// (`./IntentScopeProof.tsx`): the scope's own figures above a sortable table
-// of its immediate children and, when the proof has a file breakdown, the
-// outside row (kept last) with what it holds as short labels; an entry
-// without a file breakdown is labelled (`./IntentScopeSummaryRows.tsx`).
+// (`./IntentScopeProof.tsx`): the scope's own figures for each unit of
+// results it shows (`./ciScopeProof.ts` `unitResultsAt`) above a sortable
+// table of its immediate children, a row for each unit of results a child
+// shows, and, for each unit with a file breakdown, the outside row (kept
+// last) with what it holds as short labels; a unit without a file
+// breakdown is labelled (`./IntentScopeSummaryRows.tsx`).
 
 import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import type { CiProofEntry } from "./ciProof.ts";
-import {
-  ciProofCellsOf,
-  ciScopeCellsOf,
-  hasFileBreakdown,
-} from "./ciProofWording.ts";
-import {
-  immediateChildrenOf,
-  outsideOf,
-  scopeFiguresOf,
-} from "./ciScopeProof.ts";
+import { namesUnits, unitName } from "./ciProofUnits.ts";
+import { ciScopeCellsOf, unitCellsAt } from "./ciProofWording.ts";
+import { entryOutsidesOf, immediateChildrenOf } from "./ciScopeProof.ts";
 import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
 import {
-  childRowsOf,
+  childUnitRowsOf,
   NoBreakdownLabel,
   OutsideExplanation,
   outsideRowOf,
@@ -39,21 +34,29 @@ export function SingleProofTable({
   readonly sorting: CiProofSorting;
 }) {
   const children = immediateChildrenOf(path, inventory);
-  const outside = hasFileBreakdown(entry)
-    ? outsideOf(entry, path, children)
-    : undefined;
-  const own =
-    path === entry.path
-      ? ciProofCellsOf(entry)
-      : ciScopeCellsOf(entry, scopeFiguresOf(entry, path));
-  const rows = childRowsOf(children, onOpen, (child) =>
-    ciScopeCellsOf(entry, scopeFiguresOf(entry, child)),
+  const own = unitCellsAt(entry, path);
+  const rows = childUnitRowsOf(children, onOpen, (child) =>
+    unitCellsAt(entry, child).map((unit) => unit.cells),
   );
-  if (outside !== undefined)
-    rows.push(outsideRowOf(ciScopeCellsOf(entry, outside.figures)));
+  const outsides = entryOutsidesOf(entry, path, children);
+  outsides.forEach(({ evidence, outside }, at) => {
+    rows.push(
+      outsideRowOf(
+        ciScopeCellsOf(evidence, outside.figures, namesUnits(entry)),
+        at,
+      ),
+    );
+  });
   return (
     <>
-      <ScopeFigures path={path} cells={own} />
+      {own.map(({ evidence, cells }) => (
+        <ScopeFigures
+          key={evidence.unit}
+          path={path}
+          cells={cells}
+          {...(own.length > 1 ? { unit: unitName(evidence.unit) } : {})}
+        />
+      ))}
       <NoBreakdownLabel entry={entry} summary="This CI proof summary" />
       <CiProofTable
         label={scopeTableLabel(path)}
@@ -61,7 +64,7 @@ export function SingleProofTable({
         rows={rows}
         sorting={sorting}
       />
-      <OutsideExplanation entry={entry} path={path} outside={outside} />
+      <OutsideExplanation entry={entry} path={path} outsides={outsides} />
     </>
   );
 }

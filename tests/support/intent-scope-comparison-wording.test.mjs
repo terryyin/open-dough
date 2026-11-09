@@ -1,133 +1,150 @@
-// Counts and signed timing words for Intent's shared CI comparison
+// Count words for Intent's shared CI comparison
 // (../../dashboard/src/ciScopeComparisonCounts.ts,
-// ../../dashboard/src/ciProofTimeWords.ts,
-// ../../dashboard/src/storyCiComparisonWording.ts): count cells, the
-// percentage rule for measured non-zero baselines, and the overall sum with
-// units kept apart. Browser journeys:
-// ../../dashboard/tests/intent/intent-ci-comparison*.spec.ts.
+// ../../dashboard/src/ciScopeComparisonCountsCell.ts): a count cell's
+// difference only between totals of one declared unit, never across units,
+// from legacy results, of several units or from a unit an endpoint does not
+// report, which show both labelled ends and why (SEED-281 examples 38, 39).
+// Overall counts: ./intent-ci-comparison-overall-counts.test.mjs. Compared
+// rows per unit: ./intent-scope-comparison-units.test.mjs. Signed timing:
+// ./intent-scope-comparison-timing.test.mjs. Browser journeys:
+// ../../dashboard/tests/intent/intent-ci-comparison*.spec.ts and
+// intent-summary-story-comparison*.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  countsCellText,
-  measuredCountsChangeWords,
-} from "../../dashboard/src/ciScopeComparisonCounts.ts";
-import { overallCountsWords } from "../../dashboard/src/storyCiComparisonCountsWords.ts";
-import { scopeComparisonCellsOf } from "../../dashboard/src/ciScopeComparison.ts";
-import { makeMe } from "./makeMe.mjs";
+import { measuredCountsChangeWords } from "../../dashboard/src/ciScopeComparisonCounts.ts";
+import { countsCellText } from "../../dashboard/src/ciScopeComparisonCountsCell.ts";
 
-const measured = (total, unit = "tests") => ({
+const measured = (total, unit = "case") => ({
   kind: "measured",
   total,
+  failed: 0,
   unit,
 });
 
 test("count cells read before → after with the difference in parentheses", () => {
   assert.equal(
-    measuredCountsChangeWords(12, 10, "tests"),
-    "12 → 10 tests (−2)",
+    measuredCountsChangeWords(12, 10, "case"),
+    "12 → 10 test cases (−2)",
   );
-  assert.equal(measuredCountsChangeWords(6, 6, "tests"), "6 tests (no change)");
+  assert.equal(
+    measuredCountsChangeWords(6, 6, "case"),
+    "6 test cases (no change)",
+  );
   assert.equal(
     countsCellText(measured(12), measured(10), measured(10), true, true),
-    "12 → 10 tests (−2)",
+    "12 → 10 test cases (−2)",
   );
   assert.equal(
     countsCellText(
-      measured(5, "checks"),
-      measured(5, "checks"),
-      measured(5, "checks"),
+      measured(5, "file"),
+      measured(5, "file"),
+      measured(5, "file"),
       true,
       true,
     ),
-    "5 checks (no change)",
+    "5 test files (no change)",
   );
   assert.equal(
     countsCellText({ kind: "absent" }, measured(1), measured(1), true, false),
-    "added → 1 tests",
+    "added → 1 test case",
   );
 });
 
-test("overall counts keep tests and checks apart and say partial when a side is missing", () => {
-  const baseline = {
-    kind: "summary",
-    entries: [
-      makeMe.aCiProofEntry.at("dashboard/tests").counting(1098).please(),
-      makeMe.aCiProofEntry.at("tests").counting(982).please(),
-      makeMe.aCiProofEntry.at("scripts").counting(492, "checks").please(),
-    ],
-  };
-  const landed = {
-    kind: "summary",
-    entries: [
-      makeMe.aCiProofEntry.at("dashboard/tests").counting(1100).please(),
-      makeMe.aCiProofEntry.at("tests").counting(982).please(),
-      makeMe.aCiProofEntry.at("scripts").counting(492, "checks").please(),
-    ],
-  };
+test("a count difference exists only between totals of one declared unit: different units, legacy results and several units show each endpoint in its units and why there is none", () => {
+  // Once worded "5 → 1 checks (−4)", subtracting test files from test cases.
   assert.equal(
-    overallCountsWords(baseline, landed),
-    "2,080 → 2,082 tests (+2); 492 checks (no change)",
-  );
-  assert.equal(
-    overallCountsWords(baseline, {
-      kind: "unavailable",
-      line: "This run's CI proof summary has expired.",
-    }),
-    "Overall count partial: This run's CI proof summary has expired.",
-  );
-  assert.equal(
-    overallCountsWords(
-      { kind: "no-build", explanation: "Build is still running." },
-      landed,
+    countsCellText(
+      measured(5, "case"),
+      measured(1, "file"),
+      measured(1, "file"),
+      true,
+      true,
     ),
-    "Overall count partial: Build is still running.",
+    "5 test cases → 1 test file (different units)",
+  );
+  // Equal totals in different units are no "no change".
+  assert.equal(
+    countsCellText(
+      measured(6, "case"),
+      measured(6, "file"),
+      measured(6, "file"),
+      true,
+      true,
+    ),
+    "6 test cases → 6 test files (different units)",
+  );
+  // Equal legacy totals are not compared either.
+  assert.equal(
+    countsCellText(
+      measured(5, "legacy"),
+      measured(5, "legacy"),
+      measured(5, "legacy"),
+      true,
+      true,
+    ),
+    "5 legacy test results → 5 legacy test results (legacy unit unknown)",
+  );
+  const several = {
+    kind: "units",
+    counts: [measured(5, "case"), measured(1, "file")],
+  };
+  assert.equal(
+    countsCellText(measured(6, "legacy"), several, several, true, true),
+    "6 legacy test results → 5 test cases and 1 test file (legacy unit unknown)",
   );
   assert.equal(
-    overallCountsWords(
-      { kind: "summary", entries: [] },
-      { kind: "summary", entries: [] },
+    countsCellText(
+      measured(5, "case"),
+      measured(6, "case"),
+      measured(1, "file"),
+      true,
+      true,
     ),
-    "No overall count: neither compared build has a usable total.",
+    "5 test cases → 6 test cases → 1 test file (different units)",
+  );
+  // One measured end: the gap or "—" already says why.
+  assert.equal(
+    countsCellText(
+      measured(3, "legacy"),
+      { kind: "unreported" },
+      { kind: "unreported" },
+      true,
+      true,
+    ),
+    "3 legacy test results → —",
   );
 });
 
-test("every compared scope carries precise signed timing and its comparable values, while added and gaps keep their meaning", () => {
-  const summary = (...entries) => ({ kind: "summary", entries });
-  const timed = (path, ms) => makeMe.aCiProofEntry.at(path).timed(ms).please();
-  const before = summary(timed("s/file", 340), timed("s/zero", 0));
-  const after = summary(
-    timed("s/file", 410),
-    timed("s/zero", 70),
-    timed("s/added", 410),
+test("a unit Branch does not report keeps Landed's own difference from Baseline, and a unit Baseline does not report is no zero", () => {
+  assert.equal(
+    countsCellText(
+      measured(5),
+      { kind: "unreported" },
+      measured(7),
+      true,
+      true,
+    ),
+    "5 → — → 7 test cases (+2)",
   );
-  const cells = (path, precision = "precise") =>
-    scopeComparisonCellsOf(path, before, after, after, precision);
-  const precise = cells("s/file");
-  assert.deepEqual(precise.baseline, { text: "340 ms", ms: 340 });
-  assert.deepEqual(precise.branch, {
-    text: "+70 ms",
-    ms: 410,
-    changeMs: 70,
-    relative: 70 / 340,
-  });
-  assert.deepEqual(precise.landed, precise.branch);
-  assert.equal(cells("s/file", "whole-second").branch.text, "+0 s");
-  assert.deepEqual(cells("s/zero").branch, {
-    text: "+70 ms",
-    ms: 70,
-    changeMs: 70,
-  });
-  assert.deepEqual(cells("s/added").branch, { text: "410 ms", ms: 410 });
-  assert.deepEqual(
-    scopeComparisonCellsOf(
-      "s/file",
-      before,
-      { kind: "unavailable", line: "Proof expired" },
-      { kind: "no-build", explanation: "Build is still running." },
-      "precise",
-    ).branch,
-    { text: "Proof expired" },
+  assert.equal(
+    countsCellText(
+      { kind: "unreported" },
+      measured(1, "file"),
+      measured(1, "file"),
+      true,
+      true,
+    ),
+    "— → 1 test file",
   );
-  const absent = cells("s/absent");
-  assert.deepEqual(absent.branch, { text: "not in the compared builds" });
+  // A reported zero is a real zero.
+  assert.equal(
+    countsCellText(
+      measured(0, "file"),
+      measured(1, "file"),
+      measured(1, "file"),
+      true,
+      true,
+    ),
+    "0 → 1 test file (+1)",
+  );
 });

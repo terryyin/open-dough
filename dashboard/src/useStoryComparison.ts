@@ -1,10 +1,7 @@
-// A story's default comparison, read as Review changes reads it
-// (`./useStoryReviewSelection.ts`, `./useStoryReviewComparison.ts`) for a
-// view beside the story review: the run the review opens on, or a
-// workspace's all changes, including uncommitted ones. Whether a story has a
-// comparison to read follows `storyComparisonOffered`
-// (`./storyReviewWorkspace.ts`). Done Intent explicitly reads the completed
-// result even when the workspace still exists.
+// A story's default comparison follows the server's opening answer. Review
+// owns explicit run choices; Intent does not keep one over a newer default.
+// An active workspace shows all changes, including uncommitted work. Done
+// Intent reads the completed result even while that workspace remains.
 
 import {
   storyComparisonShown,
@@ -12,8 +9,8 @@ import {
 } from "./storyComparisonShown.ts";
 import type { RequestedComparison } from "./pageStoryReviews.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
+import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
-import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -44,21 +41,25 @@ export function useStoryComparison({
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
 } {
-  const { review, reading, problem, snapshot, selectedRun } =
-    useStoryReviewSelection({
-      source,
-      identity,
-      round,
-      completed,
-      enabled,
-      historical: completed,
-    });
+  const {
+    answer: review,
+    reading,
+    problem,
+  } = useDefaultStoryReview({
+    source,
+    identity,
+    round,
+    completed,
+    enabled,
+    historical: completed,
+  });
+  const snapshot = review?.kind === "snapshot" ? review : undefined;
   const { comparison, tree } = useStoryReviewComparison({
     source,
     identity,
     snapshot,
     ...defaultStoryComparison,
-    active: enabled && !completed && selectedRun === undefined,
+    active: enabled && !completed && review?.selectedRun === undefined,
   });
   if (!enabled)
     return {

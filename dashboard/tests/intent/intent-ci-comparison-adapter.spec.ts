@@ -147,7 +147,13 @@ for (const [landing, publish, landedHasProof] of [
       await expect(overallTiming).toHaveText("−15 s");
       await expectCueState(overallTiming, { duration: "faster-light" });
       await expectCiComparisonEntryRows(panel, [
-        ["tests", "5 → 8 tests (+3) → 7 tests (+2)", "3 s", "+2 s", "+1 s"],
+        [
+          "tests",
+          "5 → 8 test cases (+3) → 7 test cases (+2)",
+          "3 s",
+          "+2 s",
+          "+1 s",
+        ],
       ]);
     } else if (merged) {
       await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
@@ -156,7 +162,7 @@ for (const [landing, publish, landedHasProof] of [
       await expectCiComparisonEntryRows(panel, [
         [
           "tests",
-          "5 → 8 tests (+3)",
+          "5 → 8 test cases (+3)",
           "3 s",
           "+2 s",
           "This attempt's CI adapter gave no CI proof summary: no summary retained for this attempt.",
@@ -165,7 +171,7 @@ for (const [landing, publish, landedHasProof] of [
     } else {
       const gaps = panel.locator(".intent-ci-comparison-entries");
       await expect(gaps).toContainText(
-        "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1",
+        "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2",
       );
       for (const label of ["Branch", "Landed"])
         await expect(gaps).toContainText(

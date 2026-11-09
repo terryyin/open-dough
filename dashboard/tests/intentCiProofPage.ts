@@ -24,6 +24,7 @@ import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";
 import type { ProofRun } from "./support/ciProofArtifacts.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
+import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
 export const run: ProofRun = {
   repository: openDough.repository,
@@ -50,7 +51,7 @@ export async function openFailedRun(
     return judgment(call);
   };
   const published = publishProject(page, openDough, {
-    ".planning/open-dough.json": `${openDoughSettings}\n`,
+    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
     "dashboard/tests/browse.spec.ts": browseSpec,
   });
   published.serveCi(ci);

@@ -27,6 +27,7 @@ import {
   folderRow,
   chooseStoryTab,
   expectOutsideCount,
+  expectStoryComparisonRead,
   expectStoryTab,
   intentFile,
   selectTakenStoryInIntent,
@@ -154,6 +155,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expectStoryTab(intent, "CI comparison");
     await chooseStoryTab(intent, "Changed tests");
+    await expectStoryComparisonRead(intent);
     await expect(toggle).not.toBeChecked();
     await expectStoryExpansion(intent);
     await expect(folderToggle(intent, "other", false)).toBeVisible();

@@ -12,7 +12,7 @@
 import type { Locator, Page } from "@playwright/test";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import { expect, test } from "../support/preparationPage.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { queuedIdentity, type StartOrigin } from "../support/startOrigin.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
@@ -65,7 +65,7 @@ async function expectLaterStoryFileAlone(review: Locator) {
     comparison(review).getByRole("radio", { name: "Since the review" }),
   ).toBeChecked();
   const files = review.getByRole("list", { name: "1 changed file" });
-  await expect.poll(() => treeRows(files)).toEqual(["src", "  e.ts"]);
+  await expectTreeRows(files, ["src", "  e.ts"]);
 }
 
 test("a Trunk Mode story's mark is kept with its baseline tree, and a story commit published after it is listed since the review", async ({
@@ -125,11 +125,10 @@ test("a Trunk Mode story's mark is kept with its baseline tree, and a story comm
     await comparison(review)
       .getByRole("radio", { name: "All changes" })
       .check();
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "5 changed files" })),
-      )
-      .toEqual(["src", "  a.ts", "  e.ts", "  g.ts", "d.md", "notes.md"]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "5 changed files" }),
+      ["src", "  a.ts", "  e.ts", "  g.ts", "d.md", "notes.md"],
+    );
   });
 
   await test.step("after Git's housekeeping, Refresh still compares with the mark", async () => {

@@ -7,6 +7,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
+import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
@@ -15,6 +16,7 @@ import {
   changeIntentTests,
   publishIntentTrunk,
 } from "./intentStoryWorktree.ts";
+import { expectReviewRead } from "./reviewRead.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
@@ -50,6 +52,7 @@ export async function selectTakenStoryInIntent(
   await expect(intent).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
   await chooseStoryTab(intent, "Changed tests");
+  await expectStoryComparisonRead(intent);
   return {
     card,
     intent,
@@ -58,6 +61,14 @@ export async function selectTakenStoryInIntent(
     head: git(workspace, "rev-parse", "HEAD"),
   };
 }
+
+// Intent says it is reading the selected story's changes from the story's
+// selection until it shows the answer, which the boundary may take up to its
+// read bound to give.
+export const expectStoryComparisonRead = (intent: Locator) =>
+  expect(intent.getByText("Reading the story's changes…")).toHaveCount(0, {
+    timeout: storyReviewWaitMs,
+  });
 
 // The selected story's persistent header above its views.
 export const storySummary = (intent: Locator) =>
@@ -191,9 +202,7 @@ export async function reviewDiff(page: Page, name: string) {
 export async function openReviewFromIntent(page: Page, intent: Locator) {
   await outsideCount(intent).click();
   await expect(storyTitle(intent)).toBeVisible();
-  await expect(
-    page
-      .getByRole("region", { name: "Story review" })
-      .locator(".story-review-files"),
-  ).toBeVisible();
+  const review = page.getByRole("region", { name: "Story review" });
+  await expectReviewRead(review);
+  await expect(review.locator(".story-review-files")).toBeVisible();
 }

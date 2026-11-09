@@ -2,7 +2,7 @@
 // of immediate folders and files by its columns (../../src/IntentScopeProof.tsx,
 // ../../src/IntentScopeComparisonTable.tsx, ../../src/CiProofTable.tsx):
 // Change by kind with unchanged rows last, Landed by its signed change with
-// removed gaps last, the scope's own compared figures above
+// uncomparable rows last, the scope's own compared figures above
 // it, and the sort kept while drilling down; at 200% zoom the table with its
 // Change column still fits its box. A sort by a column the next Summary table
 // lacks gives way to the tree's order, either way between a comparison and one
@@ -41,12 +41,14 @@ const entry = "dashboard/tests";
 // The entry's children in the tree's order, as the comparison names them.
 const entryChildren = entryComparisonRows.slice(1).map(([name]) => name);
 // The entry's children by their signed landed change, descending, uncomparable rows after them.
+// renamed.spec.ts, a shell check's test file at Baseline and a Playwright test
+// case after, has no change across units, so it is one of them.
 const landedDescending = [
   "folder/",
-  "renamed.spec.ts",
   "root.spec.ts",
   "added.spec.ts",
   "gone.spec.ts",
+  "renamed.spec.ts",
 ];
 // Story B's one-run children in the tree's order: trunk after Story A, so its
 // removed file is gone.

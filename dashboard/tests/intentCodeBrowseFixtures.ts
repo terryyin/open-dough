@@ -4,6 +4,7 @@
 
 import { catalogPublications } from "./catalogProjectRecords.ts";
 import { publishIntentProject } from "./publishIntentProject.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export { publishIntentProject };
 
@@ -22,64 +23,42 @@ export const pygardon = {
   revision: "d4".repeat(20),
 };
 
-export const openDoughSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        {
-          path: "dashboard/tests",
-          kind: "typescript",
-          include: ["**/*.spec.ts"],
-        },
-        { path: "tests", kind: "shell", include: ["*.sh"] },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const openDoughSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("dashboard/tests")
+      .ofKind("typescript", ["**/*.spec.ts"])
+      .please(),
+    makeMe.anIntentLocation.at("tests").ofKind("shell", ["*.sh"]).please(),
+  )
+  .please();
 
-export const doughnutSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        {
-          path: "scripts",
-          kind: "javascript",
-          include: ["**/*.test.mjs"],
-        },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const doughnutSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("scripts")
+      .ofKind("javascript", ["**/*.test.mjs"])
+      .please(),
+  )
+  .please();
 
-export const pygardonSettings = JSON.stringify(
-  {
-    intent: {
-      locations: [
-        {
-          path: "frontend/src",
-          kind: "typescript",
-          include: [
-            "**/*.spec.ts",
-            "**/*.spec.tsx",
-            "**/*.test.ts",
-            "**/*.test.tsx",
-          ],
-        },
-        {
-          path: "tests",
-          kind: "python",
-          include: ["**/test_*.py"],
-        },
-      ],
-    },
-  },
-  null,
-  2,
-);
+export const pygardonSettings = makeMe.intentSettings
+  .withLocations(
+    makeMe.anIntentLocation
+      .at("frontend/src")
+      .ofKind("typescript", [
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+      ])
+      .please(),
+    makeMe.anIntentLocation
+      .at("tests")
+      .ofKind("python", ["**/test_*.py"])
+      .please(),
+  )
+  .please();
 
 export const browseSpec = `import { test } from "@playwright/test";
 test("browses", async () => {});

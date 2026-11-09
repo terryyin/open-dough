@@ -23,6 +23,7 @@ import {
 } from "./pageRequestNotes.ts";
 import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
+import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
 export const opened = new Date("2026-11-05T08:00:00.000Z");
 export const locationsRequest = /[?&]intent=locations(&|$)/;
@@ -55,7 +56,7 @@ export function publishedCandidates() {
     revision: openDough.revision,
     files: {
       ...openDough.files,
-      [settingsPath]: openDoughSettings,
+      [settingsPath]: intentSettingsText(openDoughSettings),
       ...openDoughSources,
     },
   });

@@ -5,7 +5,8 @@ import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
 import { integrateTrunk, markedWorktree } from "../support/storyReviewTrunk.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { showCommits } from "../support/reviewRead.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { commitAll, writeAt } from "../support/storyReviewWorktree.ts";
 import { sixth } from "../support/storyReviewTrunk.ts";
 
@@ -24,7 +25,7 @@ for (const conflicted of [false, true]) {
     );
     const review = reviewRegion(page);
     expect(snapshot.mark).toBeUndefined();
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await showCommits(review);
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
@@ -37,9 +38,10 @@ for (const conflicted of [false, true]) {
         name: "1 changed file",
         exact: true,
       });
-      await expect
-        .poll(() => treeRows(mergeFiles))
-        .toEqual(["src", "  c.ts includes trunk's changes"]);
+      await expectTreeRows(mergeFiles, [
+        "src",
+        "  c.ts includes trunk's changes",
+      ]);
       const flagged = "Modified src/c.ts, includes trunk's changes";
       await mergeFiles.getByRole("button", { name: flagged }).click();
       await expect(review.locator(".story-review-removed")).toHaveText([
@@ -67,12 +69,10 @@ for (const conflicted of [false, true]) {
       name: "1 changed file",
       exact: true,
     });
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual([
-        "src",
-        conflicted ? "  c.ts includes trunk's changes" : "  c.ts",
-      ]);
+    await expectTreeRows(files, [
+      "src",
+      conflicted ? "  c.ts includes trunk's changes" : "  c.ts",
+    ]);
     const name = `Modified src/c.ts${conflicted ? ", includes trunk's changes" : ""}`;
     await files.getByRole("button", { name, exact: true }).click();
     await expect(review.locator(".story-review-removed")).toHaveText(["-c 5"]);
@@ -111,9 +111,7 @@ test("an integration resolved back to the oldest parent stays flagged and is dif
     name: "1 changed file",
     exact: true,
   });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["src", "  c.ts includes trunk's changes"]);
+  await expectTreeRows(files, ["src", "  c.ts includes trunk's changes"]);
   await files
     .getByRole("button", {
       name: "Modified src/c.ts, includes trunk's changes",
@@ -159,7 +157,7 @@ test("a clean integration of disjoint changes in one file shows only the story e
     name: "1 changed file",
     exact: true,
   });
-  await expect.poll(() => treeRows(files)).toEqual(["src", "  a.ts"]);
+  await expectTreeRows(files, ["src", "  a.ts"]);
   await files
     .getByRole("button", { name: "Modified src/a.ts", exact: true })
     .click();

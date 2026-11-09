@@ -5,12 +5,13 @@ import {
   reviewChoicesNamed,
   capturedChoice,
 } from "../support/oneShotReviewChoices.ts";
+import { refreshAndRead } from "../support/reviewRead.ts";
 import { openCapturedReview } from "../support/oneShotReview.ts";
 import { recordOperation } from "../support/completionRecovery.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
 
 // Opens story A's review with the run `key` chosen under Landed runs; its
-// Refresh waits until it can be used again.
+// Refresh waits until the review has read it.
 async function chooseLandedRun(
   page: Page,
   origin: StartOrigin,
@@ -24,12 +25,7 @@ async function chooseLandedRun(
   await select.selectOption(key);
   if (name !== undefined)
     await expect(added(review)).toHaveText([`+${name}.txt`]);
-  const refresh = async () => {
-    await review.getByRole("button", { name: "Refresh" }).click();
-    await expect(
-      review.getByRole("button", { name: "Refresh" }),
-    ).toHaveAttribute("aria-disabled", "false");
-  };
+  const refresh = () => refreshAndRead(review);
   return { review, select, refresh };
 }
 const added = (review: Locator) => review.locator(".story-review-added");

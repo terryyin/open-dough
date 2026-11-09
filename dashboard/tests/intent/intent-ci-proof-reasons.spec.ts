@@ -94,7 +94,7 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
       proofSummary(
         summarized,
         [["tests", 1]],
-        [["tests", 1, 1, "checks", counts(5)]],
+        [["tests", 1, 1, "file", counts(5)]],
       ),
     );
 

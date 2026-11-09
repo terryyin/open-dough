@@ -17,7 +17,7 @@
 
 import { expect, test } from "../support/preparationPage.ts";
 import { olderGit } from "../support/storyReviewOlderGit.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import {
   expectSinceTheReview,
   keptStoryAMark,
@@ -63,9 +63,11 @@ for (const printing of [false, true]) {
 
     // (a, d) Only the story's files: not trunk's, nor the landed slice.
     const files = review.getByRole("list", { name: "2 changed files" });
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual(["src", "  b.ts", "  c.ts includes trunk's changes"]);
+    await expectTreeRows(files, [
+      "src",
+      "  b.ts",
+      "  c.ts includes trunk's changes",
+    ]);
     expect(
       since.since?.files.map(({ path: file, includesTrunkFrom }) => ({
         file,
@@ -125,9 +127,7 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).not.toContainText("Nothing changed since the review");
   const files = review.getByRole("list", { name: "1 changed file" });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["src", "  c.ts includes trunk's changes"]);
+  await expectTreeRows(files, ["src", "  c.ts includes trunk's changes"]);
 
   const flagged = "Modified src/c.ts, includes trunk's changes";
   await files.getByRole("button", { name: flagged }).press("Enter");
@@ -178,9 +178,10 @@ test("a marked story whose baseline is unchanged does not say trunk was integrat
   expect(since.since?.from).toBe(marked.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).not.toContainText("Trunk was integrated");
-  await expect
-    .poll(() => treeRows(review.getByRole("list", { name: "1 changed file" })))
-    .toEqual(["src", "  b.ts"]);
+  await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+    "src",
+    "  b.ts",
+  ]);
 });
 
 olderGit(
@@ -202,11 +203,10 @@ olderGit(
       "src/b.ts",
       "src/c.ts",
     ]);
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "2 changed files" })),
-      )
-      .toEqual(["src", "  b.ts", "  c.ts"]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "2 changed files" }),
+      ["src", "  b.ts", "  c.ts"],
+    );
     await expect(review).toContainText(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
@@ -226,10 +226,9 @@ olderGit(
     expect(since.markUncomparable).toBeUndefined();
     expect(since.since?.from).toBe(all.tree);
     await expectSinceTheReview(review, keptStoryAMark(dashboard));
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "1 changed file" })),
-      )
-      .toEqual(["src", "  b.ts"]);
+    await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+      "src",
+      "  b.ts",
+    ]);
   },
 );

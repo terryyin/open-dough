@@ -13,6 +13,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { resolveBranchHeadViaGh } from "./ghRevision.ts";
 import { runGit, GitFailure, gitProblem, type GitCall } from "./gitRunner.ts";
+import { fetchGitTarget } from "./gitTargetFetch.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import type { StoryExecutionMode } from "./storyPublishedEndpointDerived.ts";
@@ -135,10 +136,7 @@ export async function takenStoryEndpoints(
       signal,
       maxBuffer: 64 * 1024 * 1024,
     };
-    await runGit(["fetch", "--quiet", "origin", source.ref], {
-      ...call,
-      env: { GIT_TERMINAL_PROMPT: "0" },
-    });
+    await fetchGitTarget("origin", source.ref, { ...call, signal });
     const trunk = (
       await runGit(
         ["rev-parse", "--verify", `origin/${source.ref}^{commit}`],

@@ -1,9 +1,11 @@
 // The CI proof of one GitHub Actions run attempt (`./intentCiProofRead.ts`):
 // the run's `ci-proof-summary-attempt-<n>` artifact, listed by that name,
 // downloaded as its zip and its one `ci-proof-summary.json` extracted
-// (`./zipEntry.ts`), then validated with the collector's own contract and
-// used only when it names the asked repository, run, attempt and revision
-// (ADR 0008: missing, outdated or conflicting evidence is never a result).
+// (`./zipEntry.ts`), then validated with the collector's own contract, read
+// in its current version (a version 1 summary's results as legacy evidence)
+// and used only when it names the asked repository, run, attempt and
+// revision (ADR 0008: missing, outdated or conflicting evidence is never a
+// result).
 // Every request goes through the CI evidence requests
 // (`ci-github-actions.mjs`). A summary is immutable per run attempt, so a
 // valid one is remembered by repository, run and attempt for this process's
@@ -11,6 +13,7 @@
 // again on the next read.
 import {
   SUMMARY_READ_LIMIT_BYTES,
+  currentSummaryOf,
   summaryArtifactName,
   summaryProblems,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
@@ -134,8 +137,8 @@ const remembered = rememberedByKey<Record<string, unknown>>();
 const rememberedKey = (repository: string, run: CiProofRun) =>
   `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
 
-// The valid summary of `run`'s attempt as GitHub has it, not yet checked
-// against the asked run, or why none can be read.
+// The valid summary of `run`'s attempt as GitHub has it, in the current
+// version, not yet checked against the asked run, or why none can be read.
 async function readSummary(
   repository: string,
   run: CiProofRun,
@@ -176,7 +179,10 @@ async function readSummary(
   const problems = summaryProblems(summary) as readonly string[];
   if (problems.length > 0)
     return unavailable("invalid", `${summaryFile}: ${problems.join("; ")}`);
-  return { kind: "summary", summary } as CiProof;
+  return {
+    kind: "summary",
+    summary: currentSummaryOf(summary) as unknown,
+  } as CiProof;
 }
 
 // The proof of `run` in `repository`: its summary, or why there is none to

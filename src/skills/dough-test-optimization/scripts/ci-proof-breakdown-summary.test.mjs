@@ -43,7 +43,7 @@ test("two present parts where only one publishes a breakdown: entry totals inclu
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);
-  const [entry] = summary.entries;
+  const [entry] = summary.entries[0].evidence;
   assert.deepEqual(
     [entry.passed, entry.failed, entry.durationMs, entry.untimed],
     [2, 1, 175, 0],
@@ -103,7 +103,7 @@ test("one file with a timed and an untimed test keeps its known subtotal partial
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);
-  const [entry] = summary.entries;
+  const [entry] = summary.entries[0].evidence;
   assert.equal(entry.untimed, 2);
   assert.deepEqual(entry.files, [
     {
@@ -175,22 +175,32 @@ test("a breakdown that does not account for its counts, or names a path outside 
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);
-  const [entry] = summary.entries;
+  const [
+    {
+      path,
+      evidence: [entry],
+    },
+  ] = summary.entries;
   const refusedEntry = (change) =>
-    summaryProblems({ ...summary, entries: [{ ...entry, ...change }] });
+    summaryProblems({
+      ...summary,
+      entries: [{ path, evidence: [{ ...entry, ...change }] }],
+    });
   // A truncated file list is never a complete breakdown.
   assert.deepEqual(refusedEntry({ files: entry.files.slice(0, 1) }), [
-    "entries[0].files and unassigned count 1 passed, not 2",
+    "entries[0].evidence[0].files and unassigned count 1 passed, not 2",
   ]);
   assert.deepEqual(refusedEntry({ files: undefined }), [
-    "entries[0].files is absent though a part was broken down by file",
+    "entries[0].evidence[0].files is absent though a part was broken down by file",
   ]);
   assert.deepEqual(
     refusedEntry({ parts: [{ ...entry.parts[0], breakdown: undefined }] }),
-    ["entries[0].files is given though no part was broken down by file"],
+    [
+      "entries[0].evidence[0].files is given though no part was broken down by file",
+    ],
   );
   assert.deepEqual(
     refusedEntry({ parts: [{ ...entry.parts[0], breakdown: false }] }),
-    ["entries[0].parts[0].breakdown is not true"],
+    ["entries[0].evidence[0].parts[0].breakdown is not true"],
   );
 });

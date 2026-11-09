@@ -21,7 +21,8 @@ import {
   reviewBody,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectReviewRead } from "../support/reviewRead.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { git, storyWorktree } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
@@ -48,7 +49,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     "unstaged.txt",
   ];
   const opened = review.getByRole("list", { name: "7 changed files" });
-  await expect.poll(() => treeRows(opened)).toEqual(listed);
+  await expectTreeRows(opened, listed);
   const select = (name: string) =>
     review.getByRole("button", { name, exact: true }).press("Enter");
   const diff = review.getByRole("region", { name: "Modified unstaged.txt" });
@@ -69,7 +70,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   writeFileSync(path.join(workspace, "later.txt"), "later\n");
 
   await test.step("the list and the open diff stay as the review took them", async () => {
-    await expect.poll(() => treeRows(opened)).toEqual(listed);
+    await expectTreeRows(opened, listed);
     expect(await diffLines()).toEqual(openedLines);
   });
 
@@ -82,7 +83,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(codeLines()).toHaveCount(12);
     expect(await diffLines()).toEqual(openedLines);
     expect(await diffLines()).not.toContain(edit);
-    await expect.poll(() => treeRows(opened)).toEqual(listed);
+    await expectTreeRows(opened, listed);
   });
 
   await test.step("Refresh lists the new file and shows the edit, keeps focus, and announces it", async () => {
@@ -90,19 +91,17 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await refresh.focus();
     await refresh.press("Enter");
     const refreshed = review.getByRole("list", { name: "8 changed files" });
-    await expect
-      .poll(() => treeRows(refreshed))
-      .toEqual([
-        "fresh",
-        "  new.txt",
-        "gone.txt",
-        "image.png",
-        "later.txt",
-        "new.txt",
-        "staged.txt",
-        "story.txt",
-        "unstaged.txt",
-      ]);
+    await expectTreeRows(refreshed, [
+      "fresh",
+      "  new.txt",
+      "gone.txt",
+      "image.png",
+      "later.txt",
+      "new.txt",
+      "staged.txt",
+      "story.txt",
+      "unstaged.txt",
+    ]);
     const status = reviewFeedback(review);
     await expect(status).toHaveText(
       /^Review refreshed: 8 changed files against baseline [0-9a-f]{7}\.$/,
@@ -142,6 +141,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(action).toBeFocused();
     writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");
     await action.click();
+    await expectReviewRead(review);
     const reopened = review.getByRole("list", { name: "9 changed files" });
     await expect(
       reopened.getByRole("button", { name: "Added while-closed.txt" }),
@@ -165,6 +165,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await expect(diff.getByText(edit, { exact: true })).toBeVisible();
     git(workspace, "checkout", merged, "--", "unstaged.txt");
     await review.getByRole("button", { name: "Refresh" }).press("Enter");
+    await expectReviewRead(review);
     const refreshed = review.getByRole("list", { name: "8 changed files" });
     await expect(
       refreshed.getByRole("button", { name: "Added fresh/new.txt" }),

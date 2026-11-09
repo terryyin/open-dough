@@ -12,7 +12,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   editLater,
@@ -51,9 +51,7 @@ test("a marked story's review lists only the files changed since the review, eac
   expect(since.files).toHaveLength(13);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "3 changed files" });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual([storyFile(2), storyFile(9), storyFile(13)]);
+  await expectTreeRows(files, [storyFile(2), storyFile(9), storyFile(13)]);
 
   await files
     .getByRole("button", { name: `Modified ${storyFile(2)}` })
@@ -85,7 +83,7 @@ test("a file written after the snapshot and before the mark is listed since the 
   await reopenStoryReview(page, card);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "1 changed file" });
-  await expect.poll(() => treeRows(files)).toEqual(["after-snapshot.txt"]);
+  await expectTreeRows(files, ["after-snapshot.txt"]);
 });
 
 test("marking while the changes since the review are shown marks the whole snapshot", async ({
@@ -117,7 +115,7 @@ test("marking while the changes since the review are shown marks the whole snaps
   expect(second.since?.from).toBe(first.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "1 changed file" });
-  await expect.poll(() => treeRows(files)).toEqual([storyFile(4)]);
+  await expectTreeRows(files, [storyFile(4)]);
 });
 
 test("a mark whose tree the repository does not hold is said, all changes are shown, and marking starts again", async ({
@@ -158,5 +156,5 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
   expect(again.since?.from).toBe(gone.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   const files = review.getByRole("list", { name: "1 changed file" });
-  await expect.poll(() => treeRows(files)).toEqual([storyFile(5)]);
+  await expectTreeRows(files, [storyFile(5)]);
 });

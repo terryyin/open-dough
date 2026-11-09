@@ -19,7 +19,7 @@ import {
 import { retainedIntentLanding } from "../support/retainedIntentLanding.ts";
 import { reviewFeedback } from "../support/reviewContextLine.ts";
 import { selectDoneStoryInIntent } from "../support/selectDoneStoryInIntent.ts";
-import { lines } from "../support/storyReviewWorktree.ts";
+import { commitAll, git, lines } from "../support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
@@ -44,6 +44,20 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     codexProtocol,
     implementation,
   );
+  // The configured checkout cannot recover its published claims, while the
+  // saved completed M and its parents remain readable from their own start.
+  git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
+  const later = makeMe.aRepository
+    .withRevision("later", {
+      backlog: null,
+      files: { "after-capture.txt": "later trunk\n" },
+    })
+    .please().revisions[0];
+  writeRevisionFiles(origin.project, later);
+  commitAll(origin.project, "later trunk after capture");
+  git(origin.project, "push", "--quiet", "origin", "main");
+  const observed = git(origin.project, "rev-parse", "HEAD");
+  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
   const local = makeMe.aRepository
     .withRevision("retained-local", {
       backlog: null,
@@ -55,8 +69,9 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
   writeRevisionFiles(story.workspace, local);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: accepted,
+    revision: observed,
     repository: "terryyin/open-dough",
+    follows: true,
   });
   const received = page.waitForResponse((response) => {
     const url = new URL(response.url());
@@ -79,6 +94,8 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     story.reporting.reference,
   );
 
+  // Restore ordinary workspace ancestry while keeping the captured panel open.
+  git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
   // Keep the captured panel open while its ordinary card asks for live Review.
   await parts(page).development.click();
   await showColumn(page, "Recently done");

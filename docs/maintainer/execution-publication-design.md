@@ -3,9 +3,10 @@
 **Status:** Maintained design context. Queued-start, admission, and one-shot
 starts use the installed `dough-execute-plan/scripts/execution-start.mjs` command; delivery,
 preparation, closure, and local checkout coordination remain separate work. Not
-an executable plan or a new Accepted ADR. The
-[seed](../../.planning/seeds/SEED-008-worktree-branch-trunk-sync.md)
-owns story scope; the [backlog](../../.planning/PRODUCT-BACKLOG.md) owns priority.
+an executable plan or a new Accepted ADR.
+[SEED-008](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md)
+records the original story scope. The [backlog](../../.planning/PRODUCT-BACKLOG.md)
+owns current priority.
 
 ## Recommendation
 

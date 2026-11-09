@@ -88,6 +88,55 @@ export function githubRevisionLookup(
     return read;
   }
 
+  async function listRuns(sha: string): Promise<readonly ListedRun[]> {
+    const { id, name } = (await github.workflow(signal)) as {
+      readonly id: number;
+      readonly name: string;
+    };
+    const query = new URLSearchParams({
+      head_sha: sha,
+      per_page: "10",
+      page: "1",
+    });
+    const { workflow_runs: runs = [] } = (await readGitHubActions(
+      [
+        "api",
+        `repos/${source.repository}/actions/workflows/${id}/runs?${query}`,
+      ],
+      signal,
+    )) as { workflow_runs?: readonly Record<string, unknown>[] };
+    return runs.map((run) => {
+      const observed = observedRun(run, name) as {
+        readonly databaseId?: number;
+        readonly attempt?: number;
+        readonly headSha?: string;
+        readonly status?: string;
+        readonly conclusion?: string | null;
+        readonly url?: string;
+        readonly createdAt?: string;
+        readonly startedAt?: string;
+        readonly completedAt?: string;
+        readonly headBranch?: string;
+      };
+      return asListedRun(observed);
+    });
+  }
+
+  // Walks in one comparison revisit revisions (Branch and Landed may name
+  // the same tip; skip confirmation rewalks ancestors), so each revision is
+  // listed once per comparison. A failed listing is forgotten and asked again.
+  const runListings = new Map<string, Promise<readonly ListedRun[]>>();
+  function runsAt(sha: string) {
+    const listed = runListings.get(sha);
+    if (listed !== undefined) return listed;
+    const listing = listRuns(sha);
+    runListings.set(sha, listing);
+    listing.catch(() => {
+      runListings.delete(sha);
+    });
+    return listing;
+  }
+
   return {
     async timeWithoutRunnerWaitsOf({ revision, runId, runAttempt, state }) {
       if (runId === undefined || runAttempt === undefined)
@@ -119,39 +168,7 @@ export function githubRevisionLookup(
       }
       return timeWithoutRunnerWaits(workflowText, jobs, state === "failed");
     },
-    async listRunsAt(sha) {
-      const { id, name } = (await github.workflow(signal)) as {
-        readonly id: number;
-        readonly name: string;
-      };
-      const query = new URLSearchParams({
-        head_sha: sha,
-        per_page: "10",
-        page: "1",
-      });
-      const { workflow_runs: runs = [] } = (await readGitHubActions(
-        [
-          "api",
-          `repos/${source.repository}/actions/workflows/${id}/runs?${query}`,
-        ],
-        signal,
-      )) as { workflow_runs?: readonly Record<string, unknown>[] };
-      return runs.map((run) => {
-        const observed = observedRun(run, name) as {
-          readonly databaseId?: number;
-          readonly attempt?: number;
-          readonly headSha?: string;
-          readonly status?: string;
-          readonly conclusion?: string | null;
-          readonly url?: string;
-          readonly createdAt?: string;
-          readonly startedAt?: string;
-          readonly completedAt?: string;
-          readonly headBranch?: string;
-        };
-        return asListedRun(observed);
-      });
-    },
+    listRunsAt: runsAt,
     async earlierAttemptsOf(runId, latestAttempt) {
       const earlier: ListedRun[] = [];
       for (let attempt = latestAttempt - 1; attempt >= 1; attempt -= 1) {
