@@ -1,4 +1,5 @@
-// Locations / scope prose for a candidate entry: each recorded reference is
+// A candidate entry's recorded locations (Locations / scope, or a live
+// candidate's Affected test or fixture): each recorded reference is
 // matched against configured Intent files (`./intentCandidatesLocationMatch.ts`)
 // and either opens that file in the shared Intent selection, lists several
 // full-path choices, or stays as recorded text with its specific gap reason.

@@ -3,9 +3,11 @@
 // Optimization Candidates tab (../../src/IntentPage.tsx): entering Intent
 // shows the Intent tab with locations and CI status; the record shows
 // labelled Pending and Accepted groups with every recorded field (example 1)
-// across the content area without the locations.
+// across the content area without the locations. A four-section record's
+// leading pass summary stays unshown, and the note naming its profile-only
+// mechanism shows before that section's entries.
 
-import { candidateEntryFields } from "../../src/testOptimizationCandidates.ts";
+import { findingEntryFields } from "../../src/testOptimizationCandidatesRecord.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -21,15 +23,17 @@ import {
 } from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
-  openDoughCandidatesRecord,
+  doughnutFeaturePath,
+  publishDoughnutWithCandidates,
   publishOpenDoughWithCandidates,
 } from "../intentCandidatesFixtures.ts";
-import { openDough } from "../intentCodeBrowseFixtures.ts";
+import { doughnut, openDough } from "../intentCodeBrowseFixtures.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const requiredFieldLabels = candidateEntryFields
+const requiredFieldLabels = findingEntryFields
   .filter((field) => field.required)
   .map((field) => field.label);
-const allFieldLabels = candidateEntryFields.map((field) => field.label);
+const allFieldLabels = findingEntryFields.map((field) => field.label);
 
 test("Intent opens on its Intent tab; Optimization Candidates shows Pending and Accepted groups with every recorded field without the locations and resolves evidence links at the named revision", async ({
   page,
@@ -183,15 +187,27 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   await expect(intentTab).toBeVisible();
 });
 
-test("Intent reads findings from an older record without presenting its pass summary", async ({
+test("Intent reads a four-section record and the note naming its profile-only mechanism without presenting its leading pass summary", async ({
   page,
 }) => {
-  const historicalRecord = openDoughCandidatesRecord.replace(
-    "# Test Optimization Candidates\n",
-    "# Test Optimization Candidates\n\n## Latest pass\n\nHistorical pass measurements.\n",
-  );
-  await publishOpenDoughWithCandidates(page, historicalRecord);
-  await openUntilRead(page, "/?project=open-dough");
+  const mechanism =
+    "Existing mechanism: `@skipOptimizationDueToKnownNecessarySlowness` on a\nScenario or Feature; normal verification and CI still run them. See\n[E2E profiling guidance](../.agents/skills/e2e-authoring/SKILL.md#test-optimization-profiling).";
+  const passSummaryRecord = makeMe.aTestOptimizationCandidatesRecord
+    .pending("e2e-batch-cold-start", `\`${doughnutFeaturePath}\` cold start`, {
+      observedCost: "55.0s first run against 41.9s warm",
+    })
+    .profileOnly(
+      "bazaar-subscription-journey",
+      "`bazaar_subscription.feature`, subscribe and unsubscribe",
+    )
+    .profileOnlyMechanism(mechanism)
+    .please()
+    .replace(
+      "# Test Optimization Candidates\n",
+      "# Test Optimization Candidates\n\n## Latest pass\n\n- **Outcome:** Historical pass measurements.\n",
+    );
+  await publishDoughnutWithCandidates(page, passSummaryRecord);
+  await openUntilRead(page, "/?project=doughnut");
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await chooseOptimizationCandidates(intent);
@@ -205,7 +221,23 @@ test("Intent reads findings from an older record without presenting its pass sum
     "Transferred obligations",
   ]);
   await expect(
-    record.getByRole("article", { name: "launch-records-poll-waits" }),
-  ).toContainText("about 60 summed seconds");
+    record.getByRole("article", { name: "e2e-batch-cold-start" }),
+  ).toContainText("55.0s first run against 41.9s warm");
+  const profileOnly = record.getByRole("region", {
+    name: "Profile-only exclusions",
+  });
+  const note = profileOnly.locator(".intent-candidate-note");
+  await expect(note).toContainText(
+    "Existing mechanism: `@skipOptimizationDueToKnownNecessarySlowness` on a Scenario or Feature; normal verification and CI still run them.",
+  );
+  await expect(
+    note.getByRole("link", { name: /E2E profiling guidance/ }),
+  ).toHaveAttribute(
+    "href",
+    `https://github.com/${doughnut.repository}/blob/${doughnut.revision}/.agents/skills/e2e-authoring/SKILL.md#test-optimization-profiling`,
+  );
+  await expect(
+    profileOnly.locator(".intent-candidate-note + article"),
+  ).toHaveAttribute("data-slug", "bazaar-subscription-journey");
   await expect(record).not.toContainText("Historical pass measurements.");
 });

@@ -278,7 +278,7 @@ independent next lead the same way" (already traced by that refactor).
 ### 5. Read live candidate records beside four-section records
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership rows 7 and 8. Run
 `npm run test:dashboard -- tests/intent/intent-test-optimization-candidates*.spec.ts backend-tests/intent/authenticated-read-intent-candidates.spec.ts frontend-tests/intent-candidates-read-recovery.spec.ts --workers=2`,
 the parser unit tests, and `npm run typecheck:dashboard`. Also parse the real
@@ -291,6 +291,23 @@ facts. The four-section record shows its sections as today. A record of
 neither shape stays mismatched. Change `candidate-record.md` to the live
 format with the read-both rule, and `resolving-candidates.md` to the live
 outcomes. Extend the MakeMe record builder for live records.
+
+Accepted 2026-11-09: `dashboard/src/testOptimizationCandidates.ts` reads a
+live record (one `## Live candidates` section, entries with exactly the five
+labelled fields, or `None.`) beside the four-section record, whose
+`## Profile-only exclusions` may open with a mechanism note; anything else
+stays mismatched. The record shape moved to
+`testOptimizationCandidatesRecord.ts`. Intent shows a "Live candidates"
+group with the five facts, and the mechanism note before its section.
+`candidate-record.md` owns the live format and the read-both rule;
+`resolving-candidates.md` gives the live outcomes; the MakeMe record builder
+gains `.live()` and `.candidate(...)`. Proof: the candidate journeys, backend
+read and recovery passed 18 before and 19 after (the live journey added) at
+loads 6–16 (`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard -- tests/intent/intent-test-optimization-candidates backend-tests/intent/authenticated-read-intent-candidates.spec.ts frontend-tests/intent-candidates-read-recovery.spec.ts --workers=2`);
+`bash scripts/test.sh tests/support/test-optimization-candidates.test.mjs`
+(new parser tests) and the payload link, acquisition and delivery-routing
+tests passed; `npm run typecheck:dashboard` passed; 10 parser and 4 view
+scratch breaks were each caught by their intended test.
 
 ### 6. Keep accepted costs beside their tests; Open Dough adopts
 
@@ -507,6 +524,25 @@ row says otherwise.
   story, Taken entry or wrap-up. A planless keep publishes through Execute
   Plan's increment publication. It reports a focused interleaved gain and the
   delivered attempt's CI sum, and leaves a full-suite claim open.
+
+### Slice 5 real records and handoff (2026-11-09)
+
+- Read-only parses at published trunk: Pygardon `0b9d3cb19` and Doughnut
+  `7fca2c838` both read as four-section records with their leading pass
+  summaries (Doughnut: 2 pending, 4 accepted, 10 profile-only with its
+  mechanism note, transferred `None.`; before this slice it was
+  mismatched). Open Dough's own record stays mismatched until slice 6
+  converts it.
+- Slice 6: the live parser accepts exactly the five labels, so evidence links
+  go inline in a field. Extend `candidate-record.md` "What the record holds"
+  ("Acceptance excludes nothing…") into the indicator rule rather than a
+  second home, then point `resolving-candidates.md`'s Accepted outcome at it,
+  and add conversion on first write. Converting Open Dough's record removes
+  the `#accepted-necessary-costs` anchor that
+  `docs/maintainer/dashboard-test-timings.md` links to; update that link.
+  Journeys can use
+  `makeMe.aTestOptimizationCandidatesRecord.live().candidate(slug, affected, facts)`
+  with `publishOpenDoughWithCandidates(page, record)`.
 
 ## Preparation review
 

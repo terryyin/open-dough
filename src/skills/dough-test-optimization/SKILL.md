@@ -201,12 +201,11 @@ and remaining candidates. Distinguish measured improvement, no demonstrated
 gain, and incomplete work. Do not claim speedup from fewer cases or lines
 alone.
 
-An admitted pass writes remaining candidates, with what was tried, to the
-[candidate record](references/candidate-record.md), following that reference
-for creation, disposition, and preservation rules. Retain a planned pass's plan
-and evidence for retrospective and
-[story wrap-up](../dough-story-wrap-up/SKILL.md); unresolved candidates must
-be resolved or transferred in that record before cleanup.
+An admitted pass writes the candidates that remain live, with what was tried,
+to the [candidate record](references/candidate-record.md), following that
+reference for what stays live and for creation, preservation, and cleanup.
+Retain a planned pass's plan and evidence for retrospective and
+[story wrap-up](../dough-story-wrap-up/SKILL.md).
 Emit `## TEST OPTIMIZATION COMPLETE` only when the pass's stop, or its
 experiments' verification, measurement, and delivery, are complete, stating
 its actual outcome.

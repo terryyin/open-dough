@@ -52,6 +52,15 @@
   margin: 0 0 var(--space-2);
 }
 
+/* The note naming a four-section record's profile-only mechanism, as
+   recorded before that section's entries. */
+.intent-candidate-note {
+  margin: 0 0 var(--space-3);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
 .intent-candidate-entry {
   margin: 0 0 var(--space-3);
   padding: 0 0 var(--space-3);

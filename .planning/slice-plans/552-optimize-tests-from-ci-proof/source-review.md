@@ -118,19 +118,19 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 38.2 | "Compare like … runner conditions" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" (runner conditions) |
 | 38.q1 | Qualification (of 38.1–38.2): "including replacement proof and shared setup where measured" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like" (replacement tests' cost and shared setup) |
 | 39 | "Follow the project's failing and flaky test policy" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Verify and close" (this project's failing and flaky test policy) |
-| 40 | "The Test Optimization Candidates record holds only live candidates" | slice 5 | |
-| 40.q1 | Qualification (of 40): live candidates are "material costs that still need deeper developer analysis" | slice 5 | |
-| 40.q2 | Qualification (of 40): "**and** protect valuable behavior that the agent cannot safely simplify, downgrade, or remove" (both 40.q1 and 40.q2 must hold) | slice 5 | |
-| 41.1 | "Each live entry names the affected test or fixture" | slice 5 | |
-| 41.2 | "Each live entry names … observed cost" | slice 5 | |
-| 41.3 | "Each live entry names … [observed] conditions" | slice 5 | |
-| 41.4 | "Each live entry names … unique protection" | slice 5 | |
-| 41.5 | "Each live entry names … alternatives tried" | slice 5 | |
-| 41.6 | "Each live entry names … the remaining decision or evidence needed" | slice 5 | |
-| 42 | "Resolve clear opportunities during normal optimization" | slice 5 | |
-| 43a | "A candidate that is fixed, accepted, or moved to a named story leaves the live record" (alternatives) | slice 5 | |
-| 43b | "…with its evidence recoverable from history" | slice 5 | |
-| 43.q1 | Qualification (of 43a–43b): "so the live decision has one home" | slice 5 | |
+| 40 | "The Test Optimization Candidates record holds only live candidates" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" (only live candidates); tests/support/test-optimization-candidates.test.mjs "a record of neither version is mismatched…" (a live record keeping a four-section section is mismatched) |
+| 40.q1 | Qualification (of 40): live candidates are "material costs that still need deeper developer analysis" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" (material cost still needing deeper developer analysis) |
+| 40.q2 | Qualification (of 40): "**and** protect valuable behavior that the agent cannot safely simplify, downgrade, or remove" (both 40.q1 and 40.q2 must hold) | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" (**and** protects valuable behavior you cannot safely simplify, downgrade, or remove; a cost failing either condition stays out) |
+| 41.1 | "Each live entry names the affected test or fixture" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Live format" Affected test or fixture; tests/support/test-optimization-candidates.test.mjs "a live record reads each candidate's five facts"; dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts terms and definitions, affected test opens its source |
+| 41.2 | "Each live entry names … observed cost" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Live format" Observed cost and conditions; tests/support/test-optimization-candidates.test.mjs five facts; dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts rendered facts |
+| 41.3 | "Each live entry names … [observed] conditions" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Live format" Observed cost and conditions (measure, attempt or revision, date, workers, load); tests/support/test-optimization-candidates.test.mjs five facts |
+| 41.4 | "Each live entry names … unique protection" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Live format" Unique protection; tests/support/test-optimization-candidates.test.mjs five facts; dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts rendered facts |
+| 41.5 | "Each live entry names … alternatives tried" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Live format" Alternatives tried; tests/support/test-optimization-candidates.test.mjs five facts; dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts rendered facts |
+| 41.6 | "Each live entry names … the remaining decision or evidence needed" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Live format" Decision or evidence needed; tests/support/test-optimization-candidates.test.mjs five facts and missing-decision case mismatched; dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts rendered facts |
+| 42 | "Resolve clear opportunities during normal optimization" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" (resolve a clear opportunity during the optimization itself) |
+| 43a | "A candidate that is fixed, accepted, or moved to a named story leaves the live record" (alternatives) | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" second paragraph (fixed, accepted beside its owning test, or moved to a named story); src/skills/dough-test-optimization/references/resolving-candidates.md outcomes each leave the record |
+| 43b | "…with its evidence recoverable from history" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" second paragraph (evidence recoverable from the record's Git history) |
+| 43.q1 | Qualification (of 43a–43b): "so the live decision has one home" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "What the record holds" second paragraph (each live decision keeps one home) |
 | 44a | "Put accepted necessary cost beside the owning test, scenario, or shared fixture" (alternatives) | slice 6 | |
 | 44.q1 | Qualification (of 44a): "at the narrowest scope that owns it" | slice 6 | |
 | 44b | "as a project-native tag, annotation, or short source comment" (alternatives) | slice 6 | |
@@ -147,12 +147,12 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 49 | "Read existing profile-only markers by their actual semantics" | slice 6 | |
 | 50.1 | Restriction: "neither [existing execution tags] becomes an accepted-cost decision by inference" | slice 6 | |
 | 50.2 | Restriction: "neither [existing profile-only markers] becomes an accepted-cost decision by inference" | slice 6 | |
-| 51.1 | "The skill … read[s] … the current published four-section record" | slice 5 | |
-| 51.2 | "Intent read[s] … the current published four-section record" | slice 5 | |
-| 51.q1 | Qualification (of 51.1–51.2): "with or without a leading pass summary" | slice 5 | |
-| 51.q2 | Qualification (of 51.1–51.2): "and with the note naming the profile-only mechanism that the published format asks for" | slice 5 | |
-| 51.3 | "The skill … read[s] … the live record" | slice 5 | |
-| 51.4 | "Intent read[s] … the live record" | slice 5 | |
+| 51.1 | "The skill … read[s] … the current published four-section record" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read either version"; src/skills/dough-test-optimization/references/resolving-candidates.md (in either version) |
+| 51.2 | "Intent read[s] … the current published four-section record" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates.spec.ts four-section journeys; tests/support/test-optimization-candidates.test.mjs four-section cases |
+| 51.q1 | Qualification (of 51.1–51.2): "with or without a leading pass summary" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates.spec.ts "Intent reads a four-section record and the note naming its profile-only mechanism without presenting its leading pass summary"; tests/support/test-optimization-candidates.test.mjs leading summary accepted |
+| 51.q2 | Qualification (of 51.1–51.2): "and with the note naming the profile-only mechanism that the published format asks for" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates.spec.ts same test (note text, revision-pinned link, note before the section's entries); tests/support/test-optimization-candidates.test.mjs profileOnly.note |
+| 51.3 | "The skill … read[s] … the live record" | slice 5 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Read either version" and "Live format"; src/skills/dough-test-optimization/references/resolving-candidates.md stops on None. in either version |
+| 51.4 | "Intent read[s] … the live record" | slice 5 | observed: dashboard/tests/intent/intent-test-optimization-candidates-live.spec.ts live journey; tests/support/test-optimization-candidates.test.mjs live cases |
 | 52 | "A project's record converts when a pass first writes it" | slice 6 | |
 | 53a | (On conversion) "substantiated accepted costs move to source with their rationale" | slice 6 | |
 | 53b | (On conversion) "fixed or transferred entries leave the live list" (alternatives) | slice 6 | |
@@ -160,9 +160,9 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 55a | "Its [Open Dough's] record converts" | slice 6 | |
 | 55b | "its substantiated accepted costs move beside their tests" | slice 6 | |
 | 55c | "Intent shows its live candidates" | slice 6 | |
-| 55d.1 | "…while still reading Pygardon's … four-section record[]" | slice 5 | |
-| 55d.2 | "…while still reading … Doughnut's four-section record[]" | slice 5 | |
-| 56.1 | "Reuse the candidate reader" | slice 5 | |
+| 55d.1 | "…while still reading Pygardon's … four-section record[]" | slice 5 | observed: real Pygardon record at origin/main 0b9d3cb19 read as four-section by the new parser (PLAN.md Learnings "Slice 5 real records") |
+| 55d.2 | "…while still reading … Doughnut's four-section record[]" | slice 5 | observed: real Doughnut record at origin/main 7fca2c838 read as four-section by the new parser (PLAN.md Learnings "Slice 5 real records") |
+| 56.1 | "Reuse the candidate reader" | slice 5 | observed: dashboard/src/IntentCandidatesRecord.tsx keeps one parseTestOptimizationCandidates call; dashboard/src/testOptimizationCandidates.ts reads both versions |
 | 56.2 | "Reuse … the existing CI proof contract, including its attempt identity" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-check.mjs checkedSummary and summaryArtifactName reused; ci-proof-leads-retained.test.mjs identity refusals |
 | 56.3 | "Reuse … the existing CI proof contract, including its … timing units" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs: durationMs per item, each entry's own unit kept apart in leads, folders and tail |
 | 56.4 | "Reuse … the existing CI proof contract, including its … gap reporting" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs: the contract's missing and ambiguous part statuses and untimed results become gaps |
@@ -231,10 +231,10 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 84b | "…and leave the live list" | slice 6 | |
 | 85 | "…as does the fixed setup entry" [it leaves the live list] | slice 6 | |
 | 86.1 | "Intent reads Open Dough's live record" | slice 6 | |
-| 86.2 | "Intent reads … Pygardon's … four-section record[] with [its] leading pass summar[y]" | slice 5 | |
-| 86.3 | "Intent reads … Doughnut's four-section record[] with [its] leading pass summar[y]" | slice 5 | |
+| 86.2 | "Intent reads … Pygardon's … four-section record[] with [its] leading pass summar[y]" | slice 5 | observed: real Pygardon record: four-section with its leading pass summary accepted, pending None., 4 accepted, 1 profile-only, 23 transferred (PLAN.md Learnings "Slice 5 real records") |
+| 86.3 | "Intent reads … Doughnut's four-section record[] with [its] leading pass summar[y]" | slice 5 | observed: real Doughnut record: four-section with its leading pass summary accepted, 2 pending, 4 accepted, 10 profile-only and its mechanism note, transferred None. (PLAN.md Learnings "Slice 5 real records") |
 | K5.1 | Example (current state): "Today Intent shows Open Dough's record as mismatched, because one entry has an extra field" | slice 6 | |
-| K5.2 | Example (current state): "…and Doughnut's too, because of its profile-only mechanism note" | slice 5 | |
+| K5.2 | Example (current state): "…and Doughnut's too, because of its profile-only mechanism note" | slice 5 | observed: HEAD's parser returned mismatched for the real Doughnut record and the new one reads it; tests/support/test-optimization-candidates.test.mjs note-refused scratch break caught |
 | K6.1 | Example: "Discovery finds no lead above the stated saving" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Decide: stop, experiment, or plan" Stop bullet |
 | 87 | "…and reports why" | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md Stop bullet (reports why, with its evidence) |
 | 88.1 | "…with no story" | slice 4 | observed: src/skills/dough-execute-plan/references/admit-accepted-work.md first-edit paragraph (no story) |
