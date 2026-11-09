@@ -248,3 +248,21 @@ SEED-282 landed mid-slice (merge `0eee12e4d`, shared signed change), so slice
 rule in `afterCellOf`. The retry spec passed after integrating trunk; SEED-286
 (queued) owns the comparison family's load timeouts, including the new
 `intent-ci-comparison-units.spec.ts` when first in a worker.
+
+## Execution complete
+
+Product advice:
+- Decide whether a count difference and cue may cross a missing or ambiguous
+  part (an older weakness: `1,000 → 1,090 test cases (+90)` with a "more" cue
+  while Baseline's part 2 is missing). Recommended: no; treat it like partial
+  timing, showing both totals with the gap.
+- Queue the ready correction [SEED-281#keep-unit-gaps-and-names-visible](../../seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible)
+  (plan 557) first: a partial unit vanishes below its entry for two-unit
+  locations, and rows of a Baseline-only or removed unit do not name it.
+- Each production-dashboard project's Intent comparisons show no count or time
+  difference while it publishes unit-less proof; each project migrates its own
+  CI with 0.3.93 (`--unit`, `:case`/`:file` declarations).
+- SEED-286 should name the seven `intent-ci-comparison-units.spec.ts` cases,
+  keeping one integrated example-39 path; SEED-287 covers the CI proof units
+  journeys when first in a worker. Split `references/ci-proof-summary.md`
+  (250 lines) at "Publish through a CI adapter" on its next edit.

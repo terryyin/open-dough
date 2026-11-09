@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 476. Removed numbers are never reused.
+- Highest allocated local number: 477. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -79,6 +79,16 @@ Former local code: DD-215. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-217. [Evidence and current response](docs/maintainer/findings/ODF-205.md).
 ## ODF-152 — File-size gate conflicts with approved intermediate scope <a id="odf-152"></a>
 Former local code: DD-219. [Evidence and current response](docs/maintainer/findings/ODF-152.md).
+
+### Occurrences
+- Execution: SEED-281#distinguish-test-cases-and-files-in-ci-proof (plan 547-distinguish-test-cases-and-files-in-ci-proof; first related implementation commit `2c1f3122b07b54acca0389ccf276829d85f14676`)
+  - Timestamp: unknown (2026-11-09, refactor stop about 11:00 +08:00; plan condensations 11:05–18:30 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `479f6f3b1`)
+  - Evidence: Slice 1's refactor pass split the collector into `ci-proof-evidence.mjs` and `ci-proof-options.mjs` and returned `REFACTOR JIDOKA STOP` because `install.sh` grew from 325 to 327 lines; the coordinator granted a narrow exception under the 2026-11-08 occurrence. The same pass flagged PLAN.md at 288 lines, and the coordinator condensed the plan to 250 or fewer lines after slices 1, 2, 3 and 4 by dropping consumed premise rows and compressing completed slice text (`88c244f77:.planning/slice-plans/547-distinguish-test-cases-and-files-in-ci-proof/PLAN.md`).
+  - Observed effect: One stop and coordinator decision, and five plan condensation passes while each slice added its required accepted proof to the same plan.
+  - Inference: Execution keeps each slice's accepted proof in the plan, so every slice pushes a 250-line plan back over the gate; the condensation cost recurs per slice rather than once.
 ## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
 Former local code: DD-221. [Meaning, evidence and response](docs/maintainer/findings/ODF-209.md).
 ## ODF-210 — Removal proof omits an existing user capability <a id="odf-210"></a>
@@ -881,6 +891,15 @@ covered the candidate.
   - Observed effect: About 2.6 hours of whole-suite time on the pre-merge tree were superseded; the dashboard suite and `npm test` ran again on the merge (about 45 minutes).
   - Inference: Fetching trunk and running the named-sibling check immediately before starting the plan's final whole-suite gate, rather than only at the done mark, would likely have merged first and needed one whole run.
 
+- Execution: SEED-281#distinguish-test-cases-and-files-in-ci-proof (plan 547-distinguish-test-cases-and-files-in-ci-proof; first related implementation commit `2c1f3122b07b54acca0389ccf276829d85f14676`)
+  - Timestamp: unknown (2026-11-09, freshness check between 11:06 and 11:14 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `479f6f3b1`)
+  - Evidence: Slice 1's implementation ran the Intent suite (265 tests, 10:01–10:13 +08:00) and its first refactor pass ran (10:20–11:00) before delivery step 5's source-freshness check reported the story amended because named sibling SEED-282 had landed in merge `0eee12e4d`, overlapping 12 changed files and moving the signed comparison change into shared cells. The coordinator replayed slice 1 onto trunk (local WIP `e0384b5d5`), a reconciliation agent resolved 8 conflicts (about 40 minutes), and a second refactor pass (about 33 minutes) and two more Intent runs followed before `2c1f3122b` was published.
+  - Observed effect: About 1.5 hours of refactoring, reconciliation and suite time on the pre-landing tree; the developer asked why slice 1 had run for more than two hours.
+  - Inference: Running the freshness and named-sibling check when the implementation returns, before the refactor pass and the expensive boundary suite, would likely have reconciled once and refactored once.
+
 ## ODF-338 — Concurrent slices invalidate proof in one checkout <a id="odf-338"></a>
 [Meaning, evidence and response](docs/maintainer/findings/ODF-338.md).
 
@@ -911,6 +930,15 @@ merge, that line would have published `[object Object]`.
   - Observed effect: The type change did not escape the project's static checks: the existing lint rules reject the merged line. The finding's report instead raised a decision about enabling a rule that was already enabled.
   - Inference: The lint result recorded for the merged tree most likely came from a run that did not include the merged line. Before reporting that a check missed a defect, rerun that check on the defective tree and record its output.
 
+- Execution: SEED-281#distinguish-test-cases-and-files-in-ci-proof (plan 547-distinguish-test-cases-and-files-in-ci-proof; first related implementation commit `2c1f3122b07b54acca0389ccf276829d85f14676`)
+  - Timestamp: unknown (2026-11-09, merged-tree Intent run 17:34–17:51 +08:00; repair at about 17:57 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `479f6f3b1`)
+  - Evidence: Slice 1 added `dashboard/tests/intent/intent-ci-proof-units.spec.ts` with ``".planning/open-dough.json": `${openDoughSettings}\n` `` while `openDoughSettings` was still a string. The Dough Land merge of trunk `144981e5f` (merge `35f537b55`) brought SEED-261's conversion (`e693a8c24`). The merge commit's hook linted only staged files, which excluded the unchanged spec; the merged-tree Intent suite then failed that journey 3 of 3 with ".planning/open-dough.json is not valid JSON", and `e6de30d46` switched it to `intentSettingsText(openDoughSettings)`.
+  - Observed effect: The defect was caught before landing, but by a 17-minute suite run and a rerun rather than by the static check that rejects it.
+  - Inference: After a merge that brings a converted export, a whole `npm run lint` (or `eslint` on every file using that export) on the merged tree before the boundary suite would likely have found it in about two minutes.
+
 ## DD-475 — A CI repair duplicated a fix another active execution had in progress
 Before delegating a CI repair, the coordinator's ownership scan found another
 active worktree with uncommitted edits to the failing spec. It called them
@@ -927,3 +955,19 @@ refactor pass and was dropped on the developer's decision.
   - Evidence: CI run 42557657479 failed on `1da8db9a5`. The coordinator's `git status` scan listed `.worktrees/make-intent-location-source-and-candidate-test-s` with ` M dashboard/tests/intent/intent-ci-comparison-retry.spec.ts`; the repair brief called those files nearby and named no owner. The sibling SEED-261 Intent story published `acfd70db4` (`checkComparisonAgain`) at 13:04:30+08:00 on its branch. The refactor pass found it, a simulated merge gave 8 conflicts, and Terry chose to drop the duplicate.
   - Observed effect: the Check again part of a 62-minute repair agent run, a revert and one developer question; nothing duplicated was published.
   - Inference: `ci-monitor.md` "Handle a notification" makes unknown ownership of conflicting in-progress repair files a coordination stop, but names no check of what another worktree's overlapping uncommitted edits or published branch contain. Reading them before delegating would likely have found the concurrent repair.
+
+## DD-477 — Briefs required whole-suite runs longer than the host's foreground cap, gated on a load that rarely fell
+Delegation and refactor briefs asked agents to run the Intent boundary suite in
+the foreground, launching only at load 12 or below. Claude Code caps a
+foreground command at ten minutes, and the suite took 8–30 minutes while other
+worktrees kept the machine at load 16–40.
+
+### Occurrences
+- Execution: SEED-281#distinguish-test-cases-and-files-in-ci-proof (plan 547-distinguish-test-cases-and-files-in-ci-proof; first related implementation commit `2c1f3122b07b54acca0389ccf276829d85f14676`)
+  - Timestamp: unknown (2026-11-09, 10:56–12:58 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `479f6f3b1`)
+  - Evidence: Slice 1's first refactor pass waited at load 16–21 and handed back with the suite unrun. The reconciliation agent split the suite into `--shard=1/2` and `2/2` to fit the cap; shard 1 ran in the background, and shard 2 was never launched because load stayed above 12. The coordinator then ran each slice's final Intent suite itself as one background command (`--workers=1` at load 18–21, 294 tests, 30 minutes; `--workers=2` at load 5–10, 281 tests, 7.5 minutes), while agents ran focused groups.
+  - Observed effect: Two agent returns came back without the gate result, and one Intent run was left half done; after the coordinator took over the runs, each slice needed one whole run.
+  - Inference: For a suite longer than the host's foreground cap, assigning the whole run to the coordinator's background command from the start, with a load-adjusted worker count instead of a wait condition, would likely avoid incomplete gate returns.
