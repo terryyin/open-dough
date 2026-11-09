@@ -8,8 +8,8 @@ The project revision notice and **Show latest** belong to Project Intent;
 none of a Done story's three views offers them. With a story selected, the
 header never collapses. Led by **Project Intent** / Selected story, it names
 the story by its full title under
-its identity, marked **Done** once completed, and says briefly while its default
-Review changes comparison is reading, unavailable or failed, with **Retry** for
+its identity, marked **Done** once completed, and says briefly while its
+comparison is reading, unavailable or failed, with **Retry** for
 a failure, followed by the revisions that comparison runs between or its full
 explanation. Below it the story's views are **CI comparison**, **Changed tests**
 and **Intent coverage**, in that order, as underlined tabs with **Hide files** /
@@ -49,8 +49,10 @@ tree: styled by change kind, added files inserted, deleted files
 kept, a rename at its new path where a location selects it else at its old
 path. A completed story is named by its done record's title. Its browser uses
 the published result's test-source locations, inventory and unchanged-file
-source, and its changed files keep the baseline-to-result diff shown by
-Review changes. Later trunk additions, renames, deletions or settings changes
+source, and its changed files keep the baseline-to-result diff, even while a
+retained workspace has later edits. Its outside-location Review action opens
+that same historical comparison; ordinary card Review can still show the live
+workspace. Later trunk additions, renames, deletions or settings changes
 do not rewrite that history: a later-only test stays outside the tree, and a
 location removed from current settings remains available at the story's
 result. A project visit and refresh leave that source and comparison, the
@@ -68,8 +70,8 @@ title line, in every view, as one compact button: an icon and the number,
 whose accessible name and hover text explain it (for example "2 changed files
 outside Intent locations — open Review changes"). It is absent when no changed
 file is outside the locations. Activating it opens Review changes on Intent's
-comparison (All changes, uncommitted included) even for a story with a review
-mark. Closing that review keeps the selected story, as any Side panel close
+comparison: the historical result for Done, or All changes with uncommitted
+work for an active story, even one with a review mark. Closing that review keeps the selected story, as any Side panel close
 does, so Intent keeps the story's tab, file, and reading place, and the
 keyboard returns to the control that opened the review. A changed file's
 Purpose is Review changes' diff of it, and Proof holds that file's comparison

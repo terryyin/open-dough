@@ -3,7 +3,8 @@
 // view beside the story review: the run the review opens on, or a
 // workspace's all changes, including uncommitted ones. Whether a story has a
 // comparison to read follows `storyComparisonOffered`
-// (`./storyReviewWorkspace.ts`).
+// (`./storyReviewWorkspace.ts`). Done Intent explicitly reads the completed
+// result even when the workspace still exists.
 
 import {
   storyComparisonShown,
@@ -44,13 +45,20 @@ export function useStoryComparison({
   readonly shown: ShownStoryComparison | undefined;
 } {
   const { review, reading, problem, snapshot, selectedRun } =
-    useStoryReviewSelection(source, identity, round, completed, enabled);
+    useStoryReviewSelection({
+      source,
+      identity,
+      round,
+      completed,
+      enabled,
+      historical: completed,
+    });
   const { comparison, tree } = useStoryReviewComparison({
     source,
     identity,
     snapshot,
     ...defaultStoryComparison,
-    active: enabled && selectedRun === undefined,
+    active: enabled && !completed && selectedRun === undefined,
   });
   if (!enabled)
     return {

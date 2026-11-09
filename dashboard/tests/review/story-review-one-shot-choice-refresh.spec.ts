@@ -87,14 +87,14 @@ test("Refresh preserves a selected run after a new capture and after its native 
   await expect(added(review)).toHaveText(["+first.txt"]);
 });
 
-test("Refresh replaces a deleted choice whose native session was replaced with the newest captured run, an expired one with the remaining run, and finally falls back to the evidence gap", async ({
+test("Refresh replaces a deleted choice whose native session was replaced with the newest captured run rather than an older one", async ({
   page,
   dashboard,
   origin,
   codexProtocol,
 }) => {
   if (codexProtocol === undefined) throw new Error("No native fixture");
-  const { first, second, third, legacy } = await reviewChoicesNamed(
+  const { first, third } = await reviewChoicesNamed(
     dashboard,
     origin,
     codexProtocol,
@@ -128,6 +128,29 @@ test("Refresh replaces a deleted choice whose native session was replaced with t
   await expect(select).toHaveValue(third.key);
   await expect(select.locator("option")).toHaveCount(3);
   await expect(added(review)).toHaveText(["+third.txt"]);
+});
+
+test("Refresh replaces an expired choice with the remaining captured run and falls back to the evidence gap when that run is deleted", async ({
+  page,
+  dashboard,
+  origin,
+  codexProtocol,
+}) => {
+  if (codexProtocol === undefined) throw new Error("No native fixture");
+  // This is the retained choice the deletion journey reaches, with only its
+  // remaining captures and legacy run; no earlier mutation is needed here.
+  const { second, third, legacy } = await reviewChoicesNamed(
+    dashboard,
+    origin,
+    codexProtocol,
+    ["second", "third"],
+  );
+  const { review, select, refresh } = await chooseLandedRun(
+    page,
+    origin,
+    third.key,
+    "third",
+  );
   await recordOperation(dashboard, "setRecordDoneAt", [
     "open-dough",
     third.record.session,

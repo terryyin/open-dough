@@ -54,6 +54,18 @@ test("review requests the boundary does not admit are refused and nothing runs",
     [review, { ...story, path: workspace }, 400, malformedRequest],
     [review, { ...story, workspace: "/tmp" }, 400, malformedRequest],
     [
+      review,
+      { ...story, historical: "true" },
+      400,
+      "The historical review request is malformed.",
+    ],
+    [
+      review,
+      { ...story, completed: "true", historical: "false" },
+      400,
+      "The historical review request is malformed.",
+    ],
+    [
       diff,
       { ...fileDiff, baseline: `--output=${written}` },
       400,

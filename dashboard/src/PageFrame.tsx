@@ -217,8 +217,9 @@ export function PageFrame({
                     <StoryReview
                       // Each story review, and each opening of one after Close or
                       // replacement, reads anew; asking again for the one shown
-                      // focuses it and keeps its snapshot until Refresh.
-                      key={`${storyReview.source}\n${storyReview.identity}`}
+                      // focuses it and keeps its snapshot until Refresh. Switching
+                      // between live and historical reading starts a fresh review.
+                      key={`${storyReview.source}\n${storyReview.identity}\n${String(storyReview.historical === true)}`}
                       request={storyReview}
                       maximized={maximized}
                       onMaximize={sidePanel.maximize}

@@ -129,6 +129,7 @@ export function IntentPage({
           outside={outside}
           navigation={navigation}
           projectVisit={onBackToStory !== undefined}
+          browserRevision={shownRevision}
         />
         <div className="intent-page-tabbar" {...intentHomeMarks}>
           {story === undefined ? (

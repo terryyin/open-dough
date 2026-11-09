@@ -65,12 +65,19 @@ export async function storyReviewRequest(
       ...(url.searchParams.has("reference") ? ["reference"] : []),
       ...(url.searchParams.has("run") ? ["run"] : []),
       ...(url.searchParams.has("completed") ? ["completed"] : []),
+      ...(url.searchParams.has("historical") ? ["historical"] : []),
     ],
     "review",
   );
   const completed = url.searchParams.get("completed");
   if (completed !== null && completed !== "true")
     throw new RefusedRequest(400, "The completed review request is malformed.");
+  const historical = url.searchParams.get("historical");
+  if (historical !== null && (historical !== "true" || completed !== "true"))
+    throw new RefusedRequest(
+      400,
+      "The historical review request is malformed.",
+    );
   const found = await queriedRun(url);
   if (url.searchParams.has("reference") && url.searchParams.has("run"))
     throw new RefusedRequest(400, "The review names two run identities.");
@@ -81,7 +88,11 @@ export async function storyReviewRequest(
     ({ record }) => record.landing,
   );
   const { source, identity } = found;
-  const resolved = await resolvedWorkspace(source, identity, found.records);
+  // Historical Intent reads a completed result, never the retained workspace.
+  const resolved =
+    historical === "true"
+      ? undefined
+      : await resolvedWorkspace(source, identity, found.records);
   const readable =
     resolved?.kind === "workspace" &&
     directoryState(resolved.established.workspace).kind === "available";

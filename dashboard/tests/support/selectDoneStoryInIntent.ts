@@ -16,7 +16,9 @@ export async function selectDoneStoryInIntent(
   await showColumn(page, "Recently done");
   const { recentlyDone, intentChoice, intent } = parts(page);
   const card = recentlyDone.getByRole("article", { name: title, exact: true });
-  await card.getByRole("heading", { level: 3 }).click();
+  await card
+    .getByRole("heading", { level: 3, name: title, exact: true })
+    .click();
   await expectSelected(card, true);
   if (beforeIntent !== undefined) await beforeIntent();
   await intentChoice.click();

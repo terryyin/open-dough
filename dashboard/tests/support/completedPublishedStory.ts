@@ -61,6 +61,7 @@ export async function completedPublishedStory(
   options?: {
     readonly sharedAlreadyReady?: boolean;
     readonly intentCoverage?: IntentCoverage | undefined;
+    readonly retainWorkspace?: boolean;
     // After the story branch integrates main and before completion publish
     // (for example a planning-only tip so Branch walks to an ancestor build).
     readonly beforeComplete?: (workspace: string) => void;
@@ -202,6 +203,7 @@ export async function completedPublishedStory(
     missingAgent: variant === "missing-agent",
     completionConflict: variant === "completion-conflict",
     intentCoverage: options?.intentCoverage,
+    retainWorkspace: options?.retainWorkspace,
   });
   return { completion, agent: start.agent, workspace, branch };
 }
