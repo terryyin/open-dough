@@ -34,12 +34,6 @@ export const summaryEntryComparisonCues = [
   {
     count: "none",
     duration: "none",
-    countReason: "not in the compared builds",
-    durationReason: "not in the compared builds",
-  },
-  {
-    count: "none",
-    duration: "none",
     countReason: "unchanged",
     durationReason: "below threshold",
   },

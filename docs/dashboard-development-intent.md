@@ -112,8 +112,11 @@ file text and asks CI nothing again: home and every summary share one
 judgment, proof and comparison-endpoint read.
 Intent uses one page implementation for **Project Intent**, the project's own
 evidence, and [a selected story's views](dashboard-development-intent-story.md).
-Both contexts keep the story view's persistent header, tab row, revision notice
-and reading area in the same order. With no story selected, the header says
+Both contexts keep the story view's persistent header, tab row and reading
+area in the same order. The revision notice and **Show latest** update
+Project Intent's browser; a Done story's three views have neither and retain
+their published result's locations, inventory and source through later project
+revisions. With no story selected, the header says
 **No story selected** and the page offers the project's **CI status** and
 **Optimization Candidates** views. With a story selected, its title, actions and
 applicable views use that same arrangement. The active context identifies whose
@@ -196,7 +199,7 @@ state, not on the URL or in storage. The reading place is kept the same way,
 in memory only:
 the selection, the open location and folders, **Selected story only** and the
 reading pane's scroll show again after Development and back without reading
-the locations or the selected file again. Intent reads one published
+the locations or the selected file again. Project Intent reads one published
 revision, the observed one when the project's Intent first opens. A newer
 observed revision changes nothing shown and reads nothing: however many
 arrive, one polite status beside the reading, which takes no focus, says

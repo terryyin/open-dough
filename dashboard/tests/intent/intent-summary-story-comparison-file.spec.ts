@@ -14,6 +14,7 @@ import {
   expectObservedNotAttributed,
 } from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import {
   fileReadingTab,
   proofRegion,
@@ -161,32 +162,53 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         );
         await fileReadingTab(intent, "Purpose").click();
       });
+  });
 
-    await test.step("an unchanged file shows its source on Purpose with the same compact Proof", async () => {
-      await intentFile(intent, "dashboard/tests/root.spec.ts").click();
-      await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
-      const purposeOnly = purposeRegion(intent);
-      await expect(purposeOnly).toContainText("root 11");
-      await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
-      await expect(purposeOnly.getByRole("table")).toHaveCount(0);
-      await fileReadingTab(intent, "Proof").click();
-      const rootProof = proofRegion(intent);
-      await expectFileComparisonRow(
-        rootProof,
-        "dashboard/tests/root.spec.ts",
-        unchangedFileRow,
-      );
-      if (variant === undefined) {
-        await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
-          count: "none",
-          duration: "none",
-          countReason: "unchanged",
-          durationReason: "unchanged",
-        });
-      }
+  test(`a done story's unchanged file reads its landed source and compact Proof with ${variant ?? "clean merges"}`, async ({
+    page,
+    origin,
+  }) => {
+    const setup = await publishSummaryComparisonStory(page, origin, variant);
+    const unchangedReads: string[] = [];
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (
+        url.pathname === authenticatedReadEndpoint &&
+        url.searchParams.get("path") === "dashboard/tests/root.spec.ts"
+      )
+        unchangedReads.push(url.searchParams.get("revision") ?? "");
     });
+    const { intent } = await selectDoneStoryForSummaryComparison(page);
+    await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+    await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    const purposeOnly = purposeRegion(intent);
+    await expect(purposeOnly).toContainText("root 11");
+    await expect(purposeOnly.locator(".intent-source-meta")).toContainText(
+      `at revision ${setup.completion.slice(0, 7)}`,
+    );
+    expect(unchangedReads).toEqual([setup.completion]);
+    await expect(
+      intentFile(intent, "dashboard/tests/later.spec.ts"),
+    ).toHaveCount(0);
+    await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
+    await expect(purposeOnly.getByRole("table")).toHaveCount(0);
+    await fileReadingTab(intent, "Proof").click();
+    const rootProof = proofRegion(intent);
+    await expectFileComparisonRow(
+      rootProof,
+      "dashboard/tests/root.spec.ts",
+      unchangedFileRow,
+    );
+    if (variant === undefined) {
+      await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
+        count: "none",
+        duration: "none",
+        countReason: "unchanged",
+        durationReason: "unchanged",
+      });
+    }
   });
 }

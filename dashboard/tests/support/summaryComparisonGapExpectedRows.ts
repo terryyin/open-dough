@@ -43,14 +43,6 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
     "removed",
   ],
   [
-    "later.spec.ts",
-    "",
-    "no CI result",
-    "not in the compared builds",
-    "not in the compared builds",
-    "not in the compared builds",
-  ],
-  [
     "renamed.spec.ts",
     "renamed",
     "no file breakdown → 1 tests",
@@ -103,14 +95,6 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
     "Build is still running.",
   ],
   [
-    "later.spec.ts",
-    "",
-    "no CI result",
-    "not in the compared builds",
-    "not in the compared builds",
-    "not in the compared builds",
-  ],
-  [
     "renamed.spec.ts",
     "renamed",
     "1 tests (no change)",
@@ -144,14 +128,6 @@ export const trunkEntryRows: ComparisonScopeRows = [
   ["folder/", "", "2 tests (no change)", "10.3 s", trunkBranch, "+4.1 s"],
   ["added.spec.ts", "added", "added → 1 tests", "added", trunkBranch, "800 ms"],
   ["gone.spec.ts", "removed", "1 → removed", "500 ms", trunkBranch, "removed"],
-  [
-    "later.spec.ts",
-    "",
-    "no CI result",
-    "not in the compared builds",
-    "not in the compared builds",
-    "not in the compared builds",
-  ],
   [
     "renamed.spec.ts",
     "renamed",

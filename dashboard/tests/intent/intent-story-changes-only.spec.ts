@@ -9,7 +9,7 @@
 // (../../src/pageIntentReading.tsx), so it applies its expansion, with the
 // toggle off, the next time Changed tests shows. A story that changed only product code says no
 // test file in a location changed, with the count outside. The choice stays
-// through a new trunk revision and through **Show latest**
+// through a new trunk revision and a Project Intent **Show latest** visit
 // (../../src/IntentRevisionNotice.tsx). The highlighted
 // journey: ./intent-story-changes.spec.ts.
 
@@ -46,6 +46,7 @@ import {
   passTimeUntilCheckedAfterSettled,
 } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { openProjectIntent, returnToStory } from "../intentModePage.ts";
 
 const changedInFirstLocation = [
   changed.modified,
@@ -199,7 +200,7 @@ test("a story that changed only product code says Selected story only has no tes
   );
 });
 
-test("Selected story only stays on through a new trunk revision and Show latest", async ({
+test("Selected story only stays on through a new trunk revision and refreshing Project Intent", async ({
   page,
   origin,
 }) => {
@@ -224,12 +225,16 @@ test("Selected story only stays on through a new trunk revision and Show latest"
     `Published work read at revision ${shortRevision(later)}`,
   );
   const notice = revisionNotice(intent);
-  await expect(notice).toHaveCount(1);
+  await expect(notice).toHaveCount(0);
   await expect(toggle).toBeChecked();
   await expectStoryExpansion(intent);
 
+  await openProjectIntent(intent);
+  await expect(notice).toHaveCount(1);
   await notice.getByRole("button", { name: "Show latest" }).click();
   await expect(notice).toHaveCount(0);
+  await returnToStory(intent);
+  await expectStoryTab(intent, "Changed tests");
   await expect(toggle).toBeChecked();
   await expectStoryExpansion(intent);
   await expect(

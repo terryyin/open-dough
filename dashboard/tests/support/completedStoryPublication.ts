@@ -39,6 +39,7 @@ export function publishCompletedStory(
     missingAgent,
     completionConflict,
     intentCoverage,
+    identity = queuedIdentity,
   }: {
     workspace: string;
     branch: string;
@@ -46,6 +47,7 @@ export function publishCompletedStory(
     missingAgent: boolean;
     completionConflict: boolean;
     intentCoverage?: IntentCoverage | undefined;
+    identity?: string;
   },
 ) {
   const coverageArgs: string[] = [];
@@ -72,13 +74,13 @@ export function publishCompletedStory(
       "--file",
       ".planning/PRODUCT-BACKLOG.md",
       "--identity",
-      queuedIdentity,
+      identity,
       ...coverageArgs,
     ],
     { cwd: workspace },
   );
   if (missingAgent) {
-    const record = `.planning/done/${doneRecordFileName(queuedIdentity)}`;
+    const record = `.planning/done/${doneRecordFileName(identity)}`;
     const facts = JSON.parse(
       readFileSync(path.join(workspace, record), "utf8"),
     ) as Record<string, unknown>;
