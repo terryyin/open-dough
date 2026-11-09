@@ -715,6 +715,14 @@ every slice until acceptance.
   - Evidence: Plan 530 premise "Consumer set" (48 files from `grep -rlE '# Product backlog|## Backlog list' dashboard/tests`). Slice 2 found 13 `dashboard/backend-tests` specs outside it; slice 3 acceptance found about 20 helpers using `renderDoneRecord`/`withDoneCatalog` outside it (obligation G1). Slice 4 was added and migrated them (`84506544d`).
   - Observed effect: One extra slice (about 45 minutes of agent time) and two plan rewrites during execution; the source review's commitment 10 surfaced the gap at acceptance.
   - Inference: Deriving the inventory from the story's governing rule (the published-file encoders and file paths a fake GitHub serves) rather than from one literal symptom would likely have sized four slices up front.
+- Execution: SEED-275#preserve-story-on-panel-close (plan 546-preserve-story-on-panel-close; first related implementation commit `818481d9f42a226c90681ab6b6086cfae0c3a3a1`)
+  - Timestamp: unknown (2026-11-09, slice 1 implementation's directory run)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `26c51a258`)
+  - Evidence: Plan 546's premise "Named specs assert clear-on-close" came from a scratch run of 5 named intent/sessions specs, and its gate named only the `intent` and `sessions` directories. The story's rule covers every Side panel dismissal. The implementation's run of `intent`, `sessions`, `review` and `navigation` found 4 more consumers: `session-workspace-retirement*.spec.ts`, `navigation/development-intent-frame-sessions.spec.ts`, and `intent-story-changes-marked.spec.ts`.
+  - Observed effect: The same implementation agent fixed them within the slice. No extra slice and no failed CI. `development-intent-frame-sessions` sits outside the plan's gate directories, so only the consumer-trace widening caught it locally.
+  - Inference: A premise search for every spec that asserts selection after a Side panel close (`expectSelected(..., false)` or a missing `data-selected-story` after Close, Mark as done or delete) would have listed them up front.
 
 ## DD-469 — A trunk merge's proof selected changed specs, not consumers of the changed contract
 After merging trunk into a story branch, the coordinator proved the merge with

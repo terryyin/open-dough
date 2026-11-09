@@ -73,6 +73,13 @@ Learnings:
 - Refactor: Intent reading-pane scroll helpers shared in
   `dashboard/tests/intentPerspectivePage.ts`.
 
+## Execution complete
+
+Product advice: no change. The delivered behavior matches ADR 0008's
+existing selection rule and the story; nothing in the queue's direction is
+affected. The local-only `overflow: clip` terminal fix is a small product
+correction with no visible change once xterm refits.
+
 ## Proof and delivery gates
 
 Run the focused specs named above and the whole `dashboard/tests/intent` and
