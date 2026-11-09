@@ -65,28 +65,19 @@ export const summaryFolderComparisonCues = [
   },
 ] as const;
 
+const cueStates = (targets: Locator) =>
+  targets.evaluateAll((nodes) =>
+    nodes.map((node) => ({
+      count: node.getAttribute("data-ci-count-cue"),
+      duration: node.getAttribute("data-ci-duration-cue"),
+      countReason: node.getAttribute("data-ci-count-cue-reason"),
+      durationReason: node.getAttribute("data-ci-duration-cue-reason"),
+    })),
+  );
+
 export async function expectCueState(target: Locator, expected: ExpectedCues) {
-  if (expected.count !== undefined) {
-    await expect(target).toHaveAttribute("data-ci-count-cue", expected.count);
-  }
-  if (expected.duration !== undefined) {
-    await expect(target).toHaveAttribute(
-      "data-ci-duration-cue",
-      expected.duration,
-    );
-  }
-  if (expected.countReason !== undefined) {
-    await expect(target).toHaveAttribute(
-      "data-ci-count-cue-reason",
-      expected.countReason,
-    );
-  }
-  if (expected.durationReason !== undefined) {
-    await expect(target).toHaveAttribute(
-      "data-ci-duration-cue-reason",
-      expected.durationReason,
-    );
-  }
+  await target.waitFor({ state: "attached" });
+  await expect.poll(() => cueStates(target)).toMatchObject([expected]);
 }
 
 export async function expectEntryRowCues(
@@ -97,10 +88,8 @@ export async function expectEntryRowCues(
     name: "CI entry timing comparison",
   });
   const body = table.locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, cues] of rows.entries()) {
-    await expectCueState(body.nth(at), cues);
-  }
+  if (rows.length > 0) await body.first().waitFor({ state: "attached" });
+  await expect.poll(() => cueStates(body)).toMatchObject([...rows]);
 }
 
 // PATH's own figures carry the first of CUES, its table rows the rest.
@@ -112,10 +101,8 @@ export async function expectScopeRowCues(
   if (own === undefined) throw new Error(`no own cues of ${path}`);
   await expectCueState(scopeFigures(summary, path), own);
   const body = scopeTable(summary, path).locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, cues] of rows.entries()) {
-    await expectCueState(body.nth(at), cues);
-  }
+  if (rows.length > 0) await body.first().waitFor({ state: "attached" });
+  await expect.poll(() => cueStates(body)).toMatchObject([...rows]);
 }
 
 export async function expectProofRowCues(

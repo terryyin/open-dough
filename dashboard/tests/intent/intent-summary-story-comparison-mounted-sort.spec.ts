@@ -61,8 +61,7 @@ test("Summary Change keeps unchanged children last in both directions", async ({
   ]);
   await expect(table.locator("th[aria-sort]")).toHaveCount(0);
   await sortButton(table, "Change").click();
-  await expectSortedBy(table, "Change", "ascending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Change", "ascending", [
     "added.spec.ts",
     "gone.spec.ts",
     "renamed.spec.ts",
@@ -70,8 +69,7 @@ test("Summary Change keeps unchanged children last in both directions", async ({
     "root.spec.ts",
   ]);
   await sortButton(table, "Change").click();
-  await expectSortedBy(table, "Change", "descending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Change", "descending", [
     "renamed.spec.ts",
     "gone.spec.ts",
     "added.spec.ts",
@@ -93,8 +91,7 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
   await expectComparisonScopeRows(summary, entry, entryComparisonRows);
   await sortButton(table, "Landed").click();
   await sortButton(table, "Landed").click();
-  await expectSortedBy(table, "Landed", "descending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Landed", "descending", [
     "folder/",
     "root.spec.ts",
     "added.spec.ts",
@@ -167,11 +164,9 @@ for (const column of ["Branch", "Landed", "Baseline"] as const) {
     const { ascending, descending } =
       mountedSummarySortExpected[column === "Baseline" ? "baseline" : "signed"];
     await sortButton(table, column).click();
-    await expectSortedBy(table, column, "ascending");
-    await expect(rowNames(table)).toHaveText(ascending);
+    await expectSortedBy(table, column, "ascending", ascending);
     await sortButton(table, column).click();
-    await expectSortedBy(table, column, "descending");
-    await expect(rowNames(table)).toHaveText(descending);
+    await expectSortedBy(table, column, "descending", descending);
   });
 }
 

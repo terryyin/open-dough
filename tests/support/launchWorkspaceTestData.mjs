@@ -13,12 +13,16 @@
  * only an agent and a published revision given here.
  * @typedef {EstablishedBranch & { publisherId?: string, publishedSha?: string, agent?: string, plan?: string, startingRevision?: string, target?: string }} StoryBranch
  */
+/**
+ * A one-shot story start publishes no assignment and states its workspace policy.
+ * @typedef {EstablishedBranch & { tracking: "one-shot", role: "isolated" | "default-checkout", landing: "auto-land" | "review", startingRevision?: string, target?: string }} OneShotBranch
+ */
 
 /**
  * The record fields of the story branch `storyBranch` the story's execution
  * or refinement established, with fixed published facts for an execution.
  * @param {{ workflow: "execution" | "refinement", identity: string }} story
- * @param {StoryBranch | undefined} storyBranch
+ * @param {StoryBranch | OneShotBranch | undefined} storyBranch
  */
 export function storyBranchFacts({ workflow, identity }, storyBranch) {
   if (!storyBranch) return {};
@@ -29,6 +33,20 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
     remote: "origin",
     target: storyBranch.target ?? "main",
   };
+  if ("tracking" in storyBranch) {
+    const oneShot = {
+      ...established,
+      tracking: storyBranch.tracking,
+      role: storyBranch.role,
+      landing: storyBranch.landing,
+      ...(storyBranch.startingRevision !== undefined && {
+        startingRevision: storyBranch.startingRevision,
+      }),
+    };
+    return workflow === "refinement"
+      ? { preparation: oneShot }
+      : { start: { ...oneShot, mode: /** @type {const} */ ("story-branch") } };
+  }
   if (workflow === "refinement")
     return {
       preparation: {
@@ -62,11 +80,17 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
  */
 
 /**
- * The policy an ad hoc request asked for to establish `established`.
- * @param {AdHocWorkspace | undefined} established
+ * The policy a one-shot story or ad hoc request asked for to establish its place.
+ * @param {AdHocWorkspace | StoryBranch | OneShotBranch | undefined} established
  */
 export function requestedPolicy(established) {
-  if (!established) return undefined;
+  if (!established || !("role" in established)) return undefined;
+  if ("tracking" in established)
+    return {
+      tracking: established.tracking,
+      workspace: established.role,
+      landing: established.landing,
+    };
   return established.role === "isolated"
     ? {
         workspace: /** @type {const} */ ("isolated"),

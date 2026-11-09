@@ -12,6 +12,10 @@ transcript CI's proof fragments are written from; and
 See [local resource use](../../tests/local-test-resources.md) for admission
 across worktrees, worker settings, cleanup and machine sleep on macOS.
 
+[Intent CI comparison proof](intent-ci-comparison-proof.md) maps fast rule
+owners to retained acquisition, navigation and recovery journeys and describes
+their performance measurements.
+
 ## Three roots: integrated journeys, frontend-only, and boundary tests
 
 A **browser journey** proves one representative, integrated user journey in
@@ -94,27 +98,8 @@ Put a check where it is cheapest to prove, and prove it once:
   test. Servers and fake GitHub stay per test: siblings vary `projectFolders`,
   `launchTimeoutMs`, viewport and usually launch or mark done.
 
-An installed start names the MakeMe repository description its origin starts
-with, at the `startOrigin` call or in its origin fixture's option, which a spec
-overrides with `test.use`; with none, the origin holds an empty valid backlog.
-The harness adds `.gitignore` and the installed skills to the description's
-first commit. The runner packs the default and the shared queued description
-once per requested layout, Claude or Codex/Cursor, from current working-tree
-skills (`support/startOriginPreparation.ts`). A description sharing their
-first revision starts from that origin, its checkout pushing the later ones;
-another is materialized privately on that installation, once per process.
-Tests clone private copies with independent objects, refs, config, indexes and
-HOME. Nested configurations can inherit the outer runner's artifacts. Without
-an owner, a start prepares only its layout and removes that preparation after
-initialization. An explicit prepared-origin fixture path takes precedence.
-
-The story-columns journey (`launchJourney.ts`) shares its queued, preparing
-and taken revisions the same way: the runner prepares that history once as a
-snapshot (`story-columns-prefix`), and the shared materializer copies it into
-each worker's own origin and checkout before committing that worker's
-completion revision (`tests/support/repository-fixture.mjs`). Without an
-owner, or for a description with other leading revisions, the worker builds
-the whole history itself.
+[Shared fixture origins](fixture-origins.md) describes installed-start MakeMe
+histories, per-run preparation and independent worker copies.
 
 ## Synchronization
 

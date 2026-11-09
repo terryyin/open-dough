@@ -35,6 +35,8 @@ to it. The source keeps that measurement distinction explicit.
 
 **Presentation proof:** [Scope assertions, retirement and measurements](presentation-evidence.md).
 
+**Final evaluation:** [Whole-family, cleanup bounds and portable CI checkpoint](portable-evidence.md).
+
 ## Ordered slices
 
 ### 1. Get a fast answer for published story endpoints
@@ -134,13 +136,13 @@ proof for connections a mounted surface cannot establish. Declare these
 integration owners before measurement. Profile all replacement cases, per-test
 browser setup, shared bundle build and retained integration.
 
-### 5. Refresh captured review choices from stored records
+### 5. Refresh stored review choices and verify portable rules
 
 Type: Behavior
 Status: planned
 Proof: Sub-second cases through the real record store/selection boundary,
 including `reviewLandedRunsOf`, `preferredReviewRun`, `reviewRunKey` and retention;
-the two UI Refresh journeys with direct MakeMe setup; existing real one-shot
+the three UI Refresh journeys with direct MakeMe setup; existing real one-shot
 launch/capture owners.
 
 Given captured and legacy records, Refresh keeps the chosen run after a newer
@@ -172,33 +174,25 @@ while any rule-focused test remains over it or the local feedback path has no
 demonstrated improvement. Keep still-needed results in maintained test docs
 before wrap-up removes this plan.
 
+Published CI found sixteen mounted rules at 1,019–1,581 ms (G3). Inspectable
+step data assigns the excess to repeated DOM assertions and actions, with
+shared hooks excluded. Keep the mounted production boundary and batch coherent
+DOM observations in existing assertion owners, preserving independent expected
+rows, cues, roles and sort states. Compare the simpler batched observer with the
+existing serial reads; measure all replacements locally and in published CI.
+No slower rule becomes integration, no setup moves into shared hooks, and no
+story promise changes. Refresh arrangement proceeds independently of these UI
+observers; combine both in the final ordinary selection.
+
 ## Current decisions and learnings
 
-Slice 1 uses the existing public history operations for fast owning/foreign,
-fast-forward and completion rules, with actual Git and shared immutable prefix
-preparation. Its ordinary new rules passed in 0–498 ms; preserve the separate
-full-reader composition and UI observations until G1 is settled. No history
-cache is selected. See the linked execution evidence for measurements and
-rejected experiments.
-
-The load-27 refactor check then measured the actual-Git rule cases at
-1,811–2,305 ms while the ten in-process cases stayed at 1–10 ms. G2 returns
-this performance gap to slice 1 before delivery. Assess a concrete raw-history
-acquisition boundary in the existing published evidence/landing/completion
-owners, retaining their actual algorithms and one explicitly mapped real
-acquisition connection. Do not relabel the three measured slow rules as wiring.
-
-PFE selected one `PublishedStoryHistory` acquisition contract using the existing
-Git calls: authored parents, batched profile text, profile path history,
-ordered/merge revisions, ancestry and live author configuration. Existing claim,
-owning-side, landing and completion algorithms consume it. MakeMe's canonical
-graph supplies equivalent external facts for fast rules. This bounded correction
-is authorized within slice 1; first establish fault-equivalent fast proof and
-the declared real acquisition connection, then retire the three slow rule cases.
-The shared concept is published story history used by both comparison and
-Review. Necessary callers include published endpoints/commits, completed claim
-and merge evidence, and Taken endpoints. Adapt those callers coherently to the
-same acquisition owner; preserve their domain rules, errors and public results.
+Slice 1's raw-history acquisition decision, load-27 counterexample and six
+fault controls are retained in execution-evidence and G2. One
+`PublishedStoryHistory` acquisition owner supplies authored parents, profile
+history, ordered/merge revisions, ancestry and author configuration to the
+existing comparison and Review algorithms. MakeMe supplies canonical external
+facts; actual Git acquisition retains its declared integration owner. No
+history cache, endpoint recognizer or changed domain rule is selected.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.

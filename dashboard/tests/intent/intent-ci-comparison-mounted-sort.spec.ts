@@ -37,30 +37,26 @@ test("Baseline and Counts sort with click, Enter and Space, directions and basel
   await expect(table.locator("th[aria-sort]")).toHaveCount(0);
   const baseline = sortButton(table, "Baseline");
   await baseline.click();
-  await expectSortedBy(table, "Baseline", "ascending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Baseline", "ascending", [
     "tests",
     "dashboard/tests",
     "src/skills",
   ]);
   await baseline.press("Enter");
-  await expectSortedBy(table, "Baseline", "descending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Baseline", "descending", [
     "dashboard/tests",
     "tests",
     "src/skills",
   ]);
   await sortButton(table, "Counts").focus();
   await page.keyboard.press("Space");
-  await expectSortedBy(table, "Counts", "ascending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Counts", "ascending", [
     "src/skills",
     "tests",
     "dashboard/tests",
   ]);
   await sortButton(table, "Counts").click();
-  await expectSortedBy(table, "Counts", "descending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Counts", "descending", [
     "dashboard/tests",
     "tests",
     "src/skills",
@@ -116,8 +112,7 @@ for (const column of ["Branch", "Landed"] as const) {
     });
     const header = sortButton(table, column);
     await header.click();
-    await expectSortedBy(table, column, "ascending");
-    await expect(rowNames(table)).toHaveText([
+    await expectSortedBy(table, column, "ascending", [
       "e/down",
       "e/small",
       "e/big",
@@ -125,8 +120,7 @@ for (const column of ["Branch", "Landed"] as const) {
       "e/added",
     ]);
     await header.press("Enter");
-    await expectSortedBy(table, column, "descending");
-    await expect(rowNames(table)).toHaveText([
+    await expectSortedBy(table, column, "descending", [
       "e/big",
       "e/small",
       "e/down",

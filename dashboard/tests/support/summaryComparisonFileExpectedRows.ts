@@ -2,8 +2,11 @@
 // (../intent/intent-summary-story-comparison-file.spec.ts): a selected file's
 // one compared row names its story change after its path.
 
-import { expect, type Locator } from "@playwright/test";
-import { comparisonTableColumns } from "../intentScopeProofPage.ts";
+import type { Locator } from "@playwright/test";
+import {
+  comparisonTableColumns,
+  expectProofTableRows,
+} from "../intentScopeProofPage.ts";
 
 type FileComparisonRow = readonly [string, string, string, string, string];
 
@@ -55,15 +58,14 @@ export async function expectFileComparisonRow(
   row: FileComparisonRow,
 ) {
   const table = proof.getByRole("table", { name: `CI proof of ${path}` });
-  await expect(table.getByRole("columnheader")).toHaveText([
-    "Scope",
-    ...comparisonTableColumns.map((name) =>
-      name === "Branch" || name === "Landed" ? `${name} vs baseline` : name,
-    ),
-  ]);
-  const body = table.locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(1);
-  const [scope, ...cells] = row;
-  await expect(body.nth(0).getByRole("rowheader")).toHaveText(scope);
-  await expect(body.nth(0).getByRole("cell")).toHaveText([...cells]);
+  await expectProofTableRows(
+    table,
+    [
+      "Scope",
+      ...comparisonTableColumns.map((name) =>
+        name === "Branch" || name === "Landed" ? `${name} vs baseline` : name,
+      ),
+    ],
+    [row],
+  );
 }

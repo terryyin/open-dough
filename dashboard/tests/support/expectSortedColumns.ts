@@ -21,12 +21,57 @@ export async function expectSortedBy(
   table: Locator,
   name: string,
   direction: "ascending" | "descending",
+  names?: readonly string[],
 ) {
-  await expect(sortHeader(table, name)).toHaveAttribute("aria-sort", direction);
-  await expect(table.locator("th[aria-sort]")).toHaveCount(1);
-  const mark = sortHeader(table, name).locator(".intent-ci-sort-mark");
-  await expect(mark).toHaveAttribute("data-direction", direction);
+  const header = sortHeader(table, name);
+  await expect(header).toHaveAttribute("aria-sort", direction);
+  const parts = names === undefined ? header : header.or(rowNames(table));
+  await expect
+    .poll(() =>
+      parts.evaluateAll((nodes) => ({
+        headers: nodes
+          .filter((node) => node.closest("thead") !== null)
+          .map((node) => ({
+            tag: node.tagName,
+            scope: node.getAttribute("scope"),
+            role: node.getAttribute("role"),
+            direction: node.getAttribute("aria-sort"),
+            sortedHeaders: node
+              .closest("table")
+              ?.querySelectorAll("th[aria-sort]").length,
+            marks: Array.from(
+              node.querySelectorAll(".intent-ci-sort-mark"),
+              (mark) => ({
+                direction: mark.getAttribute("data-direction"),
+                arrows: Array.from(mark.querySelectorAll("svg"), (svg) =>
+                  svg.getAttribute("aria-hidden"),
+                ),
+              }),
+            ),
+          })),
+        rows: nodes
+          .filter((node) => node.closest("tbody") !== null)
+          .map((node) =>
+            node.textContent
+              .replace(/[\u200b\u00ad]/g, "")
+              .trim()
+              .replace(/\s+/g, " "),
+          ),
+      })),
+    )
+    .toEqual({
+      headers: [
+        {
+          tag: "TH",
+          scope: "col",
+          role: null,
+          direction,
+          sortedHeaders: 1,
+          marks: [{ direction, arrows: ["true"] }],
+        },
+      ],
+      rows: names ?? [],
+    });
+  const mark = header.locator(".intent-ci-sort-mark");
   await expect(mark.locator("svg")).toBeVisible();
-  // The arrow is decorative: aria-sort announces the direction.
-  await expect(mark.locator("svg")).toHaveAttribute("aria-hidden", "true");
 }

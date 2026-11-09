@@ -34,25 +34,79 @@ async function expectOwnFigures(
   figures: readonly string[],
 ) {
   const group = scopeFigures(summary, path);
-  await expect(group.getByRole("term")).toHaveText([...columns]);
-  await expect(group.getByRole("definition")).toHaveText([...figures]);
+  await group.waitFor({ state: "attached" });
+  const parts = group.getByRole("term").or(group.getByRole("definition"));
+  await expect
+    .poll(() =>
+      parts.evaluateAll((nodes) =>
+        nodes.map((node) => ({
+          tag: node.tagName,
+          role: node.getAttribute("role"),
+          text: node.textContent
+            .replace(/[\u200b\u00ad]/g, "")
+            .trim()
+            .replace(/\s+/g, " "),
+        })),
+      ),
+    )
+    .toEqual(
+      columns.flatMap((text, at) => [
+        { tag: "DT", role: null, text },
+        { tag: "DD", role: null, text: figures[at] },
+      ]),
+    );
 }
 
-// The rows of PATH's table, each its scope then its cells.
-async function expectTableRows(
-  summary: Locator,
-  path: string,
+// One observation of a native proof table's semantic parts. Role locators
+// exclude hidden output; tags/scopes preserve column/row-header/cell identity.
+// Expected words remain the caller's independent columns and rows.
+export async function expectProofTableRows(
+  table: Locator,
   columns: readonly string[],
   rows: readonly (readonly string[])[],
 ) {
-  const table = scopeTable(summary, path);
-  await expect(table.getByRole("columnheader")).toHaveText([...columns]);
+  await table.waitFor({ state: "attached" });
   const body = table.locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, [scope, ...cells]] of rows.entries()) {
-    await expect(body.nth(at).getByRole("rowheader")).toHaveText(scope ?? "");
-    await expect(body.nth(at).getByRole("cell")).toHaveText(cells);
-  }
+  const parts = table
+    .getByRole("columnheader")
+    .or(body)
+    .or(body.getByRole("rowheader"))
+    .or(body.getByRole("cell"));
+  const expected = (
+    tag: string,
+    scope: string | null,
+    text: string | null,
+  ) => ({
+    tag,
+    scope,
+    role: null,
+    text,
+  });
+  await expect
+    .poll(() =>
+      parts.evaluateAll((nodes) =>
+        nodes.map((node) => ({
+          tag: node.tagName,
+          scope: node.getAttribute("scope"),
+          role: node.getAttribute("role"),
+          text:
+            node.tagName === "TR"
+              ? null
+              : node.textContent
+                  .replace(/[\u200b\u00ad]/g, "")
+                  .trim()
+                  .replace(/\s+/g, " "),
+        })),
+      ),
+    )
+    .toEqual([
+      ...columns.map((text) => expected("TH", "col", text)),
+      ...rows.flatMap(([scope, ...cells]) => [
+        expected("TR", null, null),
+        expected("TH", "row", scope ?? ""),
+        ...cells.map((text) => expected("TD", null, text)),
+      ]),
+    ]);
 }
 
 export const scopeColumns = ["Scope", ...proofColumns.slice(1)];
@@ -113,7 +167,7 @@ export async function expectScopeRows(
     [...scopeColumns.slice(1), "Parts"],
     figures,
   );
-  await expectTableRows(summary, path, scopeColumns, rows);
+  await expectProofTableRows(scopeTable(summary, path), scopeColumns, rows);
 }
 
 // The same with a selected story's Baseline / Branch / Landed columns, the
@@ -127,7 +181,11 @@ export async function expectComparisonScopeRows(
   const [scope, , ...figures] = own;
   expect(scope).toBe(path);
   await expectOwnFigures(summary, path, comparisonFigureColumns, figures);
-  await expectTableRows(summary, path, comparisonScopeColumns, rows);
+  await expectProofTableRows(
+    scopeTable(summary, path),
+    comparisonScopeColumns,
+    rows,
+  );
 }
 
 // The control naming one immediate child in the Summary's table; a folder's

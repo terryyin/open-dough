@@ -19,10 +19,6 @@ export function comparisonLabels(region: Locator, story: string): Locator {
   return evidenceLabels(region, `CI timing comparison of ${story}`);
 }
 
-// What a reader hears a label say before its full words: what its icon
-// stands for, where its shown words leave that out, and those words.
-const heard = (label: Locator) => label.locator(".intent-evidence-label-heard");
-
 // The words a label shows beside its icon.
 export const labelWords = (label: Locator) =>
   label.locator(".intent-evidence-label-words");
@@ -41,11 +37,33 @@ export function evidenceLabel(region: Locator, name: string): Locator {
 
 // LABEL says FULL in full: heard after its words, and on hover.
 export async function expectInFull(label: Locator, full: string | RegExp) {
-  await expect(label.locator(".intent-evidence-label-full")).toHaveText(full);
-  await expect(label.locator(".intent-evidence-label-content")).toHaveAttribute(
-    "title",
-    full,
-  );
+  const expected = full instanceof RegExp ? expect.stringMatching(full) : full;
+  await expect
+    .poll(() =>
+      label.evaluate(
+        (element, normalize) => {
+          const text = (value: string) =>
+            normalize
+              ? value
+                  .replace(/[\u200b\u00ad]/g, "")
+                  .trim()
+                  .replace(/\s+/g, " ")
+              : value;
+          return {
+            full: Array.from(
+              element.querySelectorAll(".intent-evidence-label-full"),
+              (node) => text(node.textContent),
+            ),
+            titles: Array.from(
+              element.querySelectorAll(".intent-evidence-label-content"),
+              (node) => node.getAttribute("title"),
+            ),
+          };
+        },
+        typeof full === "string",
+      ),
+    )
+    .toEqual({ full: [expected], titles: [expected] });
 }
 
 // The label heard as NAME within REGION says FULL in full.
@@ -69,17 +87,46 @@ export async function expectAttemptLinked(
   );
 }
 
+async function expectLabelNames(
+  strip: Locator,
+  names: readonly string[],
+  exact: boolean,
+) {
+  const labels = strip.getByRole("listitem");
+  if (names.length > 0) await labels.first().waitFor({ state: "attached" });
+  await expect
+    .poll(() =>
+      labels.evaluateAll(
+        (items, { count, exact }) => ({
+          count: exact ? items.length : null,
+          labels: items.slice(0, count).map((item) => ({
+            heard: Array.from(
+              item.querySelectorAll(".intent-evidence-label-heard"),
+              (node) =>
+                node.textContent
+                  .replace(/[\u200b\u00ad]/g, "")
+                  .trim()
+                  .replace(/\s+/g, " "),
+            ),
+            ariaLabel: item.getAttribute("aria-label"),
+          })),
+        }),
+        { count: names.length, exact },
+      ),
+    )
+    .toEqual({
+      count: exact ? names.length : null,
+      labels: names.map((name) => ({ heard: [name], ariaLabel: null })),
+    });
+}
+
 // The strip begins with labels heard as NAMES, in order, whatever follows
 // them; each is heard from its content, with no `aria-label` over it.
 export async function expectLeadingEvidenceLabels(
   strip: Locator,
   names: readonly string[],
 ) {
-  const labels = strip.getByRole("listitem");
-  for (const [at, name] of names.entries()) {
-    await expect(heard(labels.nth(at))).toHaveText(name);
-    await expect(labels.nth(at)).not.toHaveAttribute("aria-label");
-  }
+  await expectLabelNames(strip, names, false);
 }
 
 // The strip holds exactly labels heard as NAMES, in order.
@@ -87,8 +134,7 @@ export async function expectEvidenceLabels(
   strip: Locator,
   names: readonly string[],
 ) {
-  await expect(strip.getByRole("listitem")).toHaveCount(names.length);
-  await expectLeadingEvidenceLabels(strip, names);
+  await expectLabelNames(strip, names, true);
 }
 
 // REGION's evidence first names ATTEMPT ("Run 41 · attempt 2" or an

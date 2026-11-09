@@ -32,7 +32,7 @@ import {
 export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   /** @type {import("./launchRequestTestData.mjs").Requested | undefined} */
   #requested;
-  /** @type {import("./launchWorkspaceTestData.mjs").StoryBranch | undefined} */
+  /** @type {import("./launchWorkspaceTestData.mjs").StoryBranch | import("./launchWorkspaceTestData.mjs").OneShotBranch | undefined} */
   #storyBranch;
   /** @type {((name: string) => LaunchRecord["session"]) | undefined} */
   #session;
@@ -45,6 +45,8 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
   #reporting;
   /** @type {LaunchRecord["request"]["model"]} */
   #model;
+  /** @type {LaunchRecord["landing"]} */
+  #landing;
 
   /**
    * A launch of the story by this workflow, in the `open-dough` project
@@ -88,10 +90,16 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
    * story's worktree on its story branch; an execution's claim may also name
    * its agent, its plan and the revision it started from, and a refinement's
    * preparation its agent and the revision that published its announcement.
-   * @param {import("./launchWorkspaceTestData.mjs").StoryBranch} storyBranch
+   * @param {import("./launchWorkspaceTestData.mjs").StoryBranch | import("./launchWorkspaceTestData.mjs").OneShotBranch} storyBranch
    */
   onStoryBranch(storyBranch) {
     this.#storyBranch = storyBranch;
+    return this;
+  }
+
+  /** @param {NonNullable<LaunchRecord["landing"]>} landing captured comparison */
+  withLanding(landing) {
+    this.#landing = landing;
     return this;
   }
 
@@ -214,7 +222,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
       host: session.host,
       model: this.#model,
       reporting: this.#reporting,
-      policy: requestedPolicy(adHocWorkspace),
+      policy: requestedPolicy(adHocWorkspace ?? storyBranch),
     });
     return {
       ...requestField,
@@ -223,6 +231,7 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
         ? establishedSessionFacts(adHocWorkspace)
         : storyBranchFacts(requested, storyBranch)),
       ...launchFacts,
+      ...(this.#landing && { landing: this.#landing }),
     };
   }
 }
