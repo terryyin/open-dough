@@ -9,7 +9,6 @@ import {
   commitShaPattern,
   isSafeBranchName,
 } from "../src/authenticatedReadRules.ts";
-import { notLandedYetExplanation } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { resolveBranchHeadViaGh } from "./ghRevision.ts";
@@ -223,10 +222,4 @@ export async function takenStoryEndpoints(
   }
 }
 
-export const notLandedYet: {
-  readonly kind: "not-landed";
-  readonly explanation: string;
-} = {
-  kind: "not-landed",
-  explanation: notLandedYetExplanation,
-};
+export { notLandedYet } from "./intentCiComparisonSlots.ts";

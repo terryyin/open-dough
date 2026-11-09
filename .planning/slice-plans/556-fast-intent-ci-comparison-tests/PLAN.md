@@ -27,7 +27,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Rendering](render-evidence.md) · [HTTP teardown](server-close-evidence.md) ·
-[Static sort](static-sort-evidence.md) · [Portable evaluation](portable-evidence.md).
+[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Portable evaluation](portable-evidence.md).
 
 ## Ordered slices
 
@@ -112,7 +112,7 @@ and seven lifecycle rules remain with 8; G6/G7 causal repairs stay retained.
 ### 7. Keep current Done finality rules fast after integration
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Actual shared pending/final judgment and comparison memory over canonical
 raw published/history/artifact/receipt facts; mapped real persistence/transport.
 
@@ -179,11 +179,11 @@ routes and the selected SSR/live-binding strategy; its compatible proof stays.
 Published 742f80b passes all 170 rules and all 17 jobs;77 static complete CI uppers
 are below 1000 ms (max 927), with all native/cardinality/literal proof preserved.
 G8 has the same observer's exact success receipt after the provider pause.
-Incoming 9f88 adds 24 Git/CLI/server rule cases and 3 UI journeys. Preserve its
-pending/final judgment through the existing raw-source model before client work.
-Split remaining work into server-finality 7 and client/aggregate 8; the selected
-PFE reuses actual receipt/artifact readers and one shared judgment, no new model.
-Both slices gate broad migration on their consuming pilot. Original 130 source
+Incoming 9f88 now shares one actual judge/receipt/artifact model with raw facts.
+Slice7 proves all27 incoming oracles through22 fast rules and12 real connections;
+backend61.09→19.62s, full34 wall29.66s, rule4–20ms before tiny wrapper cleanup.
+Controls/receivers/refactor pass; portable/full-family acceptance stays with8.
+Its consuming owner pilot still gates retirement. Original 130 source
 texts, target, completed proof and defaults remain unchanged. No numeric slice
 target/hard limit or >15-slice recommendation applies; no human decision is open.
 
@@ -246,4 +246,4 @@ Disposition: receiving slice 8
 ### G9. Incoming finality rules repeat Git and server acquisition
 Reported: slice 6 — "main 9f88 adds 24 actual Git/CLI/server backend cases and 3 UI journeys, outside the current 170-owner manifest; preserve its accepted pending/final semantics and all distinct oracles through current fast owners."
 Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: finality-evidence.md and slice7-27-final-map preserve all27 incoming identities/oracles,22 actual fast rule owners4–20ms and12 mapped real connections; actual matcher/artifact/brand/memory controls, default/parser/history/UI/PID/persistence receivers and independent refactor pass. Full family/load/exactCI remain8.

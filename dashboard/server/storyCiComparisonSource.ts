@@ -10,6 +10,10 @@ import {
 import { runGit } from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { lookupContext, workflowOf } from "./intentCiComparisonSlots.ts";
+import { readableRecordsByProject } from "./launchRecordStore.ts";
+import { readStoredLandedCiHistory } from "./landedCiHistoryStore.ts";
+import type { LandingReceiptFacts } from "./landedCiReceipt.ts";
+import { observationNow } from "./observationClock.ts";
 import {
   publishedStoryEndpoints,
   type PublishedStoryEndpointFacts,
@@ -38,6 +42,9 @@ export type StoryCiComparisonSource = {
   ) => Promise<ComparisonBuildContext>;
   readonly verifyRevision: (revision: string) => Promise<void>;
   readonly trunkHead: string;
+  readonly project: Pick<PublishedSource, "id" | "ref">;
+  readonly landingReceipts: () => Promise<LandingReceiptFacts>;
+  readonly observationNow: () => number;
 };
 
 export function storyCiComparisonSource(
@@ -68,5 +75,14 @@ export function storyCiComparisonSource(
       });
     },
     trunkHead: `origin/${source.ref}`,
+    project: source,
+    async landingReceipts() {
+      const [launchesByProject, retained] = await Promise.all([
+        readableRecordsByProject(),
+        readStoredLandedCiHistory(),
+      ]);
+      return { launchesByProject, retained };
+    },
+    observationNow,
   };
 }

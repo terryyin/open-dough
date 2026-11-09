@@ -1,7 +1,7 @@
 // Finality is observed through repeated real reads, without any clock or TTL.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiTimingJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
-import { start, branch } from "../support/comparisonRead.ts";
+import { start, branch, later } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {
   expect,
@@ -81,11 +81,22 @@ test("a final no-build gap remains remembered when a later read could find a bui
   const history = makeMe.aRepository
     .withRevision(start)
     .withRevision(branch)
+    .withRevision(later)
     .please();
   const done = makeMe.aPublishedStoryEndpoint
     .with({ mode: "trunk", storyStart: start, completion: branch })
     .please();
-  const missing = storyCiComparisonEvidence({ history, done, runs: [] });
+  // CI has built past the missing push, independently establishing finality.
+  // That later revision cannot become a completion ancestor or Landed source.
+  const missing = storyCiComparisonEvidence({
+    history,
+    done,
+    runs: [
+      makeMe.aRevisionCiRun
+        .with({ headSha: later, databaseId: 3, attempt: 1 })
+        .please(),
+    ],
+  });
   const observed = observedComparisonSource(missing.source);
   const final = await comparisonRead(observed.source);
   expect(final).toMatchObject({
@@ -94,6 +105,10 @@ test("a final no-build gap remains remembered when a later read could find a bui
     branch: { kind: "not-applicable" },
     landed: { kind: "none" },
   });
+  if (final.kind !== "comparison") throw new Error("Expected a comparison");
+  expect(final.landed).not.toHaveProperty("revision");
+  expect(JSON.stringify(final.landed)).toContain("No build");
+  expect(JSON.stringify(final.landed)).not.toContain(later.slice(0, 7));
   const acquired = { ...observed.reads };
   expect(acquired.endpoints).toBe(1);
   expect(acquired.runs).toBeGreaterThan(0);

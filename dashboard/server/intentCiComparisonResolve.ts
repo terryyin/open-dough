@@ -14,48 +14,64 @@ import {
   trunkBranchNotApplicable,
 } from "./intentCiComparisonSlots.ts";
 import type { StoryCiComparisonSource } from "./storyCiComparisonSource.ts";
+import { landedSlotResolution } from "./landedCiResolution.ts";
+import { landedReceiptTime } from "./landedCiReceipt.ts";
 
 export { performTakenComparison } from "./intentCiComparisonTakenResolve.ts";
+
+type DoneComparisonResult = {
+  readonly answer: StoryCiComparisonAnswer;
+  readonly landedPending: boolean;
+};
 
 export async function performDoneComparison(
   source: StoryCiComparisonSource,
   identity: string,
   checkedAt: string,
-): Promise<StoryCiComparisonAnswer | undefined> {
+): Promise<DoneComparisonResult | undefined> {
   const endpoints = await source.publishedEndpoints(identity);
   if (endpoints.kind === "absent") return undefined;
   if (endpoints.kind === "unavailable") {
     return {
-      kind: "unavailable",
-      identity,
-      explanation: endpoints.explanation,
-      checkedAt,
+      landedPending: true,
+      answer: {
+        kind: "unavailable",
+        identity,
+        explanation: endpoints.explanation,
+        checkedAt,
+      },
     };
   }
   const { facts } = endpoints;
   const context = await source.buildsFor(facts.branch);
   if ("unavailable" in context) {
     return {
-      kind: "unavailable",
-      identity,
-      explanation: context.unavailable,
-      checkedAt,
+      landedPending: true,
+      answer: {
+        kind: "unavailable",
+        identity,
+        explanation: context.unavailable,
+        checkedAt,
+      },
     };
   }
   await source.verifyRevision(facts.completion);
   if ("judgment" in context) {
     const gap = gapFromUnread(context.judgment);
     return {
-      kind: "comparison",
-      phase: "done",
-      identity: facts.identity,
-      mode: facts.mode,
-      completion: facts.completion,
-      storyStart: facts.storyStart,
-      checkedAt,
-      baseline: gap,
-      branch: facts.mode === "trunk" ? trunkBranchNotApplicable : gap,
-      landed: gap,
+      landedPending: true,
+      answer: {
+        kind: "comparison",
+        phase: "done",
+        identity: facts.identity,
+        mode: facts.mode,
+        completion: facts.completion,
+        storyStart: facts.storyStart,
+        checkedAt,
+        baseline: gap,
+        branch: facts.mode === "trunk" ? trunkBranchNotApplicable : gap,
+        landed: gap,
+      },
     };
   }
   const { builds } = context;
@@ -106,21 +122,49 @@ export async function performDoneComparison(
               : "No completed CI build was found at the landing merge.",
             storyBranchLandedExactLookup(fastForward, source.trunkHead),
           );
+  const landedRevision =
+    facts.mode === "trunk" ? facts.completion : facts.landing?.merge;
+  const receivedAt =
+    landedRevision === undefined
+      ? undefined
+      : landedReceiptTime(
+          source.project,
+          facts.identity,
+          landedRevision,
+          await source.landingReceipts(),
+        );
+  const landedPending =
+    landedRevision !== undefined &&
+    (
+      await landedSlotResolution(
+        landedBuild,
+        {
+          revision: landedRevision,
+          ...(receivedAt === undefined ? {} : { receivedAt }),
+        },
+        source.trunkHead,
+        builds,
+        source.observationNow,
+      )
+    ).kind === "pending";
   const [baseline, branch, landed] = await Promise.all([
     asComparisonSlot(baselineBuild, lookup),
     asComparisonSlot(branchBuild, lookup),
     asComparisonSlot(landedBuild, lookup),
   ]);
   return {
-    kind: "comparison",
-    phase: "done",
-    identity: facts.identity,
-    mode: facts.mode,
-    completion: facts.completion,
-    storyStart: facts.storyStart,
-    checkedAt,
-    baseline,
-    branch,
-    landed,
+    landedPending,
+    answer: {
+      kind: "comparison",
+      phase: "done",
+      identity: facts.identity,
+      mode: facts.mode,
+      completion: facts.completion,
+      storyStart: facts.storyStart,
+      checkedAt,
+      baseline,
+      branch,
+      landed,
+    },
   };
 }

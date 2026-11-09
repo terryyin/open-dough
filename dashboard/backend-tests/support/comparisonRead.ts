@@ -14,7 +14,7 @@ export const baseline = "a".repeat(40),
   later = "f".repeat(40);
 export const workflow =
   "on:\n  push:\n    paths-ignore:\n      - 'docs/**'\njobs:\n  test:\n    runs-on: ubuntu-latest\n";
-const published = makeMe.aPublishedSource
+export const comparisonProject = makeMe.aPublishedSource
   .with({
     id: "comparison",
     label: "Comparison",
@@ -32,7 +32,7 @@ export async function answer(
   clearCiComparisonAnswers();
   try {
     const result = await performIntentCiComparisonRead(
-      published,
+      comparisonProject,
       read,
       new AbortController().signal,
       evidence.source,

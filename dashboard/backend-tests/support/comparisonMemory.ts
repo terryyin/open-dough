@@ -1,15 +1,11 @@
 // Repeated real reads in one process, with isolated answer memory. The
 // observed source counts only external operations; comparison rules stay real.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test as base } from "../../tests/support/pageTest.ts";
 import { clearCiComparisonAnswers } from "../../server/intentCiComparisonAnswers.ts";
 import { performIntentCiComparisonRead } from "../../server/intentCiComparisonRead.ts";
 import type { StoryCiComparisonSource } from "../../server/storyCiComparisonSource.ts";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
-
-const published = makeMe.aPublishedSource
-  .with({ id: "memory", label: "Memory", repository: "example/project" })
-  .please();
+import { comparisonProject } from "./comparisonRead.ts";
 
 export { expect };
 export const test = base.extend<{
@@ -23,7 +19,7 @@ export const test = base.extend<{
     try {
       await use(async (evidence) => {
         const outcome = await performIntentCiComparisonRead(
-          published,
+          comparisonProject,
           { kind: "intent-ci-comparison", identity: "SEED-1#story" },
           new AbortController().signal,
           evidence,
@@ -49,7 +45,19 @@ export function observedComparisonSource(initial: StoryCiComparisonSource) {
     proofs: 0,
     jobs: 0,
   };
+  const localReads = { receipts: 0, observationClock: 0 };
   const source: StoryCiComparisonSource = {
+    get project() {
+      return current.project;
+    },
+    landingReceipts() {
+      localReads.receipts += 1;
+      return current.landingReceipts();
+    },
+    observationNow() {
+      localReads.observationClock += 1;
+      return current.observationNow();
+    },
     publishedEndpoints(identity) {
       reads.endpoints += 1;
       return current.publishedEndpoints(identity);
@@ -95,8 +103,13 @@ export function observedComparisonSource(initial: StoryCiComparisonSource) {
   return {
     source,
     reads,
+    localReads,
     use(next: StoryCiComparisonSource) {
       current = next;
     },
   };
 }
+
+export const comparisonAcquisitions = (
+  observed: ReturnType<typeof observedComparisonSource>,
+) => ({ reads: { ...observed.reads }, local: { ...observed.localReads } });

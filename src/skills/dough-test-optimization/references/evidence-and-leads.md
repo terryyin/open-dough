@@ -24,8 +24,9 @@ Name the evidence before you use it:
   the attempt read with its revision and outcome. The reader prefers a
   complete, successful attempt at the requested revision.
 - **Selection.** When the Selection line says the test-selection command is
-  not recorded, read the selection from the CI configuration that line names,
-  as it was at the attempt's revision: the commands, filters, markers, and
+  not recorded, read the CI configuration at the attempt's revision. For a CI
+  adapter, start with the adapter command on the Source line and follow it to
+  the CI job it reports. Read that job's test command, filters, markers, and
   splits that ran each entry. Name that selection with the attempt. A
   selection you cannot confirm is a stated gap, and no comparison crosses it.
 - **Compatibility.** An earlier attempt, at an ancestor of the requested
@@ -77,8 +78,10 @@ Otherwise derive it from the evidence:
 
 - the scope's total in that measure;
 - how much the measure moves between comparable attempts or runs, such as the
-  same unchanged files in the reader's tables at one or two earlier
-  revisions;
+  same unchanged files in the reader's tables naming distinct attempts. To
+  reach an earlier attempt, request the revision before the previous table's
+  attempt (`--revision <attempt revision>~1`). Check that the Attempt lines
+  differ; tables naming the same attempt count as one observation;
 - what would noticeably shorten the developer's wait.
 
 A saving that the measure's own variation could hide needs repeated
@@ -103,8 +106,9 @@ in a lead's tests before estimating what it could remove.
 - Group the many small costs by shared cause, such as per-case setup, process
   starts, waits, or a worker tail, so a cost that no single file shows can
   still lead.
-- Read related test code, and time unmodified tests of a chosen lead when its
-  cost needs confirming.
+- A mean per case can hide uneven costs. Before judging a lead's time
+  inherent, read its cases for fixed waits, timeouts, and sleeps, or time
+  those cases unmodified as discovery.
 
 ## Profile afresh only on request
 

@@ -214,7 +214,7 @@ the current strategy does not claim the complete family or CI target already met
 ## Current remaining-work refinement
 
 At742f80b all77 static complete CI bounds are below1000ms (max927); the same
-observer awaits its provider-directed pause before6 can finish delivery.
+observer confirms exact CI success, and6 delivered at44e2e08.
 Accepted-main9f88 adds24 infrastructure-heavy comparison rules and3 UI journeys.
 [Incoming PFE](incoming-finality-scope.md) retains the existing build/history
 source, one actual receipt matcher and shared pending/final judge. Split the
@@ -222,10 +222,10 @@ remaining boundary into server finality7 and client/aggregate8, preserving all
 completed work and130 source texts. Public API, final-answer no-TTL ownership,
 North Star and Accepted0002/0008/0010 stay unchanged; no human choice is open.
 
-The new slice7 early three-case pilot must consume actual raw namespace/receipt
-matching and branded artifact-reader outcomes before24-case migration. It is
-credible from the actual existing owners; its cost/preservation remains unproved
-until the state-changing integration/pilot boundary. Failure stops extension.
+The new slice7 early pilot consumed actual raw namespace/receipt matching and
+branded artifact-reader outcomes: three consecutive complete7–22ms passes,
+seven distinguishing faults caught, actual receivers/typecheck/guard pass.
+Root accepted the remaining24-rule migration; its full mapping is still owed.
 
 The Node24/default-Playwright actual-reader prefix at742f80b strictly passed1/1
 with7 raw HTTP Responses: valid numeric/encoded adapter data, exact queries and
@@ -237,7 +237,7 @@ reader-route capability. Slice8 first consumes the real extracted owner with
 held fetch/abort and successful retry/proof-round behavior plus a real hook
 connection; that state-changing pilot gates retirement of the13 old rules.
 
-Eight slices need no sizing exception or resplit recommendation. Root reviews
-this changed basis and records readiness through the installed backlog tool;
-that judgment grants no new Take or execution authority. Final aggregate,
+Eight slices need no sizing exception or resplit recommendation. Root reviewed
+and recorded readiness through the installed backlog tool before6 delivered;
+ordinary execution evidence does not renew it. Final aggregate,
 representative load, exact CI and lifecycle C067 remain owed to their owners.

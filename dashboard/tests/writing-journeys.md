@@ -74,11 +74,11 @@ was made only after real network turns (`checksAskedWhilePassing`, or
 a repeated pinned revision from memory without calling `gh`.
 
 Reuse windows, such as `checkReuseMs`, and launch waits run on server time
-(`support/serverTimeControls.ts`). A journey setting `observationClock` moves
-that clock past a window with `dashboard.advanceObservationClock`; one whose
-answer depends on a launch wait ending sets `launchWaitEnd`, observes the kept
-state that answer reports (record, held client or trust prompt), then calls
-`dashboard.endLaunchWait` (`sessions/cursor-session-recovery-wait.spec.ts`).
+(`support/serverTimeControls.ts`). With `observationClock`, use
+`dashboard.advanceObservationClock` to pass a window, or fix an exact deadline
+with `dashboard.setObservationClock(at)` (an ISO instant), then advance from it.
+For a launch wait, set `launchWaitEnd`, observe the kept record, held client or trust prompt,
+then call `dashboard.endLaunchWait` (`sessions/cursor-session-recovery-wait.spec.ts`).
 
 ### Authenticated-read backend clocks
 

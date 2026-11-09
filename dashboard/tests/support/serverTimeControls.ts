@@ -8,6 +8,8 @@ import path from "node:path";
 import { expect } from "@playwright/test";
 
 export type ServerTimeControls = {
+  // Fixes the observation clock at an instant for exact deadline checks.
+  setObservationClock(at: string): void;
   // Runs the observation clock `ms` further ahead; only on a server started
   // with `observationClock`.
   advanceObservationClock(ms: number): void;
@@ -29,6 +31,7 @@ export function installServerTimeControls(
     ? path.join(tempRoot, "observation-clock-ahead")
     : undefined;
   let clockAheadMs = 0;
+  let fixedObservationMs: number | undefined;
   if (clockAheadFile !== undefined) {
     writeFileSync(clockAheadFile, "0");
     env["DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE"] = clockAheadFile;
@@ -42,14 +45,30 @@ export function installServerTimeControls(
   return {
     env,
     controls: {
+      setObservationClock(at) {
+        if (clockAheadFile === undefined)
+          throw new Error(
+            "This server was not started with `observationClock`.",
+          );
+        fixedObservationMs = Date.parse(at);
+        writeFileSync(clockAheadFile, at);
+      },
       advanceObservationClock(ms) {
         if (clockAheadFile === undefined) {
           throw new Error(
             "This server was not started with `observationClock`.",
           );
         }
-        clockAheadMs += ms;
-        writeFileSync(clockAheadFile, String(clockAheadMs));
+        if (fixedObservationMs !== undefined) {
+          fixedObservationMs += ms;
+          writeFileSync(
+            clockAheadFile,
+            new Date(fixedObservationMs).toISOString(),
+          );
+        } else {
+          clockAheadMs += ms;
+          writeFileSync(clockAheadFile, String(clockAheadMs));
+        }
       },
       async endLaunchWait() {
         if (launchWaitEndFile === undefined) {

@@ -35,12 +35,10 @@ export type SkippedLandingSetup = StoryCiComparisonSetup & {
 // Trunk-first landing with no run at the merge: planning-only vs first parent
 // confirms Skipped and may use the parent's equivalent-build proof; a code
 // landing stays unexplained No build without ancestor figures.
-async function publishLandingWithoutRun(
-  page: Page,
+export async function publishUnbuiltStoryLanding(
   origin: StartOrigin,
   branchChange: "planning" | "code",
-  parentProof: "summary" | "none",
-): Promise<SkippedLandingSetup> {
+) {
   commitComparisonCiWorkflow(origin.project);
   writeAt(origin.project, "src/built.ts", "built before story\n");
   commitAll(origin.project, "ship a built revision");
@@ -114,6 +112,29 @@ async function publishLandingWithoutRun(
   git(origin.project, "branch", "--delete", "--force", branch);
 
   advanceCompletedTrunk(origin);
+  return {
+    identity: queuedIdentity,
+    completion,
+    landingMerge,
+    trunkSide,
+    olderBaseline,
+    baseline: olderBaseline,
+    branchSide,
+    laterWithoutBuild: 0,
+    agent,
+    branch,
+  };
+}
+
+async function publishLandingWithoutRun(
+  page: Page,
+  origin: StartOrigin,
+  branchChange: "planning" | "code",
+  parentProof: "summary" | "none",
+): Promise<SkippedLandingSetup> {
+  const setup = await publishUnbuiltStoryLanding(origin, branchChange);
+  const { olderBaseline, trunkSide, branchSide, landingMerge, completion } =
+    setup;
   const published = git(origin.origin, "rev-parse", "main");
   const committed = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
@@ -174,16 +195,7 @@ async function publishLandingWithoutRun(
     },
   );
   return {
-    identity: queuedIdentity,
-    completion,
-    landingMerge,
-    trunkSide,
-    olderBaseline,
-    baseline: olderBaseline,
-    branchSide,
-    laterWithoutBuild: 0,
-    agent,
-    branch,
+    ...setup,
     ...actions,
   };
 }

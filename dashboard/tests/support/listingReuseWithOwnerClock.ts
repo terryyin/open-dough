@@ -56,7 +56,9 @@ globalThis.Date = class extends OriginalDate {
   };
 }
 
-export async function listingReuseWithOwnerClock() {
+export async function listingReuseWithOwnerClock(
+  startServer: typeof listingReuseServer = listingReuseServer,
+) {
   const folder = mkdtempSync(path.join(tmpdir(), "dough-owner-clock-"));
   const lifetime = fixtureTeardown(folder);
   try {
@@ -105,7 +107,7 @@ export async function listingReuseWithOwnerClock() {
       );
     }
 
-    const server = await listingReuseServer({
+    const server = await startServer({
       github,
       pathPrefix: [gh.binDir],
       requestOwnerRoot: gh.requestOwnerRoot,

@@ -92,9 +92,16 @@ the selected story, a done comparison's **Check again**, or a Taken story's newl
 tip re-reads the slots; unchanged remembered answers cost no further requests. A done
 answer is not remembered while an endpoint is running, a cancelled landing's forward walk
 stopped at a running build or the trunk head, or Baseline, Branch or Landed is
-unavailable, so each such selection or **Check again** walks and lists every endpoint's
+unavailable. Landed also stays unremembered while a skip rests on a running
+equivalent build or GitHub has left an equivalent/later proof request unanswered
+(a directed wait, failed request or unreadable artifact listing), using the same
+pending judgment as history collection. Each such selection or **Check again** walks and lists every endpoint's
 revisions again (proof reads of builds already holding a valid summary still ask
-nothing). A whole comparison that is unavailable is not remembered either: each selection
+nothing). A missing push run also stays refreshable until CI has built past it,
+the existing first-parent walk is exceeded, or one hour passes after a matching
+recorded landing. Matching launch/history receipt reads are local and cost no
+provider request; unknown receipt age alone never ends the wait. A whole
+comparison that is unavailable is not remembered either: each selection
 or **Check again** reads the story's published history again, and lists every endpoint
 again once that history reads. **Check again** on a final done answer asks GitHub nothing
 for the comparison; it also reads the shown endpoints' proofs again, which asks nothing

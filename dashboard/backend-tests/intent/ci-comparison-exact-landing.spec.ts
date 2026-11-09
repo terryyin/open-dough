@@ -98,7 +98,8 @@ test("an unexplained code landing uses neither ancestor proof nor a later trunk 
         .please(),
     },
   });
-  expect(await answer(evidence)).toMatchObject({
+  const result = await answer(evidence);
+  expect(result).toMatchObject({
     landed: {
       kind: "none",
       explanation: "No build at ddddddd: changes CI does not ignore.",
@@ -108,8 +109,12 @@ test("an unexplained code landing uses neither ancestor proof nor a later trunk 
       },
     },
   });
-  expect(evidence.reads.revisions).not.toContain(later);
+  // The shared finality judge may establish that CI passed the unbuilt landing.
+  expect(evidence.reads.revisions).toContain(later);
+  if (result.kind !== "comparison") throw new Error("Expected comparison");
+  expect(result.landed).not.toHaveProperty("revision");
   expect(evidence.reads.proofs.map((read) => read.runId)).toEqual([2]);
+  expect(evidence.reads.jobs).not.toContain("4/1");
 });
 
 test("a cancelled latest attempt keeps its own earlier completed attempt instead of later trunk proof", async () => {

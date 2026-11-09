@@ -13,6 +13,9 @@ import {
 import type { StoryCiComparisonSource } from "../../server/storyCiComparisonSource.ts";
 import type { PublishedStoryEndpointFacts } from "../../server/storyPublishedEndpoints.ts";
 import type { TakenStoryEndpointFacts } from "../../server/takenStoryEndpoints.ts";
+import type { LandingReceiptFacts } from "../../server/landedCiReceipt.ts";
+import type { PublishedSource } from "../../src/publishedSource.ts";
+import { comparisonProject } from "./comparisonRead.ts";
 
 export function storyCiComparisonEvidence({
   history,
@@ -22,6 +25,13 @@ export function storyCiComparisonEvidence({
   proofs = {},
   jobs = {},
   preferCompletedAncestor,
+  project = comparisonProject,
+  receipts = {
+    launchesByProject: new Map(),
+    retained: { kind: "document", document: {} },
+  },
+  now = Date.now,
+  proofReader,
 }: {
   readonly history: RepositoryDescription;
   readonly done?: PublishedStoryEndpointFacts;
@@ -30,6 +40,10 @@ export function storyCiComparisonEvidence({
   readonly proofs?: Readonly<Record<number, CiProof>>;
   readonly jobs?: Readonly<Record<string, readonly CiTimingJob[]>>;
   readonly preferCompletedAncestor?: true;
+  readonly project?: PublishedSource;
+  readonly receipts?: LandingReceiptFacts;
+  readonly now?: () => number;
+  readonly proofReader?: ComparisonBuildSource["proofOf"];
 }) {
   const repository = repositoryHistoryReads(history);
   const reads = {
@@ -62,12 +76,16 @@ export function storyCiComparisonEvidence({
     },
     proofOf(run) {
       reads.proofs.push(run);
+      if (proofReader !== undefined) return proofReader(run);
       return Promise.resolve(
         proofs[run.runId] ?? makeMe.aCiProof.unavailable("none").please(),
       );
     },
   };
   const source: StoryCiComparisonSource = {
+    project,
+    landingReceipts: () => Promise.resolve(receipts),
+    observationNow: now,
     publishedEndpoints: () =>
       Promise.resolve(
         done === undefined

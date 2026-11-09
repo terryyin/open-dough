@@ -12,8 +12,8 @@ import {
   asComparisonSlot,
   gapFromUnread,
   trunkBranchNotApplicable,
+  notLandedYet,
 } from "./intentCiComparisonSlots.ts";
-import { notLandedYet } from "./takenStoryEndpoints.ts";
 import type { StoryCiComparisonSource } from "./storyCiComparisonSource.ts";
 
 const [noPublishedCompletionRecord] = suppressedBesideJudgmentFragments;

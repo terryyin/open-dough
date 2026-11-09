@@ -28,6 +28,11 @@ import {
   unpinnedRevision,
   type RefusedParameters,
 } from "./refusedParameters.ts";
+import {
+  listedReadParameterNames,
+  listedReadParameters,
+} from "./listedReadParameters.ts";
+export { listedReadParameters };
 
 export type ListedRecordsRead = {
   readonly kind: "agent-profiles-at";
@@ -54,7 +59,7 @@ type ListedRead = {
 // revision read them so (`./branchReachability.ts`).
 const listedReads: Readonly<Record<ListedRecordsRead["kind"], ListedRead>> = {
   "agent-profiles-at": {
-    parameter: "agents",
+    parameter: listedReadParameterNames.agentProfiles,
     value: "profiles",
     directoryOf: agentProfileDirectoryOf,
     listed: listedAgentProfiles,
@@ -64,16 +69,6 @@ const listedReads: Readonly<Record<ListedRecordsRead["kind"], ListedRead>> = {
 };
 
 const listedKinds = Object.keys(listedReads) as ListedRecordsRead["kind"][];
-
-// The parameters that ask for a listed read or a done read
-// (`./doneCatalogRead.ts`), which every other read refuses.
-export const listedReadParameters = [
-  ...listedKinds.map((kind) => listedReads[kind].parameter),
-  "done",
-  // Intent reads (`./intentReadParameters.ts`) share the refusal set so a
-  // listed or done read never mixes with an Intent read.
-  "intent",
-];
 
 // The listed read a request names, undefined when it names none.
 export function parseListedRecordsRead(

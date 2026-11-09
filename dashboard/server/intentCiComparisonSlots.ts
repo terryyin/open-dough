@@ -1,7 +1,10 @@
 // Shared comparison-slot helpers for Intent's CI comparison read
 // (`./intentCiComparisonRead.ts`): project-folder lookup context, revision-
 // build mapping, and Trunk Mode's not-applicable branch slot.
-import type { StoryCiComparisonSlot } from "../src/storyCiComparison.ts";
+import {
+  notLandedYetExplanation,
+  type StoryCiComparisonSlot,
+} from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { RevisionBuildSlot } from "./baseCiRevisionLookup.ts";
 import { revisionLookupOrGap } from "./baseCiRevisionLookupSource.ts";
@@ -14,6 +17,14 @@ import { projectFolder } from "./projectFolders.ts";
 export function workflowOf(call: GitCall): string {
   return ciConfiguration(call.cwd ?? "").workflow;
 }
+
+export const notLandedYet: {
+  readonly kind: "not-landed";
+  readonly explanation: string;
+} = {
+  kind: "not-landed",
+  explanation: notLandedYetExplanation,
+};
 
 export const trunkBranchNotApplicable = {
   kind: "not-applicable",
@@ -98,7 +109,7 @@ export async function lookupContext(
 ): Promise<
   | {
       readonly call: GitCall;
-      readonly lookupOrGap: Awaited<ReturnType<typeof revisionLookupOrGap>>;
+      readonly lookupOrGap: RevisionCiLookup | BaseCiJudgment;
     }
   | { readonly unavailable: string }
 > {

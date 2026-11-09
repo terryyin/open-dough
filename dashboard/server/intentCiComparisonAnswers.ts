@@ -4,7 +4,9 @@
 // gap (`finalSlot`, `./revisionBuildSlot.ts`; ADR 0008: disposable derived
 // view). A completed build may carry a timing reason. Unavailable answers or
 // slots, running endpoints, gaps awaiting a later trunk build, and Taken
-// (provisional) answers are read afresh.
+// (provisional) answers are read afresh. The production reader also withholds
+// answers whose internal Landed resolution is pending, using the shared
+// history/comparison judgment before endpoint projection drops proof details.
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
 import { finalSlot } from "./revisionBuildSlot.ts";
