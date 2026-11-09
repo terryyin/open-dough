@@ -195,6 +195,13 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.91 (checkout-bound installed guidance)
   - Evidence: Dashboard launch `003878bc-4c9f-4dde-8085-d287fbd399c1` combined full delegation, execution decisions and related references in one startup read. The tool reported 11,478 original output tokens and truncated the human-judgment passage.
   - Observed effect: The coordinator retrieved that passage separately. The existing boundary and targeted-retrieval guidance already called for scoped reads. No elapsed-time or aggregate-token cost was measured.
+- Execution: SEED-279#observe-stale-reclaimer-handoff (plan 544; first implementation `cc05fff99ee7530081b74ae5278e4335e571ff53`)
+  - Timestamp: unknown (2026-11-09, dashboard launch `98bf3456-b3a4-428c-8b90-1b55147b4e00`)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
+  - Evidence: The pre-delegation combined reference read reported 11,478 original tokens and truncated execution-decisions; delivery-reference and acceptance batches also truncated. The coordinator then retrieved the affected human-judgment and publication passages separately.
+  - Observed effect: Required context needed additional targeted reads under already-applicable boundary/targeted-retrieval guidance. No elapsed-time or total-token saving measured.
+
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
@@ -281,6 +288,16 @@ Former local code: DD-337. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/findings/ODF-356.md).
 
 <a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
+
+### Occurrences
+- Execution: SEED-279#observe-stale-reclaimer-handoff (plan 544; first implementation `cc05fff99ee7530081b74ae5278e4335e571ff53`)
+  - Timestamp: unknown (2026-11-09, dashboard launch `98bf3456-b3a4-428c-8b90-1b55147b4e00`)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
+  - Evidence: First guarded `fresh` request used `["node","scripts/lint.mjs","--fix"]` and returned `preparation-failed`, `operation: formatting`, with eslint/prettier absent from PATH. The corrected `["npm","run","format"]` request published `cc05fff99`.
+  - Observed effect: One withheld preparation and repeated formatter request; no commit or publication occurred on the failed attempt.
+
+
 ## ODF-357 — Preparation observations recorded results their own commands contradict
 Former local code: DD-340. [Meaning, evidence and response](docs/maintainer/findings/ODF-357.md).
 
@@ -373,6 +390,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: 0.3.91 (installed .claude/skills/dough-update/VERSION at the established Take `db42e79a7`)
   - Evidence: The slice 1 implementation agent reported that `consumer-trace.mjs --base db42e79a7 --term …` was very large and noisy because every changed path's basename (PLAN.md, source-review.md, each spec) became a term, and reran with explicit terms only. The slice 2 agent dropped `--base 0bcf76c37` for the same reason.
   - Observed effect: Two implementation agents each discarded a `--base` trace and reran with explicit `--term` values; the delegation command form names `--base` as the way to run it.
+- Execution: SEED-279#observe-stale-reclaimer-handoff (plan 544; first implementation `cc05fff99ee7530081b74ae5278e4335e571ff53`)
+  - Timestamp: unknown (2026-11-09, dashboard launch `98bf3456-b3a4-428c-8b90-1b55147b4e00`)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
+  - Evidence: `/tmp/seed279-consumer-trace.md` derives PLAN.md/source-review.md, node:timers/promises and start-0 terms alongside the admission seam. The implementation return supplied 494 dispositions; the coordinator's combined trace read reported 13,829 original tokens and truncated.
+  - Observed effect: Most matches needed unrelated/historical exclusions and the affected caller rows required a separate bounded retrieval. No missed consumer or general timing cost established.
+
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
