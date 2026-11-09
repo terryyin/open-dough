@@ -202,11 +202,15 @@ failed read) is asked again every two minutes until it is final, so while builds
 costs one workflow lookup and one listing per pending landing every two minutes. A failed read
 ends that project's pass, so CI that cannot be read costs one failed request per project every
 two minutes. A confirmed skip's equivalent build, or a cancelled landing's later trunk build at the
-end of its forward walk, whose CI proof could not be read is asked again the same way: its
-artifact listing (and zip, when listed) every two minutes, for an hour after the landing was
-recorded, before the landing is a final gap. A development server collects nothing. Showing the
-history asks GitHub nothing: it is read from that file with each read of the trunk's CI status
-judgment, and **Check again** reads it again the same way.
+end of its forward walk, whose CI proof read GitHub left unanswered (a wait it directed, a failed
+request, or an artifact listing that is not one) is asked again the same way, its artifact
+listing (and zip, when listed) with the listings the landing's resolution already makes, every
+two minutes until GitHub answers it, however long ago the landing was recorded, for as long as
+the landing stays in the history's window; that landing does not end the project's pass. An
+answer that settles the proof -- no summary, an expired one, or an archive that cannot be opened
+or is not that run's usable summary -- is final and asked nothing more. A development server
+collects nothing. Showing the history asks GitHub nothing: it is read from that file with each
+read of the trunk's CI status judgment, and **Check again** reads it again the same way.
 
 Inspecting recent failed reads, the incident record that keeps them across processes, how an output
 bound is reported, and what the installed CI diagnostic retains are in [Read

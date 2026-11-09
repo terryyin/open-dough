@@ -1,18 +1,31 @@
 // Project Intent's CI wall time history journeys
 // (./intent/intent-ci-wall-time-history*.spec.ts): Open Dough's trunk
 // published from its real bare origin (./support/startOrigin.ts) with the CI
-// runs, and their CI proof, a journey serves, Project Intent's CI status with
-// nothing selected, the history region in it (../src/IntentCiHistory.tsx),
-// Builds and evidence reached by keyboard, the day a date falls on as the
-// history says it, and its chart's drawn points and line.
+// runs, and their CI proof, a journey serves, or its published project with
+// a judged trunk beside a history the journey keeps; Project Intent's CI
+// status with nothing selected, the history region in it
+// (../src/IntentCiHistory.tsx), Builds and evidence reached by keyboard and
+// its links in turn, the day a date falls on as the history says it, and its
+// chart's drawn points and line.
 
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
-import { chooseCiStatus } from "./intentCiStatusPage.ts";
+import {
+  chooseCiStatus,
+  judged,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "./intentCiStatusPage.ts";
+import { openDough } from "./intentCodeBrowseFixtures.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiRunAnswer } from "./support/baseCiActions.ts";
-import { trunkActions, type TrunkProofs } from "./support/landedCiTrunk.ts";
+import {
+  answeredRun,
+  trunkActions,
+  type TrunkProofs,
+} from "./support/landedCiTrunk.ts";
 import { originMain } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import type { Locator, Page } from "@playwright/test";
@@ -49,6 +62,25 @@ export async function openProjectCiStatus(page: Page) {
   return chooseCiStatus(intent);
 }
 
+// Open Dough's published project with its trunk's CI judged, and Project
+// Intent's CI status opened on it beside the history the journey keeps: its
+// panel.
+export async function openJudgedCiStatus(page: Page) {
+  publishProject(page, openDough).serveCi(
+    trunkCi(openDough.revision, () => [
+      {
+        headSha: judged,
+        conclusion: "success",
+        url: runUrl,
+        id: 41,
+        startedAt: "2026-11-05T10:00:00Z",
+        completedAt: "2026-11-05T10:03:00Z",
+      },
+    ]),
+  );
+  return openProjectCiStatus(page);
+}
+
 // The day `at` falls on, on the reader's clock, as the history says a build's
 // or a landing's date: "Nov 5".
 export const dayWords = (at: string | number) =>
@@ -80,6 +112,27 @@ export async function evidenceOnPhone(page: Page) {
   const builds = await evidenceByKeyboard(page, panel);
   return { history: historyOf(panel), builds };
 }
+
+// Each link of Builds and evidence (`builds`) in turn by keyboard, from just
+// before the first: its name, and where it leads.
+export async function expectLinksByKeyboard(
+  page: Page,
+  builds: Locator,
+  links: readonly { readonly name: string; readonly href: string }[],
+) {
+  for (const { name, href } of links) {
+    await page.keyboard.press("Tab");
+    const link = builds.locator("a:focus");
+    await expect(link).toHaveAccessibleName(name);
+    await expect(link).toHaveAttribute("href", href);
+  }
+}
+
+// Run `id`'s first attempt as Builds and evidence links it (`answeredRun`).
+export const runLink = (id: number) => ({
+  name: `Run ${String(id)} · attempt 1`,
+  href: answeredRun(id).runUrl,
+});
 
 // The chart's drawn points, in drawing order, each at its place, and the
 // line through them as its strokes, each a run of points no gap breaks.

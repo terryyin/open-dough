@@ -13,6 +13,7 @@ import {
   nearestAncestorBuild,
   type RevisionBuildSlot,
 } from "./revisionBuildSlot.ts";
+import { unusableProofOf } from "./unusableBuild.ts";
 
 // How far a baseline walk may go beyond the story start when looking for a
 // completed trunk build (claim commits are almost never built). Shared with
@@ -64,8 +65,10 @@ export function storyBranchLandedExactLookup(
 }
 
 // When Landed confirms a skip at `target`, use only the nearest first-parent
-// ancestor build's proof (the equivalent build). Never walk past a build
-// without usable proof; a gap for one names why its proof is unusable.
+// ancestor build's proof (the equivalent build), which a build without a
+// GitHub Actions run, such as a CI adapter's, never published. Never walk
+// past a build without usable proof; a gap for one names that build and why
+// its proof is unusable (`unusableProofOf`).
 export async function exactSkippedEquivalentSlot(
   target: string,
   lookup: RevisionCiLookup,
@@ -86,18 +89,10 @@ export async function exactSkippedEquivalentSlot(
     return asSlot(undefined, status.explanation, status);
   }
   const run = proofRunOf(equivalent);
-  if (run === undefined) {
-    return {
-      kind: "none",
-      explanation: unavailableWords(equivalent.revision, {
-        kind: "unavailable",
-        reason: "none",
-      }),
-      requestedStatus: status,
-      unusableProof: "none",
-    };
-  }
-  const proof = await readCiProofArtifact(exact.repository, run, exact.signal);
+  const proof: CiProof =
+    run === undefined
+      ? { kind: "unavailable", reason: "none" }
+      : await readCiProofArtifact(exact.repository, run, exact.signal);
   if (proof.kind === "summary") {
     return asSlot(
       {
@@ -113,6 +108,6 @@ export async function exactSkippedEquivalentSlot(
     kind: "none",
     explanation: unavailableWords(equivalent.revision, proof),
     requestedStatus: status,
-    unusableProof: proof.reason,
+    ...unusableProofOf(equivalent, "equivalent", proof),
   };
 }

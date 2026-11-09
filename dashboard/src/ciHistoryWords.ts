@@ -2,14 +2,15 @@
 // how many measured builds it shows, a build's or landing's date as the
 // reader's clock has it, a point's CI wall time in whole seconds, as the story
 // CI comparison words a build's (`./storyCiComparisonWording.ts`), how a
-// build stands for the landings it names -- in the comparison's words for the
-// landed revision's own build, a reused equivalent build or a later trunk
-// build, with the build's revision -- each landing named by its landed
-// revision and the story it landed for, why a gap has no CI wall time, as
-// not yet or as never, and the run attempt a point was measured from or a gap
-// names, as Proof names one (`./CiEvidenceLabels.tsx`). Revisions are kept
-// apart in the words so the page can set them as code; the chart's hover
-// gives the same words as plain text.
+// build stands for the landings it names -- the landed revision's own build
+// and a later trunk build in the comparison's words, a confirmed skip's
+// equivalent build in the story's "reused equivalent", where the comparison
+// says "equivalent build", with the build's revision -- each landing named
+// by its landed revision and the story it landed for, why a gap has no CI
+// wall time, as not yet or as never, and the run attempt a point was
+// measured from or a gap names, as Proof names one (`./CiEvidenceLabels.tsx`).
+// Revisions are kept apart in the words so the page can set them as code;
+// the chart's hover gives the same words as plain text.
 
 import type { BaseCiRunIdentity } from "./baseCiConfirmation.ts";
 import { shortSha } from "./baseCiWording.ts";
@@ -129,6 +130,7 @@ const pendingWords: Readonly<Record<PendingWait, string>> = {
   run: "no CI run yet",
   build: "CI queued or running",
   "later-build": "waiting for a later trunk build",
+  proof: "CI proof not read yet",
   read: "CI not read yet",
 };
 
@@ -138,6 +140,7 @@ const finalWords: Readonly<Record<FinalGapReason, string>> = {
   cancelled: "Cancelled",
   "no-build": "No build",
   "no-equivalent": "Equivalent timing unavailable",
+  "no-proof": "No CI proof summary",
   expired: "CI proof expired",
   unreadable: "CI proof unreadable",
   "not-recorded": "CI wall time not recorded",

@@ -3,16 +3,27 @@
 // (`dashboard/server/landedCiHistoryStore.ts`): each trunk landing the
 // dashboard recorded, by its receipt, with what it resolved to under the CI
 // timing comparison's Landed rule -- its landed revision's own build, a final
-// gap with its reason, or what it still waits for -- beside each build kept
-// once by its run and attempt. A build is a push run's first attempt at the
-// landed revision, linked under ci.invalid by its run, unless the case states
-// otherwise.
+// gap with its reason and the build the rule named for it, or what it still
+// waits for and the run it waits on -- beside each build kept once by its run
+// and attempt. A build is a push run's first attempt, linked under ci.invalid
+// by its run, at the landed revision unless the case states otherwise.
 
 /** @typedef {import("../../dashboard/server/landedCiHistoryStore.ts").ProjectHistory} ProjectHistory */
 /** @typedef {ProjectHistory["landings"][string]} KeptLanding */
 /** @typedef {ProjectHistory["builds"][string]} KeptBuild */
 /** @typedef {Extract<KeptLanding["observed"], { kind: "gap" }>["reason"]} UnmeasuredReason */
 /** @typedef {Extract<KeptLanding["observed"], { kind: "pending" }>["waitsFor"]} PendingWait */
+/** @typedef {import("../../dashboard/src/landedCiHistory.ts").Provenance} Provenance */
+
+/**
+ * A push run's first attempt, linked under ci.invalid by its run.
+ * @param {number} runId
+ */
+const firstAttemptOf = (runId) => ({
+  runUrl: `https://ci.invalid/runs/${String(runId)}`,
+  runId,
+  runAttempt: 1,
+});
 
 /**
  * A recorded trunk landing: its receipt, landed revision, when the dashboard
@@ -54,9 +65,7 @@ export class LandedCiHistoryBuilder {
     this.#builds[key] = {
       revision: landing.revision,
       state,
-      runUrl: `https://ci.invalid/runs/${String(runId)}`,
-      runId,
-      runAttempt: 1,
+      ...firstAttemptOf(runId),
       startedAt,
       completedAt,
     };
@@ -81,24 +90,38 @@ export class LandedCiHistoryBuilder {
   }
 
   /**
-   * A landing no build measures, finally, for `reason`.
-   * @param {LandingFacts & { reason: UnmeasuredReason }} facts
+   * A landing no build measures, finally, for `reason`, naming the build the
+   * rule named for it, when the case states one: its revision, how it would
+   * have stood for the landing, and its run.
+   * @param {LandingFacts & { reason: UnmeasuredReason, build?: { revision: string, provenance: Provenance, runId: number } }} facts
    */
-  unmeasuredLanding({ reason, ...landing }) {
+  unmeasuredLanding({ reason, build, ...landing }) {
     this.#landing(landing, {
       kind: "gap",
       reason,
       explanation: `No measured build: ${reason}.`,
+      ...(build !== undefined && {
+        build: {
+          revision: build.revision,
+          provenance: build.provenance,
+          ...firstAttemptOf(build.runId),
+        },
+      }),
     });
     return this;
   }
 
   /**
-   * A landing whose resolution is not final yet, waiting for `waitsFor`.
-   * @param {LandingFacts & { waitsFor: PendingWait }} facts
+   * A landing whose resolution is not final yet, waiting for `waitsFor`, on
+   * the run `runId` when the case states one.
+   * @param {LandingFacts & { waitsFor: PendingWait, runId?: number }} facts
    */
-  pendingLanding({ waitsFor, ...landing }) {
-    this.#landing(landing, { kind: "pending", waitsFor });
+  pendingLanding({ waitsFor, runId, ...landing }) {
+    this.#landing(landing, {
+      kind: "pending",
+      waitsFor,
+      ...(runId !== undefined && { run: firstAttemptOf(runId) }),
+    });
     return this;
   }
 

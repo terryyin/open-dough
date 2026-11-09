@@ -13,6 +13,7 @@ import {
 } from "./baseCiRevisionNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
+import type { UnusableBuild } from "./unusableBuild.ts";
 
 export type RevisionBuildSlot =
   | ({
@@ -39,6 +40,16 @@ export type RevisionBuildSlot =
       // -- a confirmed skip's equivalent build, or a cancelled landing's
       // nearest later trunk build -- could not be used.
       readonly unusableProof?: CiProofUnavailableReason;
+      // GitHub left that build's CI proof read unanswered
+      // (`isUnansweredProof`, `./ciProofArtifact.ts`): a later read may
+      // still use it.
+      readonly proofUnanswered?: true;
+      // The build Story Branch Landed named for the landing but could not
+      // measure it by (`./unusableBuild.ts`): the build whose CI proof could
+      // not be used, or else the landing's own attempt that stopped without
+      // a verdict. The CI comparison answers neither it nor why
+      // (`asComparisonSlot`).
+      readonly unusableBuild?: UnusableBuild;
     }
   | {
       readonly kind: "not-applicable";

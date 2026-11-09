@@ -3,22 +3,31 @@
 // landed CI history keeps it (`./landedCiHistoryStore.ts`): its observation
 // -- the build it resolved to, by that build's key, and how the build was
 // selected for it; a gap with why no build measures it, in the history's own
-// final reasons (`../src/landedCiHistory.ts`); or, while neither is final,
-// what it waits for -- and that build, kept once by its run and attempt, a
-// CI adapter's attempt or, for a build its CI read named neither of, its
+// final reasons (`../src/landedCiHistory.ts`), and the build the rule named
+// for it but could not measure it by, with how that build would have stood
+// for it; or, while neither is final, what it waits for and the run attempt
+// it waits on -- and that build, kept once by its run and attempt, a CI
+// adapter's attempt or, for a build its CI read named neither of, its
 // revision. A run attempt keeps its link and identity only as its CI read
 // named them, so an observation made again from the same answer equals the
 // one read back from the file.
 
 import { z } from "zod";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
-import { finalGapReasons, pendingWaits } from "../src/landedCiHistory.ts";
+import {
+  finalGapReasons,
+  historyWallTimeMs,
+  pendingWaits,
+  provenances,
+} from "../src/landedCiHistory.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import {
   buildSelectionSchema,
   requestedRevisionCiStatusSchema,
 } from "../src/storyCiComparison.ts";
+import { provenanceOf } from "./landedCiMeasuredBuilds.ts";
 import type { FinalSlot, RevisionBuildSlot } from "./revisionBuildSlot.ts";
+import type { UnusableBuild } from "./unusableBuild.ts";
 
 // A run attempt as its CI read named it: its link and identity.
 const keptRunSchema = z.object({
@@ -46,9 +55,18 @@ const unmeasuredReasonSchema = z
   .enum(finalGapReasons)
   .exclude(["failed", "not-recorded"]);
 
+// The build the Landed rule named for a landing it could not measure by
+// it: its revision, how it would have stood for the landing, and its run
+// attempt as its CI read named it.
+const namedBuildSchema = z.object({
+  revision: commitIdSchema,
+  provenance: z.enum(provenances),
+  ...keptRunSchema.shape,
+});
+
 // What one landing resolved to: a build, and how that build was selected for
-// it, or a gap with why, in the Landed rule's words; or, while neither is
-// final, what it waits for.
+// it, or a gap with why, in the Landed rule's words, and the build it named;
+// or, while neither is final, what it waits for.
 export const observationSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("build"),
@@ -60,6 +78,7 @@ export const observationSchema = z.discriminatedUnion("kind", [
     reason: unmeasuredReasonSchema,
     explanation: z.string().min(1),
     requestedStatus: requestedRevisionCiStatusSchema.optional(),
+    build: namedBuildSchema.optional(),
   }),
   z.object({
     kind: z.literal("pending"),
@@ -94,21 +113,36 @@ export function keptRunOf(run: KeptRun): KeptRun {
 
 // Why no build measures a landing whose final resolution is a gap: the CI
 // proof of the build that would have stood for it expired, or could not be
-// read or used; its own build was cancelled or timed out; a confirmed skip
-// found no equivalent build with CI proof; otherwise CI did not build it.
+// read or used; that build, with its timing, published none; its own build
+// was cancelled or timed out; a confirmed skip found no equivalent build, or
+// one without timing; otherwise CI did not build it.
 function unmeasuredReasonOf(
   gap: Exclude<FinalResolution, { kind: "build" }>,
 ): z.infer<typeof unmeasuredReasonSchema> {
-  const unusableProof = gap.kind === "none" ? gap.unusableProof : undefined;
+  const none = gap.kind === "none" ? gap : undefined;
+  const unusableProof = none?.unusableProof;
   if (unusableProof === "expired") return "expired";
   if (unusableProof !== undefined && unusableProof !== "none")
     return "unreadable";
+  const named = none?.unusableBuild;
   if (
-    (gap.kind === "none" && gap.cancelled === true) ||
-    gap.requestedStatus?.kind === "cancelled"
+    unusableProof === "none" &&
+    historyWallTimeMs(named?.startedAt, named?.completedAt) !== undefined
   )
+    return "no-proof";
+  if (none?.cancelled === true || gap.requestedStatus?.kind === "cancelled")
     return "cancelled";
   return gap.requestedStatus?.kind === "skipped" ? "no-equivalent" : "no-build";
+}
+
+// The build a gap names, with how it would have stood for its landing.
+function namedBuildOf(
+  build: UnusableBuild | undefined,
+): z.infer<typeof namedBuildSchema> | undefined {
+  const provenance =
+    build === undefined ? undefined : provenanceOf(build.selection);
+  if (build === undefined || provenance === undefined) return undefined;
+  return { revision: build.revision, provenance, ...keptRunOf(build) };
 }
 
 // One build's key: its run and attempt, a CI adapter's attempt, or, for a
@@ -128,7 +162,10 @@ export function keptResolution(resolution: LandedResolution): {
   readonly build?: readonly [string, KeptBuild];
 } {
   if (resolution.kind === "pending") return { observed: resolution };
-  if (resolution.kind !== "build")
+  if (resolution.kind !== "build") {
+    const named = namedBuildOf(
+      resolution.kind === "none" ? resolution.unusableBuild : undefined,
+    );
     return {
       observed: {
         kind: "gap",
@@ -137,8 +174,10 @@ export function keptResolution(resolution: LandedResolution): {
         ...(resolution.requestedStatus === undefined
           ? {}
           : { requestedStatus: resolution.requestedStatus }),
+        ...(named === undefined ? {} : { build: named }),
       },
     };
+  }
   const key = buildKeyOf(resolution);
   const { revision, state, startedAt, completedAt } = resolution;
   return {

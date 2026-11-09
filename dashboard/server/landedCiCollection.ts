@@ -21,7 +21,9 @@
 // again; a pending one is kept until a later pass resolves it again. The
 // history keeps only that window, so a landing the walk no longer reaches is
 // neither kept nor asked about again. CI that could not be read leaves that
-// project until the next pass.
+// project until the next pass; a landing whose stand-in build's CI proof
+// read GitHub left unanswered waits for that proof alone, and the walk goes
+// on to the landings past it.
 //
 // Only a production project environment collects, as only it launches
 // feedback maintenance, so a development server sharing this machine's
@@ -151,7 +153,8 @@ export class LandedCiCollection {
         // A read the end of collection cut short says nothing of its CI.
         if (this.ended()) return;
         history = await keepLandedCiResolution(source.id, landing, resolved);
-        // CI that cannot be read now is asked again at the next pass.
+        // CI that cannot be read now is asked again at the next pass; a CI
+        // proof that cannot be read is this landing's alone.
         if (resolved.kind === "pending" && resolved.waitsFor === "read") return;
       }
       const observed = history.landings[landing.receipt]?.observed;

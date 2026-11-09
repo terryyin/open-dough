@@ -3,8 +3,9 @@
 // (`./landedCiMeasuredBuilds.ts`) as one list, oldest first, of each
 // measured build once as a point naming every landing of the window it
 // measures and how, and each other landing of the window as a gap with why:
-// pending with what it waits for; failed, or naming no CI wall time, with the
-// build that measures it; or the reason its final resolution was kept with.
+// pending with what it waits for and the run attempt it waits on; failed, or
+// naming no CI wall time, with the build that measures it; or the reason its
+// final resolution was kept with and the build the Landed rule named for it.
 // A point stands at its build's start, a gap at the time the dashboard
 // recorded its landing. A run link that is not a web address is left out,
 // keeping the run attempt it names.
@@ -16,6 +17,7 @@ import {
   type LandedCiGap,
   type LandedCiPoint,
   type MeasuredLanding,
+  type Provenance,
 } from "../src/landedCiHistory.ts";
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
 import {
@@ -39,6 +41,13 @@ function runOf(run: KeptRun) {
   };
 }
 
+// The build a gap names as the history answers it: its revision, how it
+// stands for the landing, and its run attempt.
+const gapBuildOf = (
+  build: KeptRun & { readonly revision: string },
+  provenance: Provenance,
+) => ({ revision: build.revision, provenance, ...runOf(build) });
+
 type Landing = Pick<MeasuredLanding, "revision" | "receivedAt" | "identity">;
 
 // The gap of a landing of the window no build measures.
@@ -55,8 +64,17 @@ function gapOf(
       ...landing,
       ...(observed.run === undefined ? {} : runOf(observed.run)),
     };
-  if (observed.kind === "gap")
-    return { kind: "gap", reason: observed.reason, ...landing };
+  if (observed.kind === "gap") {
+    const { reason, build } = observed;
+    return {
+      kind: "gap",
+      reason,
+      ...landing,
+      ...(build === undefined
+        ? {}
+        : { build: gapBuildOf(build, build.provenance) }),
+    };
+  }
   const build = history.builds[observed.build];
   const provenance = provenanceOf(observed.selection);
   if (build === undefined || provenance === undefined)
@@ -65,7 +83,7 @@ function gapOf(
     kind: "gap",
     reason: build.state === "failed" ? "failed" : "not-recorded",
     ...landing,
-    build: { revision: build.revision, provenance, ...runOf(build) },
+    build: gapBuildOf(build, provenance),
   };
 }
 
