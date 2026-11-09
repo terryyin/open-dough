@@ -223,6 +223,24 @@ checkout removed only its claims in both. The listing spec (2 tests) and
 `npm run typecheck:dashboard` passed. No other synthetic saved row remains in
 the dashboard tests. The refactor pass found nothing to change.
 
+## Execution complete
+
+Product advice:
+
+- Take SEED-287#fit-dashboard-journeys-in-default-timeout after trunk's
+  SEED-286#fast-intent-ci-comparison-tests, reusing its warm worker-scoped
+  server and cloned-history approach. Together they remove the 60 s
+  allowances recorded on 2026-11-09.
+- Make the dashboard read this project's
+  `.planning/TEST-OPTIMIZATION-CANDIDATES.md` again. Trunk's "Transferred
+  obligations" entry `card-attention-launch-and-origin-setup` (`0eb86657b`)
+  uses the label "Repository baseline", which `parseFields` in
+  `dashboard/src/testOptimizationCandidates.ts` rejects, so the record cannot
+  be read. Either accept the label or rename it.
+- Later SEED-261 conversions can reuse `makeMe.aPublishedSource` and
+  `makeMe.aConfiguredProject` from
+  `tests/support/projectConfigurationTestData.mjs`.
+
 ## Readiness review
 
 Plan refinement was unnecessary because each slice has a separate consuming
