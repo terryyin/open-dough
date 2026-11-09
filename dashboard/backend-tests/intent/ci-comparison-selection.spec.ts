@@ -36,7 +36,11 @@ test("a result never borrows the start build when the story has no result build"
   });
   expect(await answer(evidence)).toMatchObject({
     baseline: { kind: "build", revision: start },
-    landed: { kind: "none" },
+    landed: {
+      kind: "none",
+      explanation:
+        "No build at eeeeeee: the workflow at that revision could not be read.",
+    },
   });
 });
 
@@ -86,7 +90,10 @@ test("Baseline passes a nearer proofless build and names the older usable ancest
       laterWithoutResult: 1,
     },
     branch: { kind: "build", revision: branch },
-    landed: { kind: "not-landed" },
+    landed: {
+      kind: "not-landed",
+      explanation: "The story has not landed yet.",
+    },
   });
   expect(evidence.reads.proofs.map((read) => read.runId)).toEqual([2, 1, 3]);
 });
@@ -131,7 +138,11 @@ test("a confirmed skipped landing uses only its nearest equivalent build", async
       runId: 2,
       selection: "equivalent",
       laterWithoutResult: 1,
-      requestedStatus: { kind: "skipped" },
+      requestedStatus: {
+        kind: "skipped",
+        explanation:
+          "Skipped at ddddddd because CI ignores every change since its nearest built ancestor ccccccc.",
+      },
     },
   });
 });
@@ -174,6 +185,31 @@ test("provider-reported skipped status preserves its own provenance beside Basel
         kind: "skipped",
         explanation: `Skipped at ${start.slice(0, 7)} (CI reported the run as skipped).`,
       },
+    },
+  });
+});
+
+test("without any ancestor build each requested endpoint names why a skip cannot be confirmed", async () => {
+  const evidence = storyCiComparisonEvidence({
+    history: makeMe.aRepository
+      .withRevision(start)
+      .withRevision(branch)
+      .please(),
+    done: makeMe.aPublishedStoryEndpoint
+      .with({ mode: "trunk", storyStart: start, completion: branch })
+      .please(),
+    runs: [],
+  });
+  expect(await answer(evidence)).toMatchObject({
+    baseline: {
+      kind: "none",
+      explanation:
+        "No build at bbbbbbb: no ancestor build was found to compare against.",
+    },
+    landed: {
+      kind: "none",
+      explanation:
+        "No build at ccccccc: no ancestor build was found to compare against.",
     },
   });
 });

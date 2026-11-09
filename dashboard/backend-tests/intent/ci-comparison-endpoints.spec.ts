@@ -89,7 +89,11 @@ test("Done Story Branch uses its start ancestor, branch side and landing with th
       laterWithoutResult: 1,
       runId: 1,
       runAttempt: 1,
-      requestedStatus: { kind: "skipped" },
+      requestedStatus: {
+        kind: "skipped",
+        explanation:
+          "Skipped at bbbbbbb because CI ignores every change since its nearest built ancestor aaaaaaa.",
+      },
       timeWithoutRunnerWaits: { milliseconds: 120_000 },
     },
     branch: {
@@ -146,13 +150,21 @@ test("Done Trunk reads a completion ancestor within the story bound and has no B
     phase: "done",
     mode: "trunk",
     baseline: { kind: "build", revision: start },
-    branch: { kind: "not-applicable" },
+    branch: {
+      kind: "not-applicable",
+      explanation:
+        "Branch comparison is not applicable for a Trunk Mode story.",
+    },
     landed: {
       kind: "build",
       revision: branch,
       selection: "ancestor",
       laterWithoutResult: 1,
-      requestedStatus: { kind: "skipped" },
+      requestedStatus: {
+        kind: "skipped",
+        explanation:
+          "Skipped at eeeeeee because CI ignores every change since its nearest built ancestor ccccccc.",
+      },
     },
   });
 });

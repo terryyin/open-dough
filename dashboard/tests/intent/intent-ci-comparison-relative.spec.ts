@@ -139,30 +139,3 @@ test("relative changes share one centred scale, without a mark for an added entr
     await expect(percentages(panel)).toHaveCount(shown.length);
   });
 });
-
-test("a change beyond the mockup's 50% widens the shared scale for every mark", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishComparedStoryBranch(page, origin);
-  // Outlier 1 min → 2 min 30 s (+150%) in both Branch and Landed.
-  const outlier = (ms: number) => timed("e/outlier", ms);
-  setup.serveProofs(
-    entryProofs(setup, {
-      baseline: [...entries.baseline, outlier(60_000)],
-      branch: [...entries.branch, outlier(150_000)],
-      landed: [...entries.landed, outlier(150_000)],
-    }),
-  );
-  const { panel } = await selectDoneStoryForCiComparison(page);
-
-  await expect(cell(panel, "e/outlier", "Landed")).toHaveText("+1 min 30 s");
-  await expectMark(cell(panel, "e/outlier", "Landed"), "slower", 1);
-  await expectMark(cell(panel, "e/faster", "Landed"), "faster", 0.5 / 1.5);
-  await expectMark(cell(panel, "e/slower", "Landed"), "slower", 0.25 / 1.5);
-  await expectMark(wallChange(panel), "slower", 1 / 3 / 1.5);
-  await showPercent(panel).check();
-  await expect(
-    cell(panel, "e/outlier", "Landed").locator(".intent-ci-time-percent"),
-  ).toHaveText("+150%");
-});

@@ -1,6 +1,5 @@
 // @ts-check
-// MakeMe: shared domain-data entry. Each `makeMe.aThing` starts a fresh builder;
-// named methods state facts and `.please()` returns the product value.
+// MakeMe: fresh builders state domain facts and `.please()` returns the value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
@@ -62,7 +61,6 @@ import {
   StoryCiComparisonBuilder,
 } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
-
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -77,7 +75,6 @@ import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
-
 export const makeMe = {
   get aNativeEvidenceRecord() {
     return new NativeEvidenceRecordBuilder();
@@ -153,8 +150,7 @@ export const makeMe = {
   get aLaunchLanding() {
     return new LaunchLandingBuilder();
   },
-  // A host's session on its own, as a terminal or runner consumes it:
-  // `makeMe.aHostSession.codex({ sessionId, continuation }).please()`.
+  // A host's own session: `.aHostSession.codex({ sessionId, continuation })`.
   get aHostSession() {
     return hostSessionChoices;
   },
@@ -175,6 +171,10 @@ export const makeMe = {
   },
   /** @returns {FactBuilder<import("../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} */
   get aReviewedStory() {
+    return { with: copyFacts };
+  },
+  /** @returns {FactBuilder<import("../../dashboard/src/storyReviewFiles.ts").ReviewedFile>} */
+  get aReviewedFile() {
     return { with: copyFacts };
   },
   get aPublishedStoryEndpoint() {
@@ -212,6 +212,10 @@ export const makeMe = {
   },
   /** @returns {FactBuilder<CiRun>} */
   get aCiRun() {
+    return { with: copyFacts };
+  },
+  /** @returns {FactBuilder<import("../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */
+  get anIntentCiStatus() {
     return { with: copyFacts };
   },
   /** @returns {FactBuilder<IncrementPublicationFacts>} */

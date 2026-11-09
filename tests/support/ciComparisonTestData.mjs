@@ -85,4 +85,16 @@ export class CiProofBuilder {
       }),
     };
   }
+
+  /** @param {number} limitBytes @param {number} [sizeBytes] */
+  tooLarge(limitBytes, sizeBytes) {
+    return {
+      please: () => ({
+        kind: /** @type {const} */ ("unavailable"),
+        reason: /** @type {const} */ ("too-large"),
+        limitBytes,
+        ...(sizeBytes === undefined ? {} : { sizeBytes }),
+      }),
+    };
+  }
 }

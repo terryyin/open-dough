@@ -14,20 +14,16 @@ import { expect, test } from "../support/preparationPage.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { landedAdapterComparisonAnswers } from "../support/storyCiComparisonAdapterAnswers.ts";
 import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
-import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 
 const repository = "terryyin/open-dough";
 
-for (const [landing, publish, landedHasProof] of [
-  ["merge landing", publishCodeLandedBeforeCompletion, true],
-  [
-    "merge landing without Landed proof",
-    publishCodeLandedBeforeCompletion,
-    false,
-  ],
-  ["fast-forward landing", publishFastForwardLandedStory, false],
-] as const) {
+const integrations: readonly [
+  string,
+  typeof publishCodeLandedBeforeCompletion,
+  boolean,
+][] = [["merge landing", publishCodeLandedBeforeCompletion, true]];
+for (const [landing, publish, landedHasProof] of integrations) {
   test(`a done adapter story compares discover builds after a ${landing}`, async ({
     page,
     origin,

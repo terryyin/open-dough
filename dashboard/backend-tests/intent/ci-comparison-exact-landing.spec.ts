@@ -102,7 +102,10 @@ test("an unexplained code landing uses neither ancestor proof nor a later trunk 
     landed: {
       kind: "none",
       explanation: "No build at ddddddd: changes CI does not ignore.",
-      requestedStatus: { kind: "no-build" },
+      requestedStatus: {
+        kind: "no-build",
+        explanation: "No build at ddddddd: changes CI does not ignore.",
+      },
     },
   });
   expect(evidence.reads.revisions).not.toContain(later);

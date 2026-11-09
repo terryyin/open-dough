@@ -41,19 +41,19 @@ ownership.”
 | C021 | Proof covers adapter attempts. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-taken.spec.ts opaque attempt/branch/times/graph and running-tip ancestor; retained adapter browser discovery/proof/jobs/no-Actions wiring |
 | C022 | Proof covers retry behavior. | slice 3 | observed: ci-comparison-memory-recovery.spec.ts and mounted retry/gaps cases recover actual repeated reads; retained retry integrations passed in slice3-family.json. |
 | C023 | Proof covers remembered answers. | slice 3 | observed: Seven comparison-memory and eighteen proof-memory cases count actual repeated read/validation acquisition; default singleton Node owners and actual final API accounting passed. |
-| C024 | Proof covers comparison wording. | slice 4 | |
-| C025 | Proof covers comparison counts. | slice 4 | |
-| C026 | Proof covers comparison sorting. | slice 4 | |
-| C027 | Proof covers relative marks. | slice 4 | |
-| C028 | Proof covers navigation through Summary. | slice 4 | |
-| C029 | Proof covers navigation through file Proof. | slice 4 | |
+| C024 | Proof covers comparison wording. | slice 4 | observed: Mounted entries/wording and Gap/Endpoint/Adapter/Taken/Cancelled modules preserve literal display and accessibility; real backend/adapter tests independently observe generated reasons; presentation-evidence.md. |
+| C025 | Proof covers comparison counts. | slice 4 | observed: Mounted units four and legacy three cases retain exact overall/entry/location/folder/tree/file counts, separate units, own times and cues; strict182/182. |
+| C026 | Proof covers comparison sorting. | slice 4 | observed: Mounted comparison-sort three and Summary-sort seven use real click/Enter/Space, literal order arrays and aria-sort/icon checks; retained Summarysort observes cross-story fallback both ways. |
+| C027 | Proof covers relative marks. | slice 4 | observed: Mounted comparison-relative four and Summary-relative six observe actual geometry, independent fractions, zero/absent marks and +150% rescaling; loaded249/249 max823ms. |
+| C028 | Proof covers navigation through Summary. | slice 4 | observed: Mounted main uses actual child callbacks entry to folder/nested/file with literal rows; retained drilldown and Summarysort observe whole-app tree/Board navigation. |
+| C029 | Proof covers navigation through file Proof. | slice 4 | observed: Mounted FileProof five plus fallback/units/legacy observe exact file rows/cues; retained Purpose/keyboard, source-pinning and drilldown observe real navigation connections. |
 | C030 | Comparison remains visible while other Intent reads are held. | slice 3 | observed: intent-ci-comparison-locations.spec.ts held locations preserves one header and comparison; both Summary-file variants open Changed tests while comparison is held; strict72/72. |
 | C031 | Comparison remains visible while other Intent reads fail. | slice 3 | observed: intent-ci-comparison-locations.spec.ts failed locations leaves comparison visible and exposes Changed tests Retry; strict72/72. |
 | C032 | Actual assertions are inventoried before migration. | slice 5 | |
 | C033 | Resolution rules use browser-free server/domain tests. | slice 1 | observed: ci-comparison-{endpoints,selection,taken,published-endpoints}.spec.ts: fourteen in-process real rule cases at 0–15 ms in current ordinary 90-case profile; four history rules have zero observed subprocess acquisition |
 | C034 | Read-lifecycle rules use browser-free server/domain tests. | slice 3 | observed: Browser-free ci-comparison-memory-*.spec.ts and ci-proof-memory-*.spec.ts exercise real read/cache/ZIP/schema/identity rules with external acquisition counters; 25/25 at 0–4 ms. |
-| C035 | Presentation uses frontend tests against prepared service answers. | slice 4 | |
-| C036 | Real UI actions use frontend tests against prepared service answers. | slice 4 | |
+| C035 | Presentation uses frontend tests against prepared service answers. | slice 4 | observed: All87 mounted cases use canonical MakeMe service facts outside one immutable bundle and real providers/components/overlay projections; each page/root/provider/static server is fresh. |
+| C036 | Real UI actions use frontend tests against prepared service answers. | slice 4 | observed: Actual sort, Show %, keyboard and tree/child callbacks run in mounted cases; seventeen whole-app navigation/acquisition journeys remain predeclared wiring. |
 | C037 | Explanatory history, attempts, proof, or records are arranged through the shared MakeMe API. | slice 5 | |
 | C038 | Final-answer memory has no time-to-live. | slice 3 | observed: ci-comparison-memory-final.spec.ts returns the kept answer with zero further acquisition when supplied timing/build facts change; no elapsed wait or TTL. |
 | C039 | Finality is proved directly. | slice 3 | observed: Memory final/fresh/later cases keep completed timing reasons and final gaps, but reacquire unavailable/running/Taken/awaiting-later answers with exact counter deltas. |
@@ -115,16 +115,16 @@ ownership.”
 | J016 | Taken answers are read fresh. | slice 3 | observed: ci-comparison-memory-fresh.spec.ts reads Taken evidence again; mounted-head case ignores same-tip update and follows changed tip with one additional comparison read. |
 | J017 | Running answers are read fresh. | slice 3 | observed: ci-comparison-memory-fresh.spec.ts running Done answer becomes completed before it is kept; exact real read/provider counter deltas asserted. |
 | J018 | Unavailable answers are read fresh. | slice 3 | observed: ci-comparison-memory-recovery.spec.ts whole/slot gaps are read again; mounted failed controls remain usable over held repeated reads. |
-| J019 | With prepared comparison/proof answers, comparison retains endpoints and fallback. | slice 4 | |
-| J020 | With those answers, Summary retains endpoints and fallback. | slice 4 | |
-| J021 | With those answers, file Proof retains endpoints and fallback. | slice 4 | |
-| J022 | Signed timing is retained. | slice 4 | |
-| J023 | Measured zero is retained. | slice 4 | |
-| J024 | Gaps are retained. | slice 4 | |
-| J025 | Counts are retained. | slice 4 | |
-| J026 | Sorting is retained. | slice 4 | |
-| J027 | Show % meaning is retained. | slice 4 | |
-| J028 | Drilling into those views causes no extra CI reads. | slice 4 | |
+| J019 | With prepared comparison/proof answers, comparison retains endpoints and fallback. | slice 4 | observed: Mounted wording/endpoints/gaps/Taken/Cancelled retain exact endpoints and fallback; real backend generated-wording and retained GitHub/adapter/cancelled paths passed. |
+| J020 | With those answers, Summary retains endpoints and fallback. | slice 4 | observed: Mounted Summary gaps/fallback/labels and entry/folder/nested literal rows retain endpoints and fallback under the actual provider. |
+| J021 | With those answers, file Proof retains endpoints and fallback. | slice 4 | observed: Mounted FileProof/fallback/unit/legacy rows observe same active reason and endpoints, precise timing and zero-baseline behavior. |
+| J022 | Signed timing is retained. | slice 4 | observed: Mounted whole-second overview and precise Summary/FileProof signed literals include +70 ms; real timing backend and ci-time helper consumer passed. |
+| J023 | Measured zero is retained. | slice 4 | observed: Measured zero, added/zero-baseline absent mark/percent, unchanged FileProof 0 ms0% and centered zero mark are separately asserted. |
+| J024 | Gaps are retained. | slice 4 | observed: Mounted expired/untimed/running/no-build/discovery/size/breakdown/outside/fallback gaps and real backend producer-wording assertions passed. |
+| J025 | Counts are retained. | slice 4 | observed: Literal case/file/legacy count arrays preserve separate units and equal legacy totals never become no-change; mounted units/legacy observers passed. |
+| J026 | Sorting is retained. | slice 4 | observed: Mounted comparison/Summary sort tests assert independent orders and keyboard/header state; retained Summarysort covers missing-column fallback and restoration. |
+| J027 | Show % meaning is retained. | slice 4 | observed: Actual keyboard Show % retains order/geometry, percentages and outlier scaling; scoped precise/zero-baseline rules and Project/story preference connection passed. |
+| J028 | Drilling into those views causes no extra CI reads. | slice 4 | observed: Mounted main/fallback/outside/queued/unit-file cases count comparison/proof APIs separately and reject text/locations reads; retained drilldown preserves exact original CI request sequence. |
 | J029 | Held Changed tests cannot hide comparison. | slice 3 | observed: Retained locations-held journey keeps comparison while Changed tests loads and after it settles, without another comparison read. |
 | J030 | Failed Changed tests cannot hide comparison. | slice 3 | observed: Retained locations-failed journey keeps comparison while Changed tests shows failure/Retry and later recovers the exact completion revision. |
 | J031 | With stored captured/legacy runs, Refresh retains the selected run after native-session replacement. | slice 5 | |

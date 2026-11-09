@@ -7,6 +7,7 @@ import {
 import { IntentCiComparisonPreference } from "../../src/IntentCiComparisonPreference.tsx";
 import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
 import { IntentCiStatus } from "../../src/IntentCiStatus.tsx";
+import { ComparisonMountScope } from "./scope.tsx";
 import type {
   ComparisonMount,
   ComparisonSelection,
@@ -15,7 +16,12 @@ import "../../src/intent-page.css";
 
 let root: Root | undefined;
 let update: ((selection: ComparisonSelection) => void) | undefined;
-window.mountCiComparison = ({ source, work, identity }: ComparisonMount) => {
+window.mountCiComparison = ({
+  source,
+  work,
+  identity,
+  scope,
+}: ComparisonMount) => {
   const container = document.getElementById("root");
   if (container === null) {
     throw new Error("No comparison mount container");
@@ -34,7 +40,14 @@ window.mountCiComparison = ({ source, work, identity }: ComparisonMount) => {
                 selectedIdentity={selection.identity}
                 active
               >
-                <IntentCiStatus />
+                {selection.scope === undefined ? (
+                  <IntentCiStatus />
+                ) : (
+                  <ComparisonMountScope
+                    key={selection.identity}
+                    facts={selection.scope}
+                  />
+                )}
               </IntentCiEvidenceProvider>
             </IntentCiComparisonPreference>
           </IntentReadingScope>
@@ -42,7 +55,7 @@ window.mountCiComparison = ({ source, work, identity }: ComparisonMount) => {
       </IntentReadingProvider>,
     );
   };
-  update({ work, identity });
+  update({ work, identity, scope });
 };
 window.updateCiComparison = (selection) => {
   if (update === undefined) {

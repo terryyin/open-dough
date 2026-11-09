@@ -10,6 +10,7 @@
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEntry} CiProofEntry */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFile} CiProofFile */
+/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofPart} CiProofPart */
 /** @typedef {{ unit: "case" } | { unit: "file" } | { unit: "legacy", label: string | null }} CiProofUnitFacts */
 /** @typedef {{ passed: number, failed: number, other: number }} Counts */
 
@@ -25,6 +26,8 @@ export class CiProofEvidenceBuilder {
   #files;
   /** @type {number[]} */
   #missingParts = [];
+  /** @type {CiProofPart[] | undefined} */
+  #parts;
 
   /**
    * Counted as test cases or test files.
@@ -87,6 +90,12 @@ export class CiProofEvidenceBuilder {
     return this;
   }
 
+  /** @param {...CiProofPart} parts explicitly declared part evidence */
+  withParts(...parts) {
+    this.#parts = parts.map((part) => ({ ...part }));
+    return this;
+  }
+
   /** @returns {CiProofEvidence} */
   please() {
     /** @type {CiProofEvidence["parts"]} */
@@ -94,6 +103,32 @@ export class CiProofEvidenceBuilder {
       part,
       status: "missing",
     }));
+    const present = this.#parts?.filter((part) => part.status === "present");
+    const declared =
+      present === undefined
+        ? {}
+        : {
+            passed: present.reduce(
+              (total, part) => total + (part.passed ?? 0),
+              0,
+            ),
+            failed: present.reduce(
+              (total, part) => total + (part.failed ?? 0),
+              0,
+            ),
+            other: present.reduce(
+              (total, part) => total + (part.other ?? 0),
+              0,
+            ),
+            ...(present.some((part) => part.durationMs !== undefined)
+              ? {
+                  durationMs: present.reduce(
+                    (total, part) => total + (part.durationMs ?? 0),
+                    0,
+                  ),
+                }
+              : {}),
+          };
     const files = this.#files;
     if (files === undefined) {
       const timing =
@@ -102,7 +137,8 @@ export class CiProofEvidenceBuilder {
         ...this.#unit,
         ...this.#counts,
         ...timing,
-        parts: [
+        ...declared,
+        parts: this.#parts ?? [
           { part: 1, status: "present", ...this.#counts, ...timing },
           ...missing,
         ],
@@ -126,7 +162,8 @@ export class CiProofEvidenceBuilder {
     return {
       ...this.#unit,
       ...figures,
-      parts: [
+      ...declared,
+      parts: this.#parts ?? [
         { part: 1, status: "present", ...figures, breakdown: true },
         ...missing,
       ],

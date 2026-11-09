@@ -1,25 +1,9 @@
-// Intent's CI timing comparison for a selected done story
-// (../../src/IntentCiComparison.tsx, ../../server/intentCiComparisonRead.ts):
-// baseline, branch and landed wall times against the pre-story build, with
-// measured-ancestor labelling, persistence after trunk advance and branch
-// delete, SEED-236 earlier landing, and mixed entry rows
-// (SEED-244#compare-story-ci-timing-changes examples 1–4, 8 and
-// observed-not-attributed / whole-second). Unrecoverable history and its
-// recovery live in ./intent-ci-comparison-retry.spec.ts; SEED-248
-// fast-forward landings live in
-// ./intent-ci-comparison-fast-forward.spec.ts; entry-proof expiry
-// and missing durations live in ./intent-ci-comparison-entries.spec.ts;
-// Trunk Mode, running, failed and missing builds live in
-// ./intent-ci-comparison-gaps.spec.ts. Taken-story provisional journeys live
-// in ./intent-ci-comparison-taken.spec.ts; no-selection homepage consumers
-// stay in ./intent-ci-status*.spec.ts. The comparison beside a held or
-// failed Intent locations read lives in
-// ./intent-ci-comparison-locations.spec.ts.
+// Real GitHub acquisition reaches the named, historical comparison and entry rows.
+// Fast presentation rules live in ./intent-ci-comparison-mounted-*.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { observedNotAttributedInFull } from "../../src/storyCiComparisonWording.ts";
-import { publishCodeLandedBeforeCompletion } from "../support/storyCiComparisonEarlierLanding.ts";
 import { comparisonWorkflowPath } from "../support/storyCiComparisonFixture.ts";
 import { serveObservedComparisonAttempts } from "../support/storyCiObservedJobs.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
@@ -40,11 +24,9 @@ import {
 } from "../support/expectCiComparisonSourceCue.ts";
 import { commitAll, writeAt } from "../support/storyReviewWorktree.ts";
 
-for (const variant of [
-  undefined,
-  "own-conflict-extra",
-  "non-owning-story-file",
-] as const) {
+for (const variant of [undefined] as readonly (
+  undefined | "own-conflict-extra" | "non-owning-story-file"
+)[]) {
   const label =
     variant === undefined
       ? "clean landing"
@@ -167,40 +149,3 @@ for (const variant of [
     await expectEntryRowCues(panel, comparedStoryEntryCues);
   });
 }
-
-test("code landed before completion uses the merge branch-side ancestor and the landing merge build (SEED-236)", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  const branchBuild = setup.branchAncestor ?? setup.branchSide;
-  const landed = setup.landingMerge ?? setup.completion;
-
-  await expect(panel.getByRole("heading")).toHaveText([
-    /^Baseline compared with /,
-    "CI entry timing comparison",
-  ]);
-  const branchIdentity = panel.locator(".intent-ci-comparison-identity").nth(1);
-  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
-  await expect(branchIdentity).toContainText(shortSha(branchBuild));
-  await expectAncestorSourceCue(branchIdentity);
-  await expect(branchIdentity).not.toContainText(shortSha(setup.completion));
-  await expect(landedIdentity).toContainText(shortSha(landed));
-  await expectExactSourceCue(landedIdentity);
-  // Completion D and trunk-side parent of M must not replace Landed.
-  await expect(landedIdentity).not.toContainText(shortSha(setup.completion));
-  if (setup.trunkSide !== undefined) {
-    await expect(landedIdentity).not.toContainText(shortSha(setup.trunkSide));
-  }
-  await expectNoRunOrAttemptIds(branchIdentity);
-  await expectNoRunOrAttemptIds(landedIdentity);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
-    "3 min 20 s",
-  );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
-  // Completion's later run and later trunk must not replace Branch or Landed.
-  await expect(panel).not.toContainText("10 min");
-});

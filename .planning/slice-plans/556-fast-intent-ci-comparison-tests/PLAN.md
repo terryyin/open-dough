@@ -33,6 +33,8 @@ to it. The source keeps that measurement distinction explicit.
 
 **Lifecycle proof:** [Memory, retry and mounted-provider evidence](lifecycle-evidence.md).
 
+**Presentation proof:** [Scope assertions, retirement and measurements](presentation-evidence.md).
+
 ## Ordered slices
 
 ### 1. Get a fast answer for published story endpoints
@@ -106,7 +108,7 @@ proof boundaries hold. Measure the failure and return journey as well as rules.
 ### 4. Read the same comparison quickly at every scope
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Sub-second mounted production comparison/Summary/Proof variants with
 real providers and controls; retained built-app comparison → entry/folder
 Summary → file Proof and return, plus real acquisition-to-scope proof.

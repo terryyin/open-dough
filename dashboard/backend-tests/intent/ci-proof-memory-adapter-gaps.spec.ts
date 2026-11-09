@@ -33,9 +33,17 @@ for (const [reason, changed] of [
       });
     });
     try {
-      expect(
-        await reader(repository, project.folder, attempt, signal()),
-      ).toMatchObject({ kind: "unavailable", reason });
+      const rejected = await reader(
+        repository,
+        project.folder,
+        attempt,
+        signal(),
+      );
+      expect(rejected).toMatchObject({ kind: "unavailable", reason });
+      if (reason === "invalid")
+        expect(rejected).toMatchObject({
+          detail: "schemaVersion is not 1 or 2",
+        });
       expect(
         await reader(repository, project.folder, attempt, signal()),
       ).toEqual(proof);
@@ -48,3 +56,25 @@ for (const [reason, changed] of [
     }
   });
 }
+
+test("an oversized adapter command answer becomes the shared one MiB proof gap", async () => {
+  const project = configuredAdapter();
+  const reader = ciAdapterProofReader(() =>
+    Promise.reject(
+      Object.assign(new Error("answer exceeded limit"), {
+        code: "ERR_CHILD_PROCESS_STDIO_MAXBUFFER",
+      }),
+    ),
+  );
+  try {
+    expect(await reader(repository, project.folder, attempt, signal())).toEqual(
+      {
+        kind: "unavailable",
+        reason: "too-large",
+        limitBytes: 1_048_576,
+      },
+    );
+  } finally {
+    project.cleanup();
+  }
+});

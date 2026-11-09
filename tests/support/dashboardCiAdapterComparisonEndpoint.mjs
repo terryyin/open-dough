@@ -4,6 +4,20 @@ import { adapterRevisionLookup } from "../../dashboard/server/baseCiAdapterRevis
 import { nearestRevisionBuild } from "../../dashboard/server/baseCiRevisionNearest.ts";
 import { asSlot } from "../../dashboard/server/revisionBuildSlot.ts";
 import { checkoutRoot } from "../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { writeRevisionFiles } from "./repository-revision-files.mjs";
+
+// Valid project configuration is setup; command wire bytes remain at the caller.
+export function configureAdapter(root, command) {
+  const described = makeMe.aRepository
+    .withRevision("configured", {
+      files: {
+        ".planning/open-dough.json": JSON.stringify({ ciAdapter: command }),
+      },
+    })
+    .please();
+  writeRevisionFiles(root, described.revisions[0]);
+}
 
 /**
  * @param {ReturnType<import("./makeMe.mjs").makeMe.aCiAdapterAttempt.please>} attempt
@@ -27,6 +41,10 @@ const { operation } = JSON.parse(input);
 const jobResponse = ${JSON.stringify(jobResponse)};
 if (operation === 'discover') process.stdout.write(${JSON.stringify(JSON.stringify({ attempts: [attempt] }))});
 else if (jobResponse === 'hold') createServer().listen(0, '127.0.0.1');
+else if (jobResponse === 'unsupported') {
+  process.stderr.write('adapter starting\\nunsupported CI adapter operation');
+  process.exit(2);
+}
 else process.stdout.write(jobResponse);
 `,
   ];

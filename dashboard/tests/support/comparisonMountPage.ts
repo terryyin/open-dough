@@ -15,10 +15,16 @@ export type ComparisonReply = {
 export type ComparisonServices = {
   comparisons: number;
   proofs: number;
-  comparison(
+  statuses: number;
+  comparison: (
     params: URLSearchParams,
-  ): Promise<ComparisonReply> | ComparisonReply;
-  proof(params: URLSearchParams): Promise<ComparisonReply> | ComparisonReply;
+  ) => Promise<ComparisonReply> | ComparisonReply;
+  proof: (
+    params: URLSearchParams,
+  ) => Promise<ComparisonReply> | ComparisonReply;
+  status: (
+    params: URLSearchParams,
+  ) => Promise<ComparisonReply> | ComparisonReply;
   hold(): {
     readonly promise: Promise<ComparisonReply>;
     resolve(reply: ComparisonReply): void;
@@ -46,8 +52,10 @@ export const test = base.extend<{
     await use({
       comparisons: 0,
       proofs: 0,
+      statuses: 0,
       comparison: unarranged,
       proof: unarranged,
+      status: unarranged,
       hold() {
         let release: ((reply: ComparisonReply) => void) | undefined;
         const promise = new Promise<ComparisonReply>((resolve) => {
@@ -89,6 +97,11 @@ export const test = base.extend<{
           proofs: comparisonServices.proofs + 1,
         });
         reply = await comparisonServices.proof(params);
+      } else if (intent === "ci-status") {
+        Object.assign(comparisonServices, {
+          statuses: comparisonServices.statuses + 1,
+        });
+        reply = await comparisonServices.status(params);
       } else {
         throw new Error(`Unarranged Intent read: ${String(intent)}`);
       }
@@ -134,7 +147,12 @@ export async function mountComparison(
     (value) => {
       window.mountCiComparison(value);
     },
-    { source: facts.source, work: facts.work, identity: facts.identity },
+    {
+      source: facts.source,
+      work: facts.work,
+      identity: facts.identity,
+      scope: facts.scope,
+    },
   );
   return page.getByRole("region", {
     name: "CI timing comparison",
@@ -147,6 +165,6 @@ export async function updateComparison(page: Page, facts: ComparisonMount) {
     (value) => {
       window.updateCiComparison(value);
     },
-    { work: facts.work, identity: facts.identity },
+    { work: facts.work, identity: facts.identity, scope: facts.scope },
   );
 }

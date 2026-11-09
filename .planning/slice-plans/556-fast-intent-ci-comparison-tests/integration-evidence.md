@@ -109,4 +109,8 @@ was active. After load was 3.53/3.11/3.11, memory 60% free. Independent
 refactoring found no further edit; its 32-consumer trace is
 `incoming-landed-independent-refactor-consumer-trace.md` beside the proof logs.
 All thirteen reviewed files preview at most 247 formatted lines. Accepted
-proof remains valid; formatting and publication are the coordinator's gates.
+proof remains valid. Formatting and the adapter continuation passed; merge
+`b7dce07a2cb7583a512913a0a18650a17056050b` was accepted on the execution
+branch and registered with the existing observer. Its exact receipt is in
+`incoming-landed-publish.log`; local branch refresh fast-forwarded through the
+adapter to the same SHA.

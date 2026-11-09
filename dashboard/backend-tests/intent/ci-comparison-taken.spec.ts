@@ -34,8 +34,15 @@ test("Taken Trunk shows a provisional completed result and keeps Landed unavaila
   expect(await answer(evidence)).toMatchObject({
     phase: "taken",
     mode: "trunk",
-    branch: { kind: "not-applicable" },
-    landed: { kind: "not-landed" },
+    branch: {
+      kind: "not-applicable",
+      explanation:
+        "Branch comparison is not applicable for a Trunk Mode story.",
+    },
+    landed: {
+      kind: "not-landed",
+      explanation: "The story has not landed yet.",
+    },
     provisional: { kind: "build", revision: branch },
   });
 });
