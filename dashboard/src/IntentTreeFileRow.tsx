@@ -1,14 +1,13 @@
 // Intent location-tree file control with optional shared CI comparison cues
-// (`./intentTreeComparison.ts`): Proof's Counts and after-side words join the
-// existing path or change-kind label in the accessible name; cue attrs match
-// Summary and Proof rows.
+// (`./intentTreeComparison.ts`): Proof's Counts and after-side words, row by
+// row, join the existing path or change-kind label in the accessible name;
+// cue attrs match Summary and Proof rows.
 
 import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
-import type { ComparisonEntryCells } from "./storyCiComparisonEntries.ts";
 import type { TreeComparisonReading } from "./intentTreeComparison.ts";
 import {
   treeComparisonAccessibleName,
-  treeFileCellsOf,
+  treeFileComparisonOf,
 } from "./intentTreeComparison.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 
@@ -29,22 +28,18 @@ export function IntentTreeFileRow({
   readonly path: string;
   readonly treeFile: IntentTreeFile;
 }) {
-  const cells: ComparisonEntryCells | undefined = treeFileCellsOf(
-    reading,
-    path,
-    treeFile,
-  );
+  const comparison = treeFileComparisonOf(reading, path, treeFile);
   const accessible =
-    cells === undefined || reading.kind !== "comparison"
+    comparison === undefined
       ? label
-      : treeComparisonAccessibleName(label, cells, reading.afterSide);
+      : treeComparisonAccessibleName(label, comparison);
   return (
     <button
       type="button"
       aria-label={accessible}
       title={accessible}
       aria-pressed={selected}
-      {...(cells === undefined ? {} : scopeCueRowAttrs(cells.cues))}
+      {...(comparison === undefined ? {} : scopeCueRowAttrs(comparison.cues))}
       onClick={onSelect}
     >
       <code>{name}</code>

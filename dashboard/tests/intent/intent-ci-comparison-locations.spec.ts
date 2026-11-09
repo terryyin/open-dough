@@ -38,11 +38,21 @@ async function holdLocationsOfComparedStory(page: Page, origin: StartOrigin) {
   writeAt(origin.project, comparisonWorkflowPath, "jobs: {}\n");
   commitAll(origin.project, "change the workflow after the compared builds");
   serveObservedComparisonAttempts(setup, "rerun");
-  return holdAuthenticatedReadsWhere(
+  const revisions: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      url.pathname === "/__authenticated-read" &&
+      url.searchParams.get("intent") === "locations"
+    )
+      revisions.push(url.searchParams.get("revision") ?? "");
+  });
+  const held = await holdAuthenticatedReadsWhere(
     page,
     (params) => params.get("intent") === "locations",
     releases,
   );
+  return { ...held, revisions, completion: setup.completion };
 }
 
 test("a selected story's CI comparison shows under its one header while the Intent locations read is held, and stays without reading CI again once it settles", async ({
@@ -70,16 +80,21 @@ test("a selected story's CI comparison shows under its one header while the Inte
   await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText(
     comparedWalls,
   );
+  await expect.poll(() => locations.revisions).toContain(locations.completion);
 
   // Still held, Changed tests says so; once the locations settle, CI
   // comparison shows the same comparison without reading it again.
   await chooseStoryTab(intent, "Changed tests");
   const changedTests = intent.getByRole("tabpanel", { name: "Changed tests" });
-  await expect(changedTests).toContainText("Reading Intent locations…");
+  await expect(changedTests).toContainText(
+    "Reading the story's historical Intent locations…",
+  );
   const readsBefore = comparisonReads;
   expect(readsBefore).toBeGreaterThan(0);
   locations.release();
-  await expect(changedTests).not.toContainText("Reading Intent locations…");
+  await expect(changedTests).not.toContainText(
+    "Reading the story's historical Intent locations…",
+  );
   await chooseStoryTab(intent, "CI comparison");
   await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText(
     comparedWalls,
@@ -93,6 +108,7 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
 }) => {
   const locations = await holdLocationsOfComparedStory(page, origin);
   const { intent, panel } = await selectDoneStoryForCiComparison(page);
+  await expect.poll(() => locations.revisions).toContain(locations.completion);
   expect(locations.held()).toBeGreaterThan(0);
   locations.fail();
 
@@ -115,5 +131,8 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
   await chooseStoryTab(intent, "Changed tests");
   await retry.click();
   await expect(failure).toHaveCount(0);
-  await expect(changedTests).not.toContainText("Reading Intent locations…");
+  await expect(changedTests).not.toContainText(
+    "Reading the story's historical Intent locations…",
+  );
+  expect(locations.revisions.at(-1)).toBe(locations.completion);
 });

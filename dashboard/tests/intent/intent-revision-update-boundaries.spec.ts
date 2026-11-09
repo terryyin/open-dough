@@ -7,9 +7,11 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { chooseProject } from "../dashboardPage.ts";
+import { shortRevision } from "../dashboardParts.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
 import {
+  browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
@@ -18,6 +20,7 @@ import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 import {
   doughnut,
   doughnutSettings,
+  pygardon,
   publishIntentProject,
 } from "../intentCodeBrowseFixtures.ts";
 import { locationFiles } from "../intentReadRecoveryPage.ts";
@@ -51,6 +54,9 @@ test("an unusable settings file at the latest revision takes the reading's focus
   );
   await expect(explanation).toContainText("is not valid JSON");
   await expect(explanation).toBeFocused();
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision("ec".repeat(20)),
+  );
 });
 
 test("choosing another project while an update is held shows only that project's reading when it is answered", async ({
@@ -76,6 +82,9 @@ test("choosing another project while an update is held shows only that project's
     .getByRole("button", { name: "Show latest" })
     .click();
   await expect.poll(latest.held).toBe(1);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
 
   await chooseProject(page, "Doughnut");
   await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
@@ -88,4 +97,7 @@ test("choosing another project while an update is held shows only that project's
   await expect(revisionNotice(intent)).toHaveCount(0);
   await expect(ciPanel(intent)).toBeVisible();
   await expect(purposeRegion(intent)).toHaveCount(0);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(doughnut.revision),
+  );
 });

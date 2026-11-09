@@ -42,6 +42,10 @@ test("a Baseline listing that failed once is listed again on the next read, then
   page,
   origin,
 }) => {
+  // Two full comparison reads, each walking every head_sha listing through
+  // the fake `gh`; see the pending optimization candidate
+  // `intent-ci-comparison-two-read-journeys`.
+  test.setTimeout(60_000);
   const { baseline, listings } = await publishTrunkStoryWithBaseline(
     page,
     origin,
@@ -78,6 +82,10 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   page,
   origin,
 }) => {
+  // Two full comparison reads, each walking every head_sha listing through
+  // the fake `gh`; see the pending optimization candidate
+  // `intent-ci-comparison-two-read-journeys`.
+  test.setTimeout(60_000);
   const setup = await publishComparedStoryBranch(page, origin);
   let asked = 0;
   let baselineListings = 0;
@@ -104,7 +112,7 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   );
   await expect(
     panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("2,090 → 2,092 tests (+2); 5 → 8 checks (+3)");
+  ).toHaveText("2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)");
   await expect(checkAgain).toBeEnabled();
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
 
@@ -149,7 +157,7 @@ test("Check again reads the endpoint proof that failed once again", async ({
   );
   await expect(
     panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("2,090 → 2,092 tests (+2); 5 → 8 checks (+3)");
+  ).toHaveText("2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)");
   expect(landedArtifactListings).toBe(2);
 });
 

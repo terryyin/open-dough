@@ -50,7 +50,7 @@ export class CiProofBuilder {
       please: () => ({
         kind: /** @type {const} */ ("summary"),
         summary: {
-          schemaVersion: /** @type {const} */ (1),
+          schemaVersion: /** @type {const} */ (2),
           repository,
           ...run,
           entries: [...entries],

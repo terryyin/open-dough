@@ -77,7 +77,7 @@ for (const variant of [
     );
     await expect(
       panel.locator(".intent-ci-comparison-overall-counts"),
-    ).toHaveText("2,090 → 2,092 tests (+2); 5 → 8 checks (+3)");
+    ).toHaveText("2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)");
     // Checks 5 → 8 (+60%) make the overall count cue strong even though
     // tests only move +2 of 2,090.
     await expectCueState(

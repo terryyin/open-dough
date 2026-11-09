@@ -8,42 +8,54 @@ import {
 } from "./storyReviewContract.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
+import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 
-export function useStoryReviewSelection(
-  source: string,
-  identity: string,
-  round: number,
+export function useStoryReviewSelection({
+  source,
+  identity,
+  round,
   completed = false,
-  // A disabled selection reads nothing.
   enabled = true,
+  initial = "since",
+  historical: historicalComparison = false,
+}: {
+  readonly source: string;
+  readonly identity: string;
+  readonly round: number;
+  readonly completed?: boolean | undefined;
+  // A disabled selection reads nothing.
+  readonly enabled?: boolean;
   // The workspace choice it opens on.
-  initial: ShownComparison = "since",
-) {
-  const workspaceRead = useReviewRead<StoryReview>(
-    storyReviewEndpoint,
-    { source, identity, ...(completed ? { completed: "true" } : {}) },
-    storyReviewSchema,
-    { round, enabled },
-  );
+  readonly initial?: ShownComparison | undefined;
+  // Historical Review asks for a completed result rather than a retained workspace.
+  readonly historical?: boolean | undefined;
+}) {
+  const defaultRead = useDefaultStoryReview({
+    source,
+    identity,
+    round,
+    completed,
+    historical: historicalComparison,
+    enabled,
+  });
   const [selection, setSelection] = useState<{
     of: StoryReview | undefined;
     run?: string;
     workspace: ShownComparison;
   }>({ of: undefined, workspace: initial });
-  const answer = workspaceRead.answer;
+  const answer = defaultRead.answer;
   const runs = answer?.runs ?? [];
   if (
-    !workspaceRead.reading &&
-    workspaceRead.problem !== undefined &&
+    !defaultRead.reading &&
+    defaultRead.problem !== undefined &&
     selection.run !== undefined
   )
-    setSelection({ of: undefined, workspace: selection.workspace });
-  if (
-    answer !== undefined &&
-    answer !== selection.of &&
-    !workspaceRead.reading
-  ) {
+    setSelection({
+      of: undefined,
+      workspace: selection.workspace,
+    });
+  if (answer !== undefined && answer !== selection.of && !defaultRead.reading) {
     const fallback = preferredReviewRun(runs, (run) => run.comparison);
     // A first answer, or a workspace choice whose workspace is gone, follows
     // the run the answer opened on.
@@ -60,7 +72,7 @@ export function useStoryReviewSelection(
     });
   }
   const selectedRun = runs.find((run) => run.key === selection.run);
-  const historical = useReviewRead<StoryReview>(
+  const runRead = useReviewRead<StoryReview>(
     storyReviewEndpoint,
     { source, identity, run: selection.run ?? "" },
     storyReviewSchema,
@@ -75,8 +87,8 @@ export function useStoryReviewSelection(
   const review =
     selection.run === undefined
       ? answer
-      : historical.answer?.selectedRun === selection.run
-        ? historical.answer
+      : runRead.answer?.selectedRun === selection.run
+        ? runRead.answer
         : answer?.selectedRun === selection.run
           ? answer
           : undefined;
@@ -89,18 +101,22 @@ export function useStoryReviewSelection(
     snapshot: answer?.kind === "snapshot" ? answer : undefined,
     published: answer?.kind === "published" ? answer : undefined,
     chosen: selection.workspace,
-    reading: workspaceRead.reading || historical.reading,
+    reading: defaultRead.reading || runRead.reading,
     problem:
       selection.run === undefined
-        ? workspaceRead.problem
-        : historical.reading
+        ? defaultRead.problem
+        : runRead.reading
           ? undefined
-          : historical.problem,
+          : runRead.problem,
     onWorkspace: (workspace: ShownComparison) => {
       setSelection({ of: answer, workspace });
     },
     onRun: (run: string) => {
-      setSelection({ of: answer, workspace: selection.workspace, run });
+      setSelection({
+        of: answer,
+        workspace: selection.workspace,
+        run,
+      });
     },
   };
 }

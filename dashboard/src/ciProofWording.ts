@@ -1,17 +1,22 @@
 // Wording of one run attempt's CI proof in Intent's CI status homepage
 // (`./IntentCiProof.tsx`) and in a selected entry's or folder's Summary
 // (`./IntentScopeProof.tsx`): each row's table cells (`./CiProofTable.tsx`)
-// show counts with their unit and cumulative test execution time (measured,
-// partial, or not recorded). The selected scope's own figures also show how
-// many of its entry's declared parts are present and any gaps. Timing is
-// classified by `./ciProofTiming.ts` and
+// show one unit's results (`./ciProofUnits.ts`): counts naming that unit
+// (test cases, test files or legacy test results) and cumulative test
+// execution time (measured, partial, or not recorded). The selected scope's
+// own figures also show how many of that unit's declared parts are present
+// and any gaps. Timing is classified by `./ciProofTiming.ts` and
 // durations are worded by `./ciProofTimeWords.ts`;
 // why no proof can be shown is `./ciProofAbsenceWording.ts`'s. A gap's counts
 // are never part of the counts (the collector leaves them out), so the words
 // say how many parts were counted. A missing duration is never a measured
 // zero. Nothing relies on colour.
 
-import type { CiProofEntry, CiProofFigures } from "./ciProof.ts";
+import type {
+  CiProofEntry,
+  CiProofEvidence,
+  CiProofFigures,
+} from "./ciProof.ts";
 import {
   entryTimingOf,
   joinedAnd,
@@ -23,12 +28,33 @@ import {
   type TimingCell,
 } from "./ciProofTiming.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
-import type { CiScopeFigures } from "./ciScopeProof.ts";
+import {
+  countedAny,
+  hasFileBreakdown,
+  namesUnits,
+  unitName,
+  unitNoun,
+} from "./ciProofUnits.ts";
+import {
+  unitResultsAt,
+  type CiScopeFigures,
+  type UnitResults,
+} from "./ciScopeProof.ts";
 
-// "19 passed and 1 failed tests": every nonzero outcome of FIGURES, then
-// ENTRY's unit.
-function countsWords(entry: CiProofEntry, figures: CiProofFigures): string {
-  if (entry.unit === null) return "nothing counted";
+// "nothing counted" for EVIDENCE without a present part, naming the unit its
+// publisher declared: "nothing counted as test files".
+const nothingCountedWords = (evidence: CiProofEvidence): string =>
+  evidence.unit === "legacy"
+    ? "nothing counted"
+    : `nothing counted as ${unitName(evidence.unit)}`;
+
+// "19 passed and 1 failed test cases": every nonzero outcome of FIGURES,
+// then EVIDENCE's unit, singular for one result.
+function countsWords(
+  evidence: CiProofEvidence,
+  figures: CiProofFigures,
+): string {
+  if (!countedAny(evidence)) return nothingCountedWords(evidence);
   const counted = (
     [
       ["passed", figures.passed],
@@ -38,33 +64,30 @@ function countsWords(entry: CiProofEntry, figures: CiProofFigures): string {
   )
     .filter(([, value]) => value > 0)
     .map(([outcome, value]) => `${String(value)} ${outcome}`);
+  const total = figures.passed + figures.failed + figures.other;
   return counted.length === 0
-    ? `no ${entry.unit}`
-    : `${joinedAnd(counted)} ${entry.unit}`;
+    ? `no ${unitName(evidence.unit)}`
+    : `${joinedAnd(counted)} ${unitNoun(evidence.unit, total)}`;
 }
 
 // "2 of 2 parts present".
-function entryParts(entry: CiProofEntry): string {
-  const present = entry.parts.filter((part) => part.status === "present");
-  const of = entry.parts.length;
+function entryParts(evidence: CiProofEvidence): string {
+  const present = evidence.parts.filter((part) => part.status === "present");
+  const of = evidence.parts.length;
   return `${String(present.length)} of ${String(of)} ${of === 1 ? "part" : "parts"} present`;
 }
 
 // "part 4 of 12 missing", one for each part not counted.
-function entryGaps(entry: CiProofEntry): string[] {
-  const of = entry.parts.length;
-  return entry.parts
+function entryGaps(evidence: CiProofEvidence): string[] {
+  const of = evidence.parts.length;
+  return evidence.parts
     .filter((part) => part.status !== "present")
     .map((part) => partPhrase(part, of, part.status));
 }
 
-// Whether any part of ENTRY was broken down by file.
-export const hasFileBreakdown = (entry: CiProofEntry) =>
-  entry.parts.some((part) => part.breakdown === true);
-
 // "part 2 of 3 has no file breakdown", one for each such present part.
-const breakdownGaps = (entry: CiProofEntry): string[] =>
-  noBreakdownGapsOf(entry).map((gap) => gap.phrase);
+const breakdownGaps = (evidence: CiProofEvidence): string[] =>
+  noBreakdownGapsOf(evidence).map((gap) => gap.phrase);
 
 // Cumulative test execution time in an entry's or scope's row, under its
 // "Test execution time" column (`./ciProofTiming.ts`).
@@ -95,42 +118,52 @@ export type CiProofCells = {
   readonly gaps: readonly string[];
 };
 
-export function ciProofCellsOf(entry: CiProofEntry): CiProofCells {
-  const gaps = entryGaps(entry);
+export function ciProofCellsOf(evidence: CiProofEvidence): CiProofCells {
+  const gaps = entryGaps(evidence);
   return {
-    counts: countsWords(entry, entry),
-    countedResults: countedResultsOf(entry),
-    executionTime: executionTimeCell(entryTimingOf(entry)),
-    completeness: entryParts(entry),
+    counts: countsWords(evidence, evidence),
+    countedResults: countedResultsOf(evidence),
+    executionTime: executionTimeCell(entryTimingOf(evidence)),
+    completeness: entryParts(evidence),
     gaps,
   };
 }
 
 const noCiResult = "no CI result";
-const noFileBreakdown = "no file breakdown";
 
-// The cells of a scope inside ENTRY with FIGURES (`CiScopeFigures`): no CI
-// result when no file matched, and no file breakdown when no part of the
-// entry published one, never a zero. Parts completeness also names each part
-// without a file breakdown, whose results no scope inside the entry holds.
+// "no file breakdown", naming EVIDENCE's unit when NAMED, as beside another
+// unit's results: "no file breakdown of test files".
+const noFileBreakdownWords = (evidence: CiProofEvidence, named: boolean) =>
+  named
+    ? `no file breakdown of ${unitName(evidence.unit)}`
+    : "no file breakdown";
+
+// The cells of a scope inside an entry with FIGURES (`CiScopeFigures`) of one
+// unit's EVIDENCE: no CI result when no breakdown path matched, and no file
+// breakdown when no part of that unit published one, never a zero, its unit
+// NAMED beside another unit's results. Parts completeness also names each
+// part without a file breakdown, whose results no scope inside the entry
+// holds.
 export function ciScopeCellsOf(
-  entry: CiProofEntry,
+  evidence: CiProofEvidence,
   figures: CiScopeFigures,
+  named = false,
 ): CiProofCells {
-  const gaps = [...entryGaps(entry), ...breakdownGaps(entry)];
+  const gaps = [...entryGaps(evidence), ...breakdownGaps(evidence)];
   const parts = {
-    completeness: entryParts(entry),
+    completeness: entryParts(evidence),
     gaps,
   };
-  if (!hasFileBreakdown(entry)) {
+  if (!hasFileBreakdown(evidence)) {
+    const words = noFileBreakdownWords(evidence, named);
     return {
-      counts: noFileBreakdown,
+      counts: words,
       countedResults: undefined,
-      executionTime: { text: noFileBreakdown },
+      executionTime: { text: words },
       ...parts,
     };
   }
-  if (figures.files === 0) {
+  if (figures.paths === 0) {
     return {
       counts: noCiResult,
       countedResults: undefined,
@@ -139,11 +172,38 @@ export function ciScopeCellsOf(
     };
   }
   return {
-    counts: countsWords(entry, figures),
+    counts: countsWords(evidence, figures),
     countedResults: countedResultsOf(figures),
-    executionTime: executionTimeCell(scopeTimingOf(entry, figures)),
+    executionTime: executionTimeCell(scopeTimingOf(evidence, figures)),
     ...parts,
   };
+}
+
+// The cells of one unit's results as shown at a scope (`UnitResults`):
+// its entry's totals at the entry's path, else the scope's figures, its unit
+// NAMED in a gap beside another unit's results.
+export const unitResultsCellsOf = (
+  evidence: CiProofEvidence,
+  figures: CiScopeFigures | undefined,
+  named = false,
+): CiProofCells =>
+  figures === undefined
+    ? ciProofCellsOf(evidence)
+    : ciScopeCellsOf(evidence, figures, named);
+
+// Each unit's results ENTRY shows at SCOPE (`unitResultsAt`) with their
+// cells, a gap naming its unit when ENTRY reports several.
+export type UnitCells = UnitResults & { readonly cells: CiProofCells };
+
+export function unitCellsAt(
+  entry: CiProofEntry,
+  scope: string,
+): readonly UnitCells[] {
+  const named = namesUnits(entry);
+  return unitResultsAt(entry, scope).map((shown) => ({
+    ...shown,
+    cells: unitResultsCellsOf(shown.evidence, shown.figures, named),
+  }));
 }
 
 // The cells of a row while no CI proof can be given for it, each saying WHY

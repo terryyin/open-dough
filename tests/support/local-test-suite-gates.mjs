@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, readdirSync, watch } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { repository } from "./local-test-suite-fixtures.mjs";
+import { repository, until } from "./local-test-suite-fixtures.mjs";
 
 // How many controlled checks have marked their start in `observation`.
 export function startedChecks(observation) {
@@ -11,46 +11,46 @@ export function startedChecks(observation) {
 // Runs the repository suite like `repository`, giving `gate.variable` this
 // invocation's own marker file in `observation`; nested runs never inherit
 // it. Each `atGate` observation resolves with matching marker content, read
-// by `gate.read`, once the runner writes it whole at that gate. It rejects
-// when the run ends first or when more than `gate.limit` checks have marked
-// their start.
+// by `gate.read`, once the runner has written it whole at that gate. It
+// rejects when the run ends first, when more than `gate.limit` checks have
+// marked their start, or when `until` times out. It checks the files
+// themselves, not a directory watcher's events: on macOS a process's
+// watchers share one FSEvents stream that starts after `watch` returns and
+// restarts whenever a watcher opens or closes, so a write in between raises
+// no event.
 function repositoryAtGate(t, project, observation, gate, env) {
   const marker = path.join(observation, gate.name.replace(" ", "-"));
   const run = repository(t, project, observation, {
     ...env,
     [gate.variable]: marker,
   });
+  // The run's own teardown ends it, settling every pending observation even
+  // when the test stops early.
+  let ended;
+  run.result.then(
+    (result) => {
+      ended = new Error(`Run ended before the ${gate.name}: ${result.output}`);
+    },
+    (error) => {
+      ended = error;
+    },
+  );
   const atGate = (matches = () => true) => {
-    const watcher = watch(observation);
-    const reached = new Promise((resolve, reject) => {
-      const inspect = () => {
-        try {
-          const starts = startedChecks(observation);
-          if (starts > gate.limit)
-            reject(
-              new Error(`${starts} checks started before the ${gate.name}`),
-            );
-          else if (existsSync(marker)) {
-            const value = gate.read(readFileSync(marker, "utf8"));
-            if (matches(value)) resolve(value);
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-      watcher.on("change", inspect);
-      watcher.on("error", reject);
-      // The run's own teardown ends it, settling every pending observation
-      // and closing its watcher even when the test stops early.
-      run.result.then(
-        (result) =>
-          reject(
-            new Error(`Run ended before the ${gate.name}: ${result.output}`),
-          ),
-        reject,
-      );
-      inspect();
-    }).finally(() => watcher.close());
+    let value;
+    const reached = until(`${gate.name} in ${observation}`, () => {
+      // Taken before the files are read: a run that had already ended wrote
+      // its last marker before this check.
+      const endedBefore = ended;
+      const starts = startedChecks(observation);
+      if (starts > gate.limit)
+        throw new Error(`${starts} checks started before the ${gate.name}`);
+      if (existsSync(marker)) {
+        value = gate.read(readFileSync(marker, "utf8"));
+        if (matches(value)) return true;
+      }
+      if (endedBefore) throw endedBefore;
+      return false;
+    }).then(() => value);
     reached.catch(() => {});
     return reached;
   };

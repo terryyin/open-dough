@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-283#keep-done-story-intent-pinned",
+  "title": "Keep Done story Intent pinned to the landed result",
+  "completedAt": "2026-11-09T10:02:17.629Z",
+  "developer": "Terry Yin",
+  "agent": "bastiaan-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "unavailable": "The requested scratch check was still running when wrap-up was ready to complete; its report will be retained separately if returned."
+  }
+}

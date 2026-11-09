@@ -1,8 +1,9 @@
 // The Intent perspective of the selected project: Purpose reads configured
-// test-source locations at Intent's reading revision
-// (`./useShownIntentLocations.tsx`) through the authenticated read boundary
-// (`./IntentBrowser.tsx`), behind its one revision notice, which each view
-// shows under its tabs. Intent shows either
+// test-source locations at Project Intent's reading revision
+// (`./useShownIntentLocations.tsx`) or the Done story's landed result
+// (`./useHistoricalIntentLocations.tsx`) through the authenticated read boundary
+// (`./IntentBrowser.tsx`). The project alone shows its refresh notice under
+// its tabs. Intent shows either
 // **Project Intent** (`./IntentPage.tsx`), the landing with no selected
 // story, or, with a story selected on the page, that story's view
 // (`./IntentPage.tsx`), each from its own Intent CI evidence owner
@@ -21,7 +22,11 @@
 import { useEffect, useRef, useState } from "react";
 import { IntentCiEvidenceProvider } from "./IntentCiEvidence.tsx";
 import { backToStoryId } from "./intentProjectTabs.ts";
-import { IntentPage, toProjectIntentId } from "./IntentPage.tsx";
+import {
+  IntentPage,
+  toProjectIntentId,
+  type IntentPageStory,
+} from "./IntentPage.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import {
   useStorySummary,
@@ -44,8 +49,24 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { useShownIntentLocations } from "./useShownIntentLocations.tsx";
 import { useIntentStoryLens } from "./useIntentStoryLens.ts";
+import { useHistoricalIntentLocations } from "./useHistoricalIntentLocations.tsx";
 import "./intent-perspective.css";
 import "./intent-candidates.css";
+
+function HistoricalStoryPage({
+  source,
+  project,
+  story,
+}: {
+  readonly source: PublishedSource;
+  readonly project: ModeChoice;
+  readonly story: IntentPageStory;
+}) {
+  const shown = useHistoricalIntentLocations(source, story.summary);
+  return (
+    <IntentPage source={source} shown={shown} project={project} story={story} />
+  );
+}
 
 function IntentBody({
   source,
@@ -67,11 +88,16 @@ function IntentBody({
   readonly story: ComparedStory | undefined;
 }) {
   const { scope, chooseScope } = useIntentScope(selection);
-  const shown = useShownIntentLocations(source, work);
   const storyShown = storySummary !== undefined && scope === "story";
   // Project Intent's trunk evidence is read from its first showing on.
   const [projectVisited, setProjectVisited] = useState(!storyShown);
   if (!storyShown && !projectVisited) setProjectVisited(true);
+  // A Done story reads its own source. The project's browser starts on its
+  // first visit, retaining any earlier project reading when one exists.
+  const shown = useShownIntentLocations(
+    source,
+    projectVisited || storySummary?.story.completed !== true ? work : undefined,
+  );
   // CI starts independently of the locations read. The same mounted owner
   // supplies the loading explanation and the browser once locations settle.
   const projectCiActive = projectVisited && work !== undefined;
@@ -89,6 +115,16 @@ function IntentBody({
         : toProjectIntentId(project.modeIdPrefix);
     chooseScope(next);
   };
+  const storyPage: IntentPageStory | undefined = storyShown
+    ? {
+        summary: storySummary,
+        selection,
+        compared: story,
+        onProjectIntent: () => {
+          visit("project");
+        },
+      }
+    : undefined;
 
   return (
     <>
@@ -98,23 +134,24 @@ function IntentBody({
         selectedIdentity={selection?.identity}
         active={storySummary !== undefined && work !== undefined}
       >
-        {storyShown && (
+        {storyPage !== undefined && (
           <IntentReadingScope name="story">
             <IntentWorkspaceSelectionProvider>
-              <IntentPage
-                source={source}
-                work={work}
-                shown={shown}
-                project={project}
-                story={{
-                  summary: storySummary,
-                  selection,
-                  compared: story,
-                  onProjectIntent: () => {
-                    visit("project");
-                  },
-                }}
-              />
+              {storyPage.summary.story.completed ? (
+                <HistoricalStoryPage
+                  key={storyPage.summary.story.identity}
+                  source={source}
+                  project={project}
+                  story={storyPage}
+                />
+              ) : (
+                <IntentPage
+                  source={source}
+                  shown={shown}
+                  project={project}
+                  story={storyPage}
+                />
+              )}
             </IntentWorkspaceSelectionProvider>
           </IntentReadingScope>
         )}
@@ -126,23 +163,20 @@ function IntentBody({
         active={projectCiActive}
       >
         {!storyShown && (
-          <IntentReadingScope name="project">
-            <IntentWorkspaceSelectionProvider>
-              <IntentPage
-                source={source}
-                work={work}
-                shown={shown}
-                project={project}
-                onBackToStory={
-                  storySummary === undefined
-                    ? undefined
-                    : () => {
-                        visit("story");
-                      }
-                }
-              />
-            </IntentWorkspaceSelectionProvider>
-          </IntentReadingScope>
+          <IntentWorkspaceSelectionProvider>
+            <IntentPage
+              source={source}
+              shown={shown}
+              project={project}
+              onBackToStory={
+                storySummary === undefined
+                  ? undefined
+                  : () => {
+                      visit("story");
+                    }
+              }
+            />
+          </IntentWorkspaceSelectionProvider>
         )}
       </IntentCiEvidenceProvider>
     </>
@@ -188,14 +222,16 @@ export function IntentPerspective({
         project={source.id}
         story={selectedIdentity}
       >
-        <IntentBody
-          source={source}
-          work={work}
-          selection={selection}
-          project={project}
-          storySummary={storySummary}
-          story={compared}
-        />
+        <IntentReadingScope name="project">
+          <IntentBody
+            source={source}
+            work={work}
+            selection={selection}
+            project={project}
+            storySummary={storySummary}
+            story={compared}
+          />
+        </IntentReadingScope>
       </IntentReadingPlace>
     </main>
   );

@@ -1,11 +1,12 @@
 // A selected Intent entry's or folder's CI proof derived from one summary
 // (../../dashboard/src/ciScopeProof.ts) and worded as the homepage words its
-// entries (../../dashboard/src/ciProofWording.ts,
-// ../../dashboard/src/ciProofTimeWords.ts): immediate children in the
+// entries (../../dashboard/src/ciProofWording.ts): immediate children in the
 // tree's order, figures summed by path whatever the tree lists, what no child
 // row shows, each result counted in exactly one row, and each gap — no breakdown, no matched result, a measured zero,
 // a missing part, a part without a breakdown — named rather than shown as
-// zero or complete; timing gaps are ./intent-ci-proof-timing.test.mjs's.
+// zero or complete. Each unit's results apart:
+// ./intent-scope-proof-units.test.mjs; timing gaps and time words:
+// ./intent-ci-proof-timing.test.mjs.
 // Browser journey:
 // ../../dashboard/tests/intent/intent-summary-ci-proof.spec.ts.
 import assert from "node:assert/strict";
@@ -17,7 +18,6 @@ import {
   scopeFiguresOf,
 } from "../../dashboard/src/ciScopeProof.ts";
 import { ciScopeCellsOf } from "../../dashboard/src/ciProofWording.ts";
-import { executionTimeWords } from "../../dashboard/src/ciProofTimeWords.ts";
 
 const present = (part, counts, extra = {}) => ({
   part,
@@ -37,9 +37,10 @@ const file = (path, counts, extra = {}) => ({
   ...extra,
 });
 
+// The test files of `tests`, with their declared entry's path.
 const entry = {
   path: "tests",
-  unit: "checks",
+  unit: "file",
   passed: 4,
   failed: 1,
   other: 0,
@@ -86,21 +87,30 @@ test("immediate children follow the tree: folders first, then files, each in cod
   );
 });
 
+// The declared entry holding EVIDENCE alone.
+const declared = ({ path, ...evidence }) => ({ path, evidence: [evidence] });
+
 test("a scope's figures sum its entry's files under its path, the longest entry owning it, whatever the tree lists", () => {
-  const other = { ...entry, path: "tests/deep/er" };
-  assert.equal(owningEntryOf([entry, other], "tests/deep"), entry);
-  assert.equal(owningEntryOf([entry, other], "tests/deep/er/c.sh"), other);
-  assert.equal(owningEntryOf([entry], "testsuite"), undefined);
+  const entries = [
+    declared(entry),
+    declared({ ...entry, path: "tests/deep/er" }),
+  ];
+  assert.equal(owningEntryOf(entries, "tests/deep")?.path, "tests");
+  assert.equal(
+    owningEntryOf(entries, "tests/deep/er/c.sh")?.path,
+    "tests/deep/er",
+  );
+  assert.equal(owningEntryOf(entries, "testsuite"), undefined);
   assert.deepEqual(scopeFiguresOf(entry, "tests/deep"), {
     passed: 1,
     failed: 1,
     other: 0,
     untimed: 0,
-    files: 2,
+    paths: 2,
     durationMs: 2500,
   });
-  assert.deepEqual(scopeFiguresOf(entry, "tests/support").files, 1);
-  assert.deepEqual(scopeFiguresOf(entry, "tests/z.sh").files, 0);
+  assert.deepEqual(scopeFiguresOf(entry, "tests/support").paths, 1);
+  assert.deepEqual(scopeFiguresOf(entry, "tests/z.sh").paths, 0);
   const outside = outsideOf(
     entry,
     "tests",
@@ -133,7 +143,7 @@ test("a scope's figures sum its entry's files under its path, the longest entry 
 test("a file the tree does not list under a listed child folder counts once, in that folder's row, and is outside only at the folder's own level", () => {
   const tests = {
     path: "dashboard/tests",
-    unit: "tests",
+    unit: "case",
     passed: 3,
     failed: 0,
     other: 0,
@@ -184,7 +194,7 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     ciScopeCellsOf(of, scopeFiguresOf(of, scope));
   // Sort figures sit beside the words; a row without a figure has none.
   assert.deepEqual(cells("tests/a.sh"), {
-    counts: "1 passed checks",
+    counts: "1 passed test file",
     countedResults: { total: 1, failed: 0 },
     executionTime: { text: "0 ms", ms: 0 },
     completeness: "1 of 1 part present",
@@ -201,7 +211,7 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     ],
   };
   assert.deepEqual(cells("tests/deep", missing), {
-    counts: "1 passed and 1 failed checks",
+    counts: "1 passed and 1 failed test files",
     countedResults: { total: 2, failed: 1 },
     executionTime: {
       text: "Part 2 missing, Part 3 no breakdown",
@@ -224,24 +234,4 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     completeness: "1 of 1 part present",
     gaps: ["part 1 of 1 has no file breakdown"],
   });
-});
-
-test("execution time tells sub-minute scopes apart and keeps whole minutes whole", () => {
-  assert.deepEqual(
-    [
-      0, 340, 999.6, 1000, 12_540, 59_940, 59_960, 240_000, 245_000, 3_723_000,
-    ].map(executionTimeWords),
-    [
-      "0 ms",
-      "340 ms",
-      "1.0 s",
-      "1.0 s",
-      "12.5 s",
-      "59.9 s",
-      "1 min",
-      "4 min",
-      "4 min 5 s",
-      "1 h 2 min",
-    ],
-  );
 });

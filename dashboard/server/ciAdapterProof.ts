@@ -2,8 +2,9 @@
 // the project's configured adapter (`proof`), run from the project folder
 // (`ci-command-adapter.mjs` `readCommandProof`) with the collector
 // contract's summary read limit as `answerBytes`, then validated with the
-// collector's own contract and used only when it names the asked
-// repository, attempt (the text form of its `attemptId`) and revision
+// collector's own contract, read in its current version (a version 1
+// summary's results as legacy evidence) and used only when it names the
+// asked repository, attempt (the text form of its `attemptId`) and revision
 // (ADR 0008: missing, outdated or conflicting evidence is never a result).
 // Asks no `gh`. A valid summary is immutable per attempt, so it is
 // remembered by repository and attempt for this process's lifetime beside
@@ -12,6 +13,7 @@
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   SUMMARY_READ_LIMIT_BYTES,
+  currentSummaryOf,
   summaryProblems,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import {
@@ -120,6 +122,7 @@ export async function readCiAdapterProof(
   if (problems.length > 0) return unavailable("invalid", problems.join("; "));
   const mismatch = mismatchOf(summary, repository, attempt);
   if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-  remembered.set(key, summary);
-  return { kind: "summary", summary } as CiProof;
+  const current = currentSummaryOf(summary) as Record<string, unknown>;
+  remembered.set(key, current);
+  return { kind: "summary", summary: current } as CiProof;
 }

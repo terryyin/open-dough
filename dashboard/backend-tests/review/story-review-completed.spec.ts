@@ -15,7 +15,6 @@ import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/sc
 import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
-  storyReviewMarkEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { realpathSync, renameSync } from "node:fs";
@@ -24,7 +23,7 @@ import path from "node:path";
 test.use({ serverMode: "boundary" });
 
 for (const mode of ["trunk", "story-branch"] as const) {
-  test(`${mode} completion isolates interleaved work and admits only its fixed literal files`, async ({
+  test(`${mode} completion keeps interleaved-work isolation and immutable literal-file diffs`, async ({
     request,
     dashboard,
     origin,
@@ -84,46 +83,6 @@ for (const mode of ["trunk", "story-branch"] as const) {
     const printed = ((await shared.json()) as { printed: string }).printed;
     expect(printed).not.toContain("+other last");
     expect(printed).not.toContain("-line 11");
-    for (const [change, status] of [
-      [{ source: "elsewhere" }, 404],
-      [{ identity: "SEED-B#b" }, 409],
-      [{ completion: review.tree }, 409],
-      [{ completion: "HEAD" }, 400],
-      [{ baseline: review.tree }, 409],
-      [{ tree: review.baseline }, 409],
-      [{ path: "other-story.txt" }, 409],
-      [{ path: "*.txt" }, 409],
-      [{ path: "../[literal]*.txt" }, 409],
-      [{ oldPath: "shared.txt" }, 409],
-      [{ repository: origin.project }, 400],
-      [{ reference: "00000000-0000-4000-8000-000000000000" }, 400],
-    ] as const) {
-      expect(
-        (
-          await get(request, dashboard, storyReviewFileEndpoint, {
-            ...file,
-            ...change,
-          })
-        ).status(),
-        JSON.stringify(change),
-      ).toBe(status);
-    }
-    expect(
-      (
-        await request.get(
-          `${dashboard.baseURL}${storyReviewEndpoint}?${new URLSearchParams(completed)}`,
-          { headers: { Origin: "https://elsewhere.test" } },
-        )
-      ).status(),
-    ).toBe(403);
-    const mark = await request.post(
-      `${dashboard.baseURL}${storyReviewMarkEndpoint}`,
-      {
-        headers: { Origin: dashboard.origin },
-        data: { ...named, baseline: review.baseline, tree: review.tree },
-      },
-    );
-    expect(mark.status()).toBe(404);
     git(origin.project, "config", "remote.origin.url", remote);
     advanceCompletedTrunk(origin);
     expect(

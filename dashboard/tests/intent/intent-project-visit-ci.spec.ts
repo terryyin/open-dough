@@ -17,11 +17,14 @@ import {
   expectNamed,
   failedRun,
   mainRun,
+  revision,
   publishStoryCi,
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { openProjectIntent, returnToStory } from "../intentModePage.ts";
+import { browserRevision, revisionNotice } from "../intentPerspectivePage.ts";
+import { shortRevision } from "../dashboardParts.ts";
 import { parts } from "../dashboardPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 
@@ -37,6 +40,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
   const trunk = await chooseCiStatus(intent);
   await expectNamed(trunk, "main");
   await expectChecked(trunk);
+  await expect(browserRevision(intent)).toContainText(shortRevision(revision));
   const story = await toggleOnDevelopment(page, failing.title);
   await expectNamed(story, failing.branch);
   await expectChecked(story);
@@ -77,6 +81,12 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
       "Passed at c0ffee3 (Advance the trunk)",
     );
+    await expect(browserRevision(intent)).toContainText(
+      shortRevision(revision),
+    );
+    await expect(revisionNotice(intent)).toContainText(
+      "New revision available",
+    );
     await returnToStory(intent);
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toHaveLength(3);
@@ -109,4 +119,12 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toHaveLength(4);
   });
+  await openProjectIntent(intent);
+  await revisionNotice(intent)
+    .getByRole("button", { name: "Show latest" })
+    .click();
+  await expect(browserRevision(intent)).toContainText("c0ffee3");
+  await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
+    "Passed at c0ffee3 (Advance the trunk)",
+  );
 });

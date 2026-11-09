@@ -33,7 +33,7 @@ test("the command line breaks fragments down by file with --by-file", (t) => {
     out,
   );
   assert.deepEqual([summary.status, summary.stderr], [0, ""]);
-  const [entry] = JSON.parse(readFileSync(out, "utf8")).entries;
+  const [entry] = JSON.parse(readFileSync(out, "utf8")).entries[0].evidence;
   assert.deepEqual(entry.files, [
     { path: "tests/a.sh", passed: 1, failed: 0, other: 0, durationMs: 500 },
     { path: "tests/support/b.sh", passed: 1, failed: 0, other: 0, untimed: 1 },
@@ -75,7 +75,7 @@ test("the command line names a summary too large to read, writing it whole witho
   );
   // Written whole: every file is kept, none truncated.
   assert.equal(
-    JSON.parse(readFileSync(out, "utf8")).entries[0].files.length,
+    JSON.parse(readFileSync(out, "utf8")).entries[0].evidence[0].files.length,
     12_000,
   );
 });

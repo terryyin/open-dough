@@ -19,7 +19,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { OriginAnswer } from "../originAnswers.ts";
-import type { ProofRun } from "./ciProofArtifacts.ts";
+import type { ProofDeclaration, ProofRun } from "./ciProofArtifacts.ts";
 import { zipOf } from "./ciProofArtifacts.ts";
 
 const cli = fileURLToPath(
@@ -66,8 +66,10 @@ export function playwrightRecord(tests: readonly RecordedTest[]): unknown {
   };
 }
 
-// One job part's report: a Playwright record for one entry, or outcomes
-// (`<status>\t<check>` lines) with optional times for several.
+// One job part's report: a Playwright record for one entry, its tests test
+// cases, or outcomes (`<status>\t<check>` lines) with optional times for
+// several, each line one result of the declared `unit` (`--unit`), or
+// legacy results without one.
 export type Producer = {
   readonly entries: readonly string[];
   readonly part: number;
@@ -76,14 +78,19 @@ export type Producer = {
   readonly byFile: boolean;
 } & (
   | { readonly record: unknown }
-  | { readonly outcomes: string; readonly times?: string }
+  | {
+      readonly outcomes: string;
+      readonly times?: string;
+      readonly unit?: "case" | "file";
+    }
 );
 
 // The summary text `summarize` writes for RUN from PRODUCERS' fragments,
-// declaring EXPECT.
+// declaring EXPECT: each entry's part count and the unit they are counted
+// in, when one is declared.
 export function collectedSummary(
   run: ProofRun,
-  expect: readonly (readonly [string, number])[],
+  expect: readonly ProofDeclaration[],
   producers: readonly Producer[],
 ): string {
   const directory = mkdtempSync(join(tmpdir(), "ci-proof-collected-"));
@@ -102,6 +109,7 @@ export function collectedSummary(
           writeFileSync(at("times.txt"), producer.times);
           report.push("--times", at("times.txt"));
         }
+        if (producer.unit !== undefined) report.push("--unit", producer.unit);
       }
       const out = join(fragments, `producer-${String(index)}`);
       mkdirSync(out, { recursive: true });
@@ -127,9 +135,9 @@ export function collectedSummary(
       "summarize",
       "--fragments",
       fragments,
-      ...expect.flatMap(([entry, parts]) => [
+      ...expect.flatMap(([entry, parts, unit]) => [
         "--expect",
-        `${entry}=${String(parts)}`,
+        `${entry}=${String(parts)}${unit === undefined ? "" : `:${unit}`}`,
       ]),
       "--repository",
       run.repository,

@@ -88,7 +88,7 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
   const summary = await openSummary(intent, "dashboard/tests");
   const entryFigures = [
     "dashboard/tests",
-    "29 passed and 1 failed tests",
+    "29 passed and 1 failed test cases",
     "1.2 s",
     one,
   ] as const;
@@ -96,10 +96,10 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
   await test.step("until a header is activated, the table holds the children in the tree's order, then the outside row", async () => {
     await expectScopeRows(summary, "dashboard/tests", [
       entryFigures,
-      ["folder/", "13 passed tests", "860 ms"],
+      ["folder/", "13 passed test cases", "860 ms"],
       ["added.spec.ts", "no CI result", "no CI result"],
-      ["root.spec.ts", "13 passed and 1 failed tests", "280 ms"],
-      [outside, "3 passed tests", "30 ms"],
+      ["root.spec.ts", "13 passed and 1 failed test cases", "280 ms"],
+      [outside, "3 passed test cases", "30 ms"],
     ]);
     await expect(
       scopeTable(summary, "dashboard/tests").locator("th[aria-sort]"),
@@ -145,7 +145,7 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
     ]);
     await expect(
       scopeFigures(summary, folderPath).getByRole("definition"),
-    ).toHaveText(["13 passed tests", "860 ms", one]);
+    ).toHaveText(["13 passed test cases", "860 ms", one]);
     await expectGroupAbove(summary, folderPath);
   };
 

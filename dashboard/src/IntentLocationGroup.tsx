@@ -27,7 +27,7 @@ import { IntentTreeFileRow } from "./IntentTreeFileRow.tsx";
 import {
   treeComparisonAccessibleName,
   treeComparisonReadingOf,
-  treeLocationCellsOf,
+  treeLocationComparisonOf,
 } from "./intentTreeComparison.ts";
 import {
   selectionScope,
@@ -137,19 +137,15 @@ export function IntentLocationGroup({
   }, [reveal, revealHere]);
 
   const comparison = treeComparisonReadingOf(useIntentCiEvidence());
-  const locationCells = treeLocationCellsOf(comparison, location.path);
+  const compared = treeLocationComparisonOf(comparison, location.path);
   const locationHeaderAttrs = scopeCueElementAttrs(
     "intent-location-header",
-    locationCells?.cues,
+    compared?.cues,
   );
   const locationName =
-    locationCells === undefined || comparison.kind !== "comparison"
+    compared === undefined
       ? undefined
-      : treeComparisonAccessibleName(
-          locationBaseName(location),
-          locationCells,
-          comparison.afterSide,
-        );
+      : treeComparisonAccessibleName(locationBaseName(location), compared);
 
   return (
     <section

@@ -23,7 +23,7 @@ type FragmentsFromOutcomes = (
   text: string,
   identity: Record<string, unknown>,
   times: undefined,
-  options: { readonly byFile: boolean },
+  options: { readonly byFile: boolean; readonly unit?: "case" | "file" },
 ) => readonly Record<string, unknown>[];
 type SummarizeFragments = (input: unknown) => { readonly summary: unknown };
 
@@ -35,7 +35,7 @@ export const verdict = "Passed at 4774f60 (Add login)";
 // The one row of `testsSummary` (older summary shape: no durations).
 export const testsRow = [
   "tests",
-  "1000 passed and 3 other tests",
+  "1000 passed and 3 other test cases",
   "No timings",
 ] as const;
 
@@ -170,12 +170,13 @@ export const testsSummary = (attemptId: string, revision: string) => ({
   summary: proofSummary(
     { repository, attemptId, revision },
     [["tests", 1]],
-    [["tests", 1, 1, "tests", counts(1000, 0, 3)]],
+    [["tests", 1, 1, "case", counts(1000, 0, 3)]],
   ),
 });
 
-// A valid matching summary with `--by-file` for `files` tests files, sized
-// as the collector writes it (over 64 KiB at 1,213 files).
+// A valid matching summary with `--by-file` for `files` test files, each
+// its own outcome, sized as the collector writes it (over 64 KiB at 1,213
+// files).
 export const byFileTestsSummary = (
   attemptId: string,
   revision: string,
@@ -194,7 +195,7 @@ export const byFileTestsSummary = (
       revision,
     },
     undefined,
-    { byFile: true },
+    { byFile: true, unit: "file" },
   );
   const { summary } = (summarize as SummarizeFragments)({
     fragments: [{ source: "f.json", value }],
@@ -205,7 +206,7 @@ export const byFileTestsSummary = (
 };
 
 export const byFileTestsRow = (files = 1_213) =>
-  ["tests", `${String(files)} passed checks`, "No timings"] as const;
+  ["tests", `${String(files)} passed test files`, "No timings"] as const;
 
 // Intent's CI status tab opened on trunk's judged result, and its Proof.
 export async function openAdapterProof(page: Page) {

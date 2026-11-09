@@ -1,20 +1,7 @@
 // Real server configuration, selection and storage; fake GitHub supplies published facts.
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
+import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "../support/pageTest.ts";
-import {
-  sharedDashboardBuild,
-  startDashboardServer,
-  type DashboardServer,
-} from "../support/dashboardServer.ts";
-import { everyRepository, publishes } from "../support/fakeGitHub.ts";
+import { projectConfigurationMachine } from "../support/projectConfigurationMachine.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { daysAgo, machineHome } from "../machineLaunchRecords.ts";
@@ -22,56 +9,18 @@ import { keepLaunchStore, launchStoreFile } from "../support/launchStore.ts";
 import { identity, title } from "../agentLaunchBoundary.ts";
 import { settings } from "../support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
-import {
-  customSavedProjects,
-  projectConfigurationFile,
-  projectEnvironmentOf,
-} from "../support/projectConfiguration.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import { describedBacklog } from "../describedRevisions.ts";
 
-const backlog = describedBacklog(makeMe.aRepository.please());
-const published = publishes({ revision: "ab".repeat(20), backlog });
-let machine: string;
-const servers: DashboardServer[] = [];
-
+let fixture: ReturnType<typeof projectConfigurationMachine>;
 test.beforeEach(() => {
-  machine = mkdtempSync(path.join(tmpdir(), "dough-project-configuration-"));
+  fixture = projectConfigurationMachine();
 });
-
-test.afterEach(async () => {
-  await Promise.all(servers.splice(0).map((server) => server.close()));
-  rmSync(machine, { recursive: true, force: true });
-});
-
-function configurationFile(mode: "dev" | "preview"): string {
-  const home = path.join(machine, "home");
-  return projectConfigurationFile(home, projectEnvironmentOf(mode));
-}
-
-// Only the preview's production list is saved before a start.
-function save(text: string): void {
-  const file = configurationFile("preview");
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, text);
-}
-
-async function start(mode: "dev" | "preview"): Promise<DashboardServer> {
-  const server = await startDashboardServer({
-    mode,
-    machine,
-    prebuilt: sharedDashboardBuild,
-    configureDevelopmentProjects: false,
-  });
-  server.github.serve(everyRepository, published);
-  servers.push(server);
-  return server;
-}
+test.afterEach(async () => fixture.close());
 
 test("production seeds its four projects and shows a previously saved session", async ({
   page,
 }) => {
-  keepLaunchStore(machineHome(machine), {
+  keepLaunchStore(machineHome(fixture.machine), {
     "open-dough": [
       makeMe.aLaunchRecord
         .executing({ identity, title })
@@ -80,8 +29,8 @@ test("production seeds its four projects and shows a previously saved session", 
         .please(),
     ],
   });
-  const records = readFileSync(launchStoreFile(machineHome(machine)));
-  const server = await start("preview");
+  const records = readFileSync(launchStoreFile(machineHome(fixture.machine)));
+  const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("radiogroup", { name: "Project" }).getByRole("radio"),
@@ -93,7 +42,7 @@ test("production seeds its four projects and shows a previously saved session", 
     page.getByRole("region", { name: "Taken", exact: true }),
   ).toContainText(title);
   expect(
-    JSON.parse(readFileSync(configurationFile("preview"), "utf8")),
+    JSON.parse(readFileSync(fixture.configurationFile("preview"), "utf8")),
   ).toEqual([
     {
       id: "open-dough",
@@ -128,7 +77,9 @@ test("production seeds its four projects and shows a previously saved session", 
       localPath: "~/git/terry-talks",
     },
   ]);
-  expect(readFileSync(launchStoreFile(machineHome(machine)))).toEqual(records);
+  expect(readFileSync(launchStoreFile(machineHome(fixture.machine)))).toEqual(
+    records,
+  );
 });
 
 // Both servers read the saved file through the same boundary
@@ -136,10 +87,30 @@ test("production seeds its four projects and shows a previously saved session", 
 test("saved projects retain order and default selection across restart", async ({
   page,
 }) => {
-  const saved = JSON.stringify(customSavedProjects);
-  save(saved);
+  // Unlike the seeded catalog: unsorted, on custom refs and checkouts.
+  const saved = JSON.stringify([
+    makeMe.aConfiguredProject
+      .with({
+        id: "zebra",
+        label: "Zebra",
+        repository: "example/zebra",
+        ref: "trunk",
+        localPath: "~/work/zebra",
+      })
+      .please(),
+    makeMe.aConfiguredProject
+      .with({
+        id: "apple",
+        label: "Apple",
+        repository: "example/apple",
+        ref: "default",
+        localPath: "~/elsewhere/apple",
+      })
+      .please(),
+  ]);
+  fixture.save(saved);
   for (let run = 0; run < 2; run += 1) {
-    const server = await start("preview");
+    const server = await fixture.start("preview");
     await openUntilRead(page, `${server.baseURL}/?project=unknown`);
     const group = page.getByRole("radiogroup", { name: "Project" });
     await expect(group.getByRole("radio")).toHaveCount(2);
@@ -158,22 +129,25 @@ test("saved projects retain order and default selection across restart", async (
       "--jq",
       ".sha",
     ]);
-    expect(readFileSync(configurationFile("preview"), "utf8")).toBe(saved);
-    await server.close();
-    servers.pop();
+    expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
+      saved,
+    );
+    await fixture.stop(server);
   }
 });
 
 test("an existing empty list stays empty", async ({ page }) => {
-  save("[]\n");
-  const server = await start("preview");
+  fixture.save("[]\n");
+  const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("heading", { name: "No projects configured" }),
   ).toBeVisible();
   await settings(page).click();
   await expect(page.getByRole("button", { name: "Add project" })).toBeEnabled();
-  expect(readFileSync(configurationFile("preview"), "utf8")).toBe("[]\n");
+  expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
+    "[]\n",
+  );
   expect(server.ghCalls()).toEqual([]);
 });
 
@@ -181,24 +155,26 @@ test("a malformed saved file is explained and left byte-identical", async ({
   page,
 }) => {
   const malformed = "{ not a project list\n";
-  save(malformed);
-  const server = await start("preview");
+  fixture.save(malformed);
+  const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("status")).toContainText(
     "project configuration could not be read",
   );
   await expect(page.getByRole("status")).toContainText(
-    configurationFile("preview"),
+    fixture.configurationFile("preview"),
   );
   await expect(page.getByRole("radio")).toHaveCount(0);
-  expect(readFileSync(configurationFile("preview"), "utf8")).toBe(malformed);
+  expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
+    malformed,
+  );
   expect(server.ghCalls()).toEqual([]);
 });
 
 test("development first start is empty and refuses the formerly fixed project", async ({
   page,
 }) => {
-  const server = await start("dev");
+  const server = await fixture.start("dev");
   await openUntilRead(page, server.baseURL);
   await expect(
     page.getByRole("heading", { name: "No projects configured" }),
@@ -217,33 +193,35 @@ test("development first start is empty and refuses the formerly fixed project", 
   });
   expect(response.status).toBe(404);
   expect(server.ghCalls()).toEqual([]);
-  expect(JSON.parse(readFileSync(configurationFile("dev"), "utf8"))).toEqual(
-    [],
-  );
+  expect(
+    JSON.parse(readFileSync(fixture.configurationFile("dev"), "utf8")),
+  ).toEqual([]);
 });
 
 test("a saved document with the wrong shape is reported without replacement", async ({
   page,
 }) => {
   const wrongShape = '[{"id":"broken"}]\n';
-  save(wrongShape);
-  const server = await start("preview");
+  fixture.save(wrongShape);
+  const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("status")).toContainText(
-    configurationFile("preview"),
+    fixture.configurationFile("preview"),
   );
-  expect(readFileSync(configurationFile("preview"), "utf8")).toBe(wrongShape);
+  expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
+    wrongShape,
+  );
   expect(server.ghCalls()).toEqual([]);
 });
 
 test("a file that cannot be read is reported without seeding", async ({
   page,
 }) => {
-  mkdirSync(configurationFile("preview"), { recursive: true });
-  const server = await start("preview");
+  mkdirSync(fixture.configurationFile("preview"), { recursive: true });
+  const server = await fixture.start("preview");
   await openUntilRead(page, server.baseURL);
   await expect(page.getByRole("status")).toContainText(
-    configurationFile("preview"),
+    fixture.configurationFile("preview"),
   );
   await expect(page.getByRole("radio")).toHaveCount(0);
   expect(server.ghCalls()).toEqual([]);

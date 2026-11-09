@@ -29,6 +29,8 @@ to it. The source keeps that measurement distinction explicit.
 
 **Gap proof:** [Cancelled and proofless endpoint evidence](gap-evidence.md).
 
+**Incoming integration:** [Published-history and compatibility evidence](integration-evidence.md).
+
 ## Ordered slices
 
 ### 1. Get a fast answer for published story endpoints

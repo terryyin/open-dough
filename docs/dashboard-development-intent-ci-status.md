@@ -30,12 +30,15 @@ hovered as a Summary's are: the linked run and attempt
 revision, `Completed ancestor` for a running result, and that attempt's
 **CI wall time** from its start and completion (`CI wall time 3 min`, or
 `CI wall time not recorded` with why as its full words when either is
-absent), then a table with one row per declared Intent location `path`, in
-declaration order, under the columns **Entry**, **Counts** (passed, failed
-and other with the runner's unit, tests or checks), **Test execution time**
-(the entry's summed durations: measured, a measured zero reading `0 ms`;
+absent), then a table with one row per declared Intent location `path` and
+unit of results it reports (test cases, test files, or legacy test results
+whose publisher declared no unit; never added together), in declaration
+order, under the columns **Entry**, **Counts** (passed, failed and other
+naming that unit, `nothing counted as test files` for a declared unit no
+part reported), **Test execution time**
+(that unit's summed durations: measured, a measured zero reading `0 ms`;
 partial as short gap labels joined by commas, such as `Part 2 untimed`,
-`Part 3 missing` or `4 tests untimed`; or `No timings` for a summary without
+`Part 3 missing` or `4 test cases untimed`; or `No timings` for a summary without
 durations; never zero for absence, no lower bound for partial timing, and
 never the attempt's wall time; a gap label's full explanation, such as
 “Partial: part 2 of 3 has no duration”, is the cell's hover text and

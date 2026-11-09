@@ -1,14 +1,16 @@
 // One timing classification for every Intent CI cell: CI status Proof and a
 // Summary's single-run rows (`./ciProofWording.ts`) and each story comparison
-// endpoint (`./ciScopeComparisonTiming.ts`). An entry's or scope's cumulative
-// test execution time is measured (milliseconds, a measured zero included),
-// partial (each gap named), or not recorded (no measured value). A gap reads
-// as a short label (`Part 2 untimed`, `Part 3 missing`, `4 tests untimed`,
+// endpoint (`./ciScopeComparisonTiming.ts`). The time of one unit's results
+// at an entry or scope (`./ciProofUnits.ts`) is measured (milliseconds, a
+// measured zero included), partial (each gap named), or not recorded (no
+// measured value); one unit's time never adds to another's. A gap reads as a
+// short label (`Part 2 untimed`, `Part 3 missing`, `4 test cases untimed`,
 // `No timings`) and its full explanation ("part 2 of 3 has no duration")
 // stays beside it for assistive technology and hover. Never invents zero
 // for absence and never offers a lower bound for partial timing.
 
-import type { CiProofEntry, CiProofPart } from "./ciProof.ts";
+import type { CiProofEvidence, CiProofPart } from "./ciProof.ts";
+import { unitNoun } from "./ciProofUnits.ts";
 import type { CiScopeFigures } from "./ciScopeProof.ts";
 
 type TimingGap = { readonly label: string; readonly phrase: string };
@@ -23,9 +25,9 @@ export type CiTiming =
 
 // A timing cell: the short words it shows, the full explanation when it
 // shows a gap label, the measured milliseconds when there are any, and, for
-// a story CI comparison's Branch or Landed cell measured at both ends, its
-// signed elapsed change from the measured Baseline and, when that baseline
-// is positive, the change relative to it.
+// a story CI comparison's Branch or Landed cell measured at both ends in one
+// declared unit, its signed elapsed change from the measured Baseline and,
+// when that baseline is positive, the change relative to it.
 export type TimingCell = {
   readonly text: string;
   readonly explanation?: string;
@@ -39,10 +41,9 @@ export function joinedAnd(parts: readonly string[]): string {
   return `${parts.slice(0, -1).join(", ")} and ${parts.at(-1) ?? ""}`;
 }
 
-// "1 test" / "3 checks": COUNT of ENTRY's unit, singular for one.
-function unitCount(entry: CiProofEntry, count: number): string {
-  const unit = entry.unit ?? "results";
-  return `${String(count)} ${count === 1 && unit.endsWith("s") ? unit.slice(0, -1) : unit}`;
+// "1 test case" / "3 test files": COUNT of EVIDENCE's unit.
+function unitCount(evidence: CiProofEvidence, count: number): string {
+  return `${String(count)} ${unitNoun(evidence.unit, count)}`;
 }
 
 // "part 4 of 12 missing": one phrasing for Parts gaps and timing gaps.
@@ -50,10 +51,12 @@ export function partPhrase(part: CiProofPart, of: number, status: string) {
   return `part ${String(part.part)} of ${String(of)} ${status}`;
 }
 
-// The present parts of ENTRY whose fragment was not broken down by file, so
-// no scope inside the entry holds their results.
-function partsWithoutBreakdown(entry: CiProofEntry): readonly CiProofPart[] {
-  return entry.parts.filter(
+// The present parts of EVIDENCE whose fragment was not broken down by file,
+// so no scope inside its entry holds their results.
+function partsWithoutBreakdown(
+  evidence: CiProofEvidence,
+): readonly CiProofPart[] {
+  return evidence.parts.filter(
     (part) => part.status === "present" && part.breakdown !== true,
   );
 }
@@ -68,24 +71,31 @@ const partGap = (
   phrase: partPhrase(part, of, status),
 });
 
-// Each present part of ENTRY without a file breakdown, as one gap: label
+// Each present part of EVIDENCE without a file breakdown, as one gap: label
 // `Part 2 no breakdown`, phrase "part 2 of 3 has no file breakdown". The
 // timing cell, the Parts gaps (`./ciProofWording.ts`) and a Summary's
 // outside labels (`./IntentScopeSummaryRows.tsx`) all read it.
-export const noBreakdownGapsOf = (entry: CiProofEntry): TimingGap[] =>
-  partsWithoutBreakdown(entry).map((part) =>
-    partGap(part, entry.parts.length, "no breakdown", "has no file breakdown"),
+export const noBreakdownGapsOf = (evidence: CiProofEvidence): TimingGap[] =>
+  partsWithoutBreakdown(evidence).map((part) =>
+    partGap(
+      part,
+      evidence.parts.length,
+      "no breakdown",
+      "has no file breakdown",
+    ),
   );
 
-// Each missing or ambiguous part of ENTRY.
-const uncountedGaps = (entry: CiProofEntry): TimingGap[] =>
-  entry.parts
+// Each missing or ambiguous part of EVIDENCE.
+const uncountedGaps = (evidence: CiProofEvidence): TimingGap[] =>
+  evidence.parts
     .filter((part) => part.status !== "present")
-    .map((part) => partGap(part, entry.parts.length, part.status, part.status));
+    .map((part) =>
+      partGap(part, evidence.parts.length, part.status, part.status),
+    );
 
-const untimedGap = (entry: CiProofEntry, untimed: number): TimingGap => ({
-  label: `${unitCount(entry, untimed)} untimed`,
-  phrase: `${unitCount(entry, untimed)} without a duration`,
+const untimedGap = (evidence: CiProofEvidence, untimed: number): TimingGap => ({
+  label: `${unitCount(evidence, untimed)} untimed`,
+  phrase: `${unitCount(evidence, untimed)} without a duration`,
 });
 
 const noTimings = (why: string): CiTiming => ({
@@ -105,19 +115,19 @@ function gapTiming(
   };
 }
 
-// An entry's cumulative timing: measured when every part is present with a
-// duration and no counted result lacks one; not recorded for a summary
-// without durations; otherwise partial with each gap.
-export function entryTimingOf(entry: CiProofEntry): CiTiming {
-  const of = entry.parts.length;
-  const present = entry.parts.filter((part) => part.status === "present");
+// One unit's cumulative timing at its entry: measured when every part is
+// present with a duration and no counted result lacks one; not recorded for
+// a summary without durations; otherwise partial with each gap.
+export function entryTimingOf(evidence: CiProofEvidence): CiTiming {
+  const of = evidence.parts.length;
+  const present = evidence.parts.filter((part) => part.status === "present");
   const timed = present.filter((part) => typeof part.durationMs === "number");
   const untimed = present.filter((part) => typeof part.durationMs !== "number");
   const untimedResults = timed.reduce(
     (sum, part) => sum + (part.untimed ?? 0),
     0,
   );
-  const uncounted = uncountedGaps(entry);
+  const uncounted = uncountedGaps(evidence);
   if (uncounted.length === 0 && untimed.length === 0 && untimedResults === 0) {
     const ms = timed.reduce((sum, part) => sum + (part.durationMs ?? 0), 0);
     return { kind: "measured", ms };
@@ -129,24 +139,24 @@ export function entryTimingOf(entry: CiProofEntry): CiTiming {
     ...(timed.length > 0
       ? untimed.map((part) => partGap(part, of, "untimed", "has no duration"))
       : []),
-    ...(untimedResults > 0 ? [untimedGap(entry, untimedResults)] : []),
+    ...(untimedResults > 0 ? [untimedGap(evidence, untimedResults)] : []),
   ]);
 }
 
-// Timing of a scope inside ENTRY with FIGURES, for an entry with a file
-// breakdown and a scope holding a CI result: measured only when every part
-// is present and broken down by file and every counted result recorded a
-// duration; otherwise partial with each gap, or not recorded when no counted
-// result has one.
+// Timing of a scope inside an entry with FIGURES of one unit's EVIDENCE, for
+// evidence with a file breakdown and a scope holding a CI result: measured
+// only when every part is present and broken down by file and every counted
+// result recorded a duration; otherwise partial with each gap, or not
+// recorded when no counted result has one.
 export function scopeTimingOf(
-  entry: CiProofEntry,
+  evidence: CiProofEvidence,
   figures: CiScopeFigures,
 ): CiTiming {
   const untimed = figures.untimed ?? 0;
   const gaps = [
-    ...uncountedGaps(entry),
-    ...noBreakdownGapsOf(entry),
-    ...(untimed > 0 ? [untimedGap(entry, untimed)] : []),
+    ...uncountedGaps(evidence),
+    ...noBreakdownGapsOf(evidence),
+    ...(untimed > 0 ? [untimedGap(evidence, untimed)] : []),
   ];
   if (figures.durationMs === undefined) {
     if (gaps.length === 0) return noTimings("no counted result has a duration");

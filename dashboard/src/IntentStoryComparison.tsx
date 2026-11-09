@@ -90,21 +90,28 @@ export function CompactComparisonState({
 // The full explanation, or the compared revisions, behind the disclosure.
 export function ComparisonDetail({
   comparison,
+  completed = false,
 }: {
   readonly comparison: LensComparison;
+  readonly completed?: boolean;
 }) {
   if (comparison.state === "reading") return null;
   if (comparison.state === "unavailable")
     return (
       <p className="intent-story-problem">
-        {comparison.explanation ?? unavailableWords} Intent shows the published
-        tree without the story&apos;s changes.
+        {comparison.explanation ?? unavailableWords}{" "}
+        {completed
+          ? "The story's historical test source is unavailable."
+          : "Intent shows the published tree without the story's changes."}
       </p>
     );
   if (comparison.state === "failed")
     return (
       <p className="intent-story-problem">
-        {comparison.problem} Intent shows the published tree without them.
+        {comparison.problem}{" "}
+        {completed
+          ? "The story's historical test source is unavailable."
+          : "Intent shows the published tree without them."}
       </p>
     );
   return (

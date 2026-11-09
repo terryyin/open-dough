@@ -14,6 +14,7 @@ import {
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import {
+  installedBacklogScript,
   publishCompletedStory,
   resolveStoryConflict,
 } from "./completedStoryPublication.ts";
@@ -61,6 +62,8 @@ export async function completedPublishedStory(
   options?: {
     readonly sharedAlreadyReady?: boolean;
     readonly intentCoverage?: IntentCoverage | undefined;
+    readonly retainWorkspace?: boolean;
+    readonly skillsDirectory?: string;
     // After the story branch integrates main and before completion publish
     // (for example a planning-only tip so Branch walks to an ancestor build).
     readonly beforeComplete?: (workspace: string) => void;
@@ -174,10 +177,7 @@ export async function completedPublishedStory(
     execFileSync(
       process.execPath,
       [
-        path.join(
-          workspace,
-          ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
-        ),
+        installedBacklogScript(workspace, options?.skillsDirectory),
         "place",
         "--identity",
         queuedIdentity,
@@ -202,6 +202,8 @@ export async function completedPublishedStory(
     missingAgent: variant === "missing-agent",
     completionConflict: variant === "completion-conflict",
     intentCoverage: options?.intentCoverage,
+    retainWorkspace: options?.retainWorkspace,
+    skillsDirectory: options?.skillsDirectory,
   });
   return { completion, agent: start.agent, workspace, branch };
 }

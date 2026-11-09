@@ -1,8 +1,9 @@
 // The CI entry timing comparison section of a selected story's CI comparison
 // (`./IntentCiComparison.tsx`): its heading and framing, then one row per CI
-// entry in the homepage proof table (`./CiProofTable.tsx`) with Baseline's
-// cumulative test execution time and Branch's and Landed's signed change from
-// it, sortable by its columns, or why there are no rows yet.
+// entry and compared unit in the homepage proof table (`./CiProofTable.tsx`)
+// with Baseline's cumulative test execution time and Branch's and Landed's
+// signed change from it, sortable by its columns, or why there are no rows
+// yet.
 
 import { CiProofTable, ScopePath, useCiProofSorting } from "./CiProofTable.tsx";
 import type { ComparisonEntries } from "./storyCiComparisonEntries.ts";
@@ -31,7 +32,7 @@ function EntryRows({
       scopeHeader="Entry"
       sorting={sorting}
       rows={entries.rows.map((row) => ({
-        key: row.path,
+        key: `${row.path}\0${row.cells.units ?? ""}`,
         scope: <ScopePath path={row.path} />,
         name: row.path,
         cells: row.cells,

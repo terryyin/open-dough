@@ -12,6 +12,10 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       dashboard,
       origin,
     }) => {
+      // Up to about 31 native touch strokes, most of them reading the wide
+      // line's end and back; see the pending optimization candidate
+      // `story-review-touch-reading-strokes`.
+      test.setTimeout(60_000);
       await chooseComparisonAndReadByTouch(page, dashboard, origin);
     });
     test("keeps the chosen file and reading places through rotation and panel controls", async ({
