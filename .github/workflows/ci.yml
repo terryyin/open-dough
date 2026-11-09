@@ -124,7 +124,7 @@ jobs:
           path: ${{ runner.temp }}/test-times.txt
           if-no-files-found: ignore
           retention-days: 7
-      # This share's part of the tests and src/skills proof entries.
+      # This share's tests and src/skills test files: one outcome per check file.
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments
@@ -133,6 +133,7 @@ jobs:
           parts: ${{ strategy.job-total }}
           entries: tests src/skills
           report-format: outcomes
+          unit: file
           report: ${{ runner.temp }}/test-outcomes.txt
           times: ${{ runner.temp }}/test-times.txt
 
@@ -204,8 +205,8 @@ jobs:
           path: ${{ runner.temp }}/dashboard-times.txt
           if-no-files-found: ignore
           retention-days: 7
-      # This shard's part of each dashboard proof entry, from its shared proof
-      # record (dashboard/tests/proof-record.md).
+      # This shard's test cases of each dashboard proof entry, from its shared
+      # proof record (dashboard/tests/proof-record.md).
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments
@@ -229,9 +230,9 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # One CI proof summary per run attempt, after the proof jobs settle however
-  # they ended, against the declared entries (Intent locations, in
-  # .planning/open-dough.json order) and parts (the matrix lengths).
+  # One CI proof summary per run attempt once the proof jobs settle, however
+  # they ended, against the declared entries (.planning/open-dough.json Intent
+  # locations, in order), parts (matrix lengths) and units their reports give.
   ci-proof:
     needs: [test, dashboard]
     if: ${{ !cancelled() }}
@@ -246,4 +247,4 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: dashboard/tests=12 dashboard/frontend-tests=12 dashboard/backend-tests=12 tests=3 src/skills=3
+          expect: dashboard/tests=12:case dashboard/frontend-tests=12:case dashboard/backend-tests=12:case tests=3:file src/skills=3:file

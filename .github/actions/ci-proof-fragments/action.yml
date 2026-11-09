@@ -1,9 +1,9 @@
 name: CI proof fragments
 description: >-
   Writes one job part's CI proof fragments, one per proof entry its test
-  report covers, each broken down by test file, and keeps them as that
-  part's attempt-named artifact for the ci-proof job. Names the run's
-  revision from CI_PROOF_REVISION.
+  report covers, each counted in the unit the report gives and broken down
+  by test file, and keeps them as that part's attempt-named artifact for the
+  ci-proof job. Names the run's revision from CI_PROOF_REVISION.
 inputs:
   part:
     description: This job's part (its matrix value).
@@ -15,12 +15,21 @@ inputs:
     description: Space-separated proof entries (Intent location paths) in the report.
     required: true
   report-format:
-    description: "`outcomes` (scripts/test.sh) or `playwright-record` (dashboard proof record)."
+    description: "`outcomes` (scripts/test.sh) or `playwright-record` (dashboard proof record, whose tests are test cases)."
     required: true
+  unit:
+    description: >-
+      With `outcomes`, what each line's outcome is: `file`, one test file's
+      aggregate outcome however many cases the file holds (scripts/test.sh
+      writes one line per check file it ran as one job), or `case`, one test
+      case's. Empty for a Playwright record.
+    required: false
+    default: ""
   report:
     description: >-
-      The test report file. A run that wrote no complete report gives no
-      fragment, leaving the part missing from the summary.
+      The test report file. A run that wrote no complete report, such as one
+      ended by a global runner error, gives no fragment, leaving the part
+      missing in its unit from the summary, never counted.
     required: true
   times:
     description: >-
@@ -36,6 +45,7 @@ runs:
       env:
         ENTRIES: ${{ inputs.entries }}
         FORMAT: ${{ inputs.report-format }}
+        UNIT: ${{ inputs.unit }}
         REPORT: ${{ inputs.report }}
         TIMES: ${{ inputs.times }}
         PART: ${{ inputs.part }}
@@ -46,8 +56,10 @@ runs:
         for name in "${names[@]}"; do entries+=(--entry "${name}"); done
         times=()
         if [[ -n "${TIMES}" ]]; then times=(--times "${TIMES}"); fi
+        unit=()
+        if [[ -n "${UNIT}" ]]; then unit=(--unit "${UNIT}"); fi
         node src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs fragment \
-          "--${FORMAT}" "${REPORT}" "${times[@]}" --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}" \
+          "--${FORMAT}" "${REPORT}" "${unit[@]}" "${times[@]}" --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}" \
           --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}" \
           --out "${RUNNER_TEMP}/ci-proof"
     - name: Keep the CI proof fragments

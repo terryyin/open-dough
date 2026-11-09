@@ -113,26 +113,24 @@ two cancelled-landing timeouts at load 16–21 passed 12/12 alone).
 ### 3. Publish explicit units from the project's actual reports
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership row 6; extend `tests/support/ci-proof-declaration.test.mjs`
 and `ci-proof-actions.test.mjs` (action replay), collector CLI tests and
 adapter contract proof; perform the guidance behavior review required by
 [AGENTS.md](../../../AGENTS.md#behavior-review).
 
-Behavior: running Open Dough CI publishes Playwright's individual cases as
-test cases and each shell/Node job-file outcome as a test file, with existing
-outcome/timing/part accounting. A Node file with five cases contributes one
-file outcome; a failed file without inner case output remains failed.
+Behavior delivered: `ci.yml` declares `dashboard/*=12:case` (Playwright
+records) and `tests=3:file src/skills=3:file` with `unit: file` for npm
+test's per-file outcomes; the fragments action passes `unit` as `--unit`; a
+report missing after a runner error stays a missing part. The publisher
+reference ("Units"), skill, adapter proof manual and CLI usage describe
+declarations, mixed units, legacy reading, per-unit timing and gaps, and the
+stop when a report's unit cannot be established; no case extraction.
 
-Align `.github/actions/ci-proof-fragments`, `ci-proof-summary`, workflow
-declarations and runner report handling with the real report granularity;
-add no case extraction to `scripts/test.sh`. Update the publisher reference,
-CLI help and adapter proof manual with explicit-unit declarations, mixed-unit
-examples, legacy behavior, gap/timing semantics and required configuration.
-Use one shared collector for both transports. A report absent after a global
-runner error stays missing evidence, not an inferred file or case outcome.
-Keep source modules and runtime dependencies in the declared payload, running
-the install/payload checks when that declaration changes.
+Accepted proof: `bash scripts/test.sh` over 39 collector, action, declaration,
+adapter, payload and CI-guidance files (39/39, twice); the actions replayed
+with ci.yml's inputs; `ci-time-without-runner-waits.spec.ts` (17 passed);
+guidance walk through both recipes (job tmp `s3/walk.mjs`); lint.
 
 ### 4. Make the protocol available in a tagged release
 
@@ -164,12 +162,12 @@ directory; claim no other project's installation.
 ### G1. Open Dough's outcomes producers stay legacy until declared (first reported in slice 1)
 Reported: slice 1 — "Open Dough's real CI on this branch now reports Playwright entries as test cases, and `tests` and `src/skills` (outcomes without `--unit`) as legacy test results labelled `checks`."
 Story clause: "Adopt the format in Open Dough's own CI"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `.github/workflows/ci.yml` declares `:case` dashboard entries and `:file` `tests`/`src/skills` with `unit: file`; `tests/support/ci-proof-actions.test.mjs` replays the actions with ci.yml's inputs (test files, test cases, a missing part)
 
 ### G2. Publisher guidance still describes unitless version 1 proof (first reported in slice 1)
 Reported: slice 1 — "Consumers stale until slice 3 (publisher guidance, not edited): `src/skills/dough-test-optimization/references/ci-proof-summary.md` … `src/skills/dough-test-optimization/SKILL.md:35` (\"schema versions stay at 1\") … `src/skills/dough-execute-plan/manuals/custom-ci-proof.md:51`."
 Story clause: "Evolve the versioned CI proof format, collector, publisher guidance, and Intent reader to use explicit test case and test file units."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `references/ci-proof-summary.md` "Units", `SKILL.md`, `manuals/custom-ci-proof.md` and CLI usage describe units; `ci-proof-units-cli.test.mjs` usage and adapter-recipe tests
 
 ### G3. Several units at one endpoint compare without per-unit deltas (first reported in slice 1)
 Reported: slice 1 — "Comparisons where one end has several units still show labelled ends only (no per-unit deltas yet), which is slice 2's job."

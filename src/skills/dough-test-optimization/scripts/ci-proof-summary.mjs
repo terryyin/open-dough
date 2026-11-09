@@ -1,28 +1,19 @@
 // CI proof summary: the collector's command line, importing only Node and its
-// sibling ci-proof-*.mjs modules, that CI jobs run in two steps.
+// sibling ci-proof-*.mjs modules, that CI jobs run in two steps, each naming
+// a GitHub Actions run attempt or a CI adapter's attempt.
 //
 //   fragment  converts one job's test report into one fragment per proof
-//             entry it ran (ci-proof-fragments.mjs). A Playwright record's
-//             results are test cases; `--unit case` or `--unit file` says
-//             what each `--outcomes` line's outcome is, and without it they
-//             are legacy results, as before units were declared.
+//             entry it ran, in the report's unit (ci-proof-fragments.mjs),
+//             and with `--by-file` breaks each down by test file
+//             (ci-proof-figures.mjs, "File breakdown").
 //   summarize collects the current attempt's fragments against the
-//             declared entries, parts and units
-//             (`--expect <entry>=<parts>[:<unit>]`) into the attempt's
-//             summary (ci-proof-collect.mjs). A declaration with a unit is
-//             filled only by that unit's fragments and keeps its missing
-//             parts in that unit; one without takes the entry's other
-//             fragments in whichever one unit they report.
+//             declared entries, parts and units into the attempt's summary
+//             (ci-proof-collect.mjs).
 //
-// `fragment --by-file` also breaks each fragment down by test file
-// (ci-proof-figures.mjs, "File breakdown"); without it, fragments carry
-// entry totals only, as before.
-//
-// Both name the attempt: a GitHub Actions run attempt by `--attempt` (and
-// `summarize` by `--run-id`), or a CI adapter's attempt by `--attempt-id`.
-//
-// Their options are read by ci-proof-options.mjs. The versioned schemas are
-// in ci-proof-contract.mjs; this module re-exports the collector's whole API.
+// USAGE below states both steps' options and the unit of each report and
+// declaration. Their options are read by ci-proof-options.mjs. The versioned
+// schemas are in ci-proof-contract.mjs; this module re-exports the
+// collector's whole API.
 import {
   existsSync,
   mkdirSync,
@@ -54,6 +45,20 @@ import {
 export * from "./ci-proof-collect.mjs";
 export * from "./ci-proof-contract.mjs";
 export * from "./ci-proof-fragments.mjs";
+
+// What the command line says when given no command it knows.
+const USAGE = `usage: ci-proof-summary.mjs fragment
+         (--outcomes <report> --unit case|file [--times <times>] | --playwright-record <record>)
+         [--by-file] --entry <entry>... --part <part> --of <parts>
+         (--attempt <run attempt> | --attempt-id <attempt id>) --revision <revision> --out <dir>
+       ci-proof-summary.mjs summarize --fragments <dir> --expect <entry>=<parts>:case|file...
+         --repository <owner/repo> (--run-id <run id> --attempt <run attempt> | --attempt-id <attempt id>)
+         --revision <revision> --out <summary file>
+A Playwright record's tests are test cases. --unit file counts each outcomes line as one
+test file's aggregate outcome, however many cases the file holds; --unit case as one test
+case. Declare each entry once per unit it reports, with that unit's part count. Outcomes
+without --unit are legacy test results; a declaration without :<unit> takes whichever
+one unit its entry's fragments report.`;
 
 function jsonFiles(directory) {
   return readdirSync(directory, { recursive: true, withFileTypes: true })
@@ -185,10 +190,7 @@ if (isDirectEntry()) {
   try {
     if (command === "fragment") runFragment(argv);
     else if (command === "summarize") runSummarize(argv);
-    else
-      throw new Error(
-        "usage: ci-proof-summary.mjs fragment|summarize [options]",
-      );
+    else throw new Error(USAGE);
   } catch (error) {
     process.stderr.write(`ci-proof-summary: ${error.message}\n`);
     process.exitCode = 1;

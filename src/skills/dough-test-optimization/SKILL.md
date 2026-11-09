@@ -28,11 +28,9 @@ A request to make this project's CI publish proof for Intent's **CI status**
 tab, or a tab saying the shown run or attempt has no CI proof summary,
 follows only the [CI proof summary](references/ci-proof-summary.md) recipe:
 it edits this project's GitHub Actions workflow, or its CI job and CI
-adapter, and profiles nothing. A published summary may carry optional
-`durationMs` on present parts and entries (summed test execution time from
-outcomes times or Playwright attempt durations) and, from `fragment
---by-file`, a per-file breakdown for Intent's entry and folder summaries;
-schema versions stay at 1.
+adapter, and profiles nothing. The summary keeps each location's test cases
+and test files apart, each with its own outcomes, timing and gaps, in the
+units this project's reports give.
 
 Default mode profiles, plans, experiments, and re-profiles. A profile-only request
 ends with findings and records them in the
