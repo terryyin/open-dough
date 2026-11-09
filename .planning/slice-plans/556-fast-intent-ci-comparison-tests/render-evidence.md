@@ -167,3 +167,78 @@ mandatory capture and move the same directive with its empty fixture type;
 the generated stylesheet paths and runtime fixture contract are unchanged.
 Delivery and exact hosted CI remain slice-6 acceptance operations. Whole-family
 and final target CI remain with slice 7 and its lifecycle owner respectively.
+
+## Published static timing checkpoint and selected correction
+
+Accepted `2f5b6a3`/run42668027365 attempt1 has all 17 jobs reporting success.
+Twelve complete reports match all 170 rule owners; all assertions pass. Owning
+spec identities are normalized from 26 imported case declaration locations,
+with the original declared locations retained. Nothing was skipped by that
+initial analysis mismatch. Existing backend/store80 rules have complete
+conservative upper bounds at most593ms. Of77 static rules,73 meet the strict
+bound; four have observed cleanup prefixes1,014–1,098ms/upper1,038–1,123ms.
+The seven lifecycle and six counter rules remain slice7's existing work.
+
+Step data isolates the actual remaining cost: Show % performs3 setContent
+calls/367ms and411ms read steps; outlier2/197ms and488ms read steps; source
+wording1/116ms and758ms reads; Summary Branch4/394ms and330ms reads. These are
+wall/IPC/tracing observations, not measured CSS CPU. Fixture/compiler/browser
+intervals are union-subtracted only when source-confirmed immutable worker work.
+Final trace end is not exposed; following-test start supplies a conservative
+complete upper bound. All170 have a following test, with no ambiguous/missing
+or nonpassing owner. Landed signed-sort's994ms upper also needs margin.
+
+The strongest simpler correction removes equivalent intermediate states:
+Show %3→2 keeps off/on and identical sorted geometry; the three-column signed
+sort loop4→3 moves the same signed-cell literals into ascending/on while keeping
+initial order, off/on and both directions. Batch only the existing relative
+figure responsibility (actual target/mark counts, rectangles, direction,
+offsets, reach and percentage words) and source raw text/title/selection/count.
+Keep five native source/header visibility checks and every independent literal,
+negative identity test and tolerance. No CSS subset or new query framework.
+
+Recorded removable operations predict approximately179–229ms Show %,100–200ms
+outlier,250–400ms source and101–131ms signed-sort savings against38–123ms upper
+gaps. These predictions support a six-case pilot, including all three near-limit
+signed-sort siblings; they are not claimed improvements. Obtain a matching
+baseline, then complete-case before/after and ordinary wall observations before
+retaining changes. Verify only affected consumers and fault-equivalent controls;
+reuse unchanged actual fault proof where correspondence holds. G8 stays open.
+
+Raw hierarchical facts and the independent clean all-report status scan are
+`slice6-ci-static-gap.md`, `.json`, `-raw.json` and
+`slice6-ci-global-status.json` under the same outside-Git evidence directory.
+
+## Bounded G8 correction and publication decision
+
+The matched six-case pilot passed before/after with adjusted complete envelopes
+210→192,195→183,140→121,203→198,184→173,174→163ms. Actual immutable renderer
+and browser intervals alone are union-subtracted; all case setup/cleanup stays.
+Raw first cases2608/2593→2736/2727ms include cold renderer2290→2400ms and
+browser108→144ms. Whole runner4324.893→4308.292ms/wall4.61→4.56s under the
+same two-worker default; declining host load prevents a whole-feedback claim.
+These modest local gains do not establish the hosted38–123ms margin. Retain
+only as the bounded published experiment supported by removed CI render/RPC work.
+
+Five test-only paths preserve every original oracle and current93 roles.
+Show%3→2 and signed sorts4→3 remove states without a distinct order/geometry
+assertion. Relative batching keeps ordered raw target/mark cardinalities and
+the one actual geometry formula; live count→mark.evaluate auto-wait remains.
+Source batching retains normalized literals, raw regex exclusions and five
+native visibility checks. Final19 receiving cases and restored3 pass; six
+actual collector/title/missing-or-duplicate target/mark faults fail unchanged
+expectations and restore exact bytes. Unchanged unit/title/native-key controls
+retain explicit source/setup/observer correspondence. Typecheck passes.
+
+Independent refactoring replaces new exact class-string identities with actual
+overall-figure membership, retaining row/column identity and all raw arrays.
+Only its affected2 cases rerun, strictpass; typecheck passes. All446 traced
+consumers are dispositioned. The pilot predates this metadata-only refactor.
+Full returns, fault receipts and traces are `slice6-g8-{return,refactor-return}.md`,
+`slice6-g8-fault-receipts.json` and their named raw records. G8 remains open
+until exact published complete-case evidence; slice7 has not started.
+
+The actual formatter caught four unnecessary Element.textContent null fallbacks;
+remove only those fallbacks, retaining all normalization and nullable selectors.
+Final affected3 pass without retry (wall4.31s); actual lint/format and250-line
+gate pass, largest owned file248lines. Raw proof: `slice6-g8-final-format-proof.json`.

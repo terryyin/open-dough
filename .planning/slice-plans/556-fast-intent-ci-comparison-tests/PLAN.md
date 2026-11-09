@@ -184,9 +184,12 @@ supported old sort/file gains. Full context and decisive comparison are in
 Published `2f5b6a3` matches all 170 rule owners, all assertions pass. Of 77
 static variants, four cleanup prefixes remain 1,014–1,098 ms (G8); the old
 550–600 ms bootstrap gap is removed, leaving 14–98 ms before final trace bounds.
-Retain the supported SSR route; quantify those four actual observer/lifecycle
-costs before a bounded correction. No lost assertion, timing change or new
-framework is selected. G7 separately repairs shared HTTP teardown liveness.
+Retain SSR. Step evidence supports consolidating redundant Show %/signed-sort
+states, batching existing relative figures and source identity text/attributes,
+and retaining native visibility checks. The matched six-case pilot saves only
+5–19 ms locally; retain solely for the bounded CI experiment against the
+38–123 ms upper-bound gap. Local proof does not settle G8. No CSS subset, lost
+oracle, target change or framework is selected. See render-evidence; G7 is repaired.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.

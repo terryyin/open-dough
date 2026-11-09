@@ -53,20 +53,6 @@ for (const column of ["Branch", "Landed", "Baseline"] as const) {
       "root.spec.ts",
     ]);
     await expect(showPercent(summary)).not.toBeChecked();
-    await renderComparison(page, comparisonRenderer, rendered, {
-      showPercent: true,
-    });
-    if (column !== "Baseline") {
-      await expect(timingCell(table, "folder/", column)).toHaveText(
-        "+30.0 s+50%",
-      );
-      await expect(timingCell(table, "root.spec.ts", column)).toHaveText(
-        "+1 min+10%",
-      );
-      await expect(timingCell(table, "renamed.spec.ts", column)).toHaveText(
-        "−20.0 s−7%",
-      );
-    }
     const { ascending, descending } =
       mountedSummarySortExpected[column === "Baseline" ? "baseline" : "signed"];
     await renderComparison(page, comparisonRenderer, rendered, {
@@ -81,6 +67,17 @@ for (const column of ["Branch", "Landed", "Baseline"] as const) {
         direction: "ascending",
       },
     });
+    if (column !== "Baseline") {
+      await expect(timingCell(table, "folder/", column)).toHaveText(
+        "+30.0 s+50%",
+      );
+      await expect(timingCell(table, "root.spec.ts", column)).toHaveText(
+        "+1 min+10%",
+      );
+      await expect(timingCell(table, "renamed.spec.ts", column)).toHaveText(
+        "−20.0 s−7%",
+      );
+    }
     await expectSortedBy(table, column, "ascending", ascending);
     await renderComparison(page, comparisonRenderer, rendered, {
       showPercent: true,

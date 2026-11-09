@@ -80,6 +80,12 @@ Formatting found Node's generic events.once result needed its actual Socket
 tuple type. The annotation repair emits byte-identical JavaScript (4,362 bytes);
 no operation or expectation changed. Existing executed proof remains applicable.
 
+Repair `4f095a7f1c422a1976c61b7773237d1cdab07b4c` was accepted and registered
+on the replacement observer. Official restore returned resumed, OID null,
+applied false/dropped null; the previously clean checkout lost no work.
+Exact receipts: `ci-server-close-delivery-repaired.log` and
+`ci-server-close-restore.log` under the evidence directory below.
+
 ## Historical failure audit and current checkpoint
 
 Retained older run 42631269357 attempt1 had two failed jobs: the adapter Taken

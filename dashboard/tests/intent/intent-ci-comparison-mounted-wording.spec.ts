@@ -11,7 +11,7 @@ import {
 import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import {
   expectAncestorSourceCue,
-  expectExactSourceCue,
+  sourceIdentityFacts,
   expectNoRunOrAttemptIds,
 } from "../support/expectCiComparisonSourceCue.ts";
 import "../support/mountedComparisonGapCases.ts";
@@ -140,29 +140,44 @@ test("exact and ancestor source icons retain accessible and hover wording withou
   );
   const panel = await renderComparison(page, comparisonRenderer, rendered);
   const identities = panel.locator(".intent-ci-comparison-identity");
-  const baseline = identities.nth(0);
-  await expect(baseline).toContainText(
+  const observed = await sourceIdentityFacts(identities);
+  expect(observed).toHaveLength(3);
+  expect(observed[0]?.text).toContain(
     "No build at ddddddd: the workflow at that revision could not be read.",
   );
-  await expect(baseline).toContainText("aaaaaaa");
-  await expectAncestorSourceCue(
-    baseline,
+  expect(observed[0]?.text).toContain("aaaaaaa");
+  expect(observed[0]?.text).toContain(
     "ancestor: 2 later revisions without a build",
   );
+  expect(observed.map(({ sources }) => sources)).toEqual([
+    [
+      {
+        selection: "ancestor",
+        title: "ancestor: 2 later revisions without a build",
+      },
+    ],
+    [{ selection: "exact", title: "exact revision" }],
+    [{ selection: "exact", title: "exact revision" }],
+  ]);
   await expect(
-    baseline.locator(".intent-ci-comparison-source"),
-  ).toHaveAttribute("title", "ancestor: 2 later revisions without a build");
+    identities
+      .nth(0)
+      .locator('.intent-ci-comparison-source[data-selection="ancestor"]'),
+  ).toBeVisible();
   for (const index of [1, 2]) {
-    await expectExactSourceCue(identities.nth(index));
     await expect(
-      identities.nth(index).locator(".intent-ci-comparison-source"),
-    ).toHaveAttribute("title", "exact revision");
+      identities
+        .nth(index)
+        .locator('.intent-ci-comparison-source[data-selection="exact"]'),
+    ).toBeVisible();
+    expect(observed[index]?.text).toContain("exact revision");
   }
-  await expect(identities.nth(1)).toContainText("bbbbbbb");
-  await expect(identities.nth(2)).toContainText("ccccccc");
-  for (const identity of await identities.all()) {
-    await expectNoRunOrAttemptIds(identity);
-    await expect(identity).not.toContainText(/before|branch|landed/);
+  expect(observed[1]?.text).toContain("bbbbbbb");
+  expect(observed[2]?.text).toContain("ccccccc");
+  for (const identity of observed) {
+    expect(identity.rawText).not.toMatch(/run \d+/);
+    expect(identity.rawText).not.toMatch(/attempt /i);
+    expect(identity.rawText).not.toMatch(/before|branch|landed/);
   }
   await expect(
     panel.getByRole("columnheader", { name: "CI wall time", exact: true }),

@@ -11,8 +11,8 @@ import {
 } from "../support/mountedComparisonFacts.ts";
 import {
   expectMark,
-  markGeometry,
-  percentages,
+  relativeFigures,
+  expectMarkGeometry,
   showPercent,
 } from "../support/relativeTimingMarks.ts";
 import { rowNames } from "../support/expectSortedColumns.ts";
@@ -81,29 +81,42 @@ test("Show % displays every comparable percentage without changing sort or geome
     .please();
   const facts = { ...prepared, answer };
   const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
-  const toggle = showPercent(panel);
-  await expect(toggle).not.toBeChecked();
-  await expect(percentages(panel)).toHaveCount(0);
-  await renderComparison(page, comparisonRenderer, rendered, {
+  const panel = await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "landed", direction: "ascending" },
   });
+  const toggle = showPercent(panel);
+  await expect(toggle).not.toBeChecked();
   const order = await rowNames(tableOf(panel)).allTextContents();
-  const before = await markGeometry(cell(panel, "e/faster", "Landed"));
+  const selected = cell(panel, "e/faster", "Landed")
+    .or(cell(panel, "e/zero", "Landed"))
+    .or(cell(panel, "e/slower", "Branch"));
+  const before = await relativeFigures(selected, panel);
+  expect(before.figures.map((figure) => figure.identity)).toEqual([
+    { row: "e/faster", column: 4, overallWall: false },
+    { row: "e/zero", column: 4, overallWall: false },
+    { row: "e/slower", column: 3, overallWall: false },
+  ]);
+  expect(before.figures.map((figure) => figure.marks.length)).toEqual([
+    1, 0, 1,
+  ]);
+  expect(before.percentages).toEqual([]);
   await renderComparison(page, comparisonRenderer, rendered, {
     showPercent: true,
     sort: { column: "landed", direction: "ascending" },
   });
   await expect(toggle).toBeChecked();
-  await expect(cell(panel, "e/slower", "Branch")).toHaveText("+30 s+13%");
-  expect((await percentages(panel).allTextContents()).sort()).toEqual(
+  const after = await relativeFigures(selected, panel);
+  expect(after.figures.map((figure) => figure.identity)).toEqual(
+    before.figures.map((figure) => figure.identity),
+  );
+  expect(after.figures.map((figure) => figure.marks.length)).toEqual([1, 0, 1]);
+  expect(after.figures[2]?.words).toBe("+30 s+13%");
+  expect([...after.percentages].sort()).toEqual(
     ["+13%", "−25%", "0%", "+25%", "−50%", "0%", "+33%"].sort(),
   );
-  await expect(
-    cell(panel, "e/zero", "Landed").locator(".intent-ci-time-percent"),
-  ).toHaveCount(0);
+  expect(after.figures[1]?.percentages).toEqual([]);
   await expect(rowNames(tableOf(panel))).toHaveText(order);
-  expect(await markGeometry(cell(panel, "e/faster", "Landed"))).toEqual(before);
+  expect(after.figures[0]?.marks[0]).toEqual(before.figures[0]?.marks[0]);
 });
 
 test("a one hundred fifty percent outlier widens every mark's shared scale", async ({
@@ -117,15 +130,31 @@ test("a one hundred fifty percent outlier widens every mark's shared scale", asy
   entries[2].push(timedEntry("e/outlier", 150_000));
   const rendered = comparisonRenderFacts(facts, entries);
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  await expect(cell(panel, "e/outlier", "Landed")).toHaveText("+1 min 30 s");
-  await expectMark(cell(panel, "e/outlier", "Landed"), "slower", 1);
-  await expectMark(cell(panel, "e/faster", "Landed"), "faster", 0.5 / 1.5);
-  await expectMark(cell(panel, "e/slower", "Landed"), "slower", 0.25 / 1.5);
-  await expectMark(
-    panel.locator(".intent-ci-comparison-overall-wall"),
-    "slower",
-    1 / 3 / 1.5,
-  );
+  const selected = cell(panel, "e/outlier", "Landed")
+    .or(cell(panel, "e/faster", "Landed"))
+    .or(cell(panel, "e/slower", "Landed"))
+    .or(panel.locator(".intent-ci-comparison-overall-wall"));
+  const observed = await relativeFigures(selected);
+  expect(observed.figures.map((figure) => figure.identity)).toEqual([
+    { row: null, column: null, overallWall: true },
+    { row: "e/slower", column: 4, overallWall: false },
+    { row: "e/faster", column: 4, overallWall: false },
+    { row: "e/outlier", column: 4, overallWall: false },
+  ]);
+  expect(observed.figures.map((figure) => figure.marks.length)).toEqual([
+    1, 1, 1, 1,
+  ]);
+  expect(observed.figures[3]?.words).toBe("+1 min 30 s");
+  for (const [at, direction, reach] of [
+    [0, "slower", 1 / 3 / 1.5],
+    [1, "slower", 0.25 / 1.5],
+    [2, "faster", 0.5 / 1.5],
+    [3, "slower", 1],
+  ] as const) {
+    const geometry = observed.figures[at]?.marks[0];
+    expect(geometry).toBeDefined();
+    if (geometry !== undefined) expectMarkGeometry(geometry, direction, reach);
+  }
   await renderComparison(page, comparisonRenderer, rendered, {
     showPercent: true,
   });
