@@ -10,7 +10,7 @@ import {
   publishIntentProject,
   shellCheck,
 } from "./intentCodeBrowseFixtures.ts";
-import { candidateRecordEntry as entry } from "./intentCandidatesRecordEntry.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export { testOptimizationCandidatesPath };
 
@@ -56,128 +56,104 @@ export const openDoughCaseLineSource = [
 /** 1-based line of the line-anchored case in the fixture. */
 export const openDoughCaseLineNumber = 44;
 
-export const openDoughCaseLineRecord = `# Test Optimization Candidates
-
-## Pending candidates
-
-${entry("path-line-case", {
-  locations: `\`${openDoughSpecPaths.caseLine}:${openDoughCaseLineNumber}\``,
-  observedCost: "about 3s line-anchored case",
-  uniqueProtection: "path:line positions Purpose",
-  alternativesAttempted: "none",
-  disposition: "pending — path:line proof",
-  date: "2026-11-01",
-  evidence: "fixture",
-})}
-## Accepted necessary costs
-
-None.
-
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+export const openDoughCaseLineRecord = makeMe.aTestOptimizationCandidatesRecord
+  .pending(
+    "path-line-case",
+    `\`${openDoughSpecPaths.caseLine}:${openDoughCaseLineNumber}\``,
+    {
+      observedCost: "about 3s line-anchored case",
+      uniqueProtection: "path:line positions Purpose",
+      alternativesAttempted: "none",
+      dispositionRationale: "pending — path:line proof",
+      date: "2026-11-01",
+      evidence: "fixture",
+    },
+  )
+  .please();
 
 // Open Dough-shaped record: pending and accepted entries, evidence Markdown
 // link (including one to a configured Intent file), and a `sha:path` kept as
 // recorded text. Locations cover full paths, bare unique/ambiguous names,
 // and a four-file family.
-export const openDoughCandidatesRecord = `# Test Optimization Candidates
+export const openDoughCandidatesRecord =
+  makeMe.aTestOptimizationCandidatesRecord
+    .pending(
+      "launch-records-poll-waits",
+      "`agent-completion-attention.spec.ts` waits and close/reopen races in `agent-launch-ad-hoc-terminal.spec.ts`",
+      {
+        observedCost:
+          "about 60 summed seconds waiting for the next launch-records read",
+        uniqueProtection:
+          "a delivered report reaches the open page without a reload",
+        alternativesAttempted:
+          "none. Existing page clock infrastructure is unused here",
+        dispositionRationale:
+          "pending — a cheaper design that reuses existing test infrastructure is credible",
+        date: "2026-11-01",
+        humanDecisionNeeded:
+          "whether a page-clock redesign is worth the rewrite before optimizing",
+        evidence:
+          "SEED-208 Results in `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`",
+      },
+    )
+    .pending("moved-test-after-record", `\`${openDoughSpecPaths.movedAway}\``, {
+      observedCost: "was about 12s before the file moved",
+      uniqueProtection: "former integrated path no longer published",
+      alternativesAttempted: "none",
+      dispositionRationale: "pending — path must be rewritten after the move",
+      date: "2026-11-01",
+      evidence: "recorded before the move",
+    })
+    .accepted(
+      "story-review-completed-journey-landed-runs-tail",
+      "`story-review-completed.spec.ts` trailing Landed runs radio",
+      {
+        observedCost: "focused journey wall ≈9.69–10.00s (1 case)",
+        uniqueProtection:
+          "Published completion → Landed runs → Published completion round trip",
+        alternativesAttempted: "end journey before Landed runs — no wall gain",
+        dispositionRationale:
+          "accepted necessary cost — retain the one integrated selection path. No skip/exclusion.",
+        date: "2026-11-01",
+        evidence: `[source comparison and ROI](../${evidenceDocPath})`,
+      },
+    )
+    .accepted(
+      "agent-launch-poles",
+      `\`${openDoughSpecPaths.polesTerminal}\` and \`${openDoughSpecPaths.polesSecond}\``,
+      {
+        observedCost:
+          "second-server case measured 52.5s / 51.2s after SEED-176",
+        uniqueProtection: "dual-preview page protection through reload",
+        alternativesAttempted:
+          "cheaper server-only refusal already moved to boundary",
+        dispositionRationale:
+          "accepted necessary cost — preserve the unique multi-step journeys. Acceptance excludes nothing.",
+        date: "2026-10-30",
+        evidence: `[SEED-176 local measurements](../${evidenceDocPath}); Intent file [second-server journey](../${openDoughSpecPaths.polesSecond})`,
+      },
+    )
+    .accepted(
+      "long-integrated-journeys",
+      `\`${openDoughSpecPaths.attention}\` and the production-watcher chains in \`${openDoughSpecPaths.watcher}\`, \`${openDoughSpecPaths.watcherUpdates}\`, and \`${openDoughSpecPaths.watcherFailures}\``,
+      {
+        observedCost:
+          "approximately 39.6s attention case on the SEED-177 baseline",
+        uniqueProtection:
+          "attention reporting remains durable through column changes",
+        alternativesAttempted:
+          "policy consolidation moved detailed proof to boundary",
+        dispositionRationale:
+          "accepted necessary cost — retain unique integrated protection. Acceptance grants no coverage reduction.",
+        date: "2026-10-30",
+        evidence: "accepted triage at `03424649`",
+      },
+    )
+    .please();
 
-## Pending candidates
-
-${entry("launch-records-poll-waits", {
-  locations:
-    "`agent-completion-attention.spec.ts` waits and close/reopen races in `agent-launch-ad-hoc-terminal.spec.ts`",
-  observedCost:
-    "about 60 summed seconds waiting for the next launch-records read",
-  uniqueProtection: "a delivered report reaches the open page without a reload",
-  alternativesAttempted:
-    "none. Existing page clock infrastructure is unused here",
-  disposition:
-    "pending — a cheaper design that reuses existing test infrastructure is credible",
-  date: "2026-11-01",
-  humanDecisionNeeded:
-    "whether a page-clock redesign is worth the rewrite before optimizing",
-  evidence:
-    "SEED-208 Results in `40e1d2f9:.planning/slice-plans/432-reduce-dashboard-proof-cost/PLAN.md`",
-})}
-${entry("moved-test-after-record", {
-  locations: `\`${openDoughSpecPaths.movedAway}\``,
-  observedCost: "was about 12s before the file moved",
-  uniqueProtection: "former integrated path no longer published",
-  alternativesAttempted: "none",
-  disposition: "pending — path must be rewritten after the move",
-  date: "2026-11-01",
-  evidence: "recorded before the move",
-})}
-## Accepted necessary costs
-
-${entry("story-review-completed-journey-landed-runs-tail", {
-  locations: "`story-review-completed.spec.ts` trailing Landed runs radio",
-  observedCost: "focused journey wall ≈9.69–10.00s (1 case)",
-  uniqueProtection:
-    "Published completion → Landed runs → Published completion round trip",
-  alternativesAttempted: "end journey before Landed runs — no wall gain",
-  disposition:
-    "accepted necessary cost — retain the one integrated selection path. No skip/exclusion.",
-  date: "2026-11-01",
-  evidence: `[source comparison and ROI](../${evidenceDocPath})`,
-})}
-${entry("agent-launch-poles", {
-  locations: `\`${openDoughSpecPaths.polesTerminal}\` and \`${openDoughSpecPaths.polesSecond}\``,
-  observedCost: "second-server case measured 52.5s / 51.2s after SEED-176",
-  uniqueProtection: "dual-preview page protection through reload",
-  alternativesAttempted:
-    "cheaper server-only refusal already moved to boundary",
-  disposition:
-    "accepted necessary cost — preserve the unique multi-step journeys. Acceptance excludes nothing.",
-  date: "2026-10-30",
-  evidence: `[SEED-176 local measurements](../${evidenceDocPath}); Intent file [second-server journey](../${openDoughSpecPaths.polesSecond})`,
-})}
-${entry("long-integrated-journeys", {
-  locations: `\`${openDoughSpecPaths.attention}\` and the production-watcher chains in \`${openDoughSpecPaths.watcher}\`, \`${openDoughSpecPaths.watcherUpdates}\`, and \`${openDoughSpecPaths.watcherFailures}\``,
-  observedCost: "approximately 39.6s attention case on the SEED-177 baseline",
-  uniqueProtection:
-    "attention reporting remains durable through column changes",
-  alternativesAttempted:
-    "policy consolidation moved detailed proof to boundary",
-  disposition:
-    "accepted necessary cost — retain unique integrated protection. Acceptance grants no coverage reduction.",
-  date: "2026-10-30",
-  evidence: "accepted triage at `03424649`",
-})}
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
-
-export const emptyCandidatesRecord = `# Test Optimization Candidates
-
-## Pending candidates
-
-None.
-
-## Accepted necessary costs
-
-None.
-
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+// Every finding section is `None.`.
+export const emptyCandidatesRecord =
+  makeMe.aTestOptimizationCandidatesRecord.please();
 
 export const mismatchedCandidatesRecord = `# Not A Candidates Record
 

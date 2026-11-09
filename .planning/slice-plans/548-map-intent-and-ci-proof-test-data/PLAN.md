@@ -217,7 +217,7 @@ repair; the review specs ran 52 passed and `backend-tests/review` 72 passed.
 
 ### 3. Optimization Candidates records come from the record builder
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3. Run `tests/intent/intent-(test-optimization-candidates[^/]*|purpose-case|candidates-read-recovery)\.spec\.ts$`, `backend-tests/intent/authenticated-read-intent-candidates\.spec\.ts$`, `frontend-tests/intent-candidates-read-recovery\.spec\.ts$`, `tests/intent/intent-project-visit\.spec\.ts$` and `bash scripts/test.sh tests/native-evidence-identity.sh`. Then run the consumer suites named in the gate once on the final state. The rendered records match their predecessors byte for byte, and a changed recorded location fails the journey that opens it.
 
 A project publishes a candidates record built through MakeMe → Intent reads
@@ -228,6 +228,12 @@ case-position fixtures and in the backend candidates read spec, and remove
 `candidateRecordEntry`. Keep the mismatched record and the frontend's
 refused, `null` and `42` answers literal. Empty records still show their four
 sections with `None.`.
+
+Accepted: `pending` and `accepted` take the entry's other `CandidateEntry`
+fields a case states and share one entry rule; each section keeps its own
+default disposition. The seven record constants render byte for byte as
+before, the focused candidates selections ran 21 passed and their reached
+consumers 36 passed, and the final consumer suites ran 303 passed.
 
 ## Readiness review
 

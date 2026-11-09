@@ -9,7 +9,6 @@ import {
   pygardon,
   pygardonSettings,
 } from "./intentCodeBrowseFixtures.ts";
-import { candidateRecordEntry as entry } from "./intentCandidatesRecordEntry.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 
 export const pygardonGherkinOnlySettings = makeMe.intentSettings
@@ -44,71 +43,52 @@ export const pygardonClipSource = [
 /** 1-based line of `def test_clip_segments_h264_reencodes_video` in the fixture. */
 export const pygardonClipCaseLine = 44;
 
-export const pygardonCandidatesRecord = `# Test Optimization Candidates
-
-## Pending candidates
-
-None.
-
-## Accepted necessary costs
-
-${entry("real-h264-codec-roundtrip", {
-  locations: `\`${pygardonClipPath}::${pygardonClipCase}\``,
-  observedCost: "about 45s codec roundtrip on the developer host",
-  uniqueProtection: "real H264 reencode through clip segments",
-  alternativesAttempted: "mocked codec path lost the unique protection",
-  disposition:
-    "accepted necessary cost — retain the real codec journey. No skip/exclusion.",
-  date: "2026-10-28",
-  evidence: "local codec timings",
-})}
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+export const pygardonCandidatesRecord = makeMe.aTestOptimizationCandidatesRecord
+  .accepted(
+    "real-h264-codec-roundtrip",
+    `\`${pygardonClipPath}::${pygardonClipCase}\``,
+    {
+      observedCost: "about 45s codec roundtrip on the developer host",
+      uniqueProtection: "real H264 reencode through clip segments",
+      alternativesAttempted: "mocked codec path lost the unique protection",
+      dispositionRationale:
+        "accepted necessary cost — retain the real codec journey. No skip/exclusion.",
+      date: "2026-10-28",
+      evidence: "local codec timings",
+    },
+  )
+  .please();
 
 export const doughnutFeaturePath =
   "e2e_test/features/cli/cli_notebook_lfs.feature";
 
-export const doughnutCandidatesRecord = `# Test Optimization Candidates
-
-## Pending candidates
-
-${entry("frontend-browser-file-isolation", {
-  locations:
+export const doughnutCandidatesRecord = makeMe.aTestOptimizationCandidatesRecord
+  .pending(
+    "frontend-browser-file-isolation",
     "browser file isolation across notebook tabs with no path named here",
-  observedCost: "about 20s across cold browser tabs",
-  uniqueProtection: "tab isolation without a reusable cheaper substitute",
-  alternativesAttempted: "none recorded",
-  disposition: "pending — needs a named human decision on scope",
-  date: "2026-10-27",
-  evidence: "prose only",
-})}
-${entry("e2e-batch-cold-start", {
-  locations: "`cli_notebook_lfs.feature` cold start of the notebook LFS batch",
-  observedCost: "about 35s cold start",
-  uniqueProtection: "cold notebook LFS batch reaches a usable shell",
-  alternativesAttempted: "warm reuse lost the cold-start protection",
-  disposition: "pending — measure warmer fixtures before accepting",
-  date: "2026-10-27",
-  evidence: "batch timing notes",
-})}
-## Accepted necessary costs
-
-None.
-
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+    {
+      observedCost: "about 20s across cold browser tabs",
+      uniqueProtection: "tab isolation without a reusable cheaper substitute",
+      alternativesAttempted: "none recorded",
+      dispositionRationale: "pending — needs a named human decision on scope",
+      date: "2026-10-27",
+      evidence: "prose only",
+    },
+  )
+  .pending(
+    "e2e-batch-cold-start",
+    "`cli_notebook_lfs.feature` cold start of the notebook LFS batch",
+    {
+      observedCost: "about 35s cold start",
+      uniqueProtection: "cold notebook LFS batch reaches a usable shell",
+      alternativesAttempted: "warm reuse lost the cold-start protection",
+      dispositionRationale:
+        "pending — measure warmer fixtures before accepting",
+      date: "2026-10-27",
+      evidence: "batch timing notes",
+    },
+  )
+  .please();
 
 export const doughnutFeatureSettings = makeMe.intentSettings
   .withLocations(

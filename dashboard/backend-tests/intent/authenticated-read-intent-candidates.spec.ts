@@ -37,24 +37,7 @@ const settings = intentSettingsText(
     )
     .please(),
 );
-const recordText = `# Test Optimization Candidates
-
-## Pending candidates
-
-None.
-
-## Accepted necessary costs
-
-None.
-
-## Profile-only exclusions
-
-None.
-
-## Transferred obligations
-
-None.
-`;
+const recordText = makeMe.aTestOptimizationCandidatesRecord.please();
 
 const revisionOf = (byte: string) => byte.repeat(20);
 
