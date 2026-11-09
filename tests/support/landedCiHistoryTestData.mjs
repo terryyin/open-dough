@@ -29,7 +29,7 @@ const firstAttemptOf = (runId) => ({
 /**
  * A recorded trunk landing: its receipt, landed revision, when the dashboard
  * recorded it, and the story it names, when it names one.
- * @typedef {{ receipt: string, revision: string, receivedAt: string, identity?: string | undefined, repository?: string | undefined }} LandingFacts
+ * @typedef {{ receipt: string, revision: string, receivedAt: string, identity?: string | undefined, repository?: string | undefined, target?: string | undefined }} LandingFacts
  */
 
 /**
@@ -50,12 +50,16 @@ export class LandedCiHistoryBuilder {
    * @param {LandingFacts} landing
    * @param {KeptLanding["observed"]} observed
    */
-  #landing({ receipt, revision, receivedAt, identity, repository }, observed) {
+  #landing(
+    { receipt, revision, receivedAt, identity, repository, target },
+    observed,
+  ) {
     this.#landings[receipt] = {
       revision,
       receivedAt,
       ...(identity !== undefined && { identity }),
       ...(repository !== undefined && { repository }),
+      ...(target !== undefined && { target }),
       observed,
     };
   }

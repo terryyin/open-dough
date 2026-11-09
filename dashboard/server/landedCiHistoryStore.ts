@@ -6,7 +6,11 @@
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import type { CiProof } from "../src/ciProof.ts";
-import { commitIdSchema, type LaunchLanding } from "../src/launchLanding.ts";
+import {
+  commitIdSchema,
+  launchLandingSchema,
+  type LaunchLanding,
+} from "../src/launchLanding.ts";
 import {
   keptBuildSchema,
   keptResolution,
@@ -41,6 +45,7 @@ const keptLandingSchema = z.object({
   receivedAt: z.iso.datetime(),
   repository: z.string().min(1).optional(),
   identity: z.string().min(1).optional(),
+  target: launchLandingSchema.shape.target.optional(),
   observed: observationSchema,
 });
 
@@ -89,7 +94,7 @@ export type LandingReference = Pick<
   LaunchLanding,
   "receipt" | "revision" | "receivedAt" | "identity"
 > &
-  Partial<Pick<LaunchLanding, "repository">>;
+  Partial<Pick<LaunchLanding, "repository" | "target">>;
 
 // The landings the history keeps a reference to, whether or not their launch
 // records are still kept.
@@ -97,12 +102,13 @@ export function keptLandingReferences(
   history: ProjectHistory,
 ): LandingReference[] {
   return Object.entries(history.landings).map(
-    ([receipt, { revision, receivedAt, identity, repository }]) => ({
+    ([receipt, { revision, receivedAt, identity, repository, target }]) => ({
       receipt,
       revision,
       receivedAt,
       ...(identity === undefined ? {} : { identity }),
       ...(repository === undefined ? {} : { repository }),
+      ...(target === undefined ? {} : { target }),
     }),
   );
 }
@@ -170,6 +176,7 @@ export async function keepLandedCiResolution(
           ...(landing.identity === undefined
             ? {}
             : { identity: landing.identity }),
+          ...(landing.target === undefined ? {} : { target: landing.target }),
           observed,
         },
       },

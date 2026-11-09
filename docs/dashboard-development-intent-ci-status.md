@@ -204,6 +204,16 @@ same dashboard process; completed answers and answered artifact gaps retain
 final-answer reuse. Collection still owns its background acquisition cycle,
 and reading local history itself asks CI nothing.
 
+Comparison uses a locally recorded receipt age only when its project, target,
+story and published Landed revision match. The earliest matching capture fixes
+the one-hour deadline, including after its launch record disappears and only
+retained history names it. History retains the actual target; legacy references
+without that target cannot establish matching age. Missing or unreadable local
+capture leaves published comparison available, with unknown age. Completion
+and commit times never replace the receipt, nor does a fresh read start a new
+wait. Later first-parent CI and the existing walk limit remain independent
+ways to settle a no-run gap.
+
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in
 `~/.open-dough/dashboard/landed-ci-history.json`. A final resolution is never

@@ -219,3 +219,21 @@ or unopenable artifact remains an explained gap; final answers keep their
 provider-free reuse. Sharing this judgment preserves each execution mode's
 existing build selection and exact/equivalent/later provenance, and does not
 make history browsing acquire CI or add UI polling.
+
+A Landed revision whose push run does not exist yet also stays refreshable.
+The shared no-run wait ends when CI has a run at a later first-parent trunk
+revision, the existing 30-revision walk is exceeded, or the observation clock
+reaches one hour after its matching recorded landing. Local launch captures
+and retained history can supply that receipt time only when project, target,
+story and the resolved landed revision agree. The earliest matching receipt
+keeps the deadline fixed even when another capture arrives; a preparation or
+another execution revision cannot supply its age. Retained history includes
+the actual target and survives removal from the launch list. Older history
+without target metadata supplies no known age.
+
+Published comparisons remain readable when local capture is absent or
+unreadable. Unknown age cannot expire the wait: completion and commit times
+are different facts, and reading again starts no clock. CI and walk evidence
+can still settle the gap. Once the exact run appears, Check again or selecting
+the story again advances through queued/running evidence to its completed
+build, preserving the exact source and final-answer reuse.

@@ -115,7 +115,7 @@ for this shared judgment. Missing-run age remains the next slice's obligation.
 ### 2. Recover missing push runs using the landing's actual observation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Comparison read plus real Check again/reselection with controlled runs;
 matching history cases and controlled observation-clock deadline/bound cases.
 
@@ -160,15 +160,12 @@ fixture and journey, including consumers outside the initial selection.
 The initial regression selection is:
 
 ```sh
-caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-retry.spec.ts tests/intent/intent-ci-comparison-skipped.spec.ts tests/intent/intent-ci-comparison-cancelled-landing.spec.ts tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts tests/intent/intent-ci-comparison-fast-forward.spec.ts tests/intent/intent-ci-comparison-taken.spec.ts backend-tests/intent/landed-ci-history-pending.spec.ts backend-tests/intent/landed-ci-history-pending-proof.spec.ts backend-tests/intent/landed-ci-history-pending-sources.spec.ts backend-tests/intent/landed-ci-history-gaps.spec.ts
+caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-retry.spec.ts tests/intent/intent-ci-comparison-skipped.spec.ts tests/intent/intent-ci-comparison-cancelled-landing.spec.ts tests/intent/intent-ci-comparison-cancelled-landing-gaps.spec.ts tests/intent/intent-ci-comparison-fast-forward.spec.ts tests/intent/intent-ci-comparison-taken.spec.ts backend-tests/intent/landed-ci-history-pending.spec.ts backend-tests/intent/landed-ci-history-pending-proof.spec.ts backend-tests/intent/landed-ci-history-pending-sources.spec.ts backend-tests/intent/landed-ci-history-gaps.spec.ts backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts backend-tests/intent/intent-ci-comparison-answer-memory.spec.ts tests/intent/intent-ci-comparison-pending-proof.spec.ts backend-tests/intent/intent-ci-comparison-missing-run.spec.ts backend-tests/intent/intent-ci-comparison-receipt.spec.ts backend-tests/intent/landed-ci-history-comparison-run.spec.ts tests/intent/intent-ci-comparison-missing-run.spec.ts
 npm run typecheck:dashboard
 ```
 
 Add new focused specs to that literal selection; if SEED-286 has moved these
 owners, use its delivered replacement paths and keep their observed promises.
-New owners: `backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts`,
-`backend-tests/intent/intent-ci-comparison-answer-memory.spec.ts`, and
-`tests/intent/intent-ci-comparison-pending-proof.spec.ts`.
 Inspect the actual existing assertions before replacing any. Run adapter,
 history lifecycle/collection and proof-reader consumers when changed contracts
 reach them. A shared MakeMe change also needs its owning builder/Node tests and
@@ -245,4 +242,3 @@ Disposition: proved by slice 1: storyCiComparisonRetry.ts supplies a real later 
 Reported: slice 1 — "Implementation self-review found a run could appear between selecting no build and the shared judgment checking for its own run, making a stale negative look final."
 Story clause: "Pending evidence must not become a permanently remembered negative answer."
 Disposition: no user cost "Pending evidence must not become a permanently remembered negative answer.": baseCiGithubRevisionLookup.ts runsAt retains successful per-revision listing promises for the whole comparison; baseCiAdapterRevisionLookup.ts indexes one discovered snapshot. A newly appeared run cannot mix into either ongoing read. Failed GitHub listings produce unavailable and remain refreshable; existing selected regressions exercise that recovery. No duplicate wrapper or test is needed for this unreachable mixed-snapshot state.
-Commitment: C05

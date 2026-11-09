@@ -20,6 +20,7 @@ import {
 } from "./intentCiComparisonSlots.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { landedSlotResolution } from "./landedCiResolution.ts";
+import { landedReceiptTime } from "./landedCiReceipt.ts";
 
 export { performTakenComparison } from "./intentCiComparisonTakenResolve.ts";
 
@@ -157,12 +158,19 @@ export async function performDoneComparison(
   ]);
   const landedRevision =
     facts.mode === "trunk" ? facts.completion : facts.landing?.merge;
+  const receivedAt =
+    landedRevision === undefined
+      ? undefined
+      : await landedReceiptTime(source, facts.identity, landedRevision);
   const landedPending =
     landedRevision !== undefined &&
     (
       await landedSlotResolution(
         landedBuild,
-        { revision: landedRevision },
+        {
+          revision: landedRevision,
+          ...(receivedAt === undefined ? {} : { receivedAt }),
+        },
         `origin/${source.ref}`,
         { call, lookup },
       )
