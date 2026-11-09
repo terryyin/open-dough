@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-02, for the initial Intent browser.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-09, for shared Intent and landed CI timing history.
 
 Help a developer understand Development, the project's ongoing effort to shape
 the product, and inspect the evidence behind it. The current dashboard combines
@@ -42,11 +42,10 @@ it does not define a workflow state schema or authorize execution.
   complete navigation or animation system in the first increment.
 - Story Branch Mode can locate published execution on its recorded origin
   branch; Trunk Mode publishes progress on trunk.
-- The current dashboard presents Development through story planning, execution
-  progress, and local-session capabilities, beside a forthcoming
-  [Intent perspective](dashboard-development-intent.md#development-and-intent). The
-  Intent workspace follows the selected direction below; Structure is deferred.
-  These decisions describe proposed UX/UI, not delivered capabilities.
+- The dashboard presents story planning, execution progress, and local sessions
+  in Development, and test Purpose and Proof in
+  [Intent](dashboard-development-intent.md#development-and-intent). Structure is
+  deferred. The following sections describe the design direction for Intent.
 
 **Design hypotheses:** Other interaction, ordering, wording, and visual choices
 below remain revisable guidance alongside the linked implemented contracts.
@@ -108,6 +107,55 @@ The initial Purpose view is the static test-source file. Show actual source,
 including its maintained descriptions of expected behavior, rather than
 inventing a generated purpose narrative. The mechanism for identifying test
 locations remains open.
+
+### One Intent workspace from project to file
+
+Use the shared Intent frame as the basis for timing history. Its header tells
+the developer whether they are reading Project Intent or a selected story.
+Project Intent can be visited while a story remains selected. Returning restores
+the story's view, test selection, and reading place. Changing the test scope
+within Changed tests keeps the story and its comparison in view. A Done story's
+tree and evidence are anchored to its landing, while Project Intent shows its
+own published revision. [Current story Intent direction](dashboard-development-intent-story.md)
+
+Keep each level recognizable by its heading and path, with consistent labels
+and evidence ordering across the reading pane:
+
+| Where the developer is reading | What the timing history answers |
+| --- | --- |
+| Project Intent → **CI status** | Has CI wall time changed across recent trunk builds collected from dashboard-recorded landed executions? |
+| Done story → **CI comparison** | Where does this landing sit in that history, and how does it compare with earlier eligible builds? Keep the existing Baseline, Branch, and Landed evidence together. |
+| Done story → **Changed tests** → entry or folder **Summary** | How has measured test execution time changed in this scope through the story's landing? |
+| Done story → **Changed tests** → test file **Proof** | What did CI measure for this file through the landing? **Purpose** continues to show its source or diff. |
+
+### Read landed CI timing and follow up from Done
+
+Keep the history beside the existing evidence for the selected scope. Use a
+dated line with measured points and a clearly identified landing. Use CI wall
+time at project and story level, and test execution time in Summary and Proof.
+Label the cohort as dashboard-recorded landings, show the number of measured
+builds, and break the line where timing is unavailable. Label a confirmed skip
+that reuses a cached equivalent build with the source build's identity. Count
+that measurement once. Provide readable values and build links alongside the
+chart so its evidence is available with a keyboard, on a phone, and without
+relying on color.
+
+Show the moving average as a reference alongside the observed measurements.
+For a Done story, the reference uses comparable builds before its landing.
+Show the actual sample count, the difference in time and percent, and why a
+visible point was excluded. Give insufficient history its own explanation.
+The timing history reads the collected evidence as the developer browses.
+Existing live CI reads keep their explicit freshness and recovery cues.
+
+In Recently done, keep follow-up on the Done card. Show **CI rerun in progress**
+while the single automatic repeat is underway. If the repeat is still slow,
+use a red **Possible CI slowdown** indicator with text and a route to the
+comparison, where both attempts and their shared reference are visible. Show
+recovery and unavailable results in distinct words. The story remains Done
+throughout. Use the threshold and sample sizes in the mockups as illustrative
+values while refining the [landed CI timing stories](../.planning/seeds/SEED-285-landed-ci-timing-history.md).
+The [Architectural North Star](../.planning/NORTH-STAR.md#one-intent-workspace-with-landed-ci-evidence)
+describes evidence ownership and collection.
 
 ## Questions the Development perspective should answer
 
