@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-275_preserve-story-on-panel-close.json",
+      "identity": "SEED-275#preserve-story-on-panel-close",
+      "completedAt": "2026-11-09T02:09:52.198Z",
+      "blob": "21322a31bdaf198be64d8fbaf7d9b248658f9dbb"
+    },
+    {
       "fileName": "SEED-280_choose-claude-code-effort.json",
       "identity": "SEED-280#choose-claude-code-effort",
       "completedAt": "2026-11-09T00:23:40.332Z",
