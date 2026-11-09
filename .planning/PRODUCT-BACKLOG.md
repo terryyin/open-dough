@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 - [Settle trunk freshness before expensive proof and before delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof) — SEED-010#hold-delivery-on-freshness-before-expensive-proof ([plan](slice-plans/561-settle-trunk-freshness-before-proof/PLAN.md))
-- [Keep Done CI comparisons refreshable while landed evidence is pending](seeds/SEED-288-landed-ci-evidence-follow-ups.md#refresh-pending-landed-evidence) — SEED-288#refresh-pending-landed-evidence ([plan](slice-plans/558-refresh-pending-landed-evidence/PLAN.md))
 
 ## Backlog list
 

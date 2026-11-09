@@ -19,33 +19,46 @@ import {
   workflowOf,
 } from "./intentCiComparisonSlots.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
+import { landedSlotResolution } from "./landedCiResolution.ts";
+import { landedReceiptTime } from "./landedCiReceipt.ts";
 
 export { performTakenComparison } from "./intentCiComparisonTakenResolve.ts";
+
+type DoneComparisonResult = {
+  readonly answer: StoryCiComparisonAnswer;
+  readonly landedPending: boolean;
+};
 
 export async function performDoneComparison(
   source: PublishedSource,
   identity: string,
   signal: AbortSignal,
   checkedAt: string,
-): Promise<StoryCiComparisonAnswer | undefined> {
+): Promise<DoneComparisonResult | undefined> {
   const endpoints = await publishedStoryEndpoints(source, identity, signal);
   if (endpoints.kind === "absent") return undefined;
   if (endpoints.kind === "unavailable") {
     return {
-      kind: "unavailable",
-      identity,
-      explanation: endpoints.explanation,
-      checkedAt,
+      landedPending: true,
+      answer: {
+        kind: "unavailable",
+        identity,
+        explanation: endpoints.explanation,
+        checkedAt,
+      },
     };
   }
   const { facts } = endpoints;
   const context = await lookupContext(source, signal, facts.branch);
   if ("unavailable" in context) {
     return {
-      kind: "unavailable",
-      identity,
-      explanation: context.unavailable,
-      checkedAt,
+      landedPending: true,
+      answer: {
+        kind: "unavailable",
+        identity,
+        explanation: context.unavailable,
+        checkedAt,
+      },
     };
   }
   const { call, lookupOrGap } = context;
@@ -53,16 +66,19 @@ export async function performDoneComparison(
   if (isUnreadJudgment(lookupOrGap)) {
     const gap = gapFromUnread(lookupOrGap);
     return {
-      kind: "comparison",
-      phase: "done",
-      identity: facts.identity,
-      mode: facts.mode,
-      completion: facts.completion,
-      storyStart: facts.storyStart,
-      checkedAt,
-      baseline: gap,
-      branch: facts.mode === "trunk" ? trunkBranchNotApplicable : gap,
-      landed: gap,
+      landedPending: true,
+      answer: {
+        kind: "comparison",
+        phase: "done",
+        identity: facts.identity,
+        mode: facts.mode,
+        completion: facts.completion,
+        storyStart: facts.storyStart,
+        checkedAt,
+        baseline: gap,
+        branch: facts.mode === "trunk" ? trunkBranchNotApplicable : gap,
+        landed: gap,
+      },
     };
   }
   const lookup = lookupOrGap;
@@ -140,16 +156,38 @@ export async function performDoneComparison(
     asComparisonSlot(branchBuild, lookup),
     asComparisonSlot(landedBuild, lookup),
   ]);
+  const landedRevision =
+    facts.mode === "trunk" ? facts.completion : facts.landing?.merge;
+  const receivedAt =
+    landedRevision === undefined
+      ? undefined
+      : await landedReceiptTime(source, facts.identity, landedRevision);
+  const landedPending =
+    landedRevision !== undefined &&
+    (
+      await landedSlotResolution(
+        landedBuild,
+        {
+          revision: landedRevision,
+          ...(receivedAt === undefined ? {} : { receivedAt }),
+        },
+        `origin/${source.ref}`,
+        { call, lookup },
+      )
+    ).kind === "pending";
   return {
-    kind: "comparison",
-    phase: "done",
-    identity: facts.identity,
-    mode: facts.mode,
-    completion: facts.completion,
-    storyStart: facts.storyStart,
-    checkedAt,
-    baseline,
-    branch,
-    landed,
+    landedPending,
+    answer: {
+      kind: "comparison",
+      phase: "done",
+      identity: facts.identity,
+      mode: facts.mode,
+      completion: facts.completion,
+      storyStart: facts.storyStart,
+      checkedAt,
+      baseline,
+      branch,
+      landed,
+    },
   };
 }

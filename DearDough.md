@@ -210,6 +210,16 @@ Former local code: DD-348. [Meaning, evidence and response](docs/maintainer/find
 <a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
+
+### Occurrences
+- Execution: SEED-288#refresh-pending-landed-evidence (plan 558; first implementation `7ba5764de6ee78801f9fe4fd8132f1d4cfa6de37`)
+  - Timestamp: unknown (2026-11-09 UTC execution; exact compaction-event time unavailable)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance)
+  - Evidence: coordinator/refactor1 conversation; current-diff 250-line check included the 313-line executable plan. The coordinator moved resume/acceptance evidence into linked source-review.md and compacted preparation prose. An intermediate heading acquired a leading space; story-obligations check returned entryCount 0 and C05's G3 missing until the heading was restored. Accepted plan/records are recoverable at `7ba5764de`.
+  - Observed effect: the file-size pass triggered planning-record rearrangement and a transient structured-obligation refusal before delivery. All obligations and proof were preserved and the check passed after repair.
+  - Inference: the generic line cap included a structured execution record; the malformed heading was the coordinator's editing error, not required by guidance. Distinguishing record preservation from code-size cleanup would avoid this pressure without weakening product refactoring.
+
 ## ODF-377 — Source-only review launched without the full seed examples
 Former local code: DD-364. [Meaning, evidence and response](docs/maintainer/findings/ODF-377.md).
 ## ODF-378 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
@@ -248,6 +258,16 @@ Former local code: DD-402. Former local code: DD-395 (`6c354905e`), renumbered i
 Former local code: DD-403. [Evidence and current response](docs/maintainer/findings/ODF-403.md).
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
+
+### Occurrences
+- Execution: SEED-288#refresh-pending-landed-evidence (plan 558; first implementation `7ba5764de6ee78801f9fe4fd8132f1d4cfa6de37`)
+  - Timestamp: unknown (2026-11-09 UTC execution; exact trace-event time unavailable)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance)
+  - Evidence: coordinator conversation and `/tmp/seed288-slice2-refactor-return.md`; final slice-2 trace `/tmp/seed288-slice2-refactor-consumer-trace.md` and dispositions contain 624 located files, including 371 new matches caused only by dirty `PLAN.md`; slice-1 trace contained 651 per-file dispositions.
+  - Observed effect: implementation/refactor owners repeatedly dispositioned unrelated planning, guidance and historical paths alongside meaningful runtime consumers. All affected proof was retained; no missed consumer was established.
+  - Inference: automatically derived planning basenames materially enlarge a bounded dashboard trace even when explicit effect terms are supplied. The second refactor reported about ten minutes total, but isolated trace time or token cost was not measured. Preserve indirect proof while reducing generic derived-path noise.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
 ## ODF-405 — Full local suite wall includes waiting for repository-wide admission

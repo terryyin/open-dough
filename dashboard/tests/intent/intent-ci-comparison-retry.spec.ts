@@ -1,13 +1,9 @@
-// Recovering an unavailable done-story CI timing comparison in the same
-// dashboard process: an answer with an unavailable slot is not remembered
-// (../../server/intentCiComparisonAnswers.ts), so the next read, by
-// reselecting the story or by its Check again
-// (../../src/IntentCiComparison.tsx), lists the endpoint afresh and reads the
-// endpoint proofs again; once final, reading again asks GitHub nothing. A
-// whole-answer gap, such as unrecoverable published history
-// (SEED-244#compare-story-ci-timing-changes), and a failed whole read
-// recover the same way. Other gap journeys live in
-// ./intent-ci-comparison-gaps.spec.ts.
+// Same-process Done comparison recovery through reselection and Check again
+// (../../src/IntentCiComparison.tsx): unavailable slots, whole-answer gaps
+// and failed reads stay live; final answers and proofs reuse without GitHub
+// (../../server/intentCiComparisonAnswers.ts). Other gap journeys live in
+// ./intent-ci-comparison-gaps.spec.ts. The two 60-second cases below retain
+// SEED-286's pending `intent-ci-comparison-two-read-journeys` optimization.
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
@@ -42,20 +38,15 @@ test("a Baseline listing that failed once is listed again on the next read, then
   page,
   origin,
 }) => {
-  // Two full comparison reads, each walking every head_sha listing through
-  // the fake `gh`; see the pending optimization candidate
-  // `intent-ci-comparison-two-read-journeys`.
   test.setTimeout(60_000);
-  const { baseline, listings } = await publishTrunkStoryWithBaseline(
-    page,
-    origin,
-    (listing) =>
+  const { baseline, listings, builtPastCompletion } =
+    await publishTrunkStoryWithBaseline(page, origin, (listing) =>
       listing === 1
         ? noConnection
         : actionsRunsAnswer([
             wall(baseline, 200, "2026-11-05T11:00:00Z", "2026-11-05T11:03:00Z"),
           ]),
-  );
+    );
 
   const failed = await selectDoneStoryForCiComparison(page);
   await expect(baselineCell(failed.panel)).toContainText(
@@ -68,6 +59,11 @@ test("a Baseline listing that failed once is listed again on the next read, then
   const recovered = await selectDoneStoryForCiComparison(page);
   await expect(baselineCell(recovered.panel)).toContainText(shortSha(baseline));
   await expectSourceCue(baselineCell(recovered.panel));
+  const landed = recovered.panel
+    .locator(".intent-ci-comparison-identity")
+    .nth(2);
+  await expect(landed).toContainText("No build");
+  await expect(landed).not.toContainText(shortSha(builtPastCompletion));
   const listedToRecover = listings.baseline;
   expect(listedToRecover).toBeGreaterThan(1);
 
@@ -82,9 +78,6 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   page,
   origin,
 }) => {
-  // Two full comparison reads, each walking every head_sha listing through
-  // the fake `gh`; see the pending optimization candidate
-  // `intent-ci-comparison-two-read-journeys`.
   test.setTimeout(60_000);
   const setup = await publishComparedStoryBranch(page, origin);
   let asked = 0;

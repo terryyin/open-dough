@@ -5,6 +5,7 @@
 // story whose Baseline listing a test answers.
 
 import type { Locator, Page } from "@playwright/test";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   authenticatedReadEndpoint,
   readWaitLimitMs,
@@ -106,9 +107,22 @@ export async function publishTrunkStoryWithBaseline(
   push(origin.project);
   await completedPublishedStory(origin, "trunk");
   advanceCompletedTrunk(origin);
+  const published = git(origin.origin, "rev-parse", "main");
+  // The terminal-gap cases below test Baseline recovery and final reuse.
+  // CI has built past completion, settling its missing run independently of
+  // receipt age. This later revision cannot enter the completion ancestor walk.
+  const laterRun = makeMe.aCiRun
+    .with({
+      headSha: published,
+      id: 299,
+      attempt: 1,
+      status: "completed",
+      conclusion: "success",
+    })
+    .please();
   const committed = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: git(origin.origin, "rev-parse", "main"),
+    revision: published,
     repository: "terryyin/open-dough",
     follows: true,
     realHistory: true,
@@ -119,9 +133,10 @@ export async function publishTrunkStoryWithBaseline(
       return actionsWorkflowAnswer();
     const headSha = listedHeadSha(argv);
     if (headSha === undefined) return undefined;
+    if (headSha === published) return actionsRunsAnswer([laterRun]);
     if (headSha !== baseline) return actionsRunsAnswer([]);
     listings.baseline += 1;
     return baselineAnswer(listings.baseline);
   });
-  return { baseline, listings };
+  return { baseline, listings, builtPastCompletion: published };
 }

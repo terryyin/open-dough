@@ -5,7 +5,9 @@
 // identities are refused here before any `gh` or Git call. A done story's
 // final answer is remembered for this process
 // (`./intentCiComparisonAnswers.ts`); Taken answers, unavailable answers and
-// answers with unavailable slots are read afresh.
+// answers with unavailable slots are read afresh. Done resolution also carries
+// the shared Landed pending judgment separately from the public answer, before
+// projection drops internal proof detail; pending Landed answers stay live.
 
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
@@ -54,7 +56,7 @@ export async function performIntentCiComparisonRead(
     checkedAt,
   );
   const answer =
-    done ??
+    done?.answer ??
     (await performTakenComparison(
       source,
       read.identity,
@@ -62,6 +64,6 @@ export async function performIntentCiComparisonRead(
       checkedAt,
     ));
   signal.throwIfAborted();
-  rememberCiComparisonAnswer(key, answer);
+  if (done?.landedPending !== true) rememberCiComparisonAnswer(key, answer);
   return answered(answer);
 }
