@@ -148,7 +148,7 @@ unmeasured until slice 2.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: The maintainer assesses the selected historical attempts against the
 same candidate and controlled changes with the documented manual baseline and
@@ -398,3 +398,189 @@ G3 correction proof: `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/ad
 Independent refactor accepted: `/root/refactor_slice1` returned `## REFACTOR COMPLETE`. Product seams are report orchestration, full input comparison and disposable artifact assessment; test harness and gap cases are non-discovered helpers behind one test entry. Root inspected the moved call paths, MakeMe setup and observing assertions. CLI/report/API and G3 semantics stayed unchanged; a surviving deepEqual covers every manifest row after removal of one redundant count assertion. The artifact-declaration loop predates refactoring (retained preimage `/tmp/native-admission-reuse-before-refactor.mjs`). Command `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/admission-reuse-refactor-times.txt caffeinate -s -i bash scripts/test.sh tests/support/native-admission-reuse.test.mjs` reached terminal pass, 12.7s. Other four accepted proof boundaries and MakeMe capture import closure stayed unchanged. `/tmp/admission-reuse-refactor-consumer-trace.md` disposes all 392 located consumers plus the moved entry paths. Planning/source-review changes are records-only; the maintained runner timing catalogue retains its required complete data contract. No generation or project-summary mutation applies. Source freshness was unchanged at `9f66f209949beaf12702980df2fe20141c74d0b9`; incoming changes since the claim affected only backlog/agent claims, with no accepted fixture-identity sibling product change.
 
 First guarded fresh preparation stopped at formatting with nine lint errors; no commit or publication occurred. The same independent refactor owner corrected parameter mutation by returning local comparison/reassessment result objects with copied gap arrays, resolved path arguments into local constants, and removed an unused import. Root inspected the returned helper calls, gap propagation and G3 branch. Renewed `## REFACTOR COMPLETE` accepted. `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/admission-reuse-refactor-mechanical-times.txt caffeinate -s -i bash scripts/test.sh tests/support/native-admission-reuse.test.mjs` reached terminal pass (13.5s); all seven cases and three historical-source subcases remain selected. Other four boundaries stay valid. `/tmp/admission-reuse-refactor-mechanical-consumer-trace.md` disposes all three located consumers. Source freshness was unchanged at `f23b50e3d23ec150e4236c34d24bb84911229298`; subsequent incoming paths were planning/agent records, with no identity-sibling product change.
+
+Slice 1 delivery accepted: `5dcb5f10b5ef926c572f828921f8bf0a4b58369d` on `origin/refs/heads/codex/pilot-native-evidence-reuse-for-git-publication`, suffix base `ca082e09ffec4b551a8389265305f469de2208a5`, no reconciliation. Guarded fresh formatting and agent commit including hooks succeeded, and the exact accepted SHA is registered on the retained observer `/tmp/dough-ci-501/watch-GaynL9` (reused). Working tree was clean before slice 2. This is the next increment's previously published base. Required CI remains directed-throttled through `2026-11-09T01:08:56.791Z`.
+
+## Slice 2 paired historical pilot
+
+The actual aid from accepted slice 1 revision
+`5dcb5f10b5ef926c572f828921f8bf0a4b58369d` compared all four selected original
+attempts against the same fixed candidate as the manual baseline,
+`ca082e09ffec4b551a8389265305f469de2208a5`. One owned disposable detached
+worktree supplied that source snapshot; it stayed clean and was removed after
+measurement. The execution checkout and branch did not change. No mutable
+installation was copied, and no native host was launched.
+
+Executed command, from this prepared execution checkout with Bash 5 first:
+
+```sh
+PATH=/opt/homebrew/bin:$PATH node /tmp/admission-assisted-pilot.mjs
+```
+
+Terminal result: pass, exit 0. The script invokes the maintained CLI once per
+selected attempt, using `--attempt <original-corpus-attempt> --candidate
+<disposable-ca082e09f-checkout> --context <host-only-json>`. The exact argument
+arrays, per-result reports and SHA-256 pre/post digests are retained in
+`/tmp/admission-assisted-pilot.json`; the script is the repeatable procedure.
+Those are disposable active evidence, not a permanent registry. The CLI itself
+materialized each compressed events stream through the existing reader and
+removed its disposable attempt without changing the original record.
+
+Conditions match the manual baseline: same four attempts, same candidate source,
+same relevant source Git objects, same host per result, same candidate assessor,
+no supplied candidate version/model/settings or prompt hash. No controlled
+candidate mutations were executed in either historical comparison. Slice 1's
+release/body, admission, hook and discovery variations remain separate
+controlled deterministic examples. The script independently asserted identical
+changed, removed, unrecorded and source-added path sets against the manual
+baseline, as well as both full manifest row counts, each current assessment
+pass, each host match, unknown runtime/prompt correspondence and named gaps.
+Every original corpus file's SHA-256 matched both the baseline preimage and
+this command's before/after image. No record fields were backfilled.
+
+| Original attempt | Retained/current inputs | Changed/removed | Unrecorded (source-added subset) | Manual ms | Assisted ms | Current assessment | Individual reuse conclusion |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| codex/publication/admission-investigation/20261108T072654-1f30 | 125/406 | 13/1 | 282 (22) | 3445 | 447 | pass | pending: historical installation/runtime correspondence insufficient |
+| claude/publication/admission-investigation/20261108T072449-17c1 | 125/406 | 13/1 | 282 (22) | 3499 | 419 | pass | pending: historical installation/runtime correspondence insufficient |
+| cursor/publication/admission-investigation/20260929T035934-4301 | 15/406 | 12/0 | 391 (191) | 5875 | 432 | pass | pending: historical installation/runtime correspondence insufficient |
+| cursor/publication/admission-investigation/20261108T073015-410d | 125/406 | 13/1 | 282 (22) | 4690 | 441 | pass | pending: historical installation/runtime correspondence insufficient |
+
+`differences.complete: true` here means the retained/current manifests and
+historical source-tree comparison were read successfully. It does not turn the
+unrecorded historical installed hashes into known facts or establish reuse.
+Source-added inputs remain a subset of inputs unrecorded by the historical
+installation capture, with source provenance rather than installed-byte proof.
+
+### Impact reasons for the actual changed input groups
+
+The bounded independent `/root/slice2_pilot/impact_review` review inspected
+historical source `812450db692cd243005b355469775dcc5d15f28a` (November 8) and
+`a99c67f7823b6c0f219d57748f3d8532d8723354` (older Cursor) against the fixed
+candidate using targeted `git diff` and `git show <revision>:<path>`. Its
+source observations qualify the groups below; they do not reconstruct an
+unrecorded installation or certify semantic independence by path membership.
+
+- **Harness, fixture and builder changes:** the November 8 source changes
+  replace `createQueuedTrunk` with explicit MakeMe repository facts and
+  materialization. Candidate `tests/support/git-publication-native-admission-fixture.mjs`
+  lines 35–70, `startup-command-files.mjs` lines 13–54,
+  `queued-repository.mjs` lines 113–143 and changed `repositoryTestData.mjs`
+  determine Ready stories, durable command/setup files, probe history and the
+  marker. These affect admission preconditions, first-probe observation and
+  human-edit preservation; being test helpers cannot make them irrelevant.
+  Incidental imported builder domains may be unrelated, but their import-closure
+  presence does not establish equivalence of this changed materialization path.
+- **Helpers, assessor and admission guidance:** November 8 changes include
+  evidence identity expansion/failure propagation (`git-publication-native-evidence.sh`
+  lines 13–49/145 and `git-publication-native-run.sh` line 235) and the
+  done-record reader refactor in `product-backlog-complete.mjs`. Those explain
+  capture/support responsibility changes without themselves proving a changed
+  admission requirement. Older Cursor additionally reaches anchored observation
+  parsing (`git-publication-native-assess.sh` line 18) and changed admission
+  guidance (`admit-accepted-work.md` lines 37–84) on identity allocation,
+  publication withdrawal, human-edit preservation and done-identity refusal.
+  Those changes concern this claim/preservation journey. A current pass supports
+  compatibility of today's assessment with each retained observation; it is
+  narrower than proving current native admission behavior.
+- **Payload, discovery and hooks:** November 8 source comparison has unchanged
+  skill descriptions/bodies and hook fragments, but 237 payload inputs lack
+  retained historical hashes. Source equality therefore cannot certify the
+  installed discovery surface. Older Cursor source changes include Execute
+  Plan's description/body and added skills; candidate `src/skills/dough-execute-plan/SKILL.md`
+  lines 86–165 changes pre-start guidance and published-claim conditions.
+  Applicable hooks invoke installed scripts outside direct admission imports.
+  A Claude-only added async Stop hook supplies no Cursor invalidation by
+  itself. Discovery and the result's own host hooks stay explicit review
+  questions even where a direct admission script hash is unchanged.
+- **Installer and release:** candidate
+  `git-publication-native-fixture-identity.sh` lines 112–138 preserves all
+  installer helpers, VERSION/CHANGELOG, declared payload and hook inputs.
+  November 8's 17 installer inputs and two release files are unrecorded.
+  Source installer/hook code is unchanged there, while source release metadata
+  changes `0.3.91` to `0.3.92` with its matching changelog. That explains the
+  release source change, but cannot supply missing installed bytes. Older
+  source changes also alter installation request/resolution, release validation
+  and hook merge policy (`open-dough-install-payload.sh` lines 46–51 and
+  `open-dough-register-hook-events.mjs` lines 113/151), which determine installed
+  guidance and registrations and cannot be ignored.
+- **Removed input:** November 8's removed `queued-ready-stories.mjs` formerly
+  wrote Ready A/B stories, plans and backlog; the replacement is explicit
+  repository materialization through `queued-repository.mjs`. The responsibility
+  move and intended starting facts are explained, rather than silently dropped.
+  Source inspection still does not prove historical installed output equality.
+
+For inputs whose retained hash is unchanged, that hash and the passing current
+assessment preserve the narrower captured-input/observed-history facts. They
+cannot establish that the whole unchanged admission requirement is still covered
+on the candidate when necessary installation/runtime facts are missing. Thus
+none of these groups is treated as automatically irrelevant, and no unsupported
+eligible judgment is made for these real records.
+
+### Each historical judgment stays separate
+
+- **Codex November 8:** pending on its own evidence. Its 125 hashes leave 282
+  candidate inputs unrecorded; the original user prompt and model/runtime init
+  are absent. Record version `codex-cli 0.167.0` is a retained fact, not evidence
+  of candidate runtime equality. Current pass does not supply the missing
+  prompt, installation or runtime correspondence.
+- **Claude November 8:** independently pending with its own 125/406 capture.
+  Existing stream recovery supplies `claude-opus-5-5`, version `2.1.319`,
+  `bypassPermissions` and limited settings with stream provenance; those facts
+  are not written into its record and do not establish candidate equivalence.
+  Its original user prompt and complete installed/runtime correspondence remain
+  missing despite a separate current pass.
+- **Cursor September 29:** independently pending with only 15 hashes and 391
+  unrecorded candidate inputs. Existing baseline stream inspection supports
+  the original prompt hash and today's generated prompt at retained coordinates.
+  Record version `2026.09.28-64d2043` is known, but the candidate version/settings
+  are not supplied and `Auto` does not name the resolved model. Prompt support
+  cannot repair installation/runtime uncertainty.
+- **Cursor November 8:** independently pending with its own 125/406 capture,
+  supported prompt correspondence at retained coordinates, retained version
+  `2026.11.05-86047df`, and unresolved `Auto`/candidate runtime. The older
+  Cursor result supplies none of this attempt's missing facts; neither its
+  pass nor its richer or sparser fields are pooled across attempts.
+
+Every record names missing `stderr.log`; this is an explicit artifact gap,
+without asserting that it alone invalidates admission. The CLI's host-only
+context deliberately leaves prompt correspondence unknown, including Cursor.
+The separate already-observed Cursor prompt fact above retains its stream/
+generator provenance; it does not silently fill caller context or historical
+fields. Unknown conditions are not equality. Further provenance recovery
+stopped because the available artifacts cannot settle the necessary installed
+and candidate-runtime gaps. These pending conclusions complete the authorized
+pilot; they are not an unperformed fresh native requirement in this story.
+
+### Cost and outcome
+
+Comparison commands total 1.739s assisted versus 17.509s manual in this single paired observation. Disposable candidate setup took 0.568s separately. The instrumented assisted execution/post-output review window was `2026-11-09T00:30:21.622Z` to `2026-11-09T00:32:56.015Z` (154.393s inclusive wall elapsed).
+
+The assisted window starts after uninstrumented source/baseline orientation;
+that orientation is an incurred cost whose elapsed/active effort is unknown.
+The manual 144.333s window included orientation. Parallel impact review,
+process scheduling, prior exposure, source-cache/setup differences and output
+inspection further limit comparison. Neither window measures human active
+review effort, and their mismatched scopes prohibit a review-time ratio or
+speedup claim. The observed bookkeeping time reduction does not establish
+lower total review effort or better judgments: both methods reached the same
+conservative four pending results.
+
+The pilot also incurred implementation and independent refactor/review cost,
+including fixture/setup repairs, a historical-read completeness correction and
+lint-driven structural repair. Maintaining the CLI/report, identity-writer and
+assessor integration, shared record builder and focused tests adds future cost.
+Those costs have not been shown to pay back in this cohort. No native duration
+was measured or invented; there is no observed native-run speedup or established
+worthwhile total-effort improvement.
+
+Four retained records across three hosts were opportunities to assess, not four
+independently avoidable reruns. Eligible historical results: zero. Native runs
+performed: zero. Demonstrated native runs justified as avoided: zero. Predicted
+savings from a future sufficient record remain a hypothesis, separate from
+slice 1's controlled eligibility examples. The negative/inconclusive result is
+valid under the preselected evaluation basis and ADR 0010; it does not authorize
+expanding this pilot, capturing a fresh native baseline or skipping a run.
+Current rule and limits already live in `tests/native-admission-reuse.md`;
+spent measurements follow ordinary wrap-up rather than a permanent registry.
+
+Slice 2 accepted by coordinator: inspected the literal pilot procedure, expected path sets retained before implementation, source snapshot identity and clean/remove assertions, independent original-file digest checks, output facts, group reasons and four distinct pending judgments. No unsupported native/human-effort/savings claim is accepted. Pending historical applicability is the intended pilot outcome, not missing implementation. Delivery disposition: records-only (plan and source-review acceptance), so no new refactor pass or test rerun; the actual four CLI observations are terminal proof. No generated output or separate project summary applies.
