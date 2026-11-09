@@ -244,6 +244,23 @@ default disposition. The seven record constants render byte for byte as
 before, the focused candidates selections ran 21 passed and their reached
 consumers 36 passed, and the final consumer suites ran 303 passed.
 
+## Execution complete
+
+Product advice:
+- The remaining SEED-261 conversions (GitHub Actions, CI adapter and CI
+  proof data) re-type shared fixtures too. After each trunk merge, search the
+  new uses of every re-typed export: a template literal accepted a built
+  settings object here, and typecheck and lint passed (DD-474). Whether to
+  enable ESLint `restrict-template-expressions` is a developer choice.
+- Heavy journeys still exceed the 30 s default test timeout locally at load
+  20+ with other suites running: the two-read CI comparison journeys
+  (`intent-ci-comparison-cancelled-landing-gaps` :81 and :130,
+  `intent-ci-comparison-retry` :41 and :77, the summary comparison journeys)
+  and `story-review-one-shot-choice-refresh.spec.ts:86` (four real launches
+  before the page opens; 26.5 s in hosted CI per DD-445). Whether these tests
+  get a per-test timeout, a cheaper arrangement, or a Test Optimization
+  Candidate entry is a developer decision.
+
 ## Readiness review
 
 Plan refinement was not needed: each slice has one consuming boundary and
