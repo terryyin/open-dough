@@ -115,21 +115,60 @@ save reports without changing either performance budget.
 
 **Identity:** SEED-289#match-hosted-fonts-in-ci-container
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/564-match-hosted-fonts-in-ci-container/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fae3beae79f8cfcb8b0a07ca9bf3988fe97af9995cfb76a6a94965e0d1b53d78","plan":"c71b0150d95f3e46780fc1d8c19ce61b958f833c2ef37f28266f97bdf09ced4e"}}
 ```
 
-- **For / why.** An agent checking a layout-measuring dashboard spec in
-  `scripts/ci-container.sh` gets the hosted runner's result before publishing.
-- **Evaluation.** In the container, the `intent-ci-proof.spec.ts:150`
-  narrow-width check measures the hosted widths: it fails on the two
-  pre-repair revisions DD-435 records (parents of `4ad55b56d` and of
-  `68e5f52b3`, without the spec's Verdana override) and passes on current
-  trunk. `tests/ci-container.sh` checks the font set against the hosted
-  runner's.
-- **Boundary.** Whether to remove the per-spec Verdana override once the
-  container matches is decided in refinement. Other hosted-only differences
-  stay out of scope.
-- **Value / learning.** Removes a recurring CI-only failure class for each new
-  narrow-width check.
-- **Safe stopping point.** The image change alone, with its check, is
-  complete.
+**Goal.** Maintainers and agents checking font-dependent dashboard layout in
+`scripts/ci-container.sh` see the hosted Ubuntu runner's fallback-font layout
+before publishing. The diagnostic image should expose the two narrow-width
+failures in [DD-435](../../ProjectFindings.md#dd-435), rather than require
+each new layout spec to supply a wider substitute font.
+
+**Scope.**
+
+- Supply the hosted `ubuntu-24.04` runner's font families in the diagnostic
+  image, with the normal dashboard font stack resolving to the hosted
+  fallback. Compare against an identified hosted image's published font
+  inventory; package presence alone does not establish browser equivalence.
+- Demonstrate both DD-435 failures on their pre-repair revisions, without a
+  spec font override, and a passing narrow-width journey on current trunk
+  under the same diagnostic font setup. Observe font selection and overflow,
+  so an unrelated historical failure cannot count as reproduction.
+- Extend `tests/ci-container.sh` to protect the hosted font-set contract and
+  document its source and refresh procedure. Keep font changes in the image
+  recipe so they invalidate its existing cache key.
+- Retain the existing Verdana overrides: they still exercise wider text on
+  native macOS. Container acceptance separately observes the application's
+  normal font stack, without those overrides. Removing them is not needed
+  to deliver the image correction.
+- Preserve the diagnostic helper's existing invocation, native architecture,
+  runtime/path refusals, user identity, checkout mounts, and isolated npm
+  volumes. Normal local tests and hosted CI continue using their native
+  environments.
+- Other hosted-only differences, architecture emulation, screenshot or
+  pixel-identical rendering guarantees, dashboard CSS repairs, and the
+  test-deadline sibling are outside this increment. Naturally equivalent
+  layouts need not be rejected for harmless rendering differences.
+
+**Key examples.**
+
+1. With the diagnostic image's hosted fonts and the dashboard's normal font
+   stack, the narrow-width check on `0332f824ae60b9741732ba2c83e0db505645a805`
+   (parent of `4ad55b56d`) exposes DD-435's sideways overflow. This revision's
+   spec is `dashboard/tests/intent-ci-proof.spec.ts`.
+2. The same check on `d146a05d95f62810da79bf653e5f0f98fa58fefc` (parent of
+   `68e5f52b3`) exposes the later sortable-header overflow, with no injected
+   Verdana. Its spec is `dashboard/tests/intent/intent-ci-proof.spec.ts`.
+3. Current trunk's repaired table passes the narrow and zoomed journey with
+   the normal fallback in the font-corrected container; the retained Verdana
+   regression also passes. A maintainer need not change the next layout spec
+   to get that default font environment.
+4. Removing a required hosted font from the image recipe fails the maintained
+   font contract. Updating that recipe builds a differently tagged image,
+   while the normal cached run and the existing refusal/isolation contracts
+   continue working.
+
+The completed image change, its contract check, and its observed historical
+and current browser results are a useful safe stopping point. Runtime
+availability and actual fallback equivalence need an early execution probe;
+preparation does not claim those browser results have already been observed.
