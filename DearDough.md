@@ -7,8 +7,20 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 477. Removed numbers are never reused.
+- Highest allocated local number: 478. Removed numbers are never reused.
+- Recovery: `f184ecd2b:DearDough.md` holds the four ODF-396 occurrences removed on 2026-11-09 (SEED-261 plan 508, SEED-262 plan 512, SEED-279 plan 544, SEED-275 plan 541).
 - Occurrence history is partial.
+## DD-478 — Comment-only edits put oversize files in the refactor gate, and the coordinator asked for an exception instead of a redesign
+Slice 6 added accepted-cost and pointer comments to five dashboard specs and one doc that already exceeded 250 lines. The refactor pass stopped on its file-size gate after implementation, and the coordinator asked Terry for a one-slice exception (citing ODF-152 and earlier allowances). Terry refused: no exceptions and no simple split, but a design-led reorganization into cohesive smaller units.
+
+### Occurrences
+- Execution: SEED-284#optimize-tests-from-ci-proof (plan 552-optimize-tests-from-ci-proof; first related implementation commit `304598724bbd9a02d6e1b41120e3401757987bdf`)
+  - Timestamp: unknown (2026-11-09, slice 6 refactor stop)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `766593b4f`)
+  - Evidence: the refactor handoff ended `REFACTOR JIDOKA STOP` naming six files; the exception question was rejected with that direction; a design-analysis and implementation agent (about 1.1M tokens) then moved shared watcher observations, the fault gate and the origin read guard into support modules, moved page-free specs to `backend-tests/`, and split the value review by kind of decision, delivered in `625936070`.
+  - Inference: a brief that touches an already-oversize file could plan its cohesive reorganization up front, instead of the gate discovering it after implementation.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
 ## ODF-059 — Interrupted agent handoffs <a id="odf-059"></a>
@@ -349,6 +361,12 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Before accepted slice 1 `5dcb5f10b`, guarded fresh delivery returned `preparation-failed`, `operation: formatting`, with nine ESLint errors: `no-param-reassign` in the comparison entry and extracted identity/assessment helpers, and an unused fixture import. Both implementation and independent refactor briefs forbade hook-owned lint; their passing focused proof preceded this first lint feedback. The plan retained the refused operation and renewed refactor return.
   - Observed effect: Commit/publication were withheld. The same refactor owner returned local result objects, resolved paths into local constants and removed the import; the affected CLI suite passed again (13.5s) before the same guarded preparation published. The gate worked, but one repair/proof/delivery loop followed the completed refactor.
   - Inference: Same established late-feedback problem; this occurrence does not measure the counterfactual saving of a read-only lint check.
+- Execution: SEED-284#optimize-tests-from-ci-proof (plan 552-optimize-tests-from-ci-proof; first related implementation commit `304598724bbd9a02d6e1b41120e3401757987bdf`)
+  - Timestamp: unknown (2026-11-09, slice 2 and slice 7 part A delivery)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `766593b4f`)
+  - Evidence: guarded delivery's formatter refused an unused `_` map parameter (slice 2, `ci-proof-read-adapter.test.mjs`) and an unused `_legacy` binding (slice 7 part A, `ciProofSummaryTestData.mjs`) after the refactor passes had reported Prettier-clean files; each needed a coordinator fix and retry.
 
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
@@ -463,32 +481,6 @@ Former local code: DD-403. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
 
 ### Occurrences
-- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
-  - Timestamp: unknown (slice 1 acceptance before `8ea16d198` on 2026-11-08)
-  - Tool: Codex
-  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
-  - Evidence: Slice 1's consumer trace (plan 508, slice 1 proof) included derived `PLAN.md` and `source-review.md` basenames with test changes. The coordinator's full read reported 920 lines and 54,151 original tokens and truncated. Sampled tail entries were unrelated planning and maintainer records.
-  - Observed effect: The coordinator had to inspect bounded ranges and the actual fixture importers separately. This evidence establishes excess trace output, with no missed consumer attributed to that output.
-- Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
-  - Timestamp: unknown (slices 1 and 2 on 2026-11-08)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.91 (installed .claude/skills/dough-update/VERSION at the established Take `db42e79a7`)
-  - Evidence: The slice 1 implementation agent reported that `consumer-trace.mjs --base db42e79a7 --term …` was very large and noisy because every changed path's basename (PLAN.md, source-review.md, each spec) became a term, and reran with explicit terms only. The slice 2 agent dropped `--base 0bcf76c37` for the same reason.
-  - Observed effect: Two implementation agents each discarded a `--base` trace and reran with explicit `--term` values; the delegation command form names `--base` as the way to run it.
-- Execution: SEED-279#observe-stale-reclaimer-handoff (plan 544; first implementation `cc05fff99ee7530081b74ae5278e4335e571ff53`)
-  - Timestamp: unknown (2026-11-09, dashboard launch `98bf3456-b3a4-428c-8b90-1b55147b4e00`)
-  - Tool: Codex
-  - Open Dough release: 0.3.92 (checkout-bound .agents/skills/dough-update/VERSION)
-  - Evidence: `/tmp/seed279-consumer-trace.md` derives PLAN.md/source-review.md, node:timers/promises and start-0 terms alongside the admission seam. The implementation return supplied 494 dispositions; the coordinator's combined trace read reported 13,829 original tokens and truncated.
-  - Observed effect: Most matches needed unrelated/historical exclusions and the affected caller rows required a separate bounded retrieval. No missed consumer or general timing cost established.
-- Execution: SEED-275#align-story-tabs-records (plan 541; first implementation `0d0ac0a1f652ff3938933ff71b72de8d49d69154`)
-  - Timestamp: unknown (slice 2 before `0ab4b94e6ae91340b0d769e2afd6083c0b5ccf5d` on 2026-11-09)
-  - Tool: Codex
-  - Open Dough release: unknown; installed guidance from established Take `82fc915034f4262553561a1c79de876040738677`.
-  - Evidence: `/tmp/seed275-slice2-consumer-trace.md` has 628 physical lines and 402 located-consumer rows matching the derived `PLAN.md` term; the slice-2 return explicitly attributes incidental matches to the concurrent coordinator-owned plan edit. The accepted plan at `0ab4b94e6` retains the trace locator and focused proof.
-  - Observed effect: a seven-file comment/title correction required repeated exclusions for unrelated planning, history and guidance; no missing consumer was found. Exact retired titles had no external selectors.
-
 - Execution: SEED-282#unify-intent-view-and-ci-proof (plan 547-unify-intent-view-and-ci-proof; first related implementation commit `f95f1a2808ad5cc74b785c0cbbe9f972495bc03f`)
   - Timestamp: unknown (2026-11-09, slice 1 and 2 consumer-trace acceptance)
   - Tool: Codex
@@ -597,6 +589,13 @@ Former local code: DD-434. [Evidence and current response](docs/maintainer/findi
   - Evidence: The named siblings SEED-261#map-launch-observation-test-data and #map-launch-and-session-test-data landed at `20ba2317c` (02:12) and `aa559f948` (02:26), after slice 3 and before slice 4 delivery. Source freshness returned `unchanged` (story and plan text). The coordinator ran the fetched-trunk sibling diff in the same shell command as guarded delivery, so slice 4 was marked done and published before the 363-file overlap was seen. A trial merge showed 11 conflicted files, including the shared builders `launchTestData.mjs`, `launchOutcomeTestData.mjs` and `makeMe.mjs`. Reconciled in merge `060cf2020` with a refactor pass and a second full gate (2257 passed).
   - Observed effect: The named-sibling check recognized the landings only after the done mark and publication it should have held. Reconciliation and reproof happened before completion and landing, and other work was not interrupted. The second full gate would have been needed after the merge anyway.
   - Inference: The check exists in the delivery guidance, but nothing stops the coordinator from running it alongside delivery. A structured stop from the freshness or delivery script when a named sibling's done record appears on the fetched trunk would make the hold apply without coordinator ordering.
+- Execution: SEED-284#optimize-tests-from-ci-proof (plan 552-optimize-tests-from-ci-proof; first related implementation commit `304598724bbd9a02d6e1b41120e3401757987bdf`)
+  - Timestamp: unknown (2026-11-09, before slices 5, 6 and 7)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the Take `766593b4f`)
+  - Evidence: plan 552 named SEED-281 and SEED-261#map-intent-and-ci-proof-test-data as siblings. Both landed mid-execution; merges `9d6695e0c`, `8e7381516` and `afbdd494c` reconciled them, the last with 8 conflicted files (the shared CI proof read and the CI proof test-data builders), and SEED-281's landing turned obligation G3 into a slice 7 return.
+  - Observed effect: merging trunk before each dependent slice kept slices 5–7 on current builders; reconciliation cost a merge agent (about 11 minutes, 146k tokens) plus a units-adoption part of slice 7.
 ## ODF-430 — Story integration moved another active agent profile into done
 Former local code: DD-436. [Evidence and current response](docs/maintainer/findings/ODF-430.md).
 

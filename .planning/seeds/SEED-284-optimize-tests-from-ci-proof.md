@@ -276,3 +276,29 @@ and defer the administrative commitment until the evidence warrants it.
 
 Judge the pilot under [ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md),
 with its basis fixed before the observed run.
+
+<a id="read-distinct-attempts-and-hidden-waits"></a>
+
+### Read distinct attempts, an adapter's selection, and waits a mean hides
+
+**Identity:** SEED-284#read-distinct-attempts-and-hidden-waits
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/558-read-distinct-attempts-and-hidden-waits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a27428e4521cba6b3a9b2928c0afe6b48f64b3cd02ce2fd167d9f9dd896103c9","plan":"439502f44c9a4d574b73d65efaa34d3c55bfbf878df04b5e13ccedf66d2d2837"}}
+```
+
+**Goal.** A developer whose project asks this skill to optimize tests gets a
+saving worth keeping that rests on distinct CI attempts, the test selection
+named even when the project reads CI through an adapter, and leads that a
+per-case mean does not hide. The correction is bounded to the retrospective
+findings for SEED-284#optimize-tests-from-ci-proof, which the Pygardon pilot
+exposed.
+
+**Scope.** In `src/skills/dough-test-optimization/references/evidence-and-leads.md`:
+the variation behind the saving worth keeping comes from reader tables that
+name different attempts, reached through the revision before the previous
+table's attempt; the selection behind a CI adapter is traced from the adapter
+command the table's Source line names to the CI job and test command it
+reports; and a lead's mean per case is not taken as each case's cost before
+its cases' own waits or timings are read. The reader, the record formats and
+Intent stay unchanged. Plan:
+[558](../slice-plans/558-read-distinct-attempts-and-hidden-waits/PLAN.md).

@@ -388,6 +388,26 @@ profiling runs and published it on Pygardon `main` under Pygardon's rules
 `claude/release-cancelled-sharadar-retry-sleep` is left for Terry to delete
 (the permission check refused it).
 
+## Execution complete
+
+Product advice:
+
+- Correct three gaps in this story's guidance before releasing it: plan
+  558 (`../558-read-distinct-attempts-and-hidden-waits/PLAN.md`, story
+  SEED-284#read-distinct-attempts-and-hidden-waits) makes the saving worth
+  keeping compare distinct CI attempts, routes an adapter project to its
+  selection through the Source line, and warns that a per-case mean can hide
+  one fixed wait.
+- Then release: the installed 0.3.93 skill here, in Pygardon and in Doughnut
+  has no lead reader or live format, and here it would stop on the converted
+  live record.
+- Retire the North Star topic "Test optimization reads the CI evidence Intent
+  reads" at wrap-up; the reader and references now explain it.
+- Leave SEED-285, SEED-286 and SEED-287 as they are; SEED-287 owns the two
+  load timeouts Terry routed there.
+- Delete the pilot's merged Pygardon branch
+  `claude/release-cancelled-sharadar-retry-sleep` (local and remote).
+
 ## Evaluation basis for the pilot
 
 Fixed before the observed run
