@@ -12,8 +12,15 @@ trap 'rm -rf -- "${work_dir}"' EXIT
 identity_source="${work_dir}/identity-source"
 identity_out="${work_dir}/identity-hashes"
 mkdir -p -- "${identity_source}" "${identity_out}"
-cp -R -- "${source_dir}/tests" "${source_dir}/src" "${source_dir}/install.sh" \
-  "${source_dir}/VERSION" "${source_dir}/CHANGELOG.md" "${identity_source}/"
+node "${source_dir}/tests/support/native-identity-source.mjs" "${source_dir}" "${identity_source}"
+# A newly sourced, tracked installer helper must enter every family's identity
+# without another edit to its input list.
+installer_probe=src/install/open-dough-identity-probe.sh
+printf '# installer identity probe\n' > "${identity_source}/${installer_probe}"
+# shellcheck disable=SC2016 # Keep the sourced helper path literal in the scratch script.
+printf '\nsource "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-identity-probe.sh"\n' \
+  >> "${identity_source}/src/install/open-dough-install-entry.sh"
+git -C "${identity_source}" add -- "${installer_probe}"
 families=(startup admission one-shot owned-context)
 fixture_helper=tests/support/repositoryTestData.mjs
 escalation=tests/support/git-publication-native-one-shot-escalation-fixture.mjs
@@ -52,9 +59,8 @@ capture_family_hashes "${identity_out}/baseline"
 
 # Each family identifies the helpers its fixture reaches and the installer
 # inputs that put the guidance in its fixture.
-installer_inputs='install.sh VERSION CHANGELOG.md
-  src/install/open-dough-install-payload.sh
-  src/install/open-dough-register-hooks-merge.mjs
+installer_inputs=$(git -C "${identity_source}" ls-files -- src/install)
+installer_inputs+=' install.sh VERSION CHANGELOG.md
   src/skills/dough-update/SKILL.md
   src/skills/dough-execute-plan/assets/claude-hooks.json
   src/skills/dough-product-backlog/assets/codex-hooks-guard.json'
@@ -116,26 +122,16 @@ if ((closure_status)) || ! grep -qx "${escalation}" "${identity_out}/one-shot-cl
   identity_failures=1
 fi
 
-# A change to a helper a fixture reaches only through imports, to the
-# generated notes source, to the owned-context writers, to an installer helper
-# and to a declared payload file changes that input's hash in each family
-# identity that lists it.
-sensitivity_inputs=("${fixture_helper}" "${escalation}" "${other_writer}"
-  "${owned_worktree}" src/install/open-dough-register-hooks-merge.mjs
-  src/skills/dough-execute-plan/assets/claude-hooks.json)
+# Fixture-only inputs keep their sensitivity proof here. The shared native
+# identity check changes every listed src/ input for every family.
+sensitivity_inputs=("${fixture_helper}" "${escalation}")
 mkdir -p -- "${identity_out}/unchanged"
 for input in "${sensitivity_inputs[@]}"; do
   cp -- "${identity_source}/${input}" "${identity_out}/unchanged/${input//\//_}"
 done
-for input in "${fixture_helper}" "${other_writer}" "${owned_worktree}" \
-  src/install/open-dough-register-hooks-merge.mjs; do
-  printf '\n// changed fixture input\n' >> "${identity_source}/${input}"
-done
+printf '\n// changed fixture input\n' >> "${identity_source}/${fixture_helper}"
 sed 's|// Lists the notes in the configured notes directory\.|// Lists every note in the configured notes directory.|' \
   "${identity_out}/unchanged/${escalation//\//_}" > "${identity_source}/${escalation}"
-sed 's|"hooks"|"hooks" |' \
-  "${identity_out}/unchanged/src_skills_dough-execute-plan_assets_claude-hooks.json" \
-  > "${identity_source}/src/skills/dough-execute-plan/assets/claude-hooks.json"
 for input in "${sensitivity_inputs[@]}"; do
   if cmp -s "${identity_out}/unchanged/${input//\//_}" "${identity_source}/${input}"; then
     printf 'FAIL: the scratch change to %s left it unchanged.\n' "${input}" >&2
@@ -149,7 +145,6 @@ done
 for family in "${families[@]}"; do
   for input in "${sensitivity_inputs[@]}"; do
     [[ ${input} != "${escalation}" || ${family} == one-shot ]] || continue
-    [[ ${input} != "${owned_worktree}" || ${family} == owned-context ]] || continue
     baseline_hash=$(awk -v input="${input}" '$3 == input { print $2 }' \
       "${identity_out}/baseline/${family}")
     changed_hash=$(awk -v input="${input}" '$3 == input { print $2 }' \
@@ -165,16 +160,16 @@ done
 # Every family identity fails, even for a caller with errexit disabled, when
 # a required input it traces through imports or reads from the installer's
 # declaration is missing; it never prints a partial identity as complete.
-for input in "${fixture_helper}" src/skills/dough-execute-plan/assets/claude-hooks.json; do
+for input in "${fixture_helper}" "${installer_probe}" src/skills/dough-execute-plan/assets/claude-hooks.json; do
   mv -- "${identity_source}/${input}" "${identity_out}/removed"
   for family in "${families[@]}"; do
     identity_status=$(
       set +e
-      family_identity "${family}" > /dev/null 2>&1
+      family_identity "${family}" > "${identity_out}/missing-input" 2> /dev/null
       echo "$?"
     )
-    if [[ ${identity_status} == 0 ]]; then
-      printf 'FAIL: %s evidence identity succeeded without %s.\n' "${family}" "${input}" >&2
+    if [[ ${identity_status} == 0 || -s ${identity_out}/missing-input ]]; then
+      printf 'FAIL: %s evidence identity succeeded or printed a partial identity without %s.\n' "${family}" "${input}" >&2
       identity_failures=1
     fi
   done
@@ -185,9 +180,6 @@ done
 # input, a caller that captures the journey's status with errexit disabled
 # sees it fail with no record, and the run's artifacts stay for diagnosis.
 # Only the fixture, host session and observation are stand-ins.
-git -C "${identity_source}" init -q
-git -C "${identity_source}" -c user.name=Identity -c user.email=identity@example.test \
-  commit -q --allow-empty -m 'scratch identity source'
 # Runs startup journey startup-trunk from the scratch source with errexit
 # disabled, retaining into results directory $1. Prints its exit status and
 # assessment status.

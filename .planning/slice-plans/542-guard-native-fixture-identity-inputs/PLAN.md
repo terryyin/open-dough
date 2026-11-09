@@ -4,6 +4,39 @@
 
 **Identity:** SEED-262#guard-native-fixture-identity-inputs
 
+**Source review:** [source-only commitments](source-review.md)
+
+## Execution context
+
+- Established story-branch execution in this worktree on
+  `codex/guard-native-fixture-identity-inputs-against-dri`, agent `viktor-chan`,
+  publisher `dashboard-territory.local-open-dough`; origin target `main`.
+- Starting revision `ca082e09ffec4b551a8389265305f469de2208a5`; accepted claim
+  `a328505ac31b8da3f972b6eb6c47840170d90e80` on origin/main and the story branch.
+  No second claim. The story-branch observer does not cover the trunk claim.
+- Checkout setup: exact Node 24.21.0, locked npm setup, browser setup and
+  Chromium prerequisite check passed in this worktree on 2026-11-09.
+- Replanning authority remains the selected planned execution; no numeric slice
+  target or hard limit supplied. Each slice keeps one behavior/proof loop.
+- Local proof decision: this macOS host has AC power, no swap or memory pressure,
+  load about 4.2, other Node work with no known competing owned heavy proof.
+  Run only named checks with the default four slots under `caffeinate -s -i`,
+  Bash 5 first on PATH. Reconsider on contention or unexplained timing failure.
+- CI: GitHub Actions `ci.yml` has push coverage for the story branch. The
+  workflow diagnostic was held by GitHub's directed rate-limit wait. One live
+  checkout-bound Codex stream is armed: coordinator `viktor-chan-262`, cell
+  `g10:22`, session `18974`, directory `/tmp/dough-ci-501/watch-Yfc4hu`, PID
+  `99839`, repository `terryyin/open-dough`, target
+  `codex/guard-native-fixture-identity-inputs-against-dri`.
+  It reported `CI_MONITOR_THROTTLED` and resumes automatically at
+  `2026-11-09T00:08:55.816Z`; coverage verdicts remain pending.
+- Pre-change proof passed at the claim revision:
+  `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/seed262-guard-identity-baseline-times caffeinate -s -i bash scripts/test.sh tests/git-publication-fixture-identity.sh tests/native-evidence-identity.sh`.
+  Local times: family check 11.7 s; native evidence check 17.4 s.
+  `tests/longest-first` records only the native evidence check (34.5 s),
+  giving a local/recorded factor of 17.4/34.5. Use that factor for both
+  checks against the unchanged 64 s ceiling; do not invent a missing entry.
+
 ## Provenance and findings
 
 Correction of
@@ -75,7 +108,7 @@ by a local base run. Run `npm run lint` before committing.
 
 Type: Behavior
 
-Status: planned
+Status: done
 
 Behavior: A tracked `src/install` file is added or changed → every startup,
 admission, one-shot and owned-context identity hashes it, and the family
@@ -86,6 +119,39 @@ Proof: `tests/git-publication-fixture-identity.sh` asserts each tracked
 `src/install` shell helper and observe it hashed. Restore the literal list in
 scratch and observe the new assertion fail. Run both identity checks and
 `tests/git-publication-native.sh`.
+
+Accepted observations (2026-11-09):
+
+- `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/seed262-guard-identity-slice1-final-times caffeinate -s -i bash scripts/test.sh tests/git-publication-fixture-identity.sh tests/native-evidence-identity.sh tests/git-publication-native.sh /tmp/seed262-guard-identity-slice1-proof.sh`
+  passed. The scratch proof compares unchanged input-hash rows against the
+  original literal writer for all four families (excluding the deliberately
+  changed writer's own hash), and the old writer fails the added-helper
+  completeness assertion in every family.
+- After extending failed-read coverage to the new installer probe and empty
+  stdout, the affected check passed again:
+  `PATH=/opt/homebrew/bin:$PATH OPEN_DOUGH_TEST_TIMES=/tmp/seed262-guard-identity-slice1-family-final-times caffeinate -s -i bash scripts/test.sh tests/git-publication-fixture-identity.sh`.
+  Missing imported, tracked installer and payload inputs all fail without a
+  partial identity; retained startup failure keeps artifacts and no record.
+- Observed times: native evidence 31.8 s / baseline factor = 63.1 s;
+  final family check 14.7 s / factor = 29.1 s, each below the unchanged 64 s
+  ceiling. No historical records or timing catalogs changed.
+- Consumer trace artifacts `/tmp/seed262-guard-identity-slice1-consumers.md`
+  and `/tmp/seed262-guard-identity-slice1-all-consumers.md`: evidence writer
+  reached through both identity checks and retained startup journeys; timing
+  record reused; historical/descriptive/generic path matches excluded because
+  no changed identity or scratch-source contract executes there.
+- Source freshness: unchanged against origin/main
+  `82fc915034f4262553561a1c79de876040738677`. Source commitments 1, 2, 3 and 9
+  observed in the linked review; no gaps.
+- One earlier proof launch lost its terminal observation and was not counted;
+  its processes ended before the fully observed proof above.
+- Independent post-change refactor `/root/refactor1`: none — already clean;
+  no edits or invalidated proof, `git diff --check` passed, all changed code
+  files below 250 lines. `REFACTOR COMPLETE` received.
+- Fresh preparation stopped before commit on ShellCheck SC2016 for intentionally
+  literal scratch script text. Added a local explanatory suppression; formatting
+  changed only layout. These already-traced mechanical changes preserve all
+  accepted proof boundaries and require no test rerun.
 
 ### 2. The closure tool reads valid division and regular-expression forms
 

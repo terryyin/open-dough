@@ -110,8 +110,8 @@ git_publication_fixture_family_identity() {
 # every payload file its managed_files declaration names, hook fragments
 # included.
 git_publication_installer_input_hash_lines() {
-  local declared
-  local -a payload
+  local declared tracked
+  local -a payload installer_shells
   declared=$(
     # shellcheck source=src/install/open-dough-release-version.sh
     # shellcheck disable=SC1091
@@ -119,19 +119,11 @@ git_publication_installer_input_hash_lines() {
       && read_managed_files_declaration "${source_dir}/install.sh"
   ) || return
   mapfile -t payload <<< "${declared}"
+  tracked=$(git -C "${source_dir}" ls-files -- 'src/install/*.sh') || return
+  mapfile -t installer_shells <<< "${tracked}"
   native_result_input_hash_lines \
     install.sh VERSION CHANGELOG.md \
-    src/install/open-dough-install-entry.sh \
-    src/install/open-dough-install-payload.sh \
-    src/install/open-dough-install-request.sh \
-    src/install/open-dough-platform.sh \
-    src/install/open-dough-register-hooks.sh \
-    src/install/open-dough-release.sh \
-    src/install/open-dough-release-version.sh \
-    src/install/open-dough-release-resolve.sh \
-    src/install/open-dough-release-baseline.sh \
-    src/install/open-dough-release-leftovers.sh \
-    src/install/open-dough-release-apply.sh || return
+    "${installer_shells[@]}" || return
   native_import_closure_input_hash_lines \
     src/install/open-dough-payload-bytes.mjs \
     src/install/open-dough-register-hooks.mjs || return
