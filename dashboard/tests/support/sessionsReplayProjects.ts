@@ -56,14 +56,18 @@ export function seedReplayProjects(home: string): void {
   writeFileSync(
     catalogFile,
     JSON.stringify(
-      replayCatalog.map(({ id, repository }) => ({
-        id,
-        label: id,
-        repository,
-        ref: "main",
-        backlogPath: ".planning/PRODUCT-BACKLOG.md",
-        localPath: `~/git/${id}`,
-      })),
+      replayCatalog.map(({ id, repository }) =>
+        makeMe.aConfiguredProject
+          .with({
+            id,
+            label: id,
+            repository,
+            // The trunk each checkout below publishes as origin/main.
+            ref: "main",
+            localPath: `~/git/${id}`,
+          })
+          .please(),
+      ),
     ),
   );
   let linked = 0;

@@ -146,15 +146,7 @@ export async function chooseComparisonAndReadByTouch(
   expect(await pageFits(page)).toBe(true);
   await readCodePartByTouch(page, code, wide, 0, 11, "horizontal");
   expect((await codePartGeometry(wide, 0, 11)).visible).toBe(true);
-  await scrollByTouch(page, code, 1000);
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => {
-          resolve();
-        }),
-      ),
-  );
+  await scrollByTouch(page, code, 1000, "vertical", undefined, code);
   const readLine = await visibleShortCodeLine(code);
   const readText = readLine.text ?? "";
   expect(readText).toMatch(/^\+first [0-9]+$/);

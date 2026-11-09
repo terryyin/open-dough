@@ -15,6 +15,7 @@ import {
   projectAdditionFixture,
   validationRepository,
 } from "../../tests/support/projectAdditionFixture.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });
 let fixture: Awaited<ReturnType<typeof projectAdditionFixture>>;
@@ -103,17 +104,20 @@ test("a different origin names both repositories and refuses the local path", as
 
 for (const duplicate of ["repository", "id"] as const) {
   test(`a case-insensitive duplicate ${duplicate} is refused without replacing saved projects`, async () => {
-    appendConfiguredProject({
-      id: duplicate === "id" ? "SAMPLE-APP" : "different-id",
-      label: "Already configured",
-      repository:
-        duplicate === "repository"
-          ? "EXAMPLE/SAMPLE-APP"
-          : "another/sample-app",
-      ref: "previous-branch",
-      backlogPath: ".planning/PRODUCT-BACKLOG.md",
-      localPath: "~/previous-checkout",
-    });
+    appendConfiguredProject(
+      makeMe.aConfiguredProject
+        .with({
+          id: duplicate === "id" ? "SAMPLE-APP" : "different-id",
+          label: "Already configured",
+          repository:
+            duplicate === "repository"
+              ? "EXAMPLE/SAMPLE-APP"
+              : "another/sample-app",
+          ref: "previous-branch",
+          localPath: "~/previous-checkout",
+        })
+        .please(),
+    );
     await refuses(
       { ...fixture.input, githubUrl: "git@github.com:Example/Sample-App.git" },
       "githubUrl",

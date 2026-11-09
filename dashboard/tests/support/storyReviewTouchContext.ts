@@ -44,10 +44,10 @@ export async function keepReviewContextThroughTouch(
   const diff = await chooseAllChangesFileByTouch(opened);
   const code = diff.locator(".story-review-code");
   await expect(code).toContainText("+first 0");
-  await scrollByTouch(page, code, -300);
+  await scrollByTouch(page, code, -300, "vertical", undefined, code);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
   const browserAt = await scrollTopOf(browser);
-  await scrollByTouch(page, browser, 100);
+  await scrollByTouch(page, browser, 100, "vertical", undefined, browser);
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserAt);
   const selected = browser.getByRole("button", { name: `Added ${longA}` });
   const codeAt = await scrollTopOf(code);
@@ -103,7 +103,7 @@ export async function keepReviewContextThroughTouch(
   await selectAddedFileByTouch(review, longB);
   await tapWhereShown(control(review, "Hide files"));
   const nextCode = next.locator(".story-review-code");
-  await scrollByTouch(page, nextCode, -180);
+  await scrollByTouch(page, nextCode, -180, "vertical", undefined, nextCode);
   await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
   const nextAt = await scrollTopOf(nextCode);
   await resizeUntilArranged(review, landscape);

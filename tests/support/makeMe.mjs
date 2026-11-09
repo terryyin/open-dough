@@ -34,6 +34,10 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import {
+  ConfiguredProjectBuilder,
+  PublishedSourceBuilder,
+} from "./projectConfigurationTestData.mjs";
 import { release } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
@@ -42,7 +46,6 @@ import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("./releaseTestData.mjs").Release} Release */
-/** @typedef {import("../../dashboard/src/publishedSource.ts").PublishedSource} PublishedSource */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
 /** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
@@ -82,16 +85,10 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aPublishedSource() {
-    return {
-      /** @param {Omit<PublishedSource, "ref" | "backlogPath"> & Partial<Pick<PublishedSource, "ref" | "backlogPath">>} facts */
-      with({
-        ref = "main",
-        backlogPath = ".planning/PRODUCT-BACKLOG.md",
-        ...facts
-      }) {
-        return { please: () => ({ ...facts, ref, backlogPath }) };
-      },
-    };
+    return new PublishedSourceBuilder();
+  },
+  get aConfiguredProject() {
+    return new ConfiguredProjectBuilder();
   },
   /** @returns {FactBuilder<PublishedRevision>} */
   get aPublishedRevision() {
