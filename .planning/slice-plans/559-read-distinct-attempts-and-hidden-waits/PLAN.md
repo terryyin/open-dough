@@ -4,6 +4,8 @@
 
 **Source:** [Correction story](../../seeds/SEED-284-optimize-tests-from-ci-proof.md#read-distinct-attempts-and-hidden-waits)
 
+**Source review:** [Source-only commitments](source-review.md)
+
 ## Source and provenance
 
 Retrospective correction of SEED-284#optimize-tests-from-ci-proof (plan 552, recoverable at `9f5036d43:.planning/slice-plans/552-optimize-tests-from-ci-proof/PLAN.md`).
@@ -75,7 +77,7 @@ reported the gaps below.
 ### 1. Correct the evidence-reading guidance
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership rows 1–4; the AGENTS.md behavior review recorded in
 Learnings, read-only in a Pygardon checkout (no edits, no profiling run).
 
@@ -124,6 +126,15 @@ Observed on 2026-11-09 by the retrospective, read-only, with this branch's
 | The adapter selection remedy names no route (finding 2) | Every table above: `Source the CI adapter (node scripts/pygardon-ci-adapter.mjs)` and `Selection … remedy: read it from the CI configuration behind this project's ciAdapter`. | Slice 1's review confirms the route the new text gives. |
 | A mean hides one case's wait (finding 3) | The same tables rank `tests/data_source/test_jobs_live_commands_sharadar.py` first at 60.4–60.5 s, 2 results, mean 30.22–30.24 s. Pygardon `SEED-20261090` (at `f93672986^`) records 61.45 s and 0.14 s locally for its two cases and the 60 s hang bound; fixed in `a2936bdee`. | None. |
 
+## Execution resume context
+
+- Established Story Branch start: workspace `/Users/terryyin/git/open-dough/.worktrees/read-distinct-attempts-an-adapter-s-selection-an`, branch `codex/read-distinct-attempts-an-adapter-s-selection-an`; authorized remote `origin`, trunk `main`; owned existing worktree, default integration checkout `/Users/terryyin/git/open-dough`.
+- Publisher `dashboard-territory.local-open-dough`, agent/coordinator `ruuf-chan`; starting revision `f73ae69b60375c090319709fc77db6647168f114`; published claim/candidate `929c0d028c9fd2bfe47c9021cecebaf98c2fbf45`. Claim CI is unobserved.
+- Exact checkout setup: `npm ci` succeeded against the current lockfile; `npm run --silent lint -- --staged` succeeded. Check-only `.githooks/pre-commit` checks staged lint and typechecks only staged scripts. Selective formatter: `npm run format`. No generation trigger for this reference-only change.
+- Source: GitHub Actions `ci.yml` (push-triggered on this branch); live selector diagnostic held by GitHub rate limit, resumes `2026-11-09T16:14:04.605Z`. No API retry before that directed time.
+- Observer: repository `terryyin/open-dough`, target `codex/read-distinct-attempts-an-adapter-s-selection-an`, coordinator `ruuf-chan`, directory `/tmp/dough-ci-501/watch-FiBFRP`, PID `97263`, stream session `99356`, yielded cell `g452:10`; runtime is this checkout’s `.agents/skills/dough-execute-plan`. Live identity confirmed.
+- Replanning: existing planned authority retained; no numeric slice budget supplied, use one coherent bounded guidance slice. No fresh profiling or heavy local suite; AC power, use `caffeinate -s -i` for named focused checks.
+
 ## Current decisions
 
 - One correction for findings 1–3, guidance only. Changing the reader to
@@ -136,6 +147,19 @@ Observed on 2026-11-09 by the retrospective, read-only, with this branch's
   optimization stories.
 
 ## Learnings
+
+### Slice 1 accepted proof
+
+- Product edit: only `src/skills/dough-test-optimization/references/evidence-and-leads.md`; its Selection, saving threshold and removable-cost rules now cover the three correction promises. Reader implementation, formats, installed copies, Intent and release metadata are unchanged. Existing `SKILL.md` links and discovery-only admission boundary remain compatible. No new rule home or runtime vocabulary.
+- Read-only behavior review in `/Users/terryyin/git/pygardon` (the original pilot workspace has retired): run this workspace's absolute `src/skills/dough-test-optimization/scripts/ci-proof-leads.mjs --revision <rev> --scope tests` with `node`. Requested `4acc889b3` selected attempt `54fbc3bc-1f3f-4586-8936-30c72be29824` at `4acc889b3`, sum 2,039.3 s. Requested `4acc889b3~1` selected `74a7dd32-427e-4071-854f-59a1b51794f8` at `e430447dc`, 2,017.8 s. Following the new rule, `e430447dc~1` selected `11a26379-64c7-421b-b0ef-1aa699bd1469` at `faa998608`, 3,290.3 s. The last two cover 6,412 results. All three commands exited 0, without profiling or project edits. Distinct Attempt lines establish distinct observations.
+- At Pygardon `4acc889b3`, the Source command `node scripts/pygardon-ci-adapter.mjs` leads through `pygardon-ci-attempt-evidence.mjs` and `pygardon-ci-timing-report.mjs` to job `prepared-checkout`, whose recipe `scripts/check-prepared-checkout.sh:224` runs `pytest -p scripts.ci_crash_evidence --color=no --no-header -q -o console_output_style=classic -o junit_family=xunit1 --junitxml=.pytest_cache/ci-proof-junit.xml -n auto --dist loadfile --max-worker-restart=0 -m "not slow and not host_docker"`. `pyproject.toml` supplies `testpaths = ["tests"]`. This directed trace names command, markers, workers and file distribution without searching the whole repository.
+- The same table's `tests/data_source/test_jobs_live_commands_sharadar.py` lead is 60.5 s over two cases, mean 30.24 s. Reading historical test source reaches `HeldRetrySleep` in `tests/jobs_live_sharadar_support.py:83`: `asyncio.to_thread(self.release.wait, HANG_TIMEOUT_SECONDS)`. `tests/hang_detection.py:17` defines 60.0 s. Historical seed `f93672986^:.planning/seeds/SEED-20261090-faster-held-sharadar-command-proof.md` records 61.45 s and 0.14 s. The coordinator inspected the recipe and wait source. The review exposes a removable wait before judging time inherent, with no fresh timing.
+- Focused automated proof: `env PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin caffeinate -s -i bash scripts/test.sh tests/payload-declaration-links.sh src/skills/dough-execute-plan/scripts/execution-increment-delivery.test.mjs src/skills/dough-execute-plan/scripts/ci-github-acquisition.test.mjs` exited 0. The initial launch selected Bash 3.2 and stopped before tests; explicit Homebrew PATH supplies required Bash 5. This is a runner prerequisite correction, not a waived failure. `git diff --check` passed.
+- Inspected observations: payload-declaration-links resolves each declared Markdown dependency against `install.sh`; execution-increment-delivery's route assertions preserve the common publication owner; ci-github-acquisition's instrumented provider fixture asserts admitted request routes and directed rate-limit suspension. These checks protect the existing supporting contracts, while the behavioral walk above owns the changed guidance's behavior. No prose-matching tests added.
+- Consumer trace: installed `consumer-trace.mjs` against base `929c0d028c9fd2bfe47c9021cecebaf98c2fbf45`, then narrowed `--changed` to the owned reference; supplied terms `test-selection command` and `mean per case`. Inspected `install.sh` (links tested), `SKILL.md` (baseline/removable-cause entry and discovery), `candidate-record.md` (accepted-cost and bounded output anchors). Reader selection producers and reader tests are unchanged outputs consumed by this guidance; payload-update tests' path/install contract is unchanged. Complete trace/dispositions retained at `/tmp/seed284-guidance-consumer-trace.md`. No affected unproved consumer.
+- Refactor return `/root/refactor_review`: none — already clean, no edits; `## REFACTOR COMPLETE` received. All accepted boundaries/consumer dispositions unchanged; no test rerun needed.
+- Source-review comparison: all original triggers and qualifications map to the observed locations in `source-review.md`; preservation/exclusion commitments are supported by the bounded product diff. No gap or disputed source narrowing was found.
+
 
 ## Preparation review
 
