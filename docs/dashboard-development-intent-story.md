@@ -48,8 +48,9 @@ assessment. Intent overlays that comparison's changed files on its source
 tree: styled by change kind, added files inserted, deleted files
 kept, a rename at its new path where a location selects it else at its old
 path. A completed story is named by its done record's title. Its browser uses
-the published result's test-source locations, inventory and unchanged-file
-source, and its changed files keep the baseline-to-result diff, even while a
+the published completion's test-source locations, inventory and unchanged-file
+source. A saved execution landing can recover this comparison when that landing
+is established as the same completion. Its changed files keep the baseline-to-result diff, even while a
 retained workspace has later edits. Its outside-location Review action opens
 that same historical comparison; ordinary card Review can still show the live
 workspace. Later trunk additions, renames, deletions or settings changes

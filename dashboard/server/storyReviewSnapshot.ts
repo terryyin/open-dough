@@ -1,8 +1,11 @@
-// The review opens the local workspace or selected captured run first. A
-// completed story falls back to published history only when that local evidence
-// is unusable. Every path shares the response's bounded cancellation signal.
+// Ordinary Review opens a workspace or explicit captured run. Done Intent
+// delegates its default to authoritative completion and validated capture recovery.
+// Every path shares the response's bounded cancellation signal.
 import type { ServerResponse } from "node:http";
-import type { StoryReview } from "../src/storyReviewContract.ts";
+import {
+  storyReviewWaitMs,
+  type StoryReview,
+} from "../src/storyReviewContract.ts";
 import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
@@ -12,10 +15,8 @@ import type { AdmittedStoryReview } from "./storyReviewAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { reviewMark } from "./storyReviewMarks.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
+import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
-
-// How long a story review's snapshot, trunk's fetch included, may take.
-const reviewWaitMs = 60_000;
 
 export async function storyReviewResponse(
   request: AdmittedStoryReview,
@@ -32,6 +33,13 @@ export async function storyReviewResponse(
   const body = await withResponseSignal(
     res,
     async (signal): Promise<StoryReview> => {
+      if ("historical" in request)
+        return historicalStoryReview(
+          request.historical,
+          request.identity,
+          request.runs,
+          signal,
+        );
       if ("published" in request)
         return (
           (await publishedStoryReview(
@@ -81,7 +89,7 @@ export async function storyReviewResponse(
       }
       return local;
     },
-    reviewWaitMs,
+    storyReviewWaitMs,
   );
   return { status: 200, body: { ...body, ...choices } };
 }

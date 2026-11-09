@@ -1,7 +1,10 @@
 // The comparison of two points the snapshot's commit list supplied. The
 // workspace comes from the admitted story, never from a caller's path.
 import type { ServerResponse } from "node:http";
-import type { ReviewRange } from "../src/storyReviewContract.ts";
+import {
+  storyReviewWaitMs,
+  type ReviewRange,
+} from "../src/storyReviewContract.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
@@ -61,7 +64,7 @@ export async function storyReviewRangeResponse(
         };
       }
     },
-    60_000,
+    storyReviewWaitMs,
   );
   return { status: 200, body };
 }

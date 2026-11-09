@@ -53,8 +53,9 @@ changes since the review, except one from Intent's way to Review changes
 (`src/useStoryReviewRequest.ts`), which starts on, or returns the review
 shown to, Intent's comparison. Active Intent uses All changes with uncommitted
 changes included, even from a landed run chosen in the review. Done Intent
-uses its captured landing or published completion, even while the workspace
-remains readable. Its Review action opens that same historical comparison.
+uses its published completion, even while the workspace remains readable. An
+established capture of that completed execution can recover unavailable published
+history. Its Review action opens that same historical comparison.
 Ordinary card Review keeps its live workspace default; when that workspace
 is gone, an available captured landing becomes its default.
 When the repository no longer holds the marked
