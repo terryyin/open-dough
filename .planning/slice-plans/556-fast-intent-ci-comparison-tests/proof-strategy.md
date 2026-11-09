@@ -24,7 +24,7 @@ PFE found existing owners rather than a need for another comparison model:
   `frontendAppServer.ts` mounted real comparison components/providers and
   exercised Show % and sorting in 593 ms. That route supplied slices 3–4's real
   mounted rules, but later CI disproved portable sub-second cost. The revised
-  slices 6–7 use existing Vite SSR plus actual production CSS/browser observation
+  slices 6 and 8 use existing Vite SSR plus actual production CSS/browser observation
   for static rules and the production-used plain client reading owner for
   lifecycle rules. Retain live controls/transport connections. See the decisive
   [checkpoint and consuming probe](ui-pilot-evidence.md#supported-remaining-boundary).
@@ -67,12 +67,13 @@ equivalent cases by fault-detection purpose, not by filename or line coverage.
 
 | Source promise / important examples | Owning slice and observable signal |
 | --- | --- |
-| Minimal portable arrangement; every rule test <1,000 ms; no raised timeout; equivalent behavioral confidence | Every slice: strict ordinary-mode before/after profile including replacement cases, explicit MakeMe facts, default-timeout/static review and distinguishing failure control before predecessor removal. Final aggregate profile in slice 7. |
+| Minimal portable arrangement; every rule test <1,000 ms; no raised timeout; equivalent behavioral confidence | Every slice: strict ordinary-mode before/after profile including replacement cases, explicit MakeMe facts, default-timeout/static review and distinguishing failure control before predecessor removal. Final aggregate profile in slice 8. |
 | Published Done/Taken endpoints, both modes, owning merge/fast-forward and earlier completion; exact/ancestor and skipped/equivalent provenance; adapter attempt identity/timing | Slice 1: browser-free comparison boundary returns independently named endpoint revisions, statuses and proof identities; representative real Git/provider/authenticated reads still reach the rendered comparison. |
 | Cancelled landing's nearest usable later trunk build; proofless/unbuilt gaps, running/head/30-revision stops; exact-only timed-out/unexplained, bounded baseline/branch walks | Slice 2: arranged revision/run/proof cases assert selected build or precise gap, requested status and refreshability, plus retained cancelled-landing wiring. |
-| Unavailable answer/slot/proof recovers, Check again busy state and read counts; final Done/proof reuse; Taken/head and awaiting-later freshness | Slice 3 accepted server memory/acquisition proof remains. Slice 7 replaces mounted client variants with actual request-state rules, held fetch/abort witnesses and real React busy/recovery/selection connections. Observe failure and recovery. |
+| Unavailable answer/slot/proof recovers, Check again busy state and read counts; final Done/proof reuse; Taken/head and awaiting-later freshness | Slice 3 accepted server memory/acquisition proof remains. Slice 8 replaces mounted client variants with actual request-state rules, held fetch/abort witnesses and real React busy/recovery/selection connections. Observe failure and recovery. |
 | Shared endpoints/fallback through homepage, tree, Summary and file Proof; signed whole-second vs precise scope timings, zero/gaps, counts, source cues, sorting, shared scales and Show % | Slice 4's complete assertion maps constrain slice 6: actual production-rendered variants with real browser semantic/CSS/geometry observations, plus uniquely mapped live sort/Show %/drill controls. Retain acquisition, no-extra-CI-read and preference continuity connections. |
 | Comparison stays visible with held/failed locations/Changed tests reads | Slice 3: retained full-app request held until observable release/rejection, comparison remains usable; preserve retry/selection and enclosing assertions. |
+| Current Done pending/final rules after main integration | Slice 7: actual shared finality/memory over raw canonical receipt/history/artifact inputs, all 24 incoming rule-oracle mappings, retained real project-store/clock/provider-owner/persistence/UI connections. |
 | Refresh retains selected captured run after new capture/session replacement, falls back newest → remaining → legacy gap after deletion/expiry | Slice 5: sub-second real record-reader/selection cases with directly stored MakeMe records; declared retained Refresh transport journey; actual launch/capture journeys prove record production. |
 
 ## Measurement and experiment procedure
@@ -198,7 +199,7 @@ Every permanent replacement still owes discrimination, measured local feedback
 gain and final local/CI threshold evidence during execution. No execution,
 Take or story-completion claim is made by this plan.
 
-## Remaining-work refinement
+## Earlier remaining-work refinement
 
 At `2023e150...`, rejected loader/observer pilots were restored before refinement.
 The actual SSR/static-browser consuming probe and independent boundary review
@@ -209,3 +210,34 @@ the measured remaining gap, supported different strategy and concrete limits.
 No sizing exception, >15-slice recommendation or human decision is outstanding.
 Retirement still requires fault-equivalent proof and each live connection;
 the current strategy does not claim the complete family or CI target already met.
+
+## Current remaining-work refinement
+
+At742f80b all77 static complete CI bounds are below1000ms (max927); the same
+observer awaits its provider-directed pause before6 can finish delivery.
+Accepted-main9f88 adds24 infrastructure-heavy comparison rules and3 UI journeys.
+[Incoming PFE](incoming-finality-scope.md) retains the existing build/history
+source, one actual receipt matcher and shared pending/final judge. Split the
+remaining boundary into server finality7 and client/aggregate8, preserving all
+completed work and130 source texts. Public API, final-answer no-TTL ownership,
+North Star and Accepted0002/0008/0010 stay unchanged; no human choice is open.
+
+The new slice7 early three-case pilot must consume actual raw namespace/receipt
+matching and branded artifact-reader outcomes before24-case migration. It is
+credible from the actual existing owners; its cost/preservation remains unproved
+until the state-changing integration/pilot boundary. Failure stops extension.
+
+The Node24/default-Playwright actual-reader prefix at742f80b strictly passed1/1
+with7 raw HTTP Responses: valid numeric/encoded adapter data, exact queries and
+AbortSignals, identity/attempt/branch/HTTP refusals, no DOM/private context.
+Cold import77.6ms/body98.6ms/test99ms/runner751.014ms/wall1.12s; raw receipt is
+`/tmp/seed286-execution-20261109/client-owner-prefix-pfe.md`. Scratch discovery
+alone changed; worker/timeout/trace/globalSetup were retained. This settles only
+reader-route capability. Slice8 first consumes the real extracted owner with
+held fetch/abort and successful retry/proof-round behavior plus a real hook
+connection; that state-changing pilot gates retirement of the13 old rules.
+
+Eight slices need no sizing exception or resplit recommendation. Root reviews
+this changed basis and records readiness through the installed backlog tool;
+that judgment grants no new Take or execution authority. Final aggregate,
+representative load, exact CI and lifecycle C067 remain owed to their owners.

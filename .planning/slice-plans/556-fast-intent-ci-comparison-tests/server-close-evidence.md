@@ -120,3 +120,18 @@ Under `/tmp/seed286-execution-20261109/`:
 - `ci-42668027365-jobs.json`, artifact metadata and twelve HTML/times ZIPs,
   `slice6-ci-global-status.json` and `ci-42668027365/test-envelopes.json` retain
   current assertion success and the independent still-open timing bounds.
+
+## Qualified first repair publication outcome
+
+The observer's recovered event3 names4f095a7/run42674414222 attempt1 failed.
+Full exact API inventory has15 successful jobs/steps; lint and test3/3 never
+started. The actual workflow requires17 unconditionally and is byte-identical
+through742f80b. The [run annotation](https://github.com/terryyin/open-dough/actions/runs/42674414222)
+explicitly records GitHub's “Internal server error”, correlation
+ae5fff5c-2c2d-4427-99c8-ec940a7b2ee9. Internal dispatch detail remains unknown.
+This is proved provider workflow failure; there is no failed test/assertion or
+source repair justified. Preserve the failed original outcome and missing2-job
+coverage; never claim4f passed or rerun it until green. Full diagnostics and
+annotation are retained in `ci-42674414222-diagnosis.md` and its raw responses.
+Current66f6a8d and742f80b each have separate complete17-job success; they provide
+current coverage without rewriting the earlier failure or its cause.

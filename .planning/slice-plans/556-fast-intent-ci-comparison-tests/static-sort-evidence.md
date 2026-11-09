@@ -117,3 +117,30 @@ first observe resolved endpoint/reading state, and static callers await setConte
 No observed caller relied on the longer parent-wait bound. Preserve exact
 116-case/three-focused-run proof by unchanged implementation/setup/observations;
 the actual formatter/250-line gate and exact published CI remain root-owned.
+
+## Published complete static-bound result
+
+Actual formatter/lint/250-line gate passed (helper221, plan249lines).
+Accepted742f80b6881b97972298d313e5c64e68868dc8fb, run42686088566 attempt1:
+all17jobs success. All170 rules match uniquely, expectedpass/retry0; every
+following-test upper is available. All77 static uppers are strictly below1000ms,
+maximum927ms. The ordinary Landed case is672reported/689prefix/722upperms.
+Four parent waits disappear; all4 semantic polls,2 sort polls,2 native sort
+attributes and2 visible-SVG checks remain. Their wait-plus-poll spans256→166ms
+explain only part of the345ms full-upper reduction; no isolated causal claim.
+
+Independent global scan:2455passes+same8outside skips, no failure/flake/retry/
+error; all24 artifact digests/provenance agree. Backend/store80max539ms.
+Only existing later lifecycle/counter rules exceed the target:1350,1090,1095,
+1163ms. No case role changed. Exact raw envelopes and independent audits are in
+`ci-42686088566/`, `slice6-742f80b-ci-audit.{md,json}` and its global receipt.
+
+Canonical local await timed out undiscovered while the same observer honored
+the provider's directed pause until20:15:04Z. Retain that unresolved receipt
+separately from the exact connected-source/artifact success; resume this same
+observer before marking6 done. No replacement observer or provider rerun.
+
+After the directed pause, the same observer's resumed await returns exact
+742f80b/run42686088566/attempt1 verdictsuccess. Receipt retained as
+`slice6-static-sort-await-after-provider-hold.log`; earlier timeouts stay retained.
+G8 is proved for6. Final family/load/target-CI and remaining rules stay open.

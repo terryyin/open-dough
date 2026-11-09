@@ -7,12 +7,10 @@
 
 ## Goal and boundary
 
-Give developers equivalent fault detection for each comparison rule in less
-than 1,000 ms per rule-focused test. Include per-test setup, actions, assertions
-and cleanup; measure common build/worker startup and retained integration
-journeys separately. Reduce the ordinary local feedback path as well as the
-individual case times. The source's timing target is not permission to weaken
-coverage, hide setup in hooks, increase timeouts or introduce retries.
+Give developers equivalent fault detection below1,000ms per rule, including
+setup/actions/assertions/cleanup. Measure common immutable runner/build/worker
+startup and retained journeys separately. Improve ordinary local feedback;
+no weakened coverage, hidden case work in hooks, increased timeouts or retries.
 
 Cover the current CI comparison and Summary comparison family, including
 Done/Taken, both execution modes, exceptional endpoint recovery, frontend
@@ -28,9 +26,8 @@ to it. The source keeps that measurement distinction explicit.
 **Evidence:** [Execution and resume](execution-evidence.md) ·
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
-[Production rendering](render-evidence.md) ·
-[HTTP teardown](server-close-evidence.md) · [Static sort](static-sort-evidence.md) ·
-[Portable evaluation](portable-evidence.md).
+[Rendering](render-evidence.md) · [HTTP teardown](server-close-evidence.md) ·
+[Static sort](static-sort-evidence.md) · [Portable evaluation](portable-evidence.md).
 
 ## Ordered slices
 
@@ -41,10 +38,9 @@ Status: done
 Proof: Normal Done/Taken endpoint cases through the real comparison boundary
 without browser/Git/provider subprocesses, and retained integrated acquisition.
 
-Accepted: actual published-history algorithms over raw MakeMe external facts;
-14 rules at 0–15 ms, zero acquisition subprocesses, six wrong-endpoint faults
-caught. Real Git/provider/authenticated/rendered connections remain. Full
-decision, commands and proof are in execution-evidence and source-review.
+Accepted: 14 actual published-history rules 0–15 ms over raw MakeMe facts, zero
+acquisition subprocesses, six wrong-endpoint faults caught. Real Git/provider/authenticated/
+rendered connections remain; full proof in execution-evidence/source-review.
 
 ### 2. Explain cancelled and proofless endpoints quickly
 
@@ -53,9 +49,9 @@ Status: done
 Proof: Minimal revision/run/proof cases at the comparison boundary, preserving
 one real cancelled-landing acquisition path and its independent provenance.
 
-Accepted: 19 real selection/gap rules at 0–13 ms, preserving cancelled/later,
-running/head stops, exact-only timeout, attempts and the 30-revision bound.
-Wrong-bound fault caught; real cancelled acquisition retained. See gap-evidence.
+Accepted: 19 real selection/gap rules 0–13 ms retain cancelled/later, running/head,
+exact-only timeout, attempts/30-revision bound. Wrong-bound fault caught; real
+cancelled acquisition retained. See gap-evidence.
 
 ### 3. Recover and remember comparisons without repeated infrastructure
 
@@ -68,7 +64,7 @@ journey against held/failing/recovered responses.
 Accepted: 25 actual reader/memory rules below 5 ms, separately counted API and
 upstream acquisition, and seven real mounted lifecycle cases. Real retry and
 held/failed Changed tests connections remain. See lifecycle-evidence. Mounted
-client lifecycle cost is superseded only after slice 7's equivalent proof.
+client lifecycle cost is superseded only after slice 8's equivalent proof.
 
 ### 4. Read the same comparison quickly at every scope
 
@@ -78,11 +74,10 @@ Proof: Sub-second mounted production comparison/Summary/Proof variants with
 real providers and controls; retained built-app comparison → entry/folder
 Summary → file Proof and return, plus real acquisition-to-scope proof.
 
-Accepted: 87 real mounted presentation/lifecycle variants, original assertion
-maps, 15 predecessor files retired and eight narrowed; 18 comparison wiring
-owners. Ordinary 182-case pass and loaded 249-case pass preserved all original
-literal/physical/interaction checks. See presentation-evidence. Later CI
-disproved the portable timing premise; slices 6–7 replace only affected proof.
+Accepted: 87 mounted variants, original assertion maps,15 files retired/eight
+narrowed and 18 wiring owners. Ordinary 182/loaded 249 passes preserve original
+literal/physical/interaction proof (presentation-evidence). Later CI disproved
+portable timing; slices 6/8 replace only affected proof.
 
 ### 5. Refresh stored review choices without incidental launches
 
@@ -93,52 +88,57 @@ including `reviewLandedRunsOf`, `preferredReviewRun`, `reviewRunKey` and retenti
 the three UI Refresh journeys with direct MakeMe setup; existing real one-shot
 launch/capture owners.
 
-Accepted: three real-store rules at 14/270/15 ms, three direct-record Refresh
-journeys, and three current native launch/capture preservation journeys. Exact
-identity, replacement, deletion, retention and legacy-gap evidence is in
-refresh-evidence. Published progress and the whole-family local observation are
-in portable-evidence; they do not satisfy the still-open portable UI goal.
+Accepted: three real-store rules 14/270/15 ms, three direct-record Refresh journeys
+and three native launch/capture preservation journeys. Identity/replacement/
+deletion/retention/legacy gaps are in refresh-evidence; whole-family progress is
+in portable-evidence. These do not satisfy the still-open portable UI goal.
 
 ### 6. Read comparison presentation rules without client startup
 
 Type: Behavior
+Status: done
+Proof: Actual production SSR/CSS in fresh browser pages, original independent
+semantic/physical/literal assertions, uniquely mapped live control connections.
+
+The [original execution scope](presentation-scope-record.md) is retained with
+all 80 predecessor maps,77 static rules, six counter/seven lifecycle rules and
+three predeclared live connections. All77 static complete CI bounds at742f80b
+are below 1000 ms, maximum 927 ms; ordinary Landed sort is 722 ms. No case relabeled.
+[Static evidence](static-sort-evidence.md) records preserved native/cardinality
+proof, rejected concurrency and exact hosted results. The same observer now
+confirms exact742f80b/run42686088566/attempt1 success. Six counter
+and seven lifecycle rules remain with 8; G6/G7 causal repairs stay retained.
+
+### 7. Keep current Done finality rules fast after integration
+
+Type: Behavior
 Status: planned
-Proof: Actual production React rendering and CSS in a fresh browser page;
-independent literal/semantic/geometry expectations; actual control connections.
+Proof: Actual shared pending/final judgment and comparison memory over canonical
+raw published/history/artifact/receipt facts; mapped real persistence/transport.
 
-Given canonical comparison/proof/overlay facts, render the real entry, Summary,
-tree and file Proof content with unchanged endpoints, reasons, labels, counts,
-units, cue attributes, relative scale membership and sort state. Reuse existing
-pure rules and Vite SSR compilation. Extract only necessary pure content from
-async shells and the frame preference binding, used by production itself.
-Keep actual aggregate scale/projection algorithms inside that content; never
-supply expected rows, ideal scale, private contexts or settled effect outcomes.
+Reconcile accepted-main 9f88 semantics with the existing ComparisonBuildSource
+history seam and one actual landedSlotResolution. Preserve private Done
+answer/landedPending memory gating and the unchanged public API. Reuse raw
+project launch/history documents, actual receipt matching and observation clock;
+never supply a selected receipt age or pending boolean. Existing artifact-reader
+factory must preserve private unanswered-proof branding from real raw inputs.
 
-The three-case capability consumed actual TSX/CSS and passed complete adjusted
-envelopes 195/191/287 ms; cold compilation/build and 5.85 s wall are separate.
-It permits this early family pilot, not retirement: first prove a complete
-Summary ancestor/layout, File Proof content and percent-on outlier at this
-boundary, with fault controls and original independent assertions. Preserve
-the actual 200% Verdana viewport, no sideways scrolling and unbroken words.
-CSS/role/title/cardinality are observed by the real browser, not a DOM model.
-Measure common immutable compilation separately and all per-case arrangement,
-projection, rendering, setContent, observations and page/context cleanup.
+[Selected PFE and pilot](incoming-finality-scope.md) owns the precise contract.
+Before migrating 24 new backend rules, inventory all 27 incoming cases and map
+actual assertions/roles. Profile meaningful existing cases in ordinary mode.
+First prove unknown age, matching-receipt hour−1ms/exact-hour, and unanswered
+proof recovery through actual owners with zero acquisition subprocesses and
+complete costs below 1000 ms. A failed pilot stops extension for reassessment.
 
-Map all 80 presentation predecessors before retirement. Reuse fast domain
-sort/math/cue owners where fault-equivalent, including exact old time values;
-include those owners in ordinary feedback. Preserve real callbacks/Enter/Space,
-each column key, Show %, mixed-unit tree→Summary→Proof and preference continuity
-through uniquely mapped existing or narrowly added prepared-service connections
-declared before measurement. No measured predecessor is relabeled as wiring.
-Static variants and actual bindings must jointly detect every old fault before
-its old case retires. Keep seven lifecycle and three acquisition-counter
-predecessors for slice 7; G4 names the one/zero proof-read assertions.
+Then preserve every distinct rule, actual namespace/target/revision/minimum-time
+match, direct-wait/owner admission/PID, collection/persistence/retention and new
+UI source/time/query/counter oracle. Keep only uniquely mapped real connections;
+no measured slow rule becomes wiring. Repair the old final-gap fixture with
+truly final canonical facts. Retire predecessors only after equivalent proof;
+include all new/reused owners in local/load/CI measurement and shard discovery.
+Do not restore the two inherited 60 s allowances or add a new cache/framework.
 
-Pilot decision: retain only an observed useful total-cost route with credible
-margin against G3; otherwise restore this attempt and reassess before extension.
-Then measure all presentation replacements and publish their CI experiment.
-
-### 7. Recover selected readings quickly and verify the complete family
+### 8. Recover selected readings quickly and verify the complete family
 
 Type: Behavior
 Status: planned
@@ -173,24 +173,19 @@ Move lasting ownership/commands/results to maintained test docs before wrap-up.
 
 ## Current decisions and learnings
 
-The `80ef2d48` checkpoint leaves 21 cleanup prefixes over one second (max
-1,549 ms). Batching cannot close G3; loading/observer pilots were rejected and
-reverted. Existing real SSR removes incidental client startup: the three-case
-consuming probe passed at 195–287 ms with compilation separate. Select the
-supported static-render + actual live-binding strategy in slices 6–7; preserve
-supported old sort/file gains. Full context and decisive comparison are in
-[the checkpoint](ui-pilot-evidence.md). G1/G3 stay open through slice 7.
+The [previous checkpoint](ui-pilot-evidence.md) records rejected client-startup
+routes and the selected SSR/live-binding strategy; its compatible proof stays.
 
-Published `66f6a8d` matches all170 rule owners and passes every assertion.
-G8's targeted six improve complete CI uppers from919–1123 to505–851ms,
-including all four previous overruns. Of77 static rules,76 now meet the bound;
-ordinary Summary Landed sort newly exceeds it at1005prefix/1067upperms.
-Retain the useful correction; G8 stays open. Parallel own/table checks give no
-matched local gain and are rejected. Native parent+parts snapshots retain exact
-readiness/cardinality/semantic/literal proof and remove repeated attached waits.
-Whole local cost is inconclusive; observer42→36ms and removed CI wait work
-support only the bounded published experiment. No CSS subset/target change/
-framework. See static-sort-evidence; G7 is repaired, slice7 unstarted.
+Published 742f80b passes all 170 rules and all 17 jobs;77 static complete CI uppers
+are below 1000 ms (max 927), with all native/cardinality/literal proof preserved.
+G8 has the same observer's exact success receipt after the provider pause.
+Incoming 9f88 adds 24 Git/CLI/server rule cases and 3 UI journeys. Preserve its
+pending/final judgment through the existing raw-source model before client work.
+Split remaining work into server-finality 7 and client/aggregate 8; the selected
+PFE reuses actual receipt/artifact readers and one shared judgment, no new model.
+Both slices gate broad migration on their consuming pilot. Original 130 source
+texts, target, completed proof and defaults remain unchanged. No numeric slice
+target/hard limit or >15-slice recommendation applies; no human decision is open.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.
@@ -211,17 +206,17 @@ framework. See static-sort-evidence; G7 is repaired, slice7 unstarted.
 ### G1. Retire browser rule variants after presentation proof
 Reported: slice 1 — "frontend assertion migration and predecessor retirement in slice 4"
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
-Disposition: interim until slices 4, 6, 7
+Disposition: interim until slices 4, 6, 8
 
 ### G2. Actual-Git rule cases exceed the target under observed load
 Reported: slice 1 — "loaded sub-second timing remains unproved/unsatisfied for those cases"
 Story clause: "Target less than 1,000 ms for each rule-focused test, including per-test arrangement, actions, assertions and cleanup."
-Disposition: proved by slice 1: raw-history-family-after.json has all 14 replacement rules at 0–15 ms; raw-history-no-acquisition-control-applied.json observes zero acquisition subprocesses; raw-fault-controls-summary.json catches all six endpoint faults. The old Git-per-rule cause is removed; final loaded/portable acceptance remains in slice 7, without claiming a new load-27 observation.
+Disposition: proved by slice 1: raw-history-family-after.json has all 14 replacement rules at 0–15 ms; raw-history-no-acquisition-control-applied.json observes zero acquisition subprocesses; raw-fault-controls-summary.json catches all six endpoint faults. The old Git-per-rule cause is removed; final loaded/portable acceptance remains in slice 8, without claiming a new load-27 observation.
 
 ### G3. Published CI rule timings exceed the target
 Reported: slice 5 — "Run 42627028218 attempt 1 matched all 164 rule owners; sixteen took 1,019–1,581 ms."
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
-Disposition: receiving slice 7
+Disposition: receiving slice 8
 
 ### G6. Preserve Project Intent without a story comparison preference
 Reported: slice 6 — "my extracted ScopeProofContent/FileProofContent unconditionally called useCiComparisonPreference, whereas original hook lived only inside comparison Frame; ProjectIntent has no story preference and crashes on ordinary judged scope."
@@ -236,14 +231,19 @@ Disposition: proved by slice 6: server-close-evidence.md links the full failed t
 ### G8. Four static rendering rules still exceed the CI complete-case target
 Reported: slice 6 — "Run 42668027365 attempt 1 matches all 170 rules; four of 77 static rendering rules have observed cleanup prefixes 1,014–1,098 ms and complete conservative upper bounds 1,038–1,123 ms."
 Story clause: "Target less than 1,000 ms for each rule-focused test, including per-test arrangement, actions, assertions and cleanup."
-Disposition: return
+Disposition: proved by slice 6: static-sort-evidence.md and slice6-742f80b-ci-audit confirm all77 complete static upper bounds below1000ms (max927), every old oracle/cardinality/native connection retained, exact742f80b/run42686088566/attempt1 observer success. Final family/load/target-CI remain owned by8 and lifecycle C067.
 
 ### G5. Keep scope acquisition and queued-selection observations
 Reported: slice 6 — "Additional exact scope gaps from9df: (1) mounted-gaps `a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint`: comparisons1/proofs2/expect.poll(statuses)2 after full exactlabels/framing/table; (2) mounted-fallback `Landed running preserves one Branch fallback through entry, folders and file Proof`: comparisons1/proofs2 after Branchheading+`Landed is not used: Build is still running.` atentry/folder/nested/file andfile+70ms; (3) mounted-gaps `selecting a queued story clears the previous Summary comparison and Baseline column`: actualMakeMequeuedSEED-B update clears priorfullentryoracle/frame/labels/Baseline/oldidentity, comparisons stays1/proofs3. No exact retainedcounted correspondence."
 Story clause: "Preserve each distinct rule's behavioral proof and independently stated expectations"
-Disposition: receiving slice 7
+Disposition: receiving slice 8
 
 ### G4. Preserve frontend proof acquisition counts during static migration
 Reported: slice 6 — "80 mapping has two cross-boundary acquisition assertions static SSR cannot own: invalid+ambiguous adapter proofs===1 (only Baseline readable), and both all-endpoint discovery unavailable cases proofs===0."
 Story clause: "Preserve each distinct rule's behavioral proof and independently stated expectations"
+Disposition: receiving slice 8
+
+### G9. Incoming finality rules repeat Git and server acquisition
+Reported: slice 6 — "main 9f88 adds 24 actual Git/CLI/server backend cases and 3 UI journeys, outside the current 170-owner manifest; preserve its accepted pending/final semantics and all distinct oracles through current fast owners."
+Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
 Disposition: receiving slice 7
