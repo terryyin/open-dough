@@ -20,6 +20,8 @@ import {
 } from "../../tests/support/dashboardServer.ts";
 import { everyRepository, publishes } from "../../tests/support/fakeGitHub.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { intentSettingsText } from "../../tests/support/intentSettingsFile.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.describe.configure({ mode: "serial" });
 
@@ -42,17 +44,17 @@ test.describe("authenticated Intent locations read (development environment)", (
         revision,
         backlog,
         files: {
-          [settingsPath]: JSON.stringify({
-            intent: {
-              locations: [
-                {
-                  path: "e2e_test/features",
-                  kind: "gherkin",
-                  label: " Feature scenarios ",
-                },
-              ],
-            },
-          }),
+          [settingsPath]: intentSettingsText(
+            makeMe.intentSettings
+              .withLocations(
+                makeMe.anIntentLocation
+                  .at("e2e_test/features")
+                  .labelled(" Feature scenarios ")
+                  .ofKind("gherkin")
+                  .please(),
+              )
+              .please(),
+          ),
           [featurePath]: featureText,
           "e2e_test/features/recall/__image_snapshots__/x.png": "png",
         },
@@ -105,7 +107,7 @@ test.describe("authenticated Intent locations read (development environment)", (
         revision,
         backlog,
         files: {
-          [settingsPath]: settings,
+          [settingsPath]: intentSettingsText(settings),
           [featurePath]: featureText,
           [outsidePath]: "# Outside\n",
         },
@@ -147,13 +149,24 @@ test.describe("authenticated Intent locations read (development environment)", (
         revision,
         backlog,
         files: {
+          // A non-string label is ignored; a blank one trims away.
           [settingsPath]: JSON.stringify({
             intent: {
               locations: [
-                { path: "e2e_test/features", kind: "gherkin" },
+                makeMe.anIntentLocation
+                  .at("e2e_test/features")
+                  .ofKind("gherkin")
+                  .please(),
                 { path: "no_such_dir", kind: "gherkin", label: 42 },
-                { path: "empty_features", kind: "gherkin", label: " " },
-                { path: "frontend/src", kind: "java" },
+                makeMe.anIntentLocation
+                  .at("empty_features")
+                  .labelled(" ")
+                  .ofKind("gherkin")
+                  .please(),
+                makeMe.anIntentLocation
+                  .at("frontend/src")
+                  .ofKind("java")
+                  .please(),
               ],
             },
           }),

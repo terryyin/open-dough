@@ -10,10 +10,11 @@ import {
 } from "./intentCandidatesFixtures.ts";
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
+import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
 const openDoughFiles = {
   ...openDough.files,
-  ".planning/open-dough.json": `${openDoughSettings}\n`,
+  ".planning/open-dough.json": intentSettingsText(openDoughSettings),
   ...openDoughSources,
 };
 

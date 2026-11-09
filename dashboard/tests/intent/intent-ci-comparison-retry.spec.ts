@@ -12,12 +12,14 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { expectSourceCue } from "../support/expectCiComparisonSourceCue.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import {
   checkAgainOf,
+  checkComparisonAgain,
   listedHeadSha,
   publishTrunkStoryWithBaseline,
   watchComparisonReads,
@@ -94,7 +96,7 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   await expect(identity.nth(2)).toContainText(shortSha(setup.completion));
   const checkAgain = checkAgainOf(panel);
 
-  await checkAgain.click();
+  await checkComparisonAgain(page, panel);
   await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
   await expectSourceCue(identity.nth(0));
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
@@ -141,7 +143,7 @@ test("Check again reads the endpoint proof that failed once again", async ({
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Branch",
   );
-  await checkAgainOf(panel).click();
+  await checkComparisonAgain(page, panel);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Landed",
   );
@@ -172,7 +174,11 @@ test("while the Baseline listing keeps failing, each Check again lists it again 
     await checkAgain.click();
     await expect(checkAgain).toBeDisabled();
     release();
-    await expect.poll(() => reads.finished.comparison).toBe(comparisons + 1);
+    await expect
+      .poll(() => reads.finished.comparison, {
+        timeout: readWaitLimitMs + 15_000,
+      })
+      .toBe(comparisons + 1);
     await expect(checkAgain).toBeEnabled();
     await expect(baselineCell(panel)).toContainText(`head_sha=${baseline}`);
     await expect(baselineCell(panel)).toContainText("GitHub is unreachable");
@@ -195,7 +201,7 @@ test("Check again reads the comparison again after its whole read failed", async
   const { panel } = await selectDoneStoryForCiComparison(page);
   await expect(panel.locator(".intent-ci-gap")).toBeVisible();
   await expect(panel.locator(".intent-ci-comparison")).toHaveCount(0);
-  await checkAgainOf(panel).click();
+  await checkComparisonAgain(page, panel);
   await expect(baselineCell(panel)).toContainText(shortSha(baseline));
   await expectSourceCue(baselineCell(panel));
   await expect(panel.locator(".intent-ci-gap")).toHaveCount(0);
@@ -231,7 +237,7 @@ test("unrecoverable published history shows the published-review explanation wit
   const checkAgain = checkAgainOf(panel);
   await expect(checkAgain).toBeEnabled();
   git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
-  await checkAgain.click();
+  await checkComparisonAgain(page, panel);
   await expect(panel.locator(".intent-ci-comparison")).not.toHaveCount(0);
   await expect(panel.locator(".intent-ci-gap")).toHaveCount(0);
   await expect(checkAgain).toBeEnabled();

@@ -24,28 +24,26 @@ import type { ReviewedFile } from "../../src/storyReviewFiles.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const locations: readonly IntentLocation[] = [
-  {
-    path: "features",
-    kind: "gherkin",
-    files: ["features/board/select.feature"],
-  },
-  {
-    path: "dashboard/tests",
-    kind: "typescript",
-    include: ["**/*.spec.ts"],
-    files: [
+  makeMe.anIntentLocation
+    .at("features")
+    .ofKind("gherkin")
+    .selecting("features/board/select.feature")
+    .please(),
+  makeMe.anIntentLocation
+    .at("dashboard/tests")
+    .ofKind("typescript", ["**/*.spec.ts"])
+    .selecting(
       "dashboard/tests/a.spec.ts",
       "dashboard/tests/between/moved.spec.ts",
       "dashboard/tests/deep/b.spec.ts",
       "dashboard/tests/leaving.spec.ts",
-    ],
-  },
-  {
-    path: "tests",
-    kind: "shell",
-    include: ["*.sh"],
-    files: ["tests/check.sh"],
-  },
+    )
+    .please(),
+  makeMe.anIntentLocation
+    .at("tests")
+    .ofKind("shell", ["*.sh"])
+    .selecting("tests/check.sh")
+    .please(),
 ];
 
 const changes: readonly ReviewedFile[] = [
@@ -161,13 +159,11 @@ test("the story opens the first changed location and the folders holding changes
 });
 
 test("a sources location places a story's added matching file as added, and a non-matching neighbor counts once outside", () => {
-  const checks: IntentLocation = {
-    ...makeMe.anIntentLocation
-      .at("checks")
-      .withSources({ include: ["**/*.check"] })
-      .please(),
-    files: ["checks/a.check"],
-  };
+  const checks = makeMe.anIntentLocation
+    .at("checks")
+    .withSources({ include: ["**/*.check"] })
+    .selecting("checks/a.check")
+    .please();
   const overlay = intentStoryOverlay(
     [checks],
     [

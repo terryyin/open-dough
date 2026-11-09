@@ -1,9 +1,12 @@
 // @ts-check
 // Domain data for Intent locations as `.planning/open-dough.json` declares
 // them (`intent.locations`): a location at a folder, declared by a kind with
-// optional include patterns or by source entries with optional syntax hints.
+// optional include patterns or by source entries with optional syntax hints;
+// and its answer at a revision, as the Intent locations read gives it: the
+// declaration with the files it selects there.
 
 /** @typedef {import("../../dashboard/server/intentLocationsSettings.ts").DeclaredLocation} DeclaredLocation */
+/** @typedef {import("../../dashboard/server/intentLocationsSettings.ts").IntentLocation} IntentLocation */
 /** @typedef {import("../../dashboard/src/intentLocationSelection.ts").SourceDeclaration} SourceDeclaration */
 /** @typedef {{ intent: { locations: DeclaredLocation[] } }} IntentSettings */
 
@@ -48,6 +51,14 @@ export class IntentLocationBuilder {
     return this;
   }
 
+  /**
+   * The location's answer at a revision: the files it selects there.
+   * @param {readonly string[]} files repository paths in listing order
+   */
+  selecting(...files) {
+    return new AnsweredIntentLocationBuilder(this, files);
+  }
+
   /** @returns {DeclaredLocation} */
   please() {
     if (this.#path === undefined) throw new Error("choose .at(path) first");
@@ -59,6 +70,28 @@ export class IntentLocationBuilder {
       ...(this.#label === undefined ? {} : { label: this.#label }),
       ...this.#selection,
     };
+  }
+}
+
+export class AnsweredIntentLocationBuilder {
+  /** @type {IntentLocationBuilder} */
+  #declaration;
+  /** @type {readonly string[]} */
+  #files;
+
+  /**
+   * @param {IntentLocationBuilder} declaration
+   * @param {readonly string[]} files
+   */
+  constructor(declaration, files) {
+    this.#declaration = declaration;
+    this.#files = files;
+  }
+
+  // Each answer owns its files, as a parsed read answer does.
+  /** @returns {IntentLocation & { files: string[] }} */
+  please() {
+    return { ...this.#declaration.please(), files: [...this.#files] };
   }
 }
 

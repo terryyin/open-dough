@@ -6,6 +6,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { box } from "../pageLayout.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { fileBrowser, reviewBody } from "./reviewContextLine.ts";
+import { openReview } from "./reviewRead.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
@@ -60,8 +61,7 @@ export async function openLargeReview(
   const { workspace } = largeWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = await openReview(page, card);
   // The keyboard lands in the review's named content.
   await expect(reviewBody(review)).toBeFocused();
   const browser = fileBrowser(review);

@@ -27,6 +27,7 @@ import {
 import { expect, test } from "../support/preparationPage.ts";
 import {
   chooseStoryTab,
+  expectStoryComparisonRead,
   expectStoryTab,
   folderToggle,
   intentFile,
@@ -101,6 +102,7 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   await expect(intent).toHaveCount(0);
   await intentChoice.click();
   await expectStoryTab(intent, "Changed tests");
+  await expectStoryComparisonRead(intent);
 
   const purpose = purposeRegion(intent);
   await expect(storyOnly(intent)).toBeChecked();

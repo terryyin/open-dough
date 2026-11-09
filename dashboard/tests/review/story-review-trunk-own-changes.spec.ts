@@ -17,7 +17,7 @@ import {
   contextValues,
   contextWords,
 } from "../support/reviewContextLine.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   openStoryReview,
@@ -59,9 +59,7 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
     expect(snapshot.published).toEqual({ trunk, commits: 2 });
     expect(snapshot.baseline).not.toBe(trunk);
     const files = review.getByRole("list", { name: "3 changed files" });
-    await expect
-      .poll(() => treeRows(files))
-      .toEqual(["src", "  a.ts", "d.md", "notes.md"]);
+    await expectTreeRows(files, ["src", "  a.ts", "d.md", "notes.md"]);
     // The file trunk also changed shows the story's line alone.
     await files
       .getByRole("button", { name: "Modified src/a.ts" })
@@ -107,11 +105,10 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
       "src/g.ts",
     ]);
     expect(later.commits.map(({ subject }) => subject)).toEqual(["u1"]);
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "4 changed files" })),
-      )
-      .toEqual(["src", "  a.ts", "  g.ts", "d.md", "notes.md"]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "4 changed files" }),
+      ["src", "  a.ts", "  g.ts", "d.md", "notes.md"],
+    );
 
     await review.getByRole("radio", { name: "Commits", exact: true }).check();
     const commits = review
@@ -125,11 +122,10 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
       .getByRole("radio", { name: "All changes", exact: true })
       .check();
     await uncommittedCheck(review).uncheck();
-    await expect
-      .poll(() =>
-        treeRows(review.getByRole("list", { name: "3 changed files" })),
-      )
-      .toEqual(["src", "  a.ts", "  g.ts", "d.md"]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "3 changed files" }),
+      ["src", "  a.ts", "  g.ts", "d.md"],
+    );
   });
 });
 

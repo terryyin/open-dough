@@ -56,9 +56,10 @@ import {
   publishedFiles,
 } from "../intentRevisionJourney.ts";
 import type { Locator } from "@playwright/test";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 const intentFiles = {
-  ".planning/open-dough.json": `${openDoughSettings}\n`,
+  ".planning/open-dough.json": intentSettingsText(openDoughSettings),
   "dashboard/tests/browse.spec.ts": browseSpec,
 };
 

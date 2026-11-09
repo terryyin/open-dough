@@ -37,6 +37,7 @@ import {
   intentLocationName,
 } from "../intentPerspectivePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {
@@ -48,7 +49,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   publishProject(page, openDough, {
-    ".planning/open-dough.json": `${openDoughSettings}\n`,
+    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
     "dashboard/tests/browse.spec.ts": browseSpec,
     "dashboard/tests/nested/deep.spec.ts": browseSpec,
   }).serveCi(
@@ -197,7 +198,7 @@ test("project CI remains readable while locations load, fail and recover without
   page,
 }) => {
   publishProject(page, openDough, {
-    ".planning/open-dough.json": `${openDoughSettings}\n`,
+    ".planning/open-dough.json": intentSettingsText(openDoughSettings),
     "dashboard/tests/browse.spec.ts": browseSpec,
   }).serveCi(
     trunkCi(openDough.revision, () => [

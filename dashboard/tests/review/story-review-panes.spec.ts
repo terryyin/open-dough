@@ -26,6 +26,7 @@ import {
   scrollPane,
   scrollTopOf,
 } from "../support/reviewPanes.ts";
+import { expectReviewRead } from "../support/reviewRead.ts";
 import { longA, longB } from "../support/storyReviewWorktree.ts";
 
 test("a large review's browser and diff fill the panel and each scrolls on its own", async ({
@@ -129,6 +130,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
 
   await test.step("Refresh keeps the browser's place, its collapsed folder, and the diff's place", async () => {
     await control(review, "Refresh").click();
+    await expectReviewRead(review);
     await expect(reviewFeedback(review)).toHaveText(
       /^Review refreshed: 63 changed files against baseline [0-9a-f]{7}\.$/,
     );
