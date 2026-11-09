@@ -2,8 +2,9 @@
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
 // through the shared scope comparison (`./ciScopeComparison.ts`), show the
 // measured Baseline execution time and, in Branch and Landed, one signed
-// whole-second change from it when both ends are measured, relative to a
-// positive Baseline (`./storyCiRelativeChange.ts`) (a new entry keeps
+// whole-second change from it when both ends are measured in one declared
+// unit, relative to a positive Baseline (`./storyCiRelativeChange.ts`) (a
+// new entry, or one measured in another unit or as legacy results, keeps
 // its measured time; a gap keeps its words), counted-results differences in
 // Counts, mark added and removed entries, and keep parts completeness from
 // the comparison's chosen build (`./ciScopeComparisonPrimary.ts`).

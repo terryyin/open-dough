@@ -1,9 +1,8 @@
 // Proof-summary Answers for Intent's story CI comparison journeys
-// (./storyCiComparisonFixture.ts): retained summaries, expired listings, the
-// mixed entry durations from example 2, and summaries of MakeMe-built
-// entries (`makeMe.aCiProofEntry`).
+// (./storyCiComparisonFixture.ts): retained summaries, expired listings and
+// the mixed entry durations from example 2. Summaries of MakeMe-built
+// entries are ./storyCiComparisonEntrySummaries.ts's.
 
-import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import {
@@ -59,15 +58,16 @@ export function mixedEntryParts(at: "baseline" | "branch" | "landed"): {
     ["tests", 1],
   ];
   // Entry counts differ across endpoints so the homepage Counts cell can
-  // show 2,090 → 2,092 tests (+2) (SEED-245 example 1); checks stay flat.
+  // show 2,090 → 2,092 test cases (+2) (SEED-245 example 1); test files
+  // stay flat.
   const dashboardCounts = at === "baseline" ? counts(2090) : counts(2092);
   const parts: ProofPart[] = [
-    ["dashboard/tests", 1, 1, "tests", dashboardCounts, slowerMs[at]],
-    ["tests", 1, 1, "checks", counts(5), fasterMs[at]],
+    ["dashboard/tests", 1, 1, "case", dashboardCounts, slowerMs[at]],
+    ["tests", 1, 1, "file", counts(5), fasterMs[at]],
   ];
   if (at !== "baseline") {
     expect.push(["src/skills", 1]);
-    parts.push(["src/skills", 1, 1, "checks", counts(3), 30_000]);
+    parts.push(["src/skills", 1, 1, "file", counts(3), 30_000]);
   }
   return { expect, parts };
 }
@@ -101,9 +101,9 @@ export function untimedBaselineMixedProofs(args: {
           ["tests", 2],
         ],
         [
-          ["dashboard/tests", 1, 1, "tests", counts(2090)],
-          ["tests", 1, 2, "checks", counts(3), 60_000],
-          ["tests", 2, 2, "checks", counts(2)],
+          ["dashboard/tests", 1, 1, "case", counts(2090)],
+          ["tests", 1, 2, "file", counts(3), 60_000],
+          ["tests", 2, 2, "file", counts(2)],
         ],
       ),
     },
@@ -117,61 +117,6 @@ export function untimedBaselineMixedProofs(args: {
       artifactId: 1003,
       summary: mixedEntrySummary(landed, "landed"),
     },
-  };
-}
-
-// The summary the collector writes for RUN from ENTRIES' parts.
-function entriesProofSummary(
-  run: ProofRun,
-  entries: readonly CiProofEntry[],
-): unknown {
-  return proofSummary(
-    run,
-    entries.map((entry) => [entry.path, entry.parts.length] as const),
-    entries.flatMap((entry) =>
-      entry.parts.map((part): ProofPart => {
-        const figures = counts(
-          part.passed ?? 0,
-          part.failed ?? 0,
-          part.other ?? 0,
-        );
-        const unit = entry.unit ?? "results";
-        const of = entry.parts.length;
-        return part.durationMs === undefined
-          ? [entry.path, part.part, of, unit, figures]
-          : [entry.path, part.part, of, unit, figures, part.durationMs];
-      }),
-    ),
-  );
-}
-
-// Baseline, branch and landed summaries (runs 101–103) of the given entries.
-export function entryProofs(
-  revisions: {
-    readonly baseline: string;
-    readonly branchSide: string;
-    readonly completion: string;
-  },
-  entries: {
-    readonly baseline: readonly CiProofEntry[];
-    readonly branch: readonly CiProofEntry[];
-    readonly landed: readonly CiProofEntry[];
-  },
-): Record<number, ComparisonProofServe> {
-  const served = (
-    runId: number,
-    revision: string,
-    at: readonly CiProofEntry[],
-  ) =>
-    ({
-      kind: "summary",
-      artifactId: runId + 900,
-      summary: entriesProofSummary(proofRun(runId, revision), at),
-    }) as const;
-  return {
-    101: served(101, revisions.baseline, entries.baseline),
-    102: served(102, revisions.branchSide, entries.branch),
-    103: served(103, revisions.completion, entries.landed),
   };
 }
 

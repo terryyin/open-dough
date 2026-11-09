@@ -1,18 +1,17 @@
 // Which proof and Parts figures a compared scope path uses
 // (`./ciScopeComparison.ts`): the homepage's chosen build for completeness,
-// and whether a path is present in an endpoint's summary.
+// each unit's own when the scope shows several (`./ciProofUnits.ts`), and
+// whether a path is present in an endpoint's summary.
 
 import type { CiProofEntry } from "./ciProof.ts";
-import {
-  ciProofCellsOf,
-  ciScopeCellsOf,
-  hasFileBreakdown,
-} from "./ciProofWording.ts";
+import { entryEvidenceOf, unitName } from "./ciProofUnits.ts";
+import { unitResultsCellsOf } from "./ciProofWording.ts";
 import type { ScopeEndpointTiming } from "./ciScopeComparisonTiming.ts";
 import {
   owningEntryOf,
-  scopeFiguresOf,
-  type CiScopeFigures,
+  unitResultsAt,
+  unitsWithResults,
+  type UnitResults,
 } from "./ciScopeProof.ts";
 import type {
   ComparisonEndpointName,
@@ -47,10 +46,10 @@ export function presentIn(
 ): boolean {
   if (proof.kind !== "summary") return false;
   const entry = owningEntryOf(proof.entries, path);
-  if (entry === undefined) return false;
-  if (path === entry.path) return true;
-  if (!hasFileBreakdown(entry)) return false;
-  return scopeFiguresOf(entry, path).files > 0;
+  return (
+    entry !== undefined &&
+    unitsWithResults(unitResultsAt(entry, path)).length > 0
+  );
 }
 
 export function primaryEntryOf(
@@ -65,20 +64,36 @@ export function primaryEntryOf(
   return from(primary) ?? from(branch) ?? from(landed) ?? from(baseline);
 }
 
-// Parts completeness (and gaps) for the homepage's chosen build. Counts come
-// from the three-endpoint comparison instead.
+// Parts completeness (and gaps) for the homepage's chosen build: of each
+// unit SHOWN at the scope, or of each of ENTRY's units when none is given,
+// each named by its unit when there are several. Counts come from the
+// three-endpoint comparison instead.
 export function partsCellsOf(
   entry: CiProofEntry | undefined,
-  figures?: CiScopeFigures,
+  shown?: readonly UnitResults[],
 ): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
   if (entry === undefined) return { completeness: "—", gaps: [] };
-  const cells =
-    figures === undefined
-      ? ciProofCellsOf(entry)
-      : ciScopeCellsOf(entry, figures);
+  const units =
+    shown === undefined || shown.length === 0
+      ? entryEvidenceOf(entry).map((evidence) => ({
+          evidence,
+          figures: undefined,
+        }))
+      : shown;
+  const cells = units.map(({ evidence, figures }) => ({
+    unit: unitName(evidence.unit),
+    cells: unitResultsCellsOf(evidence, figures),
+  }));
+  const [only] = cells;
+  if (cells.length === 1 && only !== undefined)
+    return { completeness: only.cells.completeness, gaps: only.cells.gaps };
   return {
-    completeness: cells.completeness,
-    gaps: cells.gaps,
+    completeness: cells
+      .map(({ unit, cells: one }) => `${unit}: ${one.completeness}`)
+      .join("; "),
+    gaps: cells.flatMap(({ unit, cells: one }) =>
+      one.gaps.map((gap) => `${unit}: ${gap}`),
+    ),
   };
 }
 
@@ -90,7 +105,7 @@ export function partsForPath(
 ): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
   const entry = primaryEntryOf(path, baseline, branch, landed);
   if (entry === undefined || path === entry.path) return partsCellsOf(entry);
-  return partsCellsOf(entry, scopeFiguresOf(entry, path));
+  return partsCellsOf(entry, unitResultsAt(entry, path));
 }
 
 export function absentOn(

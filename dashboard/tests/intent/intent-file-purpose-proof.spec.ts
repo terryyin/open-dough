@@ -61,7 +61,7 @@ test("a selected file offers Purpose source and Proof CI results, keeping the ch
   ).toHaveText("dashboard/tests/folder/a.spec.ts");
   await expect(
     table.locator("tbody").getByRole("row").nth(0).getByRole("cell"),
-  ).toHaveText(["1 passed and 1 failed tests", "550 ms"]);
+  ).toHaveText(["1 passed and 1 failed test cases", "550 ms"]);
 
   await test.step("choosing another file keeps Proof and shows that file's gap without borrowing", async () => {
     await intentFile(intent, "dashboard/tests/added.spec.ts").click();

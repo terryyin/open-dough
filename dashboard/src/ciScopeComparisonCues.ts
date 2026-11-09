@@ -1,9 +1,11 @@
 // Classification of one scope's count and duration change for Intent's story
 // CI comparison cues (`./ciScopeComparison.ts`): direction, strength, or
 // no-cue with a reason, from the same endpoint counts and timings the wording
-// classifiers produce. The overall summary, entry table, Summary rows and
+// classifiers produce, only between figures of one declared unit
+// (`./ciProofUnits.ts`). The overall summary, entry table, Summary rows and
 // file Proof all consume this one result; the tree does too once wired.
 
+import { comparableUnits } from "./ciProofUnits.ts";
 import type { ScopeEndpointCount } from "./ciScopeComparisonCounts.ts";
 import type { ScopeEndpointTiming } from "./ciScopeComparisonTiming.ts";
 import type { ActiveComparedEndpoint } from "./storyCiComparisonWording.ts";
@@ -55,11 +57,15 @@ function durationStrength(beforeMs: number, deltaMs: number): CueStrength {
   return Math.abs(deltaMs) / beforeMs >= strongShare ? "strong" : "light";
 }
 
+const severalUnits = "several units";
+const unitsNotComparable = "units not comparable";
+
 function countUnavailableReason(count: ScopeEndpointCount): string | undefined {
   if (count.kind === "checking") return "still reading";
   if (count.kind === "status") return count.text;
   if (count.kind === "no-breakdown") return "no file breakdown";
   if (count.kind === "nothing") return "nothing counted";
+  if (count.kind === "units") return severalUnits;
   return undefined;
 }
 
@@ -69,6 +75,7 @@ function timingUnavailableReason(
   if (timing.kind === "checking") return "still reading";
   if (timing.kind === "status") return timing.text;
   if (timing.kind === "no-breakdown") return "no file breakdown";
+  if (timing.kind === "units") return severalUnits;
   if (timing.kind === "partial") return "partial";
   if (timing.kind === "not-recorded") return "not recorded";
   return undefined;
@@ -91,6 +98,9 @@ export function countCueOf(
   if (after.kind === "absent") return { kind: "none", reason: "removed" };
   if (before.kind !== "measured" || after.kind !== "measured") {
     return { kind: "none", reason: "no comparable count" };
+  }
+  if (!comparableUnits(before.unit, after.unit)) {
+    return { kind: "none", reason: unitsNotComparable };
   }
   const delta = after.total - before.total;
   if (delta === 0) return { kind: "none", reason: "unchanged" };
@@ -120,23 +130,31 @@ export function durationCueOf(
   if (before.kind !== "measured" || after.kind !== "measured") {
     return { kind: "none", reason: "no comparable duration" };
   }
-  const delta = after.ms - before.ms;
+  if (!comparableUnits(before.unit, after.unit)) {
+    return { kind: "none", reason: unitsNotComparable };
+  }
+  return measuredDurationCueOf(before.ms, after.ms);
+}
+
+// The tint between two measured durations, BEFORE_MS and AFTER_MS.
+function measuredDurationCueOf(beforeMs: number, afterMs: number): DurationCue {
+  const delta = afterMs - beforeMs;
   if (delta === 0) return { kind: "none", reason: "unchanged" };
-  if (before.ms === 0) {
+  if (beforeMs === 0) {
     return {
       kind: "tint",
       direction: delta < 0 ? "faster" : "slower",
       strength: "light",
     };
   }
-  const share = Math.abs(delta) / before.ms;
+  const share = Math.abs(delta) / beforeMs;
   if (share < durationTintShare || Math.abs(delta) < durationTintFloorMs) {
     return { kind: "none", reason: "below threshold" };
   }
   return {
     kind: "tint",
     direction: delta < 0 ? "faster" : "slower",
-    strength: durationStrength(before.ms, delta),
+    strength: durationStrength(beforeMs, delta),
   };
 }
 
@@ -188,8 +206,5 @@ export function overallDurationCueOf(
   if (beforeMs === undefined || afterMs === undefined) {
     return { kind: "none", reason: "no comparable duration" };
   }
-  return durationCueOf(
-    { kind: "measured", ms: beforeMs },
-    { kind: "measured", ms: afterMs },
-  );
+  return measuredDurationCueOf(beforeMs, afterMs);
 }

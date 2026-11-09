@@ -37,11 +37,12 @@ export const summaryEntryComparisonCues = [
     countReason: "not in the compared builds",
     durationReason: "not in the compared builds",
   },
+  // Renamed from a shell check's test file into a Playwright test case.
   {
     count: "none",
     duration: "none",
-    countReason: "unchanged",
-    durationReason: "below threshold",
+    countReason: "units not comparable",
+    durationReason: "units not comparable",
   },
   {
     count: "none",

@@ -67,12 +67,14 @@ missing and ambiguous parts the same way.
 
 ## 1. Copy the collector into this project
 
-Copy these five modules, unchanged and side by side, from this skill's
+Copy these seven modules, unchanged and side by side, from this skill's
 installed `scripts/` directory into the directory this project keeps CI
 scripts in (written `<ci-scripts>` below), and commit them:
 
 - [ci-proof-summary.mjs](../scripts/ci-proof-summary.mjs), the command line;
+- [ci-proof-options.mjs](../scripts/ci-proof-options.mjs);
 - [ci-proof-contract.mjs](../scripts/ci-proof-contract.mjs);
+- [ci-proof-evidence.mjs](../scripts/ci-proof-evidence.mjs);
 - [ci-proof-figures.mjs](../scripts/ci-proof-figures.mjs);
 - [ci-proof-fragments.mjs](../scripts/ci-proof-fragments.mjs);
 - [ci-proof-collect.mjs](../scripts/ci-proof-collect.mjs).

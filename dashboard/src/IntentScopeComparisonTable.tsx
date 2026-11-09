@@ -18,10 +18,9 @@ import {
   primaryEndpointOf,
   scopeComparisonCellsOf,
 } from "./ciScopeComparison.ts";
-import { hasFileBreakdown } from "./ciProofWording.ts";
 import {
+  entryOutsidesOf,
   immediateChildrenOf,
-  outsideOf,
   owningEntryOf,
 } from "./ciScopeProof.ts";
 import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
@@ -153,11 +152,9 @@ export function ComparisonTable({
     );
   };
   const rows = childRowsOf(children, onOpen, cellsFor);
-  const outside =
-    entry !== undefined && hasFileBreakdown(entry)
-      ? outsideOf(entry, path, children)
-      : undefined;
-  if (outside !== undefined) {
+  const outsides =
+    entry === undefined ? [] : entryOutsidesOf(entry, path, children);
+  if (outsides.length > 0) {
     rows.push(
       outsideRowOf(
         outsideComparisonCellsOf(
@@ -204,7 +201,7 @@ export function ComparisonTable({
         changes
       />
       {entry !== undefined && (
-        <OutsideExplanation entry={entry} path={path} outside={outside} />
+        <OutsideExplanation entry={entry} path={path} outsides={outsides} />
       )}
     </IntentCiComparisonFrame>
   );

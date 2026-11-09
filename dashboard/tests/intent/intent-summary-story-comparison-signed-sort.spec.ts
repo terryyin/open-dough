@@ -8,7 +8,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
 import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { entryProofs } from "../support/storyCiComparisonEntryProofs.ts";
+import { entryProofs } from "../support/storyCiComparisonEntrySummaries.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 import {
   openSummaryComparison,

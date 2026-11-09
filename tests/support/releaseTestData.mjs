@@ -106,3 +106,14 @@ export function release({ withheld = [], removed = [], added = {}, ...facts }) {
     added: { ...added },
   };
 }
+
+// A release as tests arrange it: `makeMe.aRelease.with(facts).please()`.
+export const releaseBuilder = {
+  /** @param {ReleaseFacts} facts */
+  with(facts) {
+    return {
+      /** @returns {Release} */
+      please: () => release(facts),
+    };
+  },
+};

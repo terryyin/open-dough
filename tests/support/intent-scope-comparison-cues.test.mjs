@@ -1,5 +1,6 @@
 // Classification of Intent CI comparison count borders and duration tints
-// (../../dashboard/src/ciScopeComparisonCues.ts) on the seed's key examples.
+// (../../dashboard/src/ciScopeComparisonCues.ts) on the seed's key examples,
+// only between figures of one declared unit.
 // Browser journeys: ../../dashboard/tests/intent/intent-ci-comparison.spec.ts,
 // intent-summary-story-comparison*.spec.ts.
 import assert from "node:assert/strict";
@@ -13,12 +14,44 @@ import {
   scopeComparisonCuesOf,
 } from "../../dashboard/src/ciScopeComparisonCues.ts";
 
-const measuredCount = (total, unit = "tests") => ({
+const measuredCount = (total, unit = "case") => ({
   kind: "measured",
   total,
+  failed: 0,
   unit,
 });
-const measuredMs = (ms) => ({ kind: "measured", ms });
+const measuredMs = (ms, unit = "case") => ({ kind: "measured", ms, unit });
+
+test("a cue compares only figures of one declared unit: never test cases with test files, legacy results, or several units", () => {
+  const notComparable = { kind: "none", reason: "units not comparable" };
+  const several = { kind: "none", reason: "several units" };
+  assert.deepEqual(
+    countCueOf(measuredCount(5, "case"), measuredCount(1, "file")),
+    notComparable,
+  );
+  assert.deepEqual(
+    countCueOf(measuredCount(5, "legacy"), measuredCount(9, "legacy")),
+    notComparable,
+  );
+  assert.deepEqual(
+    countCueOf(measuredCount(5), {
+      kind: "units",
+      counts: [measuredCount(5), measuredCount(1, "file")],
+    }),
+    several,
+  );
+  assert.deepEqual(
+    durationCueOf(measuredMs(8_000, "legacy"), measuredMs(12_000, "legacy")),
+    notComparable,
+  );
+  assert.deepEqual(
+    durationCueOf(measuredMs(8_000), {
+      kind: "units",
+      timings: [measuredMs(8_000), measuredMs(4_000, "file")],
+    }),
+    several,
+  );
+});
 
 test("count cue: any change shows; strong at ≥50% of baseline", () => {
   assert.deepEqual(countCueOf(measuredCount(12), measuredCount(10)), {

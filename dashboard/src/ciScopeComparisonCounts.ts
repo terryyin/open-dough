@@ -1,26 +1,41 @@
 // Counted-results of one scope path inside one comparison endpoint proof
-// (`./ciScopeComparison.ts`): classify measured / absent / no-breakdown /
-// unavailable from `./ciScopeProof.ts` figures the same way timing does in
-// `./ciScopeComparisonTiming.ts`, and word the Summary / homepage Counts
-// cell as baseline → after with a signed difference in parentheses. A signed
-// difference exists only between two measured totals. Outcome detail and
-// parts stay with the chosen build in `./ciScopeComparison.ts`.
+// (`./ciScopeComparison.ts`): classify measured / several units / absent /
+// no-breakdown / unavailable from `./ciScopeProof.ts` figures the same way
+// timing does in `./ciScopeComparisonTiming.ts`, and word a total with its
+// unit and the signed difference between two totals of one declared unit
+// (`./ciProofUnits.ts`); a unit absent at an endpoint is never a zero. The
+// Counts cell over every endpoint is `./ciScopeComparisonCountsCell.ts`'s;
+// outcome detail and parts stay with the chosen build in
+// `./ciScopeComparison.ts`.
 
-import type { CiProofEntry, CiProofFigures } from "./ciProof.ts";
+import type { CiProofFigures } from "./ciProof.ts";
 import {
-  countedResultsOf,
+  countedAny,
   hasFileBreakdown,
-  type CountedResults,
-} from "./ciProofWording.ts";
+  unitNoun,
+  type CiProofUnit,
+  type CiEntryEvidence,
+} from "./ciProofUnits.ts";
+import { countedResultsOf, type CountedResults } from "./ciProofWording.ts";
 import { endpointProofReadOf } from "./ciScopeComparisonEndpoint.ts";
 import {
-  outsideOf,
+  entryOutsidesOf,
+  noResultsKindOf,
   owningEntryOf,
-  scopeFiguresOf,
+  unitResultsAt,
+  unitsWithResults,
+  type UnitResults,
   type SummaryChild,
 } from "./ciScopeProof.ts";
-import type { ChangeKind } from "./reviewFileTree.ts";
 import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
+
+// One unit's measured total at a scope.
+export type MeasuredCount = {
+  readonly kind: "measured";
+  readonly total: number;
+  readonly failed: number;
+  readonly unit: CiProofUnit;
+};
 
 export type ScopeEndpointCount =
   | { readonly kind: "checking" }
@@ -28,21 +43,17 @@ export type ScopeEndpointCount =
   | { readonly kind: "no-breakdown" }
   | { readonly kind: "absent" }
   | { readonly kind: "nothing" }
-  | {
-      readonly kind: "measured";
-      readonly total: number;
-      readonly failed: number;
-      readonly unit: string;
-    };
+  | MeasuredCount
+  // Several units' totals at the scope, kept apart.
+  | { readonly kind: "units"; readonly counts: readonly MeasuredCount[] };
 
-const noFileBreakdown = "no file breakdown";
 const minus = "−";
 
 export const totalCounted = (figures: CiProofFigures): number =>
   countedResultsOf(figures).total;
 
-// The counted results a Counts column sorts COUNT by: none for a gap, and
-// none counted for an entry that counts nothing.
+// The counted results a Counts column sorts COUNT by: none for a gap or for
+// several units, and none counted for an entry that counts nothing.
 export function countedResultsOfCount(
   count: ScopeEndpointCount,
 ): CountedResults | undefined {
@@ -51,36 +62,64 @@ export function countedResultsOfCount(
   return count.kind === "nothing" ? { total: 0, failed: 0 } : undefined;
 }
 
-function formatTotal(total: number): string {
+export function formatTotal(total: number): string {
   return total.toLocaleString("en-US");
 }
 
-function signedCountWords(delta: number): string {
+// "3 test cases".
+export const countWords = (total: number, unit: CiProofUnit): string =>
+  `${formatTotal(total)} ${unitNoun(unit, total)}`;
+
+export function signedCountWords(delta: number): string {
   if (delta === 0) return "0";
   return delta > 0 ? `+${String(delta)}` : `${minus}${String(Math.abs(delta))}`;
 }
 
-// "12 → 10 tests (−2)" or "6 tests (no change)". Units stay with the totals;
-// the signed difference is separate text in parentheses.
+// "12 → 10 test cases (−2)" or "6 test cases (no change)": two totals of one
+// declared unit. Units stay with the totals; the signed difference is
+// separate text in parentheses.
 export function measuredCountsChangeWords(
   before: number,
   after: number,
-  unit: string,
+  unit: CiProofUnit,
 ): string {
-  if (before === after) return `${formatTotal(after)} ${unit} (no change)`;
-  return `${formatTotal(before)} → ${formatTotal(after)} ${unit} (${signedCountWords(after - before)})`;
+  if (before === after) return `${countWords(after, unit)} (no change)`;
+  return `${formatTotal(before)} → ${countWords(after, unit)} (${signedCountWords(after - before)})`;
 }
 
-function measuredOf(
-  entry: CiProofEntry,
+const measuredOf = (
+  evidence: CiEntryEvidence,
   figures: CiProofFigures,
+): MeasuredCount => ({
+  kind: "measured",
+  ...countedResultsOf(figures),
+  unit: evidence.unit,
+});
+
+// One total for one unit, several units' totals kept apart, or, without any
+// total, what stands in for one.
+function countOfMeasured(
+  measured: readonly MeasuredCount[],
+  otherwise: ScopeEndpointCount,
 ): ScopeEndpointCount {
-  if (entry.unit === null) return { kind: "nothing" };
-  return {
-    kind: "measured",
-    ...countedResultsOf(figures),
-    unit: entry.unit,
-  };
+  const [only] = measured;
+  if (only === undefined) return otherwise;
+  return measured.length === 1 ? only : { kind: "units", counts: measured };
+}
+
+// The totals SHOWN at a scope (`unitResultsAt`) of each unit with results
+// there (`unitsWithResults`), where at its entry's path a unit without a
+// present part counts nothing; without any, what stands in for one.
+function countOfShown(shown: readonly UnitResults[]): ScopeEndpointCount {
+  const measured = unitsWithResults(shown).flatMap(({ evidence, figures }) =>
+    figures !== undefined || countedAny(evidence)
+      ? [measuredOf(evidence, figures ?? evidence)]
+      : [],
+  );
+  const atEntry = shown.some(({ figures }) => figures === undefined);
+  return countOfMeasured(measured, {
+    kind: atEntry ? "nothing" : noResultsKindOf(shown),
+  });
 }
 
 export function scopeEndpointCountOf(
@@ -91,11 +130,7 @@ export function scopeEndpointCountOf(
   if (read.kind !== "summary") return read;
   const entry = owningEntryOf(read.entries, lookup);
   if (entry === undefined) return { kind: "absent" };
-  if (lookup === entry.path) return measuredOf(entry, entry);
-  if (!hasFileBreakdown(entry)) return { kind: "no-breakdown" };
-  const figures = scopeFiguresOf(entry, lookup);
-  if (figures.files === 0) return { kind: "absent" };
-  return measuredOf(entry, figures);
+  return countOfShown(unitResultsAt(entry, lookup));
 }
 
 export function outsideCountOf(
@@ -107,139 +142,11 @@ export function outsideCountOf(
   if (read.kind !== "summary") return read;
   const entry = owningEntryOf(read.entries, path);
   if (entry === undefined) return { kind: "absent" };
-  if (!hasFileBreakdown(entry)) return { kind: "no-breakdown" };
-  const outside = outsideOf(entry, path, children);
-  if (outside === undefined) return { kind: "absent" };
-  return measuredOf(entry, outside.figures);
-}
-
-function baselineCountText(
-  count: ScopeEndpointCount,
-  presentLater: boolean,
-): string {
-  if (count.kind === "checking") return "…";
-  if (count.kind === "status") return count.text;
-  if (count.kind === "no-breakdown") return noFileBreakdown;
-  if (count.kind === "absent") return presentLater ? "added" : "—";
-  if (count.kind === "nothing") return "nothing counted";
-  return formatTotal(count.total);
-}
-
-function afterCountText(
-  count: ScopeEndpointCount,
-  presentInBaseline: boolean,
-  changeKind?: ChangeKind,
-): string {
-  if (count.kind === "checking") return "…";
-  if (count.kind === "status") return count.text;
-  if (count.kind === "no-breakdown") return noFileBreakdown;
-  if (count.kind === "absent") {
-    if (changeKind === "deleted" || presentInBaseline) return "removed";
-    return "added";
-  }
-  if (count.kind === "nothing") return "nothing counted";
-  return formatTotal(count.total);
-}
-
-function unitOf(
-  before: ScopeEndpointCount,
-  branch: ScopeEndpointCount,
-  landed: ScopeEndpointCount,
-): string | undefined {
-  for (const count of [landed, branch, before]) {
-    if (count.kind === "measured") return count.unit;
-  }
-  return undefined;
-}
-
-function sameMeasured(
-  left: ScopeEndpointCount,
-  right: ScopeEndpointCount,
-): boolean {
-  return (
-    left.kind === "measured" &&
-    right.kind === "measured" &&
-    left.total === right.total &&
-    left.unit === right.unit
+  if (!entry.evidence.some(hasFileBreakdown)) return { kind: "no-breakdown" };
+  return countOfMeasured(
+    entryOutsidesOf(entry, path, children).map(({ evidence, outside }) =>
+      measuredOf(evidence, outside.figures),
+    ),
+    { kind: "absent" },
   );
-}
-
-function countsChangePhrase(
-  before: ScopeEndpointCount,
-  after: ScopeEndpointCount,
-  presentLater: boolean,
-  presentInBaseline: boolean,
-  changeKind: ChangeKind | undefined,
-  unit: string | undefined,
-): string {
-  if (before.kind === "measured" && after.kind === "measured") {
-    return measuredCountsChangeWords(before.total, after.total, after.unit);
-  }
-  const baselineText = baselineCountText(before, presentLater);
-  const afterText = afterCountText(after, presentInBaseline, changeKind);
-  if (baselineText === afterText) {
-    return after.kind === "measured" && unit !== undefined
-      ? `${afterText} ${unit}`
-      : afterText;
-  }
-  // Append the unit only when an after endpoint measured a total, so
-  // "1 → removed" stays a gap and "added → 1 tests" keeps its unit.
-  if (after.kind === "measured" && unit !== undefined) {
-    return `${baselineText} → ${afterText} ${unit}`;
-  }
-  return `${baselineText} → ${afterText}`;
-}
-
-// One Counts cell: baseline → after with signed differences when both sides
-// are measured; a gap endpoint shows its gap, never an invented difference.
-export function countsCellText(
-  before: ScopeEndpointCount,
-  branch: ScopeEndpointCount,
-  landed: ScopeEndpointCount,
-  presentLater: boolean,
-  presentInBaseline: boolean,
-  changeKind?: ChangeKind,
-): string {
-  const unit = unitOf(before, branch, landed);
-  const phrase = (after: ScopeEndpointCount) =>
-    countsChangePhrase(
-      before,
-      after,
-      presentLater,
-      presentInBaseline,
-      changeKind,
-      unit,
-    );
-  const branchText = afterCountText(branch, presentInBaseline, changeKind);
-  const landedText = afterCountText(landed, presentInBaseline, changeKind);
-
-  if (
-    baselineCountText(before, presentLater) === branchText &&
-    branchText === landedText &&
-    !(before.kind === "measured" && branch.kind === "measured")
-  ) {
-    return phrase(branch);
-  }
-  if (sameMeasured(branch, landed) || landed.kind !== "measured") {
-    if (branch.kind === "measured" || branchText === landedText) {
-      return phrase(branch);
-    }
-  }
-  if (branch.kind === "status" || branch.kind === "checking") {
-    return phrase(landed);
-  }
-  if (landed.kind === "status" || landed.kind === "checking") {
-    return phrase(branch);
-  }
-  if (branchText === landedText) {
-    return phrase(branch);
-  }
-  if (
-    before.kind === "measured" &&
-    branch.kind === "measured" &&
-    landed.kind === "measured"
-  ) {
-    return `${measuredCountsChangeWords(before.total, branch.total, branch.unit)} → ${formatTotal(landed.total)} ${landed.unit} (${signedCountWords(landed.total - before.total)})`;
-  }
-  return `${phrase(branch)} → ${landedText}${landed.kind === "measured" && unit !== undefined ? ` ${unit}` : ""}`;
 }

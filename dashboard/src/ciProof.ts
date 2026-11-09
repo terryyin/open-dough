@@ -1,9 +1,12 @@
 // The CI proof of one CI attempt, as the local authenticated read boundary
 // answers it (`../server/intentCiProofRead.ts`): a GitHub Actions run
 // attempt's or a ciAdapter attempt's proof summary, in the collector's
-// versioned summary schema
-// (`../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`),
-// or the one reason no proof can be shown for that attempt.
+// current versioned summary schema
+// (`../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`;
+// the boundary reads a version 1 summary's results as legacy evidence), or
+// the one reason no proof can be shown for that attempt. Each declared entry
+// keeps its results partitioned by unit (`./ciProofUnits.ts`): test cases,
+// test files, or legacy test results, never added together.
 import { z } from "zod";
 
 // The GitHub Actions run a proof read is keyed by: the judged result's run id
@@ -63,10 +66,10 @@ export type CiProofUnavailableReason =
 
 const count = z.number().int().nonnegative();
 const positive = z.number().int().positive();
-// Optional summed test execution time in milliseconds (collector v1, additive).
+// Optional summed test execution time in milliseconds.
 const durationMs = z.number().nonnegative().optional();
-// Optional count of counted tests or checks that recorded no duration
-// (collector v1 file breakdown, additive): absent in an older summary.
+// Optional count of counted results that recorded no duration (file
+// breakdown): absent in an older summary.
 const untimed = count.optional();
 
 const partSchema = z.object({
@@ -95,11 +98,8 @@ export type CiProofFigures = z.infer<typeof figuresSchema>;
 const fileSchema = figuresSchema.extend({ path: z.string().min(1) });
 export type CiProofFile = z.infer<typeof fileSchema>;
 
-const entrySchema = z.object({
-  path: z.string().min(1),
-  // What the entry's runner counts, such as Playwright `tests`; null when no
-  // part was present to say.
-  unit: z.string().min(1).nullable(),
+// One unit's results at an entry: counts, timing, parts and file breakdown.
+const resultsSchema = z.object({
   passed: count,
   failed: count,
   other: count,
@@ -110,11 +110,32 @@ const entrySchema = z.object({
   files: z.array(fileSchema).optional(),
   unassigned: figuresSchema.optional(),
 });
+
+// The results of one unit: test cases, test files, or legacy results whose
+// publisher declared no unit, with the label that unit was spelled with
+// (`tests`, `checks`, or null when no part was present to say) as
+// provenance only.
+const evidenceSchema = z.discriminatedUnion("unit", [
+  resultsSchema.extend({ unit: z.literal("case") }),
+  resultsSchema.extend({ unit: z.literal("file") }),
+  resultsSchema.extend({
+    unit: z.literal("legacy"),
+    label: z.string().min(1).nullable(),
+  }),
+]);
+export type CiProofEvidence = z.infer<typeof evidenceSchema>;
+
+// One declared entry, an Intent location path, with its results in each unit
+// reported there.
+const entrySchema = z.object({
+  path: z.string().min(1),
+  evidence: z.array(evidenceSchema).min(1),
+});
 export type CiProofEntry = z.infer<typeof entrySchema>;
 
 // A summary names either a GitHub Actions run attempt or an adapter attempt.
 const summaryFields = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   repository: z.string().min(1),
   revision: z.string().min(1),
   entries: z.array(entrySchema),

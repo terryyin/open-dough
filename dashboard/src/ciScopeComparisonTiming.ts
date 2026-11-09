@@ -1,17 +1,20 @@
 // Timing of one scope path inside one comparison endpoint proof
 // (`./ciScopeComparison.ts`): the endpoint's read state, or the one timing
 // classification (`./ciProofTiming.ts`) of that scope's figures
-// (`./ciScopeProof.ts`), and baseline and after cells worded for precise or
-// whole-second Summary and homepage wording (`./ciProofTimeWords.ts`).
+// (`./ciScopeProof.ts`) in its unit, or several units' timings kept apart,
+// never added (`./ciProofUnits.ts`); and baseline and after cells worded for
+// precise or whole-second Summary and homepage wording
+// (`./ciProofTimeWords.ts`). Every comparison depth takes its after cells
+// from here: one shows its signed change from a measured baseline
+// (`./storyCiRelativeChange.ts`) only in the same declared unit, and
+// otherwise its own time with no change.
 
-import type { CiProofEntry } from "./ciProof.ts";
 import {
   executionTimeDifferenceWords,
   executionTimeWords,
   wholeSecondDifferenceWords,
   wholeSecondWords,
 } from "./ciProofTimeWords.ts";
-import { hasFileBreakdown } from "./ciProofWording.ts";
 import {
   entryTimingOf,
   scopeTimingOf,
@@ -20,10 +23,19 @@ import {
   type TimingCell,
 } from "./ciProofTiming.ts";
 import {
-  outsideOf,
+  comparableUnits,
+  hasFileBreakdown,
+  unitName,
+  type CiEntryEvidence,
+  type CiProofUnit,
+} from "./ciProofUnits.ts";
+import {
+  entryOutsidesOf,
+  noResultsKindOf,
   owningEntryOf,
-  scopeFiguresOf,
-  type CiScopeFigures,
+  unitResultsAt,
+  unitsWithResults,
+  type UnitResults,
   type SummaryChild,
 } from "./ciScopeProof.ts";
 import { endpointProofReadOf } from "./ciScopeComparisonEndpoint.ts";
@@ -33,30 +45,55 @@ import { timeChangeOf } from "./storyCiRelativeChange.ts";
 
 export type ComparisonTimingPrecision = "precise" | "whole-second";
 
+// One unit's timing at a scope.
+export type UnitTiming = CiTiming & { readonly unit: CiProofUnit };
+
 export type ScopeEndpointTiming =
   | { readonly kind: "checking" }
   | { readonly kind: "status"; readonly text: string }
   | { readonly kind: "no-breakdown" }
   | { readonly kind: "absent" }
-  | CiTiming;
+  | UnitTiming
+  // Several units' timings at the scope, kept apart.
+  | { readonly kind: "units"; readonly timings: readonly UnitTiming[] };
 
 const noFileBreakdown = "no file breakdown";
 
-// A scope inside ENTRY at one endpoint: no breakdown, absent without a CI
-// result, else its classified timing.
-function scopeEndpointFiguresTimingOf(
-  entry: CiProofEntry,
-  figures: CiScopeFigures,
+const unitTimingOf = (
+  evidence: CiEntryEvidence,
+  timing: CiTiming,
+): UnitTiming => ({ ...timing, unit: evidence.unit });
+
+// One unit's timing, several units' timings kept apart, or, without any,
+// OTHERWISE.
+function timingOfUnits(
+  timings: readonly UnitTiming[],
+  otherwise: ScopeEndpointTiming,
 ): ScopeEndpointTiming {
-  if (!hasFileBreakdown(entry)) return { kind: "no-breakdown" };
-  if (figures.files === 0) return { kind: "absent" };
-  return scopeTimingOf(entry, figures);
+  const [only] = timings;
+  if (only === undefined) return otherwise;
+  return timings.length === 1 ? only : { kind: "units", timings };
 }
 
-// One path's timing inside one endpoint proof. ENTRY scope (path equals the
-// owning entry) uses the entry totals even without a file breakdown; folder
-// and file scopes need the breakdown. LOOKUP is the path read in that
-// summary (a rename's old path at baseline).
+// The timing SHOWN at a scope (`unitResultsAt`) for each unit with results
+// there (`unitsWithResults`): its entry timing at its entry's path, even
+// without a file breakdown, else its scope timing; without any, why not.
+function timingOfShown(shown: readonly UnitResults[]): ScopeEndpointTiming {
+  return timingOfUnits(
+    unitsWithResults(shown).map(({ evidence, figures }) =>
+      unitTimingOf(
+        evidence,
+        figures === undefined
+          ? entryTimingOf(evidence)
+          : scopeTimingOf(evidence, figures),
+      ),
+    ),
+    { kind: noResultsKindOf(shown) },
+  );
+}
+
+// One path's timing inside one endpoint proof. LOOKUP is the path read in
+// that summary (a rename's old path at baseline).
 export function scopeEndpointTimingOf(
   proof: ComparisonEndpointProof,
   lookup: string,
@@ -65,8 +102,7 @@ export function scopeEndpointTimingOf(
   if (read.kind !== "summary") return read;
   const entry = owningEntryOf(read.entries, lookup);
   if (entry === undefined) return { kind: "absent" };
-  if (lookup === entry.path) return entryTimingOf(entry);
-  return scopeEndpointFiguresTimingOf(entry, scopeFiguresOf(entry, lookup));
+  return timingOfShown(unitResultsAt(entry, lookup));
 }
 
 export function outsideTimingOf(
@@ -78,10 +114,13 @@ export function outsideTimingOf(
   if (read.kind !== "summary") return read;
   const entry = owningEntryOf(read.entries, path);
   if (entry === undefined) return { kind: "absent" };
-  if (!hasFileBreakdown(entry)) return { kind: "no-breakdown" };
-  const outside = outsideOf(entry, path, children);
-  if (outside === undefined) return { kind: "absent" };
-  return scopeEndpointFiguresTimingOf(entry, outside.figures);
+  if (!entry.evidence.some(hasFileBreakdown)) return { kind: "no-breakdown" };
+  return timingOfUnits(
+    entryOutsidesOf(entry, path, children).map(({ evidence, outside }) =>
+      unitTimingOf(evidence, scopeTimingOf(evidence, outside.figures)),
+    ),
+    { kind: "absent" },
+  );
 }
 
 function timingWords(precision: ComparisonTimingPrecision): {
@@ -99,21 +138,51 @@ function timingWords(precision: ComparisonTimingPrecision): {
       };
 }
 
+// Several units' times in one cell, each named by its unit, with no single
+// measured value: "1.2 s (test cases); 300 ms (test files)".
+function unitsCellOf(
+  timings: readonly UnitTiming[],
+  words: (ms: number) => string,
+): TimingCell {
+  const cells = timings.map((timing) => ({
+    unit: unitName(timing.unit),
+    cell: timingCellOf(timing, words),
+  }));
+  const explained = cells.filter(({ cell }) => cell.explanation !== undefined);
+  return {
+    text: cells.map(({ unit, cell }) => `${cell.text} (${unit})`).join("; "),
+    ...(explained.length === 0
+      ? {}
+      : {
+          explanation: explained
+            .map(({ unit, cell }) => `${unit}: ${cell.explanation ?? ""}`)
+            .join("; "),
+        }),
+  };
+}
+
 export function baselineCellOf(
   timing: ScopeEndpointTiming,
   presentLater: boolean,
   precision: ComparisonTimingPrecision,
 ): TimingCell {
+  const words = timingWords(precision).value;
   if (timing.kind === "checking") return { text: "…" };
   if (timing.kind === "status") return { text: timing.text };
   if (timing.kind === "no-breakdown") return { text: noFileBreakdown };
   if (timing.kind === "absent") return { text: presentLater ? "added" : "—" };
-  return timingCellOf(timing, timingWords(precision).value);
+  if (timing.kind === "units") return unitsCellOf(timing.timings, words);
+  return timingCellOf(timing, words);
 }
 
+// A Branch or Landed cell: its read state, added or removed, several units'
+// times kept apart, or one unit's time, measured as its signed change from
+// the BASELINE timing when that is measured in the same declared unit;
+// otherwise (no measured baseline, another unit, legacy results, a timing
+// gap) as it is, with no change, relative mark or change to sort by.
 export function afterCellOf(
   timing: ScopeEndpointTiming,
-  baselineMs: number | undefined,
+  baseline: ScopeEndpointTiming,
   presentInBaseline: boolean,
   precision: ComparisonTimingPrecision,
   changeKind?: ChangeKind,
@@ -127,10 +196,15 @@ export function afterCellOf(
       text: changeKind === "deleted" || presentInBaseline ? "removed" : "added",
     };
   }
-  if (timing.kind !== "measured" || baselineMs === undefined)
+  if (timing.kind === "units") return unitsCellOf(timing.timings, words.value);
+  if (
+    timing.kind !== "measured" ||
+    baseline.kind !== "measured" ||
+    !comparableUnits(baseline.unit, timing.unit)
+  )
     return timingCellOf(timing, words.value);
   return {
-    ...timeChangeOf(baselineMs, timing.ms, words.difference),
+    ...timeChangeOf(baseline.ms, timing.ms, words.difference),
     ms: timing.ms,
   };
 }

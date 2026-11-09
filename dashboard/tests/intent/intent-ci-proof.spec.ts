@@ -50,9 +50,9 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       ["tests", 1],
     ],
     [
-      ["dashboard/tests", 1, 2, "tests", counts(12)],
-      ["dashboard/tests", 2, 2, "tests", counts(7, 1)],
-      ["tests", 1, 1, "checks", counts(5)],
+      ["dashboard/tests", 1, 2, "case", counts(12)],
+      ["dashboard/tests", 2, 2, "case", counts(7, 1)],
+      ["tests", 1, 1, "file", counts(5)],
     ],
   );
   let release: () => void = () => undefined;
@@ -81,8 +81,8 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
     await expectAttemptAt(proof, "Run 41 · attempt 1", "a1b2c3d");
     await expectAttemptLinked(proof, "Run 41 · attempt 1", runUrl);
     await expectProofRows(proof, [
-      ["dashboard/tests", "19 passed and 1 failed tests", notRecorded],
-      ["tests", "5 passed checks", notRecorded],
+      ["dashboard/tests", "19 passed and 1 failed test cases", notRecorded],
+      ["tests", "5 passed test files", notRecorded],
     ]);
     await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
   });
@@ -99,7 +99,7 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
   page,
 }) => {
   const present = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12].map(
-    (part) => ["dashboard/tests", part, 12, "tests", counts(10)] as const,
+    (part) => ["dashboard/tests", part, 12, "case", counts(10)] as const,
   );
   const summary = proofSummary(run, [["dashboard/tests", 12]], present);
   const { proof } = await openFailedRun(
@@ -108,7 +108,7 @@ test("a missing part is shown as a gap and its counts are not counted", async ({
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, [
-    ["dashboard/tests", "110 passed tests", "Part 4 missing"],
+    ["dashboard/tests", "110 passed test cases", "Part 4 missing"],
   ]);
   await expect(
     proofTable(proof).getByRole("cell", { name: "Part 4 missing" }),
@@ -148,15 +148,15 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
       ["dashboard/tests", 2],
     ],
     [
-      [longEntry, 1, 3, "checks", counts(40, 2, 1), 30_000],
-      [longEntry, 3, 3, "checks", counts(12), 20_000],
-      ["dashboard/tests", 1, 2, "tests", counts(8), 75_000],
-      ["dashboard/tests", 2, 2, "tests", counts(4), 45_000],
+      [longEntry, 1, 3, "file", counts(40, 2, 1), 30_000],
+      [longEntry, 3, 3, "file", counts(12), 20_000],
+      ["dashboard/tests", 1, 2, "case", counts(8), 75_000],
+      ["dashboard/tests", 2, 2, "case", counts(4), 45_000],
     ],
   );
   const rows = [
-    [longEntry, "52 passed, 2 failed and 1 other checks", "Part 2 missing"],
-    ["dashboard/tests", "12 passed tests", "2 min"],
+    [longEntry, "52 passed, 2 failed and 1 other test files", "Part 2 missing"],
+    ["dashboard/tests", "12 passed test cases", "2 min"],
   ] as const;
   const { panel, proof } = await openFailedRun(
     page,

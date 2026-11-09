@@ -12,7 +12,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "dashboard/tests",
     "",
-    "4 → 6 tests (+2) → 5 tests (+1)",
+    "4 → 6 test cases (+2) → 5 test cases (+1)",
     "12.0 s",
     "+9.5 s",
     "+6.5 s",
@@ -21,7 +21,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "folder/",
     "",
-    "no file breakdown → 3 tests → 2 tests",
+    "no file breakdown → 3 test cases → 2 test cases",
     "no file breakdown",
     "17.4 s",
     "14.4 s",
@@ -29,7 +29,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "added.spec.ts",
     "added",
-    "no file breakdown → 1 tests",
+    "no file breakdown → 1 test case",
     "no file breakdown",
     "800 ms",
     "800 ms",
@@ -53,7 +53,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "renamed.spec.ts",
     "renamed",
-    "no file breakdown → 1 tests",
+    "no file breakdown → 1 test case",
     "no file breakdown",
     "2.1 s",
     "2.1 s",
@@ -61,7 +61,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "root.spec.ts",
     "",
-    "no file breakdown → 1 tests",
+    "no file breakdown → 1 test case",
     "no file breakdown",
     "1.2 s",
     "1.2 s",
@@ -72,7 +72,7 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
   [
     "dashboard/tests",
     "",
-    "4 → 6 tests (+2)",
+    "4 → 6 test cases (+2)",
     "12.0 s",
     "+9.5 s",
     "Build is still running.",
@@ -81,7 +81,7 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
   [
     "folder/",
     "",
-    "2 → 3 tests (+1)",
+    "2 → 3 test cases (+1)",
     "10.3 s",
     "+7.1 s",
     "Build is still running.",
@@ -89,7 +89,7 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
   [
     "added.spec.ts",
     "added",
-    "added → 1 tests",
+    "added → 1 test case",
     "added",
     "800 ms",
     "Build is still running.",
@@ -110,18 +110,19 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
     "not in the compared builds",
     "not in the compared builds",
   ],
+  // Renamed across units (./summaryComparisonExpectedRows.ts): no change.
   [
     "renamed.spec.ts",
     "renamed",
-    "1 tests (no change)",
+    "1 test file → 1 test case",
     "2.0 s (was tests/old.sh)",
-    "+100 ms",
+    "2.1 s",
     "Build is still running.",
   ],
   [
     "root.spec.ts",
     "",
-    "1 tests (no change)",
+    "1 test case (no change)",
     "1.2 s",
     "0 ms",
     "Build is still running.",
@@ -135,14 +136,21 @@ export const trunkEntryRows: ComparisonScopeRows = [
   [
     "dashboard/tests",
     "",
-    "4 → 5 tests (+1)",
+    "4 → 5 test cases (+1)",
     "12.0 s",
     trunkBranch,
     "+6.5 s",
     parts,
   ],
-  ["folder/", "", "2 tests (no change)", "10.3 s", trunkBranch, "+4.1 s"],
-  ["added.spec.ts", "added", "added → 1 tests", "added", trunkBranch, "800 ms"],
+  ["folder/", "", "2 test cases (no change)", "10.3 s", trunkBranch, "+4.1 s"],
+  [
+    "added.spec.ts",
+    "added",
+    "added → 1 test case",
+    "added",
+    trunkBranch,
+    "800 ms",
+  ],
   ["gone.spec.ts", "removed", "1 → removed", "500 ms", trunkBranch, "removed"],
   [
     "later.spec.ts",
@@ -155,10 +163,10 @@ export const trunkEntryRows: ComparisonScopeRows = [
   [
     "renamed.spec.ts",
     "renamed",
-    "1 tests (no change)",
+    "1 test file → 1 test case",
     "2.0 s (was tests/old.sh)",
     trunkBranch,
-    "+100 ms",
+    "2.1 s",
   ],
-  ["root.spec.ts", "", "1 tests (no change)", "1.2 s", trunkBranch, "0 ms"],
+  ["root.spec.ts", "", "1 test case (no change)", "1.2 s", trunkBranch, "0 ms"],
 ];

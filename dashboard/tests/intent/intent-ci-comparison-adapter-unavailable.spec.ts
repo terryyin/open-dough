@@ -72,7 +72,13 @@ test("unavailable adapter timing keeps the build, wall time and proof in a final
     );
   }
   await expectCiComparisonEntryRows(panel, [
-    ["tests", "5 → 8 tests (+3) → 7 tests (+2)", "3 s", "+2 s", "+1 s"],
+    [
+      "tests",
+      "5 → 8 test cases (+3) → 7 test cases (+2)",
+      "3 s",
+      "+2 s",
+      "+1 s",
+    ],
   ]);
   expect(adapter.jobsRequests()).toHaveLength(3);
   expect(adapter.discoverRequests()).toHaveLength(2);

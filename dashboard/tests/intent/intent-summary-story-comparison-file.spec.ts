@@ -3,7 +3,8 @@
 // precise A/B/C times, count differences and change kinds, including a test
 // file only the story's integration merge edited, and returns directly to the
 // story's CI comparison (../../src/intentStoryTabs.tsx), Changed tests keeping
-// the file and Proof for the way back. Added and unchanged files keep Proof; story-free source Purpose and judged-run Proof
+// the file and Proof for the way back. Added, renamed-across-units and
+// unchanged files keep Proof; story-free source Purpose and judged-run Proof
 // are in ./intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
@@ -35,6 +36,7 @@ import {
   expectFileComparisonRow,
   mergeEditedFileRow,
   modifiedFileRow,
+  renamedFileRow,
   unchangedFileRow,
 } from "../support/summaryComparisonFileExpectedRows.ts";
 
@@ -139,6 +141,32 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         purposeRegion(intent).locator(".intent-story-diff-name"),
       ).toHaveText(summaryComparisonChanges.added);
     });
+
+    if (variant === undefined)
+      await test.step("a file renamed from a shell check's test file into a Playwright test case keeps each endpoint's own time, with no change, mark or cue across units", async () => {
+        await intentFile(intent, summaryComparisonChanges.renamed).click();
+        await fileReadingTab(intent, "Proof").click();
+        const renamedProof = proofRegion(intent);
+        await expectFileComparisonRow(
+          renamedProof,
+          "dashboard/tests/renamed.spec.ts",
+          renamedFileRow,
+        );
+        await expectProofRowCues(
+          renamedProof,
+          "dashboard/tests/renamed.spec.ts",
+          {
+            count: "none",
+            duration: "none",
+            countReason: "units not comparable",
+            durationReason: "units not comparable",
+          },
+        );
+        await expect(renamedProof.locator(".intent-ci-time-mark")).toHaveCount(
+          0,
+        );
+        await fileReadingTab(intent, "Purpose").click();
+      });
 
     if (variant !== undefined)
       await test.step("a test file only the integration merge edited shows that edit and keeps Proof", async () => {

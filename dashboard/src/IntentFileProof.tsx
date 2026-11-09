@@ -1,7 +1,9 @@
 // CI Proof of a selected test file (`./IntentFileReading.tsx`): Intent's one
 // CI evidence owner (`./IntentCiEvidence.tsx`) with no further CI read. For a
-// judged-run summary, one row of counts and execution time with the same gap
-// wording Summaries use (`./ciScopeProof.ts`, `./ciProofWording.ts`). For a
+// judged-run summary, one row of counts and execution time for each unit of
+// results the file shows, such as its test cases and its own test file
+// outcome, with the same gap wording Summaries use (`./ciScopeProof.ts`,
+// `./ciProofWording.ts`). For a
 // selected story's comparison, the same baseline, branch and landed figures
 // the Summary uses (`./ciScopeComparison.ts`), with change markers and the
 // observed-not-attributed statement. Without usable evidence, the same
@@ -9,13 +11,9 @@
 
 import type { ReactNode } from "react";
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
-import { owningEntryOf, scopeFiguresOf } from "./ciScopeProof.ts";
+import { owningEntryOf } from "./ciScopeProof.ts";
 import { scopeComparisonCellsOf } from "./ciScopeComparison.ts";
-import {
-  ciProofCellsOf,
-  ciScopeCellsOf,
-  type CiProofCells,
-} from "./ciProofWording.ts";
+import { unitCellsAt, type CiProofCells } from "./ciProofWording.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
@@ -29,6 +27,7 @@ import {
 } from "./storyCiComparisonEntries.ts";
 import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
+// The file's table: one row of the file for each of CELLS.
 function FileProofTable({
   path,
   scope,
@@ -36,13 +35,17 @@ function FileProofTable({
 }: {
   readonly path: string;
   readonly scope: ReactNode;
-  readonly cells: CiProofCells | ComparisonEntryCells;
+  readonly cells: readonly (CiProofCells | ComparisonEntryCells)[];
 }) {
   return (
     <CiProofTable
       label={`CI proof of ${path}`}
       scopeHeader="Scope"
-      rows={[{ key: path, scope, cells }]}
+      rows={cells.map((one, at) => ({
+        key: at === 0 ? path : `${path}\0${String(at)}`,
+        scope,
+        cells: one,
+      }))}
     />
   );
 }
@@ -112,7 +115,7 @@ export function IntentFileProof({
                 {marker !== undefined ? ` ${changeKindWords[marker]}` : ""}
               </>
             }
-            cells={cells}
+            cells={[cells]}
           />
         </IntentCiComparisonFrame>
       </div>
@@ -130,10 +133,7 @@ export function IntentFileProof({
       </>
     );
   }
-  const cells =
-    path === entry.path
-      ? ciProofCellsOf(entry)
-      : ciScopeCellsOf(entry, scopeFiguresOf(entry, path));
+  const cells = unitCellsAt(entry, path).map((unit) => unit.cells);
 
   return (
     <div className="intent-file-proof">

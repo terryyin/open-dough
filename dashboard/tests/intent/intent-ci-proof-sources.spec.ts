@@ -98,17 +98,27 @@ test("a published CI summary for a sources location shows its group and file res
     await intentLocationName(intent, "scripts").click();
     const scripts = summaryRegion(intent);
     await expectScopeRows(scripts, "scripts", [
-      ["scripts", "2 passed checks", "3.0 s", "1 of 1 part present"],
-      ["ci/", "1 passed checks", "500 ms"],
-      ["test/", "1 passed checks", "2.5 s"],
+      [
+        "scripts",
+        "2 passed legacy test results",
+        "3.0 s",
+        "1 of 1 part present",
+      ],
+      ["ci/", "1 passed legacy test result", "500 ms"],
+      ["test/", "1 passed legacy test result", "2.5 s"],
     ]);
   });
 
   await test.step("each file's results sit at its own path", async () => {
     await childName(summaryRegion(intent), "test/").click();
     await expectScopeRows(summaryRegion(intent), "scripts/test", [
-      ["scripts/test", "1 passed checks", "2.5 s", "1 of 1 part present"],
-      ["worktree_setup.sh.test", "1 passed checks", "2.5 s"],
+      [
+        "scripts/test",
+        "1 passed legacy test result",
+        "2.5 s",
+        "1 of 1 part present",
+      ],
+      ["worktree_setup.sh.test", "1 passed legacy test result", "2.5 s"],
     ]);
   });
 });

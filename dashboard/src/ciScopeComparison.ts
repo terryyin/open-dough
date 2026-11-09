@@ -6,17 +6,20 @@
 // the entry's own path; folder and file figures from the file breakdown),
 // classify through `./ciScopeComparisonTiming.ts`,
 // `./ciScopeComparisonCounts.ts` and `./ciScopeComparisonCues.ts`, and word
-// baseline / branch / landed cells and the Counts cell with signed
-// differences. A rename reads its baseline at its old path. Summary and file
-// use precise duration words; the homepage keeps whole-second words. Parts
-// completeness stays from the landed summary (or branch when landed has none).
+// baseline / branch / landed cells and the Counts cell
+// (`./ciScopeComparisonCountsCell.ts`) with signed differences, only between
+// figures of one declared unit (`./ciProofUnits.ts`). A rename reads its
+// baseline at its old path.
+// Summary and file use precise duration words; the homepage keeps
+// whole-second words. Parts completeness stays from the landed summary (or
+// branch when landed has none).
 
 import {
   countedResultsOfCount,
-  countsCellText,
   outsideCountOf,
   scopeEndpointCountOf,
 } from "./ciScopeComparisonCounts.ts";
+import { countsCellText } from "./ciScopeComparisonCountsCell.ts";
 import {
   noComparisonCues,
   scopeComparisonCuesOf,
@@ -37,8 +40,7 @@ import {
   presentIn,
   primaryEntryOf,
 } from "./ciScopeComparisonPrimary.ts";
-import { hasFileBreakdown } from "./ciProofWording.ts";
-import { outsideOf, type SummaryChild } from "./ciScopeProof.ts";
+import { entryOutsidesOf, type SummaryChild } from "./ciScopeProof.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import type {
   ComparisonEndpointProof,
@@ -74,7 +76,6 @@ export function scopeComparisonCellsOf(
   const before = scopeEndpointTimingOf(baseline, baselineLookup);
   const branchTiming = scopeEndpointTimingOf(branch, path);
   const landedTiming = scopeEndpointTimingOf(landed, path);
-  const baselineMs = before.kind === "measured" ? before.ms : undefined;
   const beforeCount = scopeEndpointCountOf(baseline, baselineLookup);
   const branchCount = scopeEndpointCountOf(branch, path);
   const landedCount = scopeEndpointCountOf(landed, path);
@@ -130,14 +131,14 @@ export function scopeComparisonCellsOf(
         : { ...baselineCell, text: `${baselineCell.text}${renameNote}` },
     branch: afterCellOf(
       branchTiming,
-      baselineMs,
+      before,
       presentInBaseline,
       precision,
       changeKind,
     ),
     landed: afterCellOf(
       landedTiming,
-      baselineMs,
+      before,
       presentInBaseline,
       precision,
       changeKind,
@@ -151,7 +152,8 @@ export function scopeComparisonCellsOf(
 const hasTiming = (timing: ScopeEndpointTiming) =>
   timing.kind === "measured" ||
   timing.kind === "partial" ||
-  timing.kind === "not-recorded";
+  timing.kind === "not-recorded" ||
+  timing.kind === "units";
 
 // Comparison cells for the Summary's "Not in the rows above" row: each
 // endpoint's outside figures under PATH given the same CHILDREN.
@@ -165,7 +167,6 @@ export function outsideComparisonCellsOf(
   afterSide: ComparisonAfterSide = "landed",
 ): ComparisonEntryCells {
   const before = outsideTimingOf(baseline, path, children);
-  const baselineMs = before.kind === "measured" ? before.ms : undefined;
   const branchOutside = outsideTimingOf(branch, path, children);
   const landedOutside = outsideTimingOf(landed, path, children);
   const beforeCount = outsideCountOf(baseline, path, children);
@@ -176,10 +177,10 @@ export function outsideComparisonCellsOf(
   const presentLater = hasTiming(branchOutside) || hasTiming(landedOutside);
   const presentInBaseline = hasTiming(before);
   const primaryEntry = primaryEntryOf(path, baseline, branch, landed);
-  const primaryOutside =
-    primaryEntry !== undefined && hasFileBreakdown(primaryEntry)
-      ? outsideOf(primaryEntry, path, children)
-      : undefined;
+  const primaryOutsides =
+    primaryEntry === undefined
+      ? []
+      : entryOutsidesOf(primaryEntry, path, children);
   return {
     counts: countsCellText(
       beforeCount,
@@ -189,20 +190,16 @@ export function outsideComparisonCellsOf(
       presentInBaseline,
     ),
     countedResults: countedResultsOfCount(afterCount),
-    ...partsCellsOf(primaryEntry, primaryOutside?.figures),
+    ...partsCellsOf(
+      primaryEntry,
+      primaryOutsides.map(({ evidence, outside }) => ({
+        evidence,
+        figures: outside.figures,
+      })),
+    ),
     baseline: baselineCellOf(before, presentLater, precision),
-    branch: afterCellOf(
-      branchOutside,
-      baselineMs,
-      presentInBaseline,
-      precision,
-    ),
-    landed: afterCellOf(
-      landedOutside,
-      baselineMs,
-      presentInBaseline,
-      precision,
-    ),
+    branch: afterCellOf(branchOutside, before, presentInBaseline, precision),
+    landed: afterCellOf(landedOutside, before, presentInBaseline, precision),
     cues: scopeComparisonCuesOf(beforeCount, afterCount, before, afterTiming),
   };
 }

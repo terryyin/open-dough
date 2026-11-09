@@ -1,72 +1,121 @@
-// Counts and signed timing words for Intent's shared CI comparison
+// Count words for Intent's shared CI comparison
 // (../../dashboard/src/ciScopeComparisonCounts.ts,
-// ../../dashboard/src/ciProofTimeWords.ts,
-// ../../dashboard/src/storyCiComparisonWording.ts): count cells, the
-// percentage rule for measured non-zero baselines, and the overall sum with
-// units kept apart. Browser journeys:
-// ../../dashboard/tests/intent/intent-ci-comparison*.spec.ts.
+// ../../dashboard/src/ciScopeComparisonCountsCell.ts,
+// ../../dashboard/src/storyCiComparisonCountsWords.ts): count cells and the
+// overall sum with units kept apart; a count difference only between totals
+// of one declared unit, never across units, from legacy results, of several
+// units or from a unit a build does not report. Signed timing:
+// ./intent-scope-comparison-timing.test.mjs. Browser journeys:
+// ../../dashboard/tests/intent/intent-ci-comparison*.spec.ts and
+// intent-summary-story-comparison*.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { measuredCountsChangeWords } from "../../dashboard/src/ciScopeComparisonCounts.ts";
+import { countsCellText } from "../../dashboard/src/ciScopeComparisonCountsCell.ts";
 import {
-  countsCellText,
-  measuredCountsChangeWords,
-} from "../../dashboard/src/ciScopeComparisonCounts.ts";
-import { overallCountsWords } from "../../dashboard/src/storyCiComparisonCountsWords.ts";
-import { scopeComparisonCellsOf } from "../../dashboard/src/ciScopeComparison.ts";
+  overallCountsCue,
+  overallCountsWords,
+} from "../../dashboard/src/storyCiComparisonCountsWords.ts";
 import { makeMe } from "./makeMe.mjs";
 
-const measured = (total, unit = "tests") => ({
+const measured = (total, unit = "case") => ({
   kind: "measured",
   total,
+  failed: 0,
   unit,
 });
 
 test("count cells read before → after with the difference in parentheses", () => {
   assert.equal(
-    measuredCountsChangeWords(12, 10, "tests"),
-    "12 → 10 tests (−2)",
+    measuredCountsChangeWords(12, 10, "case"),
+    "12 → 10 test cases (−2)",
   );
-  assert.equal(measuredCountsChangeWords(6, 6, "tests"), "6 tests (no change)");
+  assert.equal(
+    measuredCountsChangeWords(6, 6, "case"),
+    "6 test cases (no change)",
+  );
   assert.equal(
     countsCellText(measured(12), measured(10), measured(10), true, true),
-    "12 → 10 tests (−2)",
+    "12 → 10 test cases (−2)",
   );
   assert.equal(
     countsCellText(
-      measured(5, "checks"),
-      measured(5, "checks"),
-      measured(5, "checks"),
+      measured(5, "file"),
+      measured(5, "file"),
+      measured(5, "file"),
       true,
       true,
     ),
-    "5 checks (no change)",
+    "5 test files (no change)",
   );
   assert.equal(
     countsCellText({ kind: "absent" }, measured(1), measured(1), true, false),
-    "added → 1 tests",
+    "added → 1 test case",
   );
 });
 
-test("overall counts keep tests and checks apart and say partial when a side is missing", () => {
-  const baseline = {
-    kind: "summary",
-    entries: [
-      makeMe.aCiProofEntry.at("dashboard/tests").counting(1098).please(),
-      makeMe.aCiProofEntry.at("tests").counting(982).please(),
-      makeMe.aCiProofEntry.at("scripts").counting(492, "checks").please(),
-    ],
-  };
-  const landed = {
-    kind: "summary",
-    entries: [
-      makeMe.aCiProofEntry.at("dashboard/tests").counting(1100).please(),
-      makeMe.aCiProofEntry.at("tests").counting(982).please(),
-      makeMe.aCiProofEntry.at("scripts").counting(492, "checks").please(),
-    ],
+test("a count difference exists only between totals of one declared unit: different units, legacy results and several units show each endpoint in its units without one", () => {
+  // Once worded "5 → 1 checks (−4)", subtracting test files from test cases.
+  assert.equal(
+    countsCellText(
+      measured(5, "case"),
+      measured(1, "file"),
+      measured(1, "file"),
+      true,
+      true,
+    ),
+    "5 test cases → 1 test file",
+  );
+  // Equal legacy totals are not compared either.
+  assert.equal(
+    countsCellText(
+      measured(5, "legacy"),
+      measured(5, "legacy"),
+      measured(5, "legacy"),
+      true,
+      true,
+    ),
+    "5 legacy test results → 5 legacy test results",
+  );
+  const several = {
+    kind: "units",
+    counts: [measured(5, "case"), measured(1, "file")],
   };
   assert.equal(
+    countsCellText(measured(5, "case"), several, several, true, true),
+    "5 test cases → 5 test cases and 1 test file",
+  );
+  assert.equal(
+    countsCellText(
+      measured(5, "case"),
+      measured(6, "case"),
+      measured(1, "file"),
+      true,
+      true,
+    ),
+    "5 test cases → 6 test cases → 1 test file",
+  );
+});
+
+// A proof summary of ENTRIES.
+const summary = (...entries) => ({ kind: "summary", entries });
+const entry = (path, passed, unit) =>
+  makeMe.aCiProofEntry.at(path).counting(passed, unit).please();
+
+test("overall counts keep test cases and test files apart and say partial when a side is missing", () => {
+  const baseline = summary(
+    entry("dashboard/tests", 1098, "case"),
+    entry("tests", 982, "case"),
+    entry("scripts", 492, "file"),
+  );
+  const landed = summary(
+    entry("dashboard/tests", 1100, "case"),
+    entry("tests", 982, "case"),
+    entry("scripts", 492, "file"),
+  );
+  assert.equal(
     overallCountsWords(baseline, landed),
-    "2,080 → 2,082 tests (+2); 492 checks (no change)",
+    "2,080 → 2,082 test cases (+2); 492 test files (no change)",
   );
   assert.equal(
     overallCountsWords(baseline, {
@@ -91,43 +140,37 @@ test("overall counts keep tests and checks apart and say partial when a side is 
   );
 });
 
-test("every compared scope carries precise signed timing and its comparable values, while added and gaps keep their meaning", () => {
-  const summary = (...entries) => ({ kind: "summary", entries });
-  const timed = (path, ms) => makeMe.aCiProofEntry.at(path).timed(ms).please();
-  const before = summary(timed("s/file", 340), timed("s/zero", 0));
-  const after = summary(
-    timed("s/file", 410),
-    timed("s/zero", 70),
-    timed("s/added", 410),
+test("the overall count compares only declared units both builds report: a unit one build lacks is no zero, and legacy results are neither totalled nor compared", () => {
+  const casesOnly = summary(entry("dashboard/tests", 5, "case"));
+  const both = summary(
+    entry("dashboard/tests", 7, "case"),
+    entry("tests", 1, "file"),
   );
-  const cells = (path, precision = "precise") =>
-    scopeComparisonCellsOf(path, before, after, after, precision);
-  const precise = cells("s/file");
-  assert.deepEqual(precise.baseline, { text: "340 ms", ms: 340 });
-  assert.deepEqual(precise.branch, {
-    text: "+70 ms",
-    ms: 410,
-    changeMs: 70,
-    relative: 70 / 340,
-  });
-  assert.deepEqual(precise.landed, precise.branch);
-  assert.equal(cells("s/file", "whole-second").branch.text, "+0 s");
-  assert.deepEqual(cells("s/zero").branch, {
-    text: "+70 ms",
-    ms: 70,
-    changeMs: 70,
-  });
-  assert.deepEqual(cells("s/added").branch, { text: "410 ms", ms: 410 });
-  assert.deepEqual(
-    scopeComparisonCellsOf(
-      "s/file",
-      before,
-      { kind: "unavailable", line: "Proof expired" },
-      { kind: "no-build", explanation: "Build is still running." },
-      "precise",
-    ).branch,
-    { text: "Proof expired" },
+  assert.equal(
+    overallCountsWords(casesOnly, both),
+    "5 → 7 test cases (+2); — → 1 test file",
   );
-  const absent = cells("s/absent");
-  assert.deepEqual(absent.branch, { text: "not in the compared builds" });
+  assert.deepEqual(overallCountsCue(casesOnly, both), {
+    kind: "border",
+    direction: "more",
+    strength: "light",
+  });
+  const legacy = summary(
+    makeMe.aCiProofEntry
+      .at("tests")
+      .holding(makeMe.aCiProofEvidence.legacy("checks").counting(5).please())
+      .please(),
+  );
+  assert.equal(
+    overallCountsWords(legacy, legacy),
+    "No overall count: legacy test results are not compared.",
+  );
+  assert.equal(
+    overallCountsWords(legacy, both),
+    "— → 7 test cases; — → 1 test file; legacy test results not compared",
+  );
+  assert.deepEqual(overallCountsCue(legacy, both), {
+    kind: "none",
+    reason: "no overall count",
+  });
 });

@@ -50,7 +50,7 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 
-const checksRow: ProofRow = ["tests", "5 passed checks", "No timings"];
+const checksRow: ProofRow = ["tests", "5 passed test files", "No timings"];
 
 test("a running story branch shows its completed ancestor's run's proof, and showing the tab again for that run attempt downloads nothing again", async ({
   page,
@@ -81,7 +81,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   const summary = proofSummary(
     ancestor,
     [["tests", 1]],
-    [["tests", 1, 1, "checks", counts(5)]],
+    [["tests", 1, 1, "file", counts(5)]],
   );
   ci.published.serveCi((call) => {
     const { kind } = call.request;

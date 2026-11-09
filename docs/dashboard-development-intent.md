@@ -57,11 +57,14 @@ result, and, when the tree shows another revision,
 `Tree at def5678 — newer files unproved here` (a file added or changed since
 has no CI result here, or an earlier one). The selection's own figures stand
 as a labelled group above the table with **Counts**, **Test execution time**
-and **Parts**. An entry's counts and timing match its homepage row, including
+and **Parts**, one for each unit of results it shows (test cases, test files
+or legacy test results), its label naming the unit when there are several.
+An entry's counts and timing match its homepage rows, including
 checks outside the tree. A table with **Scope**,
 **Counts** and **Test execution time** then holds one row per immediate folder
-(named with a trailing `/`) and file in the browser's order, each summing the
-CI evidence published under its path, and, when the selection's figures hold
+(named with a trailing `/`) and file in the browser's order and unit of
+results it shows, each summing the
+CI evidence published under its path in that unit, and, when the selection's figures hold
 files no child row covers (files the tree does not list) or results CI could
 not place in a file, a **Not in the rows above** row, its contents labelled
 after the table (`1 file not in the tree`, `Unplaced results`,
@@ -82,8 +85,9 @@ observed-build framing, active endpoints and unused-Landed explanation.
 Short labels keep `Provisional` while Taken and **Baseline**, **Branch** and
 **Landed** with each requested revision's status and the short revision whose
 proof is used, or the endpoint's gap explanation. **Baseline** shows measured
-time; **Branch** and **Landed** show signed changes from it, preserving precise
-sub-second differences. Relative marks and the story's shared **Show %**
+time; **Branch** and **Landed** show signed changes from it in the same
+declared unit, preserving precise sub-second differences, and otherwise their
+own time. Relative marks and the story's shared **Show %**
 preference use one scale for the displayed figures and immediate rows.
 Baseline sorts by measured time; Branch/Landed sort by signed change, with
 uncomparable rows last in either direction and ties in supplied order.
@@ -102,7 +106,7 @@ scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file
 CI has no result for says **no CI result**; a scope with an untimed test, a
 missing or ambiguous part, or a part with no file breakdown
 has partial timing shown as short gap labels (`Part 3 missing`,
-`Part 2 no breakdown`, `1 test untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
+`Part 2 no breakdown`, `1 test case untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
 and is labelled `No file breakdown`. Without usable proof, the rows
 stay for drilling down, the group and rows say why in a word or two
 (`checking`, `no CI proof`), and one line says why, as the homepage does. The

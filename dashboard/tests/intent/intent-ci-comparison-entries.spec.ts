@@ -56,13 +56,19 @@ test("a summary without durations and a part without duration leave totals expla
   await expectCiComparisonEntryRows(panel, [
     [
       "dashboard/tests",
-      "2,090 → 2,092 tests (+2)",
+      "2,090 → 2,092 test cases (+2)",
       "No timings",
       "4 min 30 s",
       "5 min",
     ],
-    ["tests", "5 checks (no change)", "Part 2 untimed", "1 min 30 s", "1 min"],
-    ["src/skills", "added → 3 checks", "added", "30 s", "30 s"],
+    [
+      "tests",
+      "5 test files (no change)",
+      "Part 2 untimed",
+      "1 min 30 s",
+      "1 min",
+    ],
+    ["src/skills", "added → 3 test files", "added", "30 s", "30 s"],
   ]);
   const baselineCell = (row: number) =>
     panel

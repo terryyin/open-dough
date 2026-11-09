@@ -1,0 +1,125 @@
+# Source-only review: SEED-281#distinguish-test-cases-and-files-in-ci-proof
+
+Launched 2026-11-09 by this execution's coordinator before the first
+implementation delegation: one fresh general-purpose subagent, without
+conversation inheritance, fork or resume, distinct from any implementation or
+refactor agent.
+
+Input: the selected story section of
+`.planning/seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md` at
+`479f6f3b112bb7ebe295a1a9724cfce85dc9664d`, verbatim — heading, identity, Goal,
+Scope (definitions, legacy rule and exclusions) and Key examples. The ADR and
+sibling-story links were given by name only; the `dough-story-state` block was
+omitted. No plan, return, product, proof, suspected omission or slice scope.
+
+Instructions: use only that text; read no project files, run nothing and change
+nothing; return source clauses with individual commitments, qualifications,
+trigger/journey examples and exclusions; number every commitment and give each
+item of a listed compound commitment its own id; separate compound promises;
+preserve alternatives without turning examples into rejection rules; derive
+promises, not slice ownership or acceptance.
+
+The reviewer returned the commitments below (kind and source quote kept in each
+row) and these notes on ambiguous wording:
+
+- "location and folder Summary" could mean two Summary views or one Summary
+  view at both levels; example 40 says "Proof shows" for a folder without
+  saying whether that is the folder Summary or a Proof view.
+- "the old `tests` / `checks` spelling" could be one paired label or two
+  alternative spellings; 25a.3 covers both readings.
+- The source does not say what makes units "known to match", when "the
+  rollout" ends, or what "switch publishers independently" is independent of.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | (goal) “Developers comparing CI builds in Intent can tell whether a count or delta describes individual test cases or whole test files” — A developer comparing CI builds in Intent can tell whether each figure listed below describes individual test cases or whole test files. | slice 2 | |
+| 1a.1 | (goal) “a count” — Each count shown in Intent identifies whether it describes test cases or test files. | slice 2 | |
+| 1a.2 | (goal) “or delta” — Each delta shown in Intent identifies whether it describes test cases or test files. | slice 2 | |
+| 2 | (goal) “Projects can publish that distinction through the shared CI proof protocol” — Projects can publish the test case versus test file distinction through the shared CI proof protocol. | slice 4 | |
+| 3 | (scope) “Evolve the versioned CI proof format, collector, publisher guidance, and Intent reader to use explicit test case and test file units” — Each part listed below is evolved to use explicit test case and test file units. | slice 3 | |
+| 3a.1 | (scope) “the versioned CI proof format” — The versioned CI proof format states explicit test case and test file units. | slice 1 | observed: ci-proof-contract.mjs SUMMARY_SCHEMA_VERSION 2 with entries[].evidence[].unit case/file/legacy (unit rules in ci-proof-evidence.mjs); ci-proof-legacy-results.test.mjs "a fragment and a summary's evidence name one unit; only legacy results carry the label…" |
+| 3a.2 | (scope) “collector” — The collector uses explicit test case and test file units. | slice 1 | observed: ci-proof-units.test.mjs "a Playwright spec's five cases and a Node file's one aggregate outcome for the same path stay five test cases and one test file…"; ci-proof-units-cli.test.mjs "the command line counts an outcomes report in its declared unit and collects each declared unit of a location apart…" |
+| 3a.3 | (scope) “publisher guidance” — The publisher guidance uses explicit test case and test file units. | slice 3 | |
+| 3a.4 | (scope) “Intent reader” — The Intent reader uses explicit test case and test file units. | slice 1 | observed: intent-ci-proof-units.spec.ts "one location's test cases and test files stay apart…" step "CI status shows each declared unit…": rows "10 passed test cases" and "1 passed and 1 failed test files" |
+| 4 | (scope) “Allow both units in the same proof location” — One proof location may carry test case evidence and test file evidence at the same time. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: one entry whose evidence holds case 5 and file 1; intent-ci-proof-units.spec.ts CI status rows for dashboard/tests in test cases and test files |
+| 5 | (scope) “keep their results and comparisons separate” — Test case results and test file results are kept separate and never merged. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: entry keys exactly [path, evidence], no location total; intent-ci-proof-units.spec.ts CI status shows separate rows per unit |
+| 6 | (scope) “keep their results and comparisons separate” — Test case comparisons and test file comparisons are kept separate and never merged. | slice 2 | |
+| 7 | (scope) “through the CI result, story comparison, location and folder Summary, and individual file Proof views” — The separation in 5 and 6 holds in every view listed below. | slice 2 | |
+| 7a.1 | (scope) “the CI result” — The separation holds in the CI result view. | slice 1 | observed: intent-ci-proof-units.spec.ts step "CI status shows each declared unit of each entry on its own row, a declared unit no fragment reached missing in that unit" |
+| 7a.2 | (scope) “story comparison” — The separation holds in the story comparison view. | slice 2 | |
+| 7a.3 | (scope) “location and folder Summary” — The separation holds in the location Summary view. | slice 2 | |
+| 7a.4 | (scope) “location and folder Summary” — The separation holds in the folder Summary view. | slice 2 | |
+| 7a.5 | (scope) “individual file Proof views” — The separation holds in individual file Proof views. | slice 2 | |
+| 8 | (scope) “Read existing summaries from GitHub Actions and CI adapters” — Intent keeps reading existing CI proof summaries from each source listed below. | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts "a version 1 summary from a GitHub Actions run stays readable…" and "a version 1 summary a ciAdapter answers stays readable…" |
+| 8a.1 | (scope) “GitHub Actions” — Existing summaries from GitHub Actions remain readable. | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts "a version 1 summary from a GitHub Actions run stays readable as legacy test results…"; dashboard-ci-proof-units-read.test.mjs "a version 1 summary stays readable through the read boundary and the browser's parser…" |
+| 8a.2 | (scope) “CI adapters” — Existing summaries from CI adapters remain readable. | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts "a version 1 summary a ciAdapter answers stays readable as legacy test results"; dashboard-ci-adapter-proof.test.mjs "an adapter's version 1 summary stays readable as legacy results…" |
+| 9 | (qualification) “during the rollout” — Existing summaries must stay readable during the rollout. | slice 1 | observed: contract READABLE_SUMMARY_VERSIONS [1, 2] with currentSummaryOf at both readers; ci-proof-legacy-results.test.mjs "a version 1 summary stays readable…"; intent-ci-proof-sources.spec.ts old outcomes invocation reads "2 passed legacy test results" |
+| 10 | (scope) “Adopt the format in Open Dough's own CI” — Open Dough's own CI publishes its proof in the evolved format. | slice 3 | |
+| 11 | (scope) “make the protocol and collector available to the other publishers” — Each item listed below is made available to the other publishers. | slice 4 | |
+| 11a.1 | (scope) “the protocol” — The evolved protocol is available to other publishers. | slice 4 | |
+| 11a.2 | (scope) “collector” — The evolved collector is available to other publishers. | slice 4 | |
+| 12 | (qualification) “through the normal release path (ADR 0003 and ADR 0004)” — That availability comes through the normal release path under ADR 0003 and ADR 0004. | slice 4 | |
+| 13 | (qualification) “Each other project owns its CI migration” — Each other project, not this story, owns the migration of its own CI. | slice 4 | |
+| 14 | (definition) “A test case is an individual case outcome reported by a runner” — A test case is one individual case outcome reported by a runner. | slice 1 | observed: ci-proof-fragments.test.mjs "a Playwright proof record counts each test as a test case…" (unit case); ci-proof-units.test.mjs example 36 test cases counted 5 |
+| 15 | (definition) “A test file is a reported aggregate outcome for running one file” — A test file is one reported aggregate outcome for running one file. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: outcomes declared --unit file count one test file per line; ci-proof-units-cli.test.mjs declared-unit command line test |
+| 16 | (qualification) “even when that file contains several cases” — A file reported with one aggregate outcome counts as one test file even if it contains several cases. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: tests/check.test.mjs counted 1 test file while the same path holds 5 test cases; intent-ci-proof-units.spec.ts file Proof of check.spec.ts "1 passed test file" |
+| 17 | (definition) “The number of matching source files or paths in a proof breakdown is a different fact” — The count of matching source files or paths in a proof breakdown is a separate fact from test file outcomes. | slice 1 | observed: intent-scope-proof-units.test.mjs "a folder's two source files keep five test cases and one failed test file apart…": figures.paths separate from the source inventory; intent-ci-proof-units.spec.ts folder step ".intent-summary-files" "2 files" |
+| 18 | (qualification) “it does not establish file outcomes” — A source file or path count is never used to establish test file outcomes. | slice 1 | observed: intent-scope-proof-units.test.mjs folder test: matched paths never counted as test files; intent-ci-proof-units.spec.ts folder step shows "2 files" beside "1 failed test file" |
+| 19 | (scope) “When a publisher reports both case and file outcomes for a path, retain both” — When a publisher reports both case outcomes and file outcomes for one path, both are retained. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: case and file evidence both kept for tests/check.test.mjs; intent-ci-proof-units.spec.ts file Proof of check.spec.ts rows "5 passed test cases" and "1 passed test file" |
+| 20 | (qualification) “without adding them into one result count” — Those case and file outcomes are not added together into one result count. | slice 1 | observed: ci-proof-units.test.mjs example 36 test ("never six results"); intent-scope-proof-units.test.mjs "one path's five test cases and its own test file outcome show apart, never as six results (example 36)" |
+| 21 | (qualification) “or inferring one from the other” — Neither unit's outcomes are inferred from the other unit's outcomes. | slice 1 | observed: intent-ci-proof-units.spec.ts: b.spec.ts shows only a test-file row and a.spec.ts only test cases; intent-scope-proof-units.test.mjs folder test child rows |
+| 22 | (scope) “Preserve outcomes, available execution time, untimed results, and missing or ambiguous parts within their reported unit” — Each item listed below is preserved within the unit in which it was reported. | slice 1 | observed: ci-proof-units.test.mjs "a failed file without case results stays a failed test file; each unit keeps its own outcomes, time, untimed results, missing and ambiguous parts (examples 37, 40)" |
+| 22a.1 | (scope) “outcomes” — Outcomes are preserved within their reported unit. | slice 1 | observed: ci-proof-units.test.mjs examples 37/40 test: case counts [5,0,0] and file counts [0,1,0] |
+| 22a.2 | (scope) “available execution time” — Available execution time is preserved within its reported unit. | slice 1 | observed: ci-proof-units.test.mjs examples 37/40 test: durationMs 1000 for test cases and 300 for test files |
+| 22a.3 | (scope) “untimed results” — Untimed results are preserved as untimed within their reported unit. | slice 1 | observed: ci-proof-units.test.mjs examples 37/40 test: untimed 1 for test cases and 0 for test files |
+| 22a.4 | (scope) “missing or ambiguous parts” — Missing or ambiguous parts are preserved within their reported unit. | slice 1 | observed: ci-proof-units.test.mjs examples 37/40 test: parts [present, ambiguous] for test cases and [present, missing] for test files |
+| 23 | (scope) “Legacy evidence whose unit is ambiguous stays readable” — Legacy evidence whose unit is ambiguous remains readable. | slice 1 | observed: ci-proof-legacy-results.test.mjs "a version 1 summary stays readable…"; intent-ci-proof-legacy-results.spec.ts version 1 GitHub and ciAdapter journeys |
+| 24 | (qualification) “as legacy test results” — That evidence is shown as legacy test results, not assigned a case or file unit. | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts: rows "19 passed and 1 failed legacy test results" and "5 passed legacy test results"; ci-proof-legacy-results.test.mjs v1 entries read as unit legacy |
+| 25 | (qualification) “without guessing its meaning from a path, runner name, or the old `tests` / `checks` spelling” — The meaning of ambiguous legacy evidence is not guessed from any signal listed below. | slice 2 | |
+| 25a.1 | (qualification) “a path” — Its unit is not guessed from a path. | slice 1 | observed: ci-proof-unit-declarations.test.mjs "a declaration without a unit takes its entry's fragments in the one unit they report…": outcomes under dashboard/backend-tests stay legacy checks; ci-proof-legacy-results.test.mjs v1 dashboard/tests entry spelled tests stays legacy |
+| 25a.2 | (qualification) “runner name” — Its unit is not guessed from a runner name. | slice 1 | observed: ci-proof-fragments.mjs assigns case only from a Playwright record's per-test results and legacy to undeclared outcomes; ci-proof-unit-declarations.test.mjs and ci-proof-legacy-results.test.mjs keep legacy evidence legacy |
+| 25a.3 | (qualification) “the old `tests` / `checks` spelling” — Its unit is not guessed from the old `tests` / `checks` spelling. | slice 2 | |
+| 26 | (qualification) “Show a numeric count delta only for evidence whose units are known to match” — A numeric count delta is shown only for evidence whose units are known to match. | slice 2 | |
+| 27 | (qualification) “subtracting case and file counts” — Case counts and file counts are never subtracted from each other to produce a change. | slice 2 | |
+| 28 | (qualification) “treating an unknown unit as a measured zero” — An unknown unit is never treated as a measured zero when a change is produced. | slice 2 | |
+| 29 | (qualification) “An unavailable or unreported result keeps its evidence gap” — An unavailable or unreported result keeps its evidence gap and is not filled in with a value. | slice 2 | |
+| 30 | (exclusion) “does not extract inner cases from aggregate file reports” — This story does not extract individual cases from aggregate file reports. | slice 3 | |
+| 31 | (exclusion) “redesign the Intent layout” — This story does not redesign the Intent layout. | slice 2 | |
+| 32 | (exclusion) “change which builds are compared” — This story does not change which builds are compared. | slice 2 | |
+| 33 | (exclusion) “migrate other projects' CI” — This story does not migrate other projects' CI. | slice 4 | |
+| 34 | (exclusion) “Unifying Intent views and comparison presentation has its own story” — The items listed below belong to a separate story. | slice 2 | |
+| 34a.1 | (exclusion) “Unifying Intent views” — Unifying Intent views is outside this story. | slice 2 | |
+| 34a.2 | (exclusion) “comparison presentation” — Unifying comparison presentation is outside this story. | slice 2 | |
+| 35 | (scope) “this story carries unit meaning through the existing views” — Unit meaning is carried through Intent's existing views. | slice 2 | |
+| 36 | (example) “A Playwright spec with five reported cases” — Given a Playwright spec that reports five cases and a Node test file with five cases that reports one aggregate outcome, the expectations below hold. | slice 1 | observed: intent-ci-proof-units.spec.ts "one location's test cases and test files stay apart…" (check.spec.ts); ci-proof-units.test.mjs example 36 test |
+| 36.1 | (example) “A Playwright spec with five reported cases contributes five test cases” — The Playwright spec contributes five test cases. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: Playwright record of five tests gives unit case counted 5; intent-ci-proof-units.spec.ts check.spec.ts Proof "5 passed test cases" |
+| 36.2 | (example) “A Node test file with five cases that reports one aggregate outcome contributes one test file” — The Node test file contributes one test file. | slice 1 | observed: ci-proof-units.test.mjs example 36 test: one outcomes line declared file gives unit file counted 1 |
+| 36.3 | (example) “A location with both shows five test cases” — A location holding both shows five test cases, so the Node file's inner cases are not counted as test cases. | slice 1 | observed: intent-ci-proof-units.spec.ts check.spec.ts row "5 passed test cases"; ci-proof-units.test.mjs case evidence counted 5 |
+| 36.4 | (example) “and one test file” — That location shows one test file. | slice 1 | observed: intent-ci-proof-units.spec.ts check.spec.ts row "1 passed test file"; ci-proof-units.test.mjs file evidence counted 1 |
+| 36.5 | (example) “separately” — The five test cases and the one test file appear as separate figures, not as one combined count. | slice 1 | observed: intent-ci-proof-units.spec.ts entry Summary child rows: check.spec.ts on two rows, test cases and test files |
+| 36.6 | (example) “including when the two reports name the same path” — The separation still holds when both reports name the same path. | slice 1 | observed: intent-ci-proof-units.spec.ts file Proof of dashboard/tests/check.spec.ts, the same path in both reports, shows both rows |
+| 37 | (example) “A failed file that produces no case results” — Given a failed file that produces no case results, the expectations below hold. | slice 1 | observed: intent-ci-proof-units.spec.ts file Proof of folder/b.spec.ts "1 failed test file" 300 ms; ci-proof-units.test.mjs examples 37/40 test |
+| 37.1 | (example) “remains visible as a file failure” — The file stays visible as a file failure. | slice 1 | observed: intent-ci-proof-units.spec.ts b.spec.ts Proof row "1 failed test file" |
+| 37.2 | (example) “outcome counts” — Outcome counts stay visible at the level at which the publisher reported them. | slice 1 | observed: ci-proof-units.test.mjs examples 37/40 test file counts [0,1,0]; intent-ci-proof-units.spec.ts folder own test-file figures "1 failed test file" |
+| 37.3 | (example) “available timing” — Available timing stays visible at the level at which the publisher reported it. | slice 1 | observed: intent-ci-proof-units.spec.ts b.spec.ts "300 ms"; ci-proof-units.test.mjs file durationMs 300 |
+| 37.4 | (example) “missing evidence” — Missing evidence stays visible at the level at which the publisher reported it. | slice 1 | observed: intent-ci-proof-units.spec.ts CI status row "nothing counted as test cases" with "Part 1 missing"; ci-proof-units.test.mjs file parts [present, missing] |
+| 38 | (example) “A legacy summary with an ambiguous unit” — Given a legacy summary with an ambiguous unit, the expectations below hold. | slice 2 | |
+| 38.1 | (example) “remains readable” — The legacy summary remains readable. | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts version 1 GitHub and ciAdapter journeys read their rows |
+| 38.2 | (example) “as legacy test results” — The legacy summary is shown as legacy test results. | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts: "legacy test results" rows |
+| 38.3 | (example) “A comparison shows a count delta only when the reported units are known to match” — A comparison shows a count delta only when the reported units are known to match. | slice 2 | |
+| 38.4 | (example) “Projects can switch publishers independently” — Each project can switch its publisher independently. | slice 2 | |
+| 39 | (example) “Baseline reports five test cases and one test file; Landed reports seven test cases and one test file” — Given a Baseline with five test cases and one test file and a Landed build with seven test cases and one test file, the expectations below hold. | slice 2 | |
+| 39.1 | (example) “Intent shows +2 test cases” — Intent shows +2 test cases. | slice 2 | |
+| 39.2 | (example) “and no change in test files” — Intent shows no change in test files. | slice 2 | |
+| 39.3 | (example) “If Baseline instead has only ambiguous legacy results, both endpoints remain readable” — In the variant where Baseline has only ambiguous legacy results, the Baseline endpoint remains readable. | slice 2 | |
+| 39.4 | (example) “If Baseline instead has only ambiguous legacy results, both endpoints remain readable” — In that variant, the Landed endpoint remains readable. | slice 2 | |
+| 39.5 | (example) “no case or file count delta is invented” — In that variant, no test case count delta is shown. | slice 2 | |
+| 39.6 | (example) “no case or file count delta is invented” — In that variant, no test file count delta is shown. | slice 2 | |
+| 40 | (example) “A folder contains two matching source files, one of which reports five cases and the other a failed file outcome with no case report” — Given a folder with two matching source files, where one reports five cases and the other reports a failed file outcome with no case report, the expectations below hold. | slice 1 | observed: intent-ci-proof-units.spec.ts folder step; intent-scope-proof-units.test.mjs "a folder's two source files keep five test cases and one failed test file apart…" |
+| 40.1 | (example) “The source count stays two files” — The folder's source count stays at two files and is kept apart from its test case and test file counts. | slice 1 | observed: intent-ci-proof-units.spec.ts folder step ".intent-summary-files" "2 files" |
+| 40.2 | (example) “Proof shows five test cases” — Proof shows five test cases. | slice 1 | observed: intent-ci-proof-units.spec.ts folder own figures "5 passed test cases" |
+| 40.3 | (example) “and one failed test file” — Proof shows one failed test file. | slice 1 | observed: intent-ci-proof-units.spec.ts folder own figures "1 failed test file" |
+| 40.4 | (example) “with timing and gaps attached to the evidence that supplied them” — Timing is attached to the evidence that supplied it. | slice 1 | observed: intent-ci-proof-units.spec.ts folder own figures: test cases "500 ms", test files "300 ms" |
+| 40.5 | (example) “with timing and gaps attached to the evidence that supplied them” — Gaps are attached to the evidence that supplied them. | slice 1 | observed: intent-ci-proof-units.spec.ts folder own figures "1 of 1 part present" per unit; CI status missing part in its own unit row |

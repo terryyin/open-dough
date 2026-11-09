@@ -1,7 +1,9 @@
 // Shared construction for the CI proof collector's tests: a GitHub Actions
-// run attempt, a CI adapter's attempt, a valid fragment of the run attempt,
+// run attempt, a CI adapter's attempt, a valid fragment of the run attempt
+// (`makeMe.aCiProofFragment`) and the fragments as the collector reads them,
 // a dashboard proof record with chosen outcomes, and one whose tests name
 // their files.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 export const revision = "a5b0489dd0000000000000000000000000000000";
 export const run = {
@@ -14,22 +16,31 @@ export const run = {
 export const attemptId = "9f1c2d3e-0000-4000-8000-000000000001";
 export const adapterRun = { repository: "O/P", attemptId, revision };
 
+// A builder of ENTRY's fragment for part PART of OF of the run attempt.
+export const fragmentOf = (entry, part, of) =>
+  makeMe.aCiProofFragment
+    .at(entry)
+    .part(part, of)
+    .ofAttempt(run.attempt, revision);
+
+// ENTRY's fragment for part PART of OF of the run attempt, test cases
+// counting COUNTS unless OVERRIDES name another unit or field.
 export function fragment(entry, part, of, counts, overrides = {}) {
+  const { passed = 0, failed = 0, other = 0 } = counts;
   return {
-    schemaVersion: 1,
-    entry,
-    part,
-    of,
-    attempt: run.attempt,
-    revision,
-    unit: entry === "dashboard/tests" ? "tests" : "checks",
-    passed: 0,
-    failed: 0,
-    other: 0,
-    ...counts,
+    ...fragmentOf(entry, part, of).counting(passed, failed, other).please(),
     ...overrides,
   };
 }
+
+// The fragments VALUES as the collector reads them, named fragment-0.json
+// onward.
+export const fragmentsRead = (...values) =>
+  values.map((value, index) => ({ source: `fragment-${index}.json`, value }));
+
+// The status of each of EVIDENCE's parts, in order.
+export const partStatuses = (evidence) =>
+  evidence.parts.map((part) => part.status);
 
 // OUTCOMES are per-test Playwright outcomes. Optional DURATIONS are parallel
 // per-test attempt durationMs values: a number for one finished attempt, or an

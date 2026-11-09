@@ -41,12 +41,16 @@ shown), with its measured CI wall time and CI time without runner waits, or
 why it has none (observations between builds, not attributed to the story);
 then entry rows whose Counts cell keeps the before→after words. At every
 comparison depth, **Baseline** shows its measured time, and **Branch** and
-**Landed** show one signed change from a measured Baseline. The story’s overall
+**Landed** show one signed change from a measured Baseline counted in the same
+declared unit (test cases or test files). The story’s overall
 figures and entry rows keep whole-second words (`+30 s`, `−1 min`, `0 s`). Location,
 folder and file drill-down preserves precise times: `340 ms` to `410 ms`
-shows `+70 ms`. An added scope shows its measured time without a change;
-a gap keeps its label and explanation. A measured zero Baseline permits a
-signed change. Branch and Landed headers note "vs baseline".
+shows `+70 ms`. An added scope shows its measured time without a change, as
+does one whose endpoints count different units or legacy test results, which
+**Counts** names at each end (`1 test file → 1 test case`); several units
+show each unit's time apart. A gap keeps its label and explanation. A
+measured zero Baseline permits a signed change. Branch and Landed headers
+note "vs baseline".
 Each comparable change with a positive measured Baseline has a relative mark:
 its zero tick sits at the centre, faster extends left and slower right.
 Each displayed comparison shares one symmetric scale across its own figures
@@ -54,8 +58,9 @@ and rows, reaching one side at a 50% change and widening to its largest
 relative change. A location or folder uses its own figures and immediate
 rows, including the outside row; a file uses its own figures. Drilling applies
 this rule to the newly displayed set without scanning unseen descendants.
-An unchanged time keeps its mark at zero. Added, gap and zero-Baseline
-figures show no mark or percentage; zero Baseline still has its signed change.
+An unchanged time keeps its mark at zero. Added, gap, zero-Baseline,
+different-unit and legacy figures show no mark or percentage; zero Baseline
+still has its signed change.
 The words carry the direction without colour. **Show %**, off at first, is one
 preference kept with the story's reading place and shared by CI comparison,
 Summary and file Proof. It adds each mark's signed whole percentage (`+13%`,
@@ -65,7 +70,8 @@ The comparison figures and tables keep their cue classification without the
 tint or count edge; their shared marks and words carry the comparison.
 Timing columns sort by the quantity shown: **Baseline** by measured time,
 **Branch** and **Landed** by signed change. Rows without a comparable change
-(added, removed, partial or unavailable) follow comparable rows in either
+(added, removed, different units or legacy test results, partial or
+unavailable) follow comparable rows in either
 direction; ties retain their supplied order. The Summary's outside row stays
 last, and its sort survives drilling down. **Counts** still sorts by the active
 after endpoint's counted results, and **Change** keeps its existing meaning.

@@ -18,7 +18,7 @@ const proofOf = (
       revision: tested.sha.toLowerCase(),
     },
     [["tests", 1]],
-    [["tests", 1, 1, "tests", counts(passed), durationMs]],
+    [["tests", 1, 1, "case", counts(passed), durationMs]],
   ),
 });
 

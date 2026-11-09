@@ -1,12 +1,12 @@
+// A dashboard proof record as CI proof fragments (ci-proof-fragments.mjs):
+// each test one test case, its time summed over every finished attempt, and
+// a shared record partitioned into its most specific entries. Outcomes
+// reports: ci-proof-outcomes.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fragmentProblems } from "./ci-proof-contract.mjs";
+import { fragmentFromPlaywrightRecord } from "./ci-proof-fragments.mjs";
 import {
-  fragmentFromPlaywrightRecord,
-  fragmentsFromOutcomes,
-} from "./ci-proof-fragments.mjs";
-import {
-  attemptId,
   byFile,
   fragment,
   locatedRecord,
@@ -15,7 +15,7 @@ import {
   revision,
 } from "./ci-proof-test-fixtures.mjs";
 
-test("a Playwright proof record counts tests: expected passes, unexpected or flaky fails, the rest are other", () => {
+test("a Playwright proof record counts each test as a test case: expected passes, unexpected or flaky fails, the rest are other", () => {
   const identity = {
     entries: ["dashboard/tests"],
     part: 3,
@@ -136,7 +136,7 @@ test("a shared Playwright record partitions each test and its time into its most
     ],
   );
   for (const value of values) {
-    assert.equal(value.unit, "tests");
+    assert.equal(value.unit, "case");
     assert.deepEqual(fragmentProblems(value), []);
   }
 });
@@ -162,7 +162,6 @@ test("a shared Playwright shard emits a zero-count fragment for an entry it sele
       1,
       {},
       {
-        unit: "tests",
         untimed: 0,
         files: [],
       },
@@ -176,7 +175,6 @@ test("a shared Playwright shard emits a zero-count fragment for an entry it sele
       1,
       {},
       {
-        unit: "tests",
         untimed: 0,
         files: [],
       },
@@ -184,66 +182,4 @@ test("a shared Playwright shard emits a zero-count fragment for an entry it sele
   );
   assert.deepEqual(fragmentProblems(frontend), []);
   assert.deepEqual(fragmentProblems(backend), []);
-});
-
-test("an outcomes file counts each check toward the entry whose path contains it, and a check in no entry toward none", () => {
-  const identity = {
-    entries: ["tests", "src/skills"],
-    part: 1,
-    of: 3,
-    attempt: 2,
-    revision,
-  };
-  const outcomes = [
-    "passed\ttests/a.sh",
-    "failed\ttests/support/b.test.mjs",
-    "passed\tsrc/skills/x/scripts/c.test.mjs",
-    "interrupted\tsrc/skills/y/scripts/d.test.mjs",
-    "failed\tscripts/check-self-installation.sh",
-    "passed\ttestsuite/e.sh",
-    "",
-  ].join("\n");
-  assert.deepEqual(fragmentsFromOutcomes(outcomes, identity), [
-    fragment("tests", 1, 3, { passed: 1, failed: 1 }),
-    fragment("src/skills", 1, 3, { passed: 1, other: 1 }),
-  ]);
-});
-
-test("an outcomes file with a times file sets each matching entry's durationMs from its checks' seconds", () => {
-  const identity = {
-    entries: ["tests", "src/skills"],
-    part: 1,
-    of: 3,
-    attempt: 2,
-    revision,
-  };
-  const outcomes = [
-    "passed\ttests/a.sh",
-    "failed\ttests/support/b.test.mjs",
-    "passed\tsrc/skills/x/scripts/c.test.mjs",
-  ].join("\n");
-  const times = [
-    "0.1\ttests/a.sh",
-    "1.5\ttests/support/b.test.mjs",
-    "0.25\tsrc/skills/x/scripts/c.test.mjs",
-    "9.0\tscripts/check-self-installation.sh",
-    "",
-  ].join("\n");
-  assert.deepEqual(fragmentsFromOutcomes(outcomes, identity, times), [
-    fragment("tests", 1, 3, { passed: 1, failed: 1 }, { durationMs: 1600 }),
-    fragment("src/skills", 1, 3, { passed: 1 }, { durationMs: 250 }),
-  ]);
-});
-
-test("an adapter attempt's identity names its fragment by attemptId", () => {
-  const [value] = fragmentsFromOutcomes("passed\ttests/a.sh\n", {
-    entries: ["tests"],
-    part: 1,
-    of: 1,
-    attemptId,
-    revision,
-  });
-  assert.equal(value.attemptId, attemptId);
-  assert.equal("attempt" in value, false);
-  assert.deepEqual(fragmentProblems(value), []);
 });

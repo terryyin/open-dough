@@ -96,20 +96,25 @@ test("the command line writes fragments per entry and one summary from them", (t
   assert.equal(
     summary.stdout,
     [
-      "dashboard/tests: 1 passed, 1 failed, 0 other tests; part 2 of 2 missing",
-      "tests: 1 passed, 0 failed, 0 other checks",
-      "src/skills: 1 passed, 0 failed, 0 other checks",
+      "dashboard/tests: 1 passed, 1 failed, 0 other test cases; part 2 of 2 missing",
+      "tests: 1 passed, 0 failed, 0 other legacy test results (checks)",
+      "src/skills: 1 passed, 0 failed, 0 other legacy test results (checks)",
       "",
     ].join("\n"),
   );
   const written = JSON.parse(readFileSync(out, "utf8"));
   assert.deepEqual(summaryProblems(written), []);
   assert.deepEqual(
-    written.entries.map((entry) => [entry.path, entry.passed, entry.failed]),
+    written.entries.map(({ path, evidence: [only] }) => [
+      path,
+      only.unit,
+      only.passed,
+      only.failed,
+    ]),
     [
-      ["dashboard/tests", 1, 1],
-      ["tests", 1, 0],
-      ["src/skills", 1, 0],
+      ["dashboard/tests", "case", 1, 1],
+      ["tests", "legacy", 1, 0],
+      ["src/skills", "legacy", 1, 0],
     ],
   );
 });
@@ -137,12 +142,15 @@ test("the command line writes an adapter attempt's fragment and summary, excludi
   const out = join(directory, "summary.json");
   const summary = summarizeTests(fragments, ["--attempt-id", attemptId], out);
   assert.equal(summary.status, 0);
-  assert.equal(summary.stdout, "tests: 1 passed, 0 failed, 0 other checks\n");
+  assert.equal(
+    summary.stdout,
+    "tests: 1 passed, 0 failed, 0 other legacy test results (checks)\n",
+  );
   assert.equal(
     summary.stderr,
     [
-      `excluded ${join(fragments, "another", "tests-1.json")}: attemptId another, not attemptId ${attemptId}`,
-      `excluded ${join(fragments, "github", "tests-1.json")}: attempt 1, not attemptId ${attemptId}`,
+      `excluded ${join(fragments, "another", "tests-legacy-1.json")}: attemptId another, not attemptId ${attemptId}`,
+      `excluded ${join(fragments, "github", "tests-legacy-1.json")}: attempt 1, not attemptId ${attemptId}`,
       "",
     ].join("\n"),
   );
@@ -154,7 +162,7 @@ test("the command line writes an adapter attempt's fragment and summary, excludi
   );
 });
 
-test("the command line refuses an incomplete record, a malformed declaration, or naming both attempt identities or neither, without writing", (t) => {
+test("the command line refuses an incomplete record, a malformed declaration, an unknown unit or one a Playwright record already says, or naming both attempt identities or neither, without writing", (t) => {
   const directory = temporary(t);
   const outcomes = join(directory, "outcomes.txt");
   const record = join(directory, "proof.json");
@@ -176,7 +184,32 @@ test("the command line refuses an incomplete record, a malformed declaration, or
         out,
         "tests",
       ),
-      "--expect tests is not <entry>=<parts>",
+      "--expect tests is not <entry>=<parts>[:<unit>]",
+    ],
+    [
+      summarizeTests(
+        directory,
+        ["--run-id", "7", "--attempt", "1"],
+        out,
+        "tests=1:cases",
+      ),
+      "--expect tests=1:cases names unit cases, not case or file",
+    ],
+    [
+      fragmentTests(
+        ["--outcomes", outcomes, "--unit", "files"],
+        ["--attempt", "1"],
+        out,
+      ),
+      "--unit names unit files, not case or file",
+    ],
+    [
+      fragmentTests(
+        ["--playwright-record", record, "--unit", "case"],
+        ["--attempt", "1"],
+        out,
+      ),
+      "--unit applies only with --outcomes",
     ],
     [
       fragment("--attempt", "1", "--attempt-id", attemptId),

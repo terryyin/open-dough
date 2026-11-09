@@ -38,7 +38,7 @@ import {
   type Producer,
 } from "./support/ciProofCollected.ts";
 
-const spec = (name: string) => `import { test } from "@playwright/test";
+export const spec = (name: string) => `import { test } from "@playwright/test";
 test("${name}", async () => {});
 `;
 // The published tree: dashboard/tests lists its specs at any depth, and tests
@@ -82,6 +82,7 @@ export const dashboardShards = (byFile: boolean): Producer[] => [
     ]),
   },
 ];
+// Each shell check file's own outcome: test files.
 export const testsShare = (byFile: boolean): Producer => ({
   entries: ["tests"],
   part: 1,
@@ -89,6 +90,7 @@ export const testsShare = (byFile: boolean): Producer => ({
   byFile,
   outcomes: "passed\ttests/root.sh\npassed\ttests/support/check.sh\n",
   times: "2.5\ttests/root.sh\n0.5\ttests/support/check.sh\n",
+  unit: "file",
 });
 
 // Judged trunk: running at the published head, so the shown proof is its
@@ -98,14 +100,17 @@ const ancestorRuns = (): readonly CiRunAnswer[] => [
   { headSha: judged, conclusion: "success", id: run.runId, url: runUrl },
 ];
 
+// Intent opened on CI status for trunk publishing FILES (by default the
+// tree above), its proof downloads answered by ARTIFACTS and ZIP.
 export async function openIntent(
   page: Page,
   zip: () => OriginAnswer | Promise<OriginAnswer>,
   artifacts: () => OriginAnswer = () => runArtifactsAnswer(run, artifactId),
+  files: Readonly<Record<string, string>> = published,
 ) {
   await page.setViewportSize({ width: 1280, height: 900 });
   const judgment = trunkCi(openDough.revision, ancestorRuns);
-  const project = publishProject(page, openDough, published);
+  const project = publishProject(page, openDough, files);
   const ci: CiAnswerer = (call) => {
     const { request } = call;
     if (request.kind === "actions-run-artifacts") return artifacts();

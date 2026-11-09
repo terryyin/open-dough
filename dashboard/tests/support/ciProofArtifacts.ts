@@ -36,11 +36,26 @@ type Counts = {
   readonly other: number;
 };
 
+// What one part's results are counted in: test cases, test files, or
+// legacy results, `{ legacy: label }` naming the label their unit was
+// spelled with.
+export type ProofUnit = "case" | "file" | { readonly legacy: string };
+
 // One part's counts for one entry: [entry, part, of, unit, counts], with an
 // optional sixth durationMs (summed test execution time for that part).
 export type ProofPart =
-  | readonly [string, number, number, string, Counts]
-  | readonly [string, number, number, string, Counts, number];
+  | readonly [string, number, number, ProofUnit, Counts]
+  | readonly [string, number, number, ProofUnit, Counts, number];
+
+// One declaration: an entry and its part count, and the unit its parts are
+// counted in when it declares one.
+export type ProofDeclaration =
+  readonly [string, number] | readonly [string, number, "case" | "file"];
+
+const unitOf = (unit: ProofUnit) =>
+  typeof unit === "string"
+    ? { unit }
+    : { unit: "legacy" as const, label: unit.legacy };
 
 export const counts = (passed: number, failed = 0, other = 0): Counts => ({
   passed,
@@ -49,10 +64,10 @@ export const counts = (passed: number, failed = 0, other = 0): Counts => ({
 });
 
 // The summary the collector writes for `run` from `parts`, declaring
-// `expect` (`<entry>` and its part count, in declaration order).
+// `expect` (`<entry>`, its part count and any unit, in declaration order).
 export function proofSummary(
   run: ProofRun | AdapterProofAttempt,
-  expect: readonly (readonly [string, number])[],
+  expect: readonly ProofDeclaration[],
   parts: readonly ProofPart[],
 ): unknown {
   const attempt =
@@ -67,13 +82,17 @@ export function proofSummary(
         value: fragment(
           { part, of, ...attempt, revision: run.revision },
           entry,
-          unit,
+          unitOf(unit),
           partCounts,
           durationMs === undefined ? {} : { durationMs },
         ) as unknown,
       };
     }),
-    expect: expect.map(([entry, declared]) => ({ entry, parts: declared })),
+    expect: expect.map(([entry, declared, unit]) => ({
+      entry,
+      parts: declared,
+      ...(unit === undefined ? {} : { unit }),
+    })),
     run: {
       repository: run.repository,
       ...("attemptId" in run ? {} : { runId: run.runId }),
