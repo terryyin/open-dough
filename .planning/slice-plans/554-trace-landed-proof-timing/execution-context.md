@@ -4,49 +4,25 @@
 
 ## Current checkpoint
 
-- HEAD and next previously published base: `fcf4c00410f737f0a396fb3c0bae95508a5d2671`.
-- Published main1c784a6d62d48bd845f50992775064fed6d8192f was integrated
-  preserving history, accepted on our execution branch and registered with the
-  same CI observer. Source freshness now reports unchanged for story and plan.
-- G15 is the current slice1 return: published v2 case/file/legacy proof contract.
-  `implement_slice1` owns bounded reconciliation; root owns planning/delivery.
-  [Contract and recovery details](trunk-reconciliation.md) govern this phase.
-- Published supplier final slice `6f5be8b8aa882efabf86e63bb74c88e657a312f0`
-  is integrated preserving both published histories. Root accepted the final
-  G2/G11/G12/G13/G14 semantics against actual product/setup/assertions and the
-  [renewed consumer record](consumer-trace-slice-1-final-reconciliation.md).
-  All implementation writers and commands ended; owned product manifest has53 paths.
-- Before that import, owned index and working patches plus full file copies were
-  SHA256-verified at
-  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/trace-proof-285-integration-final-hwsnh9w4`
-  (pointer `/tmp/trace-proof-285-current-park`). Only saved owned patches were
-  reversed and copied new files removed. Reapplication restored25 new files
-  with no collisions; seven tracked files need contract conflict resolution.
-  No stash/reset/checkout-path action or supplier worktree write occurred.
-- G11's original evidence at base5187 remains retained; renewed acquisition/store
-  observations through the extracted owner at base50f4 now close it again.
-  [Its directed record](consumer-trace-slice-1-g11.md) retains literal commands,
-  terminal results, actual acquisition and compatibility observations.
-- The full independent refactor at50f4 completed: format/typecheck passed,
-  51 actual Playwright cases and12 Node files passed, all97 then-files≤250.
-  Its [return and moved-case map](refactor-slice-1-before-trunk.md) is retained.
-  Original21 formatter findings were repaired without suppression. New v2
-  contract effects need renewed semantic proof and an independent delta pass.
-- Before importing main, all writers/commands were quiescent and owned work
-  was SHA256-parked at
-  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/trace-proof-285-trunk-units-xbr4xgs_`.
-  Reapplication restored61 new files with no collision. Four new conflicts are
-  ciProofArtifacts, README, ciProofEntryTestData and makeMe; their index remains
-  unresolved for coordinator review. No own feature commit or done mark exists.
-- Third supplier watch `g116:122` ended cleanly at its bound.
-- Fourth supplier watch `g116:143` / session82935 / PID17342 reported6f5be8b8
-  and ended exit0. No supplier watcher remains. The existing CI observer is a
-  separate process; integration50f4f4f1 is registered there, state reused.
-- Local observer health inspection at09:20Z found PID39656 alive, stream mode,
-  deliveredThrough7. Coverage for integration50f4f4f1 records success checked by
-  run42589844811/attempt1; this is the integration, not our uncommitted feature.
-  Event7 directs a provider wait until2026-11-09T10:12:00.210Z (3321seconds).
-  Preserve that observer and do not bypass limits with another poller.
+- HEAD and next published base: `d4130605530aa4aed22c3d2be0e7ff5ff89ad968`.
+  Slice1 done, committed asdbs-chan, accepted on the own execution branch;
+  `/tmp/trace-proof-285-slice1-delivery.json` retains commit/publication receipt.
+- Imported publishedmain e623ab143 via accepted8a9c7ed15. Developer approved the
+  moved-link resolution; main’s explicit delivered-history amendment is kept.
+  Source-freshness returned unchanged before slice1done.119commitments retained;
+  G5/G17 and remaining slice3 observations stay explicitly owned by3.
+- Fresh `implement_slice2` owns folder/file reading and actual artifact proof.
+  Root owns planning, independent refactor, delivery and CI coordination.
+- Live Codex observer: coordinatortrace-proof-285, directory
+  `/tmp/dough-ci-501/watch-oKvBZU`, cellg327:6, session45196, PID77259.
+  All accepted imports and slice1 are registered. Latest throttle resumes
+  2026-11-09T13:13:02.886Z; no alternate provider polling. FinalCI remains a gate.
+- Current proof and consumer dispositions: [supplierfinal](consumer-trace-slice-1-supplier-final.md),
+  [v2contract](consumer-trace-slice-1-v2-reconciliation.md),
+  [independentrefactor](refactor-slice-1-final.md). All writers were quiescent
+  for slice1publication. Formatter/hook/typecheck passed; staged whitespace
+  attempt first refused one trailing blank EOF, repaired before any commit.
+- Earlier temporary conflicts, observer and publication bases below are history.
 
 Supplier integration checklist from read-only contract review: preserve proof,
 runBranch, repository provenance, strict local-read failure, G11 identities and

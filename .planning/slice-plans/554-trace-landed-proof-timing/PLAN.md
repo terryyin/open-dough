@@ -55,7 +55,7 @@ governs the changed input contract and renewal of affected proof.
 ### 2. Follow that history into a folder and file's Proof
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: An artifact-to-folder-to-file browser journey, a partial/no-breakdown
 variation, and focused evidenced-scope matching checks.
 
@@ -126,7 +126,7 @@ essential override belongs only in its individual test.
 ## Execution evidence
 
 - [Execution identity, supplier integrations, CI observer and final reporting](execution-context.md).
-- [Slice 1 acceptance, reconciliation and ordering correction](slice-1-acceptance.md).
+- Slice proof: [entry](slice-1-acceptance.md), [folder/file](slice-2-acceptance.md).
 - [Complete slice designs and next-slice proof routes](slice-design.md).
 - [Final independent refactor and mechanical gates](refactor-slice-1-final.md).
 - [Latest supplier reconciliation and proof](consumer-trace-slice-1-supplier-final.md).

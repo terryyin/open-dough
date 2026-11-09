@@ -9,11 +9,11 @@ import { retainedHistory } from "./collectedScopeHistory.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
 import { commonGitDir } from "./launchLanding.ts";
 import { git } from "./storyReviewWorktree.ts";
+import { summaryTextZipAnswer } from "./ciProofCollected.ts";
 import {
-  collectedSummary,
-  playwrightRecord,
-  summaryTextZipAnswer,
-} from "./ciProofCollected.ts";
+  collectedScopeFileSummary,
+  type ScopeFileTiming,
+} from "./scopeHistoryProofs.ts";
 
 export function retainedProofs(
   home: string,
@@ -76,6 +76,56 @@ export function serveCollectedScopeRuns(
     fileMs?: number,
   ])[],
 ) {
+  serveCollectedScopeFileRuns(
+    setup,
+    observations.map(
+      ([revision, runId, startedAt, caseMs, fileMs]) =>
+        [
+          revision,
+          runId,
+          startedAt,
+          [["root.spec.ts", caseMs, fileMs]],
+        ] as const,
+    ),
+  );
+}
+
+// Publish explicit per-file runner facts through the same real CLI producer.
+export function serveCollectedScopeFileRuns(
+  setup: StoryCiComparisonSetup,
+  observations: readonly (readonly [
+    revision: string,
+    runId: number,
+    startedAt: string,
+    files: readonly ScopeFileTiming[],
+  ])[],
+) {
+  serveCollectedScopeProofs(
+    setup,
+    observations.map(([revision, runId, startedAt, files]) => {
+      return [
+        revision,
+        runId,
+        startedAt,
+        collectedScopeFileSummary(
+          { repository: "terryyin/open-dough", runId, attempt: 1, revision },
+          files,
+        ),
+      ] as const;
+    }),
+  );
+}
+
+// Serve actual serialized producer output through the same Actions boundary.
+export function serveCollectedScopeProofs(
+  setup: StoryCiComparisonSetup,
+  observations: readonly (readonly [
+    revision: string,
+    runId: number,
+    startedAt: string,
+    summary: string,
+  ])[],
+) {
   setup.serveRuns(
     Object.fromEntries(
       observations.map(([revision, runId, startedAt]) => [
@@ -99,46 +149,9 @@ export function serveCollectedScopeRuns(
       ]),
     ),
   );
-  const proofText = new Map<number, string>();
-  for (const [revision, runId, , caseMs, fileMs] of observations) {
-    proofText.set(
-      runId,
-      collectedSummary(
-        { repository: "terryyin/open-dough", runId, attempt: 1, revision },
-        [
-          ["dashboard/tests", 1, "case"],
-          ...(fileMs === undefined
-            ? []
-            : [["dashboard/tests", 1, "file"] as const]),
-        ],
-        [
-          {
-            entries: ["dashboard/tests"],
-            part: 1,
-            of: 1,
-            byFile: true,
-            record: playwrightRecord([
-              ["dashboard/tests/root.spec.ts", "expected", [caseMs]],
-            ]),
-          },
-          ...(fileMs === undefined
-            ? []
-            : [
-                {
-                  entries: ["dashboard/tests"],
-                  part: 1,
-                  of: 1,
-                  byFile: true,
-                  unit: "file" as const,
-                  outcomes: "passed\tdashboard/tests/root.spec.ts\n",
-                  // Outcomes times are seconds on the wire; the case states milliseconds.
-                  times: `${String(fileMs / 1000)}\tdashboard/tests/root.spec.ts\n`,
-                },
-              ]),
-        ],
-      ),
-    );
-  }
+  const proofText = new Map(
+    observations.map(([, runId, , text]) => [runId, text]),
+  );
   setup.serveProofs(
     Object.fromEntries(
       [...proofText].map(([runId, text]) => [

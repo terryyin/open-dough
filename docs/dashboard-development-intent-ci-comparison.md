@@ -103,12 +103,16 @@ one per compared unit, stay last, and its sort survives drilling down. **Counts*
 after endpoint's counted results, and **Change** keeps its existing meaning.
 At every depth, an unused Landed endpoint has the same explanation and the
 same active Branch comparison, or Provisional comparison in Taken Trunk Mode.
-For a Done story, an entry Summary also shows **Test execution time history**
-beside its comparison. The endpoint is the published Done result's landing,
+For a Done story, entry and folder **Summary** and file **Proof** also show
+**Test execution time history** beside the existing evidence. File history
+stays available across Purpose/Proof navigation and when live Proof is absent. The endpoint is the published Done result's landing,
 independent of the build that measured it or another publication of the same
 story. Background landing collection retains each measured attempt's validated
 GitHub Actions or adapter proof once. History reads use that local evidence.
-Opening a Summary or retrying its history never acquires historical CI proof.
+Opening, drilling or revisiting Summary or file Proof, including history Retry,
+never acquires historical CI proof. Folder readings include every published
+descendant, even files absent from the visible source tree; membership is the
+scope observed at each build.
 The cohort follows accepted recorded-landing ancestry across all merge
 parents, filtered to retained recorded revisions, independently of when
 landing reports arrive. A merge with the story as its first parent still

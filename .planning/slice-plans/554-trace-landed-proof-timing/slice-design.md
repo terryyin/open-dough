@@ -187,3 +187,23 @@ seconds: convert explicit milliseconds /1000, preserving independent facts.
 Variation: entry-onlyP, partial-case/complete-file older-trunkT, Ecase0/fileunit
 absent. Distinguish breakdown/partial/absentunit and earlier supportedsegments;
 never record branchSide as trunk merely because comparison uses its proof.
+
+## Current resumption distinction
+
+Read-only `/root/restart_route_check` refresh afterd413: exact passed builds
+bypass the stand-in proof gate, so real fresh exact missing/failed-listing proof
+can exerciseG5. Equivalent/later unanswered proof remains supplier-owned
+pending/proof; answered missing/corrupt proof is its final gap.
+`isUnansweredProof` is a WeakSet of original native reader answers; JSON copies
+lose that judgment. `unreadable` includes failed acquisition and answered corrupt
+ZIP. Do not classify retained failures by applying that predicate after reading
+JSON. Consider retaining the collector’s pending/final proof judgment when
+necessary, using existing reader classification, rather than guessing from the
+reason alone. Preserve the live reader and final landing resolution contracts.
+Native empty listing gives none; failed listing gives unanswered unreadable;
+unopenable ZIP gives answered unreadable. Adapter unreadable includes command
+failure; invalid/mismatched/too-large remain their explicit separate reasons.
+Old final-build backfill uses canonical measuredLanding plus repository/order,
+no live launch, and real CLI V2 bytes. Actual Done retry must use resultToLand /
+land attempt admission and record’s reporting reference/session host; completion
+replay itself does not nudge collection. Resume via startup/periodic lifecycle.
