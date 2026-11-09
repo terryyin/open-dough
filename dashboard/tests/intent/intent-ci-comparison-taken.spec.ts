@@ -9,10 +9,8 @@
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { notLandedYetWords } from "../../src/storyCiComparisonWording.ts";
-import {
-  listedAttemptJobPages,
-  wall,
-} from "../support/storyCiComparisonFixture.ts";
+import { wall } from "../support/storyCiComparisonFixture.ts";
+import { listedAttemptJobPages } from "../support/storyCiComparisonRequests.ts";
 import { observedRerunJobs } from "../support/storyCiObservedJobs.ts";
 import {
   publishTakenComparedStoryBranch,

@@ -174,6 +174,17 @@ file and passed 18/18 alone at one worker. An earlier run timed out
 `intent-ci-comparison-cancelled-landing-gaps.spec.ts:130` (12/12 alone). Those
 load-sensitive specs are an owned repair before execution completes.
 
+Owned repair: each CI comparison read listed runs at the same `head_sha` up
+to four times (43–47 `gh` calls, 29–30 listings for 11–12 SHAs).
+`githubRevisionLookup` now remembers `listRunsAt` for its one read and asks a
+failed listing again; `intent-ci-comparison-fast-forward.spec.ts` asserts no
+SHA is listed twice in a read (7 were before). Check again in the retry spec
+waits for its comparison read (`checkComparisonAgain`) instead of a 5 s
+expect. The CI comparison family ran 57 passed, and the final consumer suites
+303 passed at load 18–33. Those two-read journeys still neared 30 s locally at
+load 18–32 with other suites running; raising their test timeouts was left to
+the developer.
+
 ### 2. Answered locations come from the same location builder
 Type: Behavior
 Status: done
