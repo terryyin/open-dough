@@ -142,6 +142,10 @@ merge/fast-forward identity; absence of a recoverable published landing remains
 its existing explained historical gap, not an invented revision. Assimilate
 receipt and refresh semantics into the maintained comparison/history docs.
 
+## Execution complete
+
+Product advice: no change. Complete this story; retain the existing separate test-optimization and adapter-equivalent timing work. No product correction or new backlog recommendation is needed.
+
 ## Verification and execution gates
 
 Follow [the project's failing and flaky test policy as written](../../../AGENTS.md#failing-and-flaky-tests)

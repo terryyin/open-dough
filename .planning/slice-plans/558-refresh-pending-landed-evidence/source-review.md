@@ -230,3 +230,17 @@ setup and explicitly asserted its matching target precondition, within the
 already-traced test concept. Reran
 `caffeinate -s -i npm run test:dashboard -- backend-tests/intent/intent-ci-comparison-receipt.spec.ts --workers=1`:
 all six cases passed, exit 0. Other accepted boundaries are unchanged.
+
+## Retrospective
+
+Planned execution reviewed against the original claim's story/plan, current
+whole-product CI responsibilities, tests, ADR 0008 and unchanged North Star.
+Manifest: claim `cad4e6746`, implementation `7ba5764de`, `05c52089e`; unrelated
+trunk planning/guidance commits were excluded. Both slices and all source
+promises are covered; no product defect, correction plan or new product advice.
+Existing SEED-286 test optimization and the adapter-timing sibling retain their
+separate scope. Process review enabled by project configuration used this actual
+conversation/tool record; added one occurrence each to ODF-396 and ODF-362 in
+DearDough.md (430 physical lines, no pruning/new IDs). Review complete; branch CI
+for `05c52089e` and final integration/closure remain pending in the retained
+observer. No review conclusion claims CI success.
