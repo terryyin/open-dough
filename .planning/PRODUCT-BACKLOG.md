@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Unify the Intent view and CI proof](seeds/SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof) — SEED-282#unify-intent-view-and-ci-proof
 - [Keep the selected story when the Side panel closes](seeds/SEED-275-story-intent-tabs.md#preserve-story-on-panel-close) — SEED-275#preserve-story-on-panel-close
 - [Distinguish test cases and test files in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof) — SEED-281#distinguish-test-cases-and-files-in-ci-proof
 - [Make machine-local project configuration test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data) — SEED-261#map-project-configuration-test-data
