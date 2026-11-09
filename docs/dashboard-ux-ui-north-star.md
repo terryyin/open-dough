@@ -135,8 +135,9 @@ dated line with measured points and a clearly identified landing. Use CI wall
 time at project and story level, and test execution time in Summary and Proof.
 Label the cohort as dashboard-recorded landings, show the number of measured
 builds, and break the line where timing is unavailable. Label a confirmed skip
-that reuses a cached equivalent build with the source build's identity. Count
-that measurement once. Provide readable values and build links alongside the
+that reuses a cached equivalent build, or a cancelled landing measured by a
+later trunk build, with the source build's identity. Count that measurement
+once. Provide readable values and build links alongside the
 chart so its evidence is available with a keyboard, on a phone, and without
 relying on color.
 
