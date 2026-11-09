@@ -142,13 +142,26 @@ refactor pass found nothing to change.
 
 ### 3. Settings show the saved checkout path
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3. Run `'backend-tests/configuration/project-(configuration-boundary|remove-boundary)\.spec\.ts$'` and `'dashboard/tests/configuration/(project-hide[^/]*|project-remove|system-settings|system-settings-project-management[^/]*)\.spec\.ts$'`. Settings show the long local path while the published list omits it.
 
 Arrange the long-path row where the case saves it. Read it through the real
 settings page and keep the layout and keyboard checks. Use the same builder
 for valid synthetic registry rows found in these consumers. Preserve the
 visibility and removal operations, failures, and saved results as evidence.
+
+Accepted proof: "long configured facts reflow at narrow width and 200 percent
+zoom with keyboard return" in
+`dashboard/tests/configuration/system-settings-project-management.spec.ts`
+saves a `makeMe.aConfiguredProject` row with the long repository and checkout
+path. The real settings page shows the path at 360 px and at 200% zoom
+without overflow, and focus returns. Through the real reader the row equals
+its predecessor; only key order differs, and the case never reads bytes. It
+was the only synthetic saved row in this selection. Hide, Remove, seeding and
+captured bytes keep their roles. The public-list omission is observed by
+`system-settings.spec.ts` and `project-configuration-boundary.spec.ts`. The
+selections (2 and 14 tests) and `npm run typecheck:dashboard` passed. The
+refactor pass found nothing to change.
 
 ### 4. The Sessions catalog points to its actual test checkouts
 Type: Behavior
