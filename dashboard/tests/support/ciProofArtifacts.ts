@@ -11,6 +11,7 @@ import {
   summarize,
   summaryArtifactName,
 } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import type { CiProofFile } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 
 // The collector is untyped JavaScript; this names the one result it gives.
@@ -41,11 +42,29 @@ type Counts = {
 // spelled with.
 export type ProofUnit = "case" | "file" | { readonly legacy: string };
 
+// A part's file breakdown, as a fragment made `--by-file` carries it: one
+// aggregate per path inside its entry and how many counted results recorded
+// no duration.
+export type ProofBreakdown = {
+  readonly files: readonly CiProofFile[];
+  readonly untimed: number;
+};
+
 // One part's counts for one entry: [entry, part, of, unit, counts], with an
-// optional sixth durationMs (summed test execution time for that part).
+// optional sixth durationMs (summed test execution time for that part) and
+// a seventh file breakdown.
 export type ProofPart =
   | readonly [string, number, number, ProofUnit, Counts]
-  | readonly [string, number, number, ProofUnit, Counts, number];
+  | readonly [string, number, number, ProofUnit, Counts, number]
+  | readonly [
+      string,
+      number,
+      number,
+      ProofUnit,
+      Counts,
+      number | undefined,
+      ProofBreakdown,
+    ];
 
 // One declaration: an entry and its part count, and the unit its parts are
 // counted in when it declares one.
@@ -76,7 +95,8 @@ export function proofSummary(
       : { attempt: run.attempt };
   const { summary } = (summarize as unknown as SummarizeFragments)({
     fragments: parts.map((proofPart, index) => {
-      const [entry, part, of, unit, partCounts, durationMs] = proofPart;
+      const [entry, part, of, unit, partCounts, durationMs, breakdown] =
+        proofPart;
       return {
         source: `fragment-${String(index)}.json`,
         value: fragment(
@@ -84,7 +104,10 @@ export function proofSummary(
           entry,
           unitOf(unit),
           partCounts,
-          durationMs === undefined ? {} : { durationMs },
+          {
+            ...(durationMs === undefined ? {} : { durationMs }),
+            ...breakdown,
+          },
         ) as unknown,
       };
     }),

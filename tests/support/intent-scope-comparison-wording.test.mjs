@@ -1,10 +1,11 @@
 // Count words for Intent's shared CI comparison
 // (../../dashboard/src/ciScopeComparisonCounts.ts,
-// ../../dashboard/src/ciScopeComparisonCountsCell.ts,
-// ../../dashboard/src/storyCiComparisonCountsWords.ts): count cells and the
-// overall sum with units kept apart; a count difference only between totals
-// of one declared unit, never across units, from legacy results, of several
-// units or from a unit a build does not report. Signed timing:
+// ../../dashboard/src/ciScopeComparisonCountsCell.ts): a count cell's
+// difference only between totals of one declared unit, never across units,
+// from legacy results, of several units or from a unit an endpoint does not
+// report, which show both labelled ends and why (SEED-281 examples 38, 39).
+// Overall counts: ./intent-ci-comparison-overall-counts.test.mjs. Compared
+// rows per unit: ./intent-scope-comparison-units.test.mjs. Signed timing:
 // ./intent-scope-comparison-timing.test.mjs. Browser journeys:
 // ../../dashboard/tests/intent/intent-ci-comparison*.spec.ts and
 // intent-summary-story-comparison*.spec.ts.
@@ -12,11 +13,6 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { measuredCountsChangeWords } from "../../dashboard/src/ciScopeComparisonCounts.ts";
 import { countsCellText } from "../../dashboard/src/ciScopeComparisonCountsCell.ts";
-import {
-  overallCountsCue,
-  overallCountsWords,
-} from "../../dashboard/src/storyCiComparisonCountsWords.ts";
-import { makeMe } from "./makeMe.mjs";
 
 const measured = (total, unit = "case") => ({
   kind: "measured",
@@ -54,7 +50,7 @@ test("count cells read before → after with the difference in parentheses", () 
   );
 });
 
-test("a count difference exists only between totals of one declared unit: different units, legacy results and several units show each endpoint in its units without one", () => {
+test("a count difference exists only between totals of one declared unit: different units, legacy results and several units show each endpoint in its units and why there is none", () => {
   // Once worded "5 → 1 checks (−4)", subtracting test files from test cases.
   assert.equal(
     countsCellText(
@@ -64,7 +60,18 @@ test("a count difference exists only between totals of one declared unit: differ
       true,
       true,
     ),
-    "5 test cases → 1 test file",
+    "5 test cases → 1 test file (different units)",
+  );
+  // Equal totals in different units are no "no change".
+  assert.equal(
+    countsCellText(
+      measured(6, "case"),
+      measured(6, "file"),
+      measured(6, "file"),
+      true,
+      true,
+    ),
+    "6 test cases → 6 test files (different units)",
   );
   // Equal legacy totals are not compared either.
   assert.equal(
@@ -75,15 +82,15 @@ test("a count difference exists only between totals of one declared unit: differ
       true,
       true,
     ),
-    "5 legacy test results → 5 legacy test results",
+    "5 legacy test results → 5 legacy test results (legacy unit unknown)",
   );
   const several = {
     kind: "units",
     counts: [measured(5, "case"), measured(1, "file")],
   };
   assert.equal(
-    countsCellText(measured(5, "case"), several, several, true, true),
-    "5 test cases → 5 test cases and 1 test file",
+    countsCellText(measured(6, "legacy"), several, several, true, true),
+    "6 legacy test results → 5 test cases and 1 test file (legacy unit unknown)",
   );
   assert.equal(
     countsCellText(
@@ -93,84 +100,51 @@ test("a count difference exists only between totals of one declared unit: differ
       true,
       true,
     ),
-    "5 test cases → 6 test cases → 1 test file",
+    "5 test cases → 6 test cases → 1 test file (different units)",
+  );
+  // One measured end: the gap or "—" already says why.
+  assert.equal(
+    countsCellText(
+      measured(3, "legacy"),
+      { kind: "unreported" },
+      { kind: "unreported" },
+      true,
+      true,
+    ),
+    "3 legacy test results → —",
   );
 });
 
-// A proof summary of ENTRIES.
-const summary = (...entries) => ({ kind: "summary", entries });
-const entry = (path, passed, unit) =>
-  makeMe.aCiProofEntry.at(path).counting(passed, unit).please();
-
-test("overall counts keep test cases and test files apart and say partial when a side is missing", () => {
-  const baseline = summary(
-    entry("dashboard/tests", 1098, "case"),
-    entry("tests", 982, "case"),
-    entry("scripts", 492, "file"),
-  );
-  const landed = summary(
-    entry("dashboard/tests", 1100, "case"),
-    entry("tests", 982, "case"),
-    entry("scripts", 492, "file"),
-  );
+test("a unit Branch does not report keeps Landed's own difference from Baseline, and a unit Baseline does not report is no zero", () => {
   assert.equal(
-    overallCountsWords(baseline, landed),
-    "2,080 → 2,082 test cases (+2); 492 test files (no change)",
-  );
-  assert.equal(
-    overallCountsWords(baseline, {
-      kind: "unavailable",
-      line: "This run's CI proof summary has expired.",
-    }),
-    "Overall count partial: This run's CI proof summary has expired.",
-  );
-  assert.equal(
-    overallCountsWords(
-      { kind: "no-build", explanation: "Build is still running." },
-      landed,
+    countsCellText(
+      measured(5),
+      { kind: "unreported" },
+      measured(7),
+      true,
+      true,
     ),
-    "Overall count partial: Build is still running.",
+    "5 → — → 7 test cases (+2)",
   );
   assert.equal(
-    overallCountsWords(
-      { kind: "summary", entries: [] },
-      { kind: "summary", entries: [] },
+    countsCellText(
+      { kind: "unreported" },
+      measured(1, "file"),
+      measured(1, "file"),
+      true,
+      true,
     ),
-    "No overall count: neither compared build has a usable total.",
+    "— → 1 test file",
   );
-});
-
-test("the overall count compares only declared units both builds report: a unit one build lacks is no zero, and legacy results are neither totalled nor compared", () => {
-  const casesOnly = summary(entry("dashboard/tests", 5, "case"));
-  const both = summary(
-    entry("dashboard/tests", 7, "case"),
-    entry("tests", 1, "file"),
-  );
+  // A reported zero is a real zero.
   assert.equal(
-    overallCountsWords(casesOnly, both),
-    "5 → 7 test cases (+2); — → 1 test file",
+    countsCellText(
+      measured(0, "file"),
+      measured(1, "file"),
+      measured(1, "file"),
+      true,
+      true,
+    ),
+    "0 → 1 test file (+1)",
   );
-  assert.deepEqual(overallCountsCue(casesOnly, both), {
-    kind: "border",
-    direction: "more",
-    strength: "light",
-  });
-  const legacy = summary(
-    makeMe.aCiProofEntry
-      .at("tests")
-      .holding(makeMe.aCiProofEvidence.legacy("checks").counting(5).please())
-      .please(),
-  );
-  assert.equal(
-    overallCountsWords(legacy, legacy),
-    "No overall count: legacy test results are not compared.",
-  );
-  assert.equal(
-    overallCountsWords(legacy, both),
-    "— → 7 test cases; — → 1 test file; legacy test results not compared",
-  );
-  assert.deepEqual(overallCountsCue(legacy, both), {
-    kind: "none",
-    reason: "no overall count",
-  });
 });

@@ -84,17 +84,17 @@ is sorted by it again. A selected story's Summary and file Proof share the
 observed-build framing, active endpoints and unused-Landed explanation.
 Short labels keep `Provisional` while Taken and **Baseline**, **Branch** and
 **Landed** with each requested revision's status and the short revision whose
-proof is used, or the endpoint's gap explanation. **Baseline** shows measured
-time; **Branch** and **Landed** show signed changes from it in the same
-declared unit, preserving precise sub-second differences, and otherwise their
-own time. Relative marks and the story's shared **Show %**
-preference use one scale for the displayed figures and immediate rows.
-Baseline sorts by measured time; Branch/Landed sort by signed change, with
-uncomparable rows last in either direction and ties in supplied order.
+proof is used, or the endpoint's gap explanation. Each compared unit has its
+own row and group. **Baseline** shows measured time; **Branch** and **Landed**
+show signed changes from it in that declared unit, preserving precise
+sub-second differences, and otherwise their own time. Relative marks and the
+story's shared **Show %** preference use one scale for the displayed figures
+and immediate rows. Baseline sorts by measured time; Branch/Landed sort by
+signed change, with uncomparable rows last either way, ties in supplied order.
 **Counts** keeps counted-results differences and preserves gap endpoints;
 **Change** after **Scope** names `added`, `modified`, `removed` or `renamed` (empty when unchanged),
 sorting in that order with unchanged last in either direction. A rename uses
-its old Baseline path, named in that cell. The group's **Parts** keeps the
+its old Baseline path, named in that cell. A group's **Parts** keeps the
 chosen build's completeness (landed, else branch, else baseline); that build
 labels **Not in the rows above** and `No file breakdown`, as one run's Summary
 does. Comparison figures and tables use signed words and relative marks;

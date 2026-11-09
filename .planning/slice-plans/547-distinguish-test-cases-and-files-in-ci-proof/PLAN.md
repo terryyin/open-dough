@@ -92,26 +92,23 @@ tests/stories/story-dependencies --workers=1` (exit 0, 294 tests, 30 min).
 ### 2. Compare only evidence with matching known units
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership rows 4–5; extend
 `tests/support/intent-scope-comparison-wording.test.mjs` and the existing
 story CI comparison and selected-scope/file comparison journeys.
 
-Behavior: comparing Baseline's five cases/one file with Branch or Landed's
-seven cases/one file shows +2 cases and unchanged files in overall, location,
-folder and file proof; each endpoint keeps its unit and evidence status.
-Legacy→new or cases→files changes show both labelled endpoints and why no
-count delta exists. Two ambiguous v1 summaries both labelled `tests` (or
-`checks`) with different totals show no numeric delta either: identical raw
-labels establish no unit match. A group absent at one endpoint is no measured
-zero; an explicitly reported zero in a compatible group is a real zero.
+Behavior delivered: every scope compares one row per declared unit both
+builds report, each with its own Counts difference, time, signed change,
+relative mark, cues and sort key (example 39: `5 → 7 test cases (+2); 1 test
+file (no change)`). Units matching nothing across ends share one row with both
+labelled ends and why (`… (different units)`, `… (legacy unit unknown)`); a
+unit one side lacks reads `—`; overall counts add only matched units or wholly
+added/removed entries (`ciScopeComparisonUnits.ts`, `ciScopeComparisonRow.ts`).
 
-Apply the same matching rule to overall and scoped counts, sorting and timing.
-Keep separate durations when a publisher supplies both file and case timing,
-never adding them or spreading file time over cases. Preserve build selection,
-timing completeness and unavailable-endpoint rules. Cover three-endpoint
-comparisons and equal totals with different units, so rendering cannot hide a
-unit change.
+Accepted proof: `bash scripts/test.sh` over 46 collector, read, scope,
+comparison, sort and timing files (46/46); typecheck; lint; `npm run
+test:dashboard -- tests/intent --workers=2` (exit 0, 281 tests, load 5–10;
+two cancelled-landing timeouts at load 16–21 passed 12/12 alone).
 
 ### 3. Publish explicit units from the project's actual reports
 
@@ -177,12 +174,17 @@ Disposition: receiving slice 3
 ### G3. Several units at one endpoint compare without per-unit deltas (first reported in slice 1)
 Reported: slice 1 — "Comparisons where one end has several units still show labelled ends only (no per-unit deltas yet), which is slice 2's job."
 Story clause: "Intent shows +2 test cases and no change in test files."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: `intent-ci-comparison-units.spec.ts` example 39 tests (overall "5 → 7 test cases (+2); 1 test file (no change)", per-unit entry, Summary and file Proof rows); `intent-scope-comparison-units.test.mjs` three-build test
 
 ### G4. Comparison rows stay one per path (first reported in slice 1)
 Reported: slice 1 — "Comparison rows remain one per path, while current-result views use one row per unit."
 Story clause: "keep their results and comparisons separate through the CI result, story comparison, location and folder Summary, and individual file Proof views"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: comparison rows are one per path and unit in entry rows, Summary own figures and child rows, outside rows and file Proof (`intent-ci-comparison-units.spec.ts` example 39 tests; `intent-scope-comparison-unit-gaps.test.mjs` outside-row test)
+
+### G5. Outside rows show another unit's Parts (first reported in slice 2)
+Reported: slice 2 — "On a Summary's \"Not in the rows above\" rows, a unit the chosen build (Landed) does not report shows Landed's *other* unit's Parts."
+Story clause: "Preserve outcomes, available execution time, untimed results, and missing or ambiguous parts within their reported unit."
+Disposition: proved by slice 2: `tests/support/intent-scope-comparison-unit-gaps.test.mjs` "a Summary's outside row shows its own unit's Parts, never the chosen build's other unit's…" (failed before the `outsideComparisonRowsOf` fix, passes after)
 
 ## Proof and delivery gates
 
@@ -207,12 +209,10 @@ reduce concurrency or sequence work without dropping proof.
 
 ## Decisive premises
 
-Observed at `c92119ac9` on 2026-11-09 (not accepted proof); slice 1's four
-rows were consumed by its accepted proof (see revision `479f6f3b1`).
+Observed at `c92119ac9` (not proof); slices 1–2 consumed five rows (`479f6f3b1`).
 
 | Premise / consuming operation | Literal observation and result | Remainder |
 | --- | --- | --- |
-| Scoped comparisons currently invent a delta across units | `node --input-type=module` imported `countsCellText`; derive measured endpoints from MakeMe entries counting 5 `tests` and 1 `checks` and call `countsCellText(before, after, after, true, true)`. `assert.equal` observed `5 → 1 checks (−4)`. Overall comparison source also sums per raw unit and defaults missing totals to zero. | Slice 1 now shows no cross-unit difference; slice 2 must add matched per-unit deltas and absent-unit handling (G3, G4). |
 | Open Dough's producers already expose the required granularity | `node --test tests/support/ci-proof-declaration.test.mjs`: 6/6 passed, including executing both composite actions' actual script commands against outcomes and shared Playwright records, then reading their summaries. Read `scripts/test.sh` outcomes emission: one scheduled job/file supplies one line. Workflow invokes the source modules. | Changed explicit declarations and failed-file behavior receive slice 3's fresh action replay (now `ci-proof-actions.test.mjs`); no claim of a future hosted run yet. |
 | Current installation permits the normal release preflight, and the collector is already declared payload | `bash scripts/check-self-installation.sh`: exit 0 in this worktree. `install.sh` includes all five collector modules and the publisher reference. | Slice 4 rechecks fetched tags, committed payload, source state and self-installation before release writes. These mutable execution preconditions are not assumed to remain true; failure stops publication. |
 
@@ -243,7 +243,7 @@ Story Branch Mode (`origin`, target `main`) in workspace
 `479f6f3b112bb7ebe295a1a9724cfce85dc9664d` stays the first published base.
 SEED-282 landed mid-slice (merge `0eee12e4d`, shared signed change), so slice
 1 was replayed onto trunk `9215bdb89` (local WIP `e0384b5d5`) with its unit
-rule in `afterCellOf`. Coordination: `intent-ci-comparison-retry.spec.ts`
-:75, :183, :204 time out under load on trunk without this story; execution
-`make-intent-location-source-and-candidate-test-s` owns that repair. Recheck
-the spec here once it is on trunk.
+rule in `afterCellOf`. Coordination: the retry-spec repair landed on trunk
+(`acfd70db4`); recheck `intent-ci-comparison-retry.spec.ts` after integrating
+trunk. SEED-286 (queued) owns the comparison family's load timeouts, which
+reach the new `intent-ci-comparison-units.spec.ts` when first in a worker.

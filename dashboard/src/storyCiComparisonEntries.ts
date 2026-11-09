@@ -1,11 +1,12 @@
 // Entry rows in the selected story's CI comparison tab
 // (`./IntentCiComparison.tsx`): match each endpoint's proof summary by path
-// through the shared scope comparison (`./ciScopeComparison.ts`), show the
+// through the shared scope comparison (`./ciScopeComparison.ts`), one row
+// per entry and compared unit (`./ciScopeComparisonUnits.ts`), show the
 // measured Baseline execution time and, in Branch and Landed, one signed
-// whole-second change from it when both ends are measured in one declared
+// whole-second change from it when both ends are measured in that declared
 // unit, relative to a positive Baseline (`./storyCiRelativeChange.ts`) (a
-// new entry, or one measured in another unit or as legacy results, keeps
-// its measured time; a gap keeps its words), counted-results differences in
+// new entry, or results in another unit or as legacy results, keeps its
+// measured time; a gap keeps its words), counted-results differences in
 // Counts, mark added and removed entries, and keep parts completeness from
 // the comparison's chosen build (`./ciScopeComparisonPrimary.ts`).
 
@@ -18,7 +19,7 @@ import {
 } from "./ciProofAbsenceWording.ts";
 import type { TimingCell } from "./ciProofTiming.ts";
 import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
-import { primaryProofOf, scopeComparisonCellsOf } from "./ciScopeComparison.ts";
+import { primaryProofOf, scopeComparisonRowsOf } from "./ciScopeComparison.ts";
 import type {
   ComparisonAfterSide,
   ScopeComparisonCues,
@@ -57,10 +58,13 @@ export function comparisonEndpointProofsChecking(
   );
 }
 
-// A compared scope's Counts words, the active after endpoint's counted
-// results and each endpoint's timing. Baseline sorts by measured time;
-// Branch and Landed show and sort by signed change from it. Parts completeness
-// belongs to the selected scope's own figures.
+// One compared row of a scope (`./ciScopeComparison.ts`): its Counts words,
+// the active after endpoint's counted results and each endpoint's timing,
+// in the units it compares (`units`, named: "test cases", or "legacy test
+// results and test cases" for units matching nothing on the other side).
+// Baseline sorts by measured time; Branch and Landed show and sort by signed
+// change from it. Parts completeness belongs to the selected scope's own
+// figures.
 export type ComparisonEntryCells = {
   readonly counts: string;
   readonly countedResults: CountedResults | undefined;
@@ -74,6 +78,9 @@ export type ComparisonEntryCells = {
   // One classification for the active after endpoint; Summary, entry rows and
   // Proof all render from this.
   readonly cues: ScopeComparisonCues;
+  // The units the row's figures are in, named; absent for a row of a scope
+  // no endpoint shows results of.
+  readonly units?: string;
 };
 
 // Whether a CI figures table row's CELLS compare endpoints rather than show
@@ -84,6 +91,8 @@ export function isComparisonCells(
   return "baseline" in cells;
 }
 
+// One row of an entry: its path, and its cells in one compared unit, or in
+// the units matching nothing on the other side.
 export type ComparisonEntryRow = {
   readonly path: string;
   readonly cells: ComparisonEntryCells;
@@ -149,8 +158,9 @@ function orderedPaths(
   return paths;
 }
 
-// Rows for the three endpoint proofs once each has settled; checking while any
-// is still reading; empty with why when no summary names an entry.
+// Rows for the three endpoint proofs once each has settled, each entry's in
+// its compared units; checking while any is still reading; empty with why
+// when no summary names an entry.
 export function comparisonEntriesOf(
   baseline: ComparisonEndpointProof,
   branch: ComparisonEndpointProof,
@@ -188,9 +198,8 @@ export function comparisonEntriesOf(
   }
   return {
     kind: "rows",
-    rows: paths.map((path) => ({
-      path,
-      cells: scopeComparisonCellsOf(
+    rows: paths.flatMap((path) =>
+      scopeComparisonRowsOf(
         path,
         baseline,
         branch,
@@ -199,7 +208,7 @@ export function comparisonEntriesOf(
         path,
         undefined,
         afterSide,
-      ),
-    })),
+      ).map((cells) => ({ path, cells })),
+    ),
   };
 }

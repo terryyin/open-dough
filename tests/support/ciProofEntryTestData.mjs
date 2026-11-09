@@ -4,8 +4,8 @@
 // one declared entry of a summary with its results in each unit — test
 // cases, test files, or legacy results whose unit was only spelled — each
 // unit's with one present part's figures, measured or without a duration,
-// and an optional file breakdown. A job's fragments are
-// ./ciProofFragmentTestData.mjs's.
+// an optional file breakdown, and any further declared parts missing. A
+// job's fragments are ./ciProofFragmentTestData.mjs's.
 
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEntry} CiProofEntry */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
@@ -23,6 +23,8 @@ export class CiProofEvidenceBuilder {
   #durationMs;
   /** @type {CiProofFile[] | undefined} */
   #files;
+  /** @type {number[]} */
+  #missingParts = [];
 
   /**
    * Counted as test cases or test files.
@@ -76,8 +78,22 @@ export class CiProofEvidenceBuilder {
     return this;
   }
 
+  /**
+   * Declared in further parts after its present one, PART missing.
+   * @param {number} part
+   */
+  missingPart(part) {
+    this.#missingParts.push(part);
+    return this;
+  }
+
   /** @returns {CiProofEvidence} */
   please() {
+    /** @type {CiProofEvidence["parts"]} */
+    const missing = this.#missingParts.map((part) => ({
+      part,
+      status: "missing",
+    }));
     const files = this.#files;
     if (files === undefined) {
       const timing =
@@ -86,7 +102,10 @@ export class CiProofEvidenceBuilder {
         ...this.#unit,
         ...this.#counts,
         ...timing,
-        parts: [{ part: 1, status: "present", ...this.#counts, ...timing }],
+        parts: [
+          { part: 1, status: "present", ...this.#counts, ...timing },
+          ...missing,
+        ],
       };
     }
     const sum = (/** @type {(file: CiProofFile) => number} */ of) =>
@@ -107,7 +126,10 @@ export class CiProofEvidenceBuilder {
     return {
       ...this.#unit,
       ...figures,
-      parts: [{ part: 1, status: "present", ...figures, breakdown: true }],
+      parts: [
+        { part: 1, status: "present", ...figures, breakdown: true },
+        ...missing,
+      ],
       files,
     };
   }

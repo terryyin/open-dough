@@ -114,7 +114,7 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
   [
     "renamed.spec.ts",
     "renamed",
-    "1 test file → 1 test case",
+    "1 test file → 1 test case (different units)",
     "2.0 s (was tests/old.sh)",
     "2.1 s",
     "Build is still running.",
@@ -163,7 +163,7 @@ export const trunkEntryRows: ComparisonScopeRows = [
   [
     "renamed.spec.ts",
     "renamed",
-    "1 test file → 1 test case",
+    "1 test file → 1 test case (different units)",
     "2.0 s (was tests/old.sh)",
     trunkBranch,
     "2.1 s",

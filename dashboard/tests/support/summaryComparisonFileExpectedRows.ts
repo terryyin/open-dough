@@ -27,7 +27,7 @@ export const addedFileRow: FileComparisonRow = [
 // each endpoint keeps its own time, with no change across units.
 export const renamedFileRow: FileComparisonRow = [
   "dashboard/tests/renamed.spec.ts renamed",
-  "1 test file → 1 test case",
+  "1 test file → 1 test case (different units)",
   "2.0 s (was tests/old.sh)",
   "2.1 s",
   "2.1 s",

@@ -1,10 +1,11 @@
 // Entry matching and wording for Intent's story CI comparison
 // (`../../dashboard/src/storyCiComparisonEntries.ts`): measured Baseline time
 // and one signed change in Branch and Landed, relative to a positive
-// Baseline, and added and removed paths. A change is only between times of
-// one declared unit: an entry measured in another unit, as legacy results or
-// in several units keeps each endpoint's own time. Expired and untimed
-// endpoints: ./dashboard-ci-comparison-entry-gaps.test.mjs.
+// Baseline, and added and removed paths, one row per entry and compared
+// unit. A change is only between times of one declared unit: an entry
+// measured in another unit or as legacy results keeps each endpoint's own
+// time, and a unit Baseline does not report has no Baseline time. Expired
+// and untimed endpoints: ./dashboard-ci-comparison-entry-gaps.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
 import { comparisonEntriesOf } from "../../dashboard/src/storyCiComparisonEntries.ts";
@@ -149,7 +150,7 @@ test("a change is relative to a positive Baseline only", () => {
   assert.equal(added.cells.landed.text, "30 s");
 });
 
-test("an entry measured in another unit, as legacy results or in several units keeps each endpoint's own time, with no signed change, relative change or duration cue", () => {
+test("an entry measured in another unit or as legacy results keeps each endpoint's own time, with no signed change, relative change or duration cue, and an entry reporting several units has a row for each", () => {
   const holding = (path, ...evidence) =>
     makeMe.aCiProofEntry
       .at(path)
@@ -165,14 +166,14 @@ test("an entry measured in another unit, as legacy results or in several units k
     holding("e/same", cases(23_000)),
     holding("e/across", files(23_000)),
     holding("e/legacy", legacy(23_000)),
-    holding("e/several", cases(24_000), files(3_000)),
+    holding("e/both", cases(24_000), files(3_000)),
   );
   const result = comparisonEntriesOf(
     summary(
       holding("e/same", cases(20_000)),
       holding("e/across", cases(20_000)),
       holding("e/legacy", legacy(20_000)),
-      holding("e/several", cases(20_000)),
+      holding("e/both", cases(20_000)),
     ),
     after,
     after,
@@ -198,7 +199,7 @@ test("an entry measured in another unit, as legacy results or in several units k
       ],
       [
         "e/across",
-        "1 test case → 1 test file",
+        "1 test case → 1 test file (different units)",
         { text: "20 s", ms: 20_000 },
         { text: "23 s", ms: 23_000 },
         { text: "23 s", ms: 23_000 },
@@ -206,19 +207,27 @@ test("an entry measured in another unit, as legacy results or in several units k
       ],
       [
         "e/legacy",
-        "1 legacy test result → 1 legacy test result",
+        "1 legacy test result → 1 legacy test result (legacy unit unknown)",
         { text: "20 s", ms: 20_000 },
         { text: "23 s", ms: 23_000 },
         { text: "23 s", ms: 23_000 },
         { kind: "none", reason: "units not comparable" },
       ],
       [
-        "e/several",
-        "1 test case → 1 test case and 1 test file",
+        "e/both",
+        "1 test case (no change)",
         { text: "20 s", ms: 20_000 },
-        { text: "24 s (test cases); 3 s (test files)" },
-        { text: "24 s (test cases); 3 s (test files)" },
-        { kind: "none", reason: "several units" },
+        { text: "+4 s", ms: 24_000, changeMs: 4_000, relative: 0.2 },
+        { text: "+4 s", ms: 24_000, changeMs: 4_000, relative: 0.2 },
+        { kind: "tint", direction: "slower", strength: "light" },
+      ],
+      [
+        "e/both",
+        "— → 1 test file",
+        { text: "—" },
+        { text: "3 s", ms: 3_000 },
+        { text: "3 s", ms: 3_000 },
+        { kind: "none", reason: "unit not reported" },
       ],
     ],
   );

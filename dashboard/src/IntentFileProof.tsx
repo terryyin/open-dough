@@ -5,14 +5,14 @@
 // outcome, with the same gap wording Summaries use (`./ciScopeProof.ts`,
 // `./ciProofWording.ts`). For a
 // selected story's comparison, the same baseline, branch and landed figures
-// the Summary uses (`./ciScopeComparison.ts`), with change markers and the
-// observed-not-attributed statement. Without usable evidence, the same
-// absence line Summaries use.
+// the Summary uses (`./ciScopeComparison.ts`), one row per compared unit,
+// with change markers and the observed-not-attributed statement. Without
+// usable evidence, the same absence line Summaries use.
 
 import type { ReactNode } from "react";
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
 import { owningEntryOf } from "./ciScopeProof.ts";
-import { scopeComparisonCellsOf } from "./ciScopeComparison.ts";
+import { scopeComparisonRowsOf } from "./ciScopeComparison.ts";
 import { unitCellsAt, type CiProofCells } from "./ciProofWording.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
@@ -81,7 +81,7 @@ export function IntentFileProof({
       evidence.answer,
       evidence.proofs,
     );
-    const cells = scopeComparisonCellsOf(
+    const rows = scopeComparisonRowsOf(
       path,
       evidence.proofs.baseline,
       evidence.proofs.branch,
@@ -99,7 +99,10 @@ export function IntentFileProof({
         <IntentCiComparisonFrame
           answer={evidence.answer}
           proofs={evidence.proofs}
-          relatives={[cells.branch.relative, cells.landed.relative]}
+          relatives={rows.flatMap((cells) => [
+            cells.branch.relative,
+            cells.landed.relative,
+          ])}
         >
           <ComparisonNamed evidence={evidence} />
           {checking && (
@@ -115,7 +118,7 @@ export function IntentFileProof({
                 {marker !== undefined ? ` ${changeKindWords[marker]}` : ""}
               </>
             }
-            cells={[cells]}
+            cells={rows}
           />
         </IntentCiComparisonFrame>
       </div>

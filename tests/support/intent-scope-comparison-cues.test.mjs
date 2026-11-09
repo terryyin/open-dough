@@ -1,15 +1,19 @@
 // Classification of Intent CI comparison count borders and duration tints
 // (../../dashboard/src/ciScopeComparisonCues.ts) on the seed's key examples,
-// only between figures of one declared unit.
+// only between figures of one declared unit, and the cue several unit rows
+// or units agree on (../../dashboard/src/ciScopeComparisonAgreedCues.ts).
 // Browser journeys: ../../dashboard/tests/intent/intent-ci-comparison.spec.ts,
-// intent-summary-story-comparison*.spec.ts.
+// intent-summary-story-comparison*.spec.ts, intent-ci-comparison-units.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  combinedCuesOf,
+  overallCountCueOf,
+} from "../../dashboard/src/ciScopeComparisonAgreedCues.ts";
 import {
   comparisonAfterSideOf,
   countCueOf,
   durationCueOf,
-  overallCountCueOf,
   overallDurationCueOf,
   scopeComparisonCuesOf,
 } from "../../dashboard/src/ciScopeComparisonCues.ts";
@@ -50,6 +54,53 @@ test("a cue compares only figures of one declared unit: never test cases with te
       timings: [measuredMs(8_000), measuredMs(4_000, "file")],
     }),
     several,
+  );
+  // A unit an endpoint does not report takes no cue, as it is no zero.
+  const notReported = { kind: "none", reason: "unit not reported" };
+  assert.deepEqual(
+    countCueOf({ kind: "unreported" }, measuredCount(1, "file")),
+    notReported,
+  );
+  assert.deepEqual(
+    durationCueOf(measuredMs(300, "file"), { kind: "unreported" }),
+    notReported,
+  );
+});
+
+test("one control for several unit rows takes the direction its cued rows agree on, strong when any is, and no cue when they disagree", () => {
+  const cues = (count, duration) => ({ count, duration });
+  const more = { kind: "border", direction: "more", strength: "light" };
+  const fewer = { kind: "border", direction: "fewer", strength: "strong" };
+  const slower = { kind: "tint", direction: "slower", strength: "strong" };
+  const unchanged = { kind: "none", reason: "unchanged" };
+  // Test cases +2 and slower; test files unchanged.
+  assert.deepEqual(
+    combinedCuesOf([cues(more, slower), cues(unchanged, unchanged)]),
+    cues(more, slower),
+  );
+  assert.deepEqual(
+    combinedCuesOf([cues(more, unchanged), cues(fewer, unchanged)]),
+    cues({ kind: "none", reason: "mixed directions" }, unchanged),
+  );
+  assert.deepEqual(
+    combinedCuesOf([
+      cues(more, unchanged),
+      cues({ ...more, strength: "strong" }, unchanged),
+    ]).count,
+    { kind: "border", direction: "more", strength: "strong" },
+  );
+  assert.deepEqual(
+    combinedCuesOf([
+      cues(unchanged, unchanged),
+      cues(
+        { kind: "none", reason: "unit not reported" },
+        { kind: "none", reason: "unit not reported" },
+      ),
+    ]),
+    cues(
+      { kind: "none", reason: "several units" },
+      { kind: "none", reason: "several units" },
+    ),
   );
 });
 

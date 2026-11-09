@@ -27,8 +27,14 @@ file **Proof** share the active comparison heading
 Landed** when Landed has proof, else **Branch**, or **Provisional** for Taken
 Trunk Mode), framed as observed builds not attributed to the story, and show
 why Landed is unused when skipped; without a comparison to show it is headed
-**CI timing changes**. An overall summary keeps
-units apart in **Counts** and shows one signed whole-second change each for
+**CI timing changes**. An overall summary's **Counts**
+compares test cases and test files apart, an entry's results counting toward
+a unit's difference when both builds report that entry in it, or when only
+one build declares the entry; legacy test results and an entry's unit only
+one build reports are totalled apart, each build in its units, with why
+there is no difference (`5 → 7 test cases (+2); 1 test file (no change)`,
+`6 legacy test results → 7 test cases and 1 test file (legacy unit
+unknown)`). It shows one signed whole-second change each for
 **CI time without runner waits** and **CI wall time** when both compared
 builds measured it (a measured zero included; omitted otherwise); then each
 endpoint's Build cell with a compact exact or ancestor
@@ -40,15 +46,25 @@ Cancelled or No build when the requested revision is not the timed build
 shown), with its measured CI wall time and CI time without runner waits, or
 why it has none (observations between builds, not attributed to the story);
 then entry rows whose Counts cell keeps the before→after words. At every
-comparison depth, **Baseline** shows its measured time, and **Branch** and
-**Landed** show one signed change from a measured Baseline counted in the same
-declared unit (test cases or test files). The story’s overall
+comparison depth, each declared unit (test cases or test files) that Baseline
+and a later endpoint both report for a scope compares on its own row: an
+entry row, a Summary row, one group of the Summary's own figures named by its
+unit, a file Proof row. **Baseline** shows its measured time, and **Branch**
+and **Landed** show one signed change from a measured Baseline counted in
+that unit; a test case time and a test file time stay on their rows, never
+added. The story’s overall
 figures and entry rows keep whole-second words (`+30 s`, `−1 min`, `0 s`). Location,
 folder and file drill-down preserves precise times: `340 ms` to `410 ms`
-shows `+70 ms`. An added scope shows its measured time without a change, as
-does one whose endpoints count different units or legacy test results, which
-**Counts** names at each end (`1 test file → 1 test case`); several units
-show each unit's time apart. A gap keeps its label and explanation. A
+shows `+70 ms`. An added scope shows its measured time without a change.
+Units that match nothing at the other end, such as legacy test results, even
+two builds' spelled alike, or test files at Baseline and test cases later,
+share one row of each endpoint's own units and times, compared with nothing:
+**Counts** names both ends and why (`1 test file → 1 test case (different
+units)`, `6 legacy test results → 7 test cases and 1 test file (legacy unit
+unknown)`), and several units at one end show each unit's time apart. A unit
+one end alone reports beside a unit both report has its own row reading `—`
+where it is unreported, never a measured zero (`— → 1 test file`); a reported
+zero is a real zero. A gap keeps its label and explanation. A
 measured zero Baseline permits a signed change. Branch and Landed headers
 note "vs baseline".
 Each comparable change with a positive measured Baseline has a relative mark:
@@ -69,11 +85,12 @@ Turning it on or off at any depth applies at the next scope and on return.
 The comparison figures and tables keep their cue classification without the
 tint or count edge; their shared marks and words carry the comparison.
 Timing columns sort by the quantity shown: **Baseline** by measured time,
-**Branch** and **Landed** by signed change. Rows without a comparable change
-(added, removed, different units or legacy test results, partial or
+**Branch** and **Landed** by signed change, each compared unit's row by its
+own. Rows without a comparable change (added, removed, a unit an endpoint
+does not report, different units or legacy test results, partial or
 unavailable) follow comparable rows in either
-direction; ties retain their supplied order. The Summary's outside row stays
-last, and its sort survives drilling down. **Counts** still sorts by the active
+direction; ties retain their supplied order. The Summary's outside rows,
+one per compared unit, stay last, and its sort survives drilling down. **Counts** still sorts by the active
 after endpoint's counted results, and **Change** keeps its existing meaning.
 At every depth, an unused Landed endpoint has the same explanation and the
 same active Branch comparison, or Provisional comparison in Taken Trunk Mode.
@@ -85,19 +102,24 @@ of job durations. GitHub Actions uses the workflow at that build, including
 carried-over jobs. A custom CI adapter supplies the selected attempt's graph
 through its optional `jobs` operation. If the graph cannot be read or timed,
 Intent shows why alongside the endpoint's wall time and proof.
-One classification of each scope's count and duration change also feeds tree
-cues on location headers whose path is a compared entry and on file rows:
+One classification of each compared row's count and duration change also
+feeds tree cues on location headers whose path is a compared entry and on
+file rows:
 a count border (green fewer, red more; any change; strong at ≥50% of baseline)
 and a duration tint (green faster, red slower; no tint under 10% or under 1 s;
 strong at ≥50%; a measured zero Baseline at most light; no tint without
-comparable measured durations). These tree cues retain their meaning as the
+comparable measured durations). A scope with several compared rows takes
+the direction its cued rows agree on, strong when any is, and no cue when
+they disagree. These tree cues retain their meaning as the
 comparison tables use signed words and relative marks.
-Added, removed, gap and partial sides take no cue on that measure; their text
-explains why. Baseline / Branch / Landed cells use the same timing gap labels
+Added, removed, unreported, gap and partial sides take no cue on that
+measure; their text explains why. Baseline / Branch / Landed cells use the
+same timing gap labels
 as **Test execution time** (`Part 2 untimed`, `No timings`), with the full
 explanation as hover text and accessible description. Tree file rows and those
-location headers include Counts and after-side timing evidence in their
-accessible names. Folder rows in the tree stay without cues. A
+location headers include each compared row's Counts and after-side timing
+evidence in their accessible names. Folder rows in the tree stay without
+cues. A
 selected file or location with a duration tint keeps that tint and uses an
 accent border for selection instead of an accent fill that would hide it;
 keyboard focus keeps the shared focus ring. A location that holds story

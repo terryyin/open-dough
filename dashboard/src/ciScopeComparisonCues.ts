@@ -1,9 +1,11 @@
-// Classification of one scope's count and duration change for Intent's story
-// CI comparison cues (`./ciScopeComparison.ts`): direction, strength, or
-// no-cue with a reason, from the same endpoint counts and timings the wording
-// classifiers produce, only between figures of one declared unit
-// (`./ciProofUnits.ts`). The overall summary, entry table, Summary rows and
-// file Proof all consume this one result; the tree does too once wired.
+// Classification of one compared row's count and duration change for
+// Intent's story CI comparison cues (`./ciScopeComparison.ts`): direction,
+// strength, or no-cue with a reason, from the same endpoint counts and
+// timings the wording classifiers produce, only between figures of one
+// declared unit (`./ciProofUnits.ts`). The overall summary, entry table,
+// Summary rows and file Proof all consume this one result; cues agreed
+// across several rows or units, such as the tree's one control per scope,
+// are `./ciScopeComparisonAgreedCues.ts`'s.
 
 import { comparableUnits } from "./ciProofUnits.ts";
 import type { ScopeEndpointCount } from "./ciScopeComparisonCounts.ts";
@@ -47,7 +49,7 @@ const strongShare = 0.5;
 const durationTintShare = 0.1;
 const durationTintFloorMs = 1_000;
 
-function countStrength(before: number, delta: number): CueStrength {
+export function countStrength(before: number, delta: number): CueStrength {
   if (!(before > 0)) return "light";
   return Math.abs(delta) / before >= strongShare ? "strong" : "light";
 }
@@ -57,14 +59,16 @@ function durationStrength(beforeMs: number, deltaMs: number): CueStrength {
   return Math.abs(deltaMs) / beforeMs >= strongShare ? "strong" : "light";
 }
 
-const severalUnits = "several units";
+export const severalUnits = "several units";
 const unitsNotComparable = "units not comparable";
+const unitNotReported = "unit not reported";
 
 function countUnavailableReason(count: ScopeEndpointCount): string | undefined {
   if (count.kind === "checking") return "still reading";
   if (count.kind === "status") return count.text;
   if (count.kind === "no-breakdown") return "no file breakdown";
   if (count.kind === "nothing") return "nothing counted";
+  if (count.kind === "unreported") return unitNotReported;
   if (count.kind === "units") return severalUnits;
   return undefined;
 }
@@ -75,6 +79,7 @@ function timingUnavailableReason(
   if (timing.kind === "checking") return "still reading";
   if (timing.kind === "status") return timing.text;
   if (timing.kind === "no-breakdown") return "no file breakdown";
+  if (timing.kind === "unreported") return unitNotReported;
   if (timing.kind === "units") return severalUnits;
   if (timing.kind === "partial") return "partial";
   if (timing.kind === "not-recorded") return "not recorded";
@@ -174,30 +179,6 @@ export const noComparisonCues: ScopeComparisonCues = {
   count: { kind: "none", reason: "not in the compared builds" },
   duration: { kind: "none", reason: "not in the compared builds" },
 };
-
-// Overall count cue across units kept apart: one direction when every changed
-// unit agrees; otherwise no border with why.
-export function overallCountCueOf(
-  units: readonly { readonly before: number; readonly after: number }[],
-): CountCue {
-  if (units.length === 0) {
-    return { kind: "none", reason: "no overall count" };
-  }
-  let direction: "fewer" | "more" | undefined;
-  let strength: CueStrength = "light";
-  for (const { before, after } of units) {
-    const delta = after - before;
-    if (delta === 0) continue;
-    const next = delta < 0 ? "fewer" : "more";
-    if (direction !== undefined && direction !== next) {
-      return { kind: "none", reason: "mixed directions" };
-    }
-    direction = next;
-    if (countStrength(before, delta) === "strong") strength = "strong";
-  }
-  if (direction === undefined) return { kind: "none", reason: "unchanged" };
-  return { kind: "border", direction, strength };
-}
 
 export function overallDurationCueOf(
   beforeMs: number | undefined,

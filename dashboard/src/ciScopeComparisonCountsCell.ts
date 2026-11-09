@@ -1,20 +1,28 @@
-// The Counts cell of a scope comparison (`./ciScopeComparison.ts`) from
-// its Baseline, Branch and Landed counts (`./ciScopeComparisonCounts.ts`):
-// baseline → after with a signed difference in parentheses only when the
-// measured endpoints share one declared unit (`./ciProofUnits.ts`). A gap
-// endpoint shows its gap, and endpoints counting in different units, several
-// units, or legacy results show each endpoint with its units and no
-// difference, never an invented one.
+// The Counts cell of one compared row (`./ciScopeComparison.ts`) from its
+// Baseline, Branch and Landed counts (`./ciScopeComparisonCounts.ts`):
+// baseline → after with a signed difference in parentheses for each after
+// endpoint measured in the one declared unit Baseline measured
+// (`./ciProofUnits.ts`). A gap endpoint shows its gap, an endpoint reporting
+// none of the row's units shows "—", and endpoints counting in different
+// units, several units, or legacy results show each endpoint with its units
+// and why no difference exists, never an invented one.
 
-import { comparableUnits, unitNoun, type CiProofUnit } from "./ciProofUnits.ts";
+import {
+  comparableUnits,
+  unitNoun,
+  whyNotCompared,
+  type CiProofUnit,
+} from "./ciProofUnits.ts";
 import {
   countWords,
   formatTotal,
   measuredCountsChangeWords,
+  measuredUnitsOf,
   signedCountWords,
   type MeasuredCount,
   type ScopeEndpointCount,
 } from "./ciScopeComparisonCounts.ts";
+import { unreportedWords } from "./ciScopeComparisonTiming.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 
 const noFileBreakdown = "no file breakdown";
@@ -38,6 +46,7 @@ function endpointCountText(count: ScopeEndpointCount, absent: string): string {
   if (count.kind === "status") return count.text;
   if (count.kind === "no-breakdown") return noFileBreakdown;
   if (count.kind === "absent") return absent;
+  if (count.kind === "unreported") return unreportedWords;
   if (count.kind === "nothing") return "nothing counted";
   if (count.kind === "units") return measuredWords(count);
   return formatTotal(count.total);
@@ -119,10 +128,19 @@ function countsChangePhrase(
   return `${baselineText} → ${afterText}${noun}`;
 }
 
+// Why the measured endpoints of SHOWN do not compare (`whyNotCompared`).
+// Nothing when fewer than two endpoints are measured, as a gap or "—"
+// already says why.
+function uncomparedReason(shown: readonly ScopeEndpointCount[]): string {
+  const measured = shown.filter(isMeasured);
+  if (measured.length < 2) return "";
+  return ` (${whyNotCompared(measured.flatMap(measuredUnitsOf))})`;
+}
+
 // A Counts cell whose measured endpoints count in different units, several
 // units, or legacy results, which never compare: each endpoint in its own
 // words with its units, after endpoints chosen as a compared cell chooses
-// them, and no difference.
+// them, and why there is no difference.
 function uncomparedCountsText(
   before: ScopeEndpointCount,
   branch: ScopeEndpointCount,
@@ -132,6 +150,7 @@ function uncomparedCountsText(
   changeKind: ChangeKind | undefined,
 ): string {
   const words = (count: ScopeEndpointCount, text: string) => ({
+    count,
     text: isMeasured(count) ? measuredWords(count) : text,
     measured: isMeasured(count),
   });
@@ -155,12 +174,12 @@ function uncomparedCountsText(
     (one, at, all) =>
       at === 0 || one.measured || all[at - 1]?.text !== one.text,
   );
-  return shown.map(({ text }) => text).join(" → ");
+  return `${shown.map(({ text }) => text).join(" → ")}${uncomparedReason(shown.map(({ count }) => count))}`;
 }
 
 // One Counts cell: baseline → after with signed differences when both sides
 // are measured in one declared unit; a gap endpoint shows its gap, and
-// endpoints that do not compare show their units, never an invented
+// endpoints that do not compare show their units and why, never an invented
 // difference.
 export function countsCellText(
   before: ScopeEndpointCount,
@@ -220,5 +239,10 @@ export function countsCellText(
   ) {
     return `${measuredCountsChangeWords(before.total, branch.total, branch.unit)} → ${countWords(landed.total, landed.unit)} (${signedCountWords(landed.total - before.total)})`;
   }
-  return `${phrase(branch)} → ${landedText}${nounAfter(landed, unit)}`;
+  // Landed keeps its own difference beside a Branch gap.
+  const signed =
+    before.kind === "measured" && landed.kind === "measured"
+      ? ` (${signedCountWords(landed.total - before.total)})`
+      : "";
+  return `${phrase(branch)} → ${landedText}${nounAfter(landed, unit)}${signed}`;
 }

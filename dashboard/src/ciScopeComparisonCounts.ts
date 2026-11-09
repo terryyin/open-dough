@@ -1,33 +1,24 @@
-// Counted-results of one scope path inside one comparison endpoint proof
-// (`./ciScopeComparison.ts`): classify measured / several units / absent /
-// no-breakdown / unavailable from `./ciScopeProof.ts` figures the same way
-// timing does in `./ciScopeComparisonTiming.ts`, and word a total with its
-// unit and the signed difference between two totals of one declared unit
-// (`./ciProofUnits.ts`); a unit absent at an endpoint is never a zero. The
+// Counted results of one compared row of a scope path at one comparison
+// endpoint (`./ciScopeComparison.ts`): the one unit's measured total a row
+// shows there, several units' totals kept apart, or what stands in for a
+// total (a read gap, absent, no file breakdown, nothing counted, or results
+// reported in other units only), classified per unit by
+// `./ciScopeComparisonUnits.ts` the same way timing is
+// (`./ciScopeComparisonTiming.ts`); and the words for a total with its unit
+// and the signed difference between two totals of one declared unit
+// (`./ciProofUnits.ts`). A unit absent at an endpoint is never a zero. The
 // Counts cell over every endpoint is `./ciScopeComparisonCountsCell.ts`'s;
 // outcome detail and parts stay with the chosen build in
 // `./ciScopeComparison.ts`.
 
 import type { CiProofFigures } from "./ciProof.ts";
 import {
-  countedAny,
-  hasFileBreakdown,
   unitNoun,
-  type CiProofUnit,
   type CiEntryEvidence,
+  type CiProofUnit,
 } from "./ciProofUnits.ts";
 import { countedResultsOf, type CountedResults } from "./ciProofWording.ts";
-import { endpointProofReadOf } from "./ciScopeComparisonEndpoint.ts";
-import {
-  entryOutsidesOf,
-  noResultsKindOf,
-  owningEntryOf,
-  unitResultsAt,
-  unitsWithResults,
-  type UnitResults,
-  type SummaryChild,
-} from "./ciScopeProof.ts";
-import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
+import type { RowEndpointGap } from "./ciScopeComparisonEndpoint.ts";
 
 // One unit's measured total at a scope.
 export type MeasuredCount = {
@@ -38,14 +29,21 @@ export type MeasuredCount = {
 };
 
 export type ScopeEndpointCount =
-  | { readonly kind: "checking" }
-  | { readonly kind: "status"; readonly text: string }
-  | { readonly kind: "no-breakdown" }
-  | { readonly kind: "absent" }
+  | RowEndpointGap
   | { readonly kind: "nothing" }
   | MeasuredCount
   // Several units' totals at the scope, kept apart.
   | { readonly kind: "units"; readonly counts: readonly MeasuredCount[] };
+
+// The units COUNT measured totals in; none for a gap or nothing counted.
+export const measuredUnitsOf = (
+  count: ScopeEndpointCount,
+): readonly CiProofUnit[] =>
+  count.kind === "units"
+    ? count.counts.map(({ unit }) => unit)
+    : count.kind === "measured"
+      ? [count.unit]
+      : [];
 
 const minus = "−";
 
@@ -87,7 +85,8 @@ export function measuredCountsChangeWords(
   return `${formatTotal(before)} → ${countWords(after, unit)} (${signedCountWords(after - before)})`;
 }
 
-const measuredOf = (
+// EVIDENCE's total over FIGURES, in its unit.
+export const measuredOf = (
   evidence: CiEntryEvidence,
   figures: CiProofFigures,
 ): MeasuredCount => ({
@@ -95,58 +94,3 @@ const measuredOf = (
   ...countedResultsOf(figures),
   unit: evidence.unit,
 });
-
-// One total for one unit, several units' totals kept apart, or, without any
-// total, what stands in for one.
-function countOfMeasured(
-  measured: readonly MeasuredCount[],
-  otherwise: ScopeEndpointCount,
-): ScopeEndpointCount {
-  const [only] = measured;
-  if (only === undefined) return otherwise;
-  return measured.length === 1 ? only : { kind: "units", counts: measured };
-}
-
-// The totals SHOWN at a scope (`unitResultsAt`) of each unit with results
-// there (`unitsWithResults`), where at its entry's path a unit without a
-// present part counts nothing; without any, what stands in for one.
-function countOfShown(shown: readonly UnitResults[]): ScopeEndpointCount {
-  const measured = unitsWithResults(shown).flatMap(({ evidence, figures }) =>
-    figures !== undefined || countedAny(evidence)
-      ? [measuredOf(evidence, figures ?? evidence)]
-      : [],
-  );
-  const atEntry = shown.some(({ figures }) => figures === undefined);
-  return countOfMeasured(measured, {
-    kind: atEntry ? "nothing" : noResultsKindOf(shown),
-  });
-}
-
-export function scopeEndpointCountOf(
-  proof: ComparisonEndpointProof,
-  lookup: string,
-): ScopeEndpointCount {
-  const read = endpointProofReadOf(proof);
-  if (read.kind !== "summary") return read;
-  const entry = owningEntryOf(read.entries, lookup);
-  if (entry === undefined) return { kind: "absent" };
-  return countOfShown(unitResultsAt(entry, lookup));
-}
-
-export function outsideCountOf(
-  proof: ComparisonEndpointProof,
-  path: string,
-  children: readonly SummaryChild[],
-): ScopeEndpointCount {
-  const read = endpointProofReadOf(proof);
-  if (read.kind !== "summary") return read;
-  const entry = owningEntryOf(read.entries, path);
-  if (entry === undefined) return { kind: "absent" };
-  if (!entry.evidence.some(hasFileBreakdown)) return { kind: "no-breakdown" };
-  return countOfMeasured(
-    entryOutsidesOf(entry, path, children).map(({ evidence, outside }) =>
-      measuredOf(evidence, outside.figures),
-    ),
-    { kind: "absent" },
-  );
-}

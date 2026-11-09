@@ -1,10 +1,16 @@
 // Tree consumption of Intent's one CI comparison evidence
 // (`./IntentCiEvidence.tsx`, `./ciScopeComparison.ts`): location headers whose
-// path is a compared entry, and file rows, reuse the same cells and cues as
-// Summary and Proof with no further CI read. Folder rows stay uncued.
+// path is a compared entry, and file rows, reuse the same compared rows as
+// Summary and Proof with no further CI read: one control names each row's
+// Counts and after-side words and takes the cue its rows agree on
+// (`./ciScopeComparisonAgreedCues.ts`). Folder rows stay uncued.
 
-import { scopeComparisonCellsOf } from "./ciScopeComparison.ts";
-import type { ComparisonAfterSide } from "./ciScopeComparisonCues.ts";
+import { scopeComparisonRowsOf } from "./ciScopeComparison.ts";
+import { combinedCuesOf } from "./ciScopeComparisonAgreedCues.ts";
+import type {
+  ComparisonAfterSide,
+  ScopeComparisonCues,
+} from "./ciScopeComparisonCues.ts";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
@@ -46,13 +52,27 @@ export function comparedEntryPathOf(
   return false;
 }
 
-export function treeScopeCellsOf(
+// A compared scope as one tree control shows it: each compared row's Counts
+// and after-side words, and the cues its rows agree on.
+export type TreeComparison = {
+  readonly words: string;
+  readonly cues: ScopeComparisonCues;
+};
+
+function afterWordsOf(
+  cells: ComparisonEntryCells,
+  afterSide: ComparisonAfterSide,
+): string {
+  return (afterSide === "landed" ? cells.landed : cells.branch).text;
+}
+
+export function treeScopeComparisonOf(
   reading: Extract<TreeComparisonReading, { kind: "comparison" }>,
   path: string,
   treeFile?: IntentTreeFile,
-): ComparisonEntryCells {
+): TreeComparison {
   const { proofs, afterSide } = reading;
-  return scopeComparisonCellsOf(
+  const rows = scopeComparisonRowsOf(
     path,
     proofs.baseline,
     proofs.branch,
@@ -62,40 +82,38 @@ export function treeScopeCellsOf(
     treeFile?.kind,
     afterSide,
   );
-}
-
-function treeAfterWordsOf(
-  cells: ComparisonEntryCells,
-  afterSide: ComparisonAfterSide,
-): string {
-  return (afterSide === "landed" ? cells.landed : cells.branch).text;
+  return {
+    words: rows
+      .map((cells) => `${cells.counts}, ${afterWordsOf(cells, afterSide)}`)
+      .join("; "),
+    cues: combinedCuesOf(rows.map(({ cues }) => cues)),
+  };
 }
 
 // Accessible name: existing tree words, then the same Counts and after-side
-// words Proof shows for that scope.
+// words Proof shows for that scope, row by row.
 export function treeComparisonAccessibleName(
   base: string,
-  cells: ComparisonEntryCells,
-  afterSide: ComparisonAfterSide,
+  comparison: TreeComparison,
 ): string {
-  return `${base}, ${cells.counts}, ${treeAfterWordsOf(cells, afterSide)}`;
+  return `${base}, ${comparison.words}`;
 }
 
-export function treeLocationCellsOf(
+export function treeLocationComparisonOf(
   reading: TreeComparisonReading,
   locationPath: string,
-): ComparisonEntryCells | undefined {
+): TreeComparison | undefined {
   if (reading.kind !== "comparison") return undefined;
   if (!comparedEntryPathOf(reading.proofs, locationPath)) return undefined;
-  return treeScopeCellsOf(reading, locationPath);
+  return treeScopeComparisonOf(reading, locationPath);
 }
 
-export function treeFileCellsOf(
+export function treeFileComparisonOf(
   reading: TreeComparisonReading,
   path: string,
   treeFile?: IntentTreeFile,
-): ComparisonEntryCells | undefined {
+): TreeComparison | undefined {
   return reading.kind === "comparison"
-    ? treeScopeCellsOf(reading, path, treeFile)
+    ? treeScopeComparisonOf(reading, path, treeFile)
     : undefined;
 }

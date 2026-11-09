@@ -1,10 +1,11 @@
 // Summary comparing a selected story's baseline, branch and landed execution
 // times (`./IntentScopeProof.tsx`) through the shared scope comparison
-// (`./ciScopeComparison.ts`): the scope's own compared figures above a
-// sortable table of its immediate children, with each child's change from
-// the story overlay under Change, and the outside row kept last, labelled
-// from the primary endpoint's entry as a single run's is
-// (`./IntentScopeSummaryRows.tsx`); and the
+// (`./ciScopeComparison.ts`): the scope's own compared figures, one group per
+// compared unit named by its units when there are several, above a sortable
+// table of its immediate children, a row for each child's compared unit,
+// with each child's change from the story overlay under Change, and the
+// outside rows kept last, labelled from the primary endpoint's entry as a
+// single run's are (`./IntentScopeSummaryRows.tsx`); and the
 // comparison's identity as short labels (`./CiEvidenceLabels.tsx`) with the
 // homepage's observed-not-attributed statement. A selected
 // file reuses ComparisonNamed for its Proof
@@ -14,9 +15,9 @@ import { CircleDashed, GitCommitHorizontal, Hourglass } from "lucide-react";
 import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
 import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import {
-  outsideComparisonCellsOf,
+  outsideComparisonRowsOf,
   primaryEndpointOf,
-  scopeComparisonCellsOf,
+  scopeComparisonRowsOf,
 } from "./ciScopeComparison.ts";
 import {
   entryOutsidesOf,
@@ -26,7 +27,7 @@ import {
 import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
 import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
 import {
-  childRowsOf,
+  childUnitRowsOf,
   NoBreakdownLabel,
   OutsideExplanation,
   outsideRowOf,
@@ -138,9 +139,9 @@ export function ComparisonTable({
     primary.proof.kind === "summary"
       ? owningEntryOf(primary.proof.entries, path)
       : undefined;
-  const cellsFor = (scopePath: string) => {
+  const rowsFor = (scopePath: string) => {
     const file = changeOf(treeFiles, scopePath);
-    return scopeComparisonCellsOf(
+    return scopeComparisonRowsOf(
       scopePath,
       proofs.baseline,
       proofs.branch,
@@ -151,26 +152,24 @@ export function ComparisonTable({
       afterSide,
     );
   };
-  const rows = childRowsOf(children, onOpen, cellsFor);
+  const rows = childUnitRowsOf(children, onOpen, rowsFor);
   const outsides =
     entry === undefined ? [] : entryOutsidesOf(entry, path, children);
   if (outsides.length > 0) {
-    rows.push(
-      outsideRowOf(
-        outsideComparisonCellsOf(
-          path,
-          children,
-          proofs.baseline,
-          proofs.branch,
-          proofs.landed,
-          "precise",
-          afterSide,
-        ),
-      ),
-    );
+    outsideComparisonRowsOf(
+      path,
+      children,
+      proofs.baseline,
+      proofs.branch,
+      proofs.landed,
+      "precise",
+      afterSide,
+    ).forEach((cells, at) => {
+      rows.push(outsideRowOf(cells, at));
+    });
   }
-  const figures = cellsFor(path);
-  const relatives = [figures, ...rows.map((row) => row.cells)].flatMap(
+  const own = rowsFor(path);
+  const relatives = [...own, ...rows.map((row) => row.cells)].flatMap(
     (cells) =>
       "baseline" in cells ? [cells.branch.relative, cells.landed.relative] : [],
   );
@@ -186,7 +185,16 @@ export function ComparisonTable({
           Reading entry comparison…
         </p>
       )}
-      <ScopeFigures path={path} cells={figures} />
+      {own.map((cells) => (
+        <ScopeFigures
+          key={cells.units ?? ""}
+          path={path}
+          cells={cells}
+          {...(own.length > 1 && cells.units !== undefined
+            ? { unit: cells.units }
+            : {})}
+        />
+      ))}
       {entry !== undefined && (
         <NoBreakdownLabel
           entry={entry}

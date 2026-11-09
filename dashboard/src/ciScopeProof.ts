@@ -128,10 +128,19 @@ export type UnitResults = {
   readonly figures: CiScopeFigures | undefined;
 };
 
+// Whether one unit's EVIDENCE holds a result at a scope inside its entry
+// with FIGURES there: its file breakdown holds one there, or it counted
+// results without a file breakdown, so cannot say.
+export const holdsResultInside = (
+  evidence: CiEntryEvidence,
+  figures: CiScopeFigures,
+): boolean =>
+  hasFileBreakdown(evidence) ? figures.paths > 0 : countedAny(evidence);
+
 // The results ENTRY shows at SCOPE, one per unit: every unit's at the
-// entry's path; inside it, each unit's whose breakdown holds a result there
-// or that counted results without a file breakdown, so cannot say; when no
-// unit holds one, the first unit's alone, saying what the scope lacks.
+// entry's path; inside it, each unit's holding a result there
+// (`holdsResultInside`); when no unit holds one, the first unit's alone,
+// saying what the scope lacks.
 export function unitResultsAt(
   entry: CiProofEntry,
   scope: string,
@@ -144,22 +153,10 @@ export function unitResultsAt(
     figures: scopeFiguresOf(unit, scope),
   }));
   const held = shown.filter(({ evidence: unit, figures }) =>
-    hasFileBreakdown(unit) ? figures.paths > 0 : countedAny(unit),
+    holdsResultInside(unit, figures),
   );
   return held.length > 0 ? held : shown.slice(0, 1);
 }
-
-// The units of SHOWN (`unitResultsAt`) with results at their scope: each
-// at its entry's own path; inside it, each whose file breakdown holds a
-// result there.
-export const unitsWithResults = (
-  shown: readonly UnitResults[],
-): readonly UnitResults[] =>
-  shown.filter(
-    ({ evidence, figures }) =>
-      figures === undefined ||
-      (hasFileBreakdown(evidence) && figures.paths > 0),
-  );
 
 // Why SHOWN has no unit with results inside its entry: no file breakdown
 // when a unit cannot say, otherwise absent, as CI published none there.

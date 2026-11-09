@@ -10,7 +10,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { sortedRows } from "../../dashboard/src/ciProofSort.ts";
-import { scopeComparisonCellsOf } from "../../dashboard/src/ciScopeComparison.ts";
+import { scopeComparisonRowsOf } from "../../dashboard/src/ciScopeComparison.ts";
 import { comparisonEntriesOf } from "../../dashboard/src/storyCiComparisonEntries.ts";
 import { makeMe } from "./makeMe.mjs";
 
@@ -76,9 +76,8 @@ test("Change sorts a story comparison by kind with unchanged rows last in either
     ["c/u2", undefined],
     ["c/d", "deleted"],
     ["c/m", "modified"],
-  ].map(([path, kind]) => ({
-    name: path,
-    cells: scopeComparisonCellsOf(
+  ].flatMap(([path, kind]) =>
+    scopeComparisonRowsOf(
       path,
       before,
       after,
@@ -86,8 +85,8 @@ test("Change sorts a story comparison by kind with unchanged rows last in either
       "precise",
       path,
       kind,
-    ),
-  }));
+    ).map((cells) => ({ name: path, cells })),
+  );
   assert.deepEqual(sortBy(rows, "change", "ascending"), [
     "c/a",
     "c/m",

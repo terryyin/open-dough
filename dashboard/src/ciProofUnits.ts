@@ -16,6 +16,10 @@ export type CiProofUnit = CiProofEvidence["unit"];
 export type DeclaredUnit = Exclude<CiProofUnit, "legacy">;
 export const declaredUnits: readonly DeclaredUnit[] = ["case", "file"];
 
+// Every unit in the order Intent lists them: the declared units, then legacy
+// test results.
+export const listedUnits: readonly CiProofUnit[] = [...declaredUnits, "legacy"];
+
 // One unit's results with the path of the entry that declared them.
 export type CiEntryEvidence = CiProofEvidence & { readonly path: string };
 
@@ -46,6 +50,11 @@ export const unitName = (unit: CiProofUnit): string => nouns[unit][1];
 // same.
 export const comparableUnits = (a: CiProofUnit, b: CiProofUnit): boolean =>
   a !== "legacy" && a === b;
+
+// Why results in UNITS, at ends that do not compare, have no difference:
+// legacy results, whose unit is not known, or declared units that differ.
+export const whyNotCompared = (units: readonly CiProofUnit[]): string =>
+  units.includes("legacy") ? "legacy unit unknown" : "different units";
 
 // Whether EVIDENCE counted any result: a part was present.
 export const countedAny = (evidence: CiProofEvidence): boolean =>
