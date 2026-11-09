@@ -27,13 +27,13 @@ items, keep alternatives, and derive promises rather than slices or proof.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | "A developer can ask Dough to optimize tests in ordinary language" | slice 7 | |
-| 2 | "…and promptly get either a worthwhile reduction in the wait for trustworthy local test results … or an evidenced explanation of why no worthwhile saving could be established" (alternatives) | slice 7 | |
-| 2.q1 | Qualification (of the reduction alternative in 2): "with behavioral coverage … preserved" | slice 7 | |
-| 2.q2 | Qualification (of the reduction alternative in 2): "with … confidence preserved" | slice 7 | |
-| 3 | "The skill chooses how to proceed from evidence the project already retains" | slice 7 | |
-| 4 | "…and brings the developer only consequential questions" | slice 7 | |
-| 4.q1 | Qualification (current-state contrast for 1–4): "Today every pass starts with an admitted story and a full local profiling run." | slice 7 | |
+| 1 | "A developer can ask Dough to optimize tests in ordinary language" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 2 | "…and promptly get either a worthwhile reduction in the wait for trustworthy local test results … or an evidenced explanation of why no worthwhile saving could be established" (alternatives) | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 2.q1 | Qualification (of the reduction alternative in 2): "with behavioral coverage … preserved" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 2.q2 | Qualification (of the reduction alternative in 2): "with … confidence preserved" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 3 | "The skill chooses how to proceed from evidence the project already retains" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 4 | "…and brings the developer only consequential questions" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 4.q1 | Qualification (current-state contrast for 1–4): "Today every pass starts with an admitted story and a full local profiling run." | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
 | 5 | "Read retained CI test proof for the requested scope through the project's configured GitHub Actions workflow or CI adapter" (alternatives) | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs (workflow, all-branch run listing, artifact listing and zip routes) and ci-proof-leads-adapter.test.mjs (discover and proof requests); slice 3 real run in Learnings |
 | 6 | "Prefer a complete, successful attempt at the relevant revision" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs: run 41 at the requested revision chosen over run 40 at an ancestor, and a newer failure passed over |
 | 7.1 | "…and name its [the attempt's] repository" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-table.test.mjs and ci-proof-leads.test.mjs: the table's first line names the repository; slice 3 real run |
@@ -168,15 +168,15 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 56.4 | "Reuse … the existing CI proof contract, including its … gap reporting" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs: the contract's missing and ambiguous part statuses and untimed results become gaps |
 | 56.5 | "Reuse … the explicit test case … units that SEED-281 adds wherever a summary carries them" | slice 7 | G3 |
 | 56.6 | "Reuse … the explicit … test file units that SEED-281 adds wherever a summary carries them" | slice 7 | G3 |
-| 57 | "Pilot the new default on one ordinary Pygardon pytest pass" | slice 7 | |
-| 57.q1 | Qualification (of 57): "in a subordinate Pygardon workspace of this execution" | slice 7 | |
-| 57.q2 | Qualification (of 57): "that reads the guidance from this repository's source" | slice 7 | |
+| 57 | "Pilot the new default on one ordinary Pygardon pytest pass" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 57.q1 | Qualification (of 57): "in a subordinate Pygardon workspace of this execution" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 57.q2 | Qualification (of 57): "that reads the guidance from this repository's source" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
 | 58.1 | "Fix the evaluation basis before the observed run: time to a credible keep-or-stop decision" | slice 1 | observed: PLAN.md "Evaluation basis for the pilot", fixed before slice 7 and checked against Pygardon history by slice 1 (Learnings "Slice 1 route") |
 | 58.2 | "Fix the evaluation basis before the observed run: … full-run cost" | slice 1 | observed: PLAN.md "Evaluation basis for the pilot", fixed before slice 7 and checked against Pygardon history by slice 1 (Learnings "Slice 1 route") |
 | 58.3 | "Fix the evaluation basis before the observed run: … any verified change in the developer's ordinary wait with the required protection" | slice 1 | observed: PLAN.md "Evaluation basis for the pilot", fixed before slice 7 and checked against Pygardon history by slice 1 (Learnings "Slice 1 route") |
 | 58.q1 | Qualification (of 58.1–58.3): "compared with Pygardon's recorded passes" | slice 1 | observed: PLAN.md "Evaluation basis for the pilot", fixed before slice 7 and checked against Pygardon history by slice 1 (Learnings "Slice 1 route") |
-| 59 | "A kept change publishes under Pygardon's own rules" | slice 7 | |
-| 57.q3 | Qualification (of 57): "A timely, evidenced stop is a useful result when the available opportunities do not pay for the work" | slice 7 | |
+| 59 | "A kept change publishes under Pygardon's own rules" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 57.q3 | Qualification (of 57): "A timely, evidenced stop is a useful result when the available opportunities do not pay for the work" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
 | 60 | Restriction: "No fresh profiling run of the requested scope without an explicit request" (restates 13) | slice 4 | observed: src/skills/dough-test-optimization/SKILL.md "Establish context and mode"; src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request" |
 | 60.q1 | Qualification (rationale for 60): "Six recorded Open Dough passes spent about 146 minutes on baseline and final suite runs, and one more waited about 38 minutes for suite admission" | slice 4 | observed: rationale for 60, kept in the story's Restrictions; the guidance honors 60 (src/skills/dough-test-optimization/references/evidence-and-leads.md "Profile afresh only on request") without another project's figures (ADR 0006) |
 | 61.1 | Restriction: "An accepted-cost indicator changes no selection" | slice 6 | observed: src/skills/dough-test-optimization/references/candidate-record.md "Keep accepted cost beside its test" second paragraph; slice 6 comments-only check (no tag, filter or describe option changed) |
@@ -188,21 +188,21 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 62b | Restriction: "an unsupported comparison stays open rather than borrowing a different measure" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Measure like for like", last sentence |
 | 63 | Exclusion: "changing CI producers to retain more timing detail" | slice 3 | observed: slice 3 diff (commit after 304598724) touches no .github/ file and no collector module |
 | 63.q1 | Qualification (rationale for 63): "since existing retained artifacts are sufficient to start" | slice 3 | observed: slice 3 real run ranked Open Dough's retained summary as produced, with no producer change |
-| 64 | Exclusion: "converting other projects' records beyond what the Pygardon pilot pass writes" | slice 7 | |
+| 64 | Exclusion: "converting other projects' records beyond what the Pygardon pilot pass writes" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
 | 65 | Exclusion: "showing accepted-cost indicators in Intent" | slice 6 | observed: slice 6 changed no dashboard/src file; Intent shows no accepted-cost indicator |
 | 66 | Exclusion: "reading the landed CI timing history that SEED-285 collects" | slice 3 | observed: ci-proof-leads.mjs import closure reads only the CI listing, the attempt's summary or a --summary file |
 | K1.1 | Example: "Pygardon's adapter answers `proof` with totals only, to stay within 64 KiB, while its CI service retains the full 172 KB summary with 1,213 timed pytest files" | slice 3 | G1 |
-| K1.2 | Example: "The newest successful main attempt, `993fe414` at `3cb29aaf9`, predates 52 changed files" | slice 7 | |
-| K1.3 | Example: "The attempt that matches current code ran beside another and took 505 s of pytest against 320 s" | slice 7 | |
-| 67a | "The agent labels that identity" | slice 7 | |
-| 67b | "…and comparability" | slice 7 | |
-| 68 | "…reads the full summary" | slice 7 | |
-| 69 | "…and ranks leads" | slice 7 | |
-| K1.4 | Example: "the top file, `data_source/test_jobs_live_commands_sharadar`, takes 60.5 s for 2 cases" | slice 7 | |
-| 70 | "It follows one promising cost into a bounded change, or reports a supported stop" (alternatives) | slice 7 | |
-| 71 | "…with zero fresh profiling runs" | slice 7 | |
-| 72.1 | "…and no request to pick a percentile" | slice 7 | |
-| 72.2 | "…no request to pick a … mode" | slice 7 | |
+| K1.2 | Example: "The newest successful main attempt, `993fe414` at `3cb29aaf9`, predates 52 changed files" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| K1.3 | Example: "The attempt that matches current code ran beside another and took 505 s of pytest against 320 s" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 67a | "The agent labels that identity" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 67b | "…and comparability" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 68 | "…reads the full summary" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 69 | "…and ranks leads" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| K1.4 | Example: "the top file, `data_source/test_jobs_live_commands_sharadar`, takes 60.5 s for 2 cases" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 70 | "It follows one promising cost into a bounded change, or reports a supported stop" (alternatives) | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 71 | "…with zero fresh profiling runs" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 72.1 | "…and no request to pick a percentile" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
+| 72.2 | "…no request to pick a … mode" | slice 7 | observed: PLAN.md Learnings "Slice 7 pilot" |
 | K2.1 | Example: "Open Dough's run 42550972063 times 1,343 files for 11,142 s, and the top 20 hold 9.8% of it" | slice 3 | observed: slice 3 real run (Learnings): run 42550972063 attempt 1, 1,343 timed items, 11,142.4 s; top 20 hold 9.79% by an independent recount |
 | K2.2 | Example: "One dashboard shard's retained Playwright report spends 26% of its test time in per-test hooks" | slice 4 | observed: PLAN.md Learnings "Slice 4 behavior review" runner reports: hooks 26.9% (shard 5 26.4% of 926.2 s) |
 | 73a | "The leads include that shared setup" | slice 4 | observed: src/skills/dough-test-optimization/references/evidence-and-leads.md "Read runner output by bounded extraction" (shared setup is a lead of its own); PLAN.md Learnings "Slice 4 behavior review" chosen lead |

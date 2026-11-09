@@ -369,7 +369,7 @@ and pointer.
 ### 7. Pilot one ordinary Pygardon pytest pass
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership row 11 and the evaluation basis below, recorded in
 Learnings. A kept change also has replacement proof, its focused before and
 after, and Pygardon CI on the published revision.
@@ -380,6 +380,13 @@ subordinate workspace with guidance read from this repository's `src/skills/`
 fresh profiling run and asks no percentile or mode question. A kept change
 publishes under Pygardon's rules. Pygardon's record converts only if the pass
 writes it.
+
+Accepted 2026-11-09: part A made the reader read SEED-281's units (G3);
+part B, the pilot, reached a keep in under 8 minutes with zero fresh
+profiling runs and published it on Pygardon `main` under Pygardon's rules
+(Learnings "Slice 7 pilot"). The pilot's merged branch
+`claude/release-cancelled-sharadar-retry-sleep` is left for Terry to delete
+(the permission check refused it).
 
 ## Evaluation basis for the pilot
 
@@ -598,6 +605,35 @@ row says otherwise.
   reads the live record. Until a release installs the new guidance, this
   repository's installed v0.3.92 skill stops on the live record; the pilot
   reads `src/skills`.
+
+### Slice 7 pilot (2026-11-09, judged against the evaluation basis)
+
+- Request "Please optimize Pygardon's pytest tests." at 19:51:36 to a fresh
+  agent in Pygardon's workspace, guidance read from this branch's
+  `src/skills`. Keep decided at 19:59:27 (7 min 51 s), first kept change
+  committed about 20:01, on Pygardon `main` at `f93672986` at 20:26, stop of
+  further leads at 20:09. Zero fresh profiling runs; local runs were the chosen
+  lead's two files before and after (75.01 s wall at load 4.10, then
+  4.92/4.90/4.40 s at 2.1–2.3) plus one 14.4 s read of the next leads. Basis:
+  plan 453 took 23 min and plan 470 42 min from admission to first kept change,
+  after 485–963 s full profiling runs.
+- Evidence: the reader chose attempt `e430447`/`54fbc3bc` by ancestry and
+  labelled it earlier with its revision; the selection came from
+  `scripts/check-prepared-checkout.sh:224`; saving worth keeping 10 s of CI
+  file sum. Top lead `test_jobs_live_commands_sharadar.py` (60.5 s, 2 cases):
+  a retry-sleep test double held a worker thread 60 s after cancellation.
+  Fix (test double only): CI file sum 62.0 → 2.2 s (attempt `b9934e11`),
+  focused 68.5 → about 2 s; no CI wall or developer-wait claim. Pygardon CI
+  passed on both published revisions; Intent Coverage caught a planted fault.
+- Administration: admitted at the first edit (`b1879ba79`, planless story
+  SEED-20261090), delivered, wrapped up; the candidate record was not written
+  and stays four-section. Pilot-found guidance gaps for the retrospective:
+  admission needs a second workspace; `**Goal:**` label strictness; distinct
+  earlier attempts for the variation figure; where an adapter project keeps
+  its selection; plan-shaped completion steps for quick work; 180 s host
+  backgrounding versus 10 min completion bounds; subagent CI bridge and
+  ODF-153 misattribution; refactor cost for tiny changes (ODF-141); Intent
+  Coverage for optimization stories; a mean hiding one fixed wait.
 
 ## Preparation review
 
