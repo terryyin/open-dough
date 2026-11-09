@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [See landed CI wall time change over time](seeds/SEED-285-landed-ci-timing-history.md#see-landed-ci-wall-time-history) — SEED-285#see-landed-ci-wall-time-history ([plan](slice-plans/551-see-landed-ci-wall-time-history/PLAN.md))
-- [Optimize tests from existing CI proof](seeds/SEED-284-optimize-tests-from-ci-proof.md#optimize-tests-from-ci-proof) — SEED-284#optimize-tests-from-ci-proof ([plan](slice-plans/552-optimize-tests-from-ci-proof/PLAN.md))
 - [Trace a Done story’s timing history into test Proof](seeds/SEED-285-landed-ci-timing-history.md#trace-landed-proof-timing) — SEED-285#trace-landed-proof-timing ([plan](slice-plans/554-trace-landed-proof-timing/PLAN.md))
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 

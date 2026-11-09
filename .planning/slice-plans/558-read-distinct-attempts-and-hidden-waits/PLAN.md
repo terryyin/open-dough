@@ -6,7 +6,7 @@
 
 ## Source and provenance
 
-Retrospective correction of SEED-284#optimize-tests-from-ci-proof (plan 552).
+Retrospective correction of SEED-284#optimize-tests-from-ci-proof (plan 552, recoverable at `9f5036d43:.planning/slice-plans/552-optimize-tests-from-ci-proof/PLAN.md`).
 Reviewed published revisions: `766593b4f` (Take), `2acd43bfb`, `304598724`,
 `15495daa5`, `6ce0c2445`, `86c7b98dd`, `625936070`, `d5cd5ccf4` and
 `f184ecd2b`; the trunk merges `9d6695e0c`, `8e7381516` and `afbdd494c` hold
