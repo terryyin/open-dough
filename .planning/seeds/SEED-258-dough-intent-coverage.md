@@ -11,12 +11,9 @@ scope: epic
 
 ### Assess story intent coverage across projects and during wrap-up
 
-The pilot and the remaining stories grew out of the original intent coverage backlog item.
-
-**Parent outcome.** Developers can decide which promises in a completed
-story are protected by its maintained tests and which protections to retain,
-clarify, or strengthen. The sequence below tests whether the assessment
-earns the cost of making it a public skill and invoking it during wrap-up.
+The completed pilot tested whether developers could decide which promises in a
+completed story its maintained tests protect and which tests to retain,
+clarify, or strengthen.
 
 ## Why this matters
 
@@ -68,21 +65,21 @@ an independent expected result.
 
 ## Terry's decision
 
-On 2026-11-08 Terry chose **Narrow** for the public manual skill. Offer one
+On 2026-11-08 Terry chose **Narrow**. The
+[manual skill](../../src/skills/dough-intent-coverage/SKILL.md) offers one
 targeted scratch break check when ordinary review raises a plausible
-protection gap for an important promise. The pilot's miss and incomplete
-effort comparison limit the decision to this technique. Evaluate automatic
-use separately after observing developers use the manual skill.
+protection gap for an important promise. The
+[Done report story](https://github.com/terryyin/open-dough/blob/ca4003714aeaac836819a02f1ec51a95ce4516c9/.planning/done/SEED-258_assess-intent-coverage-during-wrap-up.json)
+closed separately. Revisit automatic use if observation of the manual skill
+shows that the verified decisions justify the added cost.
 
-## Separate test follow-up candidates from the trial
+## Separate test follow-up candidate from the trial
 
-- Reach the Recently done **Select story** control through actual Tab
-  navigation while retaining the Enter and Space activation checks.
 - Exercise maintenance selection with an otherwise eligible hidden project
   and verify the consumer still selects it. The existing save-and-reload
   check establishes the inventory input.
 
-These are test opportunities identified at the trial's trunk recheck.
+The trial's trunk recheck identified this test opportunity.
 [Test follow-up rationale][trial-test-candidates].
 
 [trial-evidence]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md

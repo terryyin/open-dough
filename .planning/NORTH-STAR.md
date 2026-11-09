@@ -97,20 +97,8 @@ its explicit refresh keep their own observation lifecycle. Rebuild the history
 from recorded landings and available CI evidence, with gaps where evidence was
 missed or has expired. [ADR 0008 — Project dashboard domain and architecture](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
 
-**One repeat under project authority.** Treat a timing-triggered rerun as an
-explicitly enabled CI action against the original workflow run and landed
-revision. Use the same deterministic comparison that Intent shows, with the
-prior sample held fixed for both attempts. One landing may request one repeat.
-Keep request progress separate from observed CI outcomes, reconcile uncertain
-requests before deciding what happened, and preserve both attempts for review.
-The Done card and Intent read the same follow-up evidence. Git publication and
-story completion remain owned by the established workflow.
-[ADR 0008 — Observe workflow outcomes without owning them](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
-
-The [landed CI timing seed](seeds/SEED-285-landed-ci-timing-history.md) owns the
-candidate order and calibration questions. Validate the observed cohort and
-comparison before enabling repeat actions. Choose storage and provider details
-as the selected increments need them.
+The [landed CI timing seed](seeds/SEED-285-landed-ci-timing-history.md) records
+the history scope, comparable evidence, and initial calibration.
 
 ## Test optimization reads the CI evidence Intent reads
 
@@ -134,10 +122,10 @@ results and published workflow records.
 
 ## Agent launch as a requested assignment
 
-Starting agent work from the dashboard
-([SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md), beginning with
-[launch execution](../dashboard/AGENT-LAUNCH.md)) adds the dashboard's first
-action. Model it in the vocabulary the dashboard
+Starting agent work from the dashboard adds its first action, as proposed in
+[SEED-052](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-052-start-agent-work-from-dashboard.md)
+and delivered in [launch execution](../dashboard/AGENT-LAUNCH.md).
+Model it in the vocabulary the dashboard
 already reads, so later launch stories extend one model instead of adding
 parallel ones:
 
@@ -216,7 +204,7 @@ the read boundary topic above and ADR 0008's origin authority.
 ## A start establishes claim and workspace before the session
 
 The delivered execution start and its siblings in
-[SEED-052](seeds/SEED-052-start-agent-work-from-dashboard.md) (refinement's
+[the launch contract](../dashboard/AGENT-LAUNCH.md) (refinement's
 preparation start, Codex, Cursor) share one model, so each adds a row to a
 table, never a second flow. Model it in the launch vocabulary above.
 
