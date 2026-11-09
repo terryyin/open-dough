@@ -12,7 +12,7 @@
 // Without a story Project Intent is Intent's landing:
 // ./intent-ci-status-homepage.spec.ts.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -28,8 +28,10 @@ import {
 } from "../intentModePage.ts";
 import {
   fileReadingTab,
+  intentReadingScroll,
   proofRegion,
   purposeRegion,
+  scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -63,30 +65,6 @@ function projectReads(page: Page) {
   return reads;
 }
 
-const readingPane = (intent: Locator) => intent.locator(".intent-reading");
-const scrollOf = (intent: Locator) =>
-  readingPane(intent).evaluate((element) => element.scrollTop);
-
-async function scrollHalfway(intent: Locator) {
-  const offset = await readingPane(intent).evaluate(
-    (element) =>
-      new Promise<number>((resolve) => {
-        element.addEventListener(
-          "scroll",
-          () => {
-            resolve(element.scrollTop);
-          },
-          { once: true },
-        );
-        element.scrollTo({
-          top: Math.floor((element.scrollHeight - element.clientHeight) / 2),
-        });
-      }),
-  );
-  expect(offset).toBeGreaterThan(20);
-  return offset;
-}
-
 test("a candidate's test the story changes reads as published in Project Intent, and returning restores the candidate and then the story's reading", async ({
   page,
   origin,
@@ -112,7 +90,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
     await expect(
       purposeRegion(intent).locator(".story-review-code"),
     ).toHaveAttribute("aria-busy", "false");
-    const offset = await scrollHalfway(intent);
+    const offset = await scrollIntentReadingHalfway(intent);
     await openProjectIntent(intent);
     await expect(intent).toHaveAttribute("data-selected-story", selected ?? "");
     await expect(storySummary(intent)).toHaveCount(0);
@@ -125,7 +103,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
       "aria-pressed",
       "true",
     );
-    await expect.poll(() => scrollOf(intent)).toBe(offset);
+    await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   });
 
   await intentFile(intent, changed.modified).click();

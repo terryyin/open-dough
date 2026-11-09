@@ -91,8 +91,23 @@ export {
   simulateSoftKeyboardViewport,
 } from "./touchTerminalSoftKeyboardPage.ts";
 
+// The terminal box shrinks when chrome around it appears, such as a status
+// line or the composer, and xterm keeps its former rows until the next resize
+// observation refits it. Touch the screen once its rows lie within that box.
 export async function focusByTouch(panel: Locator) {
-  await tapWhereShown(panel.locator(".xterm-screen"));
+  const screen = panel.locator(".xterm-screen");
+  await expect
+    .poll(() =>
+      screen.evaluate((element) => {
+        const host = element.closest(".terminal-screen");
+        if (host === null) return false;
+        const room = host.getBoundingClientRect();
+        const input = element.getBoundingClientRect();
+        return input.bottom <= room.bottom + 1 && input.right <= room.right + 1;
+      }),
+    )
+    .toBe(true);
+  await tapWhereShown(screen);
   await expect(panel.locator("textarea.xterm-helper-textarea")).toBeFocused();
 }
 

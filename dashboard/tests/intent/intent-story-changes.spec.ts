@@ -11,7 +11,8 @@
 // containing changes keeps its own header background with a change mark,
 // distinct from a changed folder's row, and keeps the mark once selected. A
 // changed file's Purpose is the same diff Review changes shows; an unchanged
-// file shows its published source. Deselecting removes the summary and shows
+// file shows its published source. Closing Review changes keeps the story
+// selected (ADR 0008); deselecting its card then removes the summary and shows
 // Project Intent, whose reading borrowed none of it. "Selected story only":
 // ./intent-story-changes-only.spec.ts. Deletions and renames, and a folder's
 // Summary of the overlaid tree: ./intent-story-changes-moves.spec.ts. No
@@ -222,12 +223,16 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(purpose.locator(".story-review-code")).toHaveCount(0);
   });
 
-  await test.step("closing the story's review clears the selected story and removes the header", async () => {
+  await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
     const { development, intentChoice } = parts(page);
     const review = page.getByRole("region", { name: "Story review" });
     await review.getByRole("button", { name: "Close", exact: true }).click();
     await expect(review).toHaveCount(0);
+    await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
+    await expect(storyTitle(intent)).toHaveText("Story A");
     await development.click();
+    await expectSelected(card, true);
+    await card.getByRole("heading", { level: 3 }).click();
     await expectSelected(card, false);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");

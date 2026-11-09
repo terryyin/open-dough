@@ -49,7 +49,10 @@ export async function scrollByTouch(
     // A short reading window can lie between complete strokes. Once native
     // scrolling recognizes this finger, observe at most one pixel of movement
     // at a time and lift as soon as the requested content is wholly shown.
-    const steps = untilShown ? Math.ceil(Math.abs(distance) / strokes) : 10;
+    // Otherwise a few moves per stroke are enough for native scrolling to
+    // follow the finger; each move waits for the browser's input
+    // acknowledgement, so more of them only spend the test's time.
+    const steps = untilShown ? Math.ceil(Math.abs(distance) / strokes) : 4;
     // Model a stationary finger before lifting, preserving the synthesized
     // gesture's preventFling behavior. These are input timestamps, not waits
     // for the page result; keep the whole gesture in the past.
