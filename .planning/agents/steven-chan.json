@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "identity": "SEED-261#map-intent-and-ci-proof-test-data",
+  "mode": "story-branch",
+  "branch": "claude/make-intent-location-source-and-candidate-test-s",
+  "host": "claude",
+  "model": "opus"
+}
