@@ -4,6 +4,8 @@
 
 **Source:** [Selected story](../../seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof)
 
+**Source review:** [Independent commitments](source-review.md)
+
 ## Goal and scope
 
 For a Story Branch coordinator receiving an implementation return, settle
@@ -72,7 +74,7 @@ ordinary execution-guidance change needs no new topic or ADR.
 ### 1. Settle and inspect freshness before dependent work
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: all ownership rows above, focused checks below, and the representative
 AGENTS.md behavior review with its limits recorded in Learnings.
 
@@ -171,6 +173,28 @@ Scratch changes were reverted before the seed/plan writes; `git diff --exit-code
 
 ## Current decisions
 
+- Execution established 2026-11-10 in the supplied owned worktree and branch
+  `codex/settle-trunk-freshness-before-expensive-proof-an`; origin/main is the
+  authorized integration target. Publisher `dashboard-territory.local-open-dough`,
+  agent `yusuke-chan`, starting revision
+  `5030bb8b1f9faa11566646a94159bdb9d66d5eff`, accepted claim and current candidate
+  `14c211d145385d2fbbc50fb032781d3e45046354`. No second start or claim.
+  Default checkout `/Users/terryyin/git/open-dough` is separate from execution.
+- Checkout setup: Node 24.21.0; `node scripts/setup-native.mjs npm` and
+  `node scripts/setup-native.mjs check` passed against the unchanged lockfile;
+  the source-freshness guidance baseline passed through the Bash 5 runner.
+  Check-only `.githooks/pre-commit` owns staged lint and script-triggered
+  dashboard typecheck; `npm run format` is selective. No generator trigger
+  is expected for shared Markdown guidance and its observing tests.
+- CI observer: GitHub Actions `ci.yml` (verified workflow 351271804, CI),
+  repository `terryyin/open-dough`, execution-branch target,
+  coordinator `yusuke-freshness`, directory `/tmp/dough-ci-501/watch-KR3n5R`,
+  PID 21180, session 39201, yielded cell `g538:12`. Claim on trunk remains
+  `pendingCi: unobserved`; this stream covers subsequent branch delivery.
+- Replanning permission retains the existing planned-work authority; no new
+  scope or numeric time limit is inferred. One Behavior slice and focused proof
+  remain proportionate; full local repository/dashboard suites are not selected.
+
 - Default Story Branch execution is sufficient; no trunk-only release step or
   human checkpoint is needed for this guidance correction.
 - Keep one cohesive Behavior slice. Splitting early checking from inspection
@@ -187,6 +211,19 @@ The initial runner attempt selected system Bash 3.2 and refused before tests;
 putting the already-installed Homebrew Bash first on PATH resolved the route.
 The focused baseline and scratch observations above then completed. The read
 budget is a real affected consumer; its fixed threshold stays intact.
+
+
+### Slice 1 representative behavior review (2026-11-10)
+
+The [representative review](acceptance-evidence.md#slice-1-representative-behavior-review-2026-11-10)
+retains invocation/context, six historical guidance walks, runtime-audience
+assessment and explicit native/benefit limits.
+
+### Slice 1 focused proof
+
+The [accepted focused proof](acceptance-evidence.md#slice-1-focused-proof)
+retains literal commands, terminal results, setup and observing assertions.
+[Consumer dispositions](consumer-trace.md) retain the affected routes and checks.
 
 ## Preparation review
 

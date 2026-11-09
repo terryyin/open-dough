@@ -39,7 +39,7 @@ test("delivery checklist links progress publication to the named observation seq
   );
   assert.match(
     flat(delivery),
-    /Never wait for CI or deployment after a normal or[\s\S]+repair publication/,
+    /Never wait for CI(?: or |\/)deployment after (?:a )?normal or[\s\S]+repair publication/,
   );
 });
 
