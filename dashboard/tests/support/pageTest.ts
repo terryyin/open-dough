@@ -29,6 +29,7 @@
 // population per distinct value object.
 
 import { test as base } from "@playwright/test";
+import type { ComparisonRenderer } from "./comparisonRendering.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
@@ -39,8 +40,25 @@ export { expect } from "@playwright/test";
 endDescendantsAtExit();
 
 // Playwright's worker-only extension takes an empty test-fixture type.
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const test = base.extend<{}, { launchJourney: LaunchJourney }>({
+export const test = base.extend<
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  {},
+  { launchJourney: LaunchJourney; comparisonRenderer: ComparisonRenderer }
+>({
+  comparisonRenderer: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { createComparisonRenderer } =
+        await import("./comparisonRendering.ts");
+      const renderer = await createComparisonRenderer();
+      try {
+        await use(renderer);
+      } finally {
+        await renderer.close();
+      }
+    },
+    { scope: "worker" },
+  ],
   // The launch journeys' origin (../launchJourney.ts says what it publishes),
   // published once per worker and read, never written, by every journey the
   // worker runs from it (../launchStoryCardPage.ts serves it as GitHub would).

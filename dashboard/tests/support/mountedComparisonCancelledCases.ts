@@ -1,7 +1,8 @@
 // Cancelled landing gaps keep Branch readable and show their exact reason.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { test, expect, mountComparison } from "./comparisonMountPage.ts";
-import { serveComparison } from "./comparisonScopeFacts.ts";
+import { test, expect } from "./pageTest.ts";
+import { renderComparison } from "./comparisonRendering.ts";
+import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import {
   mixedEntryFacts,
   wallComparedFacts,
@@ -31,8 +32,7 @@ for (const [name, reason, forbidden] of [
 ] as const) {
   test(`cancelled Landed fallback preserves ${name} explanation without borrowed timing`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = wallComparedFacts();
     const answer = makeMe.aStoryCiComparison
@@ -49,12 +49,11 @@ for (const [name, reason, forbidden] of [
         },
       })
       .please();
-    serveComparison(
-      comparisonServices,
+    const rendered = comparisonRenderFacts(
       { ...facts, answer },
       mixedEntryFacts(),
     );
-    const panel = await mountComparison(page, comparisonServer, facts);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
     const identity = panel.locator(".intent-ci-comparison-identity").last();
     await expect(identity).toContainText("Cancelled at ddddddd.");
     await expect(identity).toContainText(reason);

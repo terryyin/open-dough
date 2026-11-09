@@ -1,7 +1,8 @@
 // Compact endpoint source/absence states through the production comparison.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { test, expect, mountComparison } from "./comparisonMountPage.ts";
-import { serveComparison } from "./comparisonScopeFacts.ts";
+import { test, expect } from "./pageTest.ts";
+import { renderComparison } from "./comparisonRendering.ts";
+import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import {
   mixedEntryFacts,
   wallComparedFacts,
@@ -14,8 +15,7 @@ import {
 
 test("missing Branch and Landed keep Baseline readable without fabricated zero or unrelated build", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const gap = {
@@ -26,8 +26,11 @@ test("missing Branch and Landed keep Baseline readable without fabricated zero o
   const answer = makeMe.aStoryCiComparison
     .with({ ...facts.answer, branch: gap, landed: gap })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(
+    { ...facts, answer },
+    mixedEntryFacts(),
+  );
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const identities = panel.locator(".intent-ci-comparison-identity");
   await expect(identities.first()).toContainText("aaaaaaa");
   for (const index of [1, 2])
@@ -43,8 +46,7 @@ test("missing Branch and Landed keep Baseline readable without fabricated zero o
 
 test("failed Landed keeps its exact selected revision and Branch wall time", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const answer = makeMe.aStoryCiComparison
@@ -53,8 +55,11 @@ test("failed Landed keeps its exact selected revision and Branch wall time", asy
       landed: { ...facts.answer.landed, state: "failed" },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(
+    { ...facts, answer },
+    mixedEntryFacts(),
+  );
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const identity = panel.locator(".intent-ci-comparison-identity").last();
   await expect(identity).toContainText("ccccccc");
   await expectExactSourceCue(identity);
@@ -70,8 +75,7 @@ test("failed Landed keeps its exact selected revision and Branch wall time", asy
 
 test("Done Trunk Mode names Branch not applicable and an ancestor Landed build", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const answer = makeMe.aStoryCiComparison
@@ -89,8 +93,11 @@ test("Done Trunk Mode names Branch not applicable and an ancestor Landed build",
       },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(
+    { ...facts, answer },
+    mixedEntryFacts(),
+  );
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(
     panel.locator(".intent-ci-comparison-identity").nth(1),
   ).toContainText("not applicable");
@@ -101,8 +108,7 @@ test("Done Trunk Mode names Branch not applicable and an ancestor Landed build",
 
 test("a confirmed equivalent build hides routine skip words and uses compact words without an icon", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const skipped =
@@ -117,8 +123,11 @@ test("a confirmed equivalent build hides routine skip words and uses compact wor
       },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(
+    { ...facts, answer },
+    mixedEntryFacts(),
+  );
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const identity = panel.locator(".intent-ci-comparison-identity").last();
   await expect(identity).toContainText("ccccccc");
   await expect(identity).toContainText("equivalent build");
@@ -130,8 +139,7 @@ test("a confirmed equivalent build hides routine skip words and uses compact wor
 for (const count of [1, 3]) {
   test(`cancelled Landed names its later build including ${count} later trunk revision${count === 1 ? "" : "s"}`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = wallComparedFacts();
     const answer = makeMe.aStoryCiComparison
@@ -148,12 +156,11 @@ for (const count of [1, 3]) {
         },
       })
       .please();
-    serveComparison(
-      comparisonServices,
+    const rendered = comparisonRenderFacts(
       { ...facts, answer },
       mixedEntryFacts(),
     );
-    const panel = await mountComparison(page, comparisonServer, facts);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
     const identity = panel.locator(".intent-ci-comparison-identity").last();
     await expect(identity).toContainText("Cancelled at ddddddd.");
     await expect(identity).toContainText("ccccccc");

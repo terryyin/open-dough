@@ -1,12 +1,9 @@
 // Named builds, source cues and overall observed metrics use the production UI.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiTimeWithoutRunnerWaits } from "../../src/storyCiComparison.ts";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import { serveComparison } from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import {
   mixedEntryFacts,
   wallComparedFacts,
@@ -26,8 +23,7 @@ import "../support/mountedComparisonCancelledCases.ts";
 for (const unavailable of [false, true]) {
   test(`overall metrics preserve observed counts, whole seconds and ${unavailable ? "unavailable" : "measured"} execution time`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = wallComparedFacts();
     const timed = (
@@ -57,12 +53,11 @@ for (const unavailable of [false, true]) {
         ),
       })
       .please();
-    serveComparison(
-      comparisonServices,
+    const rendered = comparisonRenderFacts(
       { ...facts, answer },
       mixedEntryFacts(),
     );
-    const panel = await mountComparison(page, comparisonServer, facts);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
     await expect(panel.getByRole("heading")).toHaveText([
       /^Baseline compared with /,
       "CI entry timing comparison",
@@ -121,8 +116,7 @@ for (const unavailable of [false, true]) {
 
 test("exact and ancestor source icons retain accessible and hover wording without subjects or run identities", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const answer = makeMe.aStoryCiComparison
@@ -140,8 +134,11 @@ test("exact and ancestor source icons retain accessible and hover wording withou
       },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(
+    { ...facts, answer },
+    mixedEntryFacts(),
+  );
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const identities = panel.locator(".intent-ci-comparison-identity");
   const baseline = identities.nth(0);
   await expect(baseline).toContainText(
@@ -188,8 +185,7 @@ for (const [kind, explanation, visible] of [
 ] as const) {
   test(`${kind} requested status keeps the ancestor source with its intentional visibility`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = wallComparedFacts();
     const answer = makeMe.aStoryCiComparison
@@ -203,12 +199,11 @@ for (const [kind, explanation, visible] of [
         },
       })
       .please();
-    serveComparison(
-      comparisonServices,
+    const rendered = comparisonRenderFacts(
       { ...facts, answer },
       mixedEntryFacts(),
     );
-    const panel = await mountComparison(page, comparisonServer, facts);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
     const identity = panel.locator(".intent-ci-comparison-identity").first();
     if (visible) await expect(identity).toContainText(explanation);
     else await expect(identity).not.toContainText(explanation);

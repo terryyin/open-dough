@@ -25,17 +25,11 @@ to it. The source keeps that measurement distinction explicit.
 
 **Proof strategy:** [Solutions, proof ownership, measurement, gates and preparation evidence](proof-strategy.md). Read with the selected slice.
 
-**Execution evidence:** [Accepted proof, experiment decisions and exact resume/observer context](execution-evidence.md).
-
-**Gap proof:** [Cancelled and proofless endpoint evidence](gap-evidence.md).
-
-**Incoming integration:** [Published-history and compatibility evidence](integration-evidence.md).
-
-**Lifecycle proof:** [Memory, retry and mounted-provider evidence](lifecycle-evidence.md).
-
-**Presentation proof:** [Scope assertions, retirement and measurements](presentation-evidence.md).
-
-**Final evaluation:** [Whole-family, cleanup bounds and portable CI checkpoint](portable-evidence.md).
+**Evidence:** [Execution and resume](execution-evidence.md) ·
+[Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
+[Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
+[Production rendering](render-evidence.md) ·
+[Portable evaluation](portable-evidence.md).
 
 ## Ordered slices
 
@@ -156,7 +150,8 @@ each column key, Show %, mixed-unit tree→Summary→Proof and preference contin
 through uniquely mapped existing or narrowly added prepared-service connections
 declared before measurement. No measured predecessor is relabeled as wiring.
 Static variants and actual bindings must jointly detect every old fault before
-its old case retires. Keep seven lifecycle predecessors for slice 7.
+its old case retires. Keep seven lifecycle and three acquisition-counter
+predecessors for slice 7; G4 names the one/zero proof-read assertions.
 
 Pilot decision: retain only an observed useful total-cost route with credible
 margin against G3; otherwise restore this attempt and reassess before extension.
@@ -234,4 +229,19 @@ Disposition: proved by slice 1: raw-history-family-after.json has all 14 replace
 ### G3. Published CI rule timings exceed the target
 Reported: slice 5 — "Run 42627028218 attempt 1 matched all 164 rule owners; sixteen took 1,019–1,581 ms."
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
+Disposition: receiving slice 7
+
+### G6. Preserve Project Intent without a story comparison preference
+Reported: slice 6 — "my extracted ScopeProofContent/FileProofContent unconditionally called useCiComparisonPreference, whereas original hook lived only inside comparison Frame; ProjectIntent has no story preference and crashes on ordinary judged scope."
+Story clause: "This story does not change Intent's comparison semantics"
+Disposition: proved by slice 6: render-evidence.md records the actual Project Summary/File Proof crash, comparison-only hook binding repair, six repeated counterexample passes, twelve affected current-source passes and the direct judged Summary pass; the missing-context guard is retained.
+
+### G5. Keep scope acquisition and queued-selection observations
+Reported: slice 6 — "Additional exact scope gaps from9df: (1) mounted-gaps `a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint`: comparisons1/proofs2/expect.poll(statuses)2 after full exactlabels/framing/table; (2) mounted-fallback `Landed running preserves one Branch fallback through entry, folders and file Proof`: comparisons1/proofs2 after Branchheading+`Landed is not used: Build is still running.` atentry/folder/nested/file andfile+70ms; (3) mounted-gaps `selecting a queued story clears the previous Summary comparison and Baseline column`: actualMakeMequeuedSEED-B update clears priorfullentryoracle/frame/labels/Baseline/oldidentity, comparisons stays1/proofs3. No exact retainedcounted correspondence."
+Story clause: "Preserve each distinct rule's behavioral proof and independently stated expectations"
+Disposition: receiving slice 7
+
+### G4. Preserve frontend proof acquisition counts during static migration
+Reported: slice 6 — "80 mapping has two cross-boundary acquisition assertions static SSR cannot own: invalid+ambiguous adapter proofs===1 (only Baseline readable), and both all-endpoint discovery unavailable cases proofs===0."
+Story clause: "Preserve each distinct rule's behavioral proof and independently stated expectations"
 Disposition: receiving slice 7

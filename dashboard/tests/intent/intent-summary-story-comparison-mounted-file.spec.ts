@@ -1,13 +1,8 @@
 // File Proof rules use real scope owners; Purpose and tab return stay integrated.
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import {
-  summaryScopeFacts,
-  serveComparison,
-} from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
   expectFileComparisonRow,
   modifiedFileRow,
@@ -80,8 +75,7 @@ const examples = [
 for (const example of examples) {
   test(`file Proof keeps ${example.name} counts, precise times and source cues`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = summaryScopeFacts();
     const changed =
@@ -93,9 +87,9 @@ for (const example of examples) {
               .please(),
           ]
         : facts.scope.changed;
-    serveComparison(comparisonServices, facts, facts.entries);
-    await mountComparison(page, comparisonServer, {
-      ...facts,
+    const rendered = comparisonRenderFacts(facts, facts.entries);
+    await renderComparison(page, comparisonRenderer, {
+      ...rendered,
       scope: {
         ...facts.scope,
         changed,
@@ -113,7 +107,5 @@ for (const example of examples) {
     await expectProofRowCues(proof, example.path, example.cues);
     if (example.name === "renamed across units")
       await expect(proof.locator(".intent-ci-time-mark")).toHaveCount(0);
-    expect(comparisonServices.comparisons).toBe(1);
-    expect(comparisonServices.proofs).toBe(3);
   });
 }

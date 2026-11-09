@@ -1,11 +1,8 @@
 // The actual comparison renders prepared canonical proof answers.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import { serveComparison } from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import {
   mixedEntryFacts,
   wallComparedFacts,
@@ -19,20 +16,15 @@ import { expectEntryRowCues } from "../support/expectCiComparisonCues.ts";
 
 test("expired entry proofs keep Branch and Landed wall times and explain absence of the table", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
-  Object.assign(comparisonServices, {
-    comparison: () => ({ json: facts.answer }),
-    proof: (params: URLSearchParams) => ({
-      json: {
-        ...facts.proof(Number(params.get("run"))),
-        proof: makeMe.aCiProof.unavailable("expired").please(),
-      },
-    }),
-  });
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, undefined, [
+    makeMe.aCiProof.unavailable("expired").please(),
+    makeMe.aCiProof.unavailable("expired").please(),
+    makeMe.aCiProof.unavailable("expired").please(),
+  ]);
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
     "3 min 20 s",
   );
@@ -49,20 +41,18 @@ test("expired entry proofs keep Branch and Landed wall times and explain absence
 
 test("entry rows retain counts, signed whole seconds and independent count and time cues", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
-  serveComparison(comparisonServices, facts, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
   await expectEntryRowCues(panel, comparedStoryEntryCues);
 });
 
 test("no duration and an untimed part keep exact accessible gap explanations instead of zero", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const entries = mixedEntryFacts();
@@ -91,8 +81,8 @@ test("no duration and an untimed part keep exact accessible gap explanations ins
     makeMe.aCiProofEntry.at("dashboard/tests").counting(2090).please(),
     partial,
   ];
-  serveComparison(comparisonServices, facts, entries);
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, entries);
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expectCiComparisonEntryRows(panel, [
     [
       "dashboard/tests",

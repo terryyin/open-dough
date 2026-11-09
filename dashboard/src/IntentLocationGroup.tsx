@@ -10,25 +10,17 @@
 // headers reuse shared cells/cues (`./intentTreeComparison.ts`); folders uncued.
 
 import { useEffect, useRef } from "react";
-import { Book, BookOpen } from "lucide-react";
-import { scopeCueElementAttrs } from "./ciScopeComparisonCuePresentation.ts";
-import { Icon } from "./Icon.tsx";
+import { IntentLocationHeader } from "./IntentLocationHeader.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import {
-  declaredKindOf,
-  declaredPatternsOf,
   locationExplanation,
   selectionPhrase,
 } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import { IntentTreeFileRow } from "./IntentTreeFileRow.tsx";
-import {
-  treeComparisonAccessibleName,
-  treeComparisonReadingOf,
-  treeLocationComparisonOf,
-} from "./intentTreeComparison.ts";
+import { treeComparisonReadingOf } from "./intentTreeComparison.ts";
 import {
   selectionScope,
   type IntentSelection,
@@ -43,38 +35,6 @@ import {
 import "./story-review-files.css";
 import "./intent-ci-cues.css";
 import "./intent-location-group.css";
-
-function LocationLabel({ location }: { readonly location: IntentLocation }) {
-  const kind = declaredKindOf(location);
-  return (
-    <>
-      {location.label === undefined ? (
-        <code>{location.path}</code>
-      ) : (
-        <span title={location.path}>{location.label}</span>
-      )}
-      {kind === undefined ? null : (
-        <>
-          {" "}
-          <span className="intent-location-kind">{kind}</span>
-        </>
-      )}
-      {declaredPatternsOf(location).map((pattern, at) => (
-        <span
-          key={`${String(at)}-${pattern}`}
-          className="intent-location-pattern"
-        >
-          {" "}
-          <code>{pattern}</code>
-        </span>
-      ))}
-    </>
-  );
-}
-
-function locationBaseName(location: IntentLocation): string {
-  return `${location.label ?? location.path}, ${selectionPhrase(location)}`;
-}
 
 export function IntentLocationGroup({
   location,
@@ -137,15 +97,6 @@ export function IntentLocationGroup({
   }, [reveal, revealHere]);
 
   const comparison = treeComparisonReadingOf(useIntentCiEvidence());
-  const compared = treeLocationComparisonOf(comparison, location.path);
-  const locationHeaderAttrs = scopeCueElementAttrs(
-    "intent-location-header",
-    compared?.cues,
-  );
-  const locationName =
-    compared === undefined
-      ? undefined
-      : treeComparisonAccessibleName(locationBaseName(location), compared);
 
   return (
     <section
@@ -154,40 +105,15 @@ export function IntentLocationGroup({
       aria-labelledby={`${idPrefix}-heading`}
       data-contains-changes={containsChanges || undefined}
     >
-      <div
-        {...locationHeaderAttrs}
-        data-selected={locationSelected || undefined}
-      >
-        <button
-          type="button"
-          className="intent-location-toggle"
-          aria-expanded={expanded}
-          aria-controls={bodyId}
-          aria-label={`${expanded ? "Collapse" : "Expand"} ${location.label ?? location.path}`}
-          onClick={onToggle}
-        >
-          <Icon icon={expanded ? BookOpen : Book} />
-        </button>
-        <button
-          type="button"
-          id={`${idPrefix}-heading`}
-          className="sessions-sidebar-section-header intent-location-name"
-          data-location-path={location.path}
-          aria-pressed={locationSelected}
-          {...(locationName === undefined
-            ? {}
-            : { "aria-label": locationName })}
-          onClick={() => {
-            if (locationSelected) {
-              onToggle();
-              return;
-            }
-            onSelect({ path: location.path, scope: "location" });
-          }}
-        >
-          <LocationLabel location={location} />
-        </button>
-      </div>
+      <IntentLocationHeader
+        location={location}
+        reading={comparison}
+        selected={locationSelected}
+        idPrefix={idPrefix}
+        expanded={expanded}
+        onToggle={onToggle}
+        onSelect={onSelect}
+      />
       {expanded ? (
         <div id={bodyId} className="intent-location-body">
           {location.problem !== undefined && files.length === 0 ? (

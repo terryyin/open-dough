@@ -19,19 +19,11 @@
 // collected execution-time history beside these existing readings, with its
 // own failed-read feedback and retry (./IntentScopeTimingHistory.tsx).
 
-import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
+import type { CiProofSorting } from "./CiProofTable.tsx";
 import type { ColumnSort } from "./ciProofSort.ts";
-import { ciUnavailableCellsOf, type CiProofCells } from "./ciProofWording.ts";
-import { immediateChildrenOf, owningEntryOf } from "./ciScopeProof.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
-import { EvidenceKept, EvidenceNamed } from "./IntentScopeEvidenceLabels.tsx";
-import { ComparisonTable } from "./IntentScopeComparisonTable.tsx";
-import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
-import { SingleProofTable } from "./IntentScopeSingleProofTable.tsx";
-import { childRowsOf } from "./IntentScopeSummaryRows.tsx";
-import type { IntentTreeFile } from "./intentStoryOverlay.ts";
-import type { IntentSelection } from "./intentWorkspaceSelection.ts";
+import { IntentScopeProofView } from "./IntentScopeProofView.tsx";
 import { IntentScopeTimingHistory } from "./IntentScopeTimingHistory.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 
@@ -44,100 +36,18 @@ function useSummarySorting(): CiProofSorting {
   return { sort, onSort };
 }
 
-function ScopeProofContent({
-  path,
-  inventory,
-  revision,
-  treeFiles,
-  onOpen,
-}: {
-  // The selected entry or folder.
-  readonly path: string;
-  // The files the tree lists under the selection.
-  readonly inventory: readonly string[];
-  // The revision the tree shows.
-  readonly revision: string;
-  // The story overlay's files by repository path, when a story is selected.
-  readonly treeFiles?: ReadonlyMap<string, IntentTreeFile>;
-  readonly onOpen: (next: IntentSelection) => void;
-}) {
-  const evidence = scopeEvidenceOf(useIntentCiEvidence());
-  const sorting = useSummarySorting();
-  const children = immediateChildrenOf(path, inventory);
-  // Every figure says why none can be given; the rows still drill down.
-  const unavailable = (cells: CiProofCells) => (
-    <>
-      <ScopeFigures path={path} cells={cells} />
-      <CiProofTable
-        label={scopeTableLabel(path)}
-        scopeHeader="Scope"
-        rows={childRowsOf(children, onOpen, () => cells)}
-        sorting={sorting}
-      />
-    </>
-  );
-
-  if (evidence.kind === "none") {
-    const cells = ciUnavailableCellsOf(
-      evidence.checking ? "checking" : "no CI proof",
-    );
-    return (
-      <>
-        <EvidenceKept kept={evidence.kept} />
-        <p
-          className={
-            evidence.problem === true
-              ? "intent-summary-evidence-absent intent-ci-proof-problem"
-              : "intent-summary-evidence-absent"
-          }
-          {...(evidence.checking ? { "aria-live": "polite" as const } : {})}
-        >
-          {evidence.line}
-        </p>
-        {unavailable(cells)}
-      </>
-    );
-  }
-
-  if (evidence.kind === "comparison") {
-    return (
-      <>
-        <ComparisonTable
-          path={path}
-          inventory={inventory}
-          evidence={evidence}
-          treeFiles={treeFiles}
-          onOpen={onOpen}
-          sorting={sorting}
-        />
-      </>
-    );
-  }
-
-  const entry = owningEntryOf(evidence.summary.entries, path);
-  if (entry === undefined) {
-    const cells = ciUnavailableCellsOf("no CI entry");
-    return (
-      <>
-        <EvidenceNamed evidence={evidence} revision={revision} />
-        <p className="intent-summary-evidence-absent">
-          This CI proof summary declares no entry holding <code>{path}</code>.
-        </p>
-        {unavailable(cells)}
-      </>
-    );
-  }
+function ScopeProofContent(
+  props: Omit<
+    Parameters<typeof IntentScopeProofView>[0],
+    "evidence" | "preference" | "sorting"
+  >,
+) {
   return (
-    <>
-      <EvidenceNamed evidence={evidence} revision={revision} />
-      <SingleProofTable
-        path={path}
-        inventory={inventory}
-        entry={entry}
-        onOpen={onOpen}
-        sorting={sorting}
-      />
-    </>
+    <IntentScopeProofView
+      {...props}
+      evidence={scopeEvidenceOf(useIntentCiEvidence())}
+      sorting={useSummarySorting()}
+    />
   );
 }
 

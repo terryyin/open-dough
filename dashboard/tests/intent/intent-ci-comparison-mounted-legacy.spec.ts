@@ -1,13 +1,7 @@
-import {
-  expect,
-  test,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import {
-  summaryScopeFacts,
-  serveComparison,
-} from "../support/comparisonScopeFacts.ts";
-import { expandIntentFolders } from "../intentPerspectivePage.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
   aSpec,
   dashboardTests,
@@ -17,8 +11,6 @@ import {
 } from "../support/ciComparisonUnitsJourney.ts";
 import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
-import { summaryComparisonChanges } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "../support/intentStoryPage.ts";
 import type { Locator } from "@playwright/test";
 
 async function fileProofRows(
@@ -26,7 +18,6 @@ async function fileProofRows(
   file: string,
   rows: readonly (readonly string[])[],
 ) {
-  await intentFile(intent, summaryComparisonChanges.modified).click();
   const body = intent
     .getByRole("table", { name: `CI proof of ${file}`, exact: true })
     .locator("tbody tr");
@@ -39,14 +30,14 @@ async function fileProofRows(
   }
 }
 
-// Seven test cases and one test file at Landed.
-const landed = dashboardTests({ cases: true }, 5, 40_000, 7_000);
-// Six legacy "tests" results at Baseline, nine at Branch.
-const legacyAtBaselineAndBranch = {
-  baseline: [dashboardTests({ legacy: "tests" }, 4, 35_000)],
-  branch: [dashboardTests({ legacy: "tests" }, 7, 42_000)],
-  landed: [landed],
-};
+// Legacy Baseline and Branch remain independent facts inside each case.
+function legacyAtBaselineAndBranch() {
+  return [
+    [dashboardTests({ legacy: "tests" }, 4, 35_000)],
+    [dashboardTests({ legacy: "tests" }, 7, 42_000)],
+    [dashboardTests({ cases: true }, 5, 40_000, 7_000)],
+  ];
+}
 
 const parts = "1 of 1 part present";
 // The entry's and folder's Counts with legacy results at Baseline and Branch.
@@ -57,17 +48,12 @@ const folderCounts =
 
 test("with legacy results at Baseline and at Branch, spelled alike with different totals, the overall Counts and entry row keep both labelled ends readable and say why there is no test case or test file difference (examples 38, 39)", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(
-    comparisonServices,
-    facts,
-    Object.values(legacyAtBaselineAndBranch),
-  );
-  const panel = await mountComparison(page, comparisonServer, {
-    ...facts,
+  const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
+  const panel = await renderComparison(page, comparisonRenderer, {
+    ...rendered,
     scope: undefined,
   });
   const overall = panel.locator(".intent-ci-comparison-overall-counts");
@@ -85,16 +71,11 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
 
 test("with legacy results at Baseline and at Branch, spelled alike with different totals, the location Summary's own figures and child rows keep both labelled ends readable and say why there is no difference (examples 38, 39)", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(
-    comparisonServices,
-    facts,
-    Object.values(legacyAtBaselineAndBranch),
-  );
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectOwnFigures(summary, `CI proof of ${entry}`, [
     entryCounts,
@@ -126,18 +107,15 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
 
 test("with legacy results at Baseline and at Branch, spelled alike with different totals, the changed file's Proof row keeps both labelled ends readable and says why there is no difference (examples 38, 39)", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(
-    comparisonServices,
-    facts,
-    Object.values(legacyAtBaselineAndBranch),
-  );
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
+    scope: { ...facts.scope, selection: { path: aSpec, scope: "file" } },
+  });
   const intent = page.locator("#root");
-  await expandIntentFolders(intent, entry);
   await fileProofRows(intent, aSpec, [
     [
       folderCounts,

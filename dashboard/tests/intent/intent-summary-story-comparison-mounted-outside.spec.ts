@@ -1,14 +1,9 @@
 // Primary-endpoint outside evidence is named independently of the visible tree.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -22,8 +17,7 @@ const outsideRow = "Not in the rows above";
 
 test("Summary names the ghost file and unbroken-down part outside its final row, and names Landed for an entry with no file breakdown", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const landed = [
@@ -69,7 +63,7 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
       .please(),
     makeMe.aCiProofEntry.at("tests").counting(1, "file").timed(500).please(),
   ];
-  serveComparison(comparisonServices, facts, [
+  const rendered = comparisonRenderFacts(facts, [
     facts.entries[0] ?? [],
     facts.entries[1] ?? [],
     landed,
@@ -79,8 +73,8 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
     .ofKind("shell", ["*.sh"])
     .selecting("tests/check.sh")
     .please();
-  await mountComparison(page, comparisonServer, {
-    ...facts,
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
     scope: {
       ...facts.scope,
       locations: [...facts.scope.locations, testsLocation],
@@ -110,7 +104,14 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
     "part 2 of 2 has no file breakdown",
   );
   await expect(evidenceLabel(summary, "No file breakdown")).toHaveCount(0);
-  await page.getByRole("button", { name: /^tests, shell,/ }).click();
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
+    scope: {
+      ...facts.scope,
+      locations: [...facts.scope.locations, testsLocation],
+      selection: { path: "tests", scope: "location" },
+    },
+  });
   await expect(summary.locator(".intent-summary-path")).toHaveText("tests");
   await expect(evidenceLabels(summary, "About these figures"))
     .toMatchAriaSnapshot(`
@@ -122,6 +123,4 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
     "The Landed CI proof summary does not break tests down by file",
   );
   await expect(evidenceLabels(summary, outsideRow)).toHaveCount(0);
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(3);
 });

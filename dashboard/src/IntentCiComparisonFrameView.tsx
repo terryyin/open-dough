@@ -2,7 +2,7 @@
 // display scales only its own already-held figures and rows; the preference
 // belongs to the story's live reading place above all its views.
 import type { ReactNode } from "react";
-import { useCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
+import type { ComparisonPreference } from "./IntentCiComparisonPreference.tsx";
 import {
   RelativeTimingControls,
   RelativeTimingProvider,
@@ -17,18 +17,20 @@ import { relativeScaleOf } from "./storyCiRelativeChange.ts";
 
 export const ciTimingHeading = "CI timing changes";
 
-export function IntentCiComparisonFrame({
+export function IntentCiComparisonFrameView({
   answer,
   proofs,
   relatives,
   children,
+  preference,
 }: {
   readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   readonly proofs: ComparisonEndpointProofs | undefined;
   readonly relatives: readonly (number | undefined)[];
   readonly children: ReactNode;
+  readonly preference: ComparisonPreference;
 }) {
-  const { showPercent, onShowPercent } = useCiComparisonPreference();
+  const { showPercent, onShowPercent } = preference;
   const active =
     proofs === undefined ? undefined : activeComparisonOf(answer, proofs);
   return (

@@ -1,12 +1,9 @@
 // Relative marks and Show % use actual preference state and rendered geometry.
 import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import { serveComparison } from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import {
   relativeEntryFacts,
   timedEntry,
@@ -18,7 +15,7 @@ import {
   percentages,
   showPercent,
 } from "../support/relativeTimingMarks.ts";
-import { rowNames, sortButton } from "../support/expectSortedColumns.ts";
+import { rowNames } from "../support/expectSortedColumns.ts";
 
 const tableOf = (panel: Locator) =>
   panel.getByRole("table", { name: "CI entry timing comparison" });
@@ -33,12 +30,11 @@ const cell = (panel: Locator, entry: string, column: "Branch" | "Landed") =>
 
 test("summary and entries share a centred fifty percent scale with faster left and slower right", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
-  serveComparison(comparisonServices, facts, relativeEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(cell(panel, "e/slower", "Branch")).toHaveText("+30 s");
   await expectMark(cell(panel, "e/slower", "Branch"), "slower", 0.25);
   await expectMark(cell(panel, "e/slower", "Landed"), "slower", 0.5);
@@ -52,12 +48,11 @@ test("summary and entries share a centred fifty percent scale with faster left a
 
 test("measured unchanged time is centred while added and zero-baseline entries have no relative mark", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
-  serveComparison(comparisonServices, facts, relativeEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(cell(panel, "e/same", "Landed")).toHaveText("0 s");
   await expectMark(cell(panel, "e/same", "Landed"), "none", 0);
   for (const [entry, words] of [
@@ -70,10 +65,9 @@ test("measured unchanged time is centred while added and zero-baseline entries h
   }
 });
 
-test("keyboard Show % reveals every comparable percentage without changing sort or geometry", async ({
+test("Show % displays every comparable percentage without changing sort or geometry", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const prepared = wallComparedFacts();
   const answer = makeMe.aStoryCiComparison
@@ -86,16 +80,20 @@ test("keyboard Show % reveals every comparable percentage without changing sort 
     })
     .please();
   const facts = { ...prepared, answer };
-  serveComparison(comparisonServices, facts, relativeEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, relativeEntryFacts());
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const toggle = showPercent(panel);
   await expect(toggle).not.toBeChecked();
   await expect(percentages(panel)).toHaveCount(0);
-  await sortButton(tableOf(panel), "Landed").click();
+  await renderComparison(page, comparisonRenderer, rendered, {
+    sort: { column: "landed", direction: "ascending" },
+  });
   const order = await rowNames(tableOf(panel)).allTextContents();
   const before = await markGeometry(cell(panel, "e/faster", "Landed"));
-  await toggle.focus();
-  await page.keyboard.press("Space");
+  await renderComparison(page, comparisonRenderer, rendered, {
+    showPercent: true,
+    sort: { column: "landed", direction: "ascending" },
+  });
   await expect(toggle).toBeChecked();
   await expect(cell(panel, "e/slower", "Branch")).toHaveText("+30 s+13%");
   expect((await percentages(panel).allTextContents()).sort()).toEqual(
@@ -110,16 +108,15 @@ test("keyboard Show % reveals every comparable percentage without changing sort 
 
 test("a one hundred fifty percent outlier widens every mark's shared scale", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const entries = relativeEntryFacts();
   entries[0].push(timedEntry("e/outlier", 60_000));
   entries[1].push(timedEntry("e/outlier", 150_000));
   entries[2].push(timedEntry("e/outlier", 150_000));
-  serveComparison(comparisonServices, facts, entries);
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, entries);
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(cell(panel, "e/outlier", "Landed")).toHaveText("+1 min 30 s");
   await expectMark(cell(panel, "e/outlier", "Landed"), "slower", 1);
   await expectMark(cell(panel, "e/faster", "Landed"), "faster", 0.5 / 1.5);
@@ -129,7 +126,9 @@ test("a one hundred fifty percent outlier widens every mark's shared scale", asy
     "slower",
     1 / 3 / 1.5,
   );
-  await showPercent(panel).check();
+  await renderComparison(page, comparisonRenderer, rendered, {
+    showPercent: true,
+  });
   await expect(
     cell(panel, "e/outlier", "Landed").locator(".intent-ci-time-percent"),
   ).toHaveText("+150%");

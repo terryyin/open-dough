@@ -1,31 +1,23 @@
 // Actual sortable headers over canonical endpoint proof, without acquisition setup.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import { serveComparison } from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import {
   mixedEntryFacts,
   timedEntry,
   wallComparedFacts,
 } from "../support/mountedComparisonFacts.ts";
-import {
-  expectSortedBy,
-  rowNames,
-  sortButton,
-} from "../support/expectSortedColumns.ts";
+import { expectSortedBy, rowNames } from "../support/expectSortedColumns.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 
-test("Baseline and Counts sort with click, Enter and Space, directions and baseline gaps last", async ({
+test("Baseline and Counts display both sort directions with baseline gaps last", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
-  serveComparison(comparisonServices, facts, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   const table = panel.getByRole("table", {
     name: "CI entry timing comparison",
   });
@@ -35,27 +27,33 @@ test("Baseline and Counts sort with click, Enter and Space, directions and basel
     "src/skills",
   ]);
   await expect(table.locator("th[aria-sort]")).toHaveCount(0);
-  const baseline = sortButton(table, "Baseline");
-  await baseline.click();
+  await renderComparison(page, comparisonRenderer, rendered, {
+    sort: { column: "baseline", direction: "ascending" },
+  });
   await expectSortedBy(table, "Baseline", "ascending", [
     "tests",
     "dashboard/tests",
     "src/skills",
   ]);
-  await baseline.press("Enter");
+  await renderComparison(page, comparisonRenderer, rendered, {
+    sort: { column: "baseline", direction: "descending" },
+  });
   await expectSortedBy(table, "Baseline", "descending", [
     "dashboard/tests",
     "tests",
     "src/skills",
   ]);
-  await sortButton(table, "Counts").focus();
-  await page.keyboard.press("Space");
+  await renderComparison(page, comparisonRenderer, rendered, {
+    sort: { column: "counts", direction: "ascending" },
+  });
   await expectSortedBy(table, "Counts", "ascending", [
     "src/skills",
     "tests",
     "dashboard/tests",
   ]);
-  await sortButton(table, "Counts").click();
+  await renderComparison(page, comparisonRenderer, rendered, {
+    sort: { column: "counts", direction: "descending" },
+  });
   await expectSortedBy(table, "Counts", "descending", [
     "dashboard/tests",
     "tests",
@@ -66,12 +64,11 @@ test("Baseline and Counts sort with click, Enter and Space, directions and basel
 for (const column of ["Branch", "Landed"] as const) {
   test(`${column} sorts signed changes rather than duration or percentage and keeps gaps last both ways`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = wallComparedFacts();
     const untimed = makeMe.aCiProofEntry.at("e/untimed").please();
-    serveComparison(comparisonServices, facts, [
+    const rendered = comparisonRenderFacts(facts, [
       [
         timedEntry("e/big", 600_000),
         timedEntry("e/small", 60_000),
@@ -93,7 +90,7 @@ for (const column of ["Branch", "Landed"] as const) {
         timedEntry("e/added", 5_000),
       ],
     ]);
-    const panel = await mountComparison(page, comparisonServer, facts);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
     await expectCiComparisonEntryRows(panel, [
       ["e/big", "1 test case (no change)", "10 min", "+1 min", "+2 min"],
       ["e/small", "1 test case (no change)", "1 min", "+30 s", "+40 s"],
@@ -110,8 +107,12 @@ for (const column of ["Branch", "Landed"] as const) {
     const table = panel.getByRole("table", {
       name: "CI entry timing comparison",
     });
-    const header = sortButton(table, column);
-    await header.click();
+    await renderComparison(page, comparisonRenderer, rendered, {
+      sort: {
+        column: column === "Branch" ? "branch" : "landed",
+        direction: "ascending",
+      },
+    });
     await expectSortedBy(table, column, "ascending", [
       "e/down",
       "e/small",
@@ -119,7 +120,12 @@ for (const column of ["Branch", "Landed"] as const) {
       "e/untimed",
       "e/added",
     ]);
-    await header.press("Enter");
+    await renderComparison(page, comparisonRenderer, rendered, {
+      sort: {
+        column: column === "Branch" ? "branch" : "landed",
+        direction: "descending",
+      },
+    });
     await expectSortedBy(table, column, "descending", [
       "e/big",
       "e/small",

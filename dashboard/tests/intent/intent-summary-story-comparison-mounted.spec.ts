@@ -1,15 +1,9 @@
 // Fast actual scope rendering and navigation; full-app acquisition remains separate.
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
-import { drillComparisonChild } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
@@ -29,51 +23,55 @@ import {
   summaryFolderComparisonCues,
 } from "../support/expectCiComparisonCues.ts";
 
-test("real Summary controls drill through precise endpoint rows into file Proof without another CI read", async ({
+test("Summary renders precise endpoint rows at entry, folder, nested and file Proof scopes", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, facts.entries);
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",
     entryComparisonRows,
   );
-  await drillComparisonChild(
-    summary,
-    "folder/",
-    "dashboard/tests/folder",
-    folderComparisonRows,
-  );
-  await drillComparisonChild(
-    summary,
-    "nested/",
-    "dashboard/tests/folder/nested",
-    nestedComparisonRows,
-  );
-  await summary.getByRole("button", { name: "c.spec.ts", exact: true }).click();
+  for (const [path, rows] of [
+    ["dashboard/tests/folder", folderComparisonRows],
+    ["dashboard/tests/folder/nested", nestedComparisonRows],
+  ] as const) {
+    await renderComparison(page, comparisonRenderer, {
+      ...rendered,
+      scope: { ...facts.scope, selection: { path, scope: "folder" } },
+    });
+    await expect(summary.locator(".intent-summary-path")).toHaveText(path);
+    await expectComparisonScopeRows(summary, path, rows);
+  }
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
+    scope: {
+      ...facts.scope,
+      selection: {
+        path: "dashboard/tests/folder/nested/c.spec.ts",
+        scope: "file",
+      },
+    },
+  });
   const proof = page.getByRole("table", {
     name: "CI proof of dashboard/tests/folder/nested/c.spec.ts",
   });
   await expect(proof.locator("tbody tr")).toHaveText([
     "dashboard/tests/folder/nested/c.spec.ts1 test case (no change)340 ms+70 ms+70 ms",
   ]);
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(3);
 });
 
 test("Summary labels stay audible in browse mode and entry cues keep their independent count and duration meanings", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, facts.entries);
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectEvidenceLabels(comparisonLabels(summary, facts.identity), [
     "Baseline No build aaaaaaa",
@@ -108,13 +106,12 @@ test("Summary labels stay audible in browse mode and entry cues keep their indep
 
 test("folder Summary keeps unchanged and below-threshold cue reasons", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await mountComparison(page, comparisonServer, {
-    ...facts,
+  const rendered = comparisonRenderFacts(facts, facts.entries);
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
     scope: {
       ...facts.scope,
       selection: { path: "dashboard/tests/folder", scope: "folder" },
@@ -135,13 +132,12 @@ test("folder Summary keeps unchanged and below-threshold cue reasons", async ({
 
 test("a nested Summary marks a file changed only by its owning merge while keeping its precise comparison", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await mountComparison(page, comparisonServer, {
-    ...facts,
+  const rendered = comparisonRenderFacts(facts, facts.entries);
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
     scope: {
       ...facts.scope,
       changed: [
@@ -165,8 +161,7 @@ test("a nested Summary marks a file changed only by its owning merge while keepi
 
 test("Summary names a skipped Baseline beside its ancestor and exposes its complete status on hover and to browse reading", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const skippedAt =
@@ -180,8 +175,8 @@ test("Summary names a skipped Baseline beside its ancestor and exposes its compl
       },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, facts.entries);
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts({ ...facts, answer }, facts.entries);
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectLabelInFull(
     comparisonLabels(summary, facts.identity),

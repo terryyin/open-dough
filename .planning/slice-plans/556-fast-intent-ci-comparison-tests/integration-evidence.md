@@ -232,3 +232,8 @@ G1/G3 and final family acceptance remain open with slice 7.
 Independent refactoring found no further edit; both installed consumer traces
 have every row dispositioned in `incoming-878-refactor-return.md`. Final 35-case
 collector/wording and native-closure observations satisfy its remaining checks.
+
+Accepted merge `9df6cbbc4624817974e692fcc5b7dfb9414a9010` preserves both
+published histories; its exact receipt and same-observer registration are in
+`incoming-878-publish.log`. The clean named execution branch was fast-forwarded
+to that accepted revision before slice 6 began.

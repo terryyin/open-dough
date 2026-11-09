@@ -1,7 +1,8 @@
 // Taken stories retain their actual live judgment and provisional endpoint words.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { test, expect, mountComparison } from "./comparisonMountPage.ts";
-import { serveComparison } from "./comparisonScopeFacts.ts";
+import { test, expect } from "./pageTest.ts";
+import { renderComparison } from "./comparisonRendering.ts";
+import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import { takenTrunkComparison } from "./comparisonMountSelections.ts";
 import {
   mixedEntryFacts,
@@ -12,8 +13,7 @@ for (const mode of ["story-branch", "trunk"] as const) {
   for (const adapter of [false, true]) {
     test(`Taken ${mode} keeps ${adapter ? "a completed adapter ancestor while a later attempt runs" : "its live status and provisional measured comparison"}`, async ({
       page,
-      comparisonServer,
-      comparisonServices,
+      comparisonRenderer,
     }) => {
       const facts = wallComparedFacts();
       const taken = takenTrunkComparison(facts);
@@ -79,27 +79,13 @@ for (const mode of ["story-branch", "trunk"] as const) {
           ...(mode === "trunk" ? { provisional } : { provisional: undefined }),
         })
         .please();
-      serveComparison(
-        comparisonServices,
-        { ...facts, answer },
-        mixedEntryFacts(),
-      );
-      if (adapter) {
-        Object.assign(comparisonServices, {
-          proof: (params: URLSearchParams) => ({
-            json: {
-              runId: params.get("run"),
-              attemptId: params.get("attempt-id"),
-              branch: params.get("run-branch"),
-              revision: params.get("revision"),
-              checkedAt: answer.checkedAt,
-              proof: makeMe.aCiProof
-                .unavailable("none", "no proof kept")
-                .please(),
-            },
-          }),
-        });
-      }
+      const rendered = adapter
+        ? comparisonRenderFacts({ ...facts, answer, work }, undefined, [
+            makeMe.aCiProof.unavailable("none", "no proof kept").please(),
+            makeMe.aCiProof.unavailable("none", "no proof kept").please(),
+            undefined,
+          ])
+        : comparisonRenderFacts({ ...facts, answer, work }, mixedEntryFacts());
       const status = makeMe.anIntentCiStatus
         .with({
           branch,
@@ -111,14 +97,8 @@ for (const mode of ["story-branch", "trunk"] as const) {
           freshness: "fresh",
         })
         .please();
-      Object.assign(comparisonServices, {
-        status: (params: URLSearchParams) => ({
-          json: params.get("kept") === "1" ? { none: true } : status,
-        }),
-      });
-      const panel = await mountComparison(page, comparisonServer, {
-        ...taken,
-        work,
+      const panel = await renderComparison(page, comparisonRenderer, rendered, {
+        ...(mode === "story-branch" ? { liveStatus: status } : {}),
       });
       if (mode === "story-branch") {
         const live = page.getByRole("region", {

@@ -1,7 +1,9 @@
 // Endpoint-only gap words; imported by the mounted wording spec.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { test, expect, mountComparison } from "./comparisonMountPage.ts";
-import { serveComparison } from "./comparisonScopeFacts.ts";
+import { test, expect } from "./pageTest.ts";
+import { test as mountedTest, mountComparison } from "./comparisonMountPage.ts";
+import { renderComparison } from "./comparisonRendering.ts";
+import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import {
   mixedEntryFacts,
   wallComparedFacts,
@@ -17,8 +19,7 @@ for (const reason of [
 ]) {
   test(`a final timing gap keeps endpoint and wall time: ${reason}`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = wallComparedFacts();
     const answer = makeMe.aStoryCiComparison
@@ -27,12 +28,11 @@ for (const reason of [
         landed: { ...facts.answer.landed, timeWithoutRunnerWaits: { reason } },
       })
       .please();
-    serveComparison(
-      comparisonServices,
+    const rendered = comparisonRenderFacts(
       { ...facts, answer },
       mixedEntryFacts(),
     );
-    const panel = await mountComparison(page, comparisonServer, facts);
+    const panel = await renderComparison(page, comparisonRenderer, rendered);
     await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
       "3 min",
       "3 min 20 s",
@@ -52,8 +52,7 @@ for (const reason of [
 
 test("running Landed retains Branch fallback and its added-entry words", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const answer = makeMe.aStoryCiComparison
@@ -62,8 +61,11 @@ test("running Landed retains Branch fallback and its added-entry words", async (
       landed: { ...facts.answer.landed, kind: "running" },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(
+    { ...facts, answer },
+    mixedEntryFacts(),
+  );
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Branch",
   );
@@ -92,8 +94,7 @@ test("running Landed retains Branch fallback and its added-entry words", async (
 
 test("unavailable Landed proof retains the Branch counts, time and exact adapter reason", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const answer = makeMe.aStoryCiComparison
@@ -106,26 +107,15 @@ test("unavailable Landed proof retains the Branch counts, time and exact adapter
       },
     })
     .please();
-  serveComparison(comparisonServices, { ...facts, answer }, mixedEntryFacts());
-  const proof = comparisonServices.proof;
-  Object.assign(comparisonServices, {
-    proof: (params: URLSearchParams) =>
-      params.get("run") === "pipeline"
-        ? {
-            json: {
-              runId: "pipeline",
-              attemptId: "landing",
-              branch: "main",
-              revision: facts.answer.landed.revision,
-              checkedAt: facts.answer.checkedAt,
-              proof: makeMe.aCiProof
-                .unavailable("none", "no summary retained for this attempt")
-                .please(),
-            },
-          }
-        : proof(params),
-  });
-  const panel = await mountComparison(page, comparisonServer, facts);
+  const entries = mixedEntryFacts();
+  const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, [
+    makeMe.aCiProof.summaryFor(facts.proof(1), entries[0]).please(),
+    makeMe.aCiProof.summaryFor(facts.proof(2), entries[1]).please(),
+    makeMe.aCiProof
+      .unavailable("none", "no summary retained for this attempt")
+      .please(),
+  ]);
+  const panel = await renderComparison(page, comparisonRenderer, rendered);
   await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
     "Baseline compared with Branch",
   );
@@ -158,23 +148,24 @@ for (const reason of [
   "adapter CI service has no discovery access",
   "The CI adapter did not answer discovery within 2 seconds.",
 ]) {
-  test(`every endpoint retains the unavailable discovery reason: ${reason}`, async ({
-    page,
-    comparisonServer,
-    comparisonServices,
-  }) => {
-    const facts = wallComparedFacts();
-    const slot = { kind: "unavailable" as const, explanation: reason };
-    const answer = makeMe.aStoryCiComparison
-      .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
-      .please();
-    Object.assign(comparisonServices, { comparison: () => ({ json: answer }) });
-    const panel = await mountComparison(page, comparisonServer, facts);
-    await expect(panel.locator(".intent-ci-comparison-identity")).toHaveText([
-      reason,
-      reason,
-      reason,
-    ]);
-    expect(comparisonServices.proofs).toBe(0);
-  });
+  mountedTest(
+    `every endpoint retains the unavailable discovery reason: ${reason}`,
+    async ({ page, comparisonServer, comparisonServices }) => {
+      const facts = wallComparedFacts();
+      const slot = { kind: "unavailable" as const, explanation: reason };
+      const answer = makeMe.aStoryCiComparison
+        .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
+        .please();
+      Object.assign(comparisonServices, {
+        comparison: () => ({ json: answer }),
+      });
+      const panel = await mountComparison(page, comparisonServer, facts);
+      await expect(panel.locator(".intent-ci-comparison-identity")).toHaveText([
+        reason,
+        reason,
+        reason,
+      ]);
+      expect(comparisonServices.proofs).toBe(0);
+    },
+  );
 }

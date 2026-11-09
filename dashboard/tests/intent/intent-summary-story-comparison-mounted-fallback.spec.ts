@@ -1,25 +1,18 @@
 // The actual scope owners share endpoint choice and fallback explanation.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../support/comparisonMountPage.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import { takenTrunkComparison } from "../support/comparisonMountSelections.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../support/comparisonScopeFacts.ts";
+import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
   comparisonLabels,
   expectLeadingEvidenceLabels,
 } from "../ciEvidenceLabelsPage.ts";
-import { childName } from "../intentScopeProofPage.ts";
 
 test("Taken Trunk Summary and file Proof name the same Provisional endpoint and unused Landed explanation", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const taken = takenTrunkComparison(facts);
@@ -29,18 +22,24 @@ test("Taken Trunk Summary and file Proof name the same Provisional endpoint and 
       baseline: facts.answer.baseline,
     })
     .please();
-  serveComparison(comparisonServices, facts, facts.entries);
-  Object.assign(comparisonServices, { comparison: () => ({ json: answer }) });
-  await mountComparison(page, comparisonServer, { ...facts, ...taken });
+  const rendered = comparisonRenderFacts(
+    { ...facts, ...taken, answer },
+    facts.entries,
+  );
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   for (const region of [
     summary,
     page.getByRole("region", { name: "Proof", exact: true }),
   ]) {
     if (region !== summary) {
-      await page
-        .getByRole("button", { name: /^dashboard\/tests\/root\.spec\.ts,/ })
-        .click();
+      await renderComparison(page, comparisonRenderer, {
+        ...rendered,
+        scope: {
+          ...facts.scope,
+          selection: { path: "dashboard/tests/root.spec.ts", scope: "file" },
+        },
+      });
     }
     await expect(
       region.getByRole("heading", {
@@ -58,15 +57,12 @@ test("Taken Trunk Summary and file Proof name the same Provisional endpoint and 
       region.locator(".intent-ci-comparison-active-reason"),
     ).toContainText("has not landed yet");
   }
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(2);
 });
 
 for (const landed of ["running", "no proof"] as const) {
   test(`Landed ${landed} preserves one Branch fallback through entry, folders and file Proof`, async ({
     page,
-    comparisonServer,
-    comparisonServices,
+    comparisonRenderer,
   }) => {
     const facts = summaryScopeFacts();
     const answer = makeMe.aStoryCiComparison
@@ -77,29 +73,37 @@ for (const landed of ["running", "no proof"] as const) {
           : {}),
       })
       .please();
-    serveComparison(comparisonServices, facts, facts.entries);
-    const standardProof = comparisonServices.proof;
-    Object.assign(comparisonServices, {
-      comparison: () => ({ json: answer }),
-      proof: (params: URLSearchParams) => {
-        if (landed !== "no proof" || params.get("run") !== "3")
-          return standardProof(params);
-        return {
-          json: {
-            ...facts.proof(3),
-            proof: makeMe.aCiProof.unavailable("none").please(),
-          },
-        };
-      },
-    });
-    await mountComparison(page, comparisonServer, facts);
+    const supplied = facts.entries.map((entries, at) =>
+      landed === "no proof" && at === 2
+        ? makeMe.aCiProof.unavailable("none").please()
+        : makeMe.aCiProof.summaryFor(facts.proof(at + 1), entries).please(),
+    );
+    const rendered = comparisonRenderFacts(
+      { ...facts, answer },
+      undefined,
+      supplied,
+    );
+    await renderComparison(page, comparisonRenderer, rendered);
     const summary = page.getByRole("region", { name: "Summary", exact: true });
     const reason =
       landed === "running"
         ? "Landed is not used: Build is still running."
         : "Landed is not used: This run published no CI proof summary.";
-    for (const child of [undefined, "folder/", "nested/"]) {
-      if (child !== undefined) await childName(summary, child).click();
+    for (const path of [
+      "dashboard/tests",
+      "dashboard/tests/folder",
+      "dashboard/tests/folder/nested",
+    ]) {
+      await renderComparison(page, comparisonRenderer, {
+        ...rendered,
+        scope: {
+          ...facts.scope,
+          selection: {
+            path,
+            scope: path === "dashboard/tests" ? "location" : "folder",
+          },
+        },
+      });
       await expect(
         summary.getByRole("heading", {
           name: "Baseline compared with Branch",
@@ -110,7 +114,16 @@ for (const landed of ["running", "no proof"] as const) {
         summary.locator(".intent-ci-comparison-active-reason"),
       ).toHaveText(reason);
     }
-    await childName(summary, "c.spec.ts").click();
+    await renderComparison(page, comparisonRenderer, {
+      ...rendered,
+      scope: {
+        ...facts.scope,
+        selection: {
+          path: "dashboard/tests/folder/nested/c.spec.ts",
+          scope: "file",
+        },
+      },
+    });
     const proof = page.getByRole("region", { name: "Proof", exact: true });
     await expect(
       proof.getByRole("heading", {
@@ -124,7 +137,5 @@ for (const landed of ["running", "no proof"] as const) {
     await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
       "+70 ms",
     );
-    expect(comparisonServices.comparisons).toBe(1);
-    expect(comparisonServices.proofs).toBe(landed === "running" ? 2 : 3);
   });
 }

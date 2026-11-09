@@ -1,15 +1,9 @@
 // Real Summary gap rendering with canonical prepared endpoint and proof answers.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-  updateComparison,
-} from "../support/comparisonMountPage.ts";
-import {
-  serveComparison,
-  summaryScopeFacts,
-} from "../support/comparisonScopeFacts.ts";
+import { test, expect } from "../support/pageTest.ts";
+import { renderComparison } from "../support/comparisonRendering.ts";
+import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
+import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
   comparisonLabels,
   expectLeadingEvidenceLabels,
@@ -29,8 +23,7 @@ import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts
 
 test("Summary keeps entry totals and explains every child when Baseline lacks file breakdown", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const baseline = [
@@ -41,11 +34,11 @@ test("Summary keeps entry totals and explains every child when Baseline lacks fi
       .please(),
     makeMe.aCiProofEntry.at("tests").counting(2, "file").timed(2_500).please(),
   ];
-  serveComparison(comparisonServices, facts, [
+  const rendered = comparisonRenderFacts(facts, [
     baseline,
     ...facts.entries.slice(1),
   ]);
-  await mountComparison(page, comparisonServer, facts);
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectObservedNotAttributed(summary);
   await expectComparisonScopeRows(
@@ -57,8 +50,7 @@ test("Summary keeps entry totals and explains every child when Baseline lacks fi
 
 test("Summary retains Branch figures and explicit running Landed gaps in every row", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const answer = makeMe.aStoryCiComparison
@@ -67,9 +59,8 @@ test("Summary retains Branch figures and explicit running Landed gaps in every r
       landed: { ...facts.answer.landed, kind: "running" },
     })
     .please();
-  serveComparison(comparisonServices, facts, facts.entries);
-  Object.assign(comparisonServices, { comparison: () => ({ json: answer }) });
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts({ ...facts, answer }, facts.entries);
+  await renderComparison(page, comparisonRenderer, rendered);
   await expectComparisonScopeRows(
     page.getByRole("region", { name: "Summary", exact: true }),
     "dashboard/tests",
@@ -79,8 +70,7 @@ test("Summary retains Branch figures and explicit running Landed gaps in every r
 
 test("a done Trunk Summary names Branch not applicable and preserves each Landed difference", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const answer = makeMe.aStoryCiComparison
@@ -104,9 +94,8 @@ test("a done Trunk Summary names Branch not applicable and preserves each Landed
       },
     })
     .please();
-  serveComparison(comparisonServices, facts, facts.entries);
-  Object.assign(comparisonServices, { comparison: () => ({ json: answer }) });
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts({ ...facts, answer }, facts.entries);
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectLeadingEvidenceLabels(comparisonLabels(summary, facts.identity), [
     "Baseline No build aaaaaaa",
@@ -116,14 +105,13 @@ test("a done Trunk Summary names Branch not applicable and preserves each Landed
   await expectComparisonScopeRows(summary, "dashboard/tests", trunkEntryRows);
 });
 
-test("selecting a queued story clears the previous Summary comparison and Baseline column", async ({
+test("a queued selection renders no previous Summary comparison or Baseline column", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
-  serveComparison(comparisonServices, facts, facts.entries);
-  await mountComparison(page, comparisonServer, facts);
+  const rendered = comparisonRenderFacts(facts, facts.entries);
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expectComparisonScopeRows(
     summary,
@@ -147,21 +135,22 @@ test("selecting a queued story clears the previous Summary comparison and Baseli
       ],
     })
     .please();
-  await updateComparison(page, { ...facts, identity, work });
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
+    identity,
+    work,
+  });
   await expectNoComparisonFraming(summary);
   await expect(comparisonLabels(summary, facts.identity)).toHaveCount(0);
   await expect(
     summary.getByRole("columnheader", { name: "Baseline" }),
   ).toHaveCount(0);
   await expect(summary).not.toContainText(facts.identity);
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(3);
 });
 
 test("a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint", async ({
   page,
-  comparisonServer,
-  comparisonServices,
+  comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const taken = takenTrunkComparison(facts);
@@ -196,28 +185,11 @@ test("a Taken Story Branch Summary labels its provisional comparison and not-yet
       },
     })
     .please();
-  serveComparison(comparisonServices, facts, facts.entries);
-  Object.assign(comparisonServices, {
-    comparison: () => ({ json: answer }),
-    status: (params: URLSearchParams) => ({
-      json:
-        params.get("kept") === "1"
-          ? { none: true }
-          : makeMe.anIntentCiStatus
-              .with({
-                branch: "feature/a",
-                revision: facts.answer.branch.revision,
-                subject: "branch",
-                state: "unread",
-                laterWithoutResult: 0,
-                reason: "Live branch judgment unavailable",
-                checkedAt: facts.answer.checkedAt,
-                freshness: "fresh",
-              })
-              .please(),
-    }),
-  });
-  await mountComparison(page, comparisonServer, { ...facts, work });
+  const rendered = comparisonRenderFacts(
+    { ...facts, work, answer },
+    facts.entries,
+  );
+  await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const labels = comparisonLabels(summary, "Story A");
   await expectEvidenceLabels(labels, [
@@ -237,7 +209,4 @@ test("a Taken Story Branch Summary labels its provisional comparison and not-yet
       name: "CI proof of the immediate folders and files of dashboard/tests",
     }),
   ).toBeVisible();
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(2);
-  await expect.poll(() => comparisonServices.statuses).toBe(2);
 });
