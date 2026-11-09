@@ -27,6 +27,8 @@ to it. The source keeps that measurement distinction explicit.
 
 **Execution evidence:** [Accepted proof, experiment decisions and exact resume/observer context](execution-evidence.md).
 
+**Gap proof:** [Cancelled and proofless endpoint evidence](gap-evidence.md).
+
 ## Ordered slices
 
 ### 1. Get a fast answer for published story endpoints
@@ -55,7 +57,7 @@ including retained integration, before retaining the experiment.
 ### 2. Explain cancelled and proofless endpoints quickly
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Minimal revision/run/proof cases at the comparison boundary, preserving
 one real cancelled-landing acquisition path and its independent provenance.
 

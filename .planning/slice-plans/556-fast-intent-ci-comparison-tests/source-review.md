@@ -34,10 +34,10 @@ ownership.”
 | C014 | Proof covers fast-forward ownership. | slice 1 | observed: ci-comparison-published-endpoints.spec.ts: independently expected story-first own tip and branch side; wrong side fault caught; retained full-reader later-history composition |
 | C015 | Proof covers skipped builds. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-selection.spec.ts real workflow/diff classifier and provider skipped provenance; requested-revision-ci-status.test.mjs real Git proof |
 | C016 | Proof covers equivalent builds. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-selection.spec.ts confirmed skipped landing selects nearest equivalent revision and run |
-| C017 | Proof covers cancelled builds. | slice 2 | |
-| C018 | Proof covers later builds. | slice 2 | |
-| C019 | Proof covers proof gaps. | slice 2 | |
-| C020 | Proof covers timing gaps. | slice 2 | |
+| C017 | Proof covers cancelled builds. | slice 2 | observed: ci-comparison-cancelled.spec.ts cancelled merge/fast-forward provenance; ci-comparison-exact-landing.spec.ts completed attempt1 beneath cancelled attempt2 |
+| C018 | Proof covers later builds. | slice 2 | observed: dashboard/backend-tests/intent/ci-comparison-cancelled.spec.ts: nearest usable later revision/run/attempt, exact query/proof lists and farther unread assertions |
+| C019 | Proof covers proof gaps. | slice 2 | observed: ci-comparison-proof-gaps.spec.ts Baseline/Branch/equivalent restrictions and bounds; ci-comparison-cancelled-awaiting.spec.ts nearest unusable proof wording |
+| C020 | Proof covers timing gaps. | slice 2 | observed: ci-comparison-timing-gaps.spec.ts absent wall bounds/invalid chain and opaque identity without numeric proof metadata; real timing backend owner passed |
 | C021 | Proof covers adapter attempts. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-taken.spec.ts opaque attempt/branch/times/graph and running-tip ancestor; retained adapter browser discovery/proof/jobs/no-Actions wiring |
 | C022 | Proof covers retry behavior. | slice 3 | |
 | C023 | Proof covers remembered answers. | slice 3 | |
@@ -102,11 +102,11 @@ ownership.”
 | J003 | The result walk never crosses the story-start bound. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-selection.spec.ts result never borrows start build; intended scratch guard-removal failure in slice1-bound-negative-applied.json |
 | J004 | That example uses minimal history without commits. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-selection.spec.ts nearer-proofless case uses MakeMe description/repositoryHistoryReads without materializing Git |
 | J005 | That example uses minimal history without `gh`. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-selection.spec.ts nearer-proofless case supplies external lookup/proof facts without gh |
-| J006 | Given a cancelled landing and later trunk revisions with missing/unusable proof, resolution chooses the nearest later usable completed build. | slice 2 | |
-| J007 | A running/read head stops the search. | slice 2 | |
-| J008 | That stopped search remains refreshable. | slice 2 | |
-| J009 | A timed-out landing uses exact-only resolution. | slice 2 | |
-| J010 | An unexplained landing uses exact-only resolution. | slice 2 | |
+| J006 | Given a cancelled landing and later trunk revisions with missing/unusable proof, resolution chooses the nearest later usable completed build. | slice 2 | observed: dashboard/backend-tests/intent/ci-comparison-cancelled.spec.ts: cancelled/unbuilt/proofless/invalid chain selects independently named nearest usable build and count5 |
+| J007 | A running/read head stops the search. | slice 2 | observed: ci-comparison-cancelled-awaiting.spec.ts running/read-head stop reason and absence of farther acquisition |
+| J008 | That stopped search remains refreshable. | slice 2 | observed: ci-comparison-cancelled-awaiting.spec.ts awaitingLaterBuild/nonfinal observations for running/head/unusable results |
+| J009 | A timed-out landing uses exact-only resolution. | slice 2 | observed: ci-comparison-exact-landing.spec.ts timed-out landing remains exact-only despite older/later usable proof |
+| J010 | An unexplained landing uses exact-only resolution. | slice 2 | observed: ci-comparison-exact-landing.spec.ts unexplained code landing retains exact no-build gap/status, excludes older/later proof |
 | J011 | For transiently unavailable comparison data, Check again disables during the read. | slice 3 | |
 | J012 | For transiently unavailable endpoint proof, Check again disables during the read. | slice 3 | |
 | J013 | The display recovers after the transient unavailable read. | slice 3 | |
