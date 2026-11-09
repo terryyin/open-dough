@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-289_consolidate-landed-proof-recovery.json",
+      "identity": "SEED-289#consolidate-landed-proof-recovery",
+      "completedAt": "2026-11-09T17:20:29.131Z",
+      "blob": "bf700e8ece4d1438b60c5fe32649c1a0a4a364b4"
+    },
+    {
       "fileName": "SEED-285_trace-landed-proof-timing.json",
       "identity": "SEED-285#trace-landed-proof-timing",
       "completedAt": "2026-11-09T15:37:19.219Z",

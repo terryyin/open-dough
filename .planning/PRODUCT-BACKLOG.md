@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 - [Read distinct attempts, an adapter’s selection, and waits a mean hides](seeds/SEED-284-optimize-tests-from-ci-proof.md#read-distinct-attempts-and-hidden-waits) — SEED-284#read-distinct-attempts-and-hidden-waits ([plan](slice-plans/559-read-distinct-attempts-and-hidden-waits/PLAN.md))
-- [Maintain one complete pending landed-CI recovery integration journey](seeds/SEED-289-landed-proof-recovery-correction.md#consolidate-landed-proof-recovery) — SEED-289#consolidate-landed-proof-recovery ([plan](slice-plans/560-consolidate-landed-proof-recovery/PLAN.md))
 
 ## Backlog list
 

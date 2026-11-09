@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-289#consolidate-landed-proof-recovery",
+  "title": "Maintain one complete pending landed-CI recovery integration journey",
+  "completedAt": "2026-11-09T17:20:29.131Z",
+  "developer": "Terry Yin",
+  "agent": "philip-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "unavailable": "Correction wrap-up; Intent Coverage applies only to feature stories."
+  }
+}
