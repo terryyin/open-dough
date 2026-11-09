@@ -197,6 +197,13 @@ older landings. Once GitHub answers that the proof is missing, expired, or
 an archive that cannot be opened or is not that run's usable summary, the
 gap is final, since a run attempt's artifact does not change.
 
+Done story comparison memory uses that same judgment on the selected Landed
+slot, before comparison projection omits internal proof-read details.
+Pending evidence can recover through Check again or story reselection in the
+same dashboard process; completed answers and answered artifact gaps retain
+final-answer reuse. Collection still owns its background acquisition cycle,
+and reading local history itself asks CI nothing.
+
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in
 `~/.open-dough/dashboard/landed-ci-history.json`. A final resolution is never

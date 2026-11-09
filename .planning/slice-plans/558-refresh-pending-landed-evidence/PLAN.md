@@ -4,6 +4,10 @@
 
 **Source:** [Keep Done CI comparisons refreshable while landed evidence is pending](../../seeds/SEED-288-landed-ci-evidence-follow-ups.md#refresh-pending-landed-evidence)
 
+**Source review:** [Independent source commitments](source-review.md)
+
+**Execution evidence:** [Resume context and accepted proof](source-review.md#execution-resume-context).
+
 ## Goal and boundary
 
 A developer can use Check again or select a Done story again, in the same
@@ -83,7 +87,7 @@ upstream finality, receipt matching or same-process cache recovery.
 ### 1. Recover Landed when its build or proof is still awaited
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Same-process production comparison read/memory with counted provider
 operations, matching history resolution, and the real Check again transition.
 
@@ -162,6 +166,9 @@ npm run typecheck:dashboard
 
 Add new focused specs to that literal selection; if SEED-286 has moved these
 owners, use its delivered replacement paths and keep their observed promises.
+New owners: `backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts`,
+`backend-tests/intent/intent-ci-comparison-answer-memory.spec.ts`, and
+`tests/intent/intent-ci-comparison-pending-proof.spec.ts`.
 Inspect the actual existing assertions before replacing any. Run adapter,
 history lifecycle/collection and proof-reader consumers when changed contracts
 reach them. A shared MakeMe change also needs its owning builder/Node tests and
@@ -219,11 +226,23 @@ machine ownership or CI headroom is claimed; recheck conditions for execution.
 
 ## Preparation review
 
-Slice-plan refinement was not needed: two cohesive Behavior slices own distinct
-proof-availability and missing-run recovery loops, sharing one finality model.
-Each includes implementation, discriminating proof, regression preservation,
-documentation and cleanup. No Structure-only preparation, new architectural
-direction, human decision, blocking dependency or slice-specific concern was
-identified. Both reported symptoms and a bounded recovery route were observed;
-terminal-reuse and receipt-join proof are implementation obligations, not claims
-that preparation has delivered them. No Take or execution authority is granted.
+Slice-plan refinement was not needed: two cohesive Behavior slices own distinct proof-availability and missing-run recovery loops, sharing one finality model. Each includes implementation, discriminating proof, regression preservation, documentation and cleanup. No Structure-only preparation, new architectural direction, human decision, blocking dependency or slice-specific concern was identified. Both reported symptoms and a bounded recovery route were observed; terminal-reuse and receipt-join proof are implementation obligations, not claims that preparation has delivered them. No Take or execution authority is granted.
+
+## Story obligations
+
+### G1. Provider-held proof recovery observed
+Reported: slice 1 — "Acceptance inspection of the new pending-proof matrix found transient and malformed responses but no held-request transition."
+Story clause: "has a proof request held, transiently failed or not answered with a valid artifact listing."
+Disposition: proved by slice 1: dashboard/backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts, equivalent and later provider-directed wait tests use the real request owner, advance its controlled clock, and recover the same revision/run/attempt/provenance with two proof listings.
+
+
+### G2. Final-reuse fixture supplies a final no-run condition
+Reported: slice 1 — "Preservation retry test expected cached reuse although its Trunk fixture had no completion run, later run, or receipt age; its Baseline was listed again on the third read."
+Story clause: "completed answers retain final-answer reuse"
+Disposition: proved by slice 1: storyCiComparisonRetry.ts supplies a real later trunk run; intent-ci-comparison-retry.spec.ts retains the Baseline retry/final request assertions and additionally observes Landed stays No build and never selects that later revision. The expanded 99-case regression passed after this correction.
+
+### G3. One comparison read already uses a consistent run listing
+Reported: slice 1 — "Implementation self-review found a run could appear between selecting no build and the shared judgment checking for its own run, making a stale negative look final."
+Story clause: "Pending evidence must not become a permanently remembered negative answer."
+Disposition: no user cost "Pending evidence must not become a permanently remembered negative answer.": baseCiGithubRevisionLookup.ts runsAt retains successful per-revision listing promises for the whole comparison; baseCiAdapterRevisionLookup.ts indexes one discovered snapshot. A newly appeared run cannot mix into either ongoing read. Failed GitHub listings produce unavailable and remain refreshable; existing selected regressions exercise that recovery. No duplicate wrapper or test is needed for this unreachable mixed-snapshot state.
+Commitment: C05

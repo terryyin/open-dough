@@ -158,9 +158,12 @@ const ownRunWaitMs = 60 * 60_000;
 // final.
 async function stillAwaited(
   slot: FinalSlot<RevisionBuildSlot>,
-  landing: LandingReference,
+  landing: { readonly revision: string; readonly receivedAt?: string },
   trunkHead: string,
-  { call, lookup }: Extract<PassRead, { kind: "read" }>,
+  {
+    call,
+    lookup,
+  }: Pick<Extract<PassRead, { kind: "read" }>, "call" | "lookup">,
 ): Promise<PendingResolution | undefined> {
   if (slot.kind !== "none") return undefined;
   if (slot.proofUnanswered === true)
@@ -179,7 +182,10 @@ async function stillAwaited(
   const hasRun = async (sha: string) =>
     newestRunFor(await lookup.listRunsAt(sha), sha) !== undefined;
   if (await hasRun(revision)) return undefined;
-  if (observationNow() - Date.parse(receivedAt) >= ownRunWaitMs)
+  if (
+    receivedAt !== undefined &&
+    observationNow() - Date.parse(receivedAt) >= ownRunWaitMs
+  )
     return undefined;
   const later = await laterTrunkChain(
     revision,
@@ -190,6 +196,24 @@ async function stillAwaited(
   if (later.length > baselineAncestorLimit) return undefined;
   for (const sha of later) if (await hasRun(sha)) return undefined;
   return { kind: "pending", waitsFor: "run" };
+}
+
+// Shared finality for history collection and Done comparison memory. Judge
+// the internal slot before comparison projection drops unanswered-proof and
+// unusable-build details. Unknown receipt age cannot settle the no-run wait.
+export async function landedSlotResolution(
+  slot: RevisionBuildSlot,
+  landing: { readonly revision: string; readonly receivedAt?: string },
+  trunkHead: string,
+  ci: Pick<Extract<PassRead, { kind: "read" }>, "call" | "lookup">,
+): Promise<LandedResolution> {
+  const final = finalSlot(slot);
+  if (final === undefined) return pendingOf(slot);
+  try {
+    return (await stillAwaited(final, landing, trunkHead, ci)) ?? final;
+  } catch {
+    return unread;
+  }
 }
 
 // What the Landed rule resolves one landing to now: the landed revision's own
@@ -215,9 +239,7 @@ export async function landingResolution(
       "No completed CI build was found at the landed revision.",
       storyBranchLandedExactLookup(true, source.repository, signal, trunkHead),
     );
-    const final = finalSlot(slot);
-    if (final === undefined) return pendingOf(slot);
-    return (await stillAwaited(final, landing, trunkHead, ci)) ?? final;
+    return await landedSlotResolution(slot, landing, trunkHead, ci);
   } catch {
     return unread;
   }

@@ -206,3 +206,16 @@ recover in the same dashboard process. A completed build's timing reason
 stays part of a final answer. Final answers and valid proof summaries are
 remembered and return without further provider requests
 ([request accounting](../dashboard/GITHUB-REQUESTS.md)).
+
+Done comparison memory and landed history collection share the Landed
+pending/final judgment before its internal proof detail is projected into
+the displayed endpoint. Queued or running builds, a skip resting on a running
+equivalent build, cancelled landings still awaiting later builds, unread CI,
+and unanswered equivalent/later proof reads stay refreshable. Check again
+or selecting the story again can therefore replace Branch fallback with
+Landed in the same process. An unanswered proof read stays pending beyond
+the landing's one-hour no-run bound. An answered missing, expired, invalid
+or unopenable artifact remains an explained gap; final answers keep their
+provider-free reuse. Sharing this judgment preserves each execution mode's
+existing build selection and exact/equivalent/later provenance, and does not
+make history browsing acquire CI or add UI polling.
