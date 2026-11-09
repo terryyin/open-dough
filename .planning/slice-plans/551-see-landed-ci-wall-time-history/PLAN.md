@@ -295,6 +295,25 @@ Accepted proof (2026-11-09). Same wrapper and `--workers=2`.
   - every comparison consumer (76), including the retry spec.
   The pre-delivery consumer gate `tests/intent backend-tests/intent backend-tests/launches --workers=4` passed 626 of 626 with strict status passed, in 8.0 min at load 6–24.
 
+## Execution complete
+
+Product advice:
+
+- **Learning question.** Recorded landings fill the 20-build window quickly enough for a useful trend.
+  - On 2026-11-09 the newest 20 recorded trunk landings spanned 0.27 days for Open Dough, 4.1 days for Doughnut and 3.3 days for Pygardon.
+  - Shared skips and cancelled landings make measured builds fewer than landings, so Pygardon fills more slowly than the story assumed (G5).
+  - Slower projects such as terry-talks would take weeks. The heading's count and span show this.
+- **Recommended bug story.** Make the shared Landed rule's transient states non-final for the Done-story CI comparison too. Today the comparison remembers two transient answers for the process lifetime:
+  - "No build" for a landed revision whose run GitHub has not created yet;
+  - a proof read GitHub left unanswered. The cancelled walk can also skip such a build.
+  The history already waits on both. Moving the wait into the shared rule would make both views agree.
+- **Developer decision.** Should a CI adapter skip reuse its equivalent attempt's timing without a CI proof summary?
+  - The Landed rule requires the summary, so Pygardon's refinement skips (174 of its 371 recorded landings) are "No CI proof summary" gaps that break its line.
+  - Reusing the timing changes the shared rule and the Done comparison, so it is a separate story.
+  - Recommendation: queue it if Pygardon's trend is to be read.
+- **Sibling story.** SEED-285#trace-landed-proof-timing (Taken, plan 554) keeps proof for "the same bounded retained cohort". This history keeps only the newest 20 measured builds per project, about a day of Open Dough landings, so most Done stories older than that would read history-unavailable. That execution should confirm the retained bound or widen it.
+- **Wording.** The history says "reused equivalent" (the story's word) where the CI comparison says "equivalent build". Align them when the moving-average comparison story touches both views.
+
 ## Consumer trace and verification gates
 
 Consumers of the change:

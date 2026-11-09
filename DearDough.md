@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 473. Removed numbers are never reused.
+- Highest allocated local number: 476. Removed numbers are never reused.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -311,7 +311,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: Commit/publication were withheld. The same refactor owner returned local result objects, resolved paths into local constants and removed the import; the affected CLI suite passed again (13.5s) before the same guarded preparation published. The gate worked, but one repair/proof/delivery loop followed the completed refactor.
   - Inference: Same established late-feedback problem; this occurrence does not measure the counterfactual saving of a read-only lint check.
 
-
+- Execution: SEED-285#see-landed-ci-wall-time-history (plan 551-see-landed-ci-wall-time-history; first related implementation commit `215aa20d2ff9a6b348a565d1b2336acadeac16ab`)
+  - Timestamp: 2026-11-09T12:48:23+08:00 (slice 1's first guarded fresh delivery result)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `56f6d1221`)
+  - Evidence: Slice 1's first guarded fresh delivery returned `operation: formatting` with `@typescript-eslint/no-unnecessary-condition` on a one-case `switch` over the single-value `provenance` in `dashboard/src/ciHistoryWords.ts`, after focused proof and a refactor pass whose briefs forbade hook-owned lint and ran only typecheck and a read-only Prettier check. Slices 2 and 3's briefs allowed a read-only `npx eslint --max-warnings=0` on touched files; slice 2's implementer fixed a `no-unnecessary-condition` and a `no-return-assign` before returning, and both deliveries passed first time.
+  - Observed effect: One withheld delivery; a `Record` lookup replaced the switch, a focused journey rerun passed, and the retry published `215aa20d2`.
+  - Inference: Same class as the earlier rows; read-only ESLint on touched files in implementation and refactor returns moved the catch before delivery again.
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -870,3 +877,16 @@ covered the candidate.
   - Evidence: Plan 539 "Proof and delivery gates" names the whole runs before final delivery. The coordinator started them after slice 4's refactor return. `deliver-the-change.md` step 5 runs the freshness and named-sibling check after acceptance and refactoring. Trunk `aa559f948` then carried both named siblings, and merge `b630f4a47` changed shared MakeMe support.
   - Observed effect: About 2.6 hours of whole-suite time on the pre-merge tree were superseded; the dashboard suite and `npm test` ran again on the merge (about 45 minutes).
   - Inference: Fetching trunk and running the named-sibling check immediately before starting the plan's final whole-suite gate, rather than only at the done mark, would likely have merged first and needed one whole run.
+
+## DD-476 — A last slice holding most whole-story commitments was accepted with narrower observations
+Source-review allocation gives each whole-story commitment to the slice that completes it. Here that put 96 of 145 commitments on the final slice. The coordinator recorded their observations in one scripted pass, and two did not show the commitment's own result: `and build link` cited only points and a Failed gap, and `a short reason distinct for each case` cited a reason the cited journey does not list. An independent outcome review found these and two promise defects (an unreadable proof stopping collection, and an adapter skip's misleading reason) after acceptance.
+
+### Occurrences
+- Execution: SEED-285#see-landed-ci-wall-time-history (plan 551-see-landed-ci-wall-time-history; first related implementation commit `215aa20d2ff9a6b348a565d1b2336acadeac16ab`)
+  - Timestamp: unknown (2026-11-09, slice 3 acceptance before `6f5be8b8a` at 2026-11-09T16:56:38+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `56f6d1221`)
+  - Evidence: `story-obligations.mjs list --slice 3` returned 96 commitments. The coordinator recorded 94 observations through one generated mapping. The retrospective's independent outcome review cited source-review rows 24 and 32.4 and `landedCiResolution.ts`/`landedCiObservation.ts` defects. Plan 551's obligations G6 to G9 returned them to slice 3 before the execution-complete record.
+  - Observed effect: Slice 3 was accepted and published as `6f5be8b8a`, then reopened by four return obligations.
+  - Inference: Concentrating whole-story commitments on the last slice makes its acceptance a bulk recording task, and per-id location checks thinned. An unanchored outcome review before the execution-complete record recovered them; a per-id check of each cited location against the commitment text would have caught the two record errors at acceptance.

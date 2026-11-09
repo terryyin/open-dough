@@ -465,3 +465,37 @@ selects no new implementation story.
   - Evidence: The slice 4 implementer's focused selection timed out on `dashboard/tests/review/story-review-story-branch-landed.spec.ts:27` at 31.7, 32.4 and 34.4 s under load averages of 21 to 27 from other worktrees' Playwright runs. Base `9f5e2f29` passed at 16.8 to 29.1 s in a temporary worktree, and the change passed at 13.2 to 28.2 s. The spec drives a real start, `history-preserving-publication.mjs integrate` and retirement. It passed in both later full gates (2241 and 2257 passed) at lower load.
   - Observed effect: Three focused failures that the change did not cause, plus base and diff comparison runs to show that.
   - Inference: The journey's unloaded time is about half its timeout, so external load alone can push it past 30 s. Splitting the setup from the reviewed reading, or reusing a prepared integration, would restore margin. Load attribution rests on start and end load readings only (see DD-275).
+
+## Specs built on real landing flows ran past the 30 s default under external load (repaired)
+
+<a id="dd-474"></a>
+
+### DD-474 — New landed CI history specs that landed through a real Story Branch integration or real Start sessions timed out at 30 s under external load
+
+### Occurrences
+
+- Execution: SEED-285#see-landed-ci-wall-time-history (plan 551-see-landed-ci-wall-time-history; first related implementation commit `215aa20d2ff9a6b348a565d1b2336acadeac16ab`)
+  - Timestamp: unknown (2026-11-09, slice 3 focused runs between 14:42 and 16:05 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `56f6d1221`)
+  - Evidence: `dashboard/backend-tests/intent/landed-ci-history-collection.spec.ts` "a server that collects › collects …", set up by `claimedLaunchWithStoryCommit` and `execution.integrated()`, timed out at 30.8 and 32.9 s at load 20–54 after passing in 6.9–15.9 s. `dashboard/tests/intent/intent-ci-wall-time-history-pending.spec.ts`, with two real Start-session landings, ran 31.3 and 35.9 s at load 17–43 after 15.0 s at acceptance. Landing through `resultToLand` and `land()`, and seeding the two landings as MakeMe launch records, passed `--repeat-each=3` in 6.3–9.9 s and 7.0–14.7 s at load 16–20; the 623-test pre-delivery gate passed.
+  - Observed effect: Two of this execution's own specs failed in slice 3's focused runs, costing one return to the implementer and about seven minutes of repair.
+  - Inference: The slice 1–2 briefs asked for real landing paths with no cost bound, and a spec whose unloaded time is half the default timeout fails under routine load from parallel worktrees (as DD-473 records for another spec). Seeded launch records keep the observation when publication is not the promise; one real landing report still proves the nudge path.
+
+## `start-origin-isolation` successive preparations exceeded the 30 s default under external load (open, unqueued)
+
+<a id="dd-475"></a>
+
+### DD-475 — `start-origin-isolation.spec.ts` "successive preparations install current working-tree source without a persistent cache" timed out at 30 s at load 37
+
+### Occurrences
+
+- Execution: SEED-285#see-landed-ci-wall-time-history (plan 551-see-landed-ci-wall-time-history; first related implementation commit `215aa20d2ff9a6b348a565d1b2336acadeac16ab`)
+  - Timestamp: 2026-11-09T13:44:43+08:00 (Playwright error-context directory `2026-11-09T05-44-43.467Z`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `56f6d1221`)
+  - Evidence: Slice 2's chunked `backend-tests/launches` run at `--workers=2` timed out on `dashboard/backend-tests/launches/start-origin-isolation.spec.ts:140` at 30.0 s at load 36.87. It passed alone at `--workers=1` in 24.3 s at load 36–44, and `dashboard/longest-first` records 11.2 s. The change touched neither the spec nor its setup, and the 623-test pre-delivery gate at load 6–15 passed it.
+  - Observed effect: One focused-run failure the change did not cause, plus an isolated rerun to classify it.
+  - Inference: Its real working-tree installations take over a third of the timeout unloaded and most of it under load. Reusing one prepared installation across the successive preparations, or splitting them, would restore margin.
