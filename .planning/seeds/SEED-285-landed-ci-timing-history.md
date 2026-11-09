@@ -43,7 +43,7 @@ increment. Add automation after the historical reference can be reviewed.
 
 **Identity:** SEED-285#trace-landed-proof-timing
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/554-trace-landed-proof-timing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"add5affdc66bf85ed75441610e06f38ed3f05fa271ef3f833c90dfda7359a8eb","plan":"93dcdf1cbcfce5e15b98bbba87e1779c0af7ab97651ae6dd64db4fd68ea42e42"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/554-trace-landed-proof-timing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bf1d5c943e6492773f0ec486988e252df542da2bf37ac2c79d40a165430ed0a2","plan":"261698f94f2349b472ec1dde7894030eff38f7e4289eda31be1c7e529f6a586c"}}
 ```
 
 #### Goal
@@ -69,9 +69,14 @@ Required behavior:
   GitHub Actions artifact and CI adapter proof readers and their identity checks.
   Collect independently of Intent being open; resume after restart or repeated
   Done reports without duplicating a measurement. Keep available proof for the
-  same bounded retained cohort as the project history. Older collected landings
-  can acquire proof while it remains available; expired or missed evidence is a
-  gap, not an invented reconstruction.
+  same bounded retained cohort as the project history: the newest 20 distinct
+  measured builds, with intervening/trailing gaps and older landings sharing a
+  retained build. This build-count window may span about a day on Open Dough;
+  it does not cover every story in the 30-day Done list. Older retained builds
+  can acquire proof while it remains available, including builds whose wall-time
+  resolution is already final; expired or missed evidence is a gap, not an
+  invented reconstruction. Evict proof with its build, without extending the
+  window or acquiring evicted evidence during browsing.
 - **Cohort and endpoint.** Read the retained dashboard-recorded landing cohort
   through the selected story's landing, omitting subsequent unrelated landings.
   Use that Done result's published landing revision to identify the endpoint;
@@ -169,11 +174,12 @@ test-case histories, or a separate story-level CI wall-time chart.
 
 #### UX/UI and architecture
 
-The existing Intent frame and scope path remain the journey. The scope panels in
-the [timing mockups](../slice-plans/551-see-landed-ci-wall-time-history/intent-landed-ci-mockups.html)
-illustrate the dated line and evidence list; the average, differences and
-slowdown follow-up are outside this story. No new layout or technology choice
-is needed.
+The existing Intent frame and scope path remain the journey. Reuse the dated
+line and readable evidence list of the
+[delivered project history](../../docs/dashboard-development-intent-ci-status.md)
+within the scope panels; the average, differences and slowdown follow-up are
+outside this story. The spent chart plan's mockups were removed in wrap-up.
+No new layout or technology choice is needed.
 
 | Interaction choice | Meaning for the developer and consequence for the system |
 | --- | --- |
@@ -227,7 +233,7 @@ plan.
 
 **Identity:** SEED-285#compare-landed-timing-with-recent-builds
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"21713f28921cc1677194344fcb70cc0a5b515363cfef66fa3b7206e687437c0b","plan":"29f8cfc7b8dcd259bf21f622de27ca9230c1192b3d43d973f08a3c87af57c46e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"892ab83ab7c98784f50c70744e09c65797d69dd23090656c04e6d613a44cd50b","plan":"d5262516be3a00f773433d1feabda32f02d87ccfa821c457ac8906217cbb7669"}}
 ```
 
 #### Goal
@@ -252,7 +258,10 @@ Required behavior:
 - **Historical boundary.** Use only the existing retained dashboard-recorded
   landing cohort, in trunk order. Candidates come from represented landings
   before the comparison's exact landing endpoint, with at most 20 retained
-  distinct prior measured builds. Do not extend retention or fetch older builds
+  distinct prior measured builds. The delivered window holds 20 measured builds
+  total, so a retained measured endpoint leaves at most 19 prior samples and
+  older endpoints may leave fewer. It may span only about a day on Open Dough.
+  Do not extend retention or fetch older builds
   to replace excluded samples. Deduplicate by measured build attempt, excluding
   the selected attempt wherever it occurs. A measured build at or after the
   represented endpoint cannot supply prior evidence, even if an earlier
@@ -379,10 +388,10 @@ history's selected measured attempt, without adding an attempt-selection rule.
 
 #### UX/UI and architecture
 
-Follow the existing [timing mockups](../slice-plans/551-see-landed-ci-wall-time-history/intent-landed-ci-mockups.html)
-for the reference line, metrics, legend and evidence list; replace their
-illustrative fixed sample set with the rule above. Omit the future rerun and
-slowdown panels. A Done story's overall wall-time comparison uses a compact
+Follow the [delivered project history](../../docs/dashboard-development-intent-ci-status.md)
+for the existing dated points, gaps and evidence list. Add the prior-build
+reference line, metrics and included/excluded evidence using the rule above.
+A Done story's overall wall-time comparison uses a compact
 reference beside its current comparison rather than adding a new chart. Label
 it **Prior-build average** so it cannot be confused with the story's existing
 **Baseline** endpoint. Keep execution-time differences precise at small scopes.
@@ -438,4 +447,4 @@ first selected candidate against actual dashboard landings.
 - [Architectural North Star](../NORTH-STAR.md#one-intent-workspace-with-landed-ci-evidence) and [UX/UI North Star](../../docs/dashboard-ux-ui-north-star.md#read-landed-ci-timing-and-follow-up-from-done)
 - [Landed run records](../../dashboard/STORY-REVIEW-LANDED-RUNS.md)
 - [Current Intent CI comparison and timing definitions](../../docs/dashboard-development-intent-ci-comparison.md)
-- [Keep Done story Intent pinned to the landed result](SEED-283-keep-done-story-intent-pinned.md#keep-done-story-intent-pinned) concerns the historical reading context. This seed concerns the timing series and comparison.
+- [Intent for a selected story](../../docs/dashboard-development-intent-story.md) describes the delivered historical reading context. This seed concerns the timing series and comparison.

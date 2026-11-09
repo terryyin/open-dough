@@ -35,19 +35,27 @@ The [existing North Star](../../NORTH-STAR.md#one-intent-workspace-with-landed-c
 already covers the consequential collection/reading and provenance choices; no
 new topic or ADR is needed.
 
-PFE observed at `ecd07dc8a` on 2026-11-09:
+PFE originally observed at `ecd07dc8a` on 2026-11-09; delivered-history
+contracts reconciled at `0c32a9335` later that day:
 
 - **Landing history owner.** [The delivered landed CI history](../../../docs/dashboard-development-intent-ci-status.md)
   owns landing-to-build resolution, background collection, the bounded
   machine-local store and its project history read. Extend that owner with
   attempt proof; do not create another collector, store or Landed rule. Its
-  promised payload is wall-time evidence, not retained proof summaries. Its
-  implementation is not present in this checkout yet. Use its published owner
-  when available; while its active execution owns those files, coordinate the
-  integration and keep independent scope/proof work separate. Preserve that
-  owner's uncommitted files. Reconcile the actual delivered contract before
-  changing the collection/read boundary; a changed contract is a planning
-  assumption to reassess, not permission to duplicate the owner.
+  delivered payload is wall-time evidence, not retained proof summaries. At
+  `0c32a9335`, `landedCiCollection.ts`, `landedCiHistoryStore.ts`,
+  `landedCiObservation.ts` and `intentCiHistoryRead.ts` own those boundaries.
+  `landedCiMeasuredBuilds.ts` retains the newest 20 distinct measured builds,
+  gaps among/after them and older landings sharing a retained build. This is a
+  build-count window, not a guaranteed number of days or the 30-day Done list;
+  the closing report observed about a day of Open Dough landings. Keep that
+  existing bound and explain an evicted Done endpoint rather than promising
+  deeper history. Retain proof and prune it with the same cohort.
+  Collection currently skips final landing resolutions and the store refuses
+  to replace them. Add proof acquisition/backfill for retained build attempts
+  independently of that final wall-time resolution: an already-final build
+  still needs its summary or an explicit proof gap. Keep one shared collector
+  and store, with proof pending/finality separate from landing finality.
 - **Validated proof acquisition.** `performIntentCiProofRead` dispatches to
   `readCiProofArtifact` or `readCiAdapterProof`. These already enforce summary
   contract and repository/run/attempt/revision identity. Reuse their acquisition
@@ -66,12 +74,14 @@ PFE observed at `ecd07dc8a` on 2026-11-09:
   changing unit or ownership must not silently compare unlike scope evidence.
 - **Existing presentation.** Extend `IntentScopeProof.tsx` and
   `IntentFileProof.tsx` within the current Intent evidence owner. Reuse the
-  project's history presentation from 551 for dated measured points, gaps and
-  accessible build evidence. Use precise execution-time wording for the scoped
-  measure. The [mockups](../551-see-landed-ci-wall-time-history/intent-landed-ci-mockups.html)
-  illustrate the interaction; omit average/difference/follow-up elements.
-- **Historical source context.** [Plan 550](../550-keep-done-story-intent-pinned/PLAN.md)
-  owns Done-story source/tree pinning. Use the captured landing and existing
+  delivered `IntentCiHistory.tsx` presentation and its shared chart/evidence
+  owners for dated measured points, gaps and accessible build evidence, as
+  [Intent CI status](../../../docs/dashboard-development-intent-ci-status.md)
+  describes. Use precise execution-time wording for the scoped measure; omit
+  average/difference/follow-up elements. The spent plan's mockup was removed
+  during wrap-up and is no longer an active design input.
+- **Historical source context.** [Intent for a selected story](../../../docs/dashboard-development-intent-story.md)
+  describes Done-story source/tree pinning. Use the captured landing and existing
   source context, keeping the measured build revision separate. No current
   trunk fallback and no new historical source subsystem belong here.
 - **Specific Done endpoint.** `publishedStoryEndpoints.ts` supplies completion
@@ -119,6 +129,7 @@ answer cannot prove collection, retention or the no-acquisition promise.
 | Exact/equivalent/later-build provenance; one attempt once; selected cancelled landing can have a later terminal measurement | Slice 1: real shared-build collection and scoped read, with unrelated later landing excluded. Assert represented and measured revisions/date, later-changes wording and one point; reuse supplier proof for unchanged resolution. |
 | Validated adapter proof; retained-window/expired/unavailable/failed/empty states | Slice 1: acquisition/projection boundary cases exercise the same retained-attempt rule; observe an adapter payload and its shown entry reading. No browser fetch substitutes for missed collection. |
 | Restart/duplicate Done/pending resume and existing-landings backfill | Slice 3: isolated store/server lifecycle with observable collection completion and independent expected records. The persisted proof payload, not merely the wall-time record, survives and is read by a scope. |
+| Delivered final wall-time records acquire proof; retention stays at 20 measured builds | Slices 1 and 3: begin with an existing final build lacking stored proof and acquire its validated summary without re-resolving the landing. At the 21st distinct measured build, proof and landing references evict together; an evicted Done endpoint explains unavailable history. Shared attempts count once and gaps do not spend build slots. |
 | Browsing/revisiting/restart history acquires no upstream evidence; keyboard/phone/colour-independent evidence | All slices: finish or explicitly account for enclosing comparison/endpoint reads first; then count FakeGitHub/adapter operations while opening/changing/revisiting history. Repeat that boundary after restart while allowing unchanged live comparison recovery. Assert readable evidence and keyboard navigation at narrow width; no colour-only meaning. |
 
 Test data uses the shared MakeMe API
@@ -166,10 +177,16 @@ does not require discarding them or choosing an identity from current trunk.
 Own this common rule here before slice 2 applies it to folders and files.
 
 Extend the existing collection/store and authenticated history owner with
-attempt proof, then derive entry readings from retained observations. Keep
-retention bounded by the owner's existing cohort. Do not change the live proof
-reader's freshness contract. Include the readable evidence list and keyboard/
-narrow presentation in this same vertical slice.
+attempt proof, then derive entry readings from retained observations. Its
+current `intent=ci-history` response carries project wall-time entries only;
+extend that owner for the selected endpoint and scoped local reading rather
+than assuming it already carries retained proof. Acquire missing proof for
+already-final retained build attempts as well as newly resolved ones. Do not
+reopen or overwrite a final landing resolution to attach proof. Keep retention
+bounded by the newest 20 measured builds, including shared-build references
+and intervening/trailing gaps. Do not change the live proof reader's freshness
+contract. Include the readable evidence list and keyboard/narrow presentation
+in this same vertical slice.
 
 ### 2. Follow that history into a folder and file's Proof
 
@@ -211,10 +228,12 @@ history boundary and shown scope.
 
 Behavior: Given retained landings while CI/proof is pending or temporarily
 unavailable, collection can resume after restart and duplicate Done delivery
-without duplicating the measured attempt. Previously recorded landings acquire
-available proof through background rebuilding; interrupted collection resumes
-or records its actual unavailable reason. After restart, the history reads the
-retained proof, not only its wall time, without acquiring it during browsing.
+without duplicating the measured attempt. Previously recorded landings,
+including final wall-time observations created before proof retention existed,
+acquire available proof through background rebuilding; interrupted proof
+acquisition resumes or records its actual unavailable reason. After restart,
+the history reads the retained proof, not only its wall time, without acquiring
+it during browsing.
 Available observations remain readable beside gaps. Compare operation counts
 only after separately establishing/accounting for unchanged live comparison
 reads so their legitimate recovery cannot mask or violate this boundary.
@@ -222,7 +241,11 @@ reads so their legitimate recovery cannot mask or violate this boundary.
 Exercise the supplier's existing store locking and lifecycle with
 the added proof payload rather than creating special resolution paths. Confirm
 one summary per measured attempt, independent scope completeness, and bounded
-retention of proof and represented landing references together. Reuse already
+retention of proof and represented landing references together. Exercise the
+21st distinct measured build evicting the oldest proof and its unshared
+landing, while several landings on one retained attempt keep one summary.
+Show an older selected Done story as outside retained history, with no fetch
+to extend its span. Reuse already
 sufficient supplier proof for unchanged resolution behavior; add observations
 for the proof payload and scoped-history effect.
 
@@ -280,7 +303,7 @@ on 2026-11-09. `npm ci --ignore-scripts --no-audit --no-fund` succeeded.
 | Artifact contract and current scope consumers execute locally | The named shell commands above, run as a four-file proof-read/comparison group and a two-file timing/scope group | Both exit 0 under the quiet-pass rule. They establish current parsing/aggregation behavior, not discrimination of new history behavior; every new journey owns failing-first proof. |
 | Selected Done story and scoped reading have an available isolated proof route | `npm run test:dashboard -- --list tests/intent/intent-summary-story-comparison.spec.ts tests/intent/intent-summary-story-comparison-file.spec.ts tests/intent/intent-summary-ci-proof-gaps.spec.ts` in this checkout | Exit 0. This settles runner selection/imports only. Existing `dashboardTest.ts` uses loopback FakeGitHub and isolated server/store profiles; actual new history journeys remain slice work, not accepted preparation proof. |
 | Current retained cache could supply historical summaries across restart | Read-only JSON-envelope scan of `~/.open-dough/dashboard/retained-answers` and trace of `performIntentCiProofRead` through the artifact/adapter consumers | False: 8,449 envelopes, zero proof-summary payloads; readers remember summaries in process only. Slices 1 and 3 own retention rather than assuming it exists. Production store was not changed. |
-| History/Done-source integration can reuse delivered owners | Read plans 551/550 and search current collection/source code | These are planned contracts, not implemented premises. No named new endpoint/file is assumed to exist. Reconcile actual published owners at execution, preserve active ownership, and reassess a changed outcome before dependent edits. No paid, credentialed or developer-operated probe is required by this plan. |
+| History/Done-source integration can reuse delivered owners | Initial preparation read plans 551/550; amendment at `0c32a9335` read maintained Intent CI status/story docs and the delivered collector, store, observation schema, window and local reader | Delivered wall-time owner exists; `measuredWindow` is 20, stored builds have no proof payload, and final landing resolution suppresses subsequent resolution. Slices 1/3 must add independent attempt-proof backfill for retained final builds. This is a source/contract observation, not execution proof of the extension. |
 
 Consuming timing probe (base entry/file facts came from shared MakeMe; its
 current builder lacks breakdown/partial setters, which permanent tests extend):
@@ -308,19 +331,27 @@ launched. Recheck current headroom before actual browser journeys.
 
 ## Current decisions
 
-- Use the retained project cohort through the selected landing. A cancelled
-  landing's later measured build is the labelled endpoint exception, not a
-  reason to include subsequent unrelated landings. Older evicted history is
+- Keep the delivered newest-20-measured-build cohort through the selected landing;
+  it may span only about a day on this project, not the Done list's 30 days.
+  A cancelled landing's later measured build is the labelled endpoint exception,
+  not a reason to include subsequent unrelated landings. Older evicted history is
   explicitly unavailable; no new retention/window promise is added.
 - Keep represented landing identity separate from measured revision/attempt.
   Share equivalent measurements once and expose later-build provenance.
 - Match supported entry/path/unit evidence. Do not infer rename continuity or
   causal attribution. Folder timing is its observed membership at each build.
 - Collect validated proof once per measured attempt through existing readers;
+  backfill retained final builds independently of landing resolution, and
   project bounded retention applies to proof too. History reads never acquire
   upstream data. Do not change live proof refresh/recovery semantics.
 - Source pinning and project wall-time history keep their established owners;
   this story owns retaining and presenting test-scope history.
+- `SEED-288#refresh-pending-landed-evidence` queues sharing the history's
+  pending/final judgment with Done comparison; `SEED-288#reuse-adapter-equivalent-timing`
+  queues adapter skip wall-time reuse without test proof. Neither is assumed
+  delivered here, and neither supplies missing scoped proof. Reconcile their
+  published outcomes if they land before integration; no start dependency is
+  created by this amendment.
 
 ## Preparation review
 
@@ -340,3 +371,14 @@ No remaining slice-specific concern was identified within this reviewed source
 and the explicitly planned supplier contracts. A changed delivered owner or
 unsupported continuity claim requires reassessment before dependent work.
 Execution, Take and release publication are not authorized by this plan.
+
+### Delivered-history amendment — 2026-11-09
+
+Terry requested this follow-up directly on main. Reconcile the delivered
+history at `0c32a9335`, replace removed design links, and keep all three
+Behavior slices and existing proof ownership. The 20-build window is explicit;
+this amendment adds no larger-retention promise. Slice 1 owns proof acquisition
+for final retained builds; slice 3 owns its backfill/restart/eviction proof.
+Retain all three boundaries: each still closes its existing reading or recovery
+loop. No slice replacement, sizing exception or resplit is needed. Execution
+remains with the existing Taken owner; this maintenance does not implement it.
