@@ -161,6 +161,24 @@ Observed on 2026-11-09 by the retrospective, read-only, with this branch's
 - Source-review comparison: all original triggers and qualifications map to the observed locations in `source-review.md`; preservation/exclusion commitments are supported by the bounded product diff. No gap or disputed source narrowing was found.
 
 
+## Execution retrospective
+
+Reviewed planned execution against the source and its independent commitments, the original ready plan at `929c0d028`, the aggregate product patch and current related guidance. Attributable publications: `929c0d028c9fd2bfe47c9021cecebaf98c2fbf45` (Take) and `eb4656f14ffb730b66cd2bc3cf3e8b0d667e627f` (slice 1), accepted on the remote execution branch; the implementation suffix extends the Take without rewrite. Earlier `f73ae69b6` only renumbered preparation; other concurrent executions are not attributed here.
+
+Outcome: the three original promises have direct behavior observations in Learnings and source-review.md, with no narrowed source clause. Whole-product responsibility remains coherent: the reader produces bounded evidence; one reference tells its agent consumer how to interpret it; SKILL.md keeps navigation and admission boundaries. No duplicated rule, dead branch or speculative mechanism was added. ADR 0003 source/release separation and ADR 0006 single rule home/runtime audience remain satisfied. No correction plan is needed; planning unchanged apart from proof and progress.
+
+Test assessment: this documentation change is driven by the AGENTS.md representative behavior review, with real adapter/table/history observations rather than new prose-matching assertions. Existing link/publication/acquisition checks cover supporting contracts. No E2E behavior or suite topology changed, so a local dashboard/full run supplies no additional guidance proof; CI remains its final required gate. Existing unaffected test coverage was not removed or weakened. Review identifies no test consolidation or missing correction supported by this patch.
+
+Process selection: enabled by this project's `skipProcessRetrospective: false`. Reviewed the coordinator's actual conversation/tool results and implementation/refactor returns. Source-only review, three pilot observations, focused checks and independent no-edit refactor are evidenced. Bash 3.2 prerequisite failure was corrected with explicit Homebrew PATH before proof acceptance. Broad output truncation was recovered with targeted passages; the existing retrieval rule already covers it. No new supported process finding or persistent log edit. Product advice: no change; this correction directly improves interpretation of retained test proof and introduces no new product opportunity requiring a queue decision.
+
+CI limitation: `/tmp/dough-ci-501/watch-FiBFRP` still observes the story branch for coordinator `ruuf-chan`, subject to the directed GitHub hold until `2026-11-09T16:14:04.605Z`. The review does not claim CI success or final closure. Completion publication below will register its accepted SHA on that same observer.
+
+Delivery disposition for this follow-up: `records-only`; the accepted implementation and refactor proof is unchanged.
+
+## Execution complete
+
+Product advice: no change
+
 ## Preparation review
 
 Refinement was not needed: one slice owns one reference's three bounded
