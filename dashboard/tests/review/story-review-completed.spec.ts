@@ -68,6 +68,11 @@ test("a CLI-completed story without a local launch opens fixed published changes
   // A later retained capture cannot replace the published comparison when
   // its repository is gone. Both choices remain navigable without a launch
   // being invented for the published completion.
+  // Accepted cost: this tail's refresh and radio round trip, the only proof
+  // of switching to Landed runs and back with the published files restored.
+  // The server fallback proof
+  // (../../backend-tests/review/story-review-completed-gaps.spec.ts) cannot
+  // show that, and ending the journey before the tail saved no time.
   keepUnusableCompletedCapture(dashboard, origin, story);
   const withRun = await refreshReview(page, review);
   expect(withRun).toMatchObject({

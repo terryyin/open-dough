@@ -63,25 +63,7 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
               durationMs: 700,
             },
           )
-          .withParts(
-            {
-              part: 1,
-              status: "present",
-              passed: 6,
-              failed: 0,
-              other: 0,
-              durationMs: 19_210,
-              breakdown: true,
-            },
-            {
-              part: 2,
-              status: "present",
-              passed: 1,
-              failed: 0,
-              other: 0,
-              durationMs: 900,
-            },
-          )
+          .withUnbrokenPart({ passed: 1, durationMs: 900 })
           .please(),
       )
       .please(),

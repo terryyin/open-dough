@@ -24,6 +24,11 @@ const exec = promisify(execFile);
 // Path contents to publish; `null` deletes the path. Nothing else changes.
 export type PathChanges = Record<string, string | null>;
 
+// One test's fixture: its repositories, HOME, environment and publication.
+export type PublishedMainFixture = Awaited<
+  ReturnType<typeof publishedMainFixture>
+>;
+
 export async function publishedMainFixture(fullSource = false) {
   const root = mkdtempSync(path.join(tmpdir(), "dough-published-main-"));
   const development = path.join(root, "development");

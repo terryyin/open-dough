@@ -1,30 +1,31 @@
-// The CI proof of one GitHub Actions run attempt (`./intentCiProofRead.ts`):
+// The CI proof of one GitHub Actions run attempt (`./intentCiProofRead.ts`),
+// read through the shared CI proof read
+// (`../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`):
 // the run's `ci-proof-summary-attempt-<n>` artifact, listed by that name,
-// downloaded as its zip and its one `ci-proof-summary.json` extracted
-// (`./zipEntry.ts`), then validated with the collector's own contract, read
-// in its current version (a version 1 summary's results as legacy evidence)
-// and used only when it names the asked repository, run, attempt and
-// revision (ADR 0008: missing, outdated or conflicting evidence is never a
-// result).
-// Every request goes through the CI evidence requests
-// (`ci-github-actions.mjs`). A summary is immutable per run attempt, so a
-// valid one is remembered by repository, run and attempt for this process's
-// lifetime and never asked of GitHub again; every other answer is asked
-// again on the next read. A read GitHub left unanswered -- a wait it
+// downloaded as its zip and its one `ci-proof-summary.json` extracted, then
+// validated with the collector's own contract, read in its current version
+// (a version 1 summary's results as legacy evidence) and used only when it
+// names the asked repository, run, attempt and revision (ADR 0008: missing,
+// outdated or conflicting evidence is never a result). Every request goes
+// through the CI evidence requests (`ci-github-actions.mjs`). This module
+// says why a read shows no summary. A summary is immutable per run attempt,
+// so a valid one is remembered by repository, run and attempt for this
+// process's lifetime and never asked of GitHub again; every other answer is
+// asked again on the next read. A read GitHub left unanswered -- a wait it
 // directed, a request that failed, or an artifact listing that is not one --
 // is told apart from GitHub's own answer that the run has no usable summary
 // (`isUnansweredProof`), since only a later read may still answer it.
 import {
-  SUMMARY_READ_LIMIT_BYTES,
-  currentSummaryOf,
-  summaryArtifactName,
-  summaryProblems,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+  readGitHubActionsSummary,
+  SUMMARY_FILE_NAME,
+  type GitHubActionsSummaryRead,
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs";
+import { summaryArtifactName } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import {
-  askGitHubArchive,
   GitHubAcquisitionFailed,
   GitHubAcquisitionHeld,
   readGitHubActions,
+  askGitHubArchive,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import {
   ciProofTooLarge,
@@ -32,20 +33,6 @@ import {
   type CiProofRun,
 } from "../src/ciProof.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
-import { onlyZipEntry, ZipEntryProblem, ZipEntryTooLarge } from "./zipEntry.ts";
-
-const summaryFile = "ci-proof-summary.json";
-// A summary, file breakdown included, is at most this large
-// (ci-proof-contract.mjs); anything larger is not read as one.
-const summaryLimitBytes: number = SUMMARY_READ_LIMIT_BYTES;
-
-type ListedArtifact = {
-  readonly id?: unknown;
-  readonly name?: unknown;
-  readonly expired?: unknown;
-  readonly size_in_bytes?: unknown;
-  readonly workflow_run?: { readonly id?: unknown } | null;
-};
 
 const unavailable = (
   reason: Extract<CiProof, { kind: "unavailable" }>["reason"],
@@ -104,121 +91,55 @@ export function unreadableBy(error: unknown): CiProof {
   throw error;
 }
 
-// Why `summary` is not the asked run's proof, undefined when it is.
-function mismatchOf(
-  summary: Record<string, unknown>,
-  repository: string,
-  run: CiProofRun,
-): string | undefined {
-  if (
-    typeof summary.repository !== "string" ||
-    summary.repository.toLowerCase() !== repository.toLowerCase()
-  )
-    return `The summary names repository ${String(summary.repository)}`;
-  if (summary.runId !== run.runId)
-    return `The summary names run ${String(summary.runId)}`;
-  if (summary.runAttempt !== run.runAttempt)
-    return `The summary names attempt ${String(summary.runAttempt)}`;
-  if (summary.revision !== run.revision)
-    return `The summary names revision ${String(summary.revision)}`;
-  return undefined;
-}
-
-const unreadableListing = () =>
-  unansweredAs(
-    unavailable("unreadable", "GitHub's artifact listing is unreadable"),
-  );
-
-// The one listed artifact of `name` for `run` that can be read, or why none
-// can.
-function chosenArtifact(
-  listed: unknown,
-  name: string,
-  run: CiProofRun,
-): number | CiProof {
-  const listing: unknown =
-    (listed as { readonly artifacts?: unknown } | null)?.artifacts ?? [];
-  if (!Array.isArray(listing)) return unreadableListing();
-  const artifacts = listing as readonly ListedArtifact[];
-  const named = artifacts.filter(
-    (artifact) =>
-      artifact.name === name &&
-      (artifact.workflow_run?.id ?? run.runId) === run.runId,
-  );
-  if (named.length === 0) return unavailable("none");
-  const kept = named.filter((artifact) => artifact.expired !== true);
-  if (kept.length === 0) return unavailable("expired");
-  const [only] = kept;
-  if (kept.length > 1 || only === undefined)
-    return unavailable("invalid", `The run has more than one ${name}`);
-  if (typeof only.id !== "number") return unreadableListing();
-  if (
-    typeof only.size_in_bytes === "number" &&
-    only.size_in_bytes > summaryLimitBytes
-  )
-    return ciProofTooLarge(summaryLimitBytes, only.size_in_bytes);
-  return only.id;
+// The proof `read` answers for `run`'s attempt: its summary, or why there is
+// none to show.
+function proofOf(read: GitHubActionsSummaryRead, run: CiProofRun): CiProof {
+  if ("summary" in read)
+    return { kind: "summary", summary: read.summary } as CiProof;
+  const name = summaryArtifactName(run.runAttempt);
+  switch (read.why) {
+    case "no-artifact":
+      return unavailable("none");
+    case "expired":
+      return unavailable("expired");
+    case "several-artifacts":
+      return unavailable("invalid", `The run has more than one ${name}`);
+    case "unreadable-listing":
+      return unansweredAs(
+        unavailable("unreadable", "GitHub's artifact listing is unreadable"),
+      );
+    case "too-large":
+      return ciProofTooLarge(read.limitBytes, read.sizeBytes);
+    case "unopenable-archive":
+      return unavailable(
+        "unreadable",
+        `The ${name} artifact could not be opened: ${read.problem}`,
+      );
+    case "not-json":
+      return unavailable("invalid", `${SUMMARY_FILE_NAME} is not JSON`);
+    case "invalid":
+      return unavailable(
+        "invalid",
+        `${SUMMARY_FILE_NAME}: ${read.problems.join("; ")}`,
+      );
+    case "mismatched":
+      return unavailable(
+        "mismatched",
+        `The summary names ${read.names} ${String(read.value)}`,
+      );
+  }
 }
 
 type ArtifactReads = {
-  readonly listing: (args: string[], signal: AbortSignal) => Promise<unknown>;
+  readonly listing: typeof readGitHubActions;
   readonly archive: (args: string[], signal: AbortSignal) => Promise<Buffer>;
 };
 
 const rememberedKey = (repository: string, run: CiProofRun) =>
   `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
 
-// The valid summary of `run`'s attempt as GitHub has it, in the current
-// version, not yet checked against the asked run, or why none can be read.
-async function readSummary(
-  reads: ArtifactReads,
-  repository: string,
-  run: CiProofRun,
-  signal: AbortSignal,
-): Promise<CiProof> {
-  const name = summaryArtifactName(run.runAttempt);
-  let archive: Buffer;
-  try {
-    const listed: unknown = await reads.listing(
-      [
-        "api",
-        `repos/${repository}/actions/runs/${String(run.runId)}/artifacts?name=${name}&per_page=100`,
-      ],
-      signal,
-    );
-    const chosen = chosenArtifact(listed, name, run);
-    if (typeof chosen !== "number") return chosen;
-    archive = await reads.archive(
-      ["api", `repos/${repository}/actions/artifacts/${String(chosen)}/zip`],
-      signal,
-    );
-  } catch (error) {
-    return unreadableBy(error);
-  }
-  let summary: unknown;
-  try {
-    summary = JSON.parse(onlyZipEntry(archive, summaryFile, summaryLimitBytes));
-  } catch (error) {
-    if (error instanceof ZipEntryTooLarge)
-      return ciProofTooLarge(error.limitBytes, error.sizeBytes);
-    if (error instanceof ZipEntryProblem)
-      return unavailable(
-        "unreadable",
-        `The ${name} artifact could not be opened: ${error.message}`,
-      );
-    return unavailable("invalid", `${summaryFile} is not JSON`);
-  }
-  const problems = summaryProblems(summary) as readonly string[];
-  if (problems.length > 0)
-    return unavailable("invalid", `${summaryFile}: ${problems.join("; ")}`);
-  return {
-    kind: "summary",
-    summary: currentSummaryOf(summary) as unknown,
-  } as CiProof;
-}
-
 // The proof of `run` in `repository`: its summary, or why there is none to
-// show. Each reader owns its memory; production keeps the one below.
+// show.
 export function ciProofArtifactReader(
   reads: ArtifactReads = {
     listing: readGitHubActions,
@@ -235,12 +156,17 @@ export function ciProofArtifactReader(
     const kept = remembered.get(key);
     if (kept !== undefined)
       return { kind: "summary", summary: kept } as CiProof;
-    const read = await readSummary(reads, repository, run, signal);
-    if (read.kind !== "summary") return read;
-    const mismatch = mismatchOf(read.summary, repository, run);
-    if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-    remembered.set(key, read.summary);
-    return read;
+    let read: GitHubActionsSummaryRead;
+    try {
+      read = await readGitHubActionsSummary(repository, run, signal, {
+        readGitHubActions: reads.listing,
+        askGitHubArchive: reads.archive,
+      });
+    } catch (error) {
+      return unreadableBy(error);
+    }
+    if ("summary" in read) remembered.set(key, read.summary);
+    return proofOf(read, run);
   };
 }
 

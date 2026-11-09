@@ -29,40 +29,69 @@ observations below. The delivered behavior is described in
 
 **Identity:** SEED-288#refresh-pending-landed-evidence
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/558-refresh-pending-landed-evidence/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c261505179a5596bdd91c6fa273a81904e69a76de46526bf4b8c0b2cb15bb59b","plan":"92e519668188ed969758355c826b8a9425c4fdcb676e2c824baa2ef264f9c930"}}
 ```
 
-- **For / why.** A developer reviewing a Done story can recover its Landed
-  comparison when GitHub creates the run or answers the proof read, without
-  restarting the dashboard process.
-- **Expected versus actual.** A landing with a run not created yet, or an
-  unanswered proof read, remains pending and can be read again. The report
-  found the Done comparison instead remembers the resulting No build or proof
-  gap for the process lifetime. Project history already waits for those facts.
-  At the reported revision, `intentCiComparisonAnswers.ts` accepts
-  `finalSlot` results as final, while `landedCiResolution.ts` adds its own
-  `stillAwaited` checks for run creation and unanswered proof.
-- **Evaluation.** Arrange a landing recorded before its GitHub run exists;
-  read the Done comparison; then make the run available and Check again in the
-  same process. The comparison becomes the measured build. Hold or transiently
-  fail the equivalent/later build's proof read, then answer it: another read
-  recovers. Exercise the same facts through history and comparison and observe
-  the same pending/final judgment. An answered missing, expired, invalid or
-  unreadable artifact remains a final explained gap and keeps final-answer
-  reuse. A running equivalent build stays refreshable too.
-- **Boundary.** Move the pending/final decision to the shared Landed rule;
-  preserve exact/equivalent/later-build provenance, existing final-answer
-  reuse and Taken freshness. Use the delivered bounded no-run wait (until CI
-  builds past the revision or one hour after its landing receipt) and the
-  distinction between an unanswered provider request and an answered unusable
-  artifact. Do not introduce a cache TTL, timed UI polling or another resolver.
-- **Remaining uncertainty.** Reproduce the report with controlled CI answers;
-  confirm how the shared comparison receives the landing receipt/time needed
-  by the no-run bound. Reconcile with the active comparison-test work in
-  SEED-286; shared files alone do not make it a blocking dependency.
-- **Value / effort.** Prevents stale negative evidence and disagreement between
-  two views of the same landing. The effort driver is sharing finality across
-  collection, resolution and comparison memory while preserving terminal gaps.
+**Goal.** A developer reviewing a Done story can recover its Landed CI
+comparison when the run or its proof becomes available, using Check again or
+selecting the story again in the same dashboard process. Pending evidence must
+not become a permanently remembered negative answer.
+
+**Scope.** Share the existing Landed pending/final judgment between history
+collection and Done comparison memory. A queued/running build, a cancelled
+landing awaiting a later build, an unread CI request, an unanswered equivalent
+or later-build proof read, and a run that CI may still create stay refreshable.
+An answered missing, expired, invalid or unopenable artifact is a final
+explained gap; completed answers retain final-answer reuse. Preserve build
+selection, exact/equivalent/later provenance, timing explanations, endpoint
+proof reuse, and Taken freshness.
+
+Keep the existing no-run bound: a later first-parent trunk run within the
+existing walk, the walk's limit, or one hour after the matching recorded
+landing settles the wait. Match any available receipt to the project, target,
+story and resolved landed revision; another preparation or execution landing
+must not supply its age. Published comparison remains available without local
+capture evidence, as ADR 0008 requires. An unknown receipt time is not evidence
+that the hour expired: do not substitute completion/commit time or restart a
+clock on each read; the remaining CI and walk evidence can still settle it.
+
+This increment adds no cache TTL, timed UI polling, second resolver, adapter
+protocol or broader build reuse. Separating adapter wall time from test proof
+belongs to the sibling story below. Changing Trunk Mode's existing completion
+ancestor selection is outside this story; sharing finality must preserve it.
+
+**Key examples.**
+
+1. A captured landing has no run on the first read. GitHub then creates a
+   queued run and completes it. Check again in the same process advances
+   through the pending states to the measured exact build; selecting the story
+   again also recovers. History given the same landing facts agrees.
+2. A confirmed skip's equivalent build, or a cancelled landing's later build,
+   has a proof request held, transiently failed or not answered with a valid
+   artifact listing. Read again after the provider answers: Landed recovers
+   with the same represented revision and equivalent/later provenance. This
+   wait remains pending even beyond an hour. A running equivalent build also
+   remains refreshable until it finishes.
+3. CI answers that an artifact is missing, expired, invalid or cannot be
+   opened. The explained gap is final. Repeated reads reuse the final answer
+   and valid proofs without further provider requests; no gap becomes zero.
+4. No run appears for a captured landing. Before its one-hour deadline it is
+   pending; at that deadline, or once CI builds past it under the existing
+   first-parent bound, it is final No build. An unrelated receipt changes
+   neither the deadline nor the judgment. Without a matching receipt the
+   published comparison still works and unknown age alone cannot finalize it.
+5. Final Done answers remain remembered, Taken answers follow live evidence,
+   and Baseline/Branch behavior and both execution modes retain their existing
+   selection semantics.
+
+**Evidence and continuation.** The two reported stale negatives reproduced
+through the real Check again control at the preparation revision; history's
+pending-proof and no-run bounds passed under controlled CI/clock answers.
+Published endpoints supply no receipt time today; landing records and retained
+history already hold it. The [slice plan](../slice-plans/558-refresh-pending-landed-evidence/PLAN.md)
+owns the shared rule, receipt propagation, and discriminating preservation
+proof. SEED-286's active test optimization is coordination context, not a
+product prerequisite.
 
 <a id="reuse-adapter-equivalent-timing"></a>
 

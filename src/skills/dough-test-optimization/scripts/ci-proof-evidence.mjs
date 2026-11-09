@@ -33,6 +33,16 @@ export const UNITS = [...DECLARED_UNITS, LEGACY_UNIT];
 export const unitOf = ({ unit, label }) =>
   unit === LEGACY_UNIT ? { unit, label } : { unit };
 
+// What results are called in each unit, as Intent names them.
+const UNIT_NOUNS = {
+  case: ["test case", "test cases"],
+  file: ["test file", "test files"],
+  legacy: ["legacy test result", "legacy test results"],
+};
+
+// What COUNT results in UNIT are called: "1 test case", "3 test files".
+export const unitNoun = (unit, count) => UNIT_NOUNS[unit][count === 1 ? 0 : 1];
+
 // Why VALUE's `unit` is not one of UNITS, or its `label` not one a legacy
 // unit carries (text, or also null where NULLABLE) or carried by another
 // unit; empty when they are.

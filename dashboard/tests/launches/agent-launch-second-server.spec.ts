@@ -34,6 +34,10 @@ test.use({
   launchTimeoutMs: 60_000,
 });
 
+// Accepted cost: a second dashboard server and the real installed start it
+// observes. Only this journey follows a non-owner server through reload,
+// project switch, real publication and native creation to exactly one
+// session, worktree and claim; the boundaries above own the rest.
 test("a second server follows the live script and native worker, protects its card through reload and project switch, then shows one session", async ({
   page,
   dashboard,

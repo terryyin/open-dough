@@ -1,6 +1,10 @@
 # Slice 4: fast comparison at every scope
 
 Implementation base: `b7dce07a2cb7583a512913a0a18650a17056050b`.
+Published: `7f656baa928bf0ac9ed290b3e4c5013f395f6814`; accepted execution
+branch receipt and observer reuse are in `slice4-delivery-repaired.log` under
+the evidence directory below. The coordinator's final formatter/size gate
+passed for 47 surviving files, maximum 250 lines.
 Source freshness at `f73ae69b60375c090319709fc77db6647168f114` reports the
 selected story and plan unchanged.
 

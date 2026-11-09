@@ -3,10 +3,8 @@
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
-import {
-  CiProofEntryBuilder,
-  CiProofEvidenceBuilder,
-} from "./ciProofEntryTestData.mjs";
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import {
   CiProofBuilder,
@@ -14,6 +12,7 @@ import {
   RevisionCiRunBuilder,
   TakenStoryEndpointBuilder,
 } from "./ciComparisonTestData.mjs";
+import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -49,7 +48,7 @@ import {
   ConfiguredProjectBuilder,
   PublishedSourceBuilder,
 } from "./projectConfigurationTestData.mjs";
-import { releaseBuilder } from "./releaseTestData.mjs";
+import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
@@ -61,12 +60,12 @@ import {
   StoryCiComparisonBuilder,
 } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
+import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
-/** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
-/** @typedef {Record<keyof Pick<HistoryPreservingPublication, "publishedTip" | "branch">, string> & Partial<Record<keyof Pick<HistoryPreservingPublication, "targetRef">, string>>} PublishedIntegration */
+/** @typedef {import("./publicationTestData.mjs").PublishedIntegration} PublishedIntegration */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
@@ -112,7 +111,7 @@ export const makeMe = {
     return supplierAgreementBuilder;
   },
   get aRelease() {
-    return releaseBuilder;
+    return new ReleaseBuilder();
   },
   get aDoneRecord() {
     return new DoneRecordBuilder();
@@ -204,6 +203,9 @@ export const makeMe = {
   get aCiProofFragment() {
     return new CiProofFragmentBuilder();
   },
+  get aCiProofSummary() {
+    return new CiProofSummaryBuilder();
+  },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();
   },
@@ -223,15 +225,7 @@ export const makeMe = {
     return { with: copyFacts };
   },
   get aPublishedIntegration() {
-    return {
-      /**
-       * @template {PublishedIntegration} Facts
-       * @param {Facts} facts
-       */
-      with(facts) {
-        return copyFacts(facts);
-      },
-    };
+    return new PublishedIntegrationBuilder();
   },
   /** @returns {FactBuilder<RetainedComparison>} */
   get aRetainedComparison() {

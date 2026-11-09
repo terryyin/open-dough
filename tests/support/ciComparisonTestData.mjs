@@ -1,5 +1,6 @@
 // @ts-check
 // Canonical external facts supplied to comparison reads, without resolving them.
+import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 /** @typedef {import("../../dashboard/server/storyPublishedEndpoints.ts").PublishedStoryEndpointFacts} PublishedStoryEndpointFacts */
 /** @typedef {import("../../dashboard/server/takenStoryEndpoints.ts").TakenStoryEndpointFacts} TakenStoryEndpointFacts */
 
@@ -49,12 +50,11 @@ export class CiProofBuilder {
     return {
       please: () => ({
         kind: /** @type {const} */ ("summary"),
-        summary: {
-          schemaVersion: /** @type {const} */ (2),
-          repository,
-          ...run,
-          entries: [...entries],
-        },
+        summary: new CiProofSummaryBuilder()
+          .inRepository(repository)
+          .ofRun(run)
+          .withEntries(...entries)
+          .please(),
       }),
     };
   }
@@ -64,13 +64,11 @@ export class CiProofBuilder {
     return {
       please: () => ({
         kind: /** @type {const} */ ("summary"),
-        summary: {
-          schemaVersion: /** @type {const} */ (2),
-          repository,
-          attemptId: attempt.attemptId,
-          revision: attempt.revision,
-          entries: [...entries],
-        },
+        summary: new CiProofSummaryBuilder()
+          .inRepository(repository)
+          .ofAdapterAttempt(attempt)
+          .withEntries(...entries)
+          .please(),
       }),
     };
   }

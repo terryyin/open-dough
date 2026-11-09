@@ -114,3 +114,56 @@ proof remains valid. Formatting and the adapter continuation passed; merge
 branch and registered with the existing observer. Its exact receipt is in
 `incoming-landed-publish.log`; local branch refresh fast-forwarded through the
 adapter to the same SHA.
+
+## Shared proof integration after slice 4
+
+Slice 4 published as `7f656baa928bf0ac9ed290b3e4c5013f395f6814` before
+integrating fixed main `f73ae69b60375c090319709fc77db6647168f114`. Both
+histories are retained through the installed history-preserving/backlog
+adapters; preparation stops before publication for proof and review.
+
+Main's shared `dough-test-optimization/scripts/ci-proof-read.mjs`, check and
+archive owners remain authoritative. Dashboard factories retain local caches,
+default singletons, wording and exact unanswered-proof objects; GitHub maps
+existing external asks and adapter read adds one optional acquisition argument
+defaulting to the real command. Generic Buffer JSDoc accepts actual archive
+bytes without copying/conversion. The deleted dashboard ZIP owner remains
+deleted; the shared archive tests retain bounded/underreported extraction proof.
+
+Builder joins retain canonical evidence/summary owners and selected legacy
+units. `CiProofBuilder` composes the summary builder while preserving its
+example/project and opaque-adapter defaults. One outside fixture uses the
+canonical unbroken-part method (six broken-down cases plus one unbroken part,
+seven results and 20,110 ms); duplicate part summation is removed. A cohesive
+`PublishedIntegrationBuilder` extraction keeps the facade's API and fresh
+instances within the size cap. Main's only cancelled-gap change was a comment
+assigning old allowances to this story; its mapped retirement remains.
+
+The backlog retains incoming removal of completed evidence-first optimization
+from Taken and its new leading attempt/wait follow-up. This execution and the
+timing-Proof story remain Taken; other priorities and done records are retained.
+No comparison/Summary/Refresh assertions changed in this batch.
+
+Typecheck and ten maintained Node owners passed, wall 1.87 s: shared read,
+adapter read, check, archive and adapter lead; dashboard proof/adapter/
+breakdown/units; and the actual publication-builder consumer. Exact command,
+setup and assertion anchors are in `shared-proof-integration-handoff.md` and
+`shared-proof-integration-node.log` under `/tmp/seed286-execution-20261109/`.
+The 31-reader and 47-builder consumer traces have no blank dispositions.
+
+```sh
+/usr/bin/time -p caffeinate -s -i env OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed286-execution-20261109/shared-proof-joined-behavior.json OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE=/tmp/seed286-execution-20261109/shared-proof-joined-artifacts.jsonl npm run test:dashboard -- backend-tests/intent/ci-comparison backend-tests/intent/ci-proof-memory backend-tests/intent/ci-time-without-runner-waits.spec.ts tests/intent/intent-ci-comparison-mounted tests/intent/intent-summary-story-comparison-mounted tests/intent/intent-ci-comparison.spec.ts tests/intent/intent-ci-comparison-adapter.spec.ts tests/intent/intent-ci-comparison-retry.spec.ts backend-tests/intent/landed-ci-history-pending-proof.spec.ts
+```
+
+Strict 171/171 passed, runner 27,168 ms, wall 27.65 s; every one of the 164
+rule owners matched the inventory, maximum 705 ms. The default GitHub/adapter,
+real retry, raw acquisition and pending-proof connections settled. Awake AC
+under `caffeinate -s -i`, launch load 2.54/3.04/3.62/free memory 70%, no
+competing test/typecheck; after 3.08/3.06/3.52/free 70%. Match owning spec
+files, not imported helper declaration locations, when counting cases.
+
+Independent reader/builder refactoring found no further edit, contradiction or
+uncovered consumer. Accepted proof remains valid; eight surviving owned files
+preview at most 246 formatted lines. Formatting and publication are the next
+coordinator gates. The exact retained publication context uses
+`incoming-shared-proof-publication-context.json` beside the proof logs.

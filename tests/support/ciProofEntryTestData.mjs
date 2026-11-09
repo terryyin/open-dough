@@ -1,176 +1,15 @@
 // @ts-check
-// Domain data for CI proof summaries (the collector's "Units" in
-// ../../src/skills/dough-test-optimization/scripts/ci-proof-evidence.mjs):
-// one declared entry of a summary with its results in each unit — test
-// cases, test files, or legacy results whose unit was only spelled — each
-// unit's with one present part's figures, measured or without a duration,
-// an optional file breakdown, and any further declared parts missing. A
-// job's fragments are ./ciProofFragmentTestData.mjs's.
+// Domain data for one declared entry of a CI proof summary: its path and its
+// results in each unit (./ciProofEvidenceTestData.mjs). An entry with one
+// unit's results states them here directly; one with several holds each
+// unit's built by `makeMe.aCiProofEvidence`. A job's fragments are
+// ./ciProofFragmentTestData.mjs's; a whole summary is
+// ./ciProofSummaryTestData.mjs's.
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEntry} CiProofEntry */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
-/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFile} CiProofFile */
-/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofPart} CiProofPart */
-/** @typedef {{ unit: "case" } | { unit: "file" } | { unit: "legacy", label: string | null }} CiProofUnitFacts */
-/** @typedef {{ passed: number, failed: number, other: number }} Counts */
-
-// One unit's results at an entry.
-export class CiProofEvidenceBuilder {
-  /** @type {CiProofUnitFacts} */
-  #unit = { unit: "case" };
-  /** @type {Counts} */
-  #counts = { passed: 1, failed: 0, other: 0 };
-  /** @type {number | undefined} */
-  #durationMs;
-  /** @type {CiProofFile[] | undefined} */
-  #files;
-  /** @type {number[]} */
-  #missingParts = [];
-  /** @type {CiProofPart[] | undefined} */
-  #parts;
-
-  /**
-   * Counted as test cases or test files.
-   * @param {"case" | "file"} unit
-   */
-  inUnit(unit) {
-    this.#unit = { unit };
-    return this;
-  }
-
-  /**
-   * Legacy results, their unit spelled LABEL (null: nothing said).
-   * @param {string | null} label
-   */
-  legacy(label) {
-    this.#unit = { unit: "legacy", label };
-    return this;
-  }
-
-  /**
-   * @param {number} passed
-   * @param {number} [failed]
-   * @param {number} [other]
-   */
-  counting(passed, failed = 0, other = 0) {
-    this.#counts = { passed, failed, other };
-    return this;
-  }
-
-  /**
-   * Its one part's summed test execution time; a measured zero included.
-   * @param {number} durationMs
-   */
-  timed(durationMs) {
-    this.#durationMs = durationMs;
-    return this;
-  }
-
-  /**
-   * Broken down by file into FILES, each counting nothing it does not
-   * state, whose figures are then its counts and time.
-   * @param {...(Pick<CiProofFile, "path"> & Partial<CiProofFile>)} files
-   */
-  brokenDown(...files) {
-    this.#files = files.map((file) => ({
-      passed: 0,
-      failed: 0,
-      other: 0,
-      ...file,
-    }));
-    return this;
-  }
-
-  /**
-   * Declared in further parts after its present one, PART missing.
-   * @param {number} part
-   */
-  missingPart(part) {
-    this.#missingParts.push(part);
-    return this;
-  }
-
-  /** @param {...CiProofPart} parts explicitly declared part evidence */
-  withParts(...parts) {
-    this.#parts = parts.map((part) => ({ ...part }));
-    return this;
-  }
-
-  /** @returns {CiProofEvidence} */
-  please() {
-    /** @type {CiProofEvidence["parts"]} */
-    const missing = this.#missingParts.map((part) => ({
-      part,
-      status: "missing",
-    }));
-    const present = this.#parts?.filter((part) => part.status === "present");
-    const declared =
-      present === undefined
-        ? {}
-        : {
-            passed: present.reduce(
-              (total, part) => total + (part.passed ?? 0),
-              0,
-            ),
-            failed: present.reduce(
-              (total, part) => total + (part.failed ?? 0),
-              0,
-            ),
-            other: present.reduce(
-              (total, part) => total + (part.other ?? 0),
-              0,
-            ),
-            ...(present.some((part) => part.durationMs !== undefined)
-              ? {
-                  durationMs: present.reduce(
-                    (total, part) => total + (part.durationMs ?? 0),
-                    0,
-                  ),
-                }
-              : {}),
-          };
-    const files = this.#files;
-    if (files === undefined) {
-      const timing =
-        this.#durationMs === undefined ? {} : { durationMs: this.#durationMs };
-      return {
-        ...this.#unit,
-        ...this.#counts,
-        ...timing,
-        ...declared,
-        parts: this.#parts ?? [
-          { part: 1, status: "present", ...this.#counts, ...timing },
-          ...missing,
-        ],
-      };
-    }
-    const sum = (/** @type {(file: CiProofFile) => number} */ of) =>
-      files.reduce((total, file) => total + of(file), 0);
-    const counts = {
-      passed: sum((file) => file.passed),
-      failed: sum((file) => file.failed),
-      other: sum((file) => file.other),
-    };
-    const timed = files.filter((file) => file.durationMs !== undefined);
-    const figures = {
-      ...counts,
-      ...(timed.length === 0
-        ? {}
-        : { durationMs: sum((file) => file.durationMs ?? 0) }),
-      untimed: sum((file) => file.untimed ?? 0),
-    };
-    return {
-      ...this.#unit,
-      ...figures,
-      ...declared,
-      parts: this.#parts ?? [
-        { part: 1, status: "present", ...figures, breakdown: true },
-        ...missing,
-      ],
-      files,
-    };
-  }
-}
+/** @typedef {import("./ciProofEvidenceTestData.mjs").ResultFacts} ResultFacts */
 
 // One declared entry of a summary: one unit's results, or several.
 export class CiProofEntryBuilder {
@@ -186,21 +25,71 @@ export class CiProofEntryBuilder {
   }
 
   /**
-   * Its one unit's results: PASSED test cases, or of UNIT.
+   * Its one unit's results: PASSED test cases, or of UNIT when stated.
    * @param {number} passed
    * @param {"case" | "file"} [unit]
    */
-  counting(passed, unit = "case") {
-    this.#single.counting(passed).inUnit(unit);
+  counting(passed, unit) {
+    this.#single.counting(passed);
+    if (unit !== undefined) this.#single.inUnit(unit);
     return this;
   }
 
   /**
-   * Its one unit's part's summed test execution time.
+   * Its one unit's results are legacy ones, their unit spelled LABEL, such
+   * as Playwright `tests` or shell `checks`.
+   * @param {string | null} label
+   */
+  countingIn(label) {
+    this.#single.legacy(label);
+    return this;
+  }
+
+  /**
+   * Its one unit's first present part's summed test execution time.
    * @param {number} durationMs
    */
   timed(durationMs) {
     this.#single.timed(durationMs);
+    return this;
+  }
+
+  /**
+   * A test file of its one unit's breakdown, at PATH inside the entry.
+   * @param {string} path
+   * @param {ResultFacts} [facts]
+   */
+  withFile(path, facts) {
+    this.#single.withFile(path, facts);
+    return this;
+  }
+
+  /**
+   * Results of its one unit its reports could not place in a file.
+   * @param {ResultFacts} facts
+   */
+  withUnassigned(facts) {
+    this.#single.withUnassigned(facts);
+    return this;
+  }
+
+  /**
+   * One more present part of its one unit, reported without a breakdown.
+   * @param {ResultFacts} facts
+   */
+  withUnbrokenPart(facts) {
+    this.#single.withUnbrokenPart(facts);
+    return this;
+  }
+
+  /**
+   * Its one unit's OF declared parts, those in MISSING never reported and
+   * those in AMBIGUOUS more than once.
+   * @param {number} of
+   * @param {{ missing?: readonly number[], ambiguous?: readonly number[] }} [statuses]
+   */
+  inParts(of, statuses) {
+    this.#single.inParts(of, statuses);
     return this;
   }
 

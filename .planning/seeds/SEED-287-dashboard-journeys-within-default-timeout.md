@@ -26,9 +26,17 @@ observation in eight more cases: `agent-launch-preparation-codex(-retry)`,
 worker. A case that runs first in its worker also pays the run's on-demand
 fixture preparation (10.7–26.4 s), and each fake `gh` call starts a Node
 process (p50 57–94 ms at load 21–24). Terry authorized a case-local allowance
-for the touch review case on 2026-11-09. It is recorded as pending in
-[test optimization candidates](../TEST-OPTIMIZATION-CANDIDATES.md) until this
-story removes the need. The Intent CI comparison family belongs to
+for the touch review case on 2026-11-09; this story removes the need. Three
+test optimization candidates moved here when SEED-284 converted Open Dough's
+record on 2026-11-09: `story-review-touch-reading-strokes`,
+`production-deployment-pinned-build` and `hosted-margin-dashboard-journeys`.
+Their evidence is at `144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md`.
+That conversion's run of the commented specs at 2 workers and load 24–27
+also timed out `production-watcher.spec.ts`'s first-in-worker `beforeAll`
+past 30 s (12.9 s first step alone) and both variants of
+`backend-tests/review/story-review-completed.spec.ts:27` at 30.4 s (30.0 s
+alone at load 16–18; 14.4 s for its 5 cases in hosted CI); Terry routed both
+here. The Intent CI comparison family belongs to
 SEED-286#fast-intent-ci-comparison-tests.
 
 <a id="fit-dashboard-journeys-in-default-timeout"></a>
@@ -45,8 +53,8 @@ SEED-286#fast-intent-ci-comparison-tests.
   case-local timeout allowances.
 - **Evaluation.** The touch review case "chooses a comparison and file and
   reads within each pane" passes without its 2026-11-09 allowance, which is
-  removed with its pending candidate. First-in-worker cases and the eight
-  cases above finish with margin inside the default 30 s and their 5 s
+  removed. First-in-worker cases and the eight cases above finish with
+  margin inside the default 30 s and their 5 s
   observations on a hosted shard about 1.5× slower overall and locally at
   load 20–30 on 2 workers.
 - **Boundary.** Keep every assertion and the default timeout, with no

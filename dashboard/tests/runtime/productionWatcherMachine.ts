@@ -4,34 +4,37 @@ import { readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import path from "node:path";
 import { launch } from "../agentLaunchBoundary.ts";
+import { openCursorTerminal } from "../support/cursorTerminal.ts";
 import {
   dashboardCommand,
   developmentDashboard,
 } from "../support/dashboardCommand.ts";
-import type { DashboardServer } from "../support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "../support/fakeCursor.ts";
 import { instruction, liveRunner } from "../support/cursorRunnerJourney.ts";
+import { expect } from "../support/pageTest.ts";
 import { publishedMainFixture } from "../support/publishedMainFixture.ts";
+import type { PublishedMainFixture } from "../support/publishedMainFixture.ts";
 import { publishedMainHosts } from "../support/publishedMainHosts.ts";
 import { configureDevelopmentProjects } from "../support/projectConfiguration.ts";
 import {
   productionActivation,
+  productionBoundary,
   startProductionWatcher,
   type ProductionWatcher,
 } from "../support/productionWatcher.ts";
 
 const bannerPath = "dashboard/src/DashboardBanner.tsx";
-type Fixture = Awaited<ReturnType<typeof publishedMainFixture>>;
 export const sourceMarker = (page: Page) =>
   page.getByTestId("production-source");
 
 export class ProductionWatcherMachine {
-  private fixture: Fixture | undefined;
+  private fixture: PublishedMainFixture | undefined;
   private hosts: Awaited<ReturnType<typeof publishedMainHosts>> | undefined;
   private cursor: FakeCursor | undefined;
   private development: ReturnType<typeof dashboardCommand> | undefined;
   private productionPage: Page | undefined;
   private developmentPage: Page | undefined;
+  private readonly sockets: { close(): void }[] = [];
   watcher: ProductionWatcher | undefined;
 
   async start(browser: Browser) {
@@ -105,6 +108,12 @@ export class ProductionWatcherMachine {
     return { fixture, cursor, productionPage, developmentPage };
   }
 
+  // The watcher this machine runs now.
+  running() {
+    if (this.watcher === undefined) throw new Error("No watcher");
+    return this.watcher;
+  }
+
   async editDevelopmentSource() {
     const { fixture, productionPage } = this.started();
     let navigations = 0;
@@ -125,12 +134,8 @@ export class ProductionWatcherMachine {
     return () => navigations;
   }
 
-  boundary(url: string): DashboardServer {
-    return {
-      baseURL: url,
-      origin: url,
-      home: this.started().fixture.home,
-    } as DashboardServer;
+  boundary(url: string) {
+    return productionBoundary(url, this.started().fixture.home);
   }
 
   async launchCursor(url: string) {
@@ -142,7 +147,17 @@ export class ProductionWatcherMachine {
     });
   }
 
+  // Follows the Cursor session's terminal at that production URL until the
+  // session shows its prompt; close() ends the terminal's socket.
+  async followCursorSession(url: string, sessionId: string) {
+    const terminal = await openCursorTerminal(this.boundary(url), sessionId);
+    this.sockets.push(terminal.socket);
+    await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
+    return terminal;
+  }
+
   async close() {
+    for (const socket of this.sockets) socket.close();
     await this.productionPage?.close();
     await this.developmentPage?.close();
     await this.watcher?.stop();

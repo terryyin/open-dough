@@ -13,8 +13,8 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       origin,
     }) => {
       // Up to about 31 native touch strokes, most of them reading the wide
-      // line's end and back; see the pending optimization candidate
-      // `story-review-touch-reading-strokes`.
+      // line's end and back. Removing this allowance belongs to
+      // SEED-287#fit-dashboard-journeys-in-default-timeout.
       test.setTimeout(60_000);
       await chooseComparisonAndReadByTouch(page, dashboard, origin);
     });

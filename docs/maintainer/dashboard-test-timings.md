@@ -4,9 +4,8 @@ Measured on 2026-10-29 for early serial deployment scheduling, shared-hook
 weights, and fewer browser observation round trips. Timings are observations
 from a small sample of shared runners, not a guaranteed saving per run.
 
-Current findings and their dispositions are maintained in
+This document retains measurement evidence; live candidates are kept in
 [Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md).
-This document retains measurement evidence.
 
 ## Comparable workload
 
@@ -160,8 +159,11 @@ comparable load.
 
 ### Resolved (2026-10-30 resolve)
 
-The accepted costs and transferred obligation now live in
-[Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md#accepted-necessary-costs).
+The accepted costs now live as comments beside their tests, such as the
+[second-server journey](../../dashboard/tests/launches/agent-launch-second-server.spec.ts)
+and the [production watcher chain](../../dashboard/tests/runtime/production-watcher.spec.ts).
+Their earlier record entries are recoverable at
+`144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md` (`#accepted-necessary-costs`).
 This heading remains as a forwarding link for existing story and plan references.
 Touch-family reduction retained 2026-10-30 under ADR 0010 (36→21 cases);
 spent plan/story recover from before-cleanup
@@ -190,8 +192,7 @@ passes). Retained: `configuredLimit("DOUGH_CHANGE_WAIT_MS", 30_000)` with the
 boundary test observing a 500 ms bound; production default remains 30 s.
 Full-suite wall ≈ **9.6 s (1.3%)** shorter under comparable load.
 
-SEED-177's bound observation does not reopen the decisions preserved in
-[Test Optimization Candidates](../../.planning/TEST-OPTIMIZATION-CANDIDATES.md).
+SEED-177 reopens nothing [resolved above](#resolved-2026-10-30-resolve).
 Detailed tables and focused-family measurements for SEED-191, SEED-193,
 SEED-194, SEED-195, and SEED-196 are preserved in
 [earlier local optimization passes (SEED-191 through SEED-196)](dashboard-local-test-timings.md).

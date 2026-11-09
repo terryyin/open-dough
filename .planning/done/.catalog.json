@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-284_optimize-tests-from-ci-proof.json",
+      "identity": "SEED-284#optimize-tests-from-ci-proof",
+      "completedAt": "2026-11-09T12:44:20.525Z",
+      "blob": "96ebf6cc525e97a9f18bac18529a3b66cbf5faaa"
+    },
+    {
       "fileName": "SEED-285_see-landed-ci-wall-time-history.json",
       "identity": "SEED-285#see-landed-ci-wall-time-history",
       "completedAt": "2026-11-09T11:27:25.249Z",
@@ -1902,18 +1908,6 @@
       "identity": "SEED-128#publish-dirty-preparation-before-execution",
       "completedAt": "2026-10-10T12:57:24.598Z",
       "blob": "36ba767869f482e393f7f72aebbe0f9bc16c0150"
-    },
-    {
-      "fileName": "SEED-121_recovery-steps-reach-their-observer.json",
-      "identity": "SEED-121#recovery-steps-reach-their-observer",
-      "completedAt": "2026-10-10T12:04:28.479Z",
-      "blob": "178f1483cff7ca813b78eb43c66ffd67a138d70c"
-    },
-    {
-      "fileName": "SEED-128_land-planning-without-coordinator-questions.json",
-      "identity": "SEED-128#land-planning-without-coordinator-questions",
-      "completedAt": "2026-10-10T11:36:53.515Z",
-      "blob": "4b5247361c7ab80ee5ad62ac67283df2d5b05b1a"
     }
   ],
   "unreadable": []

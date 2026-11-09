@@ -1,21 +1,22 @@
 // The CI proof of one ciAdapter attempt (`./intentCiProofRead.ts`): asked of
 // the project's configured adapter (`proof`), run from the project folder
-// (`ci-command-adapter.mjs` `readCommandProof`) with the collector
-// contract's summary read limit as `answerBytes`, then validated with the
-// collector's own contract, read in its current version (a version 1
-// summary's results as legacy evidence) and used only when it names the
-// asked repository, attempt (the text form of its `attemptId`) and revision
-// (ADR 0008: missing, outdated or conflicting evidence is never a result).
-// Asks no `gh`. A valid summary is immutable per attempt, so it is
-// remembered by repository and attempt for this process's lifetime beside
-// the GitHub Actions summary memory (`./ciProofArtifact.ts`); every other
-// answer is asked of the adapter again.
+// through the shared CI proof read
+// (`../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`)
+// with the collector contract's summary read limit as `answerBytes`, then
+// validated with the collector's own contract, read in its current version
+// (a version 1 summary's results as legacy evidence) and used only when it
+// names the asked repository, attempt (the text form of its `attemptId`) and
+// revision (ADR 0008: missing, outdated or conflicting evidence is never a
+// result). Asks no `gh`. This module says why a read shows no summary. A
+// valid summary is immutable per attempt, so it is remembered by repository
+// and attempt for this process's lifetime beside the GitHub Actions summary
+// memory (`./ciProofArtifact.ts`); every other answer is asked of the
+// adapter again.
 import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
-  SUMMARY_READ_LIMIT_BYTES,
-  currentSummaryOf,
-  summaryProblems,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+  readCiAdapterSummary,
+  type CiAdapterSummaryRead,
+} from "../../src/skills/dough-test-optimization/scripts/ci-proof-read.mjs";
 import {
   ciProofTooLarge,
   type CiAdapterProofAttempt,
@@ -39,40 +40,27 @@ const unavailable = (
   detail: string,
 ): CiProof => ({ kind: "unavailable", reason, detail });
 
-function isMaxBuffer(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    (error as { readonly code?: unknown }).code ===
-      "ERR_CHILD_PROCESS_STDIO_MAXBUFFER"
-  );
-}
-
-// Why `summary` is not the asked attempt's proof, undefined when it is.
-function mismatchOf(
-  summary: Record<string, unknown>,
-  repository: string,
-  attempt: CiAdapterProofAttempt,
-): string | undefined {
-  if (
-    typeof summary.repository !== "string" ||
-    summary.repository.toLowerCase() !== repository.toLowerCase()
-  )
-    return `it names repository ${String(summary.repository)}`;
-  // A valid summary names its attemptId and revision as text.
-  const { attemptId, revision } = summary as {
-    readonly attemptId?: string;
-    readonly revision: string;
-  };
-  if (attemptId === undefined) return `it names run ${String(summary.runId)}`;
-  if (attemptId !== attempt.attemptId) return `it names attempt ${attemptId}`;
-  if (revision.toLowerCase() !== attempt.revision)
-    return `it names revision ${revision}`;
-  return undefined;
+// The proof `read` answers: its summary, or why there is none to show.
+function proofOf(read: CiAdapterSummaryRead): CiProof {
+  if ("summary" in read)
+    return { kind: "summary", summary: read.summary } as CiProof;
+  switch (read.why) {
+    case "adapter-unavailable":
+      return unavailable("none", read.unavailable);
+    case "too-large":
+      return ciProofTooLarge(read.limitBytes, read.sizeBytes);
+    case "invalid":
+      return unavailable("invalid", read.problems.join("; "));
+    case "mismatched":
+      return unavailable(
+        "mismatched",
+        `it names ${read.names} ${String(read.value)}`,
+      );
+  }
 }
 
 // The proof of `attempt` in `repository` as the adapter configured in
 // `folder` answers it: its summary, or why there is none to show.
-// Each reader owns its memory; production keeps the one below.
 export function ciAdapterProofReader(
   commandProof: typeof readCommandProof = readCommandProof,
 ) {
@@ -87,10 +75,10 @@ export function ciAdapterProofReader(
     timeoutMs: number = ciAdapterTimeoutMs(),
   ): Promise<CiProof> => {
     const key = rememberedKey(repository, attempt);
-    const rememberedSummary = remembered.get(key);
-    if (rememberedSummary !== undefined)
-      return { kind: "summary", summary: rememberedSummary } as CiProof;
-    let answer: { summary?: Record<string, unknown>; unavailable?: string };
+    const kept = remembered.get(key);
+    if (kept !== undefined)
+      return { kind: "summary", summary: kept } as CiProof;
+    let read: CiAdapterSummaryRead;
     try {
       const { adapter } = ciConfiguration(folder);
       if (adapter === undefined)
@@ -98,36 +86,23 @@ export function ciAdapterProofReader(
           "unreadable",
           "this project's CI is not read through a ciAdapter",
         );
-      answer = await commandProof(
+      read = await readCiAdapterSummary(
         adapter,
-        { repo: repository, branch: attempt.branch },
-        {
-          runId: attempt.runId,
-          attemptId: attempt.attemptId,
-          sha: attempt.revision,
-        },
+        repository,
+        attempt,
         {
           signal,
           cwd: folder,
           timeoutMs,
-          answerBytes: SUMMARY_READ_LIMIT_BYTES,
         },
+        commandProof,
       );
     } catch (error) {
       if (signal.aborted) throw error;
-      if (isMaxBuffer(error)) return ciProofTooLarge(SUMMARY_READ_LIMIT_BYTES);
       return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
     }
-    const { summary } = answer;
-    if (summary === undefined)
-      return unavailable("none", answer.unavailable ?? "");
-    const problems = summaryProblems(summary) as readonly string[];
-    if (problems.length > 0) return unavailable("invalid", problems.join("; "));
-    const mismatch = mismatchOf(summary, repository, attempt);
-    if (mismatch !== undefined) return unavailable("mismatched", mismatch);
-    const current = currentSummaryOf(summary) as Record<string, unknown>;
-    remembered.set(key, current);
-    return { kind: "summary", summary: current } as CiProof;
+    if ("summary" in read) remembered.set(key, read.summary);
+    return proofOf(read);
   };
 }
 

@@ -1,7 +1,7 @@
 // Intent view of the project's published Test Optimization Candidates
-// record (`./authenticatedIntentCandidatesRead.ts`): named revision,
-// Pending and Accepted groups with every recorded field, other sections
-// under their own headings, and distinct explanations for absent,
+// record (`./authenticatedIntentCandidatesRead.ts`): named revision, the
+// groups of either record version with every recorded field
+// (`./IntentCandidatesSections.tsx`), and distinct explanations for absent,
 // unreadable (with retry), mismatched, and empty records. Project Intent
 // hosts this view on its Optimization Candidates tab (`IntentCandidatesPanel`,
 // drawn by its `./IntentBrowser.tsx`), apart from location browsing.

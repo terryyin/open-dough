@@ -23,6 +23,21 @@ new_managed_files=(
   dough-test-optimization/references/optimization-tactics.md
   dough-test-optimization/references/candidate-record.md
   dough-test-optimization/references/resolving-candidates.md
+  dough-test-optimization/references/evidence-and-leads.md
+  dough-test-optimization/scripts/ci-proof-read.mjs
+  dough-test-optimization/scripts/ci-proof-archive.mjs
+  dough-test-optimization/scripts/ci-proof-check.mjs
+  dough-test-optimization/scripts/ci-proof-leads.mjs
+  dough-test-optimization/scripts/ci-proof-attempts.mjs
+  dough-test-optimization/scripts/ci-proof-gaps.mjs
+  dough-test-optimization/scripts/ci-proof-project.mjs
+  dough-test-optimization/scripts/ci-proof-revisions.mjs
+  dough-test-optimization/scripts/ci-proof-scope.mjs
+  dough-test-optimization/scripts/ci-proof-scope-gaps.mjs
+  dough-test-optimization/scripts/ci-proof-ranking.mjs
+  dough-test-optimization/scripts/ci-proof-leads-table.mjs
+  dough-test-optimization/scripts/ci-proof-ranking-table.mjs
+  dough-test-optimization/scripts/ci-proof-table-text.mjs
   dough-intent-coverage/SKILL.md
   dough-intent-coverage/finish-report.mjs
 )
