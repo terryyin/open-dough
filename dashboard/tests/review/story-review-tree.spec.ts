@@ -10,12 +10,13 @@
 // folders that come first.
 // Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
 
+import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
 import {
+  expectTreeRows,
   nestedTreeRows,
   treeFolder,
-  treeRows,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { nestedWorktree } from "../support/storyReviewWorktree.ts";
@@ -32,10 +33,10 @@ test("a story's changed files show by name under their folders", async ({
   await card.getByRole("button", { name: "Review changes" }).click();
   const review = page.getByRole("region", { name: "Story review" });
   const files = review.getByRole("list", { name: "6 changed files" });
-  await expect(files).toBeVisible();
+  await expect(files).toBeVisible({ timeout: storyReviewWaitMs });
 
   await test.step("files sit under their expanded folders, a chain as one row, the root file at the top level", async () => {
-    await expect.poll(() => treeRows(files)).toEqual(nestedTreeRows);
+    await expectTreeRows(files, nestedTreeRows);
     for (const name of [
       "Deleted dashboard/server/c.ts",
       "Added dashboard/src/a.tsx",

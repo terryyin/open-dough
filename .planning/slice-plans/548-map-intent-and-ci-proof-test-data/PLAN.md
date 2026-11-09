@@ -196,6 +196,14 @@ problem method yet. The two read answers are named `IntentLocationsAnswer`
 and `IntentCandidatesAnswer` beside their reads (types only). Overlay and
 `frontend-tests` ran 28 passed; the matcher and closure checks exited 0.
 
+CI repair (run 42555314938 on `47bf480b2`, `story-review.spec.ts:34`): the
+review read took about 5 s on a loaded runner and the file list attached 40 ms
+after `expect.poll`'s 5 s window, which `treeRows`' first evaluate consumed.
+The 60 s review read bound is now `storyReviewWaitMs`, and `expectTreeRows`
+waits for the list within it before polling rows (52 call sites in 20 review
+specs). A scratch 6 s server delay reproduced the failure and passed with the
+repair; the review specs ran 52 passed and `backend-tests/review` 72 passed.
+
 ### 3. Optimization Candidates records come from the record builder
 Type: Behavior
 Status: planned

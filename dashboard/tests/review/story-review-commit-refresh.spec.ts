@@ -16,7 +16,7 @@ import {
   unchangedWorktree,
   writeAt,
 } from "../support/storyReviewWorktree.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
 import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
 
@@ -143,19 +143,10 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
     expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
     await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-    await expect
-      .poll(() =>
-        treeRows(
-          review.getByRole("list", { name: "4 changed files", exact: true }),
-        ),
-      )
-      .toEqual([
-        "fresh",
-        "  new.txt",
-        "later.txt",
-        "staged.txt",
-        "unstaged.txt",
-      ]);
+    await expectTreeRows(
+      review.getByRole("list", { name: "4 changed files", exact: true }),
+      ["fresh", "  new.txt", "later.txt", "staged.txt", "unstaged.txt"],
+    );
     await expect(review.getByRole("status")).toHaveCount(2);
     await expect(
       review.locator(".story-review-diff").getByRole("status"),

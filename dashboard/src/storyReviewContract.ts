@@ -32,6 +32,9 @@ export const storyReviewFileTextEndpoint = "/__agent-launch/review/file/text";
 export const storyReviewRangeEndpoint = "/__agent-launch/review/range";
 // Where a same-origin POST marks the snapshot shown as reviewed.
 export const storyReviewMarkEndpoint = "/__agent-launch/review/mark";
+// How long one review read may take before the boundary gives it up: a
+// snapshot, trunk's fetch included, a chosen range, or a file's diff or text.
+export const storyReviewWaitMs = 60_000;
 
 // Saved landings retain full branch refs; workspace targets use short names.
 export const reviewTargetName = ({

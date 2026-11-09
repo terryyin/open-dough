@@ -19,7 +19,7 @@ import {
   unchangedWorktree,
   writeAt,
 } from "../support/storyReviewWorktree.ts";
-import { treeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows } from "../support/reviewTreeRows.ts";
 
 test("Uncommitted changes alone reads staged, unstaged and untracked files; through the oldest commit it equals All changes", async ({
   page,
@@ -52,9 +52,12 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
     name: "3 changed files",
     exact: true,
   });
-  await expect
-    .poll(() => treeRows(files))
-    .toEqual(["fresh", "  new.txt", "staged.txt", "unstaged.txt"]);
+  await expectTreeRows(files, [
+    "fresh",
+    "  new.txt",
+    "staged.txt",
+    "unstaged.txt",
+  ]);
   await files
     .getByRole("button", { name: "Modified staged.txt", exact: true })
     .click();

@@ -18,8 +18,8 @@ import { expect, test } from "../support/preparationPage.ts";
 import { reviewFeedback } from "../support/reviewContextLine.ts";
 import {
   expectFileSelected,
+  expectTreeRows,
   fileRow,
-  treeRows,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
@@ -66,16 +66,20 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
   const list = (files: number) =>
     review.getByRole("list", { name: `${String(files)} changed files` });
   await check(review).uncheck();
-  await expect.poll(() => treeRows(list(4))).toEqual(committedFiles);
+  await expectTreeRows(list(4), committedFiles);
 
   // The agent commits the staged file and keeps editing another.
   git(workspace, "commit", "--quiet", "-m", "staged edit");
   writeFileSync(path.join(workspace, "unstaged.txt"), "on\n", { flag: "a" });
   const partly = await refresh(page, review);
   expect(partly.files).toHaveLength(7);
-  await expect
-    .poll(() => treeRows(list(5)))
-    .toEqual(["gone.txt", "image.png", "new.txt", "staged.txt", "story.txt"]);
+  await expectTreeRows(list(5), [
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "staged.txt",
+    "story.txt",
+  ]);
   await expect(check(review)).not.toBeChecked();
   await expect(review.getByText(leftOut)).toBeVisible();
   await expect(reviewFeedback(review)).toHaveText(refreshed(5));
@@ -83,18 +87,16 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
   // The agent commits everything: no check, the whole snapshot.
   commitAll(workspace, "the rest");
   expect((await refresh(page, review)).committed).toBeUndefined();
-  await expect
-    .poll(() => treeRows(list(7)))
-    .toEqual([
-      "fresh",
-      "  new.txt",
-      "gone.txt",
-      "image.png",
-      "new.txt",
-      "staged.txt",
-      "story.txt",
-      "unstaged.txt",
-    ]);
+  await expectTreeRows(list(7), [
+    "fresh",
+    "  new.txt",
+    "gone.txt",
+    "image.png",
+    "new.txt",
+    "staged.txt",
+    "story.txt",
+    "unstaged.txt",
+  ]);
   await expect(review.getByRole("checkbox")).toHaveCount(0);
   await expect(review.getByText(leftOut)).toHaveCount(0);
   await expect(reviewFeedback(review)).toHaveText(refreshed(7));
@@ -134,7 +136,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   await choose("All changes");
   await expect(check(review)).toBeChecked();
   await check(review).uncheck();
-  await expect.poll(() => treeRows(committed)).toEqual(committedFiles);
+  await expectTreeRows(committed, committedFiles);
 
   await choose("Commits");
   await expect(
@@ -151,7 +153,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   await choose("All changes");
   await expect(check(review)).not.toBeChecked();
   await expect(review.getByText(leftOut)).toBeVisible();
-  await expect.poll(() => treeRows(committed)).toEqual(committedFiles);
+  await expectTreeRows(committed, committedFiles);
 });
 
 test("with the check off the file moves stay within the committed files and a binary file reads to the head's tree; reopening starts with the check on", async ({
