@@ -79,8 +79,7 @@ export async function asComparisonSlot(
   };
 }
 
-// An endpoint whose CI could not be read, with why: a comparison slot, or a
-// Landed rule resolution (`./landedCiCollection.ts`).
+// An endpoint whose CI could not be read, with why.
 export function gapFromUnread(judgment: BaseCiJudgment): {
   readonly kind: "unavailable";
   readonly explanation: string;

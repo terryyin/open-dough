@@ -1,14 +1,17 @@
 // The measured builds of Project Intent's CI wall time history
-// (`./IntentCiHistory.tsx`) as one line of CI wall time by build date: a
+// (`./IntentCiHistory.tsx`) as a line of CI wall time by date: a
 // hand-written inline SVG, with no chart library, drawn at the width its box
 // is given so its words keep their size on a phone. Each point stands at its
 // build's start, earliest left, and at its CI wall time against whole-step
-// times that cover the measured range; the line joins the points in that
-// order. One series in the frame's accent with a surface ring around each
-// point, a recessive grid and the axis words in quiet ink
+// times that cover the measured range; the dates span the history's gaps too,
+// each at the date its landing was recorded. The line joins the points in the
+// history's order and breaks at each gap, drawing nothing for it, so a
+// landing not measured yet after the last point leaves the line ended before
+// it. One series in the frame's accent with a surface ring around each point,
+// a recessive grid and the axis words in quiet ink
 // (`./intent-ci-history.css`). To assistive technology it is one image named
-// for what it plots; Builds and evidence gives every point it draws in words,
-// as each point's hover does.
+// for what it plots; Builds and evidence gives every point it draws, and every
+// gap, in words, as each point's hover does.
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { shortSha } from "./baseCiWording.ts";
@@ -18,7 +21,13 @@ import {
   pointWallTimeWords,
   provenanceWords,
 } from "./ciHistoryWords.ts";
-import { landedCiPointKey, type MeasuredPoint } from "./landedCiHistory.ts";
+import {
+  entryDate,
+  isPoint,
+  landedCiEntryKey,
+  type MeasuredEntry,
+  type MeasuredPoint,
+} from "./landedCiHistory.ts";
 
 const height = 164;
 const plotTop = 12;
@@ -86,32 +95,64 @@ function useBoxWidth() {
   return { box, width };
 }
 
+type Placed = {
+  readonly point: MeasuredPoint;
+  readonly x: number;
+  readonly y: number;
+};
+
+// The line through the placed points, in order, broken wherever a gap falls
+// between two of them: each unbroken segment of two or more points is one
+// stroke.
+function lineThrough(segments: readonly (readonly Placed[])[]): string {
+  return segments
+    .filter((segment) => segment.length > 1)
+    .map((segment) =>
+      segment
+        .map(
+          (at, index) =>
+            `${index === 0 ? "M" : "L"}${String(at.x)} ${String(at.y)}`,
+        )
+        .join(" "),
+    )
+    .join(" ");
+}
+
 function Plot({
-  points,
+  entries,
   width,
 }: {
-  readonly points: readonly MeasuredPoint[];
+  readonly entries: readonly MeasuredEntry[];
   readonly width: number;
 }) {
   const plotEnd = width - plotEndRoom;
+  const points = entries.filter(isPoint);
   const ticks = wallTimeTicks(points.map((point) => point.wallTimeMs));
   const lowest = ticks[0] ?? 0;
   const highest = ticks.at(-1) ?? lowest + shortestRangeMs;
   const y = (ms: number) =>
     plotBottom - ((ms - lowest) / (highest - lowest)) * (plotBottom - plotTop);
-  const starts = points.map((point) => Date.parse(point.startedAt));
-  const earliest = Math.min(...starts);
-  const latest = Math.max(...starts);
+  const dates = entries.map((entry) => Date.parse(entryDate(entry)));
+  const earliest = Math.min(...dates);
+  const latest = Math.max(...dates);
   const x = (at: number) =>
     latest === earliest
       ? (plotStart + plotEnd) / 2
       : plotStart +
         ((at - earliest) / (latest - earliest)) * (plotEnd - plotStart);
-  const placed = points.map((point, at) => ({
-    point,
-    x: x(starts[at] ?? earliest),
-    y: y(point.wallTimeMs),
-  }));
+  // Each segment of points no gap falls between, in the history's order.
+  const segments: Placed[][] = [[]];
+  for (const entry of entries) {
+    if (entry.kind === "gap") segments.push([]);
+    else
+      segments.at(-1)?.push({
+        point: entry,
+        x: x(Date.parse(entryDate(entry))),
+        y: y(entry.wallTimeMs),
+      });
+  }
+  const placed = segments.flat();
+  const line = lineThrough(segments);
   // The first and last dates, and a middle one where there is room, each
   // said once under its point, kept whole within the image.
   const dated: { x: number; words: string }[] = [];
@@ -146,20 +187,10 @@ function Plot({
           </text>
         </g>
       ))}
-      {placed.length > 1 && (
-        <path
-          className="intent-ci-history-line"
-          d={placed
-            .map(
-              (at, index) =>
-                `${index === 0 ? "M" : "L"}${String(at.x)} ${String(at.y)}`,
-            )
-            .join(" ")}
-        />
-      )}
+      {line !== "" && <path className="intent-ci-history-line" d={line} />}
       {placed.map(({ point, x: cx, y: cy }) => (
         <circle
-          key={landedCiPointKey(point)}
+          key={landedCiEntryKey(point)}
           className="intent-ci-history-point"
           cx={cx}
           cy={cy}
@@ -180,9 +211,9 @@ function Plot({
 }
 
 export function IntentCiHistoryChart({
-  points,
+  entries,
 }: {
-  readonly points: readonly MeasuredPoint[];
+  readonly entries: readonly MeasuredEntry[];
 }) {
   const { box, width } = useBoxWidth();
   return (
@@ -194,7 +225,7 @@ export function IntentCiHistoryChart({
         height={height}
       >
         {width > plotStart + plotEndRoom && (
-          <Plot points={points} width={width} />
+          <Plot entries={entries} width={width} />
         )}
       </svg>
     </div>

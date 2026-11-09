@@ -1,23 +1,25 @@
 // Background collection of the landed CI history (`./landedCiHistoryStore.ts`)
 // for the local launch boundary (`./launchBoundary.ts`), which starts it with
 // the boundary and stops it with the same cleanup, as it does the feedback
-// maintenance check (`./feedbackMaintenanceCheck.ts`). Each accepted landing
-// the boundary records nudges it (`./launchBoundaryAnswer.ts`), whether or not
-// a page is open; a nudge while it collects asks for one more pass once that
-// pass ends.
+// maintenance check (`./feedbackMaintenanceCheck.ts`). One loop
+// (`./repeatingCheck.ts`) collects once the boundary starts -- so landings
+// recorded before this server, or before collection existed, are collected by
+// the same rebuild -- and then every few minutes, so a landing whose CI was
+// still pending is checked again until it is final; each accepted landing the
+// boundary records nudges it at once (`./launchBoundaryAnswer.ts`), whether or
+// not a page is open. Passes never overlap: a nudge while one runs asks for
+// one more once it ends.
 //
 // A pass reads this machine's launch records (`./launchRecordStore.ts`), so
 // it finds the landings every dashboard process on this machine recorded,
-// and for each configured project resolves the landings onto its configured
-// ref, newest first, until the history holds `measuredWindow` measured
-// builds for it: through the CI timing comparison's Landed rule
-// (`lookupResultBuild` with `storyBranchLandedExactLookup`,
-// `./baseCiRevisionLookup.ts`) over the project's own CI read
-// (`./intentCiComparisonSlots.ts`) -- the project folder's Git with its
-// `ciWorkflow` runs or its `ciAdapter` discovery -- each landing within the
-// read boundary's wait. A landing whose resolution is final is kept and never
-// resolved again; one whose CI is still running, or could not be read, is
-// resolved again by the next pass.
+// with the landings the history itself keeps, whose records may have expired.
+// For each configured project it walks the landings onto its configured ref,
+// newest first, until the history holds `measuredWindow` measured builds for
+// it, and resolves each landing whose resolution is not final yet over the
+// project's CI read for the pass (`./landedCiResolution.ts`). A final
+// resolution is kept and never resolved again; a pending one is kept until a
+// later pass resolves it again. CI that could not be read leaves that project
+// until the next pass.
 //
 // Only a production project environment collects, as only it launches
 // feedback maintenance, so a development server sharing this machine's
@@ -25,35 +27,33 @@
 // collects nothing either unless its test asks: its harness sets
 // `DOUGH_TEST_LANDED_CI_COLLECTION=off`.
 
-import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { LaunchLanding } from "../src/launchLanding.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  lookupResultBuild,
-  type RevisionBuildSlot,
-} from "./baseCiRevisionLookup.ts";
-import { storyBranchLandedExactLookup } from "./exactSkippedEquivalent.ts";
-import {
-  gapFromUnread,
-  isUnreadJudgment,
-  lookupContext,
-  workflowOf,
-} from "./intentCiComparisonSlots.ts";
+import { configuredLimit } from "./configuredLimit.ts";
 import {
   keepLandedCiResolution,
   keptLandedCiHistory,
+  keptLandingReferences,
+  type LandingReference,
+  type ProjectHistory,
 } from "./landedCiHistoryStore.ts";
 import { measuredBuildOf } from "./landedCiMeasuredBuilds.ts";
+import { landingResolution, passRead } from "./landedCiResolution.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
   projectEnvironment,
   publishedProjects,
 } from "./projectConfiguration.ts";
-import { finalSlot } from "./revisionBuildSlot.ts";
+import { repeatUntilStopped } from "./repeatingCheck.ts";
 
 // How many measured builds a pass resolves landings for, newest first.
 const measuredWindow = 20;
+
+// How often recorded landings are collected again, so a pending one is
+// checked until it is final. A test may shorten it through the environment.
+function recheckMs(): number {
+  return configuredLimit("DOUGH_LANDED_CI_RECHECK_MS", 2 * 60_000);
+}
 
 function collects(): boolean {
   return (
@@ -62,13 +62,17 @@ function collects(): boolean {
   );
 }
 
-// The landings onto the project's configured ref, each once, newest first.
+// The landings onto the project's configured ref that its records name, with
+// those the history keeps, each once by receipt, newest first.
 function trunkLandings(
   source: PublishedSource,
   records: readonly LaunchRecord[],
-): LaunchLanding[] {
+  history: ProjectHistory,
+): LandingReference[] {
   const target = `refs/heads/${source.ref}`;
-  const byReceipt = new Map<string, LaunchLanding>();
+  const byReceipt = new Map<string, LandingReference>();
+  for (const landing of keptLandingReferences(history))
+    byReceipt.set(landing.receipt, landing);
   for (const { landing } of records)
     if (landing?.target === target) byReceipt.set(landing.receipt, landing);
   return [...byReceipt.values()].sort(
@@ -76,92 +80,78 @@ function trunkLandings(
   );
 }
 
-// What the Landed rule resolves one landing to: the landed revision's own
-// completed build, a confirmed skip's equivalent build, a cancelled landing's
-// later trunk build, or why there is none.
-async function resolved(
-  source: PublishedSource,
-  landing: LaunchLanding,
-  signal: AbortSignal,
-): Promise<RevisionBuildSlot> {
-  const context = await lookupContext(source, signal, undefined);
-  if ("unavailable" in context)
-    return { kind: "unavailable", explanation: context.unavailable };
-  const { call, lookupOrGap } = context;
-  if (isUnreadJudgment(lookupOrGap)) return gapFromUnread(lookupOrGap);
-  return lookupResultBuild(
-    landing.revision,
-    landing.revision,
-    lookupOrGap,
-    call,
-    workflowOf(call),
-    "No completed CI build was found at the landed revision.",
-    storyBranchLandedExactLookup(
-      true,
-      source.repository,
-      signal,
-      `origin/${source.ref}`,
-    ),
-  );
-}
-
 export class LandedCiCollection {
   private readonly stopped = new AbortController();
-  private collecting = false;
-  private requested = false;
+  // The pass under way, or the last one.
+  private running: Promise<void> = Promise.resolve();
+  // The pass asked for once the one under way ends.
+  private next: Promise<void> | undefined;
 
-  // Collects the recorded landings not yet resolved, now, or once the pass
-  // under way ends; nothing where this server does not collect.
-  nudge(): void {
-    if (this.stopped.signal.aborted || !collects()) return;
-    this.requested = true;
-    if (this.collecting) return;
-    this.collecting = true;
-    void this.passesWhileRequested();
+  constructor() {
+    if (!collects()) return;
+    void repeatUntilStopped(this.stopped.signal, recheckMs, async () => {
+      await this.collected();
+      return undefined;
+    });
   }
 
-  private async passesWhileRequested(): Promise<void> {
-    while (this.requested && !this.stopped.signal.aborted) {
-      this.requested = false;
+  // Collects the recorded landings not yet final, now, or once the pass
+  // under way ends; nothing where this server does not collect.
+  nudge(): void {
+    if (this.ended() || !collects()) return;
+    void this.collected();
+  }
+
+  // A pass that starts once the one under way ends, joined by every ask
+  // before it starts.
+  private collected(): Promise<void> {
+    if (this.next !== undefined) return this.next;
+    const next = this.running.then(async () => {
+      this.next = undefined;
+      if (this.ended()) return;
       try {
         await this.pass();
       } catch {
-        // Collected again at the next nudge.
+        // Collected again at the next pass.
       }
-    }
-    this.collecting = false;
+    });
+    this.next = next;
+    this.running = next;
+    return next;
+  }
+
+  // Whether collection has ended, as it may have during any read.
+  private ended(): boolean {
+    return this.stopped.signal.aborted;
   }
 
   private async pass(): Promise<void> {
     const records = await readableRecordsByProject();
     if (records === undefined) return;
     for (const source of publishedProjects()) {
-      if (this.stopped.signal.aborted) return;
-      await this.collect(
-        source,
-        trunkLandings(source, records.get(source.id) ?? []),
-      );
+      if (this.ended()) return;
+      await this.collect(source, records.get(source.id) ?? []);
     }
   }
 
   private async collect(
     source: PublishedSource,
-    landings: readonly LaunchLanding[],
+    records: readonly LaunchRecord[],
   ): Promise<void> {
-    if (landings.length === 0) return;
     let history = await keptLandedCiHistory(source.id);
+    const landings = trunkLandings(source, records, history);
+    const read = passRead(source, this.stopped.signal);
     const measured = new Set<string>();
     for (const landing of landings) {
-      if (this.stopped.signal.aborted || measured.size >= measuredWindow)
-        return;
-      if (history.landings[landing.receipt] === undefined) {
-        const signal = AbortSignal.any([
-          this.stopped.signal,
-          AbortSignal.timeout(readWaitLimitMs),
-        ]);
-        const resolution = finalSlot(await resolved(source, landing, signal));
-        if (resolution === undefined) continue;
-        history = await keepLandedCiResolution(source.id, landing, resolution);
+      if (this.ended() || measured.size >= measuredWindow) return;
+      const held = history.landings[landing.receipt]?.observed;
+      if (held === undefined || held.kind === "pending") {
+        const resolved = await landingResolution(source, landing, read);
+        // A read the end of collection cut short says nothing of its CI.
+        if (this.ended()) return;
+        history = await keepLandedCiResolution(source.id, landing, resolved);
+        // CI that cannot be read now is asked again at the next pass.
+        if (resolved.kind === "pending" && resolved.waitsFor === "read") return;
       }
       const observed = history.landings[landing.receipt]?.observed;
       const build =

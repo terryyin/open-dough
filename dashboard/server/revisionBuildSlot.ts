@@ -52,8 +52,10 @@ export type FinalSlot<Slot> = Exclude<
 // SLOT when no later read changes it; undefined while it is a build still
 // running, CI that could not be read, or a cancelled landing whose later
 // trunk build may yet come. Only final slots are kept: in a remembered
-// done-story comparison answer (`./intentCiComparisonAnswers.ts`) and in the
-// landed CI history (`./landedCiHistoryStore.ts`).
+// done-story comparison answer (`./intentCiComparisonAnswers.ts`), and as a
+// landing's final resolution in the landed CI history
+// (`./landedCiHistoryStore.ts`), whose collection resolves any other as
+// pending (`./landedCiResolution.ts`).
 export function finalSlot<
   Slot extends {
     readonly kind: string;
@@ -117,6 +119,22 @@ export function asSlot(
   return withStatus({ kind: "build", state: build.state, ...identity }, status);
 }
 
+// The nearest first-parent ancestor build of `target`, completed or still
+// running, within `ancestorLimit` revisions: the build a skip at `target`
+// rests on.
+export async function nearestAncestorBuild(
+  target: string,
+  lookup: RevisionCiLookup,
+  call: GitCall,
+  ancestorLimit: number,
+): Promise<RevisionCiBuild | undefined> {
+  const revisions = await firstParentChain(target, call, ancestorLimit + 1);
+  return nearestRevisionBuild(
+    revisions.filter((sha) => sha !== target),
+    lookup,
+  );
+}
+
 // Nearest timed first-parent ancestor build used only to confirm a skip or
 // name a No-build reason — never as the endpoint's proof source.
 export async function nearestAncestorBasisSha(
@@ -125,9 +143,7 @@ export async function nearestAncestorBasisSha(
   call: GitCall,
   ancestorLimit: number,
 ): Promise<string | undefined> {
-  const revisions = await firstParentChain(target, call, ancestorLimit + 1);
-  const ancestors = revisions.filter((sha) => sha !== target);
-  const build = await nearestRevisionBuild(ancestors, lookup);
+  const build = await nearestAncestorBuild(target, lookup, call, ancestorLimit);
   return build?.state === "pass" || build?.state === "failed"
     ? build.revision
     : undefined;

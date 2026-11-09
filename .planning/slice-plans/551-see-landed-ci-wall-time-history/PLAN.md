@@ -179,7 +179,7 @@ Homebrew Bash first on PATH, and `--workers=2`.
 ### 2. Keep collection trustworthy across pending CI and restarts
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 2 rows above.
 
 A recorded landing whose CI is running shows as a pending gap. The collector
@@ -191,6 +191,36 @@ observation per landing and one point per build.
 Safe stopping point: the history is complete and durable for exact builds.
 Sizing: one lifecycle proof loop. Pending, restart and duplicates are states of
 the same idempotent collection, not separate outcomes.
+
+Accepted proof (2026-11-09). Same wrapper and `--workers=2` as slice 1.
+
+- **Focused (90 passed):**
+  `npm run test:dashboard -- backend-tests/review/story-branch-landing backend-tests/intent tests/intent/intent-ci-wall-time-history.spec.ts tests/intent/intent-ci-status-wall-time.spec.ts`
+  - New `backend-tests/intent/landed-ci-history-lifecycle.spec.ts` and `landed-ci-history-pending.spec.ts`:
+    - records present at start;
+    - restart while pending;
+    - two collecting processes;
+    - a development server with its own fake GitHub making no Actions call;
+    - expired Done records;
+    - the G1 no-run, queued and time-bound states;
+    - an unread CI.
+  - The journey "checking pending landings again" (`tests/intent/intent-ci-wall-time-history-pending.spec.ts`) runs at 390×844 with the page clock paused. It shows the pending gap, then reads that follow trunk readings and Check again only.
+  - Failing-first runs against HEAD failed (4 of 5), and ten mutations were each caught.
+- **After the refactor pass** (`nearestAncestorBuild` shared with the skip walk, `landedCiResolution.ts` extracted, specs split), the replacement focused proof passed:
+  - `npm run test:dashboard -- backend-tests/intent backend-tests/review/story-branch-landing` (84);
+  - `npm run test:dashboard -- tests/intent/intent-ci-wall-time-history.spec.ts tests/intent/intent-ci-wall-time-history-pending.spec.ts tests/intent/intent-ci-status-wall-time.spec.ts` (6);
+  - `tests/intent/intent-ci-comparison-skipped.spec.ts` (7);
+  - the completion-builder specs (7);
+  - the Landed lookup node tests.
+- **Consumers (all passed):**
+  - CI status and Proof journeys (40);
+  - request accounting (22);
+  - landing and boundary lifecycle (30);
+  - authenticated reads (204);
+  - `backend-tests/launches` (332).
+- **Load timeout:** one `backend-tests/launches/start-origin-isolation.spec.ts` "successive preparations install current working-tree source without a persistent cache" timed out at 30 s at load 37. It passed alone in 24.3 s at load 36–44; its recorded duration is 11.2 s. This change does not touch it. Its fixed bound under external load is recorded as a finding for correction.
+- **G1 rule:** a landing with no run yet is pending until a later first-parent trunk revision has a run, or one hour after it was recorded on the server's observation clock.
+- **Done-comparison finding for the developer:** the same no-run race reaches the Done-story CI comparison. It remembers a "No build" Landed slot for the life of the process. That is outside this story, which leaves the comparison unchanged.
 
 ### 3. Show provenance, gaps and the 20-build window
 
@@ -302,7 +332,22 @@ observations before implementation.
 ### G1. A landing nudged before its CI run exists is kept as a final gap
 Reported: slice 1 — "At acceptance, finalResolution keeps a none slot as final, and lookupResultBuild answers none with a no-build status when the landed revision has no run yet. The landing nudge follows the push, often before GitHub creates the run, so that landing would never be measured."
 Story clause: "It waits while CI is queued or running and takes the result when it completes."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: dashboard/backend-tests/intent/landed-ci-history-pending.spec.ts 'a landing recorded before its trunk run exists…' (no run yet is a pending gap waiting for a run, then queued, then the exact point), 'a landing whose push never gets a run…' (final only after the hour on the controlled observation clock) and 'landings recorded before collection starts…' (the unbuilt landing is final once CI built past it)
+
+### G2. Final gaps are kept but not listed
+Reported: slice 2 — "final gaps are kept but not answered, so a landing that becomes a final no-build simply leaves the list until slice 3 adds its wording (21.3.1)."
+Story clause: "A landing whose CI is still pending, whose build failed, or whose timing is unavailable (no build, unreadable, expired, no equivalent) breaks the line and is listed with a short reason distinct for each case."
+Disposition: receiving slice 3
+
+### G3. The history store is unbounded per project
+Reported: slice 2 — "the store is still unbounded per project (the plan's PFE asks for a bound). Stale pending entries beyond the window would show until slice 3's window hides them."
+Story clause: "A bounded machine-local store of observations and landing references"
+Disposition: receiving slice 3
+
+### G4. Pending states of skip, cancelled and adapter landings are unobserved
+Reported: slice 2 — "Not tested: the 'waiting for a later trunk build' pending gap; the skip waiting on a running earlier build; adapter projects' pending states."
+Story clause: "It waits while CI is queued or running and takes the result when it completes."
+Disposition: receiving slice 3
 
 ## Preparation review
 

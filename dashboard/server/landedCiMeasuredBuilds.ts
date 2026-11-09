@@ -2,9 +2,9 @@
 // (`./landedCiHistoryStore.ts`): which kept builds are points of CI wall
 // time, as background collection counts them toward its window
 // (`./landedCiCollection.ts`) and Intent's CI status reads them as points
-// (`./intentCiHistoryRead.ts`). A measured build is the landed revision's own
-// passed build with both its start and its completion; its CI wall time is
-// the CI timing comparison's (`../src/ciProofTimeWords.ts`).
+// (`./landedCiHistoryEntries.ts`). A measured build is the landed revision's
+// own passed build with both its start and its completion; its CI wall time
+// is the CI timing comparison's (`../src/ciProofTimeWords.ts`).
 
 import { wallTimeMs } from "../src/ciProofTimeWords.ts";
 import {
@@ -31,9 +31,10 @@ export function measuredBuildOf(
   return observed.build;
 }
 
-// The project's measured builds, each once however many landings it
-// measures, oldest first by its start; one whose CI read named its times or
-// link in a form the page does not take is left out.
+// The project's measured builds as the page's points, each once however many
+// landings it measures, in no particular order (the history orders its
+// entries, `./landedCiHistoryEntries.ts`); one whose CI read named its times
+// or link in a form the page does not take is left out.
 export function measuredPoints(history: ProjectHistory): LandedCiPoint[] {
   const points = new Map<string, LandedCiPoint>();
   for (const { observed } of Object.values(history.landings)) {
@@ -42,6 +43,7 @@ export function measuredPoints(history: ProjectHistory): LandedCiPoint[] {
     if (key === undefined || build === undefined || points.has(key)) continue;
     const runUrl = landedCiPointSchema.shape.runUrl.safeParse(build.runUrl);
     const point = landedCiPointSchema.safeParse({
+      kind: "point",
       revision: build.revision,
       provenance: "exact",
       ...(runUrl.success && runUrl.data !== undefined
@@ -59,9 +61,5 @@ export function measuredPoints(history: ProjectHistory): LandedCiPoint[] {
     });
     if (point.success) points.set(key, point.data);
   }
-  return [...points.values()].sort(
-    (a, b) =>
-      Date.parse(a.startedAt) - Date.parse(b.startedAt) ||
-      a.revision.localeCompare(b.revision),
-  );
+  return [...points.values()];
 }

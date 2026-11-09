@@ -61,7 +61,7 @@ test.describe("a server that collects", () => {
     ]);
     expect(await landedCiHistory(dashboard)).toEqual({
       status: 200,
-      body: { points: [] },
+      body: { entries: [] },
     });
 
     const { landing } = capturedPublicationSchema.parse(
@@ -77,8 +77,9 @@ test.describe("a server that collects", () => {
       .toEqual({
         status: 200,
         body: {
-          points: [
+          entries: [
             {
+              kind: "point",
               revision,
               provenance: "exact",
               runUrl: "https://ci.invalid/runs/41",
@@ -96,7 +97,7 @@ test.describe("a server that collects", () => {
     const asked = github.calls.length;
     expect(await landedCiHistory(dashboard)).toMatchObject({
       status: 200,
-      body: { points: [{ revision }] },
+      body: { entries: [{ kind: "point", revision }] },
     });
     expect(github.calls.slice(asked)).toEqual([]);
   });
@@ -128,7 +129,7 @@ test("a test server records a landing and collects nothing of its own accord, wh
   expect(delivered.landing.receipt).toMatchObject({ revision });
   expect(await landedCiHistory(dashboard)).toEqual({
     status: 200,
-    body: { points: [] },
+    body: { entries: [] },
   });
   expect(runsListedAt(github.calls, revision)).toEqual([]);
   expect(

@@ -2,22 +2,27 @@
 // (`./landedCiCollection.ts`) and Intent's CI status reads
 // (`./intentCiHistoryRead.ts`): for each project, what each trunk landing the
 // dashboard recorded resolved to under the CI timing comparison's Landed rule
-// (`./baseCiRevisionLookup.ts`) -- one build, or one gap with its reason --
-// kept by the landing's receipt with the landing's own reference, beside each
-// build kept once by its run and attempt, in
+// (`./baseCiRevisionLookup.ts`) -- one build, one gap with its reason, or,
+// while that is not final, what the landing still waits for -- kept by the
+// landing's receipt with the landing's own reference, beside each build kept
+// once by its run and attempt, in
 // `~/.open-dough/dashboard/landed-ci-history.json`, resolved through `HOME`.
-// Only a final resolution is kept; a build still running, a cancelled
-// landing still awaiting a later trunk build, or CI that could not be read is
-// resolved again. It keeps its landing references itself, so the history
-// does not end with the launch records' retention. Which kept builds are
+// A final resolution is never replaced; a pending one is replaced by what the
+// landing resolves to next, so however many collections, restarts or
+// processes resolve a landing, it has one observation and each build one
+// entry. It keeps its landing references itself, so the history does not end
+// with the launch records' retention, and collection resolves a pending
+// landing from that reference once its record is gone. Which kept builds are
 // points of CI wall time is `./landedCiMeasuredBuilds.ts`'s. Derived local
 // evidence, never a story fact: rebuildable from recorded landings and CI, so
 // losing it loses only requests and expired evidence. Every process on this
 // machine reads the same file; it is read, replaced atomically, and moved
 // aside when unreadable as `./machineJsonStore.ts` describes.
 
+import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
+import { pendingWaits } from "../src/landedCiHistory.ts";
 import { commitIdSchema, type LaunchLanding } from "../src/launchLanding.ts";
 import {
   buildSelectionSchema,
@@ -42,8 +47,14 @@ const keptBuildSchema = z.object({
   completedAt: z.string().min(1).optional(),
 });
 
+// The run attempt a pending landing waits on, as its CI read named it.
+const awaitedRunSchema = z.object({
+  runUrl: z.string().min(1).optional(),
+  ...runIdentityShape,
+});
+
 // What one landing resolved to: a build, and how that build was selected for
-// it, or a gap with why.
+// it, or a gap with why; or, while neither is final, what it waits for.
 const observationSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("build"),
@@ -55,11 +66,17 @@ const observationSchema = z.discriminatedUnion("kind", [
     explanation: z.string().min(1),
     requestedStatus: requestedRevisionCiStatusSchema.optional(),
   }),
+  z.object({
+    kind: z.literal("pending"),
+    waitsFor: z.enum(pendingWaits),
+    run: awaitedRunSchema.optional(),
+  }),
 ]);
 
 export type Observation = z.infer<typeof observationSchema>;
 
-// A recorded landing's reference and what it resolved to.
+// A recorded landing's reference and what it resolved to, kept by its
+// receipt.
 const keptLandingSchema = z.object({
   revision: commitIdSchema,
   receivedAt: z.iso.datetime(),
@@ -97,9 +114,37 @@ export async function keptLandedCiHistory(
     : noHistory;
 }
 
+// A trunk landing as the history refers to it: by its receipt, with its
+// landed revision, when the dashboard recorded it and the story it names.
+export type LandingReference = Pick<
+  LaunchLanding,
+  "receipt" | "revision" | "receivedAt" | "identity"
+>;
+
+// The landings the history keeps a reference to, whether or not their launch
+// records are still kept.
+export function keptLandingReferences(
+  history: ProjectHistory,
+): LandingReference[] {
+  return Object.entries(history.landings).map(
+    ([receipt, { revision, receivedAt, identity }]) => ({
+      receipt,
+      revision,
+      receivedAt,
+      ...(identity === undefined ? {} : { identity }),
+    }),
+  );
+}
+
 // What a landing finally resolved to under the Landed rule: a completed
 // build, or a gap that no later read changes (`finalSlot`).
 type FinalResolution = FinalSlot<RevisionBuildSlot>;
+
+// What a landing waits for while its resolution is not final.
+export type PendingResolution = Extract<Observation, { kind: "pending" }>;
+
+// What a landing resolved to now: final, or pending.
+export type LandedResolution = FinalResolution | PendingResolution;
 
 // One build's key: its run and attempt, a CI adapter's attempt, or, for a
 // build its CI read named neither of, its revision.
@@ -111,10 +156,11 @@ function buildKeyOf(build: Extract<FinalResolution, { kind: "build" }>) {
   return `revision/${build.revision}`;
 }
 
-function kept(resolution: FinalResolution): {
+function kept(resolution: LandedResolution): {
   readonly observed: Observation;
   readonly build?: readonly [string, z.infer<typeof keptBuildSchema>];
 } {
+  if (resolution.kind === "pending") return { observed: resolution };
   if (resolution.kind !== "build")
     return {
       observed: {
@@ -154,22 +200,26 @@ function kept(resolution: FinalResolution): {
   };
 }
 
-// Keeps what `landing` finally resolved to, unless the history already holds
-// that landing, as another collection may have kept it meanwhile; answers the
-// project's history as it is then kept.
+// Keeps what `landing` resolved to, unless the history already holds a final
+// resolution of it, as another collection may have kept meanwhile, or holds
+// it pending for the same; answers the project's history as it is then kept.
 export async function keepLandedCiResolution(
   sourceId: string,
-  landing: LaunchLanding,
-  resolution: FinalResolution,
+  landing: LandingReference,
+  resolution: LandedResolution,
 ): Promise<ProjectHistory> {
   let history = noHistory;
   await replaceMachineJson(historyStore(), (stored) => {
     const project = stored[sourceId] ?? noHistory;
-    if (project.landings[landing.receipt] !== undefined) {
+    const held = project.landings[landing.receipt]?.observed;
+    const { observed, build } = kept(resolution);
+    if (
+      held !== undefined &&
+      (held.kind !== "pending" || isDeepStrictEqual(held, observed))
+    ) {
       history = project;
       return leaveMachineJson;
     }
-    const { observed, build } = kept(resolution);
     history = {
       landings: {
         ...project.landings,
