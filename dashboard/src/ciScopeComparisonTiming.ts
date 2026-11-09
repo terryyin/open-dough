@@ -6,7 +6,6 @@
 
 import type { CiProofEntry } from "./ciProof.ts";
 import {
-  durationChangeWords,
   executionTimeDifferenceWords,
   executionTimeWords,
   wholeSecondDifferenceWords,
@@ -30,6 +29,7 @@ import {
 import { endpointProofReadOf } from "./ciScopeComparisonEndpoint.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
+import { timeChangeOf } from "./storyCiRelativeChange.ts";
 
 export type ComparisonTimingPrecision = "precise" | "whole-second";
 
@@ -129,16 +129,8 @@ export function afterCellOf(
   }
   if (timing.kind !== "measured" || baselineMs === undefined)
     return timingCellOf(timing, words.value);
-  // before → after (Δ[, %]) keeps the baseline column's own value and makes
-  // the difference readable as separate text, with a percentage only when the
-  // baseline is a measured non-zero duration.
   return {
-    text: durationChangeWords(
-      baselineMs,
-      timing.ms,
-      words.value,
-      words.difference,
-    ),
+    ...timeChangeOf(baselineMs, timing.ms, words.difference),
     ms: timing.ms,
   };
 }

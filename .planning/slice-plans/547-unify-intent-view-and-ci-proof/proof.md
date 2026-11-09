@@ -87,3 +87,118 @@ reused, runtime imports/styles and moved helper observations reverified:
 `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed282-refactor1-proof.json caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-status-homepage.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-sidebar-toggle.spec.ts tests/intent/intent-story-views-narrow.spec.ts tests/intent/intent-story-summary-title.spec.ts tests/intent/intent-story-review-return.spec.ts tests/intent/intent-story-changes-gaps.spec.ts tests/intent/intent-code-browse.spec.ts --workers=2`
 passed 16/16 strict, 34.95 s; typecheck and diffcheck passed. All changed/new
 files remain <=250 lines after formatter projection. No unresolved gap.
+
+Native workflow verification after the directed wait: installed diagnostic
+`workflow terryyin/open-dough` returned active `ci.yml`, id `351271804`,
+display name `CI`, path `.github/workflows/ci.yml`. Initial lookup hold is settled.
+
+## Consumer trace and verification gates
+
+The shared page reaches enclosing navigation and all Intent views. Inspected
+observers include `intentModePage.ts`, `support/intentStoryPage.ts`,
+`intentCiStatusPage.ts`, and `intentPerspectivePage.ts`: their current context
+detection and separate-header/tab-row selectors must follow the shown evidence
+context rather than infer it from retained Selected story. In particular,
+`intent-ci-status-homepage.spec.ts` currently expects zero h2 headings;
+project-visit/home-activation expect the story header absent; sidebar-toggle
+asserts combined tab-row text; gaps asserts the old first-child structure.
+Replace those obsolete structural observations with common-page semantics,
+preserving evidence, keyboard, overflow, and reading expectations.
+
+CI presentation reaches `summaryComparisonExpectedRows.ts`,
+`summaryComparisonFileExpectedRows.ts`, `expectCiComparisonCues.ts`,
+`ciEvidenceLabelsPage.ts`, and their enclosing specs. They currently expect
+before → after wording and comparison tint/count edges in Summary/Proof.
+Update them for the shared signed/mark presentation while preserving the
+classification and tree cues. The sort unit's final case explicitly expects
+the old Summary measured-time sort and must change, not survive as a second
+domain rule.
+
+At each implementation diff, run the installed consumer-trace script with
+`--base HEAD` and terms for the changed header/context, old comparison wording,
+and any changed helper exports. Follow located helpers to their callers and
+give each consumer a run/reused/excluded disposition. These preparation traces
+are starting evidence, not a substitute for the actual diff's trace.
+
+Focused commands start from this worktree:
+
+- `npm run typecheck:dashboard` and `npm run lint` for changed dashboard code.
+- Slice 1: `npm run test:dashboard -- tests/intent/intent-ci-status-homepage.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-home-activation.spec.ts tests/intent/intent-reading-place.spec.ts tests/intent/intent-sidebar-toggle.spec.ts tests/intent/intent-story-views-narrow.spec.ts tests/intent/intent-story-changes-gaps.spec.ts tests/intent/intent-ci-proof.spec.ts tests/intent/intent-summary-ci-proof-table.spec.ts --workers=2`.
+- Slice 2: `node --test tests/support/intent-ci-comparison-sort.test.mjs tests/support/intent-ci-relative-change.test.mjs tests/support/intent-scope-proof.test.mjs tests/support/intent-scope-comparison-cues.test.mjs tests/support/intent-scope-comparison-wording.test.mjs` and `npm run test:dashboard -- tests/intent/intent-summary-story-comparison.spec.ts tests/intent/intent-summary-story-comparison-file.spec.ts tests/intent/intent-summary-story-comparison-sort.spec.ts tests/intent/intent-summary-story-comparison-gaps.spec.ts tests/intent/intent-summary-story-comparison-outside.spec.ts tests/intent/intent-ci-comparison-relative.spec.ts tests/intent/intent-read-reuse.spec.ts tests/intent/intent-read-reuse-story.spec.ts --workers=2`.
+
+For the shared presentation changes, the maintained `dashboard/tests/intent`
+suite is the affected consumer set: run `npm run test:dashboard -- tests/intent
+--workers=2` before delivery, including additional consumers found by the
+actual diff trace. Use a single sufficient run instead of repeating its
+covered focused cases. No full repository suite is prescribed solely because
+hosted CI runs it. Published CI failures remain owned under the policy below.
+
+
+CI observer received a second informational directed throttle while slice 2
+proof ran: resumes `2026-11-09T02:08:58.352Z` after 2441 s. Coverage remains
+armed; do not poll or relabel this as CI success/loss. Final applicable
+completion still owns the wait after delivery/review.
+
+## Slice 2 acceptance and proof
+
+Implementation return `/tmp/seed282-slice2-return.md` accepted after inspecting
+actual model, setup and observing assertions. Shared frame receives held
+evidence; scope cells preserve classification/rename/precision and supply
+changeMs to existing sorting; no new reader or endpoint policy. Live preference
+is above hidden mounted story panels. Scale receives own figures and immediate
+rows only. Source review rows individually retain observed locations or G3/G4.
+Docs align comparison/Summary/Proof behavior and tree cues. Excluded endpoint,
+schema, collection, revision/retry, count units, coverage and project views are
+unchanged in the production diff; independent SEED-281 remains unrelated.
+
+Before implementation, the signed file Proof acceptance failed for old
+before-to-after text, using the normal clean-merge fixture. Provisional compact
+labels likewise failed before correction after the fixture's required slug
+was supplied. Source examples are now directly observed by deep-relative,
+fallback, signed-sort and zero-Baseline browser journeys. Geometry proves
+shared own/child scale, min50%, scope rescaling, left/right/unchanged marks;
+toggling preserves geometry/order and synchronizes back to hidden home panel.
+The real owning-merge nested file shows +70ms/+21%; added/gap/zero Baseline
+show no fabricated ratio. Exactly one comparison plus three proof requests
+remain unchanged during full drilling; Summary initiates no source-text read.
+Literal expanded unit command (42/42 passed):
+`node --test tests/support/intent-ci-comparison-sort.test.mjs tests/support/intent-ci-relative-change.test.mjs tests/support/intent-scope-proof.test.mjs tests/support/intent-scope-comparison-cues.test.mjs tests/support/intent-scope-comparison-wording.test.mjs tests/support/dashboard-ci-comparison-entries.test.mjs tests/support/intent-ci-proof-sort.test.mjs tests/support/intent-ci-proof-timing.test.mjs`
+Final focused commands passed with strict default reporter:
+`caffeinate -s -i npm run test:dashboard -- tests/intent/intent-summary-story-comparison-sort.spec.ts --workers=1`
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed282-slice2-signed-sort.json caffeinate -s -i npm run test:dashboard -- tests/intent/intent-summary-story-comparison-signed-sort.spec.ts --workers=2`
+`caffeinate -s -i npm run test:dashboard -- tests/intent/intent-summary-story-comparison-fallback.spec.ts tests/intent/intent-ci-comparison-drilldown-relative.spec.ts --workers=2`
+Full affected command:
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed282-slice2-full-intent.json caffeinate -s -i npm run test:dashboard -- tests/intent --workers=2`
+finished 270 selected,269 passed,one obsolete tree location ARIA before-to-after
+literal failed,465.45s. Only its expected output changed to shared signed text;
+all cue/tint/count/selection/focus assertions retained. No production change
+followed full run. The complete repaired journey passed1/1 strict,13.26s:
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed282-slice2-tree-cues.json caffeinate -s -i npm run test:dashboard -- tests/intent/intent-story-ci-cues.spec.ts --workers=1`
+`npm run typecheck:dashboard` and `git diff --check` passed afterward. Other269
+observations remain valid. Full run's actual host ACawake,load6.04/5.36/5.23,
+~2GiBfree+inactive with lowCPU separate Side panel runner: max2workers under
+`caffeinate -s -i`; no relaxed timeout or sleep/flake invalidation.
+Consumer trace uses baseHEAD and changed/retired timing conversion,Show%,
+framing,sorting,compact label and tree accessible-name terms. Final839 consumer
+rows dispositioned at `/tmp/seed282-slice2-consumer-dispositions.md`; actual
+Intent and42-node consumers run, generic planning/import/endpoint parsing
+contracts outside effect excluded after following their boundaries.
+
+## Slice 2 independent refactor
+
+Accepted `/tmp/seed282-refactor2-return.md` with `## REFACTOR COMPLETE`.
+Removed internal showsChange flag now redundant with comparison-cell identity
+from type/constructors/table notes/sorter; only three representation-only unit
+assertions removed. Coordinator inspected changed consumers and exact preserved
+behavioral assertions. No schema/value/read/endpoint/fixture change.
+Expanded42-node command above passed again; current focused browser command:
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed282-refactor2-proof.json caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-relative.spec.ts tests/intent/intent-ci-comparison-drilldown-relative.spec.ts tests/intent/intent-summary-story-comparison-signed-sort.spec.ts tests/intent/intent-summary-story-comparison-sort.spec.ts tests/intent/intent-summary-ci-proof-table.spec.ts --workers=1`
+passed8/8 strict,60.64s. Typecheck/diffcheck passed. Current shared sort/table,
+geometry/preference/read accounting reobserved; accepted full269+tree evidence
+retained elsewhere. Trace842rows dispositioned at
+`/tmp/seed282-refactor2-consumer-dispositions.md`; no runtime flag reference.
+All files <=250 formatted lines. ACawake host load5.35/5.71/5.70,~0.74GiBfree
+plusinactive, separate Sidepanel runner: supported one-worker bounded run under
+caffeinate-s-i, no timeout/sleep/flake. No remaining gap. Source freshness
+unchanged at `2f08bababae8410472d4c8aa9abdf23c9358a48b`; named sibling
+changes remain unlanded; latest trunk adds only preparation announcements.

@@ -90,7 +90,7 @@ provider contract is assumed.
 ### 2. Read and sort the same CI comparison at every evidence depth
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 2 rows above; one complete story → location → folder → file
 journey, adversarial sorting, gaps, relative geometry, and request accounting.
 
@@ -120,44 +120,14 @@ no separate Structure slice is justified by the inspected implementation.
 
 ## Consumer trace and verification gates
 
-The shared page reaches enclosing navigation and all Intent views. Inspected
-observers include `intentModePage.ts`, `support/intentStoryPage.ts`,
-`intentCiStatusPage.ts`, and `intentPerspectivePage.ts`: their current context
-detection and separate-header/tab-row selectors must follow the shown evidence
-context rather than infer it from retained Selected story. In particular,
-`intent-ci-status-homepage.spec.ts` currently expects zero h2 headings;
-project-visit/home-activation expect the story header absent; sidebar-toggle
-asserts combined tab-row text; gaps asserts the old first-child structure.
-Replace those obsolete structural observations with common-page semantics,
-preserving evidence, keyboard, overflow, and reading expectations.
-
-CI presentation reaches `summaryComparisonExpectedRows.ts`,
-`summaryComparisonFileExpectedRows.ts`, `expectCiComparisonCues.ts`,
-`ciEvidenceLabelsPage.ts`, and their enclosing specs. They currently expect
-before → after wording and comparison tint/count edges in Summary/Proof.
-Update them for the shared signed/mark presentation while preserving the
-classification and tree cues. The sort unit's final case explicitly expects
-the old Summary measured-time sort and must change, not survive as a second
-domain rule.
-
-At each implementation diff, run the installed consumer-trace script with
-`--base HEAD` and terms for the changed header/context, old comparison wording,
-and any changed helper exports. Follow located helpers to their callers and
-give each consumer a run/reused/excluded disposition. These preparation traces
-are starting evidence, not a substitute for the actual diff's trace.
-
-Focused commands start from this worktree:
-
-- `npm run typecheck:dashboard` and `npm run lint` for changed dashboard code.
-- Slice 1: `npm run test:dashboard -- tests/intent/intent-ci-status-homepage.spec.ts tests/intent/intent-project-visit.spec.ts tests/intent/intent-home-activation.spec.ts tests/intent/intent-reading-place.spec.ts tests/intent/intent-sidebar-toggle.spec.ts tests/intent/intent-story-views-narrow.spec.ts tests/intent/intent-story-changes-gaps.spec.ts tests/intent/intent-ci-proof.spec.ts tests/intent/intent-summary-ci-proof-table.spec.ts --workers=2`.
-- Slice 2: `node --test tests/support/intent-ci-comparison-sort.test.mjs tests/support/intent-ci-relative-change.test.mjs tests/support/intent-scope-proof.test.mjs tests/support/intent-scope-comparison-cues.test.mjs tests/support/intent-scope-comparison-wording.test.mjs` and `npm run test:dashboard -- tests/intent/intent-summary-story-comparison.spec.ts tests/intent/intent-summary-story-comparison-file.spec.ts tests/intent/intent-summary-story-comparison-sort.spec.ts tests/intent/intent-summary-story-comparison-gaps.spec.ts tests/intent/intent-summary-story-comparison-outside.spec.ts tests/intent/intent-ci-comparison-relative.spec.ts tests/intent/intent-read-reuse.spec.ts tests/intent/intent-read-reuse-story.spec.ts --workers=2`.
-
-For the shared presentation changes, the maintained `dashboard/tests/intent`
-suite is the affected consumer set: run `npm run test:dashboard -- tests/intent
---workers=2` before delivery, including additional consumers found by the
-actual diff trace. Use a single sufficient run instead of repeating its
-covered focused cases. No full repository suite is prescribed solely because
-hosted CI runs it. Published CI failures remain owned under the policy below.
+[Full consumer trace and literal focused commands](proof.md#consumer-trace-and-verification-gates)
+own the known observers, obsolete assertions and required runs. At the actual
+diff, trace changed/retired header/context/comparison/helper effects with the
+installed consumer-trace script, follow callers and disposition every consumer.
+Run the affected maintained `tests/intent` suite with at most two workers
+before delivery, using a single sufficient run plus any newly reached consumer
+checks. Reuse unchanged accepted proof; repair every failure under policy.
+Dashboard edits require typecheck; check-only commit hook owns lint.
 
 **Local gate.** Follow [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos):
 start fully awake; on AC wrap long checks in **caffeinate -s -i**. On battery,
@@ -224,6 +194,18 @@ Story clause: "Hide files choice"
 Disposition: proved by slice 1: `dashboard/tests/intent/intent-sidebar-toggle.spec.ts`, “the hidden column stays hidden through a Project Intent visit”: lines 167–191 explicitly hide story, visit project with files shown, return to story still hidden, then retain it through Development. Coordinator inspected this previously missed block; current focused run passed, with full Intent run covering it again.
 Commitment: C10e
 
+
+### G3. Comparison table retains zoomed reading
+Reported: slice 2 — "Slice 2 browser verification found 103px internal table overflow at 200% zoom after shared relative marks were added; the existing containment assertion failed."
+Story clause: "narrow and zoomed reading"
+Disposition: proved by slice 2: original intent-summary-story-comparison-sort 200% containment assertion passed unchanged after responsive mark layout and narrow padding specificity repair; included again in full 270-test selection. No assertion relaxed.
+Commitment: C25d
+
+### G4. Keep Provisional distinct from Branch N/A in Trunk Mode
+Reported: slice 2 — "Slice 2 fallback inspection found compact Summary/File endpoint labels call answer.provisional Branch, replacing Trunk Mode Branch N/A rather than naming Provisional separately."
+Story clause: "Taken Trunk Mode's Provisional"
+Disposition: proved by slice 2: intent-summary-story-comparison-fallback Taken Trunk Mode journey observes separate Branch Not applicable and Provisional revision labels, matching active comparison and unused-Landed reason in Summary and file Proof; current focused and full suite passed.
+Commitment: J06b
 ## Slice 1 acceptance and proof
 
 Accepted the common page, separate evidence/reading owners, and independent
@@ -236,3 +218,22 @@ and diff check passed. G1 and G2 are proved; no slice 1 gap remains.
 Independent refactor accepted: common header/style ownership and exact test
 helper extraction; focused 16/16 strict passed, typecheck/diffcheck passed.
 Details and command retained in [proof](proof.md#slice-1-independent-refactor).
+
+Slice 1 published `f95f1a2808ad5cc74b785c0cbbe9f972495bc03f` to the
+execution branch; suffix base `b62745bec339504a683c736d59caa09f4d3b915c`.
+Guarded formatting/hook/commit passed; same observer reused. This accepted
+SHA is the next increment's previously published base. CI remains pending.
+
+## Slice 2 acceptance
+
+Accepted shared precision-aware signed scope cells, common comparison frame,
+per-display scale and one live scoped Show % preference. Sorting follows cell
+meaning; endpoint/read owners remain unchanged. Coordinator inspected deep
+geometry/preference/request, fallback, zero, adversarial sort, rename/gap, tree
+cue and documentation boundaries against all source commitments. G3/G4 are
+proved. Full 269 passed plus repaired tree journey, 42 unit and focused cases
+passed; typecheck/diffcheck passed. [Detailed proof](proof.md#slice-2-acceptance-and-proof).
+
+Independent refactor accepted: retired redundant internal showsChange flag;
+comparison identity owns signed semantics. Focused8/unit42/typecheck/diffcheck
+passed; [proof](proof.md#slice-2-independent-refactor) retains boundaries/commands.

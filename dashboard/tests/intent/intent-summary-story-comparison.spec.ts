@@ -57,7 +57,6 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       `Baseline No build ${shortSha(setup.baseline)}`,
       `Branch ${shortSha(setup.branchSide)}`,
       `Landed ${shortSha(setup.completion)}`,
-      "Observed, not attributed",
     ]);
     await expectObservedNotAttributed(summary);
     // A screen reader in browse mode hears each label from its content.
@@ -74,7 +73,6 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         - listitem:
           - text: Landed
           - code: ${JSON.stringify(shortSha(setup.completion))}
-        - listitem: Observed, not attributed , Observed builds; differences are not attributed to the story
     `);
 
     await expectComparisonScopeRows(

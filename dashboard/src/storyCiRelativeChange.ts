@@ -1,9 +1,8 @@
-// Timing change in a story's CI comparison (`./IntentCiComparison.tsx`):
-// the signed whole-second change between two measured timings with, for a
-// positive measured baseline, the change as a fraction of it (none for a zero
-// baseline), and one symmetric scale shared by the summary and every entry
-// cell. The scale reaches half its mark at a 50% change unless a larger
-// change needs more room.
+// Timing change at every depth of a story's CI comparison:
+// the signed change between two measured timings in the display's precision,
+// the change as a fraction of a positive measured baseline (none for a zero
+// baseline), and one symmetric scale for the displayed figures and rows.
+// A 50% change fills one side unless a larger change needs more room.
 
 import { wholeSecondDifferenceWords } from "./ciProofTimeWords.ts";
 
@@ -18,10 +17,14 @@ export type TimeChange = {
 // The change from a measured BASELINE to a measured LATER timing ("+17 s",
 // "−8 s", "0 s"), relative to a positive BASELINE. A measured zero baseline
 // still gives a change, but no relative one.
-export function timeChangeOf(baselineMs: number, laterMs: number): TimeChange {
+export function timeChangeOf(
+  baselineMs: number,
+  laterMs: number,
+  difference: (ms: number) => string = wholeSecondDifferenceWords,
+): TimeChange {
   const changeMs = laterMs - baselineMs;
   return {
-    text: wholeSecondDifferenceWords(changeMs),
+    text: difference(changeMs),
     changeMs,
     ...(baselineMs > 0 ? { relative: changeMs / baselineMs } : {}),
   };

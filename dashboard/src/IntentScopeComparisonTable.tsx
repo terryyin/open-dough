@@ -10,12 +10,7 @@
 // file reuses ComparisonNamed for its Proof
 // (`./IntentFileProof.tsx`).
 
-import {
-  CircleDashed,
-  Eye,
-  GitCommitHorizontal,
-  Hourglass,
-} from "lucide-react";
+import { CircleDashed, GitCommitHorizontal, Hourglass } from "lucide-react";
 import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
 import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import {
@@ -39,26 +34,20 @@ import {
 } from "./IntentScopeSummaryRows.tsx";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
-import type {
-  StoryCiComparisonAnswer,
-  StoryCiComparisonSlot,
-} from "./storyCiComparison.ts";
+import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 import {
   comparisonEndpointProofsChecking,
   type ComparisonEndpointName,
 } from "./storyCiComparisonEntries.ts";
-import { observedNotAttributedInFull } from "./storyCiComparisonWording.ts";
+import { IntentCiComparisonFrame } from "./IntentCiComparisonFrame.tsx";
 import { slotShortWords } from "./storyCiComparisonSlotWords.ts";
-import {
-  activeComparisonAfterSideOf,
-  type ComparisonEndpointProofs,
-} from "./useIntentCiComparisonEntries.ts";
+import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
 // An endpoint as a label: "Baseline abc1234", "Landed Skipped def5678" or
 // "Landed Not landed yet", its full status or explanation heard after it --
 // the status words Intent's homepage comparison identity uses.
 function endpointLabel(
-  endpoint: ComparisonEndpointName,
+  endpoint: ComparisonEndpointName | "Provisional",
   slot: StoryCiComparisonSlot,
 ): EvidenceLabel {
   const { status, revision, full } = slotShortWords(slot);
@@ -84,16 +73,9 @@ const provisionalLabel: EvidenceLabel = {
   full: "The story is still Taken: its latest build, not a final result",
 };
 
-const framingLabel: EvidenceLabel = {
-  key: "framing",
-  icon: Eye,
-  words: "Observed, not attributed",
-  full: observedNotAttributedInFull,
-};
-
-// A selected story's comparison identity as labels: the provisional mark
-// while Taken, Baseline, Branch and Landed, and the observed-not-attributed
-// framing.
+// A selected story's comparison identity as labels: Baseline, Branch and
+// Landed, plus the provisional mark or distinct Trunk Mode endpoint while
+// Taken. The shared comparison frame supplies observed-build framing.
 export function ComparisonNamed({
   evidence,
 }: {
@@ -104,11 +86,15 @@ export function ComparisonNamed({
     <EvidenceLabels
       label={`CI timing comparison of ${story}`}
       labels={[
-        ...(answer.phase === "taken" ? [provisionalLabel] : []),
+        ...(answer.phase === "taken" && answer.provisional === undefined
+          ? [provisionalLabel]
+          : []),
         endpointLabel("Baseline", answer.baseline),
-        endpointLabel("Branch", answer.provisional ?? answer.branch),
+        endpointLabel("Branch", answer.branch),
+        ...(answer.provisional === undefined
+          ? []
+          : [endpointLabel("Provisional", answer.provisional)]),
         endpointLabel("Landed", answer.landed),
-        framingLabel,
       ]}
     />
   );
@@ -124,20 +110,19 @@ function changeOf(
 export function ComparisonTable({
   path,
   inventory,
-  proofs,
-  answer,
+  evidence,
   treeFiles,
   onOpen,
   sorting,
 }: {
   readonly path: string;
   readonly inventory: readonly string[];
-  readonly proofs: ComparisonEndpointProofs;
-  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
+  readonly evidence: Extract<ScopeEvidence, { kind: "comparison" }>;
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile> | undefined;
   readonly onOpen: (next: IntentSelection) => void;
   readonly sorting: CiProofSorting;
 }) {
+  const { proofs, answer } = evidence;
   const children = immediateChildrenOf(path, inventory);
   const checking = comparisonEndpointProofsChecking(
     proofs.baseline,
@@ -187,14 +172,24 @@ export function ComparisonTable({
       ),
     );
   }
+  const figures = cellsFor(path);
+  const relatives = [figures, ...rows.map((row) => row.cells)].flatMap(
+    (cells) =>
+      "baseline" in cells ? [cells.branch.relative, cells.landed.relative] : [],
+  );
   return (
-    <>
+    <IntentCiComparisonFrame
+      answer={answer}
+      proofs={proofs}
+      relatives={relatives}
+    >
+      <ComparisonNamed evidence={evidence} />
       {checking && (
         <p className="intent-ci-reading" role="status">
           Reading entry comparison…
         </p>
       )}
-      <ScopeFigures path={path} cells={cellsFor(path)} />
+      <ScopeFigures path={path} cells={figures} />
       {entry !== undefined && (
         <NoBreakdownLabel
           entry={entry}
@@ -211,6 +206,6 @@ export function ComparisonTable({
       {entry !== undefined && (
         <OutsideExplanation entry={entry} path={path} outside={outside} />
       )}
-    </>
+    </IntentCiComparisonFrame>
   );
 }

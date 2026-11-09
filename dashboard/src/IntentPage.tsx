@@ -9,6 +9,7 @@ import { FileBrowserToggle } from "./FileBrowserToggle.tsx";
 import { Icon } from "./Icon.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
+import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentHeader } from "./IntentHeader.tsx";
 import { backToStoryId, projectTabs } from "./intentProjectTabs.ts";
@@ -205,7 +206,7 @@ export function IntentPage({
     page
   ) : (
     <StoryCiReturnProvider idPrefix={tabsIdPrefix} chooseTab={chooseTab}>
-      {page}
+      <IntentCiComparisonPreference>{page}</IntentCiComparisonPreference>
     </StoryCiReturnProvider>
   );
 }

@@ -99,7 +99,6 @@ function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
   const cell = timingCellIn(row.cells, column);
   const byChange =
     isComparisonCells(row.cells) &&
-    row.cells.showsChange === true &&
     (column === "branch" || column === "landed");
   return byChange ? cell?.changeMs : cell?.ms;
 }

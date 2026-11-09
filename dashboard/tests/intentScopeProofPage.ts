@@ -66,12 +66,18 @@ export const comparisonTableColumns = [
 ] as const;
 
 const comparisonFigureColumns = [...comparisonTableColumns, "Parts"] as const;
+const comparedTableColumns = [
+  "Counts",
+  "Baseline",
+  "Branch vs baseline",
+  "Landed vs baseline",
+] as const;
 
 // A Summary's story comparison table: each child's story change under Change.
 export const comparisonScopeColumns = [
   "Scope",
   "Change",
-  ...comparisonTableColumns,
+  ...comparedTableColumns,
 ] as const;
 
 // A compared scope, its change (empty when the story leaves it unchanged),

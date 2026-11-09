@@ -63,8 +63,14 @@ comparison (All changes, uncommitted included) even for a story with a review
 mark. Closing that review clears the selected story, as any Side panel close
 does, and the keyboard returns to the chosen tab of Project Intent, which
 Intent then shows. A changed file's Purpose is Review changes' diff of
-it, and Proof holds that file's comparison when available. A story without a
-comparison, and a failed read with retry, each say so while the published tree
+it, and Proof holds that file's comparison when available. Location and folder
+Summary and file Proof share the story's
+[CI comparison](dashboard-development-intent-ci-comparison.md): active heading,
+observed-build framing, Baseline / Branch / Landed columns, signed changes and
+relative marks. Precise drill-down changes stay visible (`340 ms` to `410 ms`
+shows `+70 ms`). **Show %** is one preference across these scopes and CI
+comparison; each displayed scope uses one scale for its own figures and rows.
+A story without a comparison, and a failed read with retry, each say so while the published tree
 stays usable; clearing the selected story returns to project **CI status** in
 the same arrangement, with **No story selected** in its header and judged-run
 evidence in Proof. The story is a lens on Intent, not a separate

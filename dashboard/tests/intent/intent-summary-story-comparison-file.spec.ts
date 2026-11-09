@@ -72,7 +72,6 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       `Baseline No build ${shortSha(setup.baseline)}`,
       `Branch ${shortSha(setup.branchSide)}`,
       `Landed ${shortSha(setup.completion)}`,
-      "Observed, not attributed",
     ]);
     await expectObservedNotAttributed(proof);
     await expectFileComparisonRow(

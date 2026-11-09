@@ -76,27 +76,25 @@ back keeps it, and a sorted column the next
 Summary table lacks (a timing column or **Change** between one run's figures
 and a story comparison) gives way to the browser's order there without being
 lost: a later table with that column, such as the comparison once it is read,
-is sorted by it again. With a story selected, the same Summary labels that story's CI timing
-comparison the same way: `Provisional` while the story is Taken; **Baseline**,
-**Branch** and **Landed**, each with the requested revision's status word
-(`Skipped`, `Cancelled`, `No build`) before the short revision whose proof is
-used, or a gap's word (`Not applicable`, `Not landed yet`), its full status as
-its full words; and `Observed, not attributed` for the observed-not-attributed
-statement; its group
-and table use **Baseline**, **Branch** and **Landed** for precise times with signed
-differences, shows counted-results differences in **Counts** (a gap endpoint
-shows its gap, not a difference), names each child's story change in a
-**Change** column after **Scope** (`added`, `modified`, `removed` or
-`renamed`, empty when unchanged; a rename takes its baseline from its old
-path, which its **Baseline** cell names) that sorts by kind in that order
-with unchanged rows last in either direction, explains per-row gaps, and shows the same
-count-border and duration-tint cues the homepage entry table classifies (see
-[CI timing comparison](dashboard-development-intent-ci-comparison.md)). The
-group's **Parts** shows completeness for the chosen build (landed, else
-branch, else baseline), and that build's proof labels what **Not in the rows
-above** holds and an entry it does not break down by file as one run's
-Summary does, `No file breakdown` naming it ("The Landed CI proof summary
-does not break tests down by file").
+is sorted by it again. A selected story's Summary and file Proof share the
+[CI comparison](dashboard-development-intent-ci-comparison.md) heading,
+observed-build framing, active endpoints and unused-Landed explanation.
+Short labels keep `Provisional` while Taken and **Baseline**, **Branch** and
+**Landed** with each requested revision's status and the short revision whose
+proof is used, or the endpoint's gap explanation. **Baseline** shows measured
+time; **Branch** and **Landed** show signed changes from it, preserving precise
+sub-second differences. Relative marks and the story's shared **Show %**
+preference use one scale for the displayed figures and immediate rows.
+Baseline sorts by measured time; Branch/Landed sort by signed change, with
+uncomparable rows last in either direction and ties in supplied order.
+**Counts** keeps counted-results differences and preserves gap endpoints;
+**Change** after **Scope** names `added`, `modified`, `removed` or `renamed` (empty when unchanged),
+sorting in that order with unchanged last in either direction. A rename uses
+its old Baseline path, named in that cell. The group's **Parts** keeps the
+chosen build's completeness (landed, else branch, else baseline); that build
+labels **Not in the rows above** and `No file breakdown`, as one run's Summary
+does. Comparison figures and tables use signed words and relative marks;
+location and file tree cues retain their count-border/duration-tint meaning.
 Each result counts in one row: an unlisted file
 under a listed folder is in that folder's row, and outside only in that
 folder's own summary. Execution time is precise enough to compare sub-minute
@@ -139,9 +137,9 @@ whatever story is selected; with a file selected it offers **Purpose** and
 **Proof** tabs (Purpose first; kept across file selections in the same Intent
 visit), and with a location or folder its summary. Purpose is the published
 source or, in a selected story's **Changed tests**, its source diff; Proof is
-that file's published CI evidence from the view's evidence owner (judged-run
-results, or a story's baseline / branch / landed comparison), under the
-Summary's evidence labels.
+that file's published CI evidence from the view's evidence owner: judged-run
+results, or the story's shared signed comparison, under Summary's evidence
+labels.
 Directly activating the **CI status** tab (click, Enter or Space), even while
 already chosen, returns home: the selection clears and CI status shows.
 Expansion and reading choices stay. No separate return control.

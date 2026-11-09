@@ -110,13 +110,19 @@ export function anyComparisonLabels(region: Locator): Locator {
 
 const observedLabel = "Observed, not attributed";
 
-// REGION frames its comparison as observed builds, not attributed to the
-// story: a short label whose full words are the homepage's statement.
+// REGION uses the shared comparison's observed-build framing paragraph.
 export async function expectObservedNotAttributed(region: Locator) {
-  await expectLabelInFull(region, observedLabel, observedNotAttributedInFull);
+  await expect(region.locator(".intent-ci-comparison-framing")).toHaveText(
+    observedNotAttributedInFull,
+  );
 }
 
 // REGION shows no comparison framing.
 export async function expectNoComparisonFraming(region: Locator) {
+  await expect(
+    region.locator(
+      ".intent-ci-comparison-frame, .intent-ci-comparison-framing",
+    ),
+  ).toHaveCount(0);
   await expect(evidenceLabel(region, observedLabel)).toHaveCount(0);
 }
