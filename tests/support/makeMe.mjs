@@ -5,6 +5,8 @@ import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
+import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
@@ -42,13 +44,13 @@ import {
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
+import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Omit<Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-state-home.mjs").recordPreparation>[1], "identity" | "href" | "expectedBasis">} StoryPreparation */
-/** @typedef {ReturnType<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs").normalizeStoryDependency>} SupplierAgreement */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
@@ -117,26 +119,7 @@ export const makeMe = {
     };
   },
   get aSupplierAgreement() {
-    return {
-      /** @param {Omit<SupplierAgreement, "implementation" | "rationale" | "condition"> & Partial<Pick<SupplierAgreement, "implementation" | "rationale" | "condition">>} facts */
-      with({
-        supplier,
-        implementation = "Shared endpoint interpretation",
-        rationale = "The supplier must deliver the endpoint contract before this story can validate its consumer behavior; normal reconciliation cannot supply the missing contract.",
-        condition = "The selected endpoint contract is completed and integrated.",
-        ...facts
-      }) {
-        return {
-          please: () => ({
-            supplier: { identity: supplier.identity, href: supplier.href },
-            implementation,
-            rationale,
-            condition,
-            ...facts,
-          }),
-        };
-      },
-    };
+    return supplierAgreementBuilder;
   },
   get aRelease() {
     return new ReleaseBuilder();
@@ -202,6 +185,12 @@ export const makeMe = {
   },
   get aCiProofEntry() {
     return new CiProofEntryBuilder();
+  },
+  get aCiProofEvidence() {
+    return new CiProofEvidenceBuilder();
+  },
+  get aCiProofFragment() {
+    return new CiProofFragmentBuilder();
   },
   get aCiProofSummary() {
     return new CiProofSummaryBuilder();

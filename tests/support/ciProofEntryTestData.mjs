@@ -1,81 +1,22 @@
 // @ts-check
-// Domain data for one entry of a CI proof summary: its path, what it counts,
-// and its declared parts. Without a file breakdown its one present part
-// carries its figures, measured or without a duration. With one, its files,
-// and any results not placed in a file, carry the first present part's
-// figures, and every part reported by file says it was broken down. A part
-// may also be reported without a breakdown, never reported (missing), or
-// reported more than once (ambiguous); the entry's figures sum its present
-// parts, as the collector writes them.
+// Domain data for one declared entry of a CI proof summary: its path and its
+// results in each unit (./ciProofEvidenceTestData.mjs). An entry with one
+// unit's results states them here directly; one with several holds each
+// unit's built by `makeMe.aCiProofEvidence`. A job's fragments are
+// ./ciProofFragmentTestData.mjs's; a whole summary is
+// ./ciProofSummaryTestData.mjs's.
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
+
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEntry} CiProofEntry */
-/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFigures} CiProofFigures */
-/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofPart} CiProofPart */
+/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
+/** @typedef {import("./ciProofEvidenceTestData.mjs").ResultFacts} ResultFacts */
 
-/**
- * What a file or block of results counted, and their summed time when they
- * recorded one: one passed case unless stated. `untimed` defaults to every
- * case without a duration, and to none with one.
- * @typedef {{
- *   passed?: number, failed?: number, other?: number,
- *   durationMs?: number, untimed?: number,
- * }} ResultFacts
- */
-
-/**
- * @param {ResultFacts} facts
- * @returns {CiProofFigures}
- */
-function figuresOf({ passed = 1, failed = 0, other = 0, durationMs, untimed }) {
-  const notTimed =
-    untimed ?? (durationMs === undefined ? passed + failed + other : 0);
-  return {
-    passed,
-    failed,
-    other,
-    ...(durationMs === undefined ? {} : { durationMs }),
-    ...(notTimed > 0 ? { untimed: notTimed } : {}),
-  };
-}
-
-/** @param {readonly number[]} values */
-const sum = (values) => values.reduce((total, value) => total + value, 0);
-
-/**
- * FIGURES summed, with untimed always stated, as a part reported by file
- * carries them.
- * @param {readonly CiProofFigures[]} figures
- * @returns {CiProofFigures & { untimed: number }}
- */
-function summed(figures) {
-  const durations = figures.flatMap(({ durationMs }) =>
-    durationMs === undefined ? [] : [durationMs],
-  );
-  return {
-    passed: sum(figures.map(({ passed }) => passed)),
-    failed: sum(figures.map(({ failed }) => failed)),
-    other: sum(figures.map(({ other }) => other)),
-    ...(durations.length === 0 ? {} : { durationMs: sum(durations) }),
-    untimed: sum(figures.map(({ untimed = 0 }) => untimed)),
-  };
-}
-
+// One declared entry of a summary: one unit's results, or several.
 export class CiProofEntryBuilder {
   #path = "tests";
-  #unit = "tests";
-  #passed = 1;
-  /** @type {number | undefined} */
-  #durationMs;
-  #of = 1;
-  /** @type {readonly number[]} */
-  #missing = [];
-  /** @type {readonly number[]} */
-  #ambiguous = [];
-  /** @type {(CiProofFigures & { path: string })[]} */
-  #files = [];
-  /** @type {CiProofFigures | undefined} */
-  #unassigned;
-  /** @type {CiProofFigures[]} */
-  #unbroken = [];
+  #single = new CiProofEvidenceBuilder();
+  /** @type {CiProofEvidence[] | undefined} */
+  #evidence;
 
   /** @param {string} path */
   at(path) {
@@ -84,144 +25,88 @@ export class CiProofEntryBuilder {
   }
 
   /**
+   * Its one unit's results: PASSED test cases, or of UNIT when stated.
    * @param {number} passed
-   * @param {string} [unit]
+   * @param {"case" | "file"} [unit]
    */
-  counting(passed, unit = "tests") {
-    this.#passed = passed;
-    this.#unit = unit;
+  counting(passed, unit) {
+    this.#single.counting(passed);
+    if (unit !== undefined) this.#single.inUnit(unit);
     return this;
   }
 
   /**
-   * What its runner counts, such as Playwright `tests` or shell `checks`.
-   * @param {string} unit
+   * Its one unit's results are legacy ones, their unit spelled LABEL, such
+   * as Playwright `tests` or shell `checks`.
+   * @param {string | null} label
    */
-  countingIn(unit) {
-    this.#unit = unit;
+  countingIn(label) {
+    this.#single.legacy(label);
     return this;
   }
 
   /**
-   * Its one part's summed test execution time; a measured zero included.
+   * Its one unit's first present part's summed test execution time.
    * @param {number} durationMs
    */
   timed(durationMs) {
-    this.#durationMs = durationMs;
+    this.#single.timed(durationMs);
     return this;
   }
 
   /**
-   * A test file of its breakdown, at PATH inside the entry.
+   * A test file of its one unit's breakdown, at PATH inside the entry.
    * @param {string} path
    * @param {ResultFacts} [facts]
    */
-  withFile(path, facts = {}) {
-    this.#files.push({ path, ...figuresOf(facts) });
+  withFile(path, facts) {
+    this.#single.withFile(path, facts);
     return this;
   }
 
   /**
-   * Results its reports could not place in a file.
+   * Results of its one unit its reports could not place in a file.
    * @param {ResultFacts} facts
    */
   withUnassigned(facts) {
-    this.#unassigned = figuresOf(facts);
+    this.#single.withUnassigned(facts);
     return this;
   }
 
   /**
-   * One more present part, after the others, reported without a breakdown.
+   * One more present part of its one unit, reported without a breakdown.
    * @param {ResultFacts} facts
    */
   withUnbrokenPart(facts) {
-    this.#unbroken.push(figuresOf(facts));
+    this.#single.withUnbrokenPart(facts);
     return this;
   }
 
   /**
-   * OF declared parts, besides any reported without a breakdown: those
-   * numbered in MISSING were never reported, and those in AMBIGUOUS more
-   * than once.
+   * Its one unit's OF declared parts, those in MISSING never reported and
+   * those in AMBIGUOUS more than once.
    * @param {number} of
    * @param {{ missing?: readonly number[], ambiguous?: readonly number[] }} [statuses]
    */
-  inParts(of, { missing = [], ambiguous = [] } = {}) {
-    this.#of = of;
-    this.#missing = [...missing];
-    this.#ambiguous = [...ambiguous];
+  inParts(of, statuses) {
+    this.#single.inParts(of, statuses);
+    return this;
+  }
+
+  /**
+   * Its results in each unit, in order (`makeMe.aCiProofEvidence`).
+   * @param {...CiProofEvidence} evidence
+   */
+  holding(...evidence) {
+    this.#evidence = evidence;
     return this;
   }
 
   /** @returns {CiProofEntry} */
   please() {
-    const unassigned = this.#unassigned;
-    const brokenDown = this.#files.length > 0 || unassigned !== undefined;
-    const timing =
-      this.#durationMs === undefined ? {} : { durationMs: this.#durationMs };
-    /** @type {CiProofFigures} */
-    const first = brokenDown
-      ? summed([...this.#files, ...(unassigned ? [unassigned] : [])])
-      : { passed: this.#passed, failed: 0, other: 0, ...timing };
-    /** @type {CiProofFigures} */
-    const empty = {
-      passed: 0,
-      failed: 0,
-      other: 0,
-      ...(first.durationMs === undefined ? {} : { durationMs: 0 }),
-      ...(brokenDown ? { untimed: 0 } : {}),
-    };
-    /** @type {CiProofPart[]} */
-    const parts = [];
-    /** @type {CiProofFigures[]} */
-    const present = [];
-    for (let part = 1; part <= this.#of; part += 1) {
-      if (this.#missing.includes(part)) parts.push({ part, status: "missing" });
-      else if (this.#ambiguous.includes(part))
-        parts.push({ part, status: "ambiguous" });
-      else {
-        const figures = present.length === 0 ? first : empty;
-        present.push(figures);
-        parts.push({
-          part,
-          status: "present",
-          ...figures,
-          ...(brokenDown ? { breakdown: /** @type {const} */ (true) } : {}),
-        });
-      }
-    }
-    for (const figures of this.#unbroken) {
-      present.push(figures);
-      parts.push({ part: parts.length + 1, status: "present", ...figures });
-    }
-    return this.#entry(parts, present, brokenDown);
-  }
-
-  /**
-   * @param {CiProofPart[]} parts
-   * @param {readonly CiProofFigures[]} present
-   * @param {boolean} brokenDown
-   * @returns {CiProofEntry}
-   */
-  #entry(parts, present, brokenDown) {
-    const totals = summed(present);
-    const anyUntimed = present.some((figures) => figures.untimed !== undefined);
-    const { untimed, ...figures } = totals;
-    const unassigned = this.#unassigned;
     return {
       path: this.#path,
-      unit: present.length === 0 ? null : this.#unit,
-      ...figures,
-      ...(anyUntimed ? { untimed } : {}),
-      parts,
-      ...(brokenDown
-        ? {
-            files: [...this.#files].sort((one, other) =>
-              one.path < other.path ? -1 : 1,
-            ),
-          }
-        : {}),
-      ...(unassigned ? { unassigned } : {}),
+      evidence: this.#evidence ?? [this.#single.please()],
     };
   }
 }

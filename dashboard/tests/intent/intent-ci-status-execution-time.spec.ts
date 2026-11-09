@@ -43,10 +43,10 @@ const timedSummary = () =>
       ["dashboard/tests", 2],
     ],
     [
-      ["tests", 1, 2, "checks", counts(3), 180_000],
-      ["tests", 2, 2, "checks", counts(2), 60_000],
-      ["dashboard/tests", 1, 2, "tests", counts(8), 75_000],
-      ["dashboard/tests", 2, 2, "tests", counts(4), 45_000],
+      ["tests", 1, 2, "file", counts(3), 180_000],
+      ["tests", 2, 2, "file", counts(2), 60_000],
+      ["dashboard/tests", 1, 2, "case", counts(8), 75_000],
+      ["dashboard/tests", 2, 2, "case", counts(4), 45_000],
     ],
   );
 
@@ -58,8 +58,8 @@ const olderSummary = () =>
       ["dashboard/tests", 1],
     ],
     [
-      ["tests", 1, 1, "checks", counts(5)],
-      ["dashboard/tests", 1, 1, "tests", counts(12)],
+      ["tests", 1, 1, "file", counts(5)],
+      ["dashboard/tests", 1, 1, "case", counts(12)],
     ],
   );
 
@@ -67,7 +67,7 @@ const missingShardSummary = () =>
   proofSummary(
     run,
     [["dashboard/tests", 2]],
-    [["dashboard/tests", 1, 2, "tests", counts(10), 90_000]],
+    [["dashboard/tests", 1, 2, "case", counts(10), 90_000]],
   );
 
 async function openWithSummary(
@@ -99,8 +99,8 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
   await expect(labelWords(evidenceLabel(proof, wallTime))).toHaveText(wallTime);
   await expectProofRows(proof, [
-    ["tests", "5 passed checks", "4 min"],
-    ["dashboard/tests", "12 passed tests", "2 min"],
+    ["tests", "5 passed test files", "4 min"],
+    ["dashboard/tests", "12 passed test cases", "2 min"],
   ]);
   await expect(executionCells(proof)).toHaveText(["4 min", "2 min"]);
   // Summed execution is never CI wall time, nor their total.
@@ -115,8 +115,8 @@ test("an older summary without durations shows No timings while wall time still 
   const { proof } = await openWithSummary(page, olderSummary());
   await expect(labelWords(evidenceLabel(proof, wallTime))).toHaveText(wallTime);
   await expectProofRows(proof, [
-    ["tests", "5 passed checks", noTimings],
-    ["dashboard/tests", "12 passed tests", noTimings],
+    ["tests", "5 passed test files", noTimings],
+    ["dashboard/tests", "12 passed test cases", noTimings],
   ]);
   await expect(executionCells(proof)).toHaveText([noTimings, noTimings]);
   for (const cell of await executionCells(proof).all()) {
@@ -131,7 +131,7 @@ test("a missing shard shows Part 2 missing with the full explanation", async ({
   await page.setViewportSize({ width: 1280, height: 800 });
   const { proof } = await openWithSummary(page, missingShardSummary());
   await expectProofRows(proof, [
-    ["dashboard/tests", "10 passed tests", "Part 2 missing"],
+    ["dashboard/tests", "10 passed test cases", "Part 2 missing"],
   ]);
   // The present part's 90 s is not shown as if it were the whole entry's.
   await expect(executionCells(proof)).toHaveText(["Part 2 missing"]);
@@ -153,11 +153,11 @@ test("an untimed part shows Part 2 untimed while parts timed at zero show 0 ms",
         ["dashboard/tests", 3],
       ],
       [
-        ["tests", 1, 2, "checks", counts(3), 0],
-        ["tests", 2, 2, "checks", counts(2), 0],
-        ["dashboard/tests", 1, 3, "tests", counts(8), 75_000],
-        ["dashboard/tests", 2, 3, "tests", counts(4)],
-        ["dashboard/tests", 3, 3, "tests", counts(1), 5_000],
+        ["tests", 1, 2, "file", counts(3), 0],
+        ["tests", 2, 2, "file", counts(2), 0],
+        ["dashboard/tests", 1, 3, "case", counts(8), 75_000],
+        ["dashboard/tests", 2, 3, "case", counts(4)],
+        ["dashboard/tests", 3, 3, "case", counts(1), 5_000],
       ],
     ),
   );

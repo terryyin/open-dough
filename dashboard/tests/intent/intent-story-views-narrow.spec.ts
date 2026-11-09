@@ -14,6 +14,8 @@ import { ciPanel } from "../intentCiStatusPage.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { box } from "../partArrangement.ts";
+import { browserRevision } from "../intentPerspectivePage.ts";
+import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   expectStoryTab,
@@ -74,6 +76,8 @@ test("without a story the shared header, project views and reader fit narrow and
   for (const viewport of [
     { width: 390, height: 560 },
     { width: 720, height: 460 },
+    twiceZoomedWindow,
+    zoomedWindow,
   ]) {
     await page.setViewportSize(viewport);
     await expect(
@@ -90,6 +94,7 @@ test("without a story the shared header, project views and reader fit narrow and
       () => document.documentElement.clientWidth,
     );
     for (const control of [
+      browserRevision(intent),
       intentModeTab(intent, "CI status"),
       intentModeTab(intent, "Optimization Candidates"),
       filesToggle(intent),
@@ -111,7 +116,7 @@ test("without a story the shared header, project views and reader fit narrow and
     await expectFilesShown(intent, false);
     await expect(ciPanel(intent)).toBeVisible();
     const reading = await box(intent.locator(".intent-reading"));
-    expect(reading.height).toBeGreaterThan(100);
+    expect(reading.height).toBeGreaterThan(viewport.height <= 256 ? 30 : 100);
     await page.keyboard.press("Space");
     await expectFilesShown(intent, true);
     await intentModeTab(intent, "CI status").press("End");

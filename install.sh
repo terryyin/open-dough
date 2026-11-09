@@ -301,15 +301,17 @@ managed_files=(
   dough-test-optimization/references/ci-proof-summary.md
   dough-test-optimization/scripts/ci-proof-collect.mjs
   dough-test-optimization/scripts/ci-proof-contract.mjs
+  dough-test-optimization/scripts/ci-proof-evidence.mjs
   dough-test-optimization/scripts/ci-proof-figures.mjs
   dough-test-optimization/scripts/ci-proof-fragments.mjs
+  dough-test-optimization/scripts/ci-proof-options.mjs
   dough-test-optimization/scripts/ci-proof-summary.mjs
   dough-test-optimization/scripts/ci-proof-read.mjs
   dough-test-optimization/scripts/ci-proof-archive.mjs
   dough-test-optimization/scripts/ci-proof-check.mjs
   dough-test-optimization/scripts/ci-proof-leads.mjs
   dough-test-optimization/scripts/ci-proof-attempts.mjs
-  dough-test-optimization/scripts/ci-proof-evidence.mjs
+  dough-test-optimization/scripts/ci-proof-gaps.mjs
   dough-test-optimization/scripts/ci-proof-project.mjs
   dough-test-optimization/scripts/ci-proof-revisions.mjs
   dough-test-optimization/scripts/ci-proof-scope.mjs

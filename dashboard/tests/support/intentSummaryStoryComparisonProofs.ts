@@ -57,6 +57,7 @@ function testsProducer(at: "baseline" | "branch" | "landed"): Producer {
       byFile: true,
       outcomes: "passed\ttests/old.sh\npassed\ttests/check.sh\n",
       times: "2.0\ttests/old.sh\n0.5\ttests/check.sh\n",
+      unit: "file",
     };
   }
   return {
@@ -66,6 +67,7 @@ function testsProducer(at: "baseline" | "branch" | "landed"): Producer {
     byFile: true,
     outcomes: "passed\ttests/check.sh\n",
     times: "0.5\ttests/check.sh\n",
+    unit: "file",
   };
 }
 
@@ -132,8 +134,8 @@ export function noBreakdownBaselineProofs(args: {
           ["tests", 1],
         ],
         [
-          ["dashboard/tests", 1, 1, "tests", counts(4), 12_040],
-          ["tests", 1, 1, "checks", counts(2), 2_500],
+          ["dashboard/tests", 1, 1, "case", counts(4), 12_040],
+          ["tests", 1, 1, "file", counts(2), 2_500],
         ],
       ),
     },

@@ -6,9 +6,11 @@
 // once as short labels (`./CiEvidenceLabels.tsx`) -- a run's attempt and
 // link, or an adapter's attempt id, the revision, a running result's
 // completed ancestor -- and its CI wall time, then a table with one row per
-// declared entry, in the order the project's CI declares them until a column
-// header sorts them, with columns for counts with their unit and cumulative
-// test execution time, including timing gaps
+// declared entry's results in each unit it reports (`./ciProofUnits.ts`), so
+// an entry reporting both test cases and test files has a row for each, in
+// the order the project's CI declares them until a column header sorts
+// them, with columns for counts naming their unit and cumulative test
+// execution time, including timing gaps
 // (`./CiProofTable.tsx`, `./ciProofWording.ts`); otherwise one
 // line says why there is no proof to show (`./useIntentCiShownProof.ts`). An adapter attempt whose attemptId
 // another discovered attempt shares at its revision is ambiguous: no proof is read for it. A
@@ -33,12 +35,13 @@ import {
   wallTimeLabel,
 } from "./CiEvidenceLabels.tsx";
 import { ciProofCellsOf } from "./ciProofWording.ts";
+import { entryEvidenceOf } from "./ciProofUnits.ts";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import { shownProofStateOf, type ShownProof } from "./useIntentCiShownProof.ts";
 
-// Each declared entry's row, in the order the summary lists them until a
-// column is sorted; a summary declaring no entry shows no table, as it showed
-// no rows.
+// Each declared entry's row for each unit it reports, in the order the
+// summary lists them until a column is sorted; a summary declaring no entry
+// shows no table, as it showed no rows.
 function ProofEntries({
   entries,
   sorting,
@@ -52,12 +55,14 @@ function ProofEntries({
       label="CI proof by declared entry"
       scopeHeader="Entry"
       sorting={sorting}
-      rows={entries.map((entry) => ({
-        key: entry.path,
-        scope: <ScopePath path={entry.path} />,
-        name: entry.path,
-        cells: ciProofCellsOf(entry),
-      }))}
+      rows={entries.flatMap((entry) =>
+        entryEvidenceOf(entry).map((evidence) => ({
+          key: `${entry.path}\0${evidence.unit}`,
+          scope: <ScopePath path={entry.path} />,
+          name: entry.path,
+          cells: ciProofCellsOf(evidence),
+        })),
+      )}
     />
   );
 }

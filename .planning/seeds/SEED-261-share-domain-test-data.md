@@ -366,7 +366,7 @@ Intent and CI Proof block into four stories, queued in order: Intent
 locations, sources and candidates; GitHub Actions runs and attempt jobs; CI
 adapter attempts, queue entries and coverage; then CI proof evidence. CI proof
 comes last so its refinement maps onto the explicit test case and test file
-units of [SEED-281](SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#distinguish-test-cases-and-files-in-ci-proof).
+units of SEED-281 (released in 0.3.93; see `src/skills/dough-test-optimization/references/ci-proof-summary.md`).
 The stories are organized
 by the domain facts they own, so each can finish its proof without waiting for
 an entire runner or layer to migrate. Queue order expresses Terry's requested

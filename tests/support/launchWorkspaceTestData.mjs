@@ -11,7 +11,7 @@
  * publisher and published revision (fixed ones otherwise), its agent, its
  * plan and the revision it started from. A refinement's preparation names
  * only an agent and a published revision given here.
- * @typedef {EstablishedBranch & { publisherId?: string, publishedSha?: string, agent?: string, plan?: string, startingRevision?: string }} StoryBranch
+ * @typedef {EstablishedBranch & { publisherId?: string, publishedSha?: string, agent?: string, plan?: string, startingRevision?: string, target?: string }} StoryBranch
  */
 
 /**
@@ -27,7 +27,7 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
     workspace: storyBranch.workspace,
     branch: storyBranch.branch,
     remote: "origin",
-    target: "main",
+    target: storyBranch.target ?? "main",
   };
   if (workflow === "refinement")
     return {

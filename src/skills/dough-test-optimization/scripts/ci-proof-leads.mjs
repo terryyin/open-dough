@@ -3,7 +3,7 @@
 // never loads a raw summary. The summary is the configured CI's for the
 // attempt chosen for the requested revision (./ci-proof-attempts.mjs), or a
 // file the project retains elsewhere (--summary), used only when it is that
-// attempt's (./ci-proof-evidence.mjs). The scope's items are ranked
+// attempt's (./ci-proof-gaps.mjs). The scope's items are ranked
 // (./ci-proof-scope.mjs, ./ci-proof-ranking.mjs).
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -13,7 +13,7 @@ import {
   readGitHubActions,
 } from "../../dough-execute-plan/scripts/ci-github-actions.mjs";
 import * as attempts from "./ci-proof-attempts.mjs";
-import * as evidence from "./ci-proof-evidence.mjs";
+import * as evidenceGaps from "./ci-proof-gaps.mjs";
 import { leadsTable } from "./ci-proof-leads-table.mjs";
 import { projectOf, selectionOf } from "./ci-proof-project.mjs";
 import { LEAD_LIMIT, rankedLeads } from "./ci-proof-ranking.mjs";
@@ -46,17 +46,17 @@ async function choiceOf(ci, requested, ancestry, signal, gaps) {
       );
     const listed = await attempts.listedAttempts(ci, signal);
     const choice = await attempts.chosenAttempt(listed, requested, ancestry);
-    gaps.push(...evidence.choiceGaps(choice));
+    gaps.push(...evidenceGaps.choiceGaps(choice));
     if (!choice.chosen)
       gaps.push({
         reason: `${name} lists no completed attempt at the requested revision or an ancestor among its ${listed.length} newest`,
-        remedy: evidence.summaryRemedy(ci),
+        remedy: evidenceGaps.summaryRemedy(ci),
       });
     return choice.chosen;
   } catch (error) {
     gaps.push({
-      reason: `${name} could not list its attempts: ${evidence.failureText(error)}`,
-      remedy: evidence.summaryRemedy(ci),
+      reason: `${name} could not list its attempts: ${evidenceGaps.failureText(error)}`,
+      remedy: evidenceGaps.summaryRemedy(ci),
     });
     return undefined;
   }
@@ -69,16 +69,16 @@ async function summaryOf(request, ci, attempt, signal, gaps) {
   const source = attempts.ciSource(ci);
   if (request.summaryFile !== undefined) {
     const file = resolve(request.directory, request.summaryFile);
-    const read = evidence.fileSummary(file, ci.repository, attempt);
+    const read = evidenceGaps.fileSummary(file, ci.repository, attempt);
     const named =
-      !attempt && read.summary ? evidence.namedBy(read.summary) : undefined;
+      !attempt && read.summary ? evidenceGaps.namedBy(read.summary) : undefined;
     const confirmed = attempt
       ? `confirmed as the attempt ${name} names`
       : "its attempt as it names it, unconfirmed by CI";
     return { read, source: `summary file ${file}, ${confirmed}`, named };
   }
   if (!attempt) return { source };
-  const remedy = evidence.summaryRemedy(ci, attempt);
+  const remedy = evidenceGaps.summaryRemedy(ci, attempt);
   try {
     const read = await attempts.readAttemptSummary(ci, attempt, signal);
     if (read.summary === undefined)
@@ -89,7 +89,7 @@ async function summaryOf(request, ci, attempt, signal, gaps) {
     return { read, source };
   } catch (error) {
     gaps.push({
-      reason: `${name} could not give ${attempts.identityOf(attempt)}'s summary: ${evidence.failureText(error)}`,
+      reason: `${name} could not give ${attempts.identityOf(attempt)}'s summary: ${evidenceGaps.failureText(error)}`,
       remedy,
     });
     return { source };
@@ -141,7 +141,7 @@ export async function leadsReport(
   };
   if (read?.summary === undefined) {
     const verdict = read
-      ? evidence.refusalText(read, attempt)
+      ? evidenceGaps.refusalText(read, attempt)
       : "no summary could be read; see the gaps";
     return { text: leadsTable({ ...report, verdict }), ranked: false };
   }
@@ -149,10 +149,10 @@ export async function leadsReport(
   if (ci.adapter && !request.summaryFile && held.noBreakdown.length > 0)
     gaps.push({
       reason: `${attempts.ciName(ci)}'s proof answer carries no file breakdown for ${held.noBreakdown.join(", ")}`,
-      remedy: `${evidence.summaryRemedy(ci, attempt)}, as the full summary may carry one`,
+      remedy: `${evidenceGaps.summaryRemedy(ci, attempt)}, as the full summary may carry one`,
     });
   gaps.push(...held.gaps);
-  const compatibility = await evidence.compatibilityOf(
+  const compatibility = await evidenceGaps.compatibilityOf(
     root,
     attempt.revision,
     requested.revision,

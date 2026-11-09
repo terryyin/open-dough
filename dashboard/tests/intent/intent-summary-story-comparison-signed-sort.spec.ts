@@ -8,7 +8,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
 import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { entryProofs } from "../support/storyCiComparisonEntryProofs.ts";
+import { entryProofs } from "../support/storyCiComparisonEntrySummaries.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 import {
   openSummaryComparison,
@@ -60,12 +60,11 @@ test("Summary Branch and Landed sort signed changes rather than measured times o
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, entry);
   const table = scopeTable(summary, entry);
-  const gaps = ["added.spec.ts", "gone.spec.ts", "later.spec.ts"];
+  const gaps = ["added.spec.ts", "gone.spec.ts"];
   await expect(rowNames(table)).toHaveText([
     "folder/",
     "added.spec.ts",
     "gone.spec.ts",
-    "later.spec.ts",
     "renamed.spec.ts",
     "root.spec.ts",
   ]);

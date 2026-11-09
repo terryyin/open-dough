@@ -1,7 +1,9 @@
 // The rows and labels every Summary table shares (`./IntentScopeProof.tsx`):
-// one row per immediate child whose name opens it, the outside row kept
-// last, the labels after the table saying what that row holds, and the label
-// for an entry without a file breakdown. A single-run Summary
+// one row per immediate child and unit of results it shows, whose name
+// opens it, the outside rows kept last, the labels after the table saying
+// what those rows hold, and the label for each unit without a file
+// breakdown, naming that unit when its entry reports several
+// (`./ciProofUnits.ts`). A single-run Summary
 // (`./IntentScopeSingleProofTable.tsx`) reads them from its entry; a story
 // comparison (`./IntentScopeComparisonTable.tsx`) from its primary
 // endpoint's entry.
@@ -11,8 +13,14 @@ import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
 import type { CiProofTableRow } from "./CiProofTable.tsx";
 import type { CiProofEntry } from "./ciProof.ts";
 import { noBreakdownGapsOf } from "./ciProofTiming.ts";
-import { hasFileBreakdown } from "./ciProofWording.ts";
-import type { ScopeOutside, SummaryChild } from "./ciScopeProof.ts";
+import {
+  countedAny,
+  entryEvidenceOf,
+  hasFileBreakdown,
+  namesUnits,
+  unitName,
+} from "./ciProofUnits.ts";
+import type { SummaryChild, UnitOutside } from "./ciScopeProof.ts";
 import { ChildName } from "./IntentScopeProofChild.tsx";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
 
@@ -26,39 +34,59 @@ export function childRowsOf(
   onOpen: (next: IntentSelection) => void,
   cellsOf: (path: string) => RowCells,
 ): CiProofTableRow[] {
-  return children.map((child) => ({
-    key: child.path,
-    scope: <ChildName child={child} onOpen={onOpen} />,
-    name: child.name,
-    cells: cellsOf(child.path),
-  }));
+  return childUnitRowsOf(children, onOpen, (path) => [cellsOf(path)]);
 }
 
-// The outside row with CELLS, kept last under any sort.
-export const outsideRowOf = (cells: RowCells): CiProofTableRow => ({
-  key: "\0outside",
+// One row per child and per cells CELLS_OF gives its path, one for each unit
+// of results it shows, each named by the child's name that opens it.
+export function childUnitRowsOf(
+  children: readonly SummaryChild[],
+  onOpen: (next: IntentSelection) => void,
+  cellsOf: (path: string) => readonly RowCells[],
+): CiProofTableRow[] {
+  return children.flatMap((child) =>
+    cellsOf(child.path).map((cells, at) => ({
+      key: at === 0 ? child.path : `${child.path}\0${String(at)}`,
+      scope: <ChildName child={child} onOpen={onOpen} />,
+      name: child.name,
+      cells,
+    })),
+  );
+}
+
+// The outside row with CELLS, kept last under any sort; AT tells several
+// units' outside rows apart.
+export const outsideRowOf = (cells: RowCells, at = 0): CiProofTableRow => ({
+  key: at === 0 ? "\0outside" : `\0outside\0${String(at)}`,
   scope: outsideRowLabel,
   cells,
   pinned: true,
 });
 
-// What the outside row holds, as labels after the table: files the tree
+// What the outside rows hold, as labels after the table: files the tree
 // does not list (named in full on hover), results CI could not place in a
-// file, and each part of the entry that published no file breakdown.
+// file, and each part of each unit of the entry that published no file
+// breakdown, named by its unit when the entry reports several.
 export function OutsideExplanation({
   entry,
   path,
-  outside,
+  outsides,
 }: {
   readonly entry: CiProofEntry;
   readonly path: string;
-  readonly outside: ScopeOutside | undefined;
+  readonly outsides: readonly UnitOutside[];
 }) {
+  const named = namesUnits(entry);
   const labels: EvidenceLabel[] = [];
-  if (outside !== undefined && outside.files.length > 0) {
-    const count = outside.files.length;
+  const outsideFiles = [
+    ...new Set(
+      outsides.flatMap(({ outside }) => outside.files.map((file) => file.path)),
+    ),
+  ];
+  if (outsideFiles.length > 0) {
+    const count = outsideFiles.length;
     const files = count === 1 ? "1 file" : `${String(count)} files`;
-    const shown = outside.files.slice(0, 5).map((file) => file.path);
+    const shown = outsideFiles.slice(0, 5);
     const more =
       count > shown.length ? ` and ${String(count - shown.length)} more` : "";
     labels.push({
@@ -68,7 +96,7 @@ export function OutsideExplanation({
       full: `Not in the tree: ${shown.join(", ")}${more}`,
     });
   }
-  if (outside?.unassigned !== undefined) {
+  if (outsides.some(({ outside }) => outside.unassigned !== undefined)) {
     labels.push({
       key: "unassigned",
       icon: CircleHelp,
@@ -76,14 +104,18 @@ export function OutsideExplanation({
       full: "Results CI could not place in a file",
     });
   }
-  if (path === entry.path && hasFileBreakdown(entry)) {
-    for (const gap of noBreakdownGapsOf(entry)) {
-      labels.push({
-        key: gap.label,
-        icon: ListX,
-        words: gap.label,
-        full: gap.phrase,
-      });
+  if (path === entry.path) {
+    for (const evidence of entryEvidenceOf(entry)) {
+      if (!hasFileBreakdown(evidence)) continue;
+      const unit = unitName(evidence.unit);
+      for (const gap of noBreakdownGapsOf(evidence)) {
+        labels.push({
+          key: `${evidence.unit} ${gap.label}`,
+          icon: ListX,
+          words: named ? `${gap.label} (${unit})` : gap.label,
+          full: named ? `${unit}: ${gap.phrase}` : gap.phrase,
+        });
+      }
     }
   }
   if (labels.length === 0) return null;
@@ -97,8 +129,10 @@ export function OutsideExplanation({
   );
 }
 
-// The label for ENTRY when SUMMARY ("This CI proof summary" or "The Landed
-// CI proof summary") does not break it down by file; nothing otherwise.
+// The label for each unit of ENTRY that SUMMARY ("This CI proof summary"
+// or "The Landed CI proof summary") does not break down by file, naming the
+// unit when ENTRY reports several, beside which a unit that counted nothing
+// has nothing to break down; nothing otherwise.
 export function NoBreakdownLabel({
   entry,
   summary,
@@ -106,18 +140,23 @@ export function NoBreakdownLabel({
   readonly entry: CiProofEntry;
   readonly summary: string;
 }) {
-  if (hasFileBreakdown(entry)) return null;
-  return (
-    <EvidenceLabels
-      label="About these figures"
-      labels={[
-        {
-          key: "no breakdown",
-          icon: ListX,
-          words: "No file breakdown",
-          full: `${summary} does not break ${entry.path} down by file`,
-        },
-      ]}
-    />
-  );
+  const named = namesUnits(entry);
+  const labels: EvidenceLabel[] = entryEvidenceOf(entry)
+    .filter(
+      (evidence) =>
+        !hasFileBreakdown(evidence) && (!named || countedAny(evidence)),
+    )
+    .map((evidence) => {
+      const unit = unitName(evidence.unit);
+      return {
+        key: `no breakdown ${evidence.unit}`,
+        icon: ListX,
+        words: named ? `No file breakdown of ${unit}` : "No file breakdown",
+        full: named
+          ? `${summary} does not break the ${unit} of ${entry.path} down by file`
+          : `${summary} does not break ${entry.path} down by file`,
+      };
+    });
+  if (labels.length === 0) return null;
+  return <EvidenceLabels label="About these figures" labels={labels} />;
 }

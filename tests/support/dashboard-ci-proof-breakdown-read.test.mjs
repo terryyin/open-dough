@@ -2,8 +2,10 @@
 // read whole up to the collector's shared limit
 // (../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs) and
 // validated by the collector's contract, and the browser's own parser keeps
-// its breakdown (../../dashboard/src/ciProof.ts). Other proof reads:
-// ./dashboard-ci-proof-read.test.mjs.
+// its breakdown (../../dashboard/src/ciProof.ts). A summary's versions and
+// units on the same read: ./dashboard-ci-proof-units-read.test.mjs. Other
+// proof reads: ./dashboard-ci-proof-read.test.mjs; through a ciAdapter:
+// ./dashboard-ci-adapter-proof.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
@@ -81,46 +83,47 @@ test("a summary broken down by file is read whole up to the shared limit, and re
 
 test("a malformed or truncated file breakdown is not a valid summary, and the browser's parser keeps every breakdown field", () => {
   const summary = JSON.parse(brokenDownSummaryText(3));
-  const [entry] = summary.entries;
+  const [
+    {
+      path,
+      evidence: [entry],
+    },
+  ] = summary.entries;
+  const withEvidence = (evidence) => ({
+    ...summary,
+    entries: [{ path, evidence: [evidence] }],
+  });
   assert.deepEqual(
-    summaryProblems({
-      ...summary,
-      entries: [{ ...entry, files: entry.files.slice(1) }],
-    }),
+    summaryProblems(withEvidence({ ...entry, files: entry.files.slice(1) })),
     [
-      "entries[0].files and unassigned count 2 passed, not 3",
-      "entries[0].files and unassigned count 2 untimed, not 3",
+      "entries[0].evidence[0].files and unassigned count 2 passed, not 3",
+      "entries[0].evidence[0].files and unassigned count 2 untimed, not 3",
     ],
   );
   assert.deepEqual(
-    summaryProblems({
-      ...summary,
-      entries: [
-        {
-          ...entry,
-          files: [
-            { ...entry.files[0], path: "/runner/tests/a.sh" },
-            ...entry.files.slice(1),
-          ],
-        },
-      ],
-    }),
-    ["entries[0].files[0].path is not a relative path inside tests"],
+    summaryProblems(
+      withEvidence({
+        ...entry,
+        files: [
+          { ...entry.files[0], path: "/runner/tests/a.sh" },
+          ...entry.files.slice(1),
+        ],
+      }),
+    ),
+    [
+      "entries[0].evidence[0].files[0].path is not a relative path inside tests",
+    ],
   );
   const parsed = ciProofSchema.parse({
     kind: "summary",
-    summary: {
-      ...summary,
-      entries: [
-        {
-          ...entry,
-          unassigned: { passed: 0, failed: 0, other: 0, untimed: 0 },
-        },
-      ],
-    },
+    summary: withEvidence({
+      ...entry,
+      unassigned: { passed: 0, failed: 0, other: 0, untimed: 0 },
+    }),
   });
-  assert.deepEqual(parsed.summary.entries[0].files, entry.files);
-  assert.deepEqual(parsed.summary.entries[0].parts[0], {
+  const [parsedEntry] = parsed.summary.entries[0].evidence;
+  assert.deepEqual(parsedEntry.files, entry.files);
+  assert.deepEqual(parsedEntry.parts[0], {
     part: 1,
     status: "present",
     passed: 3,
@@ -129,8 +132,8 @@ test("a malformed or truncated file breakdown is not a valid summary, and the br
     untimed: 3,
     breakdown: true,
   });
-  assert.equal(parsed.summary.entries[0].untimed, 3);
-  assert.deepEqual(parsed.summary.entries[0].unassigned, {
+  assert.equal(parsedEntry.untimed, 3);
+  assert.deepEqual(parsedEntry.unassigned, {
     passed: 0,
     failed: 0,
     other: 0,

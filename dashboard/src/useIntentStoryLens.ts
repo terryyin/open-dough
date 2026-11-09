@@ -135,16 +135,17 @@ export function useIntentStoryLens({
       ? { state: "reading" }
       : !offered
         ? { state: "unavailable" }
-        : shown !== undefined
-          ? { state: "compared", shown, review }
-          : problem !== undefined && !reading
-            ? { state: "failed", problem }
-            : review !== undefined &&
-                !reading &&
-                (review.kind === "unavailable" ||
-                  review.kind === "landing-unavailable")
-              ? { state: "unavailable", explanation: review.explanation }
-              : { state: "reading" };
+        : reading
+          ? { state: "reading" }
+          : shown !== undefined
+            ? { state: "compared", shown, review }
+            : problem !== undefined
+              ? { state: "failed", problem }
+              : review !== undefined &&
+                  (review.kind === "unavailable" ||
+                    review.kind === "landing-unavailable")
+                ? { state: "unavailable", explanation: review.explanation }
+                : { state: "reading" };
   return {
     story,
     comparison,

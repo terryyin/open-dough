@@ -36,6 +36,8 @@ export async function storyBranchExecutionAfterRefinement(
   dashboard: DashboardServer,
   origin: StartOrigin,
   native: FakeCodex,
+  // Further committed story facts, before its real CLI completion.
+  change?: (workspace: string) => void,
 ) {
   writeFileSync(
     path.join(origin.project, "shared.txt"),
@@ -69,6 +71,7 @@ export async function storyBranchExecutionAfterRefinement(
         `HEAD:refs/heads/${git(workspace, "branch", "--show-current")}`,
       );
       changeSharedLine(workspace, 1, "the story's line");
+      change?.(workspace);
       execFileSync(
         process.execPath,
         [

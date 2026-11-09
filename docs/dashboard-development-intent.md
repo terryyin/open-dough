@@ -57,11 +57,14 @@ result, and, when the tree shows another revision,
 `Tree at def5678 — newer files unproved here` (a file added or changed since
 has no CI result here, or an earlier one). The selection's own figures stand
 as a labelled group above the table with **Counts**, **Test execution time**
-and **Parts**. An entry's counts and timing match its homepage row, including
+and **Parts**, one for each unit of results it shows (test cases, test files
+or legacy test results), its label naming the unit when there are several.
+An entry's counts and timing match its homepage rows, including
 checks outside the tree. A table with **Scope**,
 **Counts** and **Test execution time** then holds one row per immediate folder
-(named with a trailing `/`) and file in the browser's order, each summing the
-CI evidence published under its path, and, when the selection's figures hold
+(named with a trailing `/`) and file in the browser's order and unit of
+results it shows, each summing the
+CI evidence published under its path in that unit, and, when the selection's figures hold
 files no child row covers (files the tree does not list) or results CI could
 not place in a file, a **Not in the rows above** row, its contents labelled
 after the table (`1 file not in the tree`, `Unplaced results`,
@@ -81,16 +84,17 @@ is sorted by it again. A selected story's Summary and file Proof share the
 observed-build framing, active endpoints and unused-Landed explanation.
 Short labels keep `Provisional` while Taken and **Baseline**, **Branch** and
 **Landed** with each requested revision's status and the short revision whose
-proof is used, or the endpoint's gap explanation. **Baseline** shows measured
-time; **Branch** and **Landed** show signed changes from it, preserving precise
-sub-second differences. Relative marks and the story's shared **Show %**
-preference use one scale for the displayed figures and immediate rows.
-Baseline sorts by measured time; Branch/Landed sort by signed change, with
-uncomparable rows last in either direction and ties in supplied order.
+proof is used, or the endpoint's gap explanation. Each compared unit has its
+own row and group. **Baseline** shows measured time; **Branch** and **Landed**
+show signed changes from it in that declared unit, preserving precise
+sub-second differences, and otherwise their own time. Relative marks and the
+story's shared **Show %** preference use one scale for the displayed figures
+and immediate rows. Baseline sorts by measured time; Branch/Landed sort by
+signed change, with uncomparable rows last either way, ties in supplied order.
 **Counts** keeps counted-results differences and preserves gap endpoints;
 **Change** after **Scope** names `added`, `modified`, `removed` or `renamed` (empty when unchanged),
 sorting in that order with unchanged last in either direction. A rename uses
-its old Baseline path, named in that cell. The group's **Parts** keeps the
+its old Baseline path, named in that cell. A group's **Parts** keeps the
 chosen build's completeness (landed, else branch, else baseline); that build
 labels **Not in the rows above** and `No file breakdown`, as one run's Summary
 does. Comparison figures and tables use signed words and relative marks;
@@ -102,7 +106,7 @@ scopes (`340 ms`, `12.5 s`, `4 min 5 s`); a measured zero is `0 ms`. A file
 CI has no result for says **no CI result**; a scope with an untimed test, a
 missing or ambiguous part, or a part with no file breakdown
 has partial timing shown as short gap labels (`Part 3 missing`,
-`Part 2 no breakdown`, `1 test untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
+`Part 2 no breakdown`, `1 test case untimed`), in the group as in the rows; an entry-only summary keeps the entry's totals
 and is labelled `No file breakdown`. Without usable proof, the rows
 stay for drilling down, the group and rows say why in a word or two
 (`checking`, `no CI proof`), and one line says why, as the homepage does. The
@@ -112,8 +116,11 @@ file text and asks CI nothing again: home and every summary share one
 judgment, proof and comparison-endpoint read.
 Intent uses one page implementation for **Project Intent**, the project's own
 evidence, and [a selected story's views](dashboard-development-intent-story.md).
-Both contexts keep the story view's persistent header, tab row, revision notice
-and reading area in the same order. With no story selected, the header says
+Both contexts keep the story view's persistent header, tab row and reading
+area in the same order. The revision notice and **Show latest** update
+Project Intent's browser; a Done story's three views have neither and retain
+their published result's locations, inventory and source through later project
+revisions. With no story selected, the header says
 **No story selected** and the page offers the project's **CI status** and
 **Optimization Candidates** views. With a story selected, its title, actions and
 applicable views use that same arrangement. The active context identifies whose
@@ -196,8 +203,10 @@ state, not on the URL or in storage. The reading place is kept the same way,
 in memory only:
 the selection, the open location and folders, **Selected story only** and the
 reading pane's scroll show again after Development and back without reading
-the locations or the selected file again. Intent reads one published
-revision, the observed one when the project's Intent first opens. A newer
+the locations or the selected file again. Project Intent reads one published
+revision, the observed one when the project's Intent first opens. The persistent
+**Test browser at** label names accepted locations even without a file selection;
+it advances after accepted updates and stays during updating or failure. A newer
 observed revision changes nothing shown and reads nothing: however many
 arrive, one polite status beside the reading, which takes no focus, says
 "New revision available — showing `<short sha>`" with **Show latest**.
@@ -223,8 +232,7 @@ file; it shows no empty tree. An unreadable or malformed settings file is a
 distinct explanation from absence. With a story selected, Intent shows that
 story's views, as
 [Intent for a selected story](dashboard-development-intent-story.md)
-describes. Structure
-is not offered yet. The perspective is disposable presentation state on the URL
+describes. Structure is not offered yet. The perspective is disposable presentation state on the URL
 (`perspective=intent`), independent of Development's stories/roster view,
 which Intent keeps to return to. Choosing a perspective adds one history
 entry and never selects another project; changing projects keeps the

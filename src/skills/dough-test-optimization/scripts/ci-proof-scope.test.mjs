@@ -116,7 +116,7 @@ test("untimed results stay gaps: a file without a duration cannot rank and a par
       .withFile("tests/timed.sh", { passed: 3, durationMs: 600, untimed: 1 })
       .withFile("tests/untimed.sh", { passed: 2 })
       .please(),
-    makeMe.aCiProofEntry.at("e2e").counting(5).please(),
+    makeMe.aCiProofEntry.at("e2e").countingIn("tests").counting(5).please(),
   );
 
   const held = scopeOf(summary, ["tests", "e2e"]);
@@ -142,7 +142,12 @@ test("untimed results stay gaps: a file without a duration cannot rank and a par
 
 test("an entry without a file breakdown ranks as one entry total, and a scope path inside it cannot be measured", () => {
   const summary = summaryOf(
-    makeMe.aCiProofEntry.at("tests").counting(7, "tests").timed(4200).please(),
+    makeMe.aCiProofEntry
+      .at("tests")
+      .countingIn("tests")
+      .counting(7)
+      .timed(4200)
+      .please(),
   );
 
   const whole = scopeOf(summary, ["tests"]);

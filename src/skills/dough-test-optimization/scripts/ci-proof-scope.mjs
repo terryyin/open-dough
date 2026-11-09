@@ -6,6 +6,11 @@
 // could not place in a file. Its gaps keep partial figures visible: missing
 // and ambiguous parts, failed and untimed results, those blocks, and scope
 // paths no entry covers. Each entry keeps its own unit.
+//
+// A summary is read in the current version (./ci-proof-check.mjs), whose
+// entries hold their results in each unit as `evidence`; each unit's results
+// are read here as one entry of that path, labelled `case`, `file`, or a
+// legacy unit's spelled label, so no figure is added across units.
 
 /**
  * One rankable item of the scope: its path, its entry, what it is, its
@@ -45,6 +50,14 @@ const isWithin = (path, scope) =>
   path === scope || path.startsWith(`${scope}/`);
 
 const unitOf = (entry) => entry.unit ?? "(no unit)";
+
+// ENTRY's results in each unit, each read as one entry of its path.
+const unitEntries = ({ path, evidence }) =>
+  evidence.map(({ unit, label, ...results }) => ({
+    path,
+    unit: unit === "legacy" ? label : unit,
+    ...results,
+  }));
 
 // FIGURES' cases, failed and untimed, and the time those timed took. A
 // figure without a duration recorded none for any of its cases.
@@ -190,12 +203,13 @@ function reportGaps({ path, unit, of, missing, ambiguous }, items) {
  * }}
  */
 export function scopeOf(summary, scope) {
-  const paths = scope ?? summary.entries.map((entry) => entry.path);
+  const unitResults = summary.entries.flatMap(unitEntries);
+  const paths = scope ?? [...new Set(unitResults.map((entry) => entry.path))];
   const entries = [];
   const items = [];
   const gaps = [];
   const noBreakdown = [];
-  for (const entry of summary.entries) {
+  for (const entry of unitResults) {
     const whole = paths.some((path) => isWithin(entry.path, path));
     const inside = paths.filter(
       (path) => path !== entry.path && isWithin(path, entry.path),
@@ -209,7 +223,7 @@ export function scopeOf(summary, scope) {
     gaps.push(...reportGaps(reported, held.items), ...held.gaps);
   }
   for (const path of paths) {
-    const covering = summary.entries.filter(
+    const covering = unitResults.filter(
       (entry) => isWithin(entry.path, path) || isWithin(path, entry.path),
     );
     if (covering.length === 0)

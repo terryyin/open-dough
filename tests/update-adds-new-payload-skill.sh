@@ -29,7 +29,7 @@ new_managed_files=(
   dough-test-optimization/scripts/ci-proof-check.mjs
   dough-test-optimization/scripts/ci-proof-leads.mjs
   dough-test-optimization/scripts/ci-proof-attempts.mjs
-  dough-test-optimization/scripts/ci-proof-evidence.mjs
+  dough-test-optimization/scripts/ci-proof-gaps.mjs
   dough-test-optimization/scripts/ci-proof-project.mjs
   dough-test-optimization/scripts/ci-proof-revisions.mjs
   dough-test-optimization/scripts/ci-proof-scope.mjs

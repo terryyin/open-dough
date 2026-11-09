@@ -1,8 +1,11 @@
 // @ts-check
 // Domain data for one attempt's CI proof summary, as the collector writes
-// it: its repository, the attempt it names (a GitHub Actions run attempt by
-// its run id and attempt, or a CI adapter's attempt by its text attemptId),
-// the revision that attempt tested, and its entries (`makeMe.aCiProofEntry`).
+// it in the current version: its repository, the attempt it names (a GitHub
+// Actions run attempt by its run id and attempt, or a CI adapter's attempt
+// by its text attemptId), the revision that attempt tested, and its entries
+// (`makeMe.aCiProofEntry`).
+import { SUMMARY_SCHEMA_VERSION } from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
+
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEntry} CiProofEntry */
 /** @typedef {Extract<import("../../dashboard/src/ciProof.ts").CiProof, { kind: "summary" }>["summary"]} CiProofSummary */
 
@@ -51,7 +54,7 @@ export class CiProofSummaryBuilder {
   /** @returns {CiProofSummary} */
   please() {
     return {
-      schemaVersion: 1,
+      schemaVersion: /** @type {2} */ (SUMMARY_SCHEMA_VERSION),
       repository: this.#repository,
       revision: this.#revision,
       ...this.#attempt,

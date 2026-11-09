@@ -38,10 +38,10 @@ const exampleSummary = () =>
       ["tests/c", 2],
     ],
     [
-      ["tests/a", 1, 1, "tests", counts(4), 12_500],
-      ["tests/b", 1, 1, "tests", counts(2, 1), 340],
-      ["tests/c", 1, 2, "tests", counts(2), 1_000],
-      ["tests/c", 2, 2, "tests", counts(1)],
+      ["tests/a", 1, 1, "case", counts(4), 12_500],
+      ["tests/b", 1, 1, "case", counts(2, 1), 340],
+      ["tests/c", 1, 2, "case", counts(2), 1_000],
+      ["tests/c", 2, 2, "case", counts(1)],
     ],
   );
 

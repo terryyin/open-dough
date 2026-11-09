@@ -9,6 +9,7 @@ import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
+  browserRevision,
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
@@ -70,6 +71,9 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   const focused = () =>
     page.evaluate(() => document.activeElement?.textContent ?? "");
   const focusedBefore = await focused();
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   expect(reads).toEqual([
     `locations@${pygardon.revision}`,
     `${featurePath}@${pygardon.revision}`,
@@ -92,6 +96,9 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
     `New revision available — showing ${shortRevision(pygardon.revision)}`,
   );
   await expect(notice.getByRole("button")).toHaveText(["Show latest"]);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   expect(await focused()).toBe(focusedBefore);
   await expect(source).toContainText("Scenario: Archive a job");
   await expectReadingKept();
@@ -106,6 +113,9 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await notice.getByRole("button", { name: "Show latest" }).click();
   await expect.poll(latest.held).toBe(1);
   await expect(notice).toContainText("Updating…");
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   await expect(source).toContainText("Scenario: Archive a job");
   await expect(feature).toHaveAttribute("aria-pressed", "true");
 
@@ -113,6 +123,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await expect(source).toContainText("Scenario: Purge a job");
   await untilPageReadsAnswered(page);
   await expect(notice).toHaveCount(0);
+  await expect(browserRevision(intent)).toContainText(shortRevision(c));
   await expectReadingKept();
   await expect(feature).toBeFocused();
   expect(reads.slice(2)).toEqual([`locations@${c}`, `${featurePath}@${c}`]);
@@ -147,6 +158,9 @@ test("Development follows a new revision while Intent, opened again, keeps its r
   );
   await expect(feature).toHaveAttribute("aria-pressed", "true");
   await untilPageReadsAnswered(page);
+  await expect(browserRevision(intent)).toContainText(
+    shortRevision(pygardon.revision),
+  );
   expect(reads).toEqual([
     `locations@${pygardon.revision}`,
     `${featurePath}@${pygardon.revision}`,
@@ -181,5 +195,6 @@ test("a selected feature the latest revision deleted is explained, with nothing 
   ).toHaveCount(0);
   await expect(intent.getByLabel(/ source$/)).toHaveCount(0);
   await expect(intent.locator(".intent-reading")).toBeFocused();
+  await expect(browserRevision(intent)).toContainText(shortRevision(revision));
   expect(reads.slice(2)).toEqual([`locations@${revision}`]);
 });

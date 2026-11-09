@@ -33,6 +33,12 @@ export type AdmittedStoryReview =
   | AdmittedWorkspaceReview
   | {
       readonly kind: "story-review";
+      readonly historical: PublishedSource;
+      readonly identity: string;
+      readonly runs: readonly ReviewLandedRun[];
+    }
+  | {
+      readonly kind: "story-review";
       readonly published: PublishedSource;
       readonly identity: string;
       readonly runs: readonly ReviewLandedRun[];
@@ -65,17 +71,31 @@ export async function storyReviewRequest(
       ...(url.searchParams.has("reference") ? ["reference"] : []),
       ...(url.searchParams.has("run") ? ["run"] : []),
       ...(url.searchParams.has("completed") ? ["completed"] : []),
+      ...(url.searchParams.has("historical") ? ["historical"] : []),
     ],
     "review",
   );
   const completed = url.searchParams.get("completed");
   if (completed !== null && completed !== "true")
     throw new RefusedRequest(400, "The completed review request is malformed.");
+  const historical = url.searchParams.get("historical");
+  if (historical !== null && (historical !== "true" || completed !== "true"))
+    throw new RefusedRequest(
+      400,
+      "The historical review request is malformed.",
+    );
   const found = await queriedRun(url);
   if (url.searchParams.has("reference") && url.searchParams.has("run"))
     throw new RefusedRequest(400, "The review names two run identities.");
   if (found.run !== undefined)
     return { kind: "story-review", run: found.run, runs: found.runs };
+  if (historical === "true")
+    return {
+      kind: "story-review",
+      historical: found.source,
+      identity: found.identity,
+      runs: found.runs,
+    };
   const fallback = preferredReviewRun(
     found.runs,
     ({ record }) => record.landing,

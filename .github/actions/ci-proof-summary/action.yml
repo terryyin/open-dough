@@ -1,14 +1,15 @@
 name: CI proof summary
 description: >-
   Collects this run attempt's CI proof fragments against the declared proof
-  entries and parts into the attempt's summary, and keeps it as the
+  entries, parts and units into the attempt's summary, and keeps it as the
   attempt-named artifact Intent's CI status tab reads. Names the run's
   revision from CI_PROOF_REVISION.
 inputs:
   expect:
     description: >-
-      Space-separated `<entry>=<parts>` declarations, in Intent location
-      order: the expectation, never inferred from the fragments present.
+      Space-separated `<entry>=<parts>:<unit>` declarations, in Intent
+      location order, one per unit (`case` or `file`) an entry's reports
+      give: the expectation, never inferred from the fragments present.
     required: true
 runs:
   using: composite

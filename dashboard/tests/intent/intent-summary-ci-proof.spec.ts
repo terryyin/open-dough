@@ -62,7 +62,8 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
       summary: JSON.parse(text) as unknown,
     });
     expect(
-      parsed.kind === "summary" && parsed.summary.entries[0]?.files,
+      parsed.kind === "summary" &&
+        parsed.summary.entries[0]?.evidence[0]?.files,
     ).toEqual([
       {
         path: "dashboard/tests/folder/a.spec.ts",
@@ -126,14 +127,14 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     await expectScopeRows(summary, "dashboard/tests/folder", [
       [
         "dashboard/tests/folder",
-        "3 passed, 1 failed and 1 other tests",
+        "3 passed, 1 failed and 1 other test cases",
         "595 ms",
         allParts,
       ],
-      ["nested/", "1 passed and 1 other tests", "45 ms"],
-      ["a.spec.ts", "1 passed and 1 failed tests", "550 ms"],
+      ["nested/", "1 passed and 1 other test cases", "45 ms"],
+      ["a.spec.ts", "1 passed and 1 failed test cases", "550 ms"],
       // A measured zero stays zero.
-      ["b.spec.ts", "1 passed tests", "0 ms"],
+      ["b.spec.ts", "1 passed test case", "0 ms"],
     ]);
     await expectAncestorEvidence(summary);
     await expect(intentFolderName(intent, "folder")).toHaveAttribute(
@@ -149,11 +150,11 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     await expectScopeRows(summary, "dashboard/tests/folder/nested", [
       [
         "dashboard/tests/folder/nested",
-        "1 passed and 1 other tests",
+        "1 passed and 1 other test cases",
         "45 ms",
         allParts,
       ],
-      ["c.spec.ts", "1 passed and 1 other tests", "45 ms"],
+      ["c.spec.ts", "1 passed and 1 other test cases", "45 ms"],
     ]);
     await expect(intentFolderName(intent, "nested")).toHaveAttribute(
       "aria-pressed",
@@ -188,19 +189,19 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     await expectProofRows(proofOf(home), [
       [
         "dashboard/tests",
-        "5 passed, 1 failed and 1 other tests",
-        "1 test untimed",
+        "5 passed, 1 failed and 1 other test cases",
+        "1 test case untimed",
       ],
-      ["tests", "2 passed checks", "3.0 s"],
+      ["tests", "2 passed test files", "3.0 s"],
     ]);
   });
 
   await test.step("the entry's Summary keeps those totals, lists the browsable files, and explains the rest", async () => {
     const summary = await openSummary(intent, "tests");
     await expectScopeRows(summary, "tests", [
-      ["tests", "2 passed checks", "3.0 s", "1 of 1 part present"],
-      ["root.sh", "1 passed checks", "2.5 s"],
-      ["Not in the rows above", "1 passed checks", "500 ms"],
+      ["tests", "2 passed test files", "3.0 s", "1 of 1 part present"],
+      ["root.sh", "1 passed test file", "2.5 s"],
+      ["Not in the rows above", "1 passed test file", "500 ms"],
     ]);
     const outside = evidenceLabels(summary, "Not in the rows above");
     await expectEvidenceLabels(outside, ["1 file not in the tree"]);
@@ -216,13 +217,13 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     await expectScopeRows(summary, "dashboard/tests", [
       [
         "dashboard/tests",
-        "5 passed, 1 failed and 1 other tests",
-        "1 test untimed",
+        "5 passed, 1 failed and 1 other test cases",
+        "1 test case untimed",
         allParts,
       ],
-      ["folder/", "3 passed, 1 failed and 1 other tests", "595 ms"],
+      ["folder/", "3 passed, 1 failed and 1 other test cases", "595 ms"],
       ["added.spec.ts", "no CI result", "no CI result"],
-      ["root.spec.ts", "2 passed tests", "1 test untimed"],
+      ["root.spec.ts", "2 passed test cases", "1 test case untimed"],
     ]);
     await expect(summary.locator(".intent-summary-outside")).toHaveCount(0);
   });

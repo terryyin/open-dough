@@ -11,7 +11,7 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../support/preparationPage.ts";
-import { entryProofs } from "../support/storyCiComparisonEntryProofs.ts";
+import { entryProofs } from "../support/storyCiComparisonEntrySummaries.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
@@ -111,17 +111,17 @@ test("Branch and Landed sort by signed change, not by time or relative change, w
   );
   const { panel } = await selectDoneStoryForCiComparison(page);
   await expectCiComparisonEntryRows(panel, [
-    ["e/big", "1 tests (no change)", "10 min", "+1 min", "+2 min"],
-    ["e/small", "1 tests (no change)", "1 min", "+30 s", "+40 s"],
-    ["e/down", "1 tests (no change)", "5 min", "−20 s", "−1 min"],
+    ["e/big", "1 test case (no change)", "10 min", "+1 min", "+2 min"],
+    ["e/small", "1 test case (no change)", "1 min", "+30 s", "+40 s"],
+    ["e/down", "1 test case (no change)", "5 min", "−20 s", "−1 min"],
     [
       "e/untimed",
-      "1 tests (no change)",
+      "1 test case (no change)",
       "No timings",
       "No timings",
       "No timings",
     ],
-    ["e/added", "added → 1 tests", "added", "5 s", "5 s"],
+    ["e/added", "added → 1 test case", "added", "5 s", "5 s"],
   ]);
   const table = panel.getByRole("table", {
     name: "CI entry timing comparison",

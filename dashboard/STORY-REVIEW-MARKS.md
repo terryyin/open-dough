@@ -51,10 +51,13 @@ review says an earlier snapshot, or this one, is marked and when. Refresh
 keeps the comparison shown, of the new snapshot; every opening starts on the
 changes since the review, except one from Intent's way to Review changes
 (`src/useStoryReviewRequest.ts`), which starts on, or returns the review
-shown to, Intent's comparison: All changes with uncommitted changes included,
-even from a landed run chosen in the review. A review whose workspace answer
-falls back to a landed run (the workspace gone, its landing captured) returns
-to that run, which Intent shows too.
+shown to, Intent's comparison. Active Intent uses All changes with uncommitted
+changes included, even from a landed run chosen in the review. Done Intent
+uses its published completion, even while the workspace remains readable. An
+established capture of that completed execution can recover unavailable published
+history. Its Review action opens that same historical comparison.
+Ordinary card Review keeps its live workspace default; when that workspace
+is gone, an available captured landing becomes its default.
 When the repository no longer holds the marked
 tree or its baseline (the project was cloned anew, say; checked with
 `git rev-parse --verify --quiet` before restating), the earlier review cannot
