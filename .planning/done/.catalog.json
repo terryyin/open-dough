@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-285_see-landed-ci-wall-time-history.json",
+      "identity": "SEED-285#see-landed-ci-wall-time-history",
+      "completedAt": "2026-11-09T11:27:25.249Z",
+      "blob": "0d7243d52bf63673cbf76355bd56988b831b320f"
+    },
+    {
       "fileName": "SEED-282_unify-intent-view-and-ci-proof.json",
       "identity": "SEED-282#unify-intent-view-and-ci-proof",
       "completedAt": "2026-11-09T02:13:41.676Z",
@@ -1884,72 +1890,6 @@
       "identity": "SEED-128#land-planning-without-coordinator-questions",
       "completedAt": "2026-10-10T11:36:53.515Z",
       "blob": "4b5247361c7ab80ee5ad62ac67283df2d5b05b1a"
-    },
-    {
-      "fileName": "SEED-121_settle-observer-owner-edges.json",
-      "identity": "SEED-121#settle-observer-owner-edges",
-      "completedAt": "2026-10-10T10:45:51.891Z",
-      "blob": "7e98aaef23daeaec6901a5f3eb2083320d7a3784"
-    },
-    {
-      "fileName": "SEED-123_recently-done-waits-for-added-project-sessions.json",
-      "identity": "SEED-123#recently-done-waits-for-added-project-sessions",
-      "completedAt": "2026-10-10T09:57:45.937Z",
-      "blob": "dbfd1a7ab8db92fe1e43347a15a33a7b59104aa0"
-    },
-    {
-      "fileName": "SEED-128_continue-refinement-to-slice-planning.json",
-      "identity": "SEED-128#continue-refinement-to-slice-planning",
-      "completedAt": "2026-10-10T08:54:08.087Z",
-      "blob": "7ab4f6d5e52d9c913c0c86598ab26cdb5e0c3210"
-    },
-    {
-      "fileName": "SEED-121_retain-execution-observer-owner.json",
-      "identity": "SEED-121#retain-execution-observer-owner",
-      "completedAt": "2026-10-10T07:37:16.533Z",
-      "blob": "deb3beb8f7efc87385b34f9653b7cd0f9025370f"
-    },
-    {
-      "fileName": "SEED-129_bounded-cursor-launch-wait.json",
-      "identity": "SEED-129#bounded-cursor-launch-wait",
-      "completedAt": "2026-10-10T07:27:33.620Z",
-      "blob": "9c91dd370ee8c0ef70c41748de70dc3b48819d4d"
-    },
-    {
-      "fileName": "SEED-123_dashboard-suite-stable-under-load.json",
-      "identity": "SEED-123#dashboard-suite-stable-under-load",
-      "completedAt": "2026-10-10T07:15:28.338Z",
-      "blob": "28c70b4dbbb0df8d329249d8606997d1c1d27f9a"
-    },
-    {
-      "fileName": "SEED-088_review-merged-one-shot-change.json",
-      "identity": "SEED-088#review-merged-one-shot-change",
-      "completedAt": "2026-10-10T06:00:40.847Z",
-      "blob": "0dad7eb91fda7ded549e2b79506bab1ef66b2a38"
-    },
-    {
-      "fileName": "SEED-122_running-cursor-sessions-sidebar-panel.json",
-      "identity": "SEED-122#running-cursor-sessions-sidebar-panel",
-      "completedAt": "2026-10-10T05:30:10.170Z",
-      "blob": "edfe79e7911a5c31b4dcc8b6bf3e644a531e23a8"
-    },
-    {
-      "fileName": "SEED-124_check-dashboard-fixture-consumers-locally.json",
-      "identity": "SEED-124#check-dashboard-fixture-consumers-locally",
-      "completedAt": "2026-10-10T05:10:21.265Z",
-      "blob": "5f2895aeb18e698ecb869b735e37427113fb32ca"
-    },
-    {
-      "fileName": "SEED-008_bound-managed-git-transport.json",
-      "identity": "SEED-008#bound-managed-git-transport",
-      "completedAt": "2026-10-10T05:00:45.059Z",
-      "blob": "adf91ae8e505316427a0da33e457b4173667dea3"
-    },
-    {
-      "fileName": "SEED-126_steady-dashboard-refresh.json",
-      "identity": "SEED-126#steady-dashboard-refresh",
-      "completedAt": "2026-10-10T04:46:33.383Z",
-      "blob": "aa0d0504a0031d859191e8df4aac98b6a4f5f5f4"
     }
   ],
   "unreadable": []
