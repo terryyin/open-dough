@@ -43,6 +43,29 @@ export type RevisionBuildSlot =
       readonly requestedStatus?: RequestedRevisionCiStatus;
     };
 
+// A slot no later read changes (`finalSlot`).
+export type FinalSlot<Slot> = Exclude<
+  Slot,
+  { readonly kind: "running" | "unavailable" }
+>;
+
+// SLOT when no later read changes it; undefined while it is a build still
+// running, CI that could not be read, or a cancelled landing whose later
+// trunk build may yet come. Only final slots are kept: in a remembered
+// done-story comparison answer (`./intentCiComparisonAnswers.ts`) and in the
+// landed CI history (`./landedCiHistoryStore.ts`).
+export function finalSlot<
+  Slot extends {
+    readonly kind: string;
+    readonly awaitingLaterBuild?: true | undefined;
+  },
+>(slot: Slot): FinalSlot<Slot> | undefined {
+  if (slot.kind === "running" || slot.kind === "unavailable") return undefined;
+  if (slot.kind === "none" && slot.awaitingLaterBuild === true)
+    return undefined;
+  return slot as FinalSlot<Slot>;
+}
+
 function withStatus(
   slot: RevisionBuildSlot,
   status: RequestedRevisionCiStatus | undefined,

@@ -79,7 +79,12 @@ export async function asComparisonSlot(
   };
 }
 
-export function gapFromUnread(judgment: BaseCiJudgment): StoryCiComparisonSlot {
+// An endpoint whose CI could not be read, with why: a comparison slot, or a
+// Landed rule resolution (`./landedCiCollection.ts`).
+export function gapFromUnread(judgment: BaseCiJudgment): {
+  readonly kind: "unavailable";
+  readonly explanation: string;
+} {
   const reason =
     "reason" in judgment && typeof judgment.reason === "string"
       ? judgment.reason

@@ -47,7 +47,9 @@
 // says whether it can. It also starts the feedback maintenance cycle when it
 // is due under this machine's standing authorization
 // (`./feedbackMaintenanceCheck.ts`), and the sessions answer says where
-// feedback maintenance stands from its last observation. It also names the
+// feedback maintenance stands from its last observation. Each landing it
+// records has its trunk CI collected in the background into this machine's
+// landed CI history (`./landedCiCollection.ts`). It also names the
 // starts kept without a session and the starts running with their phases. Everything else
 // -- another site, an unknown project, a workflow or host this boundary does
 // not launch, malformed text, another method, a session it did not record --
@@ -71,6 +73,7 @@ import { SessionAlerts } from "./sessionAlerts.ts";
 import { MachineSessionObservation } from "./machineSessionObservation.ts";
 import { dashboardOrigin } from "./dashboardOrigin.ts";
 import { FeedbackMaintenanceCheck } from "./feedbackMaintenanceCheck.ts";
+import { LandedCiCollection } from "./landedCiCollection.ts";
 
 export function installAgentLaunchMiddleware(
   middlewares: BoundaryMiddlewares,
@@ -88,6 +91,7 @@ export function installAgentLaunchMiddleware(
   const maintenance = new FeedbackMaintenanceCheck(launches, () =>
     dashboardOrigin(httpServer),
   );
+  const landedCi = new LandedCiCollection();
   // Every viewer and the notification observer share one observation. It
   // reads the alerts' availability only while observing, after construction.
   const sessions: MachineSessionObservation = new MachineSessionObservation(
@@ -102,7 +106,7 @@ export function installAgentLaunchMiddleware(
       next();
       return;
     }
-    void answer(req, url, res, launches, doneMarks, sessions).then(
+    void answer(req, url, res, launches, doneMarks, sessions, landedCi).then(
       (outcome) => respondToLaunch(req, res, outcome),
       next,
     );
@@ -115,6 +119,7 @@ export function installAgentLaunchMiddleware(
       void releaseCursorHandoffs();
       alerts.close();
       maintenance.close();
+      landedCi.close();
       const doneSettled = doneMarks.close();
       terminals.close();
       launches.close();

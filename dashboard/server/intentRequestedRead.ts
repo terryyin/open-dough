@@ -1,8 +1,10 @@
 // The Intent reads a request may name for the local authenticated read
 // boundary (`./requestedRead.ts`): locations, Test Optimization Candidates,
 // CI status (`./intentCiStatusRead.ts`), the CI proof of the run a CI status
-// judgment named (`./intentCiProofRead.ts`), or a refusal when `intent` is
-// present but unknown. Each known kind parses in its own module.
+// judgment named (`./intentCiProofRead.ts`), a story's CI comparison, the
+// project's collected CI wall time history (`./intentCiHistoryRead.ts`), or a
+// refusal when `intent` is present but unknown. Each known kind parses in its
+// own module.
 
 import {
   parseIntentCandidatesRead,
@@ -16,6 +18,10 @@ import {
   parseIntentCiComparisonRead,
   type IntentCiComparisonRead,
 } from "./intentCiComparisonParse.ts";
+import {
+  parseIntentCiHistoryRead,
+  type IntentCiHistoryRead,
+} from "./intentCiHistoryRead.ts";
 import {
   parseIntentCiProofRead,
   type IntentCiProofRead,
@@ -31,7 +37,8 @@ export type IntentRequestedRead =
   | IntentCandidatesRead
   | IntentCiStatusRead
   | IntentCiProofRead
-  | IntentCiComparisonRead;
+  | IntentCiComparisonRead
+  | IntentCiHistoryRead;
 
 const unknownIntentRefusal =
   "An Intent read names only a pinned revision and a known Intent request.";
@@ -50,6 +57,8 @@ export function parseIntentRequestedRead(
   if (ciProof !== undefined) return ciProof;
   const ciComparison = parseIntentCiComparisonRead(params);
   if (ciComparison !== undefined) return ciComparison;
+  const ciHistory = parseIntentCiHistoryRead(params);
+  if (ciHistory !== undefined) return ciHistory;
   if (params.get("intent") !== null) {
     return refused(unknownIntentRefusal);
   }

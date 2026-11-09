@@ -82,3 +82,46 @@ on **Check again**). Proof is shown whether Intent locations are configured, abs
 or unreadable: Project Intent's **CI status** shows it beside the
 explanation in place of the location tree, and its strip stands above those
 explanations, which **Optimization Candidates** also shows.
+
+Project Intent's **CI status** of trunk also shows the **CI wall time
+history** after **Proof** and before **Check again**; a story branch's CI
+status shows none. Its heading gives the actual count and dates of the
+measured builds it holds (`1 measured build · Nov 5`, or
+`6 measured builds · Nov 1–Nov 5`), then says the history is collected from
+dashboard-recorded landings and gives the latest measured build's CI wall
+time in whole seconds (`6 min 5 s`), as the
+[CI timing comparison](dashboard-development-intent-ci-comparison.md) words
+a build's. An image named “CI wall time by build date”, drawn in the page
+without a chart library, places each measured build once at its date and CI
+wall time and joins them in date order, against whole-step time words; its
+words keep their size at phone width. **Builds and evidence**, a disclosure
+reached by Tab, lists each build in words: its date, CI wall time,
+`exact revision` with the short revision, and its run attempt
+(`Run 41 · attempt 1`, or an adapter's `Attempt <attemptId>`) linked to its
+run, so a keyboard, a screen reader and a phone get the same evidence
+without colour. With no measured build, as for a project with no recorded
+landing, it says “No dashboard-recorded landings have been measured yet.”
+and draws nothing. The current judgment, its Proof and **Check again** keep
+their own reading. The history is read again with each trunk judgment
+(when Project Intent shows, when an observed trunk advance refreshes it, and
+on **Check again**), never on time alone, and reads only the collected local
+history, so it asks CI nothing, before or after a restart.
+
+A production dashboard collects that history in the background
+(`dashboard/server/landedCiCollection.ts`) whether or not a page is open:
+recording an accepted landing (see
+[Landed run records](../dashboard/STORY-REVIEW-LANDED-RUNS.md)) starts a pass
+over this machine's recorded landings onto each configured project's ref,
+newest first, until 20 measured builds are held for the project. Each
+landing resolves through the CI timing comparison's Story Branch Landed rule
+at its accepted revision, over the project's CI read: the `ciWorkflow` runs
+at that revision, or the `ciAdapter`'s discovery. A measured build is the
+landed revision's own passed build whose attempt has both a start and a
+completion; its CI wall time follows the comparison's definition. A final
+resolution is kept by the landing's receipt, with each build kept once by
+its run and attempt, in `~/.open-dough/dashboard/landed-ci-history.json`, and
+never resolved again; a landing whose CI is still running or could not be
+read is resolved again by the pass the next recorded landing starts. A
+development dashboard collects nothing and reads the same history. The file
+is derived local evidence: deleting it loses only the requests to rebuild it
+and evidence CI no longer keeps.
