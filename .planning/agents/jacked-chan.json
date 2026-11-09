@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-285#see-landed-ci-wall-time-history",
+  "mode": "story-branch",
+  "branch": "claude/see-landed-ci-wall-time-change-over-time",
+  "host": "claude",
+  "model": "opus"
+}

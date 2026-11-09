@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Make machine-local project configuration test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data) — SEED-261#map-project-configuration-test-data ([plan](slice-plans/540-map-project-configuration-test-data/PLAN.md))
 - [Make Intent location, source and candidate test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-intent-and-ci-proof-test-data) — SEED-261#map-intent-and-ci-proof-test-data ([plan](slice-plans/548-map-intent-and-ci-proof-test-data/PLAN.md))
 - [Keep Done story Intent pinned to the landed result](seeds/SEED-283-keep-done-story-intent-pinned.md#keep-done-story-intent-pinned) — SEED-283#keep-done-story-intent-pinned ([plan](slice-plans/550-keep-done-story-intent-pinned/PLAN.md))
+- [See landed CI wall time change over time](seeds/SEED-285-landed-ci-timing-history.md#see-landed-ci-wall-time-history) — SEED-285#see-landed-ci-wall-time-history ([plan](slice-plans/551-see-landed-ci-wall-time-history/PLAN.md))
 
 ## Backlog list
 
-- [See landed CI wall time change over time](seeds/SEED-285-landed-ci-timing-history.md#see-landed-ci-wall-time-history) — SEED-285#see-landed-ci-wall-time-history
 - [Trace a Done story’s timing history into test Proof](seeds/SEED-285-landed-ci-timing-history.md#trace-landed-proof-timing) — SEED-285#trace-landed-proof-timing
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
