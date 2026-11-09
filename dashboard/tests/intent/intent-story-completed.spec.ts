@@ -8,17 +8,16 @@
 // removed in both "Selected story only" states, with the deletion diff
 // Review changes shows; the modified and added files show Review's diffs
 // too. That a diff is the same in both states is proved with the moves
-// (./intent-story-changes-moves.spec.ts). A completed story whose published
-// comparison cannot be recovered says why, with no retry, and leaves the
-// published tree usable. Intent coverage shows the saved assessment as
-// stored. The workspace journey: ./intent-story-changes.spec.ts.
+// (./intent-story-changes-moves.spec.ts). Historical source and missing-history
+// reading: ./intent-story-completed-source.spec.ts. Intent coverage shows the
+// saved assessment as stored. Workspace: ./intent-story-changes.spec.ts.
 // The done card's Review changes selects it too, and toggling its selection
 // clears it while the review stays open.
 
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
-import { expandIntentGroup, purposeRegion } from "../intentPerspectivePage.ts";
+import { expandIntentGroup } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   completedChanges as changed,
@@ -31,7 +30,6 @@ import {
   expectOutsideCount,
   intentFile,
   openReviewFromIntent,
-  outsideCount,
   reviewDiff,
   storyHeaderDetail,
   storyOnly,
@@ -43,9 +41,6 @@ import { git } from "../support/storyReviewWorktree.ts";
 import { expectSelected, selectStory } from "../storyCardSelection.ts";
 
 const gone = "dashboard/tests/gone.spec.ts";
-// Why a shallow checkout's published history yields no comparison.
-const unrecoverable =
-  "Published execution history does not establish a complete claim and its attributed commits for this completion.";
 
 test("Intent overlays a completed story's published history comparison, naming it and its revisions apart from the published revision", async ({
   page,
@@ -187,43 +182,4 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(scoped).toHaveCount(0);
   });
-});
-
-test("a completed story whose published comparison cannot be recovered says why, with no retry, and leaves the tree usable", async ({
-  page,
-  origin,
-}) => {
-  const { card, intent } = await selectCompletedStoryInIntent(page, origin, {
-    history: "shallow",
-  });
-  const scoped = storySummary(intent);
-  await expect(storyTitle(intent)).toHaveText("Story A");
-  await expect(scoped.getByRole("status")).toHaveText(
-    "No comparison is available.",
-  );
-  const detail = await storyHeaderDetail(intent);
-  await expect(
-    detail.getByRole("heading", { name: "Intent coverage" }),
-  ).toHaveCount(0);
-  const problem = detail.locator(".intent-story-problem");
-  await expect(problem).toHaveText(
-    `${unrecoverable} Intent shows the published tree without the story's changes.`,
-  );
-  await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
-  await expect(storyOnly(intent)).toHaveCount(0);
-  await expect(intent.locator("[data-kind]")).toHaveCount(0);
-  await expect(outsideCount(intent)).toHaveCount(0);
-  await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
-  await chooseStoryTab(intent, "Changed tests");
-  await expandIntentGroup(intent, "dashboard/tests");
-  await intentFile(intent, "dashboard/tests/a.spec.ts").click();
-  await expect(purposeRegion(intent)).toContainText("completed");
-  // Review changes gives the completed story the same explanation.
-  const { development } = parts(page);
-  await development.click();
-  await card.getByRole("button", { name: "Review changes" }).click();
-  await expect(
-    page.getByRole("region", { name: "Story review" }),
-  ).toContainText(unrecoverable);
 });

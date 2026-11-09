@@ -110,7 +110,10 @@ export function IntentHeader({
             onRetry={summary.onRetry}
           />
           <div className="intent-story-detail">
-            <ComparisonDetail comparison={summary.comparison} />
+            <ComparisonDetail
+              comparison={summary.comparison}
+              completed={summary.story.completed}
+            />
           </div>
         </>
       )}

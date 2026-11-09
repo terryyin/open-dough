@@ -1,7 +1,8 @@
 // One Intent page for project evidence and an optional selected-story context.
 // Each is mounted inside its own evidence and reading owners by
-// IntentPerspective. The persistent header, views and revision notice use the
-// same arrangement; the browser stays mounted while another view shows.
+// IntentPerspective. The persistent header and views use the same arrangement;
+// only the project shows its revision notice. The browser stays mounted while
+// another view shows.
 
 import { ArrowLeft, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -30,7 +31,6 @@ import type { ModeChoice } from "./pageIntentMode.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import type { PublishedWork } from "./publishedWork.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
 import "./intent-page.css";
@@ -46,14 +46,12 @@ export type IntentPageStory = {
 
 export function IntentPage({
   source,
-  work,
   shown,
   project,
   story,
   onBackToStory,
 }: {
   readonly source: PublishedSource;
-  readonly work: PublishedWork | undefined;
   readonly shown: ShownIntentLocations;
   readonly project: ModeChoice;
   readonly story?: IntentPageStory;
@@ -164,7 +162,7 @@ export function IntentPage({
             onShowBrowser={setFilesShown}
           />
         </div>
-        {notice}
+        {story === undefined && notice}
         {story !== undefined && (
           <div {...panel("ci")}>
             <IntentCiStatus />
@@ -184,10 +182,10 @@ export function IntentPage({
           </div>
         )}
       </div>
-      {locations !== undefined && work !== undefined && (
+      {locations !== undefined && shownRevision !== undefined && (
         <IntentBrowser
           source={source}
-          revision={shownRevision ?? work.revision}
+          revision={shownRevision}
           locations={locations}
           project={story === undefined ? project : undefined}
           storySummary={story?.summary}

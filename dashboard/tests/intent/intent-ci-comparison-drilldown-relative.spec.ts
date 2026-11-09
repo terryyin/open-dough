@@ -154,7 +154,30 @@ test("story, location, folder and file share signed words, preference and per-di
   await expect(showPercent(proof)).toBeChecked();
   await expect(branch).toHaveText("+70 ms+21%");
 
+  await untilPageRequestsAnswered(page);
+  expect(ciReads).toEqual(initialReads);
+});
+
+test("added, unchanged and removed historical files keep honest timing marks, and Show % preserves the Summary sort without rereading CI", async ({
+  page,
+  origin,
+}) => {
+  await publishSummaryComparisonStory(page, origin, "own-conflict-extra");
+  const ciReads: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname !== authenticatedReadEndpoint) return;
+    const kind = url.searchParams.get("intent");
+    if (kind === "ci-comparison" || kind === "ci-proof")
+      ciReads.push(`${kind} ${url.search}`);
+  });
+  const { intent } = await selectDoneStoryForSummaryComparison(page);
+  await untilPageRequestsAnswered(page);
+  const initialReads = [...ciReads];
   await intentFile(intent, summaryComparisonChanges.added).click();
+  await fileReadingTab(intent, "Proof").click();
+  const proof = proofRegion(intent);
+  await showPercent(proof).check();
   await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
     "800 ms",
   );
@@ -178,9 +201,12 @@ test("story, location, folder and file share signed words, preference and per-di
   await showPercent(entry).uncheck();
   await expect(rowNames(table)).toHaveText(order);
   const gap = table.locator("tbody tr").filter({
-    has: page.getByRole("rowheader", { name: "later.spec.ts", exact: true }),
+    has: page.getByRole("rowheader", { name: "gone.spec.ts", exact: true }),
   });
-  await expect(gap).toContainText("not in the compared builds");
+  await expect(gap).toContainText("removed");
+  await expect(
+    table.getByRole("rowheader", { name: "later.spec.ts", exact: true }),
+  ).toHaveCount(0);
   await expect(
     gap.locator(".intent-ci-time-mark, .intent-ci-time-percent"),
   ).toHaveCount(0);

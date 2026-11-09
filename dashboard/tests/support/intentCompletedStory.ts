@@ -11,18 +11,18 @@ import type { Page } from "@playwright/test";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import { showColumn } from "../boardPage.ts";
+import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
-import { expect } from "../dashboardTest.ts";
-import { expectSelected } from "../storyCardSelection.ts";
 import {
   advanceCompletedTrunk,
   completedPublishedStory,
 } from "./completedPublishedStory.ts";
 import { publishIntentTrunk } from "./intentStoryWorktree.ts";
+import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { push } from "./storyReviewTrunkCommits.ts";
 
 // The completed story's test changes as Review changes names each file's
 // control.
@@ -41,6 +41,8 @@ function changeCompletedTests(workspace: string) {
 // `history` "shallow" leaves the project's checkout with only trunk's last
 // commit, so the published comparison cannot be recovered. `beforeIntent`
 // runs once the card is selected, before Intent first reads the story.
+// `implementation` supplies further story facts; `later` supplies changes
+// published on trunk after completion, independently of the historical read.
 export async function selectCompletedStoryInIntent(
   page: Page,
   origin: StartOrigin,
@@ -48,10 +50,14 @@ export async function selectCompletedStoryInIntent(
     history = "complete",
     intentCoverage,
     beforeIntent,
+    later,
+    implementation,
   }: {
     readonly history?: "complete" | "shallow";
     readonly intentCoverage?: IntentCoverage;
     readonly beforeIntent?: () => Promise<void>;
+    readonly later?: RevisionFacts;
+    readonly implementation?: RevisionFacts;
   } = {},
 ) {
   publishIntentTrunk(origin.project);
@@ -59,29 +65,35 @@ export async function selectCompletedStoryInIntent(
     origin,
     "trunk",
     undefined,
-    changeCompletedTests,
+    (workspace) => {
+      changeCompletedTests(workspace);
+      if (implementation !== undefined)
+        writeRevisionFiles(workspace, implementation);
+    },
     undefined,
     { intentCoverage },
   );
   if (history === "complete") advanceCompletedTrunk(origin);
   else git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+  if (later !== undefined) {
+    writeRevisionFiles(origin.project, later);
+    commitAll(
+      origin.project,
+      "change current tests and settings after landing",
+    );
+    push(origin.project);
+  }
   const published = git(origin.origin, "rev-parse", "main");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: published,
     repository: "terryyin/open-dough",
+    follows: true,
   });
-  await page.goto("/");
-  await showColumn(page, "Recently done");
-  const { recentlyDone, intentChoice, intent } = parts(page);
-  const card = recentlyDone.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await card.getByRole("heading", { level: 3 }).click();
-  await expectSelected(card, true);
-  await beforeIntent?.();
-  await intentChoice.click();
-  await expect(intent).toBeVisible();
+  const { card, intent } = await selectDoneStoryInIntent(
+    page,
+    "Story A",
+    beforeIntent,
+  );
   return { card, intent, completion, published };
 }

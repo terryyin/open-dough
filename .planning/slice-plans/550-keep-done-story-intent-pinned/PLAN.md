@@ -2,85 +2,88 @@
 
 **Identity:** SEED-283#keep-done-story-intent-pinned
 **Source:** [selected story](../../seeds/SEED-283-keep-done-story-intent-pinned.md#keep-done-story-intent-pinned)
+**Source review:** [independent source commitments](source-review.md)
+
+## Execution context
+
+Established `SEED-283#keep-done-story-intent-pinned`, publisher `dashboard-territory.local-open-dough`, agent
+`bastiaan-chan`, Story Branch Mode, authorized remote/trunk `origin/main`. Owned checkout:
+`/Users/terryyin/git/open-dough/.worktrees/keep-done-story-intent-pinned-to-the-landed-resu`; branch
+`codex/keep-done-story-intent-pinned-to-the-landed-resu`. Starting revision
+`de07d137ff98a2a0e635d2d43ca610bef89434f6`; published claim/initial candidate
+`2ee6aa08a70a414caba882a971b77da90d06ac79`. Retain Ready's **Changed since readiness review** indication
+without renewing it. SEED-282's shared page/header/comparison landed before Take; this execution adapts those
+owners. Done refresh removal is compatible with slice 2's Project-only refresh/label.
+
+Checkout setup `npm ci --ignore-scripts --no-audit --no-fund` and `npm run typecheck:dashboard` passed
+2026-11-09. Hook: check-only staged lint, plus dashboard typecheck for staged scripts. Selective formatter:
+`npm run format`. No numeric slice budget; preserve one proof loop. Existing planning authority permits
+refinement within the unchanged story.
+
+GitHub observer: `terryyin/open-dough`, `ci.yml` (CI, 351271804), target the execution branch, coordinator
+`seed283-root`, `/tmp/dough-ci-501/watch-Fzp5fG`, PID `42590`, session `5842`, yielded cell `g83:10`, bound to
+this checkout. Claim's main CI is unobserved here. GitHub directed a wait until `2026-11-09T03:08:58.675Z`;
+same observer resumes itself.
+
+Initial proof budget: AC awake, load 7.50/9.77/11.92, free memory 54%; competing machine-local configuration
+and Intent-fixture test owners. Use `caffeinate -s -i`, initially one worker, sequence owned heavy work,
+reassess before expensive launches; preserve other owners. Implementation owns focused terminal results;
+coordinator owns final gates and delivery. Source freshness: unchanged on `origin/main`
+`9215bdb8989a83ca82808b93ddc79be7c208b8e5`, base `2ee6aa08a70a414caba882a971b77da90d06ac79`; incoming changes
+contain no new SEED-282 behavior.
 
 ## Goal and scope
 
-A developer can review a Done story's changed tests and recorded evidence
-after trunk has moved on. Its browser uses the story's baseline/result diff
-and landing's test locations, inventory, and unchanged-file source. All three
-Done tabs stay independent of project freshness. Project Intent owns its
-revision notice and refresh, and visibly names the revision its browser shows,
-even after a planning-only update and with no file selected.
+A developer can review a Done story's changed tests and recorded evidence after trunk has moved on. Its
+browser uses the story's baseline/result diff and landing's test locations, inventory, and unchanged-file
+source. All three Done tabs stay independent of project freshness. Project Intent owns its revision notice and
+refresh, and visibly names the revision its browser shows, even after a planning-only update and with no file
+selected.
 
-Historical gaps explain the unavailable source without substituting current
-trunk or implying no changes. CI, source, and saved coverage retain independent
-loading/failure/absence/result states and supported recovery. Project refresh
-keeps the prior shown revision through updating/failure and advances the label
-on accepted locations, with the existing reading/focus/retry behavior.
+Historical gaps explain the unavailable source without substituting current trunk or implying no changes. CI,
+source, and saved coverage retain independent loading/failure/absence/result states and supported recovery.
+Project refresh keeps the prior shown revision through updating/failure and advances the label on accepted
+locations, with the existing reading/focus/retry behavior.
 
-No CI endpoint, collection, proof-schema, assessment-process, history-retention,
-or selection-workflow change. Preserve explicit equivalent/later-build
-provenance and Check again: a proof's measured revision is distinct from the
-source tree at landing. SEED-282 owns common layout/comparison presentation
-and is not a prerequisite. Reconcile with that work if it lands first rather
-than duplicating its presentation. Preparation authorizes no implementation.
+No CI endpoint, collection, proof-schema, assessment-process, history-retention, or selection-workflow change.
+Preserve explicit equivalent/later-build provenance and Check again: a proof's measured revision is distinct
+from the source tree at landing. SEED-282 owns common layout/comparison presentation and is not a
+prerequisite. Reconcile with that work if it lands first rather than duplicating its presentation. Preparation
+authorizes no implementation.
 
 ## Architecture and existing solutions
 
-Follow [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
-[ADR 0001 — Ubiquitous language](../../../docs/adrs/0001-ubiquitous-language-accepted.md),
-and [ADR 0002, principles 2 and 5](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
-The ADR index and relevant in-file statuses agree; no conflict or supersession
-affects this approach. Published Git/records own the evidence, while cached
-answers and reading place remain rebuildable/disposable. The existing
-[North Star](../../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation)
-supports these ordinary read and presentation responsibilities; no new topic,
-ADR, database, service, or source of truth is warranted.
+Follow [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md), [ADR
+0001](../../../docs/adrs/0001-ubiquitous-language-accepted.md), and [ADR 0002, principles 2 and
+5](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md). Index/statuses agree; no
+conflict/supersession. Git/records own evidence; caches and reading place are disposable. The [North
+Star](../../NORTH-STAR.md#one-backlog-interpretation-separate-observation-and-presentation) supports these
+read/presentation responsibilities without a new topic, database, service or ADR.
 
-PFE traced the following existing owners at
-`c7e41e9e4abdd957e3b1117a1bba13d27749d1e6`:
+PFE at `c7e41e9e4abdd957e3b1117a1bba13d27749d1e6`, adapted to landed SEED-282:
 
-- `IntentPerspective.tsx` currently creates one `useShownIntentLocations`
-  result from project work and supplies it to project and story. Change this
-  orchestration so historical story source and refreshable project reading
-  have their own correct inputs. `IntentReadingScope` and the page's existing
-  reading place already isolate project/story browsing; preserve that boundary
-  and prevent a newly selected story from inheriting another story's revision.
-- `storyComparisonShown.ts` already owns the comparison and file diffs.
-  `storyReviewPublished.ts` returns both the published completion commit and
-  its Git tree. Read source/settings at the published result commit, not the
-  synthetic baseline or the raw tree object. Keep that source revision
-  distinct from CI's measured endpoint. Reuse the existing landed-result
-  provenance when a supported retained comparison supplies it; do not invent
-  a current-trunk fallback if the historical result cannot be established.
-- `authenticatedIntentRead.ts`, `useIntentLocations.ts`, and
-  `server/intentLocationsRead.ts` already read/cache locations and settings at
-  an explicit revision. Reuse that read path for history. Existing location
-  selection, `intentStoryOverlay.ts`, rename mapping, outside count, and
-  `IntentFileReading.tsx` already own changed/deleted-file placement and diffs.
-  Keep one model rather than copying a Done-only browser or selection grammar.
-- `IntentCiEvidence.tsx` already separates project/story evidence;
-  `intentCiComparisonResolve.ts` owns historical endpoint/proof recovery;
-  `IntentStoryCoverage.tsx` owns the saved report and missing-record states.
-  Preserve these owners and keep them usable when locations cannot be read.
-- `IntentRevisionNotice.tsx` and `useIntentLocations.ts` already distinguish
-  observed, requested, and successfully shown revisions. Use the shown
-  revision for the persistent project-browser label and retain existing
-  update/retry/focus behavior. A selected file already names its source
-  revision, which does not replace a browser-wide label with no selection.
+- `IntentPerspective` supplies one project locations read to both scopes. Separate historical inputs
+  from project refresh using existing `IntentReadingScope`; never lend another selected story's revision.
+- `storyComparisonShown` owns diffs; `storyReviewPublished` exposes completion and tree separately.
+  Read source/settings at the result **commit**, never raw tree/synthetic baseline/current-trunk fallback.
+  Reuse supported retained landing provenance; keep CI's measured endpoint distinct.
+- `authenticatedIntentRead`, `useIntentLocations`, and `server/intentLocationsRead` already read/cache
+  explicit revisions. Reuse location selection, `intentStoryOverlay`, rename mapping, outside count,
+  and `IntentFileReading`; create no second Done browser, evidence model, or selection grammar.
+- `IntentCiEvidence`, `intentCiComparisonResolve`, and `IntentStoryCoverage` own independent evidence
+  and recovery. Keep them useful when source is unavailable.
+- `IntentRevisionNotice`/`useIntentLocations` distinguish observed, requested and shown revisions.
+  Label the successfully shown browser revision with existing update/retry/focus behavior, including
+  no-file reading; the selected-file caption cannot replace it.
 
-The common rule is evidence ownership: story source comes from its published
-result, current project reading advances only through its own refresh.
-Separate input lifecycles are justified by those meanings; duplicate evidence
-models or per-tab historical implementations are not.
+Story source belongs to its published result; Project reading advances through its own refresh.
 
 ## Outside-in proof ownership
 
-Arrange automated domain data through the shared MakeMe API under
-[test data architecture](../../../tests/README.md#test-data-architecture).
-Extend the existing canonical completion/published-revision fixtures; state
-post-landing file/settings facts at the case site. Do not stub the result the
-production historical reader must establish.
+Arrange automated domain data through the shared MakeMe API under [test data
+architecture](../../../tests/README.md#test-data-architecture). Extend the existing canonical
+completion/published-revision fixtures; state post-landing file/settings facts at the case site. Do not stub
+the result the production historical reader must establish.
 
 | Final promise | Owner | Observable proof |
 | --- | --- | --- |
@@ -97,35 +100,30 @@ production historical reader must establish.
 ### 1. Read a Done story from its published result
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: slice 1 rows above, through the real published completion and
 authenticated historical locations/source read boundaries.
 
-A story has completed and trunk later changes its tests/settings → open its
-Intent tabs → Changed tests shows the landing's locations, test inventory and
-baseline/result changes, CI comparison keeps its story provenance, and Intent
-coverage shows its saved assessment. A current project revision never offers
-Show latest in these Done tabs. Visit/refresh Project Intent and return →
-story evidence and its reading remain unchanged. Unrecoverable comparison or
-historical-source failure explains that gap without showing current trunk as
-the story, while independent evidence remains usable.
+A story has completed and trunk later changes its tests/settings → open its Intent tabs → Changed tests shows
+the landing's locations, test inventory and baseline/result changes, CI comparison keeps its story provenance,
+and Intent coverage shows its saved assessment. A current project revision never offers Show latest in these
+Done tabs. Visit/refresh Project Intent and return → story evidence and its reading remain unchanged.
+Unrecoverable comparison or historical-source failure explains that gap without showing current trunk as the
+story, while independent evidence remains usable.
 
-Change existing source-read orchestration and its input/provenance derivation;
-reuse the browser, comparison, overlay, and evidence owners. Keep loading and
-gap presentation specific to the selected story's available evidence, including
-initially unread history and changed selection. Replace the current Done
-shallow-history expectation of a usable current published tree with the
-historical unavailable behavior. Preserve the active-story no-workspace/current
-tree journey, which has a different meaning and remains outside this change.
-Align story and historical-CI documentation and affected observers in this
-slice. Consult any landed common-frame changes before editing presentation.
+Change existing source-read orchestration and its input/provenance derivation; reuse the browser, comparison,
+overlay, and evidence owners. Keep loading and gap presentation specific to the selected story's available
+evidence, including initially unread history and changed selection. Replace the current Done shallow-history
+expectation of a usable current published tree with the historical unavailable behavior. Preserve the
+active-story no-workspace/current tree journey, which has a different meaning and remains outside this change.
+Align story and historical-CI documentation and affected observers in this slice. Consult any landed
+common-frame changes before editing presentation.
 
-Safe stopping point: Done stories have trustworthy historical reading and no
-project refresh notice; Project Intent still has its existing notice/recovery,
-with a persistent browser revision label supplied by slice 2.
-Sizing hypothesis: one historical-source selection rule, one real Done-story
-reading/absence proof loop, and reuse of the existing revision-keyed reader.
-No preparatory Structure slice is needed for these already-present owners.
+Safe stopping point: Done stories have trustworthy historical reading and no project refresh notice; Project
+Intent still has its existing notice/recovery, with a persistent browser revision label supplied by slice 2.
+Sizing hypothesis: one historical-source selection rule, one real Done-story reading/absence proof loop, and
+reuse of the existing revision-keyed reader. No preparatory Structure slice is needed for these
+already-present owners.
 
 ### 2. Show the Project Intent browser's current revision through refresh
 
@@ -134,53 +132,44 @@ Status: planned
 Proof: slice 2 rows above under the existing controlled page clock and
 authenticated request holds/failures.
 
-Project Intent is showing revision A → observe B whose only change is planning
-→ the project notice offers Show latest beside the browser and its visible
-revision label still names A. Apply B → keep A during the read; success names
-B persistently, even with identical test files and no selected file. Failure
-keeps A and its reading with Retry; accepted retry names B. Project freshness
-controls belong to Project Intent, and returning to a selected story retains
-that story's own evidence/reading.
+Project Intent is showing revision A → observe B whose only change is planning → the project notice offers
+Show latest beside the browser and its visible revision label still names A. Apply B → keep A during the read;
+success names B persistently, even with identical test files and no selected file. Failure keeps A and its
+reading with Retry; accepted retry names B. Project freshness controls belong to Project Intent, and returning
+to a selected story retains that story's own evidence/reading.
 
-Use the existing successfully shown locations revision and notice lifecycle.
-Do not label the latest observed work, a requested-but-failed revision, a
-selected file's independently retained text, or the CI build as the browser's
-current source. Keep existing malformed-settings, path-removal, focus return,
-project switching, narrow/zoomed layout, and independent CI behavior. Align
-project Intent guidance and browser-wide revision assertions in this slice.
+Use the existing successfully shown locations revision and notice lifecycle. Do not label the latest observed
+work, a requested-but-failed revision, a selected file's independently retained text, or the CI build as the
+browser's current source. Keep existing malformed-settings, path-removal, focus return, project switching,
+narrow/zoomed layout, and independent CI behavior. Align project Intent guidance and browser-wide revision
+assertions in this slice.
 
-Safe stopping point: the complete story promise is delivered; current project
-freshness and historical story evidence are understandable independently.
-Sizing hypothesis: one project refresh/feedback proof loop using the existing
-state machine; success, held read, failure, and retry are states of that same
-outcome, not separate slices.
+Safe stopping point: the complete story promise is delivered; current project freshness and historical story
+evidence are understandable independently. Sizing hypothesis: one project refresh/feedback proof loop using
+the existing state machine; success, held read, failure, and retry are states of that same outcome, not
+separate slices.
 
 ## Consumer trace and verification gates
 
-Inspected consumers include `IntentStoryView.tsx`, `IntentProjectView.tsx`,
-`IntentBrowser.tsx`, `IntentFileReading.tsx`, `IntentStoryComparison.tsx`,
-`useIntentLocations.ts`, and `pageIntentReading.tsx`. A source revision reaches
-the location inventory, unchanged-file Purpose, candidates, overlays/outside
-counts, and file/folder CI views. Shared comparison wording also reaches Review
-changes; specialize missing-history presentation only where Done meaning
-requires it. Never weaken active-story gap expectations by accident.
+Inspected consumers include the landed `IntentPage.tsx`, `IntentHeader.tsx`, `IntentBrowser.tsx`,
+`IntentFileReading.tsx`, `IntentStoryComparison.tsx`, `useIntentLocations.ts`, and `pageIntentReading.tsx`. A
+source revision reaches the location inventory, unchanged-file Purpose, candidates, overlays/outside counts,
+and file/folder CI views. Shared comparison wording also reaches Review changes; specialize missing-history
+presentation only where Done meaning requires it. Never weaken active-story gap expectations by accident.
 
-Observed test support includes `intentPerspectivePage.ts` (revision notice
-selected by status text), `intentStoryPage.ts` (tab/diff/summary observers),
-`intentRevisionJourney.ts` (paused-clock moving revisions/request accounting),
-`intentCompletedStory.ts`, and `intentSummaryStoryComparisonFixture.ts` (real
-CLI completion and published Git). The latter currently deliberately includes
-`later.spec.ts` in the current tree: historical inventory changes can affect
-Summary/outside rows and expected totals in `intent-summary-story-comparison*`
-fixtures, not merely the new regression. Inspect their assertions and align
-them with the same evidence rule. A file's existing source-revision caption
-must remain truthful independently of the new browser-wide label.
+Observed test support includes `intentPerspectivePage.ts` (revision notice selected by status text),
+`intentStoryPage.ts` (tab/diff/summary observers), `intentRevisionJourney.ts` (paused-clock moving
+revisions/request accounting), `intentCompletedStory.ts`, and `intentSummaryStoryComparisonFixture.ts` (real
+CLI completion and published Git). The latter currently deliberately includes `later.spec.ts` in the current
+tree: historical inventory changes can affect Summary/outside rows and expected totals in
+`intent-summary-story-comparison*` fixtures, not merely the new regression. Inspect their assertions and align
+them with the same evidence rule. A file's existing source-revision caption must remain truthful independently
+of the new browser-wide label.
 
-For each implementation diff run the installed `consumer-trace.mjs` with
-`--base HEAD` and terms for the old current-tree fallback, revision notice,
-Show latest, and changed helper exports. Follow listed helpers to enclosing
-journeys; disposition each consumer as run, reused, or excluded with evidence.
-Use a single sufficient suite run rather than repeating its covered cases.
+For each implementation diff run the installed `consumer-trace.mjs` with `--base HEAD` and terms for the old
+current-tree fallback, revision notice, Show latest, and changed helper exports. Follow listed helpers to
+enclosing journeys; disposition each consumer as run, reused, or excluded with evidence. Use a single
+sufficient suite run rather than repeating its covered cases.
 
 Focused development checks:
 
@@ -206,17 +195,15 @@ default timeout, and no test.slow() or suite/file/group/hook timeout overrides.
 
 ## Decisive premises and retained observations
 
-Observed in this owned worktree on 2026-11-09 at
-`c7e41e9e4abdd957e3b1117a1bba13d27749d1e6`, using the normal dashboard
-Playwright config and Chromium fixtures. Domain setup reused the canonical
-completion and published-revision fixtures. Temporary observation specs were
-removed before recording refinement; no product edit or probe file remains.
+Observed in this owned worktree on 2026-11-09 at `c7e41e9e4abdd957e3b1117a1bba13d27749d1e6`, using the normal
+dashboard Playwright config and Chromium fixtures. Domain setup reused the canonical completion and
+published-revision fixtures. Temporary observation specs were removed before recording refinement; no product
+edit or probe file remains.
 
-The machine was on AC, with load 6.31/7.14/6.63, memory_pressure reporting 76%
-free, and no other observed test run. The small two-worker observations ran
-under the AC sleep guard; they are not a full-suite capacity claim. This fresh
-worktree lacked node_modules; `npm ci --ignore-scripts --no-audit --no-fund`
-established its local setup before the probes.
+The machine was on AC, with load 6.31/7.14/6.63, memory_pressure reporting 76% free, and no other observed
+test run. The small two-worker observations ran under the AC sleep guard; they are not a full-suite capacity
+claim. This fresh worktree lacked node_modules; `npm ci --ignore-scripts --no-audit --no-fund` established its
+local setup before the probes.
 
 | Premise / consuming operation | Literal observation and profile | Result / unverified remainder |
 | --- | --- | --- |
@@ -225,29 +212,37 @@ established its local setup before the probes.
 | Project planning-only refresh already reaches the new revision despite unchanged source text | Project probe used `openWithFeatureSelected`, unchanged jobs-feature files plus one changed planning file, controlled `moveTrunk`, and authenticated-request accounting | Locations request reached B and source text stayed identical; the notice disappeared. The selected-file caption did show B, while the locations browser had no revision label. A new persistent browser-wide label remains implementation work. |
 | Saved coverage independently preserves absence, explicit unavailable, loading, failed retrieval and successful Retry | `caffeinate -s -i npm run test:dashboard -- tests/intent/preparation-done-probe.spec.ts tests/intent/preparation-project-probe.spec.ts tests/intent/intent-story-coverage.spec.ts --workers=2 --reporter=line` after extending the Done probe with current-settings removal | 6/6 passed in 23.9 s: both probes and all four saved-coverage journeys, including failed read → Retry → exact saved report. The existing setup does not fake the coverage rendering. New cross-context isolation assertions belong to slice 1. |
 
-The first probe attempt exposed two observation-harness mistakes, both fixed
-before the retained passes: APIRequestContext omitted the browser same-origin
-metadata and received 403; an overbroad no-SHA assertion found the truthful
-file-source caption. The corrected browser fetch and locations-scoped check
-settled the actual claims. These were probe defects, not product test failures.
-No unverified external, paid, credentialed, native-host or production premise
-is needed for this approach. New behavior must get failing regression
-observations before implementation; current undesirable-behavior passes do not
-prove it. Reuse retained evidence only while relevant paths/profile still match.
+The first probe attempt exposed two observation-harness mistakes, both fixed before the retained passes:
+APIRequestContext omitted the browser same-origin metadata and received 403; an overbroad no-SHA assertion
+found the truthful file-source caption. The corrected browser fetch and locations-scoped check settled the
+actual claims. These were probe defects, not product test failures. No unverified external, paid,
+credentialed, native-host or production premise is needed for this approach. New behavior must get failing
+regression observations before implementation; current undesirable-behavior passes do not prove it. Reuse
+retained evidence only while relevant paths/profile still match.
+
+## Story obligations
+
+### G1. Observe the historical rename diff after later trunk changes
+Reported: slice 1 — "Independent acceptance inspection found inventory/CI assertions for renamed Done files, but no observation of their original diff after later trunk changes or equality with Review changes."
+Story clause: "Retain deleted and renamed story files and their original diffs, with the existing location-selection and outside-location explanation."
+Disposition: proved by slice 1: intent-summary-story-comparison-renamed.spec.ts, original rename diff in both story-only states equals Review changes after a later trunk rename; focused nine-case terminal pass.
+
+### G2. Observe available saved coverage when historical source is unavailable
+Reported: slice 1 — "Coordinator inspection found that the shallow-history journey reads the coverage absence message, while saved-report tests have available historical source; neither observes an available saved report through the missing-history state."
+Story clause: "Each evidence source remains independently useful when another is unavailable."
+Disposition: proved by slice 1: intent-story-completed-source.spec.ts, shallow history keeps no historical browser and renders the exact saved report; default-reporter focused and refactor terminal passes.
+
+### G3. Settle recurring owning-merge source and Proof failures
+Reported: slice 1 — "The later one-worker full Intent run failed the owning-merge original-diff assertion while it was still reading and timed out the unchanged-file journey at Proof; a prior passing run does not settle these failures."
+Story clause: "Its test browser uses the baseline-to-landed-result changes and the test-source locations, inventory, and unchanged-file source at landing."
+Disposition: receiving slice 2
 
 ## Current decisions and preparation review
 
-- Historical source comes from the Done story's established published result;
-  its baseline/diff and CI proof retain their own explicit provenance.
-- Missing history is an explained gap, not current project source and not an
-  empty-change result. Preserve active-story meanings and supported recovery.
-- Project's persistent label follows successfully shown locations, with its
-  current update/failure/retry state machine and independent reading scope.
-- No dependency agreement is needed for SEED-282: the current owners support
-  both outcomes; adapt to its accepted changes if publication order overlaps.
+- Story source comes from its established published result; diff/CI retain distinct provenance.
+- Missing history is an explained gap, never current source or empty changes; preserve active meanings/recovery.
+- Project label follows accepted locations with existing update/failure/retry and independent reading scope.
+- SEED-282 requires no dependency agreement; its landed common frame is reused.
 
-Plan refinement was not needed: two cohesive Behavior slices own historical
-reading and project refresh feedback, with mapped proof and safe stopping
-points. No remaining slice-specific concern was identified in the inspected
-boundaries. No execution, Take, product release, or client rollout is authorized by
-this preparation.
+Two cohesive Behavior slices retain mapped proof and safe stops; no scope change or resplitting. Preparation
+itself authorized no execution, Take, release or rollout; current execution uses the user's invocation.

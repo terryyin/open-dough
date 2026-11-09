@@ -7,6 +7,8 @@
 // are in ./intent-file-purpose-proof.spec.ts.
 
 import { expect, test } from "../support/preparationPage.ts";
+import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
   comparisonLabels,
   expectEvidenceLabels,
@@ -14,6 +16,8 @@ import {
   expectObservedNotAttributed,
 } from "../ciEvidenceLabelsPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
 import {
   fileReadingTab,
   proofRegion,
@@ -29,7 +33,7 @@ import {
   intentFile,
   storyTab,
 } from "../support/intentStoryPage.ts";
-import { selectDoneStoryForSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
+import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
   expectFileComparisonRow,
@@ -38,15 +42,38 @@ import {
   unchangedFileRow,
 } from "../support/summaryComparisonFileExpectedRows.ts";
 
+const releases: (() => void)[] = [];
+test.afterEach(() => {
+  for (const release of releases.splice(0)) release();
+});
+
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with ${variant ?? "clean merges"}`, async ({
     page,
     origin,
   }) => {
     const setup = await publishSummaryComparisonStory(page, origin, variant);
-    const { intent } = await selectDoneStoryForSummaryComparison(page);
+    const ci = await holdAuthenticatedReadsWhere(
+      page,
+      (params) => params.get("intent") === "ci-comparison",
+      releases,
+    );
+    const { intent } = await selectDoneStoryForChangedTests(page);
+    // Choosing Changed tests does not depend on the CI comparison finishing.
+    await expect.poll(() => ci.held()).toBeGreaterThan(0);
+    ci.release();
+    const nextDiff = (path: string) =>
+      page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname === storyReviewFileEndpoint &&
+          url.searchParams.get("path") === path
+        );
+      });
 
+    const modifiedRead = nextDiff("dashboard/tests/folder/a.spec.ts");
     await intentFile(intent, summaryComparisonChanges.modified).click();
+    await modifiedRead;
     const purpose = purposeRegion(intent);
     const purposeTab = fileReadingTab(intent, "Purpose");
     const proofTab = fileReadingTab(intent, "Proof");
@@ -65,6 +92,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     ).toHaveCount(0);
 
     await proofTab.click();
+    await untilPageReadsAnswered(page);
     const proof = proofRegion(intent);
     await expect(proofTab).toHaveAttribute("aria-selected", "true");
     // The file's Proof shares the Summary's comparison labels.
@@ -142,7 +170,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
 
     if (variant !== undefined)
       await test.step("a test file only the integration merge edited shows that edit and keeps Proof", async () => {
+        const editedRead = nextDiff("dashboard/tests/folder/nested/c.spec.ts");
         await intentFile(intent, summaryComparisonChanges.mergeEdited).click();
+        await editedRead;
         const edited = purposeRegion(intent);
         await expect(edited.locator(".intent-story-diff-name")).toHaveText(
           summaryComparisonChanges.mergeEdited,
@@ -161,32 +191,54 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         );
         await fileReadingTab(intent, "Purpose").click();
       });
+  });
 
-    await test.step("an unchanged file shows its source on Purpose with the same compact Proof", async () => {
-      await intentFile(intent, "dashboard/tests/root.spec.ts").click();
-      await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
-        "aria-selected",
-        "true",
-      );
-      const purposeOnly = purposeRegion(intent);
-      await expect(purposeOnly).toContainText("root 11");
-      await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
-      await expect(purposeOnly.getByRole("table")).toHaveCount(0);
-      await fileReadingTab(intent, "Proof").click();
-      const rootProof = proofRegion(intent);
-      await expectFileComparisonRow(
-        rootProof,
-        "dashboard/tests/root.spec.ts",
-        unchangedFileRow,
-      );
-      if (variant === undefined) {
-        await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
-          count: "none",
-          duration: "none",
-          countReason: "unchanged",
-          durationReason: "unchanged",
-        });
-      }
+  test(`a done story's unchanged file reads its landed source and compact Proof with ${variant ?? "clean merges"}`, async ({
+    page,
+    origin,
+  }) => {
+    const setup = await publishSummaryComparisonStory(page, origin, variant);
+    const unchangedReads: string[] = [];
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (
+        url.pathname === authenticatedReadEndpoint &&
+        url.searchParams.get("path") === "dashboard/tests/root.spec.ts"
+      )
+        unchangedReads.push(url.searchParams.get("revision") ?? "");
     });
+    const { intent } = await selectDoneStoryForChangedTests(page);
+    await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+    await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    const purposeOnly = purposeRegion(intent);
+    await expect(purposeOnly).toContainText("root 11");
+    await expect(purposeOnly.locator(".intent-source-meta")).toContainText(
+      `at revision ${setup.completion.slice(0, 7)}`,
+    );
+    expect(unchangedReads).toEqual([setup.completion]);
+    await expect(
+      intentFile(intent, "dashboard/tests/later.spec.ts"),
+    ).toHaveCount(0);
+    await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
+    await expect(purposeOnly.getByRole("table")).toHaveCount(0);
+    await fileReadingTab(intent, "Proof").click();
+    await untilPageReadsAnswered(page);
+    const rootProof = proofRegion(intent);
+    await expectFileComparisonRow(
+      rootProof,
+      "dashboard/tests/root.spec.ts",
+      unchangedFileRow,
+    );
+    if (variant === undefined) {
+      await expectProofRowCues(rootProof, "dashboard/tests/root.spec.ts", {
+        count: "none",
+        duration: "none",
+        countReason: "unchanged",
+        durationReason: "unchanged",
+      });
+    }
   });
 }

@@ -60,12 +60,11 @@ test("Summary Branch and Landed sort signed changes rather than measured times o
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, entry);
   const table = scopeTable(summary, entry);
-  const gaps = ["added.spec.ts", "gone.spec.ts", "later.spec.ts"];
+  const gaps = ["added.spec.ts", "gone.spec.ts"];
   await expect(rowNames(table)).toHaveText([
     "folder/",
     "added.spec.ts",
     "gone.spec.ts",
-    "later.spec.ts",
     "renamed.spec.ts",
     "root.spec.ts",
   ]);
