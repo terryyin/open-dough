@@ -11,6 +11,7 @@
 /** @typedef {import("../../dashboard/server/landedCiHistoryStore.ts").ProjectHistory} ProjectHistory */
 /** @typedef {ProjectHistory["landings"][string]} KeptLanding */
 /** @typedef {ProjectHistory["builds"][string]} KeptBuild */
+/** @typedef {import("../../dashboard/src/launchLanding.ts").LaunchLanding} LaunchLanding */
 /** @typedef {Extract<KeptLanding["observed"], { kind: "gap" }>["reason"]} UnmeasuredReason */
 /** @typedef {Extract<KeptLanding["observed"], { kind: "pending" }>["waitsFor"]} PendingWait */
 /** @typedef {import("../../dashboard/src/landedCiHistory.ts").Provenance} Provenance */
@@ -28,7 +29,7 @@ const firstAttemptOf = (runId) => ({
 /**
  * A recorded trunk landing: its receipt, landed revision, when the dashboard
  * recorded it, and the story it names, when it names one.
- * @typedef {{ receipt: string, revision: string, receivedAt: string, identity?: string }} LandingFacts
+ * @typedef {{ receipt: string, revision: string, receivedAt: string, identity?: string | undefined, repository?: string | undefined }} LandingFacts
  */
 
 /**
@@ -42,16 +43,19 @@ export class LandedCiHistoryBuilder {
   #landings = {};
   /** @type {Record<string, KeptBuild>} */
   #builds = {};
+  /** @type {string[] | undefined} */
+  #trunkOrder;
 
   /**
    * @param {LandingFacts} landing
    * @param {KeptLanding["observed"]} observed
    */
-  #landing({ receipt, revision, receivedAt, identity }, observed) {
+  #landing({ receipt, revision, receivedAt, identity, repository }, observed) {
     this.#landings[receipt] = {
       revision,
       receivedAt,
       ...(identity !== undefined && { identity }),
+      ...(repository !== undefined && { repository }),
       observed,
     };
   }
@@ -125,8 +129,54 @@ export class LandedCiHistoryBuilder {
     return this;
   }
 
+  /** @param {string[]} revisions */
+  inTrunkOrder(revisions) {
+    this.#trunkOrder = [...revisions];
+    return this;
+  }
+
+  /**
+   * A retained measured attempt and the landing it represents, including
+   * validated proof and explicit attempt/repository facts when supplied.
+   * @param {LaunchLanding} landing
+   * @param {string} key
+   * @param {KeptBuild} build
+   * @param {"exact" | "equivalent" | "later"} [selection]
+   */
+  recording(landing, key, build, selection = "exact") {
+    this.#landing(landing, { kind: "build", build: key, selection });
+    this.#builds[key] = { startedAt: landing.receivedAt, ...build };
+    return this;
+  }
+
+  /**
+   * A retained explanation-only gap has no invented final classification.
+   * @param {LaunchLanding} landing
+   * @param {string} explanation
+   * @param {UnmeasuredReason} [reason]
+   */
+  gap(landing, explanation, reason = "unclassified") {
+    this.#landing(landing, { kind: "gap", reason, explanation });
+    return this;
+  }
+
+  /**
+   * @param {LaunchLanding} landing
+   * @param {Extract<KeptLanding["observed"], { kind: "pending" }>} pending
+   */
+  pending(landing, pending) {
+    this.#landing(landing, pending);
+    return this;
+  }
+
   /** @returns {ProjectHistory} */
   please() {
-    return { landings: { ...this.#landings }, builds: { ...this.#builds } };
+    return {
+      landings: { ...this.#landings },
+      builds: { ...this.#builds },
+      ...(this.#trunkOrder === undefined
+        ? {}
+        : { trunkOrder: [...this.#trunkOrder] }),
+    };
   }
 }

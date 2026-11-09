@@ -1,38 +1,34 @@
-// This machine's landed CI history, which background collection fills
-// (`./landedCiCollection.ts`) and Intent's CI status reads
-// (`./intentCiHistoryRead.ts`): for each project, what each trunk landing the
-// dashboard recorded resolved to under the CI timing comparison's Landed rule
-// (`./baseCiRevisionLookup.ts`) -- one build, one gap with its reason, or,
-// while that is not final, what the landing still waits for
-// (`./landedCiObservation.ts`) -- kept by the landing's receipt with the
-// landing's own reference, beside each build kept once by its key, in
-// `~/.open-dough/dashboard/landed-ci-history.json`, resolved through `HOME`.
-// A final resolution is never replaced; a pending one is replaced by what the
-// landing resolves to next, so however many collections, restarts or
-// processes resolve a landing, it has one observation and each build one
-// entry. It keeps its landing references itself, so the history does not end
-// with the launch records' retention, and collection resolves a pending
-// landing from that reference once its record is gone. Each write keeps a
-// project's history to its window -- the landings, newest first, up to its
-// 20th measured build, and the builds they name
-// (`./landedCiMeasuredBuilds.ts`, which also says which kept builds are
-// points of CI wall time) -- so the file is bounded and holds no landing a
-// collection pass would not reach. Derived local evidence, never a story
-// fact: rebuildable from recorded landings and CI, so losing it loses only
-// requests and expired evidence. Every process on this machine reads the
-// same file; it is read, replaced atomically, and moved aside when unreadable
-// as `./machineJsonStore.ts` describes.
+// Machine-local landed CI observations and their retained proof. Atomic
+// updates preserve final resolutions, accepted attempt summaries, and the
+// shared bounded cohort. References outlive launch records; unreadable bytes
+// remain a public read failure and are preserved on background rebuild.
 
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
+import type { CiProof } from "../src/ciProof.ts";
 import { commitIdSchema, type LaunchLanding } from "../src/launchLanding.ts";
 import {
   keptBuildSchema,
+  buildKeyOf,
   keptResolution,
   observationSchema,
   type LandedResolution,
 } from "./landedCiObservation.ts";
-import { windowedHistory } from "./landedCiMeasuredBuilds.ts";
+export type {
+  KeptBuild,
+  Observation,
+  LandedResolution,
+  PendingResolution,
+} from "./landedCiObservation.ts";
+import {
+  hasLandingOrder,
+  measuredBuildOf,
+  windowedHistory,
+} from "./landedCiMeasuredBuilds.ts";
+import {
+  compatibleAdapterProof,
+  withAdapterIdentity,
+} from "./landedCiHistoryIdentity.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import {
   leaveMachineJson,
@@ -46,6 +42,7 @@ import {
 const keptLandingSchema = z.object({
   revision: commitIdSchema,
   receivedAt: z.iso.datetime(),
+  repository: z.string().min(1).optional(),
   identity: z.string().min(1).optional(),
   observed: observationSchema,
 });
@@ -53,6 +50,7 @@ const keptLandingSchema = z.object({
 const projectHistorySchema = z.object({
   landings: z.record(z.string(), keptLandingSchema),
   builds: z.record(z.string(), keptBuildSchema),
+  trunkOrder: z.array(commitIdSchema).optional(),
 });
 
 export type ProjectHistory = z.infer<typeof projectHistorySchema>;
@@ -69,15 +67,23 @@ const historyStore = (): MachineJsonStore<StoredHistory> => ({
 
 const noHistory: ProjectHistory = { landings: {}, builds: {} };
 
-// The project's history as kept now: none when nothing is kept for it, or
-// when the file is unreadable, which the next write moves aside.
+// An absent local document is empty; unreadable bytes remain a read failure.
+// Compatibility is a read-only view. Shared pruning happens in atomic writes
+// and public projection, preserving order evidence needed by collection.
+export async function readLandedCiHistory(
+  sourceId: string,
+): Promise<ProjectHistory | undefined> {
+  const read = await readMachineJson(historyStore());
+  return read.kind === "document"
+    ? withAdapterIdentity(read.document[sourceId] ?? noHistory)
+    : undefined;
+}
+
+// Background rebuilding retains its unreadable-store convention.
 export async function keptLandedCiHistory(
   sourceId: string,
 ): Promise<ProjectHistory> {
-  const read = await readMachineJson(historyStore());
-  return read.kind === "document"
-    ? (read.document[sourceId] ?? noHistory)
-    : noHistory;
+  return (await readLandedCiHistory(sourceId)) ?? noHistory;
 }
 
 // A trunk landing as the history refers to it: by its receipt, with its
@@ -85,7 +91,8 @@ export async function keptLandedCiHistory(
 export type LandingReference = Pick<
   LaunchLanding,
   "receipt" | "revision" | "receivedAt" | "identity"
->;
+> &
+  Partial<Pick<LaunchLanding, "repository">>;
 
 // The landings the history keeps a reference to, whether or not their launch
 // records are still kept.
@@ -93,42 +100,76 @@ export function keptLandingReferences(
   history: ProjectHistory,
 ): LandingReference[] {
   return Object.entries(history.landings).map(
-    ([receipt, { revision, receivedAt, identity }]) => ({
+    ([receipt, { revision, receivedAt, identity, repository }]) => ({
       receipt,
       revision,
       receivedAt,
       ...(identity === undefined ? {} : { identity }),
+      ...(repository === undefined ? {} : { repository }),
     }),
   );
 }
 
-// Keeps what `landing` resolved to, unless the history already holds a final
-// resolution of it, as another collection may have kept meanwhile, or holds
-// it pending for the same, with the project's history kept to its window;
-// answers the project's history as it is then kept.
+// Keep one observation per receipt and one proof-bearing build per full
+// subject, using the same shared window as project and scoped readers.
 export async function keepLandedCiResolution(
   sourceId: string,
   landing: LandingReference,
   resolution: LandedResolution,
+  order?: readonly string[],
 ): Promise<ProjectHistory> {
   let history = noHistory;
   await replaceMachineJson(historyStore(), (stored) => {
-    const project = stored[sourceId] ?? noHistory;
+    const original = stored[sourceId] ?? noHistory;
+    const compatible = withAdapterIdentity(original);
+    const supplied =
+      order !== undefined &&
+      (compatible.trunkOrder ?? []).every((revision) =>
+        order.includes(revision),
+      )
+        ? order
+        : compatible.trunkOrder;
+    const project =
+      supplied === undefined
+        ? compatible
+        : { ...compatible, trunkOrder: [...supplied] };
     const held = project.landings[landing.receipt]?.observed;
-    const { observed, build } = keptResolution(resolution);
+    const kept = keptResolution(resolution);
+    const wouldMeasure =
+      kept.build !== undefined &&
+      measuredBuildOf(
+        {
+          ...project,
+          builds: { ...project.builds, [kept.build[0]]: kept.build[1] },
+        },
+        kept.observed,
+      ) !== undefined;
+    const { observed, build } =
+      wouldMeasure && !hasLandingOrder(project, landing.revision)
+        ? {
+            observed: { kind: "pending" as const, waitsFor: "order" as const },
+            build: undefined,
+          }
+        : kept;
     if (
       held !== undefined &&
       (held.kind !== "pending" || isDeepStrictEqual(held, observed))
     ) {
-      history = project;
-      return leaveMachineJson;
+      history = windowedHistory(project);
+      return isDeepStrictEqual(history, original)
+        ? leaveMachineJson
+        : { ...stored, [sourceId]: history };
     }
     history = windowedHistory({
+      ...project,
       landings: {
         ...project.landings,
         [landing.receipt]: {
           revision: landing.revision,
           receivedAt: landing.receivedAt,
+          ...(landing.repository === undefined
+            ? {}
+            : { repository: landing.repository }),
           ...(landing.identity === undefined
             ? {}
             : { identity: landing.identity }),
@@ -138,7 +179,70 @@ export async function keepLandedCiResolution(
       builds:
         build === undefined
           ? project.builds
-          : { ...project.builds, [build[0]]: build[1] },
+          : {
+              ...project.builds,
+              [build[0]]: project.builds[build[0]] ?? build[1],
+            },
+    });
+    return { ...stored, [sourceId]: history };
+  });
+  return history;
+}
+
+// Derived order survives explicit pin deletion/local object loss; stale
+// partial snapshots cannot replace a concurrently newer retained cohort.
+export async function keepLandedCiOrder(
+  sourceId: string,
+  order: readonly string[],
+): Promise<void> {
+  await replaceMachineJson(historyStore(), (stored) => {
+    const original = stored[sourceId];
+    if (original === undefined) return leaveMachineJson;
+    const project = withAdapterIdentity(original);
+    const revisions = new Set(
+      Object.values(project.landings).map((landing) => landing.revision),
+    );
+    if ([...revisions].some((revision) => !order.includes(revision)))
+      return leaveMachineJson;
+    const trunkOrder = [
+      ...new Set(order.filter((revision) => revisions.has(revision))),
+    ];
+    return {
+      ...stored,
+      [sourceId]: windowedHistory({ ...project, trunkOrder }),
+    };
+  });
+}
+
+// A concurrent collection cannot replace accepted proof or recreate a build
+// outside the bounded shared cohort.
+export async function keepLandedCiProof(
+  sourceId: string,
+  buildKey: string,
+  proof: CiProof,
+): Promise<ProjectHistory> {
+  let history = noHistory;
+  await replaceMachineJson(historyStore(), (stored) => {
+    const original = stored[sourceId] ?? noHistory;
+    const project = withAdapterIdentity(original);
+    const requested = original.builds[buildKey];
+    const key =
+      requested?.adapterAttempt === undefined
+        ? buildKey
+        : buildKeyOf(requested);
+    const build = project.builds[key];
+    history = windowedHistory(project);
+    if (
+      build === undefined ||
+      build.proof?.kind === "summary" ||
+      !compatibleAdapterProof(build, proof)
+    )
+      return isDeepStrictEqual(history, original)
+        ? leaveMachineJson
+        : { ...stored, [sourceId]: history };
+    history = windowedHistory({
+      ...project,
+      builds: { ...project.builds, [key]: { ...build, proof } },
     });
     return { ...stored, [sourceId]: history };
   });

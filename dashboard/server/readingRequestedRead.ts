@@ -54,7 +54,7 @@ export function readingOf(
     case "intent-ci-comparison":
       return readingIntentCiComparisonOf(source, read);
     case "intent-ci-history":
-      return readingIntentCiHistoryOf(source);
+      return readingIntentCiHistoryOf(source, read);
     case "addition-at":
       return readingAdditionAt(read.path, read.revision);
     case "backlog-at":

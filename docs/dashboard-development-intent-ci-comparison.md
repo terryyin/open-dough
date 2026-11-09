@@ -103,6 +103,38 @@ one per compared unit, stay last, and its sort survives drilling down. **Counts*
 after endpoint's counted results, and **Change** keeps its existing meaning.
 At every depth, an unused Landed endpoint has the same explanation and the
 same active Branch comparison, or Provisional comparison in Taken Trunk Mode.
+For a Done story, an entry Summary also shows **Test execution time history**
+beside its comparison. The endpoint is the published Done result's landing,
+independent of the build that measured it or another publication of the same
+story. Background landing collection retains each measured attempt's validated
+GitHub Actions or adapter proof once. History reads use that local evidence.
+Opening a Summary or retrying its history never acquires historical CI proof.
+The cohort follows accepted recorded-landing ancestry across all merge
+parents, filtered to retained recorded revisions, independently of when
+landing reports arrive. A merge with the story as its first parent still
+includes earlier accepted trunk landings. Collected ordering remains usable
+if explicit launch-record deletion removes landing pins, or local Git
+repositories or objects become unavailable. Launch-history retention does not
+remove those pins. Unverifiable positions get an explicit explanation and do
+not enter the through-landing series. An upstream rate limit does not withhold
+these local history reads. The confirmed-skip CI resolver keeps its separate
+first-parent equivalent-build rule.
+
+The history keeps one common build observation and evidence row per attempt,
+with separate test-case and test-file histories for its declared evidence. Each
+history plots complete cumulative test execution time, including measured zero,
+with dates, represented landings and the common measured build link. A mixed
+legacy result adds an unknown-unit note without adding another history; a
+legacy-only result remains a unit gap, even if its old label names test cases.
+It names equivalent-build reuse and later-build measurements separately from
+the selected landing. Unsupported entry/unit changes and unavailable, partial
+or untimed proof break the line and keep their reasons. Earlier supported
+segments remain readable when the selected landing is a gap. These are
+observations of each build's scope, not timing attributed to the story. The
+history has its own local read failure and retry, preserving other evidence.
+An unreadable retained store is a failed local read; an absent store is empty
+history.
+
 Summary and file Proof reuse the evidence already held by Intent; drilling
 adds no CI request, and Summary reads no file text. GitHub Actions
 wall time spans run creation on attempt one or attempt start on reruns through

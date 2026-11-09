@@ -25,6 +25,7 @@ export class CiProofEvidenceBuilder {
   #files;
   /** @type {number[]} */
   #missingParts = [];
+  #untimed = 0;
 
   /**
    * Counted as test cases or test files.
@@ -87,6 +88,12 @@ export class CiProofEvidenceBuilder {
     return this;
   }
 
+  /** @param {number} count */
+  withUntimed(count) {
+    this.#untimed = count;
+    return this;
+  }
+
   /** @returns {CiProofEvidence} */
   please() {
     /** @type {CiProofEvidence["parts"]} */
@@ -101,9 +108,16 @@ export class CiProofEvidenceBuilder {
       return {
         ...this.#unit,
         ...this.#counts,
+        ...(this.#untimed === 0 ? {} : { untimed: this.#untimed }),
         ...timing,
         parts: [
-          { part: 1, status: "present", ...this.#counts, ...timing },
+          {
+            part: 1,
+            status: "present",
+            ...this.#counts,
+            ...(this.#untimed === 0 ? {} : { untimed: this.#untimed }),
+            ...timing,
+          },
           ...missing,
         ],
       };
@@ -121,7 +135,7 @@ export class CiProofEvidenceBuilder {
       ...(timed.length === 0
         ? {}
         : { durationMs: sum((file) => file.durationMs ?? 0) }),
-      untimed: sum((file) => file.untimed ?? 0),
+      untimed: this.#untimed + sum((file) => file.untimed ?? 0),
     };
     return {
       ...this.#unit,
@@ -173,6 +187,24 @@ export class CiProofEntryBuilder {
    */
   holding(...evidence) {
     this.#evidence = evidence;
+    return this;
+  }
+
+  /** @param {CiProofFile[]} files */
+  brokenDownBy(files) {
+    this.#single.brokenDown(...files);
+    return this;
+  }
+
+  /** @param {...number} parts */
+  missingParts(...parts) {
+    for (const part of parts) this.#single.missingPart(part);
+    return this;
+  }
+
+  /** @param {number} count */
+  withUntimed(count) {
+    this.#single.withUntimed(count);
     return this;
   }
 

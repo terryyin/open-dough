@@ -126,6 +126,20 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
       receivedAt: at(pendingAt),
       waitsFor: "build",
     });
+  // The synthetic retained revisions state their trunk positions explicitly;
+  // this rendering case does not prove them from receipt dates.
+  history = history.inTrunkOrder(
+    [...wallSeconds.keys()].flatMap((day) => [
+      revisionOf(day),
+      ...(day === 5 ? ["e0".repeat(20)] : []),
+      ...(day === 20 ? ["e4".repeat(20)] : []),
+      ...(day === 22 ? ["e5".repeat(20)] : []),
+      ...(day === 25 ? ["e1".repeat(20)] : []),
+      ...(day === 28 ? ["e6".repeat(20)] : []),
+      ...(day === 30 ? ["e2".repeat(20)] : []),
+      ...(day === 34 ? ["e3".repeat(20)] : []),
+    ]),
+  );
   keepLandedCiHistory(dashboard.home, history.please());
   const shown = historyOf(await openJudgedCiStatus(page));
 

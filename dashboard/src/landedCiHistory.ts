@@ -92,14 +92,15 @@ export type LandedCiPoint = z.infer<typeof landedCiPointSchema>;
 // revision (`run`), a build that is queued or running (`build`), a later
 // trunk build after its own was cancelled (`later-build`), the CI proof of
 // the build that would stand for it, whose read GitHub left unanswered
-// (`proof`), or CI that could not be read when collection last asked
-// (`read`).
+// (`proof`), CI that could not be read when collection last asked (`read`),
+// or a position not yet established from local ancestry (`order`).
 export const pendingWaits = [
   "run",
   "build",
   "later-build",
   "proof",
   "read",
+  "order",
 ] as const;
 
 export type PendingWait = (typeof pendingWaits)[number];
@@ -119,6 +120,8 @@ export const finalGapReasons = [
   "expired",
   "unreadable",
   "not-recorded",
+  "unclassified",
+  "identity",
 ] as const;
 
 export type FinalGapReason = (typeof finalGapReasons)[number];
@@ -138,6 +141,7 @@ export type PendingGap = z.infer<typeof pendingGapSchema>;
 const finalGapSchema = z.object({
   kind: z.literal("gap"),
   reason: z.enum(finalGapReasons),
+  explanation: z.string().min(1).optional(),
   ...landingShape,
   // The build the gap names, and how it stands for the landing: the build
   // that failed or named no CI wall time, the build whose CI proof could not

@@ -146,7 +146,12 @@ export async function perform(
             case "intent-ci-comparison":
               return await performIntentCiComparisonRead(source, read, signal);
             case "intent-ci-history":
-              return await performIntentCiHistoryRead(source);
+              return await performIntentCiHistoryRead(
+                source,
+                read,
+                signal,
+                projectFolder(source).path,
+              );
             case "addition-at": {
               const added = await listedProfileAddition(
                 pinned,

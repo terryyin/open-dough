@@ -19,9 +19,12 @@
 // judgment; nothing is read while it is not active. A done-story comparison is
 // read on each selection and on its Check again, which also reads its endpoint
 // proofs again, and is remembered once final; a Taken comparison re-reads when
-// the observed tip moves.
+// the observed tip moves. A Done comparison also carries the published
+// result endpoint that its historical source owner established, separately
+// from the comparison's measured CI revision.
 
 import { createContext, useContext, type ReactNode } from "react";
+import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -58,6 +61,7 @@ export type CiEvidence =
       readonly identity: string;
       readonly comparison: ComparisonReading;
       readonly endpointProofs: ComparisonEndpointProofs | undefined;
+      readonly doneEndpoint?: ScopeHistoryEndpoint;
     }
   | {
       readonly kind: "judged";
@@ -88,6 +92,7 @@ export function IntentCiEvidenceProvider({
   work,
   selectedIdentity,
   active,
+  doneEndpoint,
   children,
 }: {
   readonly source: PublishedSource;
@@ -96,6 +101,7 @@ export function IntentCiEvidenceProvider({
   readonly selectedIdentity: string | undefined;
   // Whether anything Intent shows reads CI now.
   readonly active: boolean;
+  readonly doneEndpoint?: ScopeHistoryEndpoint;
   readonly children: ReactNode;
 }) {
   const target = ciTargetOf(source, work, selectedIdentity);
@@ -146,6 +152,9 @@ export function IntentCiEvidenceProvider({
       identity: target.identity,
       comparison,
       endpointProofs,
+      ...(target.phase === "done" && doneEndpoint !== undefined
+        ? { doneEndpoint }
+        : {}),
     };
   else if (judgedBranch !== undefined && target.kind === "judged")
     evidence = {

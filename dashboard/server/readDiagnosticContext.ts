@@ -125,8 +125,9 @@ function pinOf(read: RequestedRead): string | undefined {
     case "containment-at":
       return read.revision;
     case "intent-ci-comparison":
-    case "intent-ci-history":
       return undefined;
+    case "intent-ci-history":
+      return read.revision;
   }
 }
 

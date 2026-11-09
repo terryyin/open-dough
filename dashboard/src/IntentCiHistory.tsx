@@ -24,12 +24,10 @@
 // `./intent-ci-history.css`'s.
 
 import { useId } from "react";
-import type { BaseCiRunIdentity } from "./baseCiConfirmation.ts";
 import { shortSha } from "./baseCiWording.ts";
 import {
   buildDateWords,
   gapReasonWords,
-  historyAttemptWords,
   landingWords,
   measuredBuildsWords,
   pointLandingsWords,
@@ -37,6 +35,7 @@ import {
   standsForWords,
   type HistoryWords,
 } from "./ciHistoryWords.ts";
+import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
 import {
   isPoint,
@@ -50,8 +49,11 @@ import "./intent-ci-history.css";
 
 // How many builds are measured, and from the first one's date to the last's.
 function Extent({ points }: { readonly points: readonly LandedCiPoint[] }) {
-  const first = points[0];
-  const last = points.at(-1);
+  const dated = [...points].sort(
+    (a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt),
+  );
+  const first = dated[0];
+  const last = dated.at(-1);
   if (first === undefined || last === undefined) return null;
   const from = buildDateWords(first.startedAt);
   const to = buildDateWords(last.startedAt);
@@ -63,29 +65,6 @@ function Extent({ points }: { readonly points: readonly LandedCiPoint[] }) {
         <>
           –<time dateTime={last.startedAt}>{to}</time>
         </>
-      )}
-    </>
-  );
-}
-
-// " · Run 41 · attempt 1", linked to the run when it has a link; nothing
-// when the CI read named no attempt.
-function RunAttempt({
-  run,
-}: {
-  readonly run: BaseCiRunIdentity & { readonly runUrl?: string | undefined };
-}) {
-  const words = historyAttemptWords(run);
-  if (words === undefined) return null;
-  return (
-    <>
-      {" · "}
-      {run.runUrl === undefined ? (
-        words
-      ) : (
-        <a href={run.runUrl} target="_blank" rel="noreferrer">
-          {words}
-        </a>
       )}
     </>
   );
@@ -115,7 +94,7 @@ function BuildEvidence({ point }: { readonly point: MeasuredPoint }) {
       <time dateTime={point.startedAt}>{buildDateWords(point.startedAt)}</time>
       {` · ${pointWallTimeWords(point)} · `}
       <Words words={pointLandingsWords(point)} />
-      <RunAttempt run={point} />
+      <HistoryRunAttempt run={point} />
     </li>
   );
 }
@@ -135,14 +114,14 @@ function GapEvidence({ gap }: { readonly gap: LandedCiGap }) {
         <>
           {"landed revision "}
           <Words words={landingWords(gap)} />
-          {gap.reason === "pending" && <RunAttempt run={gap} />}
+          {gap.reason === "pending" && <HistoryRunAttempt run={gap} />}
         </>
       ) : (
         <>
           <Words
             words={standsForWords(build.provenance, build.revision, [gap])}
           />
-          <RunAttempt run={build} />
+          <HistoryRunAttempt run={build} />
         </>
       )}
     </li>
