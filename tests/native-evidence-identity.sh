@@ -14,8 +14,7 @@ trap 'rm -rf -- "${work_dir}"' EXIT
 identity_source="${work_dir}/identity-source"
 identity_out="${work_dir}/identity-hashes"
 mkdir -p -- "${identity_source}" "${identity_out}"
-cp -R -- "${source_dir}/tests" "${source_dir}/src" "${source_dir}/install.sh" \
-  "${source_dir}/VERSION" "${source_dir}/CHANGELOG.md" "${identity_source}/"
+node "${source_dir}/tests/support/native-identity-source.mjs" "${source_dir}" "${identity_source}"
 supervision_inputs=(
   tests/support/native-run-supervise.sh
   tests/support/native-run-stream.sh

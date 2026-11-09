@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-262_guard-native-fixture-identity-inputs.json",
+      "identity": "SEED-262#guard-native-fixture-identity-inputs",
+      "completedAt": "2026-11-09T00:35:12.502Z",
+      "blob": "102b424d10f6bfe329694b4e606ad5a9d9d391f1"
+    },
+    {
       "fileName": "SEED-280_choose-claude-code-effort.json",
       "identity": "SEED-280#choose-claude-code-effort",
       "completedAt": "2026-11-09T00:23:40.332Z",

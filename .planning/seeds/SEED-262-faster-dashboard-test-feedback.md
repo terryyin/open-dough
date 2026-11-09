@@ -28,34 +28,6 @@ and [definition of improvement](../../docs/adrs/0010-definition-of-improvement-a
 
 ## Story decomposition
 
-<a id="guard-native-fixture-identity-inputs"></a>
-
-### Guard native fixture identity inputs against drift
-
-**Identity:** SEED-262#guard-native-fixture-identity-inputs
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/542-guard-native-fixture-identity-inputs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"866b36dd068088b35ba3148aea888c0d998079a0ddeb2840683af145ebe0c6ad","plan":"cc604926bba35b97b323f59048b9147d80e07d6442d2dd6870994354d43c6ea5"}}
-```
-
-Correction of SEED-262#migrate-git-publication-native-fixtures
-(`f40a29409bd3baf728caf54c50690448a88c6b1c:.planning/seeds/SEED-262-faster-dashboard-test-feedback.md#migrate-git-publication-native-fixtures`).
-
-#### Goal
-
-A maintainer assessing retained Git publication native evidence can rely on
-each fixture family's identity to stay complete as installer helpers are
-added. Its closure tool treats valid modules as readable instead of failing
-them.
-
-#### Scope
-
-- Each fixture family identity covers every installer file the fresh install
-  reads, and a check fails when one is missing.
-- The import closure keeps generated template text as data and reads valid
-  division and regular-expression forms without a spurious failure. Direct
-  tests document those forms.
-- Plan: [542-guard-native-fixture-identity-inputs](../slice-plans/542-guard-native-fixture-identity-inputs/PLAN.md)
-
 <a id="pilot-admission-native-evidence-reuse"></a>
 
 ### Pilot native evidence reuse for Git publication admission
@@ -98,7 +70,7 @@ release can leave that result eligible for reuse, saving a native rerun.
   potentially avoidable reruns, and reruns actually justified as avoided.
   Zero demonstrated real savings is a valid pilot finding; it establishes no
   observed improvement. The
-  [fixture identity guard](#guard-native-fixture-identity-inputs) owns capture
+  [fixture family identities](../../tests/support/git-publication-native-fixture-identity.sh) own capture
   completeness; this story owns the sufficiency of each reuse judgment.
 
 Deferred promises: fresh native baseline capture, automatic semantic

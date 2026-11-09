@@ -78,6 +78,11 @@ function withoutTemplateText(source, file) {
     } else if (char === '"' || char === "'") {
       skipQuoted(char);
       previous = char;
+    } else if ((char === "+" || char === "-") && source[index + 1] === char) {
+      // A postfix update ends an operand. Treat the pair as one token so its
+      // final + or - does not incorrectly make the next division a regexp.
+      previous = char + char;
+      index += 2;
     } else if (
       char === "/" &&
       (previous === "" ||
