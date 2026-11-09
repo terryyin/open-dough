@@ -209,16 +209,183 @@ Evidence observed 2026-11-09 from the local launch records and
 
 **Identity:** SEED-285#trace-landed-proof-timing
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/554-trace-landed-proof-timing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"add5affdc66bf85ed75441610e06f38ed3f05fa271ef3f833c90dfda7359a8eb","plan":"93dcdf1cbcfce5e15b98bbba87e1779c0af7ab97651ae6dd64db4fd68ea42e42"}}
 ```
 
-- **For / why.** A developer reviewing a Done story can see which test scopes changed over time and inspect the evidence at the scope that matters.
-- **Evaluation.** With a Done story selected, open an entry or folder Summary or a test file’s Proof. See the test execution times collected from landed CI proof for that scope leading up to and including the story’s landed build, with the landing identified. A file without historical breakdown or a partial measurement shows its gap. Opening the history uses the proof collected after Done.
-- **Boundary.** Each scope shows its measured test execution time. The project chart measures overall CI wall time. Match historical scopes only where the available evidence supports the match.
-- **Value / learning.** Localize changes hidden by the overall wall time and learn how often historical proof supports comparable entry, folder, and file readings.
-- **Effort driver.** File-level evidence gaps and historical scope identity add more uncertainty than the chart presentation.
-- **Depends on.** Collected landed-build history and proof for the displayed scope.
-- **Safe stopping point.** Developers can inspect timing changes at each available scope even without a calculated reference or an automatic action.
+#### Goal
+
+A developer reviewing a Done story can follow timing changes into a test entry,
+folder or file and inspect the collected evidence behind them. The history helps
+locate changes hidden by overall CI wall time and shows how much comparable
+historical proof is actually available. It describes observed builds; it does
+not attribute a timing change to the selected story.
+
+#### Scope
+
+Required behavior:
+
+- **Reading journey.** With a Done story selected, its test entry or folder
+  **Summary**, or a test file's **Proof**, shows that scope's dated test execution
+  time history beside its existing evidence. The selected landing is identified
+  in words and in the series. Existing comparison, navigation, Purpose and Proof
+  reading remain available; the history does not require another CI read.
+- **Collected evidence.** Extend the landed-build history's background
+  collection to retain the measured attempt's validated proof summary, including
+  file breakdown when published, or its unavailable reason. Use the existing
+  GitHub Actions artifact and CI adapter proof readers and their identity checks.
+  Collect independently of Intent being open; resume after restart or repeated
+  Done reports without duplicating a measurement. Keep available proof for the
+  same bounded retained cohort as the project history. Older collected landings
+  can acquire proof while it remains available; expired or missed evidence is a
+  gap, not an invented reconstruction.
+- **Cohort and endpoint.** Read the retained dashboard-recorded landing cohort
+  through the selected story's landing, omitting subsequent unrelated landings.
+  Use that Done result's published landing revision to identify the endpoint;
+  another preparation, execution or later publication with the same story
+  identity is not its substitute. If no retained observation matches that
+  landing, show its collection gap beside available preceding history.
+  Reuse the project history's Landed resolution and one-point-per-build rule.
+  Identify the represented landing separately from the measured revision and
+  attempt. A confirmed skip may use an equivalent first-parent build; a
+  cancelled landing may use a later trunk build, visibly labelled with its real
+  date and revision and the fact that it includes later changes. Several
+  represented landings sharing that attempt still make one point. Show the
+  actual measured count and date span. A selected story outside the retained
+  cohort gets an explicit history-unavailable explanation.
+- **Measure and scope.** Each point is cumulative test execution time from that
+  attempt's proof, using the existing entry and scope timing rules. An entry can
+  have a measured total without a file breakdown. Folder and file readings need
+  supporting breakdown; folder totals use every published file at or below the
+  path, including results outside the visible tree. A measured zero is a value.
+  Project CI wall time remains a different measure.
+- **Supported matching.** Match the repository scope path, owning test entry and
+  counted unit supported by each historical summary. An entry/path/unit change
+  that does not support the same scope leaves an explained gap; do not infer a
+  rename chain or persistent file identity. A folder's membership may change
+  between builds: label the reading as the scope observed at each build, not a
+  fixed set of tests. Existing story comparison rename handling remains useful
+  within its own evidence boundary. If the selected landing has no usable proof
+  or unit, keep earlier supported segments, naming their observed units and
+  breaking the line at unsupported ownership/unit changes. The landing stays
+  a terminal gap; current trunk supplies no missing identity.
+- **Gaps and readable evidence.** Pending or failed builds, missing/unreadable/
+  expired proof, no matching scope, no file breakdown and partial or untimed
+  measurements keep distinct reasons. They break the line and show no numeric
+  substitute or partial lower bound. Beside the chart, readable dates, measured
+  values or reasons, provenance and build links provide the same evidence with
+  a keyboard, on a phone and without colour. No retained points or no measured
+  points is an explained state rather than an empty graph.
+- **Local reading and recovery.** Opening, drilling into or revisiting history
+  reads only collected local evidence, including after restart. A failed local
+  read has its own feedback and retry without replacing the selected story or
+  other available proof. A collection gap states what was unavailable; it does
+  not start upstream acquisition from the browser. Existing live CI refresh and
+  recovery keep their own lifecycle.
+
+Required restrictions: never substitute current trunk's scopes or another
+attempt's proof for unavailable historical evidence, join unsupported identities,
+or plot partial/missing timing as complete. Each would misrepresent the evidence
+the developer is reviewing. History browsing acquires no upstream CI data,
+following the seed's established collection/reading boundary.
+
+Deferred promises: moving averages, time/percentage differences from a historical
+reference, outlier exclusions, automatic reruns and slowdown indicators belong to
+the later stories. This story does not add historical rename discovery, a fixed
+test-membership cohort, recovery of evicted history, a new user-chosen window,
+test-case histories, or a separate story-level CI wall-time chart.
+
+#### Key examples
+
+1. **Entry to file.** Three collected landed attempts have complete proof for
+   `dashboard/tests`, its `intent` folder and `intent/ci-status.spec.ts` → select
+   the middle landing's Done story and open those scopes → each shows its own
+   cumulative test time through that landing, with the landing marked and build
+   links. The newest unrelated landing is absent. Switching to Purpose and back
+   keeps the story and file; drilling adds no provider request.
+2. **Breakdown and partial evidence.** One earlier attempt publishes only entry
+   totals, another omits a part, and the landing measures a file at 0 ms → entry
+   history can use the complete entry-only total; folder/file history explains
+   the missing breakdown, all affected scopes explain the missing part, and the
+   measured zero appears as 0 ms. Lines break at the gaps.
+3. **Identity and membership.** An older summary uses a different owning entry or
+   unit, or only the file's former path, with no evidence of continuity → the
+   history shows an unsupported-match gap. A matching folder that gains another
+   published file includes its time, even when the visible tree omits that file;
+   it remains a reading of the folder at that build.
+4. **Provenance.** A selected skipped landing shares an equivalent build with an
+   earlier landing → one point names the represented landing and source build.
+   A selected cancelled landing uses a later trunk build → the terminal point
+   names that later measurement and later changes; it does not pull subsequent
+   unrelated landing points into the selected story's history.
+5. **Collection and restart.** Done arrives with Intent closed → the background
+   collector retains the attempt's proof; after restart and a duplicate report,
+   opening a Summary or Proof shows the same one measurement without another
+   browsing-triggered CI request. A CI adapter's validated proof follows the
+   same history rules. Missing or expired historical proof remains an explained
+   gap beside available observations.
+6. **Unavailable reading.** A selected story has no retained landing history, or
+   its local history read fails → the view names the missing history or failed
+   read and the supported retry, while preserving the story, existing comparison
+   and available proof. It shows no substitute from today's trunk.
+7. **Same story, several landings.** Preparation P, completed execution E and a
+   later publication R share a story identity → select its Done result at E →
+   history ends at E, not P or R. If E has no matching collected observation or
+   usable proof, mark E as a gap and keep earlier supported scope segments with
+   their units named; do not infer E's unit from current trunk.
+
+#### UX/UI and architecture
+
+The existing Intent frame and scope path remain the journey. The scope panels in
+the [timing mockups](../slice-plans/551-see-landed-ci-wall-time-history/intent-landed-ci-mockups.html)
+illustrate the dated line and evidence list; the average, differences and
+slowdown follow-up are outside this story. No new layout or technology choice
+is needed.
+
+| Interaction choice | Meaning for the developer and consequence for the system |
+| --- | --- |
+| Stay in the Done story's landing context | Later trunk does not replace the reviewed scope; reuse the historical source/tree owner and keep measured CI provenance separate. |
+| Read only collected evidence | Browsing works from retained observations and explains gaps; extend the background collector/store with validated proof rather than fetching on navigation. |
+| Use the same measure at every scope | Summary and Proof agree about complete, zero and partial time; reuse the existing aggregation and timing classification. |
+| Match only evidenced scopes | A rename or changed entry/unit may interrupt the line; preserve path-based evidence without inventing continuity or implying causation. |
+
+Retain one validated summary per measured attempt and derive scope histories from
+it. The existing wall-time collector/store is the place to extend; its supplier
+story does not already promise retained proof payloads. The local history is
+derived and rebuildable from retained landings and available CI evidence, not a
+second workflow authority. Follow
+[ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
+[ADR 0001 — Ubiquitous language](../../docs/adrs/0001-ubiquitous-language-accepted.md),
+[ADR 0002 — whole-product focus and reuse](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+and the existing [Architectural North Star](../NORTH-STAR.md#one-intent-workspace-with-landed-ci-evidence).
+The ADR index and relevant Accepted records agree; no conflict or exception was
+identified.
+
+#### Exploration and investigation
+
+The existing Baseline/Branch/Landed comparison is the strongest smaller option:
+it answers a single comparison, but leaves the developer assembling timing over
+time. Retaining a summary once and deriving its scoped readings is recommended.
+Precomputing separate histories for every scope could meet the same goal, but
+duplicates aggregation and identity rules. Fetching historical proof on demand
+would break the established local-reading boundary.
+
+A longitudinal measurement notebook is a useful borrowed mechanism: a build
+attempt is a sample, its proof holds measured items and completeness, and a scope
+selects a rollup. Record the sample once; leave missing readings blank. The limit
+is changing path meaning and folder membership. The strongest challenge is false
+continuity or attribution: a plausible line could imply the same tests or a
+story-caused slowdown where the evidence supports neither. Explicit scope,
+provenance and gaps preserve the selected purpose without adding causal claims.
+
+Local observations on 2026-11-09 at `ecd07dc8a` found proof summaries remembered
+only in process memory, not retained across restart. A read-only scan found no
+proof-summary payload among 8,449 retained-answer envelopes. A MakeMe-based
+consuming probe returned 1200 ms for a complete entry/folder, measured 0 ms for a
+file, a missing-part partial result, and distinct no-breakdown and absent-path
+results. These facts support the existing scope. Historical continuity beyond
+the supplied path/entry/unit evidence remains unproved and is not promised.
+Reproducible observations and executable proof ownership belong in this story's
+plan.
 
 <a id="compare-landed-timing-with-recent-builds"></a>
 
