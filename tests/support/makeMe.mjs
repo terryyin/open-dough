@@ -34,6 +34,8 @@ import {
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
+import { copyFacts } from "./factBuilder.mjs";
+import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
 import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
@@ -62,16 +64,8 @@ import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 /** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
 /**
  * @template {object} Facts
- * @typedef {{ with(facts: Facts): { please(): Facts } }} FactBuilder
+ * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
-
-/**
- * @template {object} Facts
- * @param {Facts} facts
- */
-function copyFacts(facts) {
-  return { please: () => ({ ...facts }) };
-}
 
 export const makeMe = {
   get aNativeEvidenceRecord() {
@@ -195,6 +189,9 @@ export const makeMe = {
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();
+  },
+  get aLandedCiHistory() {
+    return new LandedCiHistoryBuilder();
   },
   /** @returns {FactBuilder<CiRun>} */
   get aCiRun() {

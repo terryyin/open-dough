@@ -2,14 +2,17 @@
 // one CI evidence owner reads it (`./IntentCiEvidence.tsx`): labels a kept
 // answer previously retrieved with a spinner until the fresh answer replaces
 // it, or shows a failure beside it without presenting the kept answer as
-// newly verified, then the shown judgment and its attempt's proof. A
+// newly verified, then the shown judgment and its attempt's proof, and for
+// the trunk its collected CI wall time history (`./IntentCiHistory.tsx`). A
 // judgment of another branch is never shown. A selected entry's or folder's
 // Summary qualifies its evidence in the same words
 // (`./IntentScopeEvidenceLabels.tsx`).
 
 import type { ReactNode } from "react";
+import { IntentCiHistory } from "./IntentCiHistory.tsx";
 import { IntentCiProof } from "./IntentCiProof.tsx";
 import { ShownJudgment } from "./IntentCiJudgment.tsx";
+import type { HistoryReading } from "./useIntentCiHistory.ts";
 import type { JudgedReading } from "./useIntentCiJudgment.ts";
 import type { ShownProof } from "./useIntentCiShownProof.ts";
 
@@ -78,11 +81,14 @@ export function JudgedBranch({
   story,
   judged,
   proof,
+  history,
 }: {
   readonly branch: string;
   readonly story: string | undefined;
   readonly judged: JudgedReading;
   readonly proof: ShownProof | undefined;
+  // The trunk's collected CI wall time history; none for a story branch.
+  readonly history?: HistoryReading | undefined;
 }) {
   const { shown, reading, refreshFailed } = judged;
   const keptAt = previouslyRetrievedAt(judged);
@@ -128,6 +134,7 @@ export function JudgedBranch({
       {shown !== undefined && proof !== undefined && (
         <IntentCiProof judgment={shown} proof={proof} />
       )}
+      {history !== undefined && <IntentCiHistory history={history} />}
       <CheckAgain reading={reading} checkAgain={judged.checkAgain} />
     </section>
   );

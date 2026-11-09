@@ -7,7 +7,8 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 477. Removed numbers are never reused.
+- Highest allocated local number: 480. Removed numbers are never reused.
+- Recovery: `ecb5ddd89:DearDough.md` holds the two ODF-329 occurrences removed for SEED-285.
 - Occurrence history is partial.
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
 Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
@@ -297,21 +298,6 @@ Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
 
 ### Occurrences
-- Execution: SEED-261#map-published-work-test-data (plan 508-map-published-work-test-data; first related implementation commit `8ea16d198c25169e76fc747377693540c7164b03`)
-  - Timestamp: unknown (slice 2, 6, and 7 delivery on 2026-11-08)
-  - Tool: Codex
-  - Open Dough release: 0.3.90 (installed .agents/skills/dough-update/VERSION at the established Take)
-  - Evidence: Guarded delivery on the paths published as `86eb0b883`, `c504c9a15`, and `d577da657` first returned `operation: formatting`. ESLint named unsafe href/writer return values, an unused array callback parameter, and an unsafe `Object.fromEntries` return from non-tuple inference.
-  - Observed effect: Three initial formatter gates withheld commit and publication after focused proof and independent refactor. Type annotations or a mechanical callback change cleared them. The affected type-check or Land test passed.
-  - Inference: A passing TypeScript build does not cover the ESLint diagnostics observed here. The late placement of the gate was the required handoff.
-- Execution: SEED-262#migrate-clean-trunk-fixtures (plan 514-migrate-clean-trunk-fixtures; first related implementation commit `1f6adb33a20fe8eb45f382b7cde3c5141ab41dd2`)
-  - Timestamp: unknown (2026-11-08, slice 5 delivery before `91966e3aa` at 2026-11-08T18:42:34+08:00)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.91 (installed `.claude/skills/dough-update/VERSION` at the claim)
-  - Evidence: Guarded fresh delivery of slice 5 returned `operation: formatting` with ESLint `no-unused-vars` on an unused `_` array callback parameter in `src/skills/dough-execute-plan/scripts/default-checkout-test-fixtures.mjs`, after focused proof and a refactor pass that reported no lint run.
-  - Observed effect: One withheld delivery; a mechanical `[...Array(count).keys()]` rewrite and a focused rerun cleared it.
-  - Inference: Same diagnostic class as the earlier occurrence; the slice 4 implementer, who ran ESLint itself, returned clean.
 - Execution: SEED-262#migrate-dashboard-origin-fixtures (plan 512-migrate-dashboard-origin-fixtures; first related implementation commit `0bcf76c3746a941a01ffc0198f5ad120d3446fdb`)
   - Timestamp: unknown (slice 2 delivery on 2026-11-08, before `21bf70ea2`)
   - Tool: Claude Code
@@ -998,3 +984,16 @@ worktrees kept the machine at load 16–40.
   - Evidence: Slice 1's first refactor pass waited at load 16–21 and handed back with the suite unrun. The reconciliation agent split the suite into `--shard=1/2` and `2/2` to fit the cap; shard 1 ran in the background, and shard 2 was never launched because load stayed above 12. The coordinator then ran each slice's final Intent suite itself as one background command (`--workers=1` at load 18–21, 294 tests, 30 minutes; `--workers=2` at load 5–10, 281 tests, 7.5 minutes), while agents ran focused groups.
   - Observed effect: Two agent returns came back without the gate result, and one Intent run was left half done; after the coordinator took over the runs, each slice needed one whole run.
   - Inference: For a suite longer than the host's foreground cap, assigning the whole run to the coordinator's background command from the start, with a load-adjusted worker count instead of a wait condition, would likely avoid incomplete gate returns.
+
+## DD-480 — A last slice holding most whole-story commitments was accepted with narrower observations
+Source-review allocation gives each whole-story commitment to the slice that completes it. Here that put 96 of 145 commitments on the final slice. The coordinator recorded their observations in one scripted pass, and two did not show the commitment's own result: `and build link` cited only points and a Failed gap, and `a short reason distinct for each case` cited a reason the cited journey does not list. An independent outcome review found these and two promise defects (an unreadable proof stopping collection, and an adapter skip's misleading reason) after acceptance.
+
+### Occurrences
+- Execution: SEED-285#see-landed-ci-wall-time-history (plan 551-see-landed-ci-wall-time-history; first related implementation commit `215aa20d2ff9a6b348a565d1b2336acadeac16ab`)
+  - Timestamp: unknown (2026-11-09, slice 3 acceptance before `6f5be8b8a` at 2026-11-09T16:56:38+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.92 (installed `.claude/skills/dough-update/VERSION` at the claim `56f6d1221`)
+  - Evidence: `story-obligations.mjs list --slice 3` returned 96 commitments. The coordinator recorded 94 observations through one generated mapping. The retrospective's independent outcome review cited source-review rows 24 and 32.4 and `landedCiResolution.ts`/`landedCiObservation.ts` defects. Plan 551's obligations G6 to G9 returned them to slice 3 before the execution-complete record.
+  - Observed effect: Slice 3 was accepted and published as `6f5be8b8a`, then reopened by four return obligations.
+  - Inference: Concentrating whole-story commitments on the last slice makes its acceptance a bulk recording task, and per-id location checks thinned. An unanchored outcome review before the execution-complete record recovered them; a per-id check of each cited location against the commitment text would have caught the two record errors at acceptance.

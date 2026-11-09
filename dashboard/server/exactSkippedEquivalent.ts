@@ -5,15 +5,15 @@
 import { equivalentBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
 import type { CiProof } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
-import { firstParentChain } from "./baseCiRevisionGit.ts";
-import {
-  nearestRevisionBuild,
-  proofRunOf,
-  type RevisionCiLookup,
-} from "./baseCiRevisionNearest.ts";
+import { proofRunOf, type RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import type { GitCall } from "./gitRunner.ts";
-import { asSlot, type RevisionBuildSlot } from "./revisionBuildSlot.ts";
+import {
+  asSlot,
+  nearestAncestorBuild,
+  type RevisionBuildSlot,
+} from "./revisionBuildSlot.ts";
+import { unusableProofOf } from "./unusableBuild.ts";
 
 // How far a baseline walk may go beyond the story start when looking for a
 // completed trunk build (claim commits are almost never built). Shared with
@@ -65,8 +65,10 @@ export function storyBranchLandedExactLookup(
 }
 
 // When Landed confirms a skip at `target`, use only the nearest first-parent
-// ancestor build's proof (the equivalent build). Never walk past a build
-// without usable proof.
+// ancestor build's proof (the equivalent build), which a build without a
+// GitHub Actions run, such as a CI adapter's, never published. Never walk
+// past a build without usable proof; a gap for one names that build and why
+// its proof is unusable (`unusableProofOf`).
 export async function exactSkippedEquivalentSlot(
   target: string,
   lookup: RevisionCiLookup,
@@ -74,10 +76,11 @@ export async function exactSkippedEquivalentSlot(
   exact: ExactResultLookup,
   status: RequestedRevisionCiStatus,
 ): Promise<RevisionBuildSlot> {
-  const chain = await firstParentChain(target, call, baselineAncestorLimit + 1);
-  const equivalent = await nearestRevisionBuild(
-    chain.filter((sha) => sha !== target),
+  const equivalent = await nearestAncestorBuild(
+    target,
     lookup,
+    call,
+    baselineAncestorLimit,
   );
   if (
     equivalent === undefined ||
@@ -86,17 +89,10 @@ export async function exactSkippedEquivalentSlot(
     return asSlot(undefined, status.explanation, status);
   }
   const run = proofRunOf(equivalent);
-  if (run === undefined) {
-    return asSlot(
-      undefined,
-      unavailableWords(equivalent.revision, {
-        kind: "unavailable",
-        reason: "none",
-      }),
-      status,
-    );
-  }
-  const proof = await readCiProofArtifact(exact.repository, run, exact.signal);
+  const proof: CiProof =
+    run === undefined
+      ? { kind: "unavailable", reason: "none" }
+      : await readCiProofArtifact(exact.repository, run, exact.signal);
   if (proof.kind === "summary") {
     return asSlot(
       {
@@ -108,9 +104,10 @@ export async function exactSkippedEquivalentSlot(
       status,
     );
   }
-  return asSlot(
-    undefined,
-    unavailableWords(equivalent.revision, proof),
-    status,
-  );
+  return {
+    kind: "none",
+    explanation: unavailableWords(equivalent.revision, proof),
+    requestedStatus: status,
+    ...unusableProofOf(equivalent, "equivalent", proof),
+  };
 }

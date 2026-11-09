@@ -26,12 +26,27 @@ function runBranchOf(run: ListedRun): { runBranch?: string } {
     : {};
 }
 
+// A listed run's identity: a CI adapter's attempt, or a GitHub Actions run
+// and attempt when the listing named positive ones.
 function runIdentityOf(run: ListedRun): RunIdentity {
   if (run.adapterAttempt !== undefined)
     return { adapterAttempt: run.adapterAttempt };
   return isPositive(run.databaseId) && isPositive(run.attempt)
     ? { runId: run.databaseId, runAttempt: run.attempt }
     : {};
+}
+
+// A listed run as a build or gap links to it: its link, when the listing
+// named one, and its identity.
+export function runLinkOf(
+  run: ListedRun,
+): { readonly runUrl?: string } & RunIdentity {
+  return {
+    ...(typeof run.url === "string" && run.url !== ""
+      ? { runUrl: run.url }
+      : {}),
+    ...runIdentityOf(run),
+  };
 }
 
 // One revision's CI comparison build with how it was selected
@@ -161,11 +176,8 @@ export async function nearestRevisionBuild(
         state === "pass" ? "pass" : state === "failed" ? "failed" : "running",
       selection: skipped === 0 ? "exact" : "ancestor",
       laterWithoutResult: skipped,
-      ...(typeof run.url === "string" && run.url !== ""
-        ? { runUrl: run.url }
-        : {}),
+      ...runLinkOf(run),
       ...runBranchOf(run),
-      ...runIdentityOf(run),
       ...attemptTimesOf({
         ...run,
         startedAt:

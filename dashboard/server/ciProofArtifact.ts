@@ -10,7 +10,10 @@
 // (`ci-github-actions.mjs`). A summary is immutable per run attempt, so a
 // valid one is remembered by repository, run and attempt for this process's
 // lifetime and never asked of GitHub again; every other answer is asked
-// again on the next read.
+// again on the next read. A read GitHub left unanswered -- a wait it
+// directed, a request that failed, or an artifact listing that is not one --
+// is told apart from GitHub's own answer that the run has no usable summary
+// (`isUnansweredProof`), since only a later read may still answer it.
 import {
   SUMMARY_READ_LIMIT_BYTES,
   currentSummaryOf,
@@ -58,21 +61,44 @@ const unavailable = (
 export const olderRequestOwnerDetail =
   "This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one";
 
+// The unreadable answers of this process's reads that GitHub left
+// unanswered, as each was answered.
+const unanswered = new WeakSet<CiProof>();
+
+const unansweredAs = (proof: CiProof): CiProof => {
+  unanswered.add(proof);
+  return proof;
+};
+
+// Whether GitHub left the read that answered `proof` unanswered: a wait it
+// directed, a request that failed, or an artifact listing that is not one.
+// GitHub's own answers -- no summary, an expired one, or an archive that
+// cannot be opened or is not this run's usable summary -- are not: a run
+// attempt's artifact does not change. Only an answer `readCiProofArtifact`
+// gave is told, not a copy of it.
+export function isUnansweredProof(proof: CiProof): boolean {
+  return unanswered.has(proof);
+}
+
 // GitHub refused or could not answer, a directed wait is GitHub's too, or
 // the local GitHub request owner could not pass the archive on.
 export function unreadableBy(error: unknown): CiProof {
   if (error instanceof GitHubAcquisitionHeld)
-    return unavailable(
-      "unreadable",
-      `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
+    return unansweredAs(
+      unavailable(
+        "unreadable",
+        `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
+      ),
     );
   if (error instanceof GitHubAcquisitionFailed) {
     const { failure } = error as { readonly failure?: { kind?: unknown } };
-    return unavailable(
-      "unreadable",
-      failure?.kind === "archive-as-text"
-        ? olderRequestOwnerDetail
-        : error.message,
+    return unansweredAs(
+      unavailable(
+        "unreadable",
+        failure?.kind === "archive-as-text"
+          ? olderRequestOwnerDetail
+          : error.message,
+      ),
     );
   }
   throw error;
@@ -99,7 +125,9 @@ function mismatchOf(
 }
 
 const unreadableListing = () =>
-  unavailable("unreadable", "GitHub's artifact listing is unreadable");
+  unansweredAs(
+    unavailable("unreadable", "GitHub's artifact listing is unreadable"),
+  );
 
 // The one listed artifact of `name` for `run` that can be read, or why none
 // can.

@@ -3,6 +3,7 @@
 // revision is not the timed build shown. Proof selection stays in
 // `./baseCiRevisionLookup.ts`; status classification stays in
 // `./requestedRevisionCiStatus.ts`.
+import type { CiProofUnavailableReason } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
@@ -12,6 +13,7 @@ import {
 } from "./baseCiRevisionNearest.ts";
 import type { GitCall } from "./gitRunner.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
+import type { UnusableBuild } from "./unusableBuild.ts";
 
 export type RevisionBuildSlot =
   | ({
@@ -31,6 +33,23 @@ export type RevisionBuildSlot =
       // A cancelled landing's forward walk stopped at the read trunk head or
       // a running build (`./laterTrunkBuild.ts`): a later build may come.
       readonly awaitingLaterBuild?: true;
+      // Story Branch Landed's own build at the landing was cancelled or
+      // timed out, and no later trunk build stands for it.
+      readonly cancelled?: true;
+      // Why the CI proof of the build that would have stood for the landing
+      // -- a confirmed skip's equivalent build, or a cancelled landing's
+      // nearest later trunk build -- could not be used.
+      readonly unusableProof?: CiProofUnavailableReason;
+      // GitHub left that build's CI proof read unanswered
+      // (`isUnansweredProof`, `./ciProofArtifact.ts`): a later read may
+      // still use it.
+      readonly proofUnanswered?: true;
+      // The build Story Branch Landed named for the landing but could not
+      // measure it by (`./unusableBuild.ts`): the build whose CI proof could
+      // not be used, or else the landing's own attempt that stopped without
+      // a verdict. The CI comparison answers neither it nor why
+      // (`asComparisonSlot`).
+      readonly unusableBuild?: UnusableBuild;
     }
   | {
       readonly kind: "not-applicable";
@@ -42,6 +61,31 @@ export type RevisionBuildSlot =
       readonly explanation: string;
       readonly requestedStatus?: RequestedRevisionCiStatus;
     };
+
+// A slot no later read changes (`finalSlot`).
+export type FinalSlot<Slot> = Exclude<
+  Slot,
+  { readonly kind: "running" | "unavailable" }
+>;
+
+// SLOT when no later read changes it; undefined while it is a build still
+// running, CI that could not be read, or a cancelled landing whose later
+// trunk build may yet come. Only final slots are kept: in a remembered
+// done-story comparison answer (`./intentCiComparisonAnswers.ts`), and as a
+// landing's final resolution in the landed CI history
+// (`./landedCiHistoryStore.ts`), whose collection resolves any other as
+// pending (`./landedCiResolution.ts`).
+export function finalSlot<
+  Slot extends {
+    readonly kind: string;
+    readonly awaitingLaterBuild?: true | undefined;
+  },
+>(slot: Slot): FinalSlot<Slot> | undefined {
+  if (slot.kind === "running" || slot.kind === "unavailable") return undefined;
+  if (slot.kind === "none" && slot.awaitingLaterBuild === true)
+    return undefined;
+  return slot as FinalSlot<Slot>;
+}
 
 function withStatus(
   slot: RevisionBuildSlot,
@@ -94,6 +138,22 @@ export function asSlot(
   return withStatus({ kind: "build", state: build.state, ...identity }, status);
 }
 
+// The nearest first-parent ancestor build of `target`, completed or still
+// running, within `ancestorLimit` revisions: the build a skip at `target`
+// rests on.
+export async function nearestAncestorBuild(
+  target: string,
+  lookup: RevisionCiLookup,
+  call: GitCall,
+  ancestorLimit: number,
+): Promise<RevisionCiBuild | undefined> {
+  const revisions = await firstParentChain(target, call, ancestorLimit + 1);
+  return nearestRevisionBuild(
+    revisions.filter((sha) => sha !== target),
+    lookup,
+  );
+}
+
 // Nearest timed first-parent ancestor build used only to confirm a skip or
 // name a No-build reason — never as the endpoint's proof source.
 export async function nearestAncestorBasisSha(
@@ -102,9 +162,7 @@ export async function nearestAncestorBasisSha(
   call: GitCall,
   ancestorLimit: number,
 ): Promise<string | undefined> {
-  const revisions = await firstParentChain(target, call, ancestorLimit + 1);
-  const ancestors = revisions.filter((sha) => sha !== target);
-  const build = await nearestRevisionBuild(ancestors, lookup);
+  const build = await nearestAncestorBuild(target, lookup, call, ancestorLimit);
   return build?.state === "pass" || build?.state === "failed"
     ? build.revision
     : undefined;

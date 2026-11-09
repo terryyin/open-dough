@@ -7,7 +7,8 @@
 // explanations while locations load, are absent or unreadable. It always names the
 // branch and when it was checked, and shows the judgment as
 // `./IntentCiJudgment.tsx` does, then the shown run's CI proof
-// (`./IntentCiProof.tsx`). A selected done story shows its CI timing comparison
+// (`./IntentCiProof.tsx`), and for the trunk its collected CI wall time
+// history (`./IntentCiHistory.tsx`). A selected done story shows its CI timing comparison
 // (`./IntentCiComparison.tsx`), including entry rows in its comparison proof
 // table, with Check again to read it again. A selected Taken Story Branch story
 // keeps its live judgment and adds the provisional comparison. A selected Taken
@@ -77,6 +78,7 @@ export function IntentCiStatus() {
         story={evidence.story}
         judged={evidence.judged}
         proof={evidence.proof}
+        history={evidence.history}
       />
       {provisional !== undefined && evidence.comparisonStory !== undefined && (
         <IntentCiComparison reading={provisional} />

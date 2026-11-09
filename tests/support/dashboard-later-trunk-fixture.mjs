@@ -1,9 +1,12 @@
-// Trunk repositories and run listings for the cancelled-landing forward walk
-// tests (./dashboard-later-trunk-build.test.mjs,
-// ./dashboard-later-trunk-landed.test.mjs).
+// Trunk repositories, run listings and Story Branch Landed's exact lookup
+// for the cancelled-landing forward walk tests
+// (./dashboard-later-trunk-build.test.mjs,
+// ./dashboard-later-trunk-landed.test.mjs) and the exact landing's
+// (./dashboard-landed-exact-build.test.mjs).
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
+import { storyBranchLandedExactLookup } from "../../dashboard/server/exactSkippedEquivalent.ts";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
@@ -100,3 +103,23 @@ export function lookupOf(runs) {
     },
   };
 }
+
+// Story Branch Landed's exact lookup at a landing merge, reading trunk's
+// `main` as the later trunk head.
+export function exactFor() {
+  return storyBranchLandedExactLookup(
+    false,
+    "terryyin/open-dough",
+    new AbortController().signal,
+    "main",
+  );
+}
+
+// The landing's own run `runId` at `revision`, as Landed names it when it
+// could not use it: its exact build.
+export const ownBuild = (revision, runId) => ({
+  revision,
+  selection: "exact",
+  runId,
+  runAttempt: 1,
+});

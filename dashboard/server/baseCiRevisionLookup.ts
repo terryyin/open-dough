@@ -2,12 +2,12 @@
 // first-parent ancestors through local Git and answers baseline / branch /
 // landed slots. The live branch judgment (`./baseCiJudgment.ts`) keeps its
 // branch listing rule unchanged. Each endpoint names the requested
-// revision's own status beside the selected build. Story Branch Landed may use a confirmed skip's equivalent build
-// proof (`./exactSkippedEquivalent.ts`) or, when cancelled, a later trunk
-// build's proof (`./laterTrunkBuild.ts`); Baseline / Branch (and Trunk Mode
-// Landed / provisional tip) walk past builds without usable proof here.
+// revision's own status beside the selected build. Story Branch Landed at a
+// landed revision whose own CI gives no verdict may use a confirmed skip's
+// equivalent build or, when cancelled, a later trunk build
+// (`./landedWithoutVerdict.ts`); Baseline / Branch (and Trunk Mode Landed /
+// provisional tip) walk past builds without usable proof here.
 // The lookup itself comes from `./baseCiRevisionLookupSource.ts`.
-import { newestRunFor } from "./baseCiNearest.ts";
 import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
@@ -18,18 +18,13 @@ import {
 import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import {
   baselineAncestorLimit,
-  exactSkippedEquivalentSlot,
   type ExactResultLookup,
 } from "./exactSkippedEquivalent.ts";
 import type { GitCall } from "./gitRunner.ts";
-import {
-  laterTrunkCancelledSlot,
-  type RevisionProofAbsence,
-} from "./laterTrunkBuild.ts";
-import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
+import { landedWithoutVerdictSlot } from "./landedWithoutVerdict.ts";
+import type { RevisionProofAbsence } from "./laterTrunkBuild.ts";
 import {
   asSlot,
-  nearestAncestorBasisSha,
   statusWhenNotExact,
   type RevisionBuildSlot,
 } from "./revisionBuildSlot.ts";
@@ -126,12 +121,11 @@ export type ResultLookupOptions = {
 
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
-// `exactOnly`, the walk is limited to `target` itself except a confirmed
-// skip, which may use that landing's equivalent build proof only, and a
-// cancelled attempt, which may use the nearest later trunk build's proof up
-// to `exact.laterTrunkHead`. Otherwise a cancelled or timed-out attempt at
-// that revision uses the caller-supplied explanations. Without
-// `exactOnly`, the walk continues past builds without usable proof.
+// `exactOnly`, the walk is limited to `target` itself; when its own CI gives
+// no verdict, a confirmed skip may use that landing's equivalent build proof
+// only, and a cancelled attempt the nearest later trunk build's proof up to
+// `exact.laterTrunkHead` (`landedWithoutVerdictSlot`). Without `exactOnly`,
+// the walk continues past builds without usable proof.
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
@@ -174,49 +168,15 @@ export async function lookupResultBuild(
       );
       return asSlot(build, missingExplanation, status);
     }
-    if (exact?.exactOnly === true) {
-      const listed = await lookup.listRunsAt(target);
-      const newest = newestRunFor(listed, target);
-      if (
-        newest?.status === "completed" &&
-        newest.adapterAttempt === undefined &&
-        (newest.conclusion === "cancelled" || newest.conclusion === "timed_out")
-      ) {
-        if (newest.conclusion === "cancelled")
-          return await laterTrunkCancelledSlot(
-            target,
-            listed,
-            lookup,
-            call,
-            workflow,
-            exact,
-            walkingProofAbsence(exact),
-          );
-        return { kind: "none", explanation: exact.timedOutExplanation };
-      }
-      const status = await requestedRevisionCiStatus(
+    if (exact?.exactOnly === true)
+      return await landedWithoutVerdictSlot(
         target,
-        listed,
-        await nearestAncestorBasisSha(
-          target,
-          lookup,
-          call,
-          baselineAncestorLimit,
-        ),
+        lookup,
         call,
         workflow,
+        exact,
+        walkingProofAbsence(exact),
       );
-      if (status.kind === "skipped") {
-        return await exactSkippedEquivalentSlot(
-          target,
-          lookup,
-          call,
-          exact,
-          status,
-        );
-      }
-      return asSlot(undefined, status.explanation, status);
-    }
     const status = await statusWhenNotExact(
       target,
       undefined,

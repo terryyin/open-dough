@@ -12,7 +12,8 @@
 // what the icon stands for where the short words leave it out ("Revision"
 // before `abc1234`), the short words, then any fuller words, unseen too and
 // shown on hover. The labels naming an attempt both Proof and a Summary show
-// live here.
+// live here, with the words naming an attempt, which the CI wall time history
+// says too.
 
 import type { ReactNode } from "react";
 import {
@@ -95,12 +96,21 @@ export function EvidenceLabels({
   );
 }
 
+// The attempt CI evidence was read from, as Proof, a Summary and the CI wall
+// time history (`./ciHistoryWords.ts`) name it: a GitHub Actions run's
+// "Run 41 · attempt 2", or a CI adapter's "Attempt 9f1c".
+export const runAttemptWords = (runId: number, runAttempt: number): string =>
+  `Run ${String(runId)} · attempt ${String(runAttempt)}`;
+
+export const adapterAttemptWords = (attemptId: string | number): string =>
+  `Attempt ${String(attemptId)}`;
+
 // "Run 41 · attempt 2" or an adapter's "Attempt 9f1c", linked to the run
 // when it has a link: the attempt CI proof was read from.
 export function attemptLabel(run: ShownCiProofRun): EvidenceLabel {
   const words = isAdapterProofAttempt(run)
-    ? `Attempt ${run.attemptId}`
-    : `Run ${String(run.runId)} · attempt ${String(run.runAttempt)}`;
+    ? adapterAttemptWords(run.attemptId)
+    : runAttemptWords(run.runId, run.runAttempt);
   return {
     key: "attempt",
     icon: CirclePlay,
