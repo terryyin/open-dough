@@ -20,11 +20,10 @@ import {
 
 const admissionRef = "refs/dough/local-test-suite";
 const ownershipVariable = "DOUGH_LOCAL_SUITE_OWNERS";
-// OPEN_DOUGH_TEST_ADMISSION_GATE names a file this call writes once, whole,
-// with the owner's record id, when a live owner outside its ancestry blocks
-// admission. The call then waits as it always does. It belongs to this call
-// alone: the call removes it from the environment so nothing it starts
-// inherits it.
+// OPEN_DOUGH_TEST_ADMISSION_GATE names a file this call writes whole with
+// each changed live blocking owner's record id, outside its ancestry. The
+// call then waits as it always does. It belongs to this call alone: the call
+// removes it from the environment so nothing it starts inherits it.
 const admissionGateVariable = "OPEN_DOUGH_TEST_ADMISSION_GATE";
 const held = new Map();
 
@@ -114,7 +113,7 @@ function inheritedOwners() {
 }
 
 export async function acquireLocalSuite(directory, { signal: aborted } = {}) {
-  let admissionGate = process.env[admissionGateVariable];
+  const admissionGate = process.env[admissionGateVariable];
   delete process.env[admissionGateVariable];
   if (process.env["CI"]) return async () => {};
   const root = ownerRoot(directory);
@@ -128,6 +127,7 @@ export async function acquireLocalSuite(directory, { signal: aborted } = {}) {
     tokens: [token],
   };
   let oid;
+  let reportedOwner;
   for (;;) {
     aborted?.throwIfAborted();
     const previous = readOwner(directory);
@@ -155,10 +155,10 @@ export async function acquireLocalSuite(directory, { signal: aborted } = {}) {
           );
         break;
       }
-    } else if (admissionGate) {
+    } else if (admissionGate && reportedOwner !== previous.oid) {
       writeFileSync(`${admissionGate}.partial`, previous.oid);
       renameSync(`${admissionGate}.partial`, admissionGate);
-      admissionGate = undefined;
+      reportedOwner = previous.oid;
     }
     await delay(250, undefined, { signal: aborted });
   }
