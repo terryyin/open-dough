@@ -18,7 +18,13 @@ import { expect } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import type { DashboardServer } from "./dashboardServer.ts";
+import {
+  sharedDashboardBuild,
+  startDashboardServer,
+  type DashboardServer,
+} from "./dashboardServer.ts";
+import { serveTrunkRuns as serveTrunkCiRuns } from "./landedCiTrunk.ts";
+import type { StartOrigin } from "./startOrigin.ts";
 import { commit } from "./launchLanding.ts";
 import { rawRequest } from "./rawHttp.ts";
 import {
@@ -38,6 +44,29 @@ export const recheckingLandedCi = {
   ...collectingLandedCi,
   DOUGH_LANDED_CI_RECHECK_MS: "200",
 };
+
+// After a test observes collection's persisted evidence, read that same
+// machine and port with collection stopped. A browser may keep its original
+// base URL; later CI calls then belong to its live reads, never a poll racing
+// a local-history assertion. The caller closes the returned reader.
+export async function restartAsLandedCiReader(
+  dashboard: DashboardServer,
+  origin: Pick<StartOrigin, "machine">,
+  mode: "boundary" | "preview",
+): Promise<DashboardServer> {
+  const port = Number(new URL(dashboard.origin).port);
+  const prebuilt = dashboard.outDir ?? sharedDashboardBuild;
+  await dashboard.close();
+  return startDashboardServer({
+    mode,
+    ...(mode === "preview" ? { prebuilt } : {}),
+    port,
+    github: dashboard.github,
+    machine: origin.machine,
+    projectFolders: ["open-dough"],
+    extraEnv: { DOUGH_TEST_LANDED_CI_COLLECTION: "off" },
+  });
+}
 
 // An unattached Start session in an isolated workspace that may land, and
 // the revision its result commit `name` made there, not yet landed.
@@ -194,4 +223,23 @@ export async function untilKept(
     await expect
       .poll(() => observedKinds(keptLandedCiHistory(home))[receipt])
       .toBeDefined();
+}
+
+// Existing scope-collection cases name a readability predicate directly;
+// trunk CI setup and all provider answers stay with the shared trunk owner.
+export function serveTrunkRuns(
+  github: Parameters<typeof serveTrunkCiRuns>[0],
+  origin: Parameters<typeof serveTrunkCiRuns>[1],
+  runs: Parameters<typeof serveTrunkCiRuns>[2],
+  readableOrOptions:
+    Parameters<typeof serveTrunkCiRuns>[3] | (() => boolean) = {},
+): void {
+  serveTrunkCiRuns(
+    github,
+    origin,
+    runs,
+    typeof readableOrOptions === "function"
+      ? { readable: readableOrOptions }
+      : readableOrOptions,
+  );
 }

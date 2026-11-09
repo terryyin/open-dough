@@ -28,7 +28,9 @@ import {
   afterTake,
   justTaken,
   profilePath,
+  planPath,
   revision,
+  stories,
   takes,
   timeUnread,
 } from "./sliceClockRecords.ts";
@@ -67,8 +69,8 @@ export function askedSince(page: Page, from: number): string[] {
 
 // Opens the clock records with Yuma's profile history `yumaHistory` and
 // Sola's `solaHistory`; GitHub refuses each request `refused` picks with a
-// short directed wait, once Akiho's and Sola's additions have reached
-// GitHub. The page shows the snapshot with
+// short directed wait, once Akiho's and Sola's additions and all plan
+// histories have reached GitHub. The page shows the snapshot with
 // Yuma's human and clock withheld by the limit, and says so once.
 export async function openedWithYumaWithheld(
   page: Page,
@@ -103,10 +105,27 @@ export async function openedWithYumaWithheld(
   answers.limit(
     refused,
     isCommit(takes.Akiho.sha),
+    // Every unrelated plan answer, the terminal gap included, must be
+    // established before the shared wait; otherwise its recovery is correct.
+    ...stories.map(
+      ({ anchor }) =>
+        (request: GhRequest) =>
+          request.kind === "commit-list" && request.path === planPath(anchor),
+    ),
     ...solaHistory.slice(0, 1).map(({ sha }) => isCommit(sha)),
   );
+  const unreadPlan = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.searchParams.get("path") === planPath("time-unread") &&
+      url.searchParams.get("committed") === "last"
+    );
+  });
   await page.goto("/");
   await expectSettledPage(page);
+  expect(await (await unreadPlan).json()).toEqual({
+    error: `GitHub's answer for the last commit of ${planPath("time-unread")} at ${revision} did not name a commit.`,
+  });
   const limitSeenAt = answers.lift();
   const until = await limitedUntil(
     page,

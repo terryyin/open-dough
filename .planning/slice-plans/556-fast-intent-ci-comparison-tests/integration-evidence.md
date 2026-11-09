@@ -190,3 +190,45 @@ assertions and 33 consumer dispositions are in `ci-repair-42627028218-return.md`
 and its linked logs under `/tmp/seed286-execution-20261109/`.
 The separate CI performance gap remains G3, owned by slice 5; this assertion
 repair does not claim that the portable timing target is met.
+
+## Incoming scope timing-history composition
+
+After completed Refresh/refinement publication `e91d5e3b...`, fetched trunk
+`878ae0c4ddafcfa498a91171102d386e064531f4` left the selected source unchanged
+but added independent Summary/file timing history. Preserve both published
+histories. The installed history-preserving prepare stopped at five conflicts,
+with zero pushes; resolve only those and their canonical builder responsibility.
+
+Keep incoming File/Scope public wrappers and their independent history sibling,
+including unusable comparison states. Keep published Done endpoint identity
+distinct from a later measured build, and history's optional local-read guard
+separate from comparison/proof upstream acquisition. Slice 6 extracts actual
+pure comparison content inside this composition; it must regenerate CSS and
+recheck the actual consuming SSR probe before extending historical timings.
+
+Both branches independently added MakeMe.aCiProof. Consolidate one builder and
+serializer, preserving old stateless APIs/default repository example/project
+and incoming fluent APIs/default terryyin/open-dough. Preserve artifact schema/
+collector arrangement, incoming proofSummaryForEntry, declared-parent builder
+rules, preparation's shallow copy and the test-environment documentation split.
+Initial typecheck caught a lost PublishedIntegration JSDoc export; restore its
+canonical alias and compare both premerge exported-type sets: none now missing.
+The corrected typecheck passes; runtime proof was not changed by that alias.
+
+Awake AC at load 4.08/5.30/5.37, guarded with `caffeinate -s -i`:
+four focused Node history/read/unit/identity/finality owners pass; native import
+closure passes. Old comparison/proof memory plus actual new Summary/file-history
+composition pass strict 13/13 (runner 18.06 s). Four actual artifact-helper
+consumers plus the complete mounted wording owner pass strict 35/35 (14.09 s),
+including adapter too-large wording. Default normal workers/tracing retained;
+incoming history's separate existing timeout is not comparison-rule proof.
+
+Exact commands, assertion/setup boundaries, eight resolved paths and consumer
+dispositions are in `incoming-878-observed-proof.json`, `incoming-878-review.md`,
+`incoming-878-conflicts-return.md` and linked logs under
+`/tmp/seed286-execution-20261109/`.
+G1/G3 and final family acceptance remain open with slice 7.
+
+Independent refactoring found no further edit; both installed consumer traces
+have every row dispositioned in `incoming-878-refactor-return.md`. Final 35-case
+collector/wording and native-closure observations satisfy its remaining checks.

@@ -1,6 +1,5 @@
 // @ts-check
 // Canonical external facts supplied to comparison reads, without resolving them.
-import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 /** @typedef {import("../../dashboard/server/storyPublishedEndpoints.ts").PublishedStoryEndpointFacts} PublishedStoryEndpointFacts */
 /** @typedef {import("../../dashboard/server/takenStoryEndpoints.ts").TakenStoryEndpointFacts} TakenStoryEndpointFacts */
 
@@ -39,59 +38,6 @@ export class RevisionCiRunBuilder {
         startedAt: "2026-11-09T00:00:00Z",
         completedAt: "2026-11-09T00:04:00Z",
         ...facts,
-      }),
-    };
-  }
-}
-
-export class CiProofBuilder {
-  /** @param {import("../../dashboard/src/ciProof.ts").CiProofRun} run @param {readonly import("../../dashboard/src/ciProof.ts").CiProofEntry[]} [entries] @param {string} [repository] */
-  summaryFor(run, entries = [], repository = "example/project") {
-    return {
-      please: () => ({
-        kind: /** @type {const} */ ("summary"),
-        summary: new CiProofSummaryBuilder()
-          .inRepository(repository)
-          .ofRun(run)
-          .withEntries(...entries)
-          .please(),
-      }),
-    };
-  }
-
-  /** @param {Pick<import("../../dashboard/src/ciProof.ts").CiAdapterProofAttempt, "attemptId" | "revision">} attempt @param {readonly import("../../dashboard/src/ciProof.ts").CiProofEntry[]} [entries] @param {string} [repository] */
-  summaryForAdapter(attempt, entries = [], repository = "example/project") {
-    return {
-      please: () => ({
-        kind: /** @type {const} */ ("summary"),
-        summary: new CiProofSummaryBuilder()
-          .inRepository(repository)
-          .ofAdapterAttempt(attempt)
-          .withEntries(...entries)
-          .please(),
-      }),
-    };
-  }
-
-  /** @param {import("../../dashboard/src/ciProof.ts").CiProofUnavailableReason} reason @param {string} [detail] */
-  unavailable(reason, detail) {
-    return {
-      please: () => ({
-        kind: /** @type {const} */ ("unavailable"),
-        reason,
-        ...(detail === undefined ? {} : { detail }),
-      }),
-    };
-  }
-
-  /** @param {number} limitBytes @param {number} [sizeBytes] */
-  tooLarge(limitBytes, sizeBytes) {
-    return {
-      please: () => ({
-        kind: /** @type {const} */ ("unavailable"),
-        reason: /** @type {const} */ ("too-large"),
-        limitBytes,
-        ...(sizeBytes === undefined ? {} : { sizeBytes }),
       }),
     };
   }

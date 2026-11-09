@@ -1,11 +1,8 @@
 // @ts-check
-// Domain data for one unit's results at a CI proof summary entry (the
-// collector's "Units", ../../src/skills/dough-test-optimization/scripts/
-// ci-proof-evidence.mjs): test cases, test files, or legacy results. Its
-// first present part carries its figures, or, broken down, its files' and
-// unplaced results'; other parts may be present without a breakdown,
-// missing or ambiguous, and the figures sum the present parts, as the
-// collector writes them. Its entry is ./ciProofEntryTestData.mjs's.
+// One CI proof entry's unit of results (./ciProofEntryTestData.mjs): its
+// first present part carries counts/time, or file and unplaced figures;
+// other parts may be present without a breakdown, missing or ambiguous.
+// Figures sum present parts, as the collector writes them.
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFigures} CiProofFigures */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFile} CiProofFile */
@@ -23,10 +20,7 @@
  * }} ResultFacts
  */
 
-/**
- * @param {ResultFacts} facts
- * @returns {CiProofFigures}
- */
+/** @param {ResultFacts} facts @returns {CiProofFigures} */
 function figuresOf({ passed = 1, failed = 0, other = 0, durationMs, untimed }) {
   const notTimed =
     untimed ?? (durationMs === undefined ? passed + failed + other : 0);
@@ -42,9 +36,7 @@ function figuresOf({ passed = 1, failed = 0, other = 0, durationMs, untimed }) {
 /** @param {readonly number[]} values */
 const sum = (values) => values.reduce((total, value) => total + value, 0);
 
-/**
- * FIGURES summed, with untimed always stated, as a part reported by file
- * carries them.
+/** FIGURES summed as a by-file part reports them, with untimed stated.
  * @param {readonly CiProofFigures[]} figures
  * @returns {CiProofFigures & { untimed: number }}
  */
@@ -69,6 +61,7 @@ export class CiProofEvidenceBuilder {
   #counts = { passed: 1, failed: 0, other: 0 };
   /** @type {number | undefined} */
   #durationMs;
+  #untimed = 0;
   #of = 1;
   /** @type {number[]} */
   #missing = [];
@@ -117,6 +110,12 @@ export class CiProofEvidenceBuilder {
    */
   timed(durationMs) {
     this.#durationMs = durationMs;
+    return this;
+  }
+
+  /** @param {number} count */
+  withUntimed(count) {
+    this.#untimed = count;
     return this;
   }
 
@@ -194,9 +193,11 @@ export class CiProofEvidenceBuilder {
     const timing =
       this.#durationMs === undefined ? {} : { durationMs: this.#durationMs };
     /** @type {CiProofFigures} */
-    const first = brokenDown
+    let first = brokenDown
       ? summed([...this.#files, ...(unassigned ? [unassigned] : [])])
       : { ...this.#counts, ...timing };
+    if (this.#untimed > 0)
+      first = { ...first, untimed: (first.untimed ?? 0) + this.#untimed };
     /** @type {CiProofFigures} */
     const empty = {
       passed: 0,

@@ -10,6 +10,90 @@ const git = (repository: string, args: readonly string[]) =>
   });
 export const landingRefPrefix = (reference: string) =>
   `refs/open-dough/one-shot/${reference}/`;
+
+// Recorded landing ancestry from already retained local Git objects, across
+// all merge parents. Only requested landing revisions enter the order; private
+// branch commits do not become observations. No fetch, helper or ref mutation
+// belongs to history reading. Missing objects/paths leave the order unsupported;
+// a previously collected order can still be used.
+export async function readLandingOrder(
+  repositories: readonly string[],
+  revisions: readonly string[],
+  endpoint?: string,
+  signal?: AbortSignal,
+): Promise<readonly string[] | undefined> {
+  const wanted = [
+    ...new Set([...revisions, ...(endpoint === undefined ? [] : [endpoint])]),
+  ];
+  if (wanted.length === 0) return [];
+  const retained = new Set(wanted);
+  let best: readonly string[] | undefined;
+  let score = -1;
+  const bounded =
+    signal === undefined
+      ? AbortSignal.timeout(30_000)
+      : AbortSignal.any([signal, AbortSignal.timeout(30_000)]);
+  for (const repository of new Set(repositories)) {
+    const local = (args: readonly string[], input?: string) =>
+      runGit(args, {
+        cwd: repository,
+        maxBuffer: defaultGitOutputLimit,
+        env: {
+          GIT_NO_LAZY_FETCH: "1",
+          GIT_ALLOW_PROTOCOL: "file",
+          GIT_TERMINAL_PROMPT: "0",
+        },
+        signal: bounded,
+        ...(input === undefined ? {} : { input }),
+      });
+    try {
+      const checked = await local(
+        ["cat-file", "--batch-check=%(objectname) %(objecttype)"],
+        `${wanted.join("\n")}\n`,
+      );
+      const known = checked.stdout
+        .trim()
+        .split("\n")
+        .flatMap((line) => {
+          const [revision, kind] = line.split(" ");
+          return revision !== undefined && kind === "commit" ? [revision] : [];
+        });
+      if (
+        known.length === 0 ||
+        (endpoint !== undefined && !known.includes(endpoint))
+      )
+        continue;
+      const latest = (
+        await local(["rev-list", "--topo-order", "--max-count=1", ...known])
+      ).stdout.trim();
+      let order = (
+        await local(["rev-list", "--topo-order", "--reverse", latest])
+      ).stdout
+        .trim()
+        .split("\n")
+        .filter((revision) => retained.has(revision));
+      if (endpoint !== undefined && !order.includes(endpoint))
+        order = (
+          await local(["rev-list", "--topo-order", "--reverse", endpoint])
+        ).stdout
+          .trim()
+          .split("\n")
+          .filter((revision) => retained.has(revision));
+      const covered = wanted.filter((revision) =>
+        order.includes(revision),
+      ).length;
+      if (covered > score) {
+        best = order;
+        score = covered;
+      }
+      if (covered === wanted.length) return order;
+    } catch {
+      if (bounded.aborted) return best;
+      // Another retained local repository may still hold the pinned objects.
+    }
+  }
+  return best;
+}
 export async function verifyLanding(
   landing: LaunchLanding,
   prepare?: { workspace: string; branch: string },

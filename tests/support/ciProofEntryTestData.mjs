@@ -9,6 +9,7 @@ import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEntry} CiProofEntry */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
+/** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFile} CiProofFile */
 /** @typedef {import("./ciProofEvidenceTestData.mjs").ResultFacts} ResultFacts */
 
 // One declared entry of a summary: one unit's results, or several.
@@ -90,6 +91,24 @@ export class CiProofEntryBuilder {
    */
   inParts(of, statuses) {
     this.#single.inParts(of, statuses);
+    return this;
+  }
+
+  /** @param {CiProofFile[]} files */
+  brokenDownBy(files) {
+    this.#single.brokenDown(...files);
+    return this;
+  }
+
+  /** @param {...number} parts */
+  missingParts(...parts) {
+    for (const part of parts) this.#single.missingPart(part);
+    return this;
+  }
+
+  /** @param {number} count */
+  withUntimed(count) {
+    this.#single.withUntimed(count);
     return this;
   }
 

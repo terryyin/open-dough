@@ -21,7 +21,7 @@
 // journeys beside it.
 
 import path from "node:path";
-import { asComparisonSlot } from "../../server/intentCiComparisonSlots.ts";
+import { collectedScopeHistory } from "../../tests/support/collectedScopeHistory.ts";
 import {
   answeredLanding,
   landedCiHistory,
@@ -134,6 +134,29 @@ test("a final gap names the build the Landed rule named for its landing and link
         ],
       },
     });
+  const asked = github.calls.length;
+  const scope = await collectedScopeHistory(
+    server.origin,
+    "dashboard/tests",
+    cancelled.revision,
+    cancelled.at,
+  );
+  expect(scope.status).toBe(200);
+  expect(scope.body.entries).toHaveLength(5);
+  for (const [index, [revision, provenance, runId]] of [
+    [b1, "equivalent", 61],
+    [b2, "equivalent", 62],
+    [b3, "equivalent", 63],
+    [timedOut.revision, "exact", 64],
+    [d6, "later", 66],
+  ].entries()) {
+    expect(scope.body.entries[index]).toMatchObject({
+      kind: "gap",
+      build: { revision, provenance, runId, runAttempt: 1 },
+      readings: [],
+    });
+  }
+  expect(github.calls.slice(asked)).toEqual([]);
 });
 
 test("a build that completed before it started is a gap naming no CI wall time, never a zero, and a run link that is not a web address is left out of a point and a pending gap, keeping their run words", async ({
@@ -188,38 +211,4 @@ test("a build that completed before it started is a gap naming no CI wall time, 
         ],
       },
     });
-});
-
-test("the CI timing comparison answers a Landed gap without the build the history names for it or why its CI proof could not be used", async () => {
-  const explanation =
-    "The CI build at the landed story revision was cancelled. The nearest later trunk build has a CI proof summary that could not be read.";
-  const asked: string[] = [];
-  const lookup = {
-    listRunsAt: (sha: string) => {
-      asked.push(sha);
-      return Promise.resolve([]);
-    },
-    subjectOf: () => Promise.resolve("subject"),
-    timeWithoutRunnerWaitsOf: () => Promise.resolve({ reason: "not read" }),
-  };
-
-  expect(
-    await asComparisonSlot(
-      {
-        kind: "none",
-        explanation,
-        cancelled: true,
-        unusableProof: "unreadable",
-        proofUnanswered: true,
-        unusableBuild: {
-          revision: "d6".repeat(20),
-          selection: "later",
-          runId: 66,
-          runAttempt: 1,
-        },
-      },
-      lookup,
-    ),
-  ).toEqual({ kind: "none", explanation });
-  expect(asked).toEqual([]);
 });

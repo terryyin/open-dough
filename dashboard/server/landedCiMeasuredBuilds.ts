@@ -19,16 +19,44 @@ import type { Observation } from "./landedCiObservation.ts";
 // How many distinct measured builds the window holds.
 export const measuredWindow = 20;
 
-// Landings newest first: by when the dashboard recorded them, then by
-// receipt, so every reader walks them in the same order.
-export function newestFirst(
-  a: { readonly receipt: string; readonly receivedAt: string },
-  b: { readonly receipt: string; readonly receivedAt: string },
-): number {
+// Unknown positions are visited first to record their local-order wait;
+// known positions follow actual trunk ancestry, never receipt chronology.
+export function newestFirst(order: readonly string[] | undefined) {
+  const positions = new Map(order?.map((revision, index) => [revision, index]));
   return (
-    Date.parse(b.receivedAt) - Date.parse(a.receivedAt) ||
-    a.receipt.localeCompare(b.receipt)
-  );
+    a: { readonly receipt: string; readonly revision: string },
+    b: { readonly receipt: string; readonly revision: string },
+  ): number => {
+    const left = positions.get(a.revision),
+      right = positions.get(b.revision);
+    if (left === undefined || right === undefined)
+      return left === undefined && right !== undefined
+        ? -1
+        : right === undefined && left !== undefined
+          ? 1
+          : a.receipt.localeCompare(b.receipt);
+    return right - left || a.receipt.localeCompare(b.receipt);
+  };
+}
+
+// Prefer the supported order covering the most recorded landings. Caller
+// order breaks ties; an endpoint filters candidates only for scoped reading.
+export function mostCompleteLandingOrder(
+  landings: readonly { readonly revision: string }[],
+  candidates: readonly (readonly string[] | undefined)[],
+  endpoint?: string,
+): readonly string[] | undefined {
+  return candidates
+    .filter(
+      (order): order is readonly string[] =>
+        order !== undefined &&
+        (endpoint === undefined || order.includes(endpoint)),
+    )
+    .sort(
+      (a, b) =>
+        landings.filter((landing) => b.includes(landing.revision)).length -
+        landings.filter((landing) => a.includes(landing.revision)).length,
+    )[0];
 }
 
 // How a build the Landed rule selected for a landing measures it; none for
@@ -60,6 +88,24 @@ export function measuredBuildOf(
   return observed.build;
 }
 
+// A new measurement needs a position relative to every already-retained
+// measurement before the shared window can evict any of them safely.
+export function hasLandingOrder(
+  history: ProjectHistory,
+  revision: string,
+  order: readonly string[] | undefined = history.trunkOrder,
+): boolean {
+  const positions = new Set(order);
+  return (
+    positions.has(revision) &&
+    Object.values(history.landings).every(
+      (landing) =>
+        measuredBuildOf(history, landing.observed) === undefined ||
+        positions.has(landing.revision),
+    )
+  );
+}
+
 // A landing the history keeps, with its receipt.
 type ReceivedLanding = {
   readonly receipt: string;
@@ -69,9 +115,14 @@ type ReceivedLanding = {
 // the `measuredWindow`th distinct measured build, and every older landing one
 // of those builds also measures.
 export function windowLandings(history: ProjectHistory): ReceivedLanding[] {
-  const newest = Object.entries(history.landings)
-    .map(([receipt, landing]) => ({ receipt, ...landing }))
-    .sort(newestFirst);
+  const all = Object.entries(history.landings).map(([receipt, landing]) => ({
+    receipt,
+    ...landing,
+  }));
+  const positioned = new Set(history.trunkOrder);
+  const newest = all
+    .filter((landing) => positioned.has(landing.revision))
+    .sort(newestFirst(history.trunkOrder));
   const window: ReceivedLanding[] = [];
   const measured = new Set<string>();
   for (const landing of newest) {
@@ -81,7 +132,12 @@ export function windowLandings(history: ProjectHistory): ReceivedLanding[] {
       if (build !== undefined) measured.add(build);
     } else if (build !== undefined && measured.has(build)) window.push(landing);
   }
-  return window;
+  // Existing unsupported evidence is preserved; it does not choose window
+  // membership and readers explain its unavailable order without a number.
+  return [
+    ...window,
+    ...all.filter((landing) => !positioned.has(landing.revision)),
+  ];
 }
 
 // The history kept to its window: its window's landings and the builds they
@@ -99,5 +155,18 @@ export function windowedHistory(history: ProjectHistory): ProjectHistory {
   const builds = Object.fromEntries(
     Object.entries(history.builds).filter(([key]) => named.has(key)),
   );
-  return { landings, builds };
+  const revisions = new Set(
+    Object.values(landings).map((landing) => landing.revision),
+  );
+  return {
+    landings,
+    builds,
+    ...(history.trunkOrder === undefined
+      ? {}
+      : {
+          trunkOrder: history.trunkOrder.filter((revision) =>
+            revisions.has(revision),
+          ),
+        }),
+  };
 }

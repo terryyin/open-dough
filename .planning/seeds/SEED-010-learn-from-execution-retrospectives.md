@@ -26,6 +26,60 @@ guidance own the delivered workflows. The broader feedback-loop proposal and
 its decisions are recoverable from the
 [original seed](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md).
 
+## Stories
+
+<a id="hold-delivery-on-freshness-before-expensive-proof"></a>
+
+### 1. Settle trunk freshness before expensive proof and before delivery
+
+For developers running a Story Branch execution while named siblings or story
+amendments land on trunk, settle source freshness and named-sibling landings
+when an implementation returns, before the refactor pass and whole-suite gates,
+and hold delivery until that result has been read. Evidence:
+[ODF-465](../../docs/maintainer/findings/ODF-465.md) (about 2.6 and 1.5 hours of
+refactor and suite time superseded by a later merge in two executions),
+[ODF-477](../../docs/maintainer/findings/ODF-477.md) (a publish launched after an
+`amended` result) and the plan 538 counterevidence at
+[ODF-429](../../docs/maintainer/findings/ODF-429.md) (a check run alongside
+delivery published before the overlap was seen).
+
+Scope: the order of the existing source-freshness and named-sibling checks
+relative to refactoring, boundary suites and guarded delivery. It does not
+change how a landing is attributed or reconciled.
+
+Evaluate against the retained cases. A sibling landing before the final gate is
+reconciled before the whole suites run once. An `amended` or held sibling result
+stops delivery from starting until the coordinator has handled it. An unchanged
+result adds no extra full run. Record the delivered response, its containing
+release and an ordinary-use criterion at ODF-465, ODF-477 and ODF-429.
+
+<a id="plan-cohesive-reorganization-of-oversized-files"></a>
+
+### 2. Plan the cohesive reorganization of an already-oversized file a slice touches
+
+For developers whose slice edits a file already over the 250-line limit, decide
+that file’s cohesive reorganization while planning and delegating, so the
+refactor pass does not discover it after implementation and ask for an
+exception. In [ODF-152](../../docs/maintainer/findings/ODF-152.md) (SEED-284,
+plan 552), comment-only edits to six oversized files stopped the refactor pass;
+Terry declined an exception or a simple split and directed a design-led
+reorganization that then cost about 1.1M tokens after the slice. The same rule
+family recurs across Open Dough, Doughnut and Pygardon in ODF-152,
+[ODF-189](../../docs/maintainer/findings/ODF-189.md),
+[ODF-195](../../docs/maintainer/findings/ODF-195.md) and
+[ODF-207](../../docs/maintainer/findings/ODF-207.md).
+
+Scope: planning and delegation of edits to files that already exceed the limit,
+and how the refactor stop presents that decision. It keeps the 250-line rule and
+does not cover the executable plan file itself (ODF-362).
+
+Evaluate with the plan 552 case and one ordinary small edit to an oversized
+file: the plan or brief names the file, its cohesive seams and the slice that
+reorganizes it, or the developer’s recorded decision, before implementation.
+The refactor pass then finds no surprise size stop for that file. Record the
+delivered response, its containing release and an ordinary-use criterion at
+ODF-152, and note its relevance at ODF-189, ODF-195 and ODF-207.
+
 <a id="pending-lifecycle-validation-obligations"></a>
 
 ## Separately pending lifecycle validation obligations

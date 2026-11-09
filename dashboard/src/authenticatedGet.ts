@@ -47,8 +47,11 @@ export async function authenticatedGet(
   query: string,
   reading: string,
   signal: AbortSignal,
+  // Collected history is served locally and acquires no upstream evidence.
+  // The upstream login's standing limit must not withhold those reads.
+  options: { readonly local?: true } = {},
 ): Promise<unknown> {
-  const standing = standingLimit();
+  const standing = options.local === true ? undefined : standingLimit();
   if (standing !== undefined) {
     noteWithheld();
     throw new ReadProblem(notAskedOfGitHub(reading), {

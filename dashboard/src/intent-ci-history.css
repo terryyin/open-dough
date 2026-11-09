@@ -115,3 +115,21 @@
   padding-inline-start: 1.25rem;
   font-variant-numeric: tabular-nums;
 }
+
+.intent-ci-history-gap-marker {
+  stroke: var(--ci-history-words);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.intent-scope-timing-history code {
+  overflow-wrap: anywhere;
+}
+
+.intent-scope-timing-history h4 {
+  margin: 0 0 var(--space-1);
+}
+
+.intent-scope-timing-history .intent-ci-history-evidence li {
+  overflow-wrap: anywhere;
+}

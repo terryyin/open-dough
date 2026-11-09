@@ -15,7 +15,9 @@
 // (`./ciScopeComparison.ts`), mark rows the story changed, and reuse the
 // homepage's observed-not-attributed statement. Without usable evidence, the
 // rows stay for drilling down, the group and rows say why in a word or two,
-// and one line says why as the homepage says it.
+// and one line says why as the homepage says it. A Done scope adds its locally
+// collected execution-time history beside these existing readings, with its
+// own failed-read feedback and retry (./IntentScopeTimingHistory.tsx).
 
 import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import type { ColumnSort } from "./ciProofSort.ts";
@@ -30,6 +32,7 @@ import { SingleProofTable } from "./IntentScopeSingleProofTable.tsx";
 import { childRowsOf } from "./IntentScopeSummaryRows.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
+import { IntentScopeTimingHistory } from "./IntentScopeTimingHistory.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 
 // The Summary table's sort choice, kept with Intent's reading place.
@@ -41,7 +44,7 @@ function useSummarySorting(): CiProofSorting {
   return { sort, onSort };
 }
 
-export function IntentScopeProof({
+function ScopeProofContent({
   path,
   inventory,
   revision,
@@ -134,6 +137,18 @@ export function IntentScopeProof({
         onOpen={onOpen}
         sorting={sorting}
       />
+    </>
+  );
+}
+
+// History reads independently of whether the current comparison has usable proof.
+export function IntentScopeProof(
+  props: Parameters<typeof ScopeProofContent>[0],
+) {
+  return (
+    <>
+      <ScopeProofContent {...props} />
+      <IntentScopeTimingHistory path={props.path} />
     </>
   );
 }

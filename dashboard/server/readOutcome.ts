@@ -5,6 +5,7 @@
 
 import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { LandedCiHistory } from "../src/landedCiHistory.ts";
+import type { CiScopeHistory } from "../src/ciScopeHistory.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import type { IntentCiProofAnswer } from "./intentCiProofRead.ts";
 import type {
@@ -92,6 +93,7 @@ type Answer =
   | StoryCiComparisonAnswer
   // The project's measured landed builds (`./intentCiHistoryRead.ts`).
   | LandedCiHistory
+  | CiScopeHistory
   // A path read at a branch head: null when that head does not have it.
   | {
       readonly revision: string;

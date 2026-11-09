@@ -30,6 +30,7 @@ import {
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import {
   useStorySummary,
+  publishedDoneEndpointOf,
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
@@ -126,6 +127,8 @@ function IntentBody({
       }
     : undefined;
 
+  const doneEndpoint = publishedDoneEndpointOf(storySummary);
+
   return (
     <>
       <IntentCiEvidenceProvider
@@ -133,6 +136,7 @@ function IntentBody({
         work={work}
         selectedIdentity={selection?.identity}
         active={storySummary !== undefined && work !== undefined}
+        {...(doneEndpoint === undefined ? {} : { doneEndpoint })}
       >
         {storyPage !== undefined && (
           <IntentReadingScope name="story">

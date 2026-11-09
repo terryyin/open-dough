@@ -1,18 +1,16 @@
 // @ts-check
-// MakeMe: fresh builders state domain facts and `.please()` returns the value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
 import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
-import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import {
-  CiProofBuilder,
   PublishedStoryEndpointBuilder,
   RevisionCiRunBuilder,
   TakenStoryEndpointBuilder,
 } from "./ciComparisonTestData.mjs";
 import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
+import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -39,22 +37,22 @@ import {
 } from "./ciTimingTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
+import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
+import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
 import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
 import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
-import {
-  ConfiguredProjectBuilder,
-  PublishedSourceBuilder,
-} from "./projectConfigurationTestData.mjs";
+import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
-import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
+import { CiProofBuilder } from "./ciProofTestData.mjs";
+import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
 import {
   PublishedWorkBuilder,
   StoryCiComparisonBuilder,
@@ -65,16 +63,28 @@ import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
+/** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
 /** @typedef {import("./publicationTestData.mjs").PublishedIntegration} PublishedIntegration */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
+/** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
 /**
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
 export const makeMe = {
+  get aCiProof() {
+    return new CiProofBuilder();
+  },
+  get aLandedCiResolution() {
+    return new LandedCiResolutionBuilder();
+  },
+  /** @returns {FactBuilder<CiScopeHistory>} */
+  get aCiScopeHistory() {
+    return { with: copyFacts };
+  },
   get aNativeEvidenceRecord() {
     return new NativeEvidenceRecordBuilder();
   },
@@ -149,7 +159,6 @@ export const makeMe = {
   get aLaunchLanding() {
     return new LaunchLandingBuilder();
   },
-  // A host's own session: `.aHostSession.codex({ sessionId, continuation })`.
   get aHostSession() {
     return hostSessionChoices;
   },
@@ -184,9 +193,6 @@ export const makeMe = {
   },
   get aRevisionCiRun() {
     return new RevisionCiRunBuilder();
-  },
-  get aCiProof() {
-    return new CiProofBuilder();
   },
   get aCiProofArtifact() {
     return new CiProofArtifactBuilder();

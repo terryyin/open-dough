@@ -1,33 +1,39 @@
 # Finding names and current follow-up
 
-## Combined maintenance — 2026-11-08 (Asia/Singapore)
+## Combined maintenance — 2026-11-10 (Asia/Singapore)
 
 All six production projects received a local assessment. Five supplied shared
-process sources. Terry Talks has no project findings record and its process
-retrospective is off. Local cleanups added no stories.
+process sources; Terry Talks skips process review. Doughnut queued SEED-116
+locally and Open Dough queued SEED-289; Clipboard, Lizard and Pygardon added no
+local stories.
 
-New observations are recorded at their owners. Doughnut and Pygardon each
-supplied one distinct premise execution after the v0.3.84 response, alongside
-Open Dough’s retained cases at [ODF-074](findings/ODF-074.md). The two prior
-priority responses shipped in v0.3.88. [ODF-367](findings/ODF-367.md) preserves
-pre-release reports and one verified ordinary use in Doughnut.
-[ODF-418](findings/ODF-418.md) awaits an ordinary
-progress/observe/done sequence. No qualifying event changed the scope
-[watch](near-term-watch-list.md). Review used existing records, release tags,
-and targeted execution locators.
+Retained evidence covers 40 distinct executions from 2026-11-08 and 2026-11-09,
+mostly Open Dough on 0.3.91 and 0.3.92, plus older ODF-446 rows moved from
+Open Dough project findings. It adds ODF-457 to ODF-480 and new occurrences at 24 existing
+findings. Two successful practices were pruned from the source logs as not
+problems. Open Dough's import-closure and empty test-path reports moved to its
+project findings. Three 0.3.92 executions met the
+[ODF-429](findings/ODF-429.md) ordinary-use criterion: the check held delivery
+in two and ran too late in one. Three 0.3.92 integrations met the
+[ODF-451](findings/ODF-451.md) criterion. Two more uses met
+[ODF-367](findings/ODF-367.md)'s. The scope [watch](near-term-watch-list.md)
+gained one qualified candidate and remains unstarted.
 
-The leading responses protect [active profiles at integration](findings/ODF-430.md)
-and surface [named sibling landings](findings/ODF-429.md) before late
-reconciliation. Two distinct integrations misplaced active profiles. The
-sibling overlap caused 34 conflicts and two additional agent passes in one
-execution, with a second execution finding overlap after it had already
-delivered against the old shape. [ODF-396](findings/ODF-396.md) was the
-strongest alternative. Two more consumer listings caused truncated reads but
-recovered without missed consumers. Existing Taken work retains its order.
+The leading responses settle [trunk freshness before expensive proof and
+delivery](findings/ODF-465.md) and plan the [cohesive reorganization of
+already-oversized files](findings/ODF-152.md). Two executions lost about 2.6
+and 1.5 hours of refactor and suite time to a later merge. One publish preceded
+an `amended` result, and one preceded a landed-sibling check. The file-size
+family has 19 ODF-152 executions plus related ODF-189, ODF-195 and ODF-207
+across three projects. Its latest case cost about 1.1M tokens after Terry
+declined an exception. [ODF-470](findings/ODF-470.md) (sequential timings, five
+executions) was the strongest alternative, followed by
+[ODF-329](findings/ODF-329.md) (eight more late-lint executions). Each costs
+less per occurrence. Existing Taken work retains its order.
 
 Earlier dated reviews, coverage, priority decisions and recovery paths are in
-[the preceding catalog revision](https://github.com/terryyin/open-dough/blob/cf1ea1debbd50eac9cfe73a2e6a6782597764fdf/docs/maintainer/finding-names.md).
-Codes are permanent. Highest allocated is ODF-456.
+[the preceding catalog revision](https://github.com/terryyin/open-dough/blob/220026a4e1b8409ffa81f50cd8e3130945ff8472/docs/maintainer/finding-names.md).
+Codes are permanent. Highest allocated is ODF-480.
 
 ## Retained evidence
 
@@ -317,3 +323,27 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-454 — [A pre-delegation lookup repeats the next implementer’s required discovery](findings/ODF-454.md) <a id="odf-454"></a>
 ## ODF-455 — [CI incomplete reports omit evidenced same-ref supersession](findings/ODF-455.md) <a id="odf-455"></a>
 ## ODF-456 — [Preparation marks a plan ready with pending slice statuses its reader rejects](findings/ODF-456.md) <a id="odf-456"></a>
+## ODF-457 — [A scripted test move drops a moved test](findings/ODF-457.md) <a id="odf-457"></a>
+## ODF-458 — [A reported return limitation bypasses obligation disposition](findings/ODF-458.md) <a id="odf-458"></a>
+## ODF-459 — [Obligation recording doubles a supplied `observed:` prefix](findings/ODF-459.md) <a id="odf-459"></a>
+## ODF-460 — [A brief’s restated key example narrows the attached commitments](findings/ODF-460.md) <a id="odf-460"></a>
+## ODF-461 — [A hidden-fact break check misses a fact writer](findings/ODF-461.md) <a id="odf-461"></a>
+## ODF-462 — [A plan’s consumer inventory is narrower than the story’s governing rule](findings/ODF-462.md) <a id="odf-462"></a>
+## ODF-463 — [Trunk-merge proof selects changed specs, not consumers of the branch’s changed contract](findings/ODF-463.md) <a id="odf-463"></a>
+## ODF-464 — [A recorded baseline’s timing structure is left to post-implementation measurement](findings/ODF-464.md) <a id="odf-464"></a>
+## ODF-465 — [Whole-suite gates run before the freshness and named-sibling check](findings/ODF-465.md) <a id="odf-465"></a>
+## ODF-466 — [A merged tree’s check result is recorded without running it on the merged change](findings/ODF-466.md) <a id="odf-466"></a>
+## ODF-467 — [CI repair delegation skips reading another worktree’s overlapping edits](findings/ODF-467.md) <a id="odf-467"></a>
+## ODF-468 — [Briefs assign whole suites longer than the host’s foreground cap](findings/ODF-468.md) <a id="odf-468"></a>
+## ODF-469 — [Bulk final-slice acceptance records observations that do not show the commitment](findings/ODF-469.md) <a id="odf-469"></a>
+## ODF-470 — [Sequential before/after timings cannot judge a no-slowdown promise](findings/ODF-470.md) <a id="odf-470"></a>
+## ODF-471 — [A consumer-trace disposition defers to a later slice that does not own the change](findings/ODF-471.md) <a id="odf-471"></a>
+## ODF-472 — [A planned proof location is derived from a per-shell environment](findings/ODF-472.md) <a id="odf-472"></a>
+## ODF-473 — [Coordinator briefs require the full suite in every slice](findings/ODF-473.md) <a id="odf-473"></a>
+## ODF-474 — [A provisional rule owned by a later slice is built and then replaced](findings/ODF-474.md) <a id="odf-474"></a>
+## ODF-475 — [Successive slices extend an inherited mechanism no acceptance questions](findings/ODF-475.md) <a id="odf-475"></a>
+## ODF-476 — [CI observation is armed before CLI authentication is verified](findings/ODF-476.md) <a id="odf-476"></a>
+## ODF-477 — [Delivery launches before the freshness result is inspected](findings/ODF-477.md) <a id="odf-477"></a>
+## ODF-478 — [Slice delivery publishes without that slice’s source-review observations](findings/ODF-478.md) <a id="odf-478"></a>
+## ODF-479 — [Admission refuses one workspace serving as both integration and owned workspace](findings/ODF-479.md) <a id="odf-479"></a>
+## ODF-480 — [Admission accepts only the colon Goal label](findings/ODF-480.md) <a id="odf-480"></a>

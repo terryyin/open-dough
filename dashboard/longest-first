@@ -1,8 +1,9 @@
 # Each spec file's CI seconds, ordinary TSV rows in the included parts.
-# Preview/refresh: dashboard/tests/shards.md. Parts share this recorded source.
+# Preview/refresh: dashboard/tests/shards.md. Each part names its recorded source.
 # Include: longest-first-journeys
 # Include: longest-first-agents
 # Include: longest-first-boundary
+# Include: longest-first-additions
 # Source: run 42256249988 at e6948bfce33e4ff731982cb2f11d9f3f36c29b73; current-main timings with grouped paths (runner factor 0.902)
 57.1	tests/intent/intent-summary-story-comparison-gaps.spec.ts
 54.2	tests/launches/agent-launch-base-ci.spec.ts

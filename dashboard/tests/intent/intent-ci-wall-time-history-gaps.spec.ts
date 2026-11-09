@@ -50,6 +50,8 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
   keepLandedCiHistory(
     dashboard.home,
     makeMe.aLandedCiHistory
+      // Synthetic retained positions, independent of receipt dates.
+      .inTrunkOrder([0, 1, 2, 3, 4, 5, 6].map((n) => landingOf(n).revision))
       .unmeasuredLanding({ ...landingOf(0), reason: "no-build" })
       .unmeasuredLanding({
         ...landingOf(1),

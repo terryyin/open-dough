@@ -38,6 +38,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   landedRevision?: string,
  *   landingReceipt?: string,
  *   landingIdentity?: string,
+ *   capturedLanding?: import("../../dashboard/src/launchLanding.ts").LaunchLanding,
  *   doneAt?: string,
  *   doneProblem?: string,
  * }} LaunchOutcome
@@ -131,6 +132,16 @@ export class LaunchOutcomeBuilder {
   }
 
   /**
+   * The captured landing, including the receipt, represented comparison and
+   * collection date that drive this case.
+   * @param {import("../../dashboard/src/launchLanding.ts").LaunchLanding} landing
+   */
+  withCapturedLanding(landing) {
+    this.#outcome = { ...this.#outcome, capturedLanding: landing };
+    return this;
+  }
+
+  /**
    * The developer marked the session Done at this time; `problem` is what a
    * native operation of that mark could not finish, kept beside it.
    * @param {string} at an ISO date-time
@@ -156,24 +167,28 @@ export class LaunchOutcomeBuilder {
       landedRevision,
       landingReceipt,
       landingIdentity,
+      capturedLanding,
       doneAt,
       doneProblem,
     } = this.#outcome;
     const report = completion && finalReport(completion, at);
+    const landing =
+      capturedLanding ??
+      (landedRevision === undefined
+        ? undefined
+        : received(
+            new LaunchLandingBuilder()
+              .comparing({ base: "c3".repeat(20), revision: landedRevision })
+              .receivedAt(at),
+            landingReceipt,
+            landingIdentity,
+          ).please());
     if (reportRead && !report)
       throw new Error("only a launch that reported can have its report read");
     return {
       ...(report && { completion: report }),
       ...(reportRead && report && { reportRead: report.receipt }),
-      ...(landedRevision && {
-        landing: received(
-          new LaunchLandingBuilder()
-            .comparing({ base: "c3".repeat(20), revision: landedRevision })
-            .receivedAt(at),
-          landingReceipt,
-          landingIdentity,
-        ).please(),
-      }),
+      ...(landing === undefined ? {} : { landing }),
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
     };

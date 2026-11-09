@@ -46,6 +46,24 @@ export function useStorySummary(
   return story === undefined ? undefined : { story, comparison, onRetry };
 }
 
+// The completed result owns the history endpoint, even when newer publications
+// share its story identity or the measured CI build is a later revision.
+export function publishedDoneEndpointOf(
+  storySummary: StorySummary | undefined,
+) {
+  const review =
+    storySummary?.comparison.state === "compared"
+      ? storySummary.comparison.review
+      : undefined;
+  return storySummary?.story.completed !== true
+    ? undefined
+    : review?.kind === "published"
+      ? { revision: review.completion, at: review.completedAt }
+      : review?.kind === "landed"
+        ? { revision: review.landing.revision, at: review.landing.receivedAt }
+        : undefined;
+}
+
 // "Selected story only" heading the Changed tests tree, with its message when
 // no location's test file changed.
 export function StoryTreeScopeChoice({

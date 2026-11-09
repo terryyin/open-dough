@@ -53,6 +53,15 @@ suite-specific models or builders, and defaults that hide facts the test
 depends on when reviewing test changes. Preserve each test's proof boundary
 and assertions during conversion.
 
+Build CI proof with `makeMe.aCiProof` and entries with
+`makeMe.aCiProofEntry.at(path).holding(...evidence)`. Each
+`makeMe.aCiProofEvidence` states its declared `.inUnit("case")` or
+`.inUnit("file")`, or `.legacy(label)` when no unit was declared. Counts,
+timing and breakdown belong to that evidence unit. Keep deliberately old
+summary JSON outside the builder when its exact wire format is under proof.
+[Proof builders](support/ciProofEntryTestData.mjs) ·
+[Proof builder](support/ciProofTestData.mjs)
+
 Build a project this machine configures with
 `makeMe.aConfiguredProject.with({ id, label, repository, localPath }).please()`:
 the published source it reads, as `makeMe.aPublishedSource` builds it (ref
@@ -137,7 +146,8 @@ its own identity. A Codex session without a continuation is a predecessor
 record. [Host session builder](support/hostSessionTestData.mjs)
 
 A kept launch states what happened after it started through
-`.completedWith`, `.withReportRead`, `.landedAt` and `.markedDoneAt`: its
+`.completedWith`, `.withReportRead`, `.landedAt` (or `.withCapturedLanding` for
+the complete recorded comparison) and `.markedDoneAt`: its
 final report, the developer reading it, the comparison its landing recorded,
 and the developer's Done mark. These stay separate facts. Build a final report
 on its own with `makeMe.aCompletionReport`, and the body an agent submits with

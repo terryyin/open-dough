@@ -119,7 +119,24 @@ export async function performIntentCiProofRead(
   folderOf: (source: PublishedSource) => string,
 ): Promise<Outcome> {
   const subject = ciProofSubjectOf(read);
-  const proof = isAdapterProofAttempt(subject)
+  const proof = await readIntentCiProof(source, subject, signal, folderOf);
+  const answer: IntentCiProofAnswer = {
+    ...subject,
+    checkedAt: new Date().toISOString(),
+    proof,
+  };
+  return answered(answer);
+}
+
+// Shared acquisition boundary for live Intent and background landed history.
+// Both use the same immutable-attempt readers and identity validation.
+export async function readIntentCiProof(
+  source: PublishedSource,
+  subject: CiProofSubject,
+  signal: AbortSignal,
+  folderOf: (source: PublishedSource) => string,
+): Promise<CiProof> {
+  return isAdapterProofAttempt(subject)
     ? await readCiAdapterProof(
         source.repository,
         folderOf(source),
@@ -127,10 +144,4 @@ export async function performIntentCiProofRead(
         signal,
       )
     : await readCiProofArtifact(source.repository, subject, signal);
-  const answer: IntentCiProofAnswer = {
-    ...subject,
-    checkedAt: new Date().toISOString(),
-    proof,
-  };
-  return answered(answer);
 }

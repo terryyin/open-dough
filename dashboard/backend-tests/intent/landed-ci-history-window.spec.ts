@@ -79,7 +79,6 @@ test("once a pass holds 20 measured builds, the history keeps only that window's
     completedAt: at(start + n * day + 6 * 60_000),
   }));
   for (const landing of measured) kept = kept.measuredLanding(landing);
-  keepLandedCiHistory(home, kept.please());
   // Two new landings, recorded in the last minutes, both built.
   const first = await publishedLanding(origin, {
     title: "first",
@@ -91,6 +90,16 @@ test("once a pass holds 20 measured builds, the history keeps only that window's
     receipt: receipt(101),
     at: minutesAgo(1),
   });
+  // These disconnected historical objects are retained order evidence for
+  // this window case; receipt dates alone are not ancestry.
+  kept = kept.inTrunkOrder([
+    "f0".repeat(20),
+    "f1".repeat(20),
+    ...measured.map((landing) => landing.revision),
+    first.revision,
+    second.revision,
+  ]);
+  keepLandedCiHistory(home, kept.please());
   serveTrunkRuns(github, origin, () => [
     trunkRun(
       first.revision,

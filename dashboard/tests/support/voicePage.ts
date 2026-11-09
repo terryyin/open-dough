@@ -40,7 +40,30 @@ export async function observeMicrophone(page: Page) {
       navigator.mediaDevices,
     );
     navigator.mediaDevices.getUserMedia = async (constraints) => {
-      const stream = await get(constraints);
+      let requested = constraints;
+      if (constraints?.audio) {
+        // Chromium's default fake input still queries the Mac's real default
+        // microphone parameters. Select its independent synthetic device,
+        // keeping native capture, tracks, and MediaRecorder throughout.
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const input = devices.find(
+          (device) =>
+            device.kind === "audioinput" &&
+            device.label === "Fake Audio Input 1",
+        );
+        if (input === undefined)
+          throw new Error("The fake microphone is missing.");
+        const audio =
+          typeof constraints.audio === "object" ? constraints.audio : {};
+        requested = {
+          ...constraints,
+          audio: {
+            ...audio,
+            deviceId: audio.deviceId ?? { exact: input.deviceId },
+          },
+        };
+      }
+      const stream = await get(requested);
       voice.tracks.push(...stream.getTracks());
       if (voice.holdPermission) {
         await new Promise<void>((resolve) => {

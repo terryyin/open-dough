@@ -114,6 +114,21 @@ Resolved and removed from the active findings on 2026-10-10 (recovery:
   general obligation to select consumer proof stays with ODF-150 in
   DearDough.md.
 
+<a id="dd-478-retired-2026-11-10"></a>
+
+Retired on 2026-11-10 (recovery: `929c0d028c9fd2bfe47c9021cecebaf98c2fbf45:ProjectFindings.md`):
+
+- **DD-478 (project record, SEED-285 plan 551):** two new landed CI history
+  specs timed out at 30 s under external load after landing through a real
+  Story Branch integration or real Start sessions. The same execution landed
+  them through `resultToLand`/`land()` and seeded MakeMe launch records,
+  passing `--repeat-each=3` in 6.3–14.7 s at load 16–20 and the 623-test
+  pre-delivery gate. The remaining class, journeys whose unloaded time is
+  half the default timeout, stays with DD-473/DD-479 under
+  SEED-287#fit-dashboard-journeys-in-default-timeout. This number was
+  allocated concurrently with DearDough.md's unrelated DD-478 (oversize
+  files in the refactor gate, SEED-284 plan 552); the two are distinct.
+
 Resolved entries removed on 2026-10-10 (recovery: `054fc914:ProjectFindings.md`):
 
 - **DD-224, DD-246:** each suite run writes into its own
