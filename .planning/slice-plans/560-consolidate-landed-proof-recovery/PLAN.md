@@ -209,3 +209,7 @@ Also `npm run typecheck:dashboard`. Strengthened older journey owns retained
 validated summary, dual-collector then OFF-reader scoped reads, expired
 exclusion, mixed order, exact wall-time, concurrency, and development
 no-acquisition; both final-build backfill variants remain in the newer file.
+
+## Execution complete
+
+Product advice: no change
