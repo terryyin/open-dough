@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Choose Claude Code effort when starting a session](seeds/SEED-280-choose-claude-code-effort.md#choose-claude-code-effort) — SEED-280#choose-claude-code-effort ([plan](slice-plans/545-choose-claude-code-effort/PLAN.md))
-- [Verify stale-reclaimer exclusion without a fixed wait](seeds/SEED-279-observe-stale-reclaimer-handoff.md#observe-stale-reclaimer-handoff) — SEED-279#observe-stale-reclaimer-handoff ([plan](slice-plans/544-observe-stale-reclaimer-handoff/PLAN.md))
 
 ## Backlog list
 

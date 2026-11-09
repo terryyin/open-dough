@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-279_observe-stale-reclaimer-handoff.json",
+      "identity": "SEED-279#observe-stale-reclaimer-handoff",
+      "completedAt": "2026-11-09T00:35:32.364Z",
+      "blob": "9b39640c37e551ae679ee4052b06dfadce2c7adb"
+    },
+    {
       "fileName": "SEED-262_share-done-catalog-record-reading.json",
       "identity": "SEED-262#share-done-catalog-record-reading",
       "completedAt": "2026-11-08T23:49:54.428Z",
