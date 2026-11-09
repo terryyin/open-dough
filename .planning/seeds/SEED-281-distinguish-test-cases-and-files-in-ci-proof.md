@@ -50,7 +50,7 @@ unreported result keeps its evidence gap.
 
 This increment does not extract inner cases from aggregate file reports,
 redesign the Intent layout, change which builds are compared, or migrate
-other projects' CI. [Unifying Intent views and comparison presentation](SEED-282-unify-intent-view-and-ci-proof.md#unify-intent-view-and-ci-proof)
+other projects' CI. [Unifying Intent views and comparison presentation](../../docs/dashboard-development-intent.md)
 has its own story; this story carries unit meaning through the existing views.
 
 **Key examples.**
