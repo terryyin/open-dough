@@ -303,6 +303,19 @@ managed_files=(
   dough-test-optimization/scripts/ci-proof-figures.mjs
   dough-test-optimization/scripts/ci-proof-fragments.mjs
   dough-test-optimization/scripts/ci-proof-summary.mjs
+  dough-test-optimization/scripts/ci-proof-read.mjs
+  dough-test-optimization/scripts/ci-proof-archive.mjs
+  dough-test-optimization/scripts/ci-proof-check.mjs
+  dough-test-optimization/scripts/ci-proof-leads.mjs
+  dough-test-optimization/scripts/ci-proof-attempts.mjs
+  dough-test-optimization/scripts/ci-proof-evidence.mjs
+  dough-test-optimization/scripts/ci-proof-project.mjs
+  dough-test-optimization/scripts/ci-proof-revisions.mjs
+  dough-test-optimization/scripts/ci-proof-scope.mjs
+  dough-test-optimization/scripts/ci-proof-ranking.mjs
+  dough-test-optimization/scripts/ci-proof-leads-table.mjs
+  dough-test-optimization/scripts/ci-proof-ranking-table.mjs
+  dough-test-optimization/scripts/ci-proof-table-text.mjs
   dough-manual-testing/SKILL.md
   dough-manual-testing/references/exploration-workspace.md
   dough-intent-coverage/SKILL.md

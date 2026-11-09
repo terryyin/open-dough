@@ -34,21 +34,21 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 3 | "The skill chooses how to proceed from evidence the project already retains" | slice 7 | |
 | 4 | "…and brings the developer only consequential questions" | slice 7 | |
 | 4.q1 | Qualification (current-state contrast for 1–4): "Today every pass starts with an admitted story and a full local profiling run." | slice 7 | |
-| 5 | "Read retained CI test proof for the requested scope through the project's configured GitHub Actions workflow or CI adapter" (alternatives) | slice 3 | |
-| 6 | "Prefer a complete, successful attempt at the relevant revision" | slice 3 | |
-| 7.1 | "…and name its [the attempt's] repository" | slice 3 | |
-| 7.2 | "…name its … revision" | slice 3 | |
-| 7.3 | "…name its … attempt" | slice 3 | |
-| 7.4 | "…name its … selection" | slice 3 | G2 |
-| 8a | "When only an earlier compatible attempt is available, label its revision" | slice 3 | |
+| 5 | "Read retained CI test proof for the requested scope through the project's configured GitHub Actions workflow or CI adapter" (alternatives) | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs (workflow, all-branch run listing, artifact listing and zip routes) and ci-proof-leads-adapter.test.mjs (discover and proof requests); slice 3 real run in Learnings |
+| 6 | "Prefer a complete, successful attempt at the relevant revision" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs: run 41 at the requested revision chosen over run 40 at an ancestor, and a newer failure passed over |
+| 7.1 | "…and name its [the attempt's] repository" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-table.test.mjs and ci-proof-leads.test.mjs: the table's first line names the repository; slice 3 real run |
+| 7.2 | "…name its … revision" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs: Requested and Attempt lines carry full revisions; slice 3 real run |
+| 7.3 | "…name its … attempt" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs (run N attempt M) and ci-proof-leads-adapter.test.mjs (attemptId); slice 3 real run |
+| 7.4 | "…name its … selection" | slice 4 | G2 |
+| 8a | "When only an earlier compatible attempt is available, label its revision" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs "with only an earlier attempt at an ancestor…": labelled earlier, 1 commit before, 1 in-scope path changed (M tests/b.sh), out-of-scope docs/notes.md not listed |
 | 8b | "…and use it as a lead within the parts that still apply" | slice 4 | |
 | 9a | "Use failed or incomplete proof to diagnose problems" | slice 4 | |
-| 9b | "…and report its gaps" | slice 3 | |
-| 10.1 | Restriction: "missing … parts stay gaps" | slice 3 | |
-| 10.2 | Restriction: "ambiguous … parts stay gaps" | slice 3 | |
-| 10.3 | Restriction: "untimed parts stay gaps" | slice 3 | |
+| 9b | "…and report its gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads.test.mjs "with no successful attempt, the newest failed one is read…": failed attempt, its missing part and failed checks reported as gaps |
+| 10.1 | Restriction: "missing … parts stay gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs "missing and ambiguous parts stay gaps…" |
+| 10.2 | Restriction: "ambiguous … parts stay gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs "missing and ambiguous parts stay gaps…" |
+| 10.3 | Restriction: "untimed parts stay gaps" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs "untimed results stay gaps…" and ci-proof-ranking.test.mjs "items that recorded no duration… never rank" |
 | 11 | "When the summary lacks the timing detail a lead needs, … use the project's retained full summary or runner output for that attempt" (alternatives) | slice 4 | |
-| 11.e1 | Example (of 11): "a file breakdown that an adapter answer omits" | slice 3 | |
+| 11.e1 | Example (of 11): "a file breakdown that an adapter answer omits" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-adapter.test.mjs "an adapter's proof answer with totals only…": gap with the --summary remedy, then ranked files from --summary |
 | 11.e2 | Example (of 11): "hook … timing" | slice 4 | |
 | 11.e3 | Example (of 11): "scenario … timing" | slice 4 | |
 | 11.e4 | Example (of 11): "worker timing" | slice 4 | |
@@ -61,9 +61,9 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 14b | "…with its expected cost" | slice 4 | |
 | 14c | "…and leave the choice to the developer" | slice 4 | |
 | 13.q3 | Qualification (of 13): "Timing a chosen lead's family before and after its experiment is not a profiling run" | slice 4 | |
-| 15 | "Start with a short ranked list of leads, … ranked by estimated removable cost" | slice 3 | |
-| 15.q1 | Qualification (of 15): "roughly 10–20 when useful" | slice 3 | |
-| 15.q2 | Qualification (of 15): "at the granularity the evidence supports" | slice 3 | |
+| 15 | "Start with a short ranked list of leads, … ranked by estimated removable cost" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs "leads are the largest items by summed time, at most 20…" |
+| 15.q1 | Qualification (of 15): "roughly 10–20 when useful" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs: at most 20 leads; slice 3 real run lists 20 of 1,343 |
+| 15.q2 | Qualification (of 15): "at the granularity the evidence supports" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs: an entry without a breakdown ranks as one entry total; unplaced results and unbroken parts rank as labelled blocks |
 | 16a | "Before experimenting, state the smallest saving worth keeping for the scope" | slice 4 | |
 | 16b | "…and why" | slice 4 | |
 | 16.q1 | Qualification (of 16a–16b): "from its evidence or a target the developer supplied" (alternatives) | slice 4 | |
@@ -83,7 +83,7 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 20.e4 | Example (of 20a): "a worker tail" | slice 4 | |
 | 20b | "…so a cost that no single file shows can still lead" | slice 4 | |
 | 21 | "Follow related tests when they share the cost or protect behavior a change could affect" (alternative triggers) | slice 4 | |
-| 22 | "File totals and case counts guide discovery" | slice 3 | |
+| 22 | "File totals and case counts guide discovery" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-table.test.mjs: each lead row shows time, share, cases, unit and mean per case |
 | 23.1 | "runner reports and job evidence separate shared setup" | slice 4 | |
 | 23.2 | "runner reports and job evidence separate … parallel work" | slice 4 | |
 | 23.3 | "runner reports and job evidence separate … queue time" | slice 4 | |
@@ -163,11 +163,11 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 55d.1 | "…while still reading Pygardon's … four-section record[]" | slice 5 | |
 | 55d.2 | "…while still reading … Doughnut's four-section record[]" | slice 5 | |
 | 56.1 | "Reuse the candidate reader" | slice 5 | |
-| 56.2 | "Reuse … the existing CI proof contract, including its attempt identity" | slice 3 | |
-| 56.3 | "Reuse … the existing CI proof contract, including its … timing units" | slice 3 | |
-| 56.4 | "Reuse … the existing CI proof contract, including its … gap reporting" | slice 3 | |
-| 56.5 | "Reuse … the explicit test case … units that SEED-281 adds wherever a summary carries them" | slice 3 | |
-| 56.6 | "Reuse … the explicit … test file units that SEED-281 adds wherever a summary carries them" | slice 3 | |
+| 56.2 | "Reuse … the existing CI proof contract, including its attempt identity" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-check.mjs checkedSummary and summaryArtifactName reused; ci-proof-leads-retained.test.mjs identity refusals |
+| 56.3 | "Reuse … the existing CI proof contract, including its … timing units" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-ranking.test.mjs: durationMs per item, each entry's own unit kept apart in leads, folders and tail |
+| 56.4 | "Reuse … the existing CI proof contract, including its … gap reporting" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-scope.test.mjs: the contract's missing and ambiguous part statuses and untimed results become gaps |
+| 56.5 | "Reuse … the explicit test case … units that SEED-281 adds wherever a summary carries them" | slice 3 | G3 |
+| 56.6 | "Reuse … the explicit … test file units that SEED-281 adds wherever a summary carries them" | slice 3 | G3 |
 | 57 | "Pilot the new default on one ordinary Pygardon pytest pass" | slice 7 | |
 | 57.q1 | Qualification (of 57): "in a subordinate Pygardon workspace of this execution" | slice 7 | |
 | 57.q2 | Qualification (of 57): "that reads the guidance from this repository's source" | slice 7 | |
@@ -186,11 +186,11 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 61.q1 | Qualification (rationale for 61.1–61.4): "because normal verification and CI must keep proving the behavior it protects" | slice 6 | |
 | 62a | Restriction: "A timing claim stays within its evidence" | slice 4 | |
 | 62b | Restriction: "an unsupported comparison stays open rather than borrowing a different measure" | slice 4 | |
-| 63 | Exclusion: "changing CI producers to retain more timing detail" | slice 3 | |
-| 63.q1 | Qualification (rationale for 63): "since existing retained artifacts are sufficient to start" | slice 3 | |
+| 63 | Exclusion: "changing CI producers to retain more timing detail" | slice 3 | observed: slice 3 diff (commit after 304598724) touches no .github/ file and no collector module |
+| 63.q1 | Qualification (rationale for 63): "since existing retained artifacts are sufficient to start" | slice 3 | observed: slice 3 real run ranked Open Dough's retained summary as produced, with no producer change |
 | 64 | Exclusion: "converting other projects' records beyond what the Pygardon pilot pass writes" | slice 7 | |
 | 65 | Exclusion: "showing accepted-cost indicators in Intent" | slice 6 | |
-| 66 | Exclusion: "reading the landed CI timing history that SEED-285 collects" | slice 3 | |
+| 66 | Exclusion: "reading the landed CI timing history that SEED-285 collects" | slice 3 | observed: ci-proof-leads.mjs import closure reads only the CI listing, the attempt's summary or a --summary file |
 | K1.1 | Example: "Pygardon's adapter answers `proof` with totals only, to stay within 64 KiB, while its CI service retains the full 172 KB summary with 1,213 timed pytest files" | slice 3 | G1 |
 | K1.2 | Example: "The newest successful main attempt, `993fe414` at `3cb29aaf9`, predates 52 changed files" | slice 7 | |
 | K1.3 | Example: "The attempt that matches current code ran beside another and took 505 s of pytest against 320 s" | slice 7 | |
@@ -203,15 +203,15 @@ items, keep alternatives, and derive promises rather than slices or proof.
 | 71 | "…with zero fresh profiling runs" | slice 7 | |
 | 72.1 | "…and no request to pick a percentile" | slice 7 | |
 | 72.2 | "…no request to pick a … mode" | slice 7 | |
-| K2.1 | Example: "Open Dough's run 42550972063 times 1,343 files for 11,142 s, and the top 20 hold 9.8% of it" | slice 3 | |
+| K2.1 | Example: "Open Dough's run 42550972063 times 1,343 files for 11,142 s, and the top 20 hold 9.8% of it" | slice 3 | observed: slice 3 real run (Learnings): run 42550972063 attempt 1, 1,343 timed items, 11,142.4 s; top 20 hold 9.79% by an independent recount |
 | K2.2 | Example: "One dashboard shard's retained Playwright report spends 26% of its test time in per-test hooks" | slice 4 | |
 | 73a | "The leads include that shared setup" | slice 4 | |
 | 73b | "…read from the runner report" | slice 4 | |
 | 73c | "…not only the top files" | slice 4 | |
 | 74a | "Once the report's 7-day retention has passed, the gap is stated" | slice 4 | |
 | 74b | "…and the file leads rest on the summary alone" | slice 4 | |
-| K3.1 | Example: "A proof artifact is missing, untimed, partial, or belongs to a different attempt or selection" (alternative triggers) | slice 3 | |
-| 75 | "The agent exposes the gap" | slice 3 | |
+| K3.1 | Example: "A proof artifact is missing, untimed, partial, or belongs to a different attempt or selection" (alternative triggers) | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-gaps.test.mjs (no artifact, refused GitHub), ci-proof-scope.test.mjs (untimed, partial), ci-proof-leads-retained.test.mjs (another run, revision or repository refused); selection exposed on the Selection line (G2) |
+| 75 | "The agent exposes the gap" | slice 3 | observed: src/skills/dough-test-optimization/scripts/ci-proof-leads-gaps.test.mjs and ci-proof-leads-adapter.test.mjs: each gap printed under Gaps with its remedy |
 | 76 | "…uses compatible retained evidence at its actual scope" | slice 4 | |
 | 77 | "…and leaves an unsupported timing claim open" | slice 4 | |
 | 78 | "An explicit request for fresh profiling runs the appropriate project command" | slice 4 | |

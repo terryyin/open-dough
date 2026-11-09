@@ -1,11 +1,12 @@
-// The check a CI proof read makes of a summary (./ci-proof-check.mjs): valid
-// by the collector contract, then naming the asked repository, attempt and
-// revision. The reads that ask it: ./ci-proof-read.test.mjs and
-// ./ci-proof-read-adapter.test.mjs.
+// The check a CI proof read or a lead reading makes of a summary
+// (./ci-proof-check.mjs): valid by the collector contract, then naming the
+// asked repository, attempt and revision. The reads that ask it:
+// ./ci-proof-read.test.mjs, ./ci-proof-read-adapter.test.mjs and, for a
+// summary retained elsewhere, ./ci-proof-leads-retained.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
-import { checkedSummary } from "./ci-proof-check.mjs";
+import { checkedRetainedSummary, checkedSummary } from "./ci-proof-check.mjs";
 
 const repository = "owner/repo";
 const revision = "a1b2c3d".padEnd(40, "0");
@@ -111,4 +112,28 @@ test("a valid summary is a CI adapter attempt's only when it names its repositor
       { why: "mismatched", names, value },
       names,
     );
+});
+
+test("a summary retained elsewhere, whose attempt CI could not name, is asked by its repository alone, still validated first", () => {
+  const usable = makeMe.aCiProofSummary
+    .inRepository("Owner/Repo")
+    .ofAdapterAttempt({ attemptId: "7", revision: otherRevision })
+    .please();
+  assert.deepEqual(checkedRetainedSummary(usable, repository), {
+    summary: usable,
+  });
+  assert.deepEqual(
+    checkedRetainedSummary(
+      makeMe.aCiProofSummary.inRepository("someone/else").ofRun(run).please(),
+      repository,
+    ),
+    { why: "mismatched", names: "repository", value: "someone/else" },
+  );
+  assert.deepEqual(
+    checkedRetainedSummary({ ...usable, entries: "none" }, repository),
+    {
+      why: "invalid",
+      problems: ["entries is not an array"],
+    },
+  );
 });

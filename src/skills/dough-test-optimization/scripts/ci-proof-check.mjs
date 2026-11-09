@@ -1,7 +1,10 @@
 // The check a CI proof read (./ci-proof-read.mjs) makes of a summary before
 // using it: valid by the collector contract (./ci-proof-contract.mjs), then
 // naming the asked attempt's repository, attempt and revision. Missing,
-// outdated or conflicting evidence is never a result.
+// outdated or conflicting evidence is never a result. A lead reading
+// (./ci-proof-leads.mjs) checks a summary retained elsewhere the same way,
+// or, when the project's CI could not name its attempt, by its repository
+// alone.
 import { summaryProblems } from "./ci-proof-contract.mjs";
 
 /**
@@ -30,6 +33,16 @@ import { summaryProblems } from "./ci-proof-contract.mjs";
  * )} SummaryRefusal
  */
 
+// SUMMARY's repository when it is not REPOSITORY, compared ignoring case.
+function repositoryMismatch(summary, repository) {
+  if (
+    typeof summary.repository !== "string" ||
+    summary.repository.toLowerCase() !== repository.toLowerCase()
+  )
+    return { names: "repository", value: summary.repository };
+  return undefined;
+}
+
 // The first identity fact by which SUMMARY, a valid summary, is not ASKED's:
 // what it `names` and its `value` there; undefined when it is ASKED's. The
 // repository is compared ignoring case. A GitHub Actions run attempt is
@@ -38,11 +51,8 @@ import { summaryProblems } from "./ci-proof-contract.mjs";
 // may report a revision in either case, against the asked revision, which
 // is lower case.
 function identityMismatch(summary, asked) {
-  if (
-    typeof summary.repository !== "string" ||
-    summary.repository.toLowerCase() !== asked.repository.toLowerCase()
-  )
-    return { names: "repository", value: summary.repository };
+  const repository = repositoryMismatch(summary, asked.repository);
+  if (repository !== undefined) return repository;
   if (asked.attemptId === undefined) {
     if (summary.runId !== asked.runId)
       return { names: "run", value: summary.runId };
@@ -69,9 +79,25 @@ function identityMismatch(summary, asked) {
  * @returns {UsableSummary | SummaryRefusal}
  */
 export function checkedSummary(value, asked) {
+  return checked(value, (summary) => identityMismatch(summary, asked));
+}
+
+/**
+ * VALUE as a summary of REPOSITORY whose attempt the project's CI could not
+ * name: valid by the collector contract and naming the repository, its
+ * attempt and revision as it names them; otherwise why it is not.
+ * @param {unknown} value
+ * @param {string} repository
+ * @returns {UsableSummary | SummaryRefusal}
+ */
+export function checkedRetainedSummary(value, repository) {
+  return checked(value, (summary) => repositoryMismatch(summary, repository));
+}
+
+function checked(value, mismatchOf) {
   const problems = summaryProblems(value);
   if (problems.length > 0) return { why: "invalid", problems };
-  const mismatch = identityMismatch(value, asked);
+  const mismatch = mismatchOf(value);
   if (mismatch !== undefined) return { why: "mismatched", ...mismatch };
   return { summary: value };
 }

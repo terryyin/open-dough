@@ -5,12 +5,11 @@
 // ./ci-proof-read.test.mjs. How Intent words each refusal:
 // ../../../../dashboard/tests/intent/intent-ci-proof-adapter-reasons.spec.ts.
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { adapterResponseBytes } from "../../dough-execute-plan/scripts/ci-command-run.mjs";
+import { adapterAnswering } from "./ci-proof-adapter-test-fixtures.mjs";
 import { SUMMARY_READ_LIMIT_BYTES } from "./ci-proof-contract.mjs";
 import { readCiAdapterSummary } from "./ci-proof-read.mjs";
 
@@ -18,31 +17,14 @@ const repository = "owner/repo";
 const revision = "a1b2c3d".padEnd(40, "0");
 const signal = new AbortController().signal;
 
-// A CI adapter, run in its own folder, that records its request there and
-// answers ANSWER's text.
-function adapterAnswering(t, answer) {
-  const folder = mkdtempSync(join(tmpdir(), "ci-proof-read-"));
-  t.after(() => rmSync(folder, { recursive: true, force: true }));
-  writeFileSync(join(folder, "answer.json"), answer);
-  writeFileSync(
-    join(folder, "adapter.mjs"),
-    `import { readFileSync, writeFileSync } from "node:fs";
-let request = "";
-for await (const chunk of process.stdin) request += chunk;
-writeFileSync("request.json", request);
-process.stdout.write(readFileSync("answer.json", "utf8"));
-`,
-  );
-  return folder;
-}
-
-// The asked CI adapter attempt's read through the adapter in FOLDER.
-const readAdapter = (folder) =>
+// The asked CI adapter attempt's read through ADAPTER, a CI adapter answering
+// its proof (./ci-proof-adapter-test-fixtures.mjs).
+const readAdapter = (adapter) =>
   readCiAdapterSummary(
-    [process.execPath, "adapter.mjs"],
+    adapter.command,
     repository,
     { runId: "r1", attemptId: "2", branch: "main", revision },
-    { signal, cwd: folder },
+    { signal, cwd: tmpdir() },
   );
 
 test("a CI adapter attempt's summary is asked of the adapter with the summary read limit as its answer limit, and used when it names the asked attempt", async (t) => {
@@ -57,17 +39,16 @@ test("a CI adapter attempt's summary is asked of the adapter with the summary re
     .please();
   const answer = JSON.stringify({ summary });
   assert.ok(Buffer.byteLength(answer) > adapterResponseBytes);
-  const folder = adapterAnswering(t, answer);
+  const adapter = adapterAnswering(t, { proof: answer });
 
-  assert.deepEqual(await readAdapter(folder), { summary });
-  assert.deepEqual(
-    JSON.parse(readFileSync(join(folder, "request.json"), "utf8")),
+  assert.deepEqual(await readAdapter(adapter), { summary });
+  assert.deepEqual(adapter.requests(), [
     {
       operation: "proof",
       check: { repo: repository, branch: "main" },
       attempt: { runId: "r1", attemptId: "2", sha: revision },
     },
-  );
+  ]);
 });
 
 test("a CI adapter's own reason is kept, an answer beyond the read limit is too large, and an invalid or another attempt's summary is not used", async (t) => {
@@ -101,7 +82,7 @@ test("a CI adapter's own reason is kept, an answer beyond the read limit is too 
     ],
   ])
     assert.deepEqual(
-      await readAdapter(adapterAnswering(t, JSON.stringify(answer))),
+      await readAdapter(adapterAnswering(t, { proof: JSON.stringify(answer) })),
       read,
       read.why,
     );
@@ -109,7 +90,7 @@ test("a CI adapter's own reason is kept, an answer beyond the read limit is too 
 
 test("a failure to ask is thrown: an adapter answering what is not JSON", async (t) => {
   await assert.rejects(
-    readAdapter(adapterAnswering(t, "{")),
+    readAdapter(adapterAnswering(t, { proof: "{" })),
     /CI adapter returned invalid JSON/,
   );
 });

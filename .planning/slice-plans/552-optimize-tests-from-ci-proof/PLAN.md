@@ -169,7 +169,7 @@ modules for the 250-line limit, and `makeMe.aRelease`'s builder moved into
 ### 3. Rank optimization leads from retained CI proof
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: ownership rows 2 and 3. The new reader tests and CLI tests, then
 `tests/install-public-payload.sh`, `tests/update-adds-new-payload-skill.sh`
 and `bash scripts/check-self-installation.sh` for the payload declaration.
@@ -194,6 +194,33 @@ table:
 
 An identity mismatch refuses the summary. Declare the new script in
 `managed_files`.
+
+Accepted 2026-11-09: `node <skill>/scripts/ci-proof-leads.mjs [--revision <rev>] [--scope <path>]... [--summary <file>] [--repository <owner/repo>]`,
+run from the project checkout. Scope defaults to the Intent locations, the
+repository to origin's. It picks the newest complete successful attempt at
+the revision, else at the nearest Git ancestor whatever its branch label,
+else the newest failed or incomplete one; passed-over attempts become gaps.
+A `--summary` file must be the attempt CI names, or, when CI cannot be
+asked, is checked by repository and marked unconfirmed by CI. Exit 0 ranked,
+1 not ranked (the table says why), 2 usage; output capped at 16 KiB. Nine
+runtime modules beside it, all declared in `managed_files` with slice 2's
+three. Proof: the 9 new test files (33 runner jobs with the support tests,
+`ci-github-acquisition.test.mjs` and the payload tests) passed through
+`bash scripts/test.sh`; 16 install and update tests and
+`bash scripts/check-self-installation.sh` passed on the final declaration;
+`npm run typecheck:dashboard` and the two Intent reasons specs (5 passed)
+held after `ci-proof-check.mjs` gained `checkedRetainedSummary`. 19 scratch
+mutations were each caught by their intended test. Terry allowed `install.sh`
+at 338 lines for this slice only (2026-11-09), as for SEED-230's 317; the
+declaration's shape stays with DD-303. Refactor: gap remedies became
+`{reason, remedy}` data, one adapter test stand-in, dead plumbing removed; the
+real table stayed byte-identical. Acceptance correction (already traced by
+that refactor return): the unknown-revision gap counts every completed
+attempt at an unfetched revision that a fetch could make the reader prefer,
+including older successes behind a failed fallback
+(`ci-proof-leads-gaps.test.mjs` "a failed attempt read as the fallback
+counts successful attempts of any age…", failing before the change); the 20
+skill test jobs passed and the real table stayed byte-identical.
 
 ### 4. Start optimization from retained evidence
 
@@ -402,6 +429,29 @@ row says otherwise.
   `ef9e3b092`, committed at 21:57, reached `main` at 22:55 (`8b594464a`).
   Admissions at 21:34 and 08:28 are earlier visible bounds.
 
+### Slice 3 reader on real proof (2026-11-09)
+
+- Open Dough: `node src/skills/dough-test-optimization/scripts/ci-proof-leads.mjs --revision origin/main`
+  at `e79f2dac5` exited 0 in 5–7 s. It chose run 42550972063 attempt 1 at
+  `0eee12e4d`, an ancestor 16 commits back with no in-scope path changed,
+  and printed 4,476 bytes: 1,343 timed items, 11,142.4 s; tests 9,359.7 s
+  over 2,271 cases, checks 1,782.7 s over 524. The top lead is
+  `production-watcher-failures.spec.ts` at 115.3 s for 10 cases; the top 20
+  hold 9.79%; the `launches`, `sessions` and `intent` folders hold 10–13%
+  each at about 6.3–6.8 s per test. An independent recount from the raw
+  summary matched every lead, folder and tail row.
+- Pygardon's slice 1 workspace: it chose `74a7dd32…` at HEAD's parent,
+  ranked 1,213 files and 6,412 `checks`, top
+  `tests/data_source/test_jobs_live_commands_sharadar.py` at 60.4 s for 2.
+- The reader ranks by summed CI time per item; removable cost, the saving
+  worth keeping and grouping by shared cause stay with the guidance.
+  Installed files may name no `gh run` command (`ci-github-acquisition.test.mjs`);
+  remedies point at the run's page and `--summary`. A `--summary` file must
+  be the attempt CI chooses, so another attempt's summary needs `--revision`
+  at its revision. The Selection line says the command selection is not
+  recorded, so Pygardon's pilot reads `-m "not slow and not host_docker"`
+  from its CI configuration.
+
 ## Preparation review
 
 Plan refinement was not needed. Each slice has its own evaluator boundary:
@@ -417,12 +467,23 @@ route's remaining uncertainty is bounded by early probe slice 1.
 ### G1. Pygardon's adapter now answers with the breakdown
 Reported: slice 1 — "`e430447dc` (2026-11-09 10:40) deleted the 64 KiB `fitProofAnswer` drop; the same attempt now gives a 171,893-byte adapter `proof` answer with the full breakdown, where the earlier probe got 32,081 bytes of totals only."
 Story clause: "Pygardon's adapter answers `proof` with totals only, to stay within 64 KiB"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: `ci-proof-leads-adapter.test.mjs` "an adapter's proof answer with totals only…" feeds a literal totals-only `proof` answer; the table states the absent breakdown with the `--summary <file>` remedy, and rerun with the full summary it ranks files with no gaps
 Commitment: K1.1
 
 
 ### G2. The retained summary names no test selection
 Reported: slice 1 — "the contract (`ci-proof-contract.mjs`, `ci-proof-figures.mjs`) has no `selection` field and no Pygardon summary names one. The table's promised "selection" has no source in the summary and must come from elsewhere or be stated as a gap."
 Story clause: "name its repository, revision, attempt, and selection"
-Disposition: receiving slice 3
+Disposition: receiving slice 4
 Commitment: 7.4
+
+### G3. SEED-281's explicit units are not landed yet
+Reported: slice 3 — "SEED-281 has not landed: the contract and figures modules are unchanged on the fetched `origin/main` `e79f2dac5`. No summary carries explicit case or file units, so the reader keeps each entry's free-text `unit` apart. When SEED-281 lands, the scope and ranking modules must adopt its units."
+Story clause: "the explicit test case and test file units"
+Disposition: interim until slices 7
+Commitment: 56.5, 56.6
+
+### G4. The reader lists only the newest 100 push runs at their latest attempt
+Reported: slice 3 — "the reader sees the newest 100 push runs, each only at its latest attempt. An earlier attempt of a re-run is never listed."
+Story clause: "Prefer a complete, successful attempt at the relevant revision"
+Disposition: no user cost "The skill chooses how to proceed from evidence the project already retains": a pass reads current code, whose attempt and its ancestors' sit among the newest runs; when none of the listed runs is usable, the table says so with the `--summary` remedy (`ci-proof-leads-gaps.test.mjs` "CI listing no completed attempt at the requested revision or an ancestor is a gap naming how many it listed, with the --summary remedy, and nothing ranks"), and a re-run's latest attempt is the newest evidence for its revision.
