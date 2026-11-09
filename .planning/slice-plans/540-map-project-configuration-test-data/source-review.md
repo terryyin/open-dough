@@ -1,0 +1,129 @@
+# Source-only review
+
+Reviewer: a fresh Claude Code general-purpose agent launched through the Agent
+tool on 2026-11-09, with no conversation inheritance, fork or resume. The
+input was the selected story's heading, Goal, Scope and four Key examples,
+verbatim from the [refined story](../../seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data),
+with no plan, product, proof, suspected omission or slice scope. It was told
+to read no project files, run no commands and change nothing; it made one
+tool call (its hand-back). The exact launch input and numbered return are
+retained in this session's agent history.
+
+Qualifications returned: the explicitness requirement applies wherever a fact
+drives the case; the builder arranges valid synthetic entries, in contrast to
+the preserved malformed, wrong-shape and empty-file literals; the default
+development harness may, but need not, reuse the real production seed for its
+ordinary starting list; saved bytes are kept as evidence only when captured
+from a real operation; project configuration selects a published source and
+supplies a machine-local path. The displaced-constructor clause is satisfied
+by either alternative.
+
+Journeys returned: the saved production catalog (Zebra on `trunk` before
+Apple on `default`, start and restart, own-environment lists, empty and
+malformed files); the case-different repository or ID predecessor refusing
+Add; the long checkout path in settings at narrow width with the published
+list omitting paths; the six-project Sessions replay with real checkouts and
+44 linked worktrees. Alternatives in the examples are kept as alternatives,
+not rejection rules.
+
+Exclusions returned: real server seeding, Add, Hide and Remove operations,
+Git checkout setup and fake GitHub responses stay at their existing
+boundaries; literal malformed, wrong-shape and empty-file examples, exact Add
+inputs, write faults and independent assertions are preserved; source-only
+fixtures, published Intent settings, launch records and session evidence have
+their own scope.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 0 | Title: “Make machine-local project configuration test setup map directly to the domain” (Promise, headline outcome) | slice 4 |  |
+| 1 | Goal: “Maintainers can see …” each of the listed facts (Promise, audience: maintainers) | slice 4 |  |
+| 1a.1 | “which projects a test configures” (Promise) | slice 4 |  |
+| 1a.2 | “which published source each project reads” (Promise) | slice 4 |  |
+| 1a.3 | “which checkout the machine uses” (Promise) | slice 4 |  |
+| 2 | “Use shared MakeMe setup” (Promise) | slice 4 |  |
+| 2a.1 | “so the same configuration facts can be read … consistently” (Promise, purpose of 2) | slice 4 |  |
+| 2a.2 | “so the same configuration facts can be … changed consistently” (Promise, purpose of 2) | slice 4 |  |
+| 2b | “across dashboard tests”: the consistency in 2a.1–2a.2 applies across dashboard tests (Qualification) | slice 4 |  |
+| 3 | Scope: “Arrange valid synthetic entries in … through a shared builder” (Promise) | slice 4 |  |
+| 3a.1 | entries in `projects-development.json` (Promise) | slice 2 |  |
+| 3a.2 | entries in `projects-production.json` (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" saves MakeMe-built rows to projects-production.json through save()/configurationFile("preview") and asserts the preserved bytes |
+| 3b | “valid synthetic entries”: this describes what the shared builder arranges (contrast 9a.1–9a.3) (Qualification) | slice 1 | observed: makeMe.aConfiguredProject builds only the valid Zebra and Apple rows; the empty, malformed and wrong-shape cases in dashboard/tests/configuration/project-configuration.spec.ts keep their raw save() literals |
+| 3c | the shared builder is “typed against ConfiguredProject” (Promise) | slice 1 | observed: tests/support/projectConfigurationTestData.mjs ConfiguredProjectBuilder (makeMe.aConfiguredProject) JSDoc typed against ConfiguredProject in dashboard/server/projectConfiguration.ts; npm run typecheck:dashboard passed |
+| 4 | “Keep … explicit wherever they drive the case”, for each listed fact (Promise) | slice 4 |  |
+| 4a.1 | “project order” (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" states Zebra then Apple at the call site and asserts labels ["Zebra","Apple"] on start and restart |
+| 4a.2 | “environment” (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" saves and starts the preview (production) list; dashboard/backend-tests/runtime/boundary-server.spec.ts "each project environment answers the project list from its own configuration file" and serving-modes.spec.ts own-file test read each environment's file |
+| 4a.3 | “repository” (the source lists it as “repository and ref”) (Promise) | slice 2 |  |
+| 4a.4 | “ref” (the source lists it as “repository and ref”) (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" states ref "trunk" and "default" at the call site; gh calls contain repos/example/zebra/commits/trunk |
+| 4a.5 | “local path” (Promise) | slice 3 |  |
+| 4a.6 | “visibility” (Promise) | slice 3 |  |
+| 4b | “wherever they drive the case”: the explicitness requirement applies wherever a fact drives the case (Qualification) | slice 4 |  |
+| 5 | “Remove displaced constructors or have their harnesses delegate the data construction to MakeMe”: either alternative satisfies it (Promise, alternatives) | slice 4 |  |
+| 5a | “Remove displaced constructors” (Promise, alternative A) | slice 1 | observed: customSavedProjects removed from dashboard/tests/support/projectConfiguration.ts with no remaining reference |
+| 5b | “have their harnesses delegate the data construction to MakeMe” (Promise, alternative B) | slice 4 |  |
+| 6 | “Cover …” each of the listed items (Promise) | slice 4 |  |
+| 6a.1 | “the ordered saved catalog” (Promise) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" passes with MakeMe-built rows byte-identical to the removed literal (7/7 spec tests passed) |
+| 6a.2 | “configured predecessors for project admission” (Promise) | slice 2 |  |
+| 6a.3 | “configured predecessors for … settings” (Promise) | slice 3 |  |
+| 6a.4 | “the Sessions replay catalog” (Promise) | slice 4 |  |
+| 7 | “Keep … at their existing boundaries”, for each listed item (Exclusion, scope boundary) | slice 4 |  |
+| 7a.1 | “real server seeding” (Exclusion, scope boundary) | slice 1 | observed: production seeding unchanged: dashboard/tests/configuration/project-configuration.spec.ts "production seeds its four projects and shows a previously saved session" and boundary-server.spec.ts production list of the four seed ids pass |
+| 7a.2 | “Add … operations” (Exclusion, scope boundary) | slice 2 |  |
+| 7a.3 | “Hide … operations” (Exclusion, scope boundary) | slice 3 |  |
+| 7a.4 | “Remove operations” (Exclusion, scope boundary) | slice 3 |  |
+| 7a.5 | “Git checkout setup” (Exclusion, scope boundary) | slice 4 |  |
+| 7a.6 | “fake GitHub responses” (Exclusion, scope boundary) | slice 2 |  |
+| 8 | “The default development harness can reuse the real production seed for its ordinary starting list”: this is allowed but not required, and covers only that harness's ordinary starting list (cf. 7a.1) (Qualification, permission) | slice 1 | observed: configureDevelopmentProjects still writes productionSeedProjects with wx; serving-modes.spec.ts dev server answers the four seed ids from its own development file |
+| 9 | “Preserve …” each of the listed items (Exclusion, scope boundary) | slice 4 |  |
+| 9a.1 | “literal malformed … examples” (Exclusion, scope boundary) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" keeps its literal malformed text |
+| 9a.2 | “literal … wrong-shape … examples” (Exclusion, scope boundary) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a saved document with the wrong shape is reported without replacement" keeps its literal wrong-shape text |
+| 9a.3 | “literal … empty-file examples” (Exclusion, scope boundary) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "an existing empty list stays empty" keeps its literal empty list |
+| 9a.4 | “exact Add inputs” (Exclusion, scope boundary) | slice 2 |  |
+| 9a.5 | “write faults” (Exclusion, scope boundary) | slice 2 |  |
+| 9a.6 | “independent assertions” (Exclusion, scope boundary) | slice 4 |  |
+| 10 | “Keep any saved bytes captured from a real operation as evidence”: this applies only to bytes captured from a real operation (Exclusion, scope boundary) | slice 3 |  |
+| 11 | “Project configuration selects a published source and supplies a machine-local path”: this defines what the story treats as project configuration (cf. 1a.2, 1a.3) (Qualification, domain definition) | slice 1 | observed: tests/support/projectConfigurationTestData.mjs ConfiguredProjectBuilder composes the shared publishedSource facts with a required localPath |
+| 11a.1 | “selects a published source” (Qualification) | slice 1 | observed: makeMe.aConfiguredProject returns the published-source facts (tests/support/projectConfigurationTestData.mjs); dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" observes the Zebra source requested as repos/example/zebra/commits/trunk |
+| 11a.2 | “supplies a machine-local path” (Qualification) | slice 1 | observed: makeMe.aConfiguredProject requires localPath (tests/support/projectConfigurationTestData.mjs, type-check) and the saved rows carry ~/work/zebra and ~/elsewhere/apple |
+| 12 | “… have their own scope”, for each listed item (Exclusion, scope boundary) | slice 4 |  |
+| 12a.1 | “Source-only fixtures” (Exclusion, scope boundary) | slice 4 |  |
+| 12a.2 | “published Intent settings” (Exclusion, scope boundary) | slice 4 |  |
+| 12a.3 | “launch records” (Exclusion, scope boundary) | slice 4 |  |
+| 12a.4 | “session evidence” (Exclusion, scope boundary) | slice 4 |  |
+| E1 | Key example 1: saved production catalog (cf. 6a.1, 3a.1–3a.2, 4a.1–4a.4, 9a.1, 9a.3) (Example, journey) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" passes on start and restart |
+| E1.1 | “A saved production catalog puts Zebra on `trunk` before Apple on `default`” (Example: trigger) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" call site: Zebra on ref trunk before Apple on ref default; labels ["Zebra","Apple"] |
+| E1.2 | “The dashboard starts … with Zebra selected” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" run 0: Zebra radio checked and URL normalized from ?project=unknown |
+| E1.3 | “The dashboard … restarts with Zebra selected” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" run 1 (restart): Zebra radio checked |
+| E1.4 | “reads the configured repository …” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" gh calls contain repos/example/zebra/commits/trunk on start and restart |
+| E1.5 | “reads the configured … ref” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" gh calls contain repos/example/zebra/commits/trunk on start and restart |
+| E1.6 | “preserves the saved file” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "saved projects retain order and default selection across restart" saved production file text equals the saved text on start and restart |
+| E1.7 | “Development … read[s] [its] own environment's list” (Example: outcome) | slice 1 | observed: boundary-server.spec.ts development answers [] from its own file with the production file absent; serving-modes.spec.ts own-file check; dashboard/tests/configuration/project-configuration.spec.ts "development first start is empty and refuses the formerly fixed project" |
+| E1.8 | “production … read[s] [its] own environment's list” (Example: outcome) | slice 1 | observed: boundary-server.spec.ts production answers and keeps the four seed ids with the development file absent; serving-modes.spec.ts preview own-file check |
+| E1.9 | “An existing empty … file” (Example: trigger, case A of “empty or malformed”) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "an existing empty list stays empty" saves an empty list file |
+| E1.9.1 | “retains its bytes” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "an existing empty list stays empty" file text still equals the saved empty list |
+| E1.9.2 | “still gives the corresponding empty … result” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "an existing empty list stays empty" shows "No projects configured" and makes no gh calls |
+| E1.10 | “An existing … malformed file” (Example: trigger, case B of “empty or malformed”) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" saves malformed text |
+| E1.10.1 | “retains its bytes” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" file text still equals the malformed text |
+| E1.10.2 | “still gives the corresponding … error result” (Example: outcome) | slice 1 | observed: dashboard/tests/configuration/project-configuration.spec.ts "a malformed saved file is explained and left byte-identical" status says the project configuration could not be read, names the file, shows no project radios |
+| E2 | Key example 2: a saved predecessor already claims the repository or project ID (cf. 6a.2, 7a.2, 9a.4) (Example, journey) | slice 2 |  |
+| E2.1 | “A valid saved project already claims the repository or project ID in a different case” (Example: trigger, alternatives) | slice 2 |  |
+| E2.1a | … already claims “the repository … in a different case” (Example: trigger, alternative A) | slice 2 |  |
+| E2.1b | … already claims “the … project ID in a different case” (Example: trigger, alternative B) | slice 2 |  |
+| E2.2 | “Adding the same repository or ID is refused” (Example: outcome, alternatives) | slice 2 |  |
+| E2.2a | “Adding the same repository … is refused” (pairs with E2.1a) (Example: outcome, alternative A) | slice 2 |  |
+| E2.2b | “Adding the same … ID is refused” (pairs with E2.1b) (Example: outcome, alternative B) | slice 2 |  |
+| E2.3 | “with the predecessor intact” (Example: outcome) | slice 2 |  |
+| E3 | Key example 3: configured long checkout path (cf. 6a.3, 4a.5, 11a.2) (Example, journey) | slice 3 |  |
+| E3.1 | “A configured long checkout path” (Example: trigger) | slice 3 |  |
+| E3.2 | “is shown in settings” (Example: outcome) | slice 3 |  |
+| E3.3 | “even at narrow width” (Example: qualification of E3.2) | slice 3 |  |
+| E3.4 | “while the published project list omits checkout paths” (Example: outcome) | slice 3 |  |
+| E4 | Key example 4: Sessions replay (cf. 6a.4, 4a.1, 4a.5, 7a.5) (Example, journey) | slice 4 |  |
+| E4.1 | “The Sessions replay starts with six configured projects” (Example: trigger) | slice 4 |  |
+| E4.2 | “and their real test checkouts” (Example: trigger) | slice 4 |  |
+| E4.3 | “The server reads the same ordered sources” (Example: outcome) | slice 4 |  |
+| E4.4 | “resolves their configured paths to the checkouts holding 44 linked worktrees” (Example: outcome) | slice 4 |  |
+| E4.5 | “keeps the existing open … listing proof” (Example: outcome) | slice 4 |  |
+| E4.6 | “keeps the existing … Done … listing proof” (Example: outcome) | slice 4 |  |
+| E4.7 | “keeps the existing … history listing proof” (Example: outcome) | slice 4 |  |

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-project-configuration-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-project-configuration-test-data)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and boundaries
 
@@ -82,11 +83,19 @@ lid open under `caffeinate -i` and read the sleep log after the run. Follow
 [Machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
 Hosted CI follows the selected execution mode.
 
+## Execution
+
+Story Branch Mode in `.worktrees/make-machine-local-project-configuration-test-se`
+on `claude/make-machine-local-project-configuration-test-se`, remote `origin`
+(`terryyin/open-dough`), target `main`, as agent DavidKo-chan. The claim
+`a5ddb0b30` is on `main` (starting revision `479f6f3b1`). CI is GitHub
+Actions `ci.yml` (verified selector) on pushes to the execution branch.
+
 ## Slices
 
 ### 1. An ordered saved catalog drives startup and restart
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 1. Run `'dashboard/tests/configuration/project-configuration\.spec\.ts$'` and `'backend-tests/runtime/(boundary-server|serving-modes)\.spec\.ts$'`. Compare saved row order, published request, and untouched file bytes.
 
 Arrange Zebra and Apple with MakeMe at the case that saves their list. Start
@@ -95,6 +104,18 @@ published repository/ref are apparent in the existing observations. Remove
 the displaced `customSavedProjects` constructor. Keep the exact raw `save`
 inputs in the existing empty and error cases. Keep real default seeding and
 the development no-clobber setup where it already consumes the real seed.
+
+Accepted proof: `makeMe.aConfiguredProject`, typed against `ConfiguredProject`
+in `tests/support/projectConfigurationTestData.mjs` beside `aPublishedSource`'s
+one default rule, builds Zebra on `trunk` before Apple on `default` in the
+restart case of `dashboard/tests/configuration/project-configuration.spec.ts`.
+Its saved text is byte-identical to the removed `customSavedProjects`
+literal. The spec's server harness moved unchanged to
+`dashboard/tests/support/projectConfigurationMachine.ts`. The spec (7 tests),
+the boundary-server and serving-modes specs (8 tests),
+`npm run typecheck:dashboard`, and the native evidence identity checks passed.
+Later slices reuse `makeMe.aConfiguredProject`. Per-commitment observations
+are in [source-review.md](source-review.md).
 
 ### 2. A configured predecessor determines Add admission
 Type: Behavior
