@@ -37,7 +37,7 @@ new topic or ADR is needed.
 
 PFE observed at `ecd07dc8a` on 2026-11-09:
 
-- **Landing history owner.** [Plan 551](../551-see-landed-ci-wall-time-history/PLAN.md)
+- **Landing history owner.** [The delivered landed CI history](../../../docs/dashboard-development-intent-ci-status.md)
   owns landing-to-build resolution, background collection, the bounded
   machine-local store and its project history read. Extend that owner with
   attempt proof; do not create another collector, store or Landed rule. Its

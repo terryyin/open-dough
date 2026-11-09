@@ -37,7 +37,7 @@ new architecture topic or aggregate store is needed.
 
 PFE at `0d92177ead4aaf8f9364afeddd9d5227d0208e52`, 2026-11-09:
 
-- [Project history plan 551](../551-see-landed-ci-wall-time-history/PLAN.md)
+- [The delivered project history](../../../docs/dashboard-development-intent-ci-status.md)
   owns retained landing-to-attempt evidence, trunk ordering, distinct-build
   windows, project presentation and local read lifecycle.
   [Scope history plan 554](../554-trace-landed-proof-timing/PLAN.md) owns
