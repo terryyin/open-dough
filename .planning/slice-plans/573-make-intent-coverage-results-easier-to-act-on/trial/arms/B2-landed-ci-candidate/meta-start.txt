@@ -1,0 +1,11 @@
+arm_id=B2-landed-ci-candidate
+revision=9fcff1d9a765df93a6e3f783fcbbfd75b0b17fb6
+skill_set=candidate
+host=claude
+host_version=2.1.321 (Claude Code)
+model=opus
+permission_defaultMode=auto
+start_utc=2026-11-10T10:29:29Z
+start_ms=1794306569516
+load=18:29  up 1 day, 11:26, 4 users, load averages: 6.18 10.38 15.90
+power=Now drawing from 'AC Power'

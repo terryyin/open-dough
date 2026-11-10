@@ -1,0 +1,6 @@
+ M .agents/skills/dough-intent-coverage/SKILL.md
+ M .agents/skills/dough-story-wrap-up/SKILL.md
+ M .claude/skills/dough-intent-coverage/SKILL.md
+ M .claude/skills/dough-story-wrap-up/SKILL.md
+ M src/skills/dough-intent-coverage/SKILL.md
+ M src/skills/dough-story-wrap-up/SKILL.md

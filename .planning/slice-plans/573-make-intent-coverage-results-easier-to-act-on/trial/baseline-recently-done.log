@@ -1,0 +1,10 @@
+
+> test:dashboard
+> playwright test --config dashboard/playwright.config.ts dashboard/tests/sessions/recently-done-sessions-select*.spec.ts --workers=1 --reporter=line
+
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium] › dashboard/tests/sessions/recently-done-sessions-select.spec.ts:34:1 › selecting a linked done story from Intent shows that project's story in Intent, keeps the report in the Side panel and attaches nothing; Open still opens its terminal
+[2/2] [chromium] › dashboard/tests/sessions/recently-done-sessions-select.spec.ts:149:1 › selecting standalone rows from Intent keeps the project, file, Selected story and Side panel, including a Taken story's session with no done record
+  2 passed (10.1s)

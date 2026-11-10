@@ -1,0 +1,9 @@
+
+> test:dashboard
+> playwright test --config dashboard/playwright.config.ts tests/sessions/recently-done-sessions-select-check.spec.ts --workers=1 --reporter=line
+
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] › dashboard/tests/sessions/recently-done-sessions-select-check.spec.ts:23:1 › an unanswered check is superseded by a later choice, and a failed one leaves the reading with its session's Open usable
+  1 passed (4.2s)

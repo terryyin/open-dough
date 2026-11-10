@@ -79,13 +79,13 @@ review requests remain available regardless of this preference.
 
 When enabled and no result exists, explicitly request one check from the installed
 [Dough Intent Coverage](../dough-intent-coverage/SKILL.md), supplying the story section,
-plan when present, and completed revision. Prefer a plausible protection gap for an
-important promise raised by review; otherwise let the skill choose the most important
-promise from the key examples. It owns scratch checkout setup and restoration; continue closure while it runs.
-Save its report verbatim outside the checkout, including **Insufficient evidence** and
-unavailable costs/reasons. Pass the saved file or concrete no-report reason to the
-[completion command](../dough-product-backlog/SKILL.md#remove-completed-items) and continue
-without waiting or retrying. If skipped with no supplied result, complete without coverage input.
+plan when present, completed revision, and any already available promise, plausible fault,
+focused command, fixture, or assertion from review or execution. Prefer a plausible gap
+raised by review; otherwise let the skill choose. Pass hints as suggestions only; do not
+rediscover missing ones or move probe mechanics here. Explicit manual requests remain valid
+without hints. It owns scratch setup and restoration; continue closure while it runs. Save
+its report verbatim outside the checkout, including **Insufficient evidence** and unavailable
+costs/reasons. Pass the saved file or concrete no-report reason to the [completion command](../dough-product-backlog/SKILL.md#remove-completed-items) and continue without waiting or retrying. If skipped with no supplied result, complete without coverage input.
 
 ## Assimilate lasting knowledge
 

@@ -1,0 +1,11 @@
+
+> test:dashboard
+> playwright test --config dashboard/playwright.config.ts backend-tests/intent/landed-ci-history-pending-proof.spec.ts --workers=1 --reporter=list
+
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium] › dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts:44:1 › a skip whose equivalent build's CI proof read GitHub does not answer waits as CI proof not read yet for as long as GitHub does not answer, while collection measures the older landings past it (5.0s)
+  ✓  2 [chromium] › dashboard/backend-tests/intent/landed-ci-history-pending-proof.spec.ts:124:1 › a skip recorded two hours ago whose equivalent build's CI proof read GitHub does not answer at first is that build's reused equivalent point once GitHub answers, never a final unreadable gap (4.4s)
+
+  2 passed (12.2s)

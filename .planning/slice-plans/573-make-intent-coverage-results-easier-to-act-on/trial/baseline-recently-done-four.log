@@ -1,0 +1,12 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium] › tests/sessions/recently-done-sessions-select-check.spec.ts:23:1 › an unanswered check is superseded by a later choice, and a failed one leaves the reading with its session's Open usable
+[2/8] [chromium] › tests/sessions/recently-done-sessions-select-development.spec.ts:29:1 › selecting a linked done story in Development shows its project's Board with its done card, beyond Pygardon's first ten, selected in view, keeping the report in the Side panel
+[3/8] [chromium] › tests/sessions/recently-done-sessions-select-development.spec.ts:71:1 › selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten, and the latest choice wins over an unanswered one
+[4/8] [chromium] › tests/sessions/recently-done-sessions-select-development.spec.ts:117:1 › selecting a standalone session from Development's agent roster shows its project's Board with the entry selected in view
+[5/8] [chromium] › tests/sessions/recently-done-sessions-select-touch.spec.ts:27:3 › on coarse input › a row's Select and its Open are separate touch controls: Select keeps the sidebar and opens nothing, Open reads the final report
+[6/8] [chromium] › tests/sessions/recently-done-sessions-select-touch.spec.ts:73:3 › on coarse input › at phone width a selection in Development is in view, selected, once the Sessions overlay closes
+[7/8] [chromium] › tests/sessions/recently-done-sessions-select.spec.ts:34:1 › selecting a linked done story from Intent shows that project's story in Intent, keeps the report in the Side panel and attaches nothing; Open still opens its terminal
+[8/8] [chromium] › tests/sessions/recently-done-sessions-select.spec.ts:149:1 › selecting standalone rows from Intent keeps the project, file, Selected story and Side panel, including a Taken story's session with no done record
+  8 passed (27.4s)

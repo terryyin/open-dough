@@ -1,0 +1,12 @@
+You are running Dough Intent Coverage in this checkout only.
+
+Read and follow the skill at `.claude/skills/dough-intent-coverage/SKILL.md` (also at `src/skills/dough-intent-coverage/SKILL.md`). Use its finish-report helper as specified.
+
+Request context (frozen current wrap-up style — no focused hints beyond story/plan/revision and a preferred gap):
+
+- Story: `.planning/seeds/SEED-272-select-recently-done-sessions.md#select-recently-done-sessions`
+- Plan when present: `.planning/slice-plans/527-select-recently-done-sessions/PLAN.md`
+- Completed revision: this checkout's HEAD (`1935f49a58e35557e2026500baf61113351e691e`)
+- Prefer a plausible protection gap for the important promise that while a linked done-catalog check is unresolved, choosing another project keeps the developer reading where they are (superseding the unanswered check).
+
+Do not assume an expected verdict. Perform one targeted check with baseline, fault, independent wrong-behavior observation as required, exact restoration, and restored pass. Prefer an isolated scratch worktree under `/tmp` for any further nested checkout if the skill requires one; this workspace is already an isolated detached worktree at the revision with native setup complete. Leave fixtures/assertions intact when faulting. Return the skill's finished report as your final answer.

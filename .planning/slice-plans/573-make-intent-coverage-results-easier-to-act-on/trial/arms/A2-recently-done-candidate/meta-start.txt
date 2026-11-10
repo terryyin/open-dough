@@ -1,0 +1,11 @@
+arm_id=A2-recently-done-candidate
+revision=1935f49a58e35557e2026500baf61113351e691e
+skill_set=candidate
+host=claude
+host_version=2.1.321 (Claude Code)
+model=opus
+permission_defaultMode=auto
+start_utc=2026-11-10T10:09:38Z
+start_ms=1794305378088
+load=18:09  up 1 day, 11:06, 4 users, load averages: 15.37 22.51 21.84
+power=Now drawing from 'AC Power'

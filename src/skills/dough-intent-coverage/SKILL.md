@@ -21,15 +21,23 @@ take a clock reading at the start of your work, before looking up the story
 or preparing the checkout.
 
 Identify the selected story and revision, the promise and its expected
-observable behavior, and one plausible fault. Prefer an existing maintained
-assertion that could catch it when one is already in view. When no such
-assertion is known, select the nearest relevant passing checks for that
-promise and plan an independent scratch witness for the omitted path. Do not
-require a nonexistent selected assertion before investigating a missing
-journey. Use this project's recorded intent, maintained focused test
-command, and scratch checkout conventions. Ask for the story source if you
-cannot establish the promise. If other required context is missing, name
-what you need and stop before editing.
+observable behavior, and one plausible fault. Treat any caller-supplied
+promise, fault, focused command, fixture, or assertion as a suggestion:
+validate it against the selected revision and story, reuse what holds, and
+explain a consequential revision when you change target, command, or
+assertion. Prefer an existing maintained assertion that could catch the
+fault when one is already in view. When no such assertion is known, select
+the nearest relevant passing checks for that promise and plan an
+independent scratch witness for the omitted path. Do not require a
+nonexistent selected assertion before investigating a missing journey.
+Missing hints do not prevent a check: search only for the narrowest
+relevant proof. When proceeding would require a broad exploratory run,
+name the remaining gap and stop rather than sweeping. A separately
+authorized broader investigation remains outside this skill. Use this
+project's recorded intent, maintained focused test command, and scratch
+checkout conventions. Ask for the story source if you cannot establish the
+promise. If other required context is missing, name what you need and stop
+before editing.
 
 ## Run and restore
 

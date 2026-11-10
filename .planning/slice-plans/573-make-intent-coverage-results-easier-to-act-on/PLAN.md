@@ -149,9 +149,15 @@ new runtime enum, Structure slice or interim behavior is needed.
 ### 2. Keep a focused handoff only when its paired trial earns the effort
 
 Type: Behavior
-Status: planned
-Proof: Slice-2 rows above, four fresh native arm reports, comparison with decisions
-and total costs, and representative review of revised/incomplete-hint behavior.
+Status: done
+Proof: Four Claude Code arms under `trial/` (A1/A2 Recently done; B1/B2 Landed CI)
+with reports and summaries; `trial/02-comparison-and-keep-decision.md` keeps the
+candidate handoff (lower search-heavy effort, equal proof, no focused-case
+penalty). Working `src/skills/dough-intent-coverage/SKILL.md` and
+`dough-story-wrap-up/SKILL.md` match `trial/skills-candidate/`. Completion
+free-string test passed; consumer dispositions: manual + Wrap Up reused;
+completion/render excluded as unchanged. Source-review ids allocated to slice 2
+observed.
 
 Behavior: Given available review context, when a developer requests a check,
 the worker validates and reuses it without broad rediscovery. A prospective
@@ -203,14 +209,13 @@ benchmark matrix is committed. Reconsider only on new diagnostic evidence.
 
 ## Gates and current decisions
 
-- Slice 1 implemented in the execution checkout; Slice 2 native trial not started.
-- Checker skill is 119 lines after slice 1. Wrap Up remains 250 lines; replace its
-  request prose cohesively in slice 2 and keep it within the 250-line check; detailed
-  probe rules remain with the checker. Inspect concurrent changes before editing.
-  No already-oversized source file or installer edit is expected. If scope reaches
-  one, settle its cohesive reorganization before implementation.
+- Slices 1–2 implemented in the execution checkout; handoff candidate **kept**.
+- Checker skill is 127 lines; Wrap Up remains 250 lines after cohesive request
+  prose replacement. Detailed probe rules remain with the checker. Concurrent
+  closure sibling has not landed Wrap Up skill edits on trunk since Take.
 - Learning: historical Done reports keep prior wording; only new runs follow
-  Confirmed missing test path. Verdict clarity can ship before the handoff trial.
+  Confirmed missing test path. Paired trial kept focused hint handoff under
+  ADR 0010; wrap-up wait unobserved; harness cwd confound noted in trial/02.
 - Local gates: mapped behavior review, affected consumer proof, conditional
   commands above and ordinary commit hooks; no mandatory full-suite run for this
   guidance change. For long runs start fully awake: on AC use `caffeinate -s -i`;
