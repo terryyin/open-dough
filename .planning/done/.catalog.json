@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-290_publish-frontend-test-proof.json",
+      "identity": "SEED-290#publish-frontend-test-proof",
+      "completedAt": "2026-11-10T07:42:58.137Z",
+      "blob": "e013e37018eeba7b1b988aa4e7e698a364040b70"
+    },
+    {
       "fileName": "SEED-288_reuse-adapter-equivalent-timing.json",
       "identity": "SEED-288#reuse-adapter-equivalent-timing",
       "completedAt": "2026-11-10T02:05:06.886Z",
@@ -1884,24 +1890,6 @@
       "identity": "SEED-130#slow-startup-safe-recovery",
       "completedAt": "2026-10-11T09:37:41.486Z",
       "blob": "2eddc4bb9cf9603467c29993469919fb419a248d"
-    },
-    {
-      "fileName": "SEED-121_finish-retirement-without-verdict.json",
-      "identity": "SEED-121#finish-retirement-without-verdict",
-      "completedAt": "2026-10-11T06:12:06.990Z",
-      "blob": "9aba95f2bb873d24e930f4760b5e22b9c4457853"
-    },
-    {
-      "fileName": "SEED-088_review-trunk-mode-story-changes.json",
-      "identity": "SEED-088#review-trunk-mode-story-changes",
-      "completedAt": "2026-10-11T03:20:11.436Z",
-      "blob": "e7d9920f74bf1a78ca9c9105dd9a0297dac6b9f1"
-    },
-    {
-      "fileName": "SEED-088_found-worktree-matches-published-agent.json",
-      "identity": "SEED-088#found-worktree-matches-published-agent",
-      "completedAt": "2026-10-11T02:27:21.169Z",
-      "blob": "10d9c0d8b17e034be1186eb593c076aec019bada"
     }
   ],
   "unreadable": []
