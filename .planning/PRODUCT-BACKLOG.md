@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 - [End a node test job at its deadline with a named result](seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline) — SEED-289#name-a-test-job-past-its-deadline ([plan](slice-plans/563-end-test-jobs-at-their-deadline/PLAN.md))
-- [Give the local CI container the hosted runner’s fonts](seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container) — SEED-289#match-hosted-fonts-in-ci-container ([plan](slice-plans/564-match-hosted-fonts-in-ci-container/PLAN.md))
 
 ## Backlog list
 

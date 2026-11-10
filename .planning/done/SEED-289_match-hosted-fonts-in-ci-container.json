@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-289#match-hosted-fonts-in-ci-container",
+  "title": "Give the local CI container the hosted runner’s fonts",
+  "completedAt": "2026-11-10T01:09:31.268Z",
+  "developer": "Terry Yin",
+  "agent": "YeongSheng-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage\n\n**Outcome: Caught.**\n\n- Story: SEED-289#match-hosted-fonts-in-ci-container, key example 4; revision `86e2e684270a8ace589626b64b731f2fae65a13b`.\n- Promise: removing a required hosted font from the diagnostic image recipe fails the maintained font contract.\n- Fault: remove only `fonts-lato` from the apt install in `scripts/ci-container.sh`. Fixture and independent expectation in `tests/ci-container.sh` remain intact.\n- Maintained command in an isolated detached scratch checkout: `PATH=\"/opt/homebrew/bin:$PATH\" bash scripts/test.sh tests/ci-container.sh`.\n- Baseline passed. Fault run exited 1 at the generated apt-inventory comparison, with `< fonts-lato` and `FAIL: generated image must install the hosted Ubuntu font inventory.` This observes the Dockerfile consumed by the fake Docker build, rather than a declaration alone.\n- Restored exact original recipe; scratch Git state matched its initially clean state and the same focused command passed. Scratch worktree was removed.\n\nCosts:\n- Test runtime (measured, runner per-job seconds): 0.7 s baseline, 0.3 s fault, 0.5 s restored.\n- Human effort: unavailable; no separate human-effort measurement.\n- Agent effort: unavailable; no separate effort/token measurement for this invocation.\n\n\n- **Invocation-to-report elapsed.** 36762 ms (measured), from 1794272903688 to 1794272940450 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n"
+  }
+}

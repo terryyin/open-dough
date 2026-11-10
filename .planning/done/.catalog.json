@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-289_match-hosted-fonts-in-ci-container.json",
+      "identity": "SEED-289#match-hosted-fonts-in-ci-container",
+      "completedAt": "2026-11-10T01:09:31.268Z",
+      "blob": "53c6d36b3ccd700c8dc73a5e22eef32c29b95db3"
+    },
+    {
       "fileName": "SEED-010_plan-cohesive-reorganization-of-oversized-files.json",
       "identity": "SEED-010#plan-cohesive-reorganization-of-oversized-files",
       "completedAt": "2026-11-10T00:01:03.477Z",
@@ -1896,12 +1902,6 @@
       "identity": "SEED-088#resolved-integration-survives-reruns",
       "completedAt": "2026-10-11T01:41:54.628Z",
       "blob": "90b8a3a62c0337e27dd685ed261e6b7c71e9a5b2"
-    },
-    {
-      "fileName": "SEED-123_unpublished-preparation-recovery.json",
-      "identity": "SEED-123#unpublished-preparation-recovery",
-      "completedAt": "2026-10-11T00:36:51.878Z",
-      "blob": "dfcab224098e15ff0b5112107dfcda9453e641d9"
     }
   ],
   "unreadable": []
