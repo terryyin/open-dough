@@ -1,3 +1,7 @@
+import {
+  comparisonBuildSource,
+  comparisonHistory,
+} from "../../dashboard/server/comparisonBuildSource.ts";
 // Cancelled-landing forward walk (`../../dashboard/server/laterTrunkBuild.ts`):
 // trunk's first-parent revisions after the landing, nearest first; the
 // nearest later build with usable proof, past cancelled, unbuilt and
@@ -6,10 +10,7 @@
 // ./dashboard-later-trunk-landed.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  laterTrunkChain,
-  laterTrunkProofBuild,
-} from "../../dashboard/server/laterTrunkBuild.ts";
+import { laterTrunkProofBuild } from "../../dashboard/server/laterTrunkBuild.ts";
 import {
   absent,
   lookupOf,
@@ -18,17 +19,20 @@ import {
   usable,
 } from "./dashboard-later-trunk-fixture.mjs";
 
-test("laterTrunkChain lists first-parent trunk revisions after the landing, nearest first, within the bound", async (t) => {
+test("the Git history source lists first-parent trunk revisions after the landing, nearest first, within the bound", async (t) => {
   const repo = await trunk(t);
   assert.deepEqual(
-    await laterTrunkChain(repo.landing, "main", repo.call),
+    await comparisonHistory(repo.call).laterTrunk(repo.landing, "main", 30),
     repo.later,
   );
   assert.deepEqual(
-    await laterTrunkChain(repo.landing, "main", repo.call, 2),
+    await comparisonHistory(repo.call).laterTrunk(repo.landing, "main", 2),
     repo.later.slice(0, 2),
   );
-  assert.deepEqual(await laterTrunkChain(repo.later[3], "main", repo.call), []);
+  assert.deepEqual(
+    await comparisonHistory(repo.call).laterTrunk(repo.later[3], "main", 30),
+    [],
+  );
 });
 
 test("laterTrunkProofBuild passes cancelled, unbuilt and proofless builds and counts included revisions", async (t) => {
@@ -43,8 +47,10 @@ test("laterTrunkProofBuild passes cancelled, unbuilt and proofless builds and co
   const walk = await laterTrunkProofBuild(
     repo.landing,
     "main",
-    lookup,
-    repo.call,
+    comparisonBuildSource(lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     async (candidate) => {
       checked.push(candidate.runId);
       return candidate.runId === 14 ? undefined : absent("none");
@@ -71,8 +77,10 @@ test("laterTrunkProofBuild uses a failed later build with usable proof", async (
   const walk = await laterTrunkProofBuild(
     repo.landing,
     "main",
-    lookup,
-    repo.call,
+    comparisonBuildSource(lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     usable,
   );
   assert.equal(walk.kind, "found");
@@ -94,8 +102,10 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
   const walk = await laterTrunkProofBuild(
     repo.landing,
     "main",
-    running.lookup,
-    repo.call,
+    comparisonBuildSource(running.lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     async (build) => (build.runId === 31 ? absent("expired") : undefined),
   );
   assert.equal(walk.kind, "running");
@@ -109,8 +119,10 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
     await laterTrunkProofBuild(
       repo.later[3],
       "main",
-      atHead.lookup,
-      repo.call,
+      comparisonBuildSource(atHead.lookup, repo.call, "ci.yml", {
+        repository: "terryyin/open-dough",
+        signal: new AbortController().signal,
+      }),
       usable,
     ),
     { kind: "ended", at: "head" },
@@ -126,8 +138,10 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
   const ended = await laterTrunkProofBuild(
     repo.landing,
     "main",
-    proofless.lookup,
-    repo.call,
+    comparisonBuildSource(proofless.lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     async (build) =>
       build.runId === 42 ? absent("none") : absent("unreadable"),
   );
@@ -140,8 +154,10 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
   const bounded = await laterTrunkProofBuild(
     repo.landing,
     "main",
-    proofless.lookup,
-    repo.call,
+    comparisonBuildSource(proofless.lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     async () => absent("none"),
     2,
   );
@@ -152,8 +168,10 @@ test("laterTrunkProofBuild says where it stopped: a running build, the read trun
   const exactBound = await laterTrunkProofBuild(
     repo.landing,
     "main",
-    lookupOf({}).lookup,
-    repo.call,
+    comparisonBuildSource(lookupOf({}).lookup, repo.call, "ci.yml", {
+      repository: "terryyin/open-dough",
+      signal: new AbortController().signal,
+    }),
     usable,
     4,
   );

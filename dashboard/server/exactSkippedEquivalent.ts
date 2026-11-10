@@ -9,9 +9,9 @@ import { equivalentBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts"
 import type { CiProof } from "../src/ciProof.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
-import { proofRunOf, type RevisionCiLookup } from "./baseCiRevisionNearest.ts";
-import { isUnansweredProof, readCiProofArtifact } from "./ciProofArtifact.ts";
-import type { GitCall } from "./gitRunner.ts";
+import { proofRunOf } from "./baseCiRevisionNearest.ts";
+import { isUnansweredProof } from "./ciProofArtifact.ts";
+import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
 import {
   asSlot,
   nearestAncestorBuild,
@@ -31,10 +31,6 @@ export type ExactResultLookup = {
   // timed out (for example Story Branch Landed at the landing merge).
   readonly cancelledExplanation: string;
   readonly timedOutExplanation: string;
-  // Repository and signal for reading the equivalent build's proof when a
-  // confirmed skip lets Landed use that one ancestor build only.
-  readonly repository: string;
-  readonly signal: AbortSignal;
   // Trunk head the comparison read (for example `origin/main`): a cancelled
   // landing may use the nearest later trunk build's proof up to it.
   readonly laterTrunkHead: string;
@@ -50,8 +46,6 @@ function unavailableWords(
 // Story Branch Mode Landed: exact-only options at the merge or fast-forward tip.
 export function storyBranchLandedExactLookup(
   fastForward: boolean,
-  repository: string,
-  signal: AbortSignal,
   laterTrunkHead: string,
 ): ExactResultLookup {
   return {
@@ -63,8 +57,6 @@ export function storyBranchLandedExactLookup(
     timedOutExplanation: fastForward
       ? "The CI build at the landed story revision timed out."
       : "The CI build at the landing merge timed out.",
-    repository,
-    signal,
   };
 }
 
@@ -76,15 +68,12 @@ export function storyBranchLandedExactLookup(
 // past that one equivalent.
 export async function exactSkippedEquivalentSlot(
   target: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
-  exact: ExactResultLookup,
+  source: ComparisonBuildSource,
   status: RequestedRevisionCiStatus,
 ): Promise<RevisionBuildSlot> {
   const equivalent = await nearestAncestorBuild(
     target,
-    lookup,
-    call,
+    source,
     baselineAncestorLimit,
   );
   if (
@@ -97,7 +86,7 @@ export async function exactSkippedEquivalentSlot(
   const proof: CiProof =
     run === undefined
       ? { kind: "unavailable", reason: "none" }
-      : await readCiProofArtifact(exact.repository, run, exact.signal);
+      : await source.proofOf(run);
   const measured = {
     ...equivalent,
     selection: "equivalent" as const,

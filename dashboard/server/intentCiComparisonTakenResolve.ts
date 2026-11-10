@@ -4,7 +4,6 @@ import {
   suppressedBesideJudgmentFragments,
   type StoryCiComparisonAnswer,
 } from "../src/storyCiComparison.ts";
-import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   lookupBaselineBuild,
   lookupResultBuild,
@@ -12,22 +11,19 @@ import {
 import {
   asComparisonSlot,
   gapFromUnread,
-  isUnreadJudgment,
-  lookupContext,
   trunkBranchNotApplicable,
-  workflowOf,
+  notLandedYet,
 } from "./intentCiComparisonSlots.ts";
-import { notLandedYet, takenStoryEndpoints } from "./takenStoryEndpoints.ts";
+import type { StoryCiComparisonSource } from "./storyCiComparisonSource.ts";
 
 const [noPublishedCompletionRecord] = suppressedBesideJudgmentFragments;
 
 export async function performTakenComparison(
-  source: PublishedSource,
+  source: StoryCiComparisonSource,
   identity: string,
-  signal: AbortSignal,
   checkedAt: string,
 ): Promise<StoryCiComparisonAnswer> {
-  const endpoints = await takenStoryEndpoints(source, identity, signal);
+  const endpoints = await source.takenEndpoints(identity);
   if (endpoints.kind === "absent") {
     return {
       kind: "unavailable",
@@ -45,7 +41,7 @@ export async function performTakenComparison(
     };
   }
   const { facts } = endpoints;
-  const context = await lookupContext(source, signal, facts.branch);
+  const context = await source.buildsFor(facts.branch);
   if ("unavailable" in context) {
     return {
       kind: "unavailable",
@@ -54,9 +50,8 @@ export async function performTakenComparison(
       checkedAt,
     };
   }
-  const { call, lookupOrGap } = context;
-  if (isUnreadJudgment(lookupOrGap)) {
-    const gap = gapFromUnread(lookupOrGap);
+  if ("judgment" in context) {
+    const gap = gapFromUnread(context.judgment);
     return {
       kind: "comparison",
       phase: "taken",
@@ -70,27 +65,17 @@ export async function performTakenComparison(
       ...(facts.mode === "trunk" ? { provisional: gap } : {}),
     };
   }
-  const lookup = lookupOrGap;
-  const workflow = workflowOf(call);
-  const proofSource = { repository: source.repository, signal };
-  const baselineBuild = await lookupBaselineBuild(
-    facts.storyStart,
-    lookup,
-    call,
-    workflow,
-    proofSource,
-  );
+  const { builds } = context;
+  const { lookup } = builds;
+  const baselineBuild = await lookupBaselineBuild(facts.storyStart, builds);
   const liveBuild = await lookupResultBuild(
     facts.liveTip,
     facts.storyStart,
-    lookup,
-    call,
-    workflow,
+    builds,
     facts.mode === "trunk"
       ? "No completed CI build was found at the current trunk tip or a later trunk ancestor within the story's start bound."
       : "No completed CI build was found at the current branch tip or a later story-side ancestor within the story's start bound.",
     undefined,
-    proofSource,
     { provisional: true },
   );
   const [baseline, live] = await Promise.all([

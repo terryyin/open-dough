@@ -2,6 +2,7 @@
 // project wrapper and validated retained captures share this complete owner;
 // claim validation stays part of recovery, including for a common Git directory.
 import path from "node:path";
+import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import {
   doneRecordFileName,
   parseDoneRecordFile,
@@ -118,7 +119,7 @@ export async function storyCompletionEndpoints(
       story,
       doneRecordAdded,
       at,
-      call,
+      publishedStoryHistory(call),
     );
     if (namedCompletion !== undefined && namedCompletion !== completion)
       return {
@@ -139,12 +140,12 @@ export async function storyCompletionEndpoints(
       for (const candidate of await publishedStoryAgents(
         story,
         doneRecordAdded,
-        call,
+        publishedStoryHistory(call),
       )) {
         const before = await publishedStoryEvidence(
           story,
           doneRecordAdded,
-          call,
+          publishedStoryHistory(call),
           candidate,
         );
         if (before.claims.length > 0) claiming.push(candidate);
@@ -190,7 +191,7 @@ export async function storyCompletionEndpoints(
             evidence.storyStart,
             evidence.owningMerges,
             evidence.commits.map((commit) => commit.commit),
-            call,
+            publishedStoryHistory(call),
           )
         : undefined;
     return {

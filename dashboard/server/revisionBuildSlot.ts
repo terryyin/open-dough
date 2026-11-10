@@ -5,13 +5,11 @@
 // `./requestedRevisionCiStatus.ts`.
 import type { CiProofUnavailableReason } from "../src/ciProof.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
-import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
   type RevisionCiBuild,
-  type RevisionCiLookup,
 } from "./baseCiRevisionNearest.ts";
-import type { GitCall } from "./gitRunner.ts";
+import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
 import { requestedRevisionCiStatus } from "./requestedRevisionCiStatus.ts";
 import type { UnusableBuild } from "./unusableBuild.ts";
 
@@ -143,14 +141,16 @@ export function asSlot(
 // rests on.
 export async function nearestAncestorBuild(
   target: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
+  source: ComparisonBuildSource,
   ancestorLimit: number,
 ): Promise<RevisionCiBuild | undefined> {
-  const revisions = await firstParentChain(target, call, ancestorLimit + 1);
+  const revisions = await source.history.firstParents(
+    target,
+    ancestorLimit + 1,
+  );
   return nearestRevisionBuild(
     revisions.filter((sha) => sha !== target),
-    lookup,
+    source.lookup,
   );
 }
 
@@ -158,11 +158,10 @@ export async function nearestAncestorBuild(
 // name a No-build reason — never as the endpoint's proof source.
 export async function nearestAncestorBasisSha(
   target: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
+  source: ComparisonBuildSource,
   ancestorLimit: number,
 ): Promise<string | undefined> {
-  const build = await nearestAncestorBuild(target, lookup, call, ancestorLimit);
+  const build = await nearestAncestorBuild(target, source, ancestorLimit);
   return build?.state === "pass" || build?.state === "failed"
     ? build.revision
     : undefined;
@@ -171,9 +170,7 @@ export async function nearestAncestorBasisSha(
 export async function statusWhenNotExact(
   requestedSha: string,
   build: RevisionCiBuild | undefined,
-  lookup: RevisionCiLookup,
-  call: GitCall,
-  workflow: string,
+  source: ComparisonBuildSource,
   ancestorLimit: number,
 ): Promise<RequestedRevisionCiStatus | undefined> {
   if (build !== undefined && build.revision === requestedSha) return undefined;
@@ -182,15 +179,14 @@ export async function statusWhenNotExact(
   // proof.
   const basisSha = await nearestAncestorBasisSha(
     requestedSha,
-    lookup,
-    call,
+    source,
     ancestorLimit,
   );
   return requestedRevisionCiStatus(
     requestedSha,
-    await lookup.listRunsAt(requestedSha),
+    await source.lookup.listRunsAt(requestedSha),
     basisSha,
-    call,
-    workflow,
+    source.history,
+    source.workflow,
   );
 }

@@ -28,19 +28,17 @@ import {
   baselineAncestorLimit,
   storyBranchLandedExactLookup,
 } from "./exactSkippedEquivalent.ts";
-import type { GitCall } from "./gitRunner.ts";
 import {
-  isUnreadJudgment,
-  lookupContext,
-  workflowOf,
-} from "./intentCiComparisonSlots.ts";
+  comparisonBuildSource,
+  type ComparisonBuildSource,
+} from "./comparisonBuildSource.ts";
+import { lookupContext, workflowOf } from "./intentCiComparisonSlots.ts";
 import type { LandingReference } from "./landedCiHistoryStore.ts";
 import {
   keptRunOf,
   type LandedResolution,
   type PendingResolution,
 } from "./landedCiObservation.ts";
-import { laterTrunkChain } from "./laterTrunkBuild.ts";
 import { observationNow } from "./observationClock.ts";
 import {
   finalSlot,
@@ -55,10 +53,7 @@ type PassRead =
   | { readonly kind: "unread" }
   | {
       readonly kind: "read";
-      readonly call: GitCall;
-      readonly lookup: RevisionCiLookup;
-      readonly workflow: string;
-      readonly signal: AbortSignal;
+      readonly builds: ComparisonBuildSource;
     };
 
 // The lookup with each revision's runs listed once.
@@ -91,13 +86,15 @@ export function passRead(
     const context = await lookupContext(source, signal, undefined);
     if ("unavailable" in context) return { kind: "unread" };
     const { call, lookupOrGap } = context;
-    if (isUnreadJudgment(lookupOrGap)) return { kind: "unread" };
+    if ("state" in lookupOrGap) return { kind: "unread" };
     return {
       kind: "read",
-      call,
-      lookup: listingOnce(lookupOrGap),
-      workflow: workflowOf(call),
-      signal,
+      builds: comparisonBuildSource(
+        listingOnce(lookupOrGap),
+        call,
+        workflowOf(call),
+        { repository: source.repository, signal },
+      ),
     };
   };
   return () => {
@@ -160,10 +157,8 @@ async function stillAwaited(
   slot: FinalSlot<RevisionBuildSlot>,
   landing: { readonly revision: string; readonly receivedAt?: string },
   trunkHead: string,
-  {
-    call,
-    lookup,
-  }: Pick<Extract<PassRead, { kind: "read" }>, "call" | "lookup">,
+  builds: ComparisonBuildSource,
+  now: () => number,
 ): Promise<PendingResolution | undefined> {
   if (slot.kind !== "none") return undefined;
   if (slot.proofUnanswered === true)
@@ -173,24 +168,23 @@ async function stillAwaited(
   if (status !== "no-build" && status !== "skipped") return undefined;
   const earlier = await nearestAncestorBuild(
     revision,
-    lookup,
-    call,
+    builds,
     baselineAncestorLimit,
   );
   if (earlier?.state === "running") return waitingOn("build", earlier);
   if (status === "skipped") return undefined;
+  const { lookup } = builds;
   const hasRun = async (sha: string) =>
     newestRunFor(await lookup.listRunsAt(sha), sha) !== undefined;
   if (await hasRun(revision)) return undefined;
   if (
     receivedAt !== undefined &&
-    observationNow() - Date.parse(receivedAt) >= ownRunWaitMs
+    now() - Date.parse(receivedAt) >= ownRunWaitMs
   )
     return undefined;
-  const later = await laterTrunkChain(
+  const later = await builds.history.laterTrunk(
     revision,
     trunkHead,
-    call,
     baselineAncestorLimit + 1,
   );
   if (later.length > baselineAncestorLimit) return undefined;
@@ -198,19 +192,21 @@ async function stillAwaited(
   return { kind: "pending", waitsFor: "run" };
 }
 
-// Shared finality for history collection and Done comparison memory. Judge
-// the internal slot before comparison projection drops unanswered-proof and
-// unusable-build details. Unknown receipt age cannot settle the no-run wait.
+// One pending/final judgment for collection and Done comparison memory, before
+// public projection loses unanswered-proof details. Unknown age stays pending.
 export async function landedSlotResolution(
   slot: RevisionBuildSlot,
   landing: { readonly revision: string; readonly receivedAt?: string },
   trunkHead: string,
-  ci: Pick<Extract<PassRead, { kind: "read" }>, "call" | "lookup">,
+  builds: ComparisonBuildSource,
+  now: () => number = observationNow,
 ): Promise<LandedResolution> {
   const final = finalSlot(slot);
   if (final === undefined) return pendingOf(slot);
   try {
-    return (await stillAwaited(final, landing, trunkHead, ci)) ?? final;
+    return (
+      (await stillAwaited(final, landing, trunkHead, builds, now)) ?? final
+    );
   } catch {
     return unread;
   }
@@ -228,18 +224,16 @@ export async function landingResolution(
   try {
     const ci = await read();
     if (ci.kind === "unread") return unread;
-    const { call, lookup, workflow, signal } = ci;
+    const { builds } = ci;
     const trunkHead = `origin/${source.ref}`;
     const slot = await lookupResultBuild(
       landing.revision,
       landing.revision,
-      lookup,
-      call,
-      workflow,
+      builds,
       "No completed CI build was found at the landed revision.",
-      storyBranchLandedExactLookup(true, source.repository, signal, trunkHead),
+      storyBranchLandedExactLookup(true, trunkHead),
     );
-    return await landedSlotResolution(slot, landing, trunkHead, ci);
+    return await landedSlotResolution(slot, landing, trunkHead, builds);
   } catch {
     return unread;
   }

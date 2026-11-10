@@ -5,8 +5,8 @@ import { crc32, deflateRawSync } from "node:zlib";
 import {
   fragment,
   summarize,
-  summaryArtifactName,
 } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiProofEntry, CiProofFile } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 
@@ -215,18 +215,19 @@ export function runArtifactsAnswer(
   artifactId: number | undefined,
   expired = false,
 ): OriginAnswer {
-  const name = summaryArtifactName(run.attempt);
   const artifacts =
     artifactId === undefined
       ? []
       : [
-          {
-            id: artifactId,
-            name,
-            size_in_bytes: 512,
-            expired,
-            workflow_run: { id: run.runId, head_sha: run.revision },
-          },
+          makeMe.aCiProofArtifact
+            .with({
+              id: artifactId,
+              runId: run.runId,
+              runAttempt: run.attempt,
+              revision: run.revision,
+              expired,
+            })
+            .please(),
         ];
   return {
     status: 200,

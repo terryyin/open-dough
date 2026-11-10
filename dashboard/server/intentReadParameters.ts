@@ -4,7 +4,7 @@
 // (`./intentLocationsRead.ts`, `./intentCandidatesRead.ts`) supply the
 // `intent` value and refusal text.
 
-import { listedReadParameters } from "./listedRecordsRead.ts";
+import { listedReadParameters } from "./listedReadParameters.ts";
 import {
   isPinnedRevision,
   refused,

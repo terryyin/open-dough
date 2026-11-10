@@ -21,6 +21,7 @@ import {
   exactFor,
   lookupOf,
   ownBuild,
+  sourceFor,
   run,
   trunk,
   trunkOf,
@@ -82,9 +83,7 @@ test("a cancelled landing without later proof says why and names the build it co
   const atHead = await lookupResultBuild(
     head,
     head,
-    lookupOf({ [head]: [run(head, 61, "cancelled")] }).lookup,
-    repo.call,
-    "ci.yml",
+    sourceFor(repo, lookupOf({ [head]: [run(head, 61, "cancelled")] }).lookup),
     "missing",
     exactFor(),
   );
@@ -101,12 +100,13 @@ test("a cancelled landing without later proof says why and names the build it co
   const stillRunning = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    lookupOf({
-      [repo.landing]: [run(repo.landing, 62, "cancelled")],
-      [later1]: [run(later1, 63, null, { status: "in_progress" })],
-    }).lookup,
-    repo.call,
-    "ci.yml",
+    sourceFor(
+      repo,
+      lookupOf({
+        [repo.landing]: [run(repo.landing, 62, "cancelled")],
+        [later1]: [run(later1, 63, null, { status: "in_progress" })],
+      }).lookup,
+    ),
     "missing",
     exactFor(),
   );
@@ -123,12 +123,13 @@ test("a cancelled landing without later proof says why and names the build it co
   const prooflessBeforeRunning = await laterTrunkCancelledSlot(
     repo.landing,
     cancelledRuns,
-    lookupOf({
-      [later1]: [run(later1, 65, "success")],
-      [later2]: [run(later2, 66, null, { status: "in_progress" })],
-    }).lookup,
-    repo.call,
-    "ci.yml",
+    sourceFor(
+      repo,
+      lookupOf({
+        [later1]: [run(later1, 65, "success")],
+        [later2]: [run(later2, 66, null, { status: "in_progress" })],
+      }).lookup,
+    ),
     exactFor(),
     async () => absent("none"),
   );
@@ -162,9 +163,7 @@ test("a cancelled landing without later proof says why and names the build it co
   const capped = await laterTrunkCancelledSlot(
     deep.landing,
     runs[deep.landing],
-    lookupOf(runs).lookup,
-    deep.call,
-    "ci.yml",
+    sourceFor(deep, lookupOf(runs).lookup),
     exactFor(),
     async () => absent("none"),
   );
@@ -181,9 +180,7 @@ test("a cancelled landing without later proof says why and names the build it co
   const unbuilt = await laterTrunkCancelledSlot(
     deep.landing,
     [run(deep.landing, 80, "cancelled")],
-    lookupOf({}).lookup,
-    deep.call,
-    "ci.yml",
+    sourceFor(deep, lookupOf({}).lookup),
     exactFor(),
     async () => undefined,
   );
@@ -205,9 +202,7 @@ test("a cancelled landing without later proof says why and names the build it co
   const unread = await laterTrunkCancelledSlot(
     deep.landing,
     runs[deep.landing],
-    lookupOf(runs).lookup,
-    deep.call,
-    "ci.yml",
+    sourceFor(deep, lookupOf(runs).lookup),
     exactFor(),
     async (build) => (build.runId === 71 ? unanswered : absent("none")),
   );

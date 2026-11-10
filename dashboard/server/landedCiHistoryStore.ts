@@ -57,7 +57,7 @@ export type ProjectHistory = z.infer<typeof projectHistorySchema>;
 
 const storeSchema = z.record(z.string(), projectHistorySchema);
 
-type StoredHistory = z.infer<typeof storeSchema>;
+export type StoredHistory = z.infer<typeof storeSchema>;
 
 const historyStore = (): MachineJsonStore<StoredHistory> => ({
   file: machineDashboardPath("landed-ci-history.json"),
@@ -67,13 +67,17 @@ const historyStore = (): MachineJsonStore<StoredHistory> => ({
 
 const noHistory: ProjectHistory = { landings: {}, builds: {} };
 
+export function readStoredLandedCiHistory() {
+  return readMachineJson(historyStore());
+}
+
 // An absent local document is empty; unreadable bytes remain a read failure.
 // Compatibility is a read-only view. Shared pruning happens in atomic writes
 // and public projection, preserving order evidence needed by collection.
 export async function readLandedCiHistory(
   sourceId: string,
 ): Promise<ProjectHistory | undefined> {
-  const read = await readMachineJson(historyStore());
+  const read = await readStoredLandedCiHistory();
   return read.kind === "document"
     ? withAdapterIdentity(read.document[sourceId] ?? noHistory)
     : undefined;

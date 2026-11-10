@@ -1,84 +1,31 @@
-// Same-process Done comparison recovery through reselection and Check again
-// (../../src/IntentCiComparison.tsx): unavailable slots, whole-answer gaps
-// and failed reads stay live; final answers and proofs reuse without GitHub
-// (../../server/intentCiComparisonAnswers.ts). Other gap journeys live in
-// ./intent-ci-comparison-gaps.spec.ts. The two 60-second cases below retain
-// SEED-286's pending `intent-ci-comparison-two-read-journeys` optimization.
+// Retained integration: real Git/provider acquisition reaches Check again and
+// process memory, and actual shallow claim history recovers after unshallowing.
+// Fast read/provider memory rules and mounted controls own the other variants.
 
-import type { Locator } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { expectSourceCue } from "../support/expectCiComparisonSourceCue.ts";
-import { wall } from "../support/storyCiComparisonFixture.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import {
   checkAgainOf,
   checkComparisonAgain,
   listedHeadSha,
-  publishTrunkStoryWithBaseline,
   watchComparisonReads,
 } from "../support/storyCiComparisonRetry.ts";
-import { parseRequest } from "../support/ghRequest.ts";
 import { noConnection } from "../originAnswers.ts";
 import { completedPublishedStory } from "../support/completedPublishedStory.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 import { push } from "../support/storyReviewTrunkCommits.ts";
-import { actionsRunsAnswer } from "../support/baseCiActions.ts";
 
 const unrecoverable =
   "Published execution history does not establish a complete claim and its attributed commits for this completion.";
-
-const baselineCell = (panel: Locator) =>
-  panel.locator(".intent-ci-comparison-identity").first();
-
-test("a Baseline listing that failed once is listed again on the next read, then remembered", async ({
-  page,
-  origin,
-}) => {
-  test.setTimeout(60_000);
-  const { baseline, listings, builtPastCompletion } =
-    await publishTrunkStoryWithBaseline(page, origin, (listing) =>
-      listing === 1
-        ? noConnection
-        : actionsRunsAnswer([
-            wall(baseline, 200, "2026-11-05T11:00:00Z", "2026-11-05T11:03:00Z"),
-          ]),
-    );
-
-  const failed = await selectDoneStoryForCiComparison(page);
-  await expect(baselineCell(failed.panel)).toContainText(
-    `head_sha=${baseline}`,
-  );
-  await expect(baselineCell(failed.panel)).toContainText(
-    "GitHub is unreachable",
-  );
-
-  const recovered = await selectDoneStoryForCiComparison(page);
-  await expect(baselineCell(recovered.panel)).toContainText(shortSha(baseline));
-  await expectSourceCue(baselineCell(recovered.panel));
-  const landed = recovered.panel
-    .locator(".intent-ci-comparison-identity")
-    .nth(2);
-  await expect(landed).toContainText("No build");
-  await expect(landed).not.toContainText(shortSha(builtPastCompletion));
-  const listedToRecover = listings.baseline;
-  expect(listedToRecover).toBeGreaterThan(1);
-
-  const remembered = await selectDoneStoryForCiComparison(page);
-  await expect(baselineCell(remembered.panel)).toContainText(
-    shortSha(baseline),
-  );
-  expect(listings.baseline).toBe(listedToRecover);
-});
 
 test("Check again recovers a done Story Branch Baseline that failed once, then asks GitHub nothing", async ({
   page,
   origin,
 }) => {
-  test.setTimeout(60_000);
   const setup = await publishComparedStoryBranch(page, origin);
   let asked = 0;
   let baselineListings = 0;
@@ -88,7 +35,7 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
     baselineListings += 1;
     return baselineListings === 1 ? noConnection : undefined;
   });
-  const reads = await watchComparisonReads(page);
+  const reads = watchComparisonReads(page);
 
   const { panel } = await selectDoneStoryForCiComparison(page);
   const identity = panel.locator(".intent-ci-comparison-identity");
@@ -124,88 +71,6 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   ).toContainText(shortSha(setup.baseline));
   await expect.poll(() => reads.finished.proof).toBe(proofs + 6);
   expect(asked).toBe(askedBefore);
-});
-
-test("Check again reads the endpoint proof that failed once again", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishComparedStoryBranch(page, origin);
-  let landedArtifactListings = 0;
-  setup.interceptActions((argv) => {
-    const request = parseRequest(argv);
-    if (request.kind !== "actions-run-artifacts" || request.runId !== 103)
-      return undefined;
-    landedArtifactListings += 1;
-    return landedArtifactListings === 1 ? noConnection : undefined;
-  });
-
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
-    "Baseline compared with Branch",
-  );
-  await checkComparisonAgain(page, panel);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
-    "Baseline compared with Landed",
-  );
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)");
-  expect(landedArtifactListings).toBe(2);
-});
-
-test("while the Baseline listing keeps failing, each Check again lists it again and shows why", async ({
-  page,
-  origin,
-}) => {
-  const { baseline, listings } = await publishTrunkStoryWithBaseline(
-    page,
-    origin,
-    () => noConnection,
-  );
-  const reads = await watchComparisonReads(page);
-
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(baselineCell(panel)).toContainText("GitHub is unreachable");
-  const checkAgain = checkAgainOf(panel);
-  for (let round = 0; round < 2; round += 1) {
-    const listed = listings.baseline;
-    const comparisons = reads.finished.comparison;
-    const release = reads.hold();
-    await checkAgain.click();
-    await expect(checkAgain).toBeDisabled();
-    release();
-    await expect
-      .poll(() => reads.finished.comparison, {
-        timeout: readWaitLimitMs + 15_000,
-      })
-      .toBe(comparisons + 1);
-    await expect(checkAgain).toBeEnabled();
-    await expect(baselineCell(panel)).toContainText(`head_sha=${baseline}`);
-    await expect(baselineCell(panel)).toContainText("GitHub is unreachable");
-    expect(listings.baseline).toBeGreaterThan(listed);
-  }
-});
-
-test("Check again reads the comparison again after its whole read failed", async ({
-  page,
-  origin,
-}) => {
-  const { baseline } = await publishTrunkStoryWithBaseline(page, origin, () =>
-    actionsRunsAnswer([
-      wall(baseline, 200, "2026-11-05T11:00:00Z", "2026-11-05T11:03:00Z"),
-    ]),
-  );
-  const reads = await watchComparisonReads(page);
-  reads.refuseNext();
-
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  await expect(panel.locator(".intent-ci-gap")).toBeVisible();
-  await expect(panel.locator(".intent-ci-comparison")).toHaveCount(0);
-  await checkComparisonAgain(page, panel);
-  await expect(baselineCell(panel)).toContainText(shortSha(baseline));
-  await expectSourceCue(baselineCell(panel));
-  await expect(panel.locator(".intent-ci-gap")).toHaveCount(0);
 });
 
 test("unrecoverable published history shows the published-review explanation without inventing builds, and Check again reads it again", async ({

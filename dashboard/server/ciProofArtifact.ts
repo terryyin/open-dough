@@ -24,6 +24,8 @@ import { summaryArtifactName } from "../../src/skills/dough-test-optimization/sc
 import {
   GitHubAcquisitionFailed,
   GitHubAcquisitionHeld,
+  readGitHubActions,
+  askGitHubArchive,
 } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
 import {
   ciProofTooLarge,
@@ -128,28 +130,44 @@ function proofOf(read: GitHubActionsSummaryRead, run: CiProofRun): CiProof {
   }
 }
 
-// Valid summaries read so far, by repository, run and attempt.
-const remembered = rememberedByKey<Record<string, unknown>>();
+type ArtifactReads = {
+  readonly listing: typeof readGitHubActions;
+  readonly archive: (args: string[], signal: AbortSignal) => Promise<Buffer>;
+};
+
 const rememberedKey = (repository: string, run: CiProofRun) =>
   `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
 
 // The proof of `run` in `repository`: its summary, or why there is none to
 // show.
-export async function readCiProofArtifact(
-  repository: string,
-  run: CiProofRun,
-  signal: AbortSignal,
-): Promise<CiProof> {
-  const key = rememberedKey(repository, run);
-  const rememberedSummary = remembered.get(key);
-  if (rememberedSummary !== undefined)
-    return { kind: "summary", summary: rememberedSummary } as CiProof;
-  let read: GitHubActionsSummaryRead;
-  try {
-    read = await readGitHubActionsSummary(repository, run, signal);
-  } catch (error) {
-    return unreadableBy(error);
-  }
-  if ("summary" in read) remembered.set(key, read.summary);
-  return proofOf(read, run);
+export function ciProofArtifactReader(
+  reads: ArtifactReads = {
+    listing: readGitHubActions,
+    archive: askGitHubArchive,
+  },
+) {
+  const remembered = rememberedByKey<Record<string, unknown>>();
+  return async (
+    repository: string,
+    run: CiProofRun,
+    signal: AbortSignal,
+  ): Promise<CiProof> => {
+    const key = rememberedKey(repository, run);
+    const kept = remembered.get(key);
+    if (kept !== undefined)
+      return { kind: "summary", summary: kept } as CiProof;
+    let read: GitHubActionsSummaryRead;
+    try {
+      read = await readGitHubActionsSummary(repository, run, signal, {
+        readGitHubActions: reads.listing,
+        askGitHubArchive: reads.archive,
+      });
+    } catch (error) {
+      return unreadableBy(error);
+    }
+    if ("summary" in read) remembered.set(key, read.summary);
+    return proofOf(read, run);
+  };
 }
+
+export const readCiProofArtifact = ciProofArtifactReader();

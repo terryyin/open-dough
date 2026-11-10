@@ -11,7 +11,7 @@
 // proof summary reopen like pending: Check again and the next same-process
 // read re-resolve them under timed wall-time reuse without proof.
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
-import { rememberedByKey } from "./rememberedByKey.ts";
+import { rememberedByKey, type RememberedByKey } from "./rememberedByKey.ts";
 import { finalSlot } from "./revisionBuildSlot.ts";
 
 export function ciComparisonAnswerKey(
@@ -20,8 +20,6 @@ export function ciComparisonAnswerKey(
 ): string {
   return `${repository.toLowerCase()}#${identity}`;
 }
-
-const remembered = rememberedByKey<StoryCiComparisonAnswer>();
 
 // Old final Landed gap: confirmed skip unused only because the equivalent
 // build published no CI proof summary (wording from
@@ -44,30 +42,50 @@ export function recoverableUnusedNoProofLanded(
 export function keptCiComparisonAnswer(
   key: string,
 ): StoryCiComparisonAnswer | undefined {
-  const answer = remembered.get(key);
-  if (answer === undefined) return undefined;
-  // Same-process recovery path used for pending Landed: do not serve a
-  // retained unused/no-proof Landed answer; the next read re-resolves.
-  if (recoverableUnusedNoProofLanded(answer)) return undefined;
-  return answer;
+  return answers.get(key);
 }
 
 export function rememberCiComparisonAnswer(
   key: string,
   answer: StoryCiComparisonAnswer,
 ): void {
-  if (!isFinalCiComparisonAnswer(answer)) return;
-  remembered.set(key, answer);
+  answers.set(key, answer);
 }
 
-// Seeds a retained process answer for recovery proofs, including shapes
-// ordinary remember refuses so Check again / same-process reopen can run.
-export function seedRememberedCiComparisonAnswer(
-  key: string,
-  answer: StoryCiComparisonAnswer,
-): void {
-  remembered.set(key, answer);
+export type CiComparisonAnswers = Pick<
+  RememberedByKey<StoryCiComparisonAnswer>,
+  "get" | "set" | "clear"
+>;
+
+// Revalidate legacy missing-proof gaps once. A fresh final gap can have the
+// same wording when its equivalent failed or had no usable timing; that
+// actual resolution is final under finalSlot, not another legacy answer.
+export function ciComparisonAnswers(
+  remembered = rememberedByKey<StoryCiComparisonAnswer>(),
+): CiComparisonAnswers {
+  let resolved = new WeakSet<StoryCiComparisonAnswer>();
+  return {
+    get(key) {
+      const answer = remembered.get(key);
+      return answer !== undefined &&
+        recoverableUnusedNoProofLanded(answer) &&
+        !resolved.has(answer)
+        ? undefined
+        : answer;
+    },
+    set(key, answer) {
+      if (!isFinalCiComparisonAnswer(answer)) return;
+      resolved.add(answer);
+      remembered.set(key, answer);
+    },
+    clear() {
+      remembered.clear();
+      resolved = new WeakSet<StoryCiComparisonAnswer>();
+    },
+  };
 }
+
+const answers = ciComparisonAnswers();
 
 export function isFinalCiComparisonAnswer(
   answer: StoryCiComparisonAnswer,
@@ -75,13 +93,11 @@ export function isFinalCiComparisonAnswer(
   if (answer.kind === "unavailable") return false;
   // Taken answers follow the live tip; never freeze them.
   if (answer.phase === "taken") return false;
-  // Do not freeze Landed unused solely for equivalent missing proof.
-  if (recoverableUnusedNoProofLanded(answer)) return false;
   return [answer.baseline, answer.branch, answer.landed].every(
     (slot) => finalSlot(slot) !== undefined,
   );
 }
 
 export function clearCiComparisonAnswers(): void {
-  remembered.clear();
+  answers.clear();
 }

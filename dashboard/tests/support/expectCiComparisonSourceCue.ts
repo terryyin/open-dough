@@ -33,3 +33,25 @@ export async function expectNoRunOrAttemptIds(identity: Locator) {
   await expect(identity).not.toContainText(/run \d+/);
   await expect(identity).not.toContainText(/attempt /i);
 }
+
+// Raw identity wording and source attributes; native visibility stays separate.
+export async function sourceIdentityFacts(identities: Locator) {
+  return identities.evaluateAll((nodes) =>
+    nodes.map((identity) => {
+      const rawText = identity.textContent;
+      return {
+        rawText,
+        text: rawText
+          .replace(/[\u200b\u00ad]/g, "")
+          .trim()
+          .replace(/\s+/g, " "),
+        sources: [
+          ...identity.querySelectorAll(".intent-ci-comparison-source"),
+        ].map((source) => ({
+          selection: source.getAttribute("data-selection"),
+          title: source.getAttribute("title"),
+        })),
+      };
+    }),
+  );
+}

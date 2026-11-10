@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 482. Removed numbers are never reused.
+- Highest allocated local number: 483. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -19,6 +19,16 @@ Former local code: DD-057. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 Former local code: DD-450. Former local code: DD-470 (plan 533 only). Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
+
+### Occurrences
+- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: `6a6392eddcc15044413ce9c663bac9e72f2926f6:.planning/slice-plans/556-fast-intent-ci-comparison-tests/client-owner-evidence.md`, Final local family and corrected cleanup accounting; raw `analyze-slice8-local.py:155` and `slice8-final-ordinary-independent-audit.md` under `/tmp/seed286-execution-20261109/`.
+  - Observed effect: The temporary analyzer described onTestEnd receipt as after final worker cleanup, and the coordinator initially accepted/reported it. Source inspection found final trace stop, then testEnd emission, then output-directory removal. Existing following-worker-start data supplied complete bounds of 3–182ms ordinary and 3–263ms loaded; no additional test run was needed. Maintained measurement guidance was corrected before closure.
+  - Inference: This is a measurement-boundary facet of an unverified consuming-operation premise. Existing premise guidance already applied; no instruction required the mistaken endpoint assumption, and no extra test-run cost is attributed to it.
+
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
 ## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
@@ -221,6 +231,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: commit/publication were correctly withheld; one mechanical repair/proof/preparation loop preceded accepted `fa8eba6b9`. Browser evidence stayed applicable.
   - Inference: another late lint-feedback occurrence; the record does not establish the counterfactual saving of an earlier read-only check.
 
+- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: `6a6392eddcc15044413ce9c663bac9e72f2926f6:.planning/slice-plans/556-fast-intent-ci-comparison-tests/client-owner-evidence.md`, Independent refactor and actual preparation; raw `slice8-format.log`, `slice8-format-repaired.log`, `slice8-format-final.log` and `slice8-final-lint-commands.json` under `/tmp/seed286-execution-20261109/`.
+  - Observed effect: Implementation/refactor briefs reserved formatter and hook lint for the coordinator without settling read-only authored-file lint. The first actual formatter found nine lint errors after green proof/refactoring. The coordinator's intermediate this:void repair introduced three further lint errors; stable arrow subscriptions and the remaining mechanical repairs passed formatting, 18 affected tests and typecheck. This is one execution occurrence, including coordinator-introduced repair churn.
+  - Inference: Matches the existing delegation ambiguity; earlier read-only lint's possible saving remains unmeasured.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -293,6 +311,16 @@ Former local code: DD-388. Former local code: DD-379 (`6085b6eed`), renumbered i
 Former local code: DD-389. [Evidence and current response](docs/maintainer/findings/ODF-399.md).
 ## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
 Former local code: DD-391. [Evidence and current response](docs/maintainer/findings/ODF-337.md).
+
+### Occurrences
+- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: slice9 `fresh` returned `preparation-failed`, operation `staging`, `fatal: pathspec '.planning/agents/bas-chan.json' did not match any files`; `slice9-progress-delivery-repaired.log` and `slice9-merge-staging-classification.json` under `/tmp/seed286-execution-20261109/`; classifying195 working paths as ownedPaths and13 already staged merge deletions as stagedPaths published `76015682179bcf87353da6c1cbbc6da5b86e11ca`.
+  - Observed effect: one staging refusal before commit/publication, then a preparation-input correction and retry; formatting reran, no tested source or deletion was lost.
+  - Inference: Same already-absent-index/literal-add condition as ODF-337. This confirms that condition for merge-staged deletions, not that every unstaged deletion fails; the publication boundary contained the mistaken path classification.
+
 ## ODF-400 — Foreign unpublished commits on an execution tip block story-branch publish
 Former local code: DD-398. [Evidence and current response](docs/maintainer/findings/ODF-400.md).
 ## ODF-401 — Multi-done planning-only slices force temporary Status mutation for ordered delivery
@@ -509,3 +537,16 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `921ad3c98` PLAN.md has `## Slice`; published tip `8fa1b522` has `## Slices`. Coordinator transcript `058c51db-7e9f-4095-86f9-2783c98271b9` renamed the heading before the successful `story-obligations.mjs list --slice 1`. Reader regex: `^## +(?:Ordered slices|Slices) *$`. Sibling Taken plan 568 still has `## Slice` at line 112.
   - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
   - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.
+
+## DD-483 — A message to a completed agent left its follow-up task idle
+
+The coordinator sent a new task through a message API that does not activate a completed agent, then waited and chased status before using the activation operation. This is an operator mistake against the explicit host contract; no missing Open Dough rule is established.
+
+### Occurrences
+- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: unknown
+  - Evidence: coordinator history after the slice9 oracle-migration final return: repeated send_message manifest requests/status chases, interrupt_agent returning previous_status.completed, then the corrective followup_task beginning "START scratch manifest task now"; the coordinator acknowledged the activation mistake and the actual manifest returned257 owners/207rules/50connections.
+  - Observed effect: the follow-up task remained unstarted across several status messages and waits; it ran after activation was corrected. No source work or accepted proof was lost. Elapsed time and token cost were not measured.
+  - Inference: One execution-level coordination error. The tool description already distinguishes message delivery from starting a turn; this observation does not justify another wording rule or claim a host defect.

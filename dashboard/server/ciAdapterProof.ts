@@ -12,6 +12,7 @@
 // and attempt for this process's lifetime beside the GitHub Actions summary
 // memory (`./ciProofArtifact.ts`); every other answer is asked of the
 // adapter again.
+import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import {
   readCiAdapterSummary,
   type CiAdapterSummaryRead,
@@ -26,8 +27,6 @@ import { ciAdapterFailureOf } from "./ciAdapterFailure.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
 import { rememberedByKey } from "./rememberedByKey.ts";
 
-// Valid summaries read so far, by repository and attempt.
-const remembered = rememberedByKey<Record<string, unknown>>();
 const rememberedKey = (repository: string, attempt: CiAdapterProofAttempt) =>
   JSON.stringify([
     repository.toLowerCase(),
@@ -62,36 +61,49 @@ function proofOf(read: CiAdapterSummaryRead): CiProof {
 
 // The proof of `attempt` in `repository` as the adapter configured in
 // `folder` answers it: its summary, or why there is none to show.
-export async function readCiAdapterProof(
-  repository: string,
-  folder: string,
-  attempt: CiAdapterProofAttempt,
-  signal: AbortSignal,
-  // The adapter's time limit; the dashboard's adapter limit unless a test
-  // shortens it.
-  timeoutMs: number = ciAdapterTimeoutMs(),
-): Promise<CiProof> {
-  const key = rememberedKey(repository, attempt);
-  const rememberedSummary = remembered.get(key);
-  if (rememberedSummary !== undefined)
-    return { kind: "summary", summary: rememberedSummary } as CiProof;
-  let read: CiAdapterSummaryRead;
-  try {
-    const { adapter } = ciConfiguration(folder);
-    if (adapter === undefined)
-      return unavailable(
-        "unreadable",
-        "this project's CI is not read through a ciAdapter",
+export function ciAdapterProofReader(
+  commandProof: typeof readCommandProof = readCommandProof,
+) {
+  const remembered = rememberedByKey<Record<string, unknown>>();
+  return async (
+    repository: string,
+    folder: string,
+    attempt: CiAdapterProofAttempt,
+    signal: AbortSignal,
+    // The adapter's time limit; the dashboard's adapter limit unless a test
+    // shortens it.
+    timeoutMs: number = ciAdapterTimeoutMs(),
+  ): Promise<CiProof> => {
+    const key = rememberedKey(repository, attempt);
+    const kept = remembered.get(key);
+    if (kept !== undefined)
+      return { kind: "summary", summary: kept } as CiProof;
+    let read: CiAdapterSummaryRead;
+    try {
+      const { adapter } = ciConfiguration(folder);
+      if (adapter === undefined)
+        return unavailable(
+          "unreadable",
+          "this project's CI is not read through a ciAdapter",
+        );
+      read = await readCiAdapterSummary(
+        adapter,
+        repository,
+        attempt,
+        {
+          signal,
+          cwd: folder,
+          timeoutMs,
+        },
+        commandProof,
       );
-    read = await readCiAdapterSummary(adapter, repository, attempt, {
-      signal,
-      cwd: folder,
-      timeoutMs,
-    });
-  } catch (error) {
-    if (signal.aborted) throw error;
-    return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
-  }
-  if ("summary" in read) remembered.set(key, read.summary);
-  return proofOf(read);
+    } catch (error) {
+      if (signal.aborted) throw error;
+      return unavailable("unreadable", ciAdapterFailureOf(error, timeoutMs));
+    }
+    if ("summary" in read) remembered.set(key, read.summary);
+    return proofOf(read);
+  };
 }
+
+export const readCiAdapterProof = ciAdapterProofReader();

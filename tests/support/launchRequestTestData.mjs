@@ -21,8 +21,8 @@
  */
 /**
  * What the request also states: the session's host, the model and reporting
- * context asked for, and the workspace policy an ad hoc start asked for.
- * @typedef {{ host: LaunchRecord["session"]["host"], model?: LaunchRecord["request"]["model"], reporting?: LaunchRecord["request"]["reporting"], policy?: { workspace: "isolated" | "default-checkout", landing: "auto-land" | "review" } | undefined }} RequestDetails
+ * context asked for, and the workspace policy a one-shot or ad hoc start asked for.
+ * @typedef {{ host: LaunchRecord["session"]["host"], model?: LaunchRecord["request"]["model"], reporting?: LaunchRecord["request"]["reporting"], policy?: { tracking?: "standard" | "one-shot", workspace: "isolated" | "default-checkout", landing: "auto-land" | "review" } | undefined }} RequestDetails
  */
 
 /**
@@ -65,5 +65,8 @@ function keptRequest(requested, { host, model, reporting, policy }) {
     workflow: requested.workflow,
     host,
     ...asked,
+    ...(policy?.tracking !== undefined && {
+      policy: { ...policy, tracking: policy.tracking },
+    }),
   };
 }

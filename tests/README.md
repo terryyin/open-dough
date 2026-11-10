@@ -1,18 +1,14 @@
 # Tests
 
-Prepare the [native prerequisites](native-setup.md) once, and again when the
-lockfile changes. Repeated checks reuse them without installation.
+Prepare [native prerequisites](native-setup.md) once per lockfile version.
 
-The separate [dashboard suite](../dashboard/tests/README.md) runs integrated
-browser tests in the ten [feature folders](../dashboard/tests/feature-groups.md)
-under `dashboard/tests/`, frontend-only tests in
+The [dashboard suite](../dashboard/tests/README.md) runs browser tests in its
+[feature folders](../dashboard/tests/feature-groups.md), frontend-only tests in
 `dashboard/frontend-tests/`, and backend tests in `dashboard/backend-tests/`
-together through `npm run test:dashboard`; `npm test` does not discover those
-Playwright specs.
+through `npm run test:dashboard`; `npm test` does not discover those specs.
 
-Run every check through the runner. `npm test` (or `bash scripts/test.sh`)
-runs the whole suite; naming paths runs exactly those shell checks (`.sh`) or
-`node --test` files (`.mjs`, `.js`):
+Run every check through the runner. `npm test` (or `bash scripts/test.sh`) runs
+the whole suite; named `.sh`, `.mjs`, or `.js` paths select exactly those checks:
 
 ```sh
 npm test -- tests/payload-declaration-links.sh \
@@ -20,16 +16,16 @@ npm test -- tests/payload-declaration-links.sh \
 bash scripts/test.sh tests/payload-declaration-links.sh
 ```
 
-A relative path is resolved from the directory `scripts/test.sh` starts in;
-`npm test` starts it at the repository root. A path that is not a file, or not
-one of those kinds, fails the run naming it before any check starts.
+Relative paths use the directory `scripts/test.sh` starts in; `npm test` starts
+at the repository root. Missing paths or unsupported file kinds fail the run
+before any check starts, naming the path.
 
-[Local resource use](local-test-resources.md) covers concurrency, cleanup and
-machine sleep on macOS.
+[Local resource use](local-test-resources.md): concurrency, cleanup, macOS sleep.
 
 ## Test data architecture
 
-See the [shared test data architecture](test-data-architecture.md).
+[MakeMe and shared test data](test-data-architecture.md) describes the canonical
+builders, repository descriptions, and the harness responsibilities around them.
 
 ## Check environment
 

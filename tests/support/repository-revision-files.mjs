@@ -184,7 +184,8 @@ export function renderRevisionFiles(start, revision) {
 
 /**
  * The files each named trunk revision of `description` publishes: the first
- * starts from no files, and each later one from the files before it.
+ * starts from no files; a later one inherits its named first parent, or the
+ * preceding revision when its parents are implicit.
  * @template {string} Name
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
  * @returns {Record<Name, Record<string, string | Buffer>>}
@@ -195,7 +196,12 @@ export function renderPublishedRevisions({ revisions }) {
   /** @type {RevisionFiles} */
   let files = {};
   for (const revision of revisions) {
-    files = renderRevisionFiles(files, revision);
+    files = renderRevisionFiles(
+      revision.parents === undefined
+        ? files
+        : (published[revision.parents[0] ?? ""] ?? {}),
+      revision,
+    );
     published[revision.name] = files;
   }
   return /** @type {Record<Name, Record<string, string | Buffer>>} */ (

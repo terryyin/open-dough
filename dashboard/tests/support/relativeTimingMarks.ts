@@ -16,10 +16,32 @@ export type MarkGeometry = {
   readonly barWidth: number;
 };
 
-export async function markGeometry(cell: Locator): Promise<MarkGeometry> {
-  const mark = cell.locator(".intent-ci-time-mark");
-  await expect(mark).toHaveCount(1);
-  return mark.evaluate((element) => {
+export type RelativeFigure = {
+  readonly identity: {
+    readonly row: string | null;
+    readonly column: number | null;
+    readonly overallWall: boolean;
+  };
+  readonly words: string;
+  readonly marks: readonly MarkGeometry[];
+  readonly percentages: readonly string[];
+};
+
+type RelativeObservation = {
+  readonly figures: readonly RelativeFigure[];
+  readonly percentages: readonly string[];
+};
+
+// The same layout calculation serves mark.evaluate and selected.evaluateAll.
+function observeRelativeFigures(
+  nodes: Element | Element[],
+): MarkGeometry | RelativeObservation {
+  const words = (element: Element) =>
+    element.textContent
+      .replace(/[\u200b\u00ad]/g, "")
+      .trim()
+      .replace(/\s+/g, " ");
+  const geometry = (element: Element): MarkGeometry => {
     const box = element.getBoundingClientRect();
     const centre = box.left + box.width / 2;
     const zero = element.querySelector(".intent-ci-time-zero");
@@ -36,7 +58,61 @@ export async function markGeometry(cell: Locator): Promise<MarkGeometry> {
         direction === "faster" ? barBox.right - centre : barBox.left - centre,
       barWidth: barBox.width,
     };
-  });
+  };
+  if (!Array.isArray(nodes)) return geometry(nodes);
+  return {
+    figures: nodes
+      .filter((node) => !node.matches(".intent-ci-time-percent"))
+      .map((node): RelativeFigure => {
+        const row = node.closest("tr");
+        return {
+          identity: {
+            row:
+              row === null
+                ? null
+                : (row.querySelector("th")?.textContent ?? "").trim(),
+            column:
+              row === null ? null : Array.from(row.children).indexOf(node),
+            overallWall: node.matches(".intent-ci-comparison-overall-wall"),
+          },
+          words: words(node),
+          marks: Array.from(
+            node.querySelectorAll(".intent-ci-time-mark"),
+            geometry,
+          ),
+          percentages: Array.from(
+            node.querySelectorAll(".intent-ci-time-percent"),
+            (percent) => percent.textContent,
+          ),
+        };
+      }),
+    percentages: nodes
+      .filter((node) => node.matches(".intent-ci-time-percent"))
+      .map((percent) => percent.textContent),
+  };
+}
+
+// TARGETS are the actual selected cells/figures. Arrays preserve DOM order and
+// duplicate cardinality; percentages also retain every result in the scope.
+export async function relativeFigures(
+  targets: Locator,
+  percentScope?: Locator,
+) {
+  const selected =
+    percentScope === undefined
+      ? targets
+      : targets.or(percentages(percentScope));
+  const actual = await selected.evaluateAll(observeRelativeFigures);
+  if ("figures" in actual) return actual;
+  throw new Error("Expected selected relative figures.");
+}
+
+export async function markGeometry(cell: Locator): Promise<MarkGeometry> {
+  const mark = cell.locator(".intent-ci-time-mark");
+  await expect(mark).toHaveCount(1);
+  const actual = await mark.evaluate(observeRelativeFigures);
+  if ("direction" in actual) return actual;
+  throw new Error("Expected a single relative mark.");
 }
 
 // The cell shows its words and a mark whose zero is centred, extending in
@@ -46,7 +122,14 @@ export async function expectMark(
   direction: "faster" | "slower" | "none",
   reach: number,
 ) {
-  const geometry = await markGeometry(cell);
+  return expectMarkGeometry(await markGeometry(cell), direction, reach);
+}
+
+export function expectMarkGeometry(
+  geometry: MarkGeometry,
+  direction: "faster" | "slower" | "none",
+  reach: number,
+) {
   expect(geometry.direction).toBe(direction);
   expect(Math.abs(geometry.zeroOffset)).toBeLessThanOrEqual(1);
   expect(Math.abs(geometry.barStartOffset)).toBeLessThanOrEqual(1);

@@ -10,8 +10,11 @@
 // proofs the comparison shows are read again with each
 // (`./useIntentCiComparisonEntries.ts`).
 
-import { useEffect, useState } from "react";
-import { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import {
+  comparisonReadingKey,
+  createCiComparisonReading,
+} from "./ciComparisonReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 
@@ -25,76 +28,35 @@ export type ComparisonReading = {
   readonly checkedAgain: number;
 };
 
-const unreadReason = "The CI comparison could not be read";
-
 export function useIntentCiComparison(
   source: PublishedSource,
   identity: string | undefined,
   // Observed tip for a Taken comparison; undefined for done stories.
   head?: string,
 ): ComparisonReading {
-  const key = identity === undefined ? undefined : `${source.id}#${identity}`;
-  const [shown, setShown] = useState<StoryCiComparisonAnswer | undefined>(
-    undefined,
+  const [owner] = useState(createCiComparisonReading);
+  const state = useSyncExternalStore(
+    owner.subscribe,
+    owner.getSnapshot,
+    owner.getSnapshot,
   );
-  const [reading, setReading] = useState(true);
-  const [failed, setFailed] = useState<string | undefined>(undefined);
-  const [readFor, setReadFor] = useState(key);
-  // First observed tip only records it (the read already resolves the live
-  // tip on the server); a later tip re-reads the provisional answer.
-  const [followed, setFollowed] = useState(head);
-  const [check, setCheck] = useState(0);
-  const [askedAgain, setAskedAgain] = useState(0);
-  const [checkedAgain, setCheckedAgain] = useState(0);
-  if (readFor !== key) {
-    setReadFor(key);
-    setShown(undefined);
-    setReading(true);
-    setFailed(undefined);
-    setFollowed(head);
-    setCheck(0);
-    setAskedAgain(0);
-    setCheckedAgain(0);
-  } else if (followed !== head) {
-    if (followed !== undefined && head !== undefined) setCheck((n) => n + 1);
-    setFollowed(head);
-  }
-
-  useEffect(() => {
-    if (identity === undefined) return;
-    const controller = new AbortController();
-    setReading(true);
-    setFailed(undefined);
-    void readIntentCiComparison(source, identity, controller.signal)
-      .then((answer) => {
-        if (controller.signal.aborted) return;
-        setShown(answer);
-        setCheckedAgain(askedAgain);
-        setReading(false);
-      })
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return;
-        setShown(undefined);
-        setFailed(
-          error instanceof Error && error.message !== ""
-            ? error.message
-            : unreadReason,
-        );
-        setReading(false);
-      });
-    return () => {
-      controller.abort();
-    };
-  }, [source, identity, check, askedAgain]);
-
-  const current = readFor === key;
-  return {
-    shown: current ? shown : undefined,
-    reading: current ? reading : true,
-    failed: current ? failed : undefined,
-    checkAgain: () => {
-      if (current && !reading) setAskedAgain((n) => n + 1);
+  useEffect(
+    () => () => {
+      owner.dispose();
     },
-    checkedAgain: current ? checkedAgain : 0,
+    [owner],
+  );
+  useEffect(() => {
+    void owner.select(source, identity, head);
+  }, [owner, source, identity, head]);
+  const current = state.key === comparisonReadingKey(source, identity);
+  return {
+    shown: current ? state.shown : undefined,
+    reading: current ? state.reading : true,
+    failed: current ? state.failed : undefined,
+    checkAgain: () => {
+      if (current) void owner.checkAgain();
+    },
+    checkedAgain: current ? state.checkedAgain : 0,
   };
 }

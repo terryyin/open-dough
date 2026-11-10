@@ -3,12 +3,12 @@
 // stories), mode and branch from the live profile, and the live tip to look
 // up as a provisional result. No completion or landing — Landed stays
 // not-landed until wrap-up.
+import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   commitShaPattern,
   isSafeBranchName,
 } from "../src/authenticatedReadRules.ts";
-import { notLandedYetExplanation } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { ciConfiguration } from "./baseCiJudgment.ts";
 import { resolveBranchHeadViaGh } from "./ghRevision.ts";
@@ -170,7 +170,7 @@ export async function takenStoryEndpoints(
     const evidence = await publishedStoryEvidence(
       story,
       trunk,
-      call,
+      publishedStoryHistory(call),
       claiming.agent,
     );
     const [claim] = evidence.claims;
@@ -222,10 +222,4 @@ export async function takenStoryEndpoints(
   }
 }
 
-export const notLandedYet: {
-  readonly kind: "not-landed";
-  readonly explanation: string;
-} = {
-  kind: "not-landed",
-  explanation: notLandedYetExplanation,
-};
+export { notLandedYet } from "./intentCiComparisonSlots.ts";

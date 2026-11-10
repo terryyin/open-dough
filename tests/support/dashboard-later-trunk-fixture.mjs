@@ -7,6 +7,7 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { storyBranchLandedExactLookup } from "../../dashboard/server/exactSkippedEquivalent.ts";
+import { comparisonBuildSource } from "../../dashboard/server/comparisonBuildSource.ts";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
@@ -107,12 +108,15 @@ export function lookupOf(runs) {
 // Story Branch Landed's exact lookup at a landing merge, reading trunk's
 // `main` as the later trunk head.
 export function exactFor() {
-  return storyBranchLandedExactLookup(
-    false,
-    "terryyin/open-dough",
-    new AbortController().signal,
-    "main",
-  );
+  return storyBranchLandedExactLookup(false, "main");
+}
+
+// The same real Git/provider acquisition composition the comparison uses.
+export function sourceFor(repo, lookup) {
+  return comparisonBuildSource(lookup, repo.call, "ci.yml", {
+    repository: "terryyin/open-dough",
+    signal: new AbortController().signal,
+  });
 }
 
 // The landing's own run `runId` at `revision`, as Landed names it when it

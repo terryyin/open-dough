@@ -1,11 +1,14 @@
 // @ts-check
-// MakeMe: shared domain-data entry. Each `makeMe.aThing` starts a fresh builder;
-// named methods state facts and `.please()` returns the product value.
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
 import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
+import {
+  PublishedStoryEndpointBuilder,
+  RevisionCiRunBuilder,
+  TakenStoryEndpointBuilder,
+} from "./ciComparisonTestData.mjs";
 import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
@@ -48,18 +51,20 @@ import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
+import { CiProofBuilder } from "./ciProofTestData.mjs";
+import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
 import {
-  CiProofBuilder,
-  LandedCiResolutionBuilder,
-} from "./landedCiProofTestData.mjs";
-
+  PublishedWorkBuilder,
+  StoryCiComparisonBuilder,
+} from "./comparisonViewTestData.mjs";
+import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
+import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
-
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
 /** @typedef {Record<keyof Pick<IncrementPublication, "branch" | "previouslyPublishedBase" | "targetRef">, string>} IncrementPublicationFacts */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/history-preserving-publish.mjs").publishHistoryPreservingCandidate>[0]} HistoryPreservingPublication */
-/** @typedef {Record<keyof Pick<HistoryPreservingPublication, "publishedTip" | "branch">, string> & Partial<Record<keyof Pick<HistoryPreservingPublication, "targetRef">, string>>} PublishedIntegration */
+/** @typedef {import("./publicationTestData.mjs").PublishedIntegration} PublishedIntegration */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/publication-resume.mjs").resumeInterruptedPublication>[0]} PublicationResume */
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
@@ -70,7 +75,6 @@ import {
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
-
 export const makeMe = {
   get aCiProof() {
     return new CiProofBuilder();
@@ -101,6 +105,12 @@ export const makeMe = {
   },
   get aPublishedSource() {
     return new PublishedSourceBuilder();
+  },
+  get aPublishedWork() {
+    return new PublishedWorkBuilder();
+  },
+  get aStoryCiComparison() {
+    return new StoryCiComparisonBuilder();
   },
   get aConfiguredProject() {
     return new ConfiguredProjectBuilder();
@@ -154,8 +164,6 @@ export const makeMe = {
   get aLaunchLanding() {
     return new LaunchLandingBuilder();
   },
-  // A host's session on its own, as a terminal or runner consumes it:
-  // `makeMe.aHostSession.codex({ sessionId, continuation }).please()`.
   get aHostSession() {
     return hostSessionChoices;
   },
@@ -173,6 +181,26 @@ export const makeMe = {
   },
   get aMachineAnswer() {
     return new MachineAnswerBuilder();
+  },
+  /** @returns {FactBuilder<import("../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} */
+  get aReviewedStory() {
+    return { with: copyFacts };
+  },
+  /** @returns {FactBuilder<import("../../dashboard/src/storyReviewFiles.ts").ReviewedFile>} */
+  get aReviewedFile() {
+    return { with: copyFacts };
+  },
+  get aPublishedStoryEndpoint() {
+    return new PublishedStoryEndpointBuilder();
+  },
+  get aTakenStoryEndpoint() {
+    return new TakenStoryEndpointBuilder();
+  },
+  get aRevisionCiRun() {
+    return new RevisionCiRunBuilder();
+  },
+  get aCiProofArtifact() {
+    return new CiProofArtifactBuilder();
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();
@@ -199,20 +227,16 @@ export const makeMe = {
   get aCiRun() {
     return { with: copyFacts };
   },
+  /** @returns {FactBuilder<import("../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */
+  get anIntentCiStatus() {
+    return { with: copyFacts };
+  },
   /** @returns {FactBuilder<IncrementPublicationFacts>} */
   get anIncrementPublication() {
     return { with: copyFacts };
   },
   get aPublishedIntegration() {
-    return {
-      /**
-       * @template {PublishedIntegration} Facts
-       * @param {Facts} facts
-       */
-      with(facts) {
-        return copyFacts(facts);
-      },
-    };
+    return new PublishedIntegrationBuilder();
   },
   /** @returns {FactBuilder<RetainedComparison>} */
   get aRetainedComparison() {

@@ -7,6 +7,7 @@
     "allowJs": true,
     "checkJs": false
   },
+  "exclude": ["tests/comparison-mount"],
   "include": [
     "vite.config.mts",
     "playwright.config.ts",

@@ -1,26 +1,15 @@
-// A selected done story's entry and folder Summary comparison sorts its table
-// of immediate folders and files by its columns (../../src/IntentScopeProof.tsx,
-// ../../src/IntentScopeComparisonTable.tsx, ../../src/CiProofTable.tsx):
-// Change by kind with unchanged rows last, Landed by its signed change with
-// uncomparable rows last, the scope's own compared figures above
-// it, and the sort kept while drilling down; at 200% zoom the table with its
-// Change column still fits its box. A sort by a column the next Summary table
-// lacks gives way to the tree's order, either way between a comparison and one
-// run's figures, without being lost: it orders the rows again when a table
-// with that column returns (SEED-259#scan-intent-ci-summaries,
-// SEED-259#correct-scan-intent-ci-summaries). Rows and fixture:
-// ../support/summaryComparisonExpectedRows.ts. One run's Summary sorting:
-// ./intent-summary-ci-proof-sort.spec.ts.
+// Cross-story reading preferences: Summary keeps its sort while drilling, uses
+// tree order for a missing column, and restores that sort when its story returns.
+// Column ordering and zoom rules live in ./intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
-import { twiceZoomedWindow } from "../accessibleReading.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
-import { scopeFigures, scopeTable } from "../intentScopeProofPage.ts";
+import { scopeTable } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { expectSelected } from "../storyCardSelection.ts";
-import { wordsBrokenApart } from "../wholeWords.ts";
+import { expectStoryTab } from "../support/intentStoryPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
   drillComparisonChild,
@@ -65,6 +54,7 @@ async function selectStoryFromDevelopment(
   page: Page,
   column: "Backlog" | "Recently done",
   title: string,
+  previous?: Locator,
 ) {
   const { development, intentChoice, intent } = parts(page);
   await development.click();
@@ -74,6 +64,7 @@ async function selectStoryFromDevelopment(
     .getByRole("article", { name: title, exact: true });
   await card.getByRole("heading", { level: 3 }).click();
   await expectSelected(card, true);
+  if (previous !== undefined) await expectSelected(previous, false);
   await intentChoice.click();
   await expect(intent).toBeVisible();
 }
@@ -81,38 +72,15 @@ async function selectStoryFromDevelopment(
 const unsorted = (table: Locator) =>
   expect(table.locator("th[aria-sort]")).toHaveCount(0);
 
-test("a story comparison Summary sorts by Change with unchanged rows last and by Landed with gaps last, keeps the sort while drilling down, and a column the next table lacks gives way to the tree's order without losing the sort", async ({
+test("Summary keeps its sort through drilling and story selection, falling back for missing columns and restoring it on return", async ({
   page,
   origin,
 }) => {
   await publishSummaryComparisonStory(page, origin);
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
+  const { intent, card: storyA } =
+    await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, entry);
   const table = scopeTable(summary, entry);
-
-  await test.step("Change orders the changed children by kind, unchanged children after them in either direction", async () => {
-    await expect(rowNames(table)).toHaveText(entryChildren);
-    await unsorted(table);
-    const change = sortButton(table, "Change");
-    await change.click();
-    await expectSortedBy(table, "Change", "ascending");
-    await expect(rowNames(table)).toHaveText([
-      "added.spec.ts",
-      "gone.spec.ts",
-      "renamed.spec.ts",
-      "folder/",
-      "root.spec.ts",
-    ]);
-    await change.click();
-    await expectSortedBy(table, "Change", "descending");
-    await expect(rowNames(table)).toHaveText([
-      "renamed.spec.ts",
-      "gone.spec.ts",
-      "added.spec.ts",
-      "folder/",
-      "root.spec.ts",
-    ]);
-  });
 
   await test.step("Landed descending orders the children by their signed landed change, uncomparable rows after them, the entry's figures unmoved above", async () => {
     const landed = sortButton(table, "Landed");
@@ -120,9 +88,6 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
     await landed.click();
     await expectSortedBy(table, "Landed", "descending");
     await expect(rowNames(table)).toHaveText(landedDescending);
-    await expect(
-      scopeFigures(summary, entry).getByRole("definition"),
-    ).toHaveText(entryComparisonRows[0].slice(2));
   });
 
   await test.step("a child folder's comparison opens in the same layout, still sorted by Landed descending", async () => {
@@ -135,7 +100,8 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
   });
 
   await test.step("one run's Summary lacks Landed, so it shows the tree's order; back in the comparison, the kept sort orders the rows by Landed descending again", async () => {
-    await selectStoryFromDevelopment(page, "Backlog", "Story B");
+    await selectStoryFromDevelopment(page, "Backlog", "Story B", storyA);
+    await expectStoryTab(intent, "CI comparison");
     await openSummary(intent, entry);
     await expect(
       summary.getByRole("columnheader", { name: "Landed" }),
@@ -161,24 +127,5 @@ test("a story comparison Summary sorts by Change with unchanged rows last and by
     await openSummaryComparison(intent, entry);
     await expect(rowNames(table)).toHaveText(entryChildren);
     await unsorted(table);
-  });
-
-  await test.step("at 200% zoom the table with its Change column reads whole within its box, nothing scrolling sideways", async () => {
-    // A wider installed font lays the table out as Linux's fallback font does.
-    await page.addStyleTag({
-      content: ".intent-ci-proof-box { font-family: Verdana, sans-serif; }",
-    });
-    await page.setViewportSize(twiceZoomedWindow);
-    await table.scrollIntoViewIfNeeded();
-    const fit = await summary
-      .locator(".intent-proof-table")
-      .evaluate((element) => ({
-        sideways: element.scrollWidth - element.clientWidth,
-        pageSideways:
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth,
-      }));
-    expect(fit).toEqual({ sideways: 0, pageSideways: false });
-    expect(await wordsBrokenApart(table, "th, td")).toEqual([]);
   });
 });

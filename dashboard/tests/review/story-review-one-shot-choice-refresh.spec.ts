@@ -1,10 +1,14 @@
-// Refresh keeps a retained choice and permanently replaces deleted/expired runs.
+// Retained integration: real stored records -> Refresh -> immutable diff display.
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { Locator, Page } from "@playwright/test";
-import { test, expect, stored } from "../support/codexStart.ts";
 import {
-  reviewChoicesNamed,
-  capturedChoice,
-} from "../support/oneShotReviewChoices.ts";
+  test,
+  expect,
+  storedReviewChoices,
+  storedCapturedChoice,
+} from "../support/storedReviewChoices.ts";
+import { keptLaunchRecords } from "../support/launchStore.ts";
+import { reviewLaunch } from "../support/reviewRunRecords.ts";
 import { refreshAndRead } from "../support/reviewRead.ts";
 import { openCapturedReview } from "../support/oneShotReview.ts";
 import { recordOperation } from "../support/completionRecovery.ts";
@@ -30,32 +34,39 @@ async function chooseLandedRun(
 }
 const added = (review: Locator) => review.locator(".story-review-added");
 
+function recoveredChoice(record: LaunchRecord) {
+  const established = record.start ?? record.preparation;
+  if (established === undefined) {
+    throw new Error("No established review run");
+  }
+  const launch = reviewLaunch({
+    sessionId: "review-first-recovered",
+    workspace: established.workspace,
+    launchedAt: record.launchedAt,
+    ...(record.request.reporting === undefined
+      ? {}
+      : { reference: record.request.reporting.reference }),
+  });
+  return record.doneAt === undefined
+    ? launch.please()
+    : launch.markedDoneAt(record.doneAt).please();
+}
+
 test("Refresh preserves a selected run after a new capture and after its native session is replaced", async ({
   page,
   dashboard,
   origin,
-  codexProtocol,
 }) => {
-  if (codexProtocol === undefined) throw new Error("No native fixture");
-  const { first, legacy, live } = await reviewChoicesNamed(
-    dashboard,
-    origin,
-    codexProtocol,
-    ["first"],
-  );
+  const { first, legacy } = await storedReviewChoices(dashboard, origin, [
+    "first",
+  ]);
   const { review, select, refresh } = await chooseLandedRun(
     page,
     origin,
     first.key,
     "first",
   );
-  // Story A's open live launch must finish before the next run can launch.
-  await recordOperation(dashboard, "setRecordDoneAt", [
-    "open-dough",
-    live.session,
-    new Date().toISOString(),
-  ]);
-  const third = await capturedChoice(dashboard, origin, codexProtocol, "third");
+  const third = await storedCapturedChoice(dashboard, origin, "third");
   await refresh();
   await expect(select).toHaveValue(first.key);
   expect(
@@ -66,17 +77,15 @@ test("Refresh preserves a selected run after a new capture and after its native 
       ),
   ).toEqual([third.key, first.key, legacy.key]);
   await expect(added(review)).toHaveText(["+first.txt"]);
-  const keptFirst = stored(dashboard.home).find(
-    (record) => record.request.reporting?.reference === first.key,
+  const keptFirst = keptLaunchRecords(dashboard).find(
+    (record): record is LaunchRecord =>
+      "session" in record && record.request.reporting?.reference === first.key,
   );
   if (keptFirst === undefined) throw new Error("No retained captured run");
   await recordOperation(dashboard, "replaceKeptSession", [
     "open-dough",
     first.record.session,
-    {
-      ...keptFirst,
-      session: { ...keptFirst.session, sessionId: "review-first-recovered" },
-    },
+    recoveredChoice(keptFirst),
   ]);
   await refresh();
   await expect(select).toHaveValue(first.key);
@@ -87,29 +96,24 @@ test("Refresh replaces a deleted choice whose native session was replaced with t
   page,
   dashboard,
   origin,
-  codexProtocol,
 }) => {
-  if (codexProtocol === undefined) throw new Error("No native fixture");
-  const { first, third } = await reviewChoicesNamed(
-    dashboard,
-    origin,
-    codexProtocol,
-    ["first", "second", "third"],
-  );
+  const { first, third } = await storedReviewChoices(dashboard, origin, [
+    "first",
+    "second",
+    "third",
+  ]);
   const { review, select, refresh } = await chooseLandedRun(
     page,
     origin,
     first.key,
     "first",
   );
-  const keptFirst = stored(dashboard.home).find(
-    (record) => record.request.reporting?.reference === first.key,
+  const keptFirst = keptLaunchRecords(dashboard).find(
+    (record): record is LaunchRecord =>
+      "session" in record && record.request.reporting?.reference === first.key,
   );
   if (keptFirst === undefined) throw new Error("No retained captured run");
-  const replacement = {
-    ...keptFirst,
-    session: { ...keptFirst.session, sessionId: "review-first-recovered" },
-  };
+  const replacement = recoveredChoice(keptFirst);
   await recordOperation(dashboard, "replaceKeptSession", [
     "open-dough",
     first.record.session,
@@ -130,15 +134,12 @@ test("Refresh replaces an expired choice with the remaining captured run and fal
   page,
   dashboard,
   origin,
-  codexProtocol,
 }) => {
-  if (codexProtocol === undefined) throw new Error("No native fixture");
   // This is the retained choice the deletion journey reaches, with only its
   // remaining captures and legacy run; no earlier mutation is needed here.
-  const { second, third, legacy } = await reviewChoicesNamed(
+  const { second, third, legacy } = await storedReviewChoices(
     dashboard,
     origin,
-    codexProtocol,
     ["second", "third"],
   );
   const { review, select, refresh } = await chooseLandedRun(

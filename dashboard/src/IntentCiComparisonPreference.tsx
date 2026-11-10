@@ -3,11 +3,13 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useKeptReading } from "./pageIntentReading.tsx";
 
-type Preference = {
+export type ComparisonPreference = {
   readonly showPercent: boolean;
   readonly onShowPercent: (show: boolean) => void;
 };
-const ComparisonPreference = createContext<Preference | undefined>(undefined);
+const ComparisonPreference = createContext<ComparisonPreference | undefined>(
+  undefined,
+);
 
 export function IntentCiComparisonPreference({
   children,
@@ -25,7 +27,7 @@ export function IntentCiComparisonPreference({
   );
 }
 
-export function useCiComparisonPreference(): Preference {
+export function useCiComparisonPreference(): ComparisonPreference {
   const preference = useContext(ComparisonPreference);
   if (preference === undefined)
     throw new Error("CI comparison needs its story reading preference.");

@@ -8,19 +8,16 @@
 // (`./landedWithoutVerdict.ts`); Baseline / Branch (and Trunk Mode Landed /
 // provisional tip) walk past builds without usable proof here.
 // The lookup itself comes from `./baseCiRevisionLookupSource.ts`.
-import { firstParentChain } from "./baseCiRevisionGit.ts";
 import {
   nearestRevisionBuild,
   proofRunOf,
-  type RevisionCiLookup,
   type RevisionProofUsable,
 } from "./baseCiRevisionNearest.ts";
-import { readCiProofArtifact } from "./ciProofArtifact.ts";
 import {
   baselineAncestorLimit,
   type ExactResultLookup,
 } from "./exactSkippedEquivalent.ts";
-import type { GitCall } from "./gitRunner.ts";
+import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
 import { landedWithoutVerdictSlot } from "./landedWithoutVerdict.ts";
 import type { RevisionProofAbsence } from "./laterTrunkBuild.ts";
 import {
@@ -32,32 +29,23 @@ import {
 export type { RevisionBuildSlot } from "./revisionBuildSlot.ts";
 export type { ExactResultLookup } from "./exactSkippedEquivalent.ts";
 
-export type ComparisonProofSource = {
-  readonly repository: string;
-  readonly signal: AbortSignal;
-};
-
 // Why a walking endpoint's build has no usable proof (undefined when its
 // summary is usable): a valid summary is remembered by repository, run and
 // attempt so the page's later proof read asks GitHub nothing again.
 function walkingProofAbsence(
-  source: ComparisonProofSource,
+  source: ComparisonBuildSource,
 ): RevisionProofAbsence {
   return async (build) => {
     const run = proofRunOf(build);
     if (run === undefined) return { kind: "unavailable", reason: "none" };
-    const proof = await readCiProofArtifact(
-      source.repository,
-      run,
-      source.signal,
-    );
+    const proof = await source.proofOf(run);
     return proof.kind === "summary" ? undefined : proof;
   };
 }
 
 // Usable-proof gate for walking endpoints.
 function walkingProofUsable(
-  source: ComparisonProofSource,
+  source: ComparisonBuildSource,
 ): RevisionProofUsable {
   const absence = walkingProofAbsence(source);
   return async (build) => (await absence(build)) === undefined;
@@ -68,20 +56,21 @@ function walkingProofUsable(
 // usable proof.
 export async function lookupBaselineBuild(
   storyStart: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
-  workflow: string,
-  proofSource: ComparisonProofSource,
+  source: ComparisonBuildSource,
 ): Promise<RevisionBuildSlot> {
   try {
-    const revisions = await firstParentChain(
+    const revisions = await source.history.firstParents(
       storyStart,
-      call,
       baselineAncestorLimit,
     );
-    const build = await nearestRevisionBuild(revisions, lookup, undefined, {
-      proofUsable: walkingProofUsable(proofSource),
-    });
+    const build = await nearestRevisionBuild(
+      revisions,
+      source.lookup,
+      undefined,
+      {
+        proofUsable: walkingProofUsable(source),
+      },
+    );
     if (build?.state === "running")
       return {
         kind: "none",
@@ -93,9 +82,7 @@ export async function lookupBaselineBuild(
     const status = await statusWhenNotExact(
       storyStart,
       timed,
-      lookup,
-      call,
-      workflow,
+      source,
       baselineAncestorLimit,
     );
     return asSlot(
@@ -130,31 +117,26 @@ export type ResultLookupOptions = {
 export async function lookupResultBuild(
   target: string,
   storyStart: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
-  workflow: string,
+  source: ComparisonBuildSource,
   missingExplanation: string,
   exact?: ExactResultLookup,
-  proofSource?: ComparisonProofSource,
   options?: ResultLookupOptions,
 ): Promise<RevisionBuildSlot> {
   try {
     const provisional = options?.provisional === true;
     const revisions =
       exact?.exactOnly === true
-        ? await firstParentChain(target, call, 1)
-        : await firstParentChain(target, call, baselineAncestorLimit + 1);
+        ? await source.history.firstParents(target, 1)
+        : await source.history.firstParents(target, baselineAncestorLimit + 1);
     const proofUsable =
-      exact?.exactOnly === true || proofSource === undefined
-        ? undefined
-        : walkingProofUsable(proofSource);
+      exact?.exactOnly === true ? undefined : walkingProofUsable(source);
     const build = await nearestRevisionBuild(
       revisions,
-      lookup,
+      source.lookup,
       exact?.exactOnly === true ? undefined : storyStart,
       {
         preferCompletedAncestor:
-          provisional && lookup.preferCompletedAncestor === true,
+          provisional && source.lookup.preferCompletedAncestor === true,
         ...(proofUsable === undefined ? {} : { proofUsable }),
       },
     );
@@ -162,9 +144,7 @@ export async function lookupResultBuild(
       const status = await statusWhenNotExact(
         target,
         build,
-        lookup,
-        call,
-        workflow,
+        source,
         baselineAncestorLimit,
       );
       return asSlot(build, missingExplanation, status);
@@ -172,18 +152,14 @@ export async function lookupResultBuild(
     if (exact?.exactOnly === true)
       return await landedWithoutVerdictSlot(
         target,
-        lookup,
-        call,
-        workflow,
+        source,
         exact,
-        walkingProofAbsence(exact),
+        walkingProofAbsence(source),
       );
     const status = await statusWhenNotExact(
       target,
       undefined,
-      lookup,
-      call,
-      workflow,
+      source,
       baselineAncestorLimit,
     );
     return asSlot(undefined, status?.explanation ?? missingExplanation, status);

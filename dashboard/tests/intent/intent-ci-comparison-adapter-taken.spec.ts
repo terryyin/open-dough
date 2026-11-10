@@ -15,7 +15,7 @@ import {
 } from "../support/storyCiComparisonTakenFixture.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 
-for (const mode of ["story-branch", "trunk"] as const) {
+for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
   test(`a Taken adapter ${mode} story compares the completed ancestor of its running tip`, async ({
     page,
     origin,

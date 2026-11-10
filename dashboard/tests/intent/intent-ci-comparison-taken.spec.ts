@@ -12,10 +12,7 @@ import { notLandedYetWords } from "../../src/storyCiComparisonWording.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
 import { listedAttemptJobPages } from "../support/storyCiComparisonRequests.ts";
 import { observedRerunJobs } from "../support/storyCiObservedJobs.ts";
-import {
-  publishTakenComparedStoryBranch,
-  publishTakenComparedTrunk,
-} from "../support/storyCiComparisonTakenFixture.ts";
+import { publishTakenComparedStoryBranch } from "../support/storyCiComparisonTakenFixture.ts";
 import { selectTakenStoryForCiComparison } from "../support/selectTakenStoryForCiComparison.ts";
 import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
 import { githubFor, pausePageClockAt } from "../dashboardTest.ts";
@@ -112,7 +109,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     await passTimeUntilCheckedAfterSettled(page);
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(1),
-    ).toContainText(shortSha(nextTip), { timeout: 60_000 });
+    ).toContainText(shortSha(nextTip));
     await expect(
       panel.locator(".intent-ci-comparison-identity").nth(1),
     ).toContainText("provisional");
@@ -129,47 +126,6 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     ]);
     await expect(status.locator(".intent-ci-state")).toContainText(
       shortSha(nextTip),
-      { timeout: 60_000 },
     );
   });
-});
-
-test("a Taken Trunk Mode story shows a provisional trunk result beside Branch N/A and Landed not yet", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishTakenComparedTrunk(page, origin);
-  const { panel } = await selectTakenStoryForCiComparison(page);
-
-  await expect(panel.getByRole("heading")).toHaveText([
-    /^Baseline compared with /,
-    "CI entry timing comparison",
-  ]);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
-    "Baseline compared with Provisional",
-  );
-  await expect(panel.locator(".intent-ci-comparison-active-reason")).toHaveText(
-    `Landed is not used: ${notLandedYetWords}`,
-  );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText("not applicable");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText(shortSha(setup.trunkTip));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("provisional");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(3),
-  ).toHaveText(notLandedYetWords);
-  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
-    "4 min 59 s",
-    "—",
-    "13 min 27 s",
-    "—",
-  ]);
-  await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["4 min 55 s", "—", "4 min 47 s", "—"],
-  );
 });

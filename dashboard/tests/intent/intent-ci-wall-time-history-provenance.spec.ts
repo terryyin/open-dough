@@ -24,12 +24,15 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { wallTimeMs, wholeSecondWords } from "../../src/ciProofTimeWords.ts";
 import {
   chartOf,
-  evidenceOnPhone,
+  chooseProjectCiStatus,
+  evidenceByKeyboard,
+  historyOf,
   expectLinksByKeyboard,
   publishTrunk,
   runLink,
 } from "../intentCiHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   landedCiHistory,
   recheckingLandedCi,
@@ -125,7 +128,10 @@ test("an execution's exact build and the refinements reusing it are one point na
     storyLandingRecord(r3, "refinement"),
     storyLandingRecord(r4, "refinement"),
   ]);
-  await untilKept(dashboard.home, landings);
+  await page.setViewportSize({ width: 390, height: 844 });
+  // Read the initial page while collection works; select Intent's CI status
+  // only after the recorded history is ready.
+  await Promise.all([untilKept(dashboard.home, landings), openUntilRead(page)]);
   await expect
     .poll(async () => (await landedCiHistory(dashboard)).body)
     .toMatchObject({
@@ -135,7 +141,9 @@ test("an execution's exact build and the refinements reusing it are one point na
         { kind: "point", revision: x },
       ],
     });
-  const { history, builds } = await evidenceOnPhone(page);
+  const panel = await chooseProjectCiStatus(page);
+  const builds = await evidenceByKeyboard(page, panel);
+  const history = historyOf(panel);
 
   // Three builds measured: R1, R2, R3 and R4 add none of their own.
   await expect(history.getByRole("heading")).toHaveText(

@@ -5,6 +5,33 @@ import { makeMe } from "./makeMe.mjs";
 test("the repository builder refuses a description it cannot materialize, without Git", () => {
   const refusals = [
     {
+      refusal: "a published revision with a private workspace parent",
+      describe: () =>
+        makeMe.aRepository
+          .withRevision("base")
+          .withWorkspace("story", { from: "base" })
+          .withUnpublishedRevision("private")
+          .withRevision("published", { parents: ["private"] }),
+      message: "Repository revision published names unknown parent private",
+    },
+    {
+      refusal: "an unpublished revision with an unknown parent",
+      describe: () =>
+        makeMe.aRepository
+          .withRevision("base")
+          .withWorkspace("story", { from: "base" })
+          .withUnpublishedRevision("private", { parents: ["missing"] }),
+      message: "Repository revision private names unknown parent missing",
+    },
+    {
+      refusal: "an explicit empty parent list",
+      describe: () =>
+        makeMe.aRepository
+          .withRevision("base")
+          .withRevision("child", { parents: [] }),
+      message: "Repository revision child must name at least one parent",
+    },
+    {
       refusal: "a name reused across trunk and unpublished revisions",
       describe: () =>
         makeMe.aRepository

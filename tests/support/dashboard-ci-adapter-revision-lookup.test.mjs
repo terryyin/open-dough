@@ -2,14 +2,19 @@
 // Older completed attempts can replace a later incomplete attempt only
 // within the same check and context.
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { adapterRevisionLookup } from "../../dashboard/server/baseCiAdapterRevisionLookup.ts";
+import { nearestRevisionBuild } from "../../dashboard/server/baseCiRevisionNearest.ts";
+import { asSlot } from "../../dashboard/server/revisionBuildSlot.ts";
 import { revisionLookupOrGap } from "../../dashboard/server/baseCiRevisionLookupSource.ts";
 import { checkoutRoot } from "../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
-import { selectAdapterComparisonEndpoint } from "./dashboardCiAdapterComparisonEndpoint.mjs";
+import {
+  configureAdapter,
+  selectAdapterComparisonEndpoint,
+} from "./dashboardCiAdapterComparisonEndpoint.mjs";
 import { makeMe } from "./makeMe.mjs";
 
 const source = { repository: "owner/repo", ref: "main" };
@@ -82,17 +87,11 @@ test("a newer incomplete attempt falls back to the most recent completed attempt
 test("the comparison deadline gives a discovery reason when it expires first", async (t) => {
   const root = mkdtempSync(path.join(tmpdir(), "dough-adapter-comparison-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  mkdirSync(path.join(root, ".planning"));
-  writeFileSync(
-    path.join(root, ".planning", "open-dough.json"),
-    JSON.stringify({
-      ciAdapter: [
-        process.execPath,
-        "-e",
-        "require('node:net').createServer().listen(0, '127.0.0.1')",
-      ],
-    }),
-  );
+  configureAdapter(root, [
+    process.execPath,
+    "-e",
+    "require('node:net').createServer().listen(0, '127.0.0.1')",
+  ]);
   const signal = AbortSignal.timeout(200);
   const answer = await revisionLookupOrGap(
     source,
@@ -107,7 +106,44 @@ test("the comparison deadline gives a discovery reason when it expires first", a
     "The CI adapter did not answer discovery before the comparison deadline.",
   );
 });
-
+for (const timedOut of [false, true]) {
+  test(`adapter discovery ${timedOut ? "timeout" : "failure"} keeps its own endpoint reason`, async (t) => {
+    const root = mkdtempSync(path.join(tmpdir(), "dough-adapter-discovery-"));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const program = timedOut
+      ? "require('node:net').createServer().listen(0, '127.0.0.1')"
+      : "process.stderr.write('adapter CI service has no discovery access'); process.exit(2)";
+    configureAdapter(root, [process.execPath, "-e", program]);
+    if (timedOut) {
+      const prior = process.env.DOUGH_CI_ADAPTER_TIMEOUT_MS;
+      process.env.DOUGH_CI_ADAPTER_TIMEOUT_MS = "10";
+      t.after(() => {
+        if (prior === undefined) {
+          delete process.env.DOUGH_CI_ADAPTER_TIMEOUT_MS;
+        } else {
+          process.env.DOUGH_CI_ADAPTER_TIMEOUT_MS = prior;
+        }
+      });
+    }
+    const signal = new AbortController().signal;
+    const answer = await revisionLookupOrGap(
+      source,
+      root,
+      { cwd: root, maxBuffer: 1024 * 1024, signal },
+      signal,
+      undefined,
+    );
+    assert.equal(answer.state, "unread");
+    if (timedOut) {
+      assert.equal(
+        answer.reason,
+        "The CI adapter did not answer discovery within 0.01 seconds.",
+      );
+    } else {
+      assert.match(answer.reason, /adapter CI service has no discovery access/);
+    }
+  });
+}
 const attempt = makeMe.aCiAdapterAttempt
   .passed({
     sha,
@@ -118,7 +154,6 @@ const attempt = makeMe.aCiAdapterAttempt
     completedAt: "2026-11-05T09:04:00Z",
   })
   .please();
-
 async function selectedEndpointTiming(jobResponse, signal) {
   const { slot, lookup } = await selectAdapterComparisonEndpoint(
     attempt,
@@ -127,8 +162,7 @@ async function selectedEndpointTiming(jobResponse, signal) {
   );
   return () => lookup.timeWithoutRunnerWaitsOf(slot);
 }
-
-test("the selected endpoint gives the same malformed and oversized answer reasons as proof", async () => {
+test("the selected endpoint keeps precise malformed, oversized, unsupported and unavailable job-graph reasons", async () => {
   for (const [answer, reason] of [
     [
       "{",
@@ -137,6 +171,14 @@ test("the selected endpoint gives the same malformed and oversized answer reason
     [
       JSON.stringify({ jobs: [], padding: "x".repeat(64 * 1024) }),
       /^The CI adapter answered no job graph: its answer is longer than 64 KiB\.$/,
+    ],
+    [
+      "unsupported",
+      /^The CI adapter answered no job graph: it exited with status 2 \(unsupported CI adapter operation\)\.$/,
+    ],
+    [
+      JSON.stringify({ unavailable: "Job history expired!" }),
+      /^The CI adapter gave no job graph: Job history expired!$/,
     ],
   ]) {
     const readTiming = await selectedEndpointTiming(
@@ -155,8 +197,11 @@ test("the selected endpoint reports its adapter timeout as a timing reason", asy
   const setting = "DOUGH_CI_ADAPTER_TIMEOUT_MS";
   const prior = process.env[setting];
   t.after(() => {
-    if (prior === undefined) delete process.env[setting];
-    else process.env[setting] = prior;
+    if (prior === undefined) {
+      delete process.env[setting];
+    } else {
+      process.env[setting] = prior;
+    }
   });
   process.env[setting] = "300";
   assert.deepEqual(await readTiming(), {
@@ -171,4 +216,32 @@ test("a cancelled comparison does not receive a timing reason as its answer", as
   const pending = readTiming();
   controller.abort();
   await assert.rejects(pending, { name: "AbortError" });
+});
+test("an attempt id shared by another discovered run explains unavailable timing without asking jobs", async () => {
+  const attempts = [
+    attempt,
+    makeMe.aCiAdapterAttempt
+      .passed({ ...attempt, runId: "other", check: "lint" })
+      .please(),
+  ];
+  const command = [
+    process.execPath,
+    "-e",
+    `process.stdout.write(${JSON.stringify(JSON.stringify({ attempts }))})`,
+  ];
+  const signal = new AbortController().signal;
+  const lookup = await adapterRevisionLookup(
+    source,
+    undefined,
+    checkoutRoot,
+    command,
+    { maxBuffer: 1024 * 1024, signal },
+    signal,
+  );
+  const slot = asSlot(await nearestRevisionBuild([sha], lookup), "No build");
+  assert.equal(slot.kind, "build");
+  assert.deepEqual(await lookup.timeWithoutRunnerWaitsOf(slot), {
+    reason:
+      "The CI adapter listed another discovered attempt as attempt retry at aaaaaaa.",
+  });
 });

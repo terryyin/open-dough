@@ -11,6 +11,7 @@ import {
   exactFor,
   lookupOf,
   ownBuild,
+  sourceFor,
   run,
   trunk,
 } from "./dashboard-later-trunk-fixture.mjs";
@@ -26,9 +27,7 @@ test("Story Branch Landed keeps a rerun attempt's own build and a timed-out land
   const own = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    rerun.lookup,
-    repo.call,
-    "ci.yml",
+    sourceFor(repo, rerun.lookup),
     "missing",
     exact,
   );
@@ -45,9 +44,7 @@ test("Story Branch Landed keeps a rerun attempt's own build and a timed-out land
   const slot = await lookupResultBuild(
     repo.landing,
     repo.landing,
-    timedOut.lookup,
-    repo.call,
-    "ci.yml",
+    sourceFor(repo, timedOut.lookup),
     "missing",
     exact,
   );

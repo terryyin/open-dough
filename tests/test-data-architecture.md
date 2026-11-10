@@ -60,7 +60,7 @@ Build CI proof with `makeMe.aCiProof` and entries with
 timing and breakdown belong to that evidence unit. Keep deliberately old
 summary JSON outside the builder when its exact wire format is under proof.
 [Proof builders](support/ciProofEntryTestData.mjs) ·
-[Retained proof](support/landedCiProofTestData.mjs)
+[Proof builder](support/ciProofTestData.mjs)
 
 Build a project this machine configures with
 `makeMe.aConfiguredProject.with({ id, label, repository, localPath }).please()`:
@@ -83,7 +83,13 @@ removed after test `t`, for a case that reads no remote (`gitTemplates: false`
 initializes it without Git's templates; `layer` adds harness files, such as
 runner tooling read with `copiedLayer`, to its first commit; `at` builds it
 in place at that directory without the shared template, as the shell checks'
-release sources do). Identical
+release sources do). A revision's optional `parents` names earlier revisions
+in their actual Git parent order; its files inherit the first parent and apply
+its declared changes. This arranges actual merge topology and explicit resolution
+trees, without asking Git to invent a resolution. Published revisions can name
+only earlier published parents; a private workspace can also name its earlier
+private revisions. Graph histories publish their final tip once; ordinary
+linear histories retain their existing publication behavior. Identical
 descriptions reuse one template within a process, so they give identical
 commit IDs; each caller gets its own mutable copy. A run owner can prepare a
 snapshot of a shared leading history once (`prepareRepositorySnapshot`) and
@@ -186,8 +192,9 @@ defaults. [Refusal test](support/repository-description.test.mjs)
 A dashboard journey that serves a project through the fake GitHub states the
 same description and serves its named revisions without Git.
 `describedRevisions(description, shaPerName)` returns one published revision
-per name, holding the earlier revisions' files with its own changes and
-removals applied. One file renderer writes both these files and the
+per name, inheriting its first parent's files, or the preceding revision when
+parents are implicit, with its own changes and removals applied. One file
+renderer writes both these files and the
 materialized checkout, so the same facts publish the same bytes, including
 the done catalog rebuilt from the records. `describedRevision`,
 `describedBacklog` and `describedFiles` serve one revision. Revision SHAs,
@@ -195,9 +202,10 @@ commit dates, path histories, unanswered paths and held or failing reads stay
 harness inputs. [Served revisions](../dashboard/tests/describedRevisions.ts) ·
 [Renderer](support/repository-revision-files.mjs)
 
-Other branches, merges, competing writers, stashes, dirty files, submodules
-and removed worktrees stay Git operations in the case. Installed skills, CI
-adapters, mailboxes, ignored local configuration and generated install output
+Other branch refs, competing writers, stashes, dirty files, submodules and
+removed worktrees stay Git operations in the case. Run a merge in Git when
+the action itself is under proof; declared parents arrange its starting history.
+Installed skills, CI adapters, mailboxes, ignored local configuration and generated install output
 are harness layers added to the materialized checkout, not description facts.
 A case that proves behavior without a remote removes it with Git. The Git
 publication native fixtures for startup, admission, one-shot and owned-context

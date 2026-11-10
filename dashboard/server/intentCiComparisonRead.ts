@@ -5,9 +5,8 @@
 // identities are refused here before any `gh` or Git call. A done story's
 // final answer is remembered for this process
 // (`./intentCiComparisonAnswers.ts`); Taken answers, unavailable answers and
-// answers with unavailable slots are read afresh. Done resolution also carries
-// the shared Landed pending judgment separately from the public answer, before
-// projection drops internal proof detail; pending Landed answers stay live.
+// answers with unavailable slots are read afresh. Internal Landed pending
+// judgment survives public projection and keeps Done answers refreshable.
 
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
@@ -16,6 +15,7 @@ import {
   ciComparisonAnswerKey,
   keptCiComparisonAnswer,
   rememberCiComparisonAnswer,
+  type CiComparisonAnswers,
 } from "./intentCiComparisonAnswers.ts";
 import {
   parseIntentCiComparisonRead,
@@ -26,6 +26,10 @@ import {
   performTakenComparison,
 } from "./intentCiComparisonResolve.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
+import {
+  storyCiComparisonSource,
+  type StoryCiComparisonSource,
+} from "./storyCiComparisonSource.ts";
 
 export type { IntentCiComparisonRead, StoryCiComparisonAnswer };
 export { parseIntentCiComparisonRead };
@@ -41,29 +45,44 @@ export async function performIntentCiComparisonRead(
   source: PublishedSource,
   read: IntentCiComparisonRead,
   signal: AbortSignal,
+  evidence?: StoryCiComparisonSource,
 ): Promise<Outcome> {
-  const key = ciComparisonAnswerKey(source.repository, read.identity);
-  const kept = keptCiComparisonAnswer(key);
-  if (kept !== undefined) return answered(kept);
+  return defaultReader(source, read, signal, evidence);
+}
 
-  const bound = AbortSignal.timeout(readWaitLimitMs);
-  const controller = AbortSignal.any([bound, signal]);
-  const checkedAt = new Date().toISOString();
-  const done = await performDoneComparison(
-    source,
-    read.identity,
-    controller,
-    checkedAt,
-  );
-  const answer =
-    done?.answer ??
-    (await performTakenComparison(
-      source,
+const defaultReader = ciComparisonReader({
+  get: keptCiComparisonAnswer,
+  set: rememberCiComparisonAnswer,
+});
+
+// The authenticated reader and isolated owners execute this same read path.
+export function ciComparisonReader(
+  answers: Pick<CiComparisonAnswers, "get" | "set">,
+) {
+  return async (
+    source: PublishedSource,
+    read: IntentCiComparisonRead,
+    signal: AbortSignal,
+    evidence?: StoryCiComparisonSource,
+  ): Promise<Outcome> => {
+    const key = ciComparisonAnswerKey(source.repository, read.identity);
+    const kept = answers.get(key);
+    if (kept !== undefined) return answered(kept);
+
+    const bound = AbortSignal.timeout(readWaitLimitMs);
+    const controller = AbortSignal.any([bound, signal]);
+    const checkedAt = new Date().toISOString();
+    const acquisition = evidence ?? storyCiComparisonSource(source, controller);
+    const done = await performDoneComparison(
+      acquisition,
       read.identity,
-      controller,
       checkedAt,
-    ));
-  signal.throwIfAborted();
-  if (done?.landedPending !== true) rememberCiComparisonAnswer(key, answer);
-  return answered(answer);
+    );
+    const answer =
+      done?.answer ??
+      (await performTakenComparison(acquisition, read.identity, checkedAt));
+    signal.throwIfAborted();
+    if (done?.landedPending !== true) answers.set(key, answer);
+    return answered(answer);
+  };
 }

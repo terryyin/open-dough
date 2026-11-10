@@ -17,28 +17,14 @@
 // shows: the comparison, an unavailable answer, or a failed read.
 
 import type { ReactNode } from "react";
-import { ComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
-import {
-  ActiveComparisonSummary,
-  overallTimeChangesOf,
-  type OverallTimeChanges,
-} from "./IntentCiComparisonSummary.tsx";
-import { EntryComparison } from "./IntentCiEntryComparison.tsx";
+import { useCiProofSorting } from "./CiProofTable.tsx";
 import { CheckAgain } from "./IntentCiJudgedBranch.tsx";
 import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
-import {
-  IntentCiComparisonFrame,
-  ciTimingHeading,
-} from "./IntentCiComparisonFrame.tsx";
+import { ciTimingHeading } from "./IntentCiComparisonFrameView.tsx";
+import { useCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
+import { IntentCiComparisonContent } from "./IntentCiComparisonContent.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
-import {
-  activeComparisonAfterSideOf,
-  comparisonEntriesFromProofs,
-  type ComparisonEndpointProofs,
-} from "./useIntentCiComparisonEntries.ts";
-import { activeComparisonOf } from "./storyCiComparisonWording.ts";
-import type { ComparisonEntries } from "./storyCiComparisonEntries.ts";
-import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import type { ComparisonEndpointProofs } from "./storyCiComparisonEntries.ts";
 import "./intent-ci-cues.css";
 
 function endpointProofsOf(
@@ -49,71 +35,18 @@ function endpointProofsOf(
     : undefined;
 }
 
-// Every relative change the comparison shows: the summary's and each entry's
-// Branch and Landed.
-function relativesOf(
-  overall: OverallTimeChanges,
-  entries: ComparisonEntries,
-): (number | undefined)[] {
-  const rows = entries.kind === "rows" ? entries.rows : [];
-  return [
-    overall.withoutWaits?.relative,
-    overall.wall?.relative,
-    ...rows.flatMap(({ cells }) => [
-      cells.branch.relative,
-      cells.landed.relative,
-    ]),
-  ];
-}
-
-function ComparisonShown({
-  answer,
-  proofs,
-  checkAgainButton,
-}: {
-  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
-  readonly proofs: ComparisonEndpointProofs | undefined;
-  readonly checkAgainButton: ReactNode;
-}) {
-  const taken = answer.phase === "taken";
-  const active =
-    proofs === undefined ? undefined : activeComparisonOf(answer, proofs);
-  const entries =
-    proofs === undefined || active === undefined
-      ? undefined
-      : comparisonEntriesFromProofs(
-          proofs,
-          activeComparisonAfterSideOf(answer, proofs),
-        );
-  const overall =
-    active === undefined ? undefined : overallTimeChangesOf(answer, active);
+function ComparisonShown(
+  props: Omit<
+    Parameters<typeof IntentCiComparisonContent>[0],
+    "preference" | "sorting"
+  >,
+) {
   return (
-    <IntentCiComparisonFrame
-      answer={answer}
-      proofs={proofs}
-      relatives={
-        overall === undefined || entries === undefined
-          ? []
-          : relativesOf(overall, entries)
-      }
-    >
-      {proofs !== undefined && active !== undefined && (
-        <ActiveComparisonSummary
-          answer={answer}
-          proofs={proofs}
-          active={active}
-        />
-      )}
-      <ComparisonEndpointsTable
-        baseline={answer.baseline}
-        branch={answer.branch}
-        provisional={answer.provisional}
-        landed={answer.landed}
-        branchProvisional={taken && answer.mode === "story-branch"}
-      />
-      <EntryComparison entries={entries} />
-      {checkAgainButton}
-    </IntentCiComparisonFrame>
+    <IntentCiComparisonContent
+      {...props}
+      preference={useCiComparisonPreference()}
+      sorting={useCiProofSorting()}
+    />
   );
 }
 

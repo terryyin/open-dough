@@ -11,22 +11,18 @@ import {
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { expect, test } from "../support/preparationPage.ts";
-import {
-  publishSummaryComparisonStory,
-  summaryComparisonChanges,
-} from "../support/intentSummaryStoryComparisonFixture.ts";
+import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
 } from "../support/selectDoneStoryForSummaryComparison.ts";
-import { chooseStoryTab, intentFile } from "../support/intentStoryPage.ts";
+import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import {
   expectMark,
   markGeometry,
   percentages,
   showPercent,
 } from "../support/relativeTimingMarks.ts";
-import { rowNames, sortButton } from "../support/expectSortedColumns.ts";
 
 // These journeys change the reading scope, not time. Recurring revision
 // checks would otherwise race the final no-reread observation on a busy host.
@@ -161,62 +157,6 @@ test("story, location, folder and file share signed words, preference and per-di
   await expect(showPercent(proof)).toBeChecked();
   await expect(branch).toHaveText("+70 ms+21%");
 
-  await untilPageRequestsAnswered(page);
-  expect(ciReads).toEqual(initialReads);
-});
-
-test("added, unchanged and removed historical files keep honest timing marks, and Show % preserves the Summary sort without rereading CI", async ({
-  page,
-  origin,
-}) => {
-  await publishSummaryComparisonStory(page, origin, "own-conflict-extra");
-  const ciReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname !== authenticatedReadEndpoint) return;
-    const kind = url.searchParams.get("intent");
-    if (kind === "ci-comparison" || kind === "ci-proof")
-      ciReads.push(`${kind} ${url.search}`);
-  });
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  await untilPageRequestsAnswered(page);
-  const initialReads = [...ciReads];
-  await intentFile(intent, summaryComparisonChanges.added).click();
-  await fileReadingTab(intent, "Proof").click();
-  const proof = proofRegion(intent);
-  await showPercent(proof).check();
-  await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
-    "800 ms",
-  );
-  await expect(
-    proof.locator(".intent-ci-time-mark, .intent-ci-time-percent"),
-  ).toHaveCount(0);
-  await intentFile(intent, "dashboard/tests/root.spec.ts").click();
-  await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
-    "0 ms0%",
-  );
-  await expectMark(
-    proof.getByRole("table").getByRole("cell").nth(2),
-    "none",
-    0,
-  );
-
-  const entry = await openSummaryComparison(intent, "dashboard/tests");
-  const table = scopeTable(entry, "dashboard/tests");
-  await sortButton(table, "Landed").click();
-  const order = await rowNames(table).allTextContents();
-  await showPercent(entry).uncheck();
-  await expect(rowNames(table)).toHaveText(order);
-  const gap = table.locator("tbody tr").filter({
-    has: page.getByRole("rowheader", { name: "gone.spec.ts", exact: true }),
-  });
-  await expect(gap).toContainText("removed");
-  await expect(
-    table.getByRole("rowheader", { name: "later.spec.ts", exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    gap.locator(".intent-ci-time-mark, .intent-ci-time-percent"),
-  ).toHaveCount(0);
   await untilPageRequestsAnswered(page);
   expect(ciReads).toEqual(initialReads);
 });

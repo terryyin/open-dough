@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-286#fast-intent-ci-comparison-tests",
+  "title": "Make the Intent CI comparison tests sub-second",
+  "completedAt": "2026-11-10T05:57:14.105Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "unavailable": "The asynchronous one-fault Intent Coverage check was still running when closure was ready; its completed revision is 8c3fcfc76e0e809004144cd30fcf2b8f602f5640 and the coordinator retains its eventual report separately."
+  }
+}

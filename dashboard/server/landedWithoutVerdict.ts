@@ -8,13 +8,12 @@
 // as the build it could not use (`landedRunOf`, `./unusableBuild.ts`);
 // otherwise the landed revision's own status explains the gap.
 import { newestRunFor } from "./baseCiNearest.ts";
-import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
+import type { ComparisonBuildSource } from "./comparisonBuildSource.ts";
 import {
   baselineAncestorLimit,
   exactSkippedEquivalentSlot,
   type ExactResultLookup,
 } from "./exactSkippedEquivalent.ts";
-import type { GitCall } from "./gitRunner.ts";
 import {
   laterTrunkCancelledSlot,
   type RevisionProofAbsence,
@@ -31,13 +30,11 @@ import { landedRunOf } from "./unusableBuild.ts";
 // tells why a later trunk build's proof cannot be used.
 export async function landedWithoutVerdictSlot(
   target: string,
-  lookup: RevisionCiLookup,
-  call: GitCall,
-  workflow: string,
+  source: ComparisonBuildSource,
   exact: ExactResultLookup,
   proofAbsence: RevisionProofAbsence,
 ): Promise<RevisionBuildSlot> {
-  const listed = await lookup.listRunsAt(target);
+  const listed = await source.lookup.listRunsAt(target);
   const newest = newestRunFor(listed, target);
   if (
     newest?.status === "completed" &&
@@ -48,9 +45,7 @@ export async function landedWithoutVerdictSlot(
       return laterTrunkCancelledSlot(
         target,
         listed,
-        lookup,
-        call,
-        workflow,
+        source,
         exact,
         proofAbsence,
       );
@@ -64,12 +59,12 @@ export async function landedWithoutVerdictSlot(
   const status = await requestedRevisionCiStatus(
     target,
     listed,
-    await nearestAncestorBasisSha(target, lookup, call, baselineAncestorLimit),
-    call,
-    workflow,
+    await nearestAncestorBasisSha(target, source, baselineAncestorLimit),
+    source.history,
+    source.workflow,
   );
   if (status.kind === "skipped")
-    return exactSkippedEquivalentSlot(target, lookup, call, exact, status);
+    return exactSkippedEquivalentSlot(target, source, status);
   // A CI adapter's own attempt that stopped without a verdict.
   const stopped =
     status.kind === "cancelled"

@@ -1,11 +1,5 @@
-// Cancelled Story Branch landings on Intent's CI timing comparison
-// (../../src/IntentCiComparison.tsx): Landed keeps Cancelled at the landing
-// and uses the nearest later trunk build with usable proof, named as a later
-// trunk build with how many later trunk revisions it includes (SEED-254
-// use-later-ci-proof-for-cancelled-landings). Cancelled landings without
-// later proof in reach live in
-// ./intent-ci-comparison-cancelled-landing-gaps.spec.ts; failed landing gaps
-// in ./intent-ci-comparison-landing-gaps.spec.ts.
+// Real cancelled-landing acquisition retains the selected later build and its
+// provenance through the authenticated comparison and rendered Landed row.
 
 import { expect, test } from "../support/preparationPage.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
@@ -16,9 +10,7 @@ import {
   laterTrunkRevisions,
   serveEarlierLandingWithLandedOutcome,
 } from "../support/storyCiComparisonLandedOutcome.ts";
-import { publishFastForwardLandedStory } from "../support/storyCiComparisonFastForward.ts";
 import {
-  cancelledTipRuns,
   landedOf,
   laterProof,
   runListingsAt,
@@ -66,116 +58,4 @@ test("a cancelled landing merge uses the next trunk push's passing build as a la
       call.startsWith("artifacts of run 304"),
     ),
   ).toEqual(["artifacts of run 304: ci-proof-summary-attempt-1"]);
-});
-
-test("a cancelled landing merge passes two cancelled trunk builds and counts three later revisions", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const landing = setup.landingMerge ?? setup.completion;
-  const later = laterTrunkRevisions(origin.origin, landing);
-  expect(later).toHaveLength(3);
-  const [first = "", second = "", third = ""] = later;
-  serveEarlierLandingWithLandedOutcome(setup, "cancelled", {
-    [first]: [
-      wall(
-        first,
-        304,
-        "2026-11-05T14:30:00Z",
-        "2026-11-05T14:31:00Z",
-        "cancelled",
-      ),
-    ],
-    [second]: [
-      wall(
-        second,
-        305,
-        "2026-11-05T14:40:00Z",
-        "2026-11-05T14:41:00Z",
-        "cancelled",
-      ),
-    ],
-    [third]: [wall(third, 399, "2026-11-05T15:00:00Z", "2026-11-05T15:05:00Z")],
-  });
-  setup.serveProofs(laterProof(399, third));
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  const landed = landedOf(panel);
-  await expect(landed.identity).toContainText(
-    `Cancelled at ${shortSha(landing)}.`,
-  );
-  await expect(landed.identity).toContainText(shortSha(third));
-  await expect(landed.identity).toContainText(
-    "later trunk build: includes 3 later trunk revisions",
-  );
-  await expect(landed.identity).not.toContainText("run 399");
-  await expect(landed.wall).toHaveText("5 min");
-  expect(runListingsAt(page, later)).toEqual([1, 1, 1]);
-  // One artifact listing per build checked; cancelled builds are not checked.
-  expect(
-    proofCalls(githubFor(page).calls).filter((call) =>
-      /^artifacts of run (304|305|399):/.test(call),
-    ),
-  ).toEqual(["artifacts of run 399: ci-proof-summary-attempt-1"]);
-});
-
-test("a cancelled landing merge uses a failed later trunk build with proof, labelled failed", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const landing = setup.landingMerge ?? setup.completion;
-  serveEarlierLandingWithLandedOutcome(setup, "cancelled", {
-    [setup.completion]: [
-      wall(
-        setup.completion,
-        304,
-        "2026-11-05T14:30:00Z",
-        "2026-11-05T14:36:00Z",
-        "failure",
-      ),
-    ],
-  });
-  setup.serveProofs(laterProof(304, setup.completion));
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  const landed = landedOf(panel);
-  await expect(landed.identity).toContainText(
-    `Cancelled at ${shortSha(landing)}.`,
-  );
-  await expect(landed.identity).toContainText(shortSha(setup.completion));
-  await expect(landed.identity).toContainText(
-    "later trunk build: includes 1 later trunk revision",
-  );
-  await expect(landed.identity).toContainText("failed build");
-  await expect(landed.identity).not.toContainText("run 304");
-  await expect(landed.wall).toHaveText("6 min");
-});
-
-test("a fast-forward landing whose story tip's run was cancelled uses the next trunk build's proof", async ({
-  page,
-  origin,
-}) => {
-  const setup = await publishFastForwardLandedStory(page, origin);
-  const tip = setup.completion;
-  const later = laterTrunkRevisions(origin.origin, tip);
-  expect(later).toHaveLength(1);
-  const [next = ""] = later;
-  setup.serveRuns({
-    ...cancelledTipRuns(setup),
-    [setup.mainSide]: [
-      wall(setup.mainSide, 498, "2026-11-05T13:30:00Z", "2026-11-05T13:40:00Z"),
-    ],
-    [next]: [wall(next, 403, "2026-11-05T14:30:00Z", "2026-11-05T14:37:00Z")],
-  });
-  setup.serveProofs(laterProof(403, next));
-  const { panel } = await selectDoneStoryForCiComparison(page);
-  const landed = landedOf(panel);
-  await expect(landed.identity).toContainText(`Cancelled at ${shortSha(tip)}.`);
-  await expect(landed.identity).toContainText(shortSha(next));
-  await expect(landed.identity).toContainText(
-    "later trunk build: includes 1 later trunk revision",
-  );
-  await expect(landed.identity).not.toContainText("run 403");
-  await expect(landed.wall).toHaveText("7 min");
-  expect(runListingsAt(page, later)).toEqual([1]);
 });

@@ -47,7 +47,7 @@ for (const control of ["Check again", "reselection"] as const) {
       requests += 1;
       return trunkActions(runs, setup.proofs)(argv, published);
     });
-    const reads = await watchComparisonReads(page);
+    const reads = watchComparisonReads(page);
     let { panel } = await selectDoneStoryForCiComparison(page);
     await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
       "Baseline compared with Branch",

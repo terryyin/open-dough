@@ -2,8 +2,11 @@
 // (../../src/IntentCiComparison.tsx) shows the given Entry / Counts /
 // Baseline / Branch / Landed cells.
 
-import { expect, type Locator } from "@playwright/test";
-import { comparisonTableColumns } from "../intentScopeProofPage.ts";
+import type { Locator } from "@playwright/test";
+import {
+  comparisonTableColumns,
+  expectProofTableRows,
+} from "../intentScopeProofPage.ts";
 import type { ExpectedCues } from "./expectCiComparisonCues.ts";
 
 // Branch and Landed note that they show the change from Baseline.
@@ -50,11 +53,5 @@ export async function expectCiComparisonEntryRows(
   const table = panel.getByRole("table", {
     name: "CI entry timing comparison",
   });
-  await expect(table.getByRole("columnheader")).toHaveText([...entryColumns]);
-  const body = table.locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, [entry, ...cells]] of rows.entries()) {
-    await expect(body.nth(at).getByRole("rowheader")).toHaveText(entry);
-    await expect(body.nth(at).getByRole("cell")).toHaveText([...cells]);
-  }
+  await expectProofTableRows(table, entryColumns, rows);
 }

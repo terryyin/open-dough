@@ -5,15 +5,20 @@
 // signed change from it, sortable by its columns, or why there are no rows
 // yet.
 
-import { CiProofTable, ScopePath, useCiProofSorting } from "./CiProofTable.tsx";
+import {
+  CiProofTable,
+  ScopePath,
+  type CiProofSorting,
+} from "./CiProofTable.tsx";
 import type { ComparisonEntries } from "./storyCiComparisonEntries.ts";
 
 function EntryRows({
   entries,
+  sorting,
 }: {
   readonly entries: ComparisonEntries | undefined;
+  readonly sorting: CiProofSorting;
 }) {
-  const sorting = useCiProofSorting();
   if (entries === undefined || entries.kind === "checking") {
     return (
       <p className="intent-ci-reading" role="status">
@@ -41,11 +46,13 @@ function EntryRows({
   );
 }
 
-export function EntryComparison({
+export function EntryComparisonView({
   entries,
+  sorting,
 }: {
   // Undefined while the endpoints' proofs are read.
   readonly entries: ComparisonEntries | undefined;
+  readonly sorting: CiProofSorting;
 }) {
   return (
     <>
@@ -53,7 +60,7 @@ export function EntryComparison({
         <h3>CI entry timing comparison</h3>
         <p>Cumulative test time · New entries show measured time</p>
       </div>
-      <EntryRows entries={entries} />
+      <EntryRows entries={entries} sorting={sorting} />
     </>
   );
 }

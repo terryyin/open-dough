@@ -159,6 +159,8 @@ export async function buildRepository(
   );
   const { commits } = started;
   let { trunkSha } = started;
+  const hasGraph = revisions.some((revision) => revision.parents !== undefined);
+  const graphTags = [];
   // Revision names are unique, so the started checkout holds exactly the
   // leading revisions it has commits for.
   for (const revision of revisions.slice(commits.size)) {
@@ -167,12 +169,28 @@ export async function buildRepository(
       integration,
       revision,
       checkoutIdentity,
+      revision.parents?.map((parent) => {
+        const commit = commits.get(parent);
+        if (!commit)
+          throw new Error(`Unknown parent ${parent} for ${revision.name}`);
+        return commit;
+      }),
     );
     const tags = await tagRevision(integration, revision);
-    if (origin)
+    if (hasGraph) graphTags.push(...tags);
+    else if (origin)
       await git(integration, "push", "--quiet", "origin", trunkBranch, ...tags);
     commits.set(revision.name, trunkSha);
   }
+  if (hasGraph && origin)
+    await git(
+      integration,
+      "push",
+      "--quiet",
+      "origin",
+      trunkBranch,
+      ...graphTags,
+    );
   if (!workspace)
     return {
       revisions: Object.fromEntries(commits),
@@ -196,6 +214,12 @@ export async function buildRepository(
       execution,
       revision,
       workspace.checkoutIdentity ?? checkoutIdentity,
+      revision.parents?.map((parent) => {
+        const commit = commits.get(parent);
+        if (!commit)
+          throw new Error(`Unknown parent ${parent} for ${revision.name}`);
+        return commit;
+      }),
     );
     await tagRevision(execution, revision);
     commits.set(revision.name, candidateSha);

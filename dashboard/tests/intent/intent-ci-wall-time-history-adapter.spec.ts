@@ -18,11 +18,14 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { adapterProject } from "../intentCiAdapterProofProject.ts";
 import {
   dayWords,
-  evidenceOnPhone,
+  chooseProjectCiStatus,
+  evidenceByKeyboard,
+  historyOf,
   expectLinksByKeyboard,
   publishTrunk,
 } from "../intentCiHistoryPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+import { openUntilRead } from "../pageRequestNotes.ts";
 import {
   landedCiHistory,
   recheckingLandedCi,
@@ -101,7 +104,10 @@ test("a CI adapter's timed attempt is a point of CI wall time that a planning-on
     storyLandingRecord(u, "execution"),
     storyLandingRecord(t, "refinement"),
   ]);
-  await untilKept(dashboard.home, landings);
+  await page.setViewportSize({ width: 390, height: 844 });
+  // Read the initial page while collection works; select Intent's CI status
+  // only after the recorded history is ready.
+  await Promise.all([untilKept(dashboard.home, landings), openUntilRead(page)]);
   await expect
     .poll(async () => (await landedCiHistory(dashboard)).body)
     .toMatchObject({
@@ -120,7 +126,9 @@ test("a CI adapter's timed attempt is a point of CI wall time that a planning-on
       ],
     });
 
-  const { history, builds } = await evidenceOnPhone(page);
+  const panel = await chooseProjectCiStatus(page);
+  const builds = await evidenceByKeyboard(page, panel);
+  const history = historyOf(panel);
   await expect(history.getByRole("heading")).toHaveText(
     "CI wall time history 1 measured build · Nov 5",
   );

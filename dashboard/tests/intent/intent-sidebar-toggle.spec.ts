@@ -11,6 +11,7 @@
 // selected story's view row: ./intent-story-views-narrow.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
+import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
 import {
@@ -37,6 +38,7 @@ import {
   selectTakenStoryInIntent,
   storyOnly,
   storySummary,
+  storyTitle,
 } from "../support/intentStoryPage.ts";
 import {
   changeWithDeepSpec,
@@ -194,6 +196,8 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   );
   await expect(filesToggle(intent)).toHaveCount(0);
   await chooseProject(page, "Open Dough");
+  // The restored story replaces the temporary header while its work is read.
+  await expect(storyTitle(intent)).toHaveText(storyA.title);
   await chooseStoryTab(intent, "Changed tests");
   await expectFilesShown(intent, true);
 });

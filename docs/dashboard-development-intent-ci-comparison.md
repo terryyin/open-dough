@@ -225,8 +225,11 @@ equivalent build, cancelled landings still awaiting later builds, unread CI,
 and unanswered equivalent/later proof reads stay refreshable. Check again
 or selecting the story again can therefore replace Branch fallback with
 Landed in the same process. An unanswered proof read stays pending beyond
-the landing's one-hour no-run bound. An answered missing, expired, invalid
-or unopenable artifact remains an explained gap; final answers keep their
+the landing's one-hour no-run bound. A nearest successful equivalent with valid
+positive wall time stays usable when its proof is settled missing; proof-dependent
+figures remain unavailable. Missing proof without that eligibility, and expired,
+invalid or unopenable equivalent proof, remain explained gaps. Retained legacy
+equivalent no-proof gaps revalidate once; newly resolved final gaps keep
 provider-free reuse. Sharing this judgment preserves each execution mode's
 existing build selection and exact/equivalent/later provenance, and does not
 make history browsing acquire CI or add UI polling.
