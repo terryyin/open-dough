@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-ci-adapter-and-coverage-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and boundaries
 
@@ -71,18 +72,29 @@ CI policy, UI, timing algorithm, installation or native acceptance is selected.
   supplier agreement. Reconcile other SEED-261 conversions and landed-CI work
   without rewriting their facts or claims; shared files alone are no dependency.
 
+## Learnings
+
+- SEED-261#map-github-actions-ci-test-data landed the MakeMe CI/launch split
+  (`ciMakeMe.mjs` / `launchMakeMe.mjs`). Slice 1 absorbed that trunk
+  reorganization before delivery; `aCiAdapterAttempt` stays on the CI group.
+- Verbose MakeMe call sites pushed `intent-ci-proof-adapter-reasons.spec.ts`
+  over 250 lines; shared Intent `passed`/`failed` listed-attempt helpers
+  restored size without post-`please()` mutation. Dashboard tests need a TS
+  `type` alias for listed-attempt options, not a JSDoc `@typedef` alone.
+
 ## Cohesive organization
 
 At preparation revision `05fa641a6f56141a21cb95714409c6eb8a59cc2c`, MakeMe
 is 244 lines and its timing/adapter module 98. No inspected expected edit is
 already over 250 lines. New getters may cross that threshold: slice 1 keeps
 construction/type knowledge in CI domain modules and, as necessary, composes
-a CI builder group behind the unchanged public entry point. Reuse the GitHub
-story's equivalent reorganization if it has landed. Preserve fresh independent
+a CI builder group behind the unchanged public entry point. The GitHub story's
+reorganization has landed and was reused. Preserve fresh independent
 values, every existing caller's type inference and the native runtime import
 closure; dashboard typecheck, native-evidence identity and traced consumers
 prove those boundaries. Recheck sizes for each actual edit and keep cohesive
-cleanup with its owning slice, including tests near the limit.
+cleanup with its owning slice, including tests near the limit. Current sizes
+after slice 1: `makeMe.mjs` 201, `ciMakeMe.mjs` 196, `ciTimingTestData.mjs` 141.
 
 ## Outside-in proof ownership
 
@@ -170,7 +182,7 @@ Hosted CI failures remain owned through final CI under the linked policy.
 
 ### 1. Status and proof readers share the selected adapter attempt
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 1–2. Run dashboard `tests/launches/agent-launch-base-ci-adapter.spec.ts`, `tests/intent/intent-ci-status-reads.spec.ts`, `tests/intent/intent-ci-proof-adapter` and backend `ci-proof-memory-adapter` selections. Node: `tests/support/dashboard-story-branch-ci-adapter.test.mjs`, `dashboard-ci-adapter-revision-lookup.test.mjs` and `dashboard-ci-adapter-proof.test.mjs` in that same directory.
 
 MakeMe supplies a valid discovery attempt → real acquisition, revision lookup
@@ -248,3 +260,31 @@ retain their different authorities. No project numeric slice limit is supplied.
 Reviewed all five examples against their slices and consuming observations.
 No remaining slice-specific, cumulative-design, proof-route, scope or human-owned
 decision concern was identified. Every implementation slice remains planned.
+
+
+## Story obligations
+
+### X1. GitHub run/job conversion stays with sibling
+Reported: slice 1 — "Source review commits GitHub run/job conversion remains with its sibling story."
+Story clause: "GitHub run/job, CI proof fragment/summary, and native shell setup conversion remain with their sibling stories."
+Disposition: excluded "GitHub run/job, CI proof fragment/summary, and native shell setup conversion remain with their sibling stories."
+Commitment: 8.1
+
+
+### X2. CI proof fragment/summary conversion stays with sibling
+Reported: slice 1 — "Source review commits CI proof fragment/summary conversion remains with its sibling story."
+Story clause: "GitHub run/job, CI proof fragment/summary, and native shell setup conversion remain with their sibling stories."
+Disposition: excluded "GitHub run/job, CI proof fragment/summary, and native shell setup conversion remain with their sibling stories."
+Commitment: 8.2
+
+### X3. Native shell setup conversion stays with sibling
+Reported: slice 1 — "Source review commits native shell setup conversion remains with its sibling story."
+Story clause: "GitHub run/job, CI proof fragment/summary, and native shell setup conversion remain with their sibling stories."
+Disposition: excluded "GitHub run/job, CI proof fragment/summary, and native shell setup conversion remain with their sibling stories."
+Commitment: 8.3
+
+### X4. Mixed tests convert only this story facts
+Reported: slice 1 — "Source review commits mixed tests convert only this story facts."
+Story clause: "Mixed tests convert this story's facts only."
+Disposition: excluded "Mixed tests convert this story's facts only."
+Commitment: 8.4

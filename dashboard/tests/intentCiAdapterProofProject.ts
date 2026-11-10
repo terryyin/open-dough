@@ -11,6 +11,7 @@ import {
   fragmentsFromOutcomes,
   summarize,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import { proofOf } from "./intentCiProofPage.ts";
@@ -148,21 +149,45 @@ process.stdout.write(JSON.stringify(answer));
   };
 }
 
+type ListedAttemptOptions = { time?: string; check?: string; url?: string };
+
 // A passed attempt as the adapter's discover answers it.
 export const passed = (
   runId: string | number,
   attemptId: string | number,
   sha: string,
   branch: string,
-) => ({
-  runId,
-  attemptId,
-  sha,
-  outcome: "success",
-  url: mainRun,
-  time: "2026-10-01T00:00:00Z",
-  branch,
-});
+  options: ListedAttemptOptions = {},
+) =>
+  listedAttempt("passedWithoutTimes", runId, attemptId, sha, branch, options);
+
+// A failed attempt as the adapter's discover answers it.
+export const failed = (
+  runId: string | number,
+  attemptId: string | number,
+  sha: string,
+  branch: string,
+  options: ListedAttemptOptions = {},
+) => listedAttempt("failed", runId, attemptId, sha, branch, options);
+
+function listedAttempt(
+  method: "passedWithoutTimes" | "failed",
+  runId: string | number,
+  attemptId: string | number,
+  sha: string,
+  branch: string,
+  options: ListedAttemptOptions,
+) {
+  return makeMe.aCiAdapterAttempt[method]({
+    runId,
+    attemptId,
+    sha,
+    branch,
+    url: options.url ?? mainRun,
+    time: options.time ?? "2026-10-01T00:00:00Z",
+    ...(options.check !== undefined ? { check: options.check } : {}),
+  }).please();
+}
 
 // The adapter's proof answer: a valid summary of `attemptId` at `revision`
 // whose one row is `testsRow`.
