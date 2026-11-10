@@ -140,6 +140,10 @@ selection survive. Prove keyboard/narrow-width evidence and independently retry
 history. Browsing and revisiting scopes, including after restart, uses local
 collected data without provider acquisition.
 
+## Execution complete
+
+Product advice: No change. The queued rerun story retains its own action, threshold and attempt-policy decisions; this increment supplies the inspectable local reference and its bounded retained sample.
+
 ## Verification and delivery gates
 
 See the [required gates and preservation commands](context.md#verification-and-delivery-gates).
@@ -196,7 +200,7 @@ See [retained preparation context](context.md).
 - Published/registered increments on the retained story branch:
   `e714c02f52de8f85fdc404317d2a75b41fdd27c5` (base Take), then
   `89dfa733696ea5c772f194ae5067f496a3860bab` (base e714c02f).
-  Next previously published base is `89dfa733`; CI remains asynchronous.
+  Then `a85ea4022d7ec5aa6f9fc29c42bcf66233c5fc9e` (base 89dfa733); it is the next published base. CI remains asynchronous.
 - Checkout setup: `npm ci` and `npm run typecheck:dashboard` passed 2026-11-10.
   Selective formatter is `npm run format`; `.githooks/pre-commit` is check-only
   staged lint plus dashboard typecheck when scripts are staged.

@@ -233,3 +233,17 @@ and adapt our G4 stable outer region/optional inner label to FrameView, preservi
 both writers. Renew affected lifecycle/navigation proof on that merged candidate.
 SEED-291 association work and the published history-gaps quiescence repair also
 remain to be preserved at integration; neither changes this reference rule.
+
+## Execution retrospective
+
+Reviewed original Take plan/story and the uncontaminated published manifest
+`e714c02f`, `89dfa733`, `a85ea402`; claim/nearby siblings are provenance only.
+Aggregate rule/projections/readers/owners, docs and pure versus integrated tests
+fulfill the original outcome and Accepted ADRs. All 215 clauses/five gaps are
+observed/proved. Timing/count and collector/local-read boundaries are coherent;
+no correction/product change is warranted. Enabled process review recorded the
+planning-basename trace recurrence under existing ODF-396; no new id/follow-up.
+Slice-3 formatter failed its check on a non-idempotent chained-call layout; the
+inspected delta was whitespace-only, fresh retry passed, no older HEAD delivered.
+CI remains pending review input. Completion changes are records-only;
+accepted implementation proof applies.

@@ -310,6 +310,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: broad enumeration required a second read and record compaction; actual guidance/CLI/replay consumers were inspected and passed focused proof. No missed consumer is established.
   - Inference: automatic planning-basename noise recurred; exact time attributable to it is unmeasured. Grouped dispositions preserved relevant proof without the raw list.
 
+- Execution: SEED-285#compare-landed-timing-with-recent-builds (plan 555; first implementation `e714c02f52de8f85fdc404317d2a75b41fdd27c5`)
+  - Timestamp: unknown (2026-11-10 slice-3 acceptance; exact trace-event time unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound `.agents/skills/dough-update/VERSION`)
+  - Evidence: `/tmp/seed285-slice3-consumer-trace.md` and its dispositions each contain 758 physical lines, including automatically derived PLAN/PLAN.md/source-review terms and unrelated historical/guidance matches. The coordinator's combined acceptance read was truncated. The independent presentation-refactor trace `/tmp/seed285-refactor3-consumer-trace.md` uses product paths/effect terms and contains 64 lines with 12 located consumers; all reached browser consumers were run.
+  - Observed effect: the broad trace required repeated targeted reads and numerous lexical-only exclusions beside meaningful runtime consumers. Current proof covers the affected references and enclosing journeys; no missed consumer was established.
+  - Inference: planning-basename expansion recurs in ordinary feature execution. The narrower refactor trace supports separating record paths from product-effect searches while preserving indirect proof; isolated time/token savings were not measured.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
 ## ODF-405 — Full local suite wall includes waiting for repository-wide admission
