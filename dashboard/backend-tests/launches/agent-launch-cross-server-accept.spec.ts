@@ -26,7 +26,7 @@ import {
   type PushHold,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 
 const request = openSessionRequest;
@@ -84,11 +84,11 @@ test.describe("cross-server accept of one story", () => {
   // Loaded into the server: marks `waited` once a lock acquisition finds the
   // attempts lock held, the only place the store retries `mkdir` of it.
   const lockWait = (lock: string, waited: string) =>
-    fsPromisesHook(
+    fsSyncHook(
       path.join(origin.machine, "lock-wait.mjs"),
-      "mkdir",
-      `async (directory, ...args) => {
- try { return await original(directory, ...args); }
+      "mkdirSync",
+      `(directory, ...args) => {
+ try { return original(directory, ...args); }
  catch (error) {
   if (error?.code === 'EEXIST' && String(directory) === ${JSON.stringify(lock)}) fs.writeFileSync(${JSON.stringify(waited)}, 'waited');
   throw error;

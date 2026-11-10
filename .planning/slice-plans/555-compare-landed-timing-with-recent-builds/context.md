@@ -241,9 +241,9 @@ Reviewed original Take plan/story and the uncontaminated published manifest
 Aggregate rule/projections/readers/owners, docs and pure versus integrated tests
 fulfill the original outcome and Accepted ADRs. All 215 clauses/five gaps are
 observed/proved. Timing/count and collector/local-read boundaries are coherent;
-no correction/product change is warranted. Enabled process review recorded the
+no new product scope is warranted. Enabled process review recorded the
 planning-basename trace recurrence under existing ODF-396; no new id/follow-up.
 Slice-3 formatter failed its check on a non-idempotent chained-call layout; the
 inspected delta was whitespace-only, fresh retry passed, no older HEAD delivered.
-CI remains pending review input. Completion changes are records-only;
-accepted implementation proof applies.
+CI at `1c4c3e17` failed adapter proof recovery. Deterministic public-store exit/retry proof exposed a creation-before-registration lock gap; synchronous creation/registration repairs it without changing foreign-lock handling. All 27 affected recovery/concurrency/store cases and types pass; inspected source/assertions and accepted independent REFACTOR COMPLETE with no edits.
+Evidence: `/tmp/seed285-ci-repair1-return.md` and `/tmp/seed285-ci-refactor1-return.md`. Historical CI orphan attribution is unconfirmed; fresh CI remains required. Reference calculation, schemas, eligibility and UI proof are unchanged. Fresh source at `7baa18e37` is unchanged; later Git-directory association/dev-cache changes do not touch this operational-lock repair. Product advice remains unchanged.

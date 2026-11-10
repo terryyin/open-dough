@@ -66,12 +66,17 @@ import {
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
 /** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
+/** @typedef {import("../../dashboard/server/startStore.ts").StartRecord} StartRecord */
 /**
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
 
 export const makeMe = {
+  /** @returns {FactBuilder<StartRecord>} */
+  get aStartRecord() {
+    return { with: copyFacts };
+  },
   get aCiProof() {
     return new CiProofBuilder();
   },

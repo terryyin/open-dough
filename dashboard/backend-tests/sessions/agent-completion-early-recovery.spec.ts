@@ -23,20 +23,20 @@ import {
   reportingChild,
   recordOperation,
 } from "../../tests/support/completionRecovery.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
 
 test("deleted early Claude binding cannot be resurrected before attempt settlement", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());
   const hold = path.join(origin.machine, "hold-settlement");
   const reached = path.join(origin.machine, "settlement-held");
   const recordsFile = launchStoreFile(machineHome(origin.machine));
-  const holdSettlement = fsPromisesHook(
+  const holdSettlement = fsSyncHook(
     path.join(origin.machine, "hold-settlement.mjs"),
-    "mkdir",
-    `async (directory, ...args) => {
+    "mkdirSync",
+    `(directory, ...args) => {
  if (String(directory).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)}) && fs.existsSync(${JSON.stringify(recordsFile)})) {
   fs.writeFileSync(${JSON.stringify(reached)}, 'held');
-  await heldWhile(${JSON.stringify(hold)}, 15000);
+  throw Object.assign(new Error("acquisition held by test"), { code: "EEXIST" });
  }
  return original(directory, ...args);
 }`,

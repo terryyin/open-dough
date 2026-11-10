@@ -9,8 +9,8 @@
 // human removes it after confirming no writer holds it. Lock waits are
 // bounded.
 
-import { rmSync } from "node:fs";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdirSync, rmSync } from "node:fs";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
@@ -65,7 +65,8 @@ export async function acquireWriteLock(lock: string): Promise<void> {
   const deadline = Date.now() + 10_000;
   for (;;) {
     try {
-      await mkdir(lock);
+      // Creation and registration cannot yield to a normal process exit.
+      mkdirSync(lock);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
       if (await releaseAbandonedLock(lock)) continue;
