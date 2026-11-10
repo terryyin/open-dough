@@ -68,7 +68,10 @@ export async function readIntentCiScopeHistory(
   if (
     !parsed.success ||
     parsed.data.path !== path ||
-    parsed.data.selectedRevision !== endpoint.revision
+    parsed.data.selectedRevision !== endpoint.revision ||
+    parsed.data.references?.some(
+      ({ reference }) => reference.endpoint !== endpoint.revision,
+    ) === true
   )
     throw unexpectedAnswer(reading);
   return parsed.data;

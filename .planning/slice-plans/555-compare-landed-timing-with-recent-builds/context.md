@@ -189,3 +189,47 @@ final typecheck passed. Source freshness unchanged at trunk f1a992a7.
 Independent refactor accepted: one shared endpoint-history lifecycle; six focused
 reader journeys, typecheck and whitespace passed. Exact correspondence/commands
 are in `/tmp/seed285-refactor2-return.md`; guarded delivery remains pending.
+## Slice 3 acceptance
+
+Source-only review remains unchanged. All 65 allocated source clauses were
+compared with raw retained inputs, selected artifact collection, the normal
+authenticated producer/reader and observing assertions. The source table records
+64 observations; C03 links proved G5. The collected entry/folder/file journey
+observes independent 618/309/103 ms references, precise differences, hidden
+published membership, five included dates, excluded outlier, selected provenance,
+one reference line, phone/keyboard access, restart and local-only retry. States
+observe zero, partial selected timing and missing identity without a proxy.
+Inspected locations: the two scope-prior-build browser journeys, their shared
+history/page support, seven scope reference contracts and the inner-endpoint
+reader contract. All existing selected consumers have current passing proof;
+the duplicate Run205 locator was scoped to its original raw evidence list,
+retaining the exact href assertion and full repaired journey. Reports, literal
+commands and consumer dispositions: `/tmp/seed285-slice3-return.md`,
+`/tmp/seed285-slice3-coverage.json`, and
+`/tmp/seed285-slice3-consumer-dispositions.md`. No failure was waived.
+
+Independent refactor extracted shared membership/date/value/reason presentation
+into PriorBuildReferenceEvidenceList, retaining distinct wall/scope provenance
+adapters and resolving each scoped comparison once. Inspected all four edits
+and the 12-consumer trace/dispositions. Typecheck and seven browser files
+(12 observations) passed after edits; numeric/transport/collection proof is
+unchanged and reused. Literal commands and terminal results:
+`/tmp/seed285-refactor3-return.md` (REFACTOR COMPLETE). Freshness is unchanged
+at `b17732d93`; only unrelated planning/admission records arrived after
+`4dc395f0e`, so the sibling compatibility judgment remains applicable.
+
+### Incoming sibling compatibility at slice 3
+
+Freshness pinned trunk `4dc395f0e`; source is unchanged. SEED-286 product
+`2d1c96689`, `944367c74`, `2f5b6a3ff` landed in that integration after closure
+`626b2deb8`. Its extraction retains the ComparisonReading/checkedAgain contract,
+published endpoint facts, and independent scope history mounts in Summary/Proof.
+Scope-history ordering, signatures, completeness, readings and chart owners are
+unchanged. Count-gap revision `6217de68c` changes unitResultsAt's presentation;
+history uses independent declared units with owningEntryOf/scopeFiguresOf and
+entryTimingOf/scopeTimingOf, all unchanged. Slice 3 does not depend on superseded
+behavior. The later real integration must retain the extracted comparison views
+and adapt our G4 stable outer region/optional inner label to FrameView, preserving
+both writers. Renew affected lifecycle/navigation proof on that merged candidate.
+SEED-291 association work and the published history-gaps quiescence repair also
+remain to be preserved at integration; neither changes this reference rule.

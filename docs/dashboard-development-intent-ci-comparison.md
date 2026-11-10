@@ -114,7 +114,8 @@ GitHub Actions or adapter proof once. History reads use that local evidence.
 Opening, drilling or revisiting Summary or file Proof, including history Retry,
 never acquires historical CI proof. Folder readings include every published
 descendant, even files absent from the visible source tree; membership is the
-scope observed at each build.
+scope observed at each build. Each declared unit also shows its own
+[prior-build average and exclusions](dashboard-development-intent-scope-reference.md).
 Collection can resume a known attempt's missing proof or unanswered acquisition
 after restart, including retained builds whose wall-time resolution was already
 final. It keeps proof acquisition separate from that final landing resolution.
@@ -147,8 +148,7 @@ or untimed proof break the line and keep their reasons. Earlier supported
 segments remain readable when the selected landing is a gap. These are
 observations of each build's scope, not timing attributed to the story. The
 history has its own local read failure and retry, preserving other evidence.
-An unreadable retained store is a failed local read; an absent store is empty
-history.
+An unreadable retained store is a failed local read; an absent store is empty history.
 
 Summary and file Proof reuse the evidence already held by Intent; drilling
 adds no CI request, and Summary reads no file text. GitHub Actions

@@ -114,7 +114,7 @@ selection, and show the same comparison from retained evidence after restart.
 ### 3. Follow the reference through entry, folder and file timing
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New entry → folder → file Done-story history journey through validated
 retained proof and normal scope projection, plus focused matching/completeness
 checks and the affected enclosing Summary/Proof journeys.
@@ -166,7 +166,7 @@ See [retained preparation context](context.md).
   shared equivalent and later-trunk sources require both identities.
 - A horizontal average reference belongs to the displayed endpoint. A whole
   curve of historical moving averages is outside this increment.
-- Scoped reference integration remains owed; accepted observations are retained below.
+- Scoped reference proof is accepted; see [slice 3 acceptance](context.md#slice-3-acceptance).
 - SEED-288 pending refresh and proof-free adapter equivalent timing were already
   delivered in the Take base (closures `2d0564ff` and `9743bf1a`; product
   revisions `3322a6fd` and `eb2bfebe`). Current supplier/adapter/provenance
@@ -193,9 +193,10 @@ See [retained preparation context](context.md).
 - Accepted Take and previously published branch base:
   `dd628ef6d9028c2544538b4b664a413d17c308c2`; remote branch confirmed at that SHA.
   Claim CI is unobserved. Retain Changed since readiness review; no renewal.
-- Slice 1 published and registered on the retained story-branch observer:
-  `e714c02f52de8f85fdc404317d2a75b41fdd27c5` (suffix base Take `dd628ef6d`).
-  This is the next increment's previously published base; CI is asynchronous.
+- Published/registered increments on the retained story branch:
+  `e714c02f52de8f85fdc404317d2a75b41fdd27c5` (base Take), then
+  `89dfa733696ea5c772f194ae5067f496a3860bab` (base e714c02f).
+  Next previously published base is `89dfa733`; CI remains asynchronous.
 - Checkout setup: `npm ci` and `npm run typecheck:dashboard` passed 2026-11-10.
   Selective formatter is `npm run format`; `.githooks/pre-commit` is check-only
   staged lint plus dashboard typecheck when scripts are staged.
@@ -212,8 +213,8 @@ See [retained preparation context](context.md).
 Slice 1 proof, causal failure repairs and independent refactoring are accepted;
 see [retained acceptance](context.md#slice-1-acceptance). Delivery is recorded above.
 
-Slice 2 proof and independent refactoring are accepted; see
-[retained acceptance](context.md#slice-2-acceptance). Guarded delivery remains pending.
+Slice 2 proof and independent refactoring are accepted and delivered; see
+[retained acceptance](context.md#slice-2-acceptance).
 
 ## Story obligations
 
@@ -222,8 +223,6 @@ Reported: slice 1 — "An invalid kept startedAt was copied into reference evide
 Story clause: "Keep observed points and existing gaps visible."
 Disposition: proved by slice 1: tests/support/ci-prior-build-boundaries.test.mjs invalid measured dates; tests/support/ci-prior-build-reference-schema.test.mjs malformed date paths; dashboard/tests/intent/intent-ci-prior-build-states.spec.ts invalid measured start normal-reader gap/average/reason/date/link. Literal passing commands are retained in /tmp/seed285-slice1-return.md.
 Commitment: C84
-
-
 ### G2. Use represented landing M when Done completion D differs
 Reported: slice 2 — "publishedDoneEndpointOf supplied pre-merge completion D while the selected publication records trunk landing M; a retained M could appear uncollected when reading D."
 Story clause: "Candidates come from represented landings before the comparison's exact landing endpoint"
@@ -233,10 +232,14 @@ Commitment: C08
 Reported: slice 2 — "A published Story Branch review can settle without landingRevision when facts.landing is absent; the Done reference then says it is Reading forever although no history request can start."
 Story clause: "Failed, pending, missing, partial, ambiguous or unsupported evidence keeps its specific reason and supplies no numeric substitute."
 Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-done-endpoint-readiness.spec.ts observes pending, accepted optional metadata omission, real shallow-Git unavailable owner, HTTP failure and Retry with no guessed history request. Inspection proves absent landing is unreachable in fully validated normal producer facts; the accepted protocol and real failure boundaries are separately observed.
-
-
 ### G4. Keep the local Done reference across CI comparison states
 Reported: slice 2 — "The Done reference was mounted only inside ComparisonShown, so an initial failed or unavailable CI comparison hid a usable local reference and changing CI state could discard its local reader."
 Story clause: "Preserve the history's own failure/retry feedback and selection, and the existing independent CI refresh lifecycle."
 Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-done-reference-lifecycle.spec.ts observes initial failed/unavailable and later failed CI states retaining one local reference; corrupt-store/no-remount assertion, independent local Retry and CI recovery pass, alongside original clean-landing comparison.
 Commitment: C02
+
+### G5. Bind every scoped reference to its requested endpoint
+Reported: slice 3 — "The scoped reader checked outer path and selectedRevision but accepted an inner reference.endpoint for another publication."
+Story clause: "Candidates come from represented landings before the comparison's exact landing endpoint"
+Disposition: proved by slice 3: dashboard/tests/intent/intent-scope-prior-build-average.spec.ts observes collected entry/folder/file execution-time reference through exact selected Done landing; tests/support/ci-scope-prior-build-read.test.mjs accepts that valid reference and refuses only a changed inner endpoint while outer path/selectedRevision match. Inspected producer, reader, raw MakeMe setup and assertions; cd05c2 exit0. Scope states and original gap/navigation consumers also pass; literal commands and results retained in /tmp/seed285-slice3-return.md.
+Commitment: C03

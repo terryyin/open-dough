@@ -15,6 +15,7 @@ import type { ProjectHistory } from "./landedCiHistoryStore.ts";
 import { historyBuildOf } from "./landedCiHistoryEntries.ts";
 import { scopeHistoryGapOf } from "./ciScopeHistoryGap.ts";
 import { historyEndpointOf } from "./ciHistoryEndpoint.ts";
+import { scopeHistoryReferencesOf } from "./ciScopeHistoryReference.ts";
 
 const buildDateSchema = z.iso.datetime({ offset: true });
 
@@ -179,5 +180,16 @@ export function scopeHistoryOf(
       readings: units.map((unit) => ({ kind: "gap" as const, unit, reason })),
     });
   }
-  return { path, selectedRevision: endpoint.revision, availability, entries };
+  return {
+    path,
+    selectedRevision: endpoint.revision,
+    availability,
+    entries,
+    references: scopeHistoryReferencesOf(
+      entries,
+      endpoint.revision,
+      expected,
+      order,
+    ),
+  };
 }

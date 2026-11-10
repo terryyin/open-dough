@@ -6,6 +6,7 @@ import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { CiScopeHistory } from "./ciScopeHistory.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
 import { scopeHistoryProvenance } from "./IntentScopeTimingHistoryEvidence.tsx";
+import { IntentScopePriorBuildReference } from "./IntentScopePriorBuildReference.tsx";
 
 function UnitHistory({
   history,
@@ -17,6 +18,10 @@ function UnitHistory({
   const heading = useId();
   const name = unitName(unit);
   const title = `${name[0]?.toUpperCase() ?? ""}${name.slice(1)}`;
+  const comparison = history.references?.find(
+    (candidate) => candidate.unit === unit,
+  );
+  const averageMs = comparison?.reference.averageMs;
   const points = history.entries.flatMap((entry) =>
     entry.readings.flatMap((reading) =>
       reading.unit === unit && reading.kind === "point"
@@ -49,6 +54,10 @@ function UnitHistory({
   return (
     <section aria-labelledby={heading}>
       <h5 id={heading}>{title}</h5>
+      <IntentScopePriorBuildReference
+        comparison={comparison}
+        entries={history.entries}
+      />
       {points.length === 0 ? (
         <p className="intent-ci-history-note">
           No complete test execution times are available for {name}.
@@ -61,6 +70,14 @@ function UnitHistory({
             dates: history.entries.map((entry) => entry.date),
             annotations,
             points,
+            ...(averageMs === undefined
+              ? {}
+              : {
+                  reference: {
+                    ms: averageMs,
+                    label: `Prior-build average: ${executionTimeWords(averageMs)}`,
+                  },
+                }),
           }}
         />
       )}
