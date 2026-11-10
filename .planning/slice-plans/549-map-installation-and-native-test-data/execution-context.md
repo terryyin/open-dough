@@ -18,3 +18,4 @@ Published increments on the execution branch:
 
 - Slice 1: `8c305d2f0f90d0d7f553680612040ae5a8346e77`, suffix base claim.
 - Slice 2: `418a4ee8b4a4d256d327d211d1bb146b8897f66d`, suffix base slice 1.
+- Slice 3: `8a02722fb8cc8b7b7535215aa1385e09fa854814`, suffix base slice 2.

@@ -126,7 +126,8 @@ native discovery from this direct operation.
 
 ### 4. Closure scenarios retain the same candidate, conflict and human state
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 4](slice-4-proof.md).
 Proof: Source example 3's closure. Run `npm test -- tests/git-publication-native.sh tests/git-publication-native-owned-context.sh tests/git-publication-fixture-identity.sh tests/native-evidence-identity.sh`, and retain the direct profile comparisons observed during preparation.
 
 Move valid starting revision/planning facts in `trunk-closure-native-fixture.sh`,

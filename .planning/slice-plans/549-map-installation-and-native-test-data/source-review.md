@@ -31,7 +31,7 @@ finally reconciled in slice 7 and apply throughout.
 | C16 | A collection of present files does not silently represent an ordinary complete installation. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C17 | Physical roots, source/version records, project-owned configuration, and host settings remain distinct concepts. | slice 7 | |
 | C18 | Native Take scenarios’ valid published starting facts are converted. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
-| C19 | Native closure scenarios’ valid published starting facts are converted. | slice 4 | |
+| C19 | Native closure scenarios’ valid published starting facts are converted. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
 | C20 | Worktree-preparation scenarios’ starting repository facts are converted. | slice 5 | |
 | C21 | The actual originating checkout is preserved. | slice 5 | |
 | C22 | The worktree topology is preserved. | slice 5 | |
@@ -78,11 +78,11 @@ finally reconciled in slice 7 and apply throughout.
 | J15 | That refusal also applies when force is used. | slice 2 | observed: slice-2-proof.md; inspected source setup and independent observations |
 | J16 | A native Take scenario begins with one queued, refined planned story. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
 | J17 | The real installed claim workflow moves that story to Taken. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
-| J18 | Closure scenarios retain their declared starting revisions. | slice 4 | |
-| J19 | Closure scenarios retain concurrent source changes. | slice 4 | |
-| J20 | Closure scenarios retain pending human files. | slice 4 | |
-| J21 | Existing publication checks continue to evaluate the same closure journey. | slice 4 | |
-| J22 | Existing observer-order checks continue to evaluate that journey. | slice 4 | |
+| J18 | Closure scenarios retain their declared starting revisions. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
+| J19 | Closure scenarios retain concurrent source changes. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
+| J20 | Closure scenarios retain pending human files. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
+| J21 | Existing publication checks continue to evaluate the same closure journey. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
+| J22 | Existing observer-order checks continue to evaluate that journey. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
 | J23 | A preparation scenario starts with a non-bare originating checkout. | slice 5 | |
 | J24 | That originating checkout has no remote. | slice 5 | |
 | J25 | The scenario has a sibling execution worktree. | slice 5 | |

@@ -73,6 +73,8 @@ journey_inputs=(
   "git_publication_write_evidence_identity land-default-checkout|${land_inputs[*]}
   src/skills/dough-execute-plan/references/publish-the-candidate.md"
   "trunk_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
+  tests/support/native-closure-repository.mjs tests/support/native-closure-ci.mjs
+  tests/support/makeMe.mjs tests/support/repositoryTestData.mjs tests/support/ciRunTestData.mjs
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
   src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
@@ -80,11 +82,14 @@ journey_inputs=(
   src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
   src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs"
   "story_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
+  tests/support/native-closure-repository.mjs tests/support/native-closure-ci.mjs
+  tests/support/makeMe.mjs tests/support/repositoryTestData.mjs tests/support/ciRunTestData.mjs
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs"
   "git_publication_write_evidence_identity execution-review|${response_input}
   src/skills/dough-land/references/completion-attention.md"
   'git_publication_write_evidence_identity admission|
+  tests/support/published-plan.mjs tests/support/slicePlanTestData.mjs
   tests/support/makeMe.mjs
   tests/support/story-preparation.mjs
   src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs'

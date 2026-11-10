@@ -32,6 +32,8 @@ import {
 } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs";
 import { startExecution } from "../../src/skills/dough-execute-plan/scripts/execution-start.mjs";
 import { storyA, storyB } from "./queued-repository.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { renderPlanSlice, renderSlicePlan } from "./published-plan.mjs";
 import { materializeRepository } from "./repository-fixture.mjs";
 import {
   fixtureRootMarker,
@@ -135,7 +137,14 @@ if (journey === "admission-continuation") {
     trunk,
     { identity, link, planHref: "../slice-plans/N/PLAN.md" },
     {
-      plan: "# Make startup fast\n\n### 1. Add feature.txt containing 'implemented'\nType: Behavior\nStatus: planned\n",
+      plan: `# Make startup fast\n\n${renderPlanSlice(
+        makeMe.aPlanSlice
+          .with({
+            index: 1,
+            name: "Add feature.txt containing 'implemented'",
+          })
+          .please(),
+      )}\n`,
       ready: true,
     },
   );
@@ -165,7 +174,24 @@ if (journey === "admission-correction") {
   writeDraft(
     trunk,
     ".planning/slice-plans/R/PLAN.md",
-    `# Order release notes by tag date\n\n## Source\n\n**Identity:** ${identity}\n\nRetrospective of SEED-R#publish-notes.\n\n## Findings\n\n- Notes are listed in file-name order, so v1.10 precedes v1.9.\n\n## Ordered slices\n\n### 1. Newest tag first\nType: Behavior\nStatus: planned\nProof: The index lists v1.10 before v1.9.\n`,
+    renderSlicePlan(
+      makeMe.aSlicePlan
+        .with({
+          slices: [
+            makeMe.aPlanSlice
+              .with({
+                index: 1,
+                name: "Newest tag first",
+                proof: "The index lists v1.10 before v1.9.",
+              })
+              .please(),
+          ],
+        })
+        .please(),
+      {
+        preamble: `# Order release notes by tag date\n\n## Source\n\n**Identity:** ${identity}\n\nRetrospective of SEED-R#publish-notes.\n\n## Findings\n\n- Notes are listed in file-name order, so v1.10 precedes v1.9.`,
+      },
+    ),
   );
   const section = `${storySection("order-notes", identity, "Order release notes by tag date", "Readers see the newest tag's notes first, as the published notes promised.")}\n**Scope:** Correct the note order only.\n\n**Plan:** [Order release notes](../slice-plans/R/PLAN.md).\n`;
   writeDraft(
