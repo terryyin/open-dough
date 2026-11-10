@@ -63,6 +63,16 @@ Former local code: DD-255. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-258. [Evidence and current response](docs/maintainer/findings/ODF-224.md).
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
+
+### Occurrences
+- Execution: SEED-289#name-a-test-job-past-its-deadline (plan 563; first implementation `15ebf14d3dba2c231ec7a6269364121ba21e9ea5`)
+  - Timestamp: 2026-11-10T00:28:28Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Slice 1 `15ebf14d` made `native-run-supervise.sh` / `native-run-watchdog.sh` source `scripts/owned-process-group.bash` and listed that path in `native_run_supervision_inputs`, but identity/admission harness trees still copied without `scripts/`. CI run 42727924512 failed `tests/support/native-admission-reuse.test.mjs` (`…/scripts/owned-process-group.bash: No such file or directory`). Repair `e985d394` added `tests/support/native-supervision-inputs.mjs` and materializes uncovered supervision roots into those trees.
+  - Observed effect: One owned CI failure and repair commit before slice 2 could finish; coordinator stashed then restored in-flight slice 2 work around the repair.
+  - Inference: Harness trees that materialize supervision inputs are callers of the supervision-input contract. Extending that list needs those materializers in the same proof set; a focused deadline suite alone cannot see them. Distinct from ODF-225: the stash parked uncommitted next-slice work; no invalidated still-running proof was recorded.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
 ## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
@@ -319,6 +329,16 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 Former local code: DD-431. [Evidence and current response](docs/maintainer/findings/ODF-428.md).
+
+### Occurrences
+- Execution: SEED-289#name-a-test-job-past-its-deadline (plan 563; first implementation `15ebf14d3dba2c231ec7a6269364121ba21e9ea5`)
+  - Timestamp: 2026-11-10T08:23:03+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Slice 1 acceptance recorded observations against the deadline proof files; the post-change refactor split continuation cases into `test-runner-deadline-continuation.test.mjs` before publish `15ebf14d`. Slice 2 acceptance then recorded cutoff rows; its refactor split `test-runner-deadline-cutoff-proof.test.mjs` / helpers before publish `968d5cde`. Coordinator transcripts show “Updating observations for the split proof files” / plan verification updates before each delivery.
+  - Observed effect: Two retargeting rounds in one execution; nothing stale was published because the coordinator rewrote the citations before each increment.
+  - Inference: Same structural gap as prior ODF-428 rows — acceptance writes `observed:` paths before the required refactor pass, so proof-file splits invalidate them unless retargeted at delivery.
+
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
 ## ODF-430 — Story integration moved another active agent profile into done

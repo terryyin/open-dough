@@ -252,3 +252,9 @@ No remaining slice-specific concern was identified in this review. The
 baseline observations establish available routes and current ownership, not
 the future deadline behavior. Each slice must add discriminating proof: its
 deadline scenario fails with expiry handling disabled and passes when enabled.
+
+## Execution complete
+
+Product advice: no change. Delivered per-job 180s safety stop and CI 320s
+absolute cutoff match the story; sibling font-parity work remains the next
+SEED-289 backlog item without a new product priority from this run.
