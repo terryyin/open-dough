@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 - [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible ([plan](slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md))
 - [Show no count difference across a missing or ambiguous part](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps) — SEED-281#no-count-difference-across-gaps ([plan](slice-plans/566-no-count-difference-across-gaps/PLAN.md))
+- [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
 
 ## Backlog list
 
-- [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data

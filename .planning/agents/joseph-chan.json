@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joseph-chan",
+  "email": "joseph-chan@example.org",
+  "identity": "SEED-290#publish-frontend-test-proof",
+  "mode": "story-branch",
+  "branch": "cursor/publish-frontend-test-proof-in-ci",
+  "host": "cursor",
+  "model": "auto"
+}
