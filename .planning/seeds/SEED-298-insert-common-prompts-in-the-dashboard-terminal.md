@@ -16,9 +16,15 @@ scope: story
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-A developer replying to an agent in the dashboard terminal can insert a common
-prompt without typing it out. Offer two presets initially, `OK` and
-`as recommended`.
+A developer replying to an agent can open the **Prompts** menu in the terminal
+header on desktop and mobile. The menu takes the existing dictation button's
+place among the session actions. It offers `OK`, `as recommended`, and
+**Dictate into terminal**.
 
-Selecting either preset inserts its text into the active terminal input. The
-developer can review or edit the text and press Enter when ready to send it.
+- Selecting either preset closes the menu and inserts the text into the active
+  terminal input. The developer can edit it and press Enter when ready to send.
+- Selecting **Dictate into terminal** closes the menu and starts dictation.
+  While recording, **Stop recording** replaces the **Prompts** button in the
+  same slot. When recording ends, the **Prompts** button returns and the
+  [existing dictation flow](../../dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md#dictation)
+  handles the transcript.
