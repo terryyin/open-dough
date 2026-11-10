@@ -2,6 +2,7 @@
 
 **Identity:** SEED-287#fit-dashboard-journeys-in-default-timeout
 **Source:** [Refined story](../../seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
+**Source review:** [Independent commitments](source-review.md)
 **Preparation:** owned workspace
 `/Users/terryyin/git/open-dough/.worktrees/make-dashboard-journeys-fit-the-default-timeout`,
 branch `cursor/make-dashboard-journeys-fit-the-default-timeout`, starting
@@ -73,42 +74,42 @@ clock; measure family and suite elapsed separately from summed case time.
 
 ### 1. Recheck which overdue journeys and harness costs still dominate
 Type: Behavior  
-Status: planned  
+Status: done
 Proof: Focused before timings with the same selection, workers, cache conditions, and comparable load for the named allowance cases (touch reading, production-deployment, agent-completion-recovery, watcher policy-repair) plus the watcher failure/restart family and a first-in-worker sample. Record which earlier leads still show material cost. On macOS use the maintained sleep guard. This is an authorized early probe: if dominant costs differ from the seed's leads, revise later slices before implementing them.
 
 Behavior: Preparation workspace at the starting revision → run the focused timing probe under comparable load → the plan records which named journeys still miss the default margin and which harness leads still dominate, or revises dependent slices when they do not.
 
 ### 2. Remaining assertion races wait at their causal boundary
 Type: Behavior  
-Status: planned  
+Status: planned
 Proof: Focused specs for remaining history-compare, revisit-request-count, and selected-story-render reproductions (and siblings sharing each setup) pass three consecutive times under comparable load; exact counts kept where duplicate avoidance is the promise; no sleeps/retries/skips.
 
 Behavior: A case that previously asserted while async work was settling → wait for the persisted collector result, finished first request, or rendered selected story as applicable → the assertion observes the settled state under load without a case-local timeout allowance.
 
 ### 3. Watcher failure keeps one live deployment; restart owns SIGHUP
 Type: Structure  
-Status: planned  
+Status: planned
 Proof: `production-watcher-failures.spec.ts` and `production-watcher.spec.ts` (and policy journey as affected) pass; discriminating checks still detect ignored SIGHUP and reuse of the previously served revision; standalone C reactivation including its install/build/start is gone; watcher-family median elapsed including moved work is at least 10 s faster than the comparable before measurement from slice 1 / retained baseline method.
 
 Structure: Remove the mid-family SIGHUP stop and separate post-hangup watcher from the failure journey; continue unavailable-origin resume into failed candidate and failed restoration on the same live deployment; move real SIGHUP quiet-exit and cleanup onto the existing restart journey while preserving SIGTERM/SIGINT, fatal preview, and cleanup proofs. Enables slice 6 removal of watcher-related allowances once margin holds.
 
 ### 4. One full retired closure; recovery variants at the reporting boundary
 Type: Structure  
-Status: planned  
+Status: planned
 Proof: `agent-completion-quiet.spec.ts` still proves real Git retirement, installed reporting retry without repeating Git/native ops, and visible Done (reuse Story Branch Wrap Up where it can carry this; retain Land and Trunk Wrap Up paths). `agent-completion-quiet-closure.spec.ts` (and extensions) cover unavailable receiver / lost ack, failed and concurrent writes, reserved receipt isolation, message recovery after source deletion, stale receipt across restart, altered payload refusal, and post-deletion rejection as needed. Covered browser steps removed from `agent-completion-recovery.spec.ts`; three consecutive focused passes.
 
 Structure: Keep one full retired-closure browser journey; move recovery variants to the existing CLI/HTTP/store boundary after identifying or adding discriminating proof there. Enables slice 6 removal of the recovery allowance once the retained journey fits the default.
 
 ### 5. Touch reading and remaining supported harness costs fit the default
 Type: Behavior  
-Status: planned  
+Status: planned
 Proof: Touch reading case passes under local load 20–30 on 2 workers inside 30 s with reading proof preserved and its 60 s allowance removed. Apply only harness leads slice 1 still supports (for example cheaper fake `gh` without losing auth/hold/pid/signal/gone-fake behavior, avoiding repeated start-origin/app prep charged to the first case while including moved prep in suite elapsed, cutting gesture cost). Focused before/after for affected first-in-worker and touch selections.
 
 Behavior: Named touch and first-in-worker pressure cases under the probe's load profile → apply the still-supported cost cuts → those cases finish with margin inside the default 30 s and 5 s observations without raising deadlines.
 
 ### 6. Named allowances removed; suite and shard margins hold
 Type: Behavior  
-Status: planned  
+Status: planned
 Proof: Remove remaining named case-local allowances only after their cases fit with margin. Comparable local dashboard suite elapsed and the slowest hosted shard stay within previous elapsed times (keep summed durations separate). Refresh shard weights from all 12 artifacts of a complete passing trunk run after removing work; measure redistribution separately. Default case and shard deadlines unchanged.
 
 Behavior: All prior slices' retained proof is green with margin → delete the named temporary `test.setTimeout` allowances → local comparable suite and hosted slowest shard remain within previous elapsed times with refreshed weights.
@@ -119,6 +120,70 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
 - Remove a case-local allowance only after that case fits the default with margin.
 - Drop experiments that add cost or leave proof or speedup unestablished.
 - Slice 1's probe may revise which harness leads slices 3–5 apply; it does not widen product scope.
+- Probe selection: retain watcher/closure consolidation and touch gesture cuts.
+  Current preparation and fake-`gh` costs do not establish their earlier
+  dominance. Do not prewarm or replace them on the earlier hypothesis alone.
+  If watcher consolidation misses the family target, the measured repeated
+  full-source fixture ingestion supports a bounded shared-snapshot experiment;
+  real deployment installs, builds, and starts remain required.
+
+## Accepted probe evidence
+
+Slice 1 is records-only; no test or runtime changed. Freshness settlement found
+the selected source unchanged at `b57936969`. The coordinator inspected the
+strict terminal records and existing touch geometry, deployment isolation,
+retirement, and watcher signal/serving assertions. Evidence is retained under
+`/tmp/seed287-probe-20261110`; each `*-run.json` carries the literal command,
+times, conditions, and terminal exit; `*-proof.json` records exact selection.
+
+- `before-all`: the six named specs at two workers passed all 41 cases;
+  143.551 s shell / 143.031 s runner elapsed, load 7.24–11.33. Phone/tablet
+  reading 25.725/15.667 s; deployment 13.479 s; recovery 10.329 s; policy
+  repair 6.145 s. Spec sums plus hooks are separate in `before-all-times.txt`.
+- `before-family-{1,2,3}`: the three watcher specs at two workers passed
+  all 32 cases each. Elapsed shell 96.316/155.125/151.214 s, median
+  151.214 s; runner 95.979/154.773/150.834 s. Loads 7.88→7.06,
+  7.06→11.36, 11.36→17.73. Preserve this variation in the after comparison.
+  C reactivation alone cost 6.003 s in run 1 and 15.155 s in run 2;
+  deletion alone has not established the required ten-second family saving.
+- `before-phone-cold`: phone reading alone passed, 15.760 s case,
+  17.899 s runner / 18.715 s shell, load 15.35→13.53. Existing artifact
+  traces measured queued origin 1.710 s, app 1.468 s, bundle 0.257 s.
+  The broad phone/tablet difference does not prove ten seconds of preparation.
+- `harness-costs.json`: twenty-sample medians at load about 8 were fake
+  `gh` auth 33.50 ms, HTTP 37.25 ms, `git rev-parse` 13.24 ms.
+  Watcher answers use static publishes, so per-answer revision caching is not
+  a watcher lead. Git traces show three initial fixture source additions
+  totaling 3.182/3.272/5.294 s across the family runs; copying is unmeasured.
+- Hosted baseline is preserved at
+  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-seed287-baseline.90so09xd/README.md`:
+  run 42795867875 attempt 1, all twelve timing artifacts and reports.
+  Slowest job 321 s; its suite step 297 s / reporter 295.014 s.
+  Complete watcher sums are 390.430 s cases / 437.118 s with hooks;
+  the seed's 371.737 s names four case-source groups, not the entire family.
+- No comparable local full-suite baseline was found. An unchanged two-worker
+  full baseline is owned by `/root/slice1_probe`, command session `90172`:
+  `caffeinate -s -i node /tmp/seed287-probe-20261110/full-suite-measure.mjs before-suite`.
+  This retained wrapper measures admission separately and is reused for after.
+  Its result is pending; do not invalidate its running implementation.
+  Resolve it before performance edits; slice 6 owns the final comparison.
+
+## Story obligations
+
+### G1. Required pressure proof remains due
+Reported: slice 1 — "Focused measurements were below the requested load 20–30; that pressure margin is not established."
+Story clause: "under local load 20–30 on 2 workers"
+Disposition: receiving slice 6
+
+### G2. Comparable local suite comparison remains due
+Reported: slice 1 — "No completed comparable local baseline was found; the unchanged full-suite baseline is still running."
+Story clause: "the comparable local dashboard suite and the slowest hosted shard stay within their previous elapsed times"
+Disposition: receiving slice 6
+
+### G3. Hosted margin and shard comparison remain due
+Reported: slice 1 — "Only retained baseline CI is available; no implementation speedup or hosted margin has been proved."
+Story clause: "on a hosted shard about 1.5× slower overall"
+Disposition: receiving slice 6
 
 ## Plan concern assessment
 
@@ -130,6 +195,28 @@ slice-specific concern beyond that probe-bounded premise. No human-owned scope
 or ADR decision is pending.
 
 ## Execution notes
+
+- Established execution: Story Branch Mode; identity
+  `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher
+  `dashboard-territory.local-open-dough`; agent `chaifeng-chan`; owned checkout
+  `/Users/terryyin/git/open-dough/.worktrees/make-dashboard-journeys-fit-the-default-timeout`,
+  branch `codex/make-dashboard-journeys-fit-the-default-timeout`; originating
+  integration checkout `/Users/terryyin/git/open-dough`; authorized remote
+  `origin`, trunk `main`. Starting revision
+  `37eed39ace95a8ddafffa96351e999d2898d6806`; accepted claim and first delivery
+  base `b57936969b51e7a27f23a4fbba56c70579bc0553` (confirmed on the remote
+  execution branch). No second Take. Replanning retains existing authority.
+- Checkout setup: locked `npm ci` succeeded; `npm run typecheck:dashboard`
+  succeeded on 2026-11-10. Selective formatter: `npm run format`; the
+  `.githooks/pre-commit` hook is check-only staged lint plus dashboard typecheck
+  when script files are staged.
+- CI observer: GitHub Actions `terryyin/open-dough`, execution target
+  `codex/make-dashboard-journeys-fit-the-default-timeout`, verified selector
+  `ci.yml` / display name `CI` / workflow `351271804`; coordinator
+  `seed287-codex`, directory `/tmp/dough-ci-501/watch-ar7mpH`, PID `92304`,
+  Codex stream session `82267`, yielded cell `g1081:12`. The trunk claim's
+  CI is unobserved by this coordinator; the old unidentified trunk worker
+  `/tmp/dough-ci-501/watch-2FVQ6l` is not this execution's branch stream.
 
 - No numeric slice target or hard limit is supplied; judge boundedness by one
   proof loop and the Behavior/Structure gate above.
