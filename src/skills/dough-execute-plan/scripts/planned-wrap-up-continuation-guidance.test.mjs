@@ -102,7 +102,11 @@ test("settled findings defer disposition to wrap-up rather than creating approva
     /recommendation alone grants no[\s\S]+adoption or drop authority/,
   );
   assert.match(followUp, /No further approval is needed/);
-  assert.match(followUp, /Do not refine, replan, or execute it/);
+  assert.match(followUp, /Do not\s+execute it during wrap-up/);
+  assert.match(
+    followUp,
+    /Do not refine or replan it except for the Intent Coverage\s+amendment authorized below/,
+  );
   assert.match(followUp, /Repeating wrap-up[\s\S]+must[\s\S]+not duplicate/);
 });
 

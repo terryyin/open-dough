@@ -2,6 +2,7 @@
 
 **Identity:** SEED-258#finish-opted-in-stories-with-intent-coverage
 **Source:** [Refined story](../../seeds/SEED-258-dough-intent-coverage.md#finish-opted-in-stories-with-intent-coverage)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -149,7 +150,7 @@ in this owned preparation checkout. All scratch edits were restored before write
 ### 1. Close with returned evidence and settled findings
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Slice-1 walkthrough rows, real completion regression, and representative
 skill behavior review under [maintainer guidance](../../../AGENTS.md#behavior-review).
 
@@ -210,7 +211,14 @@ Explicit skips remain skips; direct wrap-up invents no process review.
 
 ## Gates and current decisions
 
-- Preparation only: no implementation, Take or execution observer has started.
+- Execution in progress (Story Branch). Slice 1 accepted proof: storage suite
+  `tests/support/product-backlog-complete-intent-coverage.test.mjs` and structural
+  `planned-wrap-up-continuation-guidance.test.mjs` pass under
+  `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh`; guidance behavior review
+  under AGENTS.md for join/disposition. Source review retained and slice-1
+  commitments observed. Refactor complete (whitespace residue only).
+- Learning: keep join concise in wrap-up; route gap/priority detail through
+  `follow-up-disposition.md` to stay under the 250-line check.
 - Expected runtime edits currently fit the 250-line check: Wrap Up 250,
   retrospective 246, finish-or-stop 219, follow-up disposition 59 and shared
   process-review reference 25. Replace obsolete sections and keep cohesive
