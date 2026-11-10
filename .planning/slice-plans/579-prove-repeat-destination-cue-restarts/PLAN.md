@@ -2,6 +2,7 @@
 
 **Identity:** SEED-296#prove-repeat-destination-cue-restarts
 **Source:** [Refined story](../../seeds/SEED-296-prove-repeat-destination-cue-restarts.md#prove-repeat-destination-cue-restarts)
+**Source review:** [Source-only commitments](source-review.md)
 **Preparation:** owned workspace
 `/Users/terryyin/git/open-dough/.worktrees/prove-the-destination-cue-restarts-on-repeated-a`,
 branch `codex/prove-the-destination-cue-restarts-on-repeated-a`, reviewed at
@@ -87,7 +88,7 @@ execution still owns delivering the maintained assertion and its final proof.
 
 ### 1. Repeated reference activation has discriminating restart proof
 Type: Behavior  
-Status: planned  
+Status: done
 Proof: The maintained repeated-reference journey fails on removal of the layout
 read, passes after restoration, and the complete navigation spec passes with all
 preserved assertions. Run the focused command above for fault discrimination
@@ -162,3 +163,68 @@ assertion, known-fault discrimination, retained navigation proof, and cleanup
 in one proof loop. No numeric slice target or hard limit was supplied.
 This review identified no remaining slice-specific concern or human-owned
 decision. No blocking supplier dependency is needed.
+
+## Execution context
+
+Established story-branch execution: workspace and branch match Preparation above.
+Agent ebacky-chan; publisher dashboard-territory.local-open-dough; starting revision
+49367c2e4d10ce1aeb96bb7a40512e585fa0bd8c. Accepted claim and current candidate:
+5796043743a9f87766f9abe307e1d93911fccf15 on origin/main (verified remote).
+Ordinary increments target origin/refs/heads/codex/prove-the-destination-cue-restarts-on-repeated-a.
+Originating and execution checkout are this owned linked worktree; integration
+checkout /Users/terryyin/git/open-dough is maintained only through publication.
+No numeric slice limit or override; existing planning authority retained.
+Native checkout setup: Node 24.21.0; locked npm and browser acquisition and
+Chromium 153.0.8010.12 prerequisite command passed here on 2026-11-10.
+Check-only hook: staged lint/format check, then dashboard typecheck for scripts.
+Selective formatter: npm run format (changed files only).
+
+Observer: Codex yielded cell g1177:12, coordinator seed296-ebacky,
+session 91625, PID 49460, directory /tmp/dough-ci-501/watch-lbjufg;
+runtime .agents/skills/dough-execute-plan in this checkout, repository
+terryyin/open-dough, target codex/prove-the-destination-cue-restarts-on-repeated-a.
+Verified GitHub workflow ci.yml, display name CI, push trigger.
+The earlier trunk claim has pendingCi: unobserved; ordinary branch delivery
+uses this observer. No existing observer was retained for this new coordinator.
+
+## Slice 1 accepted proof
+
+Source freshness: unchanged at origin/main
+5796043743a9f87766f9abe307e1d93911fccf15; no named coordination siblings.
+Inspected original source commitments, actual diff, cue helper, journey, CSS,
+reading-position observation and unchanged shared-helper callers. Each original
+trigger and expected result is mapped to its actual observation in source-review.md.
+No implementation or proof gaps found. Production source is unchanged.
+
+Commands run by implementation agent, with terminal results:
+- `caffeinate -s -i npm run test:dashboard -- dashboard/tests/navigation/story-reference-navigation.spec.ts -g 'a dependency opens its active story' --workers=2`: intact pass; same command with only the layout read removed fails at restart time (<1000 expected, 1000 observed), after class/name checks passed. Fault restored.
+- `caffeinate -s -i npm run test:dashboard -- dashboard/tests/navigation/story-reference-navigation.spec.ts --workers=2`: restored full three-test spec pass.
+Fault evidence /tmp/seed296-restart-fault.log and dashboard/test-results/2026-11-10T14-40-01.590Z-83229; final log /tmp/seed296-navigation-final.log.
+
+Generated consumer trace: /tmp/seed296-consumer-trace.md; all 471 located
+consumers disposed in /tmp/seed296-consumer-trace-disposed.md. Actual new
+exports reach only the changed journey (run). Other three cue specs import
+unchanged exports and preserve their normal/reduced-motion purposes (effect
+excluded); page clock semantics and production cue/reveal/CSS are unchanged.
+Other matches are unrelated opacity/style knowledge, unchanged scheduling
+history or plan/source-review references; each is excluded with its reason.
+
+Expensive-proof decision: local macOS, 16 CPUs/48 GB, load 19.89, unrelated
+watcher/npm work; no competing owned heavy verification. Implementation owner
+chose the bounded selected runs at maximum two workers under AC caffeinate
+-s -i; actual spec has three cases. No failures/contention changed this basis.
+Reconsider if load, workload or failures invalidate it; no proof deferred.
+
+Independent refactor: `/root/refactor` returned REFACTOR COMPLETE. Consolidated
+the duplicated named-animation lookup in private cueProgress; only fading
+setup supplies holdAt, post-trigger observation remains read-only. Coordinator
+inspected the new helper and trigger. All files remain below 250 lines.
+Renewed the exact focused fault command above: reset assertion failed at
+helper line 92, expected <1000, observed 1000; source restored exactly.
+Renewed the exact full-spec command above: all three tests passed terminally.
+Current evidence: /tmp/seed296-refactor-fault.log, /tmp/seed296-refactor-final.log,
+and dashboard/test-results/2026-11-10T14-45-01.825Z-2918.
+Refactor trace /tmp/seed296-refactor-consumer-trace-disposed.md disposes all
+471 matches; unchanged consumers excluded on the same inspected boundaries.
+Whitespace check passed. Host load18.58, memory66%free, AC supported the
+same bounded workers2 choice; no proof deferred.
