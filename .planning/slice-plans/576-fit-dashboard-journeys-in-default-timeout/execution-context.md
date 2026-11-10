@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Latest accepted execution branch revision: `bfd0db1529f95cab6bc6f6c1b4ff5cf70f1f5a72`
-  (records-only comparison failure and proof-setup decision); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
+- Latest accepted execution branch revision: `24ea669816ace52b2109c31068351cad783e9ce7`
+  (approved canonical comparison plan; failed variant now parked); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
   `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher
@@ -27,3 +27,6 @@
 - Previous branch observer watch-ar7mpH was explicitly stopped for the human
   decision; terminal stopped/unread0 and PID gone confirmed. On Terry's approval,
   the same coordinator rearmed the resumed branch stream above; no second Take.
+
+Accepted proof indices: [probe](execution-evidence.md), [source ingestion](source-ingestion-evidence.md),
+[closure](closure-evidence.md), [launch](launch-evidence.md), [cursor](cursor-evidence.md).

@@ -163,3 +163,40 @@ return on failure or invalid pressure before another implementation variant.
 Twelve slices remain cohesive: eleven owns this one budget result/proof loop;
 twelve owns broad default/hosted/full-suite/trunk-weight proof. No numeric
 sizing threshold is supplied. No source promise or prior failure is removed.
+
+
+## Canonical attempt failed; compatible work parked
+
+The approved9paths first passed quiet3/3 and two valid pressure3/3 selections:
+sort17.921/20.783s, source11.759/13.556 and13.208/15.857s, shell31.635/37.870s,
+load20.538–26.150. Third selection passed only after controller overshoot
+30.297; invalid, touch unlaunched. All workers/preserver stopped.
+A threshold-only control repair reduced at24/resumed21.5 instead26/22, leaving
+max20/10 and finite40000prime/100000total unchanged. Its first sort timed out
+30.980s before overshoot, at sampled20.163–29.265; later30.454 cannot excuse it.
+Sources26.312/17.235s passed; shell59.601/runner56.925s, attempt100.009s including
+priming40.403s. No numeric hard limit. No further cases/touch/consumer run.
+
+Raw returns/commands/617 consumer dispositions (23 gaps), exact hashes and
+traces: /tmp/seed287-comparison-declared-20261111/return.md and
+/tmp/seed287-comparison-declared-headroom-20261111/return.md.
+Current trace: sort workerreadiness6.203s, charged hooks~4.220s, declared Git
+setup7.471s; initial navigation→sort13.129s includes critical CI8.071s, with
+review3.611/locations1.450s overlapping, not additive. Return review remains
+pending2.935s; cached comparison.004s. Row-rest total.778s, no motion remedy.
+CI provider's GitHubRequests bypasses timedGhWait, so gh0/rest8.067s does not
+exclude gh transport; localGit/provider/archive orchestration remain mixed.
+
+No next variant was tried. Before refinement, all9owned paths were safely
+parked with full source copies/patch/manifest at
+/tmp/seed287-comparison-canonical-park-20261111, then tracked HEAD restored and
+only2owned new paths removed. Clean24ea6698. Compatible canonical/readiness
+code and proof survive; no implementation acceptance or failure waiver.
+Current memory_pressure later reported62% free; low rawfreemem alone is not
+causal evidence. All commands/preservers terminal; G4/G7 remain open.
+
+[The newly measured transport owner](transport-evidence.md) now owns slice11;
+comparison outcome continues in12, final broad/trunk gates in13. Inspect the
+simpler original private CLI publisher with cheaper transport before restoring
+special canonical history. Terry's scoped approval remains available, but no
+failed experiment is accepted or repeated merely because it was authorized.

@@ -27,7 +27,7 @@ clock; measure family and suite elapsed separately from summed case time.
 | One full retired closure; recovery variants at CLI/HTTP/store; covered browser steps gone | 5: quiet closure + reporting-boundary specs cover promises; recovery journey shortened; three consecutive focused passes |
 | Touch reading fits default 30 s; allowance removed | 6: touch reading case under load 20–30 on 2 workers; `setTimeout` gone; reading proof retained |
 | Harness costs the probe still supports cut without moving unpaid work out of suite elapsed | 6: focused first-in-worker / fake-`gh` / prep changes as selected; suite elapsed includes moved prep |
-| Named allowances removed; suite and slowest shard within previous elapsed; shard weights refreshed | 12: allowances gone after fit; local comparable suite and hosted slowest shard; weights from all 12 artifacts of a complete passing trunk run |
+| Named allowances removed; suite and slowest shard within previous elapsed; shard weights refreshed | 13: allowances gone after fit; local comparable suite and hosted slowest shard; weights from all 12 artifacts of a complete passing trunk run |
 
 ## Original preparation premises (history)
 
@@ -39,24 +39,27 @@ clock; measure family and suite elapsed separately from summed case time.
 | Reporting-boundary backend already covers quiet Done prerequisites and unavailable-receiver reporting-only recovery | Slice 5 move variants | Read `dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts` at that revision | Settled: boundary test uses `unavailableCompletion` and Done/landing/readable-closure rules; full retirement stays in quiet/recovery |
 | Failure journey currently stops the live C deployment with SIGHUP, starts a new watcher, then runs failed candidate/restoration | Slice 3 move SIGHUP / keep one deployment | Read `dashboard/tests/runtime/production-watcher-failures.spec.ts` (unavailable-origin + SIGHUP through failed restoration) at that revision | Settled: SIGHUP ends the watcher mid-family; post-hangup start is a separate watcher before D |
 | Restart journey already proves restart from current main with same runner/client and SIGINT end | Slice 3 attach SIGHUP | Read `dashboard/tests/runtime/production-watcher.spec.ts` restart test at that revision | Settled: restart path exists without SIGHUP quiet-exit proof |
-| Policy-repair and production-deployment still carry temporary allowances | Slice 12 remove after fit | Read `dashboard/tests/runtime/productionUpdatePolicies.ts` and `dashboard/backend-tests/runtime/production-deployment.spec.ts` at that revision | Settled: 60 s and 45 s `test.setTimeout` respectively |
+| Policy-repair and production-deployment still carry temporary allowances | Slice 13 remove after fit | Read `dashboard/tests/runtime/productionUpdatePolicies.ts` and `dashboard/backend-tests/runtime/production-deployment.spec.ts` at that revision | Settled: 60 s and 45 s `test.setTimeout` respectively |
 | Which 2026-11-09 harness leads (start-origin/app prep, fake `gh`/`rev-parse`, fixture Git volume, touch strokes) still dominate under current load | Slices 3–6 experiment choice | Cheap: seed + code presence above. Unpaid load timing of the named families under comparable workers/cache/load is not observed in this preparation | Open: early probe slice 1 must record which leads still show material cost before dependent harness cuts; failure revises slices 3–6 |
 
 ## Reuse choices for execution-owned repairs
 
-PFE searched the dashboard, shared test builders, frontend/backend comparison
-boundaries and runtime sources. The selected owner remains
-`publishSummaryComparisonStory` with `preparationPage`/`StartOrigin` private
-repository and answer lifecycles. Worker/run-artifact lifetime experiments
-preserved assertions but did not earn their cost: the paired run grew from
-19.68 to 28.84 s. Their seven implementation paths were preserved and reverted.
-Do not add a second history representation or another caching lifecycle.
-The profiles and failed readiness cut remain in comparison-evidence.md.
-Terry approved replacing only sort's repeated CLI setup with canonical real Git
-facts through the existing repository builder; both source journeys retain full
-CLI publication. Private HOME/Git, all history facts and fresh per-page state
-remain. Shared file/serving facts stay coherent in the original summary owner.
-Component mounts cannot replace these full App cross-story observations.
+PFE searched the dashboard, shared builders, frontend/backend comparison
+boundaries and runtime. Original private preparation/CLI remains the stronger
+simpler owner when it fits. Canonical sort setup was approved and attempted,
+but still failed at valid predeadline load; exact9paths and compatible proof
+are parked, not accepted. Existing MakeMe materializers remain available if a
+later bounded correction needs them; no extra graph is selected now.
+The current failed trace locates8.071s backend CI plus return-review readiness.
+Provider gh bypasses the header counter. Actual ordinary-client probe at
+load21.333–22.748 measured118.344→54.509ms; complete client contract and family
+gain remain unproved. Slice11 changes only the existing synthetic-gh/fakeGitHub
+transport pair, preserving answer conversion/private request ownership and all
+auth/hold/PID/signal/binary/cleanup contracts. Slice12 then proves original
+comparison/private CLI with compatible worker readiness; final13 owns broad
+local/hosted/trunk weight gates. No cache, generic graph engine or production
+architecture change. See transport-evidence.md and comparison-evidence.md.
+Component mounts cannot replace the full App cross-story observations.
 
 Launch orchestration reuses `agentLaunchBoundary.ts`, existing acceptance and
 settlement observations, and `startDashboardServer`; native/publication behavior
@@ -72,10 +75,10 @@ UI. No production caching, timeout increase, new scheduler or parallel suite.
 | Premise / consumer | Current observation / bounded operation |
 | --- | --- |
 | Original harness-cost leads, slices 3–6 | Probe 1 completed: touch gestures and duplicate watcher/closure work remain supported; origin/app preparation about 3–4 s and fake-gh HTTP 37.25 ms at lower load do not establish dominance. Static watcher answers rule out per-answer branch-tip caching. See execution-evidence.md. |
-| Comparison publisher, slice 11 | Immutable-lifetime experiments added cost (paired19.68→28.84s) and were reverted. Worker readiness still failed sort30.852s under valid load; the Git diagnostic ruled out history-answer batching. Terry approved canonical real Git setup for sort alone, with source CLI proof retained; comparison-evidence.md owns the next bounded proof. |
+| Comparison publisher, slice 11 | Immutable-lifetime experiments added cost (paired19.68→28.84s) and were reverted. Worker readiness still failed sort30.852s under valid load; the Git diagnostic ruled out history-answer batching. The approved canonical attempt still failed and is parked. New valid-pressure client timing supports the single transport experiment in11; comparison-evidence.md and transport-evidence.md retain all proof limits. |
 | Launch preparation, slices 7–9 | Trace shows 9–14 s installed start/publication and 3.23 s sequential second-server startup. Origins 0.80–1.73 s and dashboards 1.33–2.49 s do not establish prewarming as the remedy. Start with overlap; preserve independent observations before any compaction. |
 | Cursor preconditions, slice 10 | First clients actually settled at 22.641/26.197 s; second start crossed the case deadline. ENOENT followed cleanup. The bounded cheaper-precondition experiment must retain real clients, model scope and board association; no missing-store repair is justified. |
-| Full local comparison, slice 12 | Captured strict-failing baseline 4,845.851 s shell / 4,843.154 s runner, admission separate; variable sampled load 5.39–44.54. Preserve failures and qualify comparability; rerun only for a stated changed-condition hypothesis, never until green. |
+| Full local comparison, slice 13 | Captured strict-failing baseline 4,845.851 s shell / 4,843.154 s runner, admission separate; variable sampled load 5.39–44.54. Preserve failures and qualify comparability; rerun only for a stated changed-condition hypothesis, never until green. |
 
 ## Original CI evidence from the seed
 
