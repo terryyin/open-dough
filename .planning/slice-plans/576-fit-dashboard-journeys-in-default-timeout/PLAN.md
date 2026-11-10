@@ -74,9 +74,9 @@ Behavior: Browser recovery repeats full retirement and low-level fault variants 
 ### 6. Touch reading and its required cold inputs fit the default
 Type: Behavior
 Status: planned
-Proof: The whole four-case touch spec passes three consecutive two-worker runs at load 20–30 inside default 30 s, with native reading/rotation/geometry assertions retained and the 60 s allowance removed only after fit. Include desktop large-review consumers and all total elapsed preparation. Reuse existing artifact keys and run owner for required Claude queued origin, app and server bundle readiness; retain private case repositories/servers and real gestures. No new artifact lifetime, native gesture rewrite or broad prewarm.
+Proof: The whole four-case touch spec passes three consecutive two-worker runs at load 20–30 inside default 30 s, with native reading/rotation/geometry assertions retained and the 60 s allowance removed only after fit. Include desktop large-review consumers and all total elapsed preparation. Reuse existing artifact keys, run owner and the shared worker-fixture registration for required Claude queued origin, app and server bundle readiness; retain private case repositories/servers and real gestures. No new artifact lifetime, native gesture rewrite or broad prewarm.
 
-Behavior: A shorter still-overflowing reading line reduces strokes but first-worker setup consumes 15.173 s and rotation times out → request the spec's exact immutable inputs before cases, within the unchanged hook budget, then retain its real user actions → all four journeys complete with margin and paid total elapsed. The width-only attempt and G10 remain unaccepted; if this supported readiness cut fails, return evidence before another variant. See [touch evidence](touch-evidence.md).
+Behavior: A shorter still-overflowing reading line reduces strokes but first-worker setup consumes 15.173 s and rotation times out → request the exact immutable inputs through a worker fixture before private origin setup, within the unchanged default worker budget, then retain real user actions → all four journeys complete with margin and paid total elapsed. Width-only and beforeAll attempts remain unaccepted: the latter duplicated a private dashboard before its redundant requests. Use an explicit origin dependency, not a beforeAll or late callback parameter; return if this supported cut fails. See [touch evidence](touch-evidence.md).
 
 ### 7. A non-owner server overlaps independent preparation
 Type: Behavior
@@ -203,7 +203,7 @@ Disposition: return
 
 Completed 1–5 and their accepted proof remain. Slice 6 is refined in place:
 width alone missed the default under valid pressure; exact cold-input readiness
-uses the existing owner and leaves actual actions/observations in each case.
+uses the existing owner/default worker fixture slot; beforeAll duplicated private setup. Actual actions/observations stay in each case.
 Its three incomplete paths were safely parked before this rewrite; touch
 proof/evidence and consumer obligations remain. Remaining 7–12 retain their
 single outcomes and proof loops. Twelve slices; no numeric exception/resplit,

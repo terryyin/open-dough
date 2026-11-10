@@ -58,3 +58,37 @@ New pressure data disproves the sufficiency of the quiet3–4s premise:15.173s
 setup now dominates the failing first case. Reuse required-input readiness once;
 measure total elapsed including moved work. Three pressure passes plus affected
 desktop consumers remain required; return if this bounded strategy misses.
+
+## BeforeAll premise rejected before default-proof acceptance
+
+From00:49–00:56 Singapore, one exact-key beforeAll candidate passed4/4 at
+load20.513–26.347: phone reading24.272s/tablet20.808s, rotations23.850/23.904s.
+Shell71.234s/runner68.218s include moved work; no speedup accepted against the
+prior65.560s under different conditions. Artifact trace showed origin6.610s,
+app4.419s and bundle0.669s were already complete before the three requests.
+Local Playwright lib/index.js _setupArtifacts auto all-hooks-included depends
+on combined context options/baseURL. Our baseURL depends on dashboard/origin.
+Thus beforeAll created a separate private hook dashboard before issuing warm,
+redundant requests. This is not the selected concurrent immutable-input cut.
+The candidate is rejected; preserve its budget observation only as diagnosis.
+Evidence: /tmp/seed287-touch-required-inputs-fit and its artifacts-1.jsonl.
+
+The attempted three-default-pass controller ended during finite10000-batch
+priming without reaching20–30: no Playwright child, runs[], inFlight:false,
+ownedWorkersStopped:true, exit1. /tmp/seed287-touch-required-inputs-default.
+No default pass is claimed. Four owned paths were parked to
+/tmp/seed287-touch-worker-refinement with exact hashes/patch before rewriting
+the plan; beforeAll and premature60s removal will not be restored.
+
+Reassessment keeps the same bounded outcome; no numeric repeated-overrun
+threshold is supplied. The remaining gap has a concrete existing mechanism:
+workerProcessEntry.js139 uses the project default workerFixtureTimeout slot
+(and1488 sets it from project.timeout). Lines288–309 collect auto fixtures
+before callback parameters. Therefore a callback-only readiness request is
+too late. Declare the readiness worker fixture in pageTest.ts's shared pool,
+and make the touch spec's existing private-origin fixture depend on it before
+base origin setup. Request exact Claude queued/app/bundle inputs concurrently
+there; remove beforeAll. No worker option/pool split, extra private hook server,
+new artifact lifetime or deadline override. Default private cases remain.
+This refines the same slice6 proof loop; three actual default pressure passes
+and desktop proof remain due. Return before another variant if it fails.
