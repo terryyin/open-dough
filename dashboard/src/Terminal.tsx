@@ -1,6 +1,6 @@
 // The page's one native session terminal: output, input and size follow its
 // mounted attachment, which reports readiness and keeps startup interactive.
-// The header names its session and agent, and offers dictation, Done where
+// The header names its session and agent, and offers Prompts, Done where
 // supported, maximize/restore and Close. Closing or replacing the view detaches
 // without ending the session; plain Escape still goes to the native terminal.
 // On coarse-pointer phones the key toolbar, Paste and optional composer
@@ -12,13 +12,7 @@
 // Done asks first when completion is unknown, closes the view after success,
 // and leaves the terminal visible with recovery guidance when marking fails.
 
-import {
-  useCallback,
-  useId,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useId, useRef, type CSSProperties } from "react";
 import { CircleCheck } from "lucide-react";
 import { marksRecordDone } from "./sessionCapabilities.ts";
 import { SidePanelControls } from "./SidePanelControls.tsx";
@@ -37,10 +31,8 @@ import { usePortraitPreview } from "./terminalPortraitPreview.ts";
 import { useRowsHeight } from "./terminalRowsHeight.ts";
 import { assignedAgent } from "./launchRecord.ts";
 import { agentNameOf } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  useAttachedTerminal,
-  type TerminalEnding,
-} from "./useAttachedTerminal.ts";
+import { useAttachedTerminal } from "./useAttachedTerminal.ts";
+import { useTerminalRecovery } from "./useTerminalRecovery.ts";
 import {
   doneAnswers,
   markDoneUnresolved,
@@ -58,12 +50,6 @@ import { useTerminalDictation } from "./useTerminalDictation.tsx";
 import { useTerminalPaste } from "./useTerminalPaste.ts";
 import { TerminalKeyToolbar } from "./TerminalKeyToolbar.tsx";
 import { useTerminalVisualViewportFit } from "./useTerminalVisualViewportFit.ts";
-
-const endings = {
-  disconnected: { says: "Disconnected from the session", action: "Reconnect" },
-  ended: { says: "The terminal ended", action: "Open again" },
-  failed: { says: "The session could not be attached", action: "Reconnect" },
-} as const;
 
 export function Terminal({
   session,
@@ -106,12 +92,8 @@ export function Terminal({
   const inputHelp = useId();
   const identity = useRef<HTMLDivElement>(null);
   const names = useRef<HTMLDivElement>(null);
-  const [attempt, setAttempt] = useState(0);
-  const [ending, setEnding] = useState<TerminalEnding | undefined>();
-  const [refusal, setRefusal] = useState<string | undefined>();
-  const onAttachRefusal = useCallback((explanation: string) => {
-    setRefusal(explanation);
-  }, []);
+  const { attempt, setEnding, onAttachRefusal, status, recovery, attachAgain } =
+    useTerminalRecovery();
   // While marking, the attachment's ending the mark causes is not shown.
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
@@ -127,24 +109,6 @@ export function Terminal({
   useTerminalVisualViewportFit(panel);
   useRowsHeight(identity, names);
   usePortraitPreview(identity);
-  const attachAgain = () => {
-    setEnding(undefined);
-    setRefusal(undefined);
-    setAttempt((previous) => previous + 1);
-  };
-  // A carried refusal replaces the attachment's generic ending, so the
-  // panel shows at most one status with its attach-again action.
-  const status =
-    refusal !== undefined
-      ? { says: refusal, action: "Reconnect" }
-      : ending !== undefined
-        ? endings[ending]
-        : undefined;
-  // Text input that the attachment cannot accept names this action, read
-  // when the offer fails; without one, the attachment is still connecting.
-  const shownAction = useRef<string>(undefined);
-  shownAction.current = status?.action;
-  const recovery = useCallback(() => shownAction.current, []);
   const dictation = useTerminalDictation(insertText, recovery);
   const paste = useTerminalPaste(record, getPaste, recovery);
   const { title, name } = launchSubject(record.request);
@@ -222,8 +186,7 @@ export function Terminal({
         )}
       </div>
       <p id={inputHelp} className="visually-hidden">
-        Press Alt+F10 to focus session actions, then Tab to Dictate into
-        terminal.
+        Press Alt+F10 to focus session actions, then Tab to Prompts.
       </p>
       <div
         ref={screen}

@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
-import { Mic, Square } from "lucide-react";
+import { Square } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
+import { TerminalPrompts } from "./TerminalPrompts.tsx";
 import { useInstructionRecording } from "./useInstructionRecording.ts";
 import { instructionProblems } from "./instructionTranscription.ts";
 import { terminalDictationText } from "./terminalDictation.ts";
@@ -20,6 +21,7 @@ export function useTerminalDictation(
     readonly action: string | undefined;
   }>();
   const [problem, setProblem] = useState<string>();
+  const [presetProblem, setPresetProblem] = useState<string>();
   const offer = (text: string) => {
     if (insert(text)) setPending(undefined);
     else setPending({ text, action: recovery() });
@@ -31,22 +33,33 @@ export function useTerminalDictation(
   });
   const recordingNow = recording.phase === "recording";
   return {
-    control: (
+    control: recordingNow ? (
       <IconButton
-        label={recordingNow ? "Stop recording" : "Dictate into terminal"}
-        icon={recordingNow ? Square : Mic}
-        disabled={pending !== undefined || (recording.busy && !recordingNow)}
-        onClick={() => {
-          if (recordingNow) recording.stop();
-          else {
-            setProblem(undefined);
-            void recording.record();
-          }
+        label="Stop recording"
+        icon={Square}
+        onClick={recording.stop}
+      />
+    ) : (
+      <TerminalPrompts
+        insert={(text) => {
+          setPresetProblem(
+            insert(text)
+              ? undefined
+              : recovery() === undefined
+                ? "The terminal is still connecting. Open Prompts again once it connects."
+                : `Choose ${recovery()}, then open Prompts again.`,
+          );
+        }}
+        dictateDisabled={pending !== undefined || recording.busy}
+        dictate={() => {
+          setProblem(undefined);
+          void recording.record();
         }}
       />
     ),
     feedback: (
       <>
+        {presetProblem && <p>{presetProblem}</p>}
         {recording.status && <p className="quiet">{recording.status}</p>}
         {(recording.problem || problem) && (
           <p role="alert">{recording.problem || problem}</p>

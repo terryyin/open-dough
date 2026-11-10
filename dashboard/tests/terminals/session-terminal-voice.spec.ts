@@ -5,6 +5,7 @@ import {
   beginTerminalClip,
   openTerminalVoice,
   stopTerminalClip,
+  openTerminalPrompts,
 } from "../support/terminalVoicePage.ts";
 import {
   noteTerminalTraffic,
@@ -44,9 +45,22 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
   ).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(
-    panel.getByRole("button", { name: "Dictate into terminal" }),
+    panel.getByRole("button", { name: "Prompts", exact: true }),
   ).toBeFocused();
   await page.keyboard.press("Enter");
+  const menu = panel.getByRole("menu", { name: "Prompts", exact: true });
+  await expect(
+    menu.getByRole("menuitem", { name: "OK", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("End");
+  await expect(
+    menu.getByRole("menuitem", { name: "Dictate into terminal" }),
+  ).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(menu).toHaveCount(0);
+  await expect(
+    panel.getByRole("button", { name: "Prompts", exact: true }),
+  ).toHaveCount(0);
   await expect(panel.getByRole("status")).toContainText("Recording…");
   await input.focus();
   await page.keyboard.type("also ");
@@ -121,16 +135,21 @@ test.describe("phone terminal microphone", () => {
     provider.setText("the session header");
     const { sizes, sent } = noteTerminalTraffic(page);
     const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
-    const mic = panel.getByRole("button", { name: "Dictate into terminal" });
+    const prompts = panel.getByRole("button", { name: "Prompts", exact: true });
     const done = panel.getByRole("button", {
       name: "Mark as done",
       exact: true,
     });
     const close = panel.getByRole("button", { name: "Close", exact: true });
-    expect((await box(mic)).x).toBeLessThan((await box(done)).x);
+    expect((await box(prompts)).x).toBeLessThan((await box(done)).x);
     await focusByTouch(panel);
     await page.keyboard.type("Review ");
-    await tapWhereShown(mic);
+    const menu = await openTerminalPrompts(panel);
+    await tapWhereShown(
+      menu.getByRole("menuitem", { name: "Dictate into terminal" }),
+    );
+    await expect(menu).toHaveCount(0);
+    await expect(prompts).toHaveCount(0);
     await expect(panel.getByRole("status")).toContainText("Recording…");
     await page.waitForFunction(
       () =>
@@ -153,7 +172,7 @@ test.describe("phone terminal microphone", () => {
       .toEqual(["Review the session header please"]);
     await page.setViewportSize({ width: 390, height: 400 });
     await expectFittedInput(panel, sizes);
-    for (const control of [mic, done, close]) {
+    for (const control of [prompts, done, close]) {
       await expect(control).toBeInViewport({ ratio: 1 });
       const bounds = await box(control);
       expect(bounds.width).toBeGreaterThanOrEqual(44);
