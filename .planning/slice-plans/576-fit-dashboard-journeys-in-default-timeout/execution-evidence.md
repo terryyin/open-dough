@@ -215,3 +215,15 @@ G8 assigns integration/removal and hosted default margin to final slice11.
 retain the subsequent split: behavior3, source-ingestion4, closure5, touch6,
 launch/Cursor7–10, comparison11 and final12. Earlier numeric mappings above
 are retained attempt history; current PLAN/source-review allocations govern.
+
+## Corrected comparison-profile decision before slice 11
+
+The old20-worker controller observed load32.04, outside the source20–30
+profile. The new finite adaptive16-worker controller already established valid
+20–25.571 on touch. The strongest simpler first check is therefore the retained
+one-push private publisher at the corrected profile, before adding more code.
+This is a changed-condition observation, not an unchanged failure retry. If
+all three source/sort cases fit with margin, keep the existing cut/proof only;
+otherwise profile the failed actual phase before another supported in-owner
+cut. Preserve private Git, source/Proof/sort promises and prior rejected cache
+evidence. No source scope, evaluation or failure obligation changes.

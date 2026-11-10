@@ -101,8 +101,8 @@ Behavior: A refused native start succeeds through its retained retry near 30 s �
 
 ### 10. Cursor lifetime journeys reach their actual behavior within the budget
 Type: Behavior
-Status: planned
-Proof: Whole helper-survival and replacement-controls specs plus replacement revival pass three consecutive two-worker runs. Retain real held clients, chosen-model configuration scope, board association, same runner/PID survival, drift handling, finished/never-held/failed revival distinctions and visible Running/Recover states. If the shared recovery helper changes, include its scope/recovery/stop-several consumers. Preparation remains included in elapsed.
+Status: done
+Proof: Whole helper-survival and replacement-controls specs plus replacement revival pass three consecutive two-worker runs. Retain real held clients, chosen-model configuration scope, board association, same runner/PID survival, drift handling, finished/never-held/failed revival distinctions and visible Running/Recover states. If the shared recovery helper changes, include its scope/recovery/stop-several consumers. Preparation remains included in elapsed. [Accepted observations](cursor-evidence.md).
 
 Behavior: Two expensive execution starts prevent the runner test reaching its subject before 30 s → establish only the necessary native/session preconditions at the existing real launch boundary → drift/replacement actions and all original observations complete with margin. Bound the first experiment to these two journeys, canonical MakeMe records and actual clients; an unscoped ad hoc client is not a substitute for the scoped precondition. Ordinary execution/model UI proof stays with its inspected owners. G5 owns both failures.
 
@@ -111,7 +111,7 @@ Type: Behavior
 Status: planned
 Proof: Both source variants and the sort test’s two cross-story loops pass three consecutive two-worker runs, including cold-worker preparation; preserve exact completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort on return. Add file/renamed/drilldown/scope-history consumers when the shared publisher changes; reuse only demonstrably unchanged proof. Record moved preparation in elapsed, not just case time.
 
-Behavior: A completed-story source or sort journey spends its budget in the established private publisher → profile its actual Git/publication phases, remove only evidenced redundant preparation inside that owner, and retain existing preparationPage/StartOrigin isolation → every original observation completes with margin inside 30 s without family cost growth. A canonical one-push planning chain is retained as partial cost reduction, but pressure still fails. Before another cut, reconcile the pressure trace’s publication/initial-read timing and choose one supported cheaper setup or proof boundary; no unchanged pressure retry. Rejected worker/run-artifact history lifetimes are not a basis for more caching variants. G4 remains owned; no SEED-286 feature promise is added.
+Behavior: The retained one-push private publisher still has unproved loaded margin → first observe the three current source/sort cases under the corrected bounded 20–30 profile, because the prior controller overshot 32.04 → accept the retained cut without more code if every original observation fits with margin. Otherwise profile actual Git/publication/initial-read phases before selecting one supported cheaper setup or proof boundary in the existing private owner; return before further variants. Keep preparationPage/StartOrigin isolation and all moved work in elapsed, with no family growth. Rejected history-cache lifetimes stay rejected. G4/G7 remain owned; no SEED-286 feature promise is added.
 
 ### 12. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -175,7 +175,7 @@ Disposition: interim until slices 7, 8, 9, 11
 ### G5. Cursor recovery records are not observed before the case deadline
 Reported: slice 1 — "Cursor runner helper-survival and replacement-controls both timed out in launchSecondHeldSession while polling absent launch records; diagnosis is pending."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: receiving slice 10
+Disposition: proved by slice 10: cursor-evidence.md; real scoped/Default execution preconditions, surviving UI11/11 and three complete default4/4 lifetime passes after path-alias repair; pressure/hosted/full-suite remain in12
 
 ### G6. Comparison experiment must retain the private local checkout (first reported in original slice 3)
 Reported: slice 11 — "switching to dashboardTest alone made completion recovery return “spawn git ENOENT” because server HOME lacked home/git/open-dough."
