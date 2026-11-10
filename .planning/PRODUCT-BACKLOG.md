@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data ([plan](slice-plans/553-map-github-actions-ci-test-data/PLAN.md))
-- [View each project's Open Dough configuration in dashboard settings](seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard) — SEED-295#inspect-project-configuration-in-dashboard ([plan](slice-plans/570-inspect-project-configuration-in-dashboard/PLAN.md))
 - [Finish opted-in stories with an Intent Coverage report](seeds/SEED-258-dough-intent-coverage.md#finish-opted-in-stories-with-intent-coverage) — SEED-258#finish-opted-in-stories-with-intent-coverage ([plan](slice-plans/572-finish-opted-in-stories-with-intent-coverage/PLAN.md))
 - [Make Intent Coverage results easier to act on](seeds/SEED-258-dough-intent-coverage.md#make-intent-coverage-results-easier-to-act-on) — SEED-258#make-intent-coverage-results-easier-to-act-on ([plan](slice-plans/573-make-intent-coverage-results-easier-to-act-on/PLAN.md))
 

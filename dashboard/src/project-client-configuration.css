@@ -1,0 +1,11 @@
+/* Read-only Client configuration text on a Projects settings entry
+   (./ProjectClientConfiguration.tsx). */
+
+.settings-client-configuration pre {
+  margin: 0;
+  max-height: 16rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+}

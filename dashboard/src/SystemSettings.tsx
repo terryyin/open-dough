@@ -7,6 +7,7 @@ import { ProductMark } from "./ProductMark.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import { refusalMessage } from "./refusalMessage.ts";
 import { AddProject } from "./AddProject.tsx";
+import { ProjectClientConfiguration } from "./ProjectClientConfiguration.tsx";
 import { ProjectVisibility } from "./ProjectVisibility.tsx";
 import { RemoveProject } from "./RemoveProject.tsx";
 import { useProjects } from "./projectList.tsx";
@@ -106,45 +107,48 @@ export function SystemSettings({
           </p>
         ) : (
           <ul className="settings-project-list">
-            {projects.map((source) => (
-              <li
-                key={source.id}
-                data-project-visibility={source.hidden ? "hidden" : "visible"}
-              >
-                <div>
-                  <div className="settings-project-title">
-                    <h3>{source.label}</h3>
-                    {source.hidden && (
-                      <p className="settings-project-status">
-                        Hidden from dashboard
-                      </p>
-                    )}
+            {projects.map((source) => {
+              const projectFacts = facts?.find((item) => item.id === source.id);
+              return (
+                <li
+                  key={source.id}
+                  data-project-visibility={source.hidden ? "hidden" : "visible"}
+                >
+                  <div>
+                    <div className="settings-project-title">
+                      <h3>{source.label}</h3>
+                      {source.hidden && (
+                        <p className="settings-project-status">
+                          Hidden from dashboard
+                        </p>
+                      )}
+                    </div>
+                    <dl>
+                      <dt>GitHub repository</dt>
+                      <dd>{source.repository}</dd>
+                      <dt>Local path</dt>
+                      <dd>{projectFacts?.localPath ?? "Loading…"}</dd>
+                      <ProjectClientConfiguration
+                        inspection={projectFacts?.clientConfiguration}
+                      />
+                    </dl>
                   </div>
-                  <dl>
-                    <dt>GitHub repository</dt>
-                    <dd>{source.repository}</dd>
-                    <dt>Local path</dt>
-                    <dd>
-                      {facts?.find((item) => item.id === source.id)
-                        ?.localPath ?? "Loading…"}
-                    </dd>
-                  </dl>
-                </div>
-                <div className="settings-project-actions">
-                  <ProjectVisibility
-                    source={source}
-                    selectedId={selectedId}
-                    onSelect={onSelect}
-                    onProblem={setVisibilityProblem}
-                  />
-                  <RemoveProject
-                    source={source}
-                    selectedId={selectedId}
-                    onSelect={onSelect}
-                  />
-                </div>
-              </li>
-            ))}
+                  <div className="settings-project-actions">
+                    <ProjectVisibility
+                      source={source}
+                      selectedId={selectedId}
+                      onSelect={onSelect}
+                      onProblem={setVisibilityProblem}
+                    />
+                    <RemoveProject
+                      source={source}
+                      selectedId={selectedId}
+                      onSelect={onSelect}
+                    />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

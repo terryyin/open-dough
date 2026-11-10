@@ -73,9 +73,29 @@ test("global settings has narrow local facts, returns to roster with focus, and 
   });
   expect(facts.status).toBe(200);
   expect(facts.headers["cache-control"]).toBe("no-store");
-  expect(JSON.parse(facts.body)).toEqual(
-    saved.map(({ id, localPath }) => ({ id, localPath })),
-  );
+  const settingsBody = JSON.parse(facts.body) as Array<{
+    id: string;
+    localPath: string;
+    clientConfiguration: { status: string; text?: string };
+  }>;
+  expect(settingsBody).toHaveLength(saved.length);
+  for (const [index, project] of saved.entries()) {
+    const entry = settingsBody[index];
+    expect(entry).toBeDefined();
+    if (entry === undefined) continue;
+    expect(entry).toMatchObject({
+      id: project.id,
+      localPath: project.localPath,
+    });
+    expect(["readable", "absent", "unreadable"]).toContain(
+      entry.clientConfiguration.status,
+    );
+    if (entry.clientConfiguration.status === "readable") {
+      expect(entry.clientConfiguration.text).toEqual(expect.any(String));
+    } else {
+      expect(entry.clientConfiguration).not.toHaveProperty("text");
+    }
+  }
   const sources = await rawRequest({
     url: `${server.baseURL}/__project-configuration`,
     headers: { Origin: server.origin },
