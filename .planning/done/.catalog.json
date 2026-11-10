@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-293_select-completed-ad-hoc-story-from-git-directory.json",
+      "identity": "SEED-293#select-completed-ad-hoc-story-from-git-directory",
+      "completedAt": "2026-11-10T07:06:34.001Z",
+      "blob": "381c8ea959b6c35c2f509f3f0b4c17b59123145b"
+    },
+    {
       "fileName": "SEED-281_keep-unit-gaps-and-names-visible.json",
       "identity": "SEED-281#keep-unit-gaps-and-names-visible",
       "completedAt": "2026-11-10T06:40:08.969Z",

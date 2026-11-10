@@ -39,6 +39,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
   publishIntentTrunk(origin.project);
   const linked = await retainAdHocCompletedStory(dashboard, origin, {
     title: sessionTitle,
+    landing: { repository: path.join(origin.project, ".git") },
     intentCoverage: {
       report:
         "Outcome: Caught\nPromise: Range-resume assessment survives cleanup.\nFault: Drop saved coverage after retirement.\nEvidence: The Range-resume baseline matched after restoration.\n",

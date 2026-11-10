@@ -21,13 +21,14 @@ import { buildDashboardTo } from "./dashboardBuild.ts";
 export type DashboardServerMode = "dev" | "preview" | "boundary";
 
 const viteBin = path.join(repoRoot, "node_modules", ".bin", "vite");
-// Vite's dev server through its API, restarted in place on SIGUSR2.
-const restartingDevServer = path.join(
+// Vite's dev server through its API, with a private optimizer cache and an
+// optional in-place SIGUSR2 restart.
+const devServerFixture = path.join(
   repoRoot,
   "dashboard",
   "tests",
   "fixtures",
-  "restarting-dev-server.mjs",
+  "dev-server.mjs",
 );
 const boundaryServerEntry = path.join(
   repoRoot,
@@ -115,15 +116,21 @@ export async function serverLaunch(
     };
   }
   if (options.mode === "dev") {
-    // Dev mode compiles on the fly; it never reads or writes `dist`.
+    // Dev mode compiles on the fly. Its optimizer cache belongs to this
+    // server's temporary root, including across an in-place restart.
     return {
       spawn: () =>
-        options.restartable === true
-          ? spawnServer(process.execPath, [restartingDevServer, ...listen], env)
-          : spawnVite(
-              ["--config", "dashboard/vite.config.mts", ...listen],
-              env,
-            ),
+        spawnServer(
+          process.execPath,
+          [
+            devServerFixture,
+            ...listen,
+            "--cache-dir",
+            path.join(path.dirname(options.buildDir), "vite-cache"),
+            ...(options.restartable === true ? ["--restartable"] : []),
+          ],
+          env,
+        ),
       outDir: undefined,
     };
   }

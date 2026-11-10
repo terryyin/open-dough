@@ -1,10 +1,10 @@
 // Reads of a named target can arrive together from Review and CI comparison,
 // including through sibling worktrees. Share an outstanding fetch, and keep
 // each repository's next mutation behind the actual previous Git exit.
-import { realpath } from "node:fs/promises";
 import { OutstandingReads } from "../../src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { storyReviewWaitMs } from "../src/storyReviewContract.ts";
-import { runGit, runGitUntilClosed, type GitCall } from "./gitRunner.ts";
+import { commonGitDirectory } from "./gitCommonDirectory.ts";
+import { runGitUntilClosed, type GitCall } from "./gitRunner.ts";
 
 export class GitTargetFetches {
   private readonly outstanding = new OutstandingReads<void>(storyReviewWaitMs);
@@ -47,11 +47,7 @@ export async function fetchGitTarget(
   target: string,
   call: GitCall & { readonly signal: AbortSignal },
 ): Promise<void> {
-  const common = await runGit(
-    ["rev-parse", "--path-format=absolute", "--git-common-dir"],
-    call,
-  );
-  const repository = await realpath(common.stdout.trim());
+  const repository = await commonGitDirectory(call);
   await fetches.fetch(
     repository,
     remote,
