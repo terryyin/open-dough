@@ -121,29 +121,27 @@ delivery_build_releases() {
   local root=$1
   local release_source="${root}/fixture-source"
 
-  init_fixture_repo "${release_source}"
-  write_candidate_payload "${release_source}" \
-    "${delivery_baseline_version}" baseline-adr
+  node --input-type=module - "${source_dir}" "${delivery_baseline_version}" \
+    "${delivery_update_version}" "${delivery_improvement}" << 'NODE' | node "${source_dir}/tests/support/release-source.mjs" "${release_source}"
+import { readFileSync } from "node:fs";
+const [source, baseline, updated, improvement] = process.argv.slice(2);
+const skillPath = "src/skills/dough-adr-awareness/SKILL.md";
+const skill = readFileSync(`${source}/${skillPath}`, "utf8");
+console.log(JSON.stringify({ revisions: [
+  { name: "release baseline current-contract payload", release: {
+    version: baseline, taggedAt: "2026-09-06T00:00:00", marker: "baseline-adr" } },
+  { name: "release improved ADR conflict evidence", release: {
+    version: updated, taggedAt: "2026-09-07T00:00:00", marker: "improved-adr" },
+    files: { [skillPath]: `${skill}\n## Improved conflict evidence\n\n${improvement}\n` } },
+] }));
+NODE
+  checkout_tagged_release "${release_source}" \
+    "${root}/older-release" "${delivery_baseline_version}"
   if grep -Fq "${delivery_improvement}" \
-    "${release_source}/src/skills/dough-adr-awareness/SKILL.md"; then
+    "${root}/older-release/src/skills/dough-adr-awareness/SKILL.md"; then
     echo 'FAIL: baseline fixture already has the later ADR improvement.' >&2
     return 1
   fi
-  commit_all "${release_source}" 'release baseline current-contract payload'
-  tag_release "${release_source}" "${delivery_baseline_version}" \
-    '2026-09-06T00:00:00'
-
-  write_candidate_payload "${release_source}" \
-    "${delivery_update_version}" improved-adr
-  printf '\n%s\n' '## Improved conflict evidence' \
-    "${delivery_improvement}" >> \
-    "${release_source}/src/skills/dough-adr-awareness/SKILL.md"
-  commit_all "${release_source}" 'release improved ADR conflict evidence'
-  tag_release "${release_source}" "${delivery_update_version}" \
-    '2026-09-07T00:00:00'
-
-  checkout_tagged_release "${release_source}" \
-    "${root}/older-release" "${delivery_baseline_version}"
 }
 
 # This host's adopter under <root> with the older release installed from

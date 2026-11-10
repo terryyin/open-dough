@@ -7,6 +7,8 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 source "${source_dir}/tests/helpers/public-payload-fixture.bash"
 # shellcheck disable=SC1091
 source "${source_dir}/tests/helpers/release-fixture.bash"
+# shellcheck disable=SC1091
+source "${source_dir}/tests/helpers/publication-update-proof.bash"
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -57,33 +59,55 @@ node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << JSON
     "marker": "payload-with-added-skills"}}
 ]}
 JSON
+source_url="file://$(cd -- "${fixture}" && pwd -P)"
 checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
 
-target="${temporary_dir}/target"
-prepare_target "${target}"
-agents_root="${target}/.agents/skills"
-actual_version=''
-mkdir -p -- "${agents_root}/dough-update" "${agents_root}/dough-adr-awareness"
-# Install the files the older release shipped by hand, as its payload.
+# Only the older release's shipped paths are valid baseline expectations.
 older_managed_files=()
 for managed_file in "${managed_files[@]}"; do
   [[ -f "${older_checkout}/src/skills/${managed_file}" ]] || continue
   older_managed_files+=("${managed_file}")
 done
-(
-  managed_files=("${older_managed_files[@]}")
-  payload_bytes_transfer copy "${older_checkout}/src/skills" "${agents_root}"
-)
-printf '%s\n' "${fixture}" > "${agents_root}/dough-update/SOURCE"
-printf '%s\n' '0.1.1' > "${agents_root}/dough-update/VERSION"
 
-output=$(bash "${source_dir}/src/install/open-dough-release.sh" apply \
-  --target "${target}" --platform codex)
+for predecessor in complete shared-root-only; do
+  target="${temporary_dir}/${predecessor}"
+  prepare_target "${target}"
+  write_project_configuration "${target}"
+  bash "${older_checkout}/install.sh" --target "${target}" \
+    --source "${source_url}" --platform codex > /dev/null
+  for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
+    (
+      managed_files=("${older_managed_files[@]}")
+      assert_payload_bytes_match "${older_checkout}/src/skills" "${root}"
+    )
+    actual_version=$(cat "${root}/dough-update/VERSION")
+    actual_source=$(cat "${root}/dough-update/SOURCE")
+    [[ ${actual_version} == '0.1.1' ]]
+    [[ ${actual_source} == "${source_url}" ]]
+    for managed_file in "${new_managed_files[@]}"; do
+      [[ ! -e ${root}/${managed_file} ]]
+    done
+  done
+  claude_sentinel="${target}/.claude/skills/other-skill/SKILL.md"
+  if [[ ${predecessor} == shared-root-only ]]; then
+    # Preserve unrelated guidance outside the explicitly absent Claude root.
+    mv -- "${target}/.claude/skills/other-skill" "${target}/.claude/other-skill"
+    claude_sentinel="${target}/.claude/other-skill/SKILL.md"
+    rm -rf -- "${target}/.claude/skills"
+    [[ ! -e ${target}/.claude/skills ]]
+  fi
 
-[[ "${output}" == *'installed or updated the shared Codex/Cursor root and Claude Code to 0.1.2'* ]]
-for root in "${agents_root}" "${target}/.claude/skills"; do
-  assert_payload_bytes_match "${fixture}/src/skills" "${root}"
-  actual_version=$(cat "${root}/dough-update/VERSION")
-  [[ "${actual_version}" == '0.1.2' ]]
+  output=$(bash "${source_dir}/src/install/open-dough-release.sh" apply \
+    --target "${target}" --platform codex)
+
+  [[ "${output}" == *'installed or updated the shared Codex/Cursor root and Claude Code to 0.1.2'* ]]
+  for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
+    assert_payload_bytes_match "${fixture}/src/skills" "${root}"
+    actual_version=$(cat "${root}/dough-update/VERSION")
+    actual_source=$(cat "${root}/dough-update/SOURCE")
+    [[ ${actual_version} == '0.1.2' ]]
+    [[ ${actual_source} == "${source_url}" ]]
+  done
+  assert_sentinels "${target}" "${claude_sentinel}"
+  assert_project_configuration "${target}"
 done
-assert_sentinels "${target}"

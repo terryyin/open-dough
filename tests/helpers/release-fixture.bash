@@ -49,44 +49,12 @@ copy_installer_modules() {
   fi
 }
 
-copy_current_release_files() {
-  local dest=$1
-
-  mkdir -p -- "${dest}/src/install" "${dest}/src/skills"
-  cp -- "${source_dir}/install.sh" "${dest}/install.sh"
-  copy_installer_modules "${dest}"
-  payload_bytes_transfer copy "${source_dir}/src/skills" "${dest}/src/skills"
-  cp -- "${source_dir}/VERSION" "${dest}/VERSION"
-  cp -- "${source_dir}/CHANGELOG.md" "${dest}/CHANGELOG.md"
-}
-
-write_candidate_payload() {
-  local dest=$1
-  local version=$2
-  local marker=$3
-
-  copy_current_release_files "${dest}"
-  printf '\n<!-- open-dough-payload %s -->\n' "${marker}" >> \
-    "${dest}/src/skills/dough-update/SKILL.md"
-  printf '%s\n' "${version}" > "${dest}/VERSION"
-  printf '%s\n\n%s\n' "## ${version} - 2026-09-06" "${marker}" > "${dest}/CHANGELOG.md"
-}
-
 commit_all() {
   local repo=$1
   local message=$2
 
   git -C "${repo}" add -A
   git -C "${repo}" commit --quiet -m "${message}"
-}
-
-tag_release() {
-  local repo=$1
-  local version=$2
-  local date=$3
-
-  GIT_AUTHOR_DATE="${date}" GIT_COMMITTER_DATE="${date}" \
-    git -C "${repo}" tag -a "v${version}" -m "v${version}"
 }
 
 # Check out tagged A (or any numeric tag) from a fixture as data. Do not run

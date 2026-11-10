@@ -23,9 +23,9 @@ const beforeRegExp = new Set("(,=:[!&|?{};+-*%<>~^".split(""));
 const regExpKeyword =
   /\b(?:return|typeof|case|do|else|in|of|new|delete|void|throw|yield|await)$/u;
 
-// `source` with the text of every template literal blanked, keeping line
-// breaks and `${…}` expressions, so the patterns above see only code.
-function withoutTemplateText(source, file) {
+// `source` with template text and comments blanked, keeping line breaks
+// and `${…}` expressions, so the patterns above see only executable imports.
+function withoutTemplatesAndComments(source, file) {
   const out = source.split("");
   // Each entry is the brace depth of an open `${…}` expression.
   const expressions = [];
@@ -70,11 +70,17 @@ function withoutTemplateText(source, file) {
       continue;
     }
     if (char === "/" && source[index + 1] === "/") {
-      while (index < source.length && source[index] !== "\n") index += 1;
+      while (index < source.length && source[index] !== "\n") {
+        out[index] = " ";
+        index += 1;
+      }
     } else if (char === "/" && source[index + 1] === "*") {
       const end = source.indexOf("*/", index + 2);
       if (end < 0) throw new Error(`unterminated comment in ${file}`);
-      index = end + 2;
+      while (index < end + 2) {
+        if (out[index] !== "\n") out[index] = " ";
+        index += 1;
+      }
     } else if (char === '"' || char === "'") {
       skipQuoted(char);
       previous = char;
@@ -131,12 +137,8 @@ while (pending.length > 0) {
   const file = pending.pop();
   if (seen.has(file)) continue;
   seen.add(file);
-  // JSDoc import types support static checking and never load those modules
-  // when the native journey runs.
-  const source = withoutTemplateText(
-    readFileSync(file, "utf8").replace(/\/\*\*[\s\S]*?\*\//g, ""),
-    file,
-  );
+  // Comments, including JSDoc import types, never load modules at runtime.
+  const source = withoutTemplatesAndComments(readFileSync(file, "utf8"), file);
   for (const pattern of [relativeImport, spawnedScript]) {
     for (const [, specifier] of source.matchAll(pattern)) {
       pending.push(join(dirname(file), specifier));

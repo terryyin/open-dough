@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-installation-and-native-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data)
+**Source review:** [Source-only commitments](source-review.md)
 
 ## Goal and boundaries
 
@@ -21,94 +22,13 @@ Intent/CI Proof stories' work.
 
 ## Existing solutions and current decisions
 
-- PFE: reuse [MakeMe](../../../tests/support/makeMe.mjs),
-  [repository descriptions](../../../tests/support/repositoryTestData.mjs),
-  [repository materialization](../../../tests/support/repository-fixture.mjs),
-  [release facts](../../../tests/support/releaseTestData.mjs) and the shell
-  [release-source writer](../../../tests/support/release-source.mjs).
-  Most installer checks already use them. The remaining native ADR release
-  writer in `dough-adr-awareness-delivery-to-use.sh` still uses
-  `write_candidate_payload` and `tag_release`; remove those obsolete helpers
-  when its final consumer migrates. Keep tagging and installation real.
-- Existing host-hook scenario writers already cross Bash into Node. Move their
-  valid settings construction behind MakeMe, returning the host's actual JSON
-  document. Keep the settings writer, real fragments, explicit conflicting
-  mutations and [independent assertions](../../../tests/helpers/host-hook-assertions.mjs).
-  Use the production [host definitions](../../../src/install/open-dough-register-hooks-fragments.mjs)
-  and [merge contract](../../../src/install/open-dough-register-hooks-merge.mjs),
-  without running the merge under test to manufacture its expected input.
-- Ordinary installed baselines come from the real older installer. The
-  added-payload case currently also proves creation of an absent Claude root.
-  Keep that as an explicitly asymmetric predecessor, established from an old
-  verified installation with the absent root stated as a harness operation.
-  Observe the ordinary complete predecessor too. Do not replace missing-root
-  proof merely by switching to the ordinary baseline.
-- Native starting published records reuse the same backlog, plan and repository
-  facts as deterministic tests. The originating checkout in native preparation
-  must remain non-bare, without a remote, with a sibling execution worktree.
-  `materializeLocalCheckout` supports a local checkout without an origin; keep
-  any additional worktree, local dependency installation and markers as actual
-  operations. Do not replace this topology with the bare-origin default.
-  Keep the authoritative `lockedNodeProject` and `wrapperProject` programs,
-  lockfile generation, executable modes and preparation traces.
-- The native fixtures' earlier “loading no MakeMe” comments are preservation
-  hypotheses, not a product restriction. Establish equivalence at their actual
-  file, Git and preparation boundaries before accepting conversion. Include new
-  Node writers and their transitive imports in evidence identities. Retained
-  streams and assessor observations are evidence, not synthetic records to
-  normalize. No new native-attempt builder has a useful consumer in the
-  inspected runner/replay cases.
-- Feedback maintenance is unowned residue, including its saved choice; plan 540
-  covers configured-project registry rows only. Extend existing ad hoc request
-  facts to retain canonical `maintenance` fields, composing launch, host session,
-  observation and attempt builders rather than recreating them. Add only the
-  review/choice/observation builders required by real consumers, typed against
-  `feedbackReview.ts`, `feedbackMaintenanceDue.ts`, `feedbackMaintenanceState.ts`
-  and the saved choice contract. Keep source review, saved choice and observed
-  session lifetimes separate.
-- Runner duration setup returns the actual `Map<label, seconds>` consumed by
-  `share-deal.mjs`. Keep exact TSV/parser inputs and output expectations literal.
-  Do not substitute CI job/proof records for runner duration data.
-- Follow [ADR 0002, direct domain mapping](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
-  [ADR 0003, release identity](../../../docs/adrs/0003-tagged-release-versioning-accepted.md),
-  [ADR 0004, installation ownership](../../../docs/adrs/0004-client-installation-and-update-accepted.md),
-  [ADR 0005, deterministic and native proof](../../../docs/adrs/0005-cross-tool-validation-accepted.md),
-  and [ADR 0008, published versus machine-local facts](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
-  The ADR index and in-file Accepted statuses agree. The existing
-  [North Star](../../NORTH-STAR.md) adds no new direction for this conversion.
-  Evaluate the gain against the current literals and duplicate constructors
-  under [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md):
-  visible facts and one domain owner, with equivalent proof, justify the change;
-  a forwarding layer that merely hides the same duplicate model does not.
+See [Existing solutions and current decisions](design-context.md).
+See [coverage inventory](coverage-inventory.md) for additional native guard and
+admission-plan consumers, duration proof, exclusions and sibling ownership.
 
 ## Preparation evidence and decisive premises
 
-Observed in this assigned checkout at `2f08bababae8410472d4c8aa9abdf23c9358a48b`
-on 2026-11-09, Node 24.21.0 and Homebrew Bash 5.3.20. The host was on AC with
-77% free memory; focused shell/Node selections used the runner's normal four
-jobs. These were credential-free observations. Scratch source edits were
-restored before recording preparation. No native host session was launched.
-
-| Premise and consuming operation | Observation and limit |
-| --- | --- |
-| The added-payload journey can consume an installation made by the actual 0.1.1 installer. | `PATH=/opt/homebrew/bin:$PATH npm test -- tests/update-adds-new-payload-skill.sh` passed on the original fixture. Replacing only its hand-copy baseline block with `bash "${older_checkout}/install.sh" --target "${target}" --source "${fixture}" --platform codex > /dev/null` also passed. This establishes the ordinary route; the explicit asymmetric case remains an execution obligation. |
-| Real installation proof detects loss of unrelated host settings. | Baseline `npm test -- tests/install-ci-host-hooks.sh` passed. In a scratch edit to `open-dough-register-hooks-merge.mjs`, deleting `base.sentinel` made that command fail at `host-hook-assertions.mjs`'s expected `keep Codex settings`. Restored proof passed. The same suite contains independent idempotence, conflict and no-write assertions. |
-| Feedback proof distinguishes an already served due date. | `npm test -- tests/support/feedback-maintenance-due.test.mjs tests/support/feedback-maintenance-state.test.mjs tests/support/feedback-review.test.mjs` passed. Disabling only `sessions.some((session) => session.due === due)` in `feedbackMaintenanceDue.ts` failed both the served-date case and the interrupted automatic-start case: actual `launch`, expected `wait/served`. Restored selection passed. |
-| Runner proof distinguishes the lower-share tie rule. | `npm test -- tests/support/share-deal.test.mjs` passed. Reversing equal-total preference in `dealShares` made the tie and unrecorded-job cases fail, including a/c becoming b/d in share 1. The restored command passed. |
-| Native preparation's existing local inputs actually produce separate working installations. | Direct `node --input-type=module` calls to `createLockedNodeFixture` with ordinary and `failingInstall: true` inputs, followed by the existing `hostPrepareCheckout(execution, env)`, observed no origin remote, non-bare origin, sibling worktree, unchanged integrity snapshot, one successful setup trace plus `npm run prove` emitting `fixture-cli-ok`, or failed preparation with zero successful traces. `createWrapperDrivenFixture`, then `./wrapper prepare` and `./wrapper prove`, preserved executable mode and emitted `wrapper-prove-ok`. This is fixture/command proof, not native-agent proof. |
-| A newly imported shared builder is reachable by native dependency identity. | In an owned scratch source made by `node tests/support/native-identity-source.mjs "$PWD" <scratch-source>`, `node <scratch-source>/tests/support/native-import-closure.mjs <scratch-source> tests/support/execution-worktree-prep-native-fixture.mjs` listed 5 inputs. Adding a real relative MakeMe import to that scratch fixture produced 26 inputs, including MakeMe and 20 further builder modules. The scratch copy was removed. This proves closure expansion; each changed family must still include its actual writer as a closure root. |
-| The actual Take fixture is claimable by its installed writer without changing its seed. | In an owned scratch target, sourced `product-backlog-native-take.sh`, ran `take_write_fixture TARGET`, `bash install.sh --target TARGET --source "$PWD" --platform claude`, and `take_record_preparation TARGET`. From TARGET, `node .claude/skills/dough-product-backlog/scripts/product-backlog.mjs take --identity 'SEED-101#publish-native-claim' --plan 'slice-plans/101-native-claim/PLAN.md'` reported Taken. `take_assert_backlog TARGET` and `cmp BEFORE TARGET/.planning/seeds/SEED-101-native-claim.md` passed. The scratch target was removed. This observes the installed operation, not native discovery. |
-| Closure starting state reaches the distinct publication/conflict profiles. | An owned scratch Bash check ran through `npm test -- <scratch>/probe.sh`. `trunk_closure_create_fixture SOURCE HOST SCENARIO ROOT HARNESS` ran for cursor/codex × source/ignored-only. Each preserved remote main at base, candidate above base, the expected source/planning bytes and the integration checkout's pending human edit. Codex profiles armed their real private observer; Cursor profiles retained none. `story_closure_create_fixture SOURCE claude ROOT HARNESS` observed successful branch coverage, diverged story/trunk commits with the same base, and untouched human state. `story_closure_git WORKSPACE merge --no-commit --no-ff TRUNK_SHA` failed with the intended `product.txt` conflict; `merge --abort` restored its branch tip and human state stayed unchanged. Existing `native_harness_stop_observers` and fixture cleanup ended all started observers/watchers before the scratch source was removed. Native-agent conflict resolution and completion were not observed or claimed. |
-
-The no-argument ADR delivery-to-use wrappers for Codex, Cursor and Claude,
-`product-backlog-native.sh`, `git-publication-native.sh`,
-`execution-worktree-preparation-native.sh`, and `native-evidence-identity.sh`
-also passed through `npm test -- <those paths>`, along with the two installer
-checks above. They establish their deterministic paths only. In particular,
-the no-argument backlog wrapper does not perform the native Take case, and the
-publication default does not prove every native closure. The separate Take and
-closure observations above settle the starting-state premises used by slices
-3 and 4; those slices repeat the comparisons after conversion.
+See [Preparation evidence and decisive premises](preparation-evidence.md).
 
 ## Proof ownership and delivery gates
 
@@ -159,7 +79,8 @@ sessions merely to compensate for an uninspected fixture change.
 
 ### 1. Older installed releases update from coherent starting facts
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 1](slice-1-proof.md).
 Proof: Source example 1. Run `npm test -- tests/update-adds-new-payload-skill.sh tests/story-payload-update.sh tests/dough-adr-awareness-codex-delivery-to-use.sh tests/dough-adr-awareness-cursor-delivery-to-use.sh tests/dough-adr-awareness-claude-delivery-to-use.sh` and affected release-source consumers.
 
 Use the existing release builder/writer for the remaining ADR baseline and
@@ -295,3 +216,26 @@ consumers, focused proof and cleanup. The review found no remaining
 slice-specific concern or human-owned decision. Native-agent behavior remains
 bounded by the explicit reuse/renewal rule above, with no fresh native pass
 claimed by preparation.
+
+## Execution context
+
+Established Story Branch execution in this worktree on
+`codex/make-installation-and-native-test-setup-map-dire`, publisher
+`dashboard-territory.local-open-dough`, agent DavidKo-chan. Claim
+`b26709dafe4a51e801ce1a4f34019d7ebeb6fbe3` accepted on `origin/main`;
+starting revision `5deb0028f6b023eaa7a2d19c2a3e76bb31685cbe`.
+Readiness remains changed since review; selected scope matches the retained plan.
+No numeric slice limit or explicit overrun-replanning selection was supplied.
+Locked npm setup and Chromium prerequisite command passed here on 2026-11-10
+using Node 24.21.0; no mutable dependency state was copied.
+CI source: GitHub Actions `terryyin/open-dough`, verified `ci.yml` / `CI`.
+Observer: coordinator `seed261-install-davidko`, directory
+`/tmp/dough-ci-501/watch-Q3D5st`, PID 47583, session 54844, yielded cell
+`g1103:14`, bound to the execution branch. Claim trunk CI remains unobserved.
+
+## Story obligations
+
+### G1. Dependency scanner reads a documentation example as an import
+Reported: slice 1 — "Including the actual scanner in hashed inputs exposed its comment example as a nonexistent executable dependency."
+Story clause: "A changed fixture dependency must enter its evidence identity"
+Disposition: proved by slice 1: slice-1-proof.md, scanner regression and real identity continuation.

@@ -114,6 +114,9 @@ land_inputs=(
 )
 response_input=tests/support/native-response-field.sh
 journey_inputs=(
+  'native_result_journey_input_hash_lines|
+  tests/support/release-source.mjs tests/support/makeMe.mjs
+  tests/support/releaseTestData.mjs tests/support/repository-fixture.mjs'
   "git_publication_write_evidence_identity owned-context|${land_inputs[*]}
   src/skills/dough-story-refinement/references/preparation-workspace.md"
   "git_publication_write_evidence_identity land-default-checkout|${land_inputs[*]}
