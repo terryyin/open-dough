@@ -134,6 +134,13 @@ Any such work must preserve every test, isolation, twelve shards and four
 workers. These are hypotheses, not measured savings or an approved follow-up;
 no further experiment is implemented or queued by this result.
 
+On 2026-11-11, Terry authorized thirteen dashboard CI shards for the
+SEED-285 deadline repair, superseding the twelve-shard constraint above.
+The October experiment and its twelve-way measurements remain as recorded.
+Current allocation and ceilings are maintained in the
+[shard guide](../../dashboard/tests/shards.md) and
+[workflow](../../.github/workflows/ci.yml).
+
 The [reviewed experiment and original measurement plan](https://github.com/terryyin/open-dough/tree/8e129818d49bff875432f65270e66f711e8979f6/.planning/slice-plans/375-dashboard-ci-balance)
 remain recoverable in Git. Raw profiles, 48 complete HTML/timing artifact pairs for
 the four measured runs, parsed identity/verdict comparisons, local commands,

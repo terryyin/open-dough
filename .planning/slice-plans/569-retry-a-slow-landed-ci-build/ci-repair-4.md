@@ -1,5 +1,7 @@
 # CI repair 4: private renderer cache and an unresolved shard deadline
 
+Historical diagnosis through2b88d2d; the [approved implementation and proof](ci-repair-4-approved-proof.md) now own the current outcome.
+
 ## Outcome and ownership
 
 Diagnosed both failed jobs of registered GitHub run `42848754719`, attempt `1`, published revision `d74d5a970263e926922718b52bde2421271e0cb3`. Failure inventory is now accounted for; diagnostic's `no-recognized-failure` gap was the shard deadline, not missing logs and not infrastructure. No attempt was rerun or dismissed.

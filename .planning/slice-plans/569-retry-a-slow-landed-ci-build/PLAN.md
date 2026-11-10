@@ -217,10 +217,11 @@ timeouts; any essential override belongs inside the individual test.
 
 ## Current decisions
 
-CI deadline: the Zod experiment regressed cold preparation plus four starts
-by0.6s; its7ms startup change is within noise and cannot close the20–30s target.
-Stop that strategy. Keep twelve shards pending the developer's resource decision;
-[CI repair 4 and the unapplied alternative](ci-repair-4.md) retain the evidence.
+The Zod experiment regressed cold preparation plus four starts by0.6s; its7ms
+startup change cannot close the20–30s target. That strategy is stopped.
+Terry approved thirteen shards on2026-11-11, preserving every test and ceiling.
+[Approved repair proof](ci-repair-4-approved-proof.md) owns the declaration,
+selection and consumer checks; the coordinator still owes applicable hosted CI.
 
 ## Story obligations
 

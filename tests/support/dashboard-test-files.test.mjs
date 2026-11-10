@@ -101,10 +101,10 @@ test("a list line without seconds fails the configuration naming the file, line 
 });
 
 const suite = new URL("../../dashboard/", import.meta.url);
-const shardCount = 12;
+const shardCount = 13;
 const shardIndices = [...Array(shardCount).keys()].map((index) => index + 1);
 
-test("the twelve CI shards match every actual dashboard spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
+test("the thirteen CI shards match every actual dashboard spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
   const files = dashboardSpecFiles(fileURLToPath(suite));
   assert.ok(files.length > 0);
   const featureGroups = new Set([

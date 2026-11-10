@@ -25,8 +25,8 @@ and script-triggered dashboard typecheck; selective formatter is `npm run format
 CI source: GitHub Actions `terryyin/open-dough`, verified `ci.yml` (CI,
 workflow 351271804). Observer key
 `ci-watch-execution:terryyin/open-dough:codex/repeat-a-slow-landed-ci-build-once-and-flag-a-pe:seed285-viktor`;
-coordinator `seed285-viktor`, directory `/tmp/dough-ci-501/watch-S6j7xi`, PID
-28785, stream session 13677, yielded cell `g1034:11`, bound to this checkout
+coordinator `seed285-viktor`, directory `/tmp/dough-ci-501/watch-wcS6cP`,
+PID22078, stream session82058, yielded cell `g2:3`, bound to this checkout
 and the remote execution branch. Claim trunk CI is unobserved by this stream.
 
 Expensive proof decision: this macOS host is awake on AC, load 13.65/15.78/13.09,
@@ -246,4 +246,4 @@ exact early event times are unavailable. DearDough ODF-150/329/396 now retain
 this execution once each (998 lines); three redundant trace rows are recoverable
 at `9befabc4239528f432fad85634a3fb24a76a4edf:DearDough.md`.
 Final shard preview: 971 specs, 960 timed, 11 new, 1017.0–1026.6 predicted seconds
-per shard. [CI repair 4](ci-repair-4.md) retains the cache fix and unresolved deadline; final CI is not settled.
+per shard. [Approved CI repair 4](ci-repair-4-approved-proof.md) retains the settled resource decision; the completion receipt owns final CI.

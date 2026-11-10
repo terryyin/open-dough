@@ -22,7 +22,7 @@ suite's shares follow
 being a job. A list line that is not `<seconds><TAB><file>` fails the
 configuration naming the file, line and content before any test is selected,
 as a malformed split does. CI runs the dashboard type-check once in the lint
-job. Each of the twelve shards uses its deadline for setup and the browser
+job. Each of the thirteen shards uses its deadline for setup and the browser
 suite. With the variable unset, `npm run test:dashboard` runs every spec.
 The configuration discovers
 `dashboard/tests/`, `dashboard/frontend-tests/`, and `dashboard/backend-tests/`;
@@ -46,7 +46,7 @@ Before pushing a change that adds, removes or renames a spec file, preview
 the deal CI will run, from the repository root:
 
 ```sh
-node scripts/test-shares.mjs preview --split-count 12 --spec-dir dashboard
+node scripts/test-shares.mjs preview --split-count 13 --spec-dir dashboard
 ```
 
 It discovers the spec files as the configuration does and prints each shard's
@@ -55,7 +55,7 @@ then every unrecorded file with its shard and the assumed seconds. It prints no 
 wall-clock under parallel workers, not a sum of test-seconds, so balanced
 predictions are what the preview shows. The predictions use recorded CI
 seconds, never local timing. A high unrecorded count means the list is stale;
-refresh it from a recent `main` run's twelve `dashboard-times-<shard>`
+refresh it from a recent `main` run's thirteen `dashboard-times-<shard>`
 artifacts (below), every file. Observed seconds are scaled to the existing
 list's runner speed (divided by the run's factor against that list); when the
 list does not yet exist or no measurable common file is available, times stay
@@ -72,7 +72,7 @@ The refresh keeps the index and each known spec's part, writes the same new
 and keeps new specs in the index until they are organized. Single-file duration lists and CI timing artifacts retain their
 ordinary TSV form. No part changes a spec's recorded seconds or shard assignment.
 `tests/support/dashboard-test-files.test.mjs` proves the configuration's
-deal: every spec file in exactly one of the twelve shards, the preview
+deal: every spec file in exactly one of the thirteen shards, the preview
 listing a new spec as unrecorded in the shard the deal gives it, and a
 malformed list line failing the configuration.
 
@@ -91,7 +91,7 @@ shard still records
 what completed; a `--list` run writes nothing, and a run without the variable
 writes no times file. CI keeps the file for seven days as artifact
 `dashboard-times-<shard>`, under the same condition as the Playwright report,
-and the twelve artifacts of one run are the source `longest-first` is
+and the thirteen artifacts of one run are the source `longest-first` is
 refreshed from (`gh run download RUN_ID -p 'dashboard-times-*'`), with
 observed seconds scaled to the list's runner speed as above. Its form is the
 Node runner's `test-times-<share>` form, so one refresh procedure serves both

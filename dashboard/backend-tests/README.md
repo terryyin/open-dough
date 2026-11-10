@@ -6,7 +6,7 @@ module boundaries. Use the shared
 [MakeMe library](../../tests/README.md#test-data-architecture) for domain data.
 
 All three roots run once through `npm run test:dashboard`, with the same global
-setup, build and twelve CI shards. Run only this suite with
+setup, build and thirteen CI shards. Run only this suite with
 `npm run test:dashboard -- backend-tests/`.
 
 Every backend `*.spec.ts` and case-definition module belongs to one service
