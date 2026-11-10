@@ -4,6 +4,7 @@ import { test, expect } from "./pageTest.ts";
 import { renderComparison } from "./comparisonRendering.ts";
 import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
 import {
+  adapterSlot,
   mixedEntryFacts,
   wallComparedFacts,
 } from "./mountedComparisonFacts.ts";
@@ -99,11 +100,7 @@ test("unavailable Landed proof retains the Branch counts, time and exact adapter
   const answer = makeMe.aStoryCiComparison
     .with({
       ...facts.answer,
-      landed: {
-        ...facts.answer.landed,
-        runBranch: "main",
-        adapterAttempt: { runId: "pipeline", attemptId: "landing" },
-      },
+      landed: adapterSlot(facts.answer.landed, { attemptId: "landing" }),
     })
     .please();
   const entries = mixedEntryFacts();

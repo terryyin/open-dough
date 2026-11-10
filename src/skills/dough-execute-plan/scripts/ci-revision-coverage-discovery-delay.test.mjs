@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   discoveryAdvisoryEmitted,
   discoveryAdvisoryMarkerName,
@@ -10,6 +11,7 @@ import {
 import {
   createRevisionCoverageFixture,
   git,
+  queueEntry,
 } from "./ci-revision-coverage-test-fixtures.mjs";
 
 test("one discovery-delay advisory names overdue revisions and never repeats", async (t) => {
@@ -87,12 +89,14 @@ test("a registration discovered before the bound produces no advisory", async (t
   const sha = await deliver();
   await advancePoll();
   setAttempts([
-    {
-      runId: "run:early",
-      attemptId: "attempt/success",
-      sha,
-      outcome: "success",
-    },
+    makeMe.aCiAdapterAttempt
+      .with({
+        runId: "run:early",
+        attemptId: "attempt/success",
+        sha,
+        outcome: "success",
+      })
+      .please(),
   ]);
   await advancePoll();
   assert.equal(
@@ -122,7 +126,7 @@ test("fresh known queue suppresses missing-discovery advice until authoritative 
   clock += discoveryDelayBoundMs + 1;
   h.setSnapshot({
     attempts: [],
-    queue: [{ sha, branch: "feature/custom", state: "queued" }],
+    queue: [queueEntry(sha, "queued")],
   });
   await h.advancePoll();
   assert.equal(

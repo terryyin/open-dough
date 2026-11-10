@@ -122,14 +122,22 @@ test("a ciAdapter project is judged from its discover attempts, and a story bran
   const project = path.join(dashboard.home, "git", "open-dough");
   const adapter = "scripts/ci-status-fixture-adapter.mjs";
   const asked = path.join(dashboard.home, "ci-status-adapter-asked.log");
-  const attempt = (sha: string, outcome: string, url: string) => ({
-    runId: url,
-    attemptId: "1",
-    sha,
-    outcome,
-    url,
-    time: "2026-10-01T00:00:00Z",
-  });
+  const attempt = (
+    sha: string,
+    outcome: "success" | "failure",
+    url: string,
+  ) => {
+    const facts = {
+      runId: url,
+      attemptId: "1",
+      sha,
+      url,
+      time: "2026-10-01T00:00:00Z",
+    };
+    return outcome === "failure"
+      ? makeMe.aCiAdapterAttempt.failed(facts).please()
+      : makeMe.aCiAdapterAttempt.passedWithoutTimes(facts).please();
+  };
   // Each discover answered by the branch asked: main's head fails (a commit
   // on main only), main's "Add login" passes, the failing story's own head
   // fails, and the planning-only story has no result of its own.

@@ -4,6 +4,7 @@
 // descendant C cannot validate accepted B is reported per candidate.
 import assert from "node:assert/strict";
 import { after, test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { integratedStateJudge } from "./ci-integrated-state.mjs";
 import {
   accepted,
@@ -191,10 +192,14 @@ test("integrated evidence is judged only under a policy for an eligible own stat
     assert.deepEqual(await judge({ ...recorded, state }), accepted(b, state));
   // An ignored-only B is judged only while its applicable ancestor's attempt
   // has no verdict; a proved or unresolved basis keeps its own rule.
-  const ignoredOnly = (basisState) => ({
-    ...accepted(b, "not_required"),
-    basis: { sha: "a".repeat(40), state: basisState },
-  });
+  const ignoredOnly = (basisState) =>
+    makeMe.aRevisionCoverage
+      .with({
+        sha: b,
+        state: "not_required",
+        basis: { sha: "a".repeat(40), state: basisState },
+      })
+      .please();
   for (const basisState of ["success", "failure", undefined])
     assert.deepEqual(
       await judge({ ...recorded, ...ignoredOnly(basisState) }),

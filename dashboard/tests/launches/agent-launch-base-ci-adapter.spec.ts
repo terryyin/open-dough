@@ -5,6 +5,7 @@
 
 import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { keptStarts } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { publishLaterHead } from "../support/publishLaterHead.ts";
@@ -45,6 +46,15 @@ test("a failing nearest adapter attempt asks; Back starts nothing", async ({
   // once ciAdapter is configured on disk in the project folder.
   published.serveActions(() => undefined);
   const runUrl = "https://ci.invalid/adapter-failed";
+  const failedAttempt = makeMe.aCiAdapterAttempt
+    .failed({
+      runId: "adapter-run",
+      attemptId: "1",
+      sha: ancestor,
+      url: runUrl,
+      time: "2026-10-01T00:00:00Z",
+    })
+    .please();
   installAdapter(
     origin.project,
     `#!${process.execPath}
@@ -56,14 +66,7 @@ if (request.operation !== 'discover') {
   process.exit(1);
 }
 process.stdout.write(JSON.stringify({
-  attempts: [{
-    runId: 'adapter-run',
-    attemptId: '1',
-    sha: ${JSON.stringify(ancestor)},
-    outcome: 'failure',
-    url: ${JSON.stringify(runUrl)},
-    time: '2026-10-01T00:00:00Z',
-  }],
+  attempts: ${JSON.stringify([failedAttempt])},
 }));
 `,
   );
@@ -121,6 +124,24 @@ test("a running adapter attempt shows its nearest completed ancestor", async ({
     "adapter running base",
   );
   published.serveActions(() => undefined);
+  const runningAttempt = makeMe.aCiAdapterAttempt
+    .pending({
+      runId: "running",
+      attemptId: "1",
+      sha: head,
+      url: "https://ci.invalid/adapter-running",
+      time: "2026-10-01T00:02:00Z",
+    })
+    .please();
+  const completedAttempt = makeMe.aCiAdapterAttempt
+    .passedWithoutTimes({
+      runId: "completed",
+      attemptId: "1",
+      sha: completed.head,
+      url: "https://ci.invalid/adapter-completed",
+      time: "2026-10-01T00:01:00Z",
+    })
+    .please();
   installAdapter(
     origin.project,
     `#!${process.execPath}
@@ -128,10 +149,7 @@ let input = '';
 for await (const chunk of process.stdin) input += chunk;
 const request = JSON.parse(input);
 if (request.operation !== 'discover') process.exit(1);
-process.stdout.write(JSON.stringify({ attempts: [
-  { runId: 'running', attemptId: '1', sha: ${JSON.stringify(head)}, outcome: 'pending', url: 'https://ci.invalid/adapter-running', time: '2026-10-01T00:02:00Z' },
-  { runId: 'completed', attemptId: '1', sha: ${JSON.stringify(completed.head)}, outcome: 'success', url: 'https://ci.invalid/adapter-completed', time: '2026-10-01T00:01:00Z' },
-] }));
+process.stdout.write(JSON.stringify({ attempts: ${JSON.stringify([runningAttempt, completedAttempt])} }));
 `,
   );
   await openUntilRead(page);

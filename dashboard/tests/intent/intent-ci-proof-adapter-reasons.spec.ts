@@ -14,6 +14,7 @@ import { expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
 import {
   adapterProject,
   type Answers,
+  failed,
   openAdapterProof,
   passed,
   testsRow,
@@ -122,15 +123,8 @@ test("a retried adapter attempt shows the retry's verdict and proof, and Check a
   const adapter = adapterProject(dashboard.home);
   const discover = {
     main: [
-      {
-        ...passed("r1", "2", login, "main"),
-        time: "2026-10-01T01:00:00Z",
-      },
-      {
-        ...passed("r1", "1", login, "main"),
-        outcome: "failure",
-        time: "2026-10-01T00:00:00Z",
-      },
+      passed("r1", "2", login, "main", { time: "2026-10-01T01:00:00Z" }),
+      failed("r1", "1", login, "main", { time: "2026-10-01T00:00:00Z" }),
     ],
   };
   adapter.answer({ discover, proof: testsSummary("2", login) });
@@ -170,8 +164,8 @@ test("an adapter attempt whose attemptId another discovered attempt shares at it
       // Different checks both keep their newest attempt.
       name: "different checks",
       main: [
-        { ...passed("r1", "1", login, "main"), check: "unit" },
-        { ...passed("r2", "1", login, "main"), check: "lint" },
+        passed("r1", "1", login, "main", { check: "unit" }),
+        passed("r2", "1", login, "main", { check: "lint" }),
       ],
     },
     {
@@ -179,16 +173,14 @@ test("an adapter attempt whose attemptId another discovered attempt shares at it
       // earlier run's same attemptId still makes the shown attempt ambiguous.
       name: "same check across runs",
       main: [
-        {
-          ...passed("r2", "1", login, "main"),
+        passed("r2", "1", login, "main", {
           check: "unit",
           time: "2026-10-01T01:00:00Z",
-        },
-        {
-          ...passed("r1", "1", login, "main"),
+        }),
+        passed("r1", "1", login, "main", {
           check: "unit",
           time: "2026-10-01T00:00:00Z",
-        },
+        }),
       ],
     },
   ];

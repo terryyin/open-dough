@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { judgeCommandAdapter } from "../../dashboard/server/baseCiJudgment.ts";
+import { makeMe } from "./makeMe.mjs";
 
 const commit = (sha, subject, parent) => ({
   sha,
@@ -33,15 +34,18 @@ const source = {
   ref: "main",
   backlogPath: ".planning/PRODUCT-BACKLOG.md",
 };
-const attempt = (digit, branch, outcome, time) => ({
-  runId: `${digit}-${branch}`,
-  attemptId: "1",
-  sha: sha(digit),
-  branch,
-  outcome,
-  url: `https://ci.invalid/${digit}-${branch}`,
-  time,
-});
+const attempt = (digit, branch, outcome, time) =>
+  makeMe.aCiAdapterAttempt
+    .with({
+      runId: `${digit}-${branch}`,
+      attemptId: "1",
+      sha: sha(digit),
+      branch,
+      outcome,
+      url: `https://ci.invalid/${digit}-${branch}`,
+      time,
+    })
+    .please();
 
 async function judgeWithAdapter(branch, answers, delayMs = 0) {
   const root = mkdtempSync(path.join(tmpdir(), "story-branch-ci-adapter-"));
@@ -187,11 +191,16 @@ test("a ciAdapter story branch asks its own and main's discovers at once", async
 });
 
 test("a ciAdapter result keeps its attempt's identity apart from a GitHub run, and says when another attempt shares its attemptId at its revision", async () => {
-  const numeric = {
-    ...attempt("3", "main", "success", "2026-11-02T00:00:00Z"),
+  const numericFacts = {
     runId: 7,
     attemptId: 1,
+    sha: sha("3"),
+    branch: "main",
+    outcome: "success",
+    url: "https://ci.invalid/3-main",
+    time: "2026-11-02T00:00:00Z",
   };
+  const numeric = makeMe.aCiAdapterAttempt.with(numericFacts).please();
   const { judgment } = await judgeWithAdapter("codex/x", {
     // The same attempt, discovered for both branches, is one attempt.
     main: [numeric],
@@ -202,8 +211,12 @@ test("a ciAdapter result keeps its attempt's identity apart from a GitHub run, a
   assert.equal(judgment.runAttempt, undefined);
   const shared = await judgeWithAdapter("main", {
     main: [
-      { ...numeric, check: "unit" },
-      { ...numeric, runId: 8, check: "lint" },
+      makeMe.aCiAdapterAttempt
+        .with({ ...numericFacts, check: "unit" })
+        .please(),
+      makeMe.aCiAdapterAttempt
+        .with({ ...numericFacts, runId: 8, check: "lint" })
+        .please(),
     ],
   });
   assert.equal(shared.judgment.adapterAttempt?.ambiguous, true);
@@ -211,18 +224,21 @@ test("a ciAdapter result keeps its attempt's identity apart from a GitHub run, a
   // every attempt discover answered before that retention.
   const sameCheck = await judgeWithAdapter("main", {
     main: [
-      {
-        ...numeric,
-        runId: 8,
-        check: "unit",
-        time: "2026-11-02T01:00:00Z",
-      },
-      {
-        ...numeric,
-        runId: 7,
-        check: "unit",
-        time: "2026-11-02T00:00:00Z",
-      },
+      makeMe.aCiAdapterAttempt
+        .with({
+          ...numericFacts,
+          runId: 8,
+          check: "unit",
+          time: "2026-11-02T01:00:00Z",
+        })
+        .please(),
+      makeMe.aCiAdapterAttempt
+        .with({
+          ...numericFacts,
+          check: "unit",
+          time: "2026-11-02T00:00:00Z",
+        })
+        .please(),
     ],
   });
   assert.equal(sameCheck.judgment.state, "pass");

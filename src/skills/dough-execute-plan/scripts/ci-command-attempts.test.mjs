@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   currentCommandAttempt,
   latestCommandAttempts,
@@ -7,13 +8,16 @@ import {
 } from "./ci-command-attempts.mjs";
 
 const [b, c] = ["b", "c"].map((digit) => digit.repeat(40));
-const attempt = (overrides) => ({
-  runId: "run",
-  attemptId: "1",
-  sha: c,
-  outcome: "success",
-  ...overrides,
-});
+const attempt = (overrides) =>
+  makeMe.aCiAdapterAttempt
+    .with({
+      runId: "run",
+      attemptId: "1",
+      sha: c,
+      outcome: "success",
+      ...overrides,
+    })
+    .please();
 
 test("a provider branch is kept, another target's attempt is dropped, and a legacy attempt stays unattested", () => {
   const runs = targetCommandAttempts(

@@ -71,7 +71,12 @@ function stageOwnedRevision(
   );
   expect(claimMailbox(directory, owner)).toBe(true);
   registerPushedRevision(directory, revisionSha);
-  publishRevisionRecord(directory, { sha: revisionSha, state, observedAt });
+  publishRevisionRecord(
+    directory,
+    makeMe.aRevisionCoverage
+      .with({ sha: revisionSha, state, observedAt })
+      .please(),
+  );
   return directory;
 }
 

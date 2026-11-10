@@ -75,12 +75,32 @@ projections (`databaseId` → `id`, observed `url` → `html_url`). Keep actual
 Git, response routing, pagination, request counts, faults, clocks, process
 lifetime and teardown in the harness. Keep captured job timestamps, log
 text, malformed or partial responses and exact encoder-input examples
-literal where their form is under proof. Adapter attempts, queue and
-coverage records, and CI proof fragments and summaries use their own
-builders.
+literal where their form is under proof.
 [Run builder](support/ciRunTestData.mjs) ·
 [Job builder](support/ciJobTestData.mjs) ·
 [API encoding](../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs)
+
+Build a custom CI adapter discovery attempt with
+`makeMe.aCiAdapterAttempt` (timed `.passed` / `.failed`, untimed
+`.pending` / `.incomplete` / `.passedWithoutTimes`, or `.with` for the
+boundary's real optional fields). Preserve opaque and numeric identities
+and omit legacy branch, check, context or timing when the case leaves them
+unattested; do not invent a URL or ordering requirement from a completion
+timestamp alone. Build an adapter queue entry with
+`makeMe.aCiQueueEntry.with({ sha, progress, ...facts }).please()` — progress
+alone is not a check result. Build a stored revision-coverage record with
+`makeMe.aRevisionCoverage.with({ sha, state, ...facts }).please()` and
+publish arranged starting facts through the real JSON publication seam when
+the consumer reads stored records. Keep discovery input, normalized
+attempts, observed coverage and completion receipts distinct. Keep actual
+Git, adapter programs and response encoding, workers, wake-ups, controlled
+clocks, process lifetime and teardown in the harness. Keep malformed queue
+counterexamples, captured evidence and independently written
+`validated` / `unresolved` expectations outside builders. CI proof
+fragments and summaries use their own builders.
+[Attempt builder](support/ciTimingTestData.mjs) ·
+[Queue builder](support/ciQueueTestData.mjs) ·
+[Coverage builder](support/ciRevisionCoverageTestData.mjs)
 
 Build a project this machine configures with
 `makeMe.aConfiguredProject.with({ id, label, repository, localPath }).please()`:

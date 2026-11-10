@@ -3,6 +3,7 @@ import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
 import {
   exec,
@@ -16,6 +17,7 @@ import {
   registerPushedRevision,
 } from "./ci-mailbox.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
+import { publishRevisionRecord } from "./ci-mailbox-revision-records.mjs";
 import {
   launcher,
   setupProcessMailbox,
@@ -37,10 +39,10 @@ test("missing registration, incomplete coverage, unavailable observation, and ex
     // The reader consumes a published terminal record without integrated
     // evidence. Cancellation -> incomplete is observed in revision coverage.
     const { directory, storage } = pendingMailbox(t);
-    publishJson(join(directory, "coverage"), `${sha}.json`, {
-      sha,
-      state: "incomplete",
-    });
+    publishRevisionRecord(
+      directory,
+      makeMe.aRevisionCoverage.with({ sha, state: "incomplete" }).please(),
+    );
     const { stdout } = await exec(
       process.execPath,
       [launcher, "await-revision", directory, sha],
@@ -119,10 +121,10 @@ test("a discovery advisory is nonterminal, while stopped observation and timeout
         { storage },
       );
       registerPushedRevision(directory, sha);
-      publishJson(join(directory, "coverage"), `${sha}.json`, {
-        sha,
-        state: "not_required",
-      });
+      publishRevisionRecord(
+        directory,
+        makeMe.aRevisionCoverage.with({ sha, state: "not_required" }).please(),
+      );
       let time = 0;
       const result = await awaitRevision(directory, sha, {
         storage,

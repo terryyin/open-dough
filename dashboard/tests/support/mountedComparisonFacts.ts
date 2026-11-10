@@ -5,6 +5,39 @@ import { preparedComparison } from "./comparisonMountFacts.ts";
 
 type EndpointEntries = [CiProofEntry[], CiProofEntry[], CiProofEntry[]];
 
+// Adapter identity replaces GitHub run identity, matching runIdentityOf.
+export function withoutGithubRunIdentity<T extends object>(
+  slot: T,
+): Omit<T, "runId" | "runAttempt"> {
+  const rest = { ...(slot as T & { runId?: unknown; runAttempt?: unknown }) };
+  delete rest.runId;
+  delete rest.runAttempt;
+  return rest;
+}
+
+// A comparison build slot whose identity is the adapter attempt, not a
+// GitHub run. Scenario fields stay at the call site.
+export function adapterSlot<T extends object>(
+  slot: T,
+  attempt: {
+    readonly attemptId: string;
+    readonly runId?: string;
+    readonly ambiguous?: boolean;
+  },
+  slotFields: object = {},
+) {
+  return {
+    ...withoutGithubRunIdentity(slot),
+    runBranch: "main",
+    ...slotFields,
+    adapterAttempt: {
+      runId: attempt.runId ?? "pipeline",
+      attemptId: attempt.attemptId,
+      ...(attempt.ambiguous === true ? { ambiguous: true as const } : {}),
+    },
+  };
+}
+
 export const timedEntry = (
   path: string,
   ms: number,

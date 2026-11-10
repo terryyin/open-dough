@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { completionBudgetMs } from "./ci-mailbox-completion-state.mjs";
 import { revisionWaitDeadlineMs } from "./ci-mailbox-await.mjs";
+import { publishRevisionRecord } from "./ci-mailbox-revision-records.mjs";
 import {
   commandAttempt as attempt,
   descendantRevision,
@@ -106,9 +108,9 @@ test("coalesced progress preserves A's state and cannot renew its completion cap
   assert.equal(expired.shutdown.status, "confirmed");
   // Real observation has ended; this later green is the persisted late evidence
   // a resumed reader could encounter, and cannot reopen the closed handoff.
-  writeFileSync(
-    join(h.directory, "coverage", `${h.sha}.json`),
-    JSON.stringify({ sha: h.sha, state: "success" }),
+  publishRevisionRecord(
+    h.directory,
+    makeMe.aRevisionCoverage.with({ sha: h.sha, state: "success" }).please(),
   );
   const late = await h.complete();
   assert.equal(late.unresolvedReason, "completion_expired");

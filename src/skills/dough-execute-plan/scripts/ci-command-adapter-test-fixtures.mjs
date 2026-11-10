@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   fixtureTeardown,
   sharedCommandDirectory,
@@ -15,6 +16,107 @@ import {
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 
 export const checkedSha = "c".repeat(40);
+
+const opaqueRunUrl = "https://ci.example/run";
+/**
+ * Stated discovery facts through MakeMe, preserving omitted optionals.
+ * @param {Parameters<typeof makeMe.aCiAdapterAttempt.with>[0]} facts
+ */
+export const discoverAttempt = (facts) =>
+  makeMe.aCiAdapterAttempt.with(facts).please();
+// Successive discover answers for `checkedSha`: pending, success, failure,
+// then incomplete. Built here so the generated adapter encodes the facts.
+const controlledDiscoverAttempts = [
+  discoverAttempt({
+    runId: "run:opaque",
+    attemptId: "attempt/first",
+    sha: checkedSha,
+    outcome: "pending",
+    url: opaqueRunUrl,
+    time: "2026-09-15T10:00:00Z",
+  }),
+  discoverAttempt({
+    runId: "run:opaque",
+    attemptId: "attempt/retry",
+    sha: checkedSha,
+    outcome: "success",
+    url: opaqueRunUrl,
+    time: "2026-09-15T10:01:00Z",
+  }),
+  discoverAttempt({
+    runId: "run:opaque",
+    attemptId: "attempt:failed",
+    sha: checkedSha,
+    outcome: "failure",
+  }),
+  discoverAttempt({
+    runId: "run:opaque",
+    attemptId: "attempt:incomplete",
+    sha: checkedSha,
+    outcome: "incomplete",
+  }),
+];
+
+// Newest-first unit-check answers used by acquisition retention proof.
+export const answeredUnitAttempts = [
+  discoverAttempt({
+    runId: "r2",
+    attemptId: "1",
+    sha: checkedSha,
+    outcome: "success",
+    check: "unit",
+    time: "2026-09-15T10:01:00Z",
+  }),
+  discoverAttempt({
+    runId: "r1",
+    attemptId: "1",
+    sha: checkedSha,
+    outcome: "success",
+    check: "unit",
+    time: "2026-09-15T10:00:00Z",
+  }),
+];
+
+// Older completed attempts listed before a later failure on a new SHA.
+export function historyDiscoverAttempts({
+  oldFailure,
+  oldIncomplete,
+  newestSuccess,
+  newFailure,
+}) {
+  return {
+    startup: [
+      discoverAttempt({
+        runId: "r1",
+        attemptId: "1",
+        sha: oldFailure,
+        outcome: "failure",
+        time: "2026-09-15T10:00:00Z",
+      }),
+      discoverAttempt({
+        runId: "r2",
+        attemptId: "1",
+        sha: oldIncomplete,
+        outcome: "incomplete",
+        time: "2026-09-16T10:00:00Z",
+      }),
+      discoverAttempt({
+        runId: "r3",
+        attemptId: "1",
+        sha: newestSuccess,
+        outcome: "success",
+        time: "2026-09-17T10:00:00Z",
+      }),
+    ],
+    laterFailure: discoverAttempt({
+      runId: "r4",
+      attemptId: "1",
+      sha: newFailure,
+      outcome: "failure",
+      time: "2026-09-18T10:00:00Z",
+    }),
+  };
+}
 
 // A `gh` that counts its calls in CI_TEST_GH_CALLS and lists no runs.
 const countingGithubCommand = `#!${process.execPath}
@@ -49,13 +151,8 @@ const path = ${JSON.stringify(calls)};
 const call = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
 writeFileSync(path, String(call));
 if (call === 1) writeFileSync('.planning/open-dough.json', JSON.stringify({ ciAdapter: [] }));
-const attempt = call === 1
-  ? { runId: 'run:opaque', attemptId: 'attempt/first', sha: ${JSON.stringify(checkedSha)}, outcome: 'pending', url: 'https://ci.example/run', time: '2026-09-15T10:00:00Z' }
-  : call === 2
-    ? { runId: 'run:opaque', attemptId: 'attempt/retry', sha: ${JSON.stringify(checkedSha)}, outcome: 'success', url: 'https://ci.example/run', time: '2026-09-15T10:01:00Z' }
-    : call === 3
-      ? { runId: 'run:opaque', attemptId: 'attempt:failed', sha: ${JSON.stringify(checkedSha)}, outcome: 'failure' }
-      : { runId: 'run:opaque', attemptId: 'attempt:incomplete', sha: ${JSON.stringify(checkedSha)}, outcome: 'incomplete' };
+const attempts = ${JSON.stringify(controlledDiscoverAttempts)};
+const attempt = attempts[Math.min(call, attempts.length) - 1];
 process.stdout.write(JSON.stringify({ attempts: [attempt] }));
 `,
   );
