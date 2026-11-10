@@ -87,7 +87,7 @@ Behavior: An accepted installed start prepares while a second preview is not yet
 
 ### 8. Receipt and orphan recovery avoid redundant initial page setup
 Type: Behavior
-Status: planned
+Status: done
 Proof: Receipt-failure execution/refinement and second-server orphan specs pass three consecutive two-worker selections with default budgets. Preserve actual installed publication/fault, unavailable receipt, Continue recovery, server death/orphan cleanup and exactly-one claim/session. Inspect the original story-card/initial-start owners before moving incidental initial browser setup to real acceptance.
 
 Behavior: A real initial accepted start and page setup consume the recovery budget in sequence → establish the initial action at the existing real launch boundary and overlap independent page work → every recovery/Continue and cleanup observation completes with margin. Reject compaction that supplies the result in setup or loses a distinct browser promise. G4 stays open for later members.
@@ -97,7 +97,7 @@ Type: Behavior
 Status: planned
 Proof: The whole Codex start spec and preparation-codex consumer pass three consecutive two-worker selections when their shared retry-progress helper changes. Preserve initial native refusal, retained retry acceptance, first input, one kept session, retained host and the actual fresh-observer/reload promise wherever it is owned; establish surviving proof before removing repetition.
 
-Behavior: A refused native start succeeds through its retained retry near 30 s → remove only independently covered observation/setup repetition at the existing helper boundary → the complete retry outcome and retained-host proof fit with margin. The trace locates late observer work, not a stuck page.evaluate. This is the final G4 member; settle the grouped obligation before done.
+Behavior: A refused native start succeeds through its retained retry near 30 s → remove only independently covered observation/setup repetition at the existing helper boundary → the complete retry outcome and retained-host proof fit with margin. The trace locates late observer work, not a stuck page.evaluate. This settles the Codex launch member of G4; comparison remains owned by slice 11.
 
 ### 10. Cursor lifetime journeys reach their actual behavior within the budget
 Type: Behavior

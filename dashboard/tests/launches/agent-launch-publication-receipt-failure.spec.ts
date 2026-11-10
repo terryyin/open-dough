@@ -4,11 +4,18 @@
 import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "../dashboardTest.ts";
-import { attempts, keptStarts } from "../agentLaunchBoundary.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
-import { expectProtected, openStories, test } from "../responsiveStart.ts";
+import {
+  accept,
+  attempts,
+  keptStarts,
+  launchRequest,
+} from "../agentLaunchBoundary.ts";
+import { answerOf } from "../keptExecutionStart.ts";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
+import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { expectProtected, test } from "../responsiveStart.ts";
 import { recoveryOf, subject, worktrees } from "../responsiveRecovery.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
@@ -19,18 +26,35 @@ for (const workflow of ["execution", "refinement"] as const) {
     dashboard,
     origin,
   }) => {
-    const { story, takenStory } = await openStories(page, origin);
+    await publishCommittedOrigin(page, {
+      repoDir: origin.origin,
+      revision: (await origin.originGit("rev-parse", "main")).trim(),
+      repository: "terryyin/open-dough",
+      follows: true,
+    });
+    const { backlog, taken } = parts(page);
+    const story = backlog.getByRole("article", { name: "Story A" });
+    const takenStory = taken.getByRole("article", {
+      name: "Story A",
+      exact: true,
+    });
     const directory = path.join(dashboard.home, ".open-dough/dashboard");
     const hook = path.join(origin.origin, "hooks/post-receive");
     writeFileSync(hook, `#!/bin/sh\nchmod 0555 '${directory}'\n`);
     chmodSync(hook, 0o755);
     try {
-      await story.getByRole("button", { name: `Start ${workflow}` }).click();
-      await page
-        .getByRole("dialog")
-        .getByRole("button", { name: "Start", exact: true })
-        .click();
-      await expect(page.getByRole("dialog")).toBeHidden();
+      // Initial card/dialog admission is proved by the start journeys. Here
+      // the real installed publication runs while the recovery page opens.
+      const acceptance = await answerOf<{ kind: string }>(
+        accept(dashboard, {
+          ...launchRequest,
+          identity: queuedIdentity,
+          title: "Story A",
+          workflow,
+        }),
+      );
+      expect(acceptance.kind).toBe("accepted");
+      await openUntilRead(page);
       await expect
         .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
           timeout: 60_000,
