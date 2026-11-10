@@ -16,7 +16,11 @@ project is hidden, the page explains that all projects are hidden and directs to
 The global banner keeps the project selector for visible projects and ends with
 the **System settings** gear at its far right, including when no project is
 visible or configured. Settings lists each configured name,
-repository, local path, and hidden state; **Add project** opens the existing dialog. Back to
+repository, local path, and hidden state; **Add project** opens the existing dialog.
+Each project entry also shows that project's local Client configuration file text
+from `<localPath>/.planning/open-dough.json` when readable, or explains absence or
+unreadability for that project alone, without edit or save controls and without
+writing the file. Back to
 dashboard and browser Back/Forward return to the preceding project/view with
 useful focus. Opening settings preserves the mounted dashboard, Sessions sidebar
 and attached terminal.
