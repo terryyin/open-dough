@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-287#fit-dashboard-journeys-in-default-timeout",
+  "host": "cursor",
+  "model": "auto"
+}
