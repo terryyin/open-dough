@@ -124,7 +124,8 @@ repair ships from this story.
 
 Show the unreadable continuation first. It has a confirmed gap and a safe
 wording change. The runner story stops after the decision: the current refusal
-is accepted, so this story is dropped with the answer recorded and no repair.
+is accepted, the answer is recorded, and no repair follows. Drop it from the
+backlog once its Preparing release is on trunk.
 
 ## Open Decisions
 
