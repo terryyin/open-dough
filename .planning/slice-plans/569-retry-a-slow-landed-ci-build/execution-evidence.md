@@ -228,3 +228,22 @@ PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- backen
 PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-wall-time-history.spec.ts tests/intent/intent-ci-comparison.spec.ts --workers=1
 npm run typecheck:dashboard
 ```
+
+## Execution retrospective
+
+Reviewed original four-slice source/plan, 109 commitments and G1–G3 against
+published implementations `8aeda2ade`, `4725f7054`, `4f9cdebb9`, `9befabc42`
+and repairs `0fb7f0226`, `ca51aa439`. Foundation merge `fa1cb8d8d` preserves
+accepted supplier/MakeMe/main changes; those peer patches are not attributed
+to this story. Independent refactor and current focused proof remain accepted.
+Whole-product review found no correction: Git owns Done, the machine ledger
+owns action intent, CI owns observed verdicts, and the supplier owns one cohort.
+Boundary tests prove acquisition/durability; one phone/keyboard journey proves
+retained reading and ordinary proof links. Rule detail remains in native tests.
+Direction/ADRs 1/2/8 align. No unsupported full-suite success is claimed.
+Process review uses retained coordinator/agent returns and terminal evidence;
+exact early event times are unavailable. DearDough ODF-150/329/396 now retain
+this execution once each (998 lines); three redundant trace rows are recoverable
+at `9befabc4239528f432fad85634a3fb24a76a4edf:DearDough.md`.
+Final shard preview: 971 specs, 960 timed, 11 new, 1017.0–1026.6 predicted seconds
+per shard. Exact execution-branch CI remains pending until completion receipt.

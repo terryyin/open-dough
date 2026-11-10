@@ -232,3 +232,9 @@ Reported: slice 4 — "Existing ordinary scope-history links retain mutable run 
 Story clause: "Preserve the original and repeat as distinct attempts with their revision, workflow/run identity, timing, proof completeness and build links."
 Disposition: proved by slice 4: slice-4-proof.md#current-proof
 Commitment: C008
+
+## Execution complete
+
+Product advice: no change. Keep the provisional 5% rule and default-off authority;
+calibration remains a learning question. No real project was enabled.
+Aggregate review and process dispositions: [execution evidence](execution-evidence.md#execution-retrospective).
