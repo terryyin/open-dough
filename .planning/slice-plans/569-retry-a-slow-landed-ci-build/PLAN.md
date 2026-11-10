@@ -40,12 +40,9 @@ thresholds, cross-machine coordination, generic adapter mutation and new
 historical backfill. Preserve providers' existing reading behavior. Refusal or
 unavailable evidence remains an explanation, never a synthetic recovered value.
 
-The canonical dependency agreement waits for
-`SEED-285#compare-landed-timing-with-recent-builds`. Execution must consume its
-published project/Done comparison and sample/exclusion facts, not implement a
-second average. Preparation and readiness can finish while that supplier is
-Taken. After it lands, inspect its actual API and proof before implementation;
-no unimplemented supplier function name is prescribed here.
+The canonical supplier `SEED-285#compare-landed-timing-with-recent-builds` is
+satisfied. Consume its accepted project/Done comparison and sample/exclusion
+facts; [execution evidence](execution-evidence.md) records the inspected API.
 
 ## Architecture and reuse
 
@@ -125,7 +122,8 @@ to exercise the automated contract, and preparation enables no project.
 ### 3. Give an enabled new landing one durable repeat and an honest card outcome
 
 Type: Behavior
-Status: planned
+Status: done
+Acceptance: [Inspected slice 3 proof](slice-3-proof.md).
 Proof: New project-setting/collector lifecycle boundary specs and a Recently
 done journey through actual collection and synthetic provider responses.
 
@@ -212,15 +210,8 @@ transport changes also preserve its source/installed command consumers.
 No full repository/dashboard suite is a routine local gate for this bounded
 change; every published CI failure remains owned.
 
-Starting command shapes (add the new capability-named specs and actual supplier
-consumers as each slice becomes concrete):
-
-```sh
-PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm test -- tests/support/dashboard-ci-revision-nearest.test.mjs tests/support/landed-ci-history-order.test.mjs tests/support/landed-ci-history-proof-finality.test.mjs
-PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- backend-tests/intent/landed-ci-history-lifecycle.spec.ts backend-tests/intent/landed-ci-history-pending.spec.ts --workers=1
-PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-wall-time-history.spec.ts tests/intent/intent-ci-comparison.spec.ts --workers=1
-npm run typecheck:dashboard
-```
+[Starting command shapes](execution-evidence.md#focused-verification-commands)
+remain inputs alongside each slice's concrete proof and consumer selection.
 
 Local sleep guard: start fully awake; on AC use `caffeinate -s -i`, whose `-s`
 requires AC power. On battery, plug in or use `caffeinate -i` with lid open and
@@ -238,3 +229,19 @@ timeouts; any essential override belongs inside the individual test.
 ## Concern review and current decisions
 
 [Concern review and preparation decisions](execution-evidence.md#concern-review-and-current-decisions).
+
+
+## Story obligations
+
+### G1. Resolve the selected completed landing on the card
+Reported: slice 3 — "Multiple retained records for one identity show ambiguity rather than selecting an arbitrary first historical result."
+Story clause: "A developer reviewing Recently done can distinguish a slow landed CI measurement that returned to range on one full repeat from one that still needs investigation."
+Disposition: receiving slice 4
+Commitment: C001
+
+
+### G2. Finish retained comparison navigation and documentation
+Reported: slice 3 — "Detailed Intent sample/link navigation and maintained docs are deliberately slice4, as planned."
+Story clause: "Done-card and Intent presentation read the same follow-up evidence."
+Disposition: receiving slice 4
+Commitment: C087

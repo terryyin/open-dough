@@ -18,6 +18,7 @@
 // as `<file>.unreadable-<move time>` when an earlier copy already has that
 // name, so nothing is silently lost.
 
+import { replaceDurableJson } from "./durableJsonReplacement.ts";
 import { randomUUID } from "node:crypto";
 import type { BigIntStats } from "node:fs";
 import {
@@ -46,6 +47,8 @@ export type MachineJsonStore<T> = {
   readonly file: string;
   readonly schema: ZodType<T>;
   readonly empty: T;
+  readonly unreadable?: "preserve";
+  readonly durable?: boolean;
 };
 
 // The document each file last parsed to, by file path, with the identity the
@@ -189,14 +192,22 @@ export async function replaceMachineJson<T>(
     const read = await authoritativeMachineJson(store);
     let stored = store.empty;
     if (read.kind === "unreadable") {
+      if (store.unreadable === "preserve")
+        throw new Error(
+          `Machine evidence is unreadable; automatic CI follow-up is blocked: ${file}`,
+        );
       await rename(file, await unreadableCopy(file));
     } else {
       stored = read.document;
     }
     const next = await change(stored);
     if (next === leaveMachineJson) return;
-    await writeFile(temporary, `${JSON.stringify(next, null, 2)}\n`);
-    await rename(temporary, file);
+    const text = `${JSON.stringify(next, null, 2)}\n`;
+    if (store.durable) await replaceDurableJson(temporary, file, text);
+    else {
+      await writeFile(temporary, text);
+      await rename(temporary, file);
+    }
     recordMachineJsonReplacement();
   } finally {
     try {

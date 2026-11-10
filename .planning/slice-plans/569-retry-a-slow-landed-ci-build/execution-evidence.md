@@ -62,6 +62,26 @@ has complete inventory: one retained-reader port failure, repaired/proved in
 [CI repair 2](ci-repair-2.md). Installed stash restore returned `resumed` for
 record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-MROJ7o/record.json`, OID `395b5a9f0681e2fab19dcf366067d2f4c5b2de2c`, applied/dropped only that entry. All sixteen slice2 files and root metadata returned; same implementation owner explicitly resumed at its pending transport/parser proof. No code overlap invalidated core gate20080.
 
+Slice 2: accepted `4725f70540df5178b125fcbd60b1b9ce18f02d17` on the
+same remote execution branch, suffix base `ca51aa4393535ff5d7131a996a381068f37ec7d7`.
+Managed fresh delivery completed formatting and check-only commit hooks and
+registered the accepted revision on this coordinator's existing observer.
+Independent refactor return is `/tmp/seed285-refactor2-ca51-return.md`;
+the earlier similarly named return predates this accepted base and is unused.
+
+Foundation reconciliation: published main `09b455646f66ef273375965c55523fa610dfd834`
+and slice 2 are both ancestors of accepted execution-branch merge
+`fa1cb8d8dabb05e1cc2102cb39ccdbb0cf1363fa`, suffix base `4725f70540df5178b125fcbd60b1b9ce18f02d17`.
+Installed history-preserving publication merged cleanly, checked the combined
+candidate, and pushed once without rewriting published history. Thirteen
+focused Node contracts and five dashboard specs passed; exact commands and
+logs are retained in `/tmp/seed285-foundation-4725-context.json`.
+The owned branch fast-forwarded to the accepted merge. Installed increment
+resume confirmed acceptance with zero pushes and recovered the same observer;
+its shared API ensures coverage of that accepted SHA. This merge is the new
+previously published base for slice 3. No dependency or story source changed;
+package, lockfile, Node and hook inputs are unchanged, so setup remains valid.
+
 ## Dashboard completion context
 
 Launch `e290a475-370f-4591-a82e-63baec73b213`, project open-dough, host codex.
@@ -177,3 +197,16 @@ Choice: at the clean post-slice2 boundary reconcile accepted trunk into this
 owned story branch while preserving published histories, then reverify only
 affected combined fixture/timing/action/storage paths before slice3. No story
 scope, user promise, ADR or source-of-truth change is authorized by this reuse.
+
+## Focused verification commands
+
+Starting shapes from the plan; add capability-named specs and actual supplier
+consumers as each slice becomes concrete. Accepted literal commands, selections
+and results live in the linked slice proof records.
+
+```sh
+PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm test -- tests/support/dashboard-ci-revision-nearest.test.mjs tests/support/landed-ci-history-order.test.mjs tests/support/landed-ci-history-proof-finality.test.mjs
+PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- backend-tests/intent/landed-ci-history-lifecycle.spec.ts backend-tests/intent/landed-ci-history-pending.spec.ts --workers=1
+PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-wall-time-history.spec.ts tests/intent/intent-ci-comparison.spec.ts --workers=1
+npm run typecheck:dashboard
+```

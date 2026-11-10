@@ -25,11 +25,9 @@ import { ownerFailure } from "./github-request-owner-failure.mjs";
 /** @import { GhAnswer, GhRequestFailure } from "./github-request-answer.mjs" */
 /** @import { OwnerUnavailableCause } from "./github-request-owner-failure.mjs" */
 
-/** @typedef {
- * { readonly kind: "accepted"; readonly status: 201 } |
- * { readonly kind: "refused"; readonly reason: "provider-refused" | "owner-unavailable" | "not-submitted"; readonly status?: number; readonly ownerCause?: OwnerUnavailableCause; readonly cause?: "not-installed" | "not-logged-in" | "held-back" } |
- * { readonly kind: "uncertain"; readonly reason: "submission-unconfirmed"; readonly status?: number }
- * } WorkflowRepeatSubmission */
+/** @typedef {| { readonly kind: "accepted"; readonly status: 201 }
+ * | { readonly kind: "refused"; readonly reason: "provider-refused" | "owner-unavailable" | "not-submitted"; readonly status?: number; readonly ownerCause?: OwnerUnavailableCause; readonly cause?: "not-installed" | "not-logged-in" | "held-back" }
+ * | { readonly kind: "uncertain"; readonly reason: "submission-unconfirmed"; readonly status?: number }} WorkflowRepeatSubmission */
 
 // One failed call this process waited on, told once to its `failed`: why,
 // when this process's wait on it started and -- once asked of GitHub --

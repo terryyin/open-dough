@@ -32,9 +32,9 @@ const asObserved = (value) => /** @type {ObservedCiRun} */ (value);
 
 /**
  * Shared GitHub run facts: named call-site facts win; incidental defaults do
- * not invent identity or wall-time bounds. Attempt 1 wall time prefers
- * `createdAt`; when a case states `startedAt` without `createdAt`, align
- * creation so that fact is not shadowed by an incidental or revision default.
+ * not invent identity or wall-time bounds. When a case states `startedAt`
+ * without `createdAt`, align the incidental creation fact. Wall time uses
+ * provider attempt start through completion for every attempt.
  *
  * @param {Record<string, unknown>} [facts]
  * @param {Record<string, unknown>} [defaults]

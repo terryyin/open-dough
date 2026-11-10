@@ -4,6 +4,11 @@
 
 export type GhActionsRequest =
   | {
+      readonly kind: "actions-current-run";
+      readonly repository: string;
+      readonly runId: number;
+    }
+  | {
       readonly kind: "actions-workflow-rerun";
       readonly repository: string;
       readonly runId: number;
@@ -90,6 +95,13 @@ export function parseActionsRequest(
       headSha: query.get("head_sha") ?? "",
     };
   }
+  const current = pattern("runs\\/(\\d+)").exec(endpoint);
+  if (current?.[1] !== undefined && current[2] !== undefined)
+    return {
+      kind: "actions-current-run",
+      repository: current[1],
+      runId: Number(current[2]),
+    };
   const attempt = pattern("runs\\/(\\d+)\\/attempts\\/(\\d+)$").exec(endpoint);
   if (
     attempt?.[1] !== undefined &&

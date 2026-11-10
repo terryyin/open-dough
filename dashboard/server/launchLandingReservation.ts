@@ -1,4 +1,5 @@
 // One immutable comparison is prepared before publication and accepted afterward.
+import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
 import { randomUUID } from "node:crypto";
 import type { LandingRepository, LaunchLanding } from "../src/launchLanding.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
@@ -82,5 +83,7 @@ export async function reserveLandingComparison(
   };
   await verifyLanding(landing, prepare ? authority : undefined);
   await pinLanding(landing); // Both ends survive before any metadata is saved.
+  if (prepared === undefined)
+    await registerFollowUpReceipt(report.source, landing);
   return { landing, needsSave: true };
 }
