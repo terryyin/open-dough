@@ -244,3 +244,6 @@ no justified whole-suite consolidation or correction found.
 Process occurrences ODF-264 and DD-488 recorded in DearDough.md (997 lines);
 lower-impact DD-487 trial confound retained in Git at 536dcf132:DearDough.md.
 No unresolved advice or correction; branch CI remains pending at this review.
+
+CI repair acceptance and affected retrospective conclusions are retained in
+[source review](source-review.md#ci-repair-acceptance); final CI still required.

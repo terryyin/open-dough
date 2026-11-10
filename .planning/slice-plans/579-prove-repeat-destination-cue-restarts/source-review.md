@@ -51,3 +51,55 @@ Input: only the original SEED-296 Goal, Scope, exclusions and all three key exam
 | X04 | New motion preferences are outside this increment. | slice 1 | observed: git diff: only test/helper changes, no motion preference changes |
 
 The journey examples describe supported scenarios; they do not establish rejection rules for other starting states or reference journeys.
+
+## CI repair acceptance
+
+The registered execution-complete revision f82a153376a54b707233b65d11fb98c05e6f2a57
+failed CI run42838175500 attempt1 solely in test(1/3): runner-failure-report
+remained unfinished135.6s until the absolute cutoff. Final diagnostic and full
+469line log (/tmp/seed296-ci-final-failure.json, /tmp/seed296-test-shard1.log)
+account for the parser's no-recognized-failure gap; no other jobs failed.
+Completion receipt returned failure with shutdown retained; observer unchanged.
+
+Fresh repair agent reproduced real Ubuntu/Bash5.2 scheduler hang on twoCPUs:
+wait -n20691 blocked after worker20691 exited/status0, only watchdog20695 left.
+Evidence /Users/terryyin/.cache/seed296-runner-race/waits-30.log and
+hung-waits-processes.txt; completed records in hung-scheduler-state.
+Initial native Bash3 refusal was the expected environment guard; Bash5 resolved it.
+No other exact repair owner found among active worktrees. Clean repair save:
+/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-Ak8RhG/record.json.
+
+Accepted patch uses completed status or observed exit to reap explicit worker
+PIDs, retires watchdogs at handoff and drains through existing slot events with
+bounded dead-worker detection. Removes redundant wait-any and jobs_started.
+Coordinator inspected both scripts and their reporting/deadline callers.
+No original cue promise or observation changed. A new controlled-completion
+candidate passed baseline and duplicated existing coverage, so was removed;
+the actual failing maintained runner execution is the pre-repair observation.
+Same previously failing phase workload passed30/30 after the cause change.
+This bounded stability observation is not a deterministic unit reproduction.
+
+Literal accepted native proof (all14 files, terminal pass):
+`PATH=/opt/homebrew/bin:$PATH caffeinate -s -i npm test -- tests/test-runner-selection.sh tests/test-runner-bash.sh tests/test-runner-failure-report.sh tests/test-runner-ci-environment.sh tests/test-runner-budget.sh tests/test-runner-interrupt.sh tests/test-runner-github-requests.sh tests/test-runner-split.sh tests/support/test-runner-deadline.test.mjs tests/support/test-runner-deadline-cutoff.test.mjs tests/support/test-runner-deadline-continuation.test.mjs tests/support/test-runner-deadline-cutoff-proof.test.mjs tests/support/local-test-suite.test.mjs tests/support/local-test-suite-lifecycle.test.mjs`
+Literal accepted Linux proof (same14 files, terminal pass):
+`DOCKER_CONTEXT=colima PATH=/opt/homebrew/bin:$PATH caffeinate -s -i scripts/ci-container.sh tests/test-runner-selection.sh tests/test-runner-bash.sh tests/test-runner-failure-report.sh tests/test-runner-ci-environment.sh tests/test-runner-budget.sh tests/test-runner-interrupt.sh tests/test-runner-github-requests.sh tests/test-runner-split.sh tests/support/test-runner-deadline.test.mjs tests/support/test-runner-deadline-cutoff.test.mjs tests/support/test-runner-deadline-continuation.test.mjs tests/support/test-runner-deadline-cutoff-proof.test.mjs tests/support/local-test-suite.test.mjs tests/support/local-test-suite-lifecycle.test.mjs`
+The real copied runner drives silent success, queued ordering, failed/killed
+worker diagnostics, timings/outcomes, deadlines, signals and admission.
+Each named test observes its own public result, including kept/killed jobs and
+cutoff continuation. Logs /tmp/seed296-runner-all-native.log,
+/tmp/seed296-runner-all-linux.log and /tmp/seed296-repaired-phases.log.
+
+Consumer trace /tmp/seed296-runner-repair-consumer-trace-disposed.md:
+all62 matches disposed. Runtime runner, report/deadline, copy-runner fixtures,
+selection/failure/environment/split/budget/signal/deadline/admission callers run;
+unchanged parser/schema/documentation/historical matches excluded with reasons.
+No remaining proof gap besides new published CI. Owned containers retired.
+Source freshness unchanged at pinned origin/main40a9e74; incoming dark-theme
+work affects no runner path and is not a named coordination sibling.
+Product/proof retrospective reconsidered affected runner conclusions only:
+cause-based repair and focused public behavior proof preserve the original
+story and runner promises; product advice remains no change.
+
+Independent repair refactor /root/repair_refactor: none — already clean;
+REFACTOR COMPLETE, git diff --check passed; both scripts204/231lines.
+No new consumer or proof gap; accepted14file native/Linux and30run proof reused.
