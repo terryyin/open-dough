@@ -47,7 +47,6 @@ export {
   comparisonWorkflowPath,
 } from "./storyCiComparisonWorkflows.ts";
 export {
-  mixedEntryParts,
   mixedEntrySummary,
   proofRun,
   untimedBaselineMixedProofs,

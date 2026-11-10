@@ -50,7 +50,7 @@ const tests = (
 // 1 failed) and 3 tests in a file the tree does not list.
 const summaryText = collectedSummary(
   run,
-  [["dashboard/tests", 1]],
+  [{ entry: "dashboard/tests", parts: 1 }],
   [
     {
       entries: ["dashboard/tests"],

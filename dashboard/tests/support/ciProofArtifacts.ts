@@ -2,21 +2,11 @@
 // Uses the published summary producer; GitHub answers retain the real wire shape.
 
 import { crc32, deflateRawSync } from "node:zlib";
-import {
-  fragment,
-  summarize,
-} from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { summarize } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import type {
-  CiProofEntry,
-  CiProofFile,
-  CiProofFigures,
-} from "../../src/ciProof.ts";
+import type { CiProofEntry } from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { proofInputsForEntries } from "./ciProofEntryInputs.ts";
-
-// The collector is untyped JavaScript; this names the one result it gives.
-type SummarizeFragments = (input: unknown) => { readonly summary: unknown };
 
 export type ProofRun = {
   readonly repository: string;
@@ -32,109 +22,13 @@ export type AdapterProofAttempt = {
   readonly revision: string;
 };
 
-type Counts = {
-  readonly passed: number;
-  readonly failed: number;
-  readonly other: number;
-};
-
-// What one part's results are counted in: test cases, test files, or
-// legacy results, `{ legacy: label }` naming the label their unit was
-// spelled with.
-export type ProofUnit = "case" | "file" | { readonly legacy: string | null };
-
-// A part's file breakdown, as a fragment made `--by-file` carries it: one
-// aggregate per path inside its entry and how many counted results recorded
-// no duration.
-export type ProofBreakdown = {
-  readonly files: readonly CiProofFile[];
-  readonly untimed: number;
-  readonly unassigned?: CiProofFigures;
-};
-
-// One part's counts for one entry: [entry, part, of, unit, counts], with an
-// optional sixth durationMs (summed test execution time for that part) and
-// a seventh file breakdown.
-export type ProofPart =
-  | readonly [string, number, number, ProofUnit, Counts]
-  | readonly [string, number, number, ProofUnit, Counts, number]
-  | readonly [
-      string,
-      number,
-      number,
-      ProofUnit,
-      Counts,
-      number | undefined,
-      ProofBreakdown,
-    ];
-
-// One declaration: an entry and its part count, and the unit its parts are
-// counted in when it declares one.
-export type ProofDeclaration =
-  readonly [string, number] | readonly [string, number, "case" | "file"];
-
-const unitOf = (unit: ProofUnit) =>
-  typeof unit === "string"
-    ? { unit }
-    : { unit: "legacy" as const, label: unit.legacy };
-
-export const counts = (passed: number, failed = 0, other = 0): Counts => ({
-  passed,
-  failed,
-  other,
-});
-
-// The summary the collector writes for `run` from `parts`, declaring
-// `expect` (`<entry>`, its part count and any unit, in declaration order).
-export function proofSummary(
-  run: ProofRun | AdapterProofAttempt,
-  expect: readonly ProofDeclaration[],
-  parts: readonly ProofPart[],
-): unknown {
-  const attempt =
-    "attemptId" in run
-      ? { attemptId: run.attemptId }
-      : { attempt: run.attempt };
-  const { summary } = (summarize as unknown as SummarizeFragments)({
-    fragments: parts.map((proofPart, index) => {
-      const [entry, part, of, unit, partCounts, durationMs, breakdown] =
-        proofPart;
-      return {
-        source: `fragment-${String(index)}.json`,
-        value: fragment(
-          { part, of, ...attempt, revision: run.revision },
-          entry,
-          unitOf(unit),
-          partCounts,
-          {
-            ...(durationMs === undefined ? {} : { durationMs }),
-            ...breakdown,
-          },
-        ) as unknown,
-      };
-    }),
-    expect: expect.map(([entry, declared, unit]) => ({
-      entry,
-      parts: declared,
-      ...(unit === undefined ? {} : { unit }),
-    })),
-    run: {
-      repository: run.repository,
-      ...("attemptId" in run ? {} : { runId: run.runId }),
-      ...attempt,
-      revision: run.revision,
-    },
-  });
-  return summary;
-}
-
-// Collector summaries from the explicitly arranged canonical entry facts.
+// Real collector summaries from explicitly arranged canonical entry facts.
 export function proofSummaryForEntries(
   run: ProofRun | AdapterProofAttempt,
   entries: readonly CiProofEntry[],
 ): unknown {
-  const { expect, parts } = proofInputsForEntries(entries);
-  return proofSummary(run, expect, parts);
+  const { fragments, expect } = proofInputsForEntries(entries, run);
+  return summarize({ fragments, expect, run }).summary;
 }
 
 export function proofSummaryForEntry(

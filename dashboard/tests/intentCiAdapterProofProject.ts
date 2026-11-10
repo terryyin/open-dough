@@ -17,16 +17,7 @@ import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import { proofOf } from "./intentCiProofPage.ts";
 import { mainRun, publishStoryCi, repository } from "./intentCiStoryRecords.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { counts, proofSummary } from "./support/ciProofArtifacts.ts";
-
-// The collector is untyped JavaScript; these name the results it gives.
-type FragmentsFromOutcomes = (
-  text: string,
-  identity: Record<string, unknown>,
-  times: undefined,
-  options: { readonly byFile: boolean; readonly unit?: "case" | "file" },
-) => readonly Record<string, unknown>[];
-type SummarizeFragments = (input: unknown) => { readonly summary: unknown };
+import { proofSummaryForEntries } from "./support/ciProofArtifacts.ts";
 
 export const uuid = "9f1c2d3e-0000-4000-8000-000000000001";
 
@@ -192,11 +183,18 @@ function listedAttempt(
 // The adapter's proof answer: a valid summary of `attemptId` at `revision`
 // whose one row is `testsRow`.
 export const testsSummary = (attemptId: string, revision: string) => ({
-  summary: proofSummary(
-    { repository, attemptId, revision },
-    [["tests", 1]],
-    [["tests", 1, 1, "case", counts(1000, 0, 3)]],
-  ),
+  summary: proofSummaryForEntries({ repository, attemptId, revision }, [
+    makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(1000, 0, 3)
+          .inParts(1)
+          .please(),
+      )
+      .please(),
+  ]),
 });
 
 // A valid matching summary with `--by-file` for `files` test files, each
@@ -210,7 +208,8 @@ export const byFileTestsSummary = (
   const outcomes = [...Array(files).keys()]
     .map((index) => `passed\ttests/${String(index).padStart(20, "x")}.sh\n`)
     .join("");
-  const [value] = (fragmentsFromOutcomes as FragmentsFromOutcomes)(
+  const options = { byFile: true, unit: "file" };
+  const [value] = fragmentsFromOutcomes(
     outcomes,
     {
       entries: ["tests"],
@@ -220,13 +219,13 @@ export const byFileTestsSummary = (
       revision,
     },
     undefined,
-    { byFile: true, unit: "file" },
-  );
-  const { summary } = (summarize as SummarizeFragments)({
+    options,
+  ) as readonly unknown[];
+  const { summary } = summarize({
     fragments: [{ source: "f.json", value }],
     expect: [{ entry: "tests", parts: 1 }],
     run: { repository, attemptId, revision },
-  });
+  }) as { readonly summary: unknown };
   return { summary };
 };
 

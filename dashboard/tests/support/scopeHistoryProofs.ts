@@ -20,49 +20,47 @@ export function collectedScopeFileSummary(
   const countedFiles = files.flatMap(([file, , ms]) =>
     ms === undefined ? [] : [[file, ms] as const],
   );
-  return collectedSummary(
-    run,
-    [
-      ["dashboard/tests", caseParts, "case"],
-      ...(countedFiles.length === 0
-        ? []
-        : [["dashboard/tests", 1, "file"] as const]),
-    ],
-    [
-      {
-        entries: ["dashboard/tests"],
-        part: 1,
-        of: caseParts,
-        byFile,
-        record: playwrightRecord(
-          files.map(([file, ms]) => [
-            `dashboard/tests/${file}`,
-            "expected",
-            [ms],
-          ]),
-        ),
-      },
-      ...(countedFiles.length === 0
-        ? []
-        : [
-            {
-              entries: ["dashboard/tests"],
-              part: 1,
-              of: 1,
-              byFile,
-              unit: "file" as const,
-              outcomes: countedFiles
-                .map(([file]) => `passed\tdashboard/tests/${file}\n`)
-                .join(""),
-              // The case states milliseconds; outcomes' times wire is seconds.
-              times: countedFiles
-                .map(
-                  ([file, ms]) =>
-                    `${String(ms / 1000)}\tdashboard/tests/${file}\n`,
-                )
-                .join(""),
-            },
-          ]),
-    ],
-  );
+  const declarations: {
+    entry: string;
+    parts: number;
+    unit: "case" | "file";
+  }[] = [{ entry: "dashboard/tests", parts: caseParts, unit: "case" }];
+  if (countedFiles.length > 0)
+    declarations.push({ entry: "dashboard/tests", parts: 1, unit: "file" });
+  return collectedSummary(run, declarations, [
+    {
+      entries: ["dashboard/tests"],
+      part: 1,
+      of: caseParts,
+      byFile,
+      record: playwrightRecord(
+        files.map(([file, ms]) => [
+          `dashboard/tests/${file}`,
+          "expected",
+          [ms],
+        ]),
+      ),
+    },
+    ...(countedFiles.length === 0
+      ? []
+      : [
+          {
+            entries: ["dashboard/tests"],
+            part: 1,
+            of: 1,
+            byFile,
+            unit: "file" as const,
+            outcomes: countedFiles
+              .map(([file]) => `passed\tdashboard/tests/${file}\n`)
+              .join(""),
+            // The case states milliseconds; outcomes' times wire is seconds.
+            times: countedFiles
+              .map(
+                ([file, ms]) =>
+                  `${String(ms / 1000)}\tdashboard/tests/${file}\n`,
+              )
+              .join(""),
+          },
+        ]),
+  ]);
 }

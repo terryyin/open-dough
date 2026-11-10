@@ -17,8 +17,7 @@ import {
 import { judged, runUrl } from "../intentCiStatusPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
@@ -31,20 +30,36 @@ import {
 // tests/a 12.5 s with 4 tests; tests/b 340 ms with 3 tests, 1 failed;
 // tests/c Part 2 untimed with 3 tests.
 const exampleSummary = () =>
-  proofSummary(
-    run,
-    [
-      ["tests/a", 1],
-      ["tests/b", 1],
-      ["tests/c", 2],
-    ],
-    [
-      ["tests/a", 1, 1, "case", counts(4), 12_500],
-      ["tests/b", 1, 1, "case", counts(2, 1), 340],
-      ["tests/c", 1, 2, "case", counts(2), 1_000],
-      ["tests/c", 2, 2, "case", counts(1)],
-    ],
-  );
+  proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry
+      .at("tests/a")
+      .counting(4, "case")
+      .timed(12_500)
+      .please(),
+    makeMe.aCiProofEntry
+      .at("tests/b")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(2, 1, 0)
+          .timed(340)
+          .inParts(1)
+          .please(),
+      )
+      .please(),
+    makeMe.aCiProofEntry
+      .at("tests/c")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(2, 0, 0)
+          .timed(1_000)
+          .inParts(2)
+          .withPresentPart(2, { passed: 1, failed: 0, other: 0, untimed: 0 })
+          .please(),
+      )
+      .please(),
+  ]);
 
 test("Proof sorts by Test execution time and Counts by click, Enter and Space, unmeasured last", async ({
   page,

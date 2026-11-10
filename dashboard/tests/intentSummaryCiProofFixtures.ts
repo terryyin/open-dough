@@ -173,8 +173,8 @@ export const bothEntriesSummary = (byFile: boolean) =>
   collectedSummary(
     run,
     [
-      ["dashboard/tests", 2],
-      ["tests", 1],
+      { entry: "dashboard/tests", parts: 2 },
+      { entry: "tests", parts: 1 },
     ],
     [...dashboardShards(byFile), testsShare(byFile)],
   );
