@@ -134,7 +134,7 @@ export function serveObservedComparisonAttempts(
 ): void {
   const branch = setup.branchAncestor ?? setup.branchSide;
   const landedRevision = setup.landingMerge ?? setup.completion;
-  // A distinct reported start makes the first attempt's creation bound observable.
+  // A distinct reported start makes the first attempt's own start bound observable.
   const firstAttempts = observedFirstAttempts(
     setup.baseline,
     branch,

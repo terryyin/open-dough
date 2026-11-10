@@ -46,7 +46,14 @@ export const sameSelectedStory = (
 
 // The page's selected story and its mutators, owned by PageFrame.
 export function usePageStorySelection() {
-  const [selected, setSelected] = useState<SelectedStory | undefined>();
+  const [selected, setSelected] = useState<SelectedStory | undefined>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const project = params.get("project"),
+      identity = params.get("followUp");
+    return project && identity && params.get("landing")
+      ? { project, identity }
+      : undefined;
+  });
   const toggle = useCallback((story: SelectedStory) => {
     setSelected((current) =>
       sameSelectedStory(current, story) ? undefined : story,

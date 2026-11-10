@@ -18,6 +18,7 @@ import {
 import { hasLandingOrder, measuredBuildOf } from "./landedCiMeasuredBuilds.ts";
 import { reopenableRetainedNoProofSkip } from "./landedCiNoProofReopen.ts";
 import { landingResolution } from "./landedCiResolution.ts";
+import { collectRetainedAttemptTiming } from "./landedCiAttemptTiming.ts";
 
 export type CollectLandingOutcome =
   | { kind: "ended"; history: ProjectHistory }
@@ -38,7 +39,8 @@ export async function collectLandingResolution(args: {
   ended: () => boolean;
 }): Promise<CollectLandingOutcome> {
   const { source, landing, order, read, proofSignal, ended } = args;
-  let history = args.history;
+  let history = await collectRetainedAttemptTiming(args);
+  if (ended()) return { kind: "ended", history };
   const held = history.landings[landing.receipt]?.observed;
   let retainedProofWithResolution = false;
   if (

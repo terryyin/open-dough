@@ -141,13 +141,14 @@ test("project history explains its five-build average, strict slow exclusion and
       difference: { changeMs: 17000, relative: 17 / 103 },
     },
   });
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "preview"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
+  readers.push(reader);
   const beforeRead = github.calls.length;
-  expect(await landedCiHistory(dashboard)).toEqual(collected);
+  expect(await landedCiHistory(reader)).toEqual(collected);
   expect(github.calls).toHaveLength(beforeRead);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const panel = await openProjectCiStatus(page);
+  const panel = await openProjectCiStatus(page, reader.origin);
   await expect(
     panel.getByRole("button", { name: "Check again", exact: true }),
   ).toBeEnabled();
@@ -192,12 +193,12 @@ test("project history explains its five-build average, strict slow exclusion and
   await expect(
     history.locator(".intent-ci-history-reference title"),
   ).toHaveText("Prior-build average 1 min 43 s");
-  expect(await landedCiHistory(dashboard)).toEqual(collected);
+  expect(await landedCiHistory(reader)).toEqual(collected);
   expect(ciCalls()).toHaveLength(calls);
   await expectNoSidewaysScrollIn(page, history);
   await page.screenshot({ path: "/tmp/seed285-slice1-phone.png" });
   // A second history read/revisit uses the retained evidence only.
-  const revisited = await openProjectCiStatus(page);
+  const revisited = await openProjectCiStatus(page, reader.origin);
   await expect(
     revisited.getByRole("button", { name: "Check again", exact: true }),
   ).toBeEnabled();
@@ -208,6 +209,6 @@ test("project history explains its five-build average, strict slow exclusion and
   ).toBeVisible();
   await expect(history).toContainText("+17 s (+17%)");
   const afterLiveRead = ciCalls().length;
-  expect(await landedCiHistory(dashboard)).toEqual(collected);
+  expect(await landedCiHistory(reader)).toEqual(collected);
   expect(ciCalls()).toHaveLength(afterLiveRead);
 });

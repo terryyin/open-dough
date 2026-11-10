@@ -165,12 +165,15 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
       expect(
         Object.keys(retainedHistory(dashboard.home)?.builds ?? {}),
       ).toEqual(["run/41/1"]);
-      readers.push(
-        await restartAsLandedCiReader(dashboard, origin, "boundary"),
+      const reader = await restartAsLandedCiReader(
+        dashboard,
+        origin,
+        "boundary",
       );
+      readers.push(reader);
       const before = github.calls.length;
       const reading = await collectedScopeHistory(
-        dashboard.origin,
+        reader.origin,
         "dashboard/tests",
         revision,
         receipt.receivedAt,
@@ -192,7 +195,7 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
         },
       });
       expect(reading.body.entries).toHaveLength(1);
-      expect((await landedCiHistory(dashboard)).body).toMatchObject({
+      expect((await landedCiHistory(reader)).body).toMatchObject({
         entries: [{ kind: "point", revision }],
       });
       expect(github.calls).toHaveLength(before);

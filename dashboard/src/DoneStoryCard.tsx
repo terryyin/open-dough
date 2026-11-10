@@ -56,6 +56,7 @@ export function DoneStoryCard({
   selected,
   onSelect,
   followUp,
+  ciFollowUp,
 }: {
   // The story and when it was done, as its done catalog names it.
   readonly identity: string;
@@ -73,6 +74,7 @@ export function DoneStoryCard({
   readonly onSelect: (identity: string) => void;
   // The story's Follow up, when it offers one.
   readonly followUp?: ReactNode;
+  readonly ciFollowUp?: ReactNode;
 }) {
   const heading = useId();
   const title = story?.title ?? identity;
@@ -120,6 +122,7 @@ export function DoneStoryCard({
           </span>
         </p>
       )}
+      {ciFollowUp}
       <StorySessions
         sessions={sessions}
         className="done-story-sessions"

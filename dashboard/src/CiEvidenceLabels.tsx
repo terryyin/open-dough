@@ -23,6 +23,7 @@ import {
   Timer,
   type LucideIcon,
 } from "lucide-react";
+import { observedAttemptUrl } from "./ciRunAttemptUrl.ts";
 import { shortSha } from "./baseCiWording.ts";
 import { isAdapterProofAttempt } from "./ciProof.ts";
 import { ciWallTime } from "./ciProofTimeWords.ts";
@@ -111,14 +112,15 @@ export function attemptLabel(run: ShownCiProofRun): EvidenceLabel {
   const words = isAdapterProofAttempt(run)
     ? adapterAttemptWords(run.attemptId)
     : runAttemptWords(run.runId, run.runAttempt);
+  const runUrl = observedAttemptUrl(run);
   return {
     key: "attempt",
     icon: CirclePlay,
     words:
-      run.runUrl === undefined ? (
+      runUrl === undefined ? (
         words
       ) : (
-        <a href={run.runUrl} target="_blank" rel="noreferrer">
+        <a href={runUrl} target="_blank" rel="noreferrer">
           {words}
         </a>
       ),

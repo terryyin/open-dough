@@ -48,6 +48,22 @@ export async function adapterRevisionLookup(
     else atRevision.push(normalized);
   }
   return {
+    attemptOf({ revision, adapterAttempt }) {
+      if (adapterAttempt === undefined || adapterAttempt.ambiguous === true)
+        return Promise.resolve(undefined);
+      return Promise.resolve(
+        runsByRevision
+          .get(revision)
+          ?.find(
+            (run) =>
+              run.adapterAttempt?.ambiguous !== true &&
+              String(run.adapterAttempt?.runId) ===
+                String(adapterAttempt.runId) &&
+              String(run.adapterAttempt?.attemptId) ===
+                String(adapterAttempt.attemptId),
+          ),
+      );
+    },
     listRunsAt(sha) {
       const atRevision = runsByRevision.get(sha) ?? [];
       const latest = newestRunFor(atRevision, sha);

@@ -103,9 +103,9 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
   assert.equal(
     summary.stdout,
     [
-      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(12)}`,
-      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(12)}`,
-      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingAfterFirst(12)}`,
+      `dashboard/tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
+      `dashboard/frontend-tests: 1 passed, 0 failed, 0 other test cases; ${missingAfterFirst(13)}`,
+      `dashboard/backend-tests: 1 passed, 1 failed, 0 other test cases; ${missingAfterFirst(13)}`,
       `tests: 1 passed, 0 failed, 0 other test files; ${missingAfterFirst(3)}`,
       `src/skills: 1 passed, 1 failed, 0 other test files; ${missingAfterFirst(3)}`,
       "",

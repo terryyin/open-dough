@@ -216,8 +216,9 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
         ],
       },
     });
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
-  const answer = await scopedHistory(dashboard.origin, landing);
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
+  const answer = await scopedHistory(reader.origin, landing);
   expect((answer.body as { entries: unknown[] }).entries).toHaveLength(1);
   expect(JSON.stringify(answer.body)).not.toContain(unrelated);
   expect(
@@ -227,6 +228,6 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
     ),
   ).toHaveLength(1);
   const asked = github.calls.length;
-  expect(await scopedHistory(dashboard.origin, landing)).toEqual(answer);
+  expect(await scopedHistory(reader.origin, landing)).toEqual(answer);
   expect(github.calls.slice(asked)).toEqual([]);
 });

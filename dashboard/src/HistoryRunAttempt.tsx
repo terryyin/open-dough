@@ -1,4 +1,5 @@
 import type { BaseCiRunIdentity } from "./baseCiConfirmation.ts";
+import { observedAttemptUrl } from "./ciRunAttemptUrl.ts";
 import { historyAttemptWords } from "./ciHistoryWords.ts";
 
 // " · Run 41 · attempt 1", linked to the run when it has a link; nothing
@@ -9,14 +10,15 @@ export function HistoryRunAttempt({
   readonly run: BaseCiRunIdentity & { readonly runUrl?: string | undefined };
 }) {
   const words = historyAttemptWords(run);
+  const runUrl = observedAttemptUrl(run);
   if (words === undefined) return null;
   return (
     <>
       {" · "}
-      {run.runUrl === undefined ? (
+      {runUrl === undefined ? (
         words
       ) : (
-        <a href={run.runUrl} target="_blank" rel="noreferrer">
+        <a href={runUrl} target="_blank" rel="noreferrer">
           {words}
         </a>
       )}

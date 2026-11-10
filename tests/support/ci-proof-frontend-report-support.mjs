@@ -10,7 +10,7 @@ import {
 
 export const frontendEntry = "dashboard/frontend-tests";
 export const expect =
-  "dashboard/tests=12:case dashboard/frontend-tests=12:case dashboard/backend-tests=12:case";
+  "dashboard/tests=13:case dashboard/frontend-tests=13:case dashboard/backend-tests=13:case";
 
 export function declaredDashboard(part, temp) {
   const declared = producers.find((producer) => producer.job === "dashboard");

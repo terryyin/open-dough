@@ -121,7 +121,8 @@ for (const [initial, restart] of [
         ],
       },
     });
-    readers.push(await restartAsLandedCiReader(server, origin, "boundary"));
+    const reader = await restartAsLandedCiReader(server, origin, "boundary");
+    readers.push(reader);
     const asked = github.calls.length;
     for (const [scope, caseMs, fileMs] of [
       ["dashboard/tests", 1200, 80],
@@ -130,7 +131,7 @@ for (const [initial, restart] of [
       ["dashboard/tests/intent/zero.spec.ts", 0, 0],
     ] as const) {
       const reading = await collectedScopeHistory(
-        server.origin,
+        reader.origin,
         scope,
         landing.revision,
         landing.at,

@@ -35,6 +35,7 @@
 // collects nothing either unless its test asks: its harness sets
 // `DOUGH_TEST_LANDED_CI_COLLECTION=off`.
 
+import { collectCiFollowUps } from "./ciFollowUpCollection.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
@@ -195,6 +196,12 @@ export class LandedCiCollection {
         measured.add(outcome.measuredBuild);
     }
     if (order !== undefined) await keepLandedCiOrder(source.id, order);
+    if (!this.ended())
+      await collectCiFollowUps(
+        source,
+        await keptLandedCiHistory(source.id),
+        proofSignal(this.stopped.signal),
+      );
   }
 
   // Ends collection and any read it waits on.

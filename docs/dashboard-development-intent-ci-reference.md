@@ -59,8 +59,12 @@ keyboard, screen-reader and phone readers. The line and metrics are derived
 again whenever the endpoint or retained snapshot changes. History retains its
 own failure feedback and independent refresh lifecycle. Reading, refreshing,
 revisiting and restarting use only retained local evidence, without CI
-acquisition caused by browsing. Reruns, slowdown flags, causal attribution,
-configurable thresholds/windows and more retention/backfill remain deferred.
+acquisition caused by browsing.
+[Automatic landed CI follow-up](dashboard-ci-follow-up.md) can separately retain
+one original/repeat comparison against the exact saved reference. Its sample
+and exclusions remain fixed while this ordinary reference follows retention.
+Causal attribution, configurable thresholds/windows and more retention/backfill
+remain deferred.
 
 The rule lives in `dashboard/src/ciPriorBuildReference.ts`; wall-time projection
 is `dashboard/server/ciWallTimeReference.ts`. It reuses the collector/store,
@@ -68,4 +72,5 @@ authenticated history reader and attempt/provenance owners under
 [ADR 0001](adrs/0001-ubiquitous-language-accepted.md),
 [ADR 0002](adrs/0002-software-development-lifecycle-principles-accepted.md) and
 [ADR 0008](adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-No aggregate or alternative evidence store is persisted.
+The ordinary reference is derived from its retained snapshot; the follow-up
+ledger separately freezes the actual decision evidence.

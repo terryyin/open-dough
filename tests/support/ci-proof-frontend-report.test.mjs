@@ -159,8 +159,8 @@ test("a failed and unfinished frontend selection stays failed/other, and a prese
   assert.match(summary.report, /0 passed, 1 failed, 1 other test cases/);
   assert.match(summary.report, /fail\.spec\.ts \| 0 \| 1 \| 0 \| 30 ms/);
   assert.match(summary.report, /hang\.spec\.ts \| 0 \| 0 \| 1 \| unavailable/);
-  assert.match(summary.report, /Part 2 of 12: present zero/);
-  assert.match(summary.report, /Part 3 of 12: missing/);
+  assert.match(summary.report, /Part 2 of 13: present zero/);
+  assert.match(summary.report, /Part 3 of 13: missing/);
   assert.doesNotMatch(summary.report, /late\.spec\.ts/);
   assert.match(summary.report, /Incomplete/);
   assert.doesNotMatch(summary.report, /All declared parts are present/);

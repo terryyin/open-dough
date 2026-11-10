@@ -120,7 +120,8 @@ test("a failed adapter proof command resumes after collector restart without cha
     });
   expect(github.calls).toHaveLength(nativeCalls);
 
-  readers.push(await restartAsLandedCiReader(resumed, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(resumed, origin, "boundary");
+  readers.push(reader);
   const proofRequests = adapter.proofRequests();
   const discoverRequests = adapter.discoverRequests();
   for (const [scope, caseMs, fileMs] of [
@@ -130,7 +131,7 @@ test("a failed adapter proof command resumes after collector restart without cha
     ["tests/folder/zero.spec.ts", 0, 0],
   ] as const) {
     const reading = await collectedScopeHistory(
-      resumed.origin,
+      reader.origin,
       scope,
       revision,
       receipt.receivedAt,

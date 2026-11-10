@@ -11,9 +11,12 @@ retain local facets. The full source before this compaction is
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Recovery: `e155eb11b71a410f93793a889b3c713aa9691272:DearDough.md` preserves the ODF-074 SEED-286 analyzer-endpoint occurrence pruned during SEED-298 integration; current required-preview/CI repair evidence was retained over this already-corrected observation that caused no additional test run.
+- Recovery: `9befabc4239528f432fad85634a3fb24a76a4edf:DearDough.md` preserves three redundant ODF-396 trace occurrences (SEED-288 refresh, SEED-010 freshness, SEED-281 count-gaps) replaced by current published-failure and late-lint evidence plus this execution's aggregate trace recurrence; retained ODF-396 occurrences preserve its meaning.
+
 - Recovery: `53fd020780ae447e7ee00363e2ab49a9f055f2f0:DearDough.md` holds DD-483 before this SEED-278 ODF-154 occurrence retention prune.
 - Recovery: `a0357d569ac3bd2fc4d866d511fdf354963881bc:DearDough.md` preserves the catalog-only ODF-238/253/262/263 stubs removed to retain current ODF-329/396 recurrence evidence; their meaning/evidence remain in the maintained finding catalog.
 - Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
+- Recovery: `296db77062d35455cf7b830aaeebb6671d396d1b:DearDough.md` preserves the redundant ODF-396 SEED-281 unit-gaps occurrence removed at final SEED-285 integration to retain current published-failure and native-proof maintenance evidence; newer occurrences retain the trace-noise finding.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -160,6 +163,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.94
   - Evidence: Original delivery added two dashboard specs without the pre-push shard preview required by `dashboard/tests/shards.md`. Final trunk CI run 42807295291, shard 4, hit its suite deadline after 371 passed tests; three cases never started. The maintained preview revealed 102 unrecorded specs. An unpublished refresh candidate used passing main run 42803799326; publication then found `f06b46597` had refreshed from a failed partial source. Reconciliation preserves its product changes and refreshes all 960 current specs from all twelve artifacts of its successful main run 42808747192, with exact-once selection. The two new specs were on shards 8/9, so they are not attributed as the direct failure cause.
   - Observed effect: one owned CI failure and a reconciled timing-record repair before closure; focused terminal proof missed the suite-discovery/allocation consumer. Shard 4 also had a broad 1.740 median slowdown; neither infrastructure nor the refresh as its sole cause was claimed. Final hosted margin remained a required CI gate before closure.
+
+- Execution: SEED-285#retry-a-slow-landed-ci-build (plan 569; first implementation `8aeda2ade7baf09656cd6823e3031ebbf1a797ce`)
+  - Timestamp: unknown (2026-11-10 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance)
+  - Evidence: CI run 42800107133/1 at `8aeda2ade` failed native identity from a new shared MakeMe runtime import of the dashboard timing marker. Native fixture roots intentionally copy tests and src. Repair `0fb7f0226` removed that runtime dependency and retained independent test-domain timing facts; plan 569 `ci-repair-1.md` preserves diagnostics and native proof. Later owned runs42832244638/1 and42845502760/1 exposed the enclosing settings touch journey's last-fact/action adjacency assumption after the new follow-up setting; plan569 `ci-repair-3.md` retains the exact failing baseline and seven-case repaired proof with unchanged strict touch checks.
+  - Observed effect: an owned published failure required pause, independent repair/proof and restoration of in-flight slice 2. No installation boundary was widened.
+  - Inference: shared builders' fixture-materialization consumers belong in the changed import contract's proof; full dashboard timing proof could not expose the absent dashboard tree.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
@@ -441,6 +452,13 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: Implementation/refactor briefs reserved formatter and hook lint for the coordinator without settling read-only authored-file lint. The first actual formatter found nine lint errors after green proof/refactoring. The coordinator's intermediate this:void repair introduced three further lint errors; stable arrow subscriptions and the remaining mechanical repairs passed formatting, 18 affected tests and typecheck. This is one execution occurrence, including coordinator-introduced repair churn.
   - Inference: Matches the existing delegation ambiguity; earlier read-only lint's possible saving remains unmeasured.
 
+- Execution: SEED-285#retry-a-slow-landed-ci-build (plan 569; first implementation `8aeda2ade7baf09656cd6823e3031ebbf1a797ce`)
+  - Timestamp: unknown (2026-11-10 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance)
+  - Evidence: slice 3 fresh preparation withheld commit on 79 typed-lint errors, including the case-only ciFollowUp.ts/CiFollowUp.tsx collision and unbounded store inference; `4f9cdebb9:.planning/slice-plans/569-retry-a-slow-landed-ci-build/slice-3-preparation-proof.md` records fixes and renewed proof. Slice 4's first fresh formatting also refused one unused test parameter before accepted `9befabc42`.
+  - Observed effect: independent implementation/refactor and behavior proof preceded coordinator repair loops. All publication gates held; renewed affected browser/native/type proof passed. The actual saving from an earlier read-only check is unmeasured.
+
 - Execution: SEED-261#map-ci-proof-test-data (plan577; first implementation `fc2edb326ee9dbcfb5e9ec6db1fc9eaf76f24969`)
   - Timestamp: unknown (2026-11-10, slice3 delivery)
   - Tool: Codex
@@ -599,35 +617,6 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
 
 ### Occurrences
 
-- Execution: SEED-288#refresh-pending-landed-evidence (plan 558; first implementation `7ba5764de6ee78801f9fe4fd8132f1d4cfa6de37`)
-  - Timestamp: unknown (2026-11-09 UTC execution; exact trace-event time unavailable)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance)
-  - Evidence: coordinator conversation and `/tmp/seed288-slice2-refactor-return.md`; final slice-2 trace `/tmp/seed288-slice2-refactor-consumer-trace.md` and dispositions contain 624 located files, including 371 new matches caused only by dirty `PLAN.md`; slice-1 trace contained 651 per-file dispositions.
-  - Observed effect: implementation/refactor owners repeatedly dispositioned unrelated planning, guidance and historical paths alongside meaningful runtime consumers. All affected proof was retained; no missed consumer was established.
-  - Inference: automatically derived planning basenames materially enlarge a bounded dashboard trace even when explicit effect terms are supplied. The second refactor reported about ten minutes total, but isolated trace time or token cost was not measured. Preserve indirect proof while reducing generic derived-path noise.
-- Execution: SEED-010#hold-delivery-on-freshness-before-expensive-proof (plan 561; first implementation `931d31c108c97bee3a60076fad331f47bf66f486`)
-  - Timestamp: unknown (2026-11-10, slice-1 acceptance)
-  - Tool: Codex
-  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION`)
-  - Evidence: implementation and refactor returns retain a whole-checkout trace against `14c211d14` with 732 consumers, including generic derived PLAN/SKILL/source-review terms. The initial consumer record was about 780 lines; the coordinator's combined read truncated at 12,943 original tokens. At `931d31c10`, `.planning/slice-plans/561-settle-trunk-freshness-before-proof/consumer-trace.md` retains 17 run, 13 reused and explicit grouped exclusions in 92 lines.
-  - Observed effect: broad enumeration required a second read and record compaction; actual guidance/CLI/replay consumers were inspected and passed focused proof. No missed consumer is established.
-  - Inference: automatic planning-basename noise recurred; exact time attributable to it is unmeasured. Grouped dispositions preserved relevant proof without the raw list.
-
-- Execution: SEED-281#no-count-difference-across-gaps (plan 566; first implementation `6217de68c3af5dc2b63ecfd91a2fa5a65b5d2956`)
-  - Timestamp: unknown (2026-11-10 execution; exact original trace-event time unavailable)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance)
-  - Evidence: `/tmp/count-gaps-consumers-adopted-disposition.md` derives `PLAN.md` and `source-review.md` and exceeds 1,900 lines; `/tmp/count-gaps-board-consumer-trace.md` lists 481 matches with 381 excluded, including basename collisions with `dashboardPage.ts`. Execution proof and trace locators are retained at `6217de68c:.planning/slice-plans/566-no-count-difference-across-gaps/verification.md`.
-  - Observed effect: implementation, refactor and coordinator passes repeatedly classified unrelated planning/history/text matches alongside actual rendered, indirect and test consumers. Required observations were retained and all current dispositions settled; no missed consumer was established by this noise.
-  - Inference: automatic planning-basename and substring noise recurred. Disposition volume is observed; isolated time/token cost is unmeasured. Later repair traces using explicit changed paths and narrow effect terms stayed bounded.
-- Execution: SEED-281#keep-unit-gaps-and-names-visible (plan 557; first implementation `b7e35aa83838aa1eeefdafac8ad726b5c4dbecd7`)
-  - Timestamp: unknown (2026-11-10 UTC, slice-2 implementation and independent refactor)
-  - Tool: Codex
-  - Open Dough release: unknown (checkout-bound installed guidance)
-  - Evidence: slice-2 agent returns and coordinator conversation; /tmp/seed281-slice2-final-consumer-trace.md enumerated 590 consumers, and /tmp/seed281-slice2-refactor-consumer-trace.md enumerated 627 across four disposition parts. The latter explicitly derives PLAN.md, execution-history.md and source-review.md basenames; its PLAN term matched 2,257 files. Published implementation 3c3c1da7 retains the shared mapper and affected proof locations.
-  - Observed effect: implementation and refactor owners dispositioned unrelated planning, guidance and historical matches alongside the actual four comparison and four adapter caller files; all 17 affected cases passed, and no missed consumer was established.
-  - Inference: the existing planning-basename noise recurred. Refactoring reported about 15 minutes total, including edits, workload sequencing and proof; isolated trace cost was not measured.
 - Execution: SEED-294#opt-in-to-intent-coverage-at-wrap-up (plan 571; implementation `92c060c8efe3a38b0ceb43ea1bec83603b550f4a`)
   - Timestamp: unknown (2026-11-10 execution; exact event time not retained)
   - Tool: Codex
@@ -643,6 +632,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: `/tmp/seed285-slice3-consumer-trace.md` and its dispositions each contain 758 physical lines, including automatically derived PLAN/PLAN.md/source-review terms and unrelated historical/guidance matches. The coordinator's combined acceptance read was truncated. The independent presentation-refactor trace `/tmp/seed285-refactor3-consumer-trace.md` uses product paths/effect terms and contains 64 lines with 12 located consumers; all reached browser consumers were run.
   - Observed effect: the broad trace required repeated targeted reads and numerous lexical-only exclusions beside meaningful runtime consumers. Current proof covers the affected references and enclosing journeys; no missed consumer was established.
   - Inference: planning-basename expansion recurs in ordinary feature execution. The narrower refactor trace supports separating record paths from product-effect searches while preserving indirect proof; isolated time/token savings were not measured.
+
+- Execution: SEED-285#retry-a-slow-landed-ci-build (plan 569; first implementation `8aeda2ade7baf09656cd6823e3031ebbf1a797ce`)
+  - Timestamp: unknown (2026-11-10 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance)
+  - Evidence: final slice 3 refactor traced 963 consumers; slice 4 implementation/refactor disposition tables `/tmp/seed285-slice4-4f9cde-consumer-dispositions.md` and `/tmp/seed285-refactor4-4f9cde-consumer-dispositions.md` contain 847 and 849 nonempty per-file dispositions, including generic planning-name matches. Accepted product proof is retained at `9befabc42:.planning/slice-plans/569-retry-a-slow-landed-ci-build/`.
+  - Observed effect: coordinator checked every disposition and repeatedly retrieved targeted passages after large combined reads truncated. No missed product consumer is established; isolated trace time/token cost is unmeasured.
 
 - Execution: SEED-261#map-ci-proof-test-data (plan577; first implementation `fc2edb326ee9dbcfb5e9ec6db1fc9eaf76f24969`)
   - Timestamp: unknown (2026-11-10 execution)

@@ -1,4 +1,5 @@
 // Shared readable reasons for retained project history gaps.
+import { unverifiedAttemptTiming } from "./ciAttemptTiming.ts";
 import type {
   LandedCiGap,
   PendingWait,
@@ -26,6 +27,7 @@ const finalWords: Readonly<Record<FinalGapReason, string>> = {
   expired: "CI proof expired",
   unreadable: "CI proof unreadable",
   "not-recorded": "CI wall time not recorded",
+  "timing-basis": unverifiedAttemptTiming,
   unclassified: "Historical CI evidence unavailable",
   identity: "Retained adapter attempt identity unavailable",
 };

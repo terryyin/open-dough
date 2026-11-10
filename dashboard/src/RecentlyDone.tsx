@@ -6,6 +6,8 @@
 // (`./RecentlyDoneRangeActions.tsx`). The keyboard in the list keeps a useful
 // place across a refresh (`./recentlyDoneFocus.ts`).
 
+import { CiFollowUpCard, useCiFollowUps } from "./CiFollowUpViews.tsx";
+import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
 import { useRef } from "react";
 import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { launchRetentionDays } from "./agentLaunch.ts";
@@ -89,7 +91,9 @@ function ListedEntry({
   launches,
   selectedIdentity,
   onSelect,
+  ciFollowUps,
 }: {
+  readonly ciFollowUps: CiFollowUpAnswer | undefined;
   readonly each: Listed;
   readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
   // The revision the shown done records are read at.
@@ -129,6 +133,13 @@ function ListedEntry({
       launchRecords={launches.records}
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
+      ciFollowUp={
+        <CiFollowUpCard
+          answer={ciFollowUps}
+          identity={record.identity}
+          project={sourceId}
+        />
+      }
       followUp={
         detail.status === "read" && (
           <StoryFollowUp
@@ -157,6 +168,7 @@ export function RecentlyDone({
   readonly project: string;
   readonly launches: MachineSessions;
 }) {
+  const ciFollowUps = useCiFollowUps(sourceId);
   const section = useRef<HTMLElement>(null);
   const { selectedIdentity, toggle } = useStorySelection(sourceId);
   const {
@@ -211,6 +223,7 @@ export function RecentlyDone({
             >
               <ListedEntry
                 each={each}
+                ciFollowUps={ciFollowUps}
                 detailOf={details.detailOf}
                 revision={view.revision}
                 sourceId={sourceId}

@@ -23,6 +23,7 @@
 // result endpoint that its historical source owner established, separately
 // from the comparison's measured CI revision.
 
+import type { CiFollowUpReading } from "./ciFollowUpReading.ts";
 import { createContext, useContext, type ReactNode } from "react";
 import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
@@ -52,6 +53,16 @@ import {
 export type CiEvidence =
   // Nothing here reads CI (no owner, or not active).
   | { readonly kind: "inactive" }
+  | {
+      readonly kind: "retained";
+      readonly source: PublishedSource;
+      readonly identity: string;
+      readonly doneEndpoint?: ScopeHistoryEndpoint;
+      readonly doneEndpointReason?: string;
+      readonly reading: CiFollowUpReading | undefined;
+      readonly problem: string | undefined;
+      readonly retry: () => void;
+    }
   | Extract<CiTarget, { kind: "gap" }>
   | {
       readonly kind: "comparison";
@@ -183,5 +194,45 @@ export function IntentCiEvidenceProvider({
     <CiEvidenceContext.Provider value={evidence}>
       {children}
     </CiEvidenceContext.Provider>
+  );
+}
+
+// A static local evidence source for the retained route, without live hooks.
+export function IntentCiRetainedProvider({
+  source,
+  identity,
+  revision,
+  reading,
+  problem,
+  retry,
+  children,
+}: {
+  readonly source: PublishedSource;
+  readonly identity: string;
+  readonly revision: string;
+  readonly reading: CiFollowUpReading | undefined;
+  readonly problem: string | undefined;
+  readonly retry: () => void;
+  readonly children: ReactNode;
+}) {
+  return (
+    <CiEvidenceContext
+      value={{
+        kind: "retained",
+        source,
+        identity,
+        ...(reading === undefined
+          ? {
+              doneEndpointReason:
+                problem ?? "Reading the selected story’s published landing…",
+            }
+          : { doneEndpoint: { revision, at: reading.at } }),
+        reading,
+        problem,
+        retry,
+      }}
+    >
+      {children}
+    </CiEvidenceContext>
   );
 }

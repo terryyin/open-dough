@@ -132,7 +132,8 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     })
     .gap(gap, explanation)
     .please();
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
 
   // These are exactly the older wire shapes under test, not builder defaults.
   // The old label "test cases" did not declare a case unit. Its counts, path,
@@ -166,7 +167,7 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
   );
   const asked = github.calls.length;
   const before = await scopedHistory(
-    dashboard.origin,
+    reader.origin,
     gap.revision,
     gap.receivedAt,
   );
@@ -194,7 +195,7 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
       ],
     },
   });
-  const projectBefore = await landedCiHistory(dashboard);
+  const projectBefore = await landedCiHistory(reader);
   expect(projectBefore).toMatchObject({
     status: 200,
     body: {
@@ -232,8 +233,8 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     explanation,
   });
   expect(
-    await scopedHistory(dashboard.origin, gap.revision, gap.receivedAt),
+    await scopedHistory(reader.origin, gap.revision, gap.receivedAt),
   ).toEqual(before);
-  expect(await landedCiHistory(dashboard)).toEqual(projectBefore);
+  expect(await landedCiHistory(reader)).toEqual(projectBefore);
   expect(github.calls).toHaveLength(asked);
 });

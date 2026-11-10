@@ -17,13 +17,21 @@ export async function refusingOwner(github, greeting) {
   const directory = await new EndpointBinding(github.env).directory();
   const socketName = newSocketName();
   const sockets = new Set();
+  const messages = [];
   const server = createServer((socket) => {
     sockets.add(socket);
     socket.on("error", () => undefined);
     socket.on("close", () => sockets.delete(socket));
     socket.on("data", (chunk) => {
+      messages.push(
+        ...chunk
+          .toString("utf8")
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => JSON.parse(line)),
+      );
       if (greeting === "close") socket.end();
-      else if (greeting === "unanswered") {
+      else if (greeting === "unanswered" || greeting === "read-only") {
         const message = JSON.parse(chunk.toString("utf8"));
         socket.write(
           `${JSON.stringify(
@@ -49,5 +57,5 @@ export async function refusingOwner(github, greeting) {
     for (const socket of sockets) socket.destroy();
     await new Promise((resolve) => server.close(resolve));
   });
-  return { directory, socket: join(directory, socketName) };
+  return { directory, socket: join(directory, socketName), messages };
 }

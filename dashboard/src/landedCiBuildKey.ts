@@ -9,3 +9,9 @@ export function buildKeyOf(
     return `run/${String(build.runId)}/${String(build.runAttempt)}`;
   return `revision/${build.revision}`;
 }
+
+export function runAttemptOfBuildKey(key: string) {
+  const match = /^run\/(\d+)\/(\d+)$/.exec(key);
+  if (match?.[1] === undefined || match[2] === undefined) return undefined;
+  return { runId: Number(match[1]), runAttempt: Number(match[2]) };
+}

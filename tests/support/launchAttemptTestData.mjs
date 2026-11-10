@@ -32,6 +32,8 @@ export class AcceptedAttemptBuilder {
   #acceptedAt = "2026-01-01T00:00:00.000Z";
   /** @type {string | undefined} */
   #reportingOrigin;
+  /** @type {Pick<LaunchAttemptRecord, "reporting" | "landingRepository">} */
+  #landingReporting = {};
   /** @type {LaunchAttemptRecord["publication"]} */
   #publication = { kind: "none" };
   /** @type {AttemptWorker | undefined} */
@@ -196,6 +198,12 @@ export class AcceptedAttemptBuilder {
     return this;
   }
 
+  /** @param {Pick<LaunchAttemptRecord, "reporting" | "landingRepository">} facts */
+  capturingLanding(facts) {
+    this.#landingReporting = structuredClone(facts);
+    return this;
+  }
+
   /** @returns {LaunchAttemptRecord} */
   please() {
     if (!this.#request)
@@ -204,6 +212,7 @@ export class AcceptedAttemptBuilder {
       );
     return {
       id: this.#id,
+      ...this.#landingReporting,
       ...(this.#reportingOrigin !== undefined && {
         reportingOrigin: this.#reportingOrigin,
       }),

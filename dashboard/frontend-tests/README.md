@@ -17,7 +17,7 @@ With ten or fewer extracted files, the tree stays flat (this layout).
 Integrated service journeys remain in `../tests/`.
 
 All three roots run through `npm run test:dashboard`, with shared setup and
-twelve CI shards. Run only this suite with
+thirteen CI shards. Run only this suite with
 `npm run test:dashboard -- frontend-tests/`.
 
 The [dashboard test guide](../tests/README.md) owns placement across the three

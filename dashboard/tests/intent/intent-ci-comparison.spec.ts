@@ -86,7 +86,7 @@ for (const variant of [undefined] as readonly (
     }
     await expect(
       panel.locator(".intent-ci-comparison-overall-wall"),
-    ).toHaveText("+20 s");
+    ).toHaveText("+22 s");
     // One signed change per comparable summary metric, each under its label.
     await expect(panel.locator(".intent-ci-comparison-metrics dt")).toHaveText(
       landedJobsUnavailable
@@ -125,7 +125,7 @@ for (const variant of [undefined] as readonly (
       panel.getByRole("columnheader", { name: "CI time without runner waits" }),
     ).toBeVisible();
     await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
-      "4 min 59 s",
+      "4 min 57 s",
       "13 min 27 s",
       "5 min 19 s",
     ]);

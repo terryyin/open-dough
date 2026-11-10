@@ -108,7 +108,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
         },
       });
   }
-  const { collected, read } = await observeRetainedScopeOrder(
+  const { collected, read, reader } = await observeRetainedScopeOrder(
     dashboard,
     origin,
     {
@@ -149,7 +149,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   ).toHaveLength(3);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await openCollectedHistoryStory(page);
+  const { intent } = await openCollectedHistoryStory(page, reader.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const beforeHistory = ciCalls().length;

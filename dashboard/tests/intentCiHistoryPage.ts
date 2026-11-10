@@ -55,8 +55,8 @@ export async function publishTrunk(
 }
 
 // Project Intent's CI status, with nothing selected.
-export async function openProjectCiStatus(page: Page) {
-  await openUntilRead(page);
+export async function openProjectCiStatus(page: Page, address = "/") {
+  await openUntilRead(page, address);
   return chooseProjectCiStatus(page);
 }
 
