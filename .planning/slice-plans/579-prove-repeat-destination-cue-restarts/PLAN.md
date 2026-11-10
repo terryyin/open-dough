@@ -228,3 +228,19 @@ Refactor trace /tmp/seed296-refactor-consumer-trace-disposed.md disposes all
 471 matches; unchanged consumers excluded on the same inspected boundaries.
 Whitespace check passed. Host load18.58, memory66%free, AC supported the
 same bounded workers2 choice; no proof deferred.
+
+## Execution complete
+
+Product advice: no change. The existing journey now discriminates the known
+restart fault with one controlled browser observation; navigation and cue
+lifetime proof remain intact. No parallel scenario or production seam added.
+
+Retrospective complete: source and original plan compared to accepted product
+commit 536dcf13218bae15339ffbd1288464649940047e; claim 579604374 is provenance,
+base/nearby SEED-261 work is unrelated. ADR0008 selection/inspection and
+transient-navigation meanings remain intact; the near-future intent-protection
+direction is served. Existing browser coverage earns its integration cost;
+no justified whole-suite consolidation or correction found.
+Process occurrences ODF-264 and DD-488 recorded in DearDough.md (997 lines);
+lower-impact DD-487 trial confound retained in Git at 536dcf132:DearDough.md.
+No unresolved advice or correction; branch CI remains pending at this review.
