@@ -34,10 +34,10 @@ intent introduced or affected by a newly developed story.
 - [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
 - [Select the story completed in an ad hoc session](seeds/SEED-291-select-story-completed-in-ad-hoc-session.md#select-story-completed-in-ad-hoc-session) — SEED-291#select-story-completed-in-ad-hoc-session ([plan](slice-plans/568-select-story-completed-in-ad-hoc-session/PLAN.md))
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
+- [Show an unreadable preparation continuation](seeds/SEED-292-report-launch-failure-causes.md#show-an-unreadable-preparation-continuation) — SEED-292#show-an-unreadable-preparation-continuation ([plan](slice-plans/570-show-an-unreadable-preparation-continuation/PLAN.md))
 
 ## Backlog list
 
-- [Show an unreadable preparation continuation](seeds/SEED-292-report-launch-failure-causes.md#show-an-unreadable-preparation-continuation) — SEED-292#show-an-unreadable-preparation-continuation
 - [Ask whether a silent Cursor runner blocks launch](seeds/SEED-292-report-launch-failure-causes.md#ask-whether-a-silent-cursor-runner-blocks-launch) — SEED-292#ask-whether-a-silent-cursor-runner-blocks-launch
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data
