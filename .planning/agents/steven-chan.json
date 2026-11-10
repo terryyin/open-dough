@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "steven-chan",
+  "email": "steven-chan@example.org",
+  "identity": "SEED-278#dashboard-dark-theme",
+  "mode": "story-branch",
+  "branch": "cursor/give-the-dashboard-a-dark-theme",
+  "host": "cursor",
+  "model": "auto"
+}
