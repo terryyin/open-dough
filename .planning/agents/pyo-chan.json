@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "pyo-chan",
+  "email": "pyo-chan@example.org",
+  "identity": "SEED-293#select-completed-ad-hoc-story-from-git-directory",
+  "mode": "story-branch",
+  "branch": "codex/ad-hoc-completed-story-git-directory",
+  "host": "codex"
+}
