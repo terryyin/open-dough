@@ -5,6 +5,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summaryArtifactName } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import {
+  FRONTEND_TEST_PROOF_FILE,
+  frontendTestProofArtifactName,
+} from "../../scripts/frontend-test-proof.mjs";
 
 import {
   workflow,
@@ -15,6 +19,7 @@ import {
   input,
   producers,
   summaryStep,
+  frontendProofUploadStep,
 } from "./ci-proof-action-fixtures.mjs";
 
 const attempt = "${{ github.run_attempt }}";
@@ -111,6 +116,49 @@ test("every producer keeps its part's attempt-named fragments whenever its suite
   assert.ok(
     fragmentsAction.includes(
       `name: ci-proof-fragments-\${{ github.job }}-\${{ inputs.part }}-attempt-${attempt}\n`,
+    ),
+  );
+});
+
+test("the ci-proof summary optionally publishes the frontend test proof beside the combined summary", () => {
+  assert.equal(
+    input(summaryStep, "frontend-entry"),
+    "dashboard/frontend-tests",
+  );
+  assert.match(
+    summaryAction,
+    /\n {2}frontend-entry:\n[\s\S]*?\n {4}default: ""\n/,
+  );
+  assert.match(
+    summaryAction,
+    /\n {8}FRONTEND_ENTRY: \$\{\{ inputs\.frontend-entry \}\}\n/,
+  );
+  assert.match(
+    summaryAction,
+    /if \[\[ -n "\$\{FRONTEND_ENTRY\}" \]\]; then\n\s+node scripts\/frontend-test-proof\.mjs \\/,
+  );
+  assert.match(
+    summaryAction,
+    new RegExp(
+      `path: \\$\\{\\{ runner\\.temp \\}\\}/${FRONTEND_TEST_PROOF_FILE.replace(".", "\\.")}\\n`,
+    ),
+  );
+  assert.ok(
+    frontendProofUploadStep.includes(
+      `name: ${frontendTestProofArtifactName(attempt)}\n`,
+    ),
+  );
+  assert.match(
+    frontendProofUploadStep,
+    /\n {6}if: \$\{\{ inputs\.frontend-entry != '' \}\}\n/,
+  );
+  assert.ok(frontendProofUploadStep.includes("if-no-files-found: error\n"));
+  assert.ok(frontendProofUploadStep.includes("retention-days: 30\n"));
+  // Combined summary upload stays attempt-named with the same retention.
+  assert.ok(summaryAction.includes(`name: ${summaryArtifactName(attempt)}\n`));
+  assert.ok(
+    summaryAction.includes(
+      `path: \${{ runner.temp }}/ci-proof-summary.json\n        if-no-files-found: error\n        retention-days: 30\n`,
     ),
   );
 });

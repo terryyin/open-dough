@@ -63,6 +63,23 @@ Use a different path for every concurrent or later invocation. Keep the file
 as long as needed and remove its caller-owned directory after reading it:
 `rm -r "$proof_dir"`. There is no automatic archive or pruning policy.
 
+## Frontend test proof artifact
+
+When CI's proof summary job runs, it still keeps the combined
+`ci-proof-summary-attempt-<attempt>` artifact. With `frontend-entry:
+dashboard/frontend-tests`, the same summarize step also renders
+`frontend-test-proof.md` from that written summary and uploads
+`frontend-test-proof-attempt-<attempt>` (30-day retention). The report covers
+only `dashboard/frontend-tests`: repository, revision, run id and attempt,
+per-file passed/failed/other counts, and summed recorded test execution
+durations from the proof record (not job wall time). Other means skipped or
+unfinished selections; the record does not distinguish them further. Measured
+`0 ms` stays distinct from unavailable timing. A present shard with no
+frontend selections is a reported zero; a missing or ambiguous shard stays
+unknown. Partial or conflicting evidence stays incomplete and never becomes
+an executed pass. Report generation reads the summary only; it runs no tests
+and does not change the suite verdict or the combined summary.
+
 `--list` records the selection alone. Each attempt's `durationMs` is the
 test's own time: a worker fixture's publication, a serial file's `beforeAll`
 and `afterAll`, and the time between tests are not in it, so a change to

@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 483. Removed numbers are never reused.
+- Highest allocated local number: 484. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -102,6 +102,15 @@ Former local code: DD-263. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-264. [Evidence and current response](docs/maintainer/findings/ODF-228.md).
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
+
+### Occurrences
+- Execution: SEED-290#publish-frontend-test-proof (plan 567; first related implementation `85a494d276d277daeb205e9e7bfa0ea4a5a9c5c7`)
+  - Timestamp: 2026-11-10T14:50:00+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L30–L40: first slice-1 Task `bbd17e64-071d-4489-a9dd-d70541ffa072` started 2026-11-10T10:41+08:00, explored CI proof surfaces with zero product edits, and never returned; after the developer's continue at 14:50+08:00 the coordinator recovered the interrupted delegation and launched replacement Task `d9a4a8e5-65a5-4920-b277-aba999c83366`, which delivered the product change. Checkout held only the coordinator's source-review files across the stall.
+  - Observed effect: multi-hour wait with no agent return; one empty-tree interruption recovery and one replacement implementer before acceptance; no dual-writer conflict or unauthorized publish.
+  - Inference: Matches ODF-229 empty-tree recurrence (interrupted Cursor implementation Task, no return, no product edits). Distinct from ODF-204 (no commit/push by the stalled agent) and ODF-059 (implementation Task, not a refactor handoff).
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 Former local code: DD-266. [Evidence and current response](docs/maintainer/findings/ODF-230.md).
 ## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>
@@ -557,3 +566,15 @@ The coordinator sent a new task through a message API that does not activate a c
   - Evidence: coordinator history after the slice9 oracle-migration final return: repeated send_message manifest requests/status chases, interrupt_agent returning previous_status.completed, then the corrective followup_task beginning "START scratch manifest task now"; the coordinator acknowledged the activation mistake and the actual manifest returned257 owners/207rules/50connections.
   - Observed effect: the follow-up task remained unstarted across several status messages and waits; it ran after activation was corrected. No source work or accepted proof was lost. Elapsed time and token cost were not measured.
   - Inference: One execution-level coordination error. The tool description already distinguishes message delivery from starting a turn; this observation does not justify another wording rule or claim a host defect.
+
+## DD-484 — New Node test files placed outside suite discovery
+Discriminating renderer tests were added under `scripts/`, which this project's Intent/CI discovery roots do not include, so the full suite would not have run them until acceptance relocated the file.
+
+### Occurrences
+- Execution: SEED-290#publish-frontend-test-proof (plan 567; first related implementation `85a494d276d277daeb205e9e7bfa0ea4a5a9c5c7`)
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
+  - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
+  - Inference: Place new Node test files under a discovered root (or extend discovery) before claiming suite coverage; acceptance caught this before push. Distinct from ODF-150 (missed indirect consumer of a changed contract after publish).

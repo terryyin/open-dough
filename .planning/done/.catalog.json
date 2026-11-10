@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-290_publish-frontend-test-proof.json",
+      "identity": "SEED-290#publish-frontend-test-proof",
+      "completedAt": "2026-11-10T07:42:58.137Z",
+      "blob": "e013e37018eeba7b1b988aa4e7e698a364040b70"
+    },
+    {
       "fileName": "SEED-293_select-completed-ad-hoc-story-from-git-directory.json",
       "identity": "SEED-293#select-completed-ad-hoc-story-from-git-directory",
       "completedAt": "2026-11-10T07:06:34.001Z",

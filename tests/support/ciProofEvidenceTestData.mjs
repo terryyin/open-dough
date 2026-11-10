@@ -10,10 +10,7 @@
 /** @typedef {{ unit: "case" } | { unit: "file" } | { unit: "legacy", label: string | null }} CiProofUnitFacts */
 /** @typedef {{ passed: number, failed: number, other: number }} Counts */
 
-/**
- * What a file or block of results counted, and their summed time when they
- * recorded one: one passed result unless stated. `untimed` defaults to every
- * result without a duration, and to none with one.
+/** Result counts and optional time; `untimed` defaults by whether duration is set.
  * @typedef {{
  *   passed?: number, failed?: number, other?: number,
  *   durationMs?: number, untimed?: number,
@@ -36,10 +33,7 @@ function figuresOf({ passed = 1, failed = 0, other = 0, durationMs, untimed }) {
 /** @param {readonly number[]} values */
 const sum = (values) => values.reduce((total, value) => total + value, 0);
 
-/** FIGURES summed as a by-file part reports them, with untimed stated.
- * @param {readonly CiProofFigures[]} figures
- * @returns {CiProofFigures & { untimed: number }}
- */
+/** @param {readonly CiProofFigures[]} figures @returns {CiProofFigures & { untimed: number }} */
 function summed(figures) {
   const durations = figures.flatMap(({ durationMs }) =>
     durationMs === undefined ? [] : [durationMs],
@@ -73,6 +67,8 @@ export class CiProofEvidenceBuilder {
   #unassigned;
   /** @type {CiProofFigures[]} */
   #unbroken = [];
+  // Includes an empty file list (present zero), not only non-empty withFile.
+  #brokenDown = false;
 
   /**
    * Counted as test cases or test files.
@@ -125,6 +121,7 @@ export class CiProofEvidenceBuilder {
    * @param {...(Pick<CiProofFile, "path"> & Partial<CiProofFile>)} files
    */
   brokenDown(...files) {
+    this.#brokenDown = true;
     this.#files = files.map((file) => ({
       passed: 0,
       failed: 0,
@@ -140,6 +137,7 @@ export class CiProofEvidenceBuilder {
    * @param {ResultFacts} [facts]
    */
   withFile(path, facts = {}) {
+    this.#brokenDown = true;
     this.#files.push({ path, ...figuresOf(facts) });
     return this;
   }
@@ -149,6 +147,7 @@ export class CiProofEvidenceBuilder {
    * @param {ResultFacts} facts
    */
   withUnassigned(facts) {
+    this.#brokenDown = true;
     this.#unassigned = figuresOf(facts);
     return this;
   }
@@ -162,10 +161,7 @@ export class CiProofEvidenceBuilder {
     return this;
   }
 
-  /**
-   * OF declared parts, besides any reported without a breakdown: those
-   * numbered in MISSING were never reported, and those in AMBIGUOUS more
-   * than once.
+  /** OF parts; MISSING never reported, AMBIGUOUS more than once.
    * @param {number} of
    * @param {{ missing?: readonly number[], ambiguous?: readonly number[] }} [statuses]
    */
@@ -189,7 +185,7 @@ export class CiProofEvidenceBuilder {
   /** @returns {CiProofEvidence} */
   please() {
     const unassigned = this.#unassigned;
-    const brokenDown = this.#files.length > 0 || unassigned !== undefined;
+    const brokenDown = this.#brokenDown;
     const timing =
       this.#durationMs === undefined ? {} : { durationMs: this.#durationMs };
     /** @type {CiProofFigures} */
