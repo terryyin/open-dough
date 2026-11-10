@@ -275,6 +275,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: broad enumeration required a second read and record compaction; actual guidance/CLI/replay consumers were inspected and passed focused proof. No missed consumer is established.
   - Inference: automatic planning-basename noise recurred; exact time attributable to it is unmeasured. Grouped dispositions preserved relevant proof without the raw list.
 
+- Execution: SEED-281#keep-unit-gaps-and-names-visible (plan 557; first implementation `b7e35aa83838aa1eeefdafac8ad726b5c4dbecd7`)
+  - Timestamp: unknown (2026-11-10 UTC, slice-2 implementation and independent refactor)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance)
+  - Evidence: slice-2 agent returns and coordinator conversation; /tmp/seed281-slice2-final-consumer-trace.md enumerated 590 consumers, and /tmp/seed281-slice2-refactor-consumer-trace.md enumerated 627 across four disposition parts. The latter explicitly derives PLAN.md, execution-history.md and source-review.md basenames; its PLAN term matched 2,257 files. Published implementation 3c3c1da7 retains the shared mapper and affected proof locations.
+  - Observed effect: implementation and refactor owners dispositioned unrelated planning, guidance and historical matches alongside the actual four comparison and four adapter caller files; all 17 affected cases passed, and no missed consumer was established.
+  - Inference: the existing planning-basename noise recurred. Refactoring reported about 15 minutes total, including edits, workload sequencing and proof; isolated trace cost was not measured.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
 ## ODF-405 — Full local suite wall includes waiting for repository-wide admission
