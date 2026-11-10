@@ -17,7 +17,13 @@ source "${source_dir}/scripts/lost-setpgid-race.bash"
 temporary_dir=$(mktemp -d)
 checks="${temporary_dir}/checks"
 cleanup() {
-  pkill -KILL -f -- "${checks}/" 2> /dev/null || true
+  # Kill only check scripts by their exact paths. A broad "${checks}/" pattern
+  # can match unrelated argv that merely embeds the directory string.
+  local check
+  for check in "${checks}"/*.sh; do
+    [[ -e ${check} ]] || continue
+    pkill -KILL -f -- "${check}" 2> /dev/null || true
+  done
   rm -rf -- "${temporary_dir}"
 }
 trap cleanup EXIT
@@ -29,11 +35,12 @@ write_check() {
   printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$2" > "${checks}/$1"
 }
 
-# Each blocking check prints a line, announces that it is running, then opens a
-# FIFO no one writes. Its command line carries the check's unique path.
+# Each blocking check announces ready first, then prints a line, then opens a
+# FIFO no one writes. Ready comes first so a mid-start TERM cannot hide that
+# the check already started. Its command line carries the check's unique path.
 write_blocking_check() {
-  write_check "$1" "echo $1-printed
-touch -- '${temporary_dir}/$1.ready'
+  write_check "$1" "touch -- '${temporary_dir}/$1.ready'
+echo $1-printed
 read -r _ < '${blocked}'"
 }
 write_check pass-a.sh 'true'
@@ -57,12 +64,24 @@ order() {
 # a non-interactive shell otherwise starts background commands ignoring INT.
 # What Bash writes while starting the runner, before the runner's own
 # redirection, goes to the run's launch file; await_ready checks it.
+# Clear inherited OPEN_DOUGH_TEST_* so only the intentional JOBS/DIR settings
+# apply: nested suites own their settings (tests/runner-settings.md).
 start_runner() {
+  local -a env_clear=()
+  local name
   rm -f -- "${temporary_dir}"/*.ready
   launch="${temporary_dir}/$1.launch"
+  for name in $(compgen -e OPEN_DOUGH_TEST_ || true); do
+    env_clear+=(-u "${name}")
+  done
   exec 5>&2 2> "${launch}"
   set -m
-  OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_DIR="${checks}" \
+  # env -u clears inherited OPEN_DOUGH_TEST_* without putting ${checks} on
+  # argv: cleanup's pkill -f "${checks}/" must not match the nested runner.
+  # ${arr[@]+...} keeps set -u from treating an empty clear list as unbound.
+  # shellcheck disable=SC2086 # intentional: empty clear list must expand to nothing
+  env ${env_clear[@]+"${env_clear[@]}"} \
+    OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_DIR="${checks}" \
     "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/$1.log" 2>&1 &
   set +m
   exec 2>&5 5>&-
@@ -79,12 +98,34 @@ expect_quiet_launch() {
   fi
 }
 
+# Nested scripts/test.sh sources its environment and modules, runs
+# test-jobs.sh (including the node share allocator), then JOBS=1 runs the
+# ordered prefix checks before the named check touches ready. Under contested
+# CI CPU that lifecycle routinely exceeds 30s; 90s covers it without borrowing
+# the 180s per-job safety ceiling.
+dump_nested_runner() {
+  local log
+  [[ ! -e ${launch} ]] || cat -- "${launch}" >&2
+  for log in "${temporary_dir}"/*.log; do
+    [[ -e ${log} ]] || continue
+    cat -- "${log}" >&2
+  done
+}
+
 await_ready() {
-  wait_for "$1 to start in the runner" 30 \
-    "[[ -e ${temporary_dir}/$1.ready ]] || ! kill -0 ${runner} 2> /dev/null"
+  if ! wait_for "$1 to start in the runner" 90 \
+    "[[ -e ${temporary_dir}/$1.ready ]] || ! kill -0 ${runner} 2> /dev/null"; then
+    # Ready may land on the deadline edge after the last failed poll.
+    if [[ ! -e ${temporary_dir}/$1.ready ]]; then
+      printf 'FAIL: timed out waiting for %s to start; nested runner launch and log:\n' \
+        "$1" >&2
+      dump_nested_runner
+      exit 1
+    fi
+  fi
   if [[ ! -e ${temporary_dir}/$1.ready ]]; then
     printf 'FAIL: the runner ended before %s started.\n' "$1" >&2
-    cat -- "${temporary_dir}"/*.log >&2
+    dump_nested_runner
     exit 1
   fi
   if ! pgrep -f -- "${checks}/$1" > /dev/null; then

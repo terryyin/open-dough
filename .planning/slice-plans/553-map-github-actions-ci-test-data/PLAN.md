@@ -381,6 +381,14 @@ journeys; typecheck; lint; native-evidence.
   on a cold first consumer of shared dashboard/server artifacts; pre-warm
   those before preview substitutes. Focused file: 4 passed.
 
+### CI repair (registered SHA 6274a964)
+- `test-runner-interrupt` nested ready-wait: 30s starved under contested CI
+  CPU before ready; raise `await_ready` to 90s for nested `scripts/test.sh`
+  lifecycle, recheck ready after the bound, dump launch/log on timeout, clear
+  inherited `OPEN_DOUGH_TEST_*` via `env -u`, touch ready before print, and
+  narrow cleanup `pkill` to each check script path. Serial focused proof green.
+  N-way self-parallel copies still contend past 90s (not CI's one-file shape).
+
 ### Slice 5
 Integrated-state provider facts arrange runs/jobs through MakeMe
 (`observedCiRun` / `coveredJob`) and encode with `apiRun`/`apiJob` at publish.
