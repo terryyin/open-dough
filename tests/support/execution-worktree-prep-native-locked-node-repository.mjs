@@ -1,9 +1,7 @@
-// The worktree-preparation native journey's locked Node repository, built
-// exactly as before the shared repository description: a non-bare originating
-// checkout with no remote, whose one commit holds the shared locked Node
-// project and its lockfile, and a sibling execution worktree. Native evidence
-// depends on this layout and on loading no MakeMe, so this builder keeps its
-// own Git setup.
+// The native preparation journey's non-bare originating checkout has no
+// remote. Its one described revision commits the generated locked Node project
+// and lockfile; dependency installation and the sibling worktree stay harness
+// operations. Native proof preserves that topology and its command traces.
 import { execFile } from "node:child_process";
 import {
   mkdirSync,
@@ -15,13 +13,14 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import {
   git,
   integritySnapshot,
   lockedNodeProject,
   npmEnv,
   originInstallMarker,
-  writeProject,
 } from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
 
 const exec = promisify(execFile);
@@ -43,17 +42,29 @@ export async function createLockedNodeFixture({
   const env = npmEnv(tracePath);
 
   mkdirSync(origin);
-  await git(origin, "init", "-b", "main");
-  await git(origin, "config", "user.name", "Origin Checkout");
-  await git(origin, "config", "user.email", "origin@example.test");
-  writeProject(origin, lockedNodeProject({ failingInstall }));
+  await materializeLocalCheckout(
+    undefined,
+    makeMe.aRepository
+      .withCheckoutIdentity({
+        name: "Origin Checkout",
+        email: "origin@example.test",
+      })
+      .withRevision("locked fixture", {
+        backlog: null,
+        files: lockedNodeProject({ failingInstall }),
+      })
+      .please(),
+    { at: origin },
+  );
   await exec("npm", ["install", "--ignore-scripts"], {
     cwd: origin,
     env,
     timeout: 60_000,
   });
+  // The generated lock and npm's executable mode belong to this one private
+  // starting revision, before any execution worktree or marker exists.
   await git(origin, "add", ".");
-  await git(origin, "commit", "-m", "locked fixture");
+  await git(origin, "commit", "--amend", "--no-edit");
   writeFileSync(join(origin, "node_modules", originInstallMarker), "origin\n");
   writeFileSync(join(origin, "origin-marker"), `${fixture}\n`);
   await git(origin, "branch", "exec/story");

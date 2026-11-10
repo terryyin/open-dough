@@ -22,7 +22,7 @@ finally reconciled in slice 7 and apply throughout.
 | C07 | Remaining arranged release facts enter through the shared MakeMe entry point. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C08 | Remaining arranged payload facts enter through that entry point. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C09 | Remaining arranged host-hook settings enter through that entry point. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
-| C10 | Remaining arranged native starting-project facts enter through that entry point. | slice 5 | |
+| C10 | Remaining arranged native starting-project facts enter through that entry point. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
 | C11 | Remaining arranged runner-duration facts enter through that entry point. | slice 7 | |
 | C12 | Shell scenarios use small Node writers to arrange domain data. | slice 7 | |
 | C13 | The already converted release-source path from published-work stories is reused. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
@@ -32,12 +32,12 @@ finally reconciled in slice 7 and apply throughout.
 | C17 | Physical roots, source/version records, project-owned configuration, and host settings remain distinct concepts. | slice 7 | |
 | C18 | Native Take scenarios’ valid published starting facts are converted. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
 | C19 | Native closure scenarios’ valid published starting facts are converted. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
-| C20 | Worktree-preparation scenarios’ starting repository facts are converted. | slice 5 | |
-| C21 | The actual originating checkout is preserved. | slice 5 | |
-| C22 | The worktree topology is preserved. | slice 5 | |
-| C23 | Executable inputs are preserved. | slice 5 | |
-| C24 | Preparation observations are preserved. | slice 5 | |
-| C25 | A changed fixture dependency enters the scenario’s evidence identity. | slice 5 | |
+| C20 | Worktree-preparation scenarios’ starting repository facts are converted. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| C21 | The actual originating checkout is preserved. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| C22 | The worktree topology is preserved. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| C23 | Executable inputs are preserved. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| C24 | Preparation observations are preserved. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| C25 | A changed fixture dependency enters the scenario’s evidence identity. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
 | C26 | Remaining setup is reconciled across the five declared test entries. | slice 7 | |
 | C27 | Remaining setup is also reconciled across the separately discovered tests/support/*.test.mjs jobs. | slice 7 | |
 | C28 | Feedback-review dates are included in that reconciliation. | slice 6 | |
@@ -83,15 +83,15 @@ finally reconciled in slice 7 and apply throughout.
 | J20 | Closure scenarios retain pending human files. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
 | J21 | Existing publication checks continue to evaluate the same closure journey. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
 | J22 | Existing observer-order checks continue to evaluate that journey. | slice 4 | observed: slice-4-proof.md; inspected source setup and independent observations |
-| J23 | A preparation scenario starts with a non-bare originating checkout. | slice 5 | |
-| J24 | That originating checkout has no remote. | slice 5 | |
-| J25 | The scenario has a sibling execution worktree. | slice 5 | |
-| J26 | Locked Node cases retain their original project inputs. | slice 5 | |
-| J27 | Executable wrapper cases retain their original project inputs. | slice 5 | |
-| J28 | Those cases keep generated state separate. | slice 5 | |
-| J29 | Those cases retain their preparation traces. | slice 5 | |
-| J30 | Fresh, reuse, and failed-preparation observations continue to distinguish their existing outcomes. | slice 5 | |
-| J31 | Dependency hashes include shared fixture modules newly used by those scenarios. | slice 5 | |
+| J23 | A preparation scenario starts with a non-bare originating checkout. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J24 | That originating checkout has no remote. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J25 | The scenario has a sibling execution worktree. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J26 | Locked Node cases retain their original project inputs. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J27 | Executable wrapper cases retain their original project inputs. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J28 | Those cases keep generated state separate. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J29 | Those cases retain their preparation traces. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J30 | Fresh, reuse, and failed-preparation observations continue to distinguish their existing outcomes. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
+| J31 | Dependency hashes include shared fixture modules newly used by those scenarios. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
 | J32 | Feedback maintenance is enabled. | slice 6 | |
 | J33 | The published review is due on `2026-10-28`. | slice 6 | |
 | J34 | A start already serving that date prevents another start for the same date. | slice 6 | |

@@ -61,6 +61,10 @@ land_inputs=(
 )
 response_input=tests/support/native-response-field.sh
 journey_inputs=(
+  'prep_native_input_hash_lines|
+  tests/support/execution-worktree-prep-native-locked-node-repository.mjs
+  tests/support/execution-worktree-prep-native-wrapper-repository.mjs
+  tests/support/makeMe.mjs tests/support/repository-fixture.mjs tests/support/repositoryTestData.mjs'
   'take_write_evidence_inputs|
   tests/support/product-backlog-native-facts.mjs tests/support/makeMe.mjs
   tests/support/queued-repository.mjs tests/support/published-plan.mjs

@@ -231,5 +231,7 @@ A case that proves behavior without a remote removes it with Git. The Git
 publication native fixtures for startup, admission, one-shot and owned-context
 journeys materialize their starting trunk from such a description, and their
 evidence identities hash the builders and materializer they reach. Dashboard
-origins, release-source fixtures and the MakeMe-free native
-worktree-preparation fixtures keep their own repository helpers.
+origins and release sources keep their own harness helpers. Native preparation
+fixtures use shared repository facts and local materialization while preserving
+their non-bare origin without a remote, sibling execution worktree and actual
+project preparation commands.

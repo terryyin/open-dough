@@ -151,7 +151,8 @@ comparisons. Update each affected family's writer/import identity in this slice.
 
 ### 5. Native worktree preparation keeps checkout-local state and commands
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 5](slice-5-proof.md).
 Proof: Source example 4. Run `npm test -- tests/execution-worktree-preparation-native.sh tests/native-evidence-identity.sh tests/support/native-import-closure.test.mjs` plus the existing `execution-worktree-preparation*.test.mjs` consumers reached by the changed project/fixture helpers.
 
 Reuse shared repository facts in the locked-Node and wrapper native starting
@@ -236,3 +237,8 @@ Disposition: proved by slice 1: slice-1-proof.md, scanner regression and real id
 Reported: slice 2 — "Coordinator inspection of guard_write_codex_existing_hooks after slice 2 found another ordinary Codex settings constructor alongside the known guard backlog setup."
 Story clause: "Convert remaining arranged release, payload, host-hook settings, native starting project and runner-duration facts through the shared MakeMe entry point"
 Disposition: proved by slice 3: slice-3-proof.md; real guard installs, preserved handlers and equivalent settings.
+
+### G3. Native locked fixture materialization followed installation
+Reported: slice 5 — "The first converted probe encountered EISDIR while reading an installed local dependency symlink; the new fixture lifecycle must materialize before installing."
+Story clause: "Preserve the actual originating checkout, worktree topology, executable inputs and preparation observations"
+Disposition: proved by slice 5: slice-5-proof.md; exact four-profile equality and real readiness observations.

@@ -1,8 +1,7 @@
-// The worktree-preparation native journey's wrapper-driven repository, built
-// exactly as before the shared repository description: a non-bare originating
-// checkout with no remote, whose one commit holds the shared wrapper project,
-// and a sibling execution worktree. Native evidence depends on this layout and
-// on loading no MakeMe, so this builder keeps its own Git setup.
+// The native preparation journey's non-bare originating checkout has no remote.
+// Its one described revision holds the generated executable wrapper project.
+// The sibling worktree, origin-only output and external artifact cache remain
+// harness operations, observed through the actual preparation commands.
 import {
   mkdirSync,
   mkdtempSync,
@@ -12,13 +11,14 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import {
   artifactPath,
   digestFile,
   git,
   originOnly,
   wrapperProject,
-  writeProject,
 } from "../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
 
 // Disposable wrapper-driven fixture: sibling worktree, CONTRIBUTING names
@@ -46,14 +46,21 @@ export async function createWrapperDrivenFixture({
   writeFileSync(artifactPath(artifactCache), "seeded-artifact-v1\n");
   const cacheDigest = digestFile(artifactPath(artifactCache));
 
-  await git(origin, "init", "-b", "main");
-  await git(origin, "config", "user.name", "Origin Checkout");
-  await git(origin, "config", "user.email", "origin@example.test");
-  writeProject(origin, wrapperProject(artifactCache, { missingConvention }), [
-    "wrapper",
-  ]);
-  await git(origin, "add", ".");
-  await git(origin, "commit", "-m", "wrapper fixture");
+  await materializeLocalCheckout(
+    undefined,
+    makeMe.aRepository
+      .withCheckoutIdentity({
+        name: "Origin Checkout",
+        email: "origin@example.test",
+      })
+      .withRevision("wrapper fixture", {
+        backlog: null,
+        files: wrapperProject(artifactCache, { missingConvention }),
+        executables: ["wrapper"],
+      })
+      .please(),
+    { at: origin },
+  );
   writeFileSync(join(origin, "origin-marker"), `${fixture}\n`);
   mkdirSync(join(origin, "target"), { recursive: true });
   writeFileSync(join(origin, "target", originOnly), "origin-generated\n");
