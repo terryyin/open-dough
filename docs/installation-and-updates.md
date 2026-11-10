@@ -25,15 +25,14 @@ link to this human-facing adapter-authoring guide during ordinary execution.
 
 ## Optional process-review preference
 
-The target project's optional process-review preference is project-owned and
-shared by Codex, Cursor, and Claude Code. It lives at
-`.planning/open-dough.json`.
+The target project's optional preferences are project-owned and shared by
+Codex, Cursor, and Claude Code in `.planning/open-dough.json`.
 That path is in the project being installed or updated, not in an installed
 skill directory and not in the Open Dough source checkout. The file is not part
 of the release-declared managed payload.
 
-A project opts in by creating the file. The installer does not prompt, merge,
-or create a default. When the file or its `skipProcessRetrospective` key is
+A project supplies preferences in this file. The installer does not prompt,
+merge, or create defaults. When the file or its `skipProcessRetrospective` key is
 absent, the execution retrospective skips its process review. The JSON
 contract — including defaults, invocation overrides, and invalid-file
 handling — lives once in
@@ -45,6 +44,17 @@ A project that wants process retrospectives enables them:
 ```json
 { "skipProcessRetrospective": false }
 ```
+
+Automatic Intent Coverage during eligible feature-story wrap-up is off when
+`intentCoverage` or the file is absent, or the value is `false`. Opt in with:
+
+```json
+{ "intentCoverage": true }
+```
+
+The [wrap-up selection rule](../src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage)
+owns eligibility, existing-result preservation and invalid-configuration handling.
+Explicit developer requests during review remain available without changing this preference.
 
 The same file selects the names of new agent assignments. With `nerds` absent
 (or the file absent) assignments rotate through the default names. A project

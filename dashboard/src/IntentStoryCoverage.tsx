@@ -2,10 +2,10 @@
 // completed story's saved assessment exactly as its published done record
 // stores it, read as Recently done reads that record (`./doneDetails.ts`).
 // Each state says only what is known: the whole saved report, its saved
-// unavailable reason, an older completion whose record was read and saved no
+// unavailable reason, a completion whose record was read and saved no
 // assessment, a record still being read, or one that could not be read, with
 // the done record read's own Retry where it has one. An active story has no
-// assessment yet; the pane says when it runs.
+// saved assessment yet; the pane explains where a saved result will appear.
 
 import { readingDoneStory } from "./doneDetails.ts";
 import type { DoneStory } from "./doneRecord.ts";
@@ -71,8 +71,8 @@ export function IntentStoryCoverage({ story }: { readonly story: LensStory }) {
         <DoneRecordCoverage record={story.record} />
       ) : (
         <p className="quiet">
-          The Intent Coverage assessment runs during feature story wrap-up, so
-          it appears here once this story is completed.
+          If an Intent Coverage assessment is saved during feature story
+          wrap-up, it appears here once this story is completed.
         </p>
       )}
     </section>

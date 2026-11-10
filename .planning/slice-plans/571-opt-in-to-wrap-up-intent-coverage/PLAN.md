@@ -3,6 +3,8 @@
 **Identity:** SEED-294#opt-in-to-intent-coverage-at-wrap-up
 **Source:** [Refined story](../../seeds/SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up)
 
+**Source review:** [Independent commitments](source-review.md)
+
 ## Goal and scope
 
 Give a project maintainer explicit control over automatic Intent Coverage effort
@@ -17,7 +19,7 @@ restoration, report storage and nonblocking closure. Invalid configuration
 reports a selection error, selects no automatic check, and leaves independent
 closure available. Never rewrite configuration or materialize defaults.
 
-Excluded: dashboard work, per-story preferences, a new invocation flag,
+Excluded: dashboard configuration editing/inspection, per-story preferences, a new invocation flag,
 changing the checker or completion-record schema, installation/release/rollout,
 and evaluating the net benefit of routine checking. No product prerequisite is
 needed from the separate configuration-view story.
@@ -109,7 +111,7 @@ All temporary source edits were restored before writing preparation records.
 ### 1. Select automatic Intent Coverage from the project's explicit opt-in
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: The source-example walkthrough table, existing completion regressions,
 and review of invocation context, required context and useful outcome under
 [maintainer guidance](../../../AGENTS.md#behavior-review).
@@ -143,7 +145,10 @@ slice is needed. Scope is bounded without inventing a numeric slice deadline.
 
 ## Gates and current decisions
 
-- The triggering instruction authorizes preparation only. No slice has run.
+- The current instruction authorizes execution of this established plan; slice 1
+  is selected. Existing planning authority is retained for necessary replanning.
+- Disabling default automatic checking has no later slice dependency; it is the
+  explicit source outcome and leaves the on-demand review path available.
 - Author source guidance under `src/skills/`; do not hand-edit managed
   `.agents/skills/` or `.claude/skills/`, or opt this repository into checking.
 - Local gates: mapped behavior review, the focused runner command above,
@@ -167,3 +172,77 @@ example, its guidance, documentation and proof, with existing storage reused.
 This review identified no remaining slice-specific concern. The net benefit of
 routine checking remains an evaluation question outside this story, not a
 premise needed to implement explicit opt-in control.
+
+## Execution context
+
+- Established story-branch execution: `codex/opt-in-to-intent-coverage-during-story-wrap-up`;
+  workspace `/Users/terryyin/git/open-dough/.worktrees/opt-in-to-intent-coverage-during-story-wrap-up`.
+- Publisher `dashboard-territory.local-open-dough`; agent `ealden-chan`;
+  origin/main claim and previously published base `d5a3da31fe7d93287b74ef0c9b1ffbadd8b41e4c`;
+  starting revision `50584725663c6c6ce2e42771d3bc0b3f52c964d8`.
+- Setup: exact Node 24.21.0; `node scripts/setup-native.mjs npm`, `browser`,
+  and `check` succeeded in this checkout with locked dependencies and Chromium.
+  Selective formatter `npm run format`; check-only `.githooks/pre-commit`.
+- CI: GitHub `terryyin/open-dough`, workflow `ci.yml` (CI); coordinator `seed294`,
+  stream `/tmp/dough-ci-501/watch-VsSlV1`, PID 93290, session 49675, cell `g1005:7`,
+  target `codex/opt-in-to-intent-coverage-during-story-wrap-up`, same checkout.
+  Trunk claim CI is unobserved; this stream covers execution branch delivery.
+
+## Story obligations
+
+### G1. Active-story coverage copy promises an automatic result
+Reported: slice 1 — "Consumer trace found IntentStoryCoverage's active-story view promises an assessment after completion even when automatic checking is off; its existing test and maintained documentation repeat that promise."
+Story clause: "A project maintainer controls whether completed feature stories incur an automatic Dough Intent Coverage check during wrap-up."
+Disposition: proved by slice 1: `IntentStoryCoverage.tsx` conditional active copy, `intent-story-summary-title.spec.ts` rendered assertion, and maintained `docs/dashboard-development-intent-story.md`; the focused Playwright command below passed.
+
+## Slice 1 implementation proof
+
+Authoring walkthrough on the candidate source, 2026-11-10; these observations
+judge instructions, not native-host execution. Invocation remains explicit or
+authorized planned continuation; project/root and completed identity are required.
+The selection owner is `src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage`.
+
+| Trigger/setup | Expected and observed source-directed result | Observing location |
+| --- | --- | --- |
+| Eligible completed feature; absent file, absent key, or `false` (each) | Skip automatic check; ordinary completion has no coverage input or required report when none supplied. | Assess intent coverage; Delete spent history; completion CLI optional input. |
+| Authorized Execute Plan continuation, each default-off input | Same skip and closure through its existing sole wrap-up invocation. | `finish-or-stop.md#continue-settled-planned-work-into-wrap-up` → Assess intent coverage. |
+| `true`, eligible planned story without result; same planless case | One explicit request carries story, optional plan and revision; checker owns scratch restoration; closure continues. | Assess intent coverage; manual skill Choose the check / Run and restore. |
+| Existing published result, `true` or `false`; local-only committed result | Preserve result; no duplicate check. | Assess intent coverage; completion repeat regression. |
+| Off, developer explicitly requests targeted review; report supplied at closure | Manual entry remains callable without configuration edits; skipped automatic check does not discard supplied report. | Manual skill explicit entry; conditional completion handoff. |
+| This project has unrelated keys plus `true`; another project has `false` | Read this project's object; ignore unrelated keys; preserve configuration bytes. | Assess intent coverage's project-owned path and no-write rule. |
+| Unreadable file; malformed JSON; array; null; scalar; string/number/null preference | Report file/key error, no coercion or automatic request, no repair; independent closure proceeds. | Assess intent coverage's object/boolean and error branches. |
+| Missing file | No creation or materialized default. | Assess intent coverage's skip and no-create instructions. |
+| Enabled correction; enabled contextual work | Proceed to assimilation without feature-story checking. | Assess intent coverage eligibility entry. |
+| Enabled check returns report, insufficient evidence, unavailable reason, or remains pending | Save report verbatim, including unavailable costs/reasons; pass report/reason and continue without waiting/retrying. | Assess intent coverage handoff; existing completion assertions. |
+
+Focused automated proof, all terminal exit 0:
+
+- `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/support/product-backlog-complete-credit.test.mjs tests/support/product-backlog-complete-intent-coverage.test.mjs`: eight cases through the real completion CLI. Shared MakeMe/scratch-project setup supplies Taken stories and optional reports. Credit assertions observe omitted coverage; coverage assertions observe verbatim/insufficient reports, unavailable reason, repeat bytes and invalid-input preservation.
+- `PATH="/opt/homebrew/bin:$PATH" npm test -- src/skills/dough-execute-plan/scripts/planned-wrap-up-continuation-guidance.test.mjs`: instruction contract passes. The first run failed at the invocation regex in the test “settled planned execution invokes its existing closure owner without another instruction”; concise intro had dropped its recognized phrase. Restoring that phrase preserved the contract and the unchanged assertion passed. This is not native continuation proof.
+- `PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-story-summary-title.spec.ts dashboard/tests/intent/intent-story-coverage.spec.ts --workers=1`: five rendered cases pass. Shared Take/completion fixtures feed the real pane; final summary-title paragraph assertion observes conditional availability. Coverage spec assertions observe report, unavailable, omission and failed-read/retry states.
+- `git diff --check`: passed. No formatter, hook-owned lint, commit, push or done mark performed by implementation.
+
+Consumer discovery: the installed `consumer-trace.mjs --checkout` used this execution
+checkout, `--base d5a3da31fe7d93287b74ef0c9b1ffbadd8b41e4c`, and terms
+`Assess intent coverage`, `Intent Coverage`, `intentCoverage`, plus retired
+`assessment runs during feature story wrap-up`. Full trace and all 786 per-file
+dispositions: `/tmp/seed294-consumer-trace-reviewed.md` (16 run, 770 excluded).
+Generic plan/skill path hits, unchanged installation contracts, recorded native
+streams, historical findings and released installed copies do not consume the
+new selection policy. Real completion, explicit checker, continuation, and
+rendered optional assessment paths were inspected and mapped to proof above.
+G1 exposed inaccurate active-story copy and its maintained description/assertion;
+correcting these consumers is necessary reach, not dashboard configuration work.
+
+Rendered proof used this Mac on AC (100%), one worker and `caffeinate -s -i`;
+coordinator observed 45% free memory, load 14.48/10.05/8.34 and no owned competing
+heavy work. This bounded existing-suite selection passed; reconsider on contention
+or failure. No new executable selection policy, test cases, schema or payload files.
+
+Acceptance: freshness was unchanged at trunk `3b45bac31827ed982c7d190a99b41b3f39c2abce`.
+Named sibling SEED-295 had no incoming changes. The incoming SEED-258 follow-up
+adds future scope only; no product behavior changed. Current proof remains valid.
+
+Independent refactor: none — already clean; all accepted proof unchanged.
+Pre-delivery freshness unchanged at `001d6782d7ab8c6cac5190971d9e4534e0180dcc`;
+additional trunk edits queue future work only, with no affecting sibling delivery.
