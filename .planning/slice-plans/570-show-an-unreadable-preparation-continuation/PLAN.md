@@ -144,3 +144,7 @@ premises. Planning review found no remaining concern.
 
 Record readiness through the installed backlog recorder after reviewing this
 plan and source. Readiness does not authorize Take or execution.
+
+## Execution complete
+
+Product advice: Reasoned no-change: `8fa1b522` fulfills the story's Goal/Scope and key examples (printed continue failure as Taken detail inside the kept-start / ownership-unverified wrap; structured stop detail preserved; empty-text fallback not invented), with no new product recommendation beyond the already-queued Cursor-runner sibling; conditional on pending CI for that revision.
