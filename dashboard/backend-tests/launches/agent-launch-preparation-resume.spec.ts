@@ -1,12 +1,5 @@
 // Refinement starts through real HTTP, installed commands, and a bare origin.
-import {
-  chmodSync,
-  copyFileSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
@@ -123,21 +116,7 @@ test.describe("a kept preparation start", () => {
   test("an interrupted precommit start recovers in its workspace without replacing an occupied agent", async () => {
     await preparation.serve(60_000);
     preparation.server.claudeScenario("launched");
-    const hooks = path.join(preparation.origin.machine, "commit-hooks");
-    mkdirSync(hooks);
-    const precommit = path.join(hooks, "pre-commit");
-    writeFileSync(precommit, "#!/bin/sh\nexit 1\n");
-    chmodSync(precommit, 0o755);
-    execFileSync("git", ["config", "core.hooksPath", hooks], {
-      cwd: preparation.origin.project,
-    });
-    const first = await preparation.ask();
-    expect(first.kind).toBe("failed");
-    expect(first.explanation).toContain("gave no result");
-    expect(preparation.keptStart()?.["preparation"]).toBeUndefined();
-    expect(preparation.keptStart()?.["preparationUnannounced"]).toBeUndefined();
-    expect(await preparation.preparing()).toEqual([]);
-    rmSync(precommit);
+    await preparation.keepUnannouncedByFailingPrecommit();
     const workspace = path.join(preparation.origin.project, ".worktrees", slug);
     const foreign = path.join(workspace, "foreign-draft.txt");
     writeFileSync(foreign, "Keep this unrelated work.\n");
@@ -148,7 +127,14 @@ test.describe("a kept preparation start", () => {
     const refused = await preparation.resume();
     expect(refused.kind).toBe("failed");
     expect(refused.explanation).toContain(
+      "the retained preparation's exact local allocation and published ownership could not be verified; no announcement was made",
+    );
+    expect(refused.explanation).toContain(
       "assignment ownership remains unverified",
+    );
+    expect(refused.explanation).toContain("The start was kept");
+    expect(refused.explanation).not.toContain(
+      "The installed command could not verify continuation.",
     );
     expect(
       execFileSync("git", ["diff", "--cached"], { cwd: workspace }).toString(),
@@ -211,18 +197,9 @@ test.describe("a kept preparation start", () => {
     rmSync(preparation.hook());
     // Run the actual installed command, losing only its start stdout. This
     // transport fault supplies neither an assignment nor a worktree effect.
-    const script = path.join(
-      preparation.origin.project,
-      ".claude/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
-    );
-    const original = path.join(
-      path.dirname(script),
-      "preparation-assignment-command.mjs",
-    );
-    copyFileSync(script, original);
-    writeFileSync(
-      script,
-      `import { spawnSync } from "node:child_process";\nconst result = spawnSync(process.execPath, [${JSON.stringify(original)}, ...process.argv.slice(2)], { stdio: ["ignore", process.argv[2] === "start" ? "ignore" : "inherit", "inherit"] });\nprocess.exitCode = result.status ?? 1;\n`,
+    const restore = preparation.wrapPreparationAssignment(
+      (original) =>
+        `import { spawnSync } from "node:child_process";\nconst result = spawnSync(process.execPath, [${JSON.stringify(original)}, ...process.argv.slice(2)], { stdio: ["ignore", process.argv[2] === "start" ? "ignore" : "inherit", "inherit"] });\nprocess.exitCode = result.status ?? 1;\n`,
     );
     const uncertain = await preparation.resume();
     expect(uncertain.kind).toBe("failed");
@@ -237,6 +214,7 @@ test.describe("a kept preparation start", () => {
     const publication = (
       await preparation.origin.originGit("rev-parse", "main")
     ).trim();
+    restore();
     await preparation.expectResumed();
     expect(await preparation.preparing()).toEqual(profiles);
     expect(

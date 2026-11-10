@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-292_show-an-unreadable-preparation-continuation.json",
+      "identity": "SEED-292#show-an-unreadable-preparation-continuation",
+      "completedAt": "2026-11-10T04:44:24.032Z",
+      "blob": "fde34c1a9c03121db7d4f49864ef250d40f31439"
+    },
+    {
       "fileName": "SEED-291_select-story-completed-in-ad-hoc-session.json",
       "identity": "SEED-291#select-story-completed-in-ad-hoc-session",
       "completedAt": "2026-11-10T04:43:07.499Z",

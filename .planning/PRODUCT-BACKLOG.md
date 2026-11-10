@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Show no count difference across a missing or ambiguous part](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps) — SEED-281#no-count-difference-across-gaps ([plan](slice-plans/566-no-count-difference-across-gaps/PLAN.md))
 - [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
-- [Show an unreadable preparation continuation](seeds/SEED-292-report-launch-failure-causes.md#show-an-unreadable-preparation-continuation) — SEED-292#show-an-unreadable-preparation-continuation ([plan](slice-plans/570-show-an-unreadable-preparation-continuation/PLAN.md))
 
 ## Backlog list
 

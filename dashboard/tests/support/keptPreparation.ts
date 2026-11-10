@@ -2,7 +2,16 @@
 // continuation surfaces and observes the installed command's workspace,
 // published profile, launch instruction, and machine-local start record.
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { chmodSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import {
+  chmodSync,
+  copyFileSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { expect } from "./pageTest.ts";
 import {
@@ -100,6 +109,46 @@ export async function keptPreparation() {
     expect(keptStart()).toBeUndefined();
   }
 
+  // First announcement fails in pre-commit before publishing; the kept start
+  // has no preparation profile, and the hook is removed so continue can run.
+  async function keepUnannouncedByFailingPrecommit(): Promise<void> {
+    const hooks = path.join(origin.machine, "commit-hooks");
+    mkdirSync(hooks);
+    const precommit = path.join(hooks, "pre-commit");
+    writeFileSync(precommit, "#!/bin/sh\nexit 1\n");
+    chmodSync(precommit, 0o755);
+    execFileSync("git", ["config", "core.hooksPath", hooks], {
+      cwd: origin.project,
+    });
+    const first = await ask();
+    expect(first.kind).toBe("failed");
+    expect(first.explanation).toContain("gave no result");
+    expect(keptStart()?.["preparation"]).toBeUndefined();
+    expect(keptStart()?.["preparationUnannounced"]).toBeUndefined();
+    expect(await preparing()).toEqual([]);
+    rmSync(precommit);
+  }
+
+  // Temporarily replace the installed preparation-assignment entry; restore
+  // with the returned function.
+  function wrapPreparationAssignment(
+    rewrite: (originalPath: string) => string,
+  ): () => void {
+    const script = path.join(
+      origin.project,
+      ".claude/skills/dough-story-refinement/scripts/preparation-assignment.mjs",
+    );
+    const original = path.join(
+      path.dirname(script),
+      "preparation-assignment-command.mjs",
+    );
+    copyFileSync(script, original);
+    writeFileSync(script, rewrite(original));
+    return () => {
+      copyFileSync(original, script);
+    };
+  }
+
   return {
     origin,
     get server() {
@@ -113,6 +162,8 @@ export async function keptPreparation() {
     ask,
     resume,
     expectResumed,
+    keepUnannouncedByFailingPrecommit,
+    wrapPreparationAssignment,
     async close() {
       try {
         await server?.close();

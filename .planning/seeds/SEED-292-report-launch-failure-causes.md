@@ -28,54 +28,6 @@ confirmed violation.
 
 ## Story Decomposition
 
-<a id="show-an-unreadable-preparation-continuation"></a>
-
-### Show an unreadable preparation continuation
-
-**Identity:** SEED-292#show-an-unreadable-preparation-continuation
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/570-show-an-unreadable-preparation-continuation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"19f70cceb3d504c0171ecd48b45f091921449833e19572e11f7e89fce36da4d3","plan":"8d8b4a4cf0e7e2d095807a2737aef07b5de752231e6339c7937093a34e63c4f0"}}
-```
-
-**Goal.** A developer whose retained preparation cannot continue because the
-installed continue command failed without a readable JSON result sees that
-command's own failure text on the Intent Taken card, so they can tell a crashed
-command from an ownership refusal.
-
-**Scope.** When Intent continues a kept preparation and
-`preparation-assignment.mjs continue` exits without a JSON result Intent can
-read, the card's refusal detail is that failure text, including an exception
-message the command printed. Required restriction: the existing safety wording
-stays on every failed continuation — the start was kept, and assignment
-ownership remains unverified — so an unreadable failure is never treated as
-permission to announce again. A continuation that already returns a structured
-stop keeps that stop's `error` as the detail inside the same refusal shape.
-
-Out of scope: changing when a continuation may announce; releasing a lost
-workspace; the Cursor runner story; inventing failure text when the command
-produced none.
-
-**Key examples.**
-
-- Given a kept preparation start, when continue throws before printing JSON and
-  Intent resumes it, the Taken card names that thrown message and still says the
-  start was kept and ownership remains unverified. It does not replace the
-  thrown message with "The installed command could not verify continuation."
-- Given continue returns the structured stop whose error is that the local
-  allocation and published ownership could not be verified, the card shows that
-  error as its detail inside the same kept-start / ownership-unverified refusal.
-
-**Evidence.** Attempts `acd018c7-b4d5-45d6-8c75-0a3144be6009` (accepted
-2026-11-10T01:02:00Z, settled 01:03:40Z) and
-`d586c604-6e1e-488c-92ad-aa4abcbc72c0` (accepted 01:04:52Z, settled 01:04:59Z)
-record the generic detail. `runStartCommand` discards stderr.
-`preparation-assignment.mjs` writes a thrown error only to stderr and exits 2.
-`continuationRefusal` then attaches the ownership sentence to every failed
-continuation, including an unreadable result. A later continue in the same
-workspace announced Julia-chan at 01:55Z and landed the plan, so this was not
-a stuck assignment. Dashboard workers were stalling, with load average about
-8 then about 16.
-
 <a id="ask-whether-a-silent-cursor-runner-blocks-launch"></a>
 
 ### Ask whether a silent Cursor runner blocks launch
@@ -122,10 +74,9 @@ repair ships from this story.
 
 ## Ordering and Scope Reduction
 
-Show the unreadable continuation first. It has a confirmed gap and a safe
-wording change. The runner story stops after the decision: the current refusal
-is accepted, the answer is recorded, and no repair follows. Drop it from the
-backlog once its Preparing release is on trunk.
+The unreadable-continuation wording is shipped. The runner story stops after
+the decision: the current refusal is accepted, the answer is recorded, and no
+repair follows. Drop it from the backlog once its Preparing release is on trunk.
 
 ## Open Decisions
 
@@ -135,7 +86,7 @@ refusal intended; no repair.
 ## When to Surface
 
 The runner decision is settled. The Doughnut card may still show the earlier
-failures; the sibling continuation story owns readable continuation text.
+failures; readable continuation refusal text is shipped.
 
 ## Breadcrumbs
 

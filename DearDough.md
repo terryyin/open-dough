@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 481. Removed numbers are never reused.
+- Highest allocated local number: 482. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -490,3 +490,14 @@ The source-freshness gate takes one `git merge-base` as the Take. After publishe
   - Evidence: Native session `01a1beb7-a487-7fd0-989e-e7d2ab99461d`, terminal call `call_1d5dbd7a47274ae6ad7c75c7303c324e` returned `refused/not-taken-at-base` at `db8ca909986425b77080466a47ba4ff8079040b0`. At 10:34:10Z, `git merge-base --all HEAD origin/main` (the preserved graph is `50f4f4f1` versus `1c784a6d6`) returned that SHA and accepted Take `8554eb19e1b0944f7261120ff38af38de5f40ab0`; trunk `1c784a6d6` and the Take both held this Taken story. Current source-freshness.mjs still uses one merge-base.
   - Observed effect: The gate withheld the done boundary; read-only graph/backlog inspection diagnosed the mismatch. Published-main integration `fcf4c0041` made trunk the common base; the 11:03:46Z receipt returned unchanged for story/plan. No guard bypass or managed-copy edit occurred.
   - Inference: A merge base is not necessarily the accepted Take when history-preserving sibling imports produce several best bases. Use the retained claim context or resolve all bases safely; do not waive source drift checking. Diagnosis/recovery are observed; later V2-contract proof renewal is not attributed solely to this false refusal. Distinct from ODF-403's already-absorbed text conflict and ODF-169's stale publication suffix.
+## DD-482 — Ready plan used singular `## Slice`, so obligations could not list slices
+A Take-ready plan headed its only slice under `## Slice`. The obligations / plan-progress reader accepts only `## Slices` or `## Ordered slices`, so the first list refused until the coordinator renamed the heading. Matching uncertainty: same reader contract as ODF-368, but the plan had a near-miss heading rather than slices nested under Current decisions with no section.
+
+### Occurrences
+- Execution: SEED-292#show-an-unreadable-preparation-continuation (spent plan 570 recoverable at before-cleanup `0f220c1aed85478a174b5c60ac601ac49edf22af`; first related implementation `8fa1b522026463305d46ad493f13628c1b2f5298`)
+  - Timestamp: 2026-11-10T12:05:00+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94 (installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Take base `921ad3c98` PLAN.md has `## Slice`; published tip `8fa1b522` has `## Slices`. Coordinator transcript `058c51db-7e9f-4095-86f9-2783c98271b9` renamed the heading before the successful `story-obligations.mjs list --slice 1`. Reader regex: `^## +(?:Ordered slices|Slices) *$`. Sibling Taken plan 568 still has `## Slice` at line 112.
+  - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
+  - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.

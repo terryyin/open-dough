@@ -160,9 +160,14 @@ test("a call at GitHub that is not the owner's own holds one of its eight turns 
   const waits = [1, 2].map((job) => calls.request(log(job), never(), bounds));
   leaving[0].resolve();
   await until(() => github.asked().length === 1, "one log was asked");
+  // The other seven occupied turns still stand, so only one call reaches
+  // GitHub at a time: free its logs, then both finish serially before those
+  // holders leave (releasing them while a call is still held would open a
+  // second turn under the eight-call bound).
+  assert.equal(github.mostUnderWay(), 1);
   github.releaseLogs();
-  for (const { resolve } of leaving) resolve();
   for (const wait of waits) assert.equal((await wait).status, 200);
   assert.equal(github.mostUnderWay(), 1);
+  for (const { resolve } of leaving) resolve();
   assert.deepEqual(readdirSync(directory), []);
 });
