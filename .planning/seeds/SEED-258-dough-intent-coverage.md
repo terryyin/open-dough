@@ -73,6 +73,10 @@ protection gap for an important promise. The
 closed separately. Revisit automatic use if observation of the manual skill
 shows that the verified decisions justify the added cost.
 
+On 2026-11-10 Terry asked to remove Story Wrap Up's optional
+`--process-retrospective` flag and keep the ordinary execution retrospective
+before wrap-up.
+
 ## Separate test follow-up candidate from the trial
 
 - Exercise maintenance selection with an otherwise eligible hidden project
@@ -84,3 +88,44 @@ The trial's trunk recheck identified this test opportunity.
 
 [trial-evidence]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md
 [trial-test-candidates]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#test-follow-up-candidates
+
+<a id="finish-opted-in-stories-with-intent-coverage"></a>
+
+### Finish opted-in stories with an Intent Coverage report
+
+**Identity:** SEED-258#finish-opted-in-stories-with-intent-coverage
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer closing a feature story in a project that
+[opts in to Intent Coverage](SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up)
+can read the finished report in Done and see what wrap-up decided to do about
+any actionable findings.
+
+- Wrap-up can continue independent work while the probe runs. Before publishing
+  Done or retiring the context needed to resume, wait for the probe and preserve
+  its report for the completed revision. A returned **Insufficient evidence**
+  report counts. If the worker fails or reaches a deadline without a report,
+  preserve resumable state and surface the problem. On resume, reuse a report
+  already returned for that revision and avoid duplicating follow-ups.
+- Give each actionable gap a disposition. If it fits an existing retrospective
+  follow-up's outcome, extend that plan and its proof. If it needs a separate
+  correction, reuse matching queued work or queue a new story. Put new work
+  after the retrospective follow-up by default and before it when a dependency
+  or material risk warrants higher priority. Link the evidence and record why.
+- Queue routine test-strengthening work quietly when the decision is within
+  wrap-up's authority. Surface findings that need developer judgment, materially
+  change priorities, or call the completed story's proof into question. Settle
+  evidence of an actual defect in the delivered promise before closing the story.
+- When the ordinary execution process retrospective is selected and automatic
+  coverage runs, keep product and proof review before wrap-up and defer that one
+  process review until the probe and its disposition are available. Hand the
+  reviewer the report, available run history, elapsed time, setup or waiting
+  problems, and follow-up decision. Remove Story Wrap Up's separate
+  `--process-retrospective` flag. Use the existing execution retrospective
+  selection rules to decide whether process review runs.
+
+In the audit, three checks finished after wrap-up had recorded them as
+unavailable, so a developer opening Done could not see their returned evidence.
+[Example Done record](https://github.com/terryyin/open-dough/blob/f07d764744ba5cfe56666469356ada584f642830/.planning/done/SEED-283_keep-done-story-intent-pinned.json)
