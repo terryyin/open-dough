@@ -24,6 +24,12 @@ selected. Mixed fixtures convert their GitHub facts only.
   [`observedRun` and `createGitHubActions`](../../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs),
   [`ListedRun`](../../../dashboard/server/baseCiNearest.ts) and the current
   attempt projection in [`ci-runs`](../../../src/skills/dough-execute-plan/scripts/ci-runs.mjs).
+  The current `aRevisionCiRun` in
+  [`ciComparisonTestData`](../../../tests/support/ciComparisonTestData.mjs)
+  already builds the production `ListedRun` projection for fast comparison
+  rules. Reuse its GitHub facts through the same construction owner rather
+  than adding another run model; preserve provider-neutral adapter attempts
+  separately. Keep compatibility names only while their consumers need them.
   Use named facts for identity, revision, branch, event, outcome and times;
   deterministic incidental defaults must not hide facts deciding a case.
   Missing timing, `null` conclusions and opaque IDs need their actual meaning,
@@ -69,6 +75,20 @@ selected. Mixed fixtures convert their GitHub facts only.
   work can touch mixed fixtures: preserve their facts and consumer behavior;
   shared files alone do not create a blocking dependency.
 
+## Required cohesive reorganization
+
+`tests/support/makeMe.mjs` is 255 lines at `a1d25c1dd`; slice 1 owns its
+reorganization alongside the run conversion. Keep the public MakeMe entry
+and fresh-builder semantics. Move CI-specific type/default/construction
+responsibility to the shared CI run/job module, leaving the entry to expose
+builders; compose a CI builder group if needed. This seam separates domain
+construction from public aggregation, and must leave each edited module at
+most 250 lines under the existing refactor check. Preserve every existing
+MakeMe caller, dashboard type inference and the native import closure; the
+traced consumers, dashboard typecheck and native evidence check prove them.
+The other currently expected implementation files are at most 250 lines;
+recheck any added edit and keep its cohesive cleanup in the owning slice.
+
 ## Preparation evidence
 
 Observed on 2026-11-09 in the assigned workspace at
@@ -97,7 +117,40 @@ These abbreviations only avoid repeating the same environment in the table.
 | Synthetic attempt-job construction preserves carried-over durations while retaining captured observations literally. | `D 'ci-time-without-runner-waits\.spec\.ts$' --grep 'a re-run retains the durations of carried-over jobs even when they started before their reported creation'`: baseline 1 passed (4.0 s); scratch temporary `aGitHubJob.withFacts(...).please()` around only the synthetic longer-carryover override passed (3.2 s); changing that completion 09:47:07 to 09:48:07 failed the independent 337000 ms assertion with 397000 ms; exact restoration passed (3.2 s). Captured job arrays stayed unchanged; the temporary getter was removed. |
 | Integrated-state proof reaches real Git, executed commands, provider evidence and observer completion in the planned profile. | `N src/skills/dough-execute-plan/scripts/ci-integrated-state-journey.test.mjs`: exit 0. The suite observes validated C, unresolved without policy, and B's own failure beside C's success through the real observer; its provider read is covered by the current-attempt discrimination above. |
 | Observer failure proof consumes MakeMe run and job identity through the existing API seam and emitted event boundary. | `env PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh src/skills/dough-execute-plan/scripts/watch-ci-execution-failures.test.mjs`: baseline exit 0 (0.470 s); scratch first-case runs used `aCiRun.with(run(facts)).please()` and jobs used a temporary `aGitHubJob.withFacts(...).please()` getter, exit 0 (0.690 s). Changing only the failed Backend job's name to Wrong job failed the maintained emitted `failedJobs` deep equality, preserving run 42 / attempt 1 / job 101. Exact restoration passed (0.709 s); the temporary getter was removed. |
-| **Open:** comparison fixture conversion and shared-attempt job-read proof under admitted host conditions. | The unchanged selected fast-forward test failed its default 30000 ms timeout (30.8 s) at `889985084`. Trace timings: origin fixture 5.815 s, dashboard fixture 5.397 s, Git setup/body 8.258 s and CI read 7.354 s; independent final assertions passed during teardown. Host load was about 21 on 16 logical CPUs; no sleep occurred in the run window. The historical whole-file duration was 19.3 s (`dashboard/longest-first`). A causal correction using maintained admission under AC `caffeinate -s -i` remained queued behind the live full-suite owner in the machine-local configuration worktree, which had reached 51:29 elapsed at deferral; no test or scratch mutation started. The queued command was safely cancelled for deferral, with exact fixture bytes retained. Slice 1 owns the unpaid result; no success is inferred from queuing or from the timeout trace. |
+| Current comparison construction reaches real Git history, GitHub transport, endpoint selection, wall-time display and shared-attempt job-page identity. | On 2026-11-10 at `a1d25c1dd`, reconstructed only the first historical fast-forward case from `889985084:dashboard/tests/intent/intent-ci-comparison-fast-forward.spec.ts` in temporary `dashboard/tests/intent/intent-ci-comparison-preparation-probe.spec.ts`; changed its moved `listedAttemptJobPages` import to `storyCiComparisonRequests.ts`. `D intent-ci-comparison-preparation-probe.spec.ts`: baseline 1 passed (7.0 s test / 10.2 s run); scratch `wall` returned `makeMe.aCiRun.with(theSameFacts).please()`, 1 passed (6.4 / 7.6 s). Changing only builder run ID 402 to 499 failed the independent final job-page assertion: expected `[401/1/1, 402/1/1]`, received `[401/1/1, 499/1/1]`; both endpoint identity and 3 min 20 s assertions passed first. Exact restoration passed (6.9 / 7.8 s). This is a reconstructed comparison on current code, not a pass of the retired spec. |
+| Current fast comparison rules consume canonical run facts, distinguish exact branch/landing revision from later trunk, recover refused evidence and retain final answers. | At `a1d25c1dd`, `D backend-tests/intent/ci-comparison-endpoints.spec.ts backend-tests/intent/ci-comparison-memory-recovery.spec.ts`: 5 passed (4.8 s). Those tests already use `aRevisionCiRun` and independently assert the selected run/attempt, job timing, exact endpoint and read counters. Changing only the fast-forward case's builder `headSha` from `branch` to `later`, then selecting it with `--grep 'a fast-forward landing uses its exact branch tip'`, failed the unchanged `toMatchObject` at line 208: both endpoints became `none` instead of the exact branch build. Restoration: the same five tests passed (4.2 s). |
+
+The 2026-11-10 probes ran in this assigned workspace on Node 24.21.0,
+Chromium 153.0.8010.12 and Homebrew Bash 5 after native npm/browser/check
+setup passed. Before launch: AC power, load 10.13 on 16 logical CPUs,
+54% free memory, no full-suite admission owner or active test/build command
+observed. Each sequence held one maintained repository admission for baseline,
+scratch/fault and restoration, with one worker and `caffeinate -s -i`:
+
+```sh
+env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
+  PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i \
+  node scripts/local-test-suite.mjs repository "$PWD" "$PWD" \
+  node /tmp/dough-261-probe.mjs
+```
+
+The temporary driver invoked the `D` command recorded in its row for each
+phase. `/tmp/dough-261-endpoint-probe.mjs` used the same wrapper and the
+second row's commands. Both drivers restored original bytes in `finally`;
+the temporary browser spec was removed and `git status --short` was empty
+before record writes. Driver/log paths are incidental local evidence, not
+execution prerequisites; the rows record the reproducible inputs and results.
+
+The prior 2026-11-09 contention timeout remains a failed observation, never
+accepted proof. SEED-286's completed comparison-test work retired that spec
+before this preparation. The current admitted reconstruction now settles the
+previously unpaid conversion/discrimination premise, and the current fast
+rule tests establish its replacement proof routes. No timeout was raised.
+The earlier Node, wall-time and captured-job observations retain their stated
+boundaries: their named tests, provider decoders and timing logic are unchanged;
+MakeMe added unrelated builders without changing `aCiRun`'s copy semantics.
+New comparison-rule consumers are covered by the fresh observations above.
+
 
 ## Proof and delivery gates
 
@@ -153,45 +206,7 @@ overrides.
 
 ## Slices
 
-### 1. Verify comparison proof under admitted host conditions
-Type: Behavior
-Status: planned
-Proof: First settle the outstanding comparison premise under the maintained admission wrapper below. This is a bounded early probe, before dependent comparison conversion; it requires no paid service or human-operated instrument.
-
-The repository's full-suite owner releases its local admission → run the
-single selected fast-forward comparison under `caffeinate -s -i` and the
-maintained `scripts/local-test-suite.mjs repository` wrapper → the same
-identity, wall-time and unique attempt-job-page assertions complete inside
-the default test timeout. First reproduce on unchanged files. Then scratch
-wrap `wall` construction through the shared run builder, observe the same
-result, change only a case-driving run identity to prove the independent
-assertion fails, and restore exact files and observe the original pass.
-Use this baseline command from the current owned checkout (reuse its
-existing prerequisites):
-
-```sh
-env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
-  PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i \
-  node scripts/local-test-suite.mjs repository "$PWD" "$PWD" \
-  npm run test:dashboard -- 'intent-ci-comparison-fast-forward\.spec\.ts$' \
-  --grep 'a fast-forward landing after a story-first merge of main names the tip as Branch and Landed' \
-  --workers=1 --reporter=list
-```
-
-Keep baseline, scratch conversion, discrimination and restored check under
-one admission using a temporary driver when performing the full sequence.
-Keep temporary edits in the owned workspace and restore them before any
-commit or preparation recording. The failed contention baseline is not
-accepted proof. Do not merely rerun until green: if admission does not resolve
-the diagnosed cause, diagnose and repair the test/environment under the
-[failure policy](../../../AGENTS.md#failing-and-flaky-tests), then repeat its
-affected proof before dependent conversion. No timeout increase is selected.
-A passed probe settles this remaining premise; review the current story/plan
-basis and record readiness before ordinary implementation starts. If the
-comparison semantics or source scope differ, stop the affected path and
-reassess the same plan, preserving independent work.
-
-### 2. Revision judgment and CI status share the run facts
+### 1. Revision judgment and CI status share the run facts
 Type: Behavior
 Status: planned
 Proof: Source examples 1 and 2. Run dashboard selections `tests/launches/agent-launch-base-ci`, `tests/intent/intent-ci-status` and `tests/intent/intent-ci-proof-(ancestor|reasons|sources)`, plus the Node support checks `dashboard-ci-revision-nearest.test.mjs`, `dashboard-story-branch-ci.test.mjs` and `requested-revision-ci-status.test.mjs` under `tests/support/`. Run affected project visit/home activation journeys found by the trace.
@@ -200,7 +215,9 @@ A test states selected-revision and ancestor run facts through MakeMe → the
 real GitHub observation/revision lookup and dashboard read them → base-CI
 judgment, selected attempt, pending/absent distinctions and wall-time display
 are preserved. Replace the suite-local run type/construction with the
-production-aligned shared run builder and existing API encoding. Convert
+production-aligned shared run builder and existing API encoding. Consolidate
+GitHub construction shared with `aRevisionCiRun`, retaining the adapter
+projection separately, and perform the MakeMe reorganization above. Convert
 `baseCiActions`, `intentCiStatusPage`, `intentCiStoryRecords`,
 `intentCiProofPage`, `intentSummaryCiProofFixtures`, their direct run setups
 and the named Node support consumers. Incidental defaults belong in the
@@ -209,10 +226,10 @@ Raw mapping inputs and deliberate malformed responses remain literal.
 Keep every shared-seam caller compatible in this delivery and run its traced
 consumers even when its case's data conversion is assigned to a later slice.
 
-### 3. Story comparisons share attempt identity and job timing facts
+### 2. Story comparisons share attempt identity and job timing facts
 Type: Behavior
 Status: planned
-Proof: Source example 3. Run `tests/intent/intent-ci-comparison`, `tests/intent/intent-summary-story-comparison`, `tests/intent/intent-summary-ci-proof` and `backend-tests/intent/ci-time-without-runner-waits.spec.ts` through the dashboard runner. Preserve the fast-forward assertion that unique job read pages are exactly `401/1/1` and `402/1/1`, retry/recovery request counts and settled caching. Run the slice 2 status selections again if their encoding seam changes.
+Proof: Source example 3. Run `tests/intent/intent-ci-comparison`, `tests/intent/intent-summary-story-comparison`, `tests/intent/intent-summary-ci-proof`, the `backend-tests/intent/ci-comparison-` family and `backend-tests/intent/ci-time-without-runner-waits.spec.ts` through the dashboard runner. Use the current endpoint, published-endpoint, timing, memory, finality and client-read owners for their rules; retained GitHub/UI journeys and mounted presentation tests keep their existing boundaries. The retired fast-forward spec is not an execution selector. Retain equivalent focused coverage of the observed unique job pages `401/1/1` and `402/1/1` at the actual GitHub lookup boundary, plus independent endpoint/timing observations, retry/recovery counts and settled caching; do not restore a large journey solely to own a rule. Run the slice 1 status selections again if their encoding seam changes.
 
 A comparison's Baseline, Branch and Landed name runs/attempts and synthetic
 job times through MakeMe → the real comparison reads them at their endpoint
@@ -222,12 +239,14 @@ EarlierLanding, FastForward, LaterFastForward, Skipped variants, Taken,
 Retry, LandedOutcome and CancelledLanding fixtures, Summary comparison
 fixtures/variant publishers and direct run overrides in their consumers.
 Unify the comparison attempt endpoint's transport encoding with the listing.
+Convert any valid GitHub facts still arranged outside MakeMe in backend
+comparison setup, keeping already-converted rule cases on the same owner.
 Introduce the shared GitHub job builder with these real timing consumers;
 convert valid synthetic job arrangements in the backend timing cases and
 synthetic run wrappers around captured observations. Preserve the captured
 jobs and invalid-time distractor exactly as stated in Current decisions.
 
-### 4. Observer failures retain their run, attempt and job evidence
+### 3. Observer failures retain their run, attempt and job evidence
 Type: Behavior
 Status: planned
 Proof: Source example 4. Node runner selections under `src/skills/dough-execute-plan/scripts/`: `watch-ci-execution.test.mjs`, `watch-ci-execution-startup.test.mjs`, `watch-ci-execution-failures.test.mjs`, `watch-ci-execution-hold.test.mjs`, `watch-ci-execution-coverage.test.mjs`, `ci-github-acquisition.test.mjs`, `ci-github-current-attempt.test.mjs`, `ci-github-actions-observed-run.test.mjs`, `ci-github-diagnostic.test.mjs`, `ci-github-diagnostic-logs.test.mjs`, `ci-github-diagnostic-inventory.test.mjs`, `ci-github-test-fixtures.test.mjs` and `ci-observer-stream.test.mjs`. Add every traced mailbox/revision-coverage consumer of the delegated run factories.
@@ -244,7 +263,7 @@ including URL and steps. Request admission, pagination, scripted reads,
 process teardown and exact logs remain owned by the existing harnesses.
 No mailbox coverage record or command-adapter construction moves here.
 
-### 5. Reused validation keeps exact revision and current source attempt
+### 4. Reused validation keeps exact revision and current source attempt
 Type: Behavior
 Status: planned
 Proof: Source example 5. Run `ci-reuse-github.test.mjs`, `ci-reuse-github-command.test.mjs`, `ci-reuse-story-journey.test.mjs`, `ci-reuse-trunk-journey.test.mjs` and `ci-reuse-resource-journey.test.mjs` under `src/skills/dough-execute-plan/scripts/` with the Node runner. Preserve exact-SHA, opaque source identity, newer rerun, changing/partial answers and distinct target completion assertions.
@@ -260,7 +279,7 @@ markers and echoed shell commands explicit; legitimate but nonqualifying
 runs still use MakeMe. Command execution and produced proof text remain real
 or exact evidence at their existing boundaries.
 
-### 6. Integrated-state validation keeps the descendant's GitHub evidence separate
+### 5. Integrated-state validation keeps the descendant's GitHub evidence separate
 Type: Behavior
 Status: planned
 Proof: Source example 6. Run `ci-github-current-attempt.test.mjs`, `ci-integrated-state-journey.test.mjs` and `ci-integrated-state-replaced-basis.test.mjs` under `src/skills/dough-execute-plan/scripts/`, plus traced GitHub-specific consumers. Check unresolved without policy, B's retained `not_required` basis when validated at C, and B's own failure beside C's success. Before final delivery run the complete traced Node/dashboard selections on the final state; reuse accepted checks whose paths and boundaries are unchanged.
@@ -277,26 +296,19 @@ with their sibling story. Remove any now-unused GitHub constructors/variants.
 
 ## Readiness review
 
-Plan refinement was not needed: the five conversion slices each retain one
-consuming outcome and proof loop (revision/status judgment, story comparison
-timing, observer failure evidence, exact-revision reuse, and integrated
-validation). The preceding bounded probe owns the currently unavailable
-comparison observation and changes no story scope. Each builder change ships
-with a real consumer and necessary shared-seam compatibility. The cumulative
-rule is one GitHub run/job construction, with one encoding at the real
-transport boundary, while harnesses continue to own operations and raw
-evidence. No separate builder-first or file-only slice is needed. No numeric
-slice target is prescribed by this project; boundedness includes
-implementation, focused proof and removal of displaced construction.
+Plan refinement was not needed: this update removes the settled early probe
+and keeps five cohesive conversion outcomes with their proof loops (revision/
+status judgment, comparison timing, observer failures, exact-revision reuse,
+integrated validation). Implementation, preserved external proof and displaced
+construction removal stay together. The public-entry reorganization belongs
+to the first consuming slice. No project numeric slice target is prescribed.
 
-One remaining concern blocks readiness: slice 1 has not observed the admitted
-comparison baseline, conversion, discrimination and restored check. The
-unchanged fast-forward test exceeded its default 30 s under diagnosed host
-contention; its trace completed the independent assertions during teardown,
-but the run still failed. The later sequence remained queued behind the
-other live full-suite owner and started no test. The contention correction
-has not been verified, so this is `not-ready`, not a repaired failure or an
-exemption. Slice 1 owns the exact observation and any required repair once
-admission is available; slice 3's comparison conversion waits for it. The
-other preparation observations above remain accepted within their stated
-boundaries. No goal, scope, ADR or product decision needs a human response.
+Reviewed source examples 1–6 against slices 1–5 and the recorded consuming
+observations. The former comparison concern is settled by the admitted
+reconstruction and current endpoint discrimination above. The plan now names
+the actual fast rule/transport/presentation boundaries and existing
+`aRevisionCiRun`; no additional run model or implementation-first slice is
+needed. One construction rule and transport encoding serve GitHub facts while
+harnesses retain operations and exact evidence. No remaining slice-specific,
+cumulative-design, scope, proof-route, or human-owned decision concern was
+identified. Readiness records preparation only; all five slices remain planned.

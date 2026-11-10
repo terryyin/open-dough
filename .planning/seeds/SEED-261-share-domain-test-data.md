@@ -155,7 +155,7 @@ consumers. No calibrated story effort bands are established.
 
 **Identity:** SEED-261#map-github-actions-ci-test-data
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/553-map-github-actions-ci-test-data/PLAN.md","assessment":"not-ready","reasons":["Slice 1: the unchanged fast-forward comparison test failed its default 30000 ms timeout under contention. The admitted baseline, MakeMe conversion, discrimination and restored observations never started while another full suite held admission. Reproduce and repair the test or environment as needed, and verify that exact probe under maintained admission before clearing readiness."],"basis":{"document":"020372126b3f29db6e96113e19edff485aa62977d8a84f3b6364094cbd2294e4","plan":"e37e297ec9b31389c20ad136c51cf5886858012e58ba23610592121ffa486033"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/553-map-github-actions-ci-test-data/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a8df2fc8f68acf4bf9599e6cac3f5c9ed59eda7174fdd3aca96451714cff1bac","plan":"a71094a904e925f034344163a6821abe965f8e37bd1d288af5ac8a687c2bc183"}}
 ```
 
 #### Goal
@@ -175,8 +175,10 @@ independent behavioral proof.
   shared run and job factories. Remove displaced constructors or have their
   harnesses delegate to MakeMe.
 - Align the existing `aCiRun` with the production GitHub observation contract
-  instead of the dashboard's suite-local `CiRunAnswer`. Keep actual GitHub
-  REST responses and observed run/current-attempt projections distinct,
+  instead of the dashboard's suite-local `CiRunAnswer`. Reuse the GitHub run
+  facts already built by `aRevisionCiRun` behind one construction rule; retain
+  the provider-neutral adapter projection as a distinct concept. Keep actual
+  GitHub REST responses and observed run/current-attempt projections distinct,
   reusing the existing API encoding seam. State revision, run and attempt
   identity, branch, event, conclusion and times at the call site whenever
   they drive the case. Preserve repository and workflow ownership in reuse.
