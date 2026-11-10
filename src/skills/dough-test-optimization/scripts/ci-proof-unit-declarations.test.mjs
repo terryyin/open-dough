@@ -4,6 +4,7 @@
 // counts none when they report two. A fragment no declaration takes is
 // excluded with a note, never relabelled, and each entry and unit is
 // declared once. Explicit units kept apart: ci-proof-units.test.mjs.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { describeSummary, summarize } from "./ci-proof-collect.mjs";
@@ -14,12 +15,12 @@ import {
 } from "./ci-proof-fragments.mjs";
 import {
   byFile,
-  fragmentOf,
   fragmentsRead as read,
   locatedRecord,
   partIdentity,
   partStatuses as statuses,
   run,
+  revision,
 } from "./ci-proof-test-fixtures.mjs";
 
 const cwd = "/runner/project";
@@ -73,14 +74,43 @@ test("a declaration without a unit takes its entry's fragments in the one unit t
 });
 
 test("a fragment no declaration of its unit takes is excluded with a note, never relabelled, and a declaration without a unit whose fragments report two units counts neither", () => {
-  const legacy = fragmentOf("tests", 1, 1).legacy("checks").counting(4);
+  const legacy = makeMe.aCiProofFragment
+    .at("tests")
+    .part(1, 1)
+    .ofAttempt(run.attempt, revision)
+    .legacy("checks")
+    .counting(4);
   const { summary, notes } = summarize({
     fragments: read(
       legacy.please(),
-      fragmentOf("tests", 1, 1).inUnit("case").counting(3).please(),
-      fragmentOf("tests", 1, 2).inUnit("file").counting(2).please(),
-      fragmentOf("src/skills", 1, 2).inUnit("case").counting(7).please(),
-      fragmentOf("src/skills", 2, 2).legacy("checks").counting(1).please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(3)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("file")
+        .counting(2)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("src/skills")
+        .part(1, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(7)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("src/skills")
+        .part(2, 2)
+        .ofAttempt(run.attempt, revision)
+        .legacy("checks")
+        .counting(1)
+        .please(),
     ),
     expect: [
       { entry: "tests", parts: 3, unit: "file" },

@@ -7,6 +7,7 @@ import { takenTrunkComparison } from "./comparisonMountSelections.ts";
 import {
   mixedEntryFacts,
   wallComparedFacts,
+  withoutGithubRunIdentity,
 } from "./mountedComparisonFacts.ts";
 
 for (const mode of ["story-branch", "trunk"] as const) {
@@ -39,7 +40,9 @@ for (const mode of ["story-branch", "trunk"] as const) {
         })
         .please();
       const baseline = {
-        ...facts.answer.baseline,
+        ...(adapter
+          ? withoutGithubRunIdentity(facts.answer.baseline)
+          : facts.answer.baseline),
         completedAt: adapter ? undefined : "2026-11-09T00:04:59Z",
         startedAt: adapter ? undefined : "2026-11-09T00:00:00Z",
         timeWithoutRunnerWaits: { milliseconds: 295_000 },
@@ -51,7 +54,9 @@ for (const mode of ["story-branch", "trunk"] as const) {
           : {}),
       };
       const provisional = {
-        ...facts.answer.branch,
+        ...(adapter
+          ? withoutGithubRunIdentity(facts.answer.branch)
+          : facts.answer.branch),
         completedAt: adapter ? "2026-11-09T00:06:30Z" : "2026-11-09T00:13:27Z",
         timeWithoutRunnerWaits: { milliseconds: 287_000 },
         ...(adapter

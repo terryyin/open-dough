@@ -10,6 +10,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { diagnosticExcerptBytes } from "./ci-command-adapter.mjs";
+import { discoverAttempt } from "./ci-command-adapter-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
 
 const checkedSha = "d".repeat(40);
@@ -22,6 +23,18 @@ function failureFixture(t) {
   mkdirSync(bin);
   const log = join(root, "ci.log");
   const adapter = join(bin, "adapter.mjs");
+  const repeatedFailure = discoverAttempt({
+    runId: "run:opaque",
+    attemptId: "attempt/repeated",
+    sha: checkedSha,
+    outcome: "failure",
+  });
+  const distinctFailure = discoverAttempt({
+    runId: "run:opaque",
+    attemptId: "attempt:distinct",
+    sha: checkedSha,
+    outcome: "failure",
+  });
   writeFileSync(
     log,
     [
@@ -41,8 +54,10 @@ const countPath = ${JSON.stringify(join(root, "discover-count"))};
 if (request.operation === 'discover') {
   const count = existsSync(countPath) ? Number(readFileSync(countPath, 'utf8')) + 1 : 1;
   writeFileSync(countPath, String(count));
-  const attemptId = count < 3 ? 'attempt/repeated' : 'attempt:distinct';
-  process.stdout.write(JSON.stringify({ attempts: [{ runId: 'run:opaque', attemptId, sha: ${JSON.stringify(checkedSha)}, outcome: 'failure' }] }));
+  const attempt = count < 3
+    ? ${JSON.stringify(repeatedFailure)}
+    : ${JSON.stringify(distinctFailure)};
+  process.stdout.write(JSON.stringify({ attempts: [attempt] }));
 } else {
   const key = request.attempt.attemptId;
   if (key === 'attempt:distinct') {

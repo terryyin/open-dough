@@ -112,7 +112,7 @@ test("an exact landing and a skipped landing share one collected attempt and ret
       attempt: 1,
       revision: setup.trunkSide,
     },
-    [["dashboard/tests", 1, "case"]],
+    [{ entry: "dashboard/tests", parts: 1, unit: "case" }],
     [
       {
         entries: ["dashboard/tests"],

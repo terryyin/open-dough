@@ -137,7 +137,7 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
       runId,
       collectedSummary(
         { repository: "terryyin/open-dough", runId, attempt: 1, revision },
-        [["dashboard/tests", 1, "case"]],
+        [{ entry: "dashboard/tests", parts: 1, unit: "case" }],
         [
           {
             entries: ["dashboard/tests"],

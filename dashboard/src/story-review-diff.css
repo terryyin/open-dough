@@ -162,8 +162,8 @@
 
 .story-review-expand-controls button:hover,
 .story-review-expand-controls button:focus-visible {
-  color: var(--ink);
-  border-color: var(--ink);
+  color: var(--text);
+  border-color: var(--text);
 }
 
 .story-review-context-problem {

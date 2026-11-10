@@ -2,11 +2,15 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   coverageStates,
   createRevisionCoverageFixture,
   git,
 } from "./ci-revision-coverage-test-fixtures.mjs";
+
+const discoverAttempt = (facts) =>
+  makeMe.aCiAdapterAttempt.with(facts).please();
 
 test("delivery registers exact pushed revisions and coverage stays silent until actionable", async (t) => {
   const {
@@ -41,12 +45,12 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
   assert.deepEqual(mailbox.readMailboxEvents(directory), []);
 
   setAttempts([
-    {
+    discoverAttempt({
       runId: "run:A",
       attemptId: "attempt/pending",
       sha: shaA,
       outcome: "pending",
-    },
+    }),
   ]);
   await advancePoll();
   const pendingA = mailbox
@@ -69,24 +73,24 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
   assert.deepEqual(mailbox.readMailboxEvents(directory), []);
 
   setAttempts([
-    {
+    discoverAttempt({
       runId: "run:A",
       attemptId: "attempt/success",
       sha: shaA,
       outcome: "success",
-    },
-    {
+    }),
+    discoverAttempt({
       runId: "run:B",
       attemptId: "attempt/success",
       sha: shaB,
       outcome: "success",
-    },
-    {
+    }),
+    discoverAttempt({
       runId: "run:C",
       attemptId: "attempt/success",
       sha: shaC,
       outcome: "success",
-    },
+    }),
   ]);
   await advancePoll();
   assert.deepEqual(
@@ -103,30 +107,30 @@ test("delivery registers exact pushed revisions and coverage stays silent until 
   await git(project, "commit", "-am", "repair D");
   const shaD = await deliver();
   setAttempts([
-    {
+    discoverAttempt({
       runId: "run:A",
       attemptId: "attempt/success",
       sha: shaA,
       outcome: "success",
-    },
-    {
+    }),
+    discoverAttempt({
       runId: "run:B",
       attemptId: "attempt/success",
       sha: shaB,
       outcome: "success",
-    },
-    {
+    }),
+    discoverAttempt({
       runId: "run:C",
       attemptId: "attempt/success",
       sha: shaC,
       outcome: "success",
-    },
-    {
+    }),
+    discoverAttempt({
       runId: "run:D",
       attemptId: "attempt/pending",
       sha: shaD,
       outcome: "pending",
-    },
+    }),
   ]);
   await advancePoll();
   mailbox.requestMailboxStop(directory, { root: project, storage });

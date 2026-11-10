@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { completionState } from "./ci-mailbox-completion-state.mjs";
 import { completeRevision } from "./ci-mailbox-complete.mjs";
 import { register } from "./ci-mailbox-await-test-fixtures.mjs";
-import { publishJson } from "./ci-mailbox-json-file.mjs";
+import { publishRevisionRecord } from "./ci-mailbox-revision-records.mjs";
 import { readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import {
   setupProcessMailbox,
@@ -26,11 +27,21 @@ test("at-cap worker loss stays explicitly unavailable alongside durable expiry a
   clock = first.deadline;
   // A fresh recorded queue fact is only this test's starting precondition;
   // real adapter acquisition/projection is covered by the pending journey.
-  publishJson(join(h.mailbox, "coverage"), `${sha}.json`, {
-    sha,
-    state: "undiscovered",
-    queue: { sha, branch: "main", state: "running", observedAt: clock },
-  });
+  publishRevisionRecord(
+    h.mailbox,
+    makeMe.aRevisionCoverage
+      .with({
+        sha,
+        state: "undiscovered",
+        queue: {
+          ...makeMe.aCiQueueEntry
+            .with({ sha, branch: "main", state: "running" })
+            .please(),
+          observedAt: clock,
+        },
+      })
+      .please(),
+  );
   await awaitWorkerSignal(h.mailbox, join(h.directory, "started"));
   const { pid } = readWorkerIdentity(h.mailbox);
   const providerPid = Number(

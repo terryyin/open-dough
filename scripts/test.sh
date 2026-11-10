@@ -198,7 +198,6 @@ for index in "${!labels[@]}"; do
   # The deadline clock starts with this job, not while it was queued. The
   # watchdog stays outside the job's process group so it can finish the group.
   arm_job_deadline "${index}" "${job_pids[index]}"
-  jobs_started=$((jobs_started + 1))
 done
 
 wait_remaining_jobs

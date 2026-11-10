@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   completeRevision,
   readRevisionCoverage,
@@ -10,6 +11,7 @@ import {
 } from "./ci-mailbox.mjs";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
+import { publishRevisionRecord } from "./ci-mailbox-revision-records.mjs";
 import {
   exec,
   parseReceipt,
@@ -149,10 +151,10 @@ test("unreadable and unavailable outcomes stay unresolved and still shut down", 
     );
     assert.notEqual(result.shutdown.status, "retained");
     // Restore readable coverage so the process-mailbox teardown stop can run.
-    publishJson(join(fixture.mailbox, "coverage"), `${sha}.json`, {
-      sha,
-      state: "undiscovered",
-    });
+    publishRevisionRecord(
+      fixture.mailbox,
+      makeMe.aRevisionCoverage.with({ sha, state: "undiscovered" }).please(),
+    );
   });
 
   await t.test("observation_unavailable", async (t) => {
@@ -183,11 +185,16 @@ test("unconfirmed shutdown names the limitation and does not stop another worker
   // out its lifecycle deadline; a short one still fires, without the 5 s wait.
   overrideTerminalResultDeadline(t)("300");
   registerPushedRevision(directory, sha);
-  publishJson(join(directory, "coverage"), `${sha}.json`, {
-    sha,
-    state: "success",
-    checkedBy: { runId: 1, attemptId: 1 },
-  });
+  publishRevisionRecord(
+    directory,
+    makeMe.aRevisionCoverage
+      .with({
+        sha,
+        state: "success",
+        checkedBy: { runId: 1, attemptId: 1 },
+      })
+      .please(),
+  );
   const result = await completeRevision(directory, sha, { storage });
   assert.equal(result.verdict, "success");
   assert.equal(result.shutdown.status, "unconfirmed");

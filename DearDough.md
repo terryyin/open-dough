@@ -12,6 +12,10 @@ retain local facets. The full source before this compaction is
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Recovery: `e155eb11b71a410f93793a889b3c713aa9691272:DearDough.md` preserves the ODF-074 SEED-286 analyzer-endpoint occurrence pruned during SEED-298 integration; current required-preview/CI repair evidence was retained over this already-corrected observation that caused no additional test run.
 - Recovery: `9befabc4239528f432fad85634a3fb24a76a4edf:DearDough.md` preserves three redundant ODF-396 trace occurrences (SEED-288 refresh, SEED-010 freshness, SEED-281 count-gaps) replaced by current published-failure and late-lint evidence plus this execution's aggregate trace recurrence; retained ODF-396 occurrences preserve its meaning.
+
+- Recovery: `53fd020780ae447e7ee00363e2ab49a9f055f2f0:DearDough.md` holds DD-483 before this SEED-278 ODF-154 occurrence retention prune.
+- Recovery: `a0357d569ac3bd2fc4d866d511fdf354963881bc:DearDough.md` preserves the catalog-only ODF-238/253/262/263 stubs removed to retain current ODF-329/396 recurrence evidence; their meaning/evidence remain in the maintained finding catalog.
+- Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -25,6 +29,16 @@ Former local code: DD-057. [Meaning, evidence and response](docs/maintainer/find
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
 Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
+
+### Occurrences
+
+- Execution: SEED-278#dashboard-dark-theme (plan 578; first related implementation `53fd020780ae447e7ee00363e2ab49a9f055f2f0`)
+  - Timestamp: 2026-11-10T14:30:36.369Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Deliver receipt in terminal `818682.txt` for accepted `53fd020780ae447e7ee00363e2ab49a9f055f2f0` on `refs/heads/cursor/give-the-dashboard-a-dark-theme`: `observation.state: unobserved`, `pendingCi: unobserved`, reason `Cursor conversation identity is unavailable: CURSOR_CONVERSATION_ID is unset and no --session-json was supplied…`; deliver `--session-json` carried only `observerDirectory` `/tmp/dough-ci-501/watch-prFFAc`. Coordinator transcript `4df873ee-74e0-4b1a-bd17-30a37a4c6a18` started that observer before deliver.
+  - Observed effect: Publication accepted; hosted CI coverage for the increment stayed unobserved/unidentified despite a started observer directory.
+  - Inference: Post-release recurrence of missing Cursor conversation identity. Native verification of ODF-154 proved the identity path when `CURSOR_CONVERSATION_ID` is set; this coordinator Shell left it unset and did not pass `conversation_id` in `--session-json`. Distinct from a failed released deliver-path when the ID is present.
 
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 
@@ -248,10 +262,6 @@ Former local code: DD-289. [Evidence and current response](docs/maintainer/findi
 
 <a id="dd-288"></a>
 
-## ODF-238 — A planned native proof depends on a future release <a id="odf-238"></a>
-
-Former local code: DD-288. [Meaning, evidence and response](docs/maintainer/findings/ODF-238.md).
-
 ## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
 
 Former local code: DD-292. [Evidence and current response](docs/maintainer/findings/ODF-248.md).
@@ -271,10 +281,6 @@ Former local code: DD-298. [Evidence and current response](docs/maintainer/findi
 ## ODF-252 — A story recorded ready still needs developer choices and fixtures before its first slice <a id="odf-252"></a>
 
 Former local code: DD-299. [Evidence and current response](docs/maintainer/findings/ODF-252.md).
-
-## ODF-253 — The start command's guidance names the trunk branch but not its flag <a id="odf-253"></a>
-
-Former local code: DD-300. [Evidence and current response](docs/maintainer/findings/ODF-253.md).
 
 ## ODF-254 — Accepted proof let a test setup step perform an action the story requires of the product <a id="odf-254"></a>
 
@@ -316,14 +322,6 @@ Former local code: DD-314. [Evidence and current response](docs/maintainer/findi
 
 Former local code: DD-315. [Evidence and current response](docs/maintainer/findings/ODF-261.md).
 
-## ODF-262 — Permission-only probes split a human click journey <a id="odf-262"></a>
-
-Former local code: DD-316. [Evidence and current response](docs/maintainer/findings/ODF-262.md).
-
-## ODF-263 — Phase artifact capture overwrites newer recovery evidence <a id="odf-263"></a>
-
-Former local code: DD-317. [Evidence and current response](docs/maintainer/findings/ODF-263.md).
-
 ## ODF-303 — Native JSON hid an existing source-only reviewer <a id="odf-303"></a>
 
 Former local code: DD-318. [Meaning, evidence and response](docs/maintainer/findings/ODF-303.md).
@@ -356,6 +354,13 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: launch `ee3cee74-5c29-456a-b16c-eb4336e7011c`; startup setup/plan read reported 14,032 original tokens with truncation, and first-delegation guidance batch reported 12,088 with truncation; coordinator retrieved missing plan and decision passages separately.
   - Observed effect: broad combined output lost needed passages and required targeted rereads before delegation. Dependent execution waited for the missing context.
   - Inference: recurrence of agent read-batching deviation under existing targeted-retrieval rules; no isolated time or token saving measured.
+
+- Execution: SEED-296#prove-repeat-destination-cue-restarts (plan 579; implementation `536dcf13218bae15339ffbd1288464649940047e`)
+  - Timestamp: unknown (2026-11-10 execution; exact read-event times not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `579604374`)
+  - Evidence: launch `cd709693-c387-4de7-8e97-2c96d9d47ed2`; first-delegation batch reported 11,904 original tokens with truncation; retrospective ADR/direction batch reported 10,825 and findings batch 7,895 with truncation. Missing passages were retrieved by heading/range.
+  - Observed effect: repeated loss and recovery of requested context under existing targeted-retrieval guidance; no measured token/time saving. Inference: recurring agent read-batching deviation, not missing instructions.
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
@@ -447,6 +452,14 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.94 (checkout-bound installed guidance)
   - Evidence: slice 3 fresh preparation withheld commit on 79 typed-lint errors, including the case-only ciFollowUp.ts/CiFollowUp.tsx collision and unbounded store inference; `4f9cdebb9:.planning/slice-plans/569-retry-a-slow-landed-ci-build/slice-3-preparation-proof.md` records fixes and renewed proof. Slice 4's first fresh formatting also refused one unused test parameter before accepted `9befabc42`.
   - Observed effect: independent implementation/refactor and behavior proof preceded coordinator repair loops. All publication gates held; renewed affected browser/native/type proof passed. The actual saving from an earlier read-only check is unmeasured.
+
+- Execution: SEED-261#map-ci-proof-test-data (plan577; first implementation `fc2edb326ee9dbcfb5e9ec6db1fc9eaf76f24969`)
+  - Timestamp: unknown (2026-11-10, slice3 delivery)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed VERSION at established claim `efc80fb31`)
+  - Evidence: launch `4f1ead35-9023-4e92-8337-36d4fd67ce26`; after105 browser/backend tests,19 collector comparisons and independent refactor, fresh formatting found four no-unsafe-assignment errors in two TS harnesses. `0dd938e1a:.planning/slice-plans/577-map-ci-proof-test-data/slice-3-typing-repair.md` retains the correction and emitted-JavaScript comparison.
+  - Observed effect: commit/publication were withheld; narrow opaque return typing, typecheck/affected Node proof and preparation retry settled the gate. Browser proof stayed applicable because emitted JavaScript was identical.
+  - Inference: late authored-file lint feedback recurred under coordinator-owned formatter/hook instructions; an earlier read-only lint's counterfactual saving remains unmeasured.
 
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
@@ -627,6 +640,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: 0.3.94 (checkout-bound installed guidance)
   - Evidence: final slice 3 refactor traced 963 consumers; slice 4 implementation/refactor disposition tables `/tmp/seed285-slice4-4f9cde-consumer-dispositions.md` and `/tmp/seed285-refactor4-4f9cde-consumer-dispositions.md` contain 847 and 849 nonempty per-file dispositions, including generic planning-name matches. Accepted product proof is retained at `9befabc42:.planning/slice-plans/569-retry-a-slow-landed-ci-build/`.
   - Observed effect: coordinator checked every disposition and repeatedly retrieved targeted passages after large combined reads truncated. No missed product consumer is established; isolated trace time/token cost is unmeasured.
+
+- Execution: SEED-261#map-ci-proof-test-data (plan577; first implementation `fc2edb326ee9dbcfb5e9ec6db1fc9eaf76f24969`)
+  - Timestamp: unknown (2026-11-10 execution)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed VERSION at established claim `efc80fb31`)
+  - Evidence: slice1's generated trace was731 lines; slice3 reported687 located rows and slice4 reported980, deriving dirty PLAN/source-review basenames beside explicit fragment/count/factory terms. `a0357d569:.planning/slice-plans/577-map-ci-proof-test-data/` retains literal focused commands and function-level consumer dispositions; raw traces stayed under `/tmp/slice*-consumer-trace.md`.
+  - Observed effect: broad lexical/record matches required many exclusions and a truncated combined coordinator read. Later bounded inspection and function-level impact selection retained actual indirect consumers, including two additional browser journeys; no missed consumer is established.
+  - Inference: planning-basename/generic-term noise recurred alongside useful tracing. Isolated time/token cost and savings from a narrower search were not measured.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 
@@ -908,20 +929,6 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
   - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.
 
-## DD-483 — A message to a completed agent left its follow-up task idle
-
-The coordinator sent a new task through a message API that does not activate a completed agent, then waited and chased status before using the activation operation. This is an operator mistake against the explicit host contract; no missing Open Dough rule is established.
-
-### Occurrences
-
-- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: coordinator history after the slice9 oracle-migration final return: repeated send_message manifest requests/status chases, interrupt_agent returning previous_status.completed, then the corrective followup_task beginning "START scratch manifest task now"; the coordinator acknowledged the activation mistake and the actual manifest returned257 owners/207rules/50connections.
-  - Observed effect: the follow-up task remained unstarted across several status messages and waits; it ran after activation was corrected. No source work or accepted proof was lost. Elapsed time and token cost were not measured.
-  - Inference: One execution-level coordination error. The tool description already distinguishes message delivery from starting a turn; this observation does not justify another wording rule or claim a host defect.
-
 ## DD-484 — New Node test files placed outside suite discovery
 
 Discriminating renderer tests were added under `scripts/`, which this project's Intent/CI discovery roots do not include, so the full suite would not have run them until acceptance relocated the file.
@@ -964,20 +971,6 @@ Focused Playwright configuration selection passed; the commit hook's typecheck t
   - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
   - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
 
-## DD-487 — Native trial harness launches the agent outside the prepared scratch cwd
-
-A paired native-trial runner prepared and set up an isolated scratch worktree in a subshell, then launched the host agent from the parent checkout cwd, so arms rediscovered the scratch path instead of starting there.
-
-### Occurrences
-
-- Execution: SEED-258#make-intent-coverage-results-easier-to-act-on (plan 573; first related implementation `be07058e3550a5527ed77bba00b3d7be4b1f4f2a`)
-  - Timestamp: unknown
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: `.planning/slice-plans/573-make-intent-coverage-results-easier-to-act-on/trial/run-arm.sh` runs setup under `( cd "${scratch}" … )` then invokes `claude --print …` without changing into `${scratch}`; `trial/02-comparison-and-keep-decision.md` Confounds records that B1/B2 agents rediscovered the scratch checkout.
-  - Observed effect: inflated discovery cost on some arms; keep criteria still met (candidate not worse on the focused pair); confound disclosed rather than claimed as a universal saving.
-  - Inference: Ephemeral ADR 0010 trial harnesses need the agent process cwd (or an explicit working-directory flag) to match the prepared scratch; a setup-only `cd` subshell does not. Plan-local harness; not a shipped skill defect.
-
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
 Former branch-local code: DD-487 in `39c075087`; renumbered during integration to preserve the unrelated finding already published on trunk.
@@ -996,3 +989,9 @@ a manual records-only repair before its first slice commit.
   - Evidence: This execution's first guarded `fresh` result on 2026-11-10 returned `preparation-failed`, operation `staged whitespace`, `PLAN.md:69: trailing whitespace`, `+Status: done`. Installed `selected-slice-status.mjs` replaces only `planned` with `done`, preserving the line suffix; `execution-increment-preparation.mjs` formats before mutation and later runs `git diff --cached --check`. The prepared plan originally used the conventional two-space hard break after its status.
   - Observed effect: no commit or push occurred; the coordinator removed that hard break and retried preparation. A later independent hook lint repair was separate.
   - Inference: The status writer and staged-whitespace gate disagree on an accepted Markdown representation. Retaining or normalizing a compatible status shape before staging could remove this repair loop; no guidance/runtime fix is authorized by this retrospective.
+- Execution: SEED-296#prove-repeat-destination-cue-restarts (plan 579; implementation `536dcf13218bae15339ffbd1288464649940047e`)
+  - Timestamp: unknown (2026-11-10 execution; precise refusal time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `579604374`)
+  - Evidence: launch `cd709693-c387-4de7-8e97-2c96d9d47ed2`; first guarded fresh returned `preparation-failed`, operation `staged whitespace`, `PLAN.md:91: trailing whitespace`, `+Status: done`; removing only that inherited hard break allowed the same guarded operation to publish `536dcf132`.
+  - Observed effect: one mechanical refusal/repair/retry, no commit or publication on refusal. Inference: recurrence of the same retained-status-suffix mismatch; no runtime repair authorized here.

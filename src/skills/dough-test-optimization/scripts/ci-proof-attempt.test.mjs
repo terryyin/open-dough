@@ -3,6 +3,7 @@
 // its fragment's attempt, the collector keeps only fragments of the
 // collected attempt and revision, and a summary's artifact name carries its
 // attempt.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summarize } from "./ci-proof-collect.mjs";
@@ -15,29 +16,42 @@ import { fragmentsFromOutcomes } from "./ci-proof-fragments.mjs";
 import {
   adapterRun,
   attemptId,
-  fragment,
   fragmentsRead as read,
   revision,
   run,
 } from "./ci-proof-test-fixtures.mjs";
 
-// An adapter attempt's fragment: the fixture fragment named by ID instead.
-const adapterFragment = (entry, part, of, counts, id = attemptId) =>
-  fragment(entry, part, of, counts, { attempt: undefined, attemptId: id });
-
 test("an earlier attempt's, an adapter attempt's or another revision's fragment is excluded, never filling a part (example 2)", () => {
   const { summary, notes } = summarize({
     fragments: read(
-      fragment("dashboard/tests", 1, 2, { passed: 12 }),
-      fragment("dashboard/tests", 2, 2, { passed: 8 }, { attempt: 1 }),
-      fragment(
-        "dashboard/tests",
-        2,
-        2,
-        { passed: 8 },
-        { revision: "b".repeat(40) },
-      ),
-      adapterFragment("dashboard/tests", 2, 2, { passed: 8 }, "2"),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(1, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(12, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(2, 2)
+        .ofAttempt(1, revision)
+        .inUnit("case")
+        .counting(8, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(2, 2)
+        .ofAttempt(run.attempt, "b".repeat(40))
+        .inUnit("case")
+        .counting(8, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(2, 2)
+        .ofAdapterAttempt("2", revision)
+        .inUnit("case")
+        .counting(8)
+        .please(),
     ),
     expect: [{ entry: "dashboard/tests", parts: 2 }],
     run,
@@ -55,10 +69,34 @@ test("an earlier attempt's, an adapter attempt's or another revision's fragment 
 test("an adapter attempt's summary names its attemptId and keeps only fragments of that attempt and revision", () => {
   const { summary, notes } = summarize({
     fragments: read(
-      adapterFragment("tests", 1, 1, { passed: 1000, other: 3 }),
-      adapterFragment("tests", 1, 1, { passed: 9 }, "another"),
-      fragment("tests", 1, 1, { passed: 7 }),
-      { ...adapterFragment("tests", 1, 1, {}), revision: "b".repeat(40) },
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAdapterAttempt(attemptId, revision)
+        .inUnit("case")
+        .counting(1000, 0, 3)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAdapterAttempt("another", revision)
+        .inUnit("case")
+        .counting(9)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(7, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAdapterAttempt(attemptId, "b".repeat(40))
+        .inUnit("case")
+        .counting(0)
+        .please(),
     ),
     expect: [{ entry: "tests", parts: 1 }],
     run: adapterRun,
@@ -87,7 +125,13 @@ test("an adapter attempt's summary names its attemptId and keeps only fragments 
 });
 
 test("a fragment or summary names exactly one attempt identity", () => {
-  const github = fragment("tests", 1, 1, {});
+  const github = makeMe.aCiProofFragment
+    .at("tests")
+    .part(1, 1)
+    .ofAttempt(run.attempt, revision)
+    .inUnit("case")
+    .counting(0, 0, 0)
+    .please();
   const neither = { ...github, attempt: undefined };
   assert.deepEqual(fragmentProblems({ ...github, attemptId }), [
     "names both attempt and attemptId",

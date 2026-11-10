@@ -8,7 +8,6 @@ import { fragmentProblems } from "./ci-proof-contract.mjs";
 import { fragmentFromPlaywrightRecord } from "./ci-proof-fragments.mjs";
 import {
   byFile,
-  fragment,
   locatedRecord,
   partIdentity,
   playwrightRecord,
@@ -34,10 +33,18 @@ test("a Playwright proof record counts each test as a test case: expected passes
     ]),
     identity,
   );
-  assert.deepEqual(
-    value,
-    fragment("dashboard/tests", 3, 12, { passed: 2, failed: 2, other: 2 }),
-  );
+  assert.deepEqual(value, {
+    schemaVersion: 2,
+    entry: "dashboard/tests",
+    part: 3,
+    of: 12,
+    attempt: 2,
+    revision,
+    unit: "case",
+    passed: 2,
+    failed: 2,
+    other: 2,
+  });
   assert.equal("durationMs" in value, false);
   assert.deepEqual(fragmentProblems(value), []);
   assert.throws(
@@ -154,32 +161,34 @@ test("a shared Playwright shard emits a zero-count fragment for an entry it sele
     byFile,
   );
   assert.equal(browser.passed, 1);
-  assert.deepEqual(
-    frontend,
-    fragment(
-      "dashboard/frontend-tests",
-      1,
-      1,
-      {},
-      {
-        untimed: 0,
-        files: [],
-      },
-    ),
-  );
-  assert.deepEqual(
-    backend,
-    fragment(
-      "dashboard/backend-tests",
-      1,
-      1,
-      {},
-      {
-        untimed: 0,
-        files: [],
-      },
-    ),
-  );
+  assert.deepEqual(frontend, {
+    schemaVersion: 2,
+    entry: "dashboard/frontend-tests",
+    part: 1,
+    of: 1,
+    attempt: 2,
+    revision,
+    unit: "case",
+    passed: 0,
+    failed: 0,
+    other: 0,
+    untimed: 0,
+    files: [],
+  });
+  assert.deepEqual(backend, {
+    schemaVersion: 2,
+    entry: "dashboard/backend-tests",
+    part: 1,
+    of: 1,
+    attempt: 2,
+    revision,
+    unit: "case",
+    passed: 0,
+    failed: 0,
+    other: 0,
+    untimed: 0,
+    files: [],
+  });
   assert.deepEqual(fragmentProblems(frontend), []);
   assert.deepEqual(fragmentProblems(backend), []);
 });

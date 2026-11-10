@@ -32,7 +32,8 @@ test("authoritative exact queue progresses queued → running → real attempt w
     clock += 100;
     h.setSnapshot({
       attempts: [],
-      queue: [queueEntry(a, state, { observedAt: 1e15 })],
+      // observedAt is stamped by observation, not adapter queue input.
+      queue: [{ ...queueEntry(a, state), observedAt: 1e15 }],
     });
     await h.advancePoll();
     const r = coverage(h, a);
@@ -137,7 +138,8 @@ test("empty, unsupported and failed discovery withdraw pending queue facts witho
     { attempts: [], queue: [queueEntry("d".repeat(40))] },
     { attempts: [], queue: [queueEntry(a, "queued", { branch: "foreign" })] },
     "not JSON",
-    { attempts: [], queue: [queueEntry(a, "invalid")] },
+    // Deliberate invalid state: form under proof, kept literal.
+    { attempts: [], queue: [{ sha: a, branch, state: "invalid" }] },
   ]) {
     h.setSnapshot({ attempts: [], queue: [queueEntry(a)] });
     await h.advancePoll();

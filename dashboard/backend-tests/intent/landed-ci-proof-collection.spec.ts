@@ -89,8 +89,8 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
             revision: proofState === "mismatched" ? "f".repeat(40) : main,
           },
           [
-            ["dashboard/tests", 1, "case"],
-            ["dashboard/tests", 1, "file"],
+            { entry: "dashboard/tests", parts: 1, unit: "case" },
+            { entry: "dashboard/tests", parts: 1, unit: "file" },
           ],
           [
             {

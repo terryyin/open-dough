@@ -122,26 +122,10 @@ test("an entry holding test cases and test files is one entry: each unit is name
 });
 
 test("a version 1 summary's results are read as legacy test results, kept apart by the label their unit was spelled with, never as test cases or test files", () => {
-  const v1 = makeMe.aCiProofSummary
-    .inRepository(repository)
-    .withEntries(
-      makeMe.aCiProofEntry
-        .at("dashboard/tests")
-        .countingIn("tests")
-        .withFile("dashboard/tests/a.spec.ts", {
-          passed: 4,
-          failed: 1,
-          durationMs: 8000,
-        })
-        .please(),
-      makeMe.aCiProofEntry
-        .at("tests")
-        .countingIn("checks")
-        .withFile("tests/a.sh", { durationMs: 500 })
-        .withFile("tests/b.sh", { passed: 2 })
-        .please(),
-    )
-    .pleaseInVersion1();
+  // Exact version-1 summary bytes, before evidence declared its units.
+  const v1 = JSON.parse(
+    '{"schemaVersion":1,"repository":"owner/repo","revision":"0000000000000000000000000000000000000000","runId":1,"runAttempt":1,"entries":[{"path":"dashboard/tests","unit":"tests","passed":4,"failed":1,"other":0,"durationMs":8000,"untimed":0,"parts":[{"part":1,"status":"present","passed":4,"failed":1,"other":0,"durationMs":8000,"untimed":0,"breakdown":true}],"files":[{"path":"dashboard/tests/a.spec.ts","passed":4,"failed":1,"other":0,"durationMs":8000}]},{"path":"tests","unit":"checks","passed":3,"failed":0,"other":0,"durationMs":500,"untimed":2,"parts":[{"part":1,"status":"present","passed":3,"failed":0,"other":0,"durationMs":500,"untimed":2,"breakdown":true}],"files":[{"path":"tests/a.sh","passed":1,"failed":0,"other":0,"durationMs":500},{"path":"tests/b.sh","passed":2,"failed":0,"other":0,"untimed":2}]}]}',
+  );
   assert.equal(v1.schemaVersion, 1);
 
   const read = checkedRetainedSummary(v1, repository);

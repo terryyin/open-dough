@@ -24,6 +24,8 @@ import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
 import { DashboardProofRecordBuilder } from "./dashboardProofRecordTestData.mjs";
 import { GitHubJobBuilder } from "./ciJobTestData.mjs";
 import { CiRunBuilder, RevisionCiRunBuilder } from "./ciRunTestData.mjs";
+import { aCiQueueEntry } from "./ciQueueTestData.mjs";
+import { aRevisionCoverage } from "./ciRevisionCoverageTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
@@ -56,6 +58,8 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./ciProofSummaryTestData.mjs").CiProofSummaryBuilder} aCiProofSummary
  * @property {import("./dashboardProofRecordTestData.mjs").DashboardProofRecordBuilder} aDashboardProofRecord
  * @property {import("./ciTimingTestData.mjs").CiAdapterAttemptBuilder} aCiAdapterAttempt
+ * @property {FactBuilder<import("./ciQueueTestData.mjs").CiAdapterQueueEntry>} aCiQueueEntry
+ * @property {FactBuilder<import("./ciRevisionCoverageTestData.mjs").RevisionCoverageRecord>} aRevisionCoverage
  * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
  * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
@@ -179,6 +183,18 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new CiAdapterAttemptBuilder();
+      },
+    },
+    aCiQueueEntry: {
+      enumerable: true,
+      get() {
+        return aCiQueueEntry();
+      },
+    },
+    aRevisionCoverage: {
+      enumerable: true,
+      get() {
+        return aRevisionCoverage();
       },
     },
     aLandedCiHistory: {

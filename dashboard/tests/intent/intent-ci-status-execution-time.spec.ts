@@ -21,8 +21,7 @@ import {
 import { judged, runUrl } from "../intentCiStatusPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
@@ -37,39 +36,58 @@ const executionCells = (proof: Locator) =>
   proofTable(proof).locator("tbody tr td:nth-of-type(2)");
 
 const timedSummary = () =>
-  proofSummary(
-    run,
-    [
-      ["tests", 2],
-      ["dashboard/tests", 2],
-    ],
-    [
-      ["tests", 1, 2, "file", counts(3), 180_000],
-      ["tests", 2, 2, "file", counts(2), 60_000],
-      ["dashboard/tests", 1, 2, "case", counts(8), 75_000],
-      ["dashboard/tests", 2, 2, "case", counts(4), 45_000],
-    ],
-  );
+  proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .counting(3, 0, 0)
+          .timed(180_000)
+          .inParts(2)
+          .withPresentPart(2, {
+            passed: 2,
+            failed: 0,
+            other: 0,
+            durationMs: 60_000,
+          })
+          .please(),
+      )
+      .please(),
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(8, 0, 0)
+          .timed(75_000)
+          .inParts(2)
+          .withPresentPart(2, {
+            passed: 4,
+            failed: 0,
+            other: 0,
+            durationMs: 45_000,
+          })
+          .please(),
+      )
+      .please(),
+  ]);
 
 const olderSummary = () =>
-  proofSummary(
-    run,
-    [
-      ["tests", 1],
-      ["dashboard/tests", 1],
-    ],
-    [
-      ["tests", 1, 1, "file", counts(5)],
-      ["dashboard/tests", 1, 1, "case", counts(12)],
-    ],
-  );
+  proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+    makeMe.aCiProofEntry.at("dashboard/tests").counting(12, "case").please(),
+  ]);
 
 const missingShardSummary = () =>
-  proofSummary(
-    run,
-    [["dashboard/tests", 2]],
-    [["dashboard/tests", 1, 2, "case", counts(10), 90_000]],
-  );
+  proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .counting(10, "case")
+      .timed(90_000)
+      .inParts(2, { missing: [2] })
+      .please(),
+  ]);
 
 async function openWithSummary(
   page: Parameters<typeof openFailedRun>[0],
@@ -149,20 +167,43 @@ test("an untimed part shows Part 2 untimed while parts timed at zero show 0 ms",
   await page.setViewportSize({ width: 1280, height: 800 });
   const { proof } = await openWithSummary(
     page,
-    proofSummary(
-      run,
-      [
-        ["tests", 2],
-        ["dashboard/tests", 3],
-      ],
-      [
-        ["tests", 1, 2, "file", counts(3), 0],
-        ["tests", 2, 2, "file", counts(2), 0],
-        ["dashboard/tests", 1, 3, "case", counts(8), 75_000],
-        ["dashboard/tests", 2, 3, "case", counts(4)],
-        ["dashboard/tests", 3, 3, "case", counts(1), 5_000],
-      ],
-    ),
+    proofSummaryForEntries(run, [
+      makeMe.aCiProofEntry
+        .at("tests")
+        .holding(
+          makeMe.aCiProofEvidence
+            .inUnit("file")
+            .counting(3, 0, 0)
+            .timed(0)
+            .inParts(2)
+            .withPresentPart(2, {
+              passed: 2,
+              failed: 0,
+              other: 0,
+              durationMs: 0,
+            })
+            .please(),
+        )
+        .please(),
+      makeMe.aCiProofEntry
+        .at("dashboard/tests")
+        .holding(
+          makeMe.aCiProofEvidence
+            .inUnit("case")
+            .counting(8, 0, 0)
+            .timed(75_000)
+            .inParts(3)
+            .withPresentPart(2, { passed: 4, failed: 0, other: 0, untimed: 0 })
+            .withPresentPart(3, {
+              passed: 1,
+              failed: 0,
+              other: 0,
+              durationMs: 5_000,
+            })
+            .please(),
+        )
+        .please(),
+    ]),
   );
   await expect(executionCells(proof)).toHaveText(["0 ms", "Part 2 untimed"]);
   // A measured zero is a figure with nothing to explain; the gap label's

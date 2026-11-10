@@ -142,27 +142,27 @@
 }
 
 .badge-not-refined {
-  color: #3a3a36;
-  background: #d9d9d2;
-  border-color: #8a8a82;
+  color: var(--badge-not-refined-text);
+  background: var(--badge-not-refined-fill);
+  border-color: var(--badge-not-refined-edge);
 }
 
 .badge-refined {
-  color: #0b3d73;
-  background: #d5e6f7;
-  border-color: #1b5fa8;
+  color: var(--badge-refined-text);
+  background: var(--badge-refined-fill);
+  border-color: var(--badge-refined-edge);
 }
 
 .badge-slice-planned {
-  color: #4a1d73;
-  background: #eadcf5;
-  border-color: #7a3fb0;
+  color: var(--badge-slice-planned-text);
+  background: var(--badge-slice-planned-fill);
+  border-color: var(--badge-slice-planned-edge);
 }
 
 .badge-ready {
-  color: #0f4a28;
-  background: #d8f0e0;
-  border-color: #2f7a4a;
+  color: var(--badge-ready-text);
+  background: var(--badge-ready-fill);
+  border-color: var(--badge-ready-edge);
 }
 
 .badge-planless {
@@ -188,7 +188,7 @@
 .badge-not-ready,
 .badge-plan-association-conflict {
   color: var(--problem);
-  background: #f8e8e8;
+  background: var(--badge-not-ready-fill);
   border-color: var(--problem);
 }
 
