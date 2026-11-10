@@ -7,8 +7,13 @@ import {
   summarize,
   summaryArtifactName,
 } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import type { CiProofEntry, CiProofFile } from "../../src/ciProof.ts";
+import type {
+  CiProofEntry,
+  CiProofFile,
+  CiProofFigures,
+} from "../../src/ciProof.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
+import { proofInputsForEntries } from "./ciProofEntryInputs.ts";
 
 // The collector is untyped JavaScript; this names the one result it gives.
 type SummarizeFragments = (input: unknown) => { readonly summary: unknown };
@@ -44,6 +49,7 @@ export type ProofUnit = "case" | "file" | { readonly legacy: string | null };
 export type ProofBreakdown = {
   readonly files: readonly CiProofFile[];
   readonly untimed: number;
+  readonly unassigned?: CiProofFigures;
 };
 
 // One part's counts for one entry: [entry, part, of, unit, counts], with an
@@ -122,57 +128,20 @@ export function proofSummary(
   return summary;
 }
 
-// One complete part from the explicitly arranged canonical entry facts.
+// Collector summaries from the explicitly arranged canonical entry facts.
+export function proofSummaryForEntries(
+  run: ProofRun | AdapterProofAttempt,
+  entries: readonly CiProofEntry[],
+): unknown {
+  const { expect, parts } = proofInputsForEntries(entries);
+  return proofSummary(run, expect, parts);
+}
+
 export function proofSummaryForEntry(
   run: ProofRun | AdapterProofAttempt,
   entry: CiProofEntry,
 ): unknown {
-  return proofSummary(
-    run,
-    entry.evidence.map((evidence): ProofDeclaration =>
-      evidence.unit === "legacy"
-        ? [entry.path, evidence.parts.length]
-        : [entry.path, evidence.parts.length, evidence.unit],
-    ),
-    entry.evidence.flatMap((evidence) =>
-      evidence.parts.flatMap((part): ProofPart[] => {
-        if (part.status !== "present") return [];
-        const unit: ProofUnit =
-          evidence.unit === "legacy"
-            ? { legacy: evidence.label }
-            : evidence.unit;
-        const figures = counts(
-          part.passed ?? 0,
-          part.failed ?? 0,
-          part.other ?? 0,
-        );
-        return evidence.files === undefined
-          ? [
-              part.durationMs === undefined
-                ? [entry.path, part.part, evidence.parts.length, unit, figures]
-                : [
-                    entry.path,
-                    part.part,
-                    evidence.parts.length,
-                    unit,
-                    figures,
-                    part.durationMs,
-                  ],
-            ]
-          : [
-              [
-                entry.path,
-                part.part,
-                evidence.parts.length,
-                unit,
-                figures,
-                part.durationMs,
-                { files: evidence.files, untimed: evidence.untimed ?? 0 },
-              ],
-            ];
-      }),
-    ),
-  );
+  return proofSummaryForEntries(run, [entry]);
 }
 
 // A zip archive holding `text` as its one deflated file `name`.

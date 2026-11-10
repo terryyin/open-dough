@@ -187,16 +187,18 @@ process.stdout.write(\`{"summary":\${readFileSync("summary.json", "utf8")}}\`);
     [2, "O/P", attemptId, revision],
   );
   assert.deepEqual(
-    kept.entries[0].evidence.map(({ unit, durationMs, files }) => [
+    kept.entries[0].evidence.map(({ unit, durationMs, untimed, files }) => [
       unit,
       durationMs,
+      untimed,
       files.map((file) => [file.path, file.passed, file.failed]),
     ]),
     [
-      ["case", 150, [["tests/check.test.mjs", 5, 0]]],
+      ["case", 150, 0, [["tests/check.test.mjs", 5, 0]]],
       [
         "file",
         undefined,
+        2,
         [
           ["tests/broken.test.mjs", 0, 1],
           ["tests/check.test.mjs", 1, 0],
