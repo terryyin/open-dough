@@ -7,6 +7,7 @@ import {
   readFileSync,
   renameSync,
   rmSync,
+  writeFileSync,
 } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -107,6 +108,15 @@ const attempt = {
   CI_PROOF_REVISION: "a".repeat(40),
 };
 
+// The frontend proof upload step's path under runner.temp, when the action
+// declares one; its basename is the file the summarize shell block writes.
+function frontendProofUploadPath() {
+  const match = summaryAction.match(
+    /\n +- name: Keep the frontend test proof\n[\s\S]*?\n {8}path: \$\{\{ runner\.temp \}\}\/([^\n]+)\n/,
+  );
+  return match?.[1];
+}
+
 // One run attempt of test T: each job part on a runner of its own, whose
 // kept fragments the summary action finds where the ci-proof job downloads
 // them, one artifact directory per part.
@@ -122,6 +132,15 @@ export function runAttempt(t) {
       mkdirSync(temp);
       return temp;
     },
+    // Plant VALUE as a downloaded fragment artifact for the summary action.
+    plantFragment(value, artifact = `planted-${value.entry}-${value.part}`) {
+      const dir = join(downloaded, artifact);
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(
+        join(dir, `fragment-${value.part}.json`),
+        `${JSON.stringify(value)}\n`,
+      );
+    },
     // The fragments action of JOB's PART on the runner TEMP, given INPUTS.
     fragments(job, part, temp, inputs) {
       const result = runAction(fragmentsAction, {
@@ -134,16 +153,33 @@ export function runAttempt(t) {
       if (existsSync(kept)) renameSync(kept, join(downloaded, artifact));
       return result;
     },
-    // The summary action given EXPECT, with the summary it wrote.
-    summary(expect) {
+    // The summary action for INPUTS (`expect`, optional `frontend-entry`),
+    // or a bare expect string. When frontend-entry is set, `report` is the
+    // Markdown named by the action's frontend upload step.
+    summary(inputs) {
+      const resolved =
+        typeof inputs === "string" ? { expect: inputs } : { ...inputs };
       const result = runAction(summaryAction, {
         ...attempt,
         RUNNER_TEMP: collector,
-        ...inputsEnvironment(summaryAction, { expect }),
+        ...inputsEnvironment(summaryAction, resolved),
       });
       const file = join(collector, "ci-proof-summary.json");
-      const written = result.status === 0 ? readFileSync(file, "utf8") : "";
-      return { ...result, written: written && JSON.parse(written) };
+      const written =
+        result.status === 0 && existsSync(file)
+          ? readFileSync(file, "utf8")
+          : "";
+      const reportName = frontendProofUploadPath();
+      const reportFile = reportName && join(collector, reportName);
+      const report =
+        reportFile && existsSync(reportFile)
+          ? readFileSync(reportFile, "utf8")
+          : undefined;
+      return {
+        ...result,
+        written: written && JSON.parse(written),
+        report,
+      };
     },
   };
 }
@@ -177,3 +213,12 @@ export const producers = [
 export const summaryStep = steps(workflowJobs.get("ci-proof")).find((step) =>
   step.includes("uses: ./.github/actions/ci-proof-summary\n"),
 );
+
+// The summary action's optional frontend proof upload step body, when present.
+export const frontendProofUploadStep = summaryAction.includes(
+  "name: Keep the frontend test proof\n",
+)
+  ? summaryAction.slice(
+      summaryAction.indexOf("    - name: Keep the frontend test proof\n"),
+    )
+  : "";

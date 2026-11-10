@@ -3,6 +3,7 @@
 **Identity:** SEED-290#publish-frontend-test-proof
 
 **Source:** [Refined story](../../seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -95,6 +96,14 @@ Status: planned
 Proof: every row of the outside-in table, with the action's real report file
 as the primary local boundary and the first published run's artifact as the
 hosted boundary.
+
+Accepted local proof (2026-11-10): focused gate exit 0 for
+`ci-proof-actions`, `ci-proof-action-units`, `ci-proof-declaration`,
+`ci-proof-frontend-report`, `frontend-test-proof`, dashboard CI proof readers,
+and collector summary/fragments/duration/breakdown suites; `npm run lint`
+exit 0. Source-review commitments 1–11c and L1–L8 observed locally.
+Hosted boundary still owed: download `frontend-test-proof-attempt-<attempt>`
+from the first published CI run of the accepted revision.
 
 Behavior: after the existing proof jobs settle for a run attempt, a developer
 can download its frontend report alongside the combined summary. The report

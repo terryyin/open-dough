@@ -230,9 +230,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # One CI proof summary per run attempt once the proof jobs settle, however
-  # they ended, against the declared entries (.planning/open-dough.json Intent
-  # locations, in order), parts (matrix lengths) and units their reports give.
+  # One CI proof summary per run attempt once the proof jobs settle, however they
+  # ended, against declared Intent locations, parts and units their reports give.
   ci-proof:
     needs: [test, dashboard]
     if: ${{ !cancelled() }}
@@ -248,3 +247,4 @@ jobs:
         uses: ./.github/actions/ci-proof-summary
         with:
           expect: dashboard/tests=12:case dashboard/frontend-tests=12:case dashboard/backend-tests=12:case tests=3:file src/skills=3:file
+          frontend-entry: dashboard/frontend-tests

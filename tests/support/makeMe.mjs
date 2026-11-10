@@ -8,6 +8,7 @@ import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
 import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 import { CiProofFragmentBuilder } from "./ciProofFragmentTestData.mjs";
+import { DashboardProofRecordBuilder } from "./dashboardProofRecordTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -183,6 +184,9 @@ export const makeMe = {
   },
   get aCiProofSummary() {
     return new CiProofSummaryBuilder();
+  },
+  get aDashboardProofRecord() {
+    return new DashboardProofRecordBuilder();
   },
   get aCiAdapterAttempt() {
     return new CiAdapterAttemptBuilder();
