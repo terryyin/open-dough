@@ -114,6 +114,26 @@ place with `materializeLocalCheckout`'s `at`. `release-source.mjs --add
 the source.
 [Release](support/releaseTestData.mjs) · [Helper](support/release-source.mjs)
 
+Arrange native hook settings with `makeMe.hostHookSettings.forHost(host)`.
+State unrelated settings through `.with(...)` and handlers through `.handling(...)`;
+the builder returns each host's actual document shape. `.registeredWith(...)`
+copies the production fragments into a prior registration without running the
+merge under test. Keep edited managed handlers and independent byte or semantic
+expectations in the case. [Settings builder](support/hostHookSettingsTestData.mjs)
+
+Feedback maintenance keeps the published review (`makeMe.aFeedbackReview`),
+saved machine choice (`makeMe.aFeedbackMaintenanceChoice`), observed state
+(`makeMe.aMaintenanceObservation`) and due-check session
+(`makeMe.aMaintenanceSession`) separate. State review dates and observations
+explicitly. Compose existing launch, request, host-session and attempt builders
+for their facts; the review document's fence and storage remain harness work.
+[Feedback builders](support/feedbackTestData.mjs)
+
+Use `makeMe.jobDurations.with(entries).please()` for recorded job durations.
+It returns the runner's `Map<label, seconds>` directly. Keep allocation actions,
+expected shares and exact timing-list/parser examples in the case, independent
+of the arranged map. [Duration builder](support/jobDurationTestData.mjs)
+
 Build a kept launch with `makeMe.aLaunchRecord`: the requested story or
 instruction, the host session (the request takes the session's host), the
 workspace its start established, and when it was launched. Dashboard tests keep
