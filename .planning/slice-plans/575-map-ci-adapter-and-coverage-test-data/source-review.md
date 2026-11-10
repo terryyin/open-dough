@@ -184,8 +184,8 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 | 2.1 | Convert valid synthetic adapter discovery attempts used by: dashboard base-CI judgment | slice 1 | observed: dashboard/tests/launches/agent-launch-base-ci-adapter.spec.ts — MakeMe-built failing/pending/passed attempts; base warning and running-ancestor assertions |
 | 2.2 | Convert valid synthetic adapter discovery attempts used by: Intent status | slice 1 | observed: dashboard/tests/intent/intent-ci-status-reads.spec.ts — MakeMe discover attempts; shared-commit and nearer-own status judgment |
 | 2.3 | Convert valid synthetic adapter discovery attempts used by: proof selection | slice 1 | observed: dashboard/tests/intent/intent-ci-proof-adapter.spec.ts (+reasons) — selected attempt identity, retry, held proof, ambiguity |
-| 2.4 | Convert valid synthetic adapter discovery attempts used by: comparisons | slice 2 |  |
-| 2.5 | Convert valid synthetic adapter discovery attempts used by: landed history | slice 2 |  |
+| 2.4 | Convert valid synthetic adapter discovery attempts used by: comparisons | slice 2 | observed: intent-ci-comparison-adapter(+taken/planning-skip) + mountedComparison* — MakeMe attempts; endpoint identity, shared-attempt and proof-read assertions held |
+| 2.5 | Convert valid synthetic adapter discovery attempts used by: landed history | slice 2 | observed: intent-ci-wall-time-history-adapter + landed-ci-scope-adapter* + landed-ci-proof-adapter-units — shared/distinct attempt evidence retained |
 | 2.6 | Convert valid synthetic adapter discovery attempts used by: execution command-adapter fixtures | slice 3 |  |
 | 2.7 | Convert valid synthetic adapter discovery attempts used by: revision-observation fixtures | slice 4 |  |
 | 2.8 | Convert valid synthetic adapter discovery attempts used by: Node support adapter readers | slice 1 | observed: tests/support/dashboard-{story-branch-ci-adapter,ci-adapter-revision-lookup,ci-adapter-proof}.test.mjs — MakeMe facades; retry/check/context and proof limits |
@@ -197,7 +197,7 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 | 4.2 | Preserve: numeric identities | slice 1 | observed: intent-ci-proof-adapter numeric attemptId + story-branch runId:7/attemptId:1 retained through acquisition/request |
 | 4.3 | Preserve: omitted legacy branch | slice 3 |  |
 | 4.4 | Preserve: omitted legacy check/context | slice 1 | observed: status-reads/base-ci omit check/context; revision-lookup states them only when selecting by check/context |
-| 4.5 | Preserve: omitted timing | slice 2 |  |
+| 4.5 | Preserve: omitted timing | slice 2 | observed: ci-comparison-timing-gaps + mounted gap wording — discovery .with omits timing; Not recorded / not.toHaveProperty startedAt\|completedAt |
 | 4.6 | Preserve: discovery order | slice 3 |  |
 | 4.7 | Preserve: current-attempt ambiguity | slice 1 | observed: intent-ci-proof-adapter-reasons same-check-across-runs + story-branch shared attemptId ambiguity retained |
 | 5.1 | Keep distinct: undiscovered | slice 4 |  |

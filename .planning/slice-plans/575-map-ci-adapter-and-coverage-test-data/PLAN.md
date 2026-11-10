@@ -196,7 +196,7 @@ explicit. Run all indirect consumers of the changed shared helper in this slice.
 
 ### 2. Comparisons and retained history share exact attempt evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: Example 2. Run dashboard `tests/intent/intent-ci-comparison-adapter`, `tests/intent/intent-ci-wall-time-history-adapter.spec.ts`, backend `landed-ci-scope-adapter`, `landed-ci-proof-adapter-units.spec.ts`, and mounted comparison presentation consumers traced from `mountedComparisonAdapterCases`.
 
 Adapter facts come from the same MakeMe owner → comparison and collection use
