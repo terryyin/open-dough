@@ -202,42 +202,94 @@ The ADR index and relevant statuses agree; no Accepted conflict or new direction
 
 **Identity:** SEED-258#make-intent-coverage-results-easier-to-act-on
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/573-make-intent-coverage-results-easier-to-act-on/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"53d8949f52c12354c8e277d0c41fb6856af2fc302cbeebba6b9d23c62520d206","plan":"c693b4785cc8d35a1dc945b862296287ad00e8d13d537899d90168fdf302c3d3"}}
 ```
 
-A developer reviewing an Intent Coverage result can tell whether to add proof
-for a missing path, strengthen an assertion, or gather more evidence. A short
-comparison shows whether preparing a more focused handoff earns its cost.
+**Goal:** A developer reviewing an Intent Coverage result can choose whether to
+add proof for a missing journey, strengthen an existing assertion, or gather more
+evidence. Establish whether reusing a focused handoff earns its total cost before
+keeping that workflow change.
 
-- Report a **Confirmed missing test path** when independent observation shows
-  the fault causes wrong behavior and the relevant maintained checks omit that
-  path. Name the checks examined and preserve the passing baseline and restored
-  observation. Use **Assertion gap** when a maintained check exercises the path
-  and its assertion misses the wrong behavior. Use **Insufficient evidence**
-  when reach, wrong behavior, or restoration is unresolved.
-- Reuse the promise, plausible fault, focused command, fixture, and assertion
-  when ordinary review or execution already established them. Let the worker
-  validate or revise the suggestion. When the context is incomplete, look for
-  the narrowest relevant proof and report the remaining gap if the search
-  would require a broad exploratory run.
-- Compare the current workflow with the candidate on the same revision and
-  promise for one search-heavy and one already-focused check. Use the existing
-  report and [wrap-up disposition](#finish-opted-in-stories-with-intent-coverage)
-  to capture the decision before the probe, any change attributable to its
-  evidence, and the cost. Include preparation and probe time, distinguish test
-  runtime from added wrap-up wait, and record unknowns. Use comparable host
-  token counters when already available for sampled runs. Automated token
-  collection stays deferred until a decision needs finer cost evidence.
+**Scope:**
 
-Keep the clearer verdict if a reviewer can distinguish a missing journey from
-an inconclusive attempt and choose the right next action. The Recently done
-case below should point to missing journey proof. The [Side panel pilot report](https://github.com/terryyin/open-dough/blob/401bc8bd5d5c12d6d7cd64b43b6763786c59e58e/.planning/done/SEED-268_conclude-fluent-side-panel-pilot.json)
-had no observed wrong behavior and should remain inconclusive.
-Keep the handoff change if the comparison shows lower total effort by avoiding
-an unnecessary broad run or equivalent setup, with equally strong proof and
-no material extra preparation on the already-focused case. If it falls short,
-record the result and settle the trial using
-[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- Add **Confirmed missing test path** when an independent scratch observation
+  establishes that the fault causes the promised behavior to go wrong, while
+  the relevant maintained checks pass and omit that path. Name the checks
+  examined and the omitted transition; preserve the passing baseline, faulted
+  observation, exact restoration and restored pass. Bound the finding to the
+  examined checks rather than claiming absence across the whole suite.
+- Keep **Assertion gap** for a maintained check that exercises the wrong
+  behavior but whose assertion passes, and **Caught** for a maintained assertion
+  that fails on that wrong behavior. Identify the assertion that actually caught
+  it, including an earlier helper assertion. Use **Insufficient evidence** when
+  passing baseline, reach, wrong behavior or restoration remains unresolved.
+  Merely finding no matching test does not confirm a missing path. The report
+  gives the next proof action and distinguishes an already-planned repair from
+  a new decision caused by the probe.
+- Reuse the promise, plausible fault, focused command, fixture and assertion
+  already established by review or execution. These are suggestions: the worker
+  validates or revises them and explains a consequential change. Missing hints
+  do not prevent a check; search for the narrowest relevant proof, and state the
+  remaining gap when proceeding would require a broad exploratory run. Preserve
+  the one-promise check, independent behavior evidence and scratch restoration.
+- Prospectively compare current and candidate workflows on the same revision
+  and promise within each of two cases: one search-heavy and one already focused.
+  Record the decision before the probe, the evidence returned, the resulting
+  decision and what changed because of the probe, including no change. Use the
+  existing report and wrap-up disposition when available; a retained report
+  alone does not establish a changed repair decision.
+- Include handoff preparation and probe/setup effort, runner time and complete
+  invocation-to-report elapsed. Distinguish extra wrap-up wait from elapsed and
+  runner time; record unavailable observations with reasons rather than infer
+  waiting from either. Keep human and agent costs separate, measured or estimated
+  with their basis. Use comparable host token counters when already available;
+  their absence does not require new collection infrastructure.
+
+The evidence requirements prevent a green but unexercised path from becoming an
+assertion verdict, an unobserved fault from becoming a confirmed gap, or incomplete
+cleanup from becoming a successful probe. They protect truthful action and scratch
+recovery. Search boundedness limits the cost of this targeted check; it does not
+forbid a separately authorized broader investigation.
+
+Deferred promises: changing opt-in, wrap-up's join/disposition lifecycle, Done
+storage or dashboard presentation, repairing sampled product tests, historical
+report backfill, automatic token collection, general benchmarking, release and
+rollout. The [closure story](#finish-opted-in-stories-with-intent-coverage) keeps
+ownership of persistence and follow-up routing. Shared files require reconciliation,
+not a blocking story dependency.
+
+**Key examples:**
+
+| Pre-condition | Trigger | Result |
+| --- | --- | --- |
+| Recently done: the examined selection checks pass; a separate scratch journey changes project during a pending read and reproduces wrong navigation; restored checks and journey pass | Classify the report | **Confirmed missing test path**, naming the omitted project-change transition and examined checks; add journey proof. Recognize the existing planned correction rather than claim a new repair decision. |
+| A maintained journey reaches the wrong behavior, but its assertion stays green; restoration is verified | Classify the report | **Assertion gap**; strengthen the observing assertion, with independent evidence of the wrong behavior. |
+| The fault fails a maintained helper assertion before a later expected assertion | Classify the report | **Caught**, naming the actual catch and limiting the claim to the observed path. |
+| Side panel: inspection finds no guide-content assertion, but no fault or wrong-behavior observation ran | Classify the report | **Insufficient evidence**; name the observation still needed. Missing restoration or an unrelated failure is also inconclusive. |
+| Review supplies a plausible fault and focused command/fixture/assertion | Request the check | Validate and reuse them, or explain a better target; avoid rediscovering equivalent setup. Incomplete hints lead to bounded proof search, not an obligatory broad sweep. |
+| Search-heavy and already-focused samples have paired current/candidate runs | Decide whether to keep the handoff | Compare equally strong evidence and total effort including preparation; report the decision delta, cost limits and any unobserved wait. An unsupported saving remains unknown. |
+
+**Evaluation:** Keep the clearer verdict if a reviewer can distinguish missing
+journey proof from inconclusive evidence and choose the appropriate action on the
+examples above. Keep the handoff change only if the paired comparison shows lower
+total effort by avoiding an unnecessary broad run or equivalent setup, with equally
+strong proof and no material extra preparation on the already-focused case. Set
+the comparison basis before running; disclose host/setup differences and unknowns.
+If evidence falls short, record the negative or inconclusive result and simplify
+or retain the existing handoff under
+[ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The verdict can be retained independently of an unsuccessful handoff trial; neither
+result establishes the value of routine automatic checking.
+
+**Architecture:** The checker owns verdicts, proof search, restoration and its
+report; Wrap Up passes available context and owns the resulting disposition.
+Reuse these owners and the existing report finisher, with no new worker service
+or report schema. Author runtime changes in `src/skills/` under
+[maintainer guidance](../../AGENTS.md) and
+[ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md).
+The conventional skill review and the empirical workflow comparison serve
+different proof purposes under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md).
 
 The Recently done probe independently reproduced a wrong navigation path,
 yet its report called the result **Insufficient evidence**. The report already
