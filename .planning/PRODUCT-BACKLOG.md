@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible ([plan](slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md))
 - [Show no count difference across a missing or ambiguous part](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps) — SEED-281#no-count-difference-across-gaps ([plan](slice-plans/566-no-count-difference-across-gaps/PLAN.md))
 - [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
-- [Select the story completed in an ad hoc session](seeds/SEED-291-select-story-completed-in-ad-hoc-session.md#select-story-completed-in-ad-hoc-session) — SEED-291#select-story-completed-in-ad-hoc-session ([plan](slice-plans/568-select-story-completed-in-ad-hoc-session/PLAN.md))
 
 ## Backlog list
 

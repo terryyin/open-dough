@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-291#select-story-completed-in-ad-hoc-session",
+  "title": "Select the story completed in an ad hoc session",
+  "completedAt": "2026-11-10T04:43:07.499Z",
+  "developer": "Terry Yin",
+  "agent": "yilv-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage: SEED-291#select-story-completed-in-ad-hoc-session\n\n**Outcome: Caught.**\n\n- **Story and revision.** SEED-291#select-story-completed-in-ad-hoc-session (`.planning/seeds/SEED-291-select-story-completed-in-ad-hoc-session.md#select-story-completed-in-ad-hoc-session`; plan `.planning/slice-plans/568-select-story-completed-in-ad-hoc-session/PLAN.md`) at product tip `786bd1254191070e0c4ce65a3438994429f580df`.\n- **Promise.** When evidence cannot identify a unique completed story (dual independently matching Done candidates), association is `absent` — no false attribution.\n- **Fault.** `dashboard/server/completedStoryAssociation.ts` uniqueness gate: `matched.length === 1` became `matched.length >= 1`.\n- **Existing protection.** `dashboard/backend-tests/sessions/completed-story-association-ambiguous.spec.ts` asserts `associationOf(...)` equals `{ kind: \"absent\" }`.\n- **Observed path.** Baseline passed; with fault, same assertion failed expecting absent and receiving linked SEED-B#b; after restore, same command passed. Scratch worktree removed; execution checkout unchanged.\n- **Costs.** Test runtime ~11.8 s measured across three runs. Human effort unavailable. Agent effort unavailable. Invocation-to-report elapsed ~134960 ms.\n"
+  }
+}
