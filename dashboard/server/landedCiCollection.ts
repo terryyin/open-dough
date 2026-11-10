@@ -18,7 +18,8 @@
 // it (`./landedCiMeasuredBuilds.ts`), and resolves each landing whose
 // resolution is not final yet over the project's CI read for the pass
 // (`./landedCiResolution.ts`). A final resolution is kept and never resolved
-// again; a pending one is kept until a later pass resolves it again. The
+// again; a pending one is kept until a later pass resolves it again. A new
+// measured pass retains its first CI proof ask with that observation. The
 // history keeps only that window, so a landing the walk no longer reaches is
 // neither kept nor asked about again. CI that could not be read leaves that
 // project until the next pass; a landing whose stand-in build's CI proof
@@ -56,6 +57,7 @@ import { readLandingOrder } from "./launchLandingGit.ts";
 import {
   collectedProofOf,
   needsCollectedProof,
+  proofRetainedWith,
 } from "./landedCiCollectedProof.ts";
 
 import { landingResolution, passRead } from "./landedCiResolution.ts";
@@ -78,6 +80,10 @@ function collects(): boolean {
     projectEnvironment() === "production" &&
     process.env["DOUGH_TEST_LANDED_CI_COLLECTION"] !== "off"
   );
+}
+
+function proofSignal(stopped: AbortSignal): AbortSignal {
+  return AbortSignal.any([stopped, AbortSignal.timeout(readWaitLimitMs)]);
 }
 
 // The landings onto the project's configured ref that its records name, with
@@ -179,6 +185,7 @@ export class LandedCiCollection {
       if (this.ended()) return;
       if (measured.size >= measuredWindow) break;
       const held = history.landings[landing.receipt]?.observed;
+      let retainedProofWithResolution = false;
       if (held === undefined || held.kind === "pending") {
         if (!hasLandingOrder(history, landing.revision, order)) {
           history = await keepLandedCiResolution(
@@ -192,28 +199,33 @@ export class LandedCiCollection {
         const resolved = await landingResolution(source, landing, read);
         // A read the end of collection cut short says nothing of its CI.
         if (this.ended()) return;
+        const collected = await proofRetainedWith(
+          source,
+          resolved,
+          proofSignal(this.stopped.signal),
+        );
+        if (this.ended()) return;
+        retainedProofWithResolution = collected !== undefined;
         history = await keepLandedCiResolution(
           source.id,
           landing,
           resolved,
           order,
+          collected,
         );
         // CI that cannot be read now is asked again at the next pass; a CI
         // proof that cannot be read is this landing's alone.
         if (resolved.kind === "pending" && resolved.waitsFor === "read") break;
       }
       const observed = history.landings[landing.receipt]?.observed;
-      if (observed?.kind === "build") {
+      // Already-held builds still backfill proof; a just-retained ask does not.
+      if (!retainedProofWithResolution && observed?.kind === "build") {
         const retained = history.builds[observed.build];
         if (retained !== undefined && needsCollectedProof(retained)) {
-          const signal = AbortSignal.any([
-            this.stopped.signal,
-            AbortSignal.timeout(readWaitLimitMs),
-          ]);
           const { proof, pending } = await collectedProofOf(
             source,
             retained,
-            signal,
+            proofSignal(this.stopped.signal),
           );
           history = await keepLandedCiProof(
             source.id,

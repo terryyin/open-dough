@@ -144,6 +144,9 @@ Remaining slice-specific concerns: none identified.
   replacement proof: `intent-ci-comparison-adapter-planning-skip.spec.ts` and
   `intent-ci-comparison-skipped-landed.spec.ts` (-g reuses equivalent wall time).
 - Slice 2 still owns reopening retained final `no-proof` skip gaps.
+- CI repair on `dfc059a11`: retain first proof ask with a new measured pass;
+  treat settled missing proof summaries as final (`proofPending: false`) so
+  history/scope re-reads do not re-ask GitHub after collection.
 
 ## Story obligations
 

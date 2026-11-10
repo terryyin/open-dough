@@ -96,6 +96,13 @@ test.describe("a server that collects", () => {
         },
       });
     expect(runsListedAt(github.calls, revision)).toHaveLength(1);
+    // Retention keeps the first proof ask with the measured point, so a
+    // history reader never observes that point while the ask is outstanding.
+    expect(
+      github.calls.filter(
+        ({ request }) => request.kind === "actions-run-artifacts",
+      ),
+    ).toHaveLength(1);
 
     // Reading the history again asks CI nothing.
     const asked = github.calls.length;
