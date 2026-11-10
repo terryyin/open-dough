@@ -58,3 +58,7 @@ allowance and suite/shard gates, including trunk's90s restart allowance (G8).
 
 Independent `watcher_refactor` returned none—already clean, with the required
 REFACTOR COMPLETE marker, no edits/tests and all accepted proof unchanged.
+
+The remaining4/G9 cost target was subsequently observed in
+[source-ingestion evidence](source-ingestion-evidence.md); the earlier5.367s
+consolidation-only miss remains retained as attempt history.

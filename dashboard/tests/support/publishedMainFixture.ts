@@ -5,7 +5,6 @@
 // fails every request until a test points it at a fake GitHub.
 import { execFile } from "node:child_process";
 import {
-  cpSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -17,7 +16,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
-import { repoRoot } from "./repositoryRoot.ts";
+import { materializePublishedMainSource } from "./publishedMainSource.ts";
 
 const exec = promisify(execFile);
 
@@ -51,34 +50,8 @@ export async function publishedMainFixture(fullSource = false) {
   const git = async (...args: string[]) =>
     (await exec("git", args, { cwd: development, env })).stdout.trim();
   try {
-    if (fullSource) {
-      // The live working tree: new names included, deleted tracked paths not.
-      // Agent avatar images are left out: the page loads them by URL, so no
-      // build or check needs them, and their size would otherwise be copied,
-      // hashed, fetched, and built into every deployment.
-      const listed = async (...args: string[]) =>
-        (
-          await exec("git", ["ls-files", "-z", ...args], { cwd: repoRoot })
-        ).stdout
-          .split("\0")
-          .filter(Boolean);
-      const deleted = new Set(await listed("--deleted"));
-      for (const file of await listed(
-        "--cached",
-        "--others",
-        "--exclude-standard",
-      )) {
-        if (
-          deleted.has(file) ||
-          file.startsWith("dashboard/public/agent-avatars/")
-        )
-          continue;
-        const destination = path.join(development, file);
-        mkdirSync(path.dirname(destination), { recursive: true });
-        cpSync(path.join(repoRoot, file), destination);
-      }
-    }
-    await git("init", "--quiet", "-b", "main");
+    if (fullSource) await materializePublishedMainSource(development, env);
+    else await git("init", "--quiet", "-b", "main");
     await git("config", "user.name", "Published main fixture");
     await git("config", "user.email", "fixture@example.invalid");
     await git("config", "maintenance.auto", "false");
@@ -96,11 +69,10 @@ export async function publishedMainFixture(fullSource = false) {
         "-m",
         message,
       );
-    // Streams the whole source straight into one pack instead of thousands of
-    // loose objects, which dominated setup while other workers did the same.
-    // Only this first addition is affected; contents and commits are not.
-    await git("-c", "core.bigFileThreshold=1", "add", "--all");
-    await record("Fixture source", "--allow-empty");
+    if (!fullSource) {
+      await git("add", "--all");
+      await record("Fixture source", "--allow-empty");
+    }
     // Commits exactly the requested path changes on local main.
     const commit = async (changes: PathChanges, message: string) => {
       const paths = Object.keys(changes);

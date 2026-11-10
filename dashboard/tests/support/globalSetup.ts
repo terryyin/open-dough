@@ -40,6 +40,7 @@ import {
 } from "./runProcesses.ts";
 import { startOriginArtifacts } from "./startOriginPreparation.ts";
 import { comparisonMountArtifact } from "./comparisonMountArtifact.ts";
+import { publishedMainSourceArtifact } from "./publishedMainSource.ts";
 
 export default async function globalSetup(): Promise<() => Promise<void>> {
   const runId = identifyRun();
@@ -72,6 +73,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
       ],
       ...startOriginArtifacts(),
       comparisonMountArtifact(),
+      publishedMainSourceArtifact(),
       storyColumnsPrefixArtifact(),
     ]),
   ).catch(async (error: unknown) => {

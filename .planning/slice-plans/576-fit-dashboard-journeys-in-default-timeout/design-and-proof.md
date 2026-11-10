@@ -155,3 +155,8 @@ requested-only docs changes; watcher refusals observe an initially empty origin.
 Both and all direct full-source callers must remain proved. No-owner calls keep
 the established private path. If the experiment fails its measured target,
 return the gap before another variant. Raw attempts stay at their evidence paths.
+
+The single selected source-snapshot variant retained all fixture boundaries and
+observed20.493s complete-family median saving against original, with cold prep
+included; [source-ingestion evidence](source-ingestion-evidence.md) retains
+comparability, all pairs, preserving assertions and remaining final gates.

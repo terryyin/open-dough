@@ -21,7 +21,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | C08 | Surviving proof is established before deleting an assertion. | slice 12 |  |
 | C09 | Repeated setup is reduced. | slice 12 |  |
 | C10 | Redundant proof is reduced. | slice 12 |  |
-| C11 | The watcher family becomes at least 10 s faster in median elapsed time. |  | G9 |
+| C11 | The watcher family becomes at least 10 s faster in median elapsed time. | slice 4 | observed: Three alternating ORIGINAL32/CHANGED31 case commands all strictpassed retry0. Whole shell medians156.893714 to136.400577s save20.493137s; runner20.346132s. Same command2workers/host/cache, before-after loads overlap and after not quieter; thirdpair8.583s retained. Both consolidation and source snapshot included. See source-ingestion-evidence.md and /tmp/seed287-source-ingestion-20261110/paired-summary.json. |
 | C12 | The comparable local dashboard suite stays within its previous elapsed time. | slice 12 |  |
 | C13 | The slowest hosted shard stays within its previous elapsed time. | slice 12 |  |
 | C14 | The failure watcher journey uses one real deployment. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable/recovered origin checks retain the original served C PID/page; no watcher/served reassignment before D failure. Three whole-family after runs passed31/31. |
@@ -95,7 +95,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | C82 | Experiments whose speedup remains unestablished are dropped. | slice 12 |  |
 | Q01 | The specified local pressure is load 20–30 on 2 workers. | slice 12 |  |
 | Q02 | The hosted comparison includes a shard about 1.5× slower overall. | slice 12 |  |
-| Q03 | Watcher-family elapsed time includes moved work. | slice 4 |  |
+| Q03 | Watcher-family elapsed time includes moved work. | slice 4 | observed: Complete family command elapsed includes all hooks, private clones, actual installs/builds/starts and moved SIGHUP. Each changed run pays first-demand cold snapshot3.532/3.352/3.461s, exactly1 preparation3requests; no prewarm or cost outside elapsed. Artifact trace confirms removal after everyrun. |
 | Q04 | Allowance removal is conditional on that particular case fitting the default with margin. | slice 12 |  |
 | Q05 | Standalone C reactivation is deleted only after the preceding preservation and detection obligations are satisfied. | slice 3 | observed: Relocated restart positive7/7 and actual ignored-HUP/stale-revision fault probes completed before deletion; root inspected setup and trace chronology. Exact parked/restored bytes and complete after-family passes retained in watcher-evidence.md. |
 | Q06 | Story Branch Wrap Up reuse is conditional on its ability to carry the required closure proof. | slice 5 |  |

@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Latest accepted execution branch revision: `a041ca86ef1f510c4e0e8c81999c9e1edf95388d`
-  (records-only watcher refinement); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
+- Latest accepted execution branch revision: `d1acd744786b51e7f1b47ce88f05410e4485dc44`
+  (watcher behavior consolidation); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
   `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher

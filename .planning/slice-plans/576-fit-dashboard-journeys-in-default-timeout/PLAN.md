@@ -59,7 +59,7 @@ Behavior: Existing failure/restart chains repeat C activation → continue origi
 
 ### 4. Repeated full-source ingestion no longer consumes the family saving
 Type: Behavior
-Status: planned
+Status: done
 Proof: Profile the supported copy/initial-Git-ingestion cost, then test one immutable source-snapshot variant using the existing run-artifact owner. Every fixture retains current source, private writable repositories/HOME and an empty unpublished origin; real install/build/start remain. Run all full-source consumers, including publication/refusal/deployment and fixture-isolation proof, plus the three-spec watcher family. At least 10 s median family elapsed saving against a comparable original baseline, including first-demand snapshot preparation and moved work; no family growth. Stop with evidence if this one variant misses; no unchanged timing reruns or new cache lifetimes.
 
 Behavior: Several real watcher fixtures ingest the same live source independently → prepare that immutable Git source once in the established run owner and materialize isolated fixtures → original publication/serving/failure boundaries survive and complete-family elapsed meets the original 10 s target. Existing private fallback remains usable without a run owner. This is one supported harness-cost experiment, not a second artifact registry or prebuilt deployment.
@@ -140,6 +140,8 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
 
 [Probe observations and full-baseline diagnosis](execution-evidence.md) retain
 commands, timing conditions, inspected boundaries, and outstanding proof.
+[Source-ingestion proof and complete-family saving](source-ingestion-evidence.md)
+retain the subsequent accepted measurement and isolation/consumer observations.
 
 ## Story obligations
 
@@ -186,14 +188,14 @@ Disposition: receiving slice 12
 ### G9. Watcher consolidation alone did not earn the required saving
 Reported: slice 3 — "Three alternating pairs passed 32/31 cases, but median shell elapsed 141.456 to 136.089 s saved only 5.367 s nominally, below 10 s and affected by host variance."
 Story clause: "the watcher family gets at least 10 s faster in median elapsed time"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: three strict-passing original32/changed31 pairs measured median complete shell156.893714 to136.400577s (20.493137s saving), including cold first-demand preparation3.532/3.352/3.461s; all moved work and load qualifiers retained in source-ingestion-evidence.md
 
 ## Plan concern assessment
 
 Completed 1/2 and compatible watcher behavior proof remain. Split original 3's
 independent preservation and cost proof loops: 3 retains the safe consolidation;
-4 owns the still-required 10 s saving through one profile-supported source
-snapshot experiment. The assumption that deletion alone earned 10 s was false
+4 owns that cost target; its single source-snapshot variant observed a20.493s
+median saving including cold preparation (see source-ingestion evidence). The assumption that deletion alone earned 10 s was false
 (5.367 s nominal, with host variation). Two code paths are safely parked before
 this refinement; [watcher evidence](watcher-evidence.md) retains restoration/proof.
 Closure/touch (5/6), launch/Cursor repairs (7–10), comparison (11), and final gates
