@@ -106,7 +106,7 @@ to exercise the automated contract, and preparation enables no project.
 
 Type: Behavior
 Status: done
-Acceptance: [Inspected slice 3 proof](slice-3-proof.md).
+Acceptance: [Inspected slice 3 proof](slice-3-proof.md); [CI repair 3](ci-repair-3.md).
 Proof: New project-setting/collector lifecycle boundary specs and a Recently
 done journey through actual collection and synthetic provider responses.
 

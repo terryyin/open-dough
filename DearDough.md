@@ -153,7 +153,7 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Timestamp: unknown (2026-11-10 execution)
   - Tool: Codex
   - Open Dough release: 0.3.94 (checkout-bound installed guidance)
-  - Evidence: CI run 42800107133/1 at `8aeda2ade` failed native identity from a new shared MakeMe runtime import of the dashboard timing marker. Native fixture roots intentionally copy tests and src. Repair `0fb7f0226` removed that runtime dependency and retained independent test-domain timing facts; plan 569 `ci-repair-1.md` preserves diagnostics and native proof.
+  - Evidence: CI run 42800107133/1 at `8aeda2ade` failed native identity from a new shared MakeMe runtime import of the dashboard timing marker. Native fixture roots intentionally copy tests and src. Repair `0fb7f0226` removed that runtime dependency and retained independent test-domain timing facts; plan 569 `ci-repair-1.md` preserves diagnostics and native proof. Later owned runs42832244638/1 and42845502760/1 exposed the enclosing settings touch journey's last-fact/action adjacency assumption after the new follow-up setting; plan569 `ci-repair-3.md` retains the exact failing baseline and seven-case repaired proof with unchanged strict touch checks.
   - Observed effect: an owned published failure required pause, independent repair/proof and restoration of in-flight slice 2. No installation boundary was widened.
   - Inference: shared builders' fixture-materialization consumers belong in the changed import contract's proof; full dashboard timing proof could not expose the absent dashboard tree.
 
