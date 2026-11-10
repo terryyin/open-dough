@@ -62,6 +62,26 @@ summary JSON outside the builder when its exact wire format is under proof.
 [Proof builders](support/ciProofEntryTestData.mjs) ·
 [Proof builder](support/ciProofTestData.mjs)
 
+Build an observed GitHub Actions run with
+`makeMe.aCiRun.with({ headSha, ...facts }).please()` and an attempt job with
+`makeMe.aGitHubJob.withFacts({ ...facts }).please()`. State revision, run and
+attempt identity, branch, event, conclusion and times at the call site when
+they drive the case; incidental defaults must not invent identity or
+wall-time bounds. `aRevisionCiRun` reuses the same GitHub facts for the
+`ListedRun` projection and keeps provider-neutral `adapterAttempt` as a
+distinct field. Encode observed facts through `apiRun` / `apiJob` at the
+transport boundary so REST field names stay separate from observed
+projections (`databaseId` → `id`, observed `url` → `html_url`). Keep actual
+Git, response routing, pagination, request counts, faults, clocks, process
+lifetime and teardown in the harness. Keep captured job timestamps, log
+text, malformed or partial responses and exact encoder-input examples
+literal where their form is under proof. Adapter attempts, queue and
+coverage records, and CI proof fragments and summaries use their own
+builders.
+[Run builder](support/ciRunTestData.mjs) ·
+[Job builder](support/ciJobTestData.mjs) ·
+[API encoding](../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs)
+
 Build a project this machine configures with
 `makeMe.aConfiguredProject.with({ id, label, repository, localPath }).please()`:
 the published source it reads, as `makeMe.aPublishedSource` builds it (ref
