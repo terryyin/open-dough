@@ -1,6 +1,7 @@
 # Reuse equivalent CI adapter build timing for a skipped landing
 
 **Source:** [selected story](../../seeds/SEED-288-landed-ci-evidence-follow-ups.md#reuse-adapter-equivalent-timing)
+**Source review:** [source-review.md](source-review.md)
 
 **Identity:** SEED-288#reuse-adapter-equivalent-timing
 
@@ -62,7 +63,7 @@ PFE in this owned checkout on 2026-11-10 at
 ### 1. Confirmed skips reuse equivalent wall time without proof
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Adapter wall-time history journey and Done comparison journeys above;
 focused updates to the shared Landed skip path and maintained wording/docs.
 
@@ -131,5 +132,51 @@ Remaining slice-specific concerns: none identified.
   same wall-time reuse while proof stays unavailable.
 - Do not relax moving-average complete-published-proof eligibility.
 - Cancelled-landing later-build reuse without proof stays deferred.
-- All planned proof is still owed; preparation observations settle approach
-  premises, not execution completion.
+- Slice 1 accepted live resolution: `exactSkippedEquivalentSlot` returns a timed
+  successful equivalent as a measured build when proof is settled unavailable
+  `none`; unanswered/expired/unreadable stay gaps/pending; `activeComparisonOf`
+  still requires a Landed proof summary. Scope history remains proof-gated and
+  does not invent scope timings for proofless wall points.
+- Slice 1 focused proof (pre-refactor paths; planning-skip and Landed no-proof
+  journeys later moved by refactor extract): adapter wall-time history (S joins
+  P; Q/U/T gaps), provenance R4→X, Done GHA/adapter no-proof Landed wall with
+  Branch+missing-proof, answer-memory and landed-history gaps. Refactor
+  replacement proof: `intent-ci-comparison-adapter-planning-skip.spec.ts` and
+  `intent-ci-comparison-skipped-landed.spec.ts` (-g reuses equivalent wall time).
+- Slice 2 still owns reopening retained final `no-proof` skip gaps.
+
+## Story obligations
+
+### G1. Adapter protocol changes deferred
+Reported: slice 1 — "Deferred promise: adapter protocol changes."
+Story clause: "adapter protocol changes"
+Disposition: excluded "adapter protocol changes"
+Commitment: 14.1
+
+### G2. Broader cancelled-landing reuse without proof deferred
+Reported: slice 1 — "Deferred promise: broader cancelled-landing reuse without proof."
+Story clause: "broader cancelled-landing reuse without proof"
+Disposition: excluded "broader cancelled-landing reuse without proof"
+Commitment: 14.2
+
+### G3. New history window deferred
+Reported: slice 1 — "Deferred promise: a new history window."
+Story clause: "a new history window"
+Disposition: excluded "a new history window"
+Commitment: 14.3
+
+### G4. Upstream acquisition during browsing deferred
+Reported: slice 1 — "Deferred promise: upstream acquisition during browsing."
+Story clause: "upstream acquisition during browsing"
+Disposition: excluded "upstream acquisition during browsing"
+Commitment: 14.4
+
+### G5. Moving-average complete-proof eligibility not relaxed
+Reported: slice 1 — "Deferred promise: relaxing SEED-285 complete-published-proof eligibility for moving-average candidates."
+Story clause: "relaxing
+[SEED-285#compare-landed-timing-with-recent-builds](SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds)
+complete-published-proof eligibility for moving-average candidates"
+Disposition: excluded "relaxing
+[SEED-285#compare-landed-timing-with-recent-builds](SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds)
+complete-published-proof eligibility for moving-average candidates"
+Commitment: 14.5

@@ -1,12 +1,16 @@
 // Story Branch Landed confirmed-skip path: use only the nearest first-parent
-// ancestor build's proof (the equivalent build), read through
-// `./ciProofArtifact.ts`. Never walk past a build without usable proof.
-// Baseline / Branch proof walks stay in `./baseCiRevisionLookup.ts`.
+// ancestor build (the equivalent build). When that build publishes a usable
+// proof summary, Landed reuses it; when it passed with valid start and
+// completion but published no proof summary (as a CI adapter's attempt never
+// does), Landed still reuses its wall time while proof stays a separate gap.
+// Never walk past that one equivalent to a farther ancestor. Baseline /
+// Branch proof walks stay in `./baseCiRevisionLookup.ts`.
 import { equivalentBuildUnavailableLine } from "../src/ciProofAbsenceWording.ts";
 import type { CiProof } from "../src/ciProof.ts";
+import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import type { RequestedRevisionCiStatus } from "../src/storyCiComparison.ts";
 import { proofRunOf, type RevisionCiLookup } from "./baseCiRevisionNearest.ts";
-import { readCiProofArtifact } from "./ciProofArtifact.ts";
+import { isUnansweredProof, readCiProofArtifact } from "./ciProofArtifact.ts";
 import type { GitCall } from "./gitRunner.ts";
 import {
   asSlot,
@@ -65,10 +69,11 @@ export function storyBranchLandedExactLookup(
 }
 
 // When Landed confirms a skip at `target`, use only the nearest first-parent
-// ancestor build's proof (the equivalent build), which a build without a
-// GitHub Actions run, such as a CI adapter's, never published. Never walk
-// past a build without usable proof; a gap for one names that build and why
-// its proof is unusable (`unusableProofOf`).
+// ancestor build (the equivalent build). A usable proof summary stands for
+// the landing; a timed successful attempt with no proof summary still
+// supplies wall time. Other proof absences, and unanswered GitHub proof
+// reads, keep naming that build and why (`unusableProofOf`). Never walk
+// past that one equivalent.
 export async function exactSkippedEquivalentSlot(
   target: string,
   lookup: RevisionCiLookup,
@@ -93,16 +98,24 @@ export async function exactSkippedEquivalentSlot(
     run === undefined
       ? { kind: "unavailable", reason: "none" }
       : await readCiProofArtifact(exact.repository, run, exact.signal);
+  const measured = {
+    ...equivalent,
+    selection: "equivalent" as const,
+    laterWithoutResult: 1,
+  };
   if (proof.kind === "summary") {
-    return asSlot(
-      {
-        ...equivalent,
-        selection: "equivalent",
-        laterWithoutResult: 1,
-      },
-      status.explanation,
-      status,
-    );
+    return asSlot(measured, status.explanation, status);
+  }
+  // Settled "no proof summary" on a timed pass: reuse wall time. Unanswered
+  // reads stay pending; expired / unreadable / other absences stay gaps.
+  if (
+    equivalent.state === "pass" &&
+    historyWallTimeMs(equivalent.startedAt, equivalent.completedAt) !==
+      undefined &&
+    proof.reason === "none" &&
+    !isUnansweredProof(proof)
+  ) {
+    return asSlot(measured, status.explanation, status);
   }
   return {
     kind: "none",

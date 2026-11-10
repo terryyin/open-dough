@@ -1,6 +1,8 @@
 // A custom adapter answers CI attempts for the revisions a done story's
 // published history names. The real Intent read resolves the endpoints and
 // reads adapter discovery for builds, jobs for timing and proof for entries.
+// The Done adapter planning-only skip wall-time journey is in
+// ./intent-ci-comparison-adapter-planning-skip.spec.ts.
 import { shortSha } from "../../src/baseCiWording.ts";
 import { adapterProject } from "../intentCiAdapterProofProject.ts";
 import { expectCueState } from "../support/expectCiComparisonCues.ts";

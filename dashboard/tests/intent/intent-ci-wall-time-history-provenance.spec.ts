@@ -7,14 +7,15 @@
 // planning-only refinements that reuse it are one point naming all three,
 // counted once; a refinement reusing a trunk build no landing measured is a
 // reused point with that build's identity; one whose equivalent build has
-// its timing but published no CI proof summary is a "No CI proof summary"
-// gap naming that build and linked to its run, its timing unused
-// (SEED-285#see-landed-ci-wall-time-history examples 4 and 5). Each point's
-// CI wall time is the CI timing comparison's (`wallTimeMs`). Trunk builds no
-// landing resolves to are not shown, nor any average, difference, excluded
-// mark, slowdown or story's place. A phone reader reaches each item and link
-// by keyboard and tells points from gaps by their words. A cancelled
-// landing's later trunk build and a failed build are in
+// its timing but published no CI proof summary is that build's reused-
+// equivalent point with the same wall time
+// (SEED-285#see-landed-ci-wall-time-history examples 4 and 5;
+// SEED-288#reuse-adapter-equivalent-timing). Each point's CI wall time is
+// the CI timing comparison's (`wallTimeMs`). Trunk builds no landing
+// resolves to are not shown, nor any average, difference, excluded mark,
+// slowdown or story's place. A phone reader reaches each item and link by
+// keyboard and tells points from gaps by their words. A cancelled landing's
+// later trunk build and a failed build are in
 // ./intent-ci-wall-time-history-later.spec.ts; the single exact point and
 // the empty history in ./intent-ci-wall-time-history.spec.ts; the window in
 // ./intent-ci-wall-time-history-window.spec.ts.
@@ -23,7 +24,6 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { wallTimeMs, wholeSecondWords } from "../../src/ciProofTimeWords.ts";
 import {
   chartOf,
-  dayWords,
   evidenceOnPhone,
   expectLinksByKeyboard,
   publishTrunk,
@@ -56,7 +56,7 @@ function comparisonWallTimeWords(run: CiRunAnswer): string {
   return wholeSecondWords(ms);
 }
 
-test("an execution's exact build and the refinements reusing it are one point naming all three, a refinement reusing a build no landing measured is a reused point with that build's identity, and one whose equivalent build published no CI proof is a gap saying so and naming that build, by keyboard on a phone", async ({
+test("an execution's exact build and the refinements reusing it are one point naming all three, a refinement reusing a build no landing measured is a reused point with that build's identity, and one whose equivalent build published no CI proof is that build's reused-equivalent point, by keyboard on a phone", async ({
   page,
   dashboard,
   origin,
@@ -64,7 +64,7 @@ test("an execution's exact build and the refinements reusing it are one point na
   // Trunk's CI workflow is built, but no landing rests on it. E's execution
   // builds a1; refinements R1 and R2 change planning only. c3 is built, but
   // no recorded landing names it; R3 changes planning only. x is built
-  // without CI proof; R4 changes planning only.
+  // without CI proof; R4 changes planning only and reuses x's timing.
   const { revision, landing, landings } = landedTrunk(
     origin,
     [
@@ -97,7 +97,12 @@ test("an execution's exact build and the refinements reusing it are one point na
     43,
     passedBetween("2026-11-05T12:00:00Z", "2026-11-05T12:05:00Z"),
   );
-  // a1's and c3's builds published their CI proof.
+  const xRun = trunkRun(
+    x,
+    47,
+    passedBetween("2026-11-05T13:00:00Z", "2026-11-05T13:04:00Z"),
+  );
+  // a1's and c3's builds published their CI proof; x's did not.
   await publishTrunk(
     page,
     origin,
@@ -109,11 +114,7 @@ test("an execution's exact build and the refinements reusing it are one point na
       ),
       a1Run,
       c3Run,
-      trunkRun(
-        x,
-        47,
-        passedBetween("2026-11-05T13:00:00Z", "2026-11-05T13:04:00Z"),
-      ),
+      xRun,
     ],
     () => ({ 41: usableProofOf(a1Run), 43: usableProofOf(c3Run) }),
   );
@@ -131,23 +132,24 @@ test("an execution's exact build and the refinements reusing it are one point na
       entries: [
         { kind: "point", revision: e.revision },
         { kind: "point", revision: c3 },
-        { kind: "gap", reason: "no-proof", revision: r4.revision },
+        { kind: "point", revision: x },
       ],
     });
   const { history, builds } = await evidenceOnPhone(page);
 
-  // Two builds measured: R1, R2 and R3 add none of their own.
+  // Three builds measured: R1, R2, R3 and R4 add none of their own.
   await expect(history.getByRole("heading")).toHaveText(
-    "CI wall time history 2 measured builds · Nov 5",
+    "CI wall time history 3 measured builds · Nov 5",
   );
   const sha = shortSha;
   await expect(builds.getByRole("listitem")).toHaveText([
     `Nov 5 · ${comparisonWallTimeWords(a1Run)} · exact revision ${sha(e.revision)} (SEED-9#e) · reused equivalent ${sha(e.revision)} for ${sha(r1.revision)} (SEED-9#r1) and ${sha(r2.revision)} (SEED-9#r2) · Run 41 · attempt 1`,
     `Nov 5 · ${comparisonWallTimeWords(c3Run)} · reused equivalent ${sha(c3)} for ${sha(r3.revision)} (SEED-9#r3) · Run 43 · attempt 1`,
-    `${dayWords(r4.at)} · No CI proof summary · reused equivalent ${sha(x)} for ${sha(r4.revision)} (SEED-9#r4) · Run 47 · attempt 1`,
+    `Nov 5 · ${comparisonWallTimeWords(xRun)} · reused equivalent ${sha(x)} for ${sha(r4.revision)} (SEED-9#r4) · Run 47 · attempt 1`,
   ]);
+  // Latest measured build callout (newest point).
   await expect(history.getByRole("definition")).toHaveText(
-    comparisonWallTimeWords(c3Run),
+    comparisonWallTimeWords(xRun),
   );
   // Trunk builds no landing resolves to are not shown.
   await expect(builds).not.toContainText(sha(ci));
@@ -157,7 +159,7 @@ test("an execution's exact build and the refinements reusing it are one point na
   );
   await expectLinksByKeyboard(page, builds, [41, 43, 47].map(runLink));
   const chart = await chartOf(history);
-  expect(chart.points).toHaveLength(2);
-  expect(chart.strokes).toEqual([2]);
+  expect(chart.points).toHaveLength(3);
+  expect(chart.strokes).toEqual([3]);
   await expectNoSidewaysScrollIn(page, history);
 });

@@ -133,14 +133,18 @@ cancelled or timed out, and no later trunk build stands for it: that build,
 `exact revision d4e5f6a (SEED-9#f)`); `No build` (CI did not build its
 revision and no skip was confirmed; no build is named);
 `Equivalent timing unavailable` (a confirmed skip has no equivalent build,
-or its equivalent build has no timing); `No CI proof summary` (the
-equivalent or later trunk build that would stand for it has its timing but
-published no CI proof summary, as a CI adapter's never does, so the Landed
-rule does not use it); `CI proof expired` or `CI proof unreadable` (that
-build's CI proof expired, or GitHub's answer could not be opened or used);
-or `CI wall time not recorded` (its build passed, but its attempt names no
-start, or no completion after its start; it is never shown as a zero). A run
-link that is not a web address is left out, keeping the run attempt's words.
+or its equivalent build has no timing); `No CI proof summary` (a cancelled
+landing's later trunk build has its timing but published no CI proof
+summary, or another path still names that absence without measuring wall
+time); `CI proof expired` or `CI proof unreadable` (that build's CI proof
+expired, or GitHub's answer could not be opened or used); or
+`CI wall time not recorded` (its build passed, but its attempt names no
+start, or no completion after its start; it is never shown as a zero). A
+confirmed skip whose equivalent build passed with valid start and completion
+reuses that attempt's wall time even when it published no CI proof summary,
+as a CI adapter's never does; missing proof stays explicit for
+proof-dependent figures. A run link that is not a web address is left out,
+keeping the run attempt's words.
 So a keyboard, a screen reader and a phone get the same evidence without
 colour. With no measured build it says “No dashboard-recorded landings have
 been measured yet.” and draws nothing, still listing any gap. The current
@@ -166,11 +170,13 @@ rule at its accepted revision, over the project's CI read: the `ciWorkflow`
 runs at that revision, or the `ciAdapter`'s discovery. That rule measures a
 landing by its landed revision's own build; a confirmed skip by its
 equivalent build, the nearest earlier first-parent build, when that build
-has usable CI proof; and a cancelled landing by the nearest later trunk build
-with usable CI proof. A CI adapter's skip or cancelled landing has neither,
-so it is a gap. A measured build is such a build that passed, whose attempt
-has a start and a later completion; its CI wall time is the comparison's,
-from the one definition both read (`wallTimeMs` in
+passed with valid start and completion (usable CI proof is not required for
+wall time; missing proof stays a separate gap for proof-dependent figures);
+and a cancelled landing by the nearest later trunk build with usable CI
+proof. A CI adapter's cancelled landing still has no later-build reuse
+without proof, so it stays a gap. A measured build is such a build that
+passed, whose attempt has a start and a later completion; its CI wall time
+is the comparison's, from the one definition both read (`wallTimeMs` in
 `dashboard/src/ciProofTimeWords.ts`).
 
 A landing is pending while that rule's answer may still change: its build is

@@ -51,7 +51,36 @@ for (const state of ["queued", "in_progress"] as const) {
   });
 }
 
-for (const reason of ["missing", "expired", "invalid", "unopenable"] as const) {
+test("an answered missing equivalent proof still reuses timed wall time with no provider requests on repeat", async ({
+  origin,
+  github,
+  startServer,
+}) => {
+  const setup = await pendingLandedComparison(origin, "equivalent");
+  serveTrunkRuns(github, origin, () => setup.runs, {
+    proofs: () => ({ ...setup.proofs, 201: { kind: "none" as const } }),
+  });
+  const server = await startServer();
+  const final = await readLandedComparison(server, setup.identity);
+  expect(final.landed).toMatchObject({
+    kind: "build",
+    selection: "equivalent",
+    revision: setup.trunkSide,
+    runId: 201,
+    runAttempt: 1,
+    requestedStatus: { kind: "skipped" },
+  });
+  if (final.landed.kind !== "build")
+    throw new Error("Expected a timed equivalent build");
+  expect(final.landed.startedAt).toBeTruthy();
+  expect(final.landed.completedAt).toBeTruthy();
+  const asked = github.calls.length;
+  expect(proofListings(github, 201)).toBe(1);
+  expect(await readLandedComparison(server, setup.identity)).toEqual(final);
+  expect(github.calls.length).toBe(asked);
+});
+
+for (const reason of ["expired", "invalid", "unopenable"] as const) {
   test(`an answered ${reason} equivalent artifact is a final explained gap with no provider requests on repeat`, async ({
     origin,
     github,
@@ -59,17 +88,15 @@ for (const reason of ["missing", "expired", "invalid", "unopenable"] as const) {
   }) => {
     const setup = await pendingLandedComparison(origin, "equivalent");
     const proof =
-      reason === "missing"
-        ? { kind: "none" as const }
-        : reason === "expired"
-          ? { kind: "expired" as const, artifactId: 2010 }
-          : reason === "unopenable"
-            ? { kind: "unopenable" as const, artifactId: 2010 }
-            : {
-                kind: "summary" as const,
-                artifactId: 2010,
-                summary: { invalid: true },
-              };
+      reason === "expired"
+        ? { kind: "expired" as const, artifactId: 2010 }
+        : reason === "unopenable"
+          ? { kind: "unopenable" as const, artifactId: 2010 }
+          : {
+              kind: "summary" as const,
+              artifactId: 2010,
+              summary: { invalid: true },
+            };
     serveTrunkRuns(github, origin, () => setup.runs, {
       proofs: () => ({ ...setup.proofs, 201: proof }),
     });
@@ -83,13 +110,11 @@ for (const reason of ["missing", "expired", "invalid", "unopenable"] as const) {
     if (final.landed.kind !== "none")
       throw new Error("Expected an explained gap");
     expect(final.landed.explanation).toContain(
-      reason === "missing"
-        ? "published no CI proof summary"
-        : reason === "expired"
-          ? "expired"
-          : reason === "invalid"
-            ? "not valid"
-            : "could not be read",
+      reason === "expired"
+        ? "expired"
+        : reason === "invalid"
+          ? "not valid"
+          : "could not be read",
     );
     const asked = github.calls.length;
     expect(proofListings(github, 201)).toBe(1);
