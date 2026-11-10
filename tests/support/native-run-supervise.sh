@@ -17,45 +17,28 @@ native_run_supervision_inputs=(
   tests/support/native-host-stream-adapters.mjs
   tests/support/native-run-watchdog.sh
   tests/helpers/wait-for.bash
+  scripts/owned-process-group.bash
 )
 # shellcheck source=tests/support/native-run-stream.sh
 # shellcheck disable=SC1091
 source "${native_run_support_dir}/native-run-stream.sh"
-# shellcheck source=tests/helpers/wait-for.bash
+# shellcheck source=scripts/owned-process-group.bash
 # shellcheck disable=SC1091
-source "${native_run_support_dir}/../helpers/wait-for.bash"
+source "${native_run_support_dir}/../../scripts/owned-process-group.bash"
 
 native_run_outcome=exited
 native_run_failure_reason=
 
 native_run_pgid_of() {
-  ps -o pgid= -p "$1" 2> /dev/null | tr -d '[:space:]'
+  owned_process_group_pgid_of "$@"
 }
 
 native_run_signal_owned() {
-  local signal=$1
-  local pgid=$2
-  local pid=$3
-  local caller_pgid=$4
-
-  if [[ -n ${pgid} && ${pgid} != "${caller_pgid}" ]]; then
-    kill -s "${signal}" -- "-${pgid}" 2> /dev/null || true
-  fi
-  kill -s "${signal}" "${pid}" 2> /dev/null || true
+  owned_process_group_signal "$@"
 }
 
 native_run_terminate_group() {
-  local pgid=$1
-  local pid=$2
-  local grace=$3
-  local caller_pgid
-  caller_pgid=$(native_run_pgid_of $$)
-
-  native_run_signal_owned TERM "${pgid}" "${pid}" "${caller_pgid}"
-  if ((grace > 0)) && poll_until "${grace}" "! kill -0 '${pid}' 2> /dev/null"; then
-    return 0
-  fi
-  native_run_signal_owned KILL "${pgid}" "${pid}" "${caller_pgid}"
+  owned_process_group_terminate "$@"
 }
 
 # Succeeds once PID has left PARENT_PGID's group or exited, recording the
@@ -86,6 +69,8 @@ native_run_child_pgid() {
 # shellcheck source=tests/support/native-run-watchdog.sh
 # shellcheck disable=SC1091
 source "${native_run_support_dir}/native-run-watchdog.sh"
+# owned-process-group.bash already defines the watchdog bodies; the thin
+# native-run-watchdog.sh wrappers above keep call sites and input hashes stable.
 
 native_run_spawn_group() {
   local workdir=$1

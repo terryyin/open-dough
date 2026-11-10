@@ -57,11 +57,21 @@ function launch(t, cwd, args, extra = {}, command = process.execPath) {
     "OPEN_DOUGH_TEST_JOBS",
     "OPEN_DOUGH_TEST_SLOT_GATE",
     "OPEN_DOUGH_TEST_ADMISSION_GATE",
+    "OPEN_DOUGH_TEST_JOB_DEADLINE_READY",
+    "OPEN_DOUGH_TEST_DISABLE_JOB_DEADLINE",
+    "OPEN_DOUGH_TEST_DEADLINE_MS",
+    "OPEN_DOUGH_TEST_RUN_DEADLINE_READY",
+    "OPEN_DOUGH_TEST_DISABLE_RUN_DEADLINE",
+    "OPEN_DOUGH_TEST_TIMES",
+    "OPEN_DOUGH_TEST_OUTCOMES",
     "DOUGH_LOCAL_SUITE_OWNERS",
     "DOUGH_LOCAL_SUITE_IDS",
     "DOUGH_LOCAL_SUITE_RUNNER_PID",
   ])
     if (!(key in extra)) delete env[key];
+  // Nested node --test jobs must not inherit this file's test context or Node
+  // skips them as recursive runs.
+  delete env.NODE_TEST_CONTEXT;
   const child = spawn(command, args, {
     cwd,
     env,
