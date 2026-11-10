@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ebacky-chan",
+  "email": "ebacky-chan@example.org",
+  "identity": "SEED-296#prove-repeat-destination-cue-restarts",
+  "mode": "story-branch",
+  "branch": "codex/prove-the-destination-cue-restarts-on-repeated-a",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
