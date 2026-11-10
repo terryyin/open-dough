@@ -3,7 +3,7 @@
 // restarts the server in the same process when a file its config imports
 // changes, loading the record's module again, and the restarted instance's
 // entries and lifecycle stay its own (../../server/incidentProcesses.ts).
-// A dev server that `restartable` starts (../../tests/fixtures/restarting-dev-server.mjs)
+// A dev server that `restartable` starts (../../tests/fixtures/dev-server.mjs)
 // restarts on SIGUSR2, as an edit to a server file would. A process's
 // lifecycle without a restart: ./authenticated-read-incident-record-lifecycle.spec.ts.
 
