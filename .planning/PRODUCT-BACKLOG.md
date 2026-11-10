@@ -32,3 +32,4 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Express dashboard test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects
