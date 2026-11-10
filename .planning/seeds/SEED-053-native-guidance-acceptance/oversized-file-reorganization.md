@@ -5,8 +5,8 @@ These cases extend the canonical
 acceptance home; they create no separate identity or queue assignment.
 
 **Covered work:**
-[SEED-010#plan-cohesive-reorganization-of-oversized-files](../SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files)
-and [plan 562](../slice-plans/562-plan-cohesive-oversized-file-reorganization/PLAN.md).
+[SEED-010#plan-cohesive-reorganization-of-oversized-files](https://github.com/terryyin/open-dough/blob/2b80ca672410c80da7ea340d01b3b8a8c898b992/.planning/seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files)
+and [plan 562](https://github.com/terryyin/open-dough/blob/2b80ca672410c80da7ea340d01b3b8a8c898b992/.planning/slice-plans/562-plan-cohesive-oversized-file-reorganization/PLAN.md) (before-cleanup `2b80ca672410c80da7ea340d01b3b8a8c898b992`).
 Observe installed planning, delegation and post-change refactor guidance settling
 and carrying a cohesive reorganization decision for expected edits to files
 already over the existing 250-line check, including comment-only changes, and

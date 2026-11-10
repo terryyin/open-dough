@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
 - [Settle trunk freshness before expensive proof and before delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof) — SEED-010#hold-delivery-on-freshness-before-expensive-proof ([plan](slice-plans/561-settle-trunk-freshness-before-proof/PLAN.md))
-- [Plan the cohesive reorganization of an already-oversized file a slice touches](seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files) — SEED-010#plan-cohesive-reorganization-of-oversized-files ([plan](slice-plans/562-plan-cohesive-oversized-file-reorganization/PLAN.md))
 
 ## Backlog list
 
