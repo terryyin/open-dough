@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-286_fast-intent-ci-comparison-tests.json",
+      "identity": "SEED-286#fast-intent-ci-comparison-tests",
+      "completedAt": "2026-11-10T05:57:14.105Z",
+      "blob": "e6125f9044c53482326fe0982b035f03710a3b5f"
+    },
+    {
       "fileName": "SEED-292_show-an-unreadable-preparation-continuation.json",
       "identity": "SEED-292#show-an-unreadable-preparation-continuation",
       "completedAt": "2026-11-10T04:44:24.032Z",
