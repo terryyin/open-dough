@@ -95,18 +95,19 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Start prerequisite acquisition deadline (180 seconds)
-        run: echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( $(date +%s) * 1000 + 180000 ))" >> "$GITHUB_ENV"
+      # Shared job-start epochs: slow setup shortens the test share; self-stop keeps reports.
+      - name: Start prerequisite acquisition (180 seconds) and test-run (320 seconds) deadlines
+        run: |
+          started=$(( $(date +%s) * 1000 ))
+          echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
+          echo "OPEN_DOUGH_TEST_DEADLINE_MS=$(( started + 320000 ))" >> "$GITHUB_ENV"
       - *start-node-setup
       - *cache-npm
       - *setup-node
       - *diagnose-node
       - name: Install npm dependencies
         run: node scripts/setup-native.mjs npm
-      # On cancellation the Actions runner signals only the step shell's pid
-      # (INT, then TERM 7.5 s later). `exec` makes npm that process; npm
-      # forwards the signal to its `sh -c`, which the `exec` in package.json's
-      # test script replaces with the runner, so it reports what was running.
+      # Cancellation signals only this step's pid; `exec` makes npm/the runner that process.
       - name: Run test
         id: suite
         env:
@@ -114,8 +115,7 @@ jobs:
           OPEN_DOUGH_TEST_TIMES: ${{ runner.temp }}/test-times.txt
           OPEN_DOUGH_TEST_OUTCOMES: ${{ runner.temp }}/test-outcomes.txt
         run: exec npm run test
-      # The test runner's per-job seconds for this job's share on this runner,
-      # for calibrating the time budget and longest-first.
+      # Per-job seconds for this share: time-budget calibration and longest-first.
       - name: Keep per-job test times
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
@@ -124,7 +124,7 @@ jobs:
           path: ${{ runner.temp }}/test-times.txt
           if-no-files-found: ignore
           retention-days: 7
-      # This share's tests and src/skills test files: one outcome per check file.
+      # This share's tests and src/skills files: one outcome per check file.
       - name: Keep the CI proof fragments
         if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
         uses: ./.github/actions/ci-proof-fragments

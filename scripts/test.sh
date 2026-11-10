@@ -52,7 +52,9 @@ output_root=$(mktemp -d)
 # OPEN_DOUGH_TEST_TIMES names this run's file.
 times_file=${OPEN_DOUGH_TEST_TIMES:-${output_root}/times}
 # OPEN_DOUGH_TEST_OUTCOMES names a file that receives each job's reported
-# outcome and label, `passed` or `failed`, one tab-separated line per job.
+# outcome and label: `passed`, `failed`, or `unfinished` for a selected check
+# the absolute CI run cutoff left unstarted; one tab-separated line per job.
+# shellcheck disable=SC2034 # scripts/test-report-jobs.bash writes this file.
 outcomes_file=${OPEN_DOUGH_TEST_OUTCOMES:-}
 # OPEN_DOUGH_TEST_SLOT_GATE names a file the runner writes each time it finds
 # every job slot occupied with a job still queued: the number of jobs started
@@ -81,6 +83,12 @@ source "${source_dir}/scripts/test-run-job.bash"
 # shellcheck disable=SC1091
 # shellcheck source=scripts/test-job-deadline.bash
 source "${source_dir}/scripts/test-job-deadline.bash"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/test-run-deadline.bash
+source "${source_dir}/scripts/test-run-deadline.bash"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/test-report-jobs.bash
+source "${source_dir}/scripts/test-report-jobs.bash"
 
 # scripts/test-jobs.sh lists this run's jobs in start order: the named checks,
 # resolved from the caller's directory, or with none every check in the test
@@ -100,64 +108,6 @@ while IFS=$'\t' read -r -d '' kind label; do
   labels+=("${label}")
 done < "${output_root}/jobs"
 
-# Prints one started job's wall seconds: those its job recorded, or, when the
-# job left none, the time from its start until the runner observed it ended.
-job_seconds() {
-  local index=$1 seconds
-  if [[ -e ${output_root}/${index}.seconds ]]; then
-    read -r seconds < "${output_root}/${index}.seconds"
-    printf '%s\n' "${seconds}"
-  else
-    elapsed_seconds "${job_started[index]}" "${observed_at}"
-  fi
-}
-
-# Reports one started job from what the runner observed: the exit status it
-# recorded, or none. Only failing checks are reported, each with its own
-# captured output. A passing check must be silent, so a check that exits 0 but
-# wrote anything fails too. On an interrupt, a job still running, or one that
-# ended from the same signal, is reported as interrupted with its elapsed time
-# and the tail of its output. A job whose safety deadline expired is reported
-# with its label, the deadline reason, elapsed time, and captured output.
-# Otherwise a job that ended without recording a status, such as one whose
-# shell was killed, failed. A reported job sets the run's status to 1 and its
-# outcome to `failed`; any other job's is `passed`.
-outcomes=()
-report_job() {
-  local index=$1 log="${output_root}/$1.log" launch="${output_root}/$1.launch"
-  local job_status='' seconds heading show_log=(cat --)
-  outcomes[index]=failed
-  if [[ -e ${output_root}/${index}.status ]]; then
-    read -r job_status < "${output_root}/${index}.status"
-  fi
-  if [[ -n ${interrupt_status} &&
-    (-z ${job_status} || ${job_status} -eq ${interrupt_status}) ]]; then
-    seconds=$(job_seconds "${index}")
-    heading="INTERRUPTED: ${labels[index]} (after ${seconds}s); last lines of its output:"
-    show_log=(tail -n 40 --)
-  elif job_timed_out "${index}"; then
-    seconds=$(job_seconds "${index}")
-    heading=$(job_timeout_heading "${index}" "${seconds}")
-  elif [[ -z ${job_status} ]]; then
-    heading="FAIL: ${labels[index]} (ended without recording an exit status)"
-  elif [[ ${job_status} -ne 0 ]]; then
-    heading="FAIL: ${labels[index]}"
-  elif [[ -s ${log} || -s ${launch} ]]; then
-    heading="FAIL: ${labels[index]} (passed but printed output)"
-  else
-    outcomes[index]=passed
-    # An explicit status: under the interrupt trap, Bash before 5.3 gives a
-    # bare `return` the interrupted `wait`'s status, which `set -e` ends on.
-    return 0
-  fi
-  {
-    printf '%s\n' "${heading}"
-    [[ ! -s ${launch} ]] || cat -- "${launch}"
-    "${show_log[@]}" "${log}"
-  } >&2
-  status=1
-}
-
 # Each job runs in a process group of its own: job control is on only while
 # the job starts, which also keeps INT from being ignored in it. Stopping a job
 # therefore reaches everything it started, without `setsid`, which macOS lacks.
@@ -171,15 +121,17 @@ job_pids=()
 job_started=()
 # shellcheck disable=SC2329 # Invoked by the INT and TERM traps below.
 interrupt() {
-  trap '' INT TERM
+  trap '' INT TERM USR1
   # A launch cut short here is reported with its job below.
   exec 2>&4
   launching=''
   interrupt_status=$2
+  # shellcheck disable=SC2034 # scripts/test-report-jobs.bash uses this for elapsed fallback.
   observed_at=${EPOCHREALTIME}
   local index pgid stopped=()
   # Retire deadline watchdogs before wait: each may still be blocked on its
   # timed FIFO read, and wait would otherwise sit until that allowance ends.
+  retire_run_deadline
   retire_all_job_deadlines
   for index in "${!job_pids[@]}"; do
     if [[ ! -e ${output_root}/${index}.status ]]; then
@@ -200,14 +152,38 @@ interrupt() {
 }
 trap 'interrupt INT 130' INT
 trap 'interrupt TERM 143' TERM
+trap 'handle_run_deadline_signal' USR1
 
+# Absolute CI run cutoff (OPEN_DOUGH_TEST_DEADLINE_MS), when set: same epoch
+# model as the dashboard suite. Local named checks omit it by default.
+arm_run_deadline
+
+# run_deadline_hit is assigned in scripts/test-run-deadline.bash.
+# shellcheck disable=SC2154
 for index in "${!labels[@]}"; do
+  if ((run_deadline_hit)) || run_deadline_reached; then
+    stop_running_jobs_for_run_deadline
+    break
+  fi
   if [[ -n ${slot_gate_file} ]] && ! read -r -t 0 -u 3; then
     printf '%s\n' "${index}" > "${slot_gate_file}.partial"
     mv -- "${slot_gate_file}.partial" "${slot_gate_file}"
   fi
-  read -r -u 3
+  # Timed slot wait so a run-cutoff USR1 is noticed while every slot is busy;
+  # an unbounded read would ignore the flag until a job ended on its own.
+  while ! read -r -t 0.2 -u 3; do
+    if ((run_deadline_hit)) || run_deadline_reached; then
+      stop_running_jobs_for_run_deadline
+      break 2
+    fi
+  done
   await_job_slot_handoff
+  if ((run_deadline_hit)) || run_deadline_reached; then
+    # Slot token was taken; return it so finish can close cleanly.
+    printf '\n' >&3
+    stop_running_jobs_for_run_deadline
+    break
+  fi
   job_started[index]=${EPOCHREALTIME}
   # What Bash writes while starting the job, before the job's own output
   # redirection, goes to its launch file; the job and its report handle it.
@@ -226,25 +202,31 @@ for index in "${!labels[@]}"; do
 done
 
 wait_remaining_jobs
+if ((run_deadline_hit)) || run_deadline_reached; then
+  stop_running_jobs_for_run_deadline
+fi
+retire_run_deadline
+# shellcheck disable=SC2034 # scripts/test-report-jobs.bash uses this for elapsed fallback.
 observed_at=${EPOCHREALTIME}
 
-for index in "${!labels[@]}"; do
+if ((run_deadline_hit)); then
+  print_run_deadline_summary
+  status=1
+fi
+
+for index in "${!job_started[@]}"; do
   report_job "${index}"
 done
 
-for index in "${!labels[@]}"; do
-  seconds=$(job_seconds "${index}")
-  printf '%s\t%s\n' "${seconds}" "${labels[index]}"
-done | sort -rn > "${times_file}"
-if [[ -n ${outcomes_file} ]]; then
-  for index in "${!labels[@]}"; do
-    printf '%s\t%s\n' "${outcomes[index]}" "${labels[index]}"
-  done > "${outcomes_file}"
-fi
+write_job_times
+write_job_outcomes
 # The time budget is CI's and the whole suite's (or a split share's): only a CI
-# run (`CI=true`) without chosen checks is judged against it.
+# run (`CI=true`) without chosen checks is judged against it. A run stopped by
+# the absolute cutoff has already failed; still leave reports for artifacts.
 budget=${test_dir}/time-budget
-[[ ${CI:-} != true ]] || (($#)) || [[ ! -f ${budget} ]] \
-  || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
+if ((! run_deadline_hit)); then
+  [[ ${CI:-} != true ]] || (($#)) || [[ ! -f ${budget} ]] \
+    || "${test_bash}" scripts/test-budget.sh "${budget}" "${times_file}" || status=1
+fi
 
 exit "${status}"

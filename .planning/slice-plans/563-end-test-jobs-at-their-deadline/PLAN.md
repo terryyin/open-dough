@@ -122,7 +122,7 @@ that remaining source promise. Do not claim the whole story complete here.
 ### 2. Retain named results before the CI job is cancelled
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the last three ownership rows, including the actual fragments action
 consuming the actual runner's cutoff reports.
 
@@ -169,19 +169,22 @@ runner/admission consumers through `bash scripts/test.sh`:
 PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh \
   tests/support/test-runner-deadline.test.mjs \
   tests/support/test-runner-deadline-continuation.test.mjs \
+  tests/support/test-runner-deadline-cutoff.test.mjs \
+  tests/support/test-runner-deadline-cutoff-proof.test.mjs \
   tests/test-runner-bash.sh tests/test-runner-failure-report.sh \
   tests/test-runner-interrupt.sh tests/test-runner-selection.sh \
   tests/test-runner-split.sh tests/test-runner-ci-environment.sh \
   tests/test-runner-github-requests.sh tests/test-runner-budget.sh \
   tests/support/local-test-suite.test.mjs \
-  tests/support/local-test-suite-lifecycle.test.mjs
+  tests/support/local-test-suite-lifecycle.test.mjs \
+  tests/support/ci-proof-actions.test.mjs \
+  tests/support/ci-proof-action-units.test.mjs \
+  tests/support/ci-proof-declaration.test.mjs
 ```
 
-Capability proof is split across those two deadline files. Slice 2
-also runs `tests/support/ci-proof-actions.test.mjs`,
-`tests/support/ci-proof-action-units.test.mjs`, and
-`tests/support/ci-proof-declaration.test.mjs` through the runner, including its
-new real-cutoff replay. Check all additional observers reached by the actual
+Local per-job proof is in the first two deadline files; CI absolute-cutoff
+proof is in the cutoff and cutoff-proof files, including real-cutoff
+fragments replay. Check all additional observers reached by the actual
 consumer trace: copied-runner Bash/selection fixtures, any modularized native
 watchdog callers, CI report parsing, workflow wiring and enduring documentation.
 When a shared fixture is changed, include all its distributed consumers.
@@ -229,6 +232,12 @@ repair handoff. A passing focused check proves its own boundary only.
   must materialize every path that script's supervision-input list names
   (including `scripts/owned-process-group.bash`); `native-supervision-inputs.mjs`
   keeps that list and uncovered roots in one place.
+- An absolute run-cutoff USR1 is ignored while the launch loop blocks on an
+  unbounded slot `read`; timed slot polls are required so cutoff can stop the
+  run before the next start.
+- Absolute cutoff helpers live in `scripts/test-run-deadline.bash` and
+  reporting in `scripts/test-report-jobs.bash`; CI cutoff proof is split across
+  `test-runner-deadline-cutoff.test.mjs` and `…-cutoff-proof.test.mjs`.
 
 ## Plan review
 

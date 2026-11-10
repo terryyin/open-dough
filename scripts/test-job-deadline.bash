@@ -3,6 +3,8 @@
 # Expiry ends that job's process group with bounded TERM→KILL cleanup, settles
 # the scheduler slot when the killed job cannot, and leaves a timeout marker
 # for reporting. Proof may release the wait early by writing the job's FIFO.
+# Absolute CI run cutoff lives in scripts/test-run-deadline.bash; both share
+# one TIMEOUT reporting path via job_timeout_heading / job_timed_out.
 # shellcheck shell=bash
 # source_dir and output_root come from scripts/test.sh.
 # shellcheck disable=SC2154
@@ -129,6 +131,11 @@ job_timed_out() {
 job_timeout_heading() {
   local index=$1
   local seconds=$2
+  if job_cut_by_run_deadline "${index}"; then
+    printf 'TIMEOUT: %s (exhausted run deadline; after %ss)' \
+      "${labels[index]}" "${seconds}"
+    return 0
+  fi
   printf 'TIMEOUT: %s (safety deadline %ss; after %ss)' \
     "${labels[index]}" "${JOB_DEADLINE_SECONDS}" "${seconds}"
 }
@@ -163,6 +170,8 @@ reap_finished_jobs() {
 
 # After the initial slot pool is in use, wait for one unreaped job then reap
 # finished deadlines so a watchdog cannot outlive the handoff to the next launch.
+# A run-cutoff USR1 interrupts wait; the caller checks run_deadline_hit before
+# starting another job.
 await_job_slot_handoff() {
   local wait_pids=() reaped_index
   if ((jobs_started >= job_slots)); then
@@ -172,11 +181,16 @@ await_job_slot_handoff() {
     done
     ((${#wait_pids[@]} > 0)) && wait -n "${wait_pids[@]}" || true
   fi
+  if ((run_deadline_hit)) || run_deadline_reached; then
+    stop_running_jobs_for_run_deadline
+    return 0
+  fi
   reap_finished_jobs
 }
 
 # Reap each remaining job as it ends. wait -n lists only job pids so watchdogs
-# are not collected here.
+# are not collected here. USR1 from the run-cutoff watchdog interrupts wait so
+# the shared stop path can run before further reaping.
 wait_remaining_jobs() {
   local active_indices=() wait_pids=() index
   for index in "${!job_pids[@]}"; do
@@ -184,11 +198,19 @@ wait_remaining_jobs() {
     active_indices+=("${index}")
   done
   while ((${#active_indices[@]} > 0)); do
+    if ((run_deadline_hit)) || run_deadline_reached; then
+      stop_running_jobs_for_run_deadline
+      return 0
+    fi
     wait_pids=()
     for index in "${active_indices[@]}"; do
       wait_pids+=("${job_pids[index]}")
     done
     wait -n "${wait_pids[@]}" || true
+    if ((run_deadline_hit)) || run_deadline_reached; then
+      stop_running_jobs_for_run_deadline
+      return 0
+    fi
     reap_finished_jobs
     active_indices=()
     for index in "${!job_pids[@]}"; do

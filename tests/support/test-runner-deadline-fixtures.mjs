@@ -137,8 +137,27 @@ export async function readDeadlineReady(readyFile) {
   return { index, fifo, seconds: Number(seconds) };
 }
 
+export async function readRunDeadlineReady(readyFile) {
+  let line;
+  await until("run deadline armed", () => {
+    if (!existsSync(readyFile)) return false;
+    line = readFileSync(readyFile, "utf8").trim();
+    return line.includes("\t");
+  });
+  const [fifo, seconds] = line.split("\t");
+  return { fifo, seconds: Number(seconds) };
+}
+
 export function expireDeadline(fifo) {
   writeFileSync(fifo, "expire\n");
+}
+
+export function futureDeadlineMs(secondsFromNow = 600) {
+  return String(Date.now() + secondsFromNow * 1000);
+}
+
+export function pastDeadlineMs(secondsAgo = 1) {
+  return String(Date.now() - secondsAgo * 1000);
 }
 
 export function processRunning(pid) {
