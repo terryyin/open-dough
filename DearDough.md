@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 484. Removed numbers are never reused.
+- Highest allocated local number: 486. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -578,3 +578,27 @@ Discriminating renderer tests were added under `scripts/`, which this project's 
   - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
   - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
   - Inference: Place new Node test files under a discovered root (or extend discovery) before claiming suite coverage; acceptance caught this before push. Distinct from ODF-150 (missed indirect consumer of a changed contract after publish).
+
+## DD-485 — Selective formatter preparation without npm PATH
+Fresh preparation invoked `node scripts/lint.mjs --fix` directly; eslint and prettier were not on PATH, so formatting failed before commit.
+
+### Occurrences
+- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
+  - Timestamp: 2026-11-10T08:45:00Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: `execution-increment-delivery.mjs fresh` returned `preparation-failed`, `operation: formatting`, with `eslint: not found on PATH` / `prettier: not found on PATH`. Retry with `npm run format` succeeded.
+  - Observed effect: one preparation refusal and retry; no owned edits lost.
+  - Inference: This project's selective formatter expects `npm run format` (or equivalent PATH including `node_modules/.bin`), not a bare `node scripts/lint.mjs --fix`.
+
+## DD-486 — Playwright-only focused proof missed TypeScript test errors
+Focused Playwright configuration selection passed; the commit hook's typecheck then refused `getByRole("textarea")` and possibly-undefined settings payload indexing.
+
+### Occurrences
+- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
+  - Timestamp: 2026-11-10T08:50:00Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: `execution-increment-delivery.mjs fresh` returned `commit-failed` with TS2345 on `system-settings-client-configuration.spec.ts` (`"textarea"` role) and TS2532 on `system-settings.spec.ts`. Prior focused command `npx playwright test tests/configuration/system-settings-client-configuration.spec.ts tests/configuration/system-settings.spec.ts` had passed. Repairs then typechecked and the focused Playwright selection passed again before successful delivery.
+  - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
+  - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
