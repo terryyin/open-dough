@@ -125,8 +125,12 @@ from the collected evidence through that published landing.
 
 Summary and file Proof reuse the evidence already held by Intent; drilling
 adds no CI request, and Summary reads no file text. GitHub Actions
-wall time spans run creation on attempt one or attempt start on reruns through
-completion. CI time without runner waits measures the longest dependency chain
+wall time spans the provider-reported attempt start through completion for
+first attempts and reruns alike; it does not promise every queue phase.
+Retained measurements with an unverified start basis are explained gaps and
+excluded from the prior-build reference. Background collection refreshes their
+same recorded attempt's authoritative bounds where available; browsing reads
+local evidence and does not acquire them. CI time without runner waits measures the longest dependency chain
 of job durations. GitHub Actions uses the workflow at that build, including
 carried-over jobs. A custom CI adapter supplies the selected attempt's graph
 through its optional `jobs` operation. If the graph cannot be read or timed,

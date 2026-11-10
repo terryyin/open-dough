@@ -137,6 +137,20 @@ export function githubRevisionLookup(
     return listing;
   }
 
+  async function readExactAttempt(
+    runId: number,
+    attempt: number,
+  ): Promise<ListedRun> {
+    const body = (await readGitHubActions(
+      [
+        "api",
+        `repos/${source.repository}/actions/runs/${String(runId)}/attempts/${String(attempt)}`,
+      ],
+      signal,
+    )) as Record<string, unknown>;
+    return asListedRun(observedRun(body));
+  }
+
   return {
     async timeWithoutRunnerWaitsOf({ revision, runId, runAttempt, state }) {
       if (runId === undefined || runAttempt === undefined)
@@ -169,47 +183,24 @@ export function githubRevisionLookup(
       return timeWithoutRunnerWaits(workflowText, jobs, state === "failed");
     },
     listRunsAt: runsAt,
+    async attemptOf({ runId, runAttempt, adapterAttempt }) {
+      if (
+        adapterAttempt !== undefined ||
+        runId === undefined ||
+        runAttempt === undefined
+      )
+        return undefined;
+      return readExactAttempt(runId, runAttempt);
+    },
     async earlierAttemptsOf(runId, latestAttempt) {
       const earlier: ListedRun[] = [];
       for (let attempt = latestAttempt - 1; attempt >= 1; attempt -= 1) {
         try {
-          const body = (await readGitHubActions(
-            [
-              "api",
-              `repos/${source.repository}/actions/runs/${String(runId)}/attempts/${String(attempt)}`,
-            ],
-            signal,
-          )) as Record<string, unknown>;
-          earlier.push(
-            asListedRun({
-              databaseId: runId,
-              attempt,
-              ...(typeof body.head_sha === "string"
-                ? { headSha: body.head_sha }
-                : {}),
-              ...(typeof body.status === "string"
-                ? { status: body.status }
-                : {}),
-              ...(body.conclusion === undefined
-                ? {}
-                : { conclusion: body.conclusion as string | null }),
-              ...(typeof body.html_url === "string"
-                ? { url: body.html_url }
-                : {}),
-              ...(typeof body.created_at === "string"
-                ? { createdAt: body.created_at }
-                : {}),
-              ...(typeof body.run_started_at === "string"
-                ? { startedAt: body.run_started_at }
-                : {}),
-              ...(typeof body.updated_at === "string"
-                ? { completedAt: body.updated_at }
-                : {}),
-              ...(typeof body.head_branch === "string"
-                ? { headBranch: body.head_branch }
-                : {}),
-            }),
-          );
+          earlier.push({
+            ...(await readExactAttempt(runId, attempt)),
+            databaseId: runId,
+            attempt,
+          });
         } catch {
           break;
         }

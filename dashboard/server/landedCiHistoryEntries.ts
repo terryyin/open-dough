@@ -10,6 +10,7 @@
 // recorded its landing. A run link that is not a web address is left out,
 // keeping the run attempt it names.
 
+import { hasAttemptTiming } from "../src/ciAttemptTiming.ts";
 import {
   runUrlSchema,
   type LandedCiEntry,
@@ -83,7 +84,12 @@ function gapOf(
     return { kind: "gap", reason: "no-build", ...landing };
   return {
     kind: "gap",
-    reason: build.state === "failed" ? "failed" : "not-recorded",
+    reason:
+      build.state === "failed"
+        ? "failed"
+        : !hasAttemptTiming(build)
+          ? "timing-basis"
+          : "not-recorded",
     ...landing,
     build: historyBuildOf(build, provenance),
   };

@@ -8,6 +8,8 @@
 // and attempt. A build is a push run's first attempt, linked under ci.invalid
 // by its run, at the landed revision unless the case states otherwise.
 
+import { attemptTimingBasis } from "../../dashboard/src/ciAttemptTiming.ts";
+
 /** @typedef {import("../../dashboard/server/landedCiHistoryStore.ts").ProjectHistory} ProjectHistory */
 /** @typedef {ProjectHistory["landings"][string]} KeptLanding */
 /** @typedef {ProjectHistory["builds"][string]} KeptBuild */
@@ -73,6 +75,7 @@ export class LandedCiHistoryBuilder {
     this.#builds[key] = {
       revision: landing.revision,
       state,
+      timingBasis: attemptTimingBasis,
       ...firstAttemptOf(runId),
       startedAt,
       completedAt,
@@ -149,7 +152,11 @@ export class LandedCiHistoryBuilder {
    */
   recording(landing, key, build, selection = "exact") {
     this.#landing(landing, { kind: "build", build: key, selection });
-    this.#builds[key] = { startedAt: landing.receivedAt, ...build };
+    this.#builds[key] = {
+      timingBasis: attemptTimingBasis,
+      startedAt: landing.receivedAt,
+      ...build,
+    };
     return this;
   }
 

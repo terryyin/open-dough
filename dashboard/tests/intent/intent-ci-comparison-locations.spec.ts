@@ -29,7 +29,7 @@ test.afterEach(() => {
   for (const release of releases.splice(0)) release();
 });
 
-const comparedWalls = ["4 min 59 s", "13 min 27 s", "5 min 19 s"];
+const comparedWalls = ["4 min 57 s", "13 min 27 s", "5 min 19 s"];
 
 // A compared done Story A whose Intent locations read is held from the
 // start.

@@ -24,6 +24,7 @@ export type {
   PendingResolution,
 } from "./landedCiObservation.ts";
 import { keepResolutionDecision } from "./landedCiKeepResolution.ts";
+import { withRefreshedAttemptTiming } from "./landedCiTimingBasis.ts";
 import { windowedHistory } from "./landedCiMeasuredBuilds.ts";
 import { withAdapterIdentity } from "./landedCiHistoryIdentity.ts";
 import type { CollectedProof } from "./landedCiCollectedProof.ts";
@@ -178,7 +179,10 @@ export async function keepLandedCiResolution(
           ? project.builds
           : {
               ...project.builds,
-              [build[0]]: project.builds[build[0]] ?? build[1],
+              [build[0]]: withRefreshedAttemptTiming(
+                project.builds[build[0]],
+                build[1],
+              ),
             },
     });
     if (collected !== undefined && build !== undefined)

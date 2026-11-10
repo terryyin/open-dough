@@ -122,6 +122,7 @@ export const finalGapReasons = [
   "expired",
   "unreadable",
   "not-recorded",
+  "timing-basis",
   "unclassified",
   "identity",
 ] as const;
