@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 484. Removed numbers are never reused.
+- Highest allocated local number: 485. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -111,6 +111,13 @@ Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L30–L40: first slice-1 Task `bbd17e64-071d-4489-a9dd-d70541ffa072` started 2026-11-10T10:41+08:00, explored CI proof surfaces with zero product edits, and never returned; after the developer's continue at 14:50+08:00 the coordinator recovered the interrupted delegation and launched replacement Task `d9a4a8e5-65a5-4920-b277-aba999c83366`, which delivered the product change. Checkout held only the coordinator's source-review files across the stall.
   - Observed effect: multi-hour wait with no agent return; one empty-tree interruption recovery and one replacement implementer before acceptance; no dual-writer conflict or unauthorized publish.
   - Inference: Matches ODF-229 empty-tree recurrence (interrupted Cursor implementation Task, no return, no product edits). Distinct from ODF-204 (no commit/push by the stalled agent) and ODF-059 (implementation Task, not a refactor handoff).
+- Execution: SEED-258#make-intent-coverage-results-easier-to-act-on (plan 573; first related implementation `be07058e3550a5527ed77bba00b3d7be4b1f4f2a`)
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `f76bda0d-27fc-4051-8594-682e74b6d232`: slice-2 implementation Task interrupted twice while `trial/run-arm.sh` Claude arms kept running; developer continues at 2026-11-10T18:12:00+08:00 (A2 live; coordinator waited, then replacement Task for B arms) and 2026-11-10T18:30:00+08:00 (B1 done, B2 live; coordinator waited, summarized B2, wrote `trial/02-comparison-and-keep-decision.md`, delivered `f0e813bf1`). Checkout already held candidate skill edits matching `trial/skills-candidate/`; remote matched HEAD across both recovers.
+  - Observed effect: two interrupted Cursor implementation returns; orphaned native arms continued to completion; one replacement writer for remaining B arms; coordinator finished the keep decision after B2; no dual-writer conflict, unexpected commit, or lost trial evidence.
+  - Inference: Matches ODF-229 with a native-subprocess facet: interrupted Task return does not stop already-launched supervised host arms. Recovery waited on live `run-arm`/`claude` processes before replacement writers or acceptance. Distinct from ODF-204 (no unauthorized publish by the stalled Task) and ODF-059 (implementation Task, not a refactor handoff).
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 Former local code: DD-266. [Evidence and current response](docs/maintainer/findings/ODF-230.md).
 ## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>
@@ -602,3 +609,15 @@ Discriminating renderer tests were added under `scripts/`, which this project's 
   - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
   - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
   - Inference: Place new Node test files under a discovered root (or extend discovery) before claiming suite coverage; acceptance caught this before push. Distinct from ODF-150 (missed indirect consumer of a changed contract after publish).
+
+## DD-485 — Native trial harness launches the agent outside the prepared scratch cwd
+A paired native-trial runner prepared and set up an isolated scratch worktree in a subshell, then launched the host agent from the parent checkout cwd, so arms rediscovered the scratch path instead of starting there.
+
+### Occurrences
+- Execution: SEED-258#make-intent-coverage-results-easier-to-act-on (plan 573; first related implementation `be07058e3550a5527ed77bba00b3d7be4b1f4f2a`)
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: `.planning/slice-plans/573-make-intent-coverage-results-easier-to-act-on/trial/run-arm.sh` runs setup under `( cd "${scratch}" … )` then invokes `claude --print …` without changing into `${scratch}`; `trial/02-comparison-and-keep-decision.md` Confounds records that B1/B2 agents rediscovered the scratch checkout.
+  - Observed effect: inflated discovery cost on some arms; keep criteria still met (candidate not worse on the focused pair); confound disclosed rather than claimed as a universal saving.
+  - Inference: Ephemeral ADR 0010 trial harnesses need the agent process cwd (or an explicit working-directory flag) to match the prepared scratch; a setup-only `cd` subshell does not. Plan-local harness; not a shipped skill defect.

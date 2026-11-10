@@ -256,3 +256,15 @@ Reported: slice 1 — "source review — closure story ownership of persistence 
 Story clause: "The [closure story](#finish-opted-in-stories-with-intent-coverage) keeps ownership of persistence and follow-up routing."
 Disposition: excluded "The [closure story](#finish-opted-in-stories-with-intent-coverage) keeps ownership of persistence and follow-up routing."
 Commitment: 35
+
+## Execution complete
+
+Product advice: Retain the four-verdict model with separate next-proof-action and
+prior-disposition language, and the kept focused-hint handoff (Wrap Up passes
+suggestions; checker validates and revises with bounded search). Assimilate that
+historical Done reports keep old wording, wrap-up wait was unobserved here, and
+the keep does not establish routine automatic-checking value under ADR 0010.
+Sibling SEED-258#finish-opted-in-stories-with-intent-coverage still owns
+join/persistence/disposition; reconcile Wrap Up when it lands without a blocking
+dependency. No new backlog item from this learning. Trial evidence under plan 573
+awaits ordinary wrap-up assimilation and Git recovery.
