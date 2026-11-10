@@ -80,10 +80,19 @@ job's process group and prints, for it and for any job the same signal ended,
 `INTERRUPTED: <job> (after <seconds>s)` and the last lines of its output; it
 then exits 130 for INT or 143 for TERM (`tests/test-runner-interrupt.sh`).
 Workers a check detaches from its process group are that check's own
-teardown. `npm test` execs the runner (`package.json`) and CI's test step
-execs `npm`, so a signal sent only to the step's top process, as a cancelled
-Actions run does, still reaches the runner (see that step's comment in
-`.github/workflows/ci.yml`).
+teardown. Each job also gets a fixed 180-second wall-clock safety deadline
+from its own start (not while queued or waiting for suite admission). That
+deadline actively stops a never-ending check; it is not a slow-test or build
+threshold. At expiry the runner ends the job's process group with bounded
+TERM-then-KILL cleanup, fails the run as
+`TIMEOUT: <job> (safety deadline 180s; after <seconds>s)` with useful captured
+output, records the failed outcome and timing, and lets other queued checks
+continue under ordinary failure behavior
+(`tests/support/test-runner-deadline.test.mjs`,
+`tests/support/test-runner-deadline-continuation.test.mjs`). `npm test` execs the runner
+(`package.json`) and CI's test step execs `npm`, so a signal sent only to the
+step's top process, as a cancelled Actions run does, still reaches the runner
+(see that step's comment in `.github/workflows/ci.yml`).
 
 ## Waits, fixtures, and teardown
 

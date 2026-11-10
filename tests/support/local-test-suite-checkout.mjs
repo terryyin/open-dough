@@ -48,6 +48,7 @@ export function suiteRunnerLayer() {
     );
     const helpers = copiedLayer(source, [
       "scripts/test-budget.sh",
+      "tests/helpers/wait-for.bash",
       "tests/support/node-test-failures-reporter.mjs",
       "tests/support/check-stop-report.bash",
       "dashboard/tests/support/testFiles.mjs",

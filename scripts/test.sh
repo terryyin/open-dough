@@ -78,6 +78,9 @@ done
 # shellcheck disable=SC1091
 # shellcheck source=scripts/test-run-job.bash
 source "${source_dir}/scripts/test-run-job.bash"
+# shellcheck disable=SC1091
+# shellcheck source=scripts/test-job-deadline.bash
+source "${source_dir}/scripts/test-job-deadline.bash"
 
 # scripts/test-jobs.sh lists this run's jobs in start order: the named checks,
 # resolved from the caller's directory, or with none every check in the test
@@ -114,9 +117,11 @@ job_seconds() {
 # captured output. A passing check must be silent, so a check that exits 0 but
 # wrote anything fails too. On an interrupt, a job still running, or one that
 # ended from the same signal, is reported as interrupted with its elapsed time
-# and the tail of its output. Otherwise a job that ended without recording a
-# status, such as one whose shell was killed, failed. A reported job sets the
-# run's status to 1 and its outcome to `failed`; any other job's is `passed`.
+# and the tail of its output. A job whose safety deadline expired is reported
+# with its label, the deadline reason, elapsed time, and captured output.
+# Otherwise a job that ended without recording a status, such as one whose
+# shell was killed, failed. A reported job sets the run's status to 1 and its
+# outcome to `failed`; any other job's is `passed`.
 outcomes=()
 report_job() {
   local index=$1 log="${output_root}/$1.log" launch="${output_root}/$1.launch"
@@ -130,6 +135,9 @@ report_job() {
     seconds=$(job_seconds "${index}")
     heading="INTERRUPTED: ${labels[index]} (after ${seconds}s); last lines of its output:"
     show_log=(tail -n 40 --)
+  elif job_timed_out "${index}"; then
+    seconds=$(job_seconds "${index}")
+    heading=$(job_timeout_heading "${index}" "${seconds}")
   elif [[ -z ${job_status} ]]; then
     heading="FAIL: ${labels[index]} (ended without recording an exit status)"
   elif [[ ${job_status} -ne 0 ]]; then
@@ -170,6 +178,9 @@ interrupt() {
   interrupt_status=$2
   observed_at=${EPOCHREALTIME}
   local index pgid stopped=()
+  # Retire deadline watchdogs before wait: each may still be blocked on its
+  # timed FIFO read, and wait would otherwise sit until that allowance ends.
+  retire_all_job_deadlines
   for index in "${!job_pids[@]}"; do
     if [[ ! -e ${output_root}/${index}.status ]]; then
       kill -TERM -- "-${job_pids[index]}" 2> /dev/null || true
@@ -196,6 +207,7 @@ for index in "${!labels[@]}"; do
     mv -- "${slot_gate_file}.partial" "${slot_gate_file}"
   fi
   read -r -u 3
+  await_job_slot_handoff
   job_started[index]=${EPOCHREALTIME}
   # What Bash writes while starting the job, before the job's own output
   # redirection, goes to its launch file; the job and its report handle it.
@@ -207,9 +219,13 @@ for index in "${!labels[@]}"; do
   exec 2>&4
   launching=''
   job_pids[index]=$!
+  # The deadline clock starts with this job, not while it was queued. The
+  # watchdog stays outside the job's process group so it can finish the group.
+  arm_job_deadline "${index}" "${job_pids[index]}"
+  jobs_started=$((jobs_started + 1))
 done
 
-wait
+wait_remaining_jobs
 observed_at=${EPOCHREALTIME}
 
 for index in "${!labels[@]}"; do

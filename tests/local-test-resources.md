@@ -24,10 +24,13 @@ Admission lives in the common Git directory as the private
 `refs/dough/local-test-suite` ref, outside branches and ordinary pushes. Nested
 suite fixtures that still use an in-checkout test directory reuse a live
 ancestor's admission; nested pathless runs over an outside-checkout substitute
-directory neither take nor release that admission. Success, failure and signals
-release it; after an abrupt owner death the next run atomically takes over and
-retires surviving marked processes before it starts. No manual lock cleanup is
-needed. Copied runner fixtures outside Git have no cross-worktree admission.
+directory neither take nor release that admission. Success, failure, signals,
+and a per-job safety-deadline timeout that ends the whole run all release it
+through the existing admission owner, so a hung check cannot hold every
+worktree's suite queue indefinitely. After an abrupt owner death the next run
+atomically takes over and retires surviving marked processes before it starts.
+No manual lock cleanup is needed. Copied runner fixtures outside Git have no
+cross-worktree admission.
 
 ## Machine sleep on macOS
 

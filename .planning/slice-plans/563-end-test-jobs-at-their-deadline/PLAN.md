@@ -1,6 +1,7 @@
 # End test jobs at their deadline with a named result
 
 **Source:** [SEED-289 — End a node test job at its deadline with a named result](../../seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline)
+**Source review:** [source-review.md](./source-review.md)
 **Identity:** SEED-289#name-a-test-job-past-its-deadline
 
 ## Goal and scope
@@ -84,7 +85,7 @@ proof from these baselines.
 ### 1. End an overlong check and free local suite admission
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the first three ownership rows, at the runner and linked-worktree
 admission boundary, plus the focused consumer checks below.
 
@@ -167,6 +168,7 @@ runner/admission consumers through `bash scripts/test.sh`:
 ```sh
 PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh \
   tests/support/test-runner-deadline.test.mjs \
+  tests/support/test-runner-deadline-continuation.test.mjs \
   tests/test-runner-bash.sh tests/test-runner-failure-report.sh \
   tests/test-runner-interrupt.sh tests/test-runner-selection.sh \
   tests/test-runner-split.sh tests/test-runner-ci-environment.sh \
@@ -175,8 +177,7 @@ PATH=/opt/homebrew/bin:$PATH bash scripts/test.sh \
   tests/support/local-test-suite-lifecycle.test.mjs
 ```
 
-The file name above is the planned new proof; adjust it to the final
-capability-named location if needed, preserving every ownership row. Slice 2
+Capability proof is split across those two deadline files. Slice 2
 also runs `tests/support/ci-proof-actions.test.mjs`,
 `tests/support/ci-proof-action-units.test.mjs`, and
 `tests/support/ci-proof-declaration.test.mjs` through the runner, including its
@@ -211,6 +212,19 @@ repair handoff. A passing focused check proves its own boundary only.
   never invents their execution time. Started timeout jobs remain failed.
 - No dependency on the font-parity sibling and no trunk-only implementation
   step is needed. Planning/landing does not Take this story or start execution.
+
+## Learnings
+
+- Interrupt handling must retire per-job deadline watchdogs before `wait`, or
+  TERM/INT handling blocks on each watchdog's 180s FIFO read.
+- With slot reuse, finished jobs must be reaped and their watchdogs retired
+  during the launch loop, not only after all starts, so a completed job cannot
+  later kill a successor.
+- Nested `node --test` under a deadline proof file must clear
+  `NODE_TEST_CONTEXT` or Node skips the inner file.
+- Capability proof lives in `tests/support/test-runner-deadline.test.mjs` and
+  `tests/support/test-runner-deadline-continuation.test.mjs` (TERM-resistant,
+  watcher retirement, admission release).
 
 ## Plan review
 

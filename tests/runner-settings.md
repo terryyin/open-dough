@@ -21,7 +21,16 @@ can observe the runner holding queued work.
 id of the live owner, outside the run's ancestry, that keeps a full local run
 waiting for [shared admission](local-test-resources.md). Each whole-file
 replacement lets a check identify the current blocking owner, including a
-successor to an earlier observed owner. Every
+successor to an earlier observed owner.
+Each scheduled job also carries a fixed 180-second wall-clock safety deadline
+from its start; see [the runner](README.md#runner). That limit stops hung work
+and frees admission when a whole run ends; it is separate from the normalized
+performance budgets in [time-budget.md](time-budget.md).
+`OPEN_DOUGH_TEST_JOB_DEADLINE_READY=<file>` receives each armed job's index,
+wait-FIFO path, and the 180-second allowance so a check can expire the wait
+without wall-clock delay; the same line is appended to `<file>.log` for every
+arming. `OPEN_DOUGH_TEST_DISABLE_JOB_DEADLINE=1` skips arming for
+discriminating proof only. Every
 `OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a
 check that runs the runner itself gives it only the settings it chooses, runs
 all of its own checks, and keeps its own times. CI's shares, the deal and the
