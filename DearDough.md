@@ -484,7 +484,7 @@ The source-freshness gate takes one `git merge-base` as the Take. After publishe
 A Take-ready plan headed its only slice under `## Slice`. The obligations / plan-progress reader accepts only `## Slices` or `## Ordered slices`, so the first list refused until the coordinator renamed the heading. Matching uncertainty: same reader contract as ODF-368, but the plan had a near-miss heading rather than slices nested under Current decisions with no section.
 
 ### Occurrences
-- Execution: SEED-292#show-an-unreadable-preparation-continuation (plan 570; first related implementation `8fa1b522026463305d46ad493f13628c1b2f5298`)
+- Execution: SEED-292#show-an-unreadable-preparation-continuation (spent plan 570 recoverable at before-cleanup `0f220c1aed85478a174b5c60ac601ac49edf22af`; first related implementation `8fa1b522026463305d46ad493f13628c1b2f5298`)
   - Timestamp: 2026-11-10T12:05:00+08:00
   - Tool: Cursor
   - Open Dough release: 0.3.94 (installed `.agents/skills/dough-update/VERSION`)

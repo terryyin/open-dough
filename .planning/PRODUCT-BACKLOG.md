@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
 - [Select the story completed in an ad hoc session](seeds/SEED-291-select-story-completed-in-ad-hoc-session.md#select-story-completed-in-ad-hoc-session) — SEED-291#select-story-completed-in-ad-hoc-session ([plan](slice-plans/568-select-story-completed-in-ad-hoc-session/PLAN.md))
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
-- [Show an unreadable preparation continuation](seeds/SEED-292-report-launch-failure-causes.md#show-an-unreadable-preparation-continuation) — SEED-292#show-an-unreadable-preparation-continuation ([plan](slice-plans/570-show-an-unreadable-preparation-continuation/PLAN.md))
 
 ## Backlog list
 
