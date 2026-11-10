@@ -107,7 +107,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | Q12 | The remaining-flake exclusion applies once the named journeys fit. | slice 12 |  |
 | Q13 | “Margin” is required, but the source supplies no additional numerical margin threshold. | slice 12 |  |
 | Q14 | Observable events and controlled clocks are alternatives, not cumulative requirements. | slice 12 |  |
-| J01 | Touch review: “chooses a comparison and file and reads within each pane.” | slice 6 |  |
+| J01 | Touch review: “chooses a comparison and file and reads within each pane.” | slice 6 | observed: touch-evidence.md: three default-pressure four-case passes, native reading/context/rotation assertions in storyReviewTouchJourney and storyReviewTouchContext; desktop pane/file consumers5/5 |
 | J02 | First-in-worker preparation cost. | slice 12 |  |
 | J03 | `agent-launch-preparation-codex`. | slice 12 |  |
 | J04 | Its retry. | slice 12 |  |
@@ -126,7 +126,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | J17 | DD-476 routes. | slice 12 |  |
 | J18 | DD-479 routes. | slice 12 |  |
 | J19 | The three candidates moved from SEED-284; the source does not name them individually. | slice 12 |  |
-| J20 | Touch review’s 2026-11-09 case-local allowance is removed after it fits. | slice 6 |  |
+| J20 | Touch review’s 2026-11-09 case-local allowance is removed after it fits. | slice 6 | observed: story-review-touch.spec.ts removes60s allowance after fit; touch-evidence.md three actual default30s passes at load20.629–25.571, every case16.508–23.085s |
 | J21 | The production-deployment allowance is removed after it fits. | slice 12 |  |
 | J22 | The agent-completion-recovery allowance is removed after it fits. | slice 12 |  |
 | J23 | The temporary watcher policy-repair allowance on main is removed after it fits. | slice 12 |  |

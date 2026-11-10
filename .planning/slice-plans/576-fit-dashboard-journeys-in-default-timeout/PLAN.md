@@ -73,7 +73,7 @@ Behavior: Browser recovery repeats full retirement and low-level fault variants 
 
 ### 6. Touch reading and its required cold inputs fit the default
 Type: Behavior
-Status: planned
+Status: done
 Proof: The whole four-case touch spec passes three consecutive two-worker runs at load 20–30 inside default 30 s, with native reading/rotation/geometry assertions retained and the 60 s allowance removed only after fit. Include desktop large-review consumers and all total elapsed preparation. Reuse existing artifact keys, run owner and the shared worker-fixture registration for required Claude queued origin, app and server bundle readiness; retain private case repositories/servers and real gestures. No new artifact lifetime, native gesture rewrite or broad prewarm.
 
 Behavior: A shorter still-overflowing reading line reduces strokes but first-worker setup consumes 15.173 s and rotation times out → request the exact immutable inputs through a worker fixture before private origin setup, within the unchanged default worker budget, then retain real user actions → all four journeys complete with margin and paid total elapsed. Width-only and beforeAll attempts remain unaccepted: the latter duplicated a private dashboard before its redundant requests. Use an explicit origin dependency, not a beforeAll or late callback parameter; return if this supported cut fails. See [touch evidence](touch-evidence.md).
@@ -197,7 +197,7 @@ Disposition: proved by slice 4: three strict-passing original32/changed31 pairs 
 ### G10. Touch width alone misses the pressure budget
 Reported: slice 6 — "At measured load21.042–26.039, phone reading took37.715s under its60s allowance and default-budget phone rotation timed out at31.504s; width reduction alone does not fit."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: return
+Disposition: proved by slice 6: touch-evidence.md accepted worker-input implementation; three actual default30s four-case passes at load20.629–25.571 and desktop5/5, all moved setup included; hosted/full-suite proof remains in12
 
 ## Plan concern assessment
 

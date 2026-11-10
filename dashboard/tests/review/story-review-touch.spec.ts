@@ -1,8 +1,18 @@
 // Real touch comparisons retain the file and reading position as panes and controls change room.
-import { test } from "../support/preparationPage.ts";
+import { test as base } from "../support/preparationPage.ts";
 import { keepReviewContextThroughTouch } from "../support/storyReviewTouchContext.ts";
 import { chooseComparisonAndReadByTouch } from "../support/storyReviewTouchJourney.ts";
 import { launchTouchViewports } from "../touchLaunchPage.ts";
+
+const test = base.extend({
+  originRepository: async (
+    { queuedClaudePreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedClaudePreviewReady);
+    await use(originRepository);
+  },
+});
 
 for (const { name, portrait, landscape } of launchTouchViewports) {
   test.describe(`${name} review by touch`, () => {
@@ -12,10 +22,6 @@ for (const { name, portrait, landscape } of launchTouchViewports) {
       dashboard,
       origin,
     }) => {
-      // Up to about 31 native touch strokes, most of them reading the wide
-      // line's end and back. Removing this allowance belongs to
-      // SEED-287#fit-dashboard-journeys-in-default-timeout.
-      test.setTimeout(60_000);
       await chooseComparisonAndReadByTouch(page, dashboard, origin);
     });
     test("keeps the chosen file and reading places through rotation and panel controls", async ({

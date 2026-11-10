@@ -46,8 +46,31 @@ export const test = base.extend<
     launchJourney: LaunchJourney;
     comparisonRenderer: ComparisonRenderer;
     queuedCodexOriginReady: undefined;
+    queuedClaudePreviewReady: undefined;
   }
 >({
+  // Touch journeys need these immutable inputs before their private origin.
+  // Worker setup keeps its default budget; all work stays in suite elapsed.
+  queuedClaudePreviewReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const [artifacts, origins, app, server] = await Promise.all([
+        import("./runArtifacts.ts"),
+        import("./startOriginPreparation.ts"),
+        import("./dashboardBuild.ts"),
+        import("./serverBundle.ts"),
+      ]);
+      await Promise.all([
+        artifacts.requestRunArtifact(
+          origins.startOriginArtifactKey("claude", "queued"),
+        ),
+        artifacts.requestRunArtifact(app.dashboardAppArtifactKey),
+        artifacts.requestRunArtifact(server.serverBundleArtifactKey),
+      ]);
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
   // Requested only by native readers that need this installed queued input.
   // Its setup has the worker's default budget, before a reading test starts.
   queuedCodexOriginReady: [

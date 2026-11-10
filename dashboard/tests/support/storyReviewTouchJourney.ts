@@ -32,15 +32,16 @@ import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import { uncommittedLabel } from "./storyReviewMark.ts";
-import { largeWorktree, longA, wideLine } from "./storyReviewWorktree.ts";
+import { largeWorktree, longA } from "./storyReviewWorktree.ts";
 
 // Opens story A's large real comparison by touch, its review focused.
 export async function openReviewByTouch(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
+  firstWideLine?: string,
 ) {
-  const { workspace } = largeWorktree(origin);
+  const { workspace } = largeWorktree(origin, firstWideLine);
   writeFileSync(path.join(workspace, "touch-uncommitted.txt"), "uncommitted\n");
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
@@ -83,7 +84,10 @@ export async function chooseComparisonAndReadByTouch(
   dashboard: DashboardServer,
   origin: StartOrigin,
 ) {
-  const opened = await openReviewByTouch(page, dashboard, origin);
+  // Still wider than either touch pane, with distinct ends to identify the
+  // text reached by native scrolling without a needlessly long round trip.
+  const wideLine = `beginning: ${"wide ".repeat(20)}actual line end`;
+  const opened = await openReviewByTouch(page, dashboard, origin, wideLine);
   const { review, browser, comparison, all } = opened;
   const commits = comparison.locator("label", { hasText: "Commits" });
   const folder = browser.getByRole("button", { name: /^many\b/ });
@@ -123,7 +127,9 @@ export async function chooseComparisonAndReadByTouch(
     "the long line's beginning is read within the diff",
   ).toBe(true);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
-  const length = wideLine.length + 1;
+  const renderedLine = await wide.innerText();
+  expect(renderedLine).toBe(`+${wideLine}`);
+  const length = renderedLine.length;
   expect((await codePartGeometry(wide, length - 15, length)).visible).toBe(
     false,
   );

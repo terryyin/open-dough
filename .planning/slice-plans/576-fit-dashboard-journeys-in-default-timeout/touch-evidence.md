@@ -92,3 +92,63 @@ there; remove beforeAll. No worker option/pool split, extra private hook server,
 new artifact lifetime or deadline override. Default private cases remain.
 This refines the same slice6 proof loop; three actual default pressure passes
 and desktop proof remain due. Return before another variant if it fails.
+
+## Accepted worker-input implementation and local proof
+
+The final candidate keeps the reading-specific125-character overflowing line
+and canonical largeReviewFiles revision from the compatible work. The original
+400-character default line and63large-file facts stay unchanged. pageTest.ts
+registers lazy queuedClaudePreviewReady in the single shared worker pool; the
+touch spec's originRepository dependency requests it before private origin
+setup. It concurrently requests exact existing Claude queued/app/bundle keys.
+No beforeAll, private hook dashboard, new artifact lifetime, gesture rewrite
+or deadline override remains. Case repositories/servers remain private.
+
+One fit command: `caffeinate -s -i node /tmp/seed287-touch-pressure-adaptive.mjs /tmp/seed287-touch-worker-inputs-fit 1`.
+Strict4/4 at load20.116–22.003; shell51.625s/runner49.392s includes coldworker
+setup. Only then was the60s reading allowance removed.
+Three actual default-budget runs: `caffeinate -s -i node /tmp/seed287-touch-pressure-adaptive.mjs /tmp/seed287-touch-worker-inputs-default 3`.
+Each child: `npm run test:dashboard -- tests/review/story-review-touch.spec.ts --workers=2`.
+All12executions passed, retry0; runload20.629–25.571. Phone reading
+20.700/23.085/22.827s; other cases16.508–20.177s. Shell
+51.248/52.517/54.635s; runner49.022/50.328/52.161s. All moved work included.
+No precise cross-condition speedup claim: earlier width-only pressure differed.
+Raw proof, logs, timings, host samples and artifacts at both directories above.
+The adaptive finite controller used at most16CPUworkers, reducing to10 at
+observedload26; every run terminal0, inFlightfalse, ownedWorkersStoppedtrue.
+The earlier12-worker priming failure remains recorded; it launched no tests.
+
+Artifact traces establish actual cold concurrency before private case setup:
+origin6.292/5.925/5.024s, app5.405/4.916/4.345s, bundle1.105/1.111/.796s.
+Starts within121–346ms; first private requests follow readiness. Six requests
+per key each run =2worker requests+4privatecase requests; noextra hookserver.
+Worker fixture uses the project default30s slot; no timeout option supplied.
+
+J01 observing locations: chooseComparisonAndReadByTouch retains44px targets,
+actual comparison/commit/file/folder/context choices, exact rendered text,
+initially hidden end, real horizontal/vertical reading and return, positive
+scrollLeft, independent browser/code scroll, fixed geometry and page fit.
+keepReviewContextThroughTouch retains reading places through rotation, panel
+controls and file operations. Setup supplies private Git/data, not touch result.
+
+Desktop selection (complete artifact-capture command in the targeted return): `caffeinate -s -i npm run test:dashboard -- tests/review/story-review-panes.spec.ts tests/review/story-review-file-moves.spec.ts tests/review/story-review.spec.ts --workers=2`.
+Strict5/5 retry0; runner13.268s, proof /tmp/seed287-touch-worker-desktop-proof.json.
+It observes large/narrow independent pane scrolling, Hide files, previous/next
+file order/reach and the actual changed-file/worktree/branch/baseline summary.
+The507-row consumer record /tmp/seed287-touch-worker-inputs-consumers.md
+retains every disposition; unrequested worker fixture does not run elsewhere,
+and registration stays uniform in the existing pool. Full targeted return:
+/tmp/seed287-touch-worker-inputs-return.md. No spec added/removed for this slice.
+Hosted and whole-suite obligations remain in12; these local observations do
+not close them. Refactor disposition is recorded at delivery below.
+
+## Independent refactor accepted
+
+The fresh reviewer retained one canonical revision name: largeWorktree now
+commits revision.name, still exactly"large changes". No data, gesture, worker
+readiness, assertion or budget change. Its complete affected four-spec selection
+passed strict9/9 retry0, runner31.090s, terminal0; pressure proof stays applicable.
+Literal command, observing independent commit selector and507-row dispositions:
+/tmp/seed287-touch-refactor-return.md and /tmp/seed287-touch-refactor-consumers.md.
+REFACTOR COMPLETE received. No generator trigger; formatter and check-only hooks
+remain the coordinator's guarded delivery operations.
