@@ -30,6 +30,7 @@ import {
 } from "./storyReviewSnapshot.ts";
 import { markReviewedResponse } from "./storyReviewMarks.ts";
 import { storyReviewRangeResponse } from "./storyReviewRange.ts";
+import { completedStoryAssociationResponse } from "./completedStoryAssociationAdmission.ts";
 import { withTerminalHandoff } from "./terminalHandoff.ts";
 import {
   sessionAttachmentEndpoint,
@@ -134,6 +135,8 @@ export async function answer(
         return await launchHostOptionsResponse(request, res);
       case "final-report":
         return await finalReportResponse(request, res);
+      case "completed-story-association":
+        return await completedStoryAssociationResponse(request, res);
       case "story-review":
         return await storyReviewResponse(request, res);
       case "story-review-file":

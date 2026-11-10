@@ -156,3 +156,9 @@ valid preparation JSON handling remains; only unreadable continuation gains
 printed stderr detail. No comparison owner or fixture default changes. Carry
 these compatible source changes through ordinary wrap integration/native renewal
 and final target CI. Main now reserves DD482; our prospective process ID is483.
+
+## Completion CI repair
+
+Execution-complete revision `321ecc474` failed run `42761331734`/1 in two separate receivers; the complete failed-job inventory has no gaps. The Sidebar project-change test clicked a provisional historical view during the published-work response, just before the active story replaced it. One controlled held-response pointer probe reproduced the lost action and confirmed that a click after the actual restored story title succeeds. The existing test now awaits that positive readiness signal; all original visibility, persistence, geometry and keyboard oracles remain. The history gap failure was an unrelated live collector acquisition racing a reader-only quiescence assertion. Accepted main `f1a992a75` stops collection by reopening the retained history as a reader; all original gaps, provenance and zero-reader-acquisition assertions remain.
+
+Root merged accepted main through `f1a992a75` without changing comparison policy or rule ownership. The single focused repair run passed Sidebar4, gaps2 and lifecycle1; a separate incoming-renewal batch passed12 (Refresh3, native capture3, strict historical fallback4, admission1 and real Board comparison1). Both use default30s/retry0/two workers with awake AC `caffeinate -s -i` and no sleep. Dashboard typecheck passed. Detailed causal traces and literal command/proof manifests are retained outside the checkout under `/tmp/seed286-execution-20261109/ci-42761331734*`. These local observations repair the delivered failures; final applicable branch CI and target CI remain their own gates. The successful760207-rule performance evidence stays revision-qualified.

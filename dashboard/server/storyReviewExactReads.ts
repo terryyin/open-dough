@@ -17,7 +17,7 @@ import {
   type AdmittedStoryReview,
 } from "./storyReviewRequest.ts";
 
-type StoryReviewExactRead =
+export type StoryReviewExactRead =
   AdmittedStoryReview | AdmittedReviewedFile | AdmittedStoryReviewRange;
 
 export const storyReviewExactReads: ReadonlyArray<

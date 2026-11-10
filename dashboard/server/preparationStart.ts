@@ -19,6 +19,7 @@ import { matchesPreparation } from "./preparationContext.ts";
 import {
   keepsPreparation,
   preparationRefusal,
+  continuationDetail,
   continuationRefusal,
 } from "./preparationResult.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -207,13 +208,13 @@ async function runningPreparation(
     }
     progress.clear(source.id, request.identity);
     if (continuing) {
-      const agent = assigned?.agent;
-      const detail =
-        result.kind === "stopped" && result.error
-          ? `${result.error.replace(/[.]$/, "")}.`
-          : "The installed command could not verify continuation.";
       return {
-        ...continuationRefusal(detail, agent, workspace.shown, branch),
+        ...continuationRefusal(
+          continuationDetail(result),
+          assigned?.agent,
+          workspace.shown,
+          branch,
+        ),
         publishedNothing: true,
       };
     }

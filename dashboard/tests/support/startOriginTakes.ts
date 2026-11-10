@@ -26,10 +26,12 @@ type Placement =
   | { readonly mode: "trunk"; readonly slug: string };
 
 // Who takes which story, what stays queued, and in which mode.
+// `publisher` becomes Claim-Publisher on the Take; default matches prior tests.
 export type DeclaredTake = {
   readonly agent: string;
   readonly story: BacklogEntry;
   readonly queued: readonly BacklogEntry[];
+  readonly publisher?: string;
 } & Placement;
 
 export type TakenStart = {
@@ -118,6 +120,7 @@ export function anotherAgentTakes({
       agent,
       story,
       queued,
+      publisher = "another-publisher",
       ...placement
     }: DeclaredTake): Promise<TakenStart> {
       const { workspace, branch } = placed(placement);
@@ -128,7 +131,7 @@ export function anotherAgentTakes({
           agent,
           committer: dashboardDeveloper,
           host: "claude",
-          publisher: "another-publisher",
+          publisher,
           ...(placement.mode === "story-branch" && { branch }),
         }),
       );
