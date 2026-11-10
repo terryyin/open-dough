@@ -204,15 +204,16 @@ Disposition: proved by slice 6: touch-evidence.md accepted worker-input implemen
 
 ## Plan concern assessment
 
-Completed 1–10 and compatible proof remain accepted. Slice11's corrected
-profile failed sort30.616s at valid24.032–26.448 load. No implementation paths
-needed parking: the tree was clean before this refinement. Its measured7.201s
-cold-input cost supports direct reuse/modularization of the accepted worker
-readiness in one shared private-origin wrapper. All original observations and
-paid elapsed remain. Remaining11/12 have cohesive gates and proof loops; twelve
-slices, no numeric exception/resplit, goal or failure waiver. G4/G7 stay owned;
-G1/G2/G3/G8 remain12. The trunk step retains its explicit human checkpoint.
-Execution stays Taken; this is readiness for the supported cut, not acceptance.
+Completed1–10 remain accepted. Slice11 readiness removed cold cost from the
+case slot but still failed sort30.852s at valid24.214–29.380 load. Its exact
+five owned paths were parked and reverted; all workers stopped. One diagnostic
+passed at lower20.242–24.765 load but leaves that failure open and rules out
+history-answer batching. [Comparison evidence](comparison-evidence.md) retains
+both results, elapsed89.498s for the failed variant, limits and the disputed
+per-case installed-CLI restriction. Await the human's proof-setup decision before
+another cut; no executable replacement is selected. Twelve slices, no numeric
+exception, scope change or failure waiver. G4/G7 stay open; G1/G2/G3/G8 remain12.
+Execution stays Taken; slice11 is incomplete and readiness is not established.
 
 ## Trunk measurement checkpoint
 

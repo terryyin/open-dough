@@ -50,7 +50,7 @@ belongs to SEED-286#fast-intent-ci-comparison-tests.
 
 **Identity:** SEED-287#fit-dashboard-journeys-in-default-timeout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a37f4d7d837cf16bc0361c68e89de2da0cb63c038abbdd5ea1b57cbb9805dd4","plan":"bb2b097543ce0a84f63b9d302486cfdab520f1e808e0bbce97a7475c0b50a3fc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md","assessment":"not-ready","reasons":["Slice 11 readiness variant still fails under valid load; the per-case CLI completion requirement in sort needs a human proof-setup decision before another supported cut."],"basis":{"document":"4a37f4d7d837cf16bc0361c68e89de2da0cb63c038abbdd5ea1b57cbb9805dd4","plan":"0069770d16d33100bf35ee25b0fbc1edd4bc672c2c88340d97e18036585a123f"}}
 ```
 
 #### Goal

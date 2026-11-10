@@ -51,3 +51,73 @@ elapsed honestly. Existing one-push history is unchanged; prior39-case consumer
 proof remains only for unchanged history boundaries. Trace the new shared
 fixture effect into its current consumers; return before another cut if this
 variant fails. No goal, architecture, scope, source review or allocation changes.
+
+
+## Readiness variant returned incomplete
+
+Five owned paths modularized the existing touch wrapper and applied it to
+source/sort; private history, CLI and every browser action stayed unchanged.
+The first required-pressure run failed sort30.852s, source20.945/20.313 passed;
+load24.214–29.380, shell53.716s/runner51.215s, all preparation included.
+The finite attempt elapsed89.498s including priming; no numeric hard limit.
+Runs2/3 and touch were never launched. No unchanged acceptance retry followed.
+All owned load workers stopped. Exact return and failure trace:
+/tmp/seed287-comparison-readiness-return.md and
+/tmp/seed287-comparison-readiness-pressure/failure-sort.
+
+Readiness itself worked: cold origin5.124/app4.074/bundle.758s overlapped;
+private clones followed readiness, no extra hook dashboard. Worker5.243s used
+its existing default slot; remaining charged private/browser hooks~2.733s.
+Private completion/publication8.736s and initial CI settling6.656s still left
+sort/drill late; first A→B→A ended at wall33.447s, then second loop timed out.
+All columns fit; no paging clicks/animation waits occurred. Periodic revision
+and agent requests were small. Reduced motion is not an evidenced remedy.
+The shared fixture audit has580 actual consumer rows, but changed source/sort/
+touch were not accepted: only source passed once, sort failed, touch unrun.
+
+The exact5paths were safely parked before further planning at
+/tmp/seed287-comparison-readiness-park-20261111 (source copies, patch, manifest),
+then only their tracked HEAD copies restored. Tree was clean c9180c87.
+This compatible readiness mechanism remains unaccepted, not discarded proof.
+
+## Decision-bounded Git diagnosis
+
+One unchanged diagnostic used the same controller with count1 and an absolute
+GIT_TRACE2_EVENT path. Command/return/raw groups:
+/tmp/seed287-comparison-git-diagnostic-20261111-0255/diagnosis-return.md.
+It passed3/3, sort20.626/source12.568/13.521s, shell31.787/runner30.723s,
+load20.242–24.765; all workers stopped. This does not erase the earlier valid
+failure or establish three passes. Its lower-load/cold-setup conditions varied:
+origin2.503/app2.439s versus5.124/4.074s in the failure. No precise saving claim.
+
+Trace2 reached fake-gh bare-origin and private HOME/git/open-dough reads.
+Reject committedHistoryAnswers batching: no metadata-show/history diff-tree
+calls were exercised. Bare-origin answers164calls summed0.603s Git t_abs;
+private preparation/publication249/6.456s; subsequent backend reads391/1.653s.
+These are summed child measurements, exclude parent startup/scheduling/HTTP,
+and are not elapsed savings. Actual backend owners are storyCompletionEndpoints,
+publishedStoryHistory and launchLandingGit through gitRunner; cat-file already
+batches. Passing runs retain no browser trace under the existing failure-only
+setting, so the earlier5.945s CI and2.525s review cannot be phase-aligned to this
+run. No next cut is established; no more unchanged profiles are authorized here.
+
+## Human-owned proof setup decision
+
+The remaining smallest outcome is the unchanged sort journey: drilling plus
+both cross-story loops at default30, with private real Git/HOME. Its current
+publisher repeats full installed CLI completion also exercised by both source
+journeys; that arrangement costs8.736s before first navigation in the failure.
+A stronger simpler candidate is MakeMe-described real Git completed history for
+sort's precondition, preserving full installed CLI completion in both source
+journeys and every source/Proof/exclusion/browser observation. It would reuse
+the canonical repository builder, not add a history cache or share writable Git.
+No implementation or speedup is claimed for this candidate.
+
+Current plan/design explicitly require actual CLI publication in every comparison
+case. Its independent reason in the sort preference case is unresolved. Under
+Execute Plan's resolve-a-disputed-plan-restriction rule, a human must choose
+whether that per-case requirement may move to the source journeys before this
+candidate is implemented or planned as executable. Alternatively retain it and
+continue diagnosis of the installed CLI/read orchestration. Neither choice
+waives G4/G7, three valid pressure passes, affected touch proof, no added family
+cost, the full local/hosted gates, or the later trunk measurement checkpoint.
