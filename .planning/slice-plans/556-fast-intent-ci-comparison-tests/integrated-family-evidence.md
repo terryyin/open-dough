@@ -3,7 +3,7 @@
 [Plan](PLAN.md), [source review](source-review.md) and the full
 [failure policy](../../../AGENTS.md#failing-and-flaky-tests) govern this work.
 Raw records below are under `/tmp/seed286-execution-20261109/`.
-This records the integrated working source; exact published CI remains open.
+Exact published7601568 CI is accepted; final target/lifecycle proof remains open.
 
 ## Source and oracle ownership
 
@@ -83,7 +83,9 @@ elapsed spans overlap and are not additive CPU or twice-subtracted overhead.
 Legacy base-analysis completeReceiptUpper names are receipt prefixes only;
 the separate next-start analyses establish the complete bounds above. A metadata
 correction preserves all numeric data and raw records; old scripts/records remain.
-Post-repair formatting checks all95 measured source hashes unchanged.
+Post-repair formatting checked all95 source hashes unchanged; later result/selector
+assimilation changes only this maintained proof guide. All94 runtime/test hashes
+remain unchanged; the original measurement hashes are preserved.
 
 ## Failed history receivers and causal repair
 
@@ -118,10 +120,39 @@ are complete: one244-line living-doc clarification, no runtime refactor edits,
 all107 original and10 helper consumers disposed. Full dashboard typecheck and
 actual selective formatter pass; every13 authored source/doc path stays≤244.
 
-## Remaining publication and lifecycle gate
+## Exact hosted acceptance and lifecycle
 
-G12 is locally proved by the causal repair and renewed17. G11 remains open until
-exact published207 complete bounds and all-job CI are accepted. No hosted result
-is inferred from local receipt durations or a green ancestor. The shared observer
-continues on the execution branch; no new watcher or direct provider polling.
-C067 remains blank/target-CI-owned through execution completion and WrapUp.
+Exact76015682179bcf87353da6c1cbbc6da5b86e11ca/run42756890006/attempt1 passes
+all17jobs. All207 unique chromium rules pass once/retry0 with actual complete
+next-worker bounds9–861ms, median191. Independent raw reconstruction matches
+every bound; all12 API size/SHA256/exact-HTML metadata checks pass (9,694,703bytes).
+Only29 actual compiler+4 browser spans are excluded, zero suitehooks. No missing,
+incomplete, deduplicated or ambiguous rule bound exists. Global2520pass/8 unchanged
+outside-family skips/zero failures or flakes retain their actual classification.
+See slice9-760-ci-independent-audit and ci-42756890006/test-envelopes.
+G11 is proved for this publication; G12 is proved by the causal repair/renewed17.
+The same observer stays active for completion. C067 stays blank/target-CI-owned.
+
+## Compatible incoming main
+
+Latest inspected e6852fbe adds accepted SEED291 completed ad-hoc selection.
+The independent source audit finds no model/schema/oracle clash: explicit stored
+identities and strict historical defaults remain; new association is storyless.
+The31 attributed delta paths have zero direct95-hash overlap; Board/Review remain
+transitive receivers. The83 static rules render no Board; no comparison owner,
+CSS, fixture default or rule-family role changes. Ordinary wrap integration can
+proceed with renewed stored Refresh3/native3 after merge and final all-job target
+CI. Existing completed-capture-fallback3/one-shot-admission1 and real comparison
+app selection are direct additional target receivers. See the retained
+slice9-incoming-seed291-impact.md; no new slice or human choice is required.
+
+Refactor disposition: these acceptance/observation updates stay within the accepted
+slice9-refactor-return and history-ui-refactor-return boundaries; no runtime,
+fixture, oracle, helper, dependency or role changes accompany this increment.
+
+Further inspected main63a12143 carries accepted preparation-continuation refusal
+wording and two test race repairs. Execution start still reads identical stdout;
+valid preparation JSON handling remains; only unreadable continuation gains
+printed stderr detail. No comparison owner or fixture default changes. Carry
+these compatible source changes through ordinary wrap integration/native renewal
+and final target CI. Main now reserves DD482; our prospective process ID is483.

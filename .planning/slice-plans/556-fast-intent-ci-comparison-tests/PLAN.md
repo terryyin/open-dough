@@ -156,7 +156,7 @@ keep qualifications; accepted-main reconciliation and final integrated proof mov
 ### 9. Reconcile accepted equivalent timing and verify the integrated family
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Actual comparison/memory/artifact and collection/history owners, mapped
 GHA/adapter/native connections, current integrated local/load and published CI.
 
@@ -237,9 +237,7 @@ Disposition: proved by slice 8: portable-final-evidence.md#accepted-repaired-loc
 ### G11. Accepted-main equivalent timing and retained history need reconciliation
 Reported: slice 8 — "Accepted main2751 SEED-288 changes timed settled-none equivalent and retained collector/answer semantics; c216201-rule success is pre-integration evidence, not proof of the changed source."
 Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
-Disposition: receiving slice 9
-Commitment: C001, C002, C003
-
+Disposition: proved by slice 9: integrated-family-evidence.md and exact7601568/run42756890006/attempt1 independent audit preserve all257 owners/207rules/50connections, complete CI9–861ms, local4–518/5–724ms and all17jobs. G12 repaired17/defaults pass; supplier attribution remains explicit. C067 stays final target-CI-owned.
 ### G12. Two incoming history UI receivers exceed the default timeout
 Reported: slice 9 — "The16-case history receiver run has14backend passes and2UI default30000ms timeouts (adapter/provenance); AC100/openlid/sleepguard with no sleep, load20.15→25.05. Actual traces are retained; no base attribution exemption or unchanged rerun."
 Story clause: "No test in the family relies on a raised timeout."

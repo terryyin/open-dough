@@ -205,8 +205,10 @@ Two role-preserving transfers and six same-process memory rules preserve the
 old246 surviving identities; GHA/adapter/no-proof-persistence add three connections.
 All257 pass ordinary219.59s and controlled-load207.65s. Actual complete207 rule
 bounds are4–518ms and5–724ms, including per-case cleanup. All95 measured source
-hashes survive subsequent history-helper formatting. Exact published CI remains
-required. Native3 separately pass31.66s;17 history receivers/default-phone pass41.30s.
+hashes survived history-helper formatting; later guide-only result assimilation
+leaves all94 runtime/test hashes unchanged. Exact7601568/run42756890006/attempt1
+passes all17jobs and207 complete bounds9–861ms (median191), independently audited.
+Native3 separately pass31.66s;17 history receivers/default-phone pass41.30s.
 Both profiles observe AC100%/open lid/caffeinate-s-i/no sleep. Ordinary load4.60→
 18.44; loaded8.11→13.74, with two ready/stopped/reaped helpers at80.0/79.9%core.
 Ambient conditions differ; these finite observations imply no isolated percentage.
