@@ -186,6 +186,10 @@ exception that preserves the pending requirements. Paid native sessions are
 explicitly invoked only; add none to default tests or CI. No native session was
 run or accepted while recording this candidate.
 
+**Additional covered work — oversized-file reorganization:** Linked
+[acceptance cases](SEED-053-native-guidance-acceptance/oversized-file-reorganization.md)
+extend this home; Codex, Cursor and Claude Code evidence remain pending.
+
 ## Shared premise-verification cases
 
 These cases are the shared premise-verification setup. The guidance is delivered.
