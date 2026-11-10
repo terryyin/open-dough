@@ -8,8 +8,6 @@
 // and attempt. A build is a push run's first attempt, linked under ci.invalid
 // by its run, at the landed revision unless the case states otherwise.
 
-import { attemptTimingBasis } from "../../dashboard/src/ciAttemptTiming.ts";
-
 /** @typedef {import("../../dashboard/server/landedCiHistoryStore.ts").ProjectHistory} ProjectHistory */
 /** @typedef {ProjectHistory["landings"][string]} KeptLanding */
 /** @typedef {ProjectHistory["builds"][string]} KeptBuild */
@@ -17,6 +15,11 @@ import { attemptTimingBasis } from "../../dashboard/src/ciAttemptTiming.ts";
 /** @typedef {Extract<KeptLanding["observed"], { kind: "gap" }>["reason"]} UnmeasuredReason */
 /** @typedef {Extract<KeptLanding["observed"], { kind: "pending" }>["waitsFor"]} PendingWait */
 /** @typedef {import("../../dashboard/src/landedCiHistory.ts").Provenance} Provenance */
+
+// Canonical wire data, independent of dashboard runtime modules as required by
+// tests/test-data-architecture.md. Native evidence hashes this builder's closure.
+/** @type {NonNullable<KeptBuild["timingBasis"]>} */
+const attemptTimingBasis = "attempt-start";
 
 /**
  * A push run's first attempt, linked under ci.invalid by its run.
