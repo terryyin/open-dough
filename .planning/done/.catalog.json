@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-291_select-story-completed-in-ad-hoc-session.json",
+      "identity": "SEED-291#select-story-completed-in-ad-hoc-session",
+      "completedAt": "2026-11-10T04:43:07.499Z",
+      "blob": "1561e5432c4775ccc34219a4db8dc63d09f01955"
+    },
+    {
       "fileName": "SEED-288_reuse-adapter-equivalent-timing.json",
       "identity": "SEED-288#reuse-adapter-equivalent-timing",
       "completedAt": "2026-11-10T02:05:06.886Z",

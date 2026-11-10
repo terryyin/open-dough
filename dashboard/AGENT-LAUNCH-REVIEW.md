@@ -3,6 +3,12 @@
 The [agent launch contract](AGENT-LAUNCH.md#story-review) links here for a
 story's read-only review of its workspace or a landed run's change in the side panel.
 
+A retained **Ad hoc** Recently done sessions row can select the one published Done story its launch and claim/completion evidence uniquely establish, without rewriting the launch request or Ad hoc label.
+Development reveals that Done card (including outside the Board window); Intent and **Review changes** reuse Board historical comparison and saved Done coverage.
+Absent or ambiguous evidence leaves the session standalone; checking/unknown keep existing retry and supersession.
+Derivation uses server-held records and configured project history only.
+
+
 Every completed-story card in Recently done offers **Review changes**, including
 stories completed in a terminal or on another machine with no local launch.
 When no readable workspace or usable captured landing exists, **Published
