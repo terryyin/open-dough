@@ -1,4 +1,0 @@
-end_utc=2026-11-10T10:16:47Z
-end_ms=1794305807840
-claude_exit=0
-load=18:16  up 1 day, 11:13, 4 users, load averages: 22.44 25.84 23.94
