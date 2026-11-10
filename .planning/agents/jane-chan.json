@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-288#reuse-adapter-equivalent-timing",
+  "host": "cursor",
+  "model": "auto"
+}
