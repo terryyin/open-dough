@@ -94,7 +94,8 @@ export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
         failed === undefined && (
           <p className="intent-ci-history-note">
             {selected.doneEndpoint === undefined
-              ? "Reading the selected story’s published landing…"
+              ? (selected.doneEndpointReason ??
+                "Reading the selected story’s published landing…")
               : "Reading collected test execution times…"}
           </p>
         )

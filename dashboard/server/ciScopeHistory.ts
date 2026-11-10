@@ -14,6 +14,7 @@ import {
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
 import { historyBuildOf } from "./landedCiHistoryEntries.ts";
 import { scopeHistoryGapOf } from "./ciScopeHistoryGap.ts";
+import { historyEndpointOf } from "./ciHistoryEndpoint.ts";
 
 const buildDateSchema = z.iso.datetime({ offset: true });
 
@@ -25,46 +26,11 @@ export function scopeHistoryOf(
   endpoint: ScopeHistoryEndpoint,
   order: readonly string[] | undefined,
 ): CiScopeHistory {
-  const landings = Object.values(history.landings);
-  const selected = landings.find(
-    (landing) => landing.revision === endpoint.revision,
+  const { selected, availability, cohort, missingReason } = historyEndpointOf(
+    history,
+    endpoint.revision,
+    order,
   );
-  const positions = new Map(order?.map((revision, index) => [revision, index]));
-  const endpointPosition = positions.get(endpoint.revision);
-  const outside =
-    endpointPosition !== undefined &&
-    landings.length > 0 &&
-    landings.every(
-      (landing) => (positions.get(landing.revision) ?? -1) > endpointPosition,
-    );
-  const unpositioned = landings.some(
-    (landing) => !positions.has(landing.revision),
-  );
-  const availability =
-    landings.length === 0
-      ? "empty"
-      : endpointPosition === undefined || unpositioned
-        ? "order-unavailable"
-        : selected !== undefined
-          ? "retained"
-          : outside
-            ? "outside-retention"
-            : "uncollected";
-  const cohort =
-    endpointPosition === undefined
-      ? selected === undefined
-        ? []
-        : [selected]
-      : landings
-          .filter(
-            (landing) =>
-              (positions.get(landing.revision) ?? Infinity) <= endpointPosition,
-          )
-          .sort(
-            (a, b) =>
-              (positions.get(a.revision) ?? 0) -
-              (positions.get(b.revision) ?? 0),
-          );
   const units = declaredUnits.filter((unit) =>
     cohort.some(
       (landing) =>
@@ -196,12 +162,7 @@ export function scopeHistoryOf(
       });
   }
   if (selected === undefined) {
-    const reason =
-      availability === "outside-retention"
-        ? "Selected landing is outside the retained history"
-        : endpointPosition === undefined && landings.length > 0
-          ? "Selected landing order unavailable from local Git evidence"
-          : "Selected landing was not collected";
+    const reason = missingReason;
     entries.push({
       kind: "gap",
       key: `uncollected/${endpoint.revision}`,

@@ -59,6 +59,11 @@ export async function publishedStoryReview(
     return {
       kind: "published",
       completion: facts.completion,
+      ...(facts.mode === "trunk"
+        ? { landingRevision: facts.completion }
+        : facts.landing === undefined
+          ? {}
+          : { landingRevision: facts.landing.merge }),
       completedAt: facts.completedAt,
       agent: facts.agent,
       remote: "origin",

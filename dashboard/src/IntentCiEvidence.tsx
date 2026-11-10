@@ -62,6 +62,7 @@ export type CiEvidence =
       readonly comparison: ComparisonReading;
       readonly endpointProofs: ComparisonEndpointProofs | undefined;
       readonly doneEndpoint?: ScopeHistoryEndpoint;
+      readonly doneEndpointReason?: string;
     }
   | {
       readonly kind: "judged";
@@ -93,6 +94,7 @@ export function IntentCiEvidenceProvider({
   selectedIdentity,
   active,
   doneEndpoint,
+  doneEndpointReason,
   children,
 }: {
   readonly source: PublishedSource;
@@ -102,6 +104,7 @@ export function IntentCiEvidenceProvider({
   // Whether anything Intent shows reads CI now.
   readonly active: boolean;
   readonly doneEndpoint?: ScopeHistoryEndpoint;
+  readonly doneEndpointReason?: string;
   readonly children: ReactNode;
 }) {
   const target = ciTargetOf(source, work, selectedIdentity);
@@ -154,6 +157,9 @@ export function IntentCiEvidenceProvider({
       endpointProofs,
       ...(target.phase === "done" && doneEndpoint !== undefined
         ? { doneEndpoint }
+        : {}),
+      ...(target.phase === "done" && doneEndpointReason !== undefined
+        ? { doneEndpointReason }
         : {}),
     };
   else if (judgedBranch !== undefined && target.kind === "judged")

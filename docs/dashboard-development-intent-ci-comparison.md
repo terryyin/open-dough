@@ -239,3 +239,12 @@ are different facts, and reading again starts no clock. CI and walk evidence
 can still settle the gap. Once the exact run appears, Check again or selecting
 the story again advances through queued/running evidence to its completed
 build, preserving the exact source and final-answer reuse.
+
+Done CI status also reads a compact **Prior-build average** from the local
+retained history at its exact published endpoint. It shares the project history's
+complete-proof, single median/15% filter and five-sample minimum; the selected
+attempt and measured revisions at or after that endpoint never supply priors.
+The count/span describe current retention: later publications cannot enter the
+reference, while eviction may change it or leave insufficient history. Independent
+history refresh/retry preserves the comparison; unavailable historical endpoints
+and selected proof are explained without acquiring CI or substituting current trunk.

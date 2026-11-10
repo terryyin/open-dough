@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 import { parseSafeRepositoryPath } from "./reachablePaths.ts";
 import { isPinnedRevision } from "./refusedParameters.ts";
+import { historyEndpointOf } from "./ciHistoryEndpoint.ts";
 import { scopeHistoryOf } from "./ciScopeHistory.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -30,7 +31,7 @@ export type IntentCiHistoryRead =
     }
   | {
       readonly kind: "intent-ci-history";
-      readonly scope: string;
+      readonly scope?: string;
       readonly revision: string;
       readonly through: string;
     };
@@ -44,9 +45,16 @@ export function parseIntentCiHistoryRead(
   params: URLSearchParams,
 ): IntentCiHistoryRead | RefusedParameters | undefined {
   if (params.get("intent") !== "ci-history") return undefined;
-  if (params.has("scope")) {
-    const names = ["intent", "scope", "revision", "through"];
-    const scope = parseSafeRepositoryPath(params.get("scope") ?? "");
+  if (params.has("scope") || params.has("revision") || params.has("through")) {
+    const names = [
+      "intent",
+      "revision",
+      "through",
+      ...(params.has("scope") ? ["scope"] : []),
+    ];
+    const scope = params.has("scope")
+      ? parseSafeRepositoryPath(params.get("scope") ?? "")
+      : undefined;
     const revision = params.get("revision");
     const through = params.get("through");
     if (
@@ -54,15 +62,20 @@ export function parseIntentCiHistoryRead(
       [...params.keys()].some(
         (name) => name !== "source" && !names.includes(name),
       ) ||
-      scope === undefined ||
+      (params.has("scope") && scope === undefined) ||
       !isPinnedRevision(revision) ||
       !z.iso.datetime({ offset: true }).safeParse(through).success ||
       through === null
     )
       return refused(
-        "A scoped CI history read names one repository scope, published landing revision and date.",
+        "A selected CI history read names one published landing revision and date, and optionally one repository scope.",
       );
-    return { kind: "intent-ci-history", scope, revision, through };
+    return {
+      kind: "intent-ci-history",
+      ...(scope === undefined ? {} : { scope }),
+      revision,
+      through,
+    };
   }
   if (
     params.getAll("intent").length !== 1 ||
@@ -134,6 +147,15 @@ export async function performIntentCiHistoryRead(
         order,
       ),
     );
+  }
+  if (read?.revision !== undefined) {
+    const { availability } = historyEndpointOf(history, read.revision, order);
+    return answered({
+      selectedRevision: read.revision,
+      availability,
+      entries: historyEntries(history),
+      reference: wallTimeReferenceOf(history, read.revision, order),
+    });
   }
   return answered({
     entries: historyEntries(history),

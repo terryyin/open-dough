@@ -89,7 +89,7 @@ Keep accessible evidence and local-read retry usable with no average.
 ### 2. Compare a Done landing against its own historical reference
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: New selected-Done wall-time comparison journey through the actual endpoint
 and retained-history reader; affected existing story comparison journeys.
 
@@ -166,21 +166,20 @@ See [retained preparation context](context.md).
   shared equivalent and later-trunk sources require both identities.
 - A horizontal average reference belongs to the displayed endpoint. A whole
   curve of historical moving averages is outside this increment.
-- All planned proof is still owed. Preparation observations establish current
-  reusable behavior and route availability, not execution completion.
+- Scoped reference integration remains owed; accepted observations are retained below.
 - SEED-288 pending refresh and proof-free adapter equivalent timing were already
   delivered in the Take base (closures `2d0564ff` and `9743bf1a`; product
   revisions `3322a6fd` and `eb2bfebe`). Current supplier/adapter/provenance
   proof consumes them; proof-free wall-time points remain ineligible for this
   reference. At pinned trunk `6894595d`, no dashboard change arrived since Take.
 
-## Delivered-history amendment — 2026-11-09
+- Slice 2 observed that published review completion D can precede represented
+  trunk landing M. The selected Done record's validated completion/claim owner
+  already derives M; expose that fact through shared review/history context,
+  retaining D for its existing tree meaning. Real skipped/cancelled M != D
+  normal-reader journeys observe M separately from equivalent/later measured builds.
 
-Terry's follow-up reconciles this plan with the delivered 20-build store and
-plan 554's proof-retention responsibility. Retain all three Behavior slices,
-their existing proof maps and calibration. No larger window, slice replacement,
-sizing exception, resplit or execution is introduced. Reassess against the
-actual published proof extension before dependent integration.
+[Delivered-history preparation amendment](context.md#delivered-history-amendment--2026-11-09) remains retained with its original scope.
 
 ## Execution resume context
 
@@ -194,6 +193,9 @@ actual published proof extension before dependent integration.
 - Accepted Take and previously published branch base:
   `dd628ef6d9028c2544538b4b664a413d17c308c2`; remote branch confirmed at that SHA.
   Claim CI is unobserved. Retain Changed since readiness review; no renewal.
+- Slice 1 published and registered on the retained story-branch observer:
+  `e714c02f52de8f85fdc404317d2a75b41fdd27c5` (suffix base Take `dd628ef6d`).
+  This is the next increment's previously published base; CI is asynchronous.
 - Checkout setup: `npm ci` and `npm run typecheck:dashboard` passed 2026-11-10.
   Selective formatter is `npm run format`; `.githooks/pre-commit` is check-only
   staged lint plus dashboard typecheck when scripts are staged.
@@ -207,34 +209,11 @@ actual published proof extension before dependent integration.
   this checkout's `.agents/skills/dough-execute-plan`; default 100 startup / 20
   later discovery bounds. Managed delivery must use this observer identity.
 
-Plan record structure: retain the ordered behavior/proof and execution state in
-this plan; unchanged architecture/PFE and premise observations are linked in
-`context.md`. This separates preparation context from active execution without
-changing scope, proof ownership, or retained source readiness.
+Slice 1 proof, causal failure repairs and independent refactoring are accepted;
+see [retained acceptance](context.md#slice-1-acceptance). Delivery is recorded above.
 
-Slice 1 semantic proof accepted 2026-11-10; delivery remains pending independent
-refactoring. Original setup → expected reference → actual assertions are mapped
-per id in source-review.md, with exact commands/setup/observations and causal
-failure repairs in /tmp/seed285-slice1-return.md. Accepted: 12 reference/date
-contracts, retained proof/order/scope contracts, 25 chart observations (24 reused
-plus repaired provenance), 37 supplier observations (34 reused plus 3 precise
-matcher repairs), 19 enclosing observations (12 reused plus all 7 repaired
-journeys), isolated restart/local-only/phone/keyboard/provenance, and final
-TypeScript check. Broad failed runs retain their verdicts; every failed case has
-causal correction and current passing proof. No observation remains deferred.
-Freshness unchanged at trunk 6894595d; no incoming named-sibling product effect.
-The source-only review is unchanged; this accepts proof without renewing Ready.
-
-
-Independent refactor accepted: common rule solely owns ordering; prepared-reading
-fixture name and used canonical builder are coherent. Twelve contracts, real
-local-order API and both relative journeys, typecheck and whitespace passed.
-Correspondence/trace: `/tmp/seed285-refactor1-return.md`; unchanged proof reused.
-
-Typing/fixture lint repair accepted after guarded formatting refusal, before any
-commit or push. Explicit measured-value/median/ISO/fixture guards preserve facts;
-12 contracts and typecheck passed; browser observations reused. See refactor
-report addendum and `/tmp/seed285-refactor1-typing-consumer-trace.md`.
+Slice 2 proof and independent refactoring are accepted; see
+[retained acceptance](context.md#slice-2-acceptance). Guarded delivery remains pending.
 
 ## Story obligations
 
@@ -243,3 +222,21 @@ Reported: slice 1 — "An invalid kept startedAt was copied into reference evide
 Story clause: "Keep observed points and existing gaps visible."
 Disposition: proved by slice 1: tests/support/ci-prior-build-boundaries.test.mjs invalid measured dates; tests/support/ci-prior-build-reference-schema.test.mjs malformed date paths; dashboard/tests/intent/intent-ci-prior-build-states.spec.ts invalid measured start normal-reader gap/average/reason/date/link. Literal passing commands are retained in /tmp/seed285-slice1-return.md.
 Commitment: C84
+
+
+### G2. Use represented landing M when Done completion D differs
+Reported: slice 2 — "publishedDoneEndpointOf supplied pre-merge completion D while the selected publication records trunk landing M; a retained M could appear uncollected when reading D."
+Story clause: "Candidates come from represented landings before the comparison's exact landing endpoint"
+Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-done-prior-provenance.spec.ts observes actual selected-record producer completion D/landing M and normal request M with equivalent/later build distinct; both cases passed after failing with D.
+Commitment: C08
+### G3. Explain a terminal missing represented Done landing
+Reported: slice 2 — "A published Story Branch review can settle without landingRevision when facts.landing is absent; the Done reference then says it is Reading forever although no history request can start."
+Story clause: "Failed, pending, missing, partial, ambiguous or unsupported evidence keeps its specific reason and supplies no numeric substitute."
+Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-done-endpoint-readiness.spec.ts observes pending, accepted optional metadata omission, real shallow-Git unavailable owner, HTTP failure and Retry with no guessed history request. Inspection proves absent landing is unreachable in fully validated normal producer facts; the accepted protocol and real failure boundaries are separately observed.
+
+
+### G4. Keep the local Done reference across CI comparison states
+Reported: slice 2 — "The Done reference was mounted only inside ComparisonShown, so an initial failed or unavailable CI comparison hid a usable local reference and changing CI state could discard its local reader."
+Story clause: "Preserve the history's own failure/retry feedback and selection, and the existing independent CI refresh lifecycle."
+Disposition: proved by slice 2: dashboard/tests/intent/intent-ci-done-reference-lifecycle.spec.ts observes initial failed/unavailable and later failed CI states retaining one local reference; corrupt-store/no-remount assertion, independent local Retry and CI recovery pass, alongside original clean-landing comparison.
+Commitment: C02

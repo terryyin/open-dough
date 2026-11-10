@@ -1,7 +1,7 @@
 # Preparation context and execution gates
 
 The active [plan](PLAN.md) owns execution; these are its unchanged preparation
-findings and consuming observations.
+findings, execution gates and accepted observations.
 
 ## Architecture and PFE
 
@@ -136,3 +136,56 @@ there is no speculative Structure slice or separate testing slice. No numeric
 slice target or hard limit is supplied; size by these bounded proof loops and
 reassess at the first failed integration assumption rather than accumulating
 special cases. Preserve safe states and follow the execution escalation rules.
+
+## Slice 1 acceptance
+
+Slice 1 semantic proof accepted 2026-11-10; delivery remains pending independent
+refactoring. Original setup → expected reference → actual assertions are mapped
+per id in source-review.md, with exact commands/setup/observations and causal
+failure repairs in /tmp/seed285-slice1-return.md. Accepted: 12 reference/date
+contracts, retained proof/order/scope contracts, 25 chart observations (24 reused
+plus repaired provenance), 37 supplier observations (34 reused plus 3 precise
+matcher repairs), 19 enclosing observations (12 reused plus all 7 repaired
+journeys), isolated restart/local-only/phone/keyboard/provenance, and final
+TypeScript check. Broad failed runs retain their verdicts; every failed case has
+causal correction and current passing proof. No observation remains deferred.
+Freshness unchanged at trunk 6894595d; no incoming named-sibling product effect.
+The source-only review is unchanged; this accepts proof without renewing Ready.
+
+
+Independent refactor accepted: common rule solely owns ordering; prepared-reading
+fixture name and used canonical builder are coherent. Twelve contracts, real
+local-order API and both relative journeys, typecheck and whitespace passed.
+Correspondence/trace: `/tmp/seed285-refactor1-return.md`; unchanged proof reused.
+
+Typing/fixture lint repair accepted after guarded formatting refusal, before any
+commit or push. Explicit measured-value/median/ISO/fixture guards preserve facts;
+12 contracts and typecheck passed; browser observations reused. See refactor
+report addendum and `/tmp/seed285-refactor1-typing-consumer-trace.md`.
+
+## Incoming integration evidence
+
+Trunk `f1a992a7` publishes a test-only collector-quiescence repair in
+`landed-ci-history-gaps.spec.ts`: stop collection before asserting provider-free
+scope reads. Preserve that repair and this branch's additive reference-answer
+expectations during eventual history-preserving trunk integration. No Intent
+reference/domain behavior changed; current product proof remains applicable.
+
+## Delivered-history amendment — 2026-11-09
+
+Terry's follow-up reconciles this plan with the delivered 20-build store and
+plan 554's proof-retention responsibility. Retain all three Behavior slices,
+their existing proof maps and calibration. No larger window, slice replacement,
+sizing exception, resplit or execution is introduced. Reassess against the
+actual published proof extension before dependent integration.
+
+## Slice 2 acceptance
+
+Slice 2 semantic proof accepted; exact-source input and independent-lifecycle
+corrections G2/G3/G4 are proved below. Commands/setup/actual assertions and trace
+are retained in /tmp/seed285-slice2-return.md; main lifecycle passed at default
+30s in 12.688s, retry0. Fifteen affected observations, nine contract files and
+final typecheck passed. Source freshness unchanged at trunk f1a992a7.
+Independent refactor accepted: one shared endpoint-history lifecycle; six focused
+reader journeys, typecheck and whitespace passed. Exact correspondence/commands
+are in `/tmp/seed285-refactor2-return.md`; guarded delivery remains pending.

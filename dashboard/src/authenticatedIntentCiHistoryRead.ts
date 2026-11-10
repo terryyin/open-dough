@@ -6,6 +6,10 @@
 // names its published endpoint/date and path at that same boundary, reading
 // collected test execution time.
 
+import {
+  ciDoneWallTimeHistorySchema,
+  type DoneWallTimeHistory,
+} from "./ciDoneWallTimeHistory.ts";
 import { authenticatedGet, unexpectedAnswer } from "./authenticatedGet.ts";
 import {
   readingCiHistoryOf,
@@ -68,4 +72,35 @@ export async function readIntentCiScopeHistory(
   )
     throw unexpectedAnswer(reading);
   return parsed.data;
+}
+
+// Done wall time uses the same local read with its exact published endpoint.
+export async function readIntentCiDoneWallTimeHistory(
+  source: PublishedSource,
+  endpoint: ScopeHistoryEndpoint,
+  signal: AbortSignal,
+): Promise<DoneWallTimeHistory> {
+  const reading = readingCiHistoryOf(source.repository);
+  const query = new URLSearchParams({
+    source: source.id,
+    intent: "ci-history",
+    revision: endpoint.revision,
+    through: endpoint.at,
+  });
+  const parsed = ciDoneWallTimeHistorySchema.safeParse(
+    await authenticatedGet(query.toString(), reading, signal, { local: true }),
+  );
+  const measured = parsed.success ? measuredHistoryOf(parsed.data) : undefined;
+  if (
+    !parsed.success ||
+    measured === undefined ||
+    parsed.data.selectedRevision !== endpoint.revision ||
+    parsed.data.reference?.endpoint !== endpoint.revision
+  )
+    throw unexpectedAnswer(reading);
+  return {
+    ...measured,
+    selectedRevision: parsed.data.selectedRevision,
+    availability: parsed.data.availability,
+  };
 }
