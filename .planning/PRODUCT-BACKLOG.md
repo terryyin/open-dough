@@ -37,6 +37,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Show an unreadable preparation continuation](seeds/SEED-292-report-launch-failure-causes.md#show-an-unreadable-preparation-continuation) — SEED-292#show-an-unreadable-preparation-continuation
+- [Ask whether a silent Cursor runner blocks launch](seeds/SEED-292-report-launch-failure-causes.md#ask-whether-a-silent-cursor-runner-blocks-launch) — SEED-292#ask-whether-a-silent-cursor-runner-blocks-launch
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data
 - [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data
