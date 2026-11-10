@@ -69,7 +69,7 @@ export type FakeCursor = FakeCursorSharedConfig & {
   calls(): CursorInvocation[];
   modelReads(): { readonly args: readonly string[]; readonly cwd: string }[];
   // Undefined makes `models` exit nonzero.
-  listModels(models: CursorModelListing): void;
+  listModels(models: CursorModelListing, failureStderr?: string): void;
   attaches(): CursorAttach[];
   signals(pid: number): string;
   input(pid: number): string;
@@ -140,8 +140,11 @@ export function installFakeCursor(options?: {
   );
   const attaches = (): CursorAttach[] =>
     readJsonl(path.join(attachDir, "attaches.jsonl"));
-  const listModels: FakeCursor["listModels"] = (models) => {
+  const listModels: FakeCursor["listModels"] = (models, failureStderr) => {
     writeCursorModelListing(modelsPath, models);
+    const stderrPath = `${modelsPath}.stderr`;
+    if (failureStderr === undefined) rmSync(stderrPath, { force: true });
+    else writeFileSync(stderrPath, failureStderr);
   };
   listModels(cursorModels);
   const screen =

@@ -1,12 +1,14 @@
 // Startup settings admission keeps static host aliases distinct from a host
 // boundary's transient native offerings.
 import type { AgentLaunchRequest } from "../src/agentLaunch.ts";
+import { cursorModelVerificationMessage } from "../src/hostDescription.ts";
 import { effortBlocked } from "../src/launchEffort.ts";
 import { launchHost, type LaunchHost } from "./launchHosts.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import { projectFolder, folderExists } from "./projectFolders.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { CursorModelLookupError } from "./hosts/cursor/options.ts";
 
 export async function admitLaunchSettings(
   request: AgentLaunchRequest,
@@ -73,6 +75,11 @@ export async function admitLaunchSettings(
       throw new RefusedRequest(400, staleEffort);
   } catch (error) {
     if (error instanceof RefusedRequest) throw error;
+    if (error instanceof CursorModelLookupError)
+      throw new RefusedRequest(
+        503,
+        cursorModelVerificationMessage(error.message, error.recovery),
+      );
     throw new RefusedRequest(
       503,
       modelCatalog?.unverified ??
