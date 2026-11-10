@@ -22,24 +22,25 @@ clock; measure family and suite elapsed separately from summed case time.
 | Final promise | Owning slice and observable proof |
 | --- | --- |
 | Remaining history/request/navigation races wait at their causal boundary | 2: focused specs for remaining reproductions pass three consecutive times under comparable load |
-| Watcher failure keeps one live deployment; restart owns SIGHUP; family ≥10 s faster median including moved work | 3: failure + restart (+ policy) journeys pass; standalone C reactivation gone; before/after family median |
-| One full retired closure; recovery variants at CLI/HTTP/store; covered browser steps gone | 4: quiet closure + reporting-boundary specs cover promises; recovery journey shortened; three consecutive focused passes |
-| Touch reading fits default 30 s; allowance removed | 5: touch reading case under load 20–30 on 2 workers; `setTimeout` gone; reading proof retained |
-| Harness costs the probe still supports cut without moving unpaid work out of suite elapsed | 5: focused first-in-worker / fake-`gh` / prep changes as selected; suite elapsed includes moved prep |
-| Named allowances removed; suite and slowest shard within previous elapsed; shard weights refreshed | 11: allowances gone after fit; local comparable suite and hosted slowest shard; weights from all 12 artifacts of a complete passing trunk run |
+| Watcher failure keeps one live deployment; restart owns SIGHUP; retained lifecycle proof | 3: failure + restart (+ policy) journeys pass; standalone C reactivation gone; preservation and actual fault detection |
+| Repeated full-source ingestion reduced; family ≥10 s faster median including first preparation | 4: one existing run-owner snapshot experiment; full-source consumers/isolation; comparable original vs changed complete family |
+| One full retired closure; recovery variants at CLI/HTTP/store; covered browser steps gone | 5: quiet closure + reporting-boundary specs cover promises; recovery journey shortened; three consecutive focused passes |
+| Touch reading fits default 30 s; allowance removed | 6: touch reading case under load 20–30 on 2 workers; `setTimeout` gone; reading proof retained |
+| Harness costs the probe still supports cut without moving unpaid work out of suite elapsed | 6: focused first-in-worker / fake-`gh` / prep changes as selected; suite elapsed includes moved prep |
+| Named allowances removed; suite and slowest shard within previous elapsed; shard weights refreshed | 12: allowances gone after fit; local comparable suite and hosted slowest shard; weights from all 12 artifacts of a complete passing trunk run |
 
 ## Original preparation premises (history)
 
 | Premise | Consuming operation | Observation | Result |
 | --- | --- | --- | --- |
-| Touch reading case still carries a 60 s case-local allowance and heavy pane-reading strokes | Slice 5 remove allowance / cut gestures | Read `dashboard/tests/review/story-review-touch.spec.ts` and `dashboard/tests/support/storyReviewTouchJourney.ts` at `673002452f18b7fc7a9427f7a6db662b63c8b0b7` | Settled: `test.setTimeout(60_000)` with SEED-287 comment; journey reads wide line end and back via `readCodePartByTouch` |
-| Retired closure recovery still carries a 120 s allowance and combines real Git retirement with unavailable receiver, write fault, and lost ack in one browser journey | Slice 4 consolidation | Read `dashboard/tests/sessions/agent-completion-recovery.spec.ts` at that revision | Settled: `test.setTimeout(120_000)` with SEED-287 comment; one test owns retirement + three recoveries + restart |
-| Quiet Land / Story Branch Wrap Up / Trunk Wrap Up already retire real accepted work before installed quiet reporting | Slice 4 reuse Wrap Up | Read `dashboard/tests/sessions/agent-completion-quiet.spec.ts` at that revision | Settled: three closure variants already exercise real retirement + quiet reporting |
-| Reporting-boundary backend already covers quiet Done prerequisites and unavailable-receiver reporting-only recovery | Slice 4 move variants | Read `dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts` at that revision | Settled: boundary test uses `unavailableCompletion` and Done/landing/readable-closure rules; full retirement stays in quiet/recovery |
+| Touch reading case still carries a 60 s case-local allowance and heavy pane-reading strokes | Slice 6 remove allowance / cut gestures | Read `dashboard/tests/review/story-review-touch.spec.ts` and `dashboard/tests/support/storyReviewTouchJourney.ts` at `673002452f18b7fc7a9427f7a6db662b63c8b0b7` | Settled: `test.setTimeout(60_000)` with SEED-287 comment; journey reads wide line end and back via `readCodePartByTouch` |
+| Retired closure recovery still carries a 120 s allowance and combines real Git retirement with unavailable receiver, write fault, and lost ack in one browser journey | Slice 5 consolidation | Read `dashboard/tests/sessions/agent-completion-recovery.spec.ts` at that revision | Settled: `test.setTimeout(120_000)` with SEED-287 comment; one test owns retirement + three recoveries + restart |
+| Quiet Land / Story Branch Wrap Up / Trunk Wrap Up already retire real accepted work before installed quiet reporting | Slice 5 reuse Wrap Up | Read `dashboard/tests/sessions/agent-completion-quiet.spec.ts` at that revision | Settled: three closure variants already exercise real retirement + quiet reporting |
+| Reporting-boundary backend already covers quiet Done prerequisites and unavailable-receiver reporting-only recovery | Slice 5 move variants | Read `dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts` at that revision | Settled: boundary test uses `unavailableCompletion` and Done/landing/readable-closure rules; full retirement stays in quiet/recovery |
 | Failure journey currently stops the live C deployment with SIGHUP, starts a new watcher, then runs failed candidate/restoration | Slice 3 move SIGHUP / keep one deployment | Read `dashboard/tests/runtime/production-watcher-failures.spec.ts` (unavailable-origin + SIGHUP through failed restoration) at that revision | Settled: SIGHUP ends the watcher mid-family; post-hangup start is a separate watcher before D |
 | Restart journey already proves restart from current main with same runner/client and SIGINT end | Slice 3 attach SIGHUP | Read `dashboard/tests/runtime/production-watcher.spec.ts` restart test at that revision | Settled: restart path exists without SIGHUP quiet-exit proof |
-| Policy-repair and production-deployment still carry temporary allowances | Slice 11 remove after fit | Read `dashboard/tests/runtime/productionUpdatePolicies.ts` and `dashboard/backend-tests/runtime/production-deployment.spec.ts` at that revision | Settled: 60 s and 45 s `test.setTimeout` respectively |
-| Which 2026-11-09 harness leads (start-origin/app prep, fake `gh`/`rev-parse`, fixture Git volume, touch strokes) still dominate under current load | Slices 3–5 experiment choice | Cheap: seed + code presence above. Unpaid load timing of the named families under comparable workers/cache/load is not observed in this preparation | Open: early probe slice 1 must record which leads still show material cost before dependent harness cuts; failure revises slices 3–5 |
+| Policy-repair and production-deployment still carry temporary allowances | Slice 12 remove after fit | Read `dashboard/tests/runtime/productionUpdatePolicies.ts` and `dashboard/backend-tests/runtime/production-deployment.spec.ts` at that revision | Settled: 60 s and 45 s `test.setTimeout` respectively |
+| Which 2026-11-09 harness leads (start-origin/app prep, fake `gh`/`rev-parse`, fixture Git volume, touch strokes) still dominate under current load | Slices 3–6 experiment choice | Cheap: seed + code presence above. Unpaid load timing of the named families under comparable workers/cache/load is not observed in this preparation | Open: early probe slice 1 must record which leads still show material cost before dependent harness cuts; failure revises slices 3–6 |
 
 ## Reuse choices for execution-owned repairs
 
@@ -68,11 +69,11 @@ UI. No production caching, timeout increase, new scheduler or parallel suite.
 
 | Premise / consumer | Current observation / bounded operation |
 | --- | --- |
-| Original harness-cost leads, slices 3–5 | Probe 1 completed: touch gestures and duplicate watcher/closure work remain supported; origin/app preparation about 3–4 s and fake-gh HTTP 37.25 ms at lower load do not establish dominance. Static watcher answers rule out per-answer branch-tip caching. See execution-evidence.md. |
-| Comparison publisher, slice 10 | Immutable-lifetime experiments added cost (paired 19.68→28.84 s) and were reverted. Existing per-page private setup is restored. One unchanged Git Trace2 profile must identify a supported in-owner cut before implementation; no more cache variant is presumed. |
-| Launch preparation, slices 6–8 | Trace shows 9–14 s installed start/publication and 3.23 s sequential second-server startup. Origins 0.80–1.73 s and dashboards 1.33–2.49 s do not establish prewarming as the remedy. Start with overlap; preserve independent observations before any compaction. |
-| Cursor preconditions, slice 9 | First clients actually settled at 22.641/26.197 s; second start crossed the case deadline. ENOENT followed cleanup. The bounded cheaper-precondition experiment must retain real clients, model scope and board association; no missing-store repair is justified. |
-| Full local comparison, slice 11 | Captured strict-failing baseline 4,845.851 s shell / 4,843.154 s runner, admission separate; variable sampled load 5.39–44.54. Preserve failures and qualify comparability; rerun only for a stated changed-condition hypothesis, never until green. |
+| Original harness-cost leads, slices 3–6 | Probe 1 completed: touch gestures and duplicate watcher/closure work remain supported; origin/app preparation about 3–4 s and fake-gh HTTP 37.25 ms at lower load do not establish dominance. Static watcher answers rule out per-answer branch-tip caching. See execution-evidence.md. |
+| Comparison publisher, slice 11 | Immutable-lifetime experiments added cost (paired 19.68→28.84 s) and were reverted. Existing per-page private setup is restored. One unchanged Git Trace2 profile must identify a supported in-owner cut before implementation; no more cache variant is presumed. |
+| Launch preparation, slices 7–9 | Trace shows 9–14 s installed start/publication and 3.23 s sequential second-server startup. Origins 0.80–1.73 s and dashboards 1.33–2.49 s do not establish prewarming as the remedy. Start with overlap; preserve independent observations before any compaction. |
+| Cursor preconditions, slice 10 | First clients actually settled at 22.641/26.197 s; second start crossed the case deadline. ENOENT followed cleanup. The bounded cheaper-precondition experiment must retain real clients, model scope and board association; no missing-store repair is justified. |
+| Full local comparison, slice 12 | Captured strict-failing baseline 4,845.851 s shell / 4,843.154 s runner, admission separate; variable sampled load 5.39–44.54. Preserve failures and qualify comparability; rerun only for a stated changed-condition hypothesis, never until green. |
 
 ## Original CI evidence from the seed
 
@@ -135,3 +136,22 @@ one collector lock failure.
   102.3 s for restart. The slowest dashboard job took 321 s of wall time
   including setup and proof upload. Keep summed durations and elapsed time
   separate. [Passing baseline](https://github.com/terryyin/open-dough/actions/runs/42795867875).
+
+## Watcher source-ingestion decision after the measured miss
+
+Consolidation preserved every behavior but saved only 5.367 s nominally; the
+10 s target remains. Whole-product PFE found the existing `runArtifacts.ts`
+owner already prepares immutable inputs once on demand and owns cleanup;
+`globalSetup.ts` registers them, and `startOriginPreparation.ts` materializes
+isolated Git copies. `publishedMainFixture(true)` currently copies the same
+live source and hashes its first commit for each fixture (probe: summed initial
+adds 3.18/3.27/5.29 s, copy cost extra). Reuse that owner for one source snapshot;
+keep private repositories, writable origins, HOME and actual deployment scripts.
+A per-worker cache repeats the cost across workers; a new registry or persistent
+cache adds an unsupported lifetime. Source truncation/prebuilt deployments do
+not preserve the required input. No production architecture choice is added.
+The existing publication fixture observes exact unchanged runtime bytes and
+requested-only docs changes; watcher refusals observe an initially empty origin.
+Both and all direct full-source callers must remain proved. No-owner calls keep
+the established private path. If the experiment fails its measured target,
+return the gap before another variant. Raw attempts stay at their evidence paths.

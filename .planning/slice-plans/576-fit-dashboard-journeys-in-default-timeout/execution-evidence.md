@@ -201,3 +201,17 @@ Cursor corrections6–9; comparison10; final11. G4 stays interim6,7,8,10, G5rece
 G7 remains a return in slice 10. Every reported failure stays owned. Reordering changes no goal,
 assertion, timeout or story priority. The one-file transport cut is kept as a
 validated partial increment with comparison still planned.
+
+## Trunk watcher restart allowance
+
+Trunk `2a2038247e649076fe78c11ec091fcb08ac5f218` (outside the claim ancestry)
+adds a 90 s restart/SIGINT allowance after hosted run42781560636 spent27.3s
+on real install/build; the comment cites sibling activation32.1s. It names
+SEED-287 removal. No runtime behavior changes. Current branch/default30 and
+the detached baseline exclude that allowance; their proof remains local.
+G8 assigns integration/removal and hosted default margin to final slice11.
+
+[Watcher attempt, parked compatible changes, fault proof and current ownership](watcher-evidence.md)
+retain the subsequent split: behavior3, source-ingestion4, closure5, touch6,
+launch/Cursor7–10, comparison11 and final12. Earlier numeric mappings above
+are retained attempt history; current PLAN/source-review allocations govern.

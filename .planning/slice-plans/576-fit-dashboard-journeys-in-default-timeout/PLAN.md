@@ -53,63 +53,70 @@ Behavior: A case that previously asserted while async work was settling → wait
 ### 3. Watcher failure keeps one live deployment; restart owns SIGHUP
 Type: Behavior
 Status: planned
-Proof: `production-watcher-failures.spec.ts` and `production-watcher.spec.ts` (and policy journey as affected) pass; discriminating checks still detect ignored SIGHUP and reuse of the previously served revision; standalone C reactivation including its install/build/start is gone; watcher-family median elapsed including moved work is at least 10 s faster than the comparable before measurement from slice 1 / retained baseline method.
+Proof: Whole failure/restart/updates family passes; actual ignored-SIGHUP and stale-restart faults are detected before the standalone C activation is removed. Retain origin recovery on the same C PID/page, both fatal-preview outcomes/cleanup, active-build SIGTERM, current-main restart, same runner/client/input, and final SIGINT. Compatible proof and parked code are retained in [watcher evidence](watcher-evidence.md). The measured cost target remains owned by slice 4/G9.
 
-Behavior: Existing failure and restart chains repeat a C activation → continue unavailable-origin recovery into failed candidate/restoration on the same deployment and move SIGHUP to restart → all signal, serving, fatal-preview and cleanup promises remain observed while median family elapsed improves by at least 10 s. Slice 11 removes watcher-related allowances only after margin holds.
+Behavior: Existing failure/restart chains repeat C activation → continue origin recovery into failed candidate/restoration on the same live C, and relocate SIGHUP to the existing restart → all distinct lifecycle promises remain while one real install/build/start is removed. No claim that consolidation alone earns the 10 s saving.
 
-### 4. One full retired closure; recovery variants at the reporting boundary
+### 4. Repeated full-source ingestion no longer consumes the family saving
+Type: Behavior
+Status: planned
+Proof: Profile the supported copy/initial-Git-ingestion cost, then test one immutable source-snapshot variant using the existing run-artifact owner. Every fixture retains current source, private writable repositories/HOME and an empty unpublished origin; real install/build/start remain. Run all full-source consumers, including publication/refusal/deployment and fixture-isolation proof, plus the three-spec watcher family. At least 10 s median family elapsed saving against a comparable original baseline, including first-demand snapshot preparation and moved work; no family growth. Stop with evidence if this one variant misses; no unchanged timing reruns or new cache lifetimes.
+
+Behavior: Several real watcher fixtures ingest the same live source independently → prepare that immutable Git source once in the established run owner and materialize isolated fixtures → original publication/serving/failure boundaries survive and complete-family elapsed meets the original 10 s target. Existing private fallback remains usable without a run owner. This is one supported harness-cost experiment, not a second artifact registry or prebuilt deployment.
+
+### 5. One full retired closure; recovery variants at the reporting boundary
 Type: Behavior
 Status: planned
 Proof: `agent-completion-quiet.spec.ts` still proves real Git retirement, installed reporting retry without repeating Git/native ops, and visible Done (reuse Story Branch Wrap Up where it can carry this; retain Land and Trunk Wrap Up paths). `agent-completion-quiet-closure.spec.ts` (and extensions) cover unavailable receiver / lost ack, failed and concurrent writes, reserved receipt isolation, message recovery after source deletion, stale receipt across restart, altered payload refusal, and post-deletion rejection as needed. Covered browser steps removed from `agent-completion-recovery.spec.ts`; three consecutive focused passes.
 
-Behavior: Browser recovery repeats full retirement and low-level fault variants → retain real retirement/reporting retry/visible Done once and establish each variant at the existing CLI/HTTP/store boundary before removing covered browser steps → the same closure promises fit the default with margin. Slice 11 removes the recovery allowance after that observation.
+Behavior: Browser recovery repeats full retirement and low-level fault variants → retain real retirement/reporting retry/visible Done once and establish each variant at the existing CLI/HTTP/store boundary before removing covered browser steps → the same closure promises fit the default with margin. Slice 12 removes the recovery allowance after that observation.
 
-### 5. Touch reading and remaining supported harness costs fit the default
+### 6. Touch reading and remaining supported harness costs fit the default
 Type: Behavior
 Status: planned
 Proof: Touch reading case passes under local load 20–30 on 2 workers inside 30 s with reading proof preserved and its 60 s allowance removed. Apply only harness leads slice 1 still supports (for example cheaper fake `gh` without losing auth/hold/pid/signal/gone-fake behavior, avoiding repeated start-origin/app prep charged to the first case while including moved prep in suite elapsed, cutting gesture cost). Focused before/after for affected first-in-worker and touch selections.
 
 Behavior: Named touch and first-in-worker pressure cases under the probe's load profile → apply the still-supported cost cuts → those cases finish with margin inside the default 30 s and 5 s observations without raising deadlines.
 
-### 6. A non-owner server overlaps independent preparation
+### 7. A non-owner server overlaps independent preparation
 Type: Behavior
 Status: planned
 Proof: The complete second-server journey passes three consecutive two-worker selections with its default case budget, retaining live non-owner identity, held push, card protection through reload/project switch, and exactly one claim/worktree/native session. Include worker-handoff/change-wait boundary siblings if orchestration changes.
 
 Behavior: An accepted installed start prepares while a second preview is not yet started → begin the independent second-server startup during preparation, retaining the held-push barrier before observation → the same complete non-owner journey has useful margin. The trace measured 3.23 s of removable sequential startup. Include moved work in elapsed; no product ownership shortcut. This settles one launch member of G4.
 
-### 7. Receipt and orphan recovery avoid redundant initial page setup
+### 8. Receipt and orphan recovery avoid redundant initial page setup
 Type: Behavior
 Status: planned
 Proof: Receipt-failure execution/refinement and second-server orphan specs pass three consecutive two-worker selections with default budgets. Preserve actual installed publication/fault, unavailable receipt, Continue recovery, server death/orphan cleanup and exactly-one claim/session. Inspect the original story-card/initial-start owners before moving incidental initial browser setup to real acceptance.
 
 Behavior: A real initial accepted start and page setup consume the recovery budget in sequence → establish the initial action at the existing real launch boundary and overlap independent page work → every recovery/Continue and cleanup observation completes with margin. Reject compaction that supplies the result in setup or loses a distinct browser promise. G4 stays open for later members.
 
-### 8. Codex retry keeps its retained-host progress proof within the budget
+### 9. Codex retry keeps its retained-host progress proof within the budget
 Type: Behavior
 Status: planned
 Proof: The whole Codex start spec and preparation-codex consumer pass three consecutive two-worker selections when their shared retry-progress helper changes. Preserve initial native refusal, retained retry acceptance, first input, one kept session, retained host and the actual fresh-observer/reload promise wherever it is owned; establish surviving proof before removing repetition.
 
 Behavior: A refused native start succeeds through its retained retry near 30 s → remove only independently covered observation/setup repetition at the existing helper boundary → the complete retry outcome and retained-host proof fit with margin. The trace locates late observer work, not a stuck page.evaluate. This is the final G4 member; settle the grouped obligation before done.
 
-### 9. Cursor lifetime journeys reach their actual behavior within the budget
+### 10. Cursor lifetime journeys reach their actual behavior within the budget
 Type: Behavior
 Status: planned
 Proof: Whole helper-survival and replacement-controls specs plus replacement revival pass three consecutive two-worker runs. Retain real held clients, chosen-model configuration scope, board association, same runner/PID survival, drift handling, finished/never-held/failed revival distinctions and visible Running/Recover states. If the shared recovery helper changes, include its scope/recovery/stop-several consumers. Preparation remains included in elapsed.
 
 Behavior: Two expensive execution starts prevent the runner test reaching its subject before 30 s → establish only the necessary native/session preconditions at the existing real launch boundary → drift/replacement actions and all original observations complete with margin. Bound the first experiment to these two journeys, canonical MakeMe records and actual clients; an unscoped ad hoc client is not a substitute for the scoped precondition. Ordinary execution/model UI proof stays with its inspected owners. G5 owns both failures.
 
-### 10. Loaded comparison source and sort journeys fit the case budget
+### 11. Loaded comparison source and sort journeys fit the case budget
 Type: Behavior
 Status: planned
 Proof: Both source variants and the sort test’s two cross-story loops pass three consecutive two-worker runs, including cold-worker preparation; preserve exact completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort on return. Add file/renamed/drilldown/scope-history consumers when the shared publisher changes; reuse only demonstrably unchanged proof. Record moved preparation in elapsed, not just case time.
 
 Behavior: A completed-story source or sort journey spends its budget in the established private publisher → profile its actual Git/publication phases, remove only evidenced redundant preparation inside that owner, and retain existing preparationPage/StartOrigin isolation → every original observation completes with margin inside 30 s without family cost growth. A canonical one-push planning chain is retained as partial cost reduction, but pressure still fails. Before another cut, reconcile the pressure trace’s publication/initial-read timing and choose one supported cheaper setup or proof boundary; no unchanged pressure retry. Rejected worker/run-artifact history lifetimes are not a basis for more caching variants. G4 remains owned; no SEED-286 feature promise is added.
 
-### 11. Named allowances removed; suite and shard margins hold
+### 12. Named allowances removed; suite and shard margins hold
 Type: Behavior
 Status: planned
-Proof: Remove remaining named case-local allowances only after their cases fit with margin. Comparable local dashboard suite elapsed and the slowest hosted shard stay within previous elapsed times (keep summed durations separate). Refresh shard weights from all 12 artifacts of a complete passing trunk run after removing work; measure redistribution separately. Default case and shard deadlines unchanged.
+Proof: Remove remaining named case-local allowances, including trunk’s watcher restart allowance, only after their cases fit with margin. Comparable local dashboard suite elapsed and the slowest hosted shard stay within previous elapsed times (keep summed durations separate). Refresh shard weights from all 12 artifacts of a complete passing trunk run after removing work; measure redistribution separately. Default case and shard deadlines unchanged.
 
 Behavior: All prior slices' retained proof is green with margin → delete the named temporary `test.setTimeout` allowances → local comparable suite and hosted slowest shard remain within previous elapsed times with refreshed weights.
 
@@ -121,12 +128,12 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
 - Comparison cache experiments were rejected after the paired +46.5% cost result.
   Seven owned paths were preserved and reverted; the private publisher is the
   stronger simpler starting point. Profile before another implementation cut.
-- Slice 1's probe may revise which harness leads slices 3–5 apply; it does not widen product scope.
+- Slice 1's probe may revise which harness leads slices 3–6 apply; it does not widen product scope.
 - Probe selection: retain watcher/closure consolidation and touch gesture cuts.
   Current preparation and fake-`gh` costs do not establish their earlier
   dominance. Do not prewarm or replace them on the earlier hypothesis alone.
-  If watcher consolidation misses the family target, the measured repeated
-  full-source fixture ingestion supports a bounded shared-snapshot experiment;
+  Watcher consolidation missed the family target; slice 4 now owns the measured
+  full-source fixture-ingestion experiment using the existing run-artifact owner;
   real deployment installs, builds, and starts remain required.
 
 ## Accepted probe evidence
@@ -139,55 +146,66 @@ commands, timing conditions, inspected boundaries, and outstanding proof.
 ### G1. Required pressure proof remains due
 Reported: slice 1 — "Focused measurements were below the requested load 20–30; that pressure margin is not established."
 Story clause: "under local load 20–30 on 2 workers"
-Disposition: receiving slice 11
+Disposition: receiving slice 12
 
 ### G2. Comparable local suite comparison remains due
 Reported: slice 1 — "No completed comparable local baseline was found; the unchanged full-suite baseline is still running."
 Story clause: "the comparable local dashboard suite and the slowest hosted shard stay within their previous elapsed times"
-Disposition: receiving slice 11
+Disposition: receiving slice 12
 
 ### G3. Hosted margin and shard comparison remain due
 Reported: slice 1 — "Only retained baseline CI is available; no implementation speedup or hosted margin has been proved."
 Story clause: "on a hosted shard about 1.5× slower overall"
-Disposition: receiving slice 11
+Disposition: receiving slice 12
 
 ### G4. Full-baseline budget defects remain owned
 Reported: slice 1 — "The unchanged full baseline exposed two Intent comparison and five launch case-budget failures; no repair is claimed."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: interim until slices 6, 7, 8, 10
+Disposition: interim until slices 7, 8, 9, 11
 
 ### G5. Cursor recovery records are not observed before the case deadline
 Reported: slice 1 — "Cursor runner helper-survival and replacement-controls both timed out in launchSecondHeldSession while polling absent launch records; diagnosis is pending."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: receiving slice 9
+Disposition: receiving slice 10
 
 ### G6. Comparison experiment must retain the private local checkout (first reported in original slice 3)
-Reported: slice 10 — "switching to dashboardTest alone made completion recovery return “spawn git ENOENT” because server HOME lacked home/git/open-dough."
+Reported: slice 11 — "switching to dashboardTest alone made completion recovery return “spawn git ENOENT” because server HOME lacked home/git/open-dough."
 Story clause: "Preserve every distinct behavioral promise at an observable boundary."
-Disposition: proved by slice 10: rejected cache paths removed; original preparationPage/StartOrigin private checkout restored, with exact source/Proof observations in the paired-before three-case pass at /tmp/seed287-slice3-20261110-2107/pair-before-proof.json
+Disposition: proved by slice 11: rejected cache paths removed; original preparationPage/StartOrigin private checkout restored, with exact source/Proof observations in the paired-before three-case pass at /tmp/seed287-slice3-20261110-2107/pair-before-proof.json
 
 ### G7. Controlled-pressure comparison budgets remain unproved
-Reported: slice 10 — "The controlled CPU-pressure run timed out in sort and clean-source; conflict-source passed at 29.667 s, while sampled load rose from 20.38 to 32.04."
+Reported: slice 11 — "The controlled CPU-pressure run timed out in sort and clean-source; conflict-source passed at 29.667 s, while sampled load rose from 20.38 to 32.04."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
 Disposition: return
 
+### G8. Trunk restart allowance still needs hosted default margin
+Reported: slice 3 — "Trunk commit 2a2038247 added a 90 s restart/SIGINT allowance after hosted install/build took 27.3 s before shutdown; the execution branch still uses the default."
+Story clause: "the watcher family's first-in-worker `beforeAll` and restart/policy-repair paths"
+Disposition: receiving slice 12
+
+### G9. Watcher consolidation alone did not earn the required saving
+Reported: slice 3 — "Three alternating pairs passed 32/31 cases, but median shell elapsed 141.456 to 136.089 s saved only 5.367 s nominally, below 10 s and affected by host variance."
+Story clause: "the watcher family gets at least 10 s faster in median elapsed time"
+Disposition: receiving slice 4
+
 ## Plan concern assessment
 
-Completed slices 1/2 and all accepted proof remain. Watcher, closure and touch
-(3–5) are independent of the unresolved comparison pressure gate and directly
-serve the original selected outcome, so they proceed next. Non-owner, receipt/
-orphan, Codex and Cursor corrections follow (6–9); comparison remains owned in
-10, then all final gates in 11. Eleven bounded proof loops; no numeric exception
-or resplit. The small comparison transport improvement is a retained increment,
-not a completed repair: its quiet primary/consumer proof does not waive G4/G7.
-Default case/shard limits, every original promise and all known failures remain.
-No production architecture change is selected; the final trunk step retains its
-explicit human checkpoint. Nothing is skipped or declared complete by reordering.
+Completed 1/2 and compatible watcher behavior proof remain. Split original 3's
+independent preservation and cost proof loops: 3 retains the safe consolidation;
+4 owns the still-required 10 s saving through one profile-supported source
+snapshot experiment. The assumption that deletion alone earned 10 s was false
+(5.367 s nominal, with host variation). Two code paths are safely parked before
+this refinement; [watcher evidence](watcher-evidence.md) retains restoration/proof.
+Closure/touch (5/6), launch/Cursor repairs (7–10), comparison (11), and final gates
+(12) retain their outcomes. Twelve bounded slices; no numeric exception/resplit.
+No goal, evaluation, architecture decision, or failure obligation is waived.
+The small comparison cut remains partial and G4/G7 stay open. The final trunk
+measurement keeps its explicit human checkpoint. This execution stays Taken.
 
 ## Trunk measurement checkpoint
 
 After implementation and local/branch proof settle, request approval for
-Dough Land `--keep-worktree` before slice 11’s trunk-only timing/weight step.
+Dough Land `--keep-worktree` before slice 12’s trunk-only timing/weight step.
 The plan’s execution authority does not silently grant that checkpoint.
 Use all twelve artifacts of a complete passing trunk run after work removal;
 refresh weights and measure redistribution separately. Final closure still
@@ -196,35 +214,12 @@ landing context; later trunk publications omit it.
 
 ## Execution notes
 
-- Latest accepted execution branch revision: `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`
-  (slice 2); slice 1 was `894b13695766db5ec45c486a30214bce68ca4233`.
-
-- Established execution: Story Branch Mode; identity
-  `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher
-  `dashboard-territory.local-open-dough`; agent `chaifeng-chan`; owned checkout
-  `/Users/terryyin/git/open-dough/.worktrees/make-dashboard-journeys-fit-the-default-timeout`,
-  branch `codex/make-dashboard-journeys-fit-the-default-timeout`; originating
-  integration checkout `/Users/terryyin/git/open-dough`; authorized remote
-  `origin`, trunk `main`. Starting revision
-  `37eed39ace95a8ddafffa96351e999d2898d6806`; accepted claim and first delivery
-  base `b57936969b51e7a27f23a4fbba56c70579bc0553` (confirmed on the remote
-  execution branch). No second Take. Replanning retains existing authority.
-- Checkout setup: locked `npm ci` succeeded; `npm run typecheck:dashboard`
-  succeeded on 2026-11-10. Selective formatter: `npm run format`; the
-  `.githooks/pre-commit` hook is check-only staged lint plus dashboard typecheck
-  when script files are staged.
-- CI observer: GitHub Actions `terryyin/open-dough`, execution target
-  `codex/make-dashboard-journeys-fit-the-default-timeout`, verified selector
-  `ci.yml` / display name `CI` / workflow `351271804`; coordinator
-  `seed287-codex`, directory `/tmp/dough-ci-501/watch-ar7mpH`, PID `92304`,
-  Codex stream session `82267`, yielded cell `g1081:12`. The trunk claim's
-  CI is unobserved by this coordinator; the old unidentified trunk worker
-  `/tmp/dough-ci-501/watch-2FVQ6l` is not this execution's branch stream.
+[Execution identity, accepted revision, setup, and CI observer](execution-context.md)
 
 - No numeric slice target or hard limit is supplied; judge boundedness by one
   proof loop and the Behavior/Structure gate above.
 - Local gates: focused selections named in each slice's proof, then the
-  existing local and hosted dashboard gates for slice 11; ordinary commit hooks.
+  existing local and hosted dashboard gates for slice 12; ordinary commit hooks.
   For long runs start fully awake: on AC use `caffeinate -s -i`; on battery
   plug in or keep the lid open under `caffeinate -i` and inspect sleep logs
   per [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
