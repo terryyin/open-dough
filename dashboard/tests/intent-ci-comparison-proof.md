@@ -122,106 +122,59 @@ setup; retain page/context/rendering and cleanup. A bound above one second can
 be inconclusive when it includes scheduling or next-file work. The last worker
 test needs separate completion evidence. Receipt duration alone is insufficient.
 
-## Recorded observations
+## Current proof boundaries and observations
 
-The original selection had 75 cases and took 269.01 s wall time locally, with
-two workers and default tracing. On the same macOS arm64/Node 24 host, the
-slice-4 selection had 182 cases, including 164 rules and 18 declared integration
-cases: 77.31 s wall time; all rules at most 742 ms. Shared preparation was
-component 597 ms, app 931 ms, server 76 ms, story columns 627 ms and queued
-origin 1,215 ms. That intermediate selection excluded review Refresh.
+Baseline duration and Counts cardinality each keep both sort directions.
+The canonical default entry-rows case owns initial order and zero sorted
+headers. Exact entry/folder Summary rows reuse their existing labels/cues
+owners; unchanged nested and file projections remain distinct from merge-edited
+inputs. Static SSR views are independent projections; live cases still own
+cross-column keyboard/click and entry→folder→nested→file navigation continuity.
 
-With independent Python work using approximately 103% and 62% CPU and load
-8.74 decreasing to 6.44, 83 mounted cases repeated three times passed 249/249
-at 108–823 ms, without retries. Following the shared proof SDK integration,
-all 164 rules passed again at at most 705 ms. These are bounded observations;
-finite profiles cannot establish a bound on an arbitrarily starved machine.
+First rendering installs full actual CSS/document. Later renders reuse that
+same Page's shell only when its actual CSS/root match, replacing the complete
+production markup; another document resets it. Fresh Page/context/facts remain
+per test. Native sort snapshots include unfiltered SVG metadata/cardinality and
+actual Playwright-visible SVGs. Hidden/zero-area/detached/duplicate arrows and
+wrong direction/cell controls retain fault detection. Live readiness remains.
 
-The complete ordinary replacement-inclusive selection later passed 188/188:
-167 rules and 21 declared connections, 87.35 s wall / 86.853 s runner. All rule
-receipt envelopes, including final trace cleanup and IPC, were at most 748 ms;
-the integration envelopes were 1.001–12.640 s. This is a 67.5% observed wall
-reduction against the original 269.01 s, with ordinary two workers/default
-tracing. Pre-load 2.06/2.85/3.35, memory 72% free; post-load 5.80/4.30/3.83,
-71% free, awake AC under `caffeinate -s -i`. A subsequent fixture-only
-deduplication reran the three store rules at 14/270/15 ms and typechecked;
-their literal facts, domain operations and expected results remain unchanged.
+The malformed-provider connection keeps all29 real later revisions and its
+old-receipt pending-history→measured-point join. It makes one pending read then
+actual recovery/final reuse; the fast branded-artifact owner retains two pending
+reads and exact listing/archive counts. Removing duplicate traversal fixed the
+observed30s failure without changing the default. The failed219.41s loaded run
+and narrow29.493s focused repair pass remain qualified historical evidence.
 
-Separately measured shared preparation: runner-before-workers 574 ms;
-global-setup owner 178 ms; initial worker dispatch/config 190 ms each, followed
-by 94–95 ms spec preparation; shared browsers 84/94 ms. Artifact preparations
-were history 624 ms, queued origin 1,195 ms, app 750 ms, server 79 ms and mount
-473 ms. Their elapsed intervals overlap and are not additive exclusive overhead.
-At that checkpoint native launch/capture preservation passed three cases,
-runner13.629s, with the default timeout; portable timing was still pending.
+The current replacement-inclusive selection is248 cases:201 rules and47
+prospectively mapped connections, including review Refresh and incoming
+finality. Ordinary passes93.59s wall/93.180s runner; all201 actual complete
+next-worker rule bounds are3–298ms. Loaded passes127.31s wall/126.802s runner,
+with bounds3–660ms. Defaults remain2workers/30s/retry0/tracing. The last2 worker
+connections lack next-start bounds; their cleanup stays in whole wall.
 
-After presentation extraction, exact published Linux run42686088566 attempt1
-matched all170 rule owners and passed all17 workflow jobs. All77 static
-presentation cases had conservative complete upper bounds below1,000ms
-(maximum927ms); remaining mounted lifecycle/counter rules still required the
-client-owner migration. This checkpoint does not settle that remaining scope.
+Both profiles observe awake AC100%/open lid under maintained caffeinate-s-i,
+with no captured sleep/wake. Ordinary load2.90→4.17; loaded3.34→7.18; memory
+68–69% free. Two readiness-confirmed loaded CPU helpers sustain97.7% of one core
+each and stop/reap afterward. These are finite ordinary/contention observations,
+not arbitrary-starvation proof or an isolated causal percentage.
 
-The later finality migration preserves27 incoming identities and their oracles
-through22 fast rules and12 declared connections. Matched backend feedback
-improved from24 cases/61.09s wall to22 rules plus8 connections/19.62s wall.
-With three original UI connections and one narrow Trunk initial-read connection,
-the replacement34-case selection took29.66s wall, all22 rule envelopes4–20ms.
-No combined predecessor UI baseline was measured, so this scope supplies no
-whole-family percentage. Its final tiny registration/type cleanup has separate
-passing receiving proof; the broader family/load/CI gate follows below.
+Original75/269.01s and intermediate188/87.35s remain scope/condition-qualified
+comparisons; current248 includes every replacement and declared connection.
+A matched earlier finality backend subset improved24/61.09s to22 fast rules+8
+connections/19.62s, with no combined predecessor UI baseline. The latest native
+launch/capture preservation is separately strict3/3 at11.91s wall/11.534s runner,
+reused only while its actual code/consumer boundaries remain unchanged.
 
-At4f83659 the formatted render-pilot selection has245 cases:198 rules and47
-prospectively mapped connections, including replacements, incoming finality
-and review Refresh. Ordinary proof passes97.57s wall/97.047s runner; every rule
-has a complete conservative bound3–363ms. Loaded proof passes146.48s wall/
-145.850s runner, with bounds4–798ms. Actual following same-worker starts include
-output-directory cleanup; only actual immutable compiler/browser interval unions
-are subtracted. Defaults stay2workers/30s/retry0/tracing.
+Separate ordinary setup records retain502ms before workers, global setup183ms
+and returned teardown219ms. Initial worker dispatch/config197–198ms is followed
+by first-spec131ms. Artifact spans are story-columns490/origin1102/server106/
+app1049/mount576ms. These overlapping elapsed intervals are not additive CPU or
+exclusive overhead; only actual immutable worker intervals are union-subtracted
+from case bounds. Common preparation never establishes reduced total feedback.
 
-Both runs observe awake battery/open lid with maintained caffeinate-i and no
-captured sleep/wake. Two loaded CPU workloads average90.3% of one core each,
-then stop/reap successfully. Ordinary load2.01→4.14, loaded3.55→11.16. Memory
-and power conditions also differ; this is finite synthetic contention, with
-no claim that the helpers alone cause the wall-time difference. The earlier
-6a AC245-case85.43/88.75s pair remains historical; no additional whole-family
-speedup is claimed against it. Original75/269.01s and intermediate188/87.35s
-retain their different scopes/conditions. Separate native launch/capture proof
-passes3 cases at11.91s wall/11.534s runner, reused for unchanged native paths.
-
-Same-case rendering retains the full actual CSS shell and replaces the entire
-production markup; a different document resets it. First renders still perform
-full initialization. Settled SSR sort combines native observations; real click/
-keyboard bindings retain readiness. Comparable8-case battery proof improves
-3.97→3.38s wall while single-render controls stay353ms summed. Foreign-document,
-fresh-page, wrong-direction, hidden-arrow and unexpected-sort witnesses retain
-fault detection. Per-test page/context and cleanup stay fresh and measured.
-
-Exact6a CI run42718319654/attempt1 has four complete bounds1007–1331ms.
-The shell improvement at4f83659/run42727640910/attempt1 passes all17jobs/198
-rules;197 complete bounds are below1000ms(max965), while Landed sort1365ms
-remains open. These historical green workflows do not settle the timing gate.
-
-The next native-owner consolidation counts246 cases:199 rules/47 connections.
-One initial signed-figures test preserves the identical full native row oracle
-once; both original sort tests retain all direction/order/header/arrow checks.
-Playwright-native visible SVGs join the common snapshot, with unfiltered arrow
-metadata/cardinality retained. Same-tbody role queries avoid redundant ancestor
-traversal. Six fault controls, three focused18-case passes and107 receiving
-cases retain proof; final formatted whole-family/load and new CI remain owed.
-
-The malformed-provider connection retains all29 real revisions and the exact
-old-receipt pending-history→measured-point join. One pending read then recovery
-proves actual wiring/final reuse; the fast actual branded-artifact owner keeps
-two pending reads and exact listing/archive counts. This removes redundant
-real traversal while retaining fault coverage and the default30s timeout.
-
-The final repaired246-case ordinary selection passes148.88s wall/148.138s
-runner; all199 complete rule bounds are4–242ms. Loaded selection passes128.22s
-wall/127.738s runner, bounds3–544ms, with two owned CPU helpers sustaining97.2%
-core each and stopped/reaped afterward. Both are awake AC/open-lid under
-caffeinate-s-i, no captured sleep, default2workers/30s/retry0/tracing. Actual
-load9.68→8.56 versus8.46→8.82 and concurrent conditions differ; loaded being
-faster is not a causal result. Original75/269.01s and intermediate188/87.35s
-keep their scope limits. The failed loaded219.41s run and narrow focused repair
-pass remain recorded; the full repaired selection now passes without a waiver.
-Exact new published portable CI remains the final slice8 timing gate.
+The final three-file12→14-case focused comparison has effectively unchanged
+wall13.028→13.017s. It preserves every original literal/native oracle while
+removing repeated static projection work; partitioning alone demonstrates no
+aggregate speedup. Full248 ordinary/load measurements above include all added
+fresh pages. Exact new published CI remains required for the portable target;
+a green workflow alone is insufficient.

@@ -203,3 +203,27 @@ changed real connection passes in the full selection after three loaded focused
 passes; no timeout/retry/default or original fact was waived. Native3/11.91s
 proof stays reused for unchanged actual native paths. Exact published199-rule
 hosted timing remains required; G3/8 stay open and C067 remains target-only.
+
+## Exact c6 checkpoint and variant-boundary decision
+
+Exactc6bf7978c7f0318cc72a22ee4b708f113d1ea10b/run42736640309/attempt1 passes
+all17jobs/199rules, with all12 API+HTML SHA/digest/archive matches. Independent
+raw reconstruction finds197 complete bounds below1000ms(max878); Baseline+
+Counts remains1054reported/1091prefix/1103complete, four-scope Summary987/1001/
+1024. Only actual32 compiler+4 browser intervals are excluded; zero suite hooks.
+All199 have actual next-worker starts. G10's connection repair passes separately.
+No method change or green workflow closes these two performance gaps.
+
+Batching alone leaves combined independent static variants too costly. Select
+proof boundaries by domain responsibility: Baseline duration and Counts
+cardinality become explicit rules, preserving initial unsorted once and every
+native direction/order/header/arrow oracle. Independent entry/folder/nested/file
+SSR projections become explicit scope variants; retain exact path/fullrow
+oracles and real live navigation elsewhere. Source work is pure independent
+markup, not a user transition. Counts stages62+73+40+50ms give225ms gross budget
+against103ms; other Summary scopes197+106+38 give341ms against24ms. New fresh
+pages/full CSS and all replacement cases count in normal feedback; no aggregate
+speedup follows from partitioning alone. Inspect the same related column/scope
+responsibility before dispatch, preserve exact source/oracle correspondence,
+then measure complete replacement-inclusive ordinary/load and exact new CI.
+All130 source promises, target, defaults, roles and lifecycle ownership stay.

@@ -8,25 +8,20 @@ import {
   timedEntry,
   wallComparedFacts,
 } from "../support/mountedComparisonFacts.ts";
-import {
-  expectRenderedSortedBy,
-  expectUnsortedRows,
-} from "../support/expectSortedColumns.ts";
+import { expectRenderedSortedBy } from "../support/expectSortedColumns.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 
-test("Baseline and Counts display both sort directions with baseline gaps last", async ({
+test("Baseline sorts measured durations both ways and keeps gaps last", async ({
   page,
   comparisonRenderer,
 }) => {
   const facts = wallComparedFacts();
   const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
-  const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const panel = await renderComparison(page, comparisonRenderer, rendered, {
+    sort: { column: "baseline", direction: "ascending" },
+  });
   const table = panel.getByRole("table", {
     name: "CI entry timing comparison",
-  });
-  await expectUnsortedRows(table, ["dashboard/tests", "tests", "src/skills"]);
-  await renderComparison(page, comparisonRenderer, rendered, {
-    sort: { column: "baseline", direction: "ascending" },
   });
   await expectRenderedSortedBy(table, "Baseline", "ascending", [
     "tests",
@@ -41,8 +36,19 @@ test("Baseline and Counts display both sort directions with baseline gaps last",
     "tests",
     "src/skills",
   ]);
-  await renderComparison(page, comparisonRenderer, rendered, {
+});
+
+test("Counts sorts counted-result totals in both directions", async ({
+  page,
+  comparisonRenderer,
+}) => {
+  const facts = wallComparedFacts();
+  const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
+  const panel = await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "counts", direction: "ascending" },
+  });
+  const table = panel.getByRole("table", {
+    name: "CI entry timing comparison",
   });
   await expectRenderedSortedBy(table, "Counts", "ascending", [
     "src/skills",

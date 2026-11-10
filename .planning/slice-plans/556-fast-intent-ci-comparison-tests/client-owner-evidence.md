@@ -173,4 +173,5 @@ is the remaining slice8 proof; progress publication keeps8 planned/G3 open.
 The [final portable feedback](portable-final-evidence.md) record owns subsequent
 hosted corrections and final whole-family/CI acceptance. The native-owner pilot
 adds one explicit initial-figures rule; all13 client facets and47 connections
-stay exact while the current selection becomes246 with199 rules.
+stay exact at that246/199 checkpoint. The [variant proof](variant-proof-evidence.md)
+owns the final248/201 family, reusing canonical native oracles.

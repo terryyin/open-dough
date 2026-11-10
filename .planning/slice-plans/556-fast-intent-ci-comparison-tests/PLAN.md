@@ -27,7 +27,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Rendering](render-evidence.md) · [HTTP teardown](server-close-evidence.md) ·
-[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md).
+[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md) · [Variants](variant-proof-evidence.md).
 
 ## Ordered slices
 
@@ -175,12 +175,12 @@ Move lasting ownership/commands/results to maintained test docs before wrap-up.
 
 The [previous checkpoint](ui-pilot-evidence.md) keeps rejected startup routes and compatible SSR/live-binding proof.
 
-Exact4f83659 has one Landed1365ms miss. Native consolidation retains all oracles.
-G10's redundant real pending read is removed with exact joint fast/wire proof;
-3×10 loaded and renewed246 ordinary/loaded pass148.88/128.22s wall, with199
-complete rule bounds4–242/3–544ms. Conditions differ; no isolated gain is claimed.
-Native3 remains reused unchanged. G3/8 await exact new hosted199-rule timing;
-all130 source texts/defaults stay. C067 stays targetCI; no human choice is open.
+Exactc6 has197/199 below1000ms; two combined native owners1103/1024ms keep G3.
+Independent quantity/scope proof reuses exact canonical entry/folder/default
+oracles;248 actual cases (201rules/47connections) preserve all130 source texts.
+Formatted ordinary93.59s/loaded127.31s pass, complete201 bounds3–298/3–660ms.
+No partition-only gain claimed. G10/native3 stay accepted; exact new hosted201
+remains8. Defaults/roles/target stay; C067 is targetCI, no human choice is open.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.

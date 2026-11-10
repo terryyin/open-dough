@@ -13,6 +13,7 @@ import {
   comparedStoryEntryCues,
 } from "../support/expectCiComparisonEntryRows.ts";
 import { expectEntryRowCues } from "../support/expectCiComparisonCues.ts";
+import { expectUnsortedRows } from "../support/expectSortedColumns.ts";
 
 test("expired entry proofs keep Branch and Landed wall times and explain absence of the table", async ({
   page,
@@ -46,6 +47,10 @@ test("entry rows retain counts, signed whole seconds and independent count and t
   const facts = wallComparedFacts();
   const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
   const panel = await renderComparison(page, comparisonRenderer, rendered);
+  const table = panel.getByRole("table", {
+    name: "CI entry timing comparison",
+  });
+  await expectUnsortedRows(table, ["dashboard/tests", "tests", "src/skills"]);
   await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
   await expectEntryRowCues(panel, comparedStoryEntryCues);
 });

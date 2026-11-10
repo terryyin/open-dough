@@ -1,4 +1,4 @@
-// Fast actual scope rendering and navigation; full-app acquisition remains separate.
+// Actual scope projections; live navigation and full-app acquisition stay separate.
 import { test, expect } from "../support/pageTest.ts";
 import { renderComparison } from "../support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
@@ -23,30 +23,36 @@ import {
   summaryFolderComparisonCues,
 } from "../support/expectCiComparisonCues.ts";
 
-test("Summary renders precise endpoint rows at entry, folder, nested and file Proof scopes", async ({
+test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", async ({
   page,
   comparisonRenderer,
 }) => {
   const facts = summaryScopeFacts();
   const rendered = comparisonRenderFacts(facts, facts.entries);
-  await renderComparison(page, comparisonRenderer, rendered);
+  await renderComparison(page, comparisonRenderer, {
+    ...rendered,
+    scope: {
+      ...facts.scope,
+      selection: { path: "dashboard/tests/folder/nested", scope: "folder" },
+    },
+  });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
+  await expect(summary.locator(".intent-summary-path")).toHaveText(
+    "dashboard/tests/folder/nested",
+  );
   await expectComparisonScopeRows(
     summary,
-    "dashboard/tests",
-    entryComparisonRows,
+    "dashboard/tests/folder/nested",
+    nestedComparisonRows,
   );
-  for (const [path, rows] of [
-    ["dashboard/tests/folder", folderComparisonRows],
-    ["dashboard/tests/folder/nested", nestedComparisonRows],
-  ] as const) {
-    await renderComparison(page, comparisonRenderer, {
-      ...rendered,
-      scope: { ...facts.scope, selection: { path, scope: "folder" } },
-    });
-    await expect(summary.locator(".intent-summary-path")).toHaveText(path);
-    await expectComparisonScopeRows(summary, path, rows);
-  }
+});
+
+test("file Proof renders precise endpoint rows for unchanged c.spec.ts", async ({
+  page,
+  comparisonRenderer,
+}) => {
+  const facts = summaryScopeFacts();
+  const rendered = comparisonRenderFacts(facts, facts.entries);
   await renderComparison(page, comparisonRenderer, {
     ...rendered,
     scope: {
@@ -118,6 +124,9 @@ test("folder Summary keeps unchanged and below-threshold cue reasons", async ({
     },
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
+  await expect(summary.locator(".intent-summary-path")).toHaveText(
+    "dashboard/tests/folder",
+  );
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests/folder",
