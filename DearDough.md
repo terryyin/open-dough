@@ -351,6 +351,11 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `579604374`)
   - Evidence: launch `cd709693-c387-4de7-8e97-2c96d9d47ed2`; first-delegation batch reported 11,904 original tokens with truncation; retrospective ADR/direction batch reported 10,825 and findings batch 7,895 with truncation. Missing passages were retrieved by heading/range.
   - Observed effect: repeated loss and recovery of requested context under existing targeted-retrieval guidance; no measured token/time saving. Inference: recurring agent read-batching deviation, not missing instructions.
+- Execution: SEED-261#map-installation-and-native-test-data (plan 549; first implementation `8c305d2f0f90d0d7f553680612040ae5a8346e77`)
+  - Timestamp: unknown (2026-11-10–11 execution; exact read-event times not retained) · Tool: Codex · Open Dough release: unknown
+  - Evidence: launch `fe6a6be5-9d73-4381-bd97-0f4cbfa8092f`; tool result `3b31cb` reported 302426 original output tokens after recursive enumeration of Playwright cache/trace artifacts, while a later bounded latest-trace query sufficed. The retrospective combined North Star/history read reported 5112 original tokens with truncation; the missing direction passage was retrieved by range.
+  - Observed effect: excessive diagnostic output and truncated context required bounded follow-up retrieval; command handles and semantic proof results remained available.
+  - Inference: recurrence of agent output/read scoping deviation under existing guidance, not a missing instruction. No total-token or elapsed-time saving was measured.
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 

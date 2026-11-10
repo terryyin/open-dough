@@ -16,12 +16,12 @@ Observer: coordinator `seed261-install-davidko`, directory
 
 Published increments on the execution branch:
 
-- Slice 1: `8c305d2f0f90d0d7f553680612040ae5a8346e77`, suffix base claim.
-- Slice 2: `418a4ee8b4a4d256d327d211d1bb146b8897f66d`, suffix base slice 1.
-- Slice 3: `8a02722fb8cc8b7b7535215aa1385e09fa854814`, suffix base slice 2.
-- Slice 4: `40bd1d9c6177b4ae652421c82399d0554607cb68`, suffix base slice 3.
-- Slice 5: `6a6edaf5a4dcb69fe33b137409167bc61bcc672b`, suffix base slice 4.
-- Slice 6: `16d32995a8e7f9a385617d5f7eb5051821b70ec3`, suffix base slice 5.
+- Slice 1: `8c305d2f0f90d0d7f553680612040ae5a8346e77`, suffix base claim; release and installation relationships.
+- Slice 2: `418a4ee8b4a4d256d327d211d1bb146b8897f66d`, suffix base slice 1; native host settings.
+- Slice 3: `8a02722fb8cc8b7b7535215aa1385e09fa854814`, suffix base slice 2; native Take and guard facts.
+- Slice 4: `40bd1d9c6177b4ae652421c82399d0554607cb68`, suffix base slice 3; closure repository/CI facts.
+- Slice 5: `6a6edaf5a4dcb69fe33b137409167bc61bcc672b`, suffix base slice 4; preparation repository facts.
+- Slice 6: `16d32995a8e7f9a385617d5f7eb5051821b70ec3`, suffix base slice 5; feedback maintenance facts.
 
 Local sibling merge `4f4792448cfabd5036e171ebfde5c10be72e6c7b` retains published
 slice6 and trunk `49367c2e4d10ce1aeb96bb7a40512e585fa0bd8c` as parents. It is not
@@ -66,3 +66,36 @@ Final repository session20973 completed all593 jobs, exit0. Both current full
 suites are now successful, and all implementation/refactor obligations settle.
 Current source freshness unchanged at34853dbe; all named sibling changes are
 included. Guarded fresh delivery is next, with previous published base slice6.
+
+- Slice 7: `1d002f928bb6c6547a9b5d304a0967f81456009b`, suffix base
+  `16d32995a8e7f9a385617d5f7eb5051821b70ec3`; runner durations, final
+  construction reconciliation and preserved G7/G8 test proof. Publication accepted
+  on the execution branch; observation reused `/tmp/dough-ci-501/watch-Q3D5st`.
+
+## Execution retrospective
+
+Reviewed original ready source/plan at claim b26709d, approved in-plan changes,
+all seven attributed published increments above and current whole-product
+representations/consumers. Imported merge histories (CI adapter/Proof, appearance
+and SEED-296/deadline repair) are reconciled context, not attributed feature
+implementation. Current Accepted ADRs and North Star remain satisfied: canonical
+facts use their existing owners; Git/install/process/clock operations, parser
+inputs, captured evidence and independent expectations keep their roles.
+
+Outcome, architecture and behavioral-suite review found no current correction.
+Real installer/update/Take/preparation/closure observations remain; feedback's
+21 support cases and integrated due-row/settings journeys survive; duration
+allocation/parser/output assertions stay independent. G7 retains all three page
+journeys with native mapping at the backend; G8 retains real config/HTTP proof.
+No builder-only mirror tests or speculative runtime framework was added.
+Planning classification: unchanged; no correction story/plan. Product advice:
+no change. Existing performance work remains with SEED-287, without a duplicate
+recommendation or an elapsed-time improvement claim.
+
+Process review used available coordinator tool results and retained handoffs;
+no internal-agent cost is inferred from unavailable raw histories. Recorded one
+ODF-264 occurrence in DearDough.md, exactly1000 physical lines with no retention
+or removal. No process proposal enters a product correction plan.
+Review complete, no unresolved attention. CI for accepted revision1d002f928
+remains pending input here; execution completion owns its applicable verdict
+and shutdown, and later trunk integration needs separate observation.
