@@ -121,3 +121,45 @@ candidate is implemented or planned as executable. Alternatively retain it and
 continue diagnosis of the installed CLI/read orchestration. Neither choice
 waives G4/G7, three valid pressure passes, affected touch proof, no added family
 cost, the full local/hosted gates, or the later trunk measurement checkpoint.
+
+
+## Approved canonical real Git sort precondition
+
+Terry answered “yes” to replacing only sort's repeated CLI setup with
+MakeMe-described real Git history, retaining full installed CLI completion in
+both source journeys and every sort assertion. This resolves the per-case
+restriction above; it grants no timeout, failure or proof waiver and does not
+authorize the separate trunk measurement checkpoint. Goal/Scope/source review
+remain unchanged. The five compatible readiness paths remain parked until the
+implementation owner deliberately restores them.
+
+PFE responsibility: a completed Story A with actual private Git history and
+three build endpoints beside one-run Story B, as sort's starting precondition.
+Existing MakeMe.aRepository/agent-profile/Done facts and commitDeclaredRevision
+already own canonical encoding and actual commit creation, including resolved
+explicit parents via read-tree/commit-tree. StartOrigin owns private HOME,
+origin and local checkout. Use those owners and the current summary publisher's
+CI answers. Modularize shared change/endpoint-serving facts when needed so the
+CLI and declared-history paths describe one domain shape. Do not duplicate a
+Git graph engine or mutate shared preparation. The in-memory history adapter
+cannot supply the real repository the App reads; rejected completed-history
+caching still adds cost/lifetime. No production or architectural change.
+
+Retain actual claim author/profile and mode, Story Branch merge with branch and
+trunk parent facts, valid Done/backlog membership, modified/added/removed/renamed
+files, later trunk exclusion and endpoint-specific proof breakdowns. Keep both
+cross-story loops, drilling, fallback/restoration, missing column and row order
+assertions byte-for-byte where possible. Source clean/own-conflict continue
+through the unchanged real completion publisher. All exact setup is paid in
+family elapsed; default worker/case budgets and two workers remain unchanged.
+
+Bounded proof: establish preserved source CLI journeys and sort's canonical
+actual Git path, then three complete source/sort pressure passes20–30, affected
+touch readiness/native proof and consumer-selected shared-owner regression.
+Compare complete family elapsed with retained failed and diagnostic conditions
+honestly; do not claim a precise saving across differing host profiles. No new
+heavy command may overlap another owned proof. AC guard caffeinate -s -i;
+return on failure or invalid pressure before another implementation variant.
+Twelve slices remain cohesive: eleven owns this one budget result/proof loop;
+twelve owns broad default/hosted/full-suite/trunk-weight proof. No numeric
+sizing threshold is supplied. No source promise or prior failure is removed.

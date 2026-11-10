@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Latest accepted execution branch revision: `c9180c87c8e8dc12b649413e55086c7897d2ee42`
-  (records-only supported comparison-readiness refinement); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
+- Latest accepted execution branch revision: `bfd0db1529f95cab6bc6f6c1b4ff5cf70f1f5a72`
+  (records-only comparison failure and proof-setup decision); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
   `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher
@@ -20,7 +20,10 @@
 - CI observer: GitHub Actions `terryyin/open-dough`, execution target
   `codex/make-dashboard-journeys-fit-the-default-timeout`, verified selector
   `ci.yml` / display name `CI` / workflow `351271804`; coordinator
-  `seed287-codex`, directory `/tmp/dough-ci-501/watch-ar7mpH`, PID `92304`,
-  Codex stream session `82267`, yielded cell `g1081:12`. The trunk claim's
+  `seed287-codex`, directory `/tmp/dough-ci-501/watch-TTextR`, PID `22522`,
+  Codex stream session `3170`, yielded cell `g3:3`. The trunk claim's
   CI is unobserved by this coordinator; the old unidentified trunk worker
   `/tmp/dough-ci-501/watch-2FVQ6l` is not this execution's branch stream.
+- Previous branch observer watch-ar7mpH was explicitly stopped for the human
+  decision; terminal stopped/unread0 and PID gone confirmed. On Terry's approval,
+  the same coordinator rearmed the resumed branch stream above; no second Take.

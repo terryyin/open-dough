@@ -51,10 +51,12 @@ repository and answer lifecycles. Worker/run-artifact lifetime experiments
 preserved assertions but did not earn their cost: the paired run grew from
 19.68 to 28.84 s. Their seven implementation paths were preserved and reverted.
 Do not add a second history representation or another caching lifecycle.
-The next bounded observation profiles this existing publisher’s actual Git and
-publication phases, then removes one supported redundant cost while preserving
-all history facts and fresh per-page state. Component mounts do not own these
-real completed-history reads and cannot silently replace their proof.
+The profiles and failed readiness cut remain in comparison-evidence.md.
+Terry approved replacing only sort's repeated CLI setup with canonical real Git
+facts through the existing repository builder; both source journeys retain full
+CLI publication. Private HOME/Git, all history facts and fresh per-page state
+remain. Shared file/serving facts stay coherent in the original summary owner.
+Component mounts cannot replace these full App cross-story observations.
 
 Launch orchestration reuses `agentLaunchBoundary.ts`, existing acceptance and
 settlement observations, and `startDashboardServer`; native/publication behavior
@@ -70,7 +72,7 @@ UI. No production caching, timeout increase, new scheduler or parallel suite.
 | Premise / consumer | Current observation / bounded operation |
 | --- | --- |
 | Original harness-cost leads, slices 3–6 | Probe 1 completed: touch gestures and duplicate watcher/closure work remain supported; origin/app preparation about 3–4 s and fake-gh HTTP 37.25 ms at lower load do not establish dominance. Static watcher answers rule out per-answer branch-tip caching. See execution-evidence.md. |
-| Comparison publisher, slice 11 | Immutable-lifetime experiments added cost (paired 19.68→28.84 s) and were reverted. Existing per-page private setup is restored. One unchanged Git Trace2 profile must identify a supported in-owner cut before implementation; no more cache variant is presumed. |
+| Comparison publisher, slice 11 | Immutable-lifetime experiments added cost (paired19.68→28.84s) and were reverted. Worker readiness still failed sort30.852s under valid load; the Git diagnostic ruled out history-answer batching. Terry approved canonical real Git setup for sort alone, with source CLI proof retained; comparison-evidence.md owns the next bounded proof. |
 | Launch preparation, slices 7–9 | Trace shows 9–14 s installed start/publication and 3.23 s sequential second-server startup. Origins 0.80–1.73 s and dashboards 1.33–2.49 s do not establish prewarming as the remedy. Start with overlap; preserve independent observations before any compaction. |
 | Cursor preconditions, slice 10 | First clients actually settled at 22.641/26.197 s; second start crossed the case deadline. ENOENT followed cleanup. The bounded cheaper-precondition experiment must retain real clients, model scope and board association; no missing-store repair is justified. |
 | Full local comparison, slice 12 | Captured strict-failing baseline 4,845.851 s shell / 4,843.154 s runner, admission separate; variable sampled load 5.39–44.54. Preserve failures and qualify comparability; rerun only for a stated changed-condition hypothesis, never until green. |

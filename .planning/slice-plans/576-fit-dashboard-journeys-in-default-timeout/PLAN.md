@@ -106,12 +106,12 @@ Proof: Whole helper-survival and replacement-controls specs plus replacement rev
 
 Behavior: Two expensive execution starts prevent the runner test reaching its subject before 30 s → establish only the necessary native/session preconditions at the existing real launch boundary → drift/replacement actions and all original observations complete with margin. Bound the first experiment to these two journeys, canonical MakeMe records and actual clients; an unscoped ad hoc client is not a substitute for the scoped precondition. Ordinary execution/model UI proof stays with its inspected owners. G5 owns both failures.
 
-### 11. Loaded comparison reads use required-input readiness
+### 11. Loaded comparison journeys use bounded private setup
 Type: Behavior
 Status: planned
-Proof: Whole source variants and sort’s two cross-story loops pass three fresh two-worker/default30 runs at load20–30. Preserve exact completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort. Prove moved touch wrapper’s native reading/readiness and actual cold concurrency before private origins. Include every moved preparation cost in elapsed; no family growth or lost private HOME.
+Proof: Whole source variants and sort's two cross-story loops pass three fresh two-worker/default30 runs at load20–30. Preserve completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort. Prove moved touch wrapper's native reading/readiness and cold concurrency before private origins. Include all preparation in elapsed; no family growth or lost private HOME. Both source journeys retain full installed CLI completion; sort alone uses the approved canonical real Git precondition.
 
-Behavior: Valid pressure still exhausts sort after7.201s serial cold inputs → reuse queuedClaudePreviewReady through one named preparationPage test-fixture wrapper shared by source/sort/touch → all original private Git/publication/reading observations fit with margin. Keep the one-push history unchanged; pageTest registration changes only its comment. No beforeAll, worker option/pool split, new artifact lifetime or completed-history cache. Return if this single supported cut fails. [Profile and selected owner](comparison-evidence.md) retain G4/G7 and prior rejected evidence.
+Behavior: Worker readiness removes cold cost but sort still exhausts30s after8.736s private completion setup → reuse the existing MakeMe repository/revision materializer for sort's completed-history precondition and modularize shared facts/serving with its original publisher → every original reading action fits with margin while both source journeys retain real CLI publication. Restore the compatible parked readiness wrapper; preserve private Git/HOME, merge/claim/Done and endpoint facts. No new cache, artifact lifetime, pool split, beforeAll or timeout. Return if this one supported variant fails. [Evidence, approval and selected owners](comparison-evidence.md) retain G4/G7 and rejected attempts.
 
 ### 12. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -204,16 +204,17 @@ Disposition: proved by slice 6: touch-evidence.md accepted worker-input implemen
 
 ## Plan concern assessment
 
-Completed1–10 remain accepted. Slice11 readiness removed cold cost from the
-case slot but still failed sort30.852s at valid24.214–29.380 load. Its exact
-five owned paths were parked and reverted; all workers stopped. One diagnostic
-passed at lower20.242–24.765 load but leaves that failure open and rules out
-history-answer batching. [Comparison evidence](comparison-evidence.md) retains
-both results, elapsed89.498s for the failed variant, limits and the disputed
-per-case installed-CLI restriction. Await the human's proof-setup decision before
-another cut; no executable replacement is selected. Twelve slices, no numeric
-exception, scope change or failure waiver. G4/G7 stay open; G1/G2/G3/G8 remain12.
-Execution stays Taken; slice11 is incomplete and readiness is not established.
+Completed1–10 remain accepted. Slice11 readiness failed sort30.852s under
+valid pressure; exact five paths were parked/reverted before this refinement.
+The diagnostic's lower-load pass leaves that defect open and rules out history
+batching. Terry's “yes” approved canonical real Git setup for sort alone; both
+source journeys keep full installed CLI completion and all assertions remain.
+Existing MakeMe revision facts, commitDeclaredRevision's explicit-parent path,
+and private StartOrigin own this responsibility. Modularize shared file/serving
+facts rather than duplicate them; no new cache/lifetime. One bounded variant
+and whole-family proof settle11, then12 owns broad/local/hosted gates. Twelve
+slices, no numeric exception, scope change or failure waiver. G4/G7 stay open;
+G1/G2/G3/G8 remain12. Execution stays Taken; readiness is for this approved cut.
 
 ## Trunk measurement checkpoint
 
