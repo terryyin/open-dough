@@ -128,6 +128,9 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
   });
 
   test("npm watcher activates a policy repair that qualifies only through the rejected application's retained paths", async () => {
+    // This step owns a real npm install, Vite build and preview replacement.
+    // CI took 28 s to activate Q, leaving no default-budget time to read it.
+    test.setTimeout(60_000);
     const state = journey.started();
     const { fixture, page } = state;
 
