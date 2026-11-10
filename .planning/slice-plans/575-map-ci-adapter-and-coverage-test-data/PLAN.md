@@ -238,7 +238,7 @@ revision fixture before publishing its delegated constructors.
 
 ### 5. Mailbox completion consumes recorded evidence without inventing it
 Type: Behavior
-Status: planned
+Status: done
 Proof: Example 5. Run `ci-mailbox-await.test.mjs`, `ci-mailbox-complete.test.mjs`, `ci-mailbox-pending-completion.test.mjs`, all `ci-mailbox-completion-*.test.mjs`, `ci-mailbox-worker-loss.test.mjs`, and traced mailbox launch/CLI consumers in the same script directory.
 
 Shared construction supplies only valid stored starting facts → real wait or

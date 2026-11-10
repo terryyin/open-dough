@@ -178,9 +178,9 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1.1 | which custom CI attempt checked a revision | slice 5 |  |
-| 1.2 | which revision is only queued | slice 5 |  |
-| 1.3 | what evidence the execution mailbox holds | slice 5 |  |
+| 1.1 | which custom CI attempt checked a revision | slice 5 | observed: MakeMe aCiAdapterAttempt across status/proof/command/revision consumers — custom attempt identity readable in domain vocabulary |
+| 1.2 | which revision is only queued | slice 5 | observed: MakeMe aCiQueueEntry + ci-queue-coverage — queued-only revisions readable without verdict |
+| 1.3 | what evidence the execution mailbox holds | slice 5 | observed: MakeMe aRevisionCoverage through publishRevisionRecord in mailbox await/complete — mailbox evidence starting facts shared |
 | 2.1 | Convert valid synthetic adapter discovery attempts used by: dashboard base-CI judgment | slice 1 | observed: dashboard/tests/launches/agent-launch-base-ci-adapter.spec.ts — MakeMe-built failing/pending/passed attempts; base warning and running-ancestor assertions |
 | 2.2 | Convert valid synthetic adapter discovery attempts used by: Intent status | slice 1 | observed: dashboard/tests/intent/intent-ci-status-reads.spec.ts — MakeMe discover attempts; shared-commit and nearer-own status judgment |
 | 2.3 | Convert valid synthetic adapter discovery attempts used by: proof selection | slice 1 | observed: dashboard/tests/intent/intent-ci-proof-adapter.spec.ts (+reasons) — selected attempt identity, retry, held proof, ambiguity |
@@ -192,7 +192,7 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 | 3.1 | Convert arranged: adapter queue entries | slice 4 | observed: aCiQueueEntry + delegated queueEntry in ci-queue-coverage and revision fixtures |
 | 3.2 | Convert arranged: persisted revision-coverage records | slice 4 | observed: aRevisionCoverage + revision-coverage fixtures/tests arrange stored records |
 | 3.3 | Convert arranged: accepted records supplied to integrated-state judgment | slice 4 | observed: accepted() → aRevisionCoverage in integrated-state judge fixtures |
-| 3.4 | Convert arranged: accepted records supplied to mailbox wait/completion cases | slice 5 |  |
+| 3.4 | Convert arranged: accepted records supplied to mailbox wait/completion cases | slice 5 | observed: mailbox await/complete/pending/unavailable + cursor-session pending-ci publish arranged records via aRevisionCoverage |
 | 4.1 | Preserve: opaque identities | slice 3 | observed: controlledDiscoverAttempts run:opaque / attempt/* identities retained through acquisition |
 | 4.2 | Preserve: numeric identities | slice 1 | observed: intent-ci-proof-adapter numeric attemptId + story-branch runId:7/attemptId:1 retained through acquisition/request |
 | 4.3 | Preserve: omitted legacy branch | slice 3 | observed: ci-command-attempts legacy omitted branch stays unattested |
@@ -213,11 +213,11 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 | 6.4 | Keep in their harnesses: workers | slice 4 | observed: workers still produce coverage under controlled observation |
 | 6.5 | Keep in their harnesses: wake-ups | slice 4 | observed: wake-ups remain harness-owned |
 | 6.6 | Keep in their harnesses: controlled clocks | slice 4 | observed: controlled clocks remain harness-owned |
-| 6.7 | Keep in their harnesses: process lifetime and teardown | slice 5 |  |
+| 6.7 | Keep in their harnesses: process lifetime and teardown | slice 5 | observed: process lifetime/teardown and worker-loss remain harness-owned; builders only supply starting stored facts |
 | 7.1 | Keep literal where form is under proof: malformed/partial responses | slice 3 | observed: malformed/partial responses remain literal in unavailable suite |
 | 7.2 | Keep literal where form is under proof: exact protocol examples | slice 3 | observed: exact protocol examples remain literal where form is under proof |
 | 7.3 | Keep literal where form is under proof: deliberate contradictions | slice 4 | observed: invalid queue / not JSON counterexamples stay literal |
-| 7.4 | Keep literal where form is under proof: captured evidence | slice 5 |  |
+| 7.4 | Keep literal where form is under proof: captured evidence | slice 5 | observed: captured evidence / malformed bytes / result files stay literal under proof |
 | 8.1 | GitHub run/job conversion remains with its sibling story |  | X1 |
 | 8.2 | CI proof fragment/summary conversion remains with its sibling story |  | X2 |
 | 8.3 | native shell setup conversion remains with its sibling story |  | X3 |
