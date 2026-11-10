@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-293_select-completed-ad-hoc-story-from-git-directory.json",
+      "identity": "SEED-293#select-completed-ad-hoc-story-from-git-directory",
+      "completedAt": "2026-11-10T07:06:34.001Z",
+      "blob": "381c8ea959b6c35c2f509f3f0b4c17b59123145b"
+    },
+    {
       "fileName": "SEED-286_fast-intent-ci-comparison-tests.json",
       "identity": "SEED-286#fast-intent-ci-comparison-tests",
       "completedAt": "2026-11-10T05:57:14.105Z",
@@ -1908,12 +1914,6 @@
       "identity": "SEED-130#slow-startup-safe-recovery",
       "completedAt": "2026-10-11T09:37:41.486Z",
       "blob": "2eddc4bb9cf9603467c29993469919fb419a248d"
-    },
-    {
-      "fileName": "SEED-121_finish-retirement-without-verdict.json",
-      "identity": "SEED-121#finish-retirement-without-verdict",
-      "completedAt": "2026-10-11T06:12:06.990Z",
-      "blob": "9aba95f2bb873d24e930f4760b5e22b9c4457853"
     }
   ],
   "unreadable": []

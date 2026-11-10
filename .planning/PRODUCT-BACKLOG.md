@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible ([plan](slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md))
 - [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
-- [Select a completed ad hoc story from its Git directory capture](seeds/SEED-293-select-completed-ad-hoc-story-from-git-directory.md#select-completed-ad-hoc-story-from-git-directory) — SEED-293#select-completed-ad-hoc-story-from-git-directory
 
 ## Backlog list
 
