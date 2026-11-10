@@ -14,6 +14,9 @@ const waitMechanics = read(
 );
 const completion = `${monitor}\n${waitMechanics}`;
 const finish = read("dough-execute-plan/references/finish-or-stop.md");
+const otherCompletion = read(
+  "dough-execute-plan/references/other-completion-paths.md",
+);
 const retrospective = read("dough-execution-retrospective/SKILL.md");
 const codex = read("dough-execute-plan/references/ci-notify-codex.md");
 const detached = read("dough-execute-plan/references/ci-notify-hosts.md");
@@ -59,7 +62,7 @@ test("review overlaps pending CI and one completion operation owns final handoff
   );
   assert.match(finish, /partial review[\s\S]+applicable target\/revision/);
   assert.match(finish, /`--skip-retro`[\s\S]+completion obligations/);
-  assert.match(finish, /applicable CI failure[\s\S]+incomplete stop/);
+  assert.match(otherCompletion, /applicable CI failure[\s\S]+incomplete stop/);
 
   assert.match(
     retrospective,
