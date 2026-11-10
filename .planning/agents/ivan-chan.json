@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ivan-chan",
-  "email": "ivan-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-292#show-an-unreadable-preparation-continuation",
-  "host": "cursor",
-  "model": "auto"
-}
