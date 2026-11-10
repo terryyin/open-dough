@@ -1,7 +1,8 @@
 // Test execution time beside each CI proof entry on Intent's homepage
 // (../../src/IntentCiProof.tsx, ../../src/ciProofWording.ts,
 // ../../src/ciProofTimeWords.ts): complete durations show test execution time
-// 4 min and 2 min beside entry counts with CI wall time 3 min; an older
+// 4 min, 2 min and 57.6 s beside entry counts with CI wall time 3 min;
+// a present shard with zero results adds no duration gap; an older
 // summary shows No timings while wall time still comes from the CI read; a
 // missing shard shows Part 2 missing; an untimed part shows Part 2 untimed
 // while parts timed at zero show 0 ms; each gap label's full explanation is
@@ -71,6 +72,19 @@ const timedSummary = () =>
           .please(),
       )
       .please(),
+    makeMe.aCiProofEntry
+      .at("dashboard/frontend-tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .withFile("dashboard/frontend-tests/frontend.spec.ts", {
+            passed: 26,
+            durationMs: 57_551,
+          })
+          .withPresentPart(2, { passed: 0, failed: 0, other: 0 })
+          .please(),
+      )
+      .please(),
   ]);
 
 const olderSummary = () =>
@@ -112,7 +126,7 @@ async function openWithSummary(
   );
 }
 
-test("complete entry durations show test execution time 4 min and 2 min beside counts with CI wall time 3 min", async ({
+test("complete entry durations include entries with empty shards and stay distinct from CI wall time", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -122,8 +136,8 @@ test("complete entry durations show test execution time 4 min and 2 min beside c
   await expectProofRows(proof, [
     ["tests", "5 passed test files", "4 min"],
     ["dashboard/tests", "12 passed test cases", "2 min"],
+    ["dashboard/frontend-tests", "26 passed test cases", "57.6 s"],
   ]);
-  await expect(executionCells(proof)).toHaveText(["4 min", "2 min"]);
   // Summed execution is never CI wall time, nor their total.
   await expect(proof).not.toContainText("6 min");
   await expect(proofTable(proof)).not.toContainText("3 min");

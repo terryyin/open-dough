@@ -42,7 +42,8 @@ partial as short gap labels joined by commas, such as `Part 2 untimed`,
 durations; never zero for absence, no lower bound for partial timing, and
 never the attempt's wall time; a gap label's full explanation, such as
 “Partial: part 2 of 3 has no duration”, is the cell's hover text and
-accessible description). Each column header is a button,
+accessible description). A part that reports zero results needs no duration
+for the sum to be complete. Each column header is a button,
 reached by Tab and activated by click, Enter or Space: the first activation
 sorts the rows ascending by that column's figures, the next descending, and
 the sorted header carries `aria-sort` and a direction arrow. **Entry** sorts
