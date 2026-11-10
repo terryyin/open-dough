@@ -143,6 +143,15 @@ Former local code: DD-321. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/findings/ODF-305.md).
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
+### Occurrences
+- Execution: SEED-289#match-hosted-fonts-in-ci-container (plan 564; first product implementation `fa8eba6b9f26038388ef96b471c74f07a23b62fb`)
+  - Timestamp: unknown (2026-11-10 execution; exact read-event times unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed version at established claim `c6467c381`)
+  - Evidence: dashboard launch `def96917-5b2c-44f1-a2ea-005183e658da`; first-delegation reference batch returned 11,478 original tokens and delivery batch 17,001 with truncation; the coordinator then retrieved missing passages. During acceptance it also sent a complete consumer trace plus `head` of a minified report, producing a 395,412-token original-output warning, then correctly parsed only report stats. Retrospective repeated an oversized findings read.
+  - Observed effect: omitted requested passages, repeated targeted retrieval and excessive raw diagnostic output; terminal command handles and semantic results remained intact.
+  - Inference: this is an agent deviation under existing boundary/targeted-retrieval guidance. Keep individual required passages and parse large generated evidence before emitting it; no total-token or elapsed-time saving is measured.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
 ## ODF-307 — Coordinator screen probes competed with the developer's live desktop <a id="odf-307"></a>
@@ -176,6 +185,15 @@ Former local code: DD-332. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/findings/ODF-328.md).
 ## ODF-329 — Implementation returns failed the delivery formatter's lint
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
+### Occurrences
+- Execution: SEED-289#match-hosted-fonts-in-ci-container (plan 564; first product implementation `fa8eba6b9f26038388ef96b471c74f07a23b62fb`)
+  - Timestamp: unknown (2026-11-10 delivery, before product commit at 08:57:27+08:00)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed version at established claim `c6467c381`)
+  - Evidence: after shell/browser proof and independent refactor, guarded fresh preparation returned `preparation-failed`, `operation: formatting`, ShellCheck SC2312 on `user=$(id -u):$(id -g)` in `tests/ci-container.sh`. Both implementation/refactor briefs forbade hook-owned lint. The coordinator separated uid/gid substitutions, reran the focused maintained shell check and retried fresh preparation.
+  - Observed effect: commit/publication were correctly withheld; one mechanical repair/proof/preparation loop preceded accepted `fa8eba6b9`. Browser evidence stayed applicable.
+  - Inference: another late lint-feedback occurrence; the record does not establish the counterfactual saving of an earlier read-only check.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 

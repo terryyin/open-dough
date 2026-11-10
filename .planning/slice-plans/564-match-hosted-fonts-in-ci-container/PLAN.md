@@ -182,6 +182,10 @@ framework slice. The broad dashboard run is necessary because the changed
 system-font environment reaches all browser consumers; it is not a blanket
 requirement inferred from hosted CI.
 
+## Execution complete
+
+Product advice: no change.
+
 ## Local gates and delivery
 
 - Follow [AGENTS.md — Test automation](../../../AGENTS.md#test-automation):
