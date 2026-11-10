@@ -31,13 +31,16 @@ intent introduced or affected by a newly developed story.
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data ([plan](slice-plans/553-map-github-actions-ci-test-data/PLAN.md))
 - [Opt in to Intent Coverage during story wrap-up](seeds/SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up) — SEED-294#opt-in-to-intent-coverage-at-wrap-up ([plan](slice-plans/571-opt-in-to-wrap-up-intent-coverage/PLAN.md))
+- [View each project's Open Dough configuration in dashboard settings](seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard) — SEED-295#inspect-project-configuration-in-dashboard ([plan](slice-plans/570-inspect-project-configuration-in-dashboard/PLAN.md))
 
 ## Backlog list
 
-- [View each project's Open Dough configuration in dashboard settings](seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard) — SEED-295#inspect-project-configuration-in-dashboard
+- [Finish opted-in stories with an Intent Coverage report](seeds/SEED-258-dough-intent-coverage.md#finish-opted-in-stories-with-intent-coverage) — SEED-258#finish-opted-in-stories-with-intent-coverage
+- [Make Intent Coverage results easier to act on](seeds/SEED-258-dough-intent-coverage.md#make-intent-coverage-results-easier-to-act-on) — SEED-258#make-intent-coverage-results-easier-to-act-on
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data
 - [Make CI proof evidence test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-proof-test-data) — SEED-261#map-ci-proof-test-data
 - [Make installation and native test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-installation-and-native-test-data) — SEED-261#map-installation-and-native-test-data
 - [Give the dashboard a dark theme](seeds/SEED-278-dashboard-dark-theme.md#dashboard-dark-theme) — SEED-278#dashboard-dark-theme
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout
+- [Prove the destination cue restarts on repeated activation](seeds/SEED-296-prove-repeat-destination-cue-restarts.md#prove-repeat-destination-cue-restarts) — SEED-296#prove-repeat-destination-cue-restarts

@@ -73,6 +73,10 @@ protection gap for an important promise. The
 closed separately. Revisit automatic use if observation of the manual skill
 shows that the verified decisions justify the added cost.
 
+On 2026-11-10 Terry asked to remove Story Wrap Up's optional
+`--process-retrospective` flag and keep the ordinary execution retrospective
+before wrap-up.
+
 ## Separate test follow-up candidate from the trial
 
 - Exercise maintenance selection with an otherwise eligible hidden project
@@ -84,3 +88,96 @@ The trial's trunk recheck identified this test opportunity.
 
 [trial-evidence]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md
 [trial-test-candidates]: https://github.com/terryyin/open-dough/blob/b0ad4c799d4b659ed072591e8dc0e66b4caefc2e/docs/intent-coverage-trial/README.md#test-follow-up-candidates
+
+<a id="finish-opted-in-stories-with-intent-coverage"></a>
+
+### Finish opted-in stories with an Intent Coverage report
+
+**Identity:** SEED-258#finish-opted-in-stories-with-intent-coverage
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer closing a feature story in a project that
+[opts in to Intent Coverage](SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up)
+can read the finished report in Done and see what wrap-up decided to do about
+any actionable findings.
+
+- Wrap-up can continue independent work while the probe runs. Before publishing
+  Done or retiring the context needed to resume, wait for the probe and preserve
+  its report for the completed revision. A returned **Insufficient evidence**
+  report counts. If the worker fails or reaches a deadline without a report,
+  preserve resumable state and surface the problem. On resume, reuse a report
+  already returned for that revision and avoid duplicating follow-ups.
+- Give each actionable gap a disposition. If it fits an existing retrospective
+  follow-up's outcome, extend that plan and its proof. If it needs a separate
+  correction, reuse matching queued work or queue a new story. Put new work
+  after the retrospective follow-up by default and before it when a dependency
+  or material risk warrants higher priority. Link the evidence and record why.
+- Queue routine test-strengthening work quietly when the decision is within
+  wrap-up's authority. Surface findings that need developer judgment, materially
+  change priorities, or call the completed story's proof into question. Settle
+  evidence of an actual defect in the delivered promise before closing the story.
+- When the ordinary execution process retrospective is selected and automatic
+  coverage runs, keep product and proof review before wrap-up and defer that one
+  process review until the probe and its disposition are available. Hand the
+  reviewer the report, available run history, elapsed time, setup or waiting
+  problems, and follow-up decision. Remove Story Wrap Up's separate
+  `--process-retrospective` flag. Use the existing execution retrospective
+  selection rules to decide whether process review runs.
+
+In the audit, three checks finished after wrap-up had recorded them as
+unavailable, so a developer opening Done could not see their returned evidence.
+[Example Done record](https://github.com/terryyin/open-dough/blob/f07d764744ba5cfe56666469356ada584f642830/.planning/done/SEED-283_keep-done-story-intent-pinned.json)
+
+<a id="make-intent-coverage-results-easier-to-act-on"></a>
+
+### Make Intent Coverage results easier to act on
+
+**Identity:** SEED-258#make-intent-coverage-results-easier-to-act-on
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer reviewing an Intent Coverage result can tell whether to add proof
+for a missing path, strengthen an assertion, or gather more evidence. A short
+comparison shows whether preparing a more focused handoff earns its cost.
+
+- Report a **Confirmed missing test path** when independent observation shows
+  the fault causes wrong behavior and the relevant maintained checks omit that
+  path. Name the checks examined and preserve the passing baseline and restored
+  observation. Use **Assertion gap** when a maintained check exercises the path
+  and its assertion misses the wrong behavior. Use **Insufficient evidence**
+  when reach, wrong behavior, or restoration is unresolved.
+- Reuse the promise, plausible fault, focused command, fixture, and assertion
+  when ordinary review or execution already established them. Let the worker
+  validate or revise the suggestion. When the context is incomplete, look for
+  the narrowest relevant proof and report the remaining gap if the search
+  would require a broad exploratory run.
+- Compare the current workflow with the candidate on the same revision and
+  promise for one search-heavy and one already-focused check. Use the existing
+  report and [wrap-up disposition](#finish-opted-in-stories-with-intent-coverage)
+  to capture the decision before the probe, any change attributable to its
+  evidence, and the cost. Include preparation and probe time, distinguish test
+  runtime from added wrap-up wait, and record unknowns. Use comparable host
+  token counters when already available for sampled runs. Automated token
+  collection stays deferred until a decision needs finer cost evidence.
+
+Keep the clearer verdict if a reviewer can distinguish a missing journey from
+an inconclusive attempt and choose the right next action. The Recently done
+case below should point to missing journey proof. The [Side panel pilot report](https://github.com/terryyin/open-dough/blob/401bc8bd5d5c12d6d7cd64b43b6763786c59e58e/.planning/done/SEED-268_conclude-fluent-side-panel-pilot.json)
+had no observed wrong behavior and should remain inconclusive.
+Keep the handoff change if the comparison shows lower total effort by avoiding
+an unnecessary broad run or equivalent setup, with equally strong proof and
+no material extra preparation on the already-focused case. If it falls short,
+record the result and settle the trial using
+[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+The Recently done probe independently reproduced a wrong navigation path,
+yet its report called the result **Insufficient evidence**. The report already
+pointed to a planned correction, so it shows a classification problem without
+establishing a missed repair. Its stopped 222-test sweep consumed about three
+minutes before the probe reached the relevant checks. A landed CI probe already
+had the suggested fault and one focused file, yet took ten minutes with about
+40 seconds of runner time. Together these reports justify testing a narrower
+handoff and measuring the entire check. [Recently done report](https://github.com/terryyin/open-dough/blob/fe715e5730f2ab3e627517f6b38c7d6eb2683207/.planning/done/SEED-272_select-recently-done-sessions.json) · [Landed CI report](https://github.com/terryyin/open-dough/blob/d887ac73e87d981dc59bae792543907b2b1bbf45/.planning/done/SEED-285_see-landed-ci-wall-time-history.json)
