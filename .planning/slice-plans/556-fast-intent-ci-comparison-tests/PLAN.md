@@ -173,32 +173,25 @@ Move lasting ownership/commands/results to maintained test docs before wrap-up.
 
 ## Current decisions and learnings
 
-The [previous checkpoint](ui-pilot-evidence.md) records rejected client-startup
-routes and the selected SSR/live-binding strategy; its compatible proof stays.
+The [previous checkpoint](ui-pilot-evidence.md) keeps rejected startup routes and compatible SSR/live-binding proof.
 
-Published6a6392e/run42718319654 passes198 rules/all17jobs; four complete CI
-uppers1007–1331ms keep G3 open. The bounded combined shell/native-sort pilot
-preserves full production CSS/markup, all native oracles and fresh pages/cleanup.
-Comparable8-case proof improves3.97→3.38s; independent refactor/receivers pass.
-Renewed245 ordinary97.57s/loaded146.48s gives198 complete bounds3–363/4–798ms.
-Battery/open-lid guard and no captured sleep hold; conditions differ from prior
-AC85.43/88.75s, so no extra whole-family gain/causality is claimed. Native3 proof
-is reused unchanged. Exact new portable CI remains8; C067 stays targetCI.
-All130 source texts/defaults remain unchanged. No human decision is open.
+Exact4f83659 has one Landed1365ms miss. Native consolidation retains all oracles.
+G10's redundant real pending read is removed with exact joint fast/wire proof;
+3×10 loaded and renewed246 ordinary/loaded pass148.88/128.22s wall, with199
+complete rule bounds4–242/3–544ms. Conditions differ; no isolated gain is claimed.
+Native3 remains reused unchanged. G3/8 await exact new hosted199-rule timing;
+all130 source texts/defaults stay. C067 stays targetCI; no human choice is open.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.
 - Retain integration by unique observed connection, not a fixed test count.
   Separate its cost without hiding it from total feedback measurements.
-- Reuse ADRs 0002/0008/0010: one comparison model, derived disposable reading
-  state, and measured useful gain. PFE found existing pure rule owners, actual
-  renderable components and the Vite SSR loader; no new framework/ADR is needed.
-- Read the current delivered code at execution. Other active Intent stories
-  may add consumers, but their feature outcomes are not prerequisites for this
-  test optimization; preserve their ownership and align changed contracts.
-- No numeric slice target/hard limit is configured. Each slice owns one
-  feedback outcome, its migration, proof, measured experiment and cleanup.
-  Reassess a failed integration assumption before expanding the slice.
+- Reuse ADRs 0002/0008/0010 and existing pure owners/components/Vite SSR:
+  one comparison model, disposable reading state and measured gain; no new ADR.
+- Read current delivered consumers; other Intent work is no prerequisite.
+  Preserve its ownership and align changed contracts.
+- Each slice owns one feedback outcome, migration, proof, experiment and cleanup;
+  reassess a failed integration assumption before expanding it.
 
 ## Story obligations
 
@@ -246,3 +239,8 @@ Disposition: receiving slice 8
 Reported: slice 6 — "main 9f88 adds 24 actual Git/CLI/server backend cases and 3 UI journeys, outside the current 170-owner manifest; preserve its accepted pending/final semantics and all distinct oracles through current fast owners."
 Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
 Disposition: proved by slice 7: finality-evidence.md and slice7-27-final-map preserve all27 incoming identities/oracles,22 actual fast rule owners4–20ms and12 mapped real connections; actual matcher/artifact/brand/memory controls, default/parser/history/UI/PID/persistence receivers and independent refactor pass. Full family/load/exactCI remain8.
+
+### G10. Loaded pending-proof connection exceeds its default timeout
+Reported: slice 8 — "The later malformed-artifact connection times out at30000ms in loaded246; recovery is interrupted after a duplicate pending traversal consumes6.806s."
+Story clause: "No test in the family relies on a raised timeout."
+Disposition: proved by slice 8: portable-final-evidence.md#accepted-repaired-local-family; exact one-file correspondence,3 loaded10-case passes and renewed full246 ordinary/loaded strictpass/default30s prove real history/recovery and final reuse without the duplicate pending traversal. Original failed219.41s remains retained.

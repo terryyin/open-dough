@@ -170,7 +170,7 @@ No combined predecessor UI baseline was measured, so this scope supplies no
 whole-family percentage. Its final tiny registration/type cleanup has separate
 passing receiving proof; the broader family/load/CI gate follows below.
 
-The final formatted render-pilot selection has245 cases:198 rules and47
+At4f83659 the formatted render-pilot selection has245 cases:198 rules and47
 prospectively mapped connections, including replacements, incoming finality
 and review Refresh. Ordinary proof passes97.57s wall/97.047s runner; every rule
 has a complete conservative bound3–363ms. Loaded proof passes146.48s wall/
@@ -196,6 +196,32 @@ keyboard bindings retain readiness. Comparable8-case battery proof improves
 fresh-page, wrong-direction, hidden-arrow and unexpected-sort witnesses retain
 fault detection. Per-test page/context and cleanup stay fresh and measured.
 
-The earlier exact6a CI run42718319654/attempt1 passes all17jobs/198 rules but
-has four complete bounds1007–1331ms. The render improvement needs its own exact
-published portable CI evidence before the final timing gate is settled.
+Exact6a CI run42718319654/attempt1 has four complete bounds1007–1331ms.
+The shell improvement at4f83659/run42727640910/attempt1 passes all17jobs/198
+rules;197 complete bounds are below1000ms(max965), while Landed sort1365ms
+remains open. These historical green workflows do not settle the timing gate.
+
+The next native-owner consolidation counts246 cases:199 rules/47 connections.
+One initial signed-figures test preserves the identical full native row oracle
+once; both original sort tests retain all direction/order/header/arrow checks.
+Playwright-native visible SVGs join the common snapshot, with unfiltered arrow
+metadata/cardinality retained. Same-tbody role queries avoid redundant ancestor
+traversal. Six fault controls, three focused18-case passes and107 receiving
+cases retain proof; final formatted whole-family/load and new CI remain owed.
+
+The malformed-provider connection retains all29 real revisions and the exact
+old-receipt pending-history→measured-point join. One pending read then recovery
+proves actual wiring/final reuse; the fast actual branded-artifact owner keeps
+two pending reads and exact listing/archive counts. This removes redundant
+real traversal while retaining fault coverage and the default30s timeout.
+
+The final repaired246-case ordinary selection passes148.88s wall/148.138s
+runner; all199 complete rule bounds are4–242ms. Loaded selection passes128.22s
+wall/127.738s runner, bounds3–544ms, with two owned CPU helpers sustaining97.2%
+core each and stopped/reaped afterward. Both are awake AC/open-lid under
+caffeinate-s-i, no captured sleep, default2workers/30s/retry0/tracing. Actual
+load9.68→8.56 versus8.46→8.82 and concurrent conditions differ; loaded being
+faster is not a causal result. Original75/269.01s and intermediate188/87.35s
+keep their scope limits. The failed loaded219.41s run and narrow focused repair
+pass remain recorded; the full repaired selection now passes without a waiver.
+Exact new published portable CI remains the final slice8 timing gate.

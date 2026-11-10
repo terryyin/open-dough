@@ -135,9 +135,9 @@ it. The intermediate this:void attempt is rejected by project lint and retained.
 Supplemental independent review requires no further cleanup. Final actual
 formatter/cap28(max249), typecheck and affected18 all pass before profiling.
 
-## Final local family and corrected cleanup accounting
+## Client-owner checkpoint at6a and corrected cleanup accounting
 
-Independent discovery matches245 unique chromium owners:198 rules/47 mapped
+At6a, independent discovery matches245 unique chromium owners:198 rules/47 mapped
 connections, including80 static native and16 client rules. Native3 is separate.
 All exact original13 fields survive in the final map. Full ordinary245 passes,
 retry0/default2workers/30s/trace, wall85.43s/runner84.903s. Original75 wall269.01s
@@ -171,4 +171,6 @@ is the remaining slice8 proof; progress publication keeps8 planned/G3 open.
 
 
 The [final portable feedback](portable-final-evidence.md) record owns subsequent
-hosted cost correction and final whole-family/CI acceptance.
+hosted corrections and final whole-family/CI acceptance. The native-owner pilot
+adds one explicit initial-figures rule; all13 client facets and47 connections
+stay exact while the current selection becomes246 with199 rules.

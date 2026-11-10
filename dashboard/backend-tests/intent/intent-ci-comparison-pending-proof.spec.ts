@@ -76,12 +76,9 @@ for (const provenance of ["equivalent", "later"] as const) {
       });
     const askedPending = proofListings(github, 201);
     server.advanceObservationClock(3 * 60 * 60_000);
-    const stillPending = await readLandedComparison(server, setup.identity);
-    expect(stillPending.landed.kind).toBe("none");
-    expect(proofListings(github, 201)).toBeGreaterThan(askedPending);
-
     unanswered = false;
     const recovered = await readLandedComparison(server, setup.identity);
+    expect(proofListings(github, 201)).toBeGreaterThan(askedPending);
     expect(recovered.landed).toMatchObject({
       kind: "build",
       revision: setup.represented.headSha,

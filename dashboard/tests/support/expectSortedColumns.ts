@@ -37,12 +37,20 @@ export async function expectRenderedSortedBy(
   names?: readonly string[],
 ) {
   const header = sortHeader(table, name);
-  const parts = names === undefined ? header : header.or(rowNames(table));
+  const semanticParts =
+    names === undefined ? header : header.or(rowNames(table));
+  // Playwright's :visible and toBeVisible use the same native visibility predicate.
+  // Keep all arrows in the structural read too, so extra hidden arrows still fail.
+  const parts = semanticParts.or(
+    header.locator(".intent-ci-sort-mark svg:visible"),
+  );
   await expect
     .poll(() =>
       parts.evaluateAll((nodes) => ({
         headers: nodes
-          .filter((node) => node.closest("thead") !== null)
+          .filter(
+            (node) => node.closest("thead") !== null && !node.matches("svg"),
+          )
           .map((node) => ({
             tag: node.tagName,
             scope: node.getAttribute("scope"),
@@ -61,6 +69,9 @@ export async function expectRenderedSortedBy(
               }),
             ),
           })),
+        visibleArrows: nodes
+          .filter((node) => node.matches("svg"))
+          .map((node) => node.getAttribute("aria-hidden")),
         rows: nodes
           .filter((node) => node.closest("tbody") !== null)
           .map((node) =>
@@ -82,10 +93,9 @@ export async function expectRenderedSortedBy(
           marks: [{ direction, arrows: ["true"] }],
         },
       ],
+      visibleArrows: ["true"],
       rows: names ?? [],
     });
-  const mark = header.locator(".intent-ci-sort-mark");
-  await expect(mark.locator("svg")).toBeVisible();
 }
 
 export async function expectUnsortedRows(

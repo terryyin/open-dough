@@ -74,10 +74,10 @@ export async function expectProofTableRows(
   columns: readonly string[],
   rows: readonly (readonly string[])[],
 ) {
-  const body = table.locator("tbody").getByRole("row");
+  const body = table.locator("tbody");
   const parts = table
     .or(table.getByRole("columnheader"))
-    .or(body)
+    .or(body.getByRole("row"))
     .or(body.getByRole("rowheader"))
     .or(body.getByRole("cell"));
   const expected = (
