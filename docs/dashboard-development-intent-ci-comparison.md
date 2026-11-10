@@ -17,7 +17,9 @@ the first claim parent), branch (final story-branch build from the landing's sto
 or N/A in Trunk Mode), and landed (newest trunk-first owning merge or
 fast-forward tip — never a later completion-only commit, no measured-ancestor
 fallback across that landing). A confirmed skip may use only that landing's
-equivalent build and its proof, never past unusable proof. A cancelled landing
+equivalent build (and its proof when published; otherwise its wall time when
+the attempt passed with valid start and completion), never past that one
+equivalent. A cancelled landing
 keeps Cancelled and may use the nearest later trunk build with usable proof,
 walking trunk's first-parent history forward past cancelled, unbuilt and
 proofless revisions, stopping at a running build, the read trunk head or 30

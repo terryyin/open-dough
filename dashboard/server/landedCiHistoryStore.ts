@@ -23,12 +23,10 @@ export type {
   LandedResolution,
   PendingResolution,
 } from "./landedCiObservation.ts";
-import {
-  hasLandingOrder,
-  measuredBuildOf,
-  windowedHistory,
-} from "./landedCiMeasuredBuilds.ts";
+import { keepResolutionDecision } from "./landedCiKeepResolution.ts";
+import { windowedHistory } from "./landedCiMeasuredBuilds.ts";
 import { withAdapterIdentity } from "./landedCiHistoryIdentity.ts";
+import type { CollectedProof } from "./landedCiCollectedProof.ts";
 import { historyWithProof } from "./landedCiRetainedProof.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import {
@@ -115,11 +113,15 @@ export function keptLandingReferences(
 
 // Keep one observation per receipt and one proof-bearing build per full
 // subject, using the same shared window as project and scoped readers.
+// When `collected` is supplied, the first proof ask is retained in the same
+// write so a history reader never observes the measured point while that ask
+// is still outstanding.
 export async function keepLandedCiResolution(
   sourceId: string,
   landing: LandingReference,
   resolution: LandedResolution,
   order?: readonly string[],
+  collected?: CollectedProof,
 ): Promise<ProjectHistory> {
   let history = noHistory;
   await replaceMachineJson(historyStore(), (stored) => {
@@ -137,32 +139,19 @@ export async function keepLandedCiResolution(
         ? compatible
         : { ...compatible, trunkOrder: [...supplied] };
     const held = project.landings[landing.receipt]?.observed;
-    const kept = keptResolution(resolution);
-    const wouldMeasure =
-      kept.build !== undefined &&
-      measuredBuildOf(
-        {
-          ...project,
-          builds: { ...project.builds, [kept.build[0]]: kept.build[1] },
-        },
-        kept.observed,
-      ) !== undefined;
-    const { observed, build } =
-      wouldMeasure && !hasLandingOrder(project, landing.revision)
-        ? {
-            observed: { kind: "pending" as const, waitsFor: "order" as const },
-            build: undefined,
-          }
-        : kept;
-    if (
-      held !== undefined &&
-      (held.kind !== "pending" || isDeepStrictEqual(held, observed))
-    ) {
+    const decision = keepResolutionDecision(
+      project,
+      landing.revision,
+      held,
+      keptResolution(resolution),
+    );
+    if (decision.kind === "hold") {
       history = windowedHistory(project);
       return isDeepStrictEqual(history, original)
         ? leaveMachineJson
         : { ...stored, [sourceId]: history };
     }
+    const { observed, build } = decision;
     history = windowedHistory({
       ...project,
       landings: {
@@ -188,6 +177,13 @@ export async function keepLandedCiResolution(
               [build[0]]: project.builds[build[0]] ?? build[1],
             },
     });
+    if (collected !== undefined && build !== undefined)
+      history = historyWithProof(
+        history,
+        build[0],
+        collected.proof,
+        collected.pending,
+      );
     return { ...stored, [sourceId]: history };
   });
   return history;

@@ -1,12 +1,12 @@
 // Story Branch Landed when the landed revision's own CI gives no verdict
 // (`lookupResultBuild` with `exactOnly`, `./baseCiRevisionLookup.ts`): a
 // cancelled landing takes the nearest later trunk build with usable proof
-// (`./laterTrunkBuild.ts`), and a confirmed skip its equivalent build
-// (`./exactSkippedEquivalent.ts`); a timed-out landing, with the caller's
-// explanation, or a CI adapter's attempt that stopped without a verdict,
-// with its status's, is a gap naming that attempt as the build it could not
-// use (`landedRunOf`, `./unusableBuild.ts`); otherwise the landed revision's
-// own status explains the gap.
+// (`./laterTrunkBuild.ts`), and a confirmed skip its equivalent build for
+// proof or timed wall time (`./exactSkippedEquivalent.ts`); a timed-out
+// landing, with the caller's explanation, or a CI adapter's attempt that
+// stopped without a verdict, with its status's, is a gap naming that attempt
+// as the build it could not use (`landedRunOf`, `./unusableBuild.ts`);
+// otherwise the landed revision's own status explains the gap.
 import { newestRunFor } from "./baseCiNearest.ts";
 import type { RevisionCiLookup } from "./baseCiRevisionNearest.ts";
 import {

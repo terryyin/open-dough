@@ -7,20 +7,55 @@ import {
   type CiProofSubject,
   type CiProofUnavailable,
 } from "../src/ciProof.ts";
-import type { KeptBuild } from "./landedCiObservation.ts";
+import {
+  keptResolution,
+  type KeptBuild,
+  type LandedResolution,
+} from "./landedCiObservation.ts";
 import { readIntentCiProof } from "./intentCiProofRead.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { isUnansweredProof } from "./ciProofArtifact.ts";
 
+export type CollectedProof = {
+  readonly proof: CiProof;
+  readonly pending: boolean;
+};
+
+// Missing summaries (`none`) and unreadable gaps stay collectable while
+// pending; other unavailable reasons are final once written.
+function collectableUnavailable(proof: CiProof): proof is CiProofUnavailable & {
+  readonly reason: "none" | "unreadable";
+} {
+  return (
+    proof.kind === "unavailable" &&
+    (proof.reason === "none" || proof.reason === "unreadable")
+  );
+}
+
 // Old unavailable records are classified on their next read. A summary is
-// immutable; unavailable reasons other than missing/unreadable are final.
+// immutable. Acquisition marks pending for settled missing summaries (`none`)
+// so a later artifact can recover, and for unanswered GitHub reads
+// (`isUnansweredProof`) or adapter command failures.
 export function needsCollectedProof(build: KeptBuild): boolean {
   if (build.state !== "pass" || build.proof?.kind === "summary") return false;
   return (
     build.proof === undefined ||
-    (build.proofPending !== false &&
-      (build.proof.reason === "none" || build.proof.reason === "unreadable"))
+    (build.proofPending !== false && collectableUnavailable(build.proof))
   );
+}
+
+// Proof to retain with a newly resolved measured build, so collection can
+// keep the observation and its first proof ask together. Undefined when the
+// resolution is not a pass that still needs proof.
+export async function proofRetainedWith(
+  source: PublishedSource,
+  resolution: LandedResolution,
+  signal: AbortSignal,
+): Promise<CollectedProof | undefined> {
+  if (resolution.kind !== "build") return undefined;
+  const { build } = keptResolution(resolution);
+  if (build === undefined || !needsCollectedProof(build[1])) return undefined;
+  return collectedProofOf(source, build[1], signal);
 }
 
 // Judge the original read before JSON persistence loses native unanswered
@@ -29,7 +64,7 @@ export async function collectedProofOf(
   source: PublishedSource,
   build: KeptBuild,
   signal: AbortSignal,
-): Promise<{ readonly proof: CiProof; readonly pending: boolean }> {
+): Promise<CollectedProof> {
   const subject = collectedProofSubjectOf(source, build);
   if ("kind" in subject) return { proof: subject, pending: false };
   const proof = await readIntentCiProof(
@@ -39,10 +74,10 @@ export async function collectedProofOf(
     (asked) => projectFolder(asked).path,
   );
   const pending =
-    proof.kind === "unavailable" &&
+    collectableUnavailable(proof) &&
     (proof.reason === "none" ||
-      (proof.reason === "unreadable" &&
-        (isAdapterProofAttempt(subject) || isUnansweredProof(proof))));
+      isAdapterProofAttempt(subject) ||
+      isUnansweredProof(proof));
   return { proof, pending };
 }
 

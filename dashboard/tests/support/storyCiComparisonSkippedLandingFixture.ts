@@ -1,7 +1,7 @@
 // Done Story Branch publishers for Intent CI comparison Landed equivalent-
-// build cases (../intent/intent-ci-comparison-skipped.spec.ts): a planning-
-// only landing with parent proof, the same without parent proof, and a code
-// landing with no run (exact-only No build).
+// build cases (../intent/intent-ci-comparison-skipped-landed.spec.ts): a
+// planning-only landing with parent proof, the same without parent proof,
+// and a code landing with no run (exact-only No build).
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { rmSync } from "node:fs";
