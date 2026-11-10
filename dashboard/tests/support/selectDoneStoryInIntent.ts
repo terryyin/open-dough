@@ -2,6 +2,7 @@
 // evidence reads. Callers own the readiness of the view they consume.
 
 import type { Page } from "@playwright/test";
+import { untilPublishedWorkRead } from "../pageRequestNotes.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
@@ -13,6 +14,7 @@ export async function selectDoneStoryInIntent(
   beforeIntent?: () => Promise<void>,
 ) {
   await page.goto("/");
+  await untilPublishedWorkRead(page);
   await showColumn(page, "Recently done");
   const { recentlyDone, intentChoice, intent } = parts(page);
   const card = recentlyDone.getByRole("article", { name: title, exact: true });

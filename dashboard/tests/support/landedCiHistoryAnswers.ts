@@ -1,5 +1,6 @@
 // Public wall-time history answer shapes the lifecycle journey asserts:
 // an exact measured point, a final no-build gap, and a pending build gap.
+import { expect } from "@playwright/test";
 import { timeAfter } from "./landedCiTrunk.ts";
 
 type LandingRef = {
@@ -58,5 +59,5 @@ export function publicHistoryAnswer(
     | typeof pendingBuildHistoryGap
   >[],
 ) {
-  return { status: 200, body: { entries } };
+  return { status: 200, body: expect.objectContaining({ entries }) };
 }

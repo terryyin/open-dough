@@ -13,9 +13,8 @@ import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { openProjectIntent, returnToStory } from "../intentModePage.ts";
 import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { entryProofs } from "../support/storyCiComparisonEntrySummaries.ts";
-import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
+import { expect, test } from "../dashboardTest.ts";
+import { prepareRelativeComparisonReading } from "../support/relativeCiComparisonReading.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
 import { rowNames, sortButton } from "../support/expectSortedColumns.ts";
 import {
@@ -70,10 +69,12 @@ const wallChange = (panel: Locator) =>
 
 test("relative changes share one centred scale, without a mark for an added entry or a zero baseline, and Show % reveals every percentage together", async ({
   page,
-  origin,
 }) => {
-  const setup = await publishComparedStoryBranch(page, origin);
-  setup.serveProofs(entryProofs(setup, entries));
+  await prepareRelativeComparisonReading(page, entries, {
+    baseline: 180000,
+    branch: 200000,
+    landed: 240000,
+  });
   const { panel, intent } = await selectDoneStoryForCiComparison(page);
 
   await test.step("one scale reaching one side at 50%, faster left and slower right", async () => {
@@ -142,17 +143,17 @@ test("relative changes share one centred scale, without a mark for an added entr
 
 test("a change beyond the mockup's 50% widens the shared scale for every mark", async ({
   page,
-  origin,
 }) => {
-  const setup = await publishComparedStoryBranch(page, origin);
   // Outlier 1 min → 2 min 30 s (+150%) in both Branch and Landed.
   const outlier = (ms: number) => timed("e/outlier", ms);
-  setup.serveProofs(
-    entryProofs(setup, {
+  await prepareRelativeComparisonReading(
+    page,
+    {
       baseline: [...entries.baseline, outlier(60_000)],
       branch: [...entries.branch, outlier(150_000)],
       landed: [...entries.landed, outlier(150_000)],
-    }),
+    },
+    { baseline: 180000, branch: 200000, landed: 240000 },
   );
   const { panel } = await selectDoneStoryForCiComparison(page);
 

@@ -52,7 +52,10 @@ function useBoxWidth() {
   return { box, width };
 }
 
-function projectSeries(entries: readonly MeasuredEntry[]): HistoryChartSeries {
+function projectSeries(
+  entries: readonly MeasuredEntry[],
+  reference?: HistoryChartSeries["reference"],
+): HistoryChartSeries {
   const points: HistoryChartPoint[] = [];
   let segment = 0;
   for (const entry of entries) {
@@ -71,12 +74,13 @@ function projectSeries(entries: readonly MeasuredEntry[]): HistoryChartSeries {
   return {
     label: "CI wall time by build date",
     points,
+    ...(reference === undefined ? {} : { reference }),
     dates: entries.map(entryDate),
   };
 }
 
 export function IntentCiHistoryChart(
-  props:
+  props: { readonly reference?: HistoryChartSeries["reference"] } & (
     | {
         readonly entries: readonly MeasuredEntry[];
         readonly series?: never;
@@ -84,9 +88,10 @@ export function IntentCiHistoryChart(
     | {
         readonly series: HistoryChartSeries;
         readonly entries?: never;
-      },
+      }
+  ),
 ) {
-  const series = props.series ?? projectSeries(props.entries);
+  const series = props.series ?? projectSeries(props.entries, props.reference);
   const { box, width } = useBoxWidth();
   return (
     <div ref={box} className="intent-ci-history-chart">

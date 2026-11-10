@@ -96,7 +96,8 @@ the measured builds it shows (`1 measured build · Nov 5`, or
 dashboard-recorded landings and gives the latest measured build's CI wall
 time in whole seconds (`6 min 5 s`), as the
 [CI timing comparison](dashboard-development-intent-ci-comparison.md) words
-a build's. An image named “CI wall time by build date”, drawn in the page
+a build's. The [Prior-build average](dashboard-development-intent-ci-reference.md)
+compares the latest represented landing with eligible prior retained builds. An image named “CI wall time by build date”, drawn in the page
 without a chart library, places each measured build once at its date and CI
 wall time, higher for a longer time, and joins them in date order, against
 whole-step time words, so a rising, falling or varying line reads at a
@@ -139,7 +140,7 @@ summary, or another path still names that absence without measuring wall
 time); `CI proof expired` or `CI proof unreadable` (that build's CI proof
 expired, or GitHub's answer could not be opened or used); or
 `CI wall time not recorded` (its build passed, but its attempt names no
-start, or no completion after its start; it is never shown as a zero). A
+start, or a completion before its start). Equal valid bounds are measured zero. A
 confirmed skip whose equivalent build passed with valid start and completion
 reuses that attempt's wall time even when it published no CI proof summary,
 as a CI adapter's never does; missing proof stays explicit for
@@ -175,7 +176,7 @@ wall time; missing proof stays a separate gap for proof-dependent figures);
 and a cancelled landing by the nearest later trunk build with usable CI
 proof. A CI adapter's cancelled landing still has no later-build reuse
 without proof, so it stays a gap. A measured build is such a build that
-passed, whose attempt has a start and a later completion; its CI wall time
+passed, whose attempt has valid start/completion bounds (including equal bounds); its CI wall time
 is the comparison's, from the one definition both read (`wallTimeMs` in
 `dashboard/src/ciProofTimeWords.ts`).
 

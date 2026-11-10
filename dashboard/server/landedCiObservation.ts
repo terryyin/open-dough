@@ -13,6 +13,7 @@
 // one read back from the file.
 
 import { z } from "zod";
+import { buildKeyOf } from "../src/landedCiBuildKey.ts";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
 import { ciProofSchema } from "../src/ciProof.ts";
 import {
@@ -181,18 +182,7 @@ function namedBuildOf(
 
 // One build's key: its run and attempt, a CI adapter's attempt, or, for a
 // build its CI read named neither of, its revision.
-export function buildKeyOf(
-  build: Pick<
-    KeptBuild,
-    "revision" | "adapterAttempt" | "runId" | "runAttempt"
-  >,
-) {
-  if (build.adapterAttempt !== undefined)
-    return `adapter/${JSON.stringify([String(build.adapterAttempt.runId), String(build.adapterAttempt.attemptId), build.revision])}`;
-  if (build.runId !== undefined && build.runAttempt !== undefined)
-    return `run/${String(build.runId)}/${String(build.runAttempt)}`;
-  return `revision/${build.revision}`;
-}
+export { buildKeyOf } from "../src/landedCiBuildKey.ts";
 
 // What `resolution` is kept as: its observation, and the build it resolved
 // to with that build's key.

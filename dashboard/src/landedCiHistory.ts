@@ -20,6 +20,7 @@
 // checks it as external input; a run link is only ever a web address.
 
 import { z } from "zod";
+import { priorBuildReferenceSchema } from "./ciPriorBuildReference.ts";
 import { runIdentityShape } from "./baseCiConfirmation.ts";
 import { wallTimeMs } from "./ciProofTimeWords.ts";
 import { commitIdSchema } from "./launchLanding.ts";
@@ -32,19 +33,20 @@ const instantSchema = z.iso.datetime({ offset: true });
 
 // The CI wall time the history measures an attempt by: the CI timing
 // comparison's (`wallTimeMs`), accepted only when its start and completion
-// are both moments and the completion is after the start, so the history
-// never shows a zero or invented time; otherwise undefined.
+// are both valid moments and completion is at or after start. Equal
+// bounds are measured zero; reversed bounds never become an invented zero.
 export function historyWallTimeMs(
   startedAt: string | undefined,
   completedAt: string | undefined,
 ): number | undefined {
-  if (
-    !instantSchema.safeParse(startedAt).success ||
-    !instantSchema.safeParse(completedAt).success
-  )
-    return undefined;
-  const ms = wallTimeMs(startedAt, completedAt);
-  return ms !== undefined && ms > 0 ? ms : undefined;
+  const start = instantSchema.safeParse(startedAt);
+  const completion = instantSchema.safeParse(completedAt);
+  if (!start.success || !completion.success) return undefined;
+  const ms = wallTimeMs(start.data, completion.data);
+  return ms !== undefined &&
+    Date.parse(completion.data) >= Date.parse(start.data)
+    ? ms
+    : undefined;
 }
 
 // How a build measures, or stands for, a landing: the landed revision's own
@@ -161,6 +163,7 @@ export type FinalGap = z.infer<typeof finalGapSchema>;
 export type LandedCiGap = PendingGap | FinalGap;
 
 export const landedCiHistorySchema = z.object({
+  reference: priorBuildReferenceSchema.optional(),
   entries: z.array(
     z.union([landedCiPointSchema, pendingGapSchema, finalGapSchema]),
   ),
@@ -195,7 +198,10 @@ export type MeasuredPoint = LandedCiPoint & { readonly wallTimeMs: number };
 
 export type MeasuredEntry = MeasuredPoint | LandedCiGap;
 
-export type MeasuredHistory = { readonly entries: readonly MeasuredEntry[] };
+export type MeasuredHistory = {
+  readonly entries: readonly MeasuredEntry[];
+  readonly reference?: LandedCiHistory["reference"];
+};
 
 export const isPoint = (entry: MeasuredEntry): entry is MeasuredPoint =>
   entry.kind === "point";
@@ -215,5 +221,10 @@ export function measuredHistoryOf(
     if (ms === undefined) return undefined;
     entries.push({ ...entry, wallTimeMs: ms });
   }
-  return { entries };
+  return {
+    entries,
+    ...(history.reference === undefined
+      ? {}
+      : { reference: history.reference }),
+  };
 }

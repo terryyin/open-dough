@@ -59,7 +59,7 @@ test.describe("a server that collects", () => {
     ]);
     expect(await landedCiHistory(dashboard)).toEqual({
       status: 200,
-      body: { entries: [] },
+      body: expect.objectContaining({ entries: [] }),
     });
 
     // The installed publication lands it and reports the accepted landing
@@ -74,7 +74,7 @@ test.describe("a server that collects", () => {
       .poll(() => landedCiHistory(dashboard))
       .toEqual({
         status: 200,
-        body: {
+        body: expect.objectContaining({
           entries: [
             {
               kind: "point",
@@ -93,7 +93,7 @@ test.describe("a server that collects", () => {
               ],
             },
           ],
-        },
+        }),
       });
     expect(runsListedAt(github.calls, revision)).toHaveLength(1);
     // Retention keeps the first proof ask with the measured point, so a
@@ -133,7 +133,7 @@ test("a test server records a landing and collects nothing of its own accord, wh
   expect(delivered.landing.receipt).toMatchObject({ revision });
   expect(await landedCiHistory(dashboard)).toEqual({
     status: 200,
-    body: { entries: [] },
+    body: expect.objectContaining({ entries: [] }),
   });
   expect(runsListedAt(github.calls, revision)).toEqual([]);
   expect(

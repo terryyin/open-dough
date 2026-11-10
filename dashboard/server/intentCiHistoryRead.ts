@@ -11,6 +11,7 @@ import { isPinnedRevision } from "./refusedParameters.ts";
 import { scopeHistoryOf } from "./ciScopeHistory.ts";
 import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { wallTimeReferenceOf } from "./ciWallTimeReference.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import { readLandedCiHistory } from "./landedCiHistoryStore.ts";
 import {
@@ -105,14 +106,17 @@ export async function performIntentCiHistoryRead(
       ),
       ...(localRepository === undefined ? [] : [localRepository]),
     ],
-    retained.map((landing) => landing.revision),
+    [
+      ...retained.map((landing) => landing.revision),
+      ...Object.values(stored.builds).map((build) => build.revision),
+    ],
     read?.revision,
     signal,
   );
   const order =
     mostCompleteLandingOrder(
       retained,
-      [stored.trunkOrder, localOrder],
+      [localOrder, stored.trunkOrder],
       read?.revision,
     ) ??
     localOrder ??
@@ -133,5 +137,6 @@ export async function performIntentCiHistoryRead(
   }
   return answered({
     entries: historyEntries(history),
+    reference: wallTimeReferenceOf(history, undefined, order),
   });
 }

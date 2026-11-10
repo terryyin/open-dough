@@ -32,6 +32,7 @@ import {
   CiAdapterAttemptBuilder,
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
+import { StoryCiComparisonBuilder } from "./comparisonViewTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
@@ -171,6 +172,9 @@ export const makeMe = {
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();
+  },
+  get aStoryCiComparison() {
+    return new StoryCiComparisonBuilder();
   },
   get aCiProofEntry() {
     return new CiProofEntryBuilder();

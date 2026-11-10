@@ -86,8 +86,19 @@ export function IntentCiHistoryPlot({
   const { points } = series;
   const plotEnd = width - plotEndRoom;
   const ticks = timeTicks(
-    points.map((point) => point.ms),
+    [
+      ...points.map((point) => point.ms),
+      ...(series.reference === undefined ? [] : [series.reference.ms]),
+    ],
     series.precise === true,
+  );
+  const timeLabel = (ms: number) =>
+    series.precise === true ? executionTimeWords(ms) : wholeSecondWords(ms);
+  // Whole duration labels can be wider near zero (e.g. 1 min 30 s).
+  // Reserve their width so phone readers never lose the leading figures.
+  const plotLeft = Math.max(
+    plotStart,
+    ...ticks.map((tick) => timeLabel(tick).length * 7 + 16),
   );
   const lowest = ticks[0] ?? 0;
   const highest = ticks.at(-1) ?? lowest + shortestRangeMs;
@@ -105,9 +116,9 @@ export function IntentCiHistoryPlot({
   const latest = Math.max(...dates);
   const x = (at: number) =>
     latest === earliest
-      ? (plotStart + plotEnd) / 2
-      : plotStart +
-        ((at - earliest) / (latest - earliest)) * (plotEnd - plotStart);
+      ? (plotLeft + plotEnd) / 2
+      : plotLeft +
+        ((at - earliest) / (latest - earliest)) * (plotEnd - plotLeft);
   const placed = points.map((point, at) => ({
     point,
     x: x(starts[at] ?? earliest),
@@ -136,18 +147,27 @@ export function IntentCiHistoryPlot({
         <g key={tick}>
           <line
             className="intent-ci-history-grid"
-            x1={plotStart}
+            x1={plotLeft}
             x2={plotEnd}
             y1={y(tick)}
             y2={y(tick)}
           />
-          <text x={plotStart - 8} y={y(tick) + 4} textAnchor="end">
-            {series.precise === true
-              ? executionTimeWords(tick)
-              : wholeSecondWords(tick)}
+          <text x={plotLeft - 8} y={y(tick) + 4} textAnchor="end">
+            {timeLabel(tick)}
           </text>
         </g>
       ))}
+      {series.reference !== undefined && (
+        <g className="intent-ci-history-reference">
+          <title>{series.reference.label}</title>
+          <line
+            x1={plotLeft}
+            x2={plotEnd}
+            y1={y(series.reference.ms)}
+            y2={y(series.reference.ms)}
+          />
+        </g>
+      )}
       {line !== "" && <path className="intent-ci-history-line" d={line} />}
       {placed.map(({ point, x: cx, y: cy }) => (
         <g key={point.key}>
@@ -161,7 +181,7 @@ export function IntentCiHistoryPlot({
               </path>
               <text
                 className="intent-ci-history-selected"
-                x={Math.max(plotStart + 28, Math.min(cx, plotEnd - 28))}
+                x={Math.max(plotLeft + 28, Math.min(cx, plotEnd - 28))}
                 y={cy < plotTop + 20 ? cy + 22 : cy - 10}
                 textAnchor="middle"
               >
@@ -186,7 +206,7 @@ export function IntentCiHistoryPlot({
           />
           <text
             x={Math.max(
-              plotStart + 38,
+              plotLeft + 38,
               Math.min(x(Date.parse(annotation.date)), plotEnd - 38),
             )}
             y={plotTop}
