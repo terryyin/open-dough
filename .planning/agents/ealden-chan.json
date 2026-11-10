@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ealden-chan",
+  "email": "ealden-chan@example.org",
+  "identity": "SEED-294#opt-in-to-intent-coverage-at-wrap-up",
+  "mode": "story-branch",
+  "branch": "codex/opt-in-to-intent-coverage-during-story-wrap-up",
+  "host": "codex",
+  "model": "gpt-6-astra"
+}
