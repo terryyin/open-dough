@@ -168,15 +168,8 @@ keeps its own choice across selections, the story's other views,
 Development and back and new revisions; a project change shows the column
 again. It is not on the URL or in storage and is not remembered across
 reloads; the explanation shown in place of the tree offers no toggle.
-**Optimization Candidates** shows the project's published Test Optimization
-Candidates record at Intent's reading revision across the content area without
-the location tree; the record is read the first time that tab is chosen.
-Choosing a location an entry names, an opening rather than a return home,
-selects **CI status** with that file's **Purpose** positioned on the entry's
-case where that names one line, with its location and folders opened so the
-file shows selected, and choosing **Optimization Candidates** again returns to
-that entry without reading the record again; activating the tab directly
-gives the entry the keyboard.
+See [Optimization Candidates](dashboard-development-intent-candidates.md) for
+the published candidates record and opening a recorded case.
 Intent locations and Optimization Candidates share the page's recovery
 schedule. A local boundary that cannot be reached or a failure classified as
 transient is read again in place after 15, 30, 60, then 60 seconds while it

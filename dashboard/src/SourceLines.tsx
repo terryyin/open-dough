@@ -82,7 +82,9 @@ export function SourceLines({
   useEffect(() => {
     if (targetLine === undefined) return;
     targetRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
-  }, [targetLine, text, tokenLines]);
+    // Highlighting only colours the same text; its later arrival must not
+    // move the reader back after they have scrolled away from this case.
+  }, [targetLine, text]);
 
   return (
     <pre
