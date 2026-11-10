@@ -223,7 +223,7 @@ of the test library when the parent can encode already-built facts.
 
 ### 4. Revision observation keeps queue progress separate from coverage
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 3–4. Run `ci-queue-coverage.test.mjs`, all `ci-revision-coverage*.test.mjs`, `watch-ci-execution-coverage.test.mjs`, `ci-mailbox-revision-records-boundary.test.mjs`, `ci-integrated-state-judge*.test.mjs`, `ci-integrated-state-ineligible.test.mjs`, `ci-integrated-state-stop.test.mjs`, `ci-integrated-state-custom.test.mjs` and traced integrated-state journeys in the same script directory.
 
 MakeMe supplies queue/attempt inputs or a judge's accepted starting record →

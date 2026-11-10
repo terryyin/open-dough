@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   createRevisionCoverageFixture,
   git,
@@ -33,12 +34,14 @@ test("stop reports one pending and one undiscovered revision without waiting", a
   const shaUndiscovered = await deliver();
 
   setAttempts([
-    {
-      runId: "run:pending",
-      attemptId: "attempt/pending",
-      sha: shaPending,
-      outcome: "pending",
-    },
+    makeMe.aCiAdapterAttempt
+      .with({
+        runId: "run:pending",
+        attemptId: "attempt/pending",
+        sha: shaPending,
+        outcome: "pending",
+      })
+      .please(),
   ]);
   await advancePoll();
   assert.deepEqual(

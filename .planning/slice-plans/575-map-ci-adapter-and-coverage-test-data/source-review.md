@@ -187,11 +187,11 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 | 2.4 | Convert valid synthetic adapter discovery attempts used by: comparisons | slice 2 | observed: intent-ci-comparison-adapter(+taken/planning-skip) + mountedComparison* — MakeMe attempts; endpoint identity, shared-attempt and proof-read assertions held |
 | 2.5 | Convert valid synthetic adapter discovery attempts used by: landed history | slice 2 | observed: intent-ci-wall-time-history-adapter + landed-ci-scope-adapter* + landed-ci-proof-adapter-units — shared/distinct attempt evidence retained |
 | 2.6 | Convert valid synthetic adapter discovery attempts used by: execution command-adapter fixtures | slice 3 | observed: ci-command-adapter*.test.mjs + ci-command-attempts.test.mjs — MakeMe-built discovery facts encoded into generated adapters |
-| 2.7 | Convert valid synthetic adapter discovery attempts used by: revision-observation fixtures | slice 4 |  |
+| 2.7 | Convert valid synthetic adapter discovery attempts used by: revision-observation fixtures | slice 4 | observed: ci-revision-coverage* + watch-ci-execution-coverage — MakeMe attempt/queue inputs into real observation |
 | 2.8 | Convert valid synthetic adapter discovery attempts used by: Node support adapter readers | slice 1 | observed: tests/support/dashboard-{story-branch-ci-adapter,ci-adapter-revision-lookup,ci-adapter-proof}.test.mjs — MakeMe facades; retry/check/context and proof limits |
-| 3.1 | Convert arranged: adapter queue entries | slice 4 |  |
-| 3.2 | Convert arranged: persisted revision-coverage records | slice 4 |  |
-| 3.3 | Convert arranged: accepted records supplied to integrated-state judgment | slice 4 |  |
+| 3.1 | Convert arranged: adapter queue entries | slice 4 | observed: aCiQueueEntry + delegated queueEntry in ci-queue-coverage and revision fixtures |
+| 3.2 | Convert arranged: persisted revision-coverage records | slice 4 | observed: aRevisionCoverage + revision-coverage fixtures/tests arrange stored records |
+| 3.3 | Convert arranged: accepted records supplied to integrated-state judgment | slice 4 | observed: accepted() → aRevisionCoverage in integrated-state judge fixtures |
 | 3.4 | Convert arranged: accepted records supplied to mailbox wait/completion cases | slice 5 |  |
 | 4.1 | Preserve: opaque identities | slice 3 | observed: controlledDiscoverAttempts run:opaque / attempt/* identities retained through acquisition |
 | 4.2 | Preserve: numeric identities | slice 1 | observed: intent-ci-proof-adapter numeric attemptId + story-branch runId:7/attemptId:1 retained through acquisition/request |
@@ -200,23 +200,23 @@ adapter protocol, CI policy, timing algorithm, or installation promise.
 | 4.5 | Preserve: omitted timing | slice 2 | observed: ci-comparison-timing-gaps + mounted gap wording — discovery .with omits timing; Not recorded / not.toHaveProperty startedAt\|completedAt |
 | 4.6 | Preserve: discovery order | slice 3 | observed: controlled pending→success→failure→incomplete poll order preserved |
 | 4.7 | Preserve: current-attempt ambiguity | slice 1 | observed: intent-ci-proof-adapter-reasons same-check-across-runs + story-branch shared attemptId ambiguity retained |
-| 5.1 | Keep distinct: undiscovered | slice 4 |  |
+| 5.1 | Keep distinct: undiscovered | slice 4 | observed: queue progress leaves coverage undiscovered in ci-queue-coverage |
 | 5.2 | Keep distinct: pending | slice 3 | observed: pending outcome in controlled fixture retained |
 | 5.3 | Keep distinct: incomplete | slice 3 | observed: incomplete outcome in controlled fixture retained |
-| 5.4 | Keep distinct: not_required with its ancestor basis | slice 4 |  |
-| 5.5 | Keep distinct: exact success | slice 4 |  |
+| 5.4 | Keep distinct: not_required with its ancestor basis | slice 4 | observed: not_required with ancestor basis arranged via aRevisionCoverage for ignored-only paths |
+| 5.5 | Keep distinct: exact success | slice 4 | observed: exact success coverage records remain distinct in revision/judge suites |
 | 5.6 | Keep distinct: exact failure | slice 3 | observed: failure outcome encoded and asserted in failures/unavailable suites |
-| 5.7 | Keep distinct: integrated validation | slice 4 |  |
-| 6.1 | Keep in their harnesses: actual Git histories | slice 4 |  |
+| 5.7 | Keep distinct: integrated validation | slice 4 | observed: integrated validation via real judge on arranged accepted records |
+| 6.1 | Keep in their harnesses: actual Git histories | slice 4 | observed: real Git histories remain harness-owned in integrated/custom journeys |
 | 6.2 | Keep in their harnesses: executed provider commands and observed outputs | slice 3 | observed: real command acquisition still executes adapter programs and observes outputs |
 | 6.3 | Keep in their harnesses: adapter programs and response encoding | slice 3 | observed: parent encodes built facts; child processes have no MakeMe import |
-| 6.4 | Keep in their harnesses: workers | slice 4 |  |
-| 6.5 | Keep in their harnesses: wake-ups | slice 4 |  |
-| 6.6 | Keep in their harnesses: controlled clocks | slice 4 |  |
+| 6.4 | Keep in their harnesses: workers | slice 4 | observed: workers still produce coverage under controlled observation |
+| 6.5 | Keep in their harnesses: wake-ups | slice 4 | observed: wake-ups remain harness-owned |
+| 6.6 | Keep in their harnesses: controlled clocks | slice 4 | observed: controlled clocks remain harness-owned |
 | 6.7 | Keep in their harnesses: process lifetime and teardown | slice 5 |  |
 | 7.1 | Keep literal where form is under proof: malformed/partial responses | slice 3 | observed: malformed/partial responses remain literal in unavailable suite |
 | 7.2 | Keep literal where form is under proof: exact protocol examples | slice 3 | observed: exact protocol examples remain literal where form is under proof |
-| 7.3 | Keep literal where form is under proof: deliberate contradictions | slice 4 |  |
+| 7.3 | Keep literal where form is under proof: deliberate contradictions | slice 4 | observed: invalid queue / not JSON counterexamples stay literal |
 | 7.4 | Keep literal where form is under proof: captured evidence | slice 5 |  |
 | 8.1 | GitHub run/job conversion remains with its sibling story |  | X1 |
 | 8.2 | CI proof fragment/summary conversion remains with its sibling story |  | X2 |
