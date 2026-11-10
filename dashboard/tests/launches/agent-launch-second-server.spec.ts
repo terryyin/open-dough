@@ -51,7 +51,7 @@ test("a second server follows the live script and native worker, protects its ca
   const accepted = await answerOf<{ attempt: AttemptObservation }>(
     accept(dashboard, request),
   );
-  await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
+  // Start the observer while the installed command prepares its workspace.
   const second = await startDashboardServer({
     mode: "preview",
     prebuilt: sharedDashboardBuild,
@@ -64,6 +64,7 @@ test("a second server follows the live script and native worker, protects its ca
     extraEnv: { DOUGH_START_TIMEOUT_MS: "1" },
   });
   try {
+    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
     const [live] = await attempts(second);
     expect(live).toMatchObject({
       id: accepted.attempt.id,

@@ -80,7 +80,7 @@ Behavior: A shorter still-overflowing reading line reduces strokes but first-wor
 
 ### 7. A non-owner server overlaps independent preparation
 Type: Behavior
-Status: planned
+Status: done
 Proof: The complete second-server journey passes three consecutive two-worker selections with its default case budget, retaining live non-owner identity, held push, card protection through reload/project switch, and exactly one claim/worktree/native session. Include worker-handoff/change-wait boundary siblings if orchestration changes.
 
 Behavior: An accepted installed start prepares while a second preview is not yet started → begin the independent second-server startup during preparation, retaining the held-push barrier before observation → the same complete non-owner journey has useful margin. The trace measured 3.23 s of removable sequential startup. Include moved work in elapsed; no product ownership shortcut. This settles one launch member of G4.
@@ -146,6 +146,9 @@ commands, timing conditions, inspected boundaries, and outstanding proof.
 retain the subsequent accepted measurement and isolation/consumer observations.
 [Closure consolidation proof](closure-evidence.md) retains the full retired retry
 and moved reporting variants established before deleting duplicate browser work.
+
+[Launch budget corrections and complete retained observations](launch-evidence.md)
+retain the second-server overlap and subsequent recovery repairs.
 
 ## Story obligations
 
