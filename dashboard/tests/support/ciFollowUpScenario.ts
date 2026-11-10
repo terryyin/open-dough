@@ -1,4 +1,5 @@
 // Real publication, receipt ingestion and collection; only provider facts are synthetic.
+import { prepareRepeatPriors } from "./ciFollowUpPriors.ts";
 import { providerVerdict } from "./ciFollowUpProviderVerdict.ts";
 import type { CiFollowUpAnswer } from "../../src/ciFollowUp.ts";
 import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
@@ -12,8 +13,6 @@ import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { completedPublishedStory } from "./completedPublishedStory.ts";
 import {
-  landedTrunk,
-  recordedOnTrunk,
   trunkRun,
   passedFrom,
   trunkActions,
@@ -57,31 +56,9 @@ export async function prepareRepeatScenario(
   origin: StartOrigin,
   github: FakeGitHub,
   seconds = 105,
+  priorSeconds: readonly number[] = [100, 100, 100, 100, 100],
 ) {
-  const names = ["prior-1", "prior-2", "prior-3", "prior-4", "prior-5"];
-  const trunk = landedTrunk(
-    origin,
-    [
-      { title: "ci", kind: "ci-workflow" },
-      ...names.map((title) => ({ title, kind: "code" as const })),
-    ],
-    names,
-  );
-  const prior = names.map((name, index) =>
-    trunkRun(
-      trunk.revision(name),
-      index + 1,
-      passedFrom(`2026-11-10T0${index}:00:00.000Z`, 100000),
-    ),
-  );
-  recordedOnTrunk(
-    origin,
-    github,
-    trunk.landings,
-    () => prior,
-    () =>
-      Object.fromEntries(prior.map((run) => [run.id ?? 0, usableProofOf(run)])),
-  );
+  const prior = prepareRepeatPriors(origin, github, priorSeconds);
   const story = await completedPublishedStory(
     origin,
     "trunk",
@@ -93,6 +70,7 @@ export async function prepareRepeatScenario(
   const original = trunkRun(story.completion, 71, {
     ...passedFrom("2026-11-10T06:00:00.000Z", seconds * 1000),
     workflowId: 7001,
+    url: "https://github.com/terryyin/open-dough/actions/runs/71",
     headBranch: "main",
   });
   let current = original;

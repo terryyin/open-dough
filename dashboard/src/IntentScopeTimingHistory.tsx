@@ -74,7 +74,8 @@ function CollectedHistory({ history }: { readonly history: CiScopeHistory }) {
 export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
   const evidence = useIntentCiEvidence();
   const selected =
-    evidence.kind === "comparison" && evidence.phase === "done"
+    evidence.kind === "retained" ||
+    (evidence.kind === "comparison" && evidence.phase === "done")
       ? evidence
       : undefined;
   const { shown, failed, retry } = useIntentCiScopeHistory(

@@ -134,7 +134,11 @@ function ListedEntry({
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
       ciFollowUp={
-        <CiFollowUpCard answer={ciFollowUps} identity={record.identity} />
+        <CiFollowUpCard
+          answer={ciFollowUps}
+          identity={record.identity}
+          project={sourceId}
+        />
       }
       followUp={
         detail.status === "read" && (

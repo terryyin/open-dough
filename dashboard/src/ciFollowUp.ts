@@ -4,6 +4,7 @@ export const ciFollowUpEndpoint = "/__project-configuration/ci-follow-up";
 const cardSchema = z.object({
   revision: z.string(),
   identity: z.string().optional(),
+  reviewable: z.boolean().optional(),
   originalMs: z.number().nonnegative(),
   averageMs: z.number().positive(),
   repeatMs: z.number().nonnegative().optional(),

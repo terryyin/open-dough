@@ -18,8 +18,13 @@ import {
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
+import { completedFollowUps } from "./completedCiFollowUps.ts";
+import { retainedFollowUpOf } from "./ciFollowUpReading.ts";
 
-export async function followUpAnswer(project: string) {
+export async function followUpAnswer(
+  project: string,
+  signal = new AbortController().signal,
+) {
   const source = configuredProject(project);
   if (source === undefined)
     throw new RefusedRequest(404, "The project is not configured.");
@@ -35,6 +40,7 @@ export async function followUpAnswer(project: string) {
   const production = projectEnvironment() === "production";
   const authority = setting === undefined || setting.authority === hostname();
   const available = production && !adapter && authority;
+  const completed = await completedFollowUps(source, read.document, signal);
   return {
     enabled: setting?.enabled ?? false,
     machine: setting?.authority ?? hostname(),
@@ -46,7 +52,7 @@ export async function followUpAnswer(project: string) {
         : !authority
           ? "This project designates another production machine; this machine has no action authority."
           : "Enabling designates this production machine to request one full repeat for newly recorded landing receipts. Keep follow-up off on other machines; cross-machine coordination is not provided.",
-    cards: Object.values(read.document.landings).flatMap((landing) => {
+    cards: completed.flatMap((landing) => {
       const request = landing.request;
       const evidence = request ?? landing.assessment;
       const originalMs = historyWallTimeMs(
@@ -74,12 +80,12 @@ export async function followUpAnswer(project: string) {
             : { identity: landing.identity }),
           originalMs,
           averageMs,
-          ...(request?.outcome ?? {
-            kind: "unverified",
-            explanation:
-              landing.assessment?.explanation ??
-              "Automatic repeat is unverified",
-          }),
+          kind: request?.outcome.kind ?? "unverified",
+          explanation:
+            request?.outcome.explanation ??
+            landing.assessment?.explanation ??
+            "Automatic repeat is unverified",
+          reviewable: request !== undefined,
           ...(repeatMs === undefined ? {} : { repeatMs }),
         },
       ];
@@ -94,7 +100,32 @@ export async function answerCiFollowUp(
   const project = new URL(req.url ?? "", "http://local").searchParams.get("id");
   if (project === null)
     throw new RefusedRequest(400, "The follow-up request names one project.");
-  if (req.method === "GET") return followUpAnswer(project);
+  if (req.method === "GET") {
+    const params = new URL(req.url ?? "", "http://local").searchParams;
+    const identity = params.get("identity"),
+      revision = params.get("revision");
+    if (identity === null && revision === null)
+      return followUpAnswer(project, signal);
+    const source = configuredProject(project);
+    const read = await readFollowUps();
+    if (source === undefined || read.kind !== "document")
+      throw new RefusedRequest(
+        503,
+        "Retained follow-up evidence is unavailable.",
+      );
+    const completed = await completedFollowUps(source, read.document, signal);
+    const landing = completed.find(
+      (item) => item.identity === identity && item.revision === revision,
+    );
+    const reading =
+      landing === undefined ? undefined : retainedFollowUpOf(landing);
+    if (reading === undefined)
+      throw new RefusedRequest(
+        404,
+        "No retained follow-up names this published Done landing.",
+      );
+    return reading;
+  }
   if (req.method !== "POST")
     throw new RefusedRequest(405, "Only GET and POST are accepted.");
   const source = configuredProject(project);
@@ -165,5 +196,5 @@ export async function answerCiFollowUp(
       })),
     );
   });
-  return followUpAnswer(project);
+  return followUpAnswer(project, signal);
 }

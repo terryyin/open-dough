@@ -37,6 +37,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * CI builders exposed on MakeMe (fresh on each access).
  *
  * @typedef {object} CiMakeMe
+ * @property {FactBuilder<import("../../dashboard/server/ciFollowUpStore.ts").FollowUpLedger["landings"][string] & { at?: string }>} aCiFollowUpEntry
  * @property {FactBuilder<import("../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
  * @property {import("./ciProofTestData.mjs").CiProofBuilder} aCiProof
  * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
@@ -64,6 +65,12 @@ import { copyFacts } from "./factBuilder.mjs";
 /** @returns {PropertyDescriptorMap} */
 export function ciMakeMeProperties() {
   return {
+    aCiFollowUpEntry: {
+      enumerable: true,
+      get() {
+        return { with: copyFacts };
+      },
+    },
     aCiRepeatRequest: {
       enumerable: true,
       get() {

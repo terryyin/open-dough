@@ -12,6 +12,11 @@ import { StartupRecovery } from "./StartupRecovery.tsx";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
 import { StoryDestination } from "./StoryDestination.tsx";
 import { AgentRoster } from "./AgentRoster.tsx";
+import {
+  FollowUpNavigationOnPage,
+  FollowUpSelection,
+} from "./ciFollowUpNavigation.tsx";
+import { RetainedFollowUpPerspective } from "./RetainedFollowUpPerspective.tsx";
 import { IntentPerspective } from "./IntentPerspective.tsx";
 import { IntentReadRecovery } from "./intentReadRecovery.tsx";
 import { parseRoute } from "./dashboardRouteUrl.ts";
@@ -64,6 +69,7 @@ export function ConfiguredDashboard({
     route,
     selectProject,
     selectPerspective,
+    openFollowUp,
     showStories,
     openRoster,
     onBack,
@@ -88,135 +94,153 @@ export function ConfiguredDashboard({
     source !== undefined && !showsIntent && route.view === "roster";
   const showsBoard = source !== undefined && !showsIntent && !showsRoster;
   return (
-    <PageFrame
-      sessions={launches}
-      stories={{
-        selected: source?.id ?? "",
-        shown: showsBoard ? work?.source.id : undefined,
-        show: showStories,
-        select: selectProject,
-        development: !showsIntent,
-        work,
-      }}
-    >
-      <DashboardBanner
-        source={source}
-        perspective={route.perspective}
-        onOpenSettings={onOpenSettings}
-        onSelect={selectProject}
-        onSelectPerspective={selectPerspective}
-      />
-      {source === undefined ? (
-        <main className="frame-state">
-          <h1>All projects are hidden</h1>
-          <p>
-            Open System settings → Projects to show a project on this dashboard.
-          </p>
-        </main>
-      ) : (
-        <StoryReferenceNavigation
-          projects={projects}
-          selected={source.id}
-          work={work}
-          reading={reading}
-          failure={readFailure}
-          show={showStories}
-          retry={readAfresh}
-          suspended={settingsOpen || !showsBoard}
-        >
-          {(storyNotice) => (
-            <div
-              className={
-                showsIntent
-                  ? "intent-scroll"
-                  : showsRoster
-                    ? "roster-scroll"
-                    : "board-scroll"
-              }
-            >
-              <div className="scroll-content">
-                <div className="page-header">
-                  <StoryDestination
-                    route={route}
-                    status={destination}
-                    retry={() => {
-                      window.location.reload();
-                    }}
-                    showStories={() => {
-                      showStories(source);
-                    }}
-                  />
-                  <PublishedReadStatus
-                    attempt={attempt}
-                    reading={reading}
-                    work={work}
-                    withheld={withheld}
-                    recoversAt={recoversAt}
-                    limitedUntil={limitedUntil}
-                    notice={notice}
-                  />
-                  {storyNotice}
-                  <ProjectActions
-                    source={source}
-                    work={work}
-                    launches={launches}
-                    hidden={!showsBoard}
-                  />
-                  {showsBoard && (
-                    <StartupRecovery
-                      sourceId={source.id}
-                      recoveries={launches}
+    <FollowUpNavigationOnPage value={openFollowUp}>
+      <PageFrame
+        sessions={launches}
+        stories={{
+          selected: source?.id ?? "",
+          shown: showsBoard ? work?.source.id : undefined,
+          show: showStories,
+          select: selectProject,
+          development: !showsIntent,
+          work,
+        }}
+      >
+        <FollowUpSelection
+          project={source?.id ?? ""}
+          destination={route.followUp}
+          navigate={openFollowUp}
+        />
+        <DashboardBanner
+          source={source}
+          perspective={route.perspective}
+          onOpenSettings={onOpenSettings}
+          onSelect={selectProject}
+          onSelectPerspective={selectPerspective}
+        />
+        {source === undefined ? (
+          <main className="frame-state">
+            <h1>All projects are hidden</h1>
+            <p>
+              Open System settings → Projects to show a project on this
+              dashboard.
+            </p>
+          </main>
+        ) : (
+          <StoryReferenceNavigation
+            projects={projects}
+            selected={source.id}
+            work={work}
+            reading={reading}
+            failure={readFailure}
+            show={showStories}
+            retry={readAfresh}
+            suspended={settingsOpen || !showsBoard}
+          >
+            {(storyNotice) => (
+              <div
+                className={
+                  showsIntent
+                    ? "intent-scroll"
+                    : showsRoster
+                      ? "roster-scroll"
+                      : "board-scroll"
+                }
+              >
+                <div className="scroll-content">
+                  <div className="page-header">
+                    <StoryDestination
+                      route={route}
+                      status={destination}
+                      retry={() => {
+                        window.location.reload();
+                      }}
+                      showStories={() => {
+                        showStories(source);
+                      }}
                     />
-                  )}
-                  <StartupAnnouncer
-                    sourceId={source.id}
-                    startups={launches.storyStartupsOf(source.id)}
-                  />
-                </div>
-                {work && (
-                  <main hidden={!showsBoard}>
-                    <Board
-                      sourceId={source.id}
-                      project={source.label}
+                    <PublishedReadStatus
+                      attempt={attempt}
+                      reading={reading}
+                      work={work}
+                      withheld={withheld}
+                      recoversAt={recoversAt}
+                      limitedUntil={limitedUntil}
+                      notice={notice}
+                    />
+                    {storyNotice}
+                    <ProjectActions
+                      source={source}
                       work={work}
                       launches={launches}
-                      onOpenRoster={openRoster}
+                      hidden={!showsBoard}
                     />
-                  </main>
-                )}
-                {showsIntent && (
-                  <IntentReadRecovery
-                    visibility={visibility}
-                    limitStands={limitedUntil !== undefined}
-                  >
-                    <IntentPerspective
-                      source={source}
-                      work={work}
-                      records={launches.records}
-                      workspaces={launches.workspaces}
+                    {showsBoard && (
+                      <StartupRecovery
+                        sourceId={source.id}
+                        recoveries={launches}
+                      />
+                    )}
+                    <StartupAnnouncer
+                      sourceId={source.id}
+                      startups={launches.storyStartupsOf(source.id)}
                     />
-                  </IntentReadRecovery>
-                )}
-                {showsRoster && (
-                  <main>
-                    <AgentRoster
-                      source={source}
-                      work={work}
-                      problem={readFailure}
-                      agent={
-                        opening?.sourceId === source.id
-                          ? opening.agent
-                          : undefined
-                      }
-                      onBack={onBack}
-                    />
-                  </main>
-                )}
+                  </div>
+                  {work && (
+                    <main hidden={!showsBoard}>
+                      <Board
+                        sourceId={source.id}
+                        project={source.label}
+                        work={work}
+                        launches={launches}
+                        onOpenRoster={openRoster}
+                      />
+                    </main>
+                  )}
+                  {showsIntent && (
+                    <IntentReadRecovery
+                      visibility={visibility}
+                      limitStands={limitedUntil !== undefined}
+                    >
+                      {route.followUp !== undefined ? (
+                        <RetainedFollowUpPerspective
+                          source={source}
+                          work={work}
+                          records={launches.records}
+                          workspaces={launches.workspaces}
+                          destination={route.followUp}
+                        />
+                      ) : (
+                        <IntentPerspective
+                          source={source}
+                          work={work}
+                          records={launches.records}
+                          workspaces={launches.workspaces}
+                        />
+                      )}
+                    </IntentReadRecovery>
+                  )}
+                  {showsRoster && (
+                    <main>
+                      <AgentRoster
+                        source={source}
+                        work={work}
+                        problem={readFailure}
+                        agent={
+                          opening?.sourceId === source.id
+                            ? opening.agent
+                            : undefined
+                        }
+                        onBack={onBack}
+                      />
+                    </main>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </StoryReferenceNavigation>
-      )}
-    </PageFrame>
+            )}
+          </StoryReferenceNavigation>
+        )}
+      </PageFrame>
+    </FollowUpNavigationOnPage>
   );
 }

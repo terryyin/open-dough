@@ -14,13 +14,13 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | C001 | Recently done lets a developer distinguish a slow landed CI measurement that returned to range after one full repeat from one that still needs investigation. | slice 4 | G1 |
-| C002 | Preserve the original and repeat as distinct, reviewable attempts. | slice 4 |  |
-| C003 | Preserve each attempt's revision. | slice 4 |  |
-| C004 | Preserve each attempt's workflow identity. | slice 4 |  |
-| C005 | Preserve each attempt's run identity. | slice 4 |  |
-| C006 | Preserve each attempt's timing. | slice 4 |  |
-| C007 | Preserve each attempt's proof completeness. | slice 4 |  |
-| C008 | Preserve each attempt's build links. | slice 4 |  |
+| C002 | Preserve the original and repeat as distinct, reviewable attempts. | slice 4 | observed: slice-4-proof.md#current-proof — P1 distinct retained attempts, metadata, proof and exact links; P3 honest failed/cancelled/unknown observations |
+| C003 | Preserve each attempt's revision. | slice 4 | observed: slice-4-proof.md#current-proof — P1 distinct retained attempts, metadata, proof and exact links; P3 honest failed/cancelled/unknown observations |
+| C004 | Preserve each attempt's workflow identity. | slice 4 | observed: slice-4-proof.md#current-proof — P1 distinct retained attempts, metadata, proof and exact links; P3 honest failed/cancelled/unknown observations |
+| C005 | Preserve each attempt's run identity. | slice 4 | observed: slice-4-proof.md#current-proof — P1 distinct retained attempts, metadata, proof and exact links; P3 honest failed/cancelled/unknown observations |
+| C006 | Preserve each attempt's timing. | slice 4 | observed: slice-4-proof.md#current-proof — P1 distinct retained attempts, metadata, proof and exact links; P3 honest failed/cancelled/unknown observations |
+| C007 | Preserve each attempt's proof completeness. | slice 4 | observed: slice-4-proof.md#current-proof — P1 distinct retained attempts, metadata, proof and exact links; P3 honest failed/cancelled/unknown observations |
+| C008 | Preserve each attempt's build links. | slice 4 | G3 |
 | C009 | Accepted Decision (Terry, 2026-11-10): automatic follow-up is off by default. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
 | C010 | Accepted Decision (Terry, 2026-11-10): require explicit per-project enablement. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
 | C011 | Accepted Decision (Terry, 2026-11-10): one designated production dashboard machine per project has action authority. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
@@ -33,7 +33,7 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | C018 | Other machines gain no action authority merely by reading the project. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
 | C019 | Preparation does not enable a real project; the threshold's learning question also grants no authority to enable one. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
 | C020 | Disabling follow-up stops new requests; disabled projects issue none. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
-| C021 | Existing request evidence remains reviewable after disabling. | slice 4 |  |
+| C021 | Existing request evidence remains reviewable after disabling. | slice 4 | observed: slice-4-proof.md#current-proof — P1 actual disable then fresh-reader card/comparison/Proof; P2 eviction/restart |
 | C022 | An enabled project has an allowance for only one automatic repeat of the landing. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 two-collector receipt loop, P3 alias/workflow cap and P4 receipt-boundary assertions |
 | C023 | The requested repeat is a full repeat of the original observed workflow run. Equivalent-build reuse or a confirmed skip supplies no qualifying run of this landing's own; an incremented attempt number alone is insufficient because partial manual reruns can carry forward earlier jobs. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P3 repeatDecisionOf policy/exact-job assertions; P1 actual full POST and P4 visible provisional rule |
 | C024 | The repeat uses the exact recorded landed revision; a later trunk build may contain later changes and does not qualify as that landing's own observed run. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P3 repeatDecisionOf policy/exact-job assertions; P1 actual full POST and P4 visible provisional rule |
@@ -54,7 +54,7 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | C039 | Freeze the timing basis when deciding to repeat. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P2 frozen-reference/history-eviction reconciliation and P3 original-sample restoration assertions |
 | C040 | Freeze the trigger rule when deciding to repeat. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P2 frozen-reference/history-eviction reconciliation and P3 original-sample restoration assertions |
 | C041 | Judge the original and repeat against that same frozen reference. Newer landings changing today's average do not change either card or comparison; reference eviction and newer landings do not rewrite a completed follow-up decision. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P2 frozen-reference/history-eviction reconciliation and P3 original-sample restoration assertions |
-| C042 | Expose the fixed reference in the comparison so the shared basis for both measurements is reviewable. | slice 4 |  |
+| C042 | Expose the fixed reference in the comparison so the shared basis for both measurements is reviewable. | slice 4 | observed: slice-4-proof.md#current-proof — P1 keyboard card route, both signed timings and saved actual sample/exclusions; P2 frozen selection |
 | C043 | All baseline samples must use the same timing basis as the two observations; a consistent original/repeat pair alone is insufficient. Differently measured samples cannot establish the threshold merely because both are labelled wall time. | slice 1 | observed: tests/support/ci-attempt-wall-time-basis.test.mjs unknown/workflow-creation exclusions; landed-ci-attempt-start.spec.ts shared reference evidence120000ms and unavailable exclusion |
 | C044 | Accepted Decision (Terry, 2026-11-10): use provider-reported attempt start as the start of both observations and every baseline sample. | slice 1 | observed: baseCiRevisionNearest.ts attemptTimesOf(run); first/repeat/missing-start contracts and GitHub/adapter collector specs |
 | C045 | Accepted Decision (Terry, 2026-11-10): use completion as the end of both observations and every baseline sample. | slice 1 | observed: same direct and collector assertions retain provider completion and120000ms interval; existing comparison consumer gate |
@@ -67,9 +67,9 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | C052 | A complete successful repeat at or above the chosen threshold shows **Possible CI slowdown**. Against a fixed 100-second reference, a complete successful 106-second repeat after a qualifying original illustrates persistence. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 actual collected card outcomes and P4 phone-card text/color/Done assertions |
 | C053 | The **Possible CI slowdown** indicator is red. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 actual collected card outcomes and P4 phone-card text/color/Done assertions |
 | C054 | The **Possible CI slowdown** indicator includes text. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 actual collected card outcomes and P4 phone-card text/color/Done assertions |
-| C055 | The indicator provides a route to the original timing. | slice 4 |  |
-| C056 | The indicator provides a route to the repeat timing. | slice 4 |  |
-| C057 | The indicator provides a route to the fixed comparison. | slice 4 |  |
+| C055 | The indicator provides a route to the original timing. | slice 4 | observed: slice-4-proof.md#current-proof — P1 keyboard card route, both signed timings and saved actual sample/exclusions; P2 frozen selection |
+| C056 | The indicator provides a route to the repeat timing. | slice 4 | observed: slice-4-proof.md#current-proof — P1 keyboard card route, both signed timings and saved actual sample/exclusions; P2 frozen selection |
+| C057 | The indicator provides a route to the fixed comparison. | slice 4 | observed: slice-4-proof.md#current-proof — P1 keyboard card route, both signed timings and saved actual sample/exclusions; P2 frozen selection |
 | C058 | A complete successful repeat below the threshold says timing returned to range. A complete 104-second repeat is judged against its saved 100-second reference even when newer landings have changed today's average; a 120-second original repeating in 100 seconds likewise illustrates recovery against its saved reference. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 recovered104000 outcome; P2 saved100000/current300000 discriminating reference assertions |
 | C059 | A refused request has its particular unverified explanation. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 outcome table, P2 lost-reply/incomplete/multiple-attempt and P7/P8 exact-verdict assertions |
 | C060 | A failed repeat has its particular unverified explanation. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 outcome table, P2 lost-reply/incomplete/multiple-attempt and P7/P8 exact-verdict assertions |
@@ -96,9 +96,9 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | C081 | Accepted Decision (Terry, 2026-11-10): cross-machine coordination and a global cross-machine cap are deferred; a global cap would require a different coordination design. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 admission/settings and P3 ledger default-off/disabled/designated-machine assertions |
 | C082 | Background collection owns acquisition. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1/P2 real background collection without a page; retained read-only endpoint and P4 card consumption |
 | C083 | Background collection owns follow-up observation. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1/P2 real background collection without a page; retained read-only endpoint and P4 card consumption |
-| C084 | Opening cards does not itself request another build. | slice 4 |  |
-| C085 | Opening Intent does not itself request another build. | slice 4 |  |
-| C086 | Opening retained history does not itself request another build. | slice 4 |  |
+| C084 | Opening cards does not itself request another build. | slice 4 | observed: slice-4-proof.md#current-proof — P1 fresh-process retained card/Intent/Proof/refresh/reload/Back zero actions-* calls; P2 local selected reading |
+| C085 | Opening Intent does not itself request another build. | slice 4 | observed: slice-4-proof.md#current-proof — P1 fresh-process retained card/Intent/Proof/refresh/reload/Back zero actions-* calls; P2 local selected reading |
+| C086 | Opening retained history does not itself request another build. | slice 4 | observed: slice-4-proof.md#current-proof — P1 fresh-process retained card/Intent/Proof/refresh/reload/Back zero actions-* calls; P2 local selected reading |
 | C087 | Done-card and Intent presentation read the same follow-up evidence. | slice 4 | G2 |
 | C088 | Workflow publication remains with its existing owner. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 Taken-receipt rejection and provider outcomes; P7/P8 exact nullable/unsupported provider verdicts |
 | C089 | Story completion remains with its existing owner. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 Taken-receipt rejection and provider outcomes; P7/P8 exact nullable/unsupported provider verdicts |
@@ -112,13 +112,13 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | C097 | Do not replace uncertainty with an invented success. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 outcome table, P2 lost-reply/incomplete/multiple-attempt and P7/P8 exact-verdict assertions |
 | C098 | Do not replace uncertainty with an invented failure. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 outcome table, P2 lost-reply/incomplete/multiple-attempt and P7/P8 exact-verdict assertions |
 | C099 | Do not replace uncertainty with an invented elapsed value; missing evidence is never zero or a recovered timing. | slice 3 | observed: slice-3-proof.md#current-focused-proof — P1 outcome table, P2 lost-reply/incomplete/multiple-attempt and P7/P8 exact-verdict assertions |
-| C100 | Causal attribution is deferred. | slice 4 |  |
-| C101 | A statistical confidence claim is deferred. | slice 4 |  |
-| C102 | Adaptive multiple repeats are deferred. | slice 4 |  |
-| C103 | Configurable thresholds are deferred. | slice 4 |  |
-| C104 | New historical backfill is deferred. | slice 4 |  |
-| C105 | Treat the stated restrictions as protections for comparison meaning and the request cap; do not turn omitted examples into additional rejection rules. | slice 4 |  |
-| C106 | Accepted Decision (Terry, 2026-11-10): the provisional threshold's usefulness remains a learning question. | slice 4 |  |
-| C107 | That learning question does not authorize changing the rule. | slice 4 |  |
-| C108 | Accepted Decision (Terry, 2026-11-10): no product decision remains open for preparation. | slice 4 |  |
+| C100 | Causal attribution is deferred. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C101 | A statistical confidence claim is deferred. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C102 | Adaptive multiple repeats are deferred. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C103 | Configurable thresholds are deferred. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C104 | New historical backfill is deferred. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C105 | Treat the stated restrictions as protections for comparison meaning and the request cap; do not turn omitted examples into additional rejection rules. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C106 | Accepted Decision (Terry, 2026-11-10): the provisional threshold's usefulness remains a learning question. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C107 | That learning question does not authorize changing the rule. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
+| C108 | Accepted Decision (Terry, 2026-11-10): no product decision remains open for preparation. | slice 4 | observed: slice-4-proof.md#current-proof — P1 provisional/deferred framing, P2 selected snapshot, P3 fixed policy and maintained docs; source/current code inspection |
 | C109 | Execution depends on the preceding comparison story's recorded supplier outcome; the Scope does not authorize assuming its comparison implementation has shipped. | slice 1 | observed: .planning/seeds/SEED-285-landed-ci-timing-history.md satisfied supplier at79463598346c4f74221711aabc47be51e29246cb; ciWallTimeReference.ts reuses ciPriorBuildReference.ts with focused existing reference boundary proof |

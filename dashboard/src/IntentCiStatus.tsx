@@ -17,6 +17,7 @@
 // to the scope's CI view shows what its owner already read; it asks CI
 // nothing again.
 
+import { IntentCiFollowUp } from "./IntentCiFollowUp.tsx";
 import { IntentCiComparison } from "./IntentCiComparison.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { JudgedBranch } from "./IntentCiJudgedBranch.tsx";
@@ -60,6 +61,19 @@ function provisionalBesideJudgment(
 export function IntentCiStatus() {
   const evidence = useIntentCiEvidence();
   if (evidence.kind === "inactive") return null;
+  if (evidence.kind === "retained")
+    return (
+      <>
+        {evidence.reading === undefined ? (
+          <p>{evidence.problem ?? "Reading retained CI follow-up…"}</p>
+        ) : (
+          <IntentCiFollowUp reading={evidence.reading} />
+        )}
+        <button type="button" onClick={evidence.retry}>
+          Refresh retained follow-up
+        </button>
+      </>
+    );
   if (evidence.kind === "gap") return <StoryGap target={evidence} />;
   if (evidence.kind === "comparison")
     return (

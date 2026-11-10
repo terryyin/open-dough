@@ -10,6 +10,7 @@ import { useLocalSetting } from "./useLocalSetting.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import "./ci-follow-up.css";
+import { FollowUpLink } from "./ciFollowUpNavigation.tsx";
 
 const failure = "Automatic CI follow-up evidence could not be read.";
 async function request(
@@ -100,9 +101,11 @@ export function useCiFollowUps(project: string): CiFollowUpAnswer | undefined {
 export function CiFollowUpCard({
   answer,
   identity,
+  project,
 }: {
   readonly answer: CiFollowUpAnswer | undefined;
   readonly identity: string;
+  readonly project: string;
 }) {
   const cards =
     answer?.cards.filter((item) => item.identity === identity) ?? [];
@@ -131,6 +134,16 @@ export function CiFollowUpCard({
         · Saved average {executionTimeWords(card.averageMs)}
       </p>
       <p>{provisionalRepeatRule}</p>
+      {card.reviewable && (
+        <p>
+          <FollowUpLink
+            project={project}
+            destination={{ identity, revision: card.revision }}
+          >
+            Review original, repeat and saved reference
+          </FollowUpLink>
+        </p>
+      )}
       {card.kind === "slow" && (
         <p>
           Two observed timings warrant investigation; this does not prove a

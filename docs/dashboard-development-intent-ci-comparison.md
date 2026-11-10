@@ -228,3 +228,8 @@ The count/span describe current retention: later publications cannot enter the
 reference, while eviction may change it or leave insufficient history. Independent
 history refresh/retry preserves the comparison; unavailable historical endpoints
 and selected proof are explained without acquiring CI or substituting current trunk.
+
+A Done card’s [automatic CI follow-up](dashboard-ci-follow-up.md) route reads
+both retained attempts against their saved wall-time reference. It mounts a
+local evidence owner from bootstrap, without the ordinary live CI readers.
+File/folder Proof on that route names the original selected landing.

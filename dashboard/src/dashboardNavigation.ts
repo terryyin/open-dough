@@ -60,6 +60,7 @@ export function useDashboardNavigation({
     route,
     selectProject,
     selectPerspective,
+    openFollowUp,
     openRoster: navigateToRoster,
     showStories,
   } = useDashboardRoute({
@@ -139,6 +140,7 @@ export function useDashboardNavigation({
     route,
     selectProject,
     selectPerspective,
+    openFollowUp,
     showStories,
     openRoster,
     onBack,

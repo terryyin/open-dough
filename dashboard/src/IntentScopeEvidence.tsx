@@ -96,6 +96,36 @@ function comparisonFrom(
 export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
   if (evidence.kind === "inactive")
     return { kind: "none", checking: true, line: "Checking the CI…" };
+  if (evidence.kind === "retained") {
+    const original = evidence.reading?.original;
+    if (
+      original?.proof?.kind !== "summary" ||
+      original.runId === undefined ||
+      original.runAttempt === undefined
+    )
+      return {
+        kind: "none",
+        checking:
+          evidence.reading === undefined && evidence.problem === undefined,
+        line:
+          evidence.problem ??
+          original?.completeness ??
+          "Reading retained original proof…",
+      };
+    return {
+      kind: "summary",
+      summary: original.proof.summary,
+      run: {
+        runId: original.runId,
+        runAttempt: original.runAttempt,
+        revision: original.revision,
+        runUrl: original.runUrl,
+      },
+      branch: evidence.source.ref,
+      story: undefined,
+      ancestor: false,
+    };
+  }
   if (evidence.kind === "gap")
     return { kind: "none", checking: false, line: evidence.why };
   if (evidence.kind === "comparison")

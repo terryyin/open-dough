@@ -82,6 +82,14 @@ its shared API ensures coverage of that accepted SHA. This merge is the new
 previously published base for slice 3. No dependency or story source changed;
 package, lockfile, Node and hook inputs are unchanged, so setup remains valid.
 
+Slice 3: accepted `4f9cdebb9f283bfee522861f96af8f44d61041f4` on the
+same remote execution branch, suffix base `fa1cb8d8dabb05e1cc2102cb39ccdbb0cf1363fa`.
+Fresh delivery completed46-path formatter/size checks, agent commit and hooks,
+then published without rewrite and reused the same exact observer. The first
+formatting stop made no commit; [preparation repair](slice-3-preparation-proof.md)
+records the diagnosed fixes, renewed proof and independent clean continuation.
+This accepted SHA is the new previously published base/candidate for slice4.
+
 ## Dashboard completion context
 
 Launch `e290a475-370f-4591-a82e-63baec73b213`, project open-dough, host codex.
@@ -197,6 +205,16 @@ Choice: at the clean post-slice2 boundary reconcile accepted trunk into this
 owned story branch while preserving published histories, then reverify only
 affected combined fixture/timing/action/storage paths before slice3. No story
 scope, user promise, ADR or source-of-truth change is authorized by this reuse.
+
+## Test-data foundations
+
+Extend `makeMe.aCiRun`, `aLandedCiHistory`, proof/landing builders and the shared
+MakeMe API for new follow-up facts. State driving times, attempt identities,
+project enablement and receipt order at each call site. Keep actions and
+independent expectations outside builders. Extend synthetic `gh` parsing to
+include method as well as route; a route match alone cannot prove a POST.
+Wait for observable requests/store transitions or advance the controlled
+observation clock; do not wait for elapsed wall-clock time.
 
 ## Focused verification commands
 

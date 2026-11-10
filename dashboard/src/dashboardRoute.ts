@@ -2,6 +2,7 @@
 // per navigation, and the route Back and Forward restore.
 
 import { useEffect, useRef, useState } from "react";
+import type { FollowUpDestination } from "./ciFollowUpReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useVisibleProjects } from "./projectList.tsx";
 import {
@@ -66,6 +67,8 @@ export function useDashboardRoute({
         const params = new URLSearchParams(window.location.search);
         params.delete("project");
         params.delete("story");
+        params.delete("followUp");
+        params.delete("landing");
         window.history.replaceState(
           window.history.state,
           "",
@@ -91,6 +94,8 @@ export function useDashboardRoute({
       const params = new URLSearchParams(window.location.search);
       params.set("project", next.id);
       params.delete("story");
+      params.delete("followUp");
+      params.delete("landing");
       window.history.replaceState(window.history.state, "", `/?${params}`);
       setRoute(nextRoute);
     }
@@ -107,7 +112,21 @@ export function useDashboardRoute({
     ) {
       return;
     }
-    pushRoute({ source: route.source, view: route.view, perspective });
+    pushRoute({
+      source: route.source,
+      view: route.view,
+      perspective,
+      ...(route.followUp === undefined ? {} : { followUp: route.followUp }),
+    });
+  };
+
+  const openFollowUp = (followUp: FollowUpDestination | undefined) => {
+    pushRoute({
+      source: route.source,
+      view: route.view,
+      perspective: followUp === undefined ? route.perspective : "intent",
+      ...(followUp === undefined ? {} : { followUp }),
+    });
   };
 
   const openRoster = (source: PublishedSource) => {
@@ -191,6 +210,7 @@ export function useDashboardRoute({
     route,
     selectProject,
     selectPerspective,
+    openFollowUp,
     openRoster,
     showStories,
   };
