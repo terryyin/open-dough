@@ -30,7 +30,7 @@
 }
 
 .intent-ci-refresh-failed {
-  color: var(--danger, #a33);
+  color: var(--problem);
 }
 
 /* The shown run's CI proof (./IntentCiProof.tsx), after the judgment. */
@@ -225,5 +225,5 @@
 
 .intent-ci-comparison-entries {
   margin: 0;
-  color: var(--muted, #555);
+  color: var(--quiet);
 }

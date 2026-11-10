@@ -2,6 +2,7 @@
 
 **Identity:** SEED-278#dashboard-dark-theme
 **Source:** [Refined story](../../seeds/SEED-278-dashboard-dark-theme.md#dashboard-dark-theme)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and boundaries
 
@@ -152,7 +153,7 @@ Use event waits/controlled clocks and default timeouts, never wall-clock waits,
 
 ### 1. Read dashboard work and evidence in the system appearance
 Type: Behavior
-Status: planned
+Status: done
 Proof: All four story examples through the owned observations and local gates above.
 
 Given a dark system preference → open Development and browse the same project's
@@ -168,6 +169,19 @@ fallbacks. Keep proof, visual review, required documentation and local cleanup
 with this behavior. Assimilate enduring appearance/terminal-boundary knowledge
 into the existing dashboard guide at delivery, rather than leaving it only in
 this seed/plan.
+
+Accepted proof (local):
+- `caffeinate -s -i npm run test:dashboard -- dashboard/frontend-tests/dashboard-system-appearance.spec.ts dashboard/tests/intent/intent-ci-cues-dark-contrast.spec.ts dashboard/tests/configuration/system-settings-terminal-theme-appearance.spec.ts dashboard/tests/intent/intent-story-dark-appearance.spec.ts --workers=1` pass
+- retained `intent-code-browse-sources`, `intent-story-ci-cues`, `intent-story-completed` pass
+- terminal-theme + frame keyboard/header journeys pass
+- `npm run typecheck:dashboard` and `npm run lint` pass
+- Source-review commitments 1–26.6 observed in `source-review.md`
+- Consumer-trace: appearance/source consumers run or reused; CLI/`--quiet` planning hits excluded
+
+Learnings:
+- Root-only dark roles were insufficient; badge/`--location-header`/`#fff` status fills needed shared pairs.
+- Compose `color-mix`/`color(srgb … / α)` before contrast; token equality is not legibility proof.
+- Shiki `codeToTokensWithThemes` + CSS `--shiki-light/dark` updates tokens without remount.
 
 ## Readiness review
 

@@ -27,14 +27,15 @@
   font-weight: 700;
   line-height: 0.875rem;
   text-align: center;
-  color: #fff;
 }
 
 .sessions-toggle-working {
+  color: var(--on-ready);
   background: var(--ready);
 }
 
 .sessions-toggle-attention {
+  color: var(--on-problem);
   background: var(--problem);
 }
 
