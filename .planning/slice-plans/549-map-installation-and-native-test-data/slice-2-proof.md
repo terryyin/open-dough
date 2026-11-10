@@ -36,3 +36,6 @@ Focused proof used one job under the retained AC/high-load machine decision.
 
 Independent `/root/refactor2` returned `REFACTOR COMPLETE`, none — already clean.
 No edits or duplicate tests; accepted setup, observations and consumer proof held.
+
+Subsequent coordinator inspection found valid native guard settings outside this
+writer family. G2 and C09 now belong to slice 3; the six callers' proof above holds.

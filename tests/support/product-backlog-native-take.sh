@@ -31,6 +31,7 @@ take_write_evidence_inputs() {
     tests/support/native-import-closure.mjs
   native_import_closure_input_hash_lines \
     tests/support/render-published-backlog.mjs \
+    tests/support/product-backlog-native-facts.mjs \
     tests/support/native-host-stream.mjs \
     src/skills/dough-product-backlog/scripts/product-backlog.mjs
 }

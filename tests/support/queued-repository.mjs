@@ -39,10 +39,14 @@ export const storyPlanPath = (entry) => `slice-plans/${seedKey(entry)}/PLAN.md`;
 const storyPlan = (entry) =>
   `# ${entry.title} plan\n\nExecute the selected startup story.\n`;
 
-/** @param {BacklogEntry} entry @param {string} body */
-export function storySeed(entry, body) {
+/** @param {BacklogEntry} entry @param {string} body @param {string} [documentTitle] */
+export function storySeed(
+  entry,
+  body,
+  documentTitle = `Seed ${seedKey(entry)}`,
+) {
   const { identity, title, href } = entry;
-  return `---\nid: ${seedId(entry)}\n---\n\n# Seed ${seedKey(entry)}\n\n<a id="${splitHref(href).anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n${body}\n`;
+  return `---\nid: ${seedId(entry)}\n---\n\n# ${documentTitle}\n\n<a id="${splitHref(href).anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n${body}\n`;
 }
 
 /** @param {BacklogEntry} entry */

@@ -21,7 +21,7 @@ finally reconciled in slice 7 and apply throughout.
 | C06 | Existing independent behavioral proof remains intact. | slice 7 | |
 | C07 | Remaining arranged release facts enter through the shared MakeMe entry point. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C08 | Remaining arranged payload facts enter through that entry point. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
-| C09 | Remaining arranged host-hook settings enter through that entry point. | slice 2 | observed: slice-2-proof.md; inspected source setup and independent observations |
+| C09 | Remaining arranged host-hook settings enter through that entry point. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
 | C10 | Remaining arranged native starting-project facts enter through that entry point. | slice 5 | |
 | C11 | Remaining arranged runner-duration facts enter through that entry point. | slice 7 | |
 | C12 | Shell scenarios use small Node writers to arrange domain data. | slice 7 | |
@@ -30,7 +30,7 @@ finally reconciled in slice 7 and apply throughout.
 | C15 | The added-payload check retains its explicit asymmetric predecessor: an older verified shared root exists while the Claude root is absent. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C16 | A collection of present files does not silently represent an ordinary complete installation. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C17 | Physical roots, source/version records, project-owned configuration, and host settings remain distinct concepts. | slice 7 | |
-| C18 | Native Take scenarios’ valid published starting facts are converted. | slice 3 | |
+| C18 | Native Take scenarios’ valid published starting facts are converted. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
 | C19 | Native closure scenarios’ valid published starting facts are converted. | slice 4 | |
 | C20 | Worktree-preparation scenarios’ starting repository facts are converted. | slice 5 | |
 | C21 | The actual originating checkout is preserved. | slice 5 | |
@@ -76,8 +76,8 @@ finally reconciled in slice 7 and apply throughout.
 | J13 | An exact prior registration remains unwritten. | slice 2 | observed: slice-2-proof.md; inspected source setup and independent observations |
 | J14 | An explicitly edited managed handler causes refusal before writes. | slice 2 | observed: slice-2-proof.md; inspected source setup and independent observations |
 | J15 | That refusal also applies when force is used. | slice 2 | observed: slice-2-proof.md; inspected source setup and independent observations |
-| J16 | A native Take scenario begins with one queued, refined planned story. | slice 3 | |
-| J17 | The real installed claim workflow moves that story to Taken. | slice 3 | |
+| J16 | A native Take scenario begins with one queued, refined planned story. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
+| J17 | The real installed claim workflow moves that story to Taken. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
 | J18 | Closure scenarios retain their declared starting revisions. | slice 4 | |
 | J19 | Closure scenarios retain concurrent source changes. | slice 4 | |
 | J20 | Closure scenarios retain pending human files. | slice 4 | |

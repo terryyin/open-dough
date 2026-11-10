@@ -14,14 +14,11 @@ guard_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 guard_write_project_backlog() {
   local target=$1
   mkdir -p -- "${target}/$(dirname -- "${guard_backlog_rel}")"
-  cat > "${target}/${guard_backlog_rel}" << 'EOF'
-# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Existing queued item](seeds/EXISTING.md#existing) — EXISTING#existing
+  node "${source_dir}/tests/support/render-published-backlog.mjs" \
+    > "${target}/${guard_backlog_rel}" << 'EOF'
+{ "queued": [
+  { "identity": "EXISTING#existing", "title": "Existing queued item", "href": "seeds/EXISTING.md#existing" }
+] }
 EOF
 }
 
@@ -97,26 +94,7 @@ guard_assert_no_duplicate_pretooluse() {
 }
 
 guard_write_codex_existing_hooks() {
-  local target=$1
-  mkdir -p -- "${target}/.codex"
-  cat > "${target}/.codex/hooks.json" << 'EOF'
-{
-  "description": "Keep this Codex hook config.",
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "true"
-          }
-        ]
-      }
-    ]
-  }
-}
-EOF
+  node "${source_dir}/tests/support/product-backlog-native-facts.mjs" settings "$1" codex
 }
 
 # Fast, agent-free proof of the decision function itself: covers deny for

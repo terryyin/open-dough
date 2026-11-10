@@ -108,7 +108,8 @@ preservation and refusal-before-writes observations across all three hosts.
 
 ### 3. A native planned story stays claimable through the installed writer
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 3](slice-3-proof.md).
 Proof: Source example 3's claim. Run `npm test -- tests/product-backlog-native.sh tests/support/product-backlog-take.test.mjs tests/native-evidence-identity.sh`, plus a focused deterministic check of the actual Take fixture described below.
 
 Move valid seed/plan/backlog construction in
@@ -220,19 +221,7 @@ claimed by preparation.
 
 ## Execution context
 
-Established Story Branch execution in this worktree on
-`codex/make-installation-and-native-test-setup-map-dire`, publisher
-`dashboard-territory.local-open-dough`, agent DavidKo-chan. Claim
-`b26709dafe4a51e801ce1a4f34019d7ebeb6fbe3` accepted on `origin/main`;
-starting revision `5deb0028f6b023eaa7a2d19c2a3e76bb31685cbe`.
-Readiness remains changed since review; selected scope matches the retained plan.
-No numeric slice limit or explicit overrun-replanning selection was supplied.
-Locked npm setup and Chromium prerequisite command passed here on 2026-11-10
-using Node 24.21.0; no mutable dependency state was copied.
-CI source: GitHub Actions `terryyin/open-dough`, verified `ci.yml` / `CI`.
-Observer: coordinator `seed261-install-davidko`, directory
-`/tmp/dough-ci-501/watch-Q3D5st`, PID 47583, session 54844, yielded cell
-`g1103:14`, bound to the execution branch. Claim trunk CI remains unobserved.
+See [retained execution and observation identity](execution-context.md).
 
 ## Story obligations
 
@@ -240,3 +229,9 @@ Observer: coordinator `seed261-install-davidko`, directory
 Reported: slice 1 — "Including the actual scanner in hashed inputs exposed its comment example as a nonexistent executable dependency."
 Story clause: "A changed fixture dependency must enter its evidence identity"
 Disposition: proved by slice 1: slice-1-proof.md, scanner regression and real identity continuation.
+
+
+### G2. Native guard also arranges valid host settings
+Reported: slice 2 — "Coordinator inspection of guard_write_codex_existing_hooks after slice 2 found another ordinary Codex settings constructor alongside the known guard backlog setup."
+Story clause: "Convert remaining arranged release, payload, host-hook settings, native starting project and runner-duration facts through the shared MakeMe entry point"
+Disposition: proved by slice 3: slice-3-proof.md; real guard installs, preserved handlers and equivalent settings.

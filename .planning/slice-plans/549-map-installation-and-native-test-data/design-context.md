@@ -59,3 +59,17 @@
   under [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md):
   visible facts and one domain owner, with equivalent proof, justify the change;
   a forwarding layer that merely hides the same duplicate model does not.
+
+## Native identity check organization
+
+Slice 3 extends `tests/native-evidence-identity.sh` (246 lines before the edit)
+with its previously omitted real Take writer. Extract the writer inventory and
+writer-loading/capture harness into `tests/support/native-identity-writers.bash`;
+keep closure, membership, supervision and content-sensitivity assertions in the
+main check. This cohesive setup/proof seam preserves the public check command
+and all existing assertions while admitting the actual Take writer and its
+new shared dependencies. Slice 3 owns the extraction and focused identity proof.
+`take_run_native` directly invokes Claude and prints input hashes; it does not
+use native-run-supervise or standardized result retention. Keep all existing
+supervised-writer propagation checks, while checking Take's actual closure,
+required inputs and content sensitivity. Do not invent a native policy change.

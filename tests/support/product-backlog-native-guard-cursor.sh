@@ -4,21 +4,7 @@
 # shellcheck disable=SC2034,SC2154,SC2312 # Globals and shared helpers come from the sourcing test.
 
 guard_write_cursor_existing_hooks() {
-  local target=$1
-  mkdir -p -- "${target}/.cursor"
-  cat > "${target}/.cursor/hooks.json" << 'EOF'
-{
-  "description": "Keep this Cursor hook config.",
-  "hooks": {
-    "sessionStart": [
-      {
-        "command": "true",
-        "timeout": 1
-      }
-    ]
-  }
-}
-EOF
+  node "${source_dir}/tests/support/product-backlog-native-facts.mjs" settings "$1" cursor
 }
 
 guard_assert_cursor_preserved() {
