@@ -2,7 +2,7 @@
 
 
 Established Story Branch Mode in workspace/branch `make-ci-proof-evidence-test-setup-map-directly-t` / `codex/make-ci-proof-evidence-test-setup-map-directly-t`; remote `origin`, trunk `main`.
-Accepted claim `efc80fb31d7ce57075a50add1a73285fbb5aea1c`; latest published base/candidate `0dd938e1a4286af4f1caa5c99f0a591faf3303d4` on the observer target; start `09b455646f66ef273375965c55523fa610dfd834`. Publisher `dashboard-territory.local-open-dough`; agent/coordinator `mrsn-chan`.
+Accepted claim `efc80fb31d7ce57075a50add1a73285fbb5aea1c`; latest published base/candidate `a0357d569ac3bd2fc4d866d511fdf354963881bc` on the observer target; start `09b455646f66ef273375965c55523fa610dfd834`. Publisher `dashboard-territory.local-open-dough`; agent/coordinator `mrsn-chan`.
 Native npm/browser/check passed at the current lockfile with Node `24.21.0` / Chromium `153.0.8010.12`.
 Observer: GitHub Actions `ci.yml` (`CI`), target `codex/make-ci-proof-evidence-test-setup-map-directly-t`, cell `g1144:12`, session `85302`, `/tmp/dough-ci-501/watch-qdyB1v`, pid `1852`, coordinator `mrsn-chan`; trunk Take CI unobserved.
 AC powered; load `5.48`, memory free `58%`, no known competing owned heavy run. Sequential checks: `OPEN_DOUGH_TEST_JOBS=1`, browser workers `1`, under `caffeinate -s -i`; reconsider on contention/failure.
@@ -59,3 +59,11 @@ run; unrelated processes stayed owned.
 These observations settle the existing consuming routes and conversion seams.
 Implementation still owes complete traced proof; these probes cover their named
 routes.
+
+## Execution retrospective
+
+Reviewed the original ready plan/source at claim efc80fb31 and accepted implementation commits fc2edb326, c61170efd,0dd938e1a,a0357d569. Other main claims/preparations were excluded; adapter sibling adoption in0dd938e1a is attributed to49367c2e4/b6690be48. Current whole-product proof/summary/entry/evidence/record representation remains cohesive under ADR0002/0008, deterministic independent proof under ADR0005, and the qualitative reduction of duplicate construction meets the stated ADR0010 comparison. No product correction or additional queue recommendation is supported.
+
+Existing E2E journeys were preserved and moved cohesively only for accessibility size; detailed count/unit/gap rules remain Node tests, and real collector/ZIP/server/UI integration observations remain mounted/browser/backend proof. No redundant new behavior suite or production policy was introduced. Named-sibling environment fixes renewed affected proof without repeating unchanged105 tests or19 collector comparisons. Source review150 commitments and G1-G3 are observed/closed; accepted proof still awaits final target CI.
+
+Process review enabled by skipProcessRetrospective:false and actual coordinator/sub-agent history. Recorded one occurrence each under existing ODF-329 and ODF-396. DearDough candidate1013 physical lines was bounded to998 by replacing four catalog-only stubs (ODF-238/253/262/263); canonical records remain in finding catalog and exact deleted stubs recover from a0357d569:DearDough.md. High-water488 unchanged. No unresolved review attention or correction plan.
