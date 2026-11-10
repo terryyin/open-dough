@@ -368,6 +368,14 @@ distinct from numeric dashboard `databaseId`.
 Accepted focused proof: ci-reuse-github + command + story/trunk/resource
 journeys; typecheck; lint; native-evidence.
 
+### CI repair (registered SHA d9b19d637)
+- Comparison-taken startedAt shadow: already fixed at HEAD via slice 2
+  `githubCiRunFacts` alignment; focused proof green.
+- Production-watcher restart/SIGINT: hosted CI exhausted the 30s default
+  during real install/build (~27.3s) before shutdown; interim
+  `test.setTimeout(90_000)` on that case (SEED-287 removes the allowance).
+  Full serial file: 7 passed.
+
 ## Story obligations
 
 ### G1. CI adapter attempts belong to sibling stories

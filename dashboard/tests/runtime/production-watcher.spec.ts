@@ -183,6 +183,11 @@ test("an occupied production port is refused rather than moved", async ({
 test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
   request,
 }) => {
+  // Real restart install/build used 27.3s of the 30s default in hosted CI
+  // run 42781560636 before SIGINT shutdown; sibling deployment activation
+  // measured 32.1s. Removing this allowance belongs to
+  // SEED-287#fit-dashboard-journeys-in-default-timeout.
+  test.setTimeout(90_000);
   const { fixture, cursor, productionPage } = started();
   const deployments = productionDeployments(fixture.home);
   const current = await fixture.publish(
