@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-294_opt-in-to-intent-coverage-at-wrap-up.json",
+      "identity": "SEED-294#opt-in-to-intent-coverage-at-wrap-up",
+      "completedAt": "2026-11-10T08:46:34.555Z",
+      "blob": "f66999ee39d523665c6178047fd1608aa2eeed52"
+    },
+    {
       "fileName": "SEED-290_publish-frontend-test-proof.json",
       "identity": "SEED-290#publish-frontend-test-proof",
       "completedAt": "2026-11-10T07:42:58.137Z",
