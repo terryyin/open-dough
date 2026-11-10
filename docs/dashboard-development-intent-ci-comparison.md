@@ -73,7 +73,11 @@ units)`, `6 legacy test results → 7 test cases and 1 test file (legacy unit
 unknown)`), and several units at one end show each unit's time apart. A unit
 one end alone reports beside a unit both report has its own row reading `—`
 where it is unreported, never a measured zero (`— → 1 test file`); a reported
-zero is a real zero. A gap keeps its label and explanation. A
+zero is a real zero. Every compared row names its unit, including
+`1 test file → —`, `5 test cases → removed` and `nothing counted as test files`.
+Below an entry, missing or ambiguous parts, and present parts without a file
+breakdown, keep their unit and evidence gap at folder and file scopes.
+A gap keeps its label and explanation. A
 measured zero Baseline permits a signed change. Branch and Landed headers
 note "vs baseline".
 Each comparable change with a positive measured Baseline has a relative mark:

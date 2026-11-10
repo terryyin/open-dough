@@ -236,3 +236,7 @@ At the final source check, trunk advanced to 4dc395f0e841661431e51e8f938d4570ba5
 ## Applicable CI repair
 
 Exact completion CI at e8aeadbe failed both inventoried test races in run42767019711/1; shutdown retained. [Execution history](execution-history.md#final-branch-ci-repair-427670197111) preserves diagnosis, causal evidence, exact six-case passing proof, TSC and fresh independent no-edit refactor. Two spec-local lifecycle/readiness repairs preserve every original assertion and budget. Product review conclusions and all unchanged source proof remain valid; this owned repair's publication and exact applicable CI remain owed to F7Jdln.
+
+## Accepted execution completion
+
+Repair published 258b95a2f7d5b6f25f15995564baeff0cb1e31c4 (suffix base e8aeadbeef8697b2d26d8e30e27a1708be032401). The clean CI-stash record restored with resumed, OID null, no application/drop. Exact branch CI run42769091314/attempt1 succeeded; completion requested this same SHA and confirmed shutdown with recordedThrough2/deliveredThrough2/unread0. All required execution/review gates hold. Wrap-up continues in this same owned checkout; no attention-only dashboard handoff is needed. Lasting unit-name and below-entry gap rules are assimilated into the maintained CI comparison documentation before recoverable cleanup.
