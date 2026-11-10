@@ -4,7 +4,10 @@ import { renderComparison } from "../support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import { scopeFigures, scopeTable } from "../intentScopeProofPage.ts";
-import { expectSortedBy, rowNames } from "../support/expectSortedColumns.ts";
+import {
+  expectRenderedSortedBy,
+  rowNames,
+} from "../support/expectSortedColumns.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
@@ -34,7 +37,7 @@ test("Summary Change keeps unchanged children last in both directions", async ({
   await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "change", direction: "ascending" },
   });
-  await expectSortedBy(table, "Change", "ascending", [
+  await expectRenderedSortedBy(table, "Change", "ascending", [
     "added.spec.ts",
     "gone.spec.ts",
     "renamed.spec.ts",
@@ -44,7 +47,7 @@ test("Summary Change keeps unchanged children last in both directions", async ({
   await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "change", direction: "descending" },
   });
-  await expectSortedBy(table, "Change", "descending", [
+  await expectRenderedSortedBy(table, "Change", "descending", [
     "renamed.spec.ts",
     "gone.spec.ts",
     "added.spec.ts",
@@ -66,7 +69,7 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
   await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "landed", direction: "descending" },
   });
-  await expectSortedBy(table, "Landed", "descending", [
+  await expectRenderedSortedBy(table, "Landed", "descending", [
     "folder/",
     "root.spec.ts",
     "added.spec.ts",
@@ -93,7 +96,7 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
     own,
     ...[...children].reverse(),
   ]);
-  await expectSortedBy(
+  await expectRenderedSortedBy(
     scopeTable(summary, "dashboard/tests/folder"),
     "Landed",
     "descending",

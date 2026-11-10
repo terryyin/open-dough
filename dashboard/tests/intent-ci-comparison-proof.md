@@ -74,6 +74,27 @@ settings. Save the strict per-case record outside disposable output using
 `OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE`. Follow [local resource use](../../tests/local-test-resources.md),
 including the maintained macOS sleep guard on AC power.
 
+The replacement-inclusive ordinary selection is:
+
+```sh
+npm run test:dashboard -- \
+  backend-tests/intent/ci-comparison \
+  backend-tests/intent/ci-proof-memory \
+  backend-tests/intent/ci-time-without-runner-waits.spec.ts \
+  tests/intent/intent-ci-comparison \
+  tests/intent/intent-summary-story-comparison \
+  tests/review/story-review-one-shot-choice-refresh.spec.ts \
+  backend-tests/review/story-review-stored- \
+  backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts \
+  backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
+  backend-tests/intent/landed-ci-history-comparison-run.spec.ts
+```
+
+Measure native launch/capture preservation separately with
+`npm run test:dashboard -- tests/review/recently-done-one-shot-review.spec.ts tests/review/story-review-one-shot.spec.ts`.
+The last three ordinary selectors retain eight backend connections omitted by
+the broad `ci-comparison` prefix; include them when comparing whole feedback.
+
 Each rule must take less than 1,000 ms including its arrangement, actions,
 assertions and cleanup. Report common runner/build/worker preparation separately.
 Declare integration ownership before measuring, retain its timing in the whole
@@ -131,8 +152,8 @@ global-setup owner 178 ms; initial worker dispatch/config 190 ms each, followed
 by 94–95 ms spec preparation; shared browsers 84/94 ms. Artifact preparations
 were history 624 ms, queued origin 1,195 ms, app 750 ms, server 79 ms and mount
 473 ms. Their elapsed intervals overlap and are not additive exclusive overhead.
-Current native launch/capture preservation passed three cases, runner 13.629 s,
-with the default timeout. Portable CI timing acceptance remains pending.
+At that checkpoint native launch/capture preservation passed three cases,
+runner13.629s, with the default timeout; portable timing was still pending.
 
 After presentation extraction, exact published Linux run42686088566 attempt1
 matched all170 rule owners and passed all17 workflow jobs. All77 static
@@ -147,21 +168,34 @@ With three original UI connections and one narrow Trunk initial-read connection,
 the replacement34-case selection took29.66s wall, all22 rule envelopes4–20ms.
 No combined predecessor UI baseline was measured, so this scope supplies no
 whole-family percentage. Its final tiny registration/type cleanup has separate
-passing receiving proof; final whole-family/load/CI remains separately owed.
+passing receiving proof; the broader family/load/CI gate follows below.
 
-The final ordinary selection has245 cases:198 rules and47 prospectively mapped
-connections, including all replacements, incoming finality and review Refresh.
-It passes85.43s wall/84.903s runner versus original75/269.01s wall, an observed
-68.24% reduction across explicitly different scopes. Intermediate188/87.35s
-remains a separate checkpoint. All198 complete conservative rule bounds are
-3–182ms, using actual following same-worker starts including directory cleanup;
-only actual immutable compiler/browser worker intervals are union-subtracted.
-The historical188 profile also reconstructs complete167-rule bounds3–748ms.
+The final formatted render-pilot selection has245 cases:198 rules and47
+prospectively mapped connections, including replacements, incoming finality
+and review Refresh. Ordinary proof passes97.57s wall/97.047s runner; every rule
+has a complete conservative bound3–363ms. Loaded proof passes146.48s wall/
+145.850s runner, with bounds4–798ms. Actual following same-worker starts include
+output-directory cleanup; only actual immutable compiler/browser interval unions
+are subtracted. Defaults stay2workers/30s/retry0/tracing.
 
-The same245 selection passes under two sustained owned CPU workloads at
-88.75s wall/88.308s runner; all198 complete rule bounds are3–263ms. Each workload
-uses99.65% of one core and is stopped/reaped after proof. Ordinary load2.96→4.36,
-loaded3.31→5.20, awake AC96%/memory74% free, default2workers/30s/retry0/tracing.
-This is finite moderate synthetic contention, not arbitrary-starvation proof.
-Current native launch/capture preservation passes3 cases separately at11.91s
-wall/11.534s runner. Exact published portable CI remains the final timing gate.
+Both runs observe awake battery/open lid with maintained caffeinate-i and no
+captured sleep/wake. Two loaded CPU workloads average90.3% of one core each,
+then stop/reap successfully. Ordinary load2.01→4.14, loaded3.55→11.16. Memory
+and power conditions also differ; this is finite synthetic contention, with
+no claim that the helpers alone cause the wall-time difference. The earlier
+6a AC245-case85.43/88.75s pair remains historical; no additional whole-family
+speedup is claimed against it. Original75/269.01s and intermediate188/87.35s
+retain their different scopes/conditions. Separate native launch/capture proof
+passes3 cases at11.91s wall/11.534s runner, reused for unchanged native paths.
+
+Same-case rendering retains the full actual CSS shell and replaces the entire
+production markup; a different document resets it. First renders still perform
+full initialization. Settled SSR sort combines native observations; real click/
+keyboard bindings retain readiness. Comparable8-case battery proof improves
+3.97→3.38s wall while single-render controls stay353ms summed. Foreign-document,
+fresh-page, wrong-direction, hidden-arrow and unexpected-sort witnesses retain
+fault detection. Per-test page/context and cleanup stay fresh and measured.
+
+The earlier exact6a CI run42718319654/attempt1 passes all17jobs/198 rules but
+has four complete bounds1007–1331ms. The render improvement needs its own exact
+published portable CI evidence before the final timing gate is settled.

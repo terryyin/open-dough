@@ -24,6 +24,8 @@ export type ComparisonRenderer = {
   close(): Promise<void>;
 };
 
+const renderedPages = new WeakSet<Page>();
+
 export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
   const { createServer } = await import("vite");
   const compiler = await createServer({
@@ -81,9 +83,25 @@ async function presentComparison(
   renderer: ComparisonRenderer,
   markup: string,
 ) {
+  const replaced =
+    renderedPages.has(page) &&
+    (await page.evaluate(
+      ({ css, content }) => {
+        const stylesheet = document.querySelector(
+          "style[data-intent-comparison-css]",
+        );
+        const root = document.getElementById("root");
+        if (stylesheet?.textContent !== css || root === null) return false;
+        root.innerHTML = content;
+        return true;
+      },
+      { css: renderer.css, content: markup },
+    ));
+  if (replaced) return;
   await page.setContent(
-    `<!doctype html><html lang="en"><head><meta charset="UTF-8"><style>${renderer.css}</style></head><body><div id="root">${markup}</div></body></html>`,
+    `<!doctype html><html lang="en"><head><meta charset="UTF-8"><style data-intent-comparison-css>${renderer.css}</style></head><body><div id="root">${markup}</div></body></html>`,
   );
+  renderedPages.add(page);
 }
 
 export async function renderComparisonTree(

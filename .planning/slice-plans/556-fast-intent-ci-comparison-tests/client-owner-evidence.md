@@ -168,3 +168,7 @@ plus first-spec120ms. Loaded equivalents are485/1088/78/734/493ms, pre-worker542
 setup192/teardown173 and worker193+130/131ms. Raw commands/records, next-start
 companion and both independent audits remain outside Git. Exact published CI
 is the remaining slice8 proof; progress publication keeps8 planned/G3 open.
+
+
+The [final portable feedback](portable-final-evidence.md) record owns subsequent
+hosted cost correction and final whole-family/CI acceptance.

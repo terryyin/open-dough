@@ -6,7 +6,10 @@ import { renderComparison } from "../support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
-import { expectSortedBy, rowNames } from "../support/expectSortedColumns.ts";
+import {
+  expectRenderedSortedBy,
+  rowNames,
+} from "../support/expectSortedColumns.ts";
 import { showPercent } from "../support/relativeTimingMarks.ts";
 import { mountedSummarySortExpected } from "../support/mountedSummarySortExpected.ts";
 const entry = "dashboard/tests";
@@ -78,7 +81,7 @@ for (const column of ["Branch", "Landed", "Baseline"] as const) {
         "−20.0 s−7%",
       );
     }
-    await expectSortedBy(table, column, "ascending", ascending);
+    await expectRenderedSortedBy(table, column, "ascending", ascending);
     await renderComparison(page, comparisonRenderer, rendered, {
       showPercent: true,
       sort: {
@@ -91,7 +94,7 @@ for (const column of ["Branch", "Landed", "Baseline"] as const) {
         direction: "descending",
       },
     });
-    await expectSortedBy(table, column, "descending", descending);
+    await expectRenderedSortedBy(table, column, "descending", descending);
   });
 }
 

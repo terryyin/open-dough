@@ -25,6 +25,18 @@ export async function expectSortedBy(
 ) {
   const header = sortHeader(table, name);
   await expect(header).toHaveAttribute("aria-sort", direction);
+  await expectRenderedSortedBy(table, name, direction, names);
+}
+
+// A complete SSR render has installed the whole table, so its one native
+// snapshot also establishes readiness. Live interactions keep the wait above.
+export async function expectRenderedSortedBy(
+  table: Locator,
+  name: string,
+  direction: "ascending" | "descending",
+  names?: readonly string[],
+) {
+  const header = sortHeader(table, name);
   const parts = names === undefined ? header : header.or(rowNames(table));
   await expect
     .poll(() =>
@@ -74,4 +86,27 @@ export async function expectSortedBy(
     });
   const mark = header.locator(".intent-ci-sort-mark");
   await expect(mark.locator("svg")).toBeVisible();
+}
+
+export async function expectUnsortedRows(
+  table: Locator,
+  names: readonly string[],
+) {
+  await expect
+    .poll(() =>
+      table.or(rowNames(table)).evaluateAll((nodes) =>
+        nodes.map((node, at) =>
+          at === 0
+            ? {
+                table: true,
+                sortedHeaders: node.querySelectorAll("th[aria-sort]").length,
+              }
+            : node.textContent
+                .replace(/[\u200b\u00ad]/g, "")
+                .trim()
+                .replace(/\s+/g, " "),
+        ),
+      ),
+    )
+    .toEqual([{ table: true, sortedHeaders: 0 }, ...names]);
 }

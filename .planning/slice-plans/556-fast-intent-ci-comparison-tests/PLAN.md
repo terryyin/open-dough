@@ -27,7 +27,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Rendering](render-evidence.md) · [HTTP teardown](server-close-evidence.md) ·
-[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md).
+[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md).
 
 ## Ordered slices
 
@@ -176,16 +176,15 @@ Move lasting ownership/commands/results to maintained test docs before wrap-up.
 The [previous checkpoint](ui-pilot-evidence.md) records rejected client-startup
 routes and the selected SSR/live-binding strategy; its compatible proof stays.
 
-Published742f80b already proves170 rules/all17jobs;77 static CI uppers max927ms.
-Incoming27 finality oracles retain22 fast rules/12 real connections (slice7).
-Client13 facets now have16 fast owners,80 static native cases and10 real bindings.
-Independent refactor/lint corrections pass; all245 ordinary cases pass85.43s wall
-versus original75/269.01s and intermediate188/87.35s, with different scopes named.
-All198 complete rule bounds3–182ms include output cleanup via next-worker-start;
-same245 loaded88.75s has bounds3–263ms under two owned CPU workloads. Native3 pass.
-Exact published CI and G1/G3/G4/G5 closure remain8; C067 stays targetCI. All130
-source texts, target, completed proof and defaults remain unchanged. No numeric slice
-target/hard limit or >15-slice recommendation applies; no human decision is open.
+Published6a6392e/run42718319654 passes198 rules/all17jobs; four complete CI
+uppers1007–1331ms keep G3 open. The bounded combined shell/native-sort pilot
+preserves full production CSS/markup, all native oracles and fresh pages/cleanup.
+Comparable8-case proof improves3.97→3.38s; independent refactor/receivers pass.
+Renewed245 ordinary97.57s/loaded146.48s gives198 complete bounds3–363/4–798ms.
+Battery/open-lid guard and no captured sleep hold; conditions differ from prior
+AC85.43/88.75s, so no extra whole-family gain/causality is claimed. Native3 proof
+is reused unchanged. Exact new portable CI remains8; C067 stays targetCI.
+All130 source texts/defaults remain unchanged. No human decision is open.
 
 - One production comparison model; acquisition substitutes replace true
   external boundaries, never the rules their tests claim to protect.
