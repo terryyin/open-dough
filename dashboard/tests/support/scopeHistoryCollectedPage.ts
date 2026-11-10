@@ -11,8 +11,8 @@ import { parts } from "../dashboardPage.ts";
 import { chooseStoryTab } from "./intentStoryPage.ts";
 import { expect } from "./preparationPage.ts";
 
-export async function openCollectedHistoryStory(page: Page) {
-  await page.goto("/");
+export async function openCollectedHistoryStory(page: Page, address = "/") {
+  await page.goto(address);
   await showColumn(page, "Recently done");
   const { recentlyDone, intentChoice, intent } = parts(page);
   const card = recentlyDone.getByRole("article", {

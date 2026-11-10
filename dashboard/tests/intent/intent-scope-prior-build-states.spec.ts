@@ -59,9 +59,10 @@ test("zero, partial selected timing and missing terminal identity retain honest 
       selectedProof: proof(false),
     }),
   );
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "preview"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
+  readers.push(reader);
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await openCollectedHistoryStory(page);
+  const { intent } = await openCollectedHistoryStory(page, reader.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;

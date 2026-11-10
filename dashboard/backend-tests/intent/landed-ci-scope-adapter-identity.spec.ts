@@ -178,13 +178,14 @@ test("different adapter runs reusing an opaque attempt ID retain their own colle
       ]),
     );
   expect(Object.values(retained(dashboard.home)?.builds ?? {})).toHaveLength(2);
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
 
   const proofRequests = adapter.proofRequests();
   const discoverRequests = adapter.discoverRequests();
   const githubCalls = github.calls.length;
   const answer = await scopedHistory(
-    dashboard.origin,
+    reader.origin,
     second.revision,
     secondReceipt.receivedAt,
   );
@@ -230,7 +231,7 @@ test("different adapter runs reusing an opaque attempt ID retain their own colle
   expect(new Set(entries.map(({ key }) => key)).size).toBe(2);
   expect(
     await scopedHistory(
-      dashboard.origin,
+      reader.origin,
       second.revision,
       secondReceipt.receivedAt,
     ),

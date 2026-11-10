@@ -219,13 +219,10 @@ test("an unpositioned twenty-first landing waits without losing the known twenty
     ),
   ).toHaveLength(1);
 
-  readers.push(await restartAsLandedCiReader(collecting, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(collecting, origin, "boundary");
+  readers.push(reader);
   const asked = github.calls.length;
-  const answer = await scopedHistory(
-    collecting.origin,
-    newest.revision,
-    newest.at,
-  );
+  const answer = await scopedHistory(reader.origin, newest.revision, newest.at);
   expect(answer).toMatchObject({
     status: 200,
     body: { availability: "retained", selectedRevision: newest.revision },
@@ -240,7 +237,7 @@ test("an unpositioned twenty-first landing waits without losing the known twenty
     readings: [{ kind: "point", unit: "case", ms: 3200 }],
   });
   expect(
-    await scopedHistory(collecting.origin, newest.revision, newest.at),
+    await scopedHistory(reader.origin, newest.revision, newest.at),
   ).toEqual(answer);
   expect(github.calls).toHaveLength(asked);
 });

@@ -79,7 +79,7 @@ observation clock; do not wait for elapsed wall-clock time.
 
 Type: Behavior
 Status: done
-Acceptance: [Inspected slice 1 proof](slice-1-proof.md); [CI repair](ci-repair-1.md).
+Acceptance: [Inspected slice 1 proof](slice-1-proof.md); [CI repair 1](ci-repair-1.md); [CI repair 2](ci-repair-2.md).
 Proof: New focused normalization/retention cases, affected timing comparison
 consumers, and a real collector-to-history boundary scenario.
 

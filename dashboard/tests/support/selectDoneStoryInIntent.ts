@@ -12,8 +12,9 @@ export async function selectDoneStoryInIntent(
   page: Page,
   title = "Story A",
   beforeIntent?: () => Promise<void>,
+  address = "/",
 ) {
-  await openUntilRead(page);
+  await openUntilRead(page, address);
   await showColumn(page, "Recently done");
   const { recentlyDone, intentChoice, intent } = parts(page);
   const card = recentlyDone.getByRole("article", { name: title, exact: true });

@@ -95,12 +95,13 @@ test("retains and reads independent case and file timings from one validated ada
       attempt: { runId: "run-a", attemptId: "attempt-a", sha: revision },
     },
   ]);
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
   const asked = adapter.proofRequests();
   const discovered = adapter.discoverRequests();
   const ghCalls = github.calls.length;
   const reading = await collectedScopeHistory(
-    dashboard.origin,
+    reader.origin,
     "tests",
     revision,
     receipt.receivedAt,
@@ -129,12 +130,12 @@ test("retains and reads independent case and file timings from one validated ada
   });
   expect(reading.body.entries).toHaveLength(1);
   expect(reading.body.entries[0]?.readings).toHaveLength(2);
-  expect((await landedCiHistory(dashboard)).body).toMatchObject({
+  expect((await landedCiHistory(reader)).body).toMatchObject({
     entries: [{ kind: "point", revision }],
   });
   expect(
     await collectedScopeHistory(
-      dashboard.origin,
+      reader.origin,
       "tests",
       revision,
       receipt.receivedAt,

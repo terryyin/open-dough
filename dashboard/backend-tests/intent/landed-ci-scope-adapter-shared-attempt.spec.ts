@@ -145,7 +145,8 @@ test("one true adapter attempt shared by two exact landing receipts contributes 
     (represented[1] as { build: string }).build,
   );
   expect(Object.values(retained(dashboard.home)?.builds ?? {})).toHaveLength(1);
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
 
   expect(adapter.proofRequests()).toEqual([
     {
@@ -158,7 +159,7 @@ test("one true adapter attempt shared by two exact landing receipts contributes 
   const discoverRequests = adapter.discoverRequests();
   const githubCalls = github.calls.length;
   const answer = await scopedHistory(
-    dashboard.origin,
+    reader.origin,
     revision,
     "2026-11-05T14:00:00.000Z",
   );
@@ -200,7 +201,7 @@ test("one true adapter attempt shared by two exact landing receipts contributes 
   expect(entries).toHaveLength(1);
   expect(entries[0]?.landings).toHaveLength(2);
   expect(
-    await scopedHistory(dashboard.origin, revision, "2026-11-05T14:00:00.000Z"),
+    await scopedHistory(reader.origin, revision, "2026-11-05T14:00:00.000Z"),
   ).toEqual(answer);
   expect(adapter.proofRequests()).toEqual(proofRequests);
   expect(adapter.discoverRequests()).toEqual(discoverRequests);

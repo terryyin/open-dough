@@ -1,5 +1,5 @@
 // Observe collected ancestry once before and once without local Git, using
-// the same persisted evidence and a collection-off reader on the same port.
+// the same persisted evidence and a collection-off reader at its own address.
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import {
@@ -21,9 +21,10 @@ export async function observeRetainedScopeOrder(
   },
   readers: DashboardServer[],
 ) {
+  let reading = dashboard;
   const read = () =>
     collectedScopeHistory(
-      dashboard.origin,
+      reading.origin,
       endpoint.path,
       endpoint.revision,
       endpoint.at,
@@ -38,7 +39,9 @@ export async function observeRetainedScopeOrder(
   expect(kept).toBeDefined();
   if (kept === undefined)
     throw new Error("No collected history for the local Git fault.");
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "preview"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
+  readers.push(reader);
+  reading = reader;
   const beforeGitFault = dashboard.github.calls.length;
   await withoutScopeHistoryGit(origin, kept, async () => {
     const withoutGit = await read();
@@ -46,5 +49,5 @@ export async function observeRetainedScopeOrder(
     expect(withoutGit.body).toEqual(collected.body);
     expect(dashboard.github.calls).toHaveLength(beforeGitFault);
   });
-  return { collected, read };
+  return { collected, read, reader };
 }
