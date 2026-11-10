@@ -13,9 +13,26 @@ const configFile = fileURLToPath(
 test("the dashboard development server uses its dedicated port", async (t) => {
   const cacheDir = await mkdtemp(join(tmpdir(), "dough-dev-port-vite-"));
   t.after(() => rm(cacheDir, { recursive: true, force: true }));
-  // This server owns its generated cache; normal optimizer info is not a
-  // port observation. Unexpected warnings and errors still reach the runner.
-  const server = await createServer({ configFile, cacheDir, logLevel: "warn" });
+  // This check reads config and HTML, so dependency optimization is unrelated
+  // work. Vite can finish its scan and start writing after close begins.
+  const server = await createServer({
+    configFile,
+    cacheDir,
+    logLevel: "warn",
+    plugins: [
+      {
+        name: "port-check-without-dependency-optimization",
+        enforce: "post",
+        config(config) {
+          // React adds included deps in its config hook; disable the optimizer
+          // after those defaults rather than merging another include array.
+          Object.assign(config, {
+            optimizeDeps: { noDiscovery: true, include: [] },
+          });
+        },
+      },
+    ],
+  });
   try {
     assert.equal(server.config.server.port, 43127);
     assert.equal(server.config.server.strictPort, true);
