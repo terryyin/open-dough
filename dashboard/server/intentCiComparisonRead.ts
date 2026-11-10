@@ -15,6 +15,7 @@ import {
   ciComparisonAnswerKey,
   keptCiComparisonAnswer,
   rememberCiComparisonAnswer,
+  type CiComparisonAnswers,
 } from "./intentCiComparisonAnswers.ts";
 import {
   parseIntentCiComparisonRead,
@@ -46,23 +47,42 @@ export async function performIntentCiComparisonRead(
   signal: AbortSignal,
   evidence?: StoryCiComparisonSource,
 ): Promise<Outcome> {
-  const key = ciComparisonAnswerKey(source.repository, read.identity);
-  const kept = keptCiComparisonAnswer(key);
-  if (kept !== undefined) return answered(kept);
+  return defaultReader(source, read, signal, evidence);
+}
 
-  const bound = AbortSignal.timeout(readWaitLimitMs);
-  const controller = AbortSignal.any([bound, signal]);
-  const checkedAt = new Date().toISOString();
-  const acquisition = evidence ?? storyCiComparisonSource(source, controller);
-  const done = await performDoneComparison(
-    acquisition,
-    read.identity,
-    checkedAt,
-  );
-  const answer =
-    done?.answer ??
-    (await performTakenComparison(acquisition, read.identity, checkedAt));
-  signal.throwIfAborted();
-  if (done?.landedPending !== true) rememberCiComparisonAnswer(key, answer);
-  return answered(answer);
+const defaultReader = ciComparisonReader({
+  get: keptCiComparisonAnswer,
+  set: rememberCiComparisonAnswer,
+});
+
+// The authenticated reader and isolated owners execute this same read path.
+export function ciComparisonReader(
+  answers: Pick<CiComparisonAnswers, "get" | "set">,
+) {
+  return async (
+    source: PublishedSource,
+    read: IntentCiComparisonRead,
+    signal: AbortSignal,
+    evidence?: StoryCiComparisonSource,
+  ): Promise<Outcome> => {
+    const key = ciComparisonAnswerKey(source.repository, read.identity);
+    const kept = answers.get(key);
+    if (kept !== undefined) return answered(kept);
+
+    const bound = AbortSignal.timeout(readWaitLimitMs);
+    const controller = AbortSignal.any([bound, signal]);
+    const checkedAt = new Date().toISOString();
+    const acquisition = evidence ?? storyCiComparisonSource(source, controller);
+    const done = await performDoneComparison(
+      acquisition,
+      read.identity,
+      checkedAt,
+    );
+    const answer =
+      done?.answer ??
+      (await performTakenComparison(acquisition, read.identity, checkedAt));
+    signal.throwIfAborted();
+    if (done?.landedPending !== true) answers.set(key, answer);
+    return answered(answer);
+  };
 }

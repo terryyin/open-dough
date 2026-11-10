@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-281#keep-unit-gaps-and-names-visible",
+  "mode": "story-branch",
+  "branch": "codex/keep-each-unit-s-gaps-and-name-visible-in-intent",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

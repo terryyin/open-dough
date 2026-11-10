@@ -76,10 +76,29 @@ job's process group and prints, for it and for any job the same signal ended,
 `INTERRUPTED: <job> (after <seconds>s)` and the last lines of its output; it
 then exits 130 for INT or 143 for TERM (`tests/test-runner-interrupt.sh`).
 Workers a check detaches from its process group are that check's own
-teardown. `npm test` execs the runner (`package.json`) and CI's test step
-execs `npm`, so a signal sent only to the step's top process, as a cancelled
-Actions run does, still reaches the runner (see that step's comment in
-`.github/workflows/ci.yml`).
+teardown. Each job also gets a fixed 180-second wall-clock safety deadline
+from its own start (not while queued or waiting for suite admission). That
+deadline actively stops a never-ending check; it is not a slow-test or build
+threshold. At expiry the runner ends the job's process group with bounded
+TERM-then-KILL cleanup, fails the run as
+`TIMEOUT: <job> (safety deadline 180s; after <seconds>s)` with useful captured
+output, records the failed outcome and timing, and lets other queued checks
+continue under ordinary failure behavior
+(`tests/support/test-runner-deadline.test.mjs`,
+`tests/support/test-runner-deadline-continuation.test.mjs`). In CI the share
+also ends at the 320-second absolute epoch established with setup
+(`OPEN_DOUGH_TEST_DEADLINE_MS`), before the six-minute outer cancellation:
+running groups stop through the same bounded cleanup and TIMEOUT reporting
+path, queued checks do not start, started unfinished jobs stay `failed` with
+timing, and selected unstarted checks are recorded as `unfinished` with no
+invented duration so CI proof retains them as other
+(`tests/support/test-runner-deadline-cutoff.test.mjs`,
+`tests/support/test-runner-deadline-cutoff-proof.test.mjs`). Local named checks
+omit that run cutoff by default. Outcome and times consumers are documented in
+[runner-settings.md](runner-settings.md). `npm test` execs the runner
+(`package.json`) and CI's test step execs `npm`, so a signal sent only to the
+step's top process, as a cancelled Actions run does, still reaches the runner
+(see that step's comment in `.github/workflows/ci.yml`).
 
 ## Waits, fixtures, and teardown
 

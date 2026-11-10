@@ -109,8 +109,9 @@ export type ResultLookupOptions = {
 // Result endpoint (branch or landed): newest completed or running attempt at
 // `target`, else a measured ancestor not older than `storyStart`. With
 // `exactOnly`, the walk is limited to `target` itself; when its own CI gives
-// no verdict, a confirmed skip may use that landing's equivalent build proof
-// only, and a cancelled attempt the nearest later trunk build's proof up to
+// no verdict, a confirmed skip may use that landing's equivalent build only
+// (proof when published, else timed wall time without inventing proof), and a
+// cancelled attempt the nearest later trunk build's proof up to
 // `exact.laterTrunkHead` (`landedWithoutVerdictSlot`). Without `exactOnly`,
 // the walk continues past builds without usable proof.
 export async function lookupResultBuild(

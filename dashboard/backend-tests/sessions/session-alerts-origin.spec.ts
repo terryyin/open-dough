@@ -43,7 +43,13 @@ for (const address of ["127.0.0.1", "0.0.0.0", "::1", "::"]) {
         { Origin: origin },
         { "Sec-Fetch-Site": "same-origin" },
       ]) {
-        const response = await rawRequest({ url: `${origin}/`, headers });
+        // Exercise the actual listener family, retaining the computed URL and
+        // real Host/Origin admission even when default DNS drops IPv6 loopback.
+        const response = await rawRequest({
+          url: `${origin}/`,
+          family: actual.family === "IPv6" ? 6 : 4,
+          headers,
+        });
         expect(response.status).toBe(200);
         expect(response.body).toBe("admitted");
       }

@@ -17,11 +17,17 @@ if (args[0] === "models") {
       `${JSON.stringify({ args, cwd: process.cwd() })}\n`,
     );
   }
+  const modelsPath = process.env.FAKE_CURSOR_MODELS ?? "";
   let listing;
   try {
-    listing = fs.readFileSync(process.env.FAKE_CURSOR_MODELS ?? "", "utf8");
+    listing = fs.readFileSync(modelsPath, "utf8");
   } catch {
-    process.stderr.write("Could not list models\n");
+    const stderrPath = `${modelsPath}.stderr`;
+    process.stderr.write(
+      fs.existsSync(stderrPath)
+        ? fs.readFileSync(stderrPath, "utf8")
+        : "Could not list models\n",
+    );
     process.exit(1);
   }
   process.stdout.write(listing);

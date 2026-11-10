@@ -25,19 +25,87 @@ function gatesBefore(text, later, referenceLink) {
   assert.match(text, referenceLink);
 }
 
-test("slice delivery checks freshness before the obligations check", () => {
-  const delivery = section(
-    read("dough-execute-plan/references/deliver-the-change.md"),
-    "## Deliver the change",
+const deliveryPath = "dough-execute-plan/references/deliver-the-change.md";
+const settlementLink = "#settle-freshness-before-dependent-work";
+
+test("planned Story Branch returns settle freshness before acceptance and refactoring", () => {
+  const skill = read("dough-execute-plan/SKILL.md");
+  const returnRow = skill
+    .split("\n")
+    .find((line) => line.startsWith("| Before accepting a return"));
+  assert.ok(returnRow.includes(settlementLink));
+  assert.ok(returnRow.includes("#check-named-siblings"));
+  assert.ok(
+    returnRow.indexOf(settlementLink) < returnRow.indexOf("#accept-proof"),
   );
-  const update = delivery.slice(
-    delivery.indexOf("5. For planned execution"),
-    delivery.indexOf("6. Stage"),
+  const returning = skill.slice(
+    skill.indexOf("4. On return"),
+    skill.indexOf("5. Run [delivery]"),
   );
-  gatesBefore(
-    update,
-    "story-obligations.mjs' check --plan '<PLAN.md>' --slice N",
-    /\]\(source-freshness\.md(?:#[^)]+)?\)/,
+  assert.ok(returning.includes(settlementLink));
+  assert.ok(
+    returning.indexOf(settlementLink) < returning.indexOf("#accept-proof"),
+  );
+  assert.match(returning, /planned Story Branch/);
+  const acceptance = section(
+    read("dough-execute-plan/references/wrap-up.md"),
+    "## Accept proof",
+  );
+  assert.ok(acceptance.includes(settlementLink));
+  assert.ok(
+    acceptance.indexOf(settlementLink) < acceptance.indexOf("proof ownership"),
+  );
+});
+
+test("settlement requires inspected terminal results before dependent operations", () => {
+  const settlement = section(
+    read(deliveryPath),
+    "## Settle freshness before dependent work",
+  );
+  gatesBefore(settlement, "On `unchanged`", /\]\(source-freshness\.md\)/);
+  const flat = settlement.replace(/\s+/g, " ");
+  for (const pattern of [
+    /implementation returns.*before proof acceptance.*refactor pass.*expensive boundary.*whole-suite/,
+    /Receive and inspect the terminal result in a separate tool-result boundary before launching dependent work/,
+    /shell chain.*parallel check and delivery.*sequential awaited calls.*uninspected orchestration/,
+    /`amended`, `conflict` or refusal.*source freshness/,
+    /absorb amendments.*promises and source review.*recheck until `unchanged`/,
+    /Receive and inspect that result before dependent work too/,
+    /affected sibling holds refactoring and expensive proof, as well as delivery.*reconciliation.*renewed proof/,
+    /unchanged check adds no full run/,
+    /Renew only proof affected/,
+  ])
+    assert.match(flat, pattern);
+});
+
+test("delivery rechecks settlement before guarded done, commit and publication", () => {
+  const delivery = section(read(deliveryPath), "## Deliver the change");
+  const update = delivery
+    .slice(
+      delivery.indexOf("5. For planned execution"),
+      delivery.indexOf("6. Stage"),
+    )
+    .replace(/\s+/g, " ");
+  assert.ok(update.includes(settlementLink));
+  assert.ok(
+    update.indexOf(settlementLink) <
+      update.indexOf(
+        "story-obligations.mjs' check --plan '<PLAN.md>' --slice N",
+      ),
+  );
+  assert.match(update, /repeat \[freshness settlement\]/);
+  assert.match(update, /inspect its results before guarded fresh delivery/);
+  const settlement = section(
+    read(deliveryPath),
+    "## Settle freshness before dependent work",
+  ).replace(/\s+/g, " ");
+  assert.match(
+    settlement,
+    /Repeat this settlement at delivery step 5 before the done mark, commit or publication/,
+  );
+  assert.match(
+    settlement,
+    /early check does not reserve trunk or cover later movement/,
   );
 });
 

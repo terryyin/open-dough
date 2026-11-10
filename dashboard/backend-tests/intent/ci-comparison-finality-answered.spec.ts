@@ -48,7 +48,41 @@ for (const state of ["queued", "in_progress"] as const) {
   });
 }
 
-for (const reason of ["missing", "expired", "invalid", "unopenable"] as const) {
+test("an answered missing equivalent artifact reuses timed wall time with no acquisitions on repeat", async ({
+  comparisonRead,
+}) => {
+  const facts = representedFinalityFacts("equivalent", 0);
+  const artifacts = finalityArtifacts(facts, {
+    listing: () => Promise.resolve({ artifacts: [] }),
+    archive: () => Promise.reject(new Error("No artifact to download")),
+  });
+  const observed = observedComparisonSource(
+    storyCiComparisonEvidence({ ...facts, proofReader: artifacts.proofReader })
+      .source,
+  );
+  const final = await comparisonRead(observed.source);
+  expect(final).toMatchObject({
+    landed: {
+      kind: "build",
+      state: "pass",
+      selection: "equivalent",
+      revision: trunkSide,
+      runId: 201,
+      runAttempt: 1,
+      requestedStatus: { kind: "skipped" },
+      startedAt: "2026-11-05T14:00:00Z",
+      completedAt: "2026-11-05T14:04:00.000Z",
+      timeWithoutRunnerWaits: { reason: "The CI adapter reported no jobs." },
+    },
+  });
+  expect(artifacts.asked()).toEqual([1, 0]);
+  const asked = comparisonAcquisitions(observed);
+  expect(await comparisonRead(observed.source)).toBe(final);
+  expect(comparisonAcquisitions(observed)).toEqual(asked);
+  expect(artifacts.asked()).toEqual([1, 0]);
+});
+
+for (const reason of ["expired", "invalid", "unopenable"] as const) {
   test(`an answered ${reason} equivalent artifact is a final explained gap with no acquisitions on repeat`, async ({
     comparisonRead,
   }) => {
@@ -62,8 +96,7 @@ for (const reason of ["missing", "expired", "invalid", "unopenable"] as const) {
       })
       .please();
     const artifacts = finalityArtifacts(facts, {
-      listing: () =>
-        Promise.resolve({ artifacts: reason === "missing" ? [] : [artifact] }),
+      listing: () => Promise.resolve({ artifacts: [artifact] }),
       archive: () =>
         Promise.resolve(
           reason === "unopenable"
@@ -85,18 +118,13 @@ for (const reason of ["missing", "expired", "invalid", "unopenable"] as const) {
       throw new Error("Expected explained gap");
     expect(final.landed).not.toHaveProperty("timeWithoutRunnerWaits");
     expect(final.landed.explanation).toContain(
-      reason === "missing"
-        ? "published no CI proof summary"
-        : reason === "expired"
-          ? "expired"
-          : reason === "invalid"
-            ? "not valid"
-            : "could not be read",
+      reason === "expired"
+        ? "expired"
+        : reason === "invalid"
+          ? "not valid"
+          : "could not be read",
     );
-    expect(artifacts.asked()).toEqual([
-      1,
-      reason === "missing" || reason === "expired" ? 0 : 1,
-    ]);
+    expect(artifacts.asked()).toEqual([1, reason === "expired" ? 0 : 1]);
     const asked = comparisonAcquisitions(observed);
     const raw = artifacts.asked();
     expect(await comparisonRead(observed.source)).toBe(final);

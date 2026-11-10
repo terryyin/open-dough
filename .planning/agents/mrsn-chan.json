@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-281#no-count-difference-across-gaps",
+  "mode": "story-branch",
+  "branch": "codex/show-no-count-difference-across-a-missing-or-amb",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

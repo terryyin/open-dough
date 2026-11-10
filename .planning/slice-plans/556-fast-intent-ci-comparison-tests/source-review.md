@@ -147,4 +147,4 @@ ownership.”
 | X012 | No test retries to meet the target. | slice 9 |  |
 | X013 | No skips to meet the target. | slice 9 |  |
 | X014 | No platform exceptions to meet the target. | slice 9 |  |
-| X015 | No retained test gains a raised timeout. | slice 9 |  |
+| X015 | No retained test gains a raised timeout. | slice 9 | observed: integrated-family-evidence.md and slice9-history-ui-return/refactor: original failed16 is retained, initial real page navigation now overlaps unchanged actual collection before first CI/history read. All8/18 assertions and default wrapper remain exact; repaired2/defaulttrace2 and renewed full17 strictpass/retry0/default30s. Current257 ordinary/load and native3 also pass unchanged defaults. |

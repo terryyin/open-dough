@@ -8,7 +8,6 @@ import {
   branch,
   landing,
   completion,
-  workflow,
   answer,
 } from "../support/comparisonRead.ts";
 
@@ -197,49 +196,3 @@ for (const position of [30, 31]) {
     );
   });
 }
-
-test("a confirmed skipped landing stops at its proofless equivalent instead of borrowing older usable proof", async () => {
-  const history = makeMe.aRepository
-    .withRevision(start, { files: { ".github/workflows/ci.yml": workflow } })
-    .withRevision(branch, { files: { "code.ts": "change" } })
-    .withRevision(landing, { files: { "docs/notes.md": "ignored" } })
-    .please();
-  const evidence = storyCiComparisonEvidence({
-    history,
-    done: makeMe.aPublishedStoryEndpoint
-      .with({
-        mode: "story-branch",
-        storyStart: start,
-        completion: landing,
-        landing: { merge: landing, branchSide: branch },
-      })
-      .please(),
-    runs: [
-      makeMe.aRevisionCiRun
-        .with({ headSha: start, databaseId: 1, attempt: 1 })
-        .please(),
-      makeMe.aRevisionCiRun
-        .with({ headSha: branch, databaseId: 2, attempt: 1 })
-        .please(),
-    ],
-    proofs: {
-      1: makeMe.aCiProof
-        .summaryFor({ revision: start, runId: 1, runAttempt: 1 })
-        .please(),
-    },
-  });
-  expect(await answer(evidence)).toMatchObject({
-    landed: {
-      kind: "none",
-      explanation:
-        "The equivalent build at ccccccc published no CI proof summary.",
-      requestedStatus: {
-        kind: "skipped",
-        explanation:
-          "Skipped at ddddddd because CI ignores every change since its nearest built ancestor ccccccc.",
-      },
-    },
-  });
-  // Baseline, Branch's bounded proof walk, then only the equivalent's proof.
-  expect(evidence.reads.proofs.map((read) => read.runId)).toEqual([1, 2, 2]);
-});

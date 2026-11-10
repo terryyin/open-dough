@@ -34,6 +34,15 @@ export type HostDescription = {
   };
 };
 
+export function cursorModelVerificationMessage(
+  reason?: string,
+  recovery = "Retry, or use your Cursor setting.",
+): string {
+  return ["Cursor model choices could not be verified.", reason, recovery]
+    .filter((part) => part !== undefined)
+    .join(" ");
+}
+
 export const hostDescriptions = {
   claude: {
     name: "Claude Code",
@@ -100,8 +109,7 @@ export const hostDescriptions = {
         "This model is unavailable. Choose another model or use your Cursor setting.",
       stale:
         "The selected Cursor model is no longer available. Choose another model or use your Cursor setting.",
-      unverified:
-        "Cursor model choices could not be verified. Retry, or use your Cursor setting.",
+      unverified: cursorModelVerificationMessage(),
       chosenNote: "The chosen model applies to this session only.",
     },
     // A recorded session the runner does not hold. A held screen, and a runner

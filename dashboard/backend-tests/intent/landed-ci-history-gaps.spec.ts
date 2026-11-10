@@ -3,13 +3,15 @@
 // (../../tests/support/startOrigin.ts) and the synthetic `claude`, each
 // collecting server checking at a test's pace: a final gap names the build
 // the CI timing comparison's Landed rule named for its landing, with that
-// build's run -- a confirmed skip's equivalent build whose CI proof expired,
-// cannot be opened or was never published, a landing's own build that timed
-// out, and the later trunk build that failed after a cancelled landing; a
-// build whose attempt completed before it started names no CI wall time, so
-// it is a gap and never a zero; and a run link that is not a web address is
-// left out of a point and a pending gap alike, keeping their run words
-// (SEED-285#see-landed-ci-wall-time-history). The CI timing comparison
+// build's run -- a confirmed skip's equivalent build whose CI proof expired
+// or cannot be opened, a landing's own build that timed out, and the later
+// trunk build that failed after a cancelled landing; a timed successful
+// equivalent with no proof summary becomes that build's reused-equivalent
+// point instead; a build whose attempt completed before it started names no
+// CI wall time, so it is a gap and never a zero; and a run link that is not a
+// web address is left out of a point and a pending gap alike, keeping their
+// run words (SEED-285#see-landed-ci-wall-time-history;
+// SEED-288#reuse-adapter-equivalent-timing). The CI timing comparison
 // answers the same Landed gap without the build or the proof read the
 // history keeps (../../server/intentCiComparisonSlots.ts). Run times follow
 // when their landings were recorded, so the history answers them in trunk
@@ -63,16 +65,16 @@ const gapNaming = (
   build: { revision, provenance, ...answeredRun(runId) },
 });
 
-test("a final gap names the build the Landed rule named for its landing and links its run: a skip's equivalent build whose CI proof expired, cannot be opened or was never published, a landing's own build that timed out, and the later trunk build that failed after a cancelled landing", async ({
+test("a final gap names the build the Landed rule named for its landing and links its run: a skip's equivalent build whose CI proof expired or cannot be opened, a landing's own build that timed out, and the later trunk build that failed after a cancelled landing; a timed equivalent with no proof summary is that build's reused-equivalent point", async ({
   origin,
   github,
   startServer,
 }) => {
   await publishCiWorkflow(origin);
-  // Oldest first: three skips, each resting on a build of its own, whose CI
-  // proof expired, cannot be opened, or was never published; a landing whose
-  // own build timed out; and one whose build the push of d6 cancelled, and
-  // d6's build failed, publishing its CI proof.
+  // Oldest first: two skips whose equivalent proof expired or cannot be
+  // opened; a skip whose equivalent passed with timing but no proof
+  // summary; a landing whose own build timed out; and one whose build the
+  // push of d6 cancelled, and d6's build failed, publishing its CI proof.
   const b1 = await publishedChange(origin, { title: "b1", kind: "code" });
   const expired = await landingMinutesAgo(origin, "expired", 6, true);
   const b2 = await publishedChange(origin, { title: "b2", kind: "code" });
@@ -87,6 +89,7 @@ test("a final gap names the build the Landed rule named for its landing and link
   // half a minute after the cancelled landing was recorded.
   const before = (each: { readonly at: string }) =>
     passedFrom(timeAfter(each.at, -6 * minuteMs), 5 * minuteMs);
+  const b3Run = trunkRun(b3, 63, before(proofless));
   const d6Run = trunkRun(d6, 66, {
     ...passedFrom(timeAfter(cancelled.at, minuteMs / 2), minuteMs),
     conclusion: "failure",
@@ -94,7 +97,7 @@ test("a final gap names the build the Landed rule named for its landing and link
   const runs = [
     trunkRun(b1, 61, before(expired)),
     trunkRun(b2, 62, before(unopenable)),
-    trunkRun(b3, 63, before(proofless)),
+    b3Run,
     trunkRun(timedOut.revision, 64, {
       ...passedFrom(timedOut.at, minuteMs),
       conclusion: "timed_out",
@@ -128,7 +131,16 @@ test("a final gap names the build the Landed rule named for its landing and link
         entries: [
           gapNaming("expired", expired, b1, "equivalent", 61),
           gapNaming("unreadable", unopenable, b2, "equivalent", 62),
-          gapNaming("no-proof", proofless, b3, "equivalent", 63),
+          {
+            kind: "point",
+            revision: b3,
+            ...answeredRun(63),
+            startedAt: b3Run.startedAt,
+            completedAt: b3Run.completedAt,
+            landings: [
+              { ...answeredLanding(proofless), provenance: "equivalent" },
+            ],
+          },
           gapNaming("cancelled", timedOut, timedOut.revision, "exact", 64),
           gapNaming("failed", cancelled, d6, "later", 66),
         ],
@@ -143,14 +155,28 @@ test("a final gap names the build the Landed rule named for its landing and link
   );
   expect(scope.status).toBe(200);
   expect(scope.body.entries).toHaveLength(5);
+  // Scope timing still needs proof; wall-time reuse without proof stays a
+  // scope gap naming the equivalent build, with no invented readings.
+  expect(scope.body.entries[2]).toMatchObject({
+    kind: "gap",
+    build: { revision: b3, provenance: "equivalent", ...answeredRun(63) },
+    landings: [
+      {
+        revision: proofless.revision,
+        receivedAt: proofless.at,
+        provenance: "equivalent",
+      },
+    ],
+    readings: [],
+  });
   for (const [index, [revision, provenance, runId]] of [
     [b1, "equivalent", 61],
     [b2, "equivalent", 62],
-    [b3, "equivalent", 63],
     [timedOut.revision, "exact", 64],
     [d6, "later", 66],
   ].entries()) {
-    expect(scope.body.entries[index]).toMatchObject({
+    const at = index < 2 ? index : index + 1;
+    expect(scope.body.entries[at]).toMatchObject({
       kind: "gap",
       build: { revision, provenance, runId, runAttempt: 1 },
       readings: [],

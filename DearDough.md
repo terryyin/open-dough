@@ -63,6 +63,23 @@ Former local code: DD-255. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-258. [Evidence and current response](docs/maintainer/findings/ODF-224.md).
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
+
+### Occurrences
+- Execution: SEED-289#name-a-test-job-past-its-deadline (plan 563; first implementation `15ebf14d3dba2c231ec7a6269364121ba21e9ea5`)
+  - Timestamp: 2026-11-10T00:28:28Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Slice 1 `15ebf14d` made `native-run-supervise.sh` / `native-run-watchdog.sh` source `scripts/owned-process-group.bash` and listed that path in `native_run_supervision_inputs`, but identity/admission harness trees still copied without `scripts/`. CI run 42727924512 failed `tests/support/native-admission-reuse.test.mjs` (`…/scripts/owned-process-group.bash: No such file or directory`). Repair `e985d394` added `tests/support/native-supervision-inputs.mjs` and materializes uncovered supervision roots into those trees.
+  - Observed effect: One owned CI failure and repair commit before slice 2 could finish; coordinator stashed then restored in-flight slice 2 work around the repair.
+  - Inference: Harness trees that materialize supervision inputs are callers of the supervision-input contract. Extending that list needs those materializers in the same proof set; a focused deadline suite alone cannot see them. Distinct from ODF-225: the stash parked uncommitted next-slice work; no invalidated still-running proof was recorded.
+- Execution: SEED-288#reuse-adapter-equivalent-timing (plan 565; first related implementation `dfc059a11daa8b175577b5f42ac67f442446ecb5`)
+  - Timestamp: 2026-11-10T09:41:14+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: CI repair `9a6fd5e2e3ffbfebbd6b8614f90f28b96a81a1f9` changed `dashboard/server/landedCiCollectedProof.ts` so settled GitHub `none` was no longer collectable (`proofPending: false`) to stop history re-asks after slice 1. Focused repair proof centered on `landed-ci-history-collection.spec.ts` (coordinator brief run 42734721396). Ancestor CI run 42737573329 failed `landed-ci-scope-proof-recovery.spec.ts` (`an exact passed attempt resumes none proof in the same collector`). Repair `53709f0253613421426c8abb2354879299e2c4fa` restored `none` collectability/pending while keeping same-write `proofRetainedWith`. Coordinator transcript `dc823cbc-021e-44e2-89e0-059fef36d090` L64–L88.
+  - Observed effect: one owned CI failure on the repaired SHA and a second repair before applicable tip CI settled; exact-attempt `none`→summary recovery was broken until `53709f025`.
+  - Inference: Matches ODF-150 — repair proof followed the history-collection symptom and missed an existing consumer of the same collectability rule. Distinct from ODF-221 sibling-spec race search: the missed journey owns a different product contract (scope-proof recovery), not the same race in a sibling of the failing history-collection assertion.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
 ## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
@@ -143,6 +160,15 @@ Former local code: DD-321. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/findings/ODF-305.md).
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
+### Occurrences
+- Execution: SEED-289#match-hosted-fonts-in-ci-container (plan 564; first product implementation `fa8eba6b9f26038388ef96b471c74f07a23b62fb`)
+  - Timestamp: unknown (2026-11-10 execution; exact read-event times unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed version at established claim `c6467c381`)
+  - Evidence: dashboard launch `def96917-5b2c-44f1-a2ea-005183e658da`; first-delegation reference batch returned 11,478 original tokens and delivery batch 17,001 with truncation; the coordinator then retrieved missing passages. During acceptance it also sent a complete consumer trace plus `head` of a minified report, producing a 395,412-token original-output warning, then correctly parsed only report stats. Retrospective repeated an oversized findings read.
+  - Observed effect: omitted requested passages, repeated targeted retrieval and excessive raw diagnostic output; terminal command handles and semantic results remained intact.
+  - Inference: this is an agent deviation under existing boundary/targeted-retrieval guidance. Keep individual required passages and parse large generated evidence before emitting it; no total-token or elapsed-time saving is measured.
+
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
 ## ODF-307 — Coordinator screen probes competed with the developer's live desktop <a id="odf-307"></a>
@@ -176,6 +202,15 @@ Former local code: DD-332. [Meaning, evidence and response](docs/maintainer/find
 Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/findings/ODF-328.md).
 ## ODF-329 — Implementation returns failed the delivery formatter's lint
 Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/findings/ODF-329.md).
+### Occurrences
+- Execution: SEED-289#match-hosted-fonts-in-ci-container (plan 564; first product implementation `fa8eba6b9f26038388ef96b471c74f07a23b62fb`)
+  - Timestamp: unknown (2026-11-10 delivery, before product commit at 08:57:27+08:00)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound installed version at established claim `c6467c381`)
+  - Evidence: after shell/browser proof and independent refactor, guarded fresh preparation returned `preparation-failed`, `operation: formatting`, ShellCheck SC2312 on `user=$(id -u):$(id -g)` in `tests/ci-container.sh`. Both implementation/refactor briefs forbade hook-owned lint. The coordinator separated uid/gid substitutions, reran the focused maintained shell check and retried fresh preparation.
+  - Observed effect: commit/publication were correctly withheld; one mechanical repair/proof/preparation loop preceded accepted `fa8eba6b9`. Browser evidence stayed applicable.
+  - Inference: another late lint-feedback occurrence; the record does not establish the counterfactual saving of an earlier read-only check.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
 
@@ -267,6 +302,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: coordinator conversation and `/tmp/seed288-slice2-refactor-return.md`; final slice-2 trace `/tmp/seed288-slice2-refactor-consumer-trace.md` and dispositions contain 624 located files, including 371 new matches caused only by dirty `PLAN.md`; slice-1 trace contained 651 per-file dispositions.
   - Observed effect: implementation/refactor owners repeatedly dispositioned unrelated planning, guidance and historical paths alongside meaningful runtime consumers. All affected proof was retained; no missed consumer was established.
   - Inference: automatically derived planning basenames materially enlarge a bounded dashboard trace even when explicit effect terms are supplied. The second refactor reported about ten minutes total, but isolated trace time or token cost was not measured. Preserve indirect proof while reducing generic derived-path noise.
+- Execution: SEED-010#hold-delivery-on-freshness-before-expensive-proof (plan 561; first implementation `931d31c108c97bee3a60076fad331f47bf66f486`)
+  - Timestamp: unknown (2026-11-10, slice-1 acceptance)
+  - Tool: Codex
+  - Open Dough release: 0.3.92 (checkout-bound `.agents/skills/dough-update/VERSION`)
+  - Evidence: implementation and refactor returns retain a whole-checkout trace against `14c211d14` with 732 consumers, including generic derived PLAN/SKILL/source-review terms. The initial consumer record was about 780 lines; the coordinator's combined read truncated at 12,943 original tokens. At `931d31c10`, `.planning/slice-plans/561-settle-trunk-freshness-before-proof/consumer-trace.md` retains 17 run, 13 reused and explicit grouped exclusions in 92 lines.
+  - Observed effect: broad enumeration required a second read and record compaction; actual guidance/CLI/replay consumers were inspected and passed focused proof. No missed consumer is established.
+  - Inference: automatic planning-basename noise recurred; exact time attributable to it is unmeasured. Grouped dispositions preserved relevant proof without the raw list.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
@@ -319,6 +361,16 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 Former local code: DD-431. [Evidence and current response](docs/maintainer/findings/ODF-428.md).
+
+### Occurrences
+- Execution: SEED-289#name-a-test-job-past-its-deadline (plan 563; first implementation `15ebf14d3dba2c231ec7a6269364121ba21e9ea5`)
+  - Timestamp: 2026-11-10T08:23:03+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.92 (installed `.agents/skills/dough-update/VERSION`)
+  - Evidence: Slice 1 acceptance recorded observations against the deadline proof files; the post-change refactor split continuation cases into `test-runner-deadline-continuation.test.mjs` before publish `15ebf14d`. Slice 2 acceptance then recorded cutoff rows; its refactor split `test-runner-deadline-cutoff-proof.test.mjs` / helpers before publish `968d5cde`. Coordinator transcripts show “Updating observations for the split proof files” / plan verification updates before each delivery.
+  - Observed effect: Two retargeting rounds in one execution; nothing stale was published because the coordinator rewrote the citations before each increment.
+  - Inference: Same structural gap as prior ODF-428 rows — acceptance writes `observed:` paths before the required refactor pass, so proof-file splits invalidate them unless retargeted at delivery.
+
 ## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
 Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
 ## ODF-430 — Story integration moved another active agent profile into done

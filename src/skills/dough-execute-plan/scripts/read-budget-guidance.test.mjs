@@ -39,11 +39,17 @@ const BOUNDARIES = [
 const OBLIGATION_INPUTS =
   "references/story-obligations.md#use-the-record-at-execution-boundaries";
 const SOURCE_FRESHNESS = "references/source-freshness.md";
+const SETTLEMENT_READS = [
+  "references/deliver-the-change.md#settle-freshness-before-dependent-work",
+  "references/deliver-the-change.md#check-named-siblings",
+];
 const REQUIRED_LINKS = [
   [/first implementation delegation/i, [OBLIGATION_INPUTS]],
+  [/accepting a return/i, SETTLEMENT_READS],
   [
     /delivery/i,
     [
+      ...SETTLEMENT_READS,
       "references/fresh-increment.md#publish",
       "references/trunk-publication.md#publish-an-execution-increment-or-repair",
       "references/trunk-publication.md#publish-the-candidate",

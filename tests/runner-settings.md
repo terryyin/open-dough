@@ -9,11 +9,15 @@ count, 1 or more.
 Jobs start in the order `scripts/test-shares.mjs` deals them from the CI
 seconds recorded in `tests/longest-first`, longest recorded first;
 `OPEN_DOUGH_TEST_SPLIT=<i>/<n>` runs only share `i` of `n` of that deal, and
-`OPEN_DOUGH_TEST_TIMES=<file>` writes every job's wall seconds and name,
-longest first. `OPEN_DOUGH_TEST_OUTCOMES=<file>` writes each job's outcome
-(`failed` when reported as failing, else `passed`) and name, tab-separated,
-for CI's proof fragments, which count each line as one test file
-(`ci-proof` in `.github/workflows/ci.yml`).
+`OPEN_DOUGH_TEST_TIMES=<file>` writes every started job's wall seconds and
+name, longest first. `OPEN_DOUGH_TEST_OUTCOMES=<file>` writes each selected
+job's outcome and name, tab-separated, for CI's proof fragments, which count
+each line as one test file (`ci-proof` in `.github/workflows/ci.yml`):
+`failed` when reported as failing, `passed` when it completed successfully,
+and `unfinished` when the absolute CI run cutoff left that selected check
+unstarted. Proof maps any status other than `passed`/`failed` to `other`
+(`ci-proof-fragments.mjs`). Timing is written only for jobs that started;
+unstarted cutoff work gets no invented duration.
 `OPEN_DOUGH_TEST_SLOT_GATE=<file>` receives the number of jobs started each
 time the runner finds every slot occupied with a job still queued, so a check
 can observe the runner holding queued work.
@@ -21,7 +25,24 @@ can observe the runner holding queued work.
 id of the live owner, outside the run's ancestry, that keeps a full local run
 waiting for [shared admission](local-test-resources.md). Each whole-file
 replacement lets a check identify the current blocking owner, including a
-successor to an earlier observed owner. Every
+successor to an earlier observed owner.
+Each scheduled job also carries a fixed 180-second wall-clock safety deadline
+from its start; see [the runner](README.md#runner). That limit stops hung work
+and frees admission when a whole run ends; it is separate from the normalized
+performance budgets in [time-budget.md](time-budget.md).
+In CI, `OPEN_DOUGH_TEST_DEADLINE_MS` is the absolute epoch (milliseconds) for
+the share's 320-second run cutoff established with setup in
+`.github/workflows/ci.yml`, mirroring the dashboard suite's model. Local named
+checks omit it by default and keep only the per-job safety limit.
+`OPEN_DOUGH_TEST_RUN_DEADLINE_READY=<file>` receives the run wait-FIFO and
+remaining whole seconds when that cutoff is armed, so a check can expire it
+without wall-clock delay. `OPEN_DOUGH_TEST_DISABLE_RUN_DEADLINE=1` skips the
+absolute cutoff for discriminating proof only.
+`OPEN_DOUGH_TEST_JOB_DEADLINE_READY=<file>` receives each armed job's index,
+wait-FIFO path, and the 180-second allowance so a check can expire the wait
+without wall-clock delay; the same line is appended to `<file>.log` for every
+arming. `OPEN_DOUGH_TEST_DISABLE_JOB_DEADLINE=1` skips arming for
+discriminating proof only. Every
 `OPEN_DOUGH_TEST_*` setting stays with the runner that was given it, so a
 check that runs the runner itself gives it only the settings it chooses, runs
 all of its own checks, and keeps its own times. CI's shares, the deal and the

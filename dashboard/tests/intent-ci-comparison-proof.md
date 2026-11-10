@@ -87,12 +87,13 @@ npm run test:dashboard -- \
   backend-tests/review/story-review-stored- \
   backend-tests/intent/intent-ci-comparison-pending-proof.spec.ts \
   backend-tests/intent/intent-ci-comparison-receipt.spec.ts \
-  backend-tests/intent/landed-ci-history-comparison-run.spec.ts
+  backend-tests/intent/landed-ci-history-comparison-run.spec.ts \
+  backend-tests/intent/landed-ci-history-no-proof-recovery.spec.ts
 ```
 
 Measure native launch/capture preservation separately with
 `npm run test:dashboard -- tests/review/recently-done-one-shot-review.spec.ts tests/review/story-review-one-shot.spec.ts`.
-The last three ordinary selectors retain eight backend connections omitted by
+The last four ordinary selectors retain nine backend connections omitted by
 the broad `ci-comparison` prefix; include them when comparing whole feedback.
 
 Each rule must take less than 1,000 ms including its arrangement, actions,
@@ -145,7 +146,7 @@ reads and exact listing/archive counts. Removing duplicate traversal fixed the
 observed30s failure without changing the default. The failed219.41s loaded run
 and narrow29.493s focused repair pass remain qualified historical evidence.
 
-The current replacement-inclusive selection is248 cases:201 rules and47
+The pre-integration native-variant checkpoint has248 cases:201 rules and47
 prospectively mapped connections, including review Refresh and incoming
 finality. Ordinary passes93.59s wall/93.180s runner; all201 actual complete
 next-worker rule bounds are3–298ms. Loaded passes127.31s wall/126.802s runner,
@@ -176,5 +177,42 @@ The final three-file12→14-case focused comparison has effectively unchanged
 wall13.028→13.017s. It preserves every original literal/native oracle while
 removing repeated static projection work; partitioning alone demonstrates no
 aggregate speedup. Full248 ordinary/load measurements above include all added
-fresh pages. Exact new published CI remains required for the portable target;
-a green workflow alone is insufficient.
+fresh pages. Exact c216/run42743624437/attempt1 passes all17 jobs and201 complete
+rule bounds11–988ms. This is a pre-integration checkpoint; changed-source proof
+remains required, and a green workflow alone is insufficient.
+
+## Equivalent wall time and remembered answers
+
+A confirmed skip may use only its nearest successful equivalent's positive
+wall interval when missing proof is settled. Unanswered/malformed/expired/invalid
+proof and failed/untimed equivalents keep their existing gaps; no proof rows or
+farther build are invented. The actual artifact reader owns unanswered branding.
+
+Production `ciComparisonAnswers` uses the existing bounded `rememberedByKey`
+store. It revalidates inherited missing-proof gaps once; weak provenance of
+newly derived final objects keeps an ineligible final gap reusable. The default
+reader and isolated `ciComparisonReader` execute the same resolution path.
+Clearing the default owner clears the real retained answers. The fast
+`ci-comparison-finality-equivalent-recovery` cases seed the same actual store
+that their bound reader reads, then assert exact stored-object and acquisition
+reuse. A worker-local seed followed by child-server HTTP cannot prove recovery.
+
+## Integrated family observation
+
+The accepted equivalent-timing integration has257 cases:207 rules/50 uniquely
+mapped connections, with83 static native rules and26 imported declarations.
+Two role-preserving transfers and six same-process memory rules preserve the
+old246 surviving identities; GHA/adapter/no-proof-persistence add three connections.
+All257 pass ordinary219.59s and controlled-load207.65s. Actual complete207 rule
+bounds are4–518ms and5–724ms, including per-case cleanup. All95 measured source
+hashes survive subsequent history-helper formatting. Exact published CI remains
+required. Native3 separately pass31.66s;17 history receivers/default-phone pass41.30s.
+Both profiles observe AC100%/open lid/caffeinate-s-i/no sleep. Ordinary load4.60→
+18.44; loaded8.11→13.74, with two ready/stopped/reaped helpers at80.0/79.9%core.
+Ambient conditions differ; these finite observations imply no isolated percentage.
+
+History phone connections overlap only initial real page navigation with actual
+collector readiness. They join both before first Intent/CI activation; original
+raw/public/literal/native keyboard/layout assertions and default wrappers remain.
+This removes incidental serial setup from the observed timeout path. No wait,
+route, response or timeout change supplies the improvement.

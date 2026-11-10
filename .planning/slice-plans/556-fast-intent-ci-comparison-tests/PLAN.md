@@ -27,7 +27,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Rendering](render-evidence.md) · [HTTP teardown](server-close-evidence.md) ·
-[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md) · [Variants](variant-proof-evidence.md) · [Incoming equivalent integration](incoming-equivalent-integration.md).
+[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md) · [Variants](variant-proof-evidence.md) · [Incoming equivalent integration](incoming-equivalent-integration.md) · [Integrated family](integrated-family-evidence.md).
 
 ## Ordered slices
 
@@ -239,3 +239,8 @@ Reported: slice 8 — "Accepted main2751 SEED-288 changes timed settled-none equ
 Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
 Disposition: receiving slice 9
 Commitment: C001, C002, C003
+
+### G12. Two incoming history UI receivers exceed the default timeout
+Reported: slice 9 — "The16-case history receiver run has14backend passes and2UI default30000ms timeouts (adapter/provenance); AC100/openlid/sleepguard with no sleep, load20.15→25.05. Actual traces are retained; no base attribution exemption or unchanged rerun."
+Story clause: "No test in the family relies on a raised timeout."
+Disposition: proved by slice 9: integrated-family-evidence.md; causal navigation/collection overlap preserves every raw/public/native oracle and default wrappers. Independent AST/raw-trace review and renewed17 strictpassed/default30s/retry0 (41.30s wall) prove repaired2 plus default-phone witness; original failed16 and differing-load qualifications remain.

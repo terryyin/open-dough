@@ -29,17 +29,14 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make the Intent CI comparison tests sub-second](seeds/SEED-286-fast-intent-ci-comparison-tests.md#fast-intent-ci-comparison-tests) — SEED-286#fast-intent-ci-comparison-tests ([plan](slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md))
-- [Settle trunk freshness before expensive proof and before delivery](seeds/SEED-010-learn-from-execution-retrospectives.md#hold-delivery-on-freshness-before-expensive-proof) — SEED-010#hold-delivery-on-freshness-before-expensive-proof ([plan](slice-plans/561-settle-trunk-freshness-before-proof/PLAN.md))
+- [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible ([plan](slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md))
+- [Show no count difference across a missing or ambiguous part](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps) — SEED-281#no-count-difference-across-gaps ([plan](slice-plans/566-no-count-difference-across-gaps/PLAN.md))
+- [Publish frontend test proof in CI](seeds/SEED-290-publish-frontend-test-proof.md#publish-frontend-test-proof) — SEED-290#publish-frontend-test-proof ([plan](slice-plans/567-publish-frontend-test-proof/PLAN.md))
+- [Select the story completed in an ad hoc session](seeds/SEED-291-select-story-completed-in-ad-hoc-session.md#select-story-completed-in-ad-hoc-session) — SEED-291#select-story-completed-in-ad-hoc-session ([plan](slice-plans/568-select-story-completed-in-ad-hoc-session/PLAN.md))
+- [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
 
 ## Backlog list
 
-- [Plan the cohesive reorganization of an already-oversized file a slice touches](seeds/SEED-010-learn-from-execution-retrospectives.md#plan-cohesive-reorganization-of-oversized-files) — SEED-010#plan-cohesive-reorganization-of-oversized-files
-- [End a node test job at its deadline with a named result](seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline) — SEED-289#name-a-test-job-past-its-deadline
-- [Give the local CI container the hosted runner’s fonts](seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container) — SEED-289#match-hosted-fonts-in-ci-container
-- [Reuse equivalent CI adapter build timing for a skipped landing](seeds/SEED-288-landed-ci-evidence-follow-ups.md#reuse-adapter-equivalent-timing) — SEED-288#reuse-adapter-equivalent-timing
-- [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible
-- [Show no count difference across a missing or ambiguous part](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps) — SEED-281#no-count-difference-across-gaps
-- [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data
 - [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data

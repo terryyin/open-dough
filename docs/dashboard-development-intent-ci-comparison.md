@@ -17,7 +17,9 @@ the first claim parent), branch (final story-branch build from the landing's sto
 or N/A in Trunk Mode), and landed (newest trunk-first owning merge or
 fast-forward tip — never a later completion-only commit, no measured-ancestor
 fallback across that landing). A confirmed skip may use only that landing's
-equivalent build and its proof, never past unusable proof. A cancelled landing
+equivalent build (and its proof when published; otherwise its wall time when
+the attempt passed with valid start and completion), never past that one
+equivalent. A cancelled landing
 keeps Cancelled and may use the nearest later trunk build with usable proof,
 walking trunk's first-parent history forward past cancelled, unbuilt and
 proofless revisions, stopping at a running build, the read trunk head or 30
@@ -214,8 +216,11 @@ equivalent build, cancelled landings still awaiting later builds, unread CI,
 and unanswered equivalent/later proof reads stay refreshable. Check again
 or selecting the story again can therefore replace Branch fallback with
 Landed in the same process. An unanswered proof read stays pending beyond
-the landing's one-hour no-run bound. An answered missing, expired, invalid
-or unopenable artifact remains an explained gap; final answers keep their
+the landing's one-hour no-run bound. A nearest successful equivalent with valid
+positive wall time stays usable when its proof is settled missing; proof-dependent
+figures remain unavailable. Missing proof without that eligibility, and expired,
+invalid or unopenable equivalent proof, remain explained gaps. Retained legacy
+equivalent no-proof gaps revalidate once; newly resolved final gaps keep
 provider-free reuse. Sharing this judgment preserves each execution mode's
 existing build selection and exact/equivalent/later provenance, and does not
 make history browsing acquire CI or add UI polling.
