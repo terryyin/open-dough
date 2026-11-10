@@ -54,7 +54,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--danger, var(--text));
+  color: var(--text);
 }
 
 .launch-attachment-refusals > li {

@@ -28,8 +28,7 @@ import type { OriginAnswer } from "../originAnswers.ts";
 import { tokenColour } from "../pageColours.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
   zipOf,
@@ -94,11 +93,9 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
   };
   const summaryOf = (summarized: typeof run) =>
     summaryZipAnswer(
-      proofSummary(
-        summarized,
-        [["tests", 1]],
-        [["tests", 1, 1, "file", counts(5)]],
-      ),
+      proofSummaryForEntries(summarized, [
+        makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+      ]),
     );
 
   await test.step("expired", async () => {

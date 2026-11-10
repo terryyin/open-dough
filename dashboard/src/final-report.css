@@ -9,7 +9,7 @@
 
 .final-report-body {
   padding: 1rem;
-  color: var(--ink);
+  color: var(--text);
 }
 .final-report-body code {
   overflow-wrap: anywhere;

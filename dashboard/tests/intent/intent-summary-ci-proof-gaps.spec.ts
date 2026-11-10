@@ -44,7 +44,7 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
 }) => {
   const text = collectedSummary(
     run,
-    [["dashboard/tests", 3]],
+    [{ entry: "dashboard/tests", parts: 3 }],
     [
       {
         entries: ["dashboard/tests"],

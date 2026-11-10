@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-ci-proof-test-data.json",
+      "identity": "SEED-261#map-ci-proof-test-data",
+      "completedAt": "2026-11-10T15:04:27.295Z",
+      "blob": "3a50dbc27ab50b926263598e722de29cbf1bb7b3"
+    },
+    {
+      "fileName": "SEED-278_dashboard-dark-theme.json",
+      "identity": "SEED-278#dashboard-dark-theme",
+      "completedAt": "2026-11-10T14:52:45.315Z",
+      "blob": "aec8021001e7eb2fc15e042810beb29931df351d"
+    },
+    {
       "fileName": "SEED-261_map-ci-adapter-and-coverage-test-data.json",
       "identity": "SEED-261#map-ci-adapter-and-coverage-test-data",
       "completedAt": "2026-11-10T14:01:30.729Z",

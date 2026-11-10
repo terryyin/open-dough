@@ -44,8 +44,7 @@ import {
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
@@ -101,11 +100,9 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
       })
       .please(),
   ];
-  const summary = proofSummary(
-    ancestor,
-    [["tests", 1]],
-    [["tests", 1, 1, "file", counts(5)]],
-  );
+  const summary = proofSummaryForEntries(ancestor, [
+    makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+  ]);
   ci.published.serveCi((call) => {
     const { kind } = call.request;
     if (kind === "actions-run-artifacts")

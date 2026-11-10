@@ -18,49 +18,28 @@ import {
   scopeFiguresOf,
 } from "../../dashboard/src/ciScopeProof.ts";
 import { ciScopeCellsOf } from "../../dashboard/src/ciProofWording.ts";
+import { entryEvidenceOf } from "../../dashboard/src/ciProofUnits.ts";
+import { makeMe } from "./makeMe.mjs";
 
-const present = (part, counts, extra = {}) => ({
-  part,
-  status: "present",
-  passed: 0,
-  failed: 0,
-  other: 0,
-  ...counts,
-  ...extra,
-});
-const file = (path, counts, extra = {}) => ({
-  path,
-  passed: 0,
-  failed: 0,
-  other: 0,
-  ...counts,
-  ...extra,
-});
-
-// The test files of `tests`, with their declared entry's path.
-const entry = {
-  path: "tests",
-  unit: "file",
-  passed: 4,
-  failed: 1,
-  other: 0,
-  durationMs: 3500,
-  untimed: 1,
-  parts: [
-    present(
-      1,
-      { passed: 4, failed: 1 },
-      { durationMs: 3500, untimed: 1, breakdown: true },
-    ),
-  ],
-  files: [
-    file("tests/a.sh", { passed: 1 }, { durationMs: 0 }),
-    file("tests/deep/b.sh", { passed: 1 }, { durationMs: 1200 }),
-    file("tests/deep/er/c.sh", { failed: 1 }, { durationMs: 1300 }),
-    file("tests/support/hidden.sh", { passed: 1 }, { untimed: 1 }),
-  ],
-  unassigned: { passed: 1, failed: 0, other: 0, durationMs: 1000 },
-};
+// Canonical declared test-file evidence and its production scope projection.
+const declaredEntry = makeMe.aCiProofEntry
+  .at("tests")
+  .holding(
+    makeMe.aCiProofEvidence
+      .inUnit("file")
+      .withFile("tests/a.sh", { passed: 1, durationMs: 0 })
+      .withFile("tests/deep/b.sh", { passed: 1, durationMs: 1200 })
+      .withFile("tests/deep/er/c.sh", {
+        passed: 0,
+        failed: 1,
+        durationMs: 1300,
+      })
+      .withFile("tests/support/hidden.sh", { passed: 1, untimed: 1 })
+      .withUnassigned({ passed: 1, durationMs: 1000 })
+      .please(),
+  )
+  .please();
+const [entry] = entryEvidenceOf(declaredEntry);
 const inventory = [
   "tests/a.sh",
   "tests/deep/b.sh",
@@ -87,13 +66,10 @@ test("immediate children follow the tree: folders first, then files, each in cod
   );
 });
 
-// The declared entry holding EVIDENCE alone.
-const declared = ({ path, ...evidence }) => ({ path, evidence: [evidence] });
-
 test("a scope's figures sum its entry's files under its path, the longest entry owning it, whatever the tree lists", () => {
   const entries = [
-    declared(entry),
-    declared({ ...entry, path: "tests/deep/er" }),
+    declaredEntry,
+    makeMe.aCiProofEntry.at("tests/deep/er").please(),
   ];
   assert.equal(owningEntryOf(entries, "tests/deep")?.path, "tests");
   assert.equal(
@@ -141,19 +117,25 @@ test("a scope's figures sum its entry's files under its path, the longest entry 
 });
 
 test("a file the tree does not list under a listed child folder counts once, in that folder's row, and is outside only at the folder's own level", () => {
-  const tests = {
-    path: "dashboard/tests",
-    unit: "case",
-    passed: 3,
-    failed: 0,
-    other: 0,
-    parts: [present(1, { passed: 3 }, { breakdown: true })],
-    files: [
-      file("dashboard/tests/folder/a.spec.ts", { passed: 1 }),
-      file("dashboard/tests/folder/old.spec.ts", { passed: 1 }),
-      file("dashboard/tests/root.spec.ts", { passed: 1 }),
-    ],
-  };
+  const [tests] = entryEvidenceOf(
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .withFile("dashboard/tests/folder/a.spec.ts", {
+            passed: 1,
+            untimed: 0,
+          })
+          .withFile("dashboard/tests/folder/old.spec.ts", {
+            passed: 1,
+            untimed: 0,
+          })
+          .withFile("dashboard/tests/root.spec.ts", { passed: 1, untimed: 0 })
+          .please(),
+      )
+      .please(),
+  );
   const listed = [
     "dashboard/tests/folder/a.spec.ts",
     "dashboard/tests/root.spec.ts",
@@ -202,14 +184,20 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
   });
   assert.deepEqual(cells("tests/z.sh").counts, "no CI result");
   assert.equal(cells("tests/z.sh").countedResults, undefined);
-  const missing = {
-    ...entry,
-    parts: [
-      ...entry.parts,
-      { part: 2, status: "missing" },
-      present(3, { passed: 2 }),
-    ],
-  };
+  const [missing] = entryEvidenceOf(
+    makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .brokenDown(...entry.files)
+          .withUnassigned(entry.unassigned)
+          .inParts(2, { missing: [2] })
+          .withUnbrokenPart({ passed: 2, untimed: 0 })
+          .please(),
+      )
+      .please(),
+  );
   assert.deepEqual(cells("tests/deep", missing), {
     counts: "1 passed and 1 failed test files",
     countedResults: { total: 2, failed: 1 },
@@ -221,12 +209,18 @@ test("each row names its gap: no result, a measured zero, a missing part, no fil
     completeness: "2 of 3 parts present",
     gaps: ["part 2 of 3 missing", "part 3 of 3 has no file breakdown"],
   });
-  const entryOnly = {
-    ...entry,
-    parts: [present(1, { passed: 4, failed: 1 }, { durationMs: 3500 })],
-    files: undefined,
-    unassigned: undefined,
-  };
+  const [entryOnly] = entryEvidenceOf(
+    makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .counting(4, 1)
+          .timed(3500)
+          .please(),
+      )
+      .please(),
+  );
   assert.deepEqual(cells("tests/deep", entryOnly), {
     counts: "no file breakdown",
     countedResults: undefined,

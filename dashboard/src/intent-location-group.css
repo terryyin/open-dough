@@ -3,18 +3,10 @@
    rows. The column itself and its scrolling are the browser's
    (./intent-perspective.css). */
 
-/* A location header's own band colour: a muted violet apart from the selected
-   accent fill, the green and warm CI cues (./intent-ci-cues.css), the change
-   mark, and the contains-changes folder background (./change-kinds.css). */
-:root {
-  --location-header: #e7e1f1;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --location-header: #ddd4ee;
-  }
-}
+/* A location header's own band colour comes from --location-header in
+   ./appearance.css: a muted violet apart from the selected accent fill, the
+   green and warm CI cues (./intent-ci-cues.css), the change mark, and the
+   contains-changes folder background (./change-kinds.css). */
 
 .intent-locations > .intent-location {
   flex: none;

@@ -1,15 +1,21 @@
 // On-demand source highlighting for the shared source-lines view
 // (`./SourceLines.tsx`): Shiki's core and JavaScript engine, with each
-// Intent syntax hint's grammar and github-light loaded only when first
-// needed. `sourceLanguage` maps an Intent syntax hint (+ path for
-// typescript/.tsx) to the Shiki language id. Failure leaves the caller
-// with plain text and no error surface.
+// Intent syntax hint's grammar and github-light/github-dark loaded only when
+// first needed. `sourceLanguage` maps an Intent syntax hint (+ path for
+// typescript/.tsx) to the Shiki language id. Failure leaves the caller with
+// plain text and no error surface. Both theme colours ship on each token so
+// CSS can follow the system appearance without re-tokenization.
 
 import { createHighlighterCore, type HighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
-import type { ThemedToken } from "shiki/core";
 
-export type SourceTokenLine = readonly ThemedToken[];
+export type SourceTokenColors = {
+  readonly content: string;
+  readonly light?: string;
+  readonly dark?: string;
+};
+
+export type SourceTokenLine = readonly SourceTokenColors[];
 
 const languageLoaders = {
   gherkin: () => import("@shikijs/langs/gherkin"),
@@ -27,7 +33,10 @@ const languageLoads = new Map<GrammarModule, Promise<void>>();
 
 function loadHighlighter(): Promise<HighlighterCore> {
   highlighter ??= createHighlighterCore({
-    themes: [() => import("@shikijs/themes/github-light")],
+    themes: [
+      () => import("@shikijs/themes/github-light"),
+      () => import("@shikijs/themes/github-dark"),
+    ],
     langs: [],
     engine: createJavaScriptRegexEngine(),
   }).catch((error: unknown) => {
@@ -91,10 +100,21 @@ export async function highlightSourceLines(
   try {
     const core = await loadHighlighter();
     await ensureLanguage(core, language);
-    return core.codeToTokens(text, {
+    const lines = core.codeToTokensWithThemes(text, {
       lang: language,
-      theme: "github-light",
-    }).tokens;
+      themes: { light: "github-light", dark: "github-dark" },
+    });
+    return lines.map((line) =>
+      line.map((token) => {
+        const light = token.variants.light?.color;
+        const dark = token.variants.dark?.color;
+        return {
+          content: token.content,
+          ...(light === undefined ? {} : { light }),
+          ...(dark === undefined ? {} : { dark }),
+        };
+      }),
+    );
   } catch {
     return undefined;
   }

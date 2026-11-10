@@ -19,8 +19,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { OriginAnswer } from "../originAnswers.ts";
-import type { ProofDeclaration, ProofRun } from "./ciProofArtifacts.ts";
+import type { ProofRun } from "./ciProofArtifacts.ts";
 import { zipOf } from "./ciProofArtifacts.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const cli = fileURLToPath(
   new URL(
@@ -42,28 +43,10 @@ export type RecordedTest = readonly [
 
 // A completed dashboard proof record run from `runnerCheckout`.
 export function playwrightRecord(tests: readonly RecordedTest[]): unknown {
-  return {
-    schemaVersion: 1,
-    run: {
-      id: "run",
-      cwd: runnerCheckout,
-      rootDir: `${runnerCheckout}/dashboard/tests`,
-    },
-    phase: "completed",
-    selectedCount: tests.length,
-    tests: tests.map(([file, outcome, durations], index) => ({
-      project: "chromium",
-      location: { file: `${runnerCheckout}/${file}`, line: 3, column: 1 },
-      titlePath: ["", "chromium", file, `test ${String(index)}`],
-      executions: [{ testId: `t${String(index)}`, outcome }],
-      attempts: durations.map((durationMs, retry) => ({
-        testId: `t${String(index)}`,
-        retry,
-        status: "passed",
-        durationMs,
-      })),
-    })),
-  };
+  const record = makeMe.aDashboardProofRecord.from(runnerCheckout);
+  for (const [file, outcome, durations] of tests)
+    record.withTest(`${runnerCheckout}/${file}`, outcome, durations);
+  return record.please();
 }
 
 // One job part's report: a Playwright record for one entry, its tests test
@@ -90,7 +73,11 @@ export type Producer = {
 // in, when one is declared.
 export function collectedSummary(
   run: ProofRun,
-  expect: readonly ProofDeclaration[],
+  expect: readonly {
+    readonly entry: string;
+    readonly parts: number;
+    readonly unit?: "case" | "file";
+  }[],
   producers: readonly Producer[],
 ): string {
   const directory = mkdtempSync(join(tmpdir(), "ci-proof-collected-"));
@@ -135,7 +122,7 @@ export function collectedSummary(
       "summarize",
       "--fragments",
       fragments,
-      ...expect.flatMap(([entry, parts, unit]) => [
+      ...expect.flatMap(({ entry, parts, unit }) => [
         "--expect",
         `${entry}=${String(parts)}${unit === undefined ? "" : `:${unit}`}`,
       ]),

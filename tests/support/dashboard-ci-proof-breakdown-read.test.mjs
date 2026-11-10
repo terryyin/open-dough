@@ -17,37 +17,27 @@ import {
 import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
 import {
   SUMMARY_READ_LIMIT_BYTES,
-  fragmentsFromOutcomes,
-  summarize,
   summaryProblems,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+
+import { makeMe } from "./makeMe.mjs";
 
 const sha = (digit) => digit.repeat(40);
 
 // A summary broken down by file, as the collector writes it for FILES test
 // files of `tests`, each name padded to NAME_LENGTH.
 function brokenDownSummaryText(files, nameLength = 20) {
-  const outcomes = [...Array(files).keys()]
-    .map(
-      (index) =>
-        `passed\ttests/${String(index).padStart(nameLength, "x")}.sh\n`,
-    )
-    .join("");
-  const identity = {
-    entries: ["tests"],
-    part: 1,
-    of: 1,
-    attempt: 1,
-    revision: sha("a"),
-  };
-  const [value] = fragmentsFromOutcomes(outcomes, identity, undefined, {
-    byFile: true,
-  });
-  const { summary } = summarize({
-    fragments: [{ source: "f.json", value }],
-    expect: [{ entry: "tests", parts: 1 }],
-    run: { repository: "o/r", runId: 7, attempt: 1, revision: sha("a") },
-  });
+  const entry = makeMe.aCiProofEntry.at("tests").countingIn("checks");
+  for (let index = 0; index < files; index += 1) {
+    entry.withFile(`tests/${String(index).padStart(nameLength, "x")}.sh`, {
+      passed: 1,
+    });
+  }
+  const summary = makeMe.aCiProofSummary
+    .inRepository("o/r")
+    .ofRun({ runId: 7, runAttempt: 1, revision: sha("a") })
+    .withEntries(entry.please())
+    .please();
   return `${JSON.stringify(summary)}\n`;
 }
 

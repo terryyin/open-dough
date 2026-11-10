@@ -1,46 +1,52 @@
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { cli, temporary } from "./ci-proof-cli-fixtures.mjs";
 import { summarize } from "./ci-proof-collect.mjs";
 import { fragmentProblems, summaryProblems } from "./ci-proof-contract.mjs";
 import {
-  fragment,
   fragmentsRead as read,
   playwrightRecord,
   revision,
   run,
 } from "./ci-proof-test-fixtures.mjs";
 
-const script = fileURLToPath(
-  new URL("./ci-proof-summary.mjs", import.meta.url),
-);
-
-function temporary(t) {
-  const directory = mkdtempSync(join(tmpdir(), "ci-proof-duration-"));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  return directory;
-}
-
-const cli = (...args) =>
-  spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
-
 test("a summary sums present parts' durationMs onto each entry, and a part without one carries none", () => {
   const { summary } = summarize({
     fragments: read(
-      fragment("dashboard/tests", 1, 2, { passed: 12 }, { durationMs: 240000 }),
-      fragment(
-        "dashboard/tests",
-        2,
-        2,
-        { passed: 7, failed: 1 },
-        { durationMs: 180000 },
-      ),
-      fragment("tests", 1, 2, { passed: 5 }, { durationMs: 90000 }),
-      fragment("tests", 2, 2, { passed: 3 }),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(1, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(12, 0, 0)
+        .timed(240000)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(2, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(7, 1, 0)
+        .timed(180000)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(5, 0, 0)
+        .timed(90000)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(2, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(3, 0, 0)
+        .please(),
     ),
     expect: [
       { entry: "dashboard/tests", parts: 2 },
@@ -62,19 +68,55 @@ test("a summary sums present parts' durationMs onto each entry, and a part witho
 
 test("durationMs on a fragment, present part or entry must be a non-negative number when present", () => {
   assert.deepEqual(
-    fragmentProblems(fragment("tests", 1, 1, {}, { durationMs: -1 })),
+    fragmentProblems({
+      ...makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(0, 0, 0)
+        .please(),
+      durationMs: -1,
+    }),
     ["durationMs is not a non-negative number"],
   );
   assert.deepEqual(
-    fragmentProblems(fragment("tests", 1, 1, {}, { durationMs: "1" })),
+    fragmentProblems({
+      ...makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(0, 0, 0)
+        .please(),
+      durationMs: "1",
+    }),
     ["durationMs is not a non-negative number"],
   );
   assert.deepEqual(
-    fragmentProblems(fragment("tests", 1, 1, {}, { durationMs: 0 })),
+    fragmentProblems(
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(0, 0, 0)
+        .timed(0)
+        .please(),
+    ),
     [],
   );
   const { summary } = summarize({
-    fragments: read(fragment("tests", 1, 1, { passed: 1 }, { durationMs: 10 })),
+    fragments: read(
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(1, 0, 0)
+        .timed(10)
+        .please(),
+    ),
     expect: [{ entry: "tests", parts: 1 }],
     run,
   });

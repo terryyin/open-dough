@@ -55,12 +55,12 @@ const unitsSummary = () =>
   collectedSummary(
     run,
     [
-      ["dashboard/tests", 1, "case"],
-      ["dashboard/tests", 1, "file"],
+      { entry: "dashboard/tests", parts: 1, unit: "case" },
+      { entry: "dashboard/tests", parts: 1, unit: "file" },
       // The outcomes report below declares no unit, as before units were.
-      ["tests", 1],
+      { entry: "tests", parts: 1 },
       // Declared, but no fragment arrives.
-      ["tests", 1, "case"],
+      { entry: "tests", parts: 1, unit: "case" },
     ],
     [
       {

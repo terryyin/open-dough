@@ -115,7 +115,7 @@ test("an unpositioned twenty-first landing waits without losing the known twenty
     .please();
   const text = collectedSummary(
     proofRun,
-    [["dashboard/tests", 1, "case"]],
+    [{ entry: "dashboard/tests", parts: 1, unit: "case" }],
     [
       {
         entries: ["dashboard/tests"],

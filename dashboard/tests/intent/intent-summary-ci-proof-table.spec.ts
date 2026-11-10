@@ -38,7 +38,7 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
 }) => {
   const text = collectedSummary(
     run,
-    [["dashboard/tests", 1]],
+    [{ entry: "dashboard/tests", parts: 1 }],
     [
       {
         entries: ["dashboard/tests"],

@@ -1,7 +1,7 @@
 // Custom-adapter facts for comparisons of a published merged or fast-forward story.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Answers } from "../intentCiAdapterProofProject.ts";
-import { counts, proofSummary } from "./ciProofArtifacts.ts";
+import { proofSummaryForEntries } from "./ciProofArtifacts.ts";
 import type { publishCodeLandedBeforeCompletion } from "./storyCiComparisonEarlierLanding.ts";
 import type { publishFastForwardLandedStory } from "./storyCiComparisonFastForward.ts";
 
@@ -11,14 +11,19 @@ const proofOf = (
   passed: number,
   durationMs: number,
 ) => ({
-  summary: proofSummary(
+  summary: proofSummaryForEntries(
     {
       repository,
       attemptId: String(tested.attemptId),
       revision: tested.sha.toLowerCase(),
     },
-    [["tests", 1]],
-    [["tests", 1, 1, "case", counts(passed), durationMs]],
+    [
+      makeMe.aCiProofEntry
+        .at("tests")
+        .counting(passed, "case")
+        .timed(durationMs)
+        .please(),
+    ],
   ),
 });
 
