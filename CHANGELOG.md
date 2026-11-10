@@ -1,3 +1,16 @@
+## 0.3.94 - 2026-11-10
+
+- Intent shows Landed CI wall-time history for the latest 20 builds, with build provenance, evidence gaps, and collected folder and file timing in Proof. Pending build and proof answers stay refreshable as results arrive, including after an interruption or restart.
+- Done story Intent stays pinned to its published result. It can show the completed review while the retained workspace is still present or Landed CI proof is pending.
+- `dough-test-optimization` ranks leads from retained CI proof and keeps test case and test file units separate. It reports gaps when proof is missing or belongs to another attempt, and records accepted costs beside the tests that incur them.
+- Planned Story Branch execution checks trunk freshness and relevant named sibling landings before refactoring and expensive proof, then checks again before delivery. Planning and refactoring carry a cohesive reorganization decision when work expects to touch an already oversized file.
+
+The Promoted payload changes 31 files across execution, slice planning, post-change refactoring, and test optimization. It adds 15 test optimization support files and retires no payload paths. Installer behavior, native discovery, and host-hook registration are unchanged.
+
+Validation passed the self-installation baseline and the payload declaration, public installation, and new-path update checks. [Hosted CI passed at `6e04d687`](https://github.com/terryyin/open-dough/actions/runs/42725263249). The subsequent candidate changes only planning records.
+
+Terry approved a one-release ADR 0005 exception on 2026-11-10 for [freshness ordering](.planning/seeds/SEED-053-native-guidance-acceptance/freshness-ordering.md) and [oversized-file reorganization](.planning/seeds/SEED-053-native-guidance-acceptance/oversized-file-reorganization.md). Native acceptance for both remains pending on Codex, Cursor, and Claude Code.
+
 ## 0.3.93 - 2026-11-09
 
 - CI proof results now name their unit: a test case is one case outcome a runner reports, and a test file is one aggregate outcome for running a file. Summary schema version 2 keeps one evidence per unit for each proof location, with its own counts, time, untimed results, parts and file breakdown, so a location, even one path, can report both units without adding them together. `fragment --outcomes` takes `--unit case|file`, Playwright proof records count test cases, and `summarize --expect <entry>=<parts>:case|file` keeps a declared unit's missing part in that unit. Invocations without a unit keep working and read as legacy test results. Intent reads version 1 summaries the same way and never guesses a unit from the old `tests` or `checks` spelling. Each project migrates its own CI.
