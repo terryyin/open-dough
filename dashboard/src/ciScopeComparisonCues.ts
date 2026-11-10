@@ -8,7 +8,10 @@
 // are `./ciScopeComparisonAgreedCues.ts`'s.
 
 import { comparableUnits } from "./ciProofUnits.ts";
-import type { ScopeEndpointCount } from "./ciScopeComparisonCounts.ts";
+import {
+  countHasGaps,
+  type ScopeEndpointCount,
+} from "./ciScopeComparisonCounts.ts";
 import type { ScopeEndpointTiming } from "./ciScopeComparisonTiming.ts";
 import type { ActiveComparedEndpoint } from "./storyCiComparisonWording.ts";
 
@@ -70,6 +73,8 @@ function countUnavailableReason(count: ScopeEndpointCount): string | undefined {
   if (count.kind === "nothing") return "nothing counted";
   if (count.kind === "unreported") return unitNotReported;
   if (count.kind === "units") return severalUnits;
+  if (count.kind === "unobserved") return "partial";
+  if (count.kind === "measured" && countHasGaps(count)) return "partial";
   return undefined;
 }
 

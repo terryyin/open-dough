@@ -1,7 +1,6 @@
 // Intent keeps prior CI answers visibly qualified until a fresh answer replaces
 // them; an earlier target never answers a later selection.
 
-import type { Request } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -15,11 +14,17 @@ import {
 import { failing, running } from "../intentCiStoryBoard.ts";
 import {
   expectNamed,
+  expectKeptStoryCi,
+  freshCiStatusReadSettled,
   publishStoryCi,
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
-import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import {
+  givePageItsTurns,
+  openUntilRead,
+  untilPageReadsAnswered,
+} from "../pageRequestNotes.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";
 import type { CiAnswerer, CiRunAnswer } from "../support/baseCiActions.ts";
 
@@ -179,6 +184,7 @@ test("a late trunk answer never appears after switching to a story branch that h
     );
     await expectChecked(panel);
     const late = ci.hold("main");
+    const lateRead = freshCiStatusReadSettled(page);
     await panel.getByRole("button", { name: "Check again" }).click();
     await expect(panel.getByRole("status")).toContainText(
       "Previously retrieved",
@@ -187,16 +193,25 @@ test("a late trunk answer never appears after switching to a story branch that h
     await expect(panel.locator(".intent-ci-state")).toHaveText(
       "Passed at 4774f60 (Add login)",
     );
+    // Hold the fresh story read until its kept state has been observed.
+    const freshStory = ci.hold(failing.branch);
     panel = await toggleOnDevelopment(page, failing.title);
-    await expectNamed(panel, failing.branch);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
+    await expectKeptStoryCi(
+      panel,
+      failing.branch,
       "Failed at fa11ed0 (Break the login)",
-    );
-    await expect(panel.getByRole("status")).toContainText(
-      "Previously retrieved",
     );
     late.release();
     await expect.poll(late.served).toBe(true);
+    await lateRead;
+    await givePageItsTurns(page);
+    await expectKeptStoryCi(
+      panel,
+      failing.branch,
+      "Failed at fa11ed0 (Break the login)",
+    );
+    freshStory.release();
+    await expectChecked(panel);
     await untilPageReadsAnswered(page);
     await expectNamed(panel, failing.branch);
     await expect(panel.locator(".intent-ci-state")).toHaveText(
@@ -210,16 +225,7 @@ test("a late trunk answer never appears after switching to a story branch that h
     panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, "main");
     const late = ci.hold(failing.branch);
-    const lateRead = new Promise<void>((resolve) => {
-      const settled = (request: Request) => {
-        if (
-          new URL(request.url()).searchParams.get("judged") === failing.branch
-        )
-          resolve();
-      };
-      page.on("requestfinished", settled);
-      page.on("requestfailed", settled);
-    });
+    const lateRead = freshCiStatusReadSettled(page, failing.branch);
     panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, failing.branch);
     await expect(panel.locator(".intent-ci-state")).toHaveText(

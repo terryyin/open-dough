@@ -1,155 +1,21 @@
-// The units of results a compared scope shows at each endpoint and the rows
-// it compares in (`./ciScopeComparison.ts`). At one endpoint a scope is a
-// read gap, absent, without a file breakdown to say what it holds
-// (`./ciScopeComparisonEndpoint.ts`), or one group of results per unit there
-// (`./ciScopeProof.ts`, `./ciProofUnits.ts`) with its count
-// (`./ciScopeComparisonCounts.ts`) and timing
-// (`./ciScopeComparisonTiming.ts`); an endpoint with a group holds the scope.
-// Each declared unit that Baseline and a later endpoint both show compares
-// on its own row. The units matching nothing on the other side share one
-// row, each endpoint showing its own, when both sides have such units
-// (legacy test results → test cases, test files → test cases), so that row
-// shows both labelled ends and no difference; otherwise each such unit has
-// its own row, where an endpoint reporting the scope only in other units
-// shows it unreported, never as a zero.
-
-import { entryTimingOf, scopeTimingOf } from "./ciProofTiming.ts";
-import {
-  countedAny,
-  hasFileBreakdown,
-  listedUnits,
-  type CiProofUnit,
-} from "./ciProofUnits.ts";
-import {
-  measuredOf,
-  type MeasuredCount,
-  type ScopeEndpointCount,
-} from "./ciScopeComparisonCounts.ts";
-import {
-  endpointProofReadOf,
-  type ScopeEndpointGap,
-} from "./ciScopeComparisonEndpoint.ts";
-import {
-  unitTimingOf,
-  type ScopeEndpointTiming,
-  type UnitTiming,
-} from "./ciScopeComparisonTiming.ts";
-import {
-  entryOutsidesOf,
-  holdsResultInside,
-  noResultsKindOf,
-  owningEntryOf,
-  unitResultsAt,
-  type SummaryChild,
-  type UnitResults,
-} from "./ciScopeProof.ts";
-import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
-
-const noBreakdown = { kind: "no-breakdown" } as const;
-
-// One unit's results at a scope in one endpoint's summary.
-export type UnitGroup = {
-  readonly unit: CiProofUnit;
-  readonly count:
-    MeasuredCount | { readonly kind: "nothing" } | typeof noBreakdown;
-  readonly timing: UnitTiming | typeof noBreakdown;
-};
-
-export type EndpointUnits =
-  | ScopeEndpointGap
-  | { readonly kind: "groups"; readonly groups: readonly UnitGroup[] };
-
-// Whether ENDPOINT holds the scope: it shows a group of its results.
-export const showsResults = (endpoint: EndpointUnits): boolean =>
-  endpoint.kind === "groups";
-
-// Whether ENDPOINT places the scope in no compared build: its summary lacks
-// the scope, or it has no summary to place it in.
-export const absentOn = (endpoint: EndpointUnits): boolean =>
-  endpoint.kind === "absent" ||
-  endpoint.kind === "checking" ||
-  endpoint.kind === "status";
-
-// Each unit SHOWN at a scope (`unitResultsAt`) with results there: at its
-// entry's path every unit, counted or not; inside it each unit holding a
-// result there (`holdsResultInside`), counted from its file breakdown, or
-// without one, so cannot say.
-function groupsShownOf(shown: readonly UnitResults[]): readonly UnitGroup[] {
-  return shown.flatMap(({ evidence, figures }): UnitGroup[] => {
-    const { unit } = evidence;
-    if (figures === undefined) {
-      return [
-        {
-          unit,
-          count: countedAny(evidence)
-            ? measuredOf(evidence, evidence)
-            : { kind: "nothing" },
-          timing: unitTimingOf(evidence, entryTimingOf(evidence)),
-        },
-      ];
-    }
-    if (!holdsResultInside(evidence, figures)) return [];
-    if (!hasFileBreakdown(evidence))
-      return [{ unit, count: noBreakdown, timing: noBreakdown }];
-    return [
-      {
-        unit,
-        count: measuredOf(evidence, figures),
-        timing: unitTimingOf(evidence, scopeTimingOf(evidence, figures)),
-      },
-    ];
-  });
-}
-
-// GROUPS at an endpoint, OTHERWISE without any; no file breakdown when no
-// group can say what the scope holds.
-function endpointUnitsOf(
-  groups: readonly UnitGroup[],
-  otherwise: EndpointUnits,
-): EndpointUnits {
-  if (groups.length === 0) return otherwise;
-  if (groups.every(({ count }) => count.kind === "no-breakdown"))
-    return noBreakdown;
-  return { kind: "groups", groups };
-}
-
-// What one endpoint's proof shows at a scope path. LOOKUP is the path read
-// in that summary (a rename's old path at baseline).
-export function scopeEndpointUnitsOf(
-  proof: ComparisonEndpointProof,
-  lookup: string,
-): EndpointUnits {
-  const read = endpointProofReadOf(proof);
-  if (read.kind !== "summary") return read;
-  const entry = owningEntryOf(read.entries, lookup);
-  if (entry === undefined) return { kind: "absent" };
-  const shown = unitResultsAt(entry, lookup);
-  return endpointUnitsOf(groupsShownOf(shown), {
-    kind: noResultsKindOf(shown),
-  });
-}
-
-// What one endpoint's proof holds under PATH that none of CHILDREN's rows
-// shows, per unit (`entryOutsidesOf`).
-export function outsideEndpointUnitsOf(
-  proof: ComparisonEndpointProof,
-  path: string,
-  children: readonly SummaryChild[],
-): EndpointUnits {
-  const read = endpointProofReadOf(proof);
-  if (read.kind !== "summary") return read;
-  const entry = owningEntryOf(read.entries, path);
-  if (entry === undefined) return { kind: "absent" };
-  if (!entry.evidence.some(hasFileBreakdown)) return noBreakdown;
-  const groups = entryOutsidesOf(entry, path, children).map(
-    ({ evidence, outside }): UnitGroup => ({
-      unit: evidence.unit,
-      count: measuredOf(evidence, outside.figures),
-      timing: unitTimingOf(evidence, scopeTimingOf(evidence, outside.figures)),
-    }),
-  );
-  return endpointUnitsOf(groups, { kind: "absent" });
-}
+// Compared unit rows and their endpoint figures. Endpoint evidence is
+// interpreted by ./ciScopeComparisonEndpointUnits.ts; this module matches
+// units across builds and selects the figures for each resulting row.
+import { listedUnits, type CiProofUnit } from "./ciProofUnits.ts";
+import type { ScopeEndpointCount } from "./ciScopeComparisonCounts.ts";
+import type { ScopeEndpointTiming } from "./ciScopeComparisonTiming.ts";
+import type {
+  EndpointUnits,
+  UnitGroup,
+} from "./ciScopeComparisonEndpointUnits.ts";
+export {
+  absentOn,
+  outsideEndpointUnitsOf,
+  scopeEndpointUnitsOf,
+  showsResults,
+  type EndpointUnits,
+  type UnitGroup,
+} from "./ciScopeComparisonEndpointUnits.ts";
 
 // One compared row of a scope: the units its figures are taken in (every
 // unit when no endpoint shows one).
@@ -204,7 +70,7 @@ const unreported = { kind: "unreported" } as const;
 // stands in only when no other can.
 function severalOf(groups: readonly [UnitGroup, ...UnitGroup[]]): RowEndpoint {
   const counts = groups.flatMap(({ count }) =>
-    count.kind === "measured" ? [count] : [],
+    count.kind === "measured" || count.kind === "unobserved" ? [count] : [],
   );
   const timings = groups.flatMap(({ timing }) =>
     timing.kind === "no-breakdown" ? [] : [timing],

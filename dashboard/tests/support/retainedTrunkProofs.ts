@@ -4,7 +4,6 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { commonGitDir } from "./launchLanding.ts";
 import { landedTrunk } from "./landedCiTrunk.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { git } from "./storyReviewWorktree.ts";
 
 type RetainedTrunkFacts = {
   readonly titles: readonly string[];
@@ -36,7 +35,7 @@ export function retainedTrunkProofs(
       .forLaunch(receipt)
       .deliveredAs({ delivery: receipt, receipt })
       .comparing({
-        base: git(origin.project, "rev-parse", `${revision}^`),
+        base: trunk.parent(title),
         revision,
       })
       .receivedAt(facts.receiptAt(index))

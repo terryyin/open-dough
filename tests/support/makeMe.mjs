@@ -65,6 +65,7 @@ import {
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
 /** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
+/** @typedef {import("../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
 /**
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
@@ -73,6 +74,10 @@ import {
 export const makeMe = {
   get aCiProof() {
     return new CiProofBuilder();
+  },
+  /** @returns {FactBuilder<ComparisonEndpointProof>} */
+  get aComparisonEndpointProof() {
+    return { with: copyFacts };
   },
   get aLandedCiResolution() {
     return new LandedCiResolutionBuilder();

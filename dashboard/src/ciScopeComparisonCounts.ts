@@ -11,9 +11,11 @@
 // outcome detail and parts stay with the chosen build in
 // `./ciScopeComparison.ts`.
 
-import type { CiProofFigures } from "./ciProof.ts";
+import type { CiProofEvidence, CiProofFigures } from "./ciProof.ts";
+import { uncountedGaps } from "./ciProofTiming.ts";
 import {
   unitNoun,
+  unitName,
   type CiEntryEvidence,
   type CiProofUnit,
 } from "./ciProofUnits.ts";
@@ -26,14 +28,27 @@ export type MeasuredCount = {
   readonly total: number;
   readonly failed: number;
   readonly unit: CiProofUnit;
+  // Observed counts remain sortable; missing/conflicting parts cannot
+  // establish a difference, independently of duration availability.
+  readonly gaps?: readonly string[];
 };
+
+// A declared unit whose missing/conflicting parts cannot place a result at
+// this scope. It is an evidence gap, never an observed zero.
+export type UnobservedCount = {
+  readonly kind: "unobserved";
+  readonly unit: CiProofUnit;
+  readonly gaps: readonly string[];
+};
+export type UnitCount = MeasuredCount | UnobservedCount;
 
 export type ScopeEndpointCount =
   | RowEndpointGap
   | { readonly kind: "nothing" }
   | MeasuredCount
+  | UnobservedCount
   // Several units' totals at the scope, kept apart.
-  | { readonly kind: "units"; readonly counts: readonly MeasuredCount[] };
+  | { readonly kind: "units"; readonly counts: readonly UnitCount[] };
 
 // The units COUNT measured totals in; none for a gap or nothing counted.
 export const measuredUnitsOf = (
@@ -68,6 +83,55 @@ export function formatTotal(total: number): string {
 export const countWords = (total: number, unit: CiProofUnit): string =>
   `${formatTotal(total)} ${unitNoun(unit, total)}`;
 
+export const countHasGaps = (count: MeasuredCount): boolean =>
+  (count.gaps?.length ?? 0) > 0;
+
+// Parts whose counts are unresolved, independently of timing availability.
+export const countPartGapsOf = (evidence: CiProofEvidence): readonly string[] =>
+  uncountedGaps(evidence).map(({ phrase }) => phrase);
+
+export function countObservationWords(
+  total: number | undefined,
+  unit: CiProofUnit,
+  gaps?: readonly string[],
+): string {
+  const words =
+    total === undefined
+      ? gaps?.length
+        ? `no observed ${unitName(unit)}`
+        : "—"
+      : countWords(total, unit);
+  return gaps?.length
+    ? `${words} (${gaps.join(", ")}; count difference unavailable)`
+    : words;
+}
+
+export const observedCountWords = (count: UnitCount): string =>
+  countObservationWords(
+    count.kind === "measured" ? count.total : undefined,
+    count.unit,
+    count.gaps,
+  );
+
+export const unobservedOf = (evidence: CiProofEvidence): UnobservedCount => ({
+  kind: "unobserved",
+  unit: evidence.unit,
+  gaps: countPartGapsOf(evidence),
+});
+
+export const measuredCountsComparable = (
+  before: MeasuredCount,
+  after: MeasuredCount,
+): boolean => !countHasGaps(before) && !countHasGaps(after);
+
+export const measuredCountsPairWords = (
+  before: MeasuredCount,
+  after: MeasuredCount,
+): string =>
+  measuredCountsComparable(before, after)
+    ? measuredCountsChangeWords(before.total, after.total, after.unit)
+    : `${observedCountWords(before)} → ${observedCountWords(after)}`;
+
 export function signedCountWords(delta: number): string {
   if (delta === 0) return "0";
   return delta > 0 ? `+${String(delta)}` : `${minus}${String(Math.abs(delta))}`;
@@ -86,11 +150,15 @@ export function measuredCountsChangeWords(
 }
 
 // EVIDENCE's total over FIGURES, in its unit.
-export const measuredOf = (
+export function measuredOf(
   evidence: CiEntryEvidence,
   figures: CiProofFigures,
-): MeasuredCount => ({
-  kind: "measured",
-  ...countedResultsOf(figures),
-  unit: evidence.unit,
-});
+): MeasuredCount {
+  const gaps = countPartGapsOf(evidence);
+  return {
+    kind: "measured",
+    ...countedResultsOf(figures),
+    unit: evidence.unit,
+    ...(gaps.length === 0 ? {} : { gaps }),
+  };
+}

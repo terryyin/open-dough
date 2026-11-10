@@ -86,7 +86,7 @@ export const noBreakdownGapsOf = (evidence: CiProofEvidence): TimingGap[] =>
   );
 
 // Each missing or ambiguous part of EVIDENCE.
-const uncountedGaps = (evidence: CiProofEvidence): TimingGap[] =>
+export const uncountedGaps = (evidence: CiProofEvidence): TimingGap[] =>
   evidence.parts
     .filter((part) => part.status !== "present")
     .map((part) =>

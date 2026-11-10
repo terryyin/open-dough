@@ -4,10 +4,11 @@
 
 **Source:** [Refined story](../../seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps)
 
+**Source review:** [Source-only commitments](source-review.md)
+
 ## Goal and scope
 
-Developers comparing builds in Intent can read observed counts without a lost
-or conflicting shard masquerading as a change in tests. Keep each endpoint's
+Developers comparing builds in Intent can read observed counts without a lost or conflicting shard masquerading as a change in tests. Keep each endpoint's
 observed totals, units and missing/ambiguous parts; compare a declared unit
 only when its parts are complete at both endpoints. This applies to signed
 differences, equality wording and count cues, including overall Counts and
@@ -55,25 +56,12 @@ here and in maintained product documentation under
 
 ### Alternatives, challenge and clarification
 
-| Candidate | Effect on the developer and system | Judgment |
-| --- | --- | --- |
-| Keep current totals and gap labels alone | Requires the reader to discount an authoritative-looking difference or cue; leaves current comparison classification unchanged | Insufficient: the consuming probe reproduces the misleading claim |
-| Gate each unit and endpoint pair on its own parts | Keeps observations and valid other comparisons; carries evidence completeness through existing interpretation and aggregation | Selected: matches the supplied goal with one domain rule |
-| Suppress all count comparisons when any unit is partial | Hides complete units' useful differences; permits a coarse global guard | Conflicts with the story's complete-unit promise |
-| Compare only shards present at both builds | Changes the comparison population and needs matching/provenance semantics | Deferred: a different promise from the supplied no-difference rule |
-
-Borrowed mechanism: reconciliation before declaring a balance change.
-Reported parts are observed entries, missing/ambiguous parts are unresolved
-entries, and a complete unit is a reconciled account. Keep observations while
-withholding the unsupported change. This is a design analogy, not evidence:
-different builds may contain different tests, so reconciliation establishes
-neither a fixed test population nor causation.
-
-The strongest challenge is that hiding signed numbers alone can satisfy a
-narrow reading yet leave `no change` or a false `removed` label. The source's
-examples now cover those claims, including the reverse false `added` case.
-The existing comparison → Summary → file Proof path needs explanatory gap
-words at the affected endpoint, with no new interaction or layout choice.
+Selected: gate each unit and endpoint pair on its own parts. Gap labels alone
+leave misleading claims; suppressing every unit hides supported comparisons.
+Matching-shard subsets remain deferred. The reconciliation analogy explains
+withholding a change while retaining observations; it proves neither a fixed
+test population nor causation. Cover equality and false added/removed claims,
+with explanatory endpoint gaps on the existing comparison → Summary → Proof path.
 
 ## Outside-in proof ownership
 
@@ -100,7 +88,7 @@ those facts; a missing part served as present zero cannot prove this story.
 ### 1. Compare counts only when the unit's evidence supports the claim
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: every row of the outside-in proof table, through the focused Node
 checks and the Intent browser consumer boundary below.
 
@@ -196,6 +184,21 @@ on the current helper faithfully serving missing parts.
 
 ## Coordination and current decisions
 
+- Execution: established Story Branch Mode, workspace/branch as supplied in
+  this session; agent `mrsn-chan`, publisher `dashboard-territory.local-open-dough`.
+  Accepted claim `abb44e0faa1d6957d36c60e6634f0af87f355603` on `origin/main`;
+  starting revision `914ea96e2653de11c86c1f7f329dfe76191afb78`. No second start.
+  Existing in-scope replanning authority retained; no numeric slice budget supplied.
+- Setup: Node 24.21.0, locked npm/browser acquisition passed; native `check`
+  passed (Chromium 153.0.8010.12). Use `PATH=/opt/homebrew/bin:$PATH` for Bash5.
+  `npm run format` is selective; pre-commit checks staged lint and typecheck.
+- Observer: GitHub `terryyin/open-dough`, verified `ci.yml` / `CI`, target the
+  execution branch, coordinator `mrsn-chan-count-gaps`; `/tmp/dough-ci-501/watch-Rddl4s`,
+  PID 78731, session 95721, cell `g804:3`. Earlier trunk claim CI is unobserved.
+- Sibling 557 remains at claim `f75a5e64d` with active uncommitted gap-retention
+  changes and Intent proof; fixture-serving slice 3 has not started. Preserve
+  that checkout and settle accepted sibling changes before dependent delivery.
+
 - [Keep each unit's gaps and name visible](../../seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible)
   / [plan 557](../557-keep-unit-gaps-and-names-visible/PLAN.md) already owns
   below-entry unit-gap retention and faithful multipart/gap proof serving in
@@ -213,18 +216,31 @@ on the current helper faithfully serving missing parts.
   browser proof remains outstanding until slice 1 reuses or completes that
   shared correction and a served-evidence check verifies the input. Never
   accept green browser assertions on a different evidence shape.
-- Readiness authorizes neither Take nor execution. This invocation prepares
-  and lands records only; there is no execution mode selection or CI observer.
 
 ## Plan concern assessment
 
-Slice-plan refinement was not needed: one bounded Behavior slice owns one
-comparison-evidence rule, its aggregation and all observing surfaces, with no
-independent feature or speculative structure. Cumulative design stays in the
-existing per-unit model and gap interpretation.
+One Behavior slice owns the comparison rule, aggregation and observing surfaces
+in the existing per-unit model. Known serving/retention gaps remain slice-1
+obligations; establish the arranged evidence and complete proof before delivery.
 
-No remaining slice-specific design or sizing concern was identified. The known
-serving defect and overlapping gap-retention work have explicit slice-1 repair
-and coordination obligations above; they are not assumed already fixed or
-used as exclusions from acceptance. Execution must establish the arranged
-evidence and complete that proof before delivery.
+## Story obligations
+
+### G1. Hidden scope still reads removed
+Reported: slice 1 — "The new hidden-scope regression fails at intent-scope-comparison-count-gaps.test.mjs:103 with 1,000 → removed. Active sibling plan 557 owns ciScopeProof.ts / ciScopeComparisonUnits.ts gap retention; preserve its uncommitted work and reuse its publication before renewed proof."
+Story clause: "A scope not observed under an incomplete unit is a gap, not evidence of added or removed tests."
+Disposition: proved by slice 1: tests/support/intent-scope-comparison-unobserved-counts.test.mjs hidden/all-missing/outside assertions and consuming sorting; see source-review.md for inspected paths and terminal 16-file proof.
+
+### G2. Test evidence preparation remains incomplete
+Reported: slice 1 — "New Node suites use raw comparison-summary wrappers pending sibling 557's active canonical aComparisonEndpointProof builder. entryProofs still turns missing fragments into present zeroes and loses multipart breakdown; faithful serving and its served-shape check remain required."
+Story clause: "Keep the observed count totals, their unit, and each endpoint's missing or ambiguous part visible."
+Disposition: proved by slice 1: canonical MakeMe envelopes plus story-ci-comparison-entry-summaries.test.mjs actual producer equality across all endpoints; see source-review.md for red/green and terminal proof.
+
+### G3. Integrated count observations remain unaccepted
+Reported: slice 1 — "Two browser journeys are authored in intent-ci-comparison-count-gaps.spec.ts but unrun. Summary, Proof, tree/accessibility and overall/entry integration plus the broad Intent gate remain open; consumer trace lists them open rather than excluded. Coordinator continuation: both new journeys passed, but the first full 386-case gate timed out at the final request wait in intent-ci-comparison-drilldown-relative.spec.ts:43. Preserve that failed verdict and diagnose before repeating; source-review.md retains its evidence."
+Story clause: "Apply the rule to entry, folder, file and outside rows, the tree's count cues, and overall Counts."
+Disposition: proved by slice 1: Counts, Summary, file Proof, tree/accessibility and existing comparison observations passed in the complete 386-case run (385 passed, one unrelated freshness-test race). Whole repaired freshness/story/history files passed 7/7; unchanged observations reused, failed verdicts retained. See verification.md.
+
+### G4. Independent refactoring and final gates remain open
+Reported: slice 1 — "ciScopeComparisonCountsCell.ts is 253 lines; extract cohesive endpoint wording/selection helpers preserving countsCellText. Coordinator refactor, formatting and lint remain outstanding; no slice done mark, commit or publication occurred. Proof and recovery details are retained beside this plan in source-review.md."
+Story clause: "Keep this one rule across views"
+Disposition: proved by slice 1: independent refactor passes completed all count and gate-repair seams; all owned files at most 250 lines, focused Node proof, 8/8 Board paging, full Intent observations and final 7/7 repairs accepted. Lint, formatting, typecheck and whitespace passed; see verification.md.

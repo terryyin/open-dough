@@ -25,6 +25,7 @@ import { collectedScopeHistory } from "../../tests/support/collectedScopeHistory
 import {
   answeredLanding,
   landedCiHistory,
+  restartAsLandedCiReader,
   untilKept,
 } from "../../tests/support/landedCiHistory.ts";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
@@ -134,29 +135,34 @@ test("a final gap names the build the Landed rule named for its landing and link
         ],
       },
     });
-  const asked = github.calls.length;
-  const scope = await collectedScopeHistory(
-    server.origin,
-    "dashboard/tests",
-    cancelled.revision,
-    cancelled.at,
-  );
-  expect(scope.status).toBe(200);
-  expect(scope.body.entries).toHaveLength(5);
-  for (const [index, [revision, provenance, runId]] of [
-    [b1, "equivalent", 61],
-    [b2, "equivalent", 62],
-    [b3, "equivalent", 63],
-    [timedOut.revision, "exact", 64],
-    [d6, "later", 66],
-  ].entries()) {
-    expect(scope.body.entries[index]).toMatchObject({
-      kind: "gap",
-      build: { revision, provenance, runId, runAttempt: 1 },
-      readings: [],
-    });
+  const reader = await restartAsLandedCiReader(server, origin, "boundary");
+  try {
+    const asked = github.calls.length;
+    const scope = await collectedScopeHistory(
+      reader.origin,
+      "dashboard/tests",
+      cancelled.revision,
+      cancelled.at,
+    );
+    expect(scope.status).toBe(200);
+    expect(scope.body.entries).toHaveLength(5);
+    for (const [index, [revision, provenance, runId]] of [
+      [b1, "equivalent", 61],
+      [b2, "equivalent", 62],
+      [b3, "equivalent", 63],
+      [timedOut.revision, "exact", 64],
+      [d6, "later", 66],
+    ].entries()) {
+      expect(scope.body.entries[index]).toMatchObject({
+        kind: "gap",
+        build: { revision, provenance, runId, runAttempt: 1 },
+        readings: [],
+      });
+    }
+    expect(github.calls.slice(asked)).toEqual([]);
+  } finally {
+    await reader.close();
   }
-  expect(github.calls.slice(asked)).toEqual([]);
 });
 
 test("a build that completed before it started is a gap naming no CI wall time, never a zero, and a run link that is not a web address is left out of a point and a pending gap, keeping their run words", async ({

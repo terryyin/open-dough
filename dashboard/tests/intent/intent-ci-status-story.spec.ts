@@ -12,7 +12,6 @@
 // and a branch not shown moving, read none. Stories without a branch to
 // judge: ./intent-ci-status-story-gaps.spec.ts.
 
-import type { Request } from "@playwright/test";
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
 import { parts } from "../dashboardPage.ts";
@@ -22,6 +21,7 @@ import {
   branchJudgmentCalls,
   expectNamed,
   failedRun,
+  freshCiStatusReadSettled,
   mainRun,
   publishStoryCi,
   runningRun,
@@ -93,16 +93,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     // then straight on to the running one; the late failing answer never
     // appears under the running branch.
     const late = ci.hold(failing.branch);
-    const lateRead = new Promise<void>((resolve) => {
-      const settled = (request: Request) => {
-        if (
-          new URL(request.url()).searchParams.get("judged") === failing.branch
-        )
-          resolve();
-      };
-      page.on("requestfinished", settled);
-      page.on("requestfailed", settled);
-    });
+    const lateRead = freshCiStatusReadSettled(page, failing.branch);
     let panel = await toggleOnDevelopment(page, failing.title);
     await expectNamed(panel, failing.branch);
     await expect(panel.locator(".intent-ci-state")).toHaveText(
