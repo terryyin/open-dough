@@ -288,3 +288,15 @@ Reported: slice 1 — "Source review commits mixed tests convert only this story
 Story clause: "Mixed tests convert this story's facts only."
 Disposition: excluded "Mixed tests convert this story's facts only."
 Commitment: 8.4
+
+## Execution complete
+
+Product advice: Keep backlog order with next SEED-261#map-ci-proof-test-data,
+then installation/native; no reorder or new queue item from this review.
+Assimilate MakeMe ownership of adapter attempt, queue, and revision-coverage
+arranged facts; thin fixture delegates are intentional. Tip harness repairs
+(private Vite comparison-renderer cache; nested test-runner-split isolation
+from outer CI SPLIT) stay on the candidate outside story scope unless recurrence
+after landing shows guidance debt. Process findings from the two harness repairs
+were not written to DearDough.md (999-line ceiling); wrap-up may retain them
+manually if wanted.
