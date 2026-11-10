@@ -50,7 +50,7 @@ belongs to SEED-286#fast-intent-ci-comparison-tests.
 
 **Identity:** SEED-287#fit-dashboard-journeys-in-default-timeout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c925c0df0ea24e844d31ae2a2057b5f47529adae8c0ea7d08e0618d6bbaad641","plan":"bce6605366e195d5b168ac56b30066b3152682900b686a5595c4f99ef0cacdf6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"02d5b3e55ce0a4b838e0538d0b0f39d284cb50b58e8dbb43a0d93d656b5381ab","plan":"c271db5f503ac0cfee0874c9024eea655e23be8cbc8643492979653d4352ffdb"}}
 ```
 
 #### Goal
@@ -177,64 +177,10 @@ or speedup unestablished.
    remains SEED-286's. A collector lock failure or infrastructure setup
    failure is not treated as solved by this story's margin work.
 
-#### CI failure evidence and decisions, 2026-11-10
+#### Original CI evidence
 
-The two most common observed patterns were state or request assertions made
-while asynchronous work was still settling (11 jobs) and exhausted time
-budgets (11 jobs). Ten of the latter were dashboard case or shard deadlines
-and one was a native job ceiling. The dashboard accounted for 34 of the 45
-failed jobs whose logs were available. Among the other 23 jobs were two
-collector lock failures, two process leaks, one infrastructure setup failure,
-and 18 other dashboard, native, or lint failures. Two more failed runs had no
-failed job exposed. [First unavailable job record](https://github.com/terryyin/open-dough/actions/runs/42673489021),
-[second unavailable job record](https://github.com/terryyin/open-dough/actions/runs/42674414222).
-
-The latest 24 hours ending at 18:15 Singapore time on 10 November had 29
-failures in 112 completed runs (25.9%), against 12 of 152 (7.9%) the day
-before. Across the whole 48-hour window the rate was 41 of 264 (15.5%),
-against 40 of 212 (18.9%) in the prior 48 hours. These are counts of final
-workflow conclusions for runs created in each window across all refs and
-triggers, excluding cancellations. Main's five failures in the latest
-48 hours were three state or request assertions, one watcher timeout, and
-one collector lock failure.
-
-- **State and request failures.** Tests observed extra artifact listings,
-  two history reads straddling a collector write, or the previous story
-  while navigation was settling. The main history and ad hoc request races
-  already have repairs (`ad581992a`, `f1a992a75`, `fa274447d`). The adapter
-  restart failure had a different cause. Interrupted ownership changes could
-  strand a real JSON store lock. Main has `8756dd712` and its follow-up
-  fixture repair `284c47b41`, which observes the actual rename boundary.
-  The repair and the subsequent integration both passed CI.
-  [History race](https://github.com/terryyin/open-dough/actions/runs/42683691835/job/129384709224),
-  [extra artifact listing](https://github.com/terryyin/open-dough/actions/runs/42758943543/job/129639886645),
-  [navigation race](https://github.com/terryyin/open-dough/actions/runs/42757731824/job/129635918458),
-  [lock failure](https://github.com/terryyin/open-dough/actions/runs/42792228483/job/129748405061),
-  [passing fixture repair](https://github.com/terryyin/open-dough/actions/runs/42799957103),
-  [passing integration](https://github.com/terryyin/open-dough/actions/runs/42801557845).
-- **Deadline failures.** The real watcher policy repair needed about 28 s
-  just to activate on the hosted runner. Restart of the watcher while
-  preserving the runner and client also reached the default. The retired
-  closure trace showed continued progress through Git retirement, write
-  faults, Done rendering, and the same-origin restart at about 29 s. Its
-  deletion checks crossed the 30 s deadline. Main has temporary allowances
-  for the policy repair (`10a795b52`) and retired closure (`476a9c007`).
-  The earlier native evidence budget failure (67.8 s against 64 s) was
-  addressed by consolidating the capture in `7d62c61b5`.
-  [Watcher policy repair](https://github.com/terryyin/open-dough/actions/runs/42789049003/job/129737496338),
-  [watcher restart](https://github.com/terryyin/open-dough/actions/runs/42781560636/job/129712572528),
-  [retired closure trace](https://github.com/terryyin/open-dough/actions/runs/42789213880/job/129738041809),
-  [native evidence ceiling](https://github.com/terryyin/open-dough/actions/runs/42488867557/job/128756624455).
-- **Retained baseline.** Passing `main` run 42795867875, attempt 1 at
-  `31a826c77`, retains all 12 dashboard parts and all three repository
-  shares without proof gaps. CI selected `npm run test:dashboard` across
-  its 12 existing Playwright splits and `npm run test` across three runner
-  shares. Its four highest case groups were all production watcher groups,
-  totaling 371.7 s of summed case time. The three watcher spec timings
-  including hooks were 205.6 s for updates, 129.2 s for failures, and
-  102.3 s for restart. The slowest dashboard job took 321 s of wall time
-  including setup and proof upload. Keep summed durations and elapsed time
-  separate. [Passing baseline](https://github.com/terryyin/open-dough/actions/runs/42795867875).
+The [original failure inventory and retained baseline](../slice-plans/576-fit-dashboard-journeys-in-default-timeout/design-and-proof.md#original-ci-evidence-from-the-seed)
+retain the 2026-11-10 diagnosis and source links unchanged.
 
 #### Proof locations and measurement
 

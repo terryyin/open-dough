@@ -39,7 +39,7 @@ times, conditions, and terminal exit; `*-proof.json` records exact selection.
   `caffeinate -s -i node /tmp/seed287-probe-20261110/full-suite-measure.mjs before-suite`.
   This retained wrapper measures admission separately and is reused for after.
   It has now terminated with strict failure; complete metrics are below.
-  No baseline command remains live. Slice 6 owns the final comparison.
+  No baseline command remains live. Slice 11 now owns the final comparison.
 
 ## Unchanged full-baseline diagnosis (terminal failure)
 
@@ -114,3 +114,67 @@ guards were inspected and unchanged. This is lower-load stability proof only;
 G1, G2, G3, G4 and G5 remain owned. Consumer traces and strict records are in
 that private evidence directory. The sole located spy consumer is an excluded
 historical SEED-293 coverage report; no runtime operation changed.
+
+## Refinement after the baseline inventory
+
+Preserved completed slices 1/2. Source meaning is unchanged. The nine baseline
+failures form three independent repair proof loops, now slices 3 (comparison
+history), 4 (publication/multi-server/retry), and 5 (Cursor preconditions).
+Original watcher/closure/touch/final work is now 6–9; obligations and source
+allocations moved with their owners. Watcher/closure are expressed as observable
+suite-behavior outcomes, with their original structural implementation retained.
+PFE and result-bearing premises are in design-and-proof.md. Ready review covers
+bounded experiments and their rejection/proof gates, not a repaired result.
+
+G5 traces show first Cursor clients settled at 22.641/26.197 s; second start
+work crossed the 30 s boundary, and ENOENT followed origin cleanup. Preserve
+actual chosen-model scope and saved story association when using a cheaper
+precondition; do not globally replace the execution helper or substitute an
+unscoped client. Corresponding execution/model UI owners must be inspected
+before any incidental setup is removed.
+
+Refinement split the launch remedies by their independent proof loops: second-
+server overlap (4), receipt/orphan initial acceptance/page preparation (5), and
+Codex retry observation ownership (6). Cursor preparation is 7; original watcher,
+closure, touch and final gates are 8–11. G4 stays interim through 3–6, G5 receives
+7, and G1–G3 receive11. No completed proof or original report was discarded.
+
+## Slice 3 bounded experiments (not accepted yet)
+
+Focused before: all three actual primary cases passed; 20.470 s shell /
+19.985 s runner. Sort’s two loops share one case (16.684 s); source variants
+were 10.689/7.930 s. The earlier “both sort cases” wording was corrected;
+no promise or additional test was invented to match the mistaken count.
+
+The first worker-lifetime attempt lost the private HOME checkout, causing
+three spawn-git ENOENT failures. G6 retains the original report; a private
+clone precondition was restored. An initial temporary reporter loader failure
+selected no tests and is not proof; instrumentation context was corrected.
+The corrected worker experiment passed three cases but cost 23.800 s shell /
+23.301 s runner, worse than before; clean history was built twice. No speedup
+or full repair is accepted. The owner is testing the already-supported
+run-artifact lifetime with immutable shared graphs and private page state.
+All raw experiments remain under /tmp/seed287-slice3-20261110-2107.
+
+## Rejected slice 3 cache approach and revised boundary
+
+At 2026-11-10 21:45 Singapore time, the cache approach was rejected after about
+38 minutes from the first focused-before record, with no numeric hard limit
+supplied and no CI pause. The failed assumption was that sharing immutable
+publication would reduce complete family cost without another lifecycle cost.
+Paired baseline/current strict three-case passes cost 19.68/28.84 s shell
+(18.989/27.654 runner), a 9.16 s /46.5% growth. Host loads were 3.83→5.74→6.82,
+AC16CPUs and53–54%memory free. Case margin alone did not justify retaining it.
+
+Exactly seven declared code paths were preserved at
+/tmp/seed287-slice3-20261110-2107/rejected-cache-snapshot/manifest.json with
+full source copies and a tracked patch, then reverted to791cce. Original
+private preparation and publisher behavior is restored. G6 is independently
+settled by this reversion and the matching paired-before exact source/Proof
+observations; G4’s original budget defects remain uncorrected. Coordinator
+records and all earlier delivered work were preserved. No command remains live.
+
+The plan now selects the stronger simpler original private owner. Its next
+bounded observation is one unchanged focused Git Trace2 profile to identify
+actual removable cost before a new implementation choice, not another shared
+history-cache variant. A fresh implementation owner resumes this same slice.
