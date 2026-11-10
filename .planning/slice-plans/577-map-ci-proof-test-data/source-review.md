@@ -12,46 +12,46 @@ The values and paths below are illustrative scenarios, not additional universal 
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C01 | Maintainers can read which Intent paths a CI attempt proved. | slice 4 | |
-| C02 | Maintainers can read the unit of that proof. | slice 4 | |
-| C03 | Maintainers can read its part statuses. | slice 4 | |
-| C04 | Maintainers can read its counts. | slice 4 | |
-| C05 | Maintainers can read its timing. | slice 4 | |
-| C06 | Maintainers can read its file breakdown. | slice 4 | |
+| C01 | Maintainers can read which Intent paths a CI attempt proved. | slice 4 | observed: slice-1/2/3-proof.md collector/read/Intent/comparison independent observations; unchanged current summary route; slice-4-proof.md fresh real read/archive/renderer checks |
+| C02 | Maintainers can read the unit of that proof. | slice 4 | observed: slice-1/2/3-proof.md collector/read/Intent/comparison independent observations; unchanged current summary route; slice-4-proof.md fresh real read/archive/renderer checks |
+| C03 | Maintainers can read its part statuses. | slice 4 | observed: slice-1/2/3-proof.md collector/read/Intent/comparison independent observations; unchanged current summary route; slice-4-proof.md fresh real read/archive/renderer checks |
+| C04 | Maintainers can read its counts. | slice 4 | observed: slice-1/2/3-proof.md collector/read/Intent/comparison independent observations; unchanged current summary route; slice-4-proof.md fresh real read/archive/renderer checks |
+| C05 | Maintainers can read its timing. | slice 4 | observed: slice-1/2/3-proof.md collector/read/Intent/comparison independent observations; unchanged current summary route; slice-4-proof.md fresh real read/archive/renderer checks |
+| C06 | Maintainers can read its file breakdown. | slice 4 | observed: slice-1/2/3-proof.md collector/read/Intent/comparison independent observations; unchanged current summary route; slice-4-proof.md fresh real read/archive/renderer checks |
 | C07 | Collector proof tests use the shared MakeMe vocabulary. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | C08 | Converter proof tests use the shared MakeMe vocabulary. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | C09 | Node support proof tests use the shared MakeMe vocabulary. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | C10 | Dashboard proof tests use the shared MakeMe vocabulary. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
-| C11 | Shared construction owns the arranged facts. | slice 4 | |
-| C12 | Shared construction reduces repeated mapping decisions. | slice 4 | |
-| C13 | Existing independent behavioral proof is preserved. | slice 4 | |
+| C11 | Shared construction owns the arranged facts. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
+| C12 | Shared construction reduces repeated mapping decisions. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
+| C13 | Existing independent behavioral proof is preserved. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
 | C14 | Convert remaining valid synthetic CI proof fragments. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
-| C15 | Convert remaining valid synthetic CI proof summaries. | slice 4 | |
+| C15 | Convert remaining valid synthetic CI proof summaries. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
 | C16 | Convert remaining valid synthetic proof entries. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | C17 | Convert remaining valid synthetic proof evidence. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | C18 | Convert remaining valid synthetic runner proof records. | slice 1 | observed: ci-proof-test-fixtures.mjs playwrightRecord/locatedRecord delegate shared record; real converter consumers and eight equivalence comparisons in slice-1-proof.md |
 | C19 | Convert the listed synthetic summary artifacts. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
 | C20 | Extend the existing `aCiProofFragment` builder. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
-| C21 | Extend the existing `aCiProofSummary` builder. | slice 4 | |
-| C22 | Extend the existing `aCiProof` builder. | slice 4 | |
-| C23 | Extend the existing `aCiProofEntry` builder. | slice 4 | |
-| C24 | Extend the existing `aCiProofEvidence` builder. | slice 4 | |
-| C25 | Extend the existing `aCiProofArtifact` builder. | slice 4 | |
+| C21 | Extend the existing `aCiProofSummary` builder. | slice 4 | observed: Existing shared summary/proof/entry/evidence/artifact owners retained; withPresentPart has timing consumers; uncalled legacy variant removed; no gratuitous API |
+| C22 | Extend the existing `aCiProof` builder. | slice 4 | observed: Existing shared summary/proof/entry/evidence/artifact owners retained; withPresentPart has timing consumers; uncalled legacy variant removed; no gratuitous API |
+| C23 | Extend the existing `aCiProofEntry` builder. | slice 4 | observed: Existing shared summary/proof/entry/evidence/artifact owners retained; withPresentPart has timing consumers; uncalled legacy variant removed; no gratuitous API |
+| C24 | Extend the existing `aCiProofEvidence` builder. | slice 4 | observed: Existing shared summary/proof/entry/evidence/artifact owners retained; withPresentPart has timing consumers; uncalled legacy variant removed; no gratuitous API |
+| C25 | Extend the existing `aCiProofArtifact` builder. | slice 4 | observed: Existing shared summary/proof/entry/evidence/artifact owners retained; withPresentPart has timing consumers; uncalled legacy variant removed; no gratuitous API |
 | C26 | Extend the existing `aDashboardProofRecord` builder. | slice 1 | observed: ci-proof-test-fixtures.mjs playwrightRecord/locatedRecord delegate shared record; real converter consumers and eight equivalence comparisons in slice-1-proof.md |
-| C27 | Retain already-converted consumers on the shared owner. | slice 4 | |
-| C28 | Remove or delegate displaced constructors. | slice 4 | |
+| C27 | Retain already-converted consumers on the shared owner. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
+| C28 | Remove or delegate displaced constructors. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
 | C29 | Remove or delegate displaced suite-local wrappers in `ci-proof-test-fixtures`. | slice 1 | observed: ci-proof-test-fixtures.mjs playwrightRecord/locatedRecord delegate shared record; real converter consumers and eight equivalence comparisons in slice-1-proof.md |
 | C30 | Remove or delegate displaced positional `ProofPart` tuples in `ciProofArtifacts`. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
 | C31 | Remove or delegate displaced positional declaration tuples in `ciProofArtifacts`. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
-| C32 | State the entry path at the call site whenever it drives the case. | slice 4 | |
-| C33 | State `part/of` at the call site whenever it drives the case. | slice 4 | |
-| C34 | State attempt identity at the call site whenever it drives the case. | slice 4 | |
-| C35 | State the checked revision at the call site whenever it drives the case. | slice 4 | |
-| C36 | State the unit at the call site whenever it drives the case. | slice 4 | |
-| C37 | Include the legacy unit’s label when that unit drives the case. | slice 4 | |
-| C38 | State counts at the call site whenever they drive the case. | slice 4 | |
-| C39 | State duration at the call site whenever it drives the case. | slice 4 | |
-| C40 | State breakdown at the call site whenever it drives the case. | slice 4 | |
+| C32 | State the entry path at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C33 | State `part/of` at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C34 | State attempt identity at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C35 | State the checked revision at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C36 | State the unit at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C37 | Include the legacy unit’s label when that unit drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C38 | State counts at the call site whenever they drive the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C39 | State duration at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| C40 | State breakdown at the call site whenever it drives the case. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
 | C41 | Correct path-based unit inference so an outcomes path under `dashboard/tests` does not become test cases. | slice 1 | observed: ci-proof-outcomes.test.mjs outcomes path never declares a unit; ci-proof-unit-declarations.test.mjs first case; ci-proof-units.test.mjs cases under tests remain cases |
 | C42 | Keep Playwright cases as cases regardless of path. | slice 1 | observed: ci-proof-outcomes.test.mjs outcomes path never declares a unit; ci-proof-unit-declarations.test.mjs first case; ci-proof-units.test.mjs cases under tests remain cases |
 | C43 | Keep a summary and its fragments on one attempt identity. | slice 1 | observed: ci-proof-collect.test.mjs exact identity and part summaries; ci-proof-attempt.test.mjs mismatches excluded and missing/ambiguous parts uncounted |
@@ -61,7 +61,7 @@ The values and paths below are illustrative scenarios, not additional universal 
 | C47 | Preserve ambiguous parts as distinct evidence. | slice 2 | observed: intent-scope-proof-units.test.mjs missing/ambiguous and no-present gap assertions; intent-scope-proof.test.mjs each row names its gap |
 | C48 | Preserve a recorded zero as distinct evidence. | slice 2 | observed: intent-ci-proof-timing.test.mjs zero versus No timings; dashboard-ci-comparison-entry-gaps.test.mjs partial endpoint; intent-scope-proof.test.mjs absent path no CI result |
 | C49 | Preserve absent evidence as distinct evidence. | slice 2 | observed: intent-ci-proof-timing.test.mjs zero versus No timings; dashboard-ci-comparison-entry-gaps.test.mjs partial endpoint; intent-scope-proof.test.mjs absent path no CI result |
-| C50 | Preserve unavailable reasons as distinct evidence. | slice 4 | |
+| C50 | Preserve unavailable reasons as distinct evidence. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
 | C51 | Never count file breakdown paths as test files. | slice 2 | observed: intent-scope-proof-units.test.mjs folder two source files versus case5/file1; scope figures/counts/parts independently expected |
 | C52 | Keep real report conversion in its harness. | slice 1 | observed: real converters/collector/CLI retained; ciProofFragmentTestData.mjs uses production fragment constructor; independent validators; slice-1-proof.md |
 | C53 | Keep collector summarization in its harness. | slice 1 | observed: real converters/collector/CLI retained; ciProofFragmentTestData.mjs uses production fragment constructor; independent validators; slice-1-proof.md |
@@ -69,34 +69,34 @@ The values and paths below are illustrative scenarios, not additional universal 
 | C55 | Keep artifact download in its harness. | slice 2 | observed: ci-proof-read.test.mjs archive/request-order/limits/refusals; dashboard-ci-proof-breakdown-read.test.mjs whole read and ZipEntryTooLarge assertions |
 | C56 | Keep parse failures in their harnesses. | slice 2 | observed: ci-proof-read.test.mjs archive/request-order/limits/refusals; dashboard-ci-proof-breakdown-read.test.mjs whole read and ZipEntryTooLarge assertions |
 | C57 | Keep size limits in their harnesses. | slice 2 | observed: ci-proof-read.test.mjs archive/request-order/limits/refusals; dashboard-ci-proof-breakdown-read.test.mjs whole read and ZipEntryTooLarge assertions |
-| C58 | Keep source positions in their harnesses. | slice 4 | |
-| C59 | Keep clocks in their harnesses. | slice 4 | |
-| C60 | Keep teardown in its harness. | slice 4 | |
+| C58 | Keep source positions in their harnesses. | slice 4 | observed: Final audit: report/source/CLI conversion, controlled clocks and teardown remain harness actions; no source-position/clock/lifecycle changes |
+| C59 | Keep clocks in their harnesses. | slice 4 | observed: Final audit: report/source/CLI conversion, controlled clocks and teardown remain harness actions; no source-position/clock/lifecycle changes |
+| C60 | Keep teardown in its harness. | slice 4 | observed: Final audit: report/source/CLI conversion, controlled clocks and teardown remain harness actions; no source-position/clock/lifecycle changes |
 | C61 | A producer or collector case still lets the real boundary write or read. | slice 1 | observed: real converters/collector/CLI retained; ciProofFragmentTestData.mjs uses production fragment constructor; independent validators; slice-1-proof.md |
 | C62 | Prefer production fragment constructors at the boundary. | slice 1 | observed: real converters/collector/CLI retained; ciProofFragmentTestData.mjs uses production fragment constructor; independent validators; slice-1-proof.md |
 | C63 | Prefer production summary constructors at the boundary. | slice 2 | observed: dashboard-ci-proof-units-read.test.mjs MakeMe entries through real proofSummaryForEntries/zip/check/parser with independent case5/time1500 and file1 assertions |
 | C64 | Prefer production schemas at the boundary. | slice 1 | observed: real converters/collector/CLI retained; ciProofFragmentTestData.mjs uses production fragment constructor; independent validators; slice-1-proof.md |
-| C65 | Keep malformed or legacy exact summary JSON outside builders. | slice 4 | |
-| C66 | Keep malformed or legacy exact fragment JSON outside builders. | slice 4 | |
-| C67 | Keep deliberate unit contradictions outside builders. | slice 4 | |
-| C68 | Keep captured archive bytes outside builders. | slice 4 | |
-| C69 | Keep independently written expectations outside builders. | slice 4 | |
-| C70 | Use MakeMe for valid surrounding facts. | slice 4 | |
-| C71 | In mixed tests, convert this story’s facts only. | slice 4 | |
+| C65 | Keep malformed or legacy exact summary JSON outside builders. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| C66 | Keep malformed or legacy exact fragment JSON outside builders. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| C67 | Keep deliberate unit contradictions outside builders. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| C68 | Keep captured archive bytes outside builders. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| C69 | Keep independently written expectations outside builders. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| C70 | Use MakeMe for valid surrounding facts. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| C71 | In mixed tests, convert this story’s facts only. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
 | Q01 | The conversion inventory includes collector tests. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | Q02 | The conversion inventory includes converter tests. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | Q03 | The conversion inventory includes Node support readers. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | Q04 | The conversion inventory includes scope comparisons. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | Q05 | The conversion inventory includes dashboard proof journeys. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
-| Q06 | “About 35 files” describes a consumer inventory; it is not a completion limit. | slice 4 | |
-| Q07 | Attempt identity means a GitHub run attempt **or** an adapter `attemptId`, as applicable. | slice 4 | |
-| Q08 | The unit alternatives are case, file, or legacy with its label. | slice 4 | |
+| Q06 | “About 35 files” describes a consumer inventory; it is not a completion limit. | slice 4 | observed: Final scoped constructor/caller audit in slice-4-proof.md; direct shared construction, delegating record wrappers, tuple/local factories removed; independent assertions preserved |
+| Q07 | Attempt identity means a GitHub run attempt **or** an adapter `attemptId`, as applicable. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
+| Q08 | The unit alternatives are case, file, or legacy with its label. | slice 4 | observed: Converted MakeMe call sites and explicit collector/CLI identity/part/unit/count/time/file inputs inspected; slice-1/2/3/4-proof.md exact boundary expectations and nineteen collector comparisons |
 | Q09 | Builders may supply a stored fragment only when it is that consumer’s starting fact. | slice 2 | observed: dashboard-ci-proof-units-read.test.mjs MakeMe entries through real proofSummaryForEntries/zip/check/parser with independent case5/time1500 and file1 assertions |
 | Q10 | Builders may supply a stored summary only when it is that consumer’s starting fact. | slice 2 | observed: dashboard-ci-proof-units-read.test.mjs MakeMe entries through real proofSummaryForEntries/zip/check/parser with independent case5/time1500 and file1 assertions |
 | Q11 | Builders may supply a stored proof record only when it is that consumer’s starting fact. | slice 1 | observed: ci-proof-test-fixtures.mjs playwrightRecord/locatedRecord delegate shared record; real converter consumers and eight equivalence comparisons in slice-1-proof.md |
 | Q12 | Valid surrounding facts include nonqualifying attempts. | slice 2 | observed: ci-proof-check.test.mjs GitHub/adapter summary identity refusal reasons; ci-proof-read.test.mjs accepted run; unit-reader checked identity |
 | Q13 | Valid surrounding facts include mismatched attempts. | slice 2 | observed: ci-proof-check.test.mjs GitHub/adapter summary identity refusal reasons; ci-proof-read.test.mjs accepted run; unit-reader checked identity |
-| Q14 | The work is test-data conversion and exposed mapping repair. | slice 4 | |
+| Q14 | The work is test-data conversion and exposed mapping repair. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
 | J01 | A Playwright record under `dashboard/tests` reports one expected case. | slice 1 | observed: ci-proof-outcomes.test.mjs outcomes path never declares a unit; ci-proof-unit-declarations.test.mjs first case; ci-proof-units.test.mjs cases under tests remain cases |
 | J02 | An outcomes report under `dashboard/backend-tests` arrives without a declared unit. | slice 1 | observed: ci-proof-outcomes.test.mjs outcomes path never declares a unit; ci-proof-unit-declarations.test.mjs first case; ci-proof-units.test.mjs cases under tests remain cases |
 | J03 | An outcomes report under `tests` arrives without a declared unit. | slice 1 | observed: ci-proof-outcomes.test.mjs outcomes path never declares a unit; ci-proof-unit-declarations.test.mjs first case; ci-proof-units.test.mjs cases under tests remain cases |
@@ -136,29 +136,29 @@ The values and paths below are illustrative scenarios, not additional universal 
 | J37 | The real collector **or** artifact zip supplies the summary bytes those consumers observe. | slice 2 | observed: dashboard-ci-proof-units-read.test.mjs MakeMe entries through real proofSummaryForEntries/zip/check/parser with independent case5/time1500 and file1 assertions |
 | J38 | Suite-local positional part tuples are gone from those setups. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
 | J39 | Casts are gone from those setups. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
-| J40 | Exact version-1 legacy JSON stays literal. | slice 4 | |
-| J41 | A deliberately corrupt archive stays literal. | slice 4 | |
-| J42 | An expired artifact stays literal. | slice 4 | |
-| J43 | An oversized artifact stays literal. | slice 4 | |
-| J44 | Independently written expectations stay literal. | slice 4 | |
-| J45 | Unavailable reason `none` remains distinct. | slice 4 | |
-| J46 | Unavailable reason `expired` remains distinct. | slice 4 | |
-| J47 | Unavailable reason `unreadable` remains distinct. | slice 4 | |
-| J48 | Unavailable reason `invalid` remains distinct. | slice 4 | |
-| J49 | Unavailable reason `mismatched` remains distinct. | slice 4 | |
-| J50 | Unavailable reason `too-large` remains distinct. | slice 4 | |
-| X01 | Do not introduce another proof representation. | slice 4 | |
-| X02 | Avoid suite-specific intermediate models. | slice 4 | |
-| X03 | Avoid unnecessary casts. | slice 4 | |
-| X04 | GitHub run conversion remains with its sibling story. | slice 4 | |
-| X05 | GitHub job conversion remains with its sibling story. | slice 4 | |
-| X06 | CI adapter attempt conversion remains with its sibling story. | slice 4 | |
-| X07 | CI adapter queue conversion remains with its sibling story. | slice 4 | |
-| X08 | CI adapter coverage conversion remains with its sibling story. | slice 4 | |
-| X09 | Installation setup conversion remains with its sibling story. | slice 4 | |
-| X10 | Native setup conversion remains with its sibling story. | slice 4 | |
-| X11 | No new UI promise. | slice 4 | |
-| X12 | No new collector protocol promise. | slice 4 | |
-| X13 | No new proof-unit policy promise. | slice 4 | |
-| X14 | No new CI workflow promise. | slice 4 | |
-| X15 | No new installation promise. | slice 4 | |
+| J40 | Exact version-1 legacy JSON stays literal. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| J41 | A deliberately corrupt archive stays literal. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| J42 | An expired artifact stays literal. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| J43 | An oversized artifact stays literal. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| J44 | Independently written expectations stay literal. | slice 4 | observed: Literal version1 JSON, contradictions, captured/corrupt/oversized archives and independent expectations inspected; expired=true and size facts explicit with valid surrounding MakeMe setup; slice-4-proof.md fresh read/archive assertions |
+| J45 | Unavailable reason `none` remains distinct. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
+| J46 | Unavailable reason `expired` remains distinct. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
+| J47 | Unavailable reason `unreadable` remains distinct. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
+| J48 | Unavailable reason `invalid` remains distinct. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
+| J49 | Unavailable reason `mismatched` remains distinct. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
+| J50 | Unavailable reason `too-large` remains distinct. | slice 4 | observed: ci-proof-read/read-adapter/check/archive nine-suite selection plus slice3 browser reasons: none, expired, unreadable, invalid, mismatched, too-large remain distinct |
+| X01 | Do not introduce another proof representation. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X02 | Avoid suite-specific intermediate models. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X03 | Avoid unnecessary casts. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X04 | GitHub run conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X05 | GitHub job conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X06 | CI adapter attempt conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X07 | CI adapter queue conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X08 | CI adapter coverage conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X09 | Installation setup conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X10 | Native setup conversion remains with its sibling story. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X11 | No new UI promise. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X12 | No new collector protocol promise. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X13 | No new proof-unit policy promise. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X14 | No new CI workflow promise. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
+| X15 | No new installation promise. | slice 4 | observed: Final scoped audit: valid facts shared; no alternate model/unnecessary cast or production policy/UI/schema/workflow/install change; sibling-owned accepted adapter facts reconciled without new sibling scope; slice-4-proof.md |
