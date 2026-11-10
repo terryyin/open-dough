@@ -320,6 +320,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: broad enumeration required a second read and record compaction; actual guidance/CLI/replay consumers were inspected and passed focused proof. No missed consumer is established.
   - Inference: automatic planning-basename noise recurred; exact time attributable to it is unmeasured. Grouped dispositions preserved relevant proof without the raw list.
 
+- Execution: SEED-281#no-count-difference-across-gaps (plan 566; first implementation `6217de68c3af5dc2b63ecfd91a2fa5a65b5d2956`)
+  - Timestamp: unknown (2026-11-10 execution; exact original trace-event time unavailable)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance)
+  - Evidence: `/tmp/count-gaps-consumers-adopted-disposition.md` derives `PLAN.md` and `source-review.md` and exceeds 1,900 lines; `/tmp/count-gaps-board-consumer-trace.md` lists 481 matches with 381 excluded, including basename collisions with `dashboardPage.ts`. Execution proof and trace locators are retained at `6217de68c:.planning/slice-plans/566-no-count-difference-across-gaps/verification.md`.
+  - Observed effect: implementation, refactor and coordinator passes repeatedly classified unrelated planning/history/text matches alongside actual rendered, indirect and test consumers. Required observations were retained and all current dispositions settled; no missed consumer was established by this noise.
+  - Inference: automatic planning-basename and substring noise recurred. Disposition volume is observed; isolated time/token cost is unmeasured. Later repair traces using explicit changed paths and narrow effect terms stayed bounded.
+
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
 ## ODF-405 — Full local suite wall includes waiting for repository-wide admission

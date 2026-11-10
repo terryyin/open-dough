@@ -15,7 +15,7 @@ import { keepLaunchRecords } from "./launchStore.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { comparisonCiWorkflow } from "./storyCiComparisonWorkflows.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { commitTrunkChanges } from "./trunkCommitBatch.ts";
 
 export {
   answeredRun,
@@ -130,19 +130,27 @@ export function landedTrunk(
   changes: readonly TrunkChange[],
   landed: readonly string[],
 ) {
-  const revisions = new Map<string, string>();
-  for (const change of changes) {
-    const [file, content] = changedFile(change);
-    writeAt(origin.project, file, content);
-    commitAll(origin.project, `Land ${change.title}`);
-    revisions.set(change.title, git(origin.project, "rev-parse", "HEAD"));
-  }
+  const commits = commitTrunkChanges(
+    origin.project,
+    changes.map((change) => {
+      const [file, content] = changedFile(change);
+      return { file, content, message: `Land ${change.title}` };
+    }),
+  );
+  const byTitle = new Map(
+    changes.map(({ title }, index) => {
+      const commit = commits[index];
+      if (commit === undefined) throw new Error(`No commit for ${title}.`);
+      return [title, commit] as const;
+    }),
+  );
   push(origin.project);
-  const revision = (title: string) => {
-    const found = revisions.get(title);
+  const committed = (title: string) => {
+    const found = byTitle.get(title);
     if (found === undefined) throw new Error(`No change ${title}.`);
     return found;
   };
+  const revision = (title: string) => committed(title).revision;
   const landings = landed.map((title, index) => {
     const minutes = landed.length - index;
     return {
@@ -157,5 +165,10 @@ export function landedTrunk(
     if (found === undefined) throw new Error(`No landing ${title}.`);
     return found;
   };
-  return { revision, landing, landings };
+  return {
+    revision,
+    parent: (title: string) => committed(title).parent,
+    landing,
+    landings,
+  };
 }

@@ -22,7 +22,6 @@ import type {
   CiProofFile,
 } from "./ciProof.ts";
 import {
-  countedAny,
   entryEvidenceOf,
   hasFileBreakdown,
   type CiEntryEvidence,
@@ -128,18 +127,21 @@ export type UnitResults = {
   readonly figures: CiScopeFigures | undefined;
 };
 
-// Whether one unit's EVIDENCE holds a result at a scope inside its entry
-// with FIGURES there: its file breakdown holds one there, or it counted
-// results without a file breakdown, so cannot say.
-export const holdsResultInside = (
+// Whether one unit's EVIDENCE belongs at a scope inside its entry with
+// FIGURES there: its breakdown holds a result, or a missing, ambiguous or
+// unbroken part means it cannot rule out results there.
+export const showsEvidenceInside = (
   evidence: CiEntryEvidence,
   figures: CiScopeFigures,
 ): boolean =>
-  hasFileBreakdown(evidence) ? figures.paths > 0 : countedAny(evidence);
+  figures.paths > 0 ||
+  evidence.parts.some(
+    (part) => part.status !== "present" || part.breakdown !== true,
+  );
 
 // The results ENTRY shows at SCOPE, one per unit: every unit's at the
-// entry's path; inside it, each unit's holding a result there
-// (`holdsResultInside`); when no unit holds one, the first unit's alone,
+// entry's path; inside it, each unit's results or evidence gaps there
+// (`showsEvidenceInside`); when no unit holds either, the first unit's alone,
 // saying what the scope lacks.
 export function unitResultsAt(
   entry: CiProofEntry,
@@ -153,7 +155,7 @@ export function unitResultsAt(
     figures: scopeFiguresOf(unit, scope),
   }));
   const held = shown.filter(({ evidence: unit, figures }) =>
-    holdsResultInside(unit, figures),
+    showsEvidenceInside(unit, figures),
   );
   return held.length > 0 ? held : shown.slice(0, 1);
 }

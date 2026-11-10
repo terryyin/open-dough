@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-281_no-count-difference-across-gaps.json",
+      "identity": "SEED-281#no-count-difference-across-gaps",
+      "completedAt": "2026-11-10T05:50:44.020Z",
+      "blob": "ea99379cf2fba0954aafadc1ed1ab698ed44d64a"
+    },
+    {
       "fileName": "SEED-292_show-an-unreadable-preparation-continuation.json",
       "identity": "SEED-292#show-an-unreadable-preparation-continuation",
       "completedAt": "2026-11-10T04:44:24.032Z",

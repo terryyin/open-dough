@@ -78,6 +78,15 @@ where it is unreported, never a measured zero (`— → 1 test file`); a reporte
 zero is a real zero. A gap keeps its label and explanation. A
 measured zero Baseline permits a signed change. Branch and Landed headers
 note "vs baseline".
+
+Count differences, equality words and cues require complete parts for that
+unit at both compared endpoints. Observed totals and missing/ambiguous parts
+remain visible, with why the count difference is unavailable. Judge Branch
+and Landed independently; other complete units still compare, even without
+durations. An unobserved scope under an incomplete unit cannot establish added
+or removed tests. Any incomplete contributing entry withholds its unit's whole
+overall difference, including an entry with no present parts; complete-entry
+subtotals cannot substitute for it. Counts still sort by observed figures.
 Each comparable change with a positive measured Baseline has a relative mark:
 its zero tick sits at the centre, faster extends left and slower right.
 Each displayed comparison shares one symmetric scale across its own figures

@@ -14,111 +14,19 @@
 import {
   countWords,
   measuredCountsChangeWords,
-  totalCounted,
+  countObservationWords,
 } from "./ciScopeComparisonCounts.ts";
 import { overallCountCueOf } from "./ciScopeComparisonAgreedCues.ts";
 import type { CountCue } from "./ciScopeComparisonCues.ts";
-import {
-  countedAny,
-  declaredUnits,
-  listedUnits,
-  whyNotCompared,
-  type CiProofUnit,
-} from "./ciProofUnits.ts";
+import { declaredUnits, listedUnits, whyNotCompared } from "./ciProofUnits.ts";
 import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
-
-// Each declared entry's counted total in each unit it counted results in.
-type EntryTotals = ReadonlyMap<string, ReadonlyMap<CiProofUnit, number>>;
-
-function entryTotalsOf(
-  proof: ComparisonEndpointProof,
-):
-  | { readonly kind: "entries"; readonly entries: EntryTotals }
-  | { readonly kind: "partial"; readonly reason: string } {
-  if (proof.kind === "checking") {
-    return {
-      kind: "partial",
-      reason: "a compared build's proof is still reading",
-    };
-  }
-  if (proof.kind === "unavailable") {
-    return { kind: "partial", reason: proof.line };
-  }
-  if (proof.kind === "no-build") {
-    return { kind: "partial", reason: proof.explanation };
-  }
-  return {
-    kind: "entries",
-    entries: new Map(
-      proof.entries.map((entry) => [
-        entry.path,
-        new Map(
-          entry.evidence.flatMap((evidence) =>
-            countedAny(evidence)
-              ? [[evidence.unit, totalCounted(evidence)] as const]
-              : [],
-          ),
-        ),
-      ]),
-    ),
-  };
-}
-
-type Totals = Map<CiProofUnit, number>;
-
-const add = (totals: Totals, unit: CiProofUnit, total: number) =>
-  totals.set(unit, (totals.get(unit) ?? 0) + total);
-
-// Each build's totals that compare and those that do not.
-type MatchedTotals = {
-  readonly kind: "matched";
-  readonly compared: { readonly before: Totals; readonly after: Totals };
-  readonly apart: { readonly before: Totals; readonly after: Totals };
-};
-
-function matchedTotalsOf(
-  before: EntryTotals,
-  after: EntryTotals,
-): MatchedTotals {
-  const totals: MatchedTotals = {
-    kind: "matched",
-    compared: { before: new Map(), after: new Map() },
-    apart: { before: new Map(), after: new Map() },
-  };
-  const paths = new Set([...before.keys(), ...after.keys()]);
-  for (const path of paths) {
-    const from = before.get(path);
-    const to = after.get(path);
-    const side = (
-      units: ReadonlyMap<CiProofUnit, number> | undefined,
-      other: ReadonlyMap<CiProofUnit, number> | undefined,
-      at: "before" | "after",
-    ) => {
-      for (const [unit, total] of units ?? []) {
-        // An entry the other build does not declare is added or removed.
-        const compares =
-          unit !== "legacy" && (other === undefined || other.has(unit));
-        add(totals[compares ? "compared" : "apart"][at], unit, total);
-      }
-    };
-    side(from, to, "before");
-    side(to, from, "after");
-  }
-  return totals;
-}
-
-// The two compared builds' totals matched entry by entry, or why the overall
-// count is partial: either build lacks a usable total.
-function overallTotalsOf(
-  baseline: ComparisonEndpointProof,
-  after: ComparisonEndpointProof,
-): MatchedTotals | { readonly kind: "partial"; readonly reason: string } {
-  const before = entryTotalsOf(baseline);
-  if (before.kind === "partial") return before;
-  const later = entryTotalsOf(after);
-  if (later.kind === "partial") return later;
-  return matchedTotalsOf(before.entries, later.entries);
-}
+import {
+  overallTotalsOf,
+  observedTotalOf,
+  unitHasGaps,
+  type MatchedTotals,
+  type Totals,
+} from "./storyCiComparisonCountTotals.ts";
 
 // "1 test file and 6 legacy test results", or "—" without any.
 function totalsWords(totals: Totals): string {
@@ -153,6 +61,7 @@ export function overallCountsWords(
     return `Overall count partial: ${totals.reason.replace(/\.$/, "")}.`;
   const { compared, apart } = totals;
   const parts = declaredUnits.flatMap((unit) => {
+    if (unitHasGaps(totals, unit)) return [];
     const from = compared.before.get(unit);
     const to = compared.after.get(unit);
     if (from === undefined && to === undefined) return [];
@@ -162,7 +71,26 @@ export function overallCountsWords(
       total === undefined ? "—" : countWords(total, unit);
     return [`${side(from)} → ${side(to)}`];
   });
-  const shown = [...parts, ...apartWords(apart)];
+  const incomplete = listedUnits.flatMap((unit) => {
+    if (!unitHasGaps(totals, unit)) return [];
+    const side = (at: "before" | "after") =>
+      countObservationWords(
+        observedTotalOf(totals, at, unit),
+        unit,
+        totals.gaps[at].get(unit),
+      );
+    return [`${side("before")} → ${side("after")}`];
+  });
+  const completeApart = (at: "before" | "after") =>
+    new Map([...apart[at]].filter(([unit]) => !unitHasGaps(totals, unit)));
+  const shown = [
+    ...parts,
+    ...incomplete,
+    ...apartWords({
+      before: completeApart("before"),
+      after: completeApart("after"),
+    }),
+  ];
   return shown.length === 0
     ? "No overall count: neither compared build has a usable total."
     : shown.join("; ");
@@ -179,6 +107,7 @@ export function overallCountsCue(
   const { compared } = totals;
   return overallCountCueOf(
     declaredUnits.flatMap((unit) => {
+      if (unitHasGaps(totals, unit)) return [];
       const from = compared.before.get(unit);
       const to = compared.after.get(unit);
       return from === undefined || to === undefined

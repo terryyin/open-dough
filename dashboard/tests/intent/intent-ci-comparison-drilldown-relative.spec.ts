@@ -9,6 +9,7 @@ import {
   scopeTable,
 } from "../intentScopeProofPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
+import { pausePageClockAt } from "../dashboardTest.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   publishSummaryComparisonStory,
@@ -26,6 +27,12 @@ import {
   showPercent,
 } from "../support/relativeTimingMarks.ts";
 import { rowNames, sortButton } from "../support/expectSortedColumns.ts";
+
+// These journeys change the reading scope, not time. Recurring revision
+// checks would otherwise race the final no-reread observation on a busy host.
+test.beforeEach(async ({ page }) => {
+  await pausePageClockAt(page, new Date());
+});
 
 const compared = (region: Locator) =>
   region.locator(".intent-ci-comparison-frame");

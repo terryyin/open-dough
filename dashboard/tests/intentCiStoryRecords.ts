@@ -6,7 +6,8 @@
 // branch. A history can be held to answer late, and a commit pushed to a
 // branch moves its published head.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator, Page, Request } from "@playwright/test";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus } from "./intentCiStatusPage.ts";
@@ -206,4 +207,40 @@ export async function expectNamed(panel: Locator, branch: string) {
   await expect(
     panel.getByRole("heading", { name: `CI status of ${branch}`, exact: true }),
   ).toBeVisible();
+}
+
+export async function expectKeptStoryCi(
+  panel: Locator,
+  branch: string,
+  state: string,
+) {
+  await expectNamed(panel, branch);
+  await expect(panel.locator(".intent-ci-state")).toHaveText(state);
+  await expect(panel.getByRole("status")).toContainText("Previously retrieved");
+  await expect(panel.locator(".intent-ci-checking")).toBeVisible();
+}
+
+// Observe only the fresh CI read's completion or cancellation. The trunk's
+// configured ref omits `judged`; kept=1 reads must not settle this promise.
+export function freshCiStatusReadSettled(
+  page: Page,
+  judged?: string,
+): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const settled = (request: Request) => {
+      const url = new URL(request.url());
+      if (
+        url.pathname !== authenticatedReadEndpoint ||
+        url.searchParams.get("intent") !== "ci-status" ||
+        url.searchParams.has("kept") ||
+        url.searchParams.get("judged") !== (judged ?? null)
+      )
+        return;
+      page.off("requestfinished", settled);
+      page.off("requestfailed", settled);
+      resolve();
+    };
+    page.on("requestfinished", settled);
+    page.on("requestfailed", settled);
+  });
 }

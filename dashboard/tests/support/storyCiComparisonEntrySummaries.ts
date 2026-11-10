@@ -1,7 +1,7 @@
 // Proof summaries of MakeMe-built entries (`makeMe.aCiProofEntry`) for
 // Intent's story CI comparison journeys (./storyCiComparisonEntryProofs.ts):
 // the summary the collector writes from each entry's results in each unit,
-// each unit declared and a one-part unit's file breakdown kept, served for
+// each unit declared and its parts and file breakdown kept, served for
 // Baseline, Branch and Landed.
 
 import type { CiProofEntry } from "../../src/ciProof.ts";
@@ -34,8 +34,14 @@ function entriesProofSummary(
         ? [path, evidence.parts.length]
         : [path, evidence.parts.length, evidence.unit],
     ),
-    results.flatMap(({ path, evidence }) =>
-      evidence.parts.map((part): ProofPart => {
+    results.flatMap(({ path, evidence }) => {
+      // MakeMe's first broken-down present part owns its files/unassigned
+      // figures; later broken-down parts are present empty observations.
+      const firstBrokenDown = evidence.parts.find(
+        (part) => part.status === "present" && part.breakdown === true,
+      );
+      return evidence.parts.flatMap((part): ProofPart[] => {
+        if (part.status === "missing") return [];
         const figures = counts(
           part.passed ?? 0,
           part.failed ?? 0,
@@ -46,22 +52,31 @@ function entriesProofSummary(
             ? { legacy: evidence.label ?? "results" }
             : evidence.unit;
         const of = evidence.parts.length;
-        // A one-part unit's breakdown is its part's.
-        if (part.breakdown === true && evidence.files !== undefined && of === 1)
+        if (part.status === "ambiguous") {
+          // Two candidates cause the real producer to retain an ambiguous
+          // part, whose figures are deliberately not counted.
+          const candidate: ProofPart = [path, part.part, of, unit, figures];
+          return [candidate, candidate];
+        }
+        if (part.breakdown === true && evidence.files !== undefined) {
+          const breakdown = {
+            files: part === firstBrokenDown ? evidence.files : [],
+            untimed: part.untimed ?? 0,
+            ...(part === firstBrokenDown && evidence.unassigned !== undefined
+              ? { unassigned: evidence.unassigned }
+              : {}),
+          };
           return [
-            path,
-            part.part,
-            of,
-            unit,
-            figures,
-            part.durationMs,
-            { files: evidence.files, untimed: part.untimed ?? 0 },
+            [path, part.part, of, unit, figures, part.durationMs, breakdown],
           ];
-        return part.durationMs === undefined
-          ? [path, part.part, of, unit, figures]
-          : [path, part.part, of, unit, figures, part.durationMs];
-      }),
-    ),
+        }
+        return [
+          part.durationMs === undefined
+            ? [path, part.part, of, unit, figures]
+            : [path, part.part, of, unit, figures, part.durationMs],
+        ];
+      });
+    }),
   );
 }
 
