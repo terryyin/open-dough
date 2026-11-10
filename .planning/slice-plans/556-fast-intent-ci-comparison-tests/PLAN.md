@@ -27,7 +27,7 @@ to it. The source keeps that measurement distinction explicit.
 [Gap proof](gap-evidence.md) · [Incoming integration](integration-evidence.md) ·
 [Lifecycle](lifecycle-evidence.md) · [Presentation](presentation-evidence.md) ·
 [Rendering](render-evidence.md) · [HTTP teardown](server-close-evidence.md) ·
-[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md) · [Variants](variant-proof-evidence.md).
+[Static sort](static-sort-evidence.md) · [Finality](finality-evidence.md) · [Client owner](client-owner-evidence.md) · [Portable evaluation](portable-evidence.md) · [Final portable](portable-final-evidence.md) · [Variants](variant-proof-evidence.md) · [Incoming equivalent integration](incoming-equivalent-integration.md).
 
 ## Ordered slices
 
@@ -138,68 +138,59 @@ truly final canonical facts. Retire predecessors only after equivalent proof;
 include all new/reused owners in local/load/CI measurement and shard discovery.
 Do not restore the two inherited 60 s allowances or add a new cache/framework.
 
-### 8. Recover selected readings quickly and verify the complete family
+### 8. Recover selected readings and prove the current family
+
+Type: Behavior
+Status: done
+Proof: Production-used plain comparison/proof owners, real React lifetime/control
+bindings, preserved native oracles and current-family local/load/exact CI.
+
+Accepted checkpoint:16 client rules preserve all13 predecessor facets; G4's
+three native cases and G5's exact status/navigation/selection bindings remain.
+Variant248 (201rules/47connections, native3 separate) passes ordinary93.59s and
+loaded127.31s; complete rule bounds3–298/3–660ms. Exactc216/run42743624437/attempt1
+passes all17jobs and all201 complete bounds11–988ms. Native/header/visibility/
+geometry/fault proof stays. [Checkpoint and integration](incoming-equivalent-integration.md)
+keep qualifications; accepted-main reconciliation and final integrated proof move9.
+
+### 9. Reconcile accepted equivalent timing and verify the integrated family
 
 Type: Behavior
 Status: planned
-Proof: Actual production comparison/proof request-state owner in process,
-held fetch/abort witnesses, retained React control and stale-paint connections;
-whole-family local/load and exact published CI timing.
+Proof: Actual comparison/memory/artifact and collection/history owners, mapped
+GHA/adapter/native connections, current integrated local/load and published CI.
 
-Given unavailable comparison/proof, held reads, a changed head or selection,
-the actual client owner ignores stale answers, aborts old requests, retries the
-same subject, disables Check again while busy and refreshes all three endpoint
-proofs after a successful comparison retry. Failure does not advance that round;
-same-head observation does not reread. Preserve numeric and adapter attempt
-identity/query validation, Taken Trunk provisional/Branch N/A and no retry.
-
-Modularize existing useIntentCiComparison/useSlotProof responsibility into a
-small production-used disposable owner, with hooks as React lifetime bindings.
-Use actual authenticated readers and external fetch Responses; retain server
-finality/memory as their existing sole owner. Add no frontend TTL/cache or
-universal request framework. Minimal MakeMe facts, exact query/counter deltas,
-controlled held promises and AbortSignals prove the seven old lifecycle rules.
-Keep real UI held-error/recovery, endpoint-proof recovery and both old-selection
-comparison/proof abort connections. Establish both boundaries before retirement.
-
-Run the ordinary local selection including every new/reused rule, all retained
-comparison/Refresh connections and separately reported native preservation.
-Compare against original 75/269.01 s and intermediate 188/87.35 s with load,
-concurrency, shared startup, rule cleanup and wiring separately stated. Obtain
-a representative loaded observation and exact published CI complete-case bounds.
-Every rule must remain below 1,000 ms and total local feedback must improve;
-an inconclusive CI bound remains open. Preserve defaults and fault detection.
-Move lasting ownership/commands/results to maintained test docs before wrap-up.
+Given accepted SEED-288 on main2751, integrate its timed settled-none PASS
+eligibility, retained-answer recovery and final collector composition through
+our existing acquisition factories, private unanswered brand and shared model.
+Preserve negative gaps, first-proof retention, exact-attempt collection and all
+incoming/current distinct oracles. No parallel cache, TTL or test-only seed API.
+First execute the two bounded same-process confidence probes in the
+[integration contract](incoming-equivalent-integration.md); a failed seam premise
+stops dependent migration for reassessment, not a weaker proof substitute.
+Then map actual owners before retirement, renew affected consumers/typecheck,
+ordinary full-family/load/native and exact published all-job/complete-rule CI.
+All rules stay<1000ms including case cleanup; defaults/failure policy remain.
+Carry unrelated accepted trunk changes with final all-job acceptance; no new
+selected rules are inferred from them. C067 stays final target-CI-only.
 
 ## Current decisions and learnings
 
-The [previous checkpoint](ui-pilot-evidence.md) keeps rejected startup routes and compatible SSR/live-binding proof.
-
-Exactc6 has197/199 below1000ms; two combined native owners1103/1024ms keep G3.
-Independent quantity/scope proof reuses exact canonical entry/folder/default
-oracles;248 actual cases (201rules/47connections) preserve all130 source texts.
-Formatted ordinary93.59s/loaded127.31s pass, complete201 bounds3–298/3–660ms.
-No partition-only gain claimed. G10/native3 stay accepted; exact new hosted201
-remains8. Defaults/roles/target stay; C067 is targetCI, no human choice is open.
-
-- One production comparison model; acquisition substitutes replace true
-  external boundaries, never the rules their tests claim to protect.
-- Retain integration by unique observed connection, not a fixed test count.
-  Separate its cost without hiding it from total feedback measurements.
-- Reuse ADRs 0002/0008/0010 and existing pure owners/components/Vite SSR:
-  one comparison model, disposable reading state and measured gain; no new ADR.
-- Read current delivered consumers; other Intent work is no prerequisite.
-  Preserve its ownership and align changed contracts.
-- Each slice owns one feedback outcome, migration, proof, experiment and cleanup;
-  reassess a failed integration assumption before expanding it.
+c216 proves the pre-integration201-rule checkpoint; preserve its actual proof.
+Main2751 SEED-288 materially changes equivalent/retained collector semantics;
+9 owns current-source reconciliation and final integrated-family proof. Accepted
+post2751 Cursor error explanation/default-preserving fixtures join all-job CI.
+Reuse Accepted0002/0008/0010, one derived model, existing factories/real stores.
+Nine Behavior slices need no sizing exception or resplit; no human choice is open.
+Local proof uses maintained macOS sleep guard: AC `caffeinate -s -i`; battery
+`caffeinate -i`, lid open and inspected sleep log. Full [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies.
 
 ## Story obligations
 
 ### G1. Retire browser rule variants after presentation proof
 Reported: slice 1 — "frontend assertion migration and predecessor retirement in slice 4"
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
-Disposition: interim until slices 4, 6, 8
-
+Disposition: proved by slice 8: client-owner/variant-proof evidence and exact c216 checkpoint preserve all distinct browser/native/client facets through201 actual rules and47 mapped connections; complete CI11–988ms and local248/load proof pass. Accepted-main changed-source renewal is owned byG11/slice9.
 ### G2. Actual-Git rule cases exceed the target under observed load
 Reported: slice 1 — "loaded sub-second timing remains unproved/unsatisfied for those cases"
 Story clause: "Target less than 1,000 ms for each rule-focused test, including per-test arrangement, actions, assertions and cleanup."
@@ -208,8 +199,7 @@ Disposition: proved by slice 1: raw-history-family-after.json has all 14 replace
 ### G3. Published CI rule timings exceed the target
 Reported: slice 5 — "Run 42627028218 attempt 1 matched all 164 rule owners; sixteen took 1,019–1,581 ms."
 Story clause: "Developers and agents changing Intent's CI timing comparison get a trustworthy result for each comparison rule in under a second, in any environment."
-Disposition: receiving slice 8
-
+Disposition: proved by slice 8: exact c216dc242286c62beca047da249c9f4157118021/run42743624437/attempt1 has all17jobs success and201 unique expected/passed/retry0 rules, actual complete bounds11–988ms; slice8-c216-ci-independent-audit verifies all12 digests/raw bounds. Integrated final-family renewal belongs toG11/slice9.
 ### G6. Preserve Project Intent without a story comparison preference
 Reported: slice 6 — "my extracted ScopeProofContent/FileProofContent unconditionally called useCiComparisonPreference, whereas original hook lived only inside comparison Frame; ProjectIntent has no story preference and crashes on ordinary judged scope."
 Story clause: "This story does not change Intent's comparison semantics"
@@ -228,13 +218,11 @@ Disposition: proved by slice 6: static-sort-evidence.md and slice6-742f80b-ci-au
 ### G5. Keep scope acquisition and queued-selection observations
 Reported: slice 6 — "Additional exact scope gaps from9df: (1) mounted-gaps `a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint`: comparisons1/proofs2/expect.poll(statuses)2 after full exactlabels/framing/table; (2) mounted-fallback `Landed running preserves one Branch fallback through entry, folders and file Proof`: comparisons1/proofs2 after Branchheading+`Landed is not used: Build is still running.` atentry/folder/nested/file andfile+70ms; (3) mounted-gaps `selecting a queued story clears the previous Summary comparison and Baseline column`: actualMakeMequeuedSEED-B update clears priorfullentryoracle/frame/labels/Baseline/oldidentity, comparisons stays1/proofs3. No exact retainedcounted correspondence."
 Story clause: "Preserve each distinct rule's behavioral proof and independently stated expectations"
-Disposition: receiving slice 8
-
+Disposition: proved by slice 8: exact13-map and actual retained running/queued/Taken bindings preserve navigation1/2, queued full clearing1/3, and separate kept/fresh statuses2 with comparison1/proof2, all literal/native/title/count conjunctions. Fast scopes prove rule facets; current248/c216 checkpoint pass.
 ### G4. Preserve frontend proof acquisition counts during static migration
 Reported: slice 6 — "80 mapping has two cross-boundary acquisition assertions static SSR cannot own: invalid+ambiguous adapter proofs===1 (only Baseline readable), and both all-endpoint discovery unavailable cases proofs===0."
 Story clause: "Preserve each distinct rule's behavioral proof and independently stated expectations"
-Disposition: receiving slice 8
-
+Disposition: proved by slice 8: exact13-map preserves two discovery native arrays and invalid/ambiguous native reasons at production SSR; actual client eligibility readers prove proof0/0/1 with full subject validation. Current248 and c216201-rule checkpoint pass; no initial-mount wire is invented.
 ### G9. Incoming finality rules repeat Git and server acquisition
 Reported: slice 6 — "main 9f88 adds 24 actual Git/CLI/server backend cases and 3 UI journeys, outside the current 170-owner manifest; preserve its accepted pending/final semantics and all distinct oracles through current fast owners."
 Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
@@ -244,3 +232,10 @@ Disposition: proved by slice 7: finality-evidence.md and slice7-27-final-map pre
 Reported: slice 8 — "The later malformed-artifact connection times out at30000ms in loaded246; recovery is interrupted after a duplicate pending traversal consumes6.806s."
 Story clause: "No test in the family relies on a raised timeout."
 Disposition: proved by slice 8: portable-final-evidence.md#accepted-repaired-local-family; exact one-file correspondence,3 loaded10-case passes and renewed full246 ordinary/loaded strictpass/default30s prove real history/recovery and final reuse without the duplicate pending traversal. Original failed219.41s remains retained.
+
+
+### G11. Accepted-main equivalent timing and retained history need reconciliation
+Reported: slice 8 — "Accepted main2751 SEED-288 changes timed settled-none equivalent and retained collector/answer semantics; c216201-rule success is pre-integration evidence, not proof of the changed source."
+Story clause: "Give each distinct comparison rule fast, deterministic proof at the cheapest boundary that still exercises the real behavior."
+Disposition: receiving slice 9
+Commitment: C001, C002, C003

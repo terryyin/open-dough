@@ -16,7 +16,7 @@ scope: story
 
 **Plan:** [Fast, trustworthy Intent CI comparison feedback](../slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md)
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9747081df5b0b802d811f729f950efbba18807cfda6265001b19ec99b23b3be4","plan":"b78118e26046a125f3241af46113d039554e6d5dd3d0d57cd70bcf81ee7a0f10"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/556-fast-intent-ci-comparison-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9747081df5b0b802d811f729f950efbba18807cfda6265001b19ec99b23b3be4","plan":"a8ca9d1e669fe0e26b3a6e31f27495c5fc86ec36713d4bad9e6dbf58f1bec6e3"}}
 ```
 
 **Goal.** Developers and agents changing Intent's CI timing comparison get a
