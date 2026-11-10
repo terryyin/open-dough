@@ -7,112 +7,17 @@
 // only and returns the keyboard to Start session. The synthetic `claude`
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
-import type { Page } from "@playwright/test";
-import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import { sessionsAudienceParameter } from "../../src/machineSessionsRevision.ts";
-import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
+import { expect, test } from "../dashboardTest.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import type { LaunchJourney } from "../launchJourney.ts";
 import { parts, sessionNamedBy } from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { watchRecordReads } from "../sessionStatePace.ts";
+import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
-
-// While withheld, the page reads every launch attempt of this machine as still
-// starting, though its session may already be listed: the window between the
-// service keeping a session's record and noting its attempt launched. That
-// holds for the sessions history too, where a settled ad hoc attempt goes.
-// Releasing lets the next read see the launched outcome.
-async function withholdLaunchOutcomes(page: Page) {
-  let withheld = true;
-  const sessionsRead = (url: URL) => url.pathname === agentLaunchEndpoint;
-  await page.route(sessionsRead, async (route) => {
-    if (route.request().method() !== "GET" || !withheld) {
-      await route.continue();
-      return;
-    }
-    // Fetched outside the page, so its same-origin mark is restated.
-    const response = await route.fetch({
-      headers: {
-        ...route.request().headers(),
-        "sec-fetch-site": "same-origin",
-      },
-    });
-    const body = (await response.json()) as {
-      attempts?: Record<string, unknown>[];
-      revision?: string;
-      historyRevision?: string;
-    };
-    for (const attempt of body.attempts ?? []) {
-      delete attempt["outcome"];
-      delete attempt["settledAt"];
-    }
-    // The withheld answer is not the observation it was taken from, so the
-    // page holds no revision and every read is answered in full. A withheld
-    // history is named apart from the history it was taken from, by the
-    // regular answer too: the page keeps it without asking again until the
-    // release names the real one.
-    const history = new URL(route.request().url()).searchParams.has(
-      sessionsAudienceParameter,
-    );
-    if (history) body.revision = `withheld-${body.revision ?? ""}`;
-    else delete body.revision;
-    if (body.historyRevision !== undefined)
-      body.historyRevision = `withheld-${body.historyRevision}`;
-    await route.fulfill({ response, json: body });
-  });
-  return () => {
-    withheld = false;
-  };
-}
-
-// Starts an ad hoc session with launch outcomes withheld, and opens its
-// listed entry's terminal while Start session still says it is starting.
-// Page time stands still, so `release` lets exactly one more read of the
-// machine's sessions see the launched outcome, and the terminal writes and
-// draws what reached it only as page time passes: `shows` lets one steady
-// pace pass at a time, each with its read answered, until it shows `text`.
-async function openWhileStarting(page: Page, launchJourney: LaunchJourney) {
-  await pausePageClockAt(page, new Date());
-  const { passOnePace } = await watchRecordReads(page);
-  const stopWithholding = await withholdLaunchOutcomes(page);
-  const release = async () => {
-    stopWithholding();
-    await passOnePace();
-  };
-  await openTakenBacklog(page, launchJourney);
-  const dialog = page.getByRole("dialog", {
-    name: "Start a session in Open Dough in Claude Code",
-  });
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
-  const shows = async (text: string) => {
-    for (let pace = 0; pace < 3; pace += 1) {
-      await passOnePace();
-      if ((await rows.textContent())?.includes(text)) return;
-    }
-    expect(await rows.textContent()).toContain(text);
-  };
-  await page
-    .getByRole("button", { name: "Start session in Open Dough" })
-    .click();
-  await dialog.getByRole("button", { name: "Start" }).click();
-  const entry = parts(page).taken.locator(".session-entry");
-  await expect(entry).toHaveCount(1, { timeout: 20_000 });
-  const sessionId = await sessionNamedBy(entry);
-  await expect(
-    parts(page).projectActions.getByText("Local startup in progress."),
-  ).toBeVisible();
-  const openTerminal = entry.getByRole("button", { name: "Open terminal" });
-  await openTerminal.click();
-  await expect(panel).toHaveCount(1);
-  return { release, panel, rows, shows, sessionId, openTerminal };
-}
 
 // Accepted cost: one real ad hoc launch, the only full proof that its session
 // opens in the terminal at once with the keyboard in it. Its arguments are
@@ -199,19 +104,21 @@ test("a terminal the developer closed while its session started stays closed onc
   launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { release, panel, shows, sessionId, openTerminal } =
+  const { release, panel, shows, sessionId, openTerminal, terminalSockets } =
     await openWhileStarting(page, launchJourney);
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
-  const attaches = dashboard.claudeAttaches().length;
+  const attachments = terminalSockets.length;
 
   await release();
   await expectQuietAdHocActionsRow(page);
   // Progress cleared without a presentation: the developer already closed it.
   await expect(panel).toHaveCount(0);
   await expect(openTerminal).toBeFocused();
-  expect(dashboard.claudeAttaches()).toHaveLength(attaches);
+  // No second page attachment was requested. Native startup may have logged
+  // the original, already closed process after the Close above.
+  expect(terminalSockets).toHaveLength(attachments);
 
   await openTerminal.click();
   await shows(`attached ${sessionId.slice(0, 8)}`);
@@ -229,8 +136,15 @@ test("a terminal the developer reopened while its session started stays open, at
   launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  const { release, panel, rows, shows, sessionId, openTerminal } =
-    await openWhileStarting(page, launchJourney);
+  const {
+    release,
+    panel,
+    rows,
+    shows,
+    sessionId,
+    openTerminal,
+    terminalSockets,
+  } = await openWhileStarting(page, launchJourney);
   await panel.getByRole("button", { name: "Close" }).click();
   await expect(panel).toHaveCount(0);
   await openTerminal.click();
@@ -239,12 +153,12 @@ test("a terminal the developer reopened while its session started stays open, at
   await page.keyboard.press("Enter");
   await shows("echo still here");
   const shown = await rows.textContent();
-  const attaches = dashboard.claudeAttaches().length;
+  const attachments = terminalSockets.length;
 
   await release();
   await expectQuietAdHocActionsRow(page);
   await expect(panel).toHaveCount(1);
   await expect(rows).toHaveText(shown ?? "");
-  // Nothing attached the session again.
-  expect(dashboard.claudeAttaches()).toHaveLength(attaches);
+  // The same page attachment remains open; launch confirmation added none.
+  expect(terminalSockets).toHaveLength(attachments);
 });

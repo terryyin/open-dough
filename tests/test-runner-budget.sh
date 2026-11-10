@@ -63,7 +63,7 @@ expect_breaches ci-over
 
 # The checker itself fails on any breach wherever it runs, CI set or not;
 # only the runner decides that the budget is CI's.
-printf '0.3\t%s/slow.sh\n' "${checks}" > "${temporary_dir}/times"
+node "${source_dir}/tests/support/job-duration-list.mjs" 0.3 "${checks}/slow.sh" > "${temporary_dir}/times"
 check_times direct "${checks}" "${temporary_dir}/times"
 if ((check_status != 1)); then
   printf 'FAIL: the checker accepted a breach with CI unset (exit %s).\n' "${check_status}" >&2
@@ -91,9 +91,9 @@ fi
 # under ceilings the raw times breach.
 slow="${temporary_dir}/slow-runner"
 mkdir -p -- "${slow}"
-printf '10.0\t%s/a.sh\n10.0\t%s/b.sh\n' "${slow}" "${slow}" > "${slow}/longest-first"
+node "${source_dir}/tests/support/job-duration-list.mjs" 10 "${slow}/a.sh" 10 "${slow}/b.sh" > "${slow}/longest-first"
 printf 'per-job-seconds=15\ntotal-job-seconds=25\n' > "${slow}/time-budget"
-printf '20.0\t%s/a.sh\n20.0\t%s/b.sh\n' "${slow}" "${slow}" > "${temporary_dir}/slow-times"
+node "${source_dir}/tests/support/job-duration-list.mjs" 20 "${slow}/a.sh" 20 "${slow}/b.sh" > "${temporary_dir}/slow-times"
 check_times slow-runner "${slow}" "${temporary_dir}/slow-times"
 if ((check_status != 0)) || [[ -s ${temporary_dir}/slow-runner.log ]]; then
   printf 'FAIL: a uniformly slow runner exited %s or printed output:\n' "${check_status}" >&2
@@ -105,11 +105,11 @@ fi
 # naming the job, factor 1.0 and both times.
 concentrated="${temporary_dir}/concentrated"
 mkdir -p -- "${concentrated}"
-printf '10.0\t%s/a.sh\n10.0\t%s/b.sh\n10.0\t%s/c.sh\n' \
-  "${concentrated}" "${concentrated}" "${concentrated}" > "${concentrated}/longest-first"
+node "${source_dir}/tests/support/job-duration-list.mjs" \
+  10 "${concentrated}/a.sh" 10 "${concentrated}/b.sh" 10 "${concentrated}/c.sh" > "${concentrated}/longest-first"
 printf 'per-job-seconds=15\ntotal-job-seconds=40\n' > "${concentrated}/time-budget"
-printf '30.0\t%s/a.sh\n10.0\t%s/b.sh\n10.0\t%s/c.sh\n' \
-  "${concentrated}" "${concentrated}" "${concentrated}" > "${temporary_dir}/concentrated-times"
+node "${source_dir}/tests/support/job-duration-list.mjs" \
+  30 "${concentrated}/a.sh" 10 "${concentrated}/b.sh" 10 "${concentrated}/c.sh" > "${temporary_dir}/concentrated-times"
 check_times concentrated "${concentrated}" "${temporary_dir}/concentrated-times"
 if ((check_status != 1)); then
   printf 'FAIL: a concentrated slowdown exited %s:\n' "${check_status}" >&2
@@ -125,10 +125,10 @@ expect_in_log "${temporary_dir}/concentrated.log" -F -- \
 # factor (here 2.0 from the two recorded jobs).
 new_job="${temporary_dir}/new-job"
 mkdir -p -- "${new_job}"
-printf '10.0\t%s/a.sh\n10.0\t%s/b.sh\n' "${new_job}" "${new_job}" > "${new_job}/longest-first"
+node "${source_dir}/tests/support/job-duration-list.mjs" 10 "${new_job}/a.sh" 10 "${new_job}/b.sh" > "${new_job}/longest-first"
 printf 'per-job-seconds=20\ntotal-job-seconds=25\n' > "${new_job}/time-budget"
-printf '20.0\t%s/a.sh\n20.0\t%s/b.sh\n20.0\t%s/new.sh\n' \
-  "${new_job}" "${new_job}" "${new_job}" > "${temporary_dir}/new-job-times"
+node "${source_dir}/tests/support/job-duration-list.mjs" \
+  20 "${new_job}/a.sh" 20 "${new_job}/b.sh" 20 "${new_job}/new.sh" > "${temporary_dir}/new-job-times"
 check_times new-job "${new_job}" "${temporary_dir}/new-job-times"
 if ((check_status != 1)); then
   printf 'FAIL: an unrecorded job over the total exited %s:\n' "${check_status}" >&2
@@ -144,7 +144,7 @@ if grep -q -F -- 'per-job ceiling' "${temporary_dir}/new-job.log"; then
 fi
 # Without the unrecorded job the same factor would leave 20.0 at recorded speed,
 # under the total ceiling; counting it is what fails the share.
-printf '20.0\t%s/a.sh\n20.0\t%s/b.sh\n' "${new_job}" "${new_job}" > "${temporary_dir}/new-job-without"
+node "${source_dir}/tests/support/job-duration-list.mjs" 20 "${new_job}/a.sh" 20 "${new_job}/b.sh" > "${temporary_dir}/new-job-without"
 check_times new-job-without "${new_job}" "${temporary_dir}/new-job-without"
 if ((check_status != 0)) || [[ -s ${temporary_dir}/new-job-without.log ]]; then
   printf 'FAIL: recorded jobs alone at the same factor exited %s or printed:\n' "${check_status}" >&2

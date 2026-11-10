@@ -83,3 +83,53 @@ calendar/authorization/due-decision rules in the current due test. Both use the
 same canonical builders; do not introduce local record/request/attempt models.
 This cohesive producer/decision seam preserves all cases and the relevant
 focused selection, and keeps edited files within 250 lines.
+
+## Landed sibling reconciliation
+
+At pinned trunk `49367c2e4d10ce1aeb96bb7a40512e585fa0bd8c`, the CI adapter/queue/
+coverage sibling is accepted. Its `3a9a9bdbb` repair clears inherited outer CI
+split/outcome/deadline settings from nested runner-split checks; slice 7 must
+retain that repair with its new duration setup before broad proof. New CI
+MakeMe imports also enter native dependency identity. Merge both published
+histories in this owned checkout, preserving the uncommitted slice through an
+owned patch/content backup, and renew affected proof on the combined candidate.
+
+The merged `tests/test-data-architecture.md` is expected to be 257 lines (the
+sibling's CI recipes plus this story's native topology correction). Extract the
+cohesive CI proof/run/adapter/queue/coverage recipes to `tests/ci-test-data.md`,
+keep their relative references and meaning, and link from the general data
+architecture. Slice 7's independent refactor owns this required documentation
+organization; no runtime or policy change and no new documentation authority.
+
+## Terminal proof repair organization
+
+The failing spec is 250 lines. Before or with its repair, extract its cohesive
+withheld-outcome / controlled-page-clock startup harness to a test helper; keep
+the three terminal journeys and independent assertions in the spec. Preserve
+closing while launch status is starting, reopening and keyboard/focus outcomes.
+Do not infer a reattachment from a late initial fake-host record. Diagnose the
+causal observation before changing the assertion or narrowing its setup.
+
+## Final accepted sibling integration
+
+CI Proof closed at `a267a77fe3a09eaf19a3b4a5715ec94c7fd9e6c6` after
+the dark-theme integration. CI Proof's attributable `c61170efd` extracts unchanged
+figures helpers into `ciProofFiguresTestData.mjs` and adds explicit per-part
+facts. Its default empty part map preserves prior construction; native writers
+reach the new runtime module through MakeMe. Appearance adds five selected test
+files and no installation/native/runner constructor. CI proof setup retains its
+canonical builders and separate owner. The CI recipe extraction's links stay valid.
+
+Subsequent trunk `34853dbe8874fdb501ec1d8d2072c25a128b9dc3` carries
+SEED-296's closure and `4fda2d1ec`, a runner repair replacing Bash wait-any
+reaping with worker completion records and slot events. Retain that repair and
+renew the changed runner/deadline consumers before final slice acceptance.
+Both published histories are merged; no published commit is rebased.
+
+## Port check isolation repair
+
+G8 retains the actual Vite config, dedicated-port/strictPort assertions and real
+ephemeral-port HTTP observation. The test must own any generated dependency cache
+and normal framework logging, preserving unexpected warnings/errors. Reuse the
+existing private-cache/warn-log test-server approach where its responsibility
+fits. This is harness isolation, not a product port or logging-policy change.

@@ -32,48 +32,7 @@ See [Preparation evidence and decisive premises](preparation-evidence.md).
 
 ## Proof ownership and delivery gates
 
-| Final-state promise | Owning slice and observation |
-| --- | --- |
-| Source example 1: coherent older releases and complete/asymmetric installation baselines update safely. | 1: actual tagged releases, old installer, updater, both roots' bytes/version/source, sentinels and configuration; deterministic ADR release transition. |
-| Source example 2: host differences and unrelated settings survive, with no-op and conflict proof. | 2: real installer hook suite, independent settings assertions and unchanged refusal snapshots. |
-| Source example 3: claimable published starting state and preserved closure inputs. | 3: installed Take moves the selected identity and plan to Taken without changing its seed. 4: compare closure starting files, histories, dirty human state and observer setup before/after. |
-| Source example 4: actual native preparation topology, programs, traces and input identity. | 5: pre/post fixture comparison, real preparation commands, native wrapper deterministic cases and dependency hash changes. |
-| Source example 5: saved feedback choice, review, records and attempts retain separate meaning. | 6: due/state/review tests plus the real feedback launch, due-row and settings consumers. |
-| Source example 6: runner duration data retains allocation and parsing proof. | 7: share-deal, duration and runner selection checks with unchanged independent allocations and raw parser cases. |
-| One shared API, complete conversion coverage and no unused constructors. | Every slice migrates its full consumer family and removes displaced construction. Final verification reconciles all declared entries plus support jobs against the boundaries below. |
-
-Use the [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
-for changed shared modules, call contracts and retired constructors. Follow
-consumers into their assertions, run affected callers outside the listed
-selections, and retain a disposition for exact-input/evidence exclusions.
-Compare converted facts at their consuming boundary before relying on unchanged
-assertions. Do not use the new builder to derive expected results.
-
-Local gate. Apply [test automation](../../../AGENTS.md#test-automation) and carry
-the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-as written into every delegation and repair handoff. Use the
-[native prerequisites and exact Node](../../../tests/native-setup.md), Bash 5
-first on PATH, and the test runner for shell/Node checks. Run
-`npm run typecheck:dashboard` for shared JavaScript changes, and `npm run lint`.
-Before final delivery run `npm test` and `npm run test:dashboard`, because the
-shared MakeMe entry point and composed requests have consumers in both suites.
-Choose expensive proof using current load, memory and competing-work evidence;
-the [shared full-suite admission](../../../tests/local-test-resources.md) still
-applies. On fully awake macOS with AC power, wrap full runs in `caffeinate -s -i`.
-On battery, plug in or start fully awake with the lid open under `caffeinate -i`
-and read the sleep log afterwards, following
-[machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
-Hosted CI follows the selected execution mode and the same failure policy.
-
-Native proof: compare emitted fixture state and the mechanism exercised on each
-affected host; record justified reuse of matching prior native observations
-only for the boundaries that still match. A changed identity is not a new pass.
-Substitutes, direct script calls and replay never establish fresh native-agent
-behavior. If conversion changes agent-visible instructions, project convention,
-preparation behavior or the integration mechanism beyond demonstrated
-equivalence, stop that slice's acceptance and obtain the affected native
-observation under the existing wrapper and authority. Do not launch paid native
-sessions merely to compensate for an uninspected fixture change.
+See [promise ownership and required local/native gates](proof-gates.md).
 
 ## Slices
 
@@ -188,7 +147,11 @@ choice and late-date cases.
 
 ### 7. Recorded durations still determine runner allocation
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 7](slice-7-proof.md).
+Additional traced consumers: `test-runner-{split,failure-report,budget,interrupt}.sh`,
+`ci-test-times.sh`, deadline continuation/cutoff support cases and the dashboard
+invalid-share precondition. G4/G5 own their semantic facts; parser/refresh bytes stay explicit.
 Proof: Source example 6. Run `npm test -- tests/support/share-deal.test.mjs tests/support/duration-list.test.mjs tests/support/test-shares.test.mjs tests/support/share-deal-recorded-runs.test.mjs tests/test-runner-selection.sh` and any additional changed-duration consumers.
 
 Arrange valid recorded/observed duration maps through a small shared builder
@@ -243,3 +206,31 @@ Disposition: proved by slice 3: slice-3-proof.md; real guard installs, preserved
 Reported: slice 5 — "The first converted probe encountered EISDIR while reading an installed local dependency symlink; the new fixture lifecycle must materialize before installing."
 Story clause: "Preserve the actual originating checkout, worktree topology, executable inputs and preparation observations"
 Disposition: proved by slice 5: slice-5-proof.md; exact four-profile equality and real readiness observations.
+
+
+### G4. Ordinary CLI duration baselines remain arranged literals; later inspection also found the zero-median Map
+Reported: slice 7 — "Coordinator inspection found test-shares allocation and preview baselines drive duration/median output rather than exact input syntax; these facts need the shared builder while emitted TSV stays unchanged."
+Story clause: "Convert remaining arranged release, payload, host-hook settings, native starting project and runner-duration facts through the shared MakeMe entry point"
+Disposition: proved by slice 7: slice-7-proof.md; actual duration Maps, zero fallback, three CLI baseline byte comparisons and independent allocations.
+
+### G5. Ordinary duration facts in runner harness and deadline preconditions
+Reported: slice 7 — "Targeted read-only research found ordinary synthetic timings in split, failure-report, budget, CI test-times, interrupt, deadline continuation/cutoff, and the dashboard invalid-share precondition; exact parser/refresh examples remain separate."
+Story clause: "Reconcile remaining setup across the five declared test entries and the separately discovered `tests/support/*.test.mjs` jobs"
+Disposition: proved by slice 7: slice-7-proof.md; all traced shell/deadline duration consumers, 16 exact file-boundary comparisons and final full suites.
+
+
+### G6. Accepted sibling landings change native dependencies and inventory
+Reported: slice 7 — "While full gates ran, CI Proof and dark-theme closures landed at a267a77fe; a later deadline-reaping repair landed at 34853dbe. Native input closure, duration-runner proof and current inventory need reconciliation before delivery."
+Story clause: "A changed fixture dependency must enter its evidence identity"
+Disposition: proved by slice 7: slice-7-proof.md; accepted sibling integration, current inventory and renewed native/runner proof.
+
+### G7. Full dashboard run compares unsettled attach history
+
+Reported: slice 7 — "The full dashboard run failed agent-launch-ad-hoc-terminal.spec.ts:214: its post-Close count was zero, then one attach ended by SIGHUP was observed after launch release while the panel stayed closed. A late initial record is the diagnosis hypothesis."
+Story clause: "the existing independent behavioral proof intact"
+Disposition: proved by slice 7: slice-7-proof.md; causal socket observation, independent native mapping, 19 focused tests, six race observations and successful full dashboard renewal.
+
+### G8. Dedicated-port check leaks cache-dependent Vite info
+Reported: slice 7 — "Renewed full repository run failed only dashboard-dev-port.test.mjs as passed-but-printed-output: Vite reported Re-optimizing dependencies because vite config has changed. Its assertions passed, but the test uses the shared default cache and normal logger."
+Story clause: "the existing independent behavioral proof intact"
+Disposition: proved by slice 7: slice-7-proof.md; private cache/normal-info isolation, unchanged real port/HTTP assertions, focused proof and final full repository exit0.

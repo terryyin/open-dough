@@ -3,6 +3,8 @@
 // dashboard/longest-first (dashboard/tests/shards.md).
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
+import { durationListText } from "./job-duration-list.mjs";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -65,7 +67,9 @@ test("the config deals recorded specs by their seconds and new specs after them 
 test("invalid shares fail before selecting tests", () => {
   withSpecDirectory(
     ["tests/a.spec.ts"],
-    "1.0\ttests/a.spec.ts\n",
+    durationListText(
+      makeMe.jobDurations.with([["tests/a.spec.ts", 1]]).please(),
+    ),
     (directory) => {
       for (const invalid of [
         "",

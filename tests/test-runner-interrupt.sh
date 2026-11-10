@@ -53,11 +53,12 @@ write_blocking_check never-ending.sh
 # given order, and an unlisted check starts after them.
 order() {
   local name seconds=$#
-  : > "${checks}/longest-first"
+  local -a durations=()
   for name in "$@"; do
-    printf '%s.0\t%s/%s\n' "${seconds}" "${checks}" "${name}" >> "${checks}/longest-first"
+    durations+=("${seconds}" "${checks}/${name}")
     seconds=$((seconds - 1))
   done
+  node "${source_dir}/tests/support/job-duration-list.mjs" "${durations[@]}" > "${checks}/longest-first"
 }
 
 # Job control starts the runner in its own process group with INT not ignored;

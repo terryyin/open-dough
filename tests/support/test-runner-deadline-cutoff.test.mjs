@@ -1,3 +1,5 @@
+import { makeMe } from "./makeMe.mjs";
+import { durationListText } from "./job-duration-list.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -102,7 +104,14 @@ test("an absolute run cutoff stops running work and leaves queued checks unfinis
     files: {
       [`${fixtureEntry}/running.sh`]: bashHangCheck(),
       [`${fixtureEntry}/queued.sh`]: bashHangCheck(),
-      [`${fixtureEntry}/longest-first`]: `10.0\t${fixtureEntry}/running.sh\n9.0\t${fixtureEntry}/queued.sh\n`,
+      [`${fixtureEntry}/longest-first`]: durationListText(
+        makeMe.jobDurations
+          .with([
+            [`${fixtureEntry}/running.sh`, 10],
+            [`${fixtureEntry}/queued.sh`, 9],
+          ])
+          .please(),
+      ),
     },
   });
   const observation = observeDir(t, root, "mid-cutoff");

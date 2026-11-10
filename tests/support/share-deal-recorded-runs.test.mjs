@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
 import {
   dealShares,
   formatPreview,
@@ -153,8 +154,9 @@ test("example 3: a renamed 54.4 s job raises the heaviest share by at most its s
   // its real seconds the heaviest share measures 632.2, a rise of 36.2 from
   // 596.0, within the renamed job's 54.4.
   assert.deepEqual(predicted(deal), ["577.9", "577.9", "579.8"]);
-  const real = new Map(before);
-  real.set(renamedTo, 54.4);
+  const real = makeMe.jobDurations
+    .with([...before, [renamedTo, 54.4]])
+    .please();
   const totals = measured(deal, real);
   assert.deepEqual(totals, ["577.9", "577.9", "632.2"]);
   const heaviest = Math.max(...totals.map(Number));
@@ -175,7 +177,9 @@ test("example 4: the preview on the stale 84-label list counts 333 unrecorded of
     .filter((line) => line !== "" && !line.startsWith("#"));
   assert.equal(staleLabels.length, 84);
   // The positional list carried no seconds; the before run supplies them.
-  const stale = new Map(staleLabels.map((label) => [label, before.get(label)]));
+  const stale = makeMe.jobDurations
+    .with(staleLabels.map((label) => [label, before.get(label)]))
+    .please();
   const deal = dealShares([...after.keys()], stale, 3);
   const text = preview(deal, "stale-longest-first");
   assert.match(

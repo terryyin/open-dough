@@ -14,6 +14,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { after, test } from "node:test";
+import { durationListText } from "./job-duration-list.mjs";
+import { makeMe } from "./makeMe.mjs";
 
 const allocator = fileURLToPath(
   new URL("../../scripts/test-shares.mjs", import.meta.url),
@@ -21,8 +23,19 @@ const allocator = fileURLToPath(
 const scratch = mkdtempSync(join(tmpdir(), "test-shares-"));
 after(() => rmSync(scratch, { recursive: true, force: true }));
 
+const listText = (seconds) => durationListText(seconds, "# list");
 const list = join(scratch, "longest-first");
-writeFileSync(list, "# list\n9.0\tlong.sh\n1.0\tshort.sh\n");
+writeFileSync(
+  list,
+  listText(
+    makeMe.jobDurations
+      .with([
+        ["long.sh", 9],
+        ["short.sh", 1],
+      ])
+      .please(),
+  ),
+);
 const labels = ["new-b.sh", "short.sh", "long.sh", "new-a.sh"];
 
 const run = (args, options = {}) =>
@@ -145,7 +158,15 @@ test("preview lists a dashboard spec directory as its configuration discovers it
   }
   writeFileSync(
     join(specs, "longest-first"),
-    "# list\n4.0\tbackend-tests/b.spec.ts\n3.0\tfrontend-tests/dom.spec.ts\n2.0\ttests/a.spec.ts\n",
+    listText(
+      makeMe.jobDurations
+        .with([
+          ["backend-tests/b.spec.ts", 4],
+          ["frontend-tests/dom.spec.ts", 3],
+          ["tests/a.spec.ts", 2],
+        ])
+        .please(),
+    ),
   );
   const previewRun = run([
     "preview",
@@ -189,7 +210,14 @@ test("preview lists a substitute test directory through scripts/test-jobs.sh", (
   }
   writeFileSync(
     join(checks, "longest-first"),
-    `# list\n4.0\t${checks}/one.sh\n2.0\t${checks}/two.sh\n`,
+    listText(
+      makeMe.jobDurations
+        .with([
+          [`${checks}/one.sh`, 4],
+          [`${checks}/two.sh`, 2],
+        ])
+        .please(),
+    ),
   );
   writeFileSync(
     join(checks, "time-budget"),

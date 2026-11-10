@@ -161,8 +161,8 @@ for name in alpha beta gamma; do
   write_check "${name}.sh" "printf '%s\\n' ${name} >> '${order}'"
 done
 write_node_test node-ordered "appendFileSync('${order}', 'node-ordered\\n');"
-printf '# longest first\n3.0\t%s\n2.0\t%s\n1.0\t%s\n' "${checks}/gamma.sh" 'tests/not-a-job.sh' \
-  "${checks}/node/node-ordered.test.mjs" > "${checks}/longest-first"
+node "${source_dir}/tests/support/job-duration-list.mjs" --header '# longest first' \
+  3 "${checks}/gamma.sh" 2 'tests/not-a-job.sh' 1 "${checks}/node/node-ordered.test.mjs" > "${checks}/longest-first"
 times="${temporary_dir}/times"
 OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_TIMES="${times}" run_suite ordered
 if ((suite_status != 0)) || [[ -s ${temporary_dir}/ordered.log ]]; then

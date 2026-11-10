@@ -27,7 +27,7 @@ write_checks() {
   done
 }
 write_checks zeta delta mu alpha beta
-printf '# longest first\n2.0\t%s\n' "${checks}/mu.sh" > "${checks}/longest-first"
+node "${source_dir}/tests/support/job-duration-list.mjs" --header '# longest first' 2 "${checks}/mu.sh" > "${checks}/longest-first"
 
 # Runs the runner over the checks with OPEN_DOUGH_TEST_SPLIT set to the second
 # argument, or cleared when it is empty so an outer CI share cannot leak into
