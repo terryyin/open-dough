@@ -21,18 +21,21 @@ export type CollectedProof = {
   readonly pending: boolean;
 };
 
-// Settled missing summaries (`none`) and other final unavailable reasons are
-// not collected again. Only an unreadable gap may still be.
-function collectableUnavailable(
-  proof: CiProof,
-): proof is CiProofUnavailable & { readonly reason: "unreadable" } {
-  return proof.kind === "unavailable" && proof.reason === "unreadable";
+// Missing summaries (`none`) and unreadable gaps stay collectable while
+// pending; other unavailable reasons are final once written.
+function collectableUnavailable(proof: CiProof): proof is CiProofUnavailable & {
+  readonly reason: "none" | "unreadable";
+} {
+  return (
+    proof.kind === "unavailable" &&
+    (proof.reason === "none" || proof.reason === "unreadable")
+  );
 }
 
 // Old unavailable records are classified on their next read. A summary is
-// immutable. Acquisition marks pending only for unanswered GitHub reads
-// (`isUnansweredProof`) or adapter command failures; settled missing stays
-// final once written.
+// immutable. Acquisition marks pending for settled missing summaries (`none`)
+// so a later artifact can recover, and for unanswered GitHub reads
+// (`isUnansweredProof`) or adapter command failures.
 export function needsCollectedProof(build: KeptBuild): boolean {
   if (build.state !== "pass" || build.proof?.kind === "summary") return false;
   return (
@@ -72,7 +75,9 @@ export async function collectedProofOf(
   );
   const pending =
     collectableUnavailable(proof) &&
-    (isAdapterProofAttempt(subject) || isUnansweredProof(proof));
+    (proof.reason === "none" ||
+      isAdapterProofAttempt(subject) ||
+      isUnansweredProof(proof));
   return { proof, pending };
 }
 

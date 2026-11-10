@@ -147,6 +147,7 @@ Remaining slice-specific concerns: none identified.
 - CI repair on `dfc059a11`: retain first proof ask with a new measured pass;
   treat settled missing proof summaries as final (`proofPending: false`) so
   history/scope re-reads do not re-ask GitHub after collection.
+- CI repair on `16f5990d` (from failed ancestor `9a6fd5e2`): restore collectability/pending for settled GitHub `none` so exact attempts recover to a later summary; keep same-write first proof ask retention.
 - Slice 2: reopen eligible retained equivalent `no-proof` gaps via
   `reopenableRetainedNoProofSkip` / `reuseSettled`; Done memory treats unused
   equivalent no-proof Landed answers like pending for same-process / Check
