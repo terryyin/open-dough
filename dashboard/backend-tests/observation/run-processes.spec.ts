@@ -17,6 +17,7 @@ import { randomUUID } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { sharedDashboardBuild } from "../../tests/support/dashboardBuild.ts";
 import { runInnerPlaywright } from "../../tests/support/innerPlaywright.ts";
 import { processAlive } from "../../tests/support/processGroup.ts";
 import { quietReporter } from "../../tests/support/proofRecordRun.ts";
@@ -27,6 +28,7 @@ import {
   runIdVariable,
   type RunProcess,
 } from "../../tests/support/runProcesses.ts";
+import { sharedServerBundle } from "../../tests/support/serverBundle.ts";
 
 const substitutes = path.join(
   repoRoot,
@@ -57,14 +59,25 @@ function innerConfig(workDir: string, spec: string) {
   };
 }
 
+// Preview substitutes open a page under this run's shared app and server
+// bundle. Prepare both here so the nested 5s budget is not spent waiting for
+// a cold first consumer (../../tests/support/globalSetup.ts).
+async function readyPreviewArtifacts(): Promise<void> {
+  await Promise.all([sharedDashboardBuild(), sharedServerBundle()]);
+}
+
 // Runs the substitute under a run identity of this test's own, with no
 // teardown sweep, and reports what the workers' own exits left; any found
 // are then ended, so this check leaves none.
-async function runSubstitute(spec: string): Promise<{
+async function runSubstitute(
+  spec: string,
+  { preview = false }: { readonly preview?: boolean } = {},
+): Promise<{
   readonly status: number | null;
   readonly output: string;
   readonly remaining: RunProcess[];
 }> {
+  if (preview) await readyPreviewArtifacts();
   const workDir = mkdtempSync(path.join(tmpdir(), "run-processes-"));
   try {
     const runId = randomUUID();
@@ -82,14 +95,14 @@ async function runSubstitute(spec: string): Promise<{
 }
 
 test("a passing run leaves none of its processes running", async () => {
-  const run = await runSubstitute("passing.proof.ts");
+  const run = await runSubstitute("passing.proof.ts", { preview: true });
 
   expect(run.status, run.output).toBe(0);
   expect(run.remaining).toEqual([]);
 });
 
 test("a run whose teardown outlasts its timeout leaves none of its processes running", async () => {
-  const run = await runSubstitute("held-teardown.proof.ts");
+  const run = await runSubstitute("held-teardown.proof.ts", { preview: true });
 
   expect(run.status, run.output).not.toBe(0);
   expect(run.output).toContain('Tearing down "page" exceeded');

@@ -3,11 +3,17 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { LaunchInstruction } from "../../server/launchInstruction.ts";
 import { showsCursorComposer } from "../../server/hosts/cursor/idleScreen.ts";
 
-function recoveryInstruction() {
+const continuation = [
+  "Continue the recorded Execution from this launch.",
+  "Worktree: /tmp/clipboard-worktree.",
+  "Continue from this worktree's committed and uncommitted state without opening another assignment.",
+].join("\n");
+
+function recoveryInstruction(text = "Continue the recorded session.") {
   const observed = { typed: [] as string[], confirmed: 0 };
   const instruction = new LaunchInstruction(
     {
-      instruction: "Continue the recorded session.",
+      instruction: text,
       ready: showsCursorComposer,
       onEntered: () => {
         observed.confirmed += 1;
@@ -73,6 +79,55 @@ test("an unframed idle composer receives one recovery continuation", async () =>
     );
     expect(observed.typed).toHaveLength(1);
     expect(observed.confirmed).toBe(1);
+  } finally {
+    instruction.dispose();
+  }
+});
+
+test("a multiline continuation left in the composer is submitted once", async () => {
+  const { instruction, observed } = recoveryInstruction(continuation);
+  const draft =
+    "\u001b[?2026h\u001b[2J\u001b[H→ Continue from this worktree's committed and uncommitted state without opening another assignment.\r\n\u001b[?2026l";
+  try {
+    await instruction.write(
+      "\u001b[?2026h\u001b[2J\u001b[H→ Add a follow-up\r\n\u001b[?2026l",
+    );
+    expect(observed).toEqual({ typed: [continuation], confirmed: 0 });
+    await instruction.write(draft);
+    expect(observed).toEqual({ typed: [continuation, "\r"], confirmed: 1 });
+    await instruction.write(draft);
+    expect(observed).toEqual({ typed: [continuation, "\r"], confirmed: 1 });
+  } finally {
+    instruction.dispose();
+  }
+});
+
+test("a multiline continuation stays unsent when the next frame is not that draft", async () => {
+  const { instruction, observed } = recoveryInstruction(continuation);
+  try {
+    await instruction.write(
+      "\u001b[?2026h\u001b[2J\u001b[H→ Add a follow-up\r\n\u001b[?2026l",
+    );
+    await instruction.write(
+      "\u001b[?2026h\u001b[2J\u001b[HCursor is waiting for workspace trust\r\n\u001b[?2026l",
+    );
+    expect(observed).toEqual({ typed: [continuation], confirmed: 0 });
+  } finally {
+    instruction.dispose();
+  }
+});
+
+test("an unframed composer draft of a multiline continuation is submitted once", async () => {
+  const { instruction, observed } = recoveryInstruction(continuation);
+  const draft =
+    "\u001b[?25l\u001b[2J\u001b[H→ Continue from this worktree's committed and uncommitted state without opening another assignment.\r\n";
+  try {
+    await instruction.write("\u001b[?25l→ Plan, search, build anything\r\n");
+    expect(observed).toEqual({ typed: [continuation], confirmed: 0 });
+    await instruction.write(draft);
+    expect(observed).toEqual({ typed: [continuation, "\r"], confirmed: 1 });
+    await instruction.write(draft);
+    expect(observed).toEqual({ typed: [continuation, "\r"], confirmed: 1 });
   } finally {
     instruction.dispose();
   }

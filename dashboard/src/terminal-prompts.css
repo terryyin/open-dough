@@ -1,0 +1,26 @@
+/* Reply choices belong to the existing terminal session-actions slot. */
+.terminal-prompts {
+  position: relative;
+  display: inline-flex;
+}
+
+.terminal-prompts-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--space-3));
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+  box-shadow: var(--shadow-2);
+}
+
+.terminal-prompts-menu > button {
+  justify-content: flex-start;
+}

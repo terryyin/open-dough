@@ -3,8 +3,9 @@
 // synchronized update still arriving is not judged until that update
 // finishes. A ready screen settles the launch wait even when no synchronized
 // frame arrived, except that a pasted instruction settles it only once the
-// client answered its submitted chip, or a later frame finished showing
-// neither that chip nor the empty composer. A screen that is not ready still
+// client answered its submitted chip or the composer is showing that text, or
+// a later frame finished showing neither the chip, that text, nor the empty
+// composer. A screen that is not ready still
 // waits for a completed frame. The client exiting also settles the wait. A
 // later screen can still accept the instruction.
 import type { ScreenReadiness } from "./launchHosts.ts";
@@ -12,6 +13,21 @@ import { KeptClientScreen } from "./keptClientScreen.ts";
 
 function showsPasteChip(screen: string): boolean {
   return screen.includes("Pasted text");
+}
+
+// Cursor sometimes leaves a multiline paste as composer text instead of a
+// chip. A visible line of that text, including one wrapped to the tail of
+// the screen, is the draft waiting for Enter. Short fragments are ignored.
+function showsUnsentInstruction(screen: string, instruction: string): boolean {
+  const flattened = screen.replace(/\s+/gu, " ");
+  for (const line of instruction.split("\n")) {
+    const text = line.trim();
+    if (text.length < 16) continue;
+    const head = text.slice(0, 48);
+    const tail = text.slice(-40);
+    if (flattened.includes(head) || flattened.includes(tail)) return true;
+  }
+  return false;
 }
 
 export type LaunchInstructionInput = {
@@ -107,32 +123,24 @@ export class LaunchInstruction {
     const pastedChip = showsPasteChip(screen.text());
     if (!this.entered && this.pasted) {
       // A paste chip is not the empty composer and has no synchronized frame.
-      // Submit it before the not-ready wait would return. The wait settles
-      // on the client's answer to that submit, a later finished frame or
-      // ready screen, so the screen read after the launch is not the chip.
-      if (pastedChip) {
-        this.entered = true;
-        screen.takeFrame();
-        if (!this.client.writeInstruction("\r")) {
-          this.entered = false;
-          this.announce();
-          return;
-        }
-        if (!this.handoff) this.releaseHold();
-        try {
-          await this.launch.onEntered();
-        } catch {
-          // The instruction was entered. A failed save leaves the uncertain record.
-        }
+      // The same is true of the instruction left as composer text. Submit
+      // either before the not-ready wait would return. The wait settles on
+      // the client's answer to that submit, a later finished frame or ready
+      // screen, so the screen read after the launch is not the unsent draft.
+      const draft =
+        !ready &&
+        showsUnsentInstruction(screen.text(), this.launch.instruction);
+      if (pastedChip || draft) {
+        await this.submitPaste(screen);
         return;
       }
       // The client has not answered the paste while its screen still shows
       // the empty composer, as when output written before the paste arrives
       // late.
       if (ready) return;
-      // Only a frame that itself finished showing neither the chip nor the
-      // composer answers the paste. The screen now can be the chip's paint
-      // still arriving after a frame that showed the composer.
+      // Only a frame that itself finished showing neither the chip, the
+      // pasted text, nor the composer answers the paste. The screen now can
+      // be that paint still arriving after a frame that showed the composer.
       const frame = screen.completedFrameScreen();
       if (
         frame === undefined ||
@@ -152,9 +160,10 @@ export class LaunchInstruction {
     screen.takeFrame();
     if (!this.entered && ready) {
       const instruction = this.launch.instruction;
-      // Cursor keeps a long or multiline burst as an unsent paste chip and
-      // folds a return in that same burst into the paste. Submit that chip
-      // with a later Enter, once the chip is on screen.
+      // Cursor keeps a long or multiline burst as an unsent paste chip, or as
+      // the text itself in the composer, and folds a return in that same
+      // burst into the paste. Submit with a later Enter once the chip or
+      // that text is on screen.
       if (instruction.includes("\n") || instruction.length > 800) {
         this.pasted = true;
         if (!this.client.writeInstruction(instruction)) {
@@ -162,9 +171,10 @@ export class LaunchInstruction {
           this.announce();
           return;
         }
-        // The wait settles once the client answered the submitted chip, or a
-        // later frame finished showing neither chip nor empty composer, so
-        // the launch never returns before that answer.
+        // The wait settles once the client answered the submitted chip or
+        // composer text, or a later frame finished showing neither that
+        // draft nor the empty composer, so the launch never returns before
+        // that answer.
         return;
       } else {
         this.entered = true;
@@ -185,6 +195,22 @@ export class LaunchInstruction {
       }
     }
     this.announce();
+  }
+
+  private async submitPaste(screen: KeptClientScreen): Promise<void> {
+    this.entered = true;
+    screen.takeFrame();
+    if (!this.client.writeInstruction("\r")) {
+      this.entered = false;
+      this.announce();
+      return;
+    }
+    if (!this.handoff) this.releaseHold();
+    try {
+      await this.launch.onEntered();
+    } catch {
+      // The instruction was entered. A failed save leaves the uncertain record.
+    }
   }
 
   private announce(): void {

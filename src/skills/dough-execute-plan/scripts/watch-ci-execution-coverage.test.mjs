@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { executionBudgetMs, watchCiExecution } from "./watch-ci-execution.mjs";
@@ -74,7 +75,15 @@ test("worker failure retains prior evidence before reporting lost coverage", asy
           : [run({ status: "queued", conclusion: null })];
       }
       return {
-        jobs: [{ databaseId: 101, name: "Backend", conclusion: "failure" }],
+        jobs: [
+          makeMe.aGitHubJob
+            .withFacts({
+              databaseId: 101,
+              name: "Backend",
+              conclusion: "failure",
+            })
+            .please(),
+        ],
       };
     }),
   });
@@ -163,7 +172,15 @@ test("registered revisions suppress unrelated target-branch failures", async () 
         ];
       if (runId === 3)
         return {
-          jobs: [{ databaseId: 301, name: "Owned", conclusion: "failure" }],
+          jobs: [
+            makeMe.aGitHubJob
+              .withFacts({
+                databaseId: 301,
+                name: "Owned",
+                conclusion: "failure",
+              })
+              .please(),
+          ],
         };
       throw new Error(`unexpected job inspection ${kind} ${runId}`);
     }),

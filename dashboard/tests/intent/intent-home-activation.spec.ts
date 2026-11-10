@@ -29,6 +29,7 @@ import {
   runUrl,
   trunkCi,
 } from "../intentCiStatusPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { failing } from "../intentCiStoryBoard.ts";
 import {
   expectNamed,
@@ -152,7 +153,9 @@ test("arrow keys, Home and End choose CI status again with the file still read; 
   await page.setViewportSize({ width: 1280, height: 800 });
   publishProject(page, openDough, intentFiles).serveCi(
     trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   await openUntilRead(page, "/?project=open-dough&perspective=intent");

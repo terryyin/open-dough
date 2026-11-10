@@ -104,8 +104,9 @@ test("skips record their reason and a context stop writes no record", () => {
 });
 
 test("wholly planless completion keeps its record-free handoff", () => {
+  const other = read("dough-execute-plan/references/other-completion-paths.md");
   assert.match(
-    finish,
+    other,
     /Wholly planless completion[\s\S]+`## QUICK EXECUTION COMPLETE`[\s\S]+without automatic retrospective/,
   );
 });

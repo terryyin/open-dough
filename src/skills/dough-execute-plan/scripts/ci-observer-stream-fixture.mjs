@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { streamMailboxWorker } from "./ci-mailbox.mjs";
@@ -42,19 +43,23 @@ const fakeGitHub = githubApi(({ kind }) => {
   }
   return {
     jobs: [
-      {
-        databaseId: 101,
-        name: "labelled fake-GitHub backend failure",
-        conclusion: "failure",
-      },
+      makeMe.aGitHubJob
+        .withFacts({
+          databaseId: 101,
+          name: "labelled fake-GitHub backend failure",
+          conclusion: "failure",
+        })
+        .please(),
       ...(poll < 2
         ? []
         : [
-            {
-              databaseId: 102,
-              name: "labelled fake-GitHub frontend timeout",
-              conclusion: "timed_out",
-            },
+            makeMe.aGitHubJob
+              .withFacts({
+                databaseId: 102,
+                name: "labelled fake-GitHub frontend timeout",
+                conclusion: "timed_out",
+              })
+              .please(),
           ]),
     ],
   };

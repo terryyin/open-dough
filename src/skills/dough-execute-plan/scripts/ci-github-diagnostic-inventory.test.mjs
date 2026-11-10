@@ -5,12 +5,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { diagnoseFailedAttempt } from "./ci-github-diagnostic.mjs";
 import {
+  completedJob as job,
   completedJobs,
   instrumentedGithubFixture,
+  observedCompletedJob,
   startInstalledScript,
 } from "./ci-github-test-fixtures.mjs";
-
-const job = (index) => completedJobs([index])[index];
 const run = (github) =>
   startInstalledScript(github, "ci-github-diagnostic.mjs", [
     "failure",
@@ -187,7 +187,7 @@ test("failure lines past each job's bound are counted, not dropped silently", as
     runId: 42,
     attempt: 2,
     github: {
-      attemptJobs: async () => [{ ...job(0), databaseId: 1000 }],
+      attemptJobs: async () => [observedCompletedJob(0)],
       jobLog: async () => many,
     },
   });

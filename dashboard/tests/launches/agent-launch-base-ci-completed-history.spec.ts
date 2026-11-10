@@ -4,14 +4,16 @@
 import { keptStarts } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
-import { actionsForRuns } from "../support/baseCiActions.ts";
 import { publishLaterHead } from "../support/publishLaterHead.ts";
-const baseCiFailedHeading = "Base CI failed";
-const baseCiRunningHeading = "Base CI still running";
-const baseCiUnreadHeading = "Base CI could not be read";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { parts } from "../dashboardPage.ts";
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { actionsForRuns } from "../support/baseCiActions.ts";
+
+const baseCiFailedHeading = "Base CI failed";
+const baseCiRunningHeading = "Base CI still running";
+const baseCiUnreadHeading = "Base CI could not be read";
 for (const conclusion of ["success", "failure"] as const) {
   test(`an in-progress nearest result shows its nearest completed ${conclusion} and starts nothing until Continue`, async ({
     page,
@@ -64,36 +66,44 @@ for (const conclusion of ["success", "failure"] as const) {
     const runUrl = "https://ci.invalid/running-base";
     published.serveActions(
       actionsForRuns([
-        {
-          headSha: ancestor,
-          status: "in_progress",
-          url: runUrl,
-        },
-        {
-          headSha: completed.head,
-          conclusion: "failure",
-          url: "https://ci.invalid/older-attempt",
-        },
-        {
-          headSha: completed.head,
-          conclusion,
-          url: "https://ci.invalid/completed-base",
-        },
-        {
-          headSha: completed.head,
-          status: "queued",
-          url: "https://ci.invalid/pending-rerun",
-        },
-        {
-          headSha: completed.ancestor,
-          conclusion: "success",
-          url: "https://ci.invalid/older-pass",
-        },
-        {
-          headSha: sibling,
-          conclusion: "failure",
-          url: "https://ci.invalid/unrelated",
-        },
+        makeMe.aCiRun
+          .with({ headSha: ancestor, status: "in_progress", url: runUrl })
+          .please(),
+        makeMe.aCiRun
+          .with({
+            headSha: completed.head,
+            conclusion: "failure",
+            url: "https://ci.invalid/older-attempt",
+          })
+          .please(),
+        makeMe.aCiRun
+          .with({
+            headSha: completed.head,
+            conclusion,
+            url: "https://ci.invalid/completed-base",
+          })
+          .please(),
+        makeMe.aCiRun
+          .with({
+            headSha: completed.head,
+            status: "queued",
+            url: "https://ci.invalid/pending-rerun",
+          })
+          .please(),
+        makeMe.aCiRun
+          .with({
+            headSha: completed.ancestor,
+            conclusion: "success",
+            url: "https://ci.invalid/older-pass",
+          })
+          .please(),
+        makeMe.aCiRun
+          .with({
+            headSha: sibling,
+            conclusion: "failure",
+            url: "https://ci.invalid/unrelated",
+          })
+          .please(),
       ]),
     );
     await openUntilRead(page);
@@ -185,16 +195,20 @@ test("a running base with no completed ancestor reports the readable-history gap
   );
   published.serveActions(
     actionsForRuns([
-      {
-        headSha: ancestor,
-        status: "in_progress",
-        url: "https://ci.invalid/running-only",
-      },
-      {
-        headSha: "ff".repeat(20),
-        conclusion: "success",
-        url: "https://ci.invalid/unrelated-pass",
-      },
+      makeMe.aCiRun
+        .with({
+          headSha: ancestor,
+          status: "in_progress",
+          url: "https://ci.invalid/running-only",
+        })
+        .please(),
+      makeMe.aCiRun
+        .with({
+          headSha: "ff".repeat(20),
+          conclusion: "success",
+          url: "https://ci.invalid/unrelated-pass",
+        })
+        .please(),
     ]),
   );
   await openUntilRead(page);

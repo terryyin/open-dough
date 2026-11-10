@@ -10,6 +10,7 @@ import {
   fixtureTeardown,
   sharedCommandDirectory,
 } from "./fixture-teardown-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { apiRun } from "./github-actions-api-test-fixtures.mjs";
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import { deferObserverStop } from "./watch-ci-test-fixtures.mjs";
@@ -153,17 +154,22 @@ export async function setupProcessMailbox(
 // Releases the fixture's blocked run listing with one run per overrides
 // object, each a completed failing push run of `sha` unless overridden.
 export function releaseRun(directory, ...runOverrides) {
-  const runs = (runOverrides.length ? runOverrides : [{}]).map((overrides) => ({
-    databaseId: 42,
-    attempt: 1,
-    headSha: sha,
-    headBranch: "main",
-    workflowName: "CI",
-    event: "push",
-    status: "completed",
-    conclusion: "failure",
-    ...overrides,
-  }));
+  const runs = (runOverrides.length ? runOverrides : [{}]).map((overrides) =>
+    makeMe.aCiRun
+      .with({
+        databaseId: 42,
+        attempt: 1,
+        headSha: sha,
+        headBranch: "main",
+        workflowName: "CI",
+        event: "push",
+        status: "completed",
+        conclusion: "failure",
+        createdAt: undefined,
+        ...overrides,
+      })
+      .please(),
+  );
   publishJson(directory, "release", {
     total_count: runs.length,
     workflow_runs: runs.map(apiRun),

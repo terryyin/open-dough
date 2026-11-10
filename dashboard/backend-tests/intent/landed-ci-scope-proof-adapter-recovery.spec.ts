@@ -27,6 +27,9 @@ test("a failed adapter proof command resumes after collector restart without cha
   github,
   startServer,
 }) => {
+  // This journey owns a real origin, installed launch/landing and two collectors.
+  // Measured setup and first collection used 29 s before the restart/read.
+  test.setTimeout(60_000);
   const { record, revision } = await resultToLand(
     dashboard,
     "recover-adapter-scope-proof.txt",

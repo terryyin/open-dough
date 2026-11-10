@@ -1,5 +1,6 @@
 // Timing fields reported by the three GitHub Actions attempts in SEED-256,
-// and their comparison fixture across the three endpoints.
+// and their comparison fixture across the three endpoints. Captured job
+// timestamps stay literal; synthetic run wrappers delegate to MakeMe via wall.
 import { defaultMixedProofs } from "./storyCiComparisonEntryProofs.ts";
 import {
   wall,

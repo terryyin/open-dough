@@ -12,6 +12,8 @@ import {
   beginTerminalClip,
   openTerminalVoice,
   stopTerminalClip,
+  chooseTerminalDictation,
+  expectTerminalDictationAvailable,
 } from "../support/terminalVoicePage.ts";
 import { noteTerminalTraffic } from "../touchTerminalPage.ts";
 import { briefDoneRenameWait } from "../support/markDone.ts";
@@ -34,11 +36,7 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
     dashboard,
     launchJourney,
   );
-  const record = panel.getByRole("button", {
-    name: "Dictate into terminal",
-    exact: true,
-  });
-  await record.click();
+  await chooseTerminalDictation(panel);
   await expect(panel.getByRole("alert")).toContainText(
     "Configure an OpenAI API key",
   );
@@ -50,7 +48,7 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
     navigator.mediaDevices.getUserMedia = () =>
       Promise.reject(new DOMException("private", "NotAllowedError"));
   });
-  await record.click();
+  await chooseTerminalDictation(panel);
   await expect(panel.getByRole("alert")).toHaveText(
     instructionProblems.permission,
   );
@@ -60,7 +58,7 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
       configurable: true,
     });
   });
-  await record.click();
+  await chooseTerminalDictation(panel);
   await expect(panel.getByRole("alert")).toHaveText(
     instructionProblems.unavailable,
   );
@@ -78,13 +76,11 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
   await expect(panel.getByRole("alert")).toContainText(
     "Transcription could not finish",
   );
-  await expect(record).toBeEnabled();
+  await expectTerminalDictationAvailable(panel, true);
   await panel.locator(".xterm-helper-textarea").focus();
   await page.keyboard.type("typed ");
   expect(sent).not.toContain("\u0003\n\u001b[2J");
-  const calls = provider.calls.length;
-  await page.waitForTimeout(150);
-  expect(provider.calls).toHaveLength(calls);
+  expect(provider.calls).toHaveLength(2);
   provider.setText("retry");
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
@@ -121,14 +117,12 @@ test("Close releases capture and a late permission grant cannot record into a re
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   await open();
   const permission = await holdMicrophonePermission(page);
-  await panel.getByRole("button", { name: "Dictate into terminal" }).click();
+  await chooseTerminalDictation(panel);
   await permission.requested();
   await expect(panel.getByRole("status")).toHaveText(
     "Waiting for microphone permission…",
   );
-  await expect(
-    panel.getByRole("button", { name: "Dictate into terminal" }),
-  ).toBeDisabled();
+  await expectTerminalDictationAvailable(panel, false);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await open();
   await permission.grant();

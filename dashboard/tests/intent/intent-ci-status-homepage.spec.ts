@@ -18,6 +18,7 @@ import {
   openDough,
   openDoughSettings,
 } from "../intentCodeBrowseFixtures.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   activateIntentHome,
   chooseCiStatus,
@@ -54,12 +55,16 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
     "dashboard/tests/nested/deep.spec.ts": browseSpec,
   }).serveCi(
     trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   publishProject(page, doughnut).serveCi(
     trunkCi(doughnut.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   await openUntilRead(page, "/?project=open-dough");
@@ -202,7 +207,9 @@ test("project CI remains readable while locations load, fail and recover without
     "dashboard/tests/browse.spec.ts": browseSpec,
   }).serveCi(
     trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   const locations = await holdAuthenticatedReadsWhere(

@@ -21,6 +21,7 @@ import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   chooseCiStatus,
   expectChecked,
@@ -54,7 +55,11 @@ test("CI status that could not be read names main and the reason; Check again re
   const ci = trunkCi(openDough.revision, () =>
     runsMissing
       ? httpErrorAnswer(404, "Not Found")
-      : [{ headSha: judged, conclusion: "success", url: runUrl }],
+      : [
+          makeMe.aCiRun
+            .with({ headSha: judged, conclusion: "success", url: runUrl })
+            .please(),
+        ],
   );
   published.serveCi((call) =>
     historyMissing &&

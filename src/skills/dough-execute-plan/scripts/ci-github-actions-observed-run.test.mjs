@@ -2,6 +2,7 @@
 // time (Intent homepage), without changing ordering's createdAt.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { createGitHubActions, observedRun } from "./ci-github-actions.mjs";
 import { scriptedGithub } from "./github-actions-api-test-fixtures.mjs";
 
@@ -64,19 +65,21 @@ test("listRuns carries start and completion from the Actions listing", async () 
     repo: "owner/repo",
     gh: scriptedGithub([
       [
-        {
-          databaseId: 41,
-          attempt: 1,
-          headSha: sha,
-          headBranch: "main",
-          event: "push",
-          status: "completed",
-          conclusion: "success",
-          url: "https://ci.invalid/41",
-          createdAt: "2026-11-05T09:59:00Z",
-          startedAt: "2026-11-05T10:00:00Z",
-          completedAt: "2026-11-05T10:03:00Z",
-        },
+        makeMe.aCiRun
+          .with({
+            databaseId: 41,
+            attempt: 1,
+            headSha: sha,
+            headBranch: "main",
+            event: "push",
+            status: "completed",
+            conclusion: "success",
+            url: "https://ci.invalid/41",
+            createdAt: "2026-11-05T09:59:00Z",
+            startedAt: "2026-11-05T10:00:00Z",
+            completedAt: "2026-11-05T10:03:00Z",
+          })
+          .please(),
       ],
     ]),
   });
@@ -96,16 +99,18 @@ test("listRuns omits the branch query parameter for an all-branch listing", asyn
     gh: scriptedGithub(
       [
         [
-          {
-            databaseId: 41,
-            attempt: 1,
-            headSha: sha,
-            headBranch: "main",
-            event: "push",
-            status: "completed",
-            conclusion: "success",
-            url: "https://ci.invalid/41",
-          },
+          makeMe.aCiRun
+            .with({
+              databaseId: 41,
+              attempt: 1,
+              headSha: sha,
+              headBranch: "main",
+              event: "push",
+              status: "completed",
+              conclusion: "success",
+              url: "https://ci.invalid/41",
+            })
+            .please(),
         ],
       ],
       calls,

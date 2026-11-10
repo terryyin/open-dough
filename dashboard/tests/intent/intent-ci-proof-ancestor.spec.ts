@@ -73,17 +73,33 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     "tests/a.sh": "#!/usr/bin/env bash\n",
   });
   ci.runs.main = [
-    { headSha: login, conclusion: "success", url: mainRun, id: 11 },
-    {
-      headSha: signup,
-      conclusion: "success",
-      url: mainRun,
-      id: 12,
-      attempt: 2,
-    },
+    makeMe.aCiRun
+      .with({
+        headSha: login,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 11,
+      })
+      .please(),
+    makeMe.aCiRun
+      .with({
+        headSha: signup,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 12,
+        attempt: 2,
+      })
+      .please(),
   ];
   ci.runs[running.branch] = [
-    { headSha: started, status: "in_progress", url: runUrl, id: 13 },
+    makeMe.aCiRun
+      .with({
+        headSha: started,
+        status: "in_progress",
+        url: runUrl,
+        databaseId: 13,
+      })
+      .please(),
   ];
   const summary = proofSummary(
     ancestor,

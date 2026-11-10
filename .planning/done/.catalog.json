@@ -2,6 +2,36 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-github-actions-ci-test-data.json",
+      "identity": "SEED-261#map-github-actions-ci-test-data",
+      "completedAt": "2026-11-10T11:32:55.730Z",
+      "blob": "dbe46488ec9518b973161be51dbd5e26602f952b"
+    },
+    {
+      "fileName": "SEED-298_insert-common-prompts-in-the-dashboard-terminal.json",
+      "identity": "SEED-298#insert-common-prompts-in-the-dashboard-terminal",
+      "completedAt": "2026-11-10T11:20:25.308Z",
+      "blob": "b02a4ee88da33b8f7a471209580a3e7222c15be3"
+    },
+    {
+      "fileName": "SEED-258_make-intent-coverage-results-easier-to-act-on.json",
+      "identity": "SEED-258#make-intent-coverage-results-easier-to-act-on",
+      "completedAt": "2026-11-10T10:56:36.406Z",
+      "blob": "a8876c596c57eabbb22c8817ffd3560ebfbaf2a7"
+    },
+    {
+      "fileName": "SEED-258_finish-opted-in-stories-with-intent-coverage.json",
+      "identity": "SEED-258#finish-opted-in-stories-with-intent-coverage",
+      "completedAt": "2026-11-10T10:41:26.970Z",
+      "blob": "f8bf193c41eaa59cb1fd424432a3f6e958b9ee05"
+    },
+    {
+      "fileName": "SEED-297_submit-revived-cursor-continuation.json",
+      "identity": "SEED-297#submit-revived-cursor-continuation",
+      "completedAt": "2026-11-10T09:53:00.072Z",
+      "blob": "a5303a0179d6eaab56c47b17248e9d3f3621714e"
+    },
+    {
       "fileName": "SEED-295_inspect-project-configuration-in-dashboard.json",
       "identity": "SEED-295#inspect-project-configuration-in-dashboard",
       "completedAt": "2026-11-10T09:17:17.645Z",
@@ -1932,18 +1962,6 @@
       "identity": "SEED-066#unattached-start-leftovers",
       "completedAt": "2026-10-11T12:49:32.823Z",
       "blob": "c3e9977d094591025746ae4906321e7b10859c57"
-    },
-    {
-      "fileName": "SEED-066_unattached-session-options.json",
-      "identity": "SEED-066#unattached-session-options",
-      "completedAt": "2026-10-11T09:38:56.744Z",
-      "blob": "ed9bc2a3c04aff01f3833cc447fdb5dc8ca8dd13"
-    },
-    {
-      "fileName": "SEED-130_slow-startup-safe-recovery.json",
-      "identity": "SEED-130#slow-startup-safe-recovery",
-      "completedAt": "2026-10-11T09:37:41.486Z",
-      "blob": "2eddc4bb9cf9603467c29993469919fb419a248d"
     }
   ],
   "unreadable": []

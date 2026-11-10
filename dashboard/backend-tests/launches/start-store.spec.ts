@@ -15,7 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
 import {
   keepStart,
   keptStart,
@@ -147,10 +147,10 @@ test("a writer that ends before recording itself as the lock's owner leaves no l
     `import { updateStart } from ${JSON.stringify(fileURLToPath(new URL("../../server/startStore.ts", import.meta.url)))};
 await updateStart("open-dough", ${JSON.stringify(written.identity)}, { candidateSha: "lost" });`,
   );
-  const endAtOwner = fsPromisesHook(
+  const endAtOwner = fsSyncHook(
     path.join(home, "end-at-owner.mjs"),
-    "writeFile",
-    `async (file, ...args) => {
+    "writeFileSync",
+    `(file, ...args) => {
  if (String(file).endsWith("/execution-starts.json.lock/owner")) process.exit(0);
  return original(file, ...args);
 }`,

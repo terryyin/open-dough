@@ -78,34 +78,55 @@ test("Dough Land reviews after accepted publication and publishes findings befor
   );
 });
 
-test("Story Wrap Up reviews after cleanup and commits findings with final closure", () => {
+test("Story Wrap Up completes a deferred process review after Intent Coverage, without the Land flag", () => {
   const wrapUp = read("dough-story-wrap-up/SKILL.md");
   const description = wrapUp.split("\n---\n")[0];
-  const cleanup = wrapUp.indexOf(
-    "## Delete spent history, including shared records",
+  const coverage = wrapUp.indexOf("## Assess intent coverage");
+  const deferred = wrapUp.indexOf("## Complete a deferred process review");
+  const beforeCleanup = wrapUp.indexOf(
+    "## Commit closure inputs and preserve Git recovery",
   );
-  const review = wrapUp.indexOf("## Review this wrap-up's process");
-  const finalClosure = wrapUp.indexOf("## Commit final closure");
+  const docs = readFileSync(
+    join(skills, "../../docs/installation-and-updates.md"),
+    "utf8",
+  );
 
-  assert.match(description, /`--process-retrospective`[\s\S]+`DearDough\.md`/);
-  assert.ok(cleanup < review && review < finalClosure);
-  const section = wrapUp.slice(review, finalClosure);
+  assert.doesNotMatch(description, /`--process-retrospective`/);
   assert.match(
-    section,
-    /Only with `--process-retrospective`, after spent history is deleted/,
+    description,
+    /deferred process review[\s\S]+Intent Coverage report and dispositions/,
   );
-  assert.match(section, sharedLink);
+  assert.ok(coverage >= 0 && coverage < deferred && deferred < beforeCleanup);
+  const section = wrapUp.slice(deferred, beforeCleanup);
   assert.match(
     section,
-    /Recorded findings are owned closure changes for\s+\[Commit final closure\]\(#commit-final-closure\)/,
+    /continuation carries a selected deferred process review/,
   );
   assert.match(
     section,
-    /rerun that finds the final closure\s+already committed does not review again/,
+    /\(\.\.\/dough-execute-plan\/references\/deferred-process-review\.md\)/,
+  );
+  assert.match(
+    section,
+    /Supply the Intent Coverage report, wrap-up\s+dispositions, follow-up decision, available run history, elapsed time and\s+setup\/waiting problems/,
+  );
+  assert.match(
+    section,
+    /Do not re-enter Select reviews or invent a\s+wrap-up-only process review/,
+  );
+  assert.doesNotMatch(wrapUp, /## Review this wrap-up's process/);
+  assert.doesNotMatch(wrapUp, sharedLink);
+  assert.match(
+    docs,
+    /Dough Land ignores this key[\s\S]+`--process-retrospective`/,
+  );
+  assert.match(
+    docs,
+    /Story Wrap Up has no such flag[\s\S]+deferred by execution\s+continuation after Intent Coverage report and dispositions/,
   );
 });
 
-test("completion attention and the retrospective's write location cover the flagged run", () => {
+test("completion attention and the retrospective's write location cover the flagged landing run", () => {
   const attention = read("dough-land/references/completion-attention.md");
   const retrospective = read("dough-execution-retrospective/SKILL.md");
 
@@ -115,6 +136,10 @@ test("completion attention and the retrospective's write location cover the flag
   );
   assert.match(
     retrospective,
-    /A landing or wrap-up running the\s+\[process review of its run\]\(references\/process-review-of-a-run\.md\) supplies its own checkout as\s+that execution checkout/,
+    /A landing running the\s+\[process review of its run\]\(references\/process-review-of-a-run\.md\) supplies its own checkout as\s+that execution checkout/,
+  );
+  assert.match(
+    shared,
+    /Story Wrap Up\s+does not use this flag or this caller path/,
   );
 });

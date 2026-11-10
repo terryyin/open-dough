@@ -11,6 +11,7 @@ import {
   beginTerminalClip,
   openTerminalVoice,
   stopTerminalClip,
+  expectTerminalDictationAvailable,
 } from "../support/terminalVoicePage.ts";
 import {
   sharedDashboardBuild,
@@ -82,14 +83,13 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   const session = dashboard.claudeAttaches()[0]?.id;
   const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
   const insert = panel.getByRole("button", { name: "Insert transcript" });
-  const record = panel.getByRole("button", { name: "Dictate into terminal" });
   const input = panel.locator(".xterm-helper-textarea");
   await completeWhileDisconnected(page, panel, terminalServer);
   await expect(retained).toHaveValue(transcript);
   await expect(panel.getByRole("status")).toContainText(
     "The transcript was not inserted. Reconnect, then insert it here or discard it.",
   );
-  await expect(record).toBeDisabled();
+  await expectTerminalDictationAvailable(panel, false);
   await insert.click();
   await expect(retained).toHaveValue(transcript);
   expect(sent).toEqual([]);
@@ -99,15 +99,12 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
     `attached ${session}`,
   );
   await expect(retained).toHaveValue(transcript);
-  // Absence has no completion event: observe a quiet, attached input window.
-  await page.waitForTimeout(150);
   expect(sent).toEqual([]);
-  await expect(record).toBeDisabled();
+  await expectTerminalDictationAvailable(panel, false);
   await input.focus();
   await page.keyboard.type("Review ");
   await insert.click();
   await expect(retained).toHaveCount(0);
-  await expect(record).toBeEnabled();
   await expect(input).toBeFocused();
   await expect
     .poll(() => sent.filter((text) => text === transcript))
@@ -121,6 +118,7 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   await expect
     .poll(() => dashboard.claudeAttaches().at(-1)?.lines)
     .toEqual(["Review the recovered header and control!"]);
+  await expectTerminalDictationAvailable(panel, true);
   await terminalServer.disconnect();
   await expect(panel.getByRole("status")).toContainText("Disconnected");
   await terminalServer.start();
@@ -129,7 +127,6 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   await expect(panel.locator(".xterm-rows")).toContainText(
     `attached ${session}`,
   );
-  await page.waitForTimeout(150);
   expect(sent.filter((text) => text === transcript)).toEqual([transcript]);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
   expect(provider.calls).toHaveLength(1);
@@ -157,7 +154,6 @@ test("Discard sends no retained text and makes another capture available", async
   await panel.getByRole("button", { name: "Discard transcript" }).click();
   await expect(retained).toHaveCount(0);
   await expect(panel.getByRole("status")).toBeEmpty();
-  await page.waitForTimeout(150);
   expect(sent).toEqual([]);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
   await beginTerminalClip(page, panel);
@@ -196,10 +192,7 @@ for (const action of ["Close", "switch"] as const) {
     await open();
     await expect(retained).toHaveCount(0);
     await expect(panel.getByRole("status")).toBeEmpty();
-    await expect(
-      panel.getByRole("button", { name: "Dictate into terminal" }),
-    ).toBeEnabled();
-    await page.waitForTimeout(150);
+    await expectTerminalDictationAvailable(panel, true);
     expect(sent).toEqual([]);
     expect(
       dashboard.claudeAttaches().every((attach) => attach.lines.length === 0),

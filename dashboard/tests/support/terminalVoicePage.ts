@@ -33,15 +33,43 @@ export async function openTerminalVoice(
   return { panel, open, first, second };
 }
 
+export async function openTerminalPrompts(panel: Locator) {
+  await panel.getByRole("button", { name: "Prompts", exact: true }).click();
+  return panel.getByRole("menu", { name: "Prompts", exact: true });
+}
+
+export async function chooseTerminalDictation(panel: Locator) {
+  const menu = await openTerminalPrompts(panel);
+  await menu
+    .getByRole("menuitem", { name: "Dictate into terminal", exact: true })
+    .click();
+  await expect(menu).toHaveCount(0);
+}
+
+export async function expectTerminalDictationAvailable(
+  panel: Locator,
+  enabled: boolean,
+) {
+  const menu = await openTerminalPrompts(panel);
+  const choice = menu.getByRole("menuitem", {
+    name: "Dictate into terminal",
+    exact: true,
+  });
+  if (enabled) await expect(choice).toBeEnabled();
+  else await expect(choice).toBeDisabled();
+  await menu.press("Escape");
+}
+
 export async function beginTerminalClip(page: Page, panel: Locator) {
   const before = await page.evaluate(
     () =>
       (window as unknown as { voiceObservation: { bytes: number } })
         .voiceObservation.bytes,
   );
-  await panel
-    .getByRole("button", { name: "Dictate into terminal", exact: true })
-    .click();
+  await chooseTerminalDictation(panel);
+  await expect(
+    panel.getByRole("button", { name: "Prompts", exact: true }),
+  ).toHaveCount(0);
   await expect(panel.getByRole("status")).toHaveText(
     "Recording… Stop recording when you are finished.",
   );
@@ -58,4 +86,7 @@ export async function stopTerminalClip(page: Page, panel: Locator) {
     .getByRole("button", { name: "Stop recording", exact: true })
     .click();
   await expect.poll(() => stoppedTracks(page)).toBe(true);
+  await expect(
+    panel.getByRole("button", { name: "Prompts", exact: true }),
+  ).toBeVisible();
 }

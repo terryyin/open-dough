@@ -145,6 +145,7 @@ managed_files=(
   dough-execute-plan/references/ci-notify-codex.md
   dough-execute-plan/references/ci-notify-hosts.md
   dough-execute-plan/references/delegation.md
+  dough-execute-plan/references/deferred-process-review.md
   dough-execute-plan/references/deliver-the-change.md
   dough-execute-plan/references/destructive-later-outcome-check.md
   dough-execute-plan/references/disposable-research.md
@@ -159,6 +160,7 @@ managed_files=(
   dough-execute-plan/references/obtain-source-review.md
   dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/one-shot-escalation.md
+  dough-execute-plan/references/other-completion-paths.md
   dough-execute-plan/references/overdue-delegated-verification.md
   dough-execute-plan/references/oversized-slice.md
   dough-execute-plan/references/preserve-published-history.md

@@ -10,7 +10,7 @@ import { writeFileSync } from "node:fs";
 // `ms` milliseconds.
 export function fsPromisesHook(
   module: string,
-  name: "mkdir" | "rename" | "writeFile",
+  name: "mkdir" | "rename" | "writeFile" | "rm",
   replacement: string,
 ): { NODE_OPTIONS: string } {
   writeFileSync(
@@ -31,7 +31,7 @@ syncBuiltinESMExports();`,
 // or refuse acquisition with EEXIST, letting the production retry yield.
 export function fsSyncHook(
   module: string,
-  name: "mkdirSync",
+  name: "mkdirSync" | "writeFileSync",
   replacement: string,
 ): { NODE_OPTIONS: string } {
   writeFileSync(

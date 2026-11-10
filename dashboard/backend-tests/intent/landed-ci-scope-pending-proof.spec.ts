@@ -57,6 +57,11 @@ test("a pending landed attempt keeps its known run identity and link in the loca
   origin,
   github,
 }) => {
+  // Installed land()/prepare under contested shard CPU exhausted the 10s
+  // reporting delivery bound (run 42804393525); with the 30s delivery budget
+  // the whole publication+collection journey still needs headroom beyond the
+  // 30s default. SEED-287#fit-dashboard-journeys-in-default-timeout.
+  test.setTimeout(90_000);
   const { record, revision } = await resultToLand(
     dashboard,
     "pending-proof.txt",
@@ -149,6 +154,9 @@ test("an unread CI landing still retains independently evidenced local trunk ord
   origin,
   github,
 }) => {
+  // Same contested-land publication headroom as the pending-proof case above.
+  // SEED-287#fit-dashboard-journeys-in-default-timeout.
+  test.setTimeout(90_000);
   const { record, revision } = await resultToLand(
     dashboard,
     "unread-ci-order.txt",

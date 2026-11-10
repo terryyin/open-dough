@@ -29,6 +29,11 @@ test("retired closure retries unavailable receiver, real write fault and lost ac
   origin,
   codexProtocol: native,
 }) => {
+  // Real closure, three fault recoveries, and a same-port restart exceed the
+  // default 30s under CI shard load (run 42789213880: 30.9s timedOut).
+  // Removing this allowance belongs to
+  // SEED-287#fit-dashboard-journeys-in-default-timeout.
+  test.setTimeout(120_000);
   if (native === undefined) throw new Error("No native fixture");
   expect(
     (

@@ -41,6 +41,7 @@ import {
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const wallTime = "CI wall time 3 min";
 const notRecorded = "CI wall time not recorded";
@@ -51,14 +52,16 @@ test("a listed run from 10:00 to 10:03 shows CI wall time 3 min with the attempt
   await page.setViewportSize({ width: 1280, height: 800 });
   publishProject(page, openDough).serveCi(
     trunkCi(openDough.revision, () => [
-      {
-        headSha: judged,
-        conclusion: "success",
-        url: runUrl,
-        id: 41,
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:03:00Z",
-      },
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          conclusion: "success",
+          url: runUrl,
+          databaseId: 41,
+          startedAt: "2026-11-05T10:00:00Z",
+          completedAt: "2026-11-05T10:03:00Z",
+        })
+        .please(),
     ]),
   );
   await openUntilRead(page);
@@ -82,26 +85,37 @@ test("a running result shows its completed ancestor's CI wall time", async ({
   await page.setViewportSize({ width: 1280, height: 800 });
   const ci = publishStoryCi(page);
   ci.runs.main = [
-    {
-      headSha: login,
-      conclusion: "success",
-      url: mainRun,
-      id: 11,
-      startedAt: "2026-11-05T09:00:00Z",
-      completedAt: "2026-11-05T09:05:00Z",
-    },
-    {
-      headSha: signup,
-      conclusion: "success",
-      url: mainRun,
-      id: 12,
-      attempt: 2,
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:03:00Z",
-    },
+    makeMe.aCiRun
+      .with({
+        headSha: login,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 11,
+        startedAt: "2026-11-05T09:00:00Z",
+        completedAt: "2026-11-05T09:05:00Z",
+      })
+      .please(),
+    makeMe.aCiRun
+      .with({
+        headSha: signup,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 12,
+        attempt: 2,
+        startedAt: "2026-11-05T10:00:00Z",
+        completedAt: "2026-11-05T10:03:00Z",
+      })
+      .please(),
   ];
   ci.runs[running.branch] = [
-    { headSha: started, status: "in_progress", url: runUrl, id: 13 },
+    makeMe.aCiRun
+      .with({
+        headSha: started,
+        status: "in_progress",
+        url: runUrl,
+        databaseId: 13,
+      })
+      .please(),
   ];
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   await chooseCiStatus(parts(page).intent);

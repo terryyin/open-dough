@@ -1,7 +1,7 @@
 // The observer's `gh` seam answering in-process as GitHub's Actions API does:
 // what a `gh api` route asks, and GitHub's answer in its own field names from
-// what a test says GitHub holds in the observed fields `run` names
-// (`./watch-ci-test-fixtures.mjs`).
+// what a test says GitHub holds in observed run/job facts (`run` /
+// MakeMe `aCiRun` / `aGitHubJob`).
 import assert from "node:assert/strict";
 
 // What one `gh api` request asks of GitHub Actions, read from its route.
@@ -60,6 +60,7 @@ const present = (fields) =>
   );
 
 // A run as GitHub's API answers it, from the fields `run` names.
+// `workflowId` / `headRepository` carry ownership reuse inspects.
 export const apiRun = (observed) =>
   present({
     id: observed.databaseId,
@@ -73,10 +74,19 @@ export const apiRun = (observed) =>
     created_at: observed.createdAt,
     run_started_at: observed.startedAt,
     updated_at: observed.completedAt,
+    workflow_id: observed.workflowId,
+    head_repository: observed.headRepository,
   });
 
-export const apiJob = ({ databaseId, ...job }) =>
-  present({ id: databaseId, ...job });
+// Observed `databaseId` → API `id`, and observed `url` → API `html_url`.
+// Other fields pass through; do not leave an observed `url` as an API `url`.
+/** @param {{ databaseId?: number, url?: string, [key: string]: unknown }} observed */
+export const apiJob = ({ databaseId, url, ...job }) =>
+  present({
+    id: databaseId,
+    ...job,
+    ...(url === undefined ? {} : { html_url: url }),
+  });
 
 export const apiWorkflow = (file, name = "CI", id = 7001) => ({
   id,
