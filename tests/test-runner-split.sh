@@ -30,15 +30,27 @@ write_checks zeta delta mu alpha beta
 printf '# longest first\n2.0\t%s\n' "${checks}/mu.sh" > "${checks}/longest-first"
 
 # Runs the runner over the checks with OPEN_DOUGH_TEST_SPLIT set to the second
-# argument, or unset when it is empty, logging to <name>.log, recording the
-# checks that ran in <name>.record, and their times in <name>.times. It also
-# gives the runner a job count and a setting the runner does not know, neither
-# of which a check may inherit.
+# argument, or cleared when it is empty so an outer CI share cannot leak into
+# the nested runner. Also clears outer CI outcomes and deadline settings that
+# must stay with the outer runner (TIMES/DIR/JOBS are overridden below).
+# Logs to <name>.log, records the checks that ran in <name>.record, and their
+# times in <name>.times. It also gives the runner a job count and a setting
+# the runner does not know, neither of which a check may inherit.
 run_split() {
   local setting=()
   [[ -z $2 ]] || setting=("OPEN_DOUGH_TEST_SPLIT=$2")
   suite_status=0
-  env "${setting[@]}" SPLIT_RECORD="${temporary_dir}/$1.record" \
+  # -u options must precede name=value assignments; otherwise env treats -u as
+  # the utility. Empty split clears inherited SPLIT rather than leaving it.
+  # ${setting[@]+...} keeps set -u from treating an empty setting as unbound.
+  # shellcheck disable=SC2086 # intentional: empty setting must expand to nothing
+  env -u OPEN_DOUGH_TEST_SPLIT \
+    -u OPEN_DOUGH_TEST_OUTCOMES \
+    -u OPEN_DOUGH_TEST_DEADLINE_MS \
+    -u OPEN_DOUGH_NODE_DEADLINE_MS \
+    -u OPEN_DOUGH_SETUP_DEADLINE_MS \
+    ${setting[@]+"${setting[@]}"} \
+    SPLIT_RECORD="${temporary_dir}/$1.record" \
     OPEN_DOUGH_TEST_TIMES="${temporary_dir}/$1.times" OPEN_DOUGH_TEST_DIR="${checks}" \
     OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_ANYTHING=x \
     "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/$1.log" 2>&1 \
@@ -73,7 +85,8 @@ expect_share() {
   expect_names "${temporary_dir}/${name}.timed" "$@"
 }
 
-# Unset, every check runs once.
+# Unset (including when an outer OPEN_DOUGH_TEST_SPLIT is inherited), every
+# check runs once.
 expect_share all '' alpha.sh beta.sh delta.sh mu.sh zeta.sh
 
 # Dealt by predicted total from mu (2.0), then alpha, beta, delta, zeta (2.0

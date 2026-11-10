@@ -25,15 +25,18 @@ const makeAttempt = (
   minute,
   check = "test",
   context = "push",
-) => ({
-  sha,
-  runId: attemptId,
-  attemptId,
-  outcome,
-  check,
-  context,
-  time: `2026-11-05T09:${minute}:00Z`,
-});
+) =>
+  makeMe.aCiAdapterAttempt
+    .with({
+      sha,
+      runId: attemptId,
+      attemptId,
+      outcome,
+      check,
+      context,
+      time: `2026-11-05T09:${minute}:00Z`,
+    })
+    .please();
 
 async function chosenAttempt(attempts) {
   const response = JSON.stringify({ attempts });

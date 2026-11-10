@@ -155,7 +155,12 @@ export function judgePoll({
 }
 
 // B's record as the observer holds it before a poll judges it.
-export const accepted = (sha, state = "undiscovered") => ({ sha, state });
+/**
+ * @param {string} sha
+ * @param {import("../../../../tests/support/ciRevisionCoverageTestData.mjs").RevisionCoverageRecord["state"]} [state]
+ */
+export const accepted = (sha, state = "undiscovered") =>
+  makeMe.aRevisionCoverage.with({ sha, state }).please();
 
 export const unresolved = (considered, declared = policy) => ({
   state: "unresolved",

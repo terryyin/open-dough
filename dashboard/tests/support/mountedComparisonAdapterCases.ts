@@ -1,27 +1,10 @@
 // Adapter proof absence stays distinct from GitHub run wording.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import type { StoryCiComparisonSlot } from "../../src/storyCiComparison.ts";
 import { test, expect } from "./pageTest.ts";
 import { renderComparison } from "./comparisonRendering.ts";
 import { comparisonRenderFacts } from "./comparisonRenderFacts.ts";
-import { wallComparedFacts } from "./mountedComparisonFacts.ts";
+import { adapterSlot, wallComparedFacts } from "./mountedComparisonFacts.ts";
 import { expectExactSourceCue } from "./expectCiComparisonSourceCue.ts";
-
-function adapterSlot(
-  slot: Extract<StoryCiComparisonSlot, { kind: "build" }>,
-  attemptId: string,
-  ambiguous = false,
-) {
-  return {
-    ...slot,
-    runBranch: "main",
-    adapterAttempt: {
-      runId: "pipeline",
-      attemptId,
-      ...(ambiguous ? { ambiguous: true as const } : {}),
-    },
-  };
-}
 
 test("adapter proof size limit is named separately for every endpoint", async ({
   page,
@@ -31,9 +14,9 @@ test("adapter proof size limit is named separately for every endpoint", async ({
   const answer = makeMe.aStoryCiComparison
     .with({
       ...facts.answer,
-      baseline: adapterSlot(facts.answer.baseline, "1"),
-      branch: adapterSlot(facts.answer.branch, "2"),
-      landed: adapterSlot(facts.answer.landed, "3"),
+      baseline: adapterSlot(facts.answer.baseline, { attemptId: "1" }),
+      branch: adapterSlot(facts.answer.branch, { attemptId: "2" }),
+      landed: adapterSlot(facts.answer.landed, { attemptId: "3" }),
     })
     .please();
   const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, [
@@ -57,10 +40,16 @@ test("invalid adapter Baseline and ambiguous Branch and Landed retain their own 
   const answer = makeMe.aStoryCiComparison
     .with({
       ...facts.answer,
-      baseline: adapterSlot(facts.answer.baseline, "1"),
-      branch: adapterSlot(facts.answer.branch, "2", true),
+      baseline: adapterSlot(facts.answer.baseline, { attemptId: "1" }),
+      branch: adapterSlot(facts.answer.branch, {
+        attemptId: "2",
+        ambiguous: true,
+      }),
       landed: {
-        ...adapterSlot(facts.answer.landed, "2", true),
+        ...adapterSlot(facts.answer.landed, {
+          attemptId: "2",
+          ambiguous: true,
+        }),
         revision: "b".repeat(40),
       },
     })
@@ -93,13 +82,11 @@ test("adapter builds with no recorded wall time keep exact source words and hide
     explanation:
       "No build at aaaaaaa: no ancestor build was found to compare against.",
   };
-  const slot = {
-    ...facts.answer.branch,
-    startedAt: undefined,
-    completedAt: undefined,
-    runBranch: "main",
-    adapterAttempt: { runId: "landing", attemptId: "passed-retry" },
-  };
+  const slot = adapterSlot(
+    facts.answer.branch,
+    { runId: "landing", attemptId: "passed-retry" },
+    { startedAt: undefined, completedAt: undefined },
+  );
   const answer = makeMe.aStoryCiComparison
     .with({ ...facts.answer, baseline: gap, branch: slot, landed: slot })
     .please();

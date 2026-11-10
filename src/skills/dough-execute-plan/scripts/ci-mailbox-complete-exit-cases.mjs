@@ -4,14 +4,15 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   completeRevision,
   createMailbox,
   registerPushedRevision,
   workerLossReason,
 } from "./ci-mailbox.mjs";
-import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { stopMailbox } from "./ci-mailbox-complete.mjs";
+import { publishRevisionRecord } from "./ci-mailbox-revision-records.mjs";
 import {
   mailboxWithUnrelatedWorker,
   sha,
@@ -91,11 +92,16 @@ test("completion does not confirm shutdown for a worker whose liveness stays unk
     publishThenExitSource({ exitingCommand: "[node]", exitDelayMs: 2500 }),
   );
   registerPushedRevision(directory, sha);
-  publishJson(join(directory, "coverage"), `${sha}.json`, {
-    sha,
-    state: "success",
-    checkedBy: { runId: 1, attemptId: 1 },
-  });
+  publishRevisionRecord(
+    directory,
+    makeMe.aRevisionCoverage
+      .with({
+        sha,
+        state: "success",
+        checkedBy: { runId: 1, attemptId: 1 },
+      })
+      .please(),
+  );
 
   const result = await completeRevision(directory, sha, { storage });
   assert.equal(result.verdict, "success");

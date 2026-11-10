@@ -2,10 +2,12 @@
 // newer attempt is running, without an Actions read or a branch-head API
 // request for the comparison itself.
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { notLandedYetExplanation } from "../../src/storyCiComparison.ts";
 import { adapterProject, passed } from "../intentCiAdapterProofProject.ts";
+import { mainRun } from "../intentCiStoryRecords.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { selectTakenStoryForCiComparison } from "../support/selectTakenStoryForCiComparison.ts";
@@ -37,17 +39,27 @@ for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
     git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
     const tip = git(workspace, "rev-parse", "HEAD");
 
-    const ancestor = {
-      ...passed("pipeline", "complete", completed, branch),
-      time: "2026-11-05T10:06:30Z",
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:06:30Z",
-    };
-    const running = {
-      ...passed("pipeline", "still-running", tip, branch),
-      outcome: "pending",
-      time: "2026-11-05T10:10:00Z",
-    };
+    const ancestor = makeMe.aCiAdapterAttempt
+      .passed({
+        runId: "pipeline",
+        attemptId: "complete",
+        sha: completed,
+        branch,
+        url: mainRun,
+        startedAt: "2026-11-05T10:00:00Z",
+        completedAt: "2026-11-05T10:06:30Z",
+      })
+      .please();
+    const running = makeMe.aCiAdapterAttempt
+      .pending({
+        runId: "pipeline",
+        attemptId: "still-running",
+        sha: tip,
+        branch,
+        url: mainRun,
+        time: "2026-11-05T10:10:00Z",
+      })
+      .please();
     const baseline = passed("baseline", "before", setup.baseline, "main");
     const adapter = adapterProject(dashboard.home);
     const answer = (attempts: readonly unknown[]) => {
