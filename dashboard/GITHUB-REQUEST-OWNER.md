@@ -13,19 +13,29 @@ GitHub request, once per process and again when a `GH_` or `GITHUB_` setting or 
 change. A token variable and a stored login holding the same token therefore share one owner; two
 tokens of one GitHub account do not. The token names the owner's directory only through a secret of
 this user's, and is never written there or sent to the owner. An owner asks GitHub nothing of its
-own, accepts only `gh api` reads asked under its own host and login, and runs `gh` with the
+own, accepts fixed `gh api` reads and one explicit full-workflow-repeat operation under its own host and login, and runs `gh` with the
 environment of the process that started it. Owners of different hosts or logins share nothing: no
 turn, rate-limit wait, or outstanding request. Within one owner, GitHub's search and GraphQL
 allowances each have their own turns and wait, apart from every other route's; no dashboard or CI
 read uses either.
 
-After `gh auth switch`, a new login, or a changed token, a request still outstanding under the
+After `gh auth switch`, a new login, or a changed token, a read still outstanding under the
 earlier login is answered to nobody and asked again under the new one: one more request each. The
 earlier login's owner then asks GitHub nothing, and stays only while its rate-limit wait stands,
 which holds that login again if it returns. Otherwise an owner ends five seconds after its last
 dashboard or observer left, unless a rate limit's wait stands. While no owner can be reached or
 started -- or the one standing speaks another version's protocol -- each read fails without asking
 GitHub.
+
+The GitHub CI boundary can explicitly repeat a selected original run. The owner constructs only
+`POST repos/<repository>/actions/runs/<runId>/rerun`; generic read arguments still cannot mutate.
+Its welcome must advertise this capability before an action is sent. A legacy read-only owner
+continues serving reads and refuses the action before dispatch. Each action has its own finite
+bound and admission turn, without read caching or coalescing. It is never automatically resent
+after a changed login, lost connection, owner replacement, timeout or rate limit. GitHub's `201`
+confirms acceptance; a known provider rejection retains its HTTP status. A known pre-send local
+refusal is distinct from an unconfirmed submission; `408`, server errors and lost replies stay
+uncertain. This operation adds no workflow dispatch, failed-jobs rerun or generic adapter mutation.
 
 An unavailable owner names only its observed local cause: an endpoint that is not a directory,
 belongs to another user, is open to others, or has a path too long for a socket; failed startup or
@@ -52,10 +62,10 @@ nothing more and passes no answer on.
 Request-call and CI-mailbox owners share process-table readings and recognition of exited processes.
 Each retains its own identity checks, inspection-denial policy and rechecks before signaling; shared
 facts grant no new signaling authority. Endpoint connections own socket ownership, reachability,
-greeting and host/login scope. Wire encoding owns protocol framing, fixed-read validation and safe
+greeting, explicit action capability and host/login scope. Wire encoding owns protocol framing, fixed-read validation, narrow action construction and safe
 answer conversion.
 
-Pages and processes that need the same GitHub answer while it is outstanding share one `gh` request
+Pages and processes that need the same GitHub read answer while it is outstanding share one `gh` request
 for it, whatever was asked: two tabs opening one project together cost what one costs, resolving the
 ref once and reading each record once, and so do two dashboards, or five processes asking one
 question together: one request. Within one dashboard process, a settled branch-head listing also

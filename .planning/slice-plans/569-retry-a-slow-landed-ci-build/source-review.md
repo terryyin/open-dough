@@ -103,10 +103,10 @@ reviewer's temporary JSON output: `/tmp/seed285-source-review.json`.
 | C088 | Workflow publication remains with its existing owner. | slice 3 |  |
 | C089 | Story completion remains with its existing owner. | slice 3 |  |
 | C090 | CI's verdict remains with CI. | slice 3 |  |
-| C091 | Accepted Decision (Terry, 2026-11-10): deliver GitHub Actions full reruns first. | slice 2 |  |
+| C091 | Accepted Decision (Terry, 2026-11-10): deliver GitHub Actions full reruns first. | slice 2 | observed: ci-github-actions.mjs repeatGitHubWorkflow; ci-github-workflow-repeat.test.mjs exact full POST target and typed result; transport cases prove no resend, original GET and shared source/dashboard reads preserved |
 | C092 | Accepted Decision (Terry, 2026-11-10): other providers retain their existing reading behavior; deferred capabilities do not prohibit that reading. | slice 3 |  |
 | C093 | Accepted Decision (Terry, 2026-11-10): explain when automatic follow-up is unavailable for a provider. | slice 3 |  |
-| C094 | Accepted Decision (Terry, 2026-11-10): generic CI-adapter mutation is deferred; this increment adds no generic mutation contract, which would require its own agreed action contract. | slice 2 |  |
+| C094 | Accepted Decision (Terry, 2026-11-10): generic CI-adapter mutation is deferred; this increment adds no generic mutation contract, which would require its own agreed action contract. | slice 2 | observed: fixedWorkflowRerun is GitHub-only fixed operation; generic fixedRequest still rejects mutation; no CI adapter operation changed, existing lead/proof adapter consumers passed |
 | C095 | A confirmed skip can still reuse equivalent evidence. | slice 3 |  |
 | C096 | For equivalent-build reuse, resolution to a later trunk build, incomplete proof, or too few comparable samples, retain existing evidence and the reason without triggering this landing's repeat; browsing that evidence issues no repeat request. | slice 3 |  |
 | C097 | Do not replace uncertainty with an invented success. | slice 3 |  |

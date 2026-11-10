@@ -8,6 +8,8 @@ import {
   answerFromWire,
   printedAnswer,
   wireAnswer,
+  fixedRequest,
+  fixedOperation,
 } from "./github-request-owner-wire.mjs";
 
 const askedAt = "2026-01-01T00:00:00.000Z";
@@ -61,4 +63,52 @@ test("a failed archive answer is read as gh printed it, without bytes", () => {
   );
   assert.deepEqual(answer.failure, { kind: "http", status: 404 });
   assert.equal(answer.bodyEncoding, undefined);
+});
+
+test("the action wire constructs only one full-rerun POST while the generic request stays read-only", () => {
+  const bounds = {
+    scope: "fixture-scope",
+    boundMs: 1_000,
+    maxBufferBytes: 1024,
+  };
+  const action = {
+    ...bounds,
+    operation: "rerun-workflow",
+    repository: "owner/repo",
+    runId: 71,
+  };
+  const args = [
+    "api",
+    "--method",
+    "POST",
+    "repos/owner/repo/actions/runs/71/rerun",
+  ];
+  assert.deepEqual(fixedOperation(action), {
+    ...bounds,
+    operation: "rerun-workflow",
+    args,
+  });
+  assert.equal(fixedRequest(action), undefined);
+  assert.equal(fixedRequest({ ...bounds, args }), undefined);
+  assert.deepEqual(
+    fixedRequest({
+      ...bounds,
+      args: ["api", "repos/owner/repo/actions/runs/71"],
+    }),
+    {
+      ...bounds,
+      args: ["api", "repos/owner/repo/actions/runs/71"],
+    },
+  );
+  for (const forbidden of [
+    { ...action, operation: "rerun-failed-jobs" },
+    { ...action, operation: "dispatch" },
+    { ...action, args: ["api", "other/route"] },
+    { ...action, repository: "owner/repo/elsewhere" },
+    { ...action, repository: "owner/.." },
+    { ...action, repository: "../repo" },
+    { ...action, runId: -1 },
+    { ...action, boundMs: 0 },
+  ])
+    assert.equal(fixedOperation(forbidden), undefined);
 });

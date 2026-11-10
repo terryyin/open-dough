@@ -37,6 +37,31 @@ Implementation/refactor command owners retain terminal-result responsibility.
 Reconsider if contention, workload or a failure removes this basis. No real
 project enablement or production repeat is authorized or required.
 
+## Accepted execution increments
+
+Slice 1: accepted `8aeda2ade7baf09656cd6823e3031ebbf1a797ce` on
+`origin/refs/heads/codex/repeat-a-slow-landed-ci-build-once-and-flag-a-pe`,
+suffix base `85eb42227b7887104aa80b9be39ac0ab27b73d24`; no rewrite.
+Managed delivery reused this coordinator's observer and registered the exact
+accepted revision. This is now the previously published base and candidate.
+Formatter/commit hook checks passed. A separate mechanical staging stop caught
+and removed a trailing blank line in these coordinator notes before any commit.
+No default-checkout maintenance applies to story-branch publication.
+
+Owned CI repair 1: accepted `0fb7f02264c8956c1a7ea68f213ecf115d1a58df` on the
+same remote execution branch, suffix base `8aeda2ade7baf09656cd6823e3031ebbf1a797ce`, no rewrite; exact revision registered on the same observer.
+This is now the previously published base/candidate. Failed run42800107133/1
+has complete inventory: two native identity failures, both repaired and proved
+in [CI repair evidence](ci-repair-1.md). The installed stash restore returned
+`resumed` for record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-BBQYaF/record.json`, OID `fbf12d01c6a061c0a2e5f715dc4896a07dc3b725`, applied/dropped only that entry. Root metadata returned intact; slice2 explicitly resumed.
+
+Owned CI repair 2: accepted `ca51aa4393535ff5d7131a996a381068f37ec7d7` on the
+same remote execution branch, suffix base `0fb7f02264c8956c1a7ea68f213ecf115d1a58df`, no rewrite; exact revision registered on the same observer.
+This is now the previously published base/candidate. Failed run42802352676/1
+has complete inventory: one retained-reader port failure, repaired/proved in
+[CI repair 2](ci-repair-2.md). Installed stash restore returned `resumed` for
+record `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-MROJ7o/record.json`, OID `395b5a9f0681e2fab19dcf366067d2f4c5b2de2c`, applied/dropped only that entry. All sixteen slice2 files and root metadata returned; same implementation owner explicitly resumed at its pending transport/parser proof. No code overlap invalidated core gate20080.
+
 ## Dashboard completion context
 
 Launch `e290a475-370f-4591-a82e-63baec73b213`, project open-dough, host codex.
@@ -134,3 +159,21 @@ not an unobserved statistical premise required by this deterministic rule.
 Record readiness through the installed backlog recorder after reviewing this
 plan and source. Readiness neither satisfies the supplier dependency nor
 authorizes execution, project enablement or a production rerun.
+
+## Follow-up foundation reuse after slice 2
+
+PFE responsibility: arrange new follow-up/attempt/proof facts through this
+project's single MakeMe entry and use machine JSON's existing atomic ownership.
+Published trunk `b26709dafe4a51e801ce1a4f34019d7ebeb6fbe3` supplies the accepted
+SEED-261 GitHub CI test-data conversion: `ciRunTestData.mjs` owns observed/run
+facts and API projection, `ciMakeMe.mjs`/`launchMakeMe.mjs` expose descriptor
+getters, and `makeMe.mjs` aggregates them with fresh-builder semantics. Existing
+local MakeMe is244lines; reuse the published CI facet before adding follow-up
+builders instead of inventing a second split or raw CI construction path.
+The accepted machine JSON lock exit correction at8756dd712 makes ownership
+publication/removal synchronous and preserves existing write/read boundaries.
+It belongs to the same persistence owner that the durable allowance extends.
+Choice: at the clean post-slice2 boundary reconcile accepted trunk into this
+owned story branch while preserving published histories, then reverify only
+affected combined fixture/timing/action/storage paths before slice3. No story
+scope, user promise, ADR or source-of-truth change is authorized by this reuse.

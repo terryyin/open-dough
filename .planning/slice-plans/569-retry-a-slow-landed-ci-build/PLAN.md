@@ -102,7 +102,8 @@ This slice is useful on its own and enables a meaningful repeat decision.
 ### 2. Expose one narrow full-workflow repeat capability
 
 Type: Structure
-Status: planned
+Status: done
+Acceptance: [Inspected slice 2 proof](slice-2-proof.md).
 Proof: Focused action-owner/transport contract through the real synthetic
 `gh` boundary, with existing read-owner behavior preserved.
 
