@@ -1,5 +1,5 @@
-// What the preparation start command reported. This module is the only reader
-// of `preparation-assignment.mjs start`'s one-line JSON result
+// What the preparation start or continue command reported. This module is the
+// only reader of `preparation-assignment.mjs`'s one-line JSON result
 // (`readPreparationResult`); `./preparationStart.ts` runs the command.
 
 import { z } from "zod";
@@ -31,7 +31,11 @@ export type PreparationResult =
       readonly occupied?: readonly string[];
       readonly unannounced?: true;
     }
-  | { readonly kind: "unreadable" };
+  | {
+      readonly kind: "unreadable";
+      // Printed failure text when the command wrote one and no JSON result.
+      readonly failure?: string;
+    };
 
 const establishedSchema = z.looseObject({
   ok: z.literal(true),
@@ -60,14 +64,25 @@ const stoppedSchema = z.looseObject({
     .catch(undefined),
 });
 
+function unreadableResult(printedFailure?: string): PreparationResult {
+  const failure = printedFailure?.trim();
+  return failure === undefined || failure === ""
+    ? { kind: "unreadable" }
+    : { kind: "unreadable", failure };
+}
+
 // The command's stdout, as the typed result; output without JSON, or with
-// JSON of another shape, is unreadable.
-export function readPreparationResult(stdout: string): PreparationResult {
+// JSON of another shape, is unreadable. Optional printed failure text (stderr)
+// rides only on that unreadable case when present.
+export function readPreparationResult(
+  stdout: string,
+  printedFailure?: string,
+): PreparationResult {
   let parsed: unknown;
   try {
     parsed = JSON.parse(stdout.trim().split("\n").at(-1) ?? "");
   } catch {
-    return { kind: "unreadable" };
+    return unreadableResult(printedFailure);
   }
   const established = establishedSchema.safeParse(parsed);
   if (established.success) {
@@ -89,7 +104,7 @@ export function readPreparationResult(stdout: string): PreparationResult {
     };
   }
   const stopped = stoppedSchema.safeParse(parsed);
-  if (!stopped.success) return { kind: "unreadable" };
+  if (!stopped.success) return unreadableResult(printedFailure);
   const { status, error, occupied, unannounced } = stopped.data;
   const agents = (occupied ?? []).flatMap(({ agent }) =>
     agent === undefined ? [] : [agent],
@@ -163,6 +178,17 @@ export function preparationRefusal(
       ? ` Workspace ${kept.workspace} on branch ${kept.branch}. ${keptStartWords}`
       : "";
   return `${reason}${leftBehind}${where} Nothing was launched.`;
+}
+
+// Detail for a failed continuation: a structured stop's error, an unreadable
+// command's printed failure, or the generic empty-text fallback.
+export function continuationDetail(
+  result: Exclude<PreparationResult, { kind: "established" | "prepared" }>,
+): string {
+  const printed = result.kind === "stopped" ? result.error : result.failure;
+  return printed
+    ? `${printed.replace(/[.]$/, "")}.`
+    : "The installed command could not verify continuation.";
 }
 
 // Why a retained preparation cannot safely continue; assignment reconciliation

@@ -3,6 +3,7 @@
 **Identity:** SEED-292#show-an-unreadable-preparation-continuation
 
 **Source:** [Refined story](../../seeds/SEED-292-report-launch-failure-causes.md#show-an-unreadable-preparation-continuation)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -83,15 +84,16 @@ preserve execution start's current unreadable/refusal behavior. Unit readers in
 `continuationRefusal` contract updates when the unreadable kind gains optional
 failure text.
 
-## Slice
+## Slices
 
 ### 1. Show the continue command's printed failure on an unreadable continuation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: all rows of the outside-in table; focused unit coverage for unreadable
 result carrying failure text and `continuationRefusal` wrapping it; preserve
 structured-stop and empty-text fallback.
+Accepted: PATH="/opt/homebrew/bin:$PATH" caffeinate -i npm run test:dashboard -- backend-tests/launches/agent-launch-preparation-resume.spec.ts backend-tests/launches/agent-launch-preparation-continuation-refusal.spec.ts backend-tests/launches/preparation-start-result.spec.ts --workers=1 (12 passed). Observations: continuation-refusal printed-failure journey names failure + safety and excludes generic; interrupted-precommit resume keeps structured ownership error + safety; unit carries unreadable.failure and empty-text fallback. typecheck:dashboard pass. Consumer-trace: preparationCommand run; executionStart reused stdout-only.
 
 Behavior: Given a kept preparation start, when Intent continues and
 `preparation-assignment.mjs continue` exits without readable JSON after printing

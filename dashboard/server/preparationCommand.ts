@@ -66,16 +66,16 @@ export async function runPreparationCommand(
             : ["--expected-allocation", assigned.publishedSha]),
         ]),
   ];
-  const stdout = await runStartCommand(
+  const output = await runStartCommand(
     installedSkillPath(host, project, refinementSkill, "scripts", startScript),
     args,
     project,
     operation,
     noteWorker,
   );
-  return stdout === undefined
+  return output === undefined
     ? { kind: "unreadable" }
-    : readPreparationResult(stdout);
+    : readPreparationResult(output.stdout, output.stderr);
 }
 
 // Whether the project's installed skill can establish a preparation: it ships

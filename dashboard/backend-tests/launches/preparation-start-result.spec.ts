@@ -1,9 +1,12 @@
 // The one reader of `preparation-assignment.mjs start`'s JSON result
 // (../../server/preparationResult.ts `readPreparationResult`) and the one table
-// that words a stop (`preparationRefusal`).
+// that words a stop (`preparationRefusal`). Continuation detail and refusal
+// wrapping for unreadable printed failures live here too.
 
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
+  continuationDetail,
+  continuationRefusal,
   preparationRefusal,
   readPreparationResult,
 } from "../../server/preparationResult.ts";
@@ -55,6 +58,66 @@ test("reads output that is not a result as unreadable", () => {
   for (const stdout of ["", "usage: x", "{}", '{"ok":true}']) {
     expect(readPreparationResult(stdout)).toEqual({ kind: "unreadable" });
   }
+});
+
+test("carries printed failure text only on an unreadable result", () => {
+  expect(readPreparationResult("", "ownership probe exploded\n")).toEqual({
+    kind: "unreadable",
+    failure: "ownership probe exploded",
+  });
+  expect(readPreparationResult("usage: x", "   ")).toEqual({
+    kind: "unreadable",
+  });
+  expect(
+    readPreparationResult(
+      JSON.stringify({
+        ok: false,
+        status: "continuation-refused",
+        error: "structured stop",
+      }),
+      "ignored stderr when JSON is readable",
+    ),
+  ).toEqual({
+    kind: "stopped",
+    status: "continuation-refused",
+    error: "structured stop",
+  });
+});
+
+test("continuation detail prefers printed failure or stop error over the generic sentence", () => {
+  expect(
+    continuationDetail({
+      kind: "unreadable",
+      failure: "ownership probe exploded",
+    }),
+  ).toBe("ownership probe exploded.");
+  expect(
+    continuationDetail({
+      kind: "stopped",
+      status: "continuation-refused",
+      error:
+        "the retained preparation's exact local allocation and published ownership could not be verified; no announcement was made",
+    }),
+  ).toBe(
+    "the retained preparation's exact local allocation and published ownership could not be verified; no announcement was made.",
+  );
+  expect(continuationDetail({ kind: "unreadable" })).toBe(
+    "The installed command could not verify continuation.",
+  );
+  const explanation = continuationRefusal(
+    continuationDetail({
+      kind: "unreadable",
+      failure: "ownership probe exploded",
+    }),
+    undefined,
+    "~/git/open-dough/.worktrees/prepare-the-queued-start",
+    "claude/prepare-the-queued-start",
+  ).explanation;
+  expect(explanation).toContain("ownership probe exploded.");
+  expect(explanation).toContain("assignment ownership remains unverified");
+  expect(explanation).not.toContain(
+    "The installed command could not verify continuation.",
+  );
 });
 
 test("words every stop status the start command reports", () => {

@@ -65,17 +65,18 @@ export async function runStartScript(
   host: StoryLaunchRequest["host"],
   noteWorker: (pid: number) => Promise<void>,
 ): Promise<StartResult> {
-  const stdout = await runStartCommand(
+  const output = await runStartCommand(
     executePlanScript(project, host, startScript),
     args,
     project,
     "start",
     noteWorker,
   );
-  // A command that could not run leaves no result to read.
-  return stdout === undefined
+  // A command that could not run leaves no result to read. Execution start
+  // still reads stdout only; stderr is not part of its refusal wording.
+  return output === undefined
     ? { kind: "unreadable" }
-    : readStartResult(stdout);
+    : readStartResult(output.stdout);
 }
 
 // Whether the project's installed skill can continue from a start: it ships

@@ -153,25 +153,36 @@ export function publisherId(source: PublishedSource): string {
     .replace(/[^a-z0-9.-]+/g, "-")}-${source.id}`;
 }
 
-// The command's stdout once it ends, or undefined for one that could not run.
+// The command's captured stdout and stderr once it ends, or undefined for one
+// that could not run. Callers choose which stream their result reader uses.
+export type StartCommandOutput = {
+  readonly stdout: string;
+  readonly stderr: string;
+};
+
 export function runStartCommand(
   script: string,
   args: readonly string[],
   project: ProjectFolder,
   operation: "start" | "continue" = "start",
   noteWorker: (pid: number) => Promise<void> = async () => {},
-): Promise<string | undefined> {
+): Promise<StartCommandOutput | undefined> {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, [script, operation, ...args], {
       cwd: project.path,
-      stdio: ["ignore", "pipe", "ignore"],
+      stdio: ["ignore", "pipe", "pipe"],
     });
     const noted =
       child.pid === undefined ? Promise.resolve() : noteWorker(child.pid);
     let stdout = "";
+    let stderr = "";
     child.stdout.setEncoding("utf8");
     child.stdout.on("data", (chunk: string) => {
       stdout += chunk;
+    });
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", (chunk: string) => {
+      stderr += chunk;
     });
     child.on("error", () => {
       void noted.then(() => {
@@ -180,7 +191,7 @@ export function runStartCommand(
     });
     child.on("close", () => {
       void noted.then(() => {
-        resolve(stdout);
+        resolve({ stdout, stderr });
       });
     });
   });
