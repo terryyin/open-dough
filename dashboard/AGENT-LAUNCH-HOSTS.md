@@ -16,7 +16,7 @@ workspace trust for a fresh isolated worktree. Opening its terminal shows the he
 there before the first instruction can be delivered. The instruction is written into that client when its
 server-side screen shows the text `Add a follow-up` or `Plan, search, build anything`, even when the terminal
 cursor is hidden and no synchronized-update frame has arrived. A long or multiline instruction that Cursor shows
-as a paste chip is submitted with a later Enter, and the record says the first input was accepted only then. A
+as a paste chip, or as that text still sitting in the composer, is submitted with a later Enter, and the record says the first input was accepted only then. A
 screen that is not ready does not receive the instruction, the record stays uncertain, and the developer can
 still type. When that same client later becomes ready, it receives the instruction. The client exiting does not
 accept the instruction. Continue of that unconfirmed launch starts no other conversation while the runner still
