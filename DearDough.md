@@ -10,6 +10,7 @@ retain local facets. The full source before this compaction is
 - Highest allocated local number: 488. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
+- Recovery: `e155eb11b71a410f93793a889b3c713aa9691272:DearDough.md` preserves the ODF-074 SEED-286 analyzer-endpoint occurrence pruned during SEED-298 integration; current required-preview/CI repair evidence was retained over this already-corrected observation that caused no additional test run.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -27,16 +28,6 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 
 Former local code: DD-450. Former local code: DD-470 (plan 533 only). Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
-
-### Occurrences
-
-- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: `6a6392eddcc15044413ce9c663bac9e72f2926f6:.planning/slice-plans/556-fast-intent-ci-comparison-tests/client-owner-evidence.md`, Final local family and corrected cleanup accounting; raw `analyze-slice8-local.py:155` and `slice8-final-ordinary-independent-audit.md` under `/tmp/seed286-execution-20261109/`.
-  - Observed effect: The temporary analyzer described onTestEnd receipt as after final worker cleanup, and the coordinator initially accepted/reported it. Source inspection found final trace stop, then testEnd emission, then output-directory removal. Existing following-worker-start data supplied complete bounds of 3–182ms ordinary and 3–263ms loaded; no additional test run was needed. Maintained measurement guidance was corrected before closure.
-  - Inference: This is a measurement-boundary facet of an unverified consuming-operation premise. Existing premise guidance already applied; no instruction required the mistaken endpoint assumption, and no extra test-run cost is attributed to it.
 
 ## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
 
@@ -149,6 +140,13 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Slice 1 published shared `githubCiRunFacts` / `aCiRun` / `aRevisionCiRun` construction (`d9b19d637`) while plan required shared-seam callers stay compatible and traced even when conversion was later. Accepted slice-1 focused proof named status/nearest/proof selections, not `backend-tests/intent/ci-comparison-taken.spec.ts`. Hosted run 42781560636 job dashboard (7/12) failed that spec at line 106 (`startedAt` expected `2026-11-09T00:00:00Z`, received `2026-11-09T00:00:00.000Z`). Slice 2 `eb4e66109` aligned `createdAt`↔`startedAt` in `githubCiRunFacts` before a dedicated repair commit; coordinator later proved the case green at HEAD. Same run's production-watcher timeout is separate SEED-287 ownership, not this row.
   - Observed effect: one owned CI failure on the slice-1 SHA from an unconverted comparison consumer of the shared run builder; no separate repair commit was required after slice 2 landed the alignment.
   - Inference: Matches ODF-150 — changing the shared MakeMe run construction reaches comparison `aRevisionCiRun` / taken-attempt consumers immediately; deferring their conversion does not defer their compatibility proof. Distinct from the production-watcher timeout on the same run and from ODF-225 stash invalidation (later OO4F1m stash parked unfinished slice 5 with no invalidated still-running proof).
+
+- Execution: SEED-298#insert-common-prompts-in-the-dashboard-terminal (plan 574; first implementation `0e258a2f7441b8a253f54860f0b9e56ed56a984d`)
+  - Timestamp: unknown
+  - Tool: Codex
+  - Open Dough release: 0.3.94
+  - Evidence: Original delivery added two dashboard specs without the pre-push shard preview required by `dashboard/tests/shards.md`. Final trunk CI run 42807295291, shard 4, hit its suite deadline after 371 passed tests; three cases never started. The maintained preview revealed 102 unrecorded specs. An unpublished refresh candidate used passing main run 42803799326; publication then found `f06b46597` had refreshed from a failed partial source. Reconciliation preserves its product changes and refreshes all 960 current specs from all twelve artifacts of its successful main run 42808747192, with exact-once selection. The two new specs were on shards 8/9, so they are not attributed as the direct failure cause.
+  - Observed effect: one owned CI failure and a reconciled timing-record repair before closure; focused terminal proof missed the suite-discovery/allocation consumer. Shard 4 also had a broad 1.740 median slowdown; neither infrastructure nor the refresh as its sole cause was claimed. Final hosted margin remained a required CI gate before closure.
 
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 
