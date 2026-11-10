@@ -52,7 +52,7 @@ Behavior: A case that previously asserted while async work was settling → wait
 
 ### 3. Watcher failure keeps one live deployment; restart owns SIGHUP
 Type: Behavior
-Status: planned
+Status: done
 Proof: Whole failure/restart/updates family passes; actual ignored-SIGHUP and stale-restart faults are detected before the standalone C activation is removed. Retain origin recovery on the same C PID/page, both fatal-preview outcomes/cleanup, active-build SIGTERM, current-main restart, same runner/client/input, and final SIGINT. Compatible proof and parked code are retained in [watcher evidence](watcher-evidence.md). The measured cost target remains owned by slice 4/G9.
 
 Behavior: Existing failure/restart chains repeat C activation → continue origin recovery into failed candidate/restoration on the same live C, and relocate SIGHUP to the existing restart → all distinct lifecycle promises remain while one real install/build/start is removed. No claim that consolidation alone earns the 10 s saving.

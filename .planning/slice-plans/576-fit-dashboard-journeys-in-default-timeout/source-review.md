@@ -24,29 +24,29 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | C11 | The watcher family becomes at least 10 s faster in median elapsed time. |  | G9 |
 | C12 | The comparable local dashboard suite stays within its previous elapsed time. | slice 12 |  |
 | C13 | The slowest hosted shard stays within its previous elapsed time. | slice 12 |  |
-| C14 | The failure watcher journey uses one real deployment. | slice 3 |  |
-| C15 | An unavailable origin leaves C serving. | slice 3 |  |
-| C16 | Checks resume after the origin returns. | slice 3 |  |
-| C17 | Failed-candidate proof continues on that same live deployment. | slice 3 |  |
-| C18 | Failed-restoration proof continues on that same live deployment. | slice 3 |  |
-| C19 | The real SIGHUP moves to the existing restart journey. | slice 3 |  |
-| C20 | Its quiet-exit assertions move to that restart journey. | slice 3 |  |
-| C21 | Its cleanup assertions move to that restart journey. | slice 3 |  |
-| C22 | The restart journey restarts from current main. | slice 3 |  |
-| C23 | It serves the expected page. | slice 3 |  |
-| C24 | It preserves the same runner. | slice 3 |  |
-| C25 | It preserves the same client. | slice 3 |  |
-| C26 | It accepts input after restart. | slice 3 |  |
-| C27 | The active-build SIGTERM proof remains. | slice 3 |  |
-| C28 | The final SIGINT proof remains. | slice 3 |  |
-| C29 | Both distinct fatal-preview outcomes remain proved. | slice 3 |  |
-| C30 | Their cleanup remains proved. | slice 3 |  |
-| C31 | The relocated check detects a watcher ignoring SIGHUP. | slice 3 |  |
-| C32 | The restart check detects reuse of the previously served revision. | slice 3 |  |
-| C33 | The standalone C-reactivation journey is deleted after the required surviving proof is established. | slice 3 |  |
-| C34 | Its real install is removed. | slice 3 |  |
-| C35 | Its real build is removed. | slice 3 |  |
-| C36 | Its real start is removed. | slice 3 |  |
+| C14 | The failure watcher journey uses one real deployment. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable/recovered origin checks retain the original served C PID/page; no watcher/served reassignment before D failure. Three whole-family after runs passed31/31. |
+| C15 | An unavailable origin leaves C serving. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable origin emits ls-remote failure, exact Keeping C/address, and expectStillServing checks real C PID plus WORKING C page. |
+| C16 | Checks resume after the origin returns. | slice 3 | observed: production-watcher-failures.spec.ts: restore the same origin path, observe watcher.checks increase, reobserve live C, then actual D publication is read and attempted. |
+| C17 | Failed-candidate proof continues on that same live deployment. | slice 3 | observed: production-watcher-failures.spec.ts: after recovered-origin live C, publish D on the same watcher; appended output names actual D failure and absence of D activation. |
+| C18 | Failed-restoration proof continues on that same live deployment. | slice 3 | observed: production-watcher-failures.spec.ts: same live-C chain faults D and C restoration, observes restoring exact servedCommit also failed, exact2 fresh causes, exit1 and cleanup. |
+| C19 | The real SIGHUP moves to the existing restart journey. | slice 3 | observed: production-watcher.spec.ts: existing stop case sends watcher.signal(SIGHUP), then awaits natural watcher.exited before stop. |
+| C20 | Its quiet-exit assertions move to that restart journey. | slice 3 | observed: production-watcher.spec.ts: natural SIGHUP exit requires no Production dashboard could not run message before group retirement. |
+| C21 | Its cleanup assertions move to that restart journey. | slice 3 | observed: production-watcher.spec.ts: SIGHUP case retains expectProductionEnded: served PID dead, HTTP unavailable and deployment directory empty. |
+| C22 | The restart journey restarts from current main. | slice 3 | observed: production-watcher.spec.ts: restart publishes Document restart, productionActivation requires its exact current SHA; output excludes pinned/next and checkout list equals current. |
+| C23 | It serves the expected page. | slice 3 | observed: production-watcher.spec.ts: restarted page title NEXT MAIN and source marker PINNED SOURCE remain independently observed alongside current-revision checks. |
+| C24 | It preserves the same runner. | slice 3 | observed: production-watcher.spec.ts: runner count1, address PID equals original runner, original process group remains separate from new preview after restart. |
+| C25 | It preserves the same client. | slice 3 | observed: production-watcher.spec.ts: attaches length1 and attached PID equals the original real held client after replacement and restart. |
+| C26 | It accepts input after restart. | slice 3 | observed: production-watcher.spec.ts: follow the saved session on restarted URL, send after-restart, observe it in cursor.input(original client PID). |
+| C27 | The active-build SIGTERM proof remains. | slice 3 | observed: productionUpdateJourney.ts: productionUpdateShutdown holds the actual next build by ordinal, observes its real PID, sends stop/SIGTERM and checks build/preview/deployment cleanup plus unchanged records/configuration; selected in every whole-family pass. |
+| C28 | The final SIGINT proof remains. | slice 3 | observed: production-watcher.spec.ts: final restart case signals SIGINT, awaits exited, checks quiet output and expectProductionEnded. |
+| C29 | Both distinct fatal-preview outcomes remain proved. | slice 3 | observed: production-watcher-failures.spec.ts: failed D plus failed C restoration reports both exact causes/exit1; subsequent unexpected-preview SIGKILL reports its distinct fatal message/exit1. |
+| C30 | Their cleanup remains proved. | slice 3 | observed: production-watcher-failures.spec.ts: both fatal-preview tests invoke expectProductionEnded for dead preview, unavailable HTTP and empty deployment directories. |
+| C31 | The relocated check detects a watcher ignoring SIGHUP. | slice 3 | observed: Actual scratch no-op SIGHUP handler held natural exited for full30s; raw trace shows first case expectation only after post-timeout scratch SIGTERM. Root inspected ignored-hup-test.trace.json and interpretation at /tmp/seed287-watcher-20261110. |
+| C32 | The restart check detects reuse of the previously served revision. | slice 3 | observed: Actual scratch resolvePublishedMain returned Document restart parent; original exact-current productionActivation rejected the actually served prior revision. Patch/log/trace retained under /tmp/seed287-watcher-20261110/stale-restart-artifacts. |
+| C33 | The standalone C-reactivation journey is deleted after the required surviving proof is established. | slice 3 | observed: production-watcher-failures.spec.ts: standalone post-hangup C-reactivation test deleted after relocated positive7/7 and both actual runtime faults; three whole-family after runs passed31 rather than32 cases. |
+| C34 | Its real install is removed. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone startProductionWatcher/shownActivation for C, eliminating its real npm install while retaining original retry/restoration activations. |
+| C35 | Its real build is removed. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone C activation eliminates its real Vite build; no prebuilt or substitute deployment added. |
+| C36 | Its real start is removed. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone C activation eliminates its repeated real preview start; live C continues into D restoration failure. |
 | C37 | One full retired-closure journey remains. | slice 5 |  |
 | C38 | That journey proves real Git worktree retirement. | slice 5 |  |
 | C39 | It proves installed reporting retry. | slice 5 |  |
@@ -97,7 +97,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | Q02 | The hosted comparison includes a shard about 1.5× slower overall. | slice 12 |  |
 | Q03 | Watcher-family elapsed time includes moved work. | slice 4 |  |
 | Q04 | Allowance removal is conditional on that particular case fitting the default with margin. | slice 12 |  |
-| Q05 | Standalone C reactivation is deleted only after the preceding preservation and detection obligations are satisfied. | slice 3 |  |
+| Q05 | Standalone C reactivation is deleted only after the preceding preservation and detection obligations are satisfied. | slice 3 | observed: Relocated restart positive7/7 and actual ignored-HUP/stale-revision fault probes completed before deletion; root inspected setup and trace chronology. Exact parked/restored bytes and complete after-family passes retained in watcher-evidence.md. |
 | Q06 | Story Branch Wrap Up reuse is conditional on its ability to carry the required closure proof. | slice 5 |  |
 | Q07 | Recovery variants belong at the existing real CLI, HTTP, and store boundary; the source does not require every variant independently at all three boundaries. | slice 5 |  |
 | Q08 | Exact-count preservation applies where avoiding duplicate work is the behavioral promise. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts duplicate-avoidance exact counts unchanged and passed three times; execution-evidence.md |
@@ -118,7 +118,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | J09 | `production-deployment`. | slice 12 |  |
 | J10 | `agent-completion-recovery`. | slice 12 |  |
 | J11 | Watcher-family first-in-worker `beforeAll`. | slice 12 |  |
-| J12 | Watcher restart paths. | slice 3 |  |
+| J12 | Watcher restart paths. | slice 3 | observed: production-watcher.spec.ts: complete real current-main restart with unchanged runner/client, actual post-restart input and final SIGINT/cleanup passed in all3 changed-family selections. |
 | J13 | Watcher policy-repair paths. | slice 12 |  |
 | J14 | Retired closure. | slice 5 |  |
 | J15 | `story-review-completed`. | slice 12 |  |
@@ -131,9 +131,9 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | J22 | The agent-completion-recovery allowance is removed after it fits. | slice 12 |  |
 | J23 | The temporary watcher policy-repair allowance on main is removed after it fits. | slice 12 |  |
 | J24 | The temporary retired-closure allowance on main is removed after it fits. | slice 12 |  |
-| J25 | The watcher example proceeds from origin unavailability, through origin recovery, into failed candidate and failed restoration on one deployment. | slice 3 |  |
-| J26 | The restart example detects ignored SIGHUP. | slice 3 |  |
-| J27 | The restart example detects reuse of the previously served revision. | slice 3 |  |
+| J25 | The watcher example proceeds from origin unavailability, through origin recovery, into failed candidate and failed restoration on one deployment. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable origin keeps actual C alive; restored origin resumes checks and same-C serving; D candidate/restoration then fails with exact2 new causes on that watcher. |
+| J26 | The restart example detects ignored SIGHUP. | slice 3 | observed: Actual ignored-SIGHUP runtime fault blocks natural exit until the default case deadline; teardown continuation is distinguished by raw trace timing. See C31 and watcher-evidence.md. |
+| J27 | The restart example detects reuse of the previously served revision. | slice 3 | observed: Actual old-parent restart runtime fault serves a different SHA and fails exact current activation. See C32 and watcher-evidence.md. |
 | J28 | The retained closure example combines real retirement, reporting retry without repeated Git/native work, and visible Done. | slice 5 |  |
 | J29 | The history example waits for persistence before comparing reads. | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-history-lifecycle.spec.ts retainedHistory proof waits precede expectCollectedScopePoints; three focused passes in execution-evidence.md |
 | J30 | The revisit example waits for first-request completion before counting. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts trunk proof finishes before baseline count and revisit judgment before no-new-proof count; execution-evidence.md |

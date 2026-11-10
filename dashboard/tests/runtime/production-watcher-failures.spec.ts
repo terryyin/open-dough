@@ -1,8 +1,9 @@
 // Published fault gates leave real npm/Vite build and serving intact. On one
 // build chain, a failed build and a failed preview start keep or restore
 // working production and the same commit is retried; an unavailable origin
-// keeps production and checks resume; SIGHUP, a failed restoration and an
-// unexpectedly ended preview each end the watcher with cleanup. Each test
+// keeps production and checks resume on that same live C deployment. Failed
+// restoration and an unexpectedly ended preview each end it with cleanup.
+// SIGHUP and reactivation belong to production-watcher.spec.ts. Each test
 // steps the shared watcher to its next state from the watcher's own output
 // and asserts that delta, staging at most one deployment of its own; after a
 // scenario ends the watcher, a restart at current main serves the next.
@@ -165,9 +166,7 @@ test("after a failed preview start the same commit is retried until it serves", 
   servedCommit = latestCommit;
 });
 
-test("an unavailable origin keeps production and checks resume when it returns; SIGHUP ends the watcher without a failure", async ({
-  request,
-}) => {
+test("an unavailable origin keeps production and checks resume when it returns", async () => {
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture, page } = started();
   await rename(fixture.origin, `${fixture.origin}.unavailable`);
@@ -181,21 +180,7 @@ test("an unavailable origin keeps production and checks resume when it returns; 
   await rename(`${fixture.origin}.unavailable`, fixture.origin);
   const checks = watcher.checks();
   await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks);
-  watcher.signal("SIGHUP");
-  // The watcher stops without a failure. npm's own exit for a hung-up
-  // group differs by npm version (the signal, or code 1), so it is not
-  // what this checks.
-  await watcher.exited;
-  expect(watcher.output()).not.toContain("Production dashboard could not run");
-  await watcher.stop();
-  await expectProductionEnded(request, served, fixture.home);
-  watcher = undefined;
-});
-
-test("a watcher started after a hang-up serves current main again", async () => {
-  const { fixture, page } = started();
-  watcher = startProductionWatcher(fixture.development, fixture.env);
-  served = await shownActivation(watcher, latestCommit, page, "WORKING C");
+  await expectStillServing(served, page, "WORKING C");
 });
 
 test("a failed candidate whose restoration also fails reports both causes, exits and cleans up", async ({
@@ -203,6 +188,7 @@ test("a failed candidate whose restoration also fails reports both causes, exits
 }) => {
   if (watcher === undefined) throw new Error("No watcher");
   const { fixture } = started();
+  const beforeUpdate = watcher.output().length;
   // D's own preview gate and the served commit's (which reads its own
   // cause) both fail.
   await writeFile(faultCause(fixture.home, "preview"), "start cause");
@@ -216,14 +202,13 @@ test("a failed candidate whose restoration also fails reports both causes, exits
   );
   expect((await watcher.exited).code).toBe(1);
   await watcher.stop();
-  expect(watcher.output()).toContain(
+  const failure = watcher.output().slice(beforeUpdate);
+  expect(failure).toContain(
     `Production dashboard could not run: ${d} failed: `,
   );
-  expect(watcher.output()).toContain(
-    `; restoring ${servedCommit} also failed: `,
-  );
-  expect(watcher.output().match(/TRANSIENT preview FAILURE/g)).toHaveLength(2);
-  expect(watcher.output()).not.toContain(`Production dashboard ${d} at`);
+  expect(failure).toContain(`; restoring ${servedCommit} also failed: `);
+  expect(failure.match(/TRANSIENT preview FAILURE/g)).toHaveLength(2);
+  expect(failure).not.toContain(`Production dashboard ${d} at`);
   await expectProductionEnded(request, served, fixture.home);
   watcher = undefined;
   latestCommit = d;

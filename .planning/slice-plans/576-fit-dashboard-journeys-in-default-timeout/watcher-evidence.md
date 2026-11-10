@@ -7,9 +7,10 @@ The sizing assumption that removing one activation alone earns10s was false.
 
 Two implementation paths are safely parked, not discarded:
 `/tmp/seed287-watcher-20261110/parked-compatible/manifest.json` and changes.patch.
-They are compatible completed behavior work for refined slice3; restore exact
-manifest hashes after the refined plan is published. No unowned file changed.
-Current tree has original code while this refinement is published. Taken,
+They are compatible completed behavior work for refined slice3. After refined
+plan publication `a041ca86ef1f510c4e0e8c81999c9e1edf95388d`, root restored the
+exact manifest hashes; unchanged proof was reused. No unowned file changed.
+The records-only refinement was published with code safely parked. Taken,
 identity, branch, accepted delivery and observer remain the same.
 
 The two specs keep C alive through unavailable/recovered origin and D's failed
@@ -54,3 +55,6 @@ with its corrected normal npm-ci setup; it is not counted as fault detection.
 Refined3 owns preservation/deletion (compatible code/proof);4/G9 owns the10s
 cost target and all moved-work accounting. Final12 retains pressure/hosted,
 allowance and suite/shard gates, including trunk's90s restart allowance (G8).
+
+Independent `watcher_refactor` returned none—already clean, with the required
+REFACTOR COMPLETE marker, no edits/tests and all accepted proof unchanged.

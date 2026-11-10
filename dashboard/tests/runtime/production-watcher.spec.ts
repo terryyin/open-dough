@@ -135,11 +135,16 @@ test("the next published main replaces production at the same URL and leaves the
   expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
   served = replaced;
 });
-test("stopping the watcher ends production and its checkouts and leaves development, the runner and its client", async ({
+test("SIGHUP quietly ends production and its checkouts and leaves development, the runner and its client", async ({
   request,
 }) => {
   const watcher = machine.running();
   const { fixture, developmentPage } = started();
+  watcher.signal("SIGHUP");
+  // npm's hang-up exit differs by version; the watcher must exit quietly and
+  // finish cleanup before the command's group is retired.
+  await watcher.exited;
+  expect(watcher.output()).not.toContain("Production dashboard could not run");
   await watcher.stop();
   machine.watcher = undefined;
   await expect.poll(() => processRunning(served.pid)).toBe(false);
