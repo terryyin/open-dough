@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-297_submit-revived-cursor-continuation.json",
+      "identity": "SEED-297#submit-revived-cursor-continuation",
+      "completedAt": "2026-11-10T09:53:00.072Z",
+      "blob": "a5303a0179d6eaab56c47b17248e9d3f3621714e"
+    },
+    {
       "fileName": "SEED-295_inspect-project-configuration-in-dashboard.json",
       "identity": "SEED-295#inspect-project-configuration-in-dashboard",
       "completedAt": "2026-11-10T09:17:17.645Z",
@@ -1932,18 +1938,6 @@
       "identity": "SEED-066#unattached-start-leftovers",
       "completedAt": "2026-10-11T12:49:32.823Z",
       "blob": "c3e9977d094591025746ae4906321e7b10859c57"
-    },
-    {
-      "fileName": "SEED-066_unattached-session-options.json",
-      "identity": "SEED-066#unattached-session-options",
-      "completedAt": "2026-10-11T09:38:56.744Z",
-      "blob": "ed9bc2a3c04aff01f3833cc447fdb5dc8ca8dd13"
-    },
-    {
-      "fileName": "SEED-130_slow-startup-safe-recovery.json",
-      "identity": "SEED-130#slow-startup-safe-recovery",
-      "completedAt": "2026-10-11T09:37:41.486Z",
-      "blob": "2eddc4bb9cf9603467c29993469919fb419a248d"
     }
   ],
   "unreadable": []
