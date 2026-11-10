@@ -1,5 +1,9 @@
 // One immutable Vite module graph and actual app CSS; every case renders afresh.
+// Each renderer owns a private Vite optimizer cache so concurrent Playwright
+// workers never race on the shared default under node_modules/.vite.
 import { readFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import { sharedDashboardBuild } from "./dashboardBuild.ts";
@@ -21,20 +25,38 @@ export type ComparisonRenderer = {
   readonly markup: ComparisonMarkup;
   readonly treeMarkup: (facts: ComparisonRenderFacts) => string;
   readonly css: string;
+  /** Private Vite optimizer cache for this renderer; removed by close(). */
+  readonly viteCacheDir: string;
   close(): Promise<void>;
 };
 
 const renderedPages = new WeakSet<Page>();
 
+async function releaseComparisonVite(
+  compiler: { close(): Promise<void> } | undefined,
+  viteCacheDir: string,
+) {
+  try {
+    if (compiler !== undefined) await compiler.close();
+  } finally {
+    await rm(viteCacheDir, { recursive: true, force: true });
+  }
+}
+
 export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
   const { createServer } = await import("vite");
-  const compiler = await createServer({
-    configFile: path.join(repoRoot, "dashboard/vite.config.mts"),
-    server: { middlewareMode: true, hmr: false, ws: false },
-    appType: "custom",
-    logLevel: "error",
-  });
+  const viteCacheDir = await mkdtemp(
+    path.join(tmpdir(), "dough-comparison-vite-"),
+  );
+  let compiler: Awaited<ReturnType<typeof createServer>> | undefined;
   try {
+    compiler = await createServer({
+      configFile: path.join(repoRoot, "dashboard/vite.config.mts"),
+      cacheDir: viteCacheDir,
+      server: { middlewareMode: true, hmr: false, ws: false },
+      appType: "custom",
+      logLevel: "error",
+    });
     const loaded = await compiler.ssrLoadModule(
       path.join(repoRoot, "dashboard/tests/comparison-mount/render.tsx"),
     );
@@ -51,16 +73,18 @@ export async function createComparisonRenderer(): Promise<ComparisonRenderer> {
       })
       .join("\n");
     if (css === "") throw new Error("The production app emitted no stylesheet");
+    const owned = compiler;
     return {
       markup: loaded["comparisonMarkup"] as ComparisonMarkup,
       treeMarkup: tree[
         "comparisonTreeMarkup"
       ] as ComparisonRenderer["treeMarkup"],
       css,
-      close: () => compiler.close(),
+      viteCacheDir,
+      close: () => releaseComparisonVite(owned, viteCacheDir),
     };
   } catch (error) {
-    await compiler.close();
+    await releaseComparisonVite(compiler, viteCacheDir);
     throw error;
   }
 }

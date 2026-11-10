@@ -79,7 +79,7 @@ test("a published CI summary for a sources location shows its group and file res
   ];
   const summary = collectedSummary(
     ancestor,
-    [["scripts", 1]],
+    [{ entry: "scripts", parts: 1 }],
     [
       {
         entries: ["scripts"],

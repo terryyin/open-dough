@@ -21,7 +21,7 @@ The values and paths below are illustrative scenarios, not additional universal 
 | C07 | Collector proof tests use the shared MakeMe vocabulary. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | C08 | Converter proof tests use the shared MakeMe vocabulary. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | C09 | Node support proof tests use the shared MakeMe vocabulary. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
-| C10 | Dashboard proof tests use the shared MakeMe vocabulary. | slice 3 | |
+| C10 | Dashboard proof tests use the shared MakeMe vocabulary. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
 | C11 | Shared construction owns the arranged facts. | slice 4 | |
 | C12 | Shared construction reduces repeated mapping decisions. | slice 4 | |
 | C13 | Existing independent behavioral proof is preserved. | slice 4 | |
@@ -30,7 +30,7 @@ The values and paths below are illustrative scenarios, not additional universal 
 | C16 | Convert remaining valid synthetic proof entries. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | C17 | Convert remaining valid synthetic proof evidence. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | C18 | Convert remaining valid synthetic runner proof records. | slice 1 | observed: ci-proof-test-fixtures.mjs playwrightRecord/locatedRecord delegate shared record; real converter consumers and eight equivalence comparisons in slice-1-proof.md |
-| C19 | Convert the listed synthetic summary artifacts. | slice 3 | |
+| C19 | Convert the listed synthetic summary artifacts. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
 | C20 | Extend the existing `aCiProofFragment` builder. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | C21 | Extend the existing `aCiProofSummary` builder. | slice 4 | |
 | C22 | Extend the existing `aCiProof` builder. | slice 4 | |
@@ -41,8 +41,8 @@ The values and paths below are illustrative scenarios, not additional universal 
 | C27 | Retain already-converted consumers on the shared owner. | slice 4 | |
 | C28 | Remove or delegate displaced constructors. | slice 4 | |
 | C29 | Remove or delegate displaced suite-local wrappers in `ci-proof-test-fixtures`. | slice 1 | observed: ci-proof-test-fixtures.mjs playwrightRecord/locatedRecord delegate shared record; real converter consumers and eight equivalence comparisons in slice-1-proof.md |
-| C30 | Remove or delegate displaced positional `ProofPart` tuples in `ciProofArtifacts`. | slice 3 | |
-| C31 | Remove or delegate displaced positional declaration tuples in `ciProofArtifacts`. | slice 3 | |
+| C30 | Remove or delegate displaced positional `ProofPart` tuples in `ciProofArtifacts`. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
+| C31 | Remove or delegate displaced positional declaration tuples in `ciProofArtifacts`. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
 | C32 | State the entry path at the call site whenever it drives the case. | slice 4 | |
 | C33 | State `part/of` at the call site whenever it drives the case. | slice 4 | |
 | C34 | State attempt identity at the call site whenever it drives the case. | slice 4 | |
@@ -87,7 +87,7 @@ The values and paths below are illustrative scenarios, not additional universal 
 | Q02 | The conversion inventory includes converter tests. | slice 1 | observed: ci-proof-collect.test.mjs two dashboard shards and missing/ambiguous assertions; direct MakeMe setup; slice-1-proof.md |
 | Q03 | The conversion inventory includes Node support readers. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
 | Q04 | The conversion inventory includes scope comparisons. | slice 2 | observed: Node read/sort/timing/scope/comparison direct MakeMe setup and 52-suite proof in slice-2-proof.md |
-| Q05 | The conversion inventory includes dashboard proof journeys. | slice 3 | |
+| Q05 | The conversion inventory includes dashboard proof journeys. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
 | Q06 | “About 35 files” describes a consumer inventory; it is not a completion limit. | slice 4 | |
 | Q07 | Attempt identity means a GitHub run attempt **or** an adapter `attemptId`, as applicable. | slice 4 | |
 | Q08 | The unit alternatives are case, file, or legacy with its label. | slice 4 | |
@@ -119,23 +119,23 @@ The values and paths below are illustrative scenarios, not additional universal 
 | J20 | Missing part 2 is shown as missing. | slice 1 | observed: ci-proof-collect.test.mjs exact identity and part summaries; ci-proof-attempt.test.mjs mismatches excluded and missing/ambiguous parts uncounted |
 | J21 | Two candidates for part 1 are ambiguous. | slice 1 | observed: ci-proof-collect.test.mjs exact identity and part summaries; ci-proof-attempt.test.mjs mismatches excluded and missing/ambiguous parts uncounted |
 | J22 | Those ambiguous candidates are uncounted. | slice 1 | observed: ci-proof-collect.test.mjs exact identity and part summaries; ci-proof-attempt.test.mjs mismatches excluded and missing/ambiguous parts uncounted |
-| J23 | Entry `dashboard/tests` holds case evidence with 4 passed in `12_040 ms`. | slice 3 | |
-| J24 | That case evidence has part 1 present. | slice 3 | |
-| J25 | Entry `tests` holds file evidence with 2 passed in `2_500 ms`. | slice 3 | |
-| J26 | Intent surfaces show the case and file units apart. | slice 3 | |
-| J27 | Comparison surfaces show the case and file units apart. | slice 3 | |
-| J28 | Intent surfaces never sum those different units. | slice 3 | |
-| J29 | Comparison surfaces never sum those different units. | slice 3 | |
+| J23 | Entry `dashboard/tests` holds case evidence with 4 passed in `12_040 ms`. | slice 3 | observed: intentSummaryStoryComparisonProofs.noBreakdownBaselineProofs case4/time12040 versus file2/time2500 part1; nineteen real collector comparisons; Summary comparison file/source/sort journeys |
+| J24 | That case evidence has part 1 present. | slice 3 | observed: intentSummaryStoryComparisonProofs.noBreakdownBaselineProofs case4/time12040 versus file2/time2500 part1; nineteen real collector comparisons; Summary comparison file/source/sort journeys |
+| J25 | Entry `tests` holds file evidence with 2 passed in `2_500 ms`. | slice 3 | observed: intentSummaryStoryComparisonProofs.noBreakdownBaselineProofs case4/time12040 versus file2/time2500 part1; nineteen real collector comparisons; Summary comparison file/source/sort journeys |
+| J26 | Intent surfaces show the case and file units apart. | slice 3 | observed: intent-ci-proof-units.spec.ts separate units at CI status/Summary/folder/file; intent-ci-status-execution-time.spec.ts separate4min/2min and exact zero/untimed/missing assertions |
+| J27 | Comparison surfaces show the case and file units apart. | slice 3 | observed: intent-ci-comparison-mounted-units.spec.ts separate case+2 and file counts at overall/entry/folder/file levels; legacy/count-gap mounted cases; slice-3-proof.md |
+| J28 | Intent surfaces never sum those different units. | slice 3 | observed: intent-ci-proof-units.spec.ts separate units at CI status/Summary/folder/file; intent-ci-status-execution-time.spec.ts separate4min/2min and exact zero/untimed/missing assertions |
+| J29 | Comparison surfaces never sum those different units. | slice 3 | observed: intent-ci-comparison-mounted-units.spec.ts separate case+2 and file counts at overall/entry/folder/file levels; legacy/count-gap mounted cases; slice-3-proof.md |
 | J30 | A file breakdown listing `a.spec.ts` and `b.spec.ts` contributes figures to the file unit. | slice 2 | observed: intent-scope-proof-units.test.mjs folder two source files versus case5/file1; scope figures/counts/parts independently expected |
 | J31 | Those two paths are not two additional test-file counts. | slice 2 | observed: intent-scope-proof-units.test.mjs folder two source files versus case5/file1; scope figures/counts/parts independently expected |
 | J32 | A present zero remains zero. | slice 2 | observed: intent-ci-proof-timing.test.mjs zero versus No timings; dashboard-ci-comparison-entry-gaps.test.mjs partial endpoint; intent-scope-proof.test.mjs absent path no CI result |
 | J33 | That present zero remains distinct from a missing part. | slice 2 | observed: intent-ci-proof-timing.test.mjs zero versus No timings; dashboard-ci-comparison-entry-gaps.test.mjs partial endpoint; intent-scope-proof.test.mjs absent path no CI result |
 | J34 | That present zero remains distinct from unavailable proof. | slice 2 | observed: intent-ci-proof-timing.test.mjs zero versus No timings; dashboard-ci-comparison-entry-gaps.test.mjs partial endpoint; intent-scope-proof.test.mjs absent path no CI result |
 | J35 | A Node reader starts from MakeMe-built entries for the attempt. | slice 2 | observed: dashboard-ci-proof-units-read.test.mjs MakeMe entries through real proofSummaryForEntries/zip/check/parser with independent case5/time1500 and file1 assertions |
-| J36 | A dashboard journey starts from MakeMe-built entries for the attempt. | slice 3 | |
+| J36 | A dashboard journey starts from MakeMe-built entries for the attempt. | slice 3 | observed: Intent and comparison MakeMe entries through actual collector/ZIP/listed artifact builder; intent-ci-proof.spec.ts exact run/counts/time/request-order; backend landed-ci-proof-collection |
 | J37 | The real collector **or** artifact zip supplies the summary bytes those consumers observe. | slice 2 | observed: dashboard-ci-proof-units-read.test.mjs MakeMe entries through real proofSummaryForEntries/zip/check/parser with independent case5/time1500 and file1 assertions |
-| J38 | Suite-local positional part tuples are gone from those setups. | slice 3 | |
-| J39 | Casts are gone from those setups. | slice 3 | |
+| J38 | Suite-local positional part tuples are gone from those setups. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
+| J39 | Casts are gone from those setups. | slice 3 | observed: ciProofArtifacts.ts/ciProofEntryInputs.ts/ciProofCollected.ts direct named production inputs, removed tuples/casts; typecheck and story-ci-comparison-entry-summaries.test.mjs |
 | J40 | Exact version-1 legacy JSON stays literal. | slice 4 | |
 | J41 | A deliberately corrupt archive stays literal. | slice 4 | |
 | J42 | An expired artifact stays literal. | slice 4 | |

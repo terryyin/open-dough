@@ -170,7 +170,7 @@ Hosted CI failures remain owned through final CI under the linked policy.
 
 ## Slices
 
-Slice evidence: [1](slice-1-proof.md), [2](slice-2-proof.md).
+Slice evidence: [1](slice-1-proof.md), [2](slice-2-proof.md), [3](slice-3-proof.md).
 
 ### 1. Collector and converter tests state units through MakeMe
 Type: Behavior
@@ -201,7 +201,7 @@ already-built facts.
 
 ### 3. Dashboard proof journeys arrange evidence through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 3–4. Run dashboard `tests/intent/intent-ci-proof*.spec.ts`, `intent-ci-status-sort.spec.ts`, `intent-ci-status-execution-time.spec.ts`, `intent-summary-ci-proof*.spec.ts`, backend `landed-ci-proof*` and `landed-ci-scope-*` selections that still build proof summaries, plus traced comparison/fixture modules under `dashboard/tests/support/*Proof*` and `intentSummaryCiProofFixtures.ts`.
 
 MakeMe entries reach Intent Proof through the real collector or artifact zip →
@@ -226,13 +226,7 @@ checks, reusing unchanged accepted proof whose boundaries still match.
 
 ## Readiness review
 
-Plan refinement was not needed: four cohesive conversion outcomes keep setup,
-preserved proof and displaced-construction removal together. Runner records,
-fragments, summaries and dashboard reads share one MakeMe owner while transport
-helpers stay thin. No project numeric slice limit is supplied. Reviewed all
-four examples against their slices and consuming observations. No remaining
-slice-specific, cumulative-design, proof-route, scope or human-owned decision
-concern was identified. Every implementation slice remains planned.
+The original review is retained in [execution context](execution.md#readiness-review); progress does not renew it.
 
 Execution context: [retained identity and observer](execution.md).
 
@@ -242,3 +236,13 @@ Execution context: [retained identity and observer](execution.md).
 Reported: slice 2 — "An explicitly timed first part, untimed second present part, and ambiguous third part cannot be represented by existing inParts + appended withUnbrokenPart without changing gap wording."
 Story clause: "preserving the existing independent behavioral proof"
 Disposition: proved by slice 2: slice-2-proof.md G1, intent-ci-proof-timing.test.mjs partial timing and dashboard-ci-comparison-entry-gaps.test.mjs partial endpoint independent assertions
+
+### G2. Reconcile accepted adapter fixture ownership
+Reported: slice 3 — "Named sibling SEED-261#map-ci-adapter-and-coverage-test-data landed canonical attempt construction that overlaps the shared adapter proof fixture; the working slice still uses its earlier attempt construction."
+Story clause: "Retain already-converted consumers on that shared owner"
+Disposition: proved by slice 3: slice-3-reconciliation.md, exact accepted adapter facts and49 browser/backend plus3 Node gates; private-cache and inherited runner regressions passed
+
+### G3. Bound cache-only proof claims
+Reported: slice 3 — "Some cache-only trace rows implied prior105 observations covered individual mounted specs that were not selected."
+Story clause: "preserving the existing independent behavioral proof"
+Disposition: proved by slice 3: slice-3-reconciliation.md Coverage clarification; changed cache lifecycle observed by concurrent-renderer regression and mounted-unit journeys, without claiming unrun specs passed
