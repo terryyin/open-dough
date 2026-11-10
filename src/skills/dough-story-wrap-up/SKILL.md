@@ -80,12 +80,16 @@ review requests remain available regardless of this preference.
 
 When enabled and no published result exists, request one check from the installed
 [Dough Intent Coverage](../dough-intent-coverage/SKILL.md) for the completed
-implementation revision, supplying the story section and plan when present. Prefer a
-plausible protection gap for an important promise raised by review; otherwise let the
-skill choose from the key examples. It owns scratch setup and restoration. Continue
-independent wrap-up while it runs. Retain story, checked revision, worker continuation,
-saved report, and completed dispositions in existing resumable closure context; keep the
-report outside checkout cleanup.
+implementation revision, supplying the story section, plan when present, and any
+already available promise, plausible fault, focused command, fixture, or assertion
+from review or execution. Prefer a plausible protection gap for an important
+promise raised by review; otherwise let the skill choose from the key examples.
+Pass hints as suggestions only; do not rediscover missing ones or move probe
+mechanics here. Explicit manual requests remain valid without hints. It owns
+scratch setup and restoration. Continue independent wrap-up while it runs. Retain
+story, checked revision, worker continuation, saved report, and completed
+dispositions in existing resumable closure context; keep the report outside
+checkout cleanup.
 
 Join before Done publication, spent-history deletion, or retirement of resume context.
 Worker failure or an applicable deadline without a report leaves closure unfinished with

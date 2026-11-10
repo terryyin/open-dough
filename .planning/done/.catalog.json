@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-258_make-intent-coverage-results-easier-to-act-on.json",
+      "identity": "SEED-258#make-intent-coverage-results-easier-to-act-on",
+      "completedAt": "2026-11-10T10:56:36.406Z",
+      "blob": "a8876c596c57eabbb22c8817ffd3560ebfbaf2a7"
+    },
+    {
       "fileName": "SEED-258_finish-opted-in-stories-with-intent-coverage.json",
       "identity": "SEED-258#finish-opted-in-stories-with-intent-coverage",
       "completedAt": "2026-11-10T10:41:26.970Z",

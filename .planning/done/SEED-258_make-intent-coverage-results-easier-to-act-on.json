@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-258#make-intent-coverage-results-easier-to-act-on",
+  "title": "Make Intent Coverage results easier to act on",
+  "completedAt": "2026-11-10T10:56:36.406Z",
+  "developer": "Terry Yin",
+  "agent": "stanly-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "unavailable": "Automatic Intent Coverage skipped: .planning/open-dough.json has no intentCoverage: true opt-in"
+  }
+}

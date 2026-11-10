@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 486. Removed numbers are never reused.
+- Highest allocated local number: 487. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -119,6 +119,13 @@ Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Coordinator transcript `bb3c5d04-c060-415e-b558-61ea996fd885` L56–L84: slice-2 Task `7a3a0ba5-c436-4c08-88d6-9d569db5c804` started 2026-11-10T17:16+08:00, left uncommitted guidance/test edits mid-reorganization with no proof return; developer continue at 17:29 recovered interruption. After owned CI stash/restore around timeout repair `476a9c007`, focused structural tests still failed; completion Task `9297fc23-a7d3-4964-86f6-719f8ca839e3` finished the slice before `d347ad037`.
   - Observed effect: one interrupted implementation Task with edits present; coordinator re-established proof from the checkout after repair restore, then one completion implementer before acceptance; no dual-writer publish.
   - Inference: Matches ODF-229 edits-present recurrence (interrupted Cursor implementation Task, no return). Distinct from ODF-059 (implementation Task) and ODF-225 (stash parked unfinished next-slice work; no invalidated still-running proof recorded).
+- Execution: SEED-258#make-intent-coverage-results-easier-to-act-on (plan 573; first related implementation `be07058e3550a5527ed77bba00b3d7be4b1f4f2a`)
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `f76bda0d-27fc-4051-8594-682e74b6d232`: slice-2 implementation Task interrupted twice while `trial/run-arm.sh` Claude arms kept running; developer continues at 2026-11-10T18:12:00+08:00 (A2 live; coordinator waited, then replacement Task for B arms) and 2026-11-10T18:30:00+08:00 (B1 done, B2 live; coordinator waited, summarized B2, wrote `trial/02-comparison-and-keep-decision.md`, delivered `f0e813bf1`). Checkout already held candidate skill edits matching `trial/skills-candidate/`; remote matched HEAD across both recovers.
+  - Observed effect: two interrupted Cursor implementation returns; orphaned native arms continued to completion; one replacement writer for remaining B arms; coordinator finished the keep decision after B2; no dual-writer conflict, unexpected commit, or lost trial evidence.
+  - Inference: Matches ODF-229 with a native-subprocess facet: interrupted Task return does not stop already-launched supervised host arms. Recovery waited on live `run-arm`/`claude` processes before replacement writers or acceptance. Distinct from ODF-204 (no unauthorized publish by the stalled Task) and ODF-059 (implementation Task, not a refactor handoff).
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 Former local code: DD-266. [Evidence and current response](docs/maintainer/findings/ODF-230.md).
 ## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>
@@ -634,3 +641,15 @@ Focused Playwright configuration selection passed; the commit hook's typecheck t
   - Evidence: `execution-increment-delivery.mjs fresh` returned `commit-failed` with TS2345 on `system-settings-client-configuration.spec.ts` (`"textarea"` role) and TS2532 on `system-settings.spec.ts`. Prior focused command `npx playwright test tests/configuration/system-settings-client-configuration.spec.ts tests/configuration/system-settings.spec.ts` had passed. Repairs then typechecked and the focused Playwright selection passed again before successful delivery.
   - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
   - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
+
+## DD-487 — Native trial harness launches the agent outside the prepared scratch cwd
+A paired native-trial runner prepared and set up an isolated scratch worktree in a subshell, then launched the host agent from the parent checkout cwd, so arms rediscovered the scratch path instead of starting there.
+
+### Occurrences
+- Execution: SEED-258#make-intent-coverage-results-easier-to-act-on (plan 573; first related implementation `be07058e3550a5527ed77bba00b3d7be4b1f4f2a`)
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: `.planning/slice-plans/573-make-intent-coverage-results-easier-to-act-on/trial/run-arm.sh` runs setup under `( cd "${scratch}" … )` then invokes `claude --print …` without changing into `${scratch}`; `trial/02-comparison-and-keep-decision.md` Confounds records that B1/B2 agents rediscovered the scratch checkout.
+  - Observed effect: inflated discovery cost on some arms; keep criteria still met (candidate not worse on the focused pair); confound disclosed rather than claimed as a universal saving.
+  - Inference: Ephemeral ADR 0010 trial harnesses need the agent process cwd (or an explicit working-directory flag) to match the prepared scratch; a setup-only `cd` subshell does not. Plan-local harness; not a shipped skill defect.
