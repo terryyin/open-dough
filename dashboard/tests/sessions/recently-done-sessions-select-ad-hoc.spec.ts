@@ -19,6 +19,7 @@ import { chooseStoryTab, storyTitle } from "../support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 
@@ -94,8 +95,9 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     await expect(panel.locator(".final-report-text")).toHaveText(reportMessage);
   });
 
-  await test.step("Select links the ad hoc row to Story A, keeps Intent and the Side panel report, and skips Done bodies during association", async () => {
-    const doneBodiesDuringLookup: string[] = [];
+  await test.step("Select links the ad hoc row to Story A, keeps Intent and the Side panel report, and skips blanket Done bodies during association", async () => {
+    const linkedDoneFile = doneRecordFileName(linked.identity);
+    const bodiesFilesDuringLookup: string[] = [];
     let watchingLookup = false;
     const onRequest = (request: { url: () => string }) => {
       if (!watchingLookup) return;
@@ -104,7 +106,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
         url.pathname === authenticatedReadEndpoint &&
         url.searchParams.get("done") === "bodies"
       )
-        doneBodiesDuringLookup.push(url.href);
+        bodiesFilesDuringLookup.push(...url.searchParams.getAll("file"));
     };
     page.on("request", onRequest);
     const associationRequest = page.waitForRequest(
@@ -128,9 +130,12 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
       kind: "linked",
       identity: linked.identity,
     });
-    // Association recovery is server-side git; it must not trigger a
-    // Done-body authenticated read. Intent may read one body after link.
-    expect(doneBodiesDuringLookup).toEqual([]);
+    // Association is server-side git. Intent may race a single linked Done
+    // body before Playwright settles the association response; bulk Done
+    // bodies (no file, or any file other than the linked story) must not.
+    expect(
+      bodiesFilesDuringLookup.every((file) => file === linkedDoneFile),
+    ).toBe(true);
     await expect(shown.entry(sessionTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
