@@ -85,28 +85,27 @@ a stuck assignment. Dashboard workers were stalling, with load average about
 {"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
-**Goal.** Decide whether the Cursor launch that followed Doughnut's Take
-violated intended behavior, and repair only a confirmed violation.
+**Goal.** Record that the Cursor launch refusal after Doughnut's Take matched
+intended behavior, and undertake no runner repair.
 
-**Scope.** The question comes first. Intended behavior today, written beside
-`probeRunnerProof`, is that a process accepting the runner port but not
-answering the runner protocol is left in place, and new work fails as
-unreachable. This story asks whether that, or a runner that never starts,
-should instead be replaced or reported as "the runner did not start" after a
-Take has already published. Repair only the behavior a developer confirms is
-wrong.
+**Scope.** The developer answered that leaving a TCP-accepting silent listener
+in place and failing new Cursor work as unreachable is intended. The 10:29
+card's "could not be reached" text was correct for no answering runner. This
+story changes no runner replacement rule and no card wording.
 
-Out of scope: the preparation-continuation text, and inventing a port capture
-for the 10:29 attempt.
+Out of scope: the preparation-continuation text; inventing a port capture for
+the 10:29 attempt; distinguishing "runner never started" from "silent
+listener" on the card (deferred, not a confirmed violation of this incident).
 
 **Key examples.**
 
 - Given the 10:29 execution attempt, the Take is published and no Cursor
-  session exists. The card says the runner could not be reached. Whether that
-  matches the intended refusal is the open question.
+  session exists. The card says the runner could not be reached. That matches
+  the intended refusal for no answering runner.
 - Given a listener on the runner port that accepts TCP and does not answer
-  `/sessions`, new Cursor work fails unreachable and the listener stays. A
-  confirmed violation would change that outcome and name it on the card.
+  `/sessions`, new Cursor work fails unreachable and the listener stays. That
+  outcome remains intended; this story does not replace the listener or rename
+  the failure on the card.
 
 **Evidence.** Attempt `7ed0ea53-f330-469d-aca7-6d1efb6f81f6`, accepted
 2026-11-10T02:29:15Z, settled 02:30:05Z, outcome `unavailable`, publication
@@ -115,29 +114,27 @@ for Kaoru-chan. No session was recorded. The runner process that is up now
 started at 10:42 local, about twelve minutes later. `cursor-runner.log` is
 empty. The address file was replaced at that later start, so the port state
 at 10:30 was not captured. The 2026-11-09 relay line "Invalid Cursor runner
-checkout" is an older event, not this attempt.
+checkout" is an older event, not this attempt. Developer answer 2026-11-10:
+refusal is intended (A); no repair.
 
-**Acceptance.** The story records the developer's answer: the refusal is
-intended, or a named violation. Only a confirmed violation is repaired, with
-a test of the card or runner outcome that failed for that violation first.
+**Acceptance.** The story records that the refusal is intended. No runner
+repair ships from this story.
 
 ## Ordering and Scope Reduction
 
 Show the unreadable continuation first. It has a confirmed gap and a safe
-wording change. The runner story can stop after the decision if the current
-refusal is accepted. Dropping the runner story leaves the continuation text
-useful on its own.
+wording change. The runner story stops after the decision: the current refusal
+is accepted, so this story is dropped with the answer recorded and no repair.
 
 ## Open Decisions
 
-Should a listener that accepts the Cursor runner port and does not speak its
-protocol be replaced, and should a published Take whose session never starts
-say that the runner did not start? The runner story waits on that answer.
+None. SEED-292#ask-whether-a-silent-cursor-runner-blocks-launch settled as
+refusal intended; no repair.
 
 ## When to Surface
 
-The Doughnut card still shows both failures, and the execution start is still
-kept with no session.
+The runner decision is settled. The Doughnut card may still show the earlier
+failures; the sibling continuation story owns readable continuation text.
 
 ## Breadcrumbs
 
