@@ -129,3 +129,55 @@ any actionable findings.
 In the audit, three checks finished after wrap-up had recorded them as
 unavailable, so a developer opening Done could not see their returned evidence.
 [Example Done record](https://github.com/terryyin/open-dough/blob/f07d764744ba5cfe56666469356ada584f642830/.planning/done/SEED-283_keep-done-story-intent-pinned.json)
+
+<a id="make-intent-coverage-results-easier-to-act-on"></a>
+
+### Make Intent Coverage results easier to act on
+
+**Identity:** SEED-258#make-intent-coverage-results-easier-to-act-on
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer reviewing an Intent Coverage result can tell whether to add proof
+for a missing path, strengthen an assertion, or gather more evidence. A short
+comparison shows whether preparing a more focused handoff earns its cost.
+
+- Report a **Confirmed missing test path** when independent observation shows
+  the fault causes wrong behavior and the relevant maintained checks omit that
+  path. Name the checks examined and preserve the passing baseline and restored
+  observation. Use **Assertion gap** when a maintained check exercises the path
+  and its assertion misses the wrong behavior. Use **Insufficient evidence**
+  when reach, wrong behavior, or restoration is unresolved.
+- Reuse the promise, plausible fault, focused command, fixture, and assertion
+  when ordinary review or execution already established them. Let the worker
+  validate or revise the suggestion. When the context is incomplete, look for
+  the narrowest relevant proof and report the remaining gap if the search
+  would require a broad exploratory run.
+- Compare the current workflow with the candidate on the same revision and
+  promise for one search-heavy and one already-focused check. Use the existing
+  report and [wrap-up disposition](#finish-opted-in-stories-with-intent-coverage)
+  to capture the decision before the probe, any change attributable to its
+  evidence, and the cost. Include preparation and probe time, distinguish test
+  runtime from added wrap-up wait, and record unknowns. Use comparable host
+  token counters when already available for sampled runs. Automated token
+  collection stays deferred until a decision needs finer cost evidence.
+
+Keep the clearer verdict if a reviewer can distinguish a missing journey from
+an inconclusive attempt and choose the right next action. The Recently done
+case below should point to missing journey proof. The [Side panel pilot report](https://github.com/terryyin/open-dough/blob/401bc8bd5d5c12d6d7cd64b43b6763786c59e58e/.planning/done/SEED-268_conclude-fluent-side-panel-pilot.json)
+had no observed wrong behavior and should remain inconclusive.
+Keep the handoff change if the comparison shows lower total effort by avoiding
+an unnecessary broad run or equivalent setup, with equally strong proof and
+no material extra preparation on the already-focused case. If it falls short,
+record the result and settle the trial using
+[ADR 0010, Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+
+The Recently done probe independently reproduced a wrong navigation path,
+yet its report called the result **Insufficient evidence**. The report already
+pointed to a planned correction, so it shows a classification problem without
+establishing a missed repair. Its stopped 222-test sweep consumed about three
+minutes before the probe reached the relevant checks. A landed CI probe already
+had the suggested fault and one focused file, yet took ten minutes with about
+40 seconds of runner time. Together these reports justify testing a narrower
+handoff and measuring the entire check. [Recently done report](https://github.com/terryyin/open-dough/blob/fe715e5730f2ab3e627517f6b38c7d6eb2683207/.planning/done/SEED-272_select-recently-done-sessions.json) · [Landed CI report](https://github.com/terryyin/open-dough/blob/d887ac73e87d981dc59bae792543907b2b1bbf45/.planning/done/SEED-285_see-landed-ci-wall-time-history.json)
