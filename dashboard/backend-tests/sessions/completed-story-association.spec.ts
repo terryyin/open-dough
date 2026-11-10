@@ -92,6 +92,20 @@ test("wrong target does not associate", async ({
   });
 });
 
+test("a landing in another repository stays standalone even when it holds the completed story", async ({
+  request,
+  dashboard,
+  origin,
+}) => {
+  const { record } = await retainAdHocCompletedStory(dashboard, origin, {
+    title: "Same history in a different repository",
+    landing: { repository: origin.origin },
+  });
+  expect(await associationOf(request, dashboard, record.session)).toEqual({
+    kind: "absent",
+  });
+});
+
 test("an unreadable completion revision is unavailable, not a confirmed miss", async ({
   request,
   dashboard,

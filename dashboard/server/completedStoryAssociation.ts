@@ -2,12 +2,17 @@
 // Join the launch reporting reference to Claim-Publisher / Claim-Identity and
 // the launch-bound accepted capture to recovered completion. Rebuildable only;
 // never a competing persisted completion fact or retroactive execution request.
-import { realpath } from "node:fs/promises";
 import { trailers } from "../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { landingCompletesStory } from "./completedStoryCapture.ts";
-import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
+import { commonGitDirectory } from "./gitCommonDirectory.ts";
+import {
+  runGit,
+  gitProblem,
+  defaultGitOutputLimit,
+  type GitCall,
+} from "./gitRunner.ts";
 import { projectFolder } from "./projectFolders.ts";
 
 export type CompletedStoryAssociation =
@@ -80,7 +85,11 @@ export async function completedStoryAssociation(
     return { kind: "absent" };
   try {
     const directory = projectFolder(source).path;
-    if ((await realpath(landing.repository)) !== (await realpath(directory)))
+    const call = { signal, maxBuffer: defaultGitOutputLimit };
+    if (
+      (await commonGitDirectory({ ...call, cwd: landing.repository })) !==
+      (await commonGitDirectory({ ...call, cwd: directory }))
+    )
       return { kind: "absent" };
   } catch (error) {
     if (signal.aborted) throw error;
