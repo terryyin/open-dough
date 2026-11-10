@@ -4,6 +4,7 @@
 // hoc session, asked of its session's host.
 
 /** @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
+/** @typedef {Extract<LaunchRecord["request"], { workflow: "ad-hoc" }>} KeptAdHocRequest */
 /**
  * What a story launch's request states: the project, the story, and its
  * title as the card shows it.
@@ -12,12 +13,12 @@
 /**
  * What an ad hoc launch's request states: the project, the instruction it
  * started with (none for a blank session), and the title kept for it.
- * @typedef {{ instruction?: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} AdHocFacts
+ * @typedef {{ instruction?: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp, maintenance?: KeptAdHocRequest["maintenance"] }} AdHocFacts
  */
 /**
  * What the launch asked for: a story by its workflow, or an ad hoc session
  * with the instruction it started with (none for a blank session).
- * @typedef {{ workflow: "execution" | "refinement", identity: string, title: string, source: string } | { workflow: "ad-hoc", instruction?: string, title: string, source: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} Requested
+ * @typedef {{ workflow: "execution" | "refinement", identity: string, title: string, source: string } | (AdHocFacts & { workflow: "ad-hoc", source: string })} Requested
  */
 /**
  * What the request also states: the session's host, the model and reporting
@@ -55,6 +56,9 @@ function keptRequest(requested, { host, model, reporting, policy }) {
         instruction: requested.instruction,
       }),
       ...(requested.followUp && { followUp: requested.followUp }),
+      ...(requested.maintenance && {
+        maintenance: { ...requested.maintenance },
+      }),
       ...asked,
       ...(policy && { policy }),
     };
@@ -69,4 +73,16 @@ function keptRequest(requested, { host, model, reporting, policy }) {
       policy: { ...policy, tracking: policy.tracking },
     }),
   };
+}
+
+/**
+ * An accepted attempt holds the same ad hoc request before the record adds
+ * its derived title and reporting context.
+ * @param {KeptAdHocRequest} kept
+ * @returns {Extract<import("../../dashboard/src/launchRequest.ts").AgentLaunchRequest, { workflow: "ad-hoc" }>}
+ */
+export function incomingAdHocRequest({ title, reporting, ...request }) {
+  void title;
+  void reporting;
+  return request;
 }

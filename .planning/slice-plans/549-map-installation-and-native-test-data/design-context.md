@@ -73,3 +73,13 @@ new shared dependencies. Slice 3 owns the extraction and focused identity proof.
 use native-run-supervise or standardized result retention. Keep all existing
 supervised-writer propagation checks, while checking Take's actual closure,
 required inputs and content sensitivity. Do not invent a native policy change.
+
+## Feedback proof organization
+
+Slice 6 may separate `observedSessions` projection cases from the due-decision
+support test when canonical launch/attempt composition expands it. Keep the
+projection's complete assertions in a discovered support Node test, and retain
+calendar/authorization/due-decision rules in the current due test. Both use the
+same canonical builders; do not introduce local record/request/attempt models.
+This cohesive producer/decision seam preserves all cases and the relevant
+focused selection, and keeps edited files within 250 lines.

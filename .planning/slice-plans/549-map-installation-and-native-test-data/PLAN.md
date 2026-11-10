@@ -169,7 +169,8 @@ corresponding identity. Do not accept only a changed hash as fixture equivalence
 
 ### 6. Feedback maintenance setup names its review, choice and served date
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 6](slice-6-proof.md).
 Proof: Source example 5. Run `npm test -- tests/support/feedback-review.test.mjs tests/support/feedback-maintenance-due.test.mjs tests/support/feedback-maintenance-state.test.mjs`. Run dashboard selections matching `feedback-maintenance` across launch/configuration/backend tests, and `agent-launch-ad-hoc-codex-input.spec.ts` for the shared request consumer.
 
 Convert the valid review block, saved host/model choice, review observations and

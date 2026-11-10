@@ -74,12 +74,13 @@ export class LaunchRecordBuilder extends LaunchOutcomeBuilder {
    * stated.
    * @param {AdHocFacts} facts
    */
-  adHoc({ instruction, title, source = "open-dough", followUp }) {
+  adHoc({ instruction, title, source = "open-dough", followUp, maintenance }) {
     this.#requested = {
       ...(instruction !== undefined && { instruction }),
       title,
       source,
       ...(followUp && { followUp }),
+      ...(maintenance && { maintenance: { ...maintenance } }),
       workflow: "ad-hoc",
     };
     return this;

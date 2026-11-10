@@ -19,6 +19,7 @@ import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 import { ciMakeMeProperties } from "./ciMakeMe.mjs";
 import { launchMakeMeProperties } from "./launchMakeMe.mjs";
 import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
+import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -28,6 +29,7 @@ import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {import("./ciMakeMe.mjs").CiMakeMe} CiMakeMe */
 /** @typedef {import("./launchMakeMe.mjs").LaunchMakeMe} LaunchMakeMe */
+/** @typedef {import("./feedbackTestData.mjs").FeedbackMakeMe} FeedbackMakeMe */
 /** @typedef {import("./publicationTestData.mjs").PublishedIntegration} PublishedIntegration */
 /**
  * @template {object} Facts
@@ -61,9 +63,9 @@ import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
  * @property {HostHookSettingsBuilder} hostHookSettings
  */
 
-/** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe} */
+/** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe} */ ({}),
+  /** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */ ({}),
   {
     hostHookSettings: {
       enumerable: true,
@@ -205,5 +207,6 @@ export const makeMe = Object.defineProperties(
     },
     ...ciMakeMeProperties(),
     ...launchMakeMeProperties(),
+    ...feedbackMakeMeProperties(),
   },
 );

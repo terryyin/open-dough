@@ -2,15 +2,20 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { readFeedbackReview } from "../../dashboard/src/feedbackReview.ts";
+import { makeMe } from "./makeMe.mjs";
+import { feedbackReviewPayload } from "./feedbackTestData.mjs";
 
 const block = (payload) =>
   ["```json dough-feedback-review", JSON.stringify(payload), "```"].join("\n");
 
-const due = {
-  schemaVersion: 1,
-  reviewed: "2026-10-21",
-  reviewAfter: "2026-10-25",
-};
+const due = feedbackReviewPayload(
+  makeMe.aFeedbackReview
+    .with({
+      reviewed: "2026-10-21",
+      reviewAfter: "2026-10-25",
+    })
+    .please(),
+);
 
 test("the published watch list carries its review and next due date", () => {
   const text = readFileSync(

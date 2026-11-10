@@ -40,10 +40,10 @@ finally reconciled in slice 7 and apply throughout.
 | C25 | A changed fixture dependency enters the scenario’s evidence identity. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
 | C26 | Remaining setup is reconciled across the five declared test entries. | slice 7 | |
 | C27 | Remaining setup is also reconciled across the separately discovered tests/support/*.test.mjs jobs. | slice 7 | |
-| C28 | Feedback-review dates are included in that reconciliation. | slice 6 | |
-| C29 | Maintenance choice facts are included. | slice 6 | |
-| C30 | Maintenance observation facts are included. | slice 6 | |
-| C31 | Automatic maintenance requests are included. | slice 6 | |
+| C28 | Feedback-review dates are included in that reconciliation. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| C29 | Maintenance choice facts are included. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| C30 | Maintenance observation facts are included. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| C31 | Automatic maintenance requests are included. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
 | C32 | Recorded job durations are included. | slice 7 | |
 | C33 | Existing canonical builders are extended where appropriate. | slice 7 | |
 | C34 | Displaced constructors are removed. | slice 7 | |
@@ -92,14 +92,14 @@ finally reconciled in slice 7 and apply throughout.
 | J29 | Those cases retain their preparation traces. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
 | J30 | Fresh, reuse, and failed-preparation observations continue to distinguish their existing outcomes. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
 | J31 | Dependency hashes include shared fixture modules newly used by those scenarios. | slice 5 | observed: slice-5-proof.md; inspected source setup and independent observations |
-| J32 | Feedback maintenance is enabled. | slice 6 | |
-| J33 | The published review is due on `2026-10-28`. | slice 6 | |
-| J34 | A start already serving that date prevents another start for the same date. | slice 6 | |
-| J35 | The same-date prevention still applies after that start’s process has ended. | slice 6 | |
-| J36 | A later due date can start. | slice 6 | |
-| J37 | The saved choice, published review, kept session, and live attempt remain distinct facts. | slice 6 | |
-| J38 | Existing due-row journeys retain their observations. | slice 6 | |
-| J39 | Existing settings journeys retain their observations. | slice 6 | |
+| J32 | Feedback maintenance is enabled. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J33 | The published review is due on `2026-10-28`. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J34 | A start already serving that date prevents another start for the same date. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J35 | The same-date prevention still applies after that start’s process has ended. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J36 | A later due date can start. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J37 | The saved choice, published review, kept session, and live attempt remain distinct facts. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J38 | Existing due-row journeys retain their observations. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
+| J39 | Existing settings journeys retain their observations. | slice 6 | observed: slice-6-proof.md; inspected source setup and independent observations |
 | J40 | Recorded jobs `a`, `b`, and `c` each took five seconds. | slice 7 | |
 | J41 | Recorded job `d` took one second. | slice 7 | |
 | J42 | Dealing these jobs into two shares still produces `a/c` and `b/d`. | slice 7 | |
