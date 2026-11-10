@@ -33,6 +33,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Opt in to Intent Coverage during story wrap-up](seeds/SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up) — SEED-294#opt-in-to-intent-coverage-at-wrap-up
+- [View each project's Open Dough configuration in dashboard settings](seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard) — SEED-295#inspect-project-configuration-in-dashboard
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data
 - [Make CI proof evidence test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-proof-test-data) — SEED-261#map-ci-proof-test-data
