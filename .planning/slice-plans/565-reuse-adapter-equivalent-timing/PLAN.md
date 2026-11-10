@@ -90,6 +90,10 @@ comparison recovery replaces the remembered unused/no-proof Landed answer with
 that wall time. Other final gap reasons stay final. Restart alone without
 re-resolution is not the recovery mechanism.
 
+## Execution complete
+
+Product advice: no change
+
 ## Decisive premises and preparation observations
 
 Observed in this owned checkout at `d8c088e51ced412ec71a0c1e9ce1e3e440dafd74`

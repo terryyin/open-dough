@@ -63,6 +63,16 @@ Former local code: DD-255. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-258. [Evidence and current response](docs/maintainer/findings/ODF-224.md).
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/findings/ODF-150.md).
+
+### Occurrences
+- Execution: SEED-288#reuse-adapter-equivalent-timing (plan 565; first related implementation `dfc059a11daa8b175577b5f42ac67f442446ecb5`)
+  - Timestamp: 2026-11-10T09:41:14+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: CI repair `9a6fd5e2e3ffbfebbd6b8614f90f28b96a81a1f9` changed `dashboard/server/landedCiCollectedProof.ts` so settled GitHub `none` was no longer collectable (`proofPending: false`) to stop history re-asks after slice 1. Focused repair proof centered on `landed-ci-history-collection.spec.ts` (coordinator brief run 42734721396). Ancestor CI run 42737573329 failed `landed-ci-scope-proof-recovery.spec.ts` (`an exact passed attempt resumes none proof in the same collector`). Repair `53709f0253613421426c8abb2354879299e2c4fa` restored `none` collectability/pending while keeping same-write `proofRetainedWith`. Coordinator transcript `dc823cbc-021e-44e2-89e0-059fef36d090` L64–L88.
+  - Observed effect: one owned CI failure on the repaired SHA and a second repair before applicable tip CI settled; exact-attempt `none`→summary recovery was broken until `53709f025`.
+  - Inference: Matches ODF-150 — repair proof followed the history-collection symptom and missed an existing consumer of the same collectability rule. Distinct from ODF-221 sibling-spec race search: the missed journey owns a different product contract (scope-proof recovery), not the same race in a sibling of the failing history-collection assertion.
+
 ## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
 Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
 ## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
