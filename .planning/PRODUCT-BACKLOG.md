@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [End a node test job at its deadline with a named result](seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline) — SEED-289#name-a-test-job-past-its-deadline ([plan](slice-plans/563-end-test-jobs-at-their-deadline/PLAN.md))
 - [Give the local CI container the hosted runner’s fonts](seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container) — SEED-289#match-hosted-fonts-in-ci-container ([plan](slice-plans/564-match-hosted-fonts-in-ci-container/PLAN.md))
 - [Keep each unit's gaps and name visible in Intent CI proof](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#keep-unit-gaps-and-names-visible) — SEED-281#keep-unit-gaps-and-names-visible ([plan](slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md))
+- [Reuse equivalent CI adapter build timing for a skipped landing](seeds/SEED-288-landed-ci-evidence-follow-ups.md#reuse-adapter-equivalent-timing) — SEED-288#reuse-adapter-equivalent-timing ([plan](slice-plans/565-reuse-adapter-equivalent-timing/PLAN.md))
 
 ## Backlog list
 
-- [Reuse equivalent CI adapter build timing for a skipped landing](seeds/SEED-288-landed-ci-evidence-follow-ups.md#reuse-adapter-equivalent-timing) — SEED-288#reuse-adapter-equivalent-timing
 - [Show no count difference across a missing or ambiguous part](seeds/SEED-281-distinguish-test-cases-and-files-in-ci-proof.md#no-count-difference-across-gaps) — SEED-281#no-count-difference-across-gaps
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build

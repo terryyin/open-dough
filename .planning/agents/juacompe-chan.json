@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "juacompe-chan",
+  "email": "juacompe-chan@example.org",
+  "identity": "SEED-288#reuse-adapter-equivalent-timing",
+  "mode": "story-branch",
+  "branch": "cursor/reuse-equivalent-ci-adapter-build-timing-for-a-s",
+  "host": "cursor",
+  "model": "auto"
+}
