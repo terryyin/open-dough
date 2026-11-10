@@ -110,6 +110,9 @@ export const observationSchema = z.discriminatedUnion("kind", [
     explanation: z.string().min(1),
     requestedStatus: requestedRevisionCiStatusSchema.optional(),
     build: namedBuildSchema.optional(),
+    // Set after one reopen attempt under timed wall-time reuse
+    // (`./landedCiNoProofReopen.ts`).
+    reuseSettled: z.literal(true).optional(),
   }),
   z.object({
     kind: z.literal("pending"),

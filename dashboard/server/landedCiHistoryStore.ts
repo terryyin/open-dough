@@ -23,11 +23,8 @@ export type {
   LandedResolution,
   PendingResolution,
 } from "./landedCiObservation.ts";
-import {
-  hasLandingOrder,
-  measuredBuildOf,
-  windowedHistory,
-} from "./landedCiMeasuredBuilds.ts";
+import { keepResolutionDecision } from "./landedCiKeepResolution.ts";
+import { windowedHistory } from "./landedCiMeasuredBuilds.ts";
 import { withAdapterIdentity } from "./landedCiHistoryIdentity.ts";
 import type { CollectedProof } from "./landedCiCollectedProof.ts";
 import { historyWithProof } from "./landedCiRetainedProof.ts";
@@ -142,32 +139,19 @@ export async function keepLandedCiResolution(
         ? compatible
         : { ...compatible, trunkOrder: [...supplied] };
     const held = project.landings[landing.receipt]?.observed;
-    const kept = keptResolution(resolution);
-    const wouldMeasure =
-      kept.build !== undefined &&
-      measuredBuildOf(
-        {
-          ...project,
-          builds: { ...project.builds, [kept.build[0]]: kept.build[1] },
-        },
-        kept.observed,
-      ) !== undefined;
-    const { observed, build } =
-      wouldMeasure && !hasLandingOrder(project, landing.revision)
-        ? {
-            observed: { kind: "pending" as const, waitsFor: "order" as const },
-            build: undefined,
-          }
-        : kept;
-    if (
-      held !== undefined &&
-      (held.kind !== "pending" || isDeepStrictEqual(held, observed))
-    ) {
+    const decision = keepResolutionDecision(
+      project,
+      landing.revision,
+      held,
+      keptResolution(resolution),
+    );
+    if (decision.kind === "hold") {
       history = windowedHistory(project);
       return isDeepStrictEqual(history, original)
         ? leaveMachineJson
         : { ...stored, [sourceId]: history };
     }
+    const { observed, build } = decision;
     history = windowedHistory({
       ...project,
       landings: {

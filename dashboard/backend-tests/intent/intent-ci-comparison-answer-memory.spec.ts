@@ -1,5 +1,14 @@
 // Actual comparison memory stays live for running or unread evidence and
-// keeps answered terminal gaps without further provider requests.
+// keeps answered terminal gaps without further provider requests. A retained
+// unused Landed answer that only named an equivalent build's missing proof
+// summary reopens on the next same-process read under timed wall-time reuse
+// (SEED-288#reuse-adapter-equivalent-timing example 5).
+import { shortSha } from "../../src/baseCiWording.ts";
+import {
+  ciComparisonAnswerKey,
+  seedRememberedCiComparisonAnswer,
+} from "../../server/intentCiComparisonAnswers.ts";
+import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
   pendingLandedComparison,
@@ -147,5 +156,76 @@ test("an unread CI listing is retried and then the final equivalent endpoint is 
   });
   const asked = github.calls.length;
   expect(await readLandedComparison(server, setup.identity)).toEqual(final);
+  expect(github.calls.length).toBe(asked);
+});
+
+test("a retained unused equivalent no-proof Landed answer reopens on the next same-process read to the timed wall time", async ({
+  origin,
+  github,
+  startServer,
+}) => {
+  const setup = await pendingLandedComparison(origin, "equivalent");
+  serveTrunkRuns(github, origin, () => setup.runs, {
+    proofs: () => ({ ...setup.proofs, 201: { kind: "none" as const } }),
+  });
+  const server = await startServer();
+  const retained: StoryCiComparisonAnswer = {
+    kind: "comparison",
+    phase: "done",
+    identity: setup.identity,
+    mode: "story-branch",
+    completion: setup.completion,
+    storyStart: setup.baseline,
+    checkedAt: "2026-11-05T12:00:00.000Z",
+    baseline: {
+      kind: "build",
+      revision: setup.baseline,
+      subject: setup.baseline,
+      state: "pass",
+      selection: "exact",
+      laterWithoutResult: 0,
+      runId: 101,
+      runAttempt: 1,
+      timeWithoutRunnerWaits: { milliseconds: 300_000 },
+    },
+    branch: {
+      kind: "build",
+      revision: setup.branchSide,
+      subject: setup.branchSide,
+      state: "pass",
+      selection: "exact",
+      laterWithoutResult: 0,
+      runId: 102,
+      runAttempt: 1,
+      timeWithoutRunnerWaits: { milliseconds: 300_000 },
+    },
+    landed: {
+      kind: "none",
+      explanation: `The equivalent build at ${shortSha(setup.trunkSide)} published no CI proof summary.`,
+      requestedStatus: {
+        kind: "skipped",
+        explanation: "The landed revision was skipped.",
+      },
+    },
+  };
+  seedRememberedCiComparisonAnswer(
+    ciComparisonAnswerKey("terryyin/open-dough", setup.identity),
+    retained,
+  );
+  const recovered = await readLandedComparison(server, setup.identity);
+  expect(recovered.landed).toMatchObject({
+    kind: "build",
+    selection: "equivalent",
+    revision: setup.trunkSide,
+    runId: 201,
+    runAttempt: 1,
+    requestedStatus: { kind: "skipped" },
+  });
+  if (recovered.landed.kind !== "build")
+    throw new Error("Expected timed equivalent wall time after recovery");
+  expect(recovered.landed.startedAt).toBeTruthy();
+  expect(recovered.landed.completedAt).toBeTruthy();
+  const asked = github.calls.length;
+  expect(await readLandedComparison(server, setup.identity)).toEqual(recovered);
   expect(github.calls.length).toBe(asked);
 });

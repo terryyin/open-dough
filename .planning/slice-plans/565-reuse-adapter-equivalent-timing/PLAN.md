@@ -79,7 +79,7 @@ for new observations is in scope here; retained final gaps are slice 2.
 ### 2. Retained final no-proof skip gaps recover under the new rule
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Seeded final `no-proof` history recovery and Done **Check again** /
 same-process recovery journeys from the ownership table.
 
@@ -147,6 +147,12 @@ Remaining slice-specific concerns: none identified.
 - CI repair on `dfc059a11`: retain first proof ask with a new measured pass;
   treat settled missing proof summaries as final (`proofPending: false`) so
   history/scope re-reads do not re-ask GitHub after collection.
+- Slice 2: reopen eligible retained equivalent `no-proof` gaps via
+  `reopenableRetainedNoProofSkip` / `reuseSettled`; Done memory treats unused
+  equivalent no-proof Landed answers like pending for same-process / Check
+  again recovery. Restart without collection does not recover history.
+  Focused proof: `landed-ci-history-no-proof-recovery.spec.ts` +
+  `intent-ci-comparison-answer-memory.spec.ts` (+ collection after merge).
 
 ## Story obligations
 
