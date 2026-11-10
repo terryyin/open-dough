@@ -106,12 +106,12 @@ Proof: Whole helper-survival and replacement-controls specs plus replacement rev
 
 Behavior: Two expensive execution starts prevent the runner test reaching its subject before 30 s → establish only the necessary native/session preconditions at the existing real launch boundary → drift/replacement actions and all original observations complete with margin. Bound the first experiment to these two journeys, canonical MakeMe records and actual clients; an unscoped ad hoc client is not a substitute for the scoped precondition. Ordinary execution/model UI proof stays with its inspected owners. G5 owns both failures.
 
-### 11. Loaded comparison source and sort journeys fit the case budget
+### 11. Loaded comparison reads use required-input readiness
 Type: Behavior
 Status: planned
-Proof: Both source variants and the sort test’s two cross-story loops pass three consecutive two-worker runs, including cold-worker preparation; preserve exact completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort on return. Add file/renamed/drilldown/scope-history consumers when the shared publisher changes; reuse only demonstrably unchanged proof. Record moved preparation in elapsed, not just case time.
+Proof: Whole source variants and sort’s two cross-story loops pass three fresh two-worker/default30 runs at load20–30. Preserve exact completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort. Prove moved touch wrapper’s native reading/readiness and actual cold concurrency before private origins. Include every moved preparation cost in elapsed; no family growth or lost private HOME.
 
-Behavior: The retained one-push private publisher still has unproved loaded margin → first observe the three current source/sort cases under the corrected bounded 20–30 profile, because the prior controller overshot 32.04 → accept the retained cut without more code if every original observation fits with margin. Otherwise profile actual Git/publication/initial-read phases before selecting one supported cheaper setup or proof boundary in the existing private owner; return before further variants. Keep preparationPage/StartOrigin isolation and all moved work in elapsed, with no family growth. Rejected history-cache lifetimes stay rejected. G4/G7 remain owned; no SEED-286 feature promise is added.
+Behavior: Valid pressure still exhausts sort after7.201s serial cold inputs → reuse queuedClaudePreviewReady through one named preparationPage test-fixture wrapper shared by source/sort/touch → all original private Git/publication/reading observations fit with margin. Keep the one-push history unchanged; pageTest registration changes only its comment. No beforeAll, worker option/pool split, new artifact lifetime or completed-history cache. Return if this single supported cut fails. [Profile and selected owner](comparison-evidence.md) retain G4/G7 and prior rejected evidence.
 
 ### 12. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -204,15 +204,15 @@ Disposition: proved by slice 6: touch-evidence.md accepted worker-input implemen
 
 ## Plan concern assessment
 
-Completed 1–5 and their accepted proof remain. Slice 6 is refined in place:
-width alone missed the default under valid pressure; exact cold-input readiness
-uses the existing owner/default worker fixture slot; beforeAll duplicated private setup. Actual actions/observations stay in each case.
-Its three incomplete paths were safely parked before this rewrite; touch
-proof/evidence and consumer obligations remain. Remaining 7–12 retain their
-single outcomes and proof loops. Twelve slices; no numeric exception/resplit,
-goal change, architecture decision or failure waiver. G4/G5/G7/G10 stay owned.
-The final trunk measurement keeps its explicit human checkpoint; execution
-stays Taken. This records refinement, not accepted slice 6 implementation.
+Completed 1–10 and compatible proof remain accepted. Slice11's corrected
+profile failed sort30.616s at valid24.032–26.448 load. No implementation paths
+needed parking: the tree was clean before this refinement. Its measured7.201s
+cold-input cost supports direct reuse/modularization of the accepted worker
+readiness in one shared private-origin wrapper. All original observations and
+paid elapsed remain. Remaining11/12 have cohesive gates and proof loops; twelve
+slices, no numeric exception/resplit, goal or failure waiver. G4/G7 stay owned;
+G1/G2/G3/G8 remain12. The trunk step retains its explicit human checkpoint.
+Execution stays Taken; this is readiness for the supported cut, not acceptance.
 
 ## Trunk measurement checkpoint
 

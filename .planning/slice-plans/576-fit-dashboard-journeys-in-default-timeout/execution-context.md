@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Latest accepted execution branch revision: `c8d87a32759abbd03c16207d0f5e1cb8fd218191`
-  (retained-host Codex progress overlaps native setup); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
+- Latest accepted execution branch revision: `84afbf850a1ca41f62c599122adf9cc981376a77`
+  (real Cursor lifetime preconditions and preserved scope proof); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
   `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher
