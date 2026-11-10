@@ -187,7 +187,6 @@ retain the 2026-11-10 diagnosis and source links unchanged.
 Primary homes for the scope above:
 [failure journey](../../dashboard/tests/runtime/production-watcher-failures.spec.ts),
 [restart journey](../../dashboard/tests/runtime/production-watcher.spec.ts),
-[recovery journey](../../dashboard/tests/sessions/agent-completion-recovery.spec.ts),
 [closure journeys](../../dashboard/tests/sessions/agent-completion-quiet.spec.ts),
 [reporting boundary](../../dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts),
 [touch review](../../dashboard/tests/review/story-review-touch.spec.ts),

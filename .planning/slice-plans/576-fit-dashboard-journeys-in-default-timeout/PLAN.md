@@ -66,7 +66,7 @@ Behavior: Several real watcher fixtures ingest the same live source independentl
 
 ### 5. One full retired closure; recovery variants at the reporting boundary
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-completion-quiet.spec.ts` still proves real Git retirement, installed reporting retry without repeating Git/native ops, and visible Done (reuse Story Branch Wrap Up where it can carry this; retain Land and Trunk Wrap Up paths). `agent-completion-quiet-closure.spec.ts` (and extensions) cover unavailable receiver / lost ack, failed and concurrent writes, reserved receipt isolation, message recovery after source deletion, stale receipt across restart, altered payload refusal, and post-deletion rejection as needed. Covered browser steps removed from `agent-completion-recovery.spec.ts`; three consecutive focused passes.
 
 Behavior: Browser recovery repeats full retirement and low-level fault variants → retain real retirement/reporting retry/visible Done once and establish each variant at the existing CLI/HTTP/store boundary before removing covered browser steps → the same closure promises fit the default with margin. Slice 12 removes the recovery allowance after that observation.
@@ -142,6 +142,8 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
 commands, timing conditions, inspected boundaries, and outstanding proof.
 [Source-ingestion proof and complete-family saving](source-ingestion-evidence.md)
 retain the subsequent accepted measurement and isolation/consumer observations.
+[Closure consolidation proof](closure-evidence.md) retains the full retired retry
+and moved reporting variants established before deleting duplicate browser work.
 
 ## Story obligations
 

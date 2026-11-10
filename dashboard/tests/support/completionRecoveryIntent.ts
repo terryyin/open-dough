@@ -1,7 +1,6 @@
 // Later substantive reporting, local intent and old-delivery recovery stay distinct.
 import { readFileSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import type { CompletionSubmission } from "../../server/completionAdmission.ts";
 import type { ReportingContext } from "../../src/launchRequest.ts";
@@ -13,18 +12,18 @@ import {
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stored } from "./codexStart.ts";
 import { rawRequest } from "./rawHttp.ts";
-import { messagePartOf } from "./sessionMessagePart.ts";
 import {
   reportingChild,
   retainedSubmission,
   completionProxy,
   quote,
 } from "./completionRecovery.ts";
-import { markDoneAnyway } from "./markDone.ts";
+import type { FakeCodex } from "./fakeCodex.ts";
+import { markDone } from "../agentLaunchBoundary.ts";
 
 export async function observeLaterCompletionIntent(options: {
-  page: Page;
   receiver: DashboardServer;
+  native: FakeCodex;
   context: ReportingContext;
   record: LaunchRecord;
   cwd: string;
@@ -33,10 +32,11 @@ export async function observeLaterCompletionIntent(options: {
   pending: string;
   receipt: CompletionReceipt;
   proxy: Awaited<ReturnType<typeof completionProxy>>;
+  restart: () => Promise<void>;
 }) {
   const {
-    page,
     receiver,
+    native,
     context,
     record,
     cwd,
@@ -45,8 +45,33 @@ export async function observeLaterCompletionIntent(options: {
     pending,
     receipt,
     proxy,
+    restart,
   } = options;
   expect(stored(receiver.home)[0]?.doneAt).toBe(receipt.receivedAt);
+  // Fresh unfinished attention replaces automatic Done without controlling
+  // the native conversation; the next quiet submission can close it again.
+  const nativeBefore = native.calls.length;
+  const openMessage = path.join(cwd, "remaining.txt");
+  const openText = "Remaining ownership decision is held before release.";
+  writeFileSync(openMessage, openText);
+  const unfinished = await reportingChild(
+    `${context.command} --outcome unfinished --message-file ${quote(openMessage)}`,
+    cwd,
+    env,
+  );
+  expect(unfinished.ok).toBe(true);
+  expect(stored(receiver.home)[0]?.completion).toMatchObject({
+    outcome: "unfinished",
+    message: openText,
+  });
+  expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
+  expect(
+    native.calls
+      .slice(nativeBefore)
+      .filter((call) =>
+        ["turn/start", "turn/interrupt", "thread/resume"].includes(call.method),
+      ),
+  ).toEqual([]);
   // Fresh quiet reporting transfers automatic Done to its own receipt.
   const quiet = await reportingChild(
     `${context.command} --outcome completed`,
@@ -60,6 +85,16 @@ export async function observeLaterCompletionIntent(options: {
     quietReceipt.receipt,
   );
   expect(stored(receiver.home)[0]?.doneAt).toBe(quietReceipt.receivedAt);
+  expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
+    receipt,
+  );
+  expect(stored(receiver.home)[0]?.completion?.receipt).toBe(
+    quietReceipt.receipt,
+  );
+  expect(stored(receiver.home)[0]?.doneAt).toBe(quietReceipt.receivedAt);
+  // The old receipt remains idempotent across a real receiver restart, without
+  // replacing the newer automatic Done that came from a distinct submission.
+  await restart();
   expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
     receipt,
   );
@@ -100,18 +135,13 @@ export async function observeLaterCompletionIntent(options: {
     newerReceipt.receipt,
   );
   expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
-  await page.reload();
-  const recent = page
-    .locator(".board .session-entry")
-    .filter({ hasText: record.session.sessionId });
-  const part = messagePartOf(recent);
-  await expect(part.text).toHaveText(text);
-  await part.markRead.click();
-  await expect(part.markRead).toHaveCount(0);
-  await recent.getByRole("button", { name: "Read final report" }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await markDoneAnyway(panel);
-  await expect.poll(() => stored(receiver.home)[0]?.doneAt).toBeDefined();
+  const done = await markDone(receiver, {
+    source: "open-dough",
+    host: record.session.host,
+    session: record.session.sessionId,
+  });
+  expect(done.status).toBe(200);
+  expect(stored(receiver.home)[0]?.doneAt).toBeDefined();
   const manualDone = stored(receiver.home)[0]?.doneAt;
   expect((await reportingChild(retry, cwd, env)).ok).toBe(true);
   expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
@@ -154,11 +184,17 @@ export async function observeLaterCompletionIntent(options: {
     heldReceipt.receipt,
   );
   expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
-  await page.reload();
-  await expect(recent).toContainText("Done");
-  // Done, the message is collapsed under its label until expanded.
-  await recent.getByRole("button", { name: "Unfinished work" }).click();
-  await expect(part.text).toHaveText(remaining);
+  // A second restart preserves deliberate Done and the newest unfinished
+  // message even when the installed CLI retries the original quiet receipt.
+  await restart();
+  expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
+    receipt,
+  );
+  expect(stored(receiver.home)[0]?.completion?.receipt).toBe(
+    heldReceipt.receipt,
+  );
+  expect(stored(receiver.home)[0]?.completion?.message).toBe(remaining);
+  expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
   const malformedRetry = await rawRequest({
     url: `${context.origin}/__agent-launch/completion`,
     method: "POST",

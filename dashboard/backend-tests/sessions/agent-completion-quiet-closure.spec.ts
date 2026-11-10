@@ -1,8 +1,8 @@
 // Focused quiet-Done and incomplete-completion recovery at the reporting
 // boundary: Done needs landing + empty completed + readable closure; unacked
 // completion stays reporting-only; unfinished never manufactures Done. Full
-// retirement journeys remain in agent-completion-quiet/recovery.
-import { writeFileSync, rmSync } from "node:fs";
+// retirement journeys remain in agent-completion-quiet.
+import { rmSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
@@ -19,10 +19,15 @@ import {
 } from "../../tests/support/retainedReport.ts";
 import {
   reportingChild,
-  quote,
+  recordOperation,
+  completionWriteFault,
   completionProxy,
 } from "../../tests/support/completionRecovery.ts";
-import { unavailableCompletion } from "../../tests/support/completionRecoveryFaults.ts";
+import {
+  unacknowledgedCompletion,
+  observeCompletionFaults,
+} from "../../tests/support/completionRecoveryFaults.ts";
+import { observeLaterCompletionIntent } from "../../tests/support/completionRecoveryIntent.ts";
 
 test.use({ serverMode: "boundary" });
 
@@ -95,7 +100,7 @@ test("quiet Done needs landing and readable closure; unacked completion recovers
     },
   ]);
   await dashboard.close();
-  const saved = await unavailableCompletion(
+  const saved = await unacknowledgedCompletion(
     context,
     origin.machine,
     dashboard.home,
@@ -105,64 +110,60 @@ test("quiet Done needs landing and readable closure; unacked completion recovers
   expect(saved.retry).toContain(saved.pending);
 
   // Receiver on a fresh port; proxy keeps the launch origin the pending file names.
-  const restarted = await startDashboardServer({
+  const fault = completionWriteFault(origin.machine);
+  let restarted = await startDashboardServer({
     mode: "boundary",
     machine: origin.machine,
     github: dashboard.github,
     codexProtocol: native,
+    extraEnv: fault.env,
   });
   const proxy = await completionProxy(dashboard.origin, restarted.baseURL);
   try {
-    // Lost acknowledgment after the receiver persisted: recover the same receipt
-    // without a second substantive submission or Git/retirement work.
-    proxy.dropNext();
-    const lost = await reportingChild(saved.retry, origin.machine);
-    expect(lost.ok).toBe(false);
-    expect(lost.stdout).toBe("");
-    expect(proxy.lost()).toBe(1);
-    const durable = stored(restarted.home)[0];
-    expect(durable?.completion?.delivery).toBe(saved.delivery);
-    expect(durable?.completion?.message).toBe("");
-    expect(durable?.doneAt).toBe(durable?.completion?.receivedAt);
-    const recovered = await reportingChild(saved.retry, origin.machine);
-    expect(recovered.ok).toBe(true);
-    const recoveredReceipt = completionReceiptSchema.parse(
-      JSON.parse(recovered.stdout),
-    );
-    expect(recoveredReceipt).toMatchObject(durable?.completion ?? {});
-    expect(
-      JSON.parse((await reportingChild(saved.retry, origin.machine)).stdout),
-    ).toEqual(recoveredReceipt);
-    expect(stored(restarted.home)[0]?.doneAt).toBe(durable?.doneAt);
-
-    // Unfinished attention replaces automatic Done and stays unfinished.
-    const message = path.join(origin.machine, "held-remaining.txt");
-    const text = "Remaining ownership decision is held before release.";
-    writeFileSync(message, text);
-    const nativeBefore = native.calls.length;
-    const unfinished = await reportingChild(
-      `${context.command} --outcome unfinished --message-file ${quote(message)}`,
-      origin.machine,
-    );
-    expect(unfinished.ok).toBe(true);
-    const unfinishedReceipt = completionReceiptSchema.parse(
-      JSON.parse(unfinished.stdout),
-    );
-    expect(unfinishedReceipt).toMatchObject({
-      outcome: "unfinished",
-      message: text,
+    const receipt = await observeCompletionFaults({
+      receiver: restarted,
+      record: closed,
+      cwd: origin.machine,
+      env: process.env,
+      retry: saved.retry,
+      delivery: saved.delivery,
+      proxy,
+      fault,
     });
-    expect(stored(restarted.home)[0]?.completion?.message).toBe(text);
-    expect(stored(restarted.home)[0]?.doneAt).toBeUndefined();
-    expect(
-      native.calls
-        .slice(nativeBefore)
-        .filter((call) =>
-          ["turn/start", "turn/interrupt", "thread/resume"].includes(
-            call.method,
-          ),
-        ),
-    ).toEqual([]);
+    await observeLaterCompletionIntent({
+      receiver: restarted,
+      native,
+      context,
+      record: closed,
+      cwd: origin.machine,
+      env: process.env,
+      retry: saved.retry,
+      pending: saved.pending,
+      receipt,
+      proxy,
+      restart: async () => {
+        const port = Number(new URL(restarted.baseURL).port);
+        await restarted.close();
+        restarted = await startDashboardServer({
+          mode: "boundary",
+          machine: origin.machine,
+          github: dashboard.github,
+          codexProtocol: native,
+          port,
+        });
+      },
+    });
+    await recordOperation(restarted, "deleteRecord", [
+      "open-dough",
+      record.session,
+    ]);
+    const deleted = await reportingChild(saved.retry, origin.machine);
+    expect(deleted.ok).toBe(false);
+    expect(deleted.stdout).toBe("");
+    await expect(
+      recordOperation(restarted, "bindRecord", ["open-dough", record]),
+    ).rejects.toThrow("The reporting session was deleted");
+    expect(stored(restarted.home)).toHaveLength(0);
   } finally {
     await proxy.close();
     await restarted.close();
