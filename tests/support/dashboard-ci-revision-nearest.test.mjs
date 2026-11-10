@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { selectRevisionAttempt } from "../../dashboard/server/baseCiRevisionAttempt.ts";
 import { nearestRevisionBuild } from "../../dashboard/server/baseCiRevisionNearest.ts";
+import { makeMe } from "./makeMe.mjs";
 
 const sha = (n) => n.padEnd(40, "0");
 const a = sha("a");
@@ -13,40 +14,48 @@ const c = sha("c");
 const start = sha("s");
 
 test("selectRevisionAttempt prefers a completed timed attempt over a cancelled latest", () => {
-  const cancelled = {
-    databaseId: 9,
-    attempt: 2,
-    headSha: a,
-    status: "completed",
-    conclusion: "cancelled",
-    createdAt: "2026-11-05T12:01:00Z",
-  };
-  const passed = {
-    databaseId: 9,
-    attempt: 1,
-    headSha: a,
-    status: "completed",
-    conclusion: "success",
-    createdAt: "2026-11-05T12:00:00Z",
-    startedAt: "2026-11-05T12:00:00Z",
-    completedAt: "2026-11-05T12:03:00Z",
-  };
+  const cancelled = makeMe.aRevisionCiRun
+    .with({
+      databaseId: 9,
+      attempt: 2,
+      headSha: a,
+      status: "completed",
+      conclusion: "cancelled",
+      createdAt: "2026-11-05T12:01:00Z",
+      startedAt: undefined,
+      completedAt: undefined,
+    })
+    .please();
+  const passed = makeMe.aRevisionCiRun
+    .with({
+      databaseId: 9,
+      attempt: 1,
+      headSha: a,
+      status: "completed",
+      conclusion: "success",
+      createdAt: "2026-11-05T12:00:00Z",
+      startedAt: "2026-11-05T12:00:00Z",
+      completedAt: "2026-11-05T12:03:00Z",
+    })
+    .please();
   assert.equal(selectRevisionAttempt([cancelled], a, [passed])?.attempt, 1);
 });
 
 test("nearestRevisionBuild labels an ancestor and stops at the story-start bound", async () => {
   const runs = {
     [a]: [
-      {
-        databaseId: 1,
-        attempt: 1,
-        headSha: a,
-        status: "completed",
-        conclusion: "success",
-        createdAt: "2026-11-05T12:00:00Z",
-        startedAt: "2026-11-05T12:00:00Z",
-        completedAt: "2026-11-05T12:03:00Z",
-      },
+      makeMe.aRevisionCiRun
+        .with({
+          databaseId: 1,
+          attempt: 1,
+          headSha: a,
+          status: "completed",
+          conclusion: "success",
+          createdAt: "2026-11-05T12:00:00Z",
+          startedAt: "2026-11-05T12:00:00Z",
+          completedAt: "2026-11-05T12:03:00Z",
+        })
+        .please(),
     ],
   };
   const lookup = {
@@ -67,28 +76,32 @@ test("nearestRevisionBuild labels an ancestor and stops at the story-start bound
 test("nearestRevisionBuild walks past a timed build whose proof is not usable", async () => {
   const runs = {
     [b]: [
-      {
-        databaseId: 2,
-        attempt: 1,
-        headSha: b,
-        status: "completed",
-        conclusion: "success",
-        createdAt: "2026-11-05T12:30:00Z",
-        startedAt: "2026-11-05T12:30:00Z",
-        completedAt: "2026-11-05T12:33:00Z",
-      },
+      makeMe.aRevisionCiRun
+        .with({
+          databaseId: 2,
+          attempt: 1,
+          headSha: b,
+          status: "completed",
+          conclusion: "success",
+          createdAt: "2026-11-05T12:30:00Z",
+          startedAt: "2026-11-05T12:30:00Z",
+          completedAt: "2026-11-05T12:33:00Z",
+        })
+        .please(),
     ],
     [a]: [
-      {
-        databaseId: 1,
-        attempt: 1,
-        headSha: a,
-        status: "completed",
-        conclusion: "success",
-        createdAt: "2026-11-05T12:00:00Z",
-        startedAt: "2026-11-05T12:00:00Z",
-        completedAt: "2026-11-05T12:03:00Z",
-      },
+      makeMe.aRevisionCiRun
+        .with({
+          databaseId: 1,
+          attempt: 1,
+          headSha: a,
+          status: "completed",
+          conclusion: "success",
+          createdAt: "2026-11-05T12:00:00Z",
+          startedAt: "2026-11-05T12:00:00Z",
+          completedAt: "2026-11-05T12:03:00Z",
+        })
+        .please(),
     ],
   };
   const lookup = {

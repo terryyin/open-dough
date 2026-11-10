@@ -37,7 +37,7 @@ export function gitHubHolding({ repository, runs, summaries = {}, refused }) {
     return parseActionsRequest(route);
   };
   const runOf = (runId) => {
-    const run = runs.find((each) => each.id === runId);
+    const run = runs.find((each) => (each.databaseId ?? each.id) === runId);
     return {
       repository,
       runId,

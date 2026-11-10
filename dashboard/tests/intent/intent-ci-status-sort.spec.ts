@@ -15,6 +15,7 @@ import {
   run,
 } from "../intentCiProofPage.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   counts,
   proofSummary,
@@ -54,7 +55,14 @@ test("Proof sorts by Test execution time and Counts by click, Enter and Space, u
     () => runArtifactsAnswer(run, artifactId),
     () => summaryZipAnswer(exampleSummary()),
     () => [
-      { headSha: judged, conclusion: "success", url: runUrl, id: run.runId },
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          conclusion: "success",
+          url: runUrl,
+          databaseId: run.runId,
+        })
+        .please(),
     ],
   );
   const table = proofTable(proof);

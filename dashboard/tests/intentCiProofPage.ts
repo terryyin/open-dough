@@ -19,6 +19,7 @@ import {
   runUrl,
   trunkCi,
 } from "./intentCiStatusPage.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";
@@ -40,7 +41,14 @@ export async function openFailedRun(
   artifacts: () => OriginAnswer,
   zip: () => OriginAnswer | Promise<OriginAnswer>,
   runs: () => readonly CiRunAnswer[] = () => [
-    { headSha: judged, conclusion: "failure", id: run.runId, url: runUrl },
+    makeMe.aCiRun
+      .with({
+        headSha: judged,
+        conclusion: "failure",
+        databaseId: run.runId,
+        url: runUrl,
+      })
+      .please(),
   ],
 ) {
   const judgment = trunkCi(openDough.revision, runs);

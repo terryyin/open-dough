@@ -4,6 +4,9 @@
 // share these so the default passing head and journey overrides stay one rule.
 
 import { execFileSync } from "node:child_process";
+import { apiRun } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { observedRunForApi } from "../../../tests/support/ciRunTestData.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { GhCall } from "./fakeGitHub.ts";
 import { isActionsRequest } from "./ghActionsRequest.ts";
@@ -12,15 +15,19 @@ import { isActionsRequest } from "./ghActionsRequest.ts";
 // (SEED-210): every-repository and owned-GitHub defaults answer this revision.
 export const defaultBaseCiRevision = "ab".repeat(20);
 
+// Observed GitHub run facts (`apiRun` / MakeMe `aCiRun`). Compatibility `id`
+// mirrors `databaseId` while unconverted consumers still read it.
 export type CiRunAnswer = {
   readonly headSha: string;
-  readonly conclusion?:
-    "success" | "failure" | "cancelled" | "timed_out" | "skipped";
-  readonly status?: "completed" | "in_progress" | "queued";
+  readonly databaseId?: number;
   readonly id?: number;
   readonly attempt?: number;
+  readonly headBranch?: string;
+  readonly event?: string;
+  readonly conclusion?:
+    "success" | "failure" | "cancelled" | "timed_out" | "skipped" | null;
+  readonly status?: "completed" | "in_progress" | "queued";
   readonly url?: string;
-  // Optional wall-time bounds as GitHub Actions lists them.
   readonly createdAt?: string;
   readonly startedAt?: string;
   readonly completedAt?: string;
@@ -44,30 +51,9 @@ export function actionsRunsAnswer(
     status: 200,
     contentType: "application/json; charset=utf-8",
     body: JSON.stringify({
-      workflow_runs: runs.map((run, index) => {
-        const status = run.status ?? "completed";
-        return {
-          id: run.id ?? index + 1,
-          run_attempt: run.attempt ?? 1,
-          head_sha: run.headSha,
-          head_branch: branch,
-          event: "push",
-          status,
-          conclusion:
-            run.conclusion ?? (status === "completed" ? "success" : null),
-          html_url:
-            run.url ?? `https://ci.invalid/${String(run.id ?? index + 1)}`,
-          created_at:
-            run.createdAt ??
-            `2026-10-01T00:${String(index).padStart(2, "0")}:00Z`,
-          ...(run.startedAt === undefined
-            ? {}
-            : { run_started_at: run.startedAt }),
-          ...(run.completedAt === undefined
-            ? {}
-            : { updated_at: run.completedAt }),
-        };
-      }),
+      workflow_runs: runs.map((run, index) =>
+        apiRun(observedRunForApi(run, branch, index)),
+      ),
     }),
   };
 }
@@ -80,7 +66,10 @@ export function passingActionsAnswer(
   branch = "main",
 ): OriginAnswer {
   if (kind === "actions-workflow") return actionsWorkflowAnswer();
-  return actionsRunsAnswer([{ headSha, conclusion: "success" }], branch);
+  return actionsRunsAnswer(
+    [makeMe.aCiRun.with({ headSha, conclusion: "success" }).please()],
+    branch,
+  );
 }
 
 // Default Actions / empty-path commit-list answers for a published head so

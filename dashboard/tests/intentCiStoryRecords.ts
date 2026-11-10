@@ -19,6 +19,7 @@ import {
 } from "./intentCiStoryBoard.ts";
 import { notFoundAnswer, type OriginAnswer } from "./originAnswers.ts";
 import { publishMovingFiles, type MovingFiles } from "./publishedFiles.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
@@ -105,16 +106,18 @@ export function publishStoryCi(
       ]),
     ),
   });
+  const ciRun = (facts: Parameters<(typeof makeMe.aCiRun)["with"]>[0]) =>
+    makeMe.aCiRun.with(facts).please();
   const runs: Record<string, readonly CiRunAnswer[]> = {
     main: [
-      { headSha: login, conclusion: "success", url: mainRun },
-      { headSha: signup, conclusion: "success", url: mainRun },
+      ciRun({ headSha: login, conclusion: "success", url: mainRun }),
+      ciRun({ headSha: signup, conclusion: "success", url: mainRun }),
     ],
     [failing.branch]: [
-      { headSha: broken, conclusion: "failure", url: failedRun },
+      ciRun({ headSha: broken, conclusion: "failure", url: failedRun }),
     ],
     [running.branch]: [
-      { headSha: started, status: "in_progress", url: runningRun },
+      ciRun({ headSha: started, status: "in_progress", url: runningRun }),
     ],
   };
   const held = new Map<string, Promise<void>>();

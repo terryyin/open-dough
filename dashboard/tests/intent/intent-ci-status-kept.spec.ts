@@ -12,6 +12,7 @@ import {
   moveOpenDoughTrunk,
   publishMovingOpenDough,
 } from "../intentMovingOpenDough.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   chooseCiStatus,
   ciPanel,
@@ -40,7 +41,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
   await page.setViewportSize({ width: 1280, height: 800 });
   publishMovingOpenDough(page).serveCi(
     trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   publishProject(page, doughnut);
@@ -95,7 +98,9 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   const published = publishMovingOpenDough(page);
   published.serveCi(
     trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
@@ -133,8 +138,12 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   const head = "e8".repeat(20);
   published.serveCi(
     trunkCi(head, () => [
-      { headSha: head, conclusion: "failure", url: runUrl },
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: head, conclusion: "failure", url: runUrl })
+        .please(),
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   moveOpenDoughTrunk(published, head);

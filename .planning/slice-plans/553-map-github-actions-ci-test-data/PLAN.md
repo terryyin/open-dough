@@ -2,6 +2,7 @@
 
 **Identity:** SEED-261#map-github-actions-ci-test-data
 **Source:** [Refined story](../../seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and boundaries
 
@@ -208,7 +209,7 @@ overrides.
 
 ### 1. Revision judgment and CI status share the run facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 1 and 2. Run dashboard selections `tests/launches/agent-launch-base-ci`, `tests/intent/intent-ci-status` and `tests/intent/intent-ci-proof-(ancestor|reasons|sources)`, plus the Node support checks `dashboard-ci-revision-nearest.test.mjs`, `dashboard-story-branch-ci.test.mjs` and `requested-revision-ci-status.test.mjs` under `tests/support/`. Run affected project visit/home activation journeys found by the trace.
 
 A test states selected-revision and ancestor run facts through MakeMe → the
@@ -312,3 +313,41 @@ needed. One construction rule and transport encoding serve GitHub facts while
 harnesses retain operations and exact evidence. No remaining slice-specific,
 cumulative-design, scope, proof-route, or human-owned decision concern was
 identified. Readiness records preparation only; all five slices remain planned.
+
+
+## Progress and learnings
+
+### Slice 1
+Revision judgment and Intent CI status arrange GitHub run facts through
+production-aligned MakeMe (`databaseId` / observed shape) → `apiRun` → real
+judgment and status reads. Shared construction lives in
+`tests/support/ciRunTestData.mjs` (`githubCiRunFacts`); MakeMe entry exposes CI
+and launch builder groups from `ciMakeMe.mjs` / `launchMakeMe.mjs` under the
+250-line limit. `aRevisionCiRun` reuses the same GitHub facts and keeps
+`adapterAttempt` distinct. Compatibility `id` mirrors `databaseId` while later
+callers still read it. Comparison `wall` / job builders remain for slice 2.
+
+Learning: `aRevisionCiRun` timing defaults must not be applied to judgment-only
+Node cases that previously omitted wall-time bounds; those use `aCiRun`
+(optionally with `branch`) instead.
+
+Accepted focused proof (literal commands retained in execution conversation):
+dashboard agent-launch-base-ci / intent-ci-status / intent-ci-proof-* /
+intent-project-visit-ci / intent-home-activation (46 passed) plus
+agent-launch-base-ci-recheck (2); Node nearest / story-branch / requested-revision
+and ci-proof-leads*; typecheck:dashboard; lint; native-evidence-identity.
+
+## Story obligations
+
+### G1. CI adapter attempts belong to sibling stories
+Reported: slice 1 — "source review — sibling-story ownership of CI adapter attempts"
+Story clause: "CI adapter attempts, queue and coverage records, and CI proof fragments and summaries belong to the sibling stories."
+Disposition: excluded "CI adapter attempts, queue and coverage records, and CI proof fragments and summaries belong to the sibling stories."
+Commitment: 21.1, 21.2, 21.3
+
+
+### G2. No new UI, provider-contract, or CI-policy promise
+Reported: slice 1 — "source review — story makes no new UI/provider/CI-policy promise"
+Story clause: "it makes no new UI, provider-contract or CI-policy promise."
+Disposition: excluded "it makes no new UI, provider-contract or CI-policy promise."
+Commitment: 24.1, 24.2, 24.3

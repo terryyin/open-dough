@@ -26,6 +26,7 @@ import {
   untilPageReadsAnswered,
 } from "../pageRequestNotes.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiAnswerer, CiRunAnswer } from "../support/baseCiActions.ts";
 
 test("a warm Intent show returns the kept answer labelled previously retrieved with a spinner until the fresh answer replaces it", async ({
@@ -34,7 +35,9 @@ test("a warm Intent show returns the kept answer labelled previously retrieved w
   await page.setViewportSize({ width: 1280, height: 800 });
   await pausePageClockAt(page, new Date("2026-11-05T12:00:00.000Z"));
   let runs: readonly CiRunAnswer[] = [
-    { headSha: judged, conclusion: "success", url: runUrl },
+    makeMe.aCiRun
+      .with({ headSha: judged, conclusion: "success", url: runUrl })
+      .please(),
   ];
   let holdFresh: Promise<void> = Promise.resolve();
   let releaseFresh: () => void = () => undefined;
@@ -60,7 +63,15 @@ test("a warm Intent show returns the kept answer labelled previously retrieved w
 
   await test.step("twenty minutes later, reopen Intent: kept answer at once with previously retrieved and spinner, then fresh replaces it", async () => {
     await page.clock.setFixedTime(new Date("2026-11-05T12:20:00.000Z"));
-    runs = [{ headSha: judged, conclusion: "failure", url: `${runUrl}-newer` }];
+    runs = [
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          conclusion: "failure",
+          url: `${runUrl}-newer`,
+        })
+        .please(),
+    ];
     holdFresh = new Promise<void>((resolve) => {
       releaseFresh = resolve;
     });
@@ -113,7 +124,9 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
     }
     return (
       trunkCi(openDough.revision, () => [
-        { headSha: judged, conclusion: "success", url: runUrl },
+        makeMe.aCiRun
+          .with({ headSha: judged, conclusion: "success", url: runUrl })
+          .please(),
       ])(call) ?? httpErrorAnswer(500, "unexpected CI call")
     );
   });

@@ -99,7 +99,7 @@ const unopenableArchive = (): OriginAnswer => ({
 
 // A usable CI proof summary of `run`, as its own collector wrote it.
 export function usableProofOf(run: CiRunAnswer): ComparisonProofServe {
-  const runId = run.id ?? 0;
+  const runId = run.databaseId ?? run.id ?? 0;
   return {
     kind: "summary",
     artifactId: runId * 10,

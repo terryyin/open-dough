@@ -57,16 +57,25 @@ test("a published CI summary for a sources location shows its group and file res
     [nodeTest]: "export {};\n",
   });
   ci.runs.main = [
-    {
-      headSha: signup,
-      conclusion: "success",
-      url: mainRun,
-      id: 12,
-      attempt: 2,
-    },
+    makeMe.aCiRun
+      .with({
+        headSha: signup,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 12,
+        attempt: 2,
+      })
+      .please(),
   ];
   ci.runs[running.branch] = [
-    { headSha: started, status: "in_progress", url: runUrl, id: 13 },
+    makeMe.aCiRun
+      .with({
+        headSha: started,
+        status: "in_progress",
+        url: runUrl,
+        databaseId: 13,
+      })
+      .please(),
   ];
   const summary = collectedSummary(
     ancestor,

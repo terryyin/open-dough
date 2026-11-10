@@ -29,6 +29,7 @@ import {
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyTitle } from "../support/intentStoryPage.ts";
 
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
@@ -134,7 +135,9 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     // The ancestor's own run link.
     await expect(panel.getByRole("link", { name: mainRun })).toBeVisible();
     ci.runs[running.branch] = [
-      { headSha: started, conclusion: "success", url: runningRun },
+      makeMe.aCiRun
+        .with({ headSha: started, conclusion: "success", url: runningRun })
+        .please(),
     ];
     await panel.getByRole("button", { name: "Check again" }).click();
     await expect(panel.locator(".intent-ci-state")).toHaveText(
@@ -192,7 +195,9 @@ test("a push to the shown story branch, seen by the revision check, reads its ju
   await test.step("a push to the shown branch reads its judgment once more, by itself", async () => {
     const fixed = "c0ffee1".padEnd(40, "0");
     ci.runs[failing.branch] = [
-      { headSha: fixed, conclusion: "success", url: failedRun },
+      makeMe.aCiRun
+        .with({ headSha: fixed, conclusion: "success", url: failedRun })
+        .please(),
     ];
     ci.push(failing.branch, fixed, "Fix the login");
     const before = calls.length;
