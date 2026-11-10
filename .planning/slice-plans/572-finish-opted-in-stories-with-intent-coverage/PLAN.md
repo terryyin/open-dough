@@ -219,6 +219,7 @@ Explicit skips remain skips; direct wrap-up invents no process review.
   commitments observed. Refactor complete (whitespace residue only).
 - Learning: keep join concise in wrap-up; route gap/priority detail through
   `follow-up-disposition.md` to stay under the 250-line check.
+- CI repair (run 42789213880): restore 120s on `agent-completion-recovery.spec.ts` (30s default insufficient under shard load; SEED-287 owns fitting without it).
 - Expected runtime edits currently fit the 250-line check: Wrap Up 250,
   retrospective 246, finish-or-stop 219, follow-up disposition 59 and shared
   process-review reference 25. Replace obsolete sections and keep cohesive
