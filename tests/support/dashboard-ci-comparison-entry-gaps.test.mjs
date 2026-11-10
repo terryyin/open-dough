@@ -31,7 +31,7 @@ test("expired proofs keep an explained empty comparison", () => {
       runId: 1,
       runAttempt: 1,
     },
-    { kind: "unavailable", reason: "expired" },
+    makeMe.aCiProof.unavailableBecause("expired").please(),
     false,
   );
   const result = comparisonEntriesOf(expired, expired, expired);
@@ -58,39 +58,30 @@ test("a summary without durations never becomes zero", () => {
 });
 
 test("a partial endpoint shows its gap labels and keeps measured zero distinct", () => {
-  const parts = (second) => ({
-    path: "tests",
-    evidence: [
-      {
-        unit: "case",
-        passed: 2,
-        failed: 0,
-        other: 0,
-        parts: [
-          {
-            part: 1,
-            status: "present",
-            passed: 1,
-            failed: 0,
-            other: 0,
-            durationMs: 0,
-          },
-          {
-            part: 2,
-            status: "present",
-            passed: 1,
-            failed: 0,
-            other: 0,
-            ...second,
-          },
-        ],
-      },
-    ],
-  });
+  const partial = makeMe.aCiProofEntry
+    .at("tests")
+    .holding(
+      makeMe.aCiProofEvidence
+        .inUnit("case")
+        .timed(0)
+        .withPresentPart(2, { passed: 1, untimed: 0 })
+        .please(),
+    )
+    .please();
+  const measured = makeMe.aCiProofEntry
+    .at("tests")
+    .holding(
+      makeMe.aCiProofEvidence
+        .inUnit("case")
+        .timed(0)
+        .withPresentPart(2, { passed: 1, durationMs: 0 })
+        .please(),
+    )
+    .please();
   const result = comparisonEntriesOf(
-    summary(parts({})),
-    summary(parts({ durationMs: 0 })),
-    summary(parts({ durationMs: 0 })),
+    summary(partial),
+    summary(measured),
+    summary(measured),
   );
   assert.equal(result.kind, "rows");
   const [row] = result.rows;

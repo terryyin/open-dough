@@ -10,36 +10,27 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { nextSort, sortedRows } from "../../dashboard/src/ciProofSort.ts";
 import { ciProofCellsOf } from "../../dashboard/src/ciProofWording.ts";
+import { makeMe } from "./makeMe.mjs";
 
-const part = (number, extra = {}) => ({
-  part: number,
-  status: "present",
-  passed: 1,
-  failed: 0,
-  other: 0,
-  ...extra,
+const rowOf = (entry) => ({
+  name: entry.path,
+  cells: ciProofCellsOf(entry.evidence[0]),
 });
-
-// An entry at PATH whose test cases are PARTS, its counts the sum of theirs.
-const entryOf = (path, parts) => ({
-  path,
-  unit: "case",
-  passed: parts.reduce((sum, p) => sum + (p.passed ?? 0), 0),
-  failed: parts.reduce((sum, p) => sum + (p.failed ?? 0), 0),
-  other: 0,
-  parts,
-});
-
-const rowOf = (entry) => ({ name: entry.path, cells: ciProofCellsOf(entry) });
 const names = (rows) => rows.map((row) => row.name);
 const sortBy = (rows, column, direction) =>
   names(sortedRows(rows, { column, direction }));
 
 // Key example 1: 12.5 s, 340 ms and Part 2 untimed.
 const exampleRows = [
-  rowOf(entryOf("tests/a", [part(1, { durationMs: 12_500 })])),
-  rowOf(entryOf("tests/b", [part(1, { durationMs: 340 })])),
-  rowOf(entryOf("tests/c", [part(1, { durationMs: 1_000 }), part(2, {})])),
+  rowOf(makeMe.aCiProofEntry.at("tests/a").timed(12_500).please()),
+  rowOf(makeMe.aCiProofEntry.at("tests/b").timed(340).please()),
+  rowOf(
+    makeMe.aCiProofEntry
+      .at("tests/c")
+      .timed(1_000)
+      .withUnbrokenPart({ passed: 1, untimed: 0 })
+      .please(),
+  ),
 ];
 
 test("rows keep the given order until a column is sorted", () => {
@@ -87,19 +78,16 @@ test("measured time sorts both ways with the partial row last", () => {
 
 test("unmeasured rows keep their given order after measured ones in either direction", () => {
   const rows = [
-    rowOf(entryOf("x/untimed-1", [part(1, {})])),
-    rowOf(entryOf("x/fast", [part(1, { durationMs: 10 })])),
+    rowOf(makeMe.aCiProofEntry.at("x/untimed-1").please()),
+    rowOf(makeMe.aCiProofEntry.at("x/fast").timed(10).please()),
     rowOf(
-      entryOf("x/missing", [
-        part(1, { durationMs: 5 }),
-        { part: 2, status: "missing" },
-      ]),
+      makeMe.aCiProofEntry.at("x/missing").timed(5).missingParts(2).please(),
     ),
-    rowOf(entryOf("x/slow", [part(1, { durationMs: 900 })])),
+    rowOf(makeMe.aCiProofEntry.at("x/slow").timed(900).please()),
     {
       name: "x/unavailable",
       cells: {
-        ...rowOf(entryOf("x/u", [part(1)])).cells,
+        ...rowOf(makeMe.aCiProofEntry.at("x/u").please()).cells,
         executionTime: { text: "no CI result" },
       },
     },
@@ -115,7 +103,7 @@ test("unmeasured rows keep their given order after measured ones in either direc
 
 test("ties keep the given order", () => {
   const rows = ["t/3", "t/1", "t/2"].map((path) =>
-    rowOf(entryOf(path, [part(1, { durationMs: 100 })])),
+    rowOf(makeMe.aCiProofEntry.at(path).timed(100).please()),
   );
   for (const direction of ["ascending", "descending"])
     assert.deepEqual(sortBy(rows, "executionTime", direction), [
@@ -127,10 +115,20 @@ test("ties keep the given order", () => {
 
 test("Counts sorts by counted results with failed first among equal totals", () => {
   const rows = [
-    rowOf(entryOf("c/three-passed", [part(1, { passed: 3 })])),
-    rowOf(entryOf("c/one", [part(1, { passed: 1 })])),
-    rowOf(entryOf("c/three-one-failed", [part(1, { passed: 2, failed: 1 })])),
-    rowOf(entryOf("c/three-two-failed", [part(1, { passed: 1, failed: 2 })])),
+    rowOf(makeMe.aCiProofEntry.at("c/three-passed").counting(3).please()),
+    rowOf(makeMe.aCiProofEntry.at("c/one").counting(1).please()),
+    rowOf(
+      makeMe.aCiProofEntry
+        .at("c/three-one-failed")
+        .holding(makeMe.aCiProofEvidence.inUnit("case").counting(2, 1).please())
+        .please(),
+    ),
+    rowOf(
+      makeMe.aCiProofEntry
+        .at("c/three-two-failed")
+        .holding(makeMe.aCiProofEvidence.inUnit("case").counting(1, 2).please())
+        .please(),
+    ),
   ];
   assert.deepEqual(sortBy(rows, "counts", "ascending"), [
     "c/one",
@@ -149,14 +147,18 @@ test("Counts sorts by counted results with failed first among equal totals", () 
 test("Entry sorts by path name", () => {
   const rows = [
     rowOf(
-      entryOf("p/b", [
-        part(1),
-        { part: 2, status: "missing" },
-        { part: 3, status: "missing" },
-      ]),
+      makeMe.aCiProofEntry
+        .at("p/b")
+        .inParts(3, { missing: [2, 3] })
+        .please(),
     ),
-    rowOf(entryOf("p/c", [part(1)])),
-    rowOf(entryOf("p/a", [part(1), { part: 2, status: "ambiguous" }])),
+    rowOf(makeMe.aCiProofEntry.at("p/c").please()),
+    rowOf(
+      makeMe.aCiProofEntry
+        .at("p/a")
+        .inParts(2, { ambiguous: [2] })
+        .please(),
+    ),
   ];
   assert.deepEqual(sortBy(rows, "scope", "ascending"), ["p/a", "p/b", "p/c"]);
   assert.deepEqual(sortBy(rows, "scope", "descending"), ["p/c", "p/b", "p/a"]);
@@ -165,11 +167,13 @@ test("Entry sorts by path name", () => {
 test("a pinned row stays last under any sort", () => {
   const rows = [
     {
-      ...rowOf(entryOf("z/outside", [part(1, { passed: 9, durationMs: 1 })])),
+      ...rowOf(
+        makeMe.aCiProofEntry.at("z/outside").counting(9).timed(1).please(),
+      ),
       pinned: true,
     },
-    rowOf(entryOf("z/b", [part(1, { durationMs: 20 })])),
-    rowOf(entryOf("z/a", [part(1, { durationMs: 10 })])),
+    rowOf(makeMe.aCiProofEntry.at("z/b").timed(20).please()),
+    rowOf(makeMe.aCiProofEntry.at("z/a").timed(10).please()),
   ];
   for (const column of ["scope", "counts", "executionTime"])
     for (const direction of ["ascending", "descending"])

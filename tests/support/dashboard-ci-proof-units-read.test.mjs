@@ -12,16 +12,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ciProofSchema } from "../../dashboard/src/ciProof.ts";
-import { zipOf } from "../../dashboard/tests/support/ciProofArtifacts.ts";
+import {
+  zipOf,
+  proofSummaryForEntries,
+} from "../../dashboard/tests/support/ciProofArtifacts.ts";
+import { makeMe } from "./makeMe.mjs";
 import { onlyZipEntry } from "../../src/skills/dough-test-optimization/scripts/ci-proof-archive.mjs";
 import { checkedRetainedSummary } from "../../src/skills/dough-test-optimization/scripts/ci-proof-check.mjs";
-import {
-  SUMMARY_READ_LIMIT_BYTES,
-  fragmentFromPlaywrightRecord,
-  fragmentsFromOutcomes,
-  summarize,
-} from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { locatedRecord } from "../../src/skills/dough-test-optimization/scripts/ci-proof-test-fixtures.mjs";
+import { SUMMARY_READ_LIMIT_BYTES } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
 
 const sha = (digit) => digit.repeat(40);
 
@@ -75,47 +73,25 @@ test("a version 1 summary stays readable through the read boundary and the brows
 });
 
 test("a version 2 summary of one location's five test cases and one test file reaches the browser with each unit's results apart (example 36)", () => {
-  const cwd = "/runner";
   const spec = "tests/check.test.mjs";
-  const identity = {
-    entries: ["tests"],
-    part: 1,
-    of: 1,
-    attempt: 1,
-    revision: sha("a"),
-  };
-  const [cases] = fragmentFromPlaywrightRecord(
-    locatedRecord(
-      cwd,
-      [100, 200, 300, 400, 500].map((ms) => [
-        `${cwd}/${spec}`,
-        "expected",
-        [ms],
-      ]),
-    ),
-    identity,
-    { byFile: true },
-  );
-  const [file] = fragmentsFromOutcomes(
-    `failed\t${spec}\n`,
-    identity,
-    undefined,
-    {
-      byFile: true,
-      unit: "file",
-    },
-  );
-  const { summary } = summarize({
-    fragments: [cases, file].map((value, index) => ({
-      source: `f${String(index)}.json`,
-      value,
-    })),
-    expect: [
-      { entry: "tests", parts: 1, unit: "case" },
-      { entry: "tests", parts: 1, unit: "file" },
+  const summary = proofSummaryForEntries(
+    { repository: "o/r", runId: 7, attempt: 1, revision: sha("a") },
+    [
+      makeMe.aCiProofEntry
+        .at("tests")
+        .holding(
+          makeMe.aCiProofEvidence
+            .inUnit("case")
+            .withFile(spec, { passed: 5, durationMs: 1500 })
+            .please(),
+          makeMe.aCiProofEvidence
+            .inUnit("file")
+            .withFile(spec, { passed: 0, failed: 1 })
+            .please(),
+        )
+        .please(),
     ],
-    run: { repository: "o/r", runId: 7, attempt: 1, revision: sha("a") },
-  });
+  );
   const read = readThroughBoundary(`${JSON.stringify(summary)}\n`);
   assert.deepEqual(read, summary);
   assert.deepEqual(
