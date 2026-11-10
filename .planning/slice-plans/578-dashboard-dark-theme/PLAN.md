@@ -194,3 +194,12 @@ four examples, traced consuming seams and observed routes against this slice.
 No remaining scope, premise, proof-route, sizing, cumulative-design or
 human-owned decision concern was identified. Implementation and its acceptance
 proof remain planned.
+
+## Execution complete
+
+Product advice: reasoned no-change. Outcome matches the refined story (system
+dark roles, dual Shiki tokens, terminal independence, light restore, reading-state
+persistence). Deferred appearance-switch / persistence / layout items stay out of
+scope; nothing new to queue. Aligns with North Star presentation separation and
+ADR 0008. Hosted CI of `53fd020780ae447e7ee00363e2ab49a9f055f2f0` remained
+pending/unobserved at review (Cursor conversation identity gap).
