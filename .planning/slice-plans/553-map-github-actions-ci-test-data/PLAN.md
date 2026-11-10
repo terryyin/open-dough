@@ -282,7 +282,7 @@ or exact evidence at their existing boundaries.
 
 ### 5. Integrated-state validation keeps the descendant's GitHub evidence separate
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 6. Run `ci-github-current-attempt.test.mjs`, `ci-integrated-state-journey.test.mjs` and `ci-integrated-state-replaced-basis.test.mjs` under `src/skills/dough-execute-plan/scripts/`, plus traced GitHub-specific consumers. Check unresolved without policy, B's retained `not_required` basis when validated at C, and B's own failure beside C's success. Before final delivery run the complete traced Node/dashboard selections on the final state; reuse accepted checks whose paths and boundaries are unchanged.
 
 Real commits establish accepted B and descendant C; C's covered command
@@ -380,6 +380,17 @@ journeys; typecheck; lint; native-evidence.
 - `run-processes` nested `passing.proof` page setup exhausted the 5s budget
   on a cold first consumer of shared dashboard/server artifacts; pre-warm
   those before preview substitutes. Focused file: 4 passed.
+
+### Slice 5
+Integrated-state provider facts arrange runs/jobs through MakeMe
+(`observedCiRun` / `coveredJob`) and encode with `apiRun`/`apiJob` at publish.
+Harness keeps sequential `createdAt`, real Git, executed covered commands,
+mailbox/policy/observer mechanics, and `observedRuns` projection.
+
+Accepted focused proof: ci-github-current-attempt, ci-integrated-state-journey
+and replaced-basis, traced GitHub-specific consumers; typecheck; lint;
+native-evidence. Final-state traced Node/dashboard selections reused where
+boundaries were unchanged.
 
 ## Story obligations
 

@@ -8,18 +8,18 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Maintainers can read which GitHub Actions run and attempt a test checks, at which revision, with which conclusion and timing, in the same vocabulary across dashboard and execution tests. | slice 5 |  |
-| 2 | Shared MakeMe setup owns those arranged facts so a domain change has one construction rule. | slice 5 |  |
-| 3 | Existing independent behavioral proof is preserved. | slice 5 |  |
+| 1 | Maintainers can read which GitHub Actions run and attempt a test checks, at which revision, with which conclusion and timing, in the same vocabulary across dashboard and execution tests. | slice 5 | observed: MakeMe aCiRun/aGitHubJob + apiRun/apiJob vocabulary across dashboard (slices 1–2) and execution (slices 3–5) fixtures |
+| 2 | Shared MakeMe setup owns those arranged facts so a domain change has one construction rule. | slice 5 | observed: githubCiRunFacts / aCiRun / aGitHubJob one construction rule; integrated-state githubRun delegates |
+| 3 | Existing independent behavioral proof is preserved. | slice 5 | observed: focused Node/dashboard selections through slices 1–5 preserve independent expectations |
 | 4.1 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: dashboard base-CI judgment | slice 1 | observed: dashboard/tests/support/baseCiActions.ts actionsRunsAnswer→apiRun; dashboard/tests/launches/agent-launch-base-ci*.spec.ts MakeMe runs |
 | 4.2 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: Intent CI status | slice 1 | observed: dashboard/tests/intent/intent-ci-status*.spec.ts + intentCiStoryRecords/intentCiProofPage MakeMe aCiRun |
 | 4.3 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: story comparisons | slice 2 | observed: storyCiComparisonFixture wall→makeMe.aCiRun; attempt/jobs via apiRun/apiJob; fixtures + backend timing consumers |
 | 4.4 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: the execution skill's GitHub observation | slice 3 | observed: watch-ci-test-fixtures run; ci-mailbox releaseRun; ci-github-completed-jobs completedJobs; named REST/failure specs via MakeMe+apiRun/apiJob |
 | 4.5 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: reuse fixtures | slice 4 | observed: ci-reuse-github-test-fixtures + journey/command tests via MakeMe aCiRun/aGitHubJob and apiRun/apiJob |
-| 4.6 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: integrated-state fixtures | slice 5 |  |
+| 4.6 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: integrated-state fixtures | slice 5 | observed: ci-integrated-state-github-test-fixtures githubRun/recordRun via MakeMe+api encoding |
 | 4.7 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: Node support revision selection | slice 1 | observed: tests/support/dashboard-ci-revision-nearest.test.mjs, dashboard-story-branch-ci.test.mjs, requested-revision-ci-status.test.mjs |
-| 5 | Include indirect consumers of the shared run and job factories. | slice 5 |  |
-| 6 | Remove displaced constructors, or have their harnesses delegate to MakeMe. | slice 5 |  |
+| 5 | Include indirect consumers of the shared run and job factories. | slice 5 | observed: indirect consumers: journey/ineligible/stop/replaced-basis + closure-story-integration |
+| 6 | Remove displaced constructors, or have their harnesses delegate to MakeMe. | slice 5 | observed: displaced API-shaped githubRun literal removed; harnesses delegate to MakeMe |
 | 7 | Align existing `aCiRun` with the production GitHub observation contract (not the dashboard suite-local `CiRunAnswer`). | slice 1 | observed: tests/support/ciRunTestData.mjs CiRunBuilder/githubCiRunFacts; makeMe.aCiRun observed databaseId shape |
 | 8 | Reuse the GitHub run facts already built by `aRevisionCiRun` behind one construction rule. | slice 1 | observed: tests/support/ciRunTestData.mjs githubCiRunFacts shared by CiRunBuilder and RevisionCiRunBuilder |
 | 9 | Retain the provider-neutral adapter projection as a distinct concept. | slice 1 | observed: RevisionCiRunBuilder keeps adapterAttempt as distinct ListedRun field; ciAdapter wall-time case unchanged |
@@ -43,8 +43,8 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | 15 | An earlier completed attempt and a current rerun keep separate identities. | slice 1 | observed: tests/support/dashboard-ci-revision-nearest.test.mjs selectRevisionAttempt cancelled attempt 2 vs completed attempt 1 |
 | 16 | Synthetic job setup states the facts the consumer needs. | slice 2 | observed: tests/support/ciJobTestData.mjs aGitHubJob.withFacts; ci-time-without-runner-waits synthetic jobs |
 | 17 | Conversion adds no new restriction on opaque identities or absent timing. | slice 1 | observed: githubCiRunFacts omits invented timing/ids; absent startedAt/completedAt stay absent |
-| 18.1 | Keep in the harness: real Git histories | slice 5 |  |
-| 18.2 | Keep in the harness: executed commands | slice 5 |  |
+| 18.1 | Keep in the harness: real Git histories | slice 5 | observed: real Git ancestry retained in integrated-state harness |
+| 18.2 | Keep in the harness: executed commands | slice 5 | observed: executed covered commands retained in harness (runCovered) |
 | 18.3 | Keep in the harness: fake GitHub routing | slice 3 | observed: fake GitHub routing retained in existing harnesses (unchanged ownership) |
 | 18.4 | Keep in the harness: pagination | slice 3 | observed: pagination retained in harness (second-page failures still harness-owned) |
 | 18.5 | Keep in the harness: request counting | slice 3 | observed: request counting retained in harness |
@@ -55,12 +55,12 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | 19.2 | Keep literal where their form is under proof: log text | slice 3 | observed: diagnostic log strings left literal in ci-github-diagnostic-logs |
 | 19.3 | Keep literal where their form is under proof: malformed/partial responses | slice 1 | observed: unchanged literal malformed/partial response examples (no conversion touch) |
 | 19.4 | Keep literal where their form is under proof: exact encoder-input examples | slice 1 | observed: unchanged exact encoder-input examples in github-actions-api-test-fixtures (apiRun reused, examples literal) |
-| 20 | Expectations stay independent of arrangement. | slice 5 |  |
+| 20 | Expectations stay independent of arrangement. | slice 5 | observed: assertions remain independent of MakeMe arrangement |
 | 21.1 | Belong to sibling stories (not converted here as ownership of those domains): CI adapter attempts |  | G1 |
 | 21.2 | Belong to sibling stories (not converted here as ownership of those domains): queue and coverage records |  | G1 |
 | 21.3 | Belong to sibling stories (not converted here as ownership of those domains): CI proof fragments and summaries |  | G1 |
-| 22 | In mixed fixtures, convert GitHub run/job facts only. | slice 5 |  |
-| 23 | This story changes test construction and exposed mapping mistakes. | slice 5 |  |
+| 22 | In mixed fixtures, convert GitHub run/job facts only. | slice 5 | observed: only GitHub run/job facts converted in mixed integrated-state fixtures |
+| 23 | This story changes test construction and exposed mapping mistakes. | slice 5 | observed: test construction only; no product UI/provider/CI-policy change |
 | 24.1 | This story makes no new: UI promise |  | G2 |
 | 24.2 | This story makes no new: provider-contract promise |  | G2 |
 | 24.3 | This story makes no new: CI-policy promise |  | G2 |
@@ -69,4 +69,4 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | E3 | A story's Branch and Landed results refer to the same attempt → comparison retains correct baseline and both endpoint identities, shows the same attempt-job timing, and reads the shared attempt's jobs once. A refused read can recover; settled evidence stops further reads. | slice 2 | observed: intent-ci-comparison + taken listedAttemptJobPages + backend ci-comparison memory/endpoint one-read sharing |
 | E4 | Workflow still running when one attempt's job fails, or a failed earlier attempt is discovered after a later success → observer keeps that failure actionable with its own run, attempt, and job evidence, including a failing job on a second page. Diagnostic log evidence remains the original text. | slice 3 | observed: watch-ci-execution-failures + coverage second-page job; URL/steps via aGitHubJob→apiJob; original logs |
 | E5 | Exact-revision run has successful direct job proof with matching repository, workflow, and context → reuse selects its current attempt; a newer pending rerun or a changed/partial read chooses fresh execution. A later successful retry can qualify, preserving an opaque source run ID separately from the target's own completion. | slice 4 | observed: ci-reuse-github.test.mjs + command/journey exact-SHA, opaque id, rerun/partial, source≠target completion |
-| E6 | Accepted B has a `not_required` basis and no run; descendant C executes the declared check successfully → with the integrated-state policy, the observer can validate B at C while retaining B's own basis; without that policy B stays unresolved, and B's own failure remains a failure beside C's green. Git ancestry and the command producing C's result stay real. | slice 5 |  |
+| E6 | Accepted B has a `not_required` basis and no run; descendant C executes the declared check successfully → with the integrated-state policy, the observer can validate B at C while retaining B's own basis; without that policy B stays unresolved, and B's own failure remains a failure beside C's green. Git ancestry and the command producing C's result stay real. | slice 5 | observed: ci-integrated-state-journey + replaced-basis: policy on/off, B failure beside C green, real Git+command |
