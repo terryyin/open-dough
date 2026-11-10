@@ -135,7 +135,7 @@ A skipped, empty, or absent product review, or absent extra human input, introdu
 
 When continuation carries a selected deferred process review, complete that one
 review under
-[Deferred process review into wrap-up](../dough-execute-plan/references/finish-or-stop.md#deferred-process-review-into-wrap-up)
+[Deferred process review into wrap-up](../dough-execute-plan/references/deferred-process-review.md)
 and
 [review process only from a real record](../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record)
 before the before-cleanup commit. Supply the Intent Coverage report, wrap-up

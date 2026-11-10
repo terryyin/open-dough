@@ -104,7 +104,7 @@ test("Story Wrap Up completes a deferred process review after Intent Coverage, w
   );
   assert.match(
     section,
-    /\(\.\.\/dough-execute-plan\/references\/finish-or-stop\.md#deferred-process-review-into-wrap-up\)/,
+    /\(\.\.\/dough-execute-plan\/references\/deferred-process-review\.md\)/,
   );
   assert.match(
     section,

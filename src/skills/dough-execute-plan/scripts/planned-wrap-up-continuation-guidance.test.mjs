@@ -114,7 +114,7 @@ test("human choices and explicit stops still block the dependent continuation", 
   for (const stop of [
     /human-owned product, constraint, ownership or permission decision/,
     /missing[\s\S]+required context[\s\S]+incomplete correction input/,
-    /unfinished required[\s\S]+review/,
+    /Other unfinished required review/,
     /failed\/unconfirmed required operation stops the dependent path/,
     /Keep an explicit review\/retain\/stop instruction/,
   ])
@@ -184,7 +184,7 @@ test("whole-journey recovery resumes unfinished closure without repeating accept
   );
   assert.match(
     continuation,
-    /first unfinished operation without repeating accepted[\s\S]+publication, completed product or proof[\s\S]+review or settled dispositions/,
+    /first unfinished operation without repeating accepted[\s\S]+publication, completed product or proof\s+review or settled dispositions/,
   );
   assert.match(continuation, /already[\s\S]+queued canonical correction/);
   assert.match(
@@ -198,7 +198,11 @@ test("whole-journey recovery resumes unfinished closure without repeating accept
 });
 
 test("wholly planless and explicit background journeys retain their own handoffs", () => {
-  const other = section(finish, "## Other completion and stop paths");
+  assert.match(
+    finish,
+    /\[other completion and stop paths\]\(other-completion-paths\.md\)/,
+  );
+  const other = read("dough-execute-plan/references/other-completion-paths.md");
   assert.match(
     other,
     /Wholly planless completion[\s\S]+`## QUICK EXECUTION COMPLETE`/,

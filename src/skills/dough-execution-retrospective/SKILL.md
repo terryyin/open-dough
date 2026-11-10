@@ -45,7 +45,7 @@ an include-process request enables without a new flag. Clarify contradictory ins
 Otherwise unreadable/malformed/non-object JSON or non-boolean recognized values leave selection
 unresolved: report error, omit process analysis/log access, and continue independent reviews.
 
-When process is enabled, apply [Deferred process review into wrap-up](../dough-execute-plan/references/finish-or-stop.md#deferred-process-review-into-wrap-up) before process analysis. Explicit skips, unresolved selection, and missing-history rules stay unchanged.
+When process is enabled, apply [Deferred process review into wrap-up](../dough-execute-plan/references/deferred-process-review.md) before process analysis. Explicit skips, unresolved selection, and missing-history rules stay unchanged.
 
 ## Resolve this project's context
 
