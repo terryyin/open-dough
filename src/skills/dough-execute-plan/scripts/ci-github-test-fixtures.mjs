@@ -16,6 +16,12 @@ import {
 } from "./fixture-teardown-test-fixtures.mjs";
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 
+export {
+  completedJob,
+  completedJobs,
+  observedCompletedJob,
+} from "./ci-github-completed-jobs-test-fixtures.mjs";
+
 // A `gh` that answers `gh api --include` as GitHub's API does from the
 // `github.json` beside it, and records each call twice in `calls.jsonl`: when
 // asked and when answered. While `limited.json` counts down, a matching
@@ -176,24 +182,6 @@ export function instrumentedGithubFixture(t, state) {
 // One upstream request as the fixture's `gh` was given it.
 export const apiCall = (route) =>
   `api --include repos/owner/repo/actions/${route}`;
-
-// 150 jobs, so an attempt's jobs span two pages; `failed` names the failed.
-export const completedJobs = (failed) =>
-  Array.from(Array(150).keys(), (index) => ({
-    id: 1000 + index,
-    name: `job ${index}`,
-    status: "completed",
-    conclusion: failed.includes(index) ? "failure" : "success",
-    html_url: `https://github.test/owner/repo/actions/runs/42/job/${1000 + index}`,
-    steps: [
-      { number: 1, name: "Set up job", conclusion: "success" },
-      {
-        number: 2,
-        name: "Run tests",
-        conclusion: failed.includes(index) ? "failure" : "success",
-      },
-    ],
-  }));
 
 export async function until(condition, description, timeoutMs = 20_000) {
   const deadline = Date.now() + timeoutMs;

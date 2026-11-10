@@ -249,7 +249,7 @@ jobs and invalid-time distractor exactly as stated in Current decisions.
 
 ### 3. Observer failures retain their run, attempt and job evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 4. Node runner selections under `src/skills/dough-execute-plan/scripts/`: `watch-ci-execution.test.mjs`, `watch-ci-execution-startup.test.mjs`, `watch-ci-execution-failures.test.mjs`, `watch-ci-execution-hold.test.mjs`, `watch-ci-execution-coverage.test.mjs`, `ci-github-acquisition.test.mjs`, `ci-github-current-attempt.test.mjs`, `ci-github-actions-observed-run.test.mjs`, `ci-github-diagnostic.test.mjs`, `ci-github-diagnostic-logs.test.mjs`, `ci-github-diagnostic-inventory.test.mjs`, `ci-github-test-fixtures.test.mjs` and `ci-observer-stream.test.mjs`. Add every traced mailbox/revision-coverage consumer of the delegated run factories.
 
 The GitHub harness holds MakeMe runs and jobs → the actual observer reads
@@ -347,6 +347,17 @@ distractor stay literal. `githubCiRunFacts` owns attempt-1
 Accepted focused proof: backend ci-time + ci-comparison- (103); Intent
 comparison/summary (136); encoding recheck of slice-1 status selections (42);
 refactor wall/execution recheck (7); typecheck; lint; native-evidence.
+
+### Slice 3
+Observer/diagnostic GitHub run·attempt·job setup goes through MakeMe
+(`run` / `releaseRun` / `completedJobs`·`completedJob`) and `apiRun`/`apiJob`
+(observed `url` → API `html_url`). Harness routing, pagination, holds, clocks,
+and teardown stay put; diagnostic log text stays literal. Omit incidental
+`createdAt` in `run`/`releaseRun` unless the case states it.
+
+Accepted focused proof: named watch-ci / ci-github / observer-stream Node
+selections; mailbox + revision-coverage consumers of those factories;
+refactor diagnostic/acquisition Node recheck; typecheck; lint; native-evidence.
 
 ## Story obligations
 

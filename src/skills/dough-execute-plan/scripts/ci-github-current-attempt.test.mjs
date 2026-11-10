@@ -5,35 +5,60 @@
 // the facts contradicted.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   apiCall,
   instrumentedGithubFixture,
   until,
 } from "./ci-github-test-fixtures.mjs";
+import { apiJob, apiRun } from "./github-actions-api-test-fixtures.mjs";
 import { createGitHubAcquisition } from "./ci-runs.mjs";
 
 const sha = "c".repeat(40);
 const url = "https://github.test/owner/repo/actions/runs/9001";
 
-const githubRun = (overrides = {}) => ({
-  id: 9001,
-  run_attempt: 1,
-  head_sha: sha,
-  head_branch: "main",
-  event: "push",
-  workflow_id: 7001,
-  status: "completed",
-  conclusion: "success",
-  html_url: url,
-  ...overrides,
+const githubRun = ({
+  id = 9001,
+  run_attempt = 1,
+  head_sha = sha,
+  head_branch = "main",
+  event = "push",
+  workflow_id = 7001,
+  status = "completed",
+  conclusion = "success",
+  html_url = url,
+  created_at,
+  ...rest
+} = {}) => ({
+  ...apiRun(
+    makeMe.aCiRun
+      .with({
+        databaseId: id,
+        attempt: run_attempt,
+        headSha: head_sha,
+        headBranch: head_branch,
+        event,
+        status,
+        conclusion,
+        url: html_url,
+        createdAt: created_at,
+      })
+      .please(),
+  ),
+  workflow_id,
+  ...rest,
 });
-const job = {
-  id: 90011,
-  name: "covered",
-  status: "completed",
-  conclusion: "success",
-  html_url: `${url}/job/90011`,
-};
+const job = apiJob(
+  makeMe.aGitHubJob
+    .withFacts({
+      databaseId: 90011,
+      name: "covered",
+      status: "completed",
+      conclusion: "success",
+      url: `${url}/job/90011`,
+    })
+    .please(),
+);
 // The listed run as the observer's candidate lookup reports it.
 const listed = {
   databaseId: 9001,

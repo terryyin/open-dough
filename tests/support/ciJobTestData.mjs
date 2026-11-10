@@ -1,8 +1,8 @@
 // @ts-check
 // Shared GitHub Actions attempt-job construction for MakeMe: facts as
 // `attemptJobs` / ReportedAttemptJob read them. Encode through `apiJob` at
-// the transport boundary; `databaseId` becomes API `id`. Do not map an
-// observed `url` field — that is not GitHub's `html_url`.
+// the transport boundary; observed `databaseId` → API `id`, observed `url`
+// → API `html_url`. Diagnostic consumers may state `url` and `steps`.
 
 /** @typedef {import("../../dashboard/server/ciTimeWithoutRunnerWaits.ts").ReportedAttemptJob} ReportedAttemptJob */
 
@@ -12,6 +12,7 @@
  *   databaseId?: number;
  *   created_at?: unknown;
  *   status?: unknown;
+ *   url?: unknown;
  *   html_url?: unknown;
  *   steps?: unknown;
  *   [key: string]: unknown;

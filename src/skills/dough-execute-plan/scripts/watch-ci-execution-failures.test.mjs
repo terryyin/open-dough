@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
+
+const observedJob = (facts) => makeMe.aGitHubJob.withFacts(facts).please();
 
 test("reports each failed job while its workflow remains unfinished", async () => {
   const controller = new AbortController();
@@ -47,29 +50,35 @@ test("reports each failed job while its workflow remains unfinished", async () =
       if (attempt === 2) {
         return {
           jobs: [
-            {
+            observedJob({
               databaseId: 201,
               name: "New attempt",
               conclusion: "failure",
-            },
+            }),
           ],
         };
       }
       return {
         jobs:
           poll === 1
-            ? [{ databaseId: 101, name: "Backend", conclusion: null }]
+            ? [
+                observedJob({
+                  databaseId: 101,
+                  name: "Backend",
+                  conclusion: null,
+                }),
+              ]
             : [
-                {
+                observedJob({
                   databaseId: 101,
                   name: "Backend",
                   conclusion: "failure",
-                },
-                {
+                }),
+                observedJob({
                   databaseId: 102,
                   name: "Frontend",
                   conclusion: poll >= 3 ? "timed_out" : null,
-                },
+                }),
               ],
       };
     }),
@@ -139,7 +148,13 @@ test("keeps run fallback distinct from later job evidence and cancellation", asy
       }
       if (poll === 1) throw new Error("job details unavailable");
       return {
-        jobs: [{ databaseId: 501, name: "Backend", conclusion: "failure" }],
+        jobs: [
+          observedJob({
+            databaseId: 501,
+            name: "Backend",
+            conclusion: "failure",
+          }),
+        ],
       };
     }),
   });
@@ -195,11 +210,11 @@ test("reports a failed prior attempt after the latest attempt succeeds", async (
       }
       return {
         jobs: [
-          {
+          observedJob({
             databaseId: 101,
             name: "Failed first attempt",
             conclusion: "failure",
-          },
+          }),
         ],
       };
     }),
