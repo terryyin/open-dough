@@ -215,6 +215,13 @@ timeouts; any essential override belongs inside the individual test.
 [Concern review and preparation decisions](execution-evidence.md#concern-review-and-current-decisions).
 
 
+## Current decisions
+
+CI deadline: the Zod experiment regressed cold preparation plus four starts
+by0.6s; its7ms startup change is within noise and cannot close the20–30s target.
+Stop that strategy. Keep twelve shards pending the developer's resource decision;
+[CI repair 4 and the unapplied alternative](ci-repair-4.md) retain the evidence.
+
 ## Story obligations
 
 ### G1. Resolve the selected completed landing on the card

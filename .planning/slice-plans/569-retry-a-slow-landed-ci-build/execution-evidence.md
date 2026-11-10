@@ -246,4 +246,4 @@ exact early event times are unavailable. DearDough ODF-150/329/396 now retain
 this execution once each (998 lines); three redundant trace rows are recoverable
 at `9befabc4239528f432fad85634a3fb24a76a4edf:DearDough.md`.
 Final shard preview: 971 specs, 960 timed, 11 new, 1017.0–1026.6 predicted seconds
-per shard. [CI repair 3](ci-repair-3.md) renews the enclosing touch journey; final CI remains pending.
+per shard. [CI repair 4](ci-repair-4.md) retains the cache fix and unresolved deadline; final CI is not settled.
