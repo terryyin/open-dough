@@ -191,14 +191,14 @@ test("Codex refusal retains its published preparation; the page resumes the same
     const retryAcceptance = nextAcceptedAttemptId(page);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     const retryAttemptId = await retryAcceptance;
-    await creating;
-    delete native.afterCreation;
     const observer = await expectCodexRetryProgress(
       page,
       card,
       restarted,
       "refinement",
+      creating,
     );
+    delete native.afterCreation;
     native.holdCreation = false;
     native.release();
     await observer.close();

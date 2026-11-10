@@ -167,14 +167,14 @@ test("Codex card start publishes one claim and retries its retained workspace be
   const retryAcceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const retryAttemptId = await retryAcceptance;
-  await creating;
-  delete native.afterCreation;
   const observer = await expectCodexRetryProgress(
     page,
     claimed,
     dashboard,
     "execution",
+    creating,
   );
+  delete native.afterCreation;
   native.holdCreation = false;
   native.release();
   await observer.close();

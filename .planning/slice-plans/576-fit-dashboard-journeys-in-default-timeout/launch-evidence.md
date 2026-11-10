@@ -77,3 +77,51 @@ The reviewer inspected the surviving 15 UI-owner cases, all three recovery
 records, actual setup/assertions and all 140 consumer dispositions. Existing
 proof remains valid; REFACTOR COMPLETE received. Full decision:
 /tmp/seed287-recovery-refactor-return.md.
+
+## Slice 9 selected sequencing premise
+
+The two retry consumers currently wait for native afterCreation before starting
+HTTP/card/new-page/reload observations, then release held creation. The stronger
+simpler cut overlaps these independent operations and retains the creation
+barrier before release. No assertion, fresh page or reload is removed. The
+existing progress helper can own that cohesive ordering; no product or scope
+change, deadline override or new setup lifetime. Production launching-phase
+validity must be confirmed before the dependent cut and both consumers proved.
+This aligns remaining detail, not an oversized-attempt refinement or acceptance.
+
+## Slice 9: native setup overlaps retained-host progress reading
+
+The existing helper now starts its unchanged HTTP/current-card/new-page/goto/
+reload observations immediately after retry acceptance and awaits the existing
+afterCreation promise before returning. Both callers then delete the callback
+and release held native creation. No action, assertion, native request barrier,
+private setup, model, first-input, publication or timeout is removed/changed.
+Production executionStart200–204 and preparationStart189–194 record launching
+with retained host before handoff formatting/native creation; this validates
+concurrent reads. The barrier observes the actual thread/start request reaching
+native before release. No expected progress/result is supplied by setup.
+
+Command: `caffeinate -s -i node /tmp/seed287-codex-retry-proof.mjs`. Its three
+fresh children select both whole start-codex/preparation-codex specs with
+`--workers=2`. Strict 2/2 each, retry 0, default 30 s, terminal 0. Execution
+7.206/8.386/7.772 s; preparation 7.893/9.021/8.570 s. Shell elapsed
+9.412/10.426/10.174 s; runner 9.011/10.007/9.749 s includes all cold preparation,
+real installed commands/formatter/Git/native/server work and teardown. Raw:
+/tmp/seed287-codex-retry-overlap. Quiet load 1.74–2.62, AC 16-core host and
+maintained sleep guard. No numerical overlap saving claimed without matched
+before timing; final slice 12 retains loaded, hosted and whole-suite proof.
+
+Both workflows still observe exact HTTP saved host/workflow/identity/phase,
+current card, independent fresh page and reload; real refusal, retained
+workspace/assignment/model/readiness, one claim/session, durable uncertain then
+confirmed first input, exact native requests and no second Take remain. The
+preparation case still performs actual same-port server restart. No surviving
+proof move was needed because every original action/assertion remains.
+Complete literal commands, setup/observing locations and 430-row dispositions:
+/tmp/seed287-codex-retry-return.md and /tmp/seed287-codex-retry-consumers.md.
+G4 remains interim until comparison slice 11; final broader gates stay open.
+
+Independent slice 9 refactor: none — already clean. Production ordering, both
+callers, all three strict records and 430 consumer dispositions inspected; no
+edit invalidated proof, no tests repeated. REFACTOR COMPLETE received. Decision:
+/tmp/seed287-codex-retry-refactor-return.md.

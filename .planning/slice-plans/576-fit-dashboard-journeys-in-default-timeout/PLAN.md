@@ -94,10 +94,10 @@ Behavior: A real initial accepted start and page setup consume the recovery budg
 
 ### 9. Codex retry keeps its retained-host progress proof within the budget
 Type: Behavior
-Status: planned
+Status: done
 Proof: The whole Codex start spec and preparation-codex consumer pass three consecutive two-worker selections when their shared retry-progress helper changes. Preserve initial native refusal, retained retry acceptance, first input, one kept session, retained host and the actual fresh-observer/reload promise wherever it is owned; establish surviving proof before removing repetition.
 
-Behavior: A refused native start succeeds through its retained retry near 30 s → remove only independently covered observation/setup repetition at the existing helper boundary → the complete retry outcome and retained-host proof fit with margin. The trace locates late observer work, not a stuck page.evaluate. This settles the Codex launch member of G4; comparison remains owned by slice 11.
+Behavior: A refused native start succeeds through its retained retry near 30 s → overlap independent native creation with the existing HTTP/card/fresh-page/reload progress proof, retaining the creation barrier before release → the complete retry and saved-host observations fit with margin. No observation is removed; the existing helper owns the cohesive sequencing. The trace locates late observer work, not a stuck page.evaluate. This settles the Codex member of G4; comparison remains in slice 11.
 
 ### 10. Cursor lifetime journeys reach their actual behavior within the budget
 Type: Behavior
