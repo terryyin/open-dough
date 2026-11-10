@@ -191,3 +191,36 @@ removed only its own temporary result directory, as designed. The retained
 first failed G7 run and external copied trace remain available. G8's Node-only
 port-test isolation is not imported by the dashboard suite and changes no
 product configuration, so this passing full dashboard proof remains applicable.
+
+## Hosted CI repair: G9
+
+Completion revision `0e1fc25e0a7723aca439e49c64ad8e7515d18d61` failed run
+42862962650 attempt1, dashboard5/12 only; complete diagnostic inventory at
+`/tmp/dough-seed261-ci-42862962650-attempt1.json`. The full job log/trace
+shows route.fetch failed before teardown; the empty-card assertion was secondary.
+Exact TCP cause is unproven. This is a repaired harness defect, not an ignored
+infrastructure failure. The released gate now passes future requests through
+normal browser transport; its first real acceptance response remains held.
+
+Original helper plus a controlled second API-transport failure failed for that
+reason; the same control on the repaired helper passed its unchanged real
+Codex continuation. Control removed before final proof. All real Take, refusal,
+continuation, native-input hold, card protection, other-story and final-session
+assertions survive; Claude lost-ack uncertainty and cancel cases also remain.
+
+```sh
+PATH=/opt/homebrew/bin:$PATH npm run test:dashboard -- --workers=1 dashboard/tests/launches/responsive-session-start-codex.spec.ts dashboard/tests/launches/responsive-session-start.spec.ts
+```
+
+Seven cases/two files passed exit0. These are every caller of the changed gate;
+other module importers use unchanged exports. Full cause/control/assertion
+evidence: `/tmp/dough-ci-responsive-repair-proof.md`; all17 consumer dispositions:
+`/tmp/dough-ci-responsive-consumer-trace.md`. Prior unrelated full-suite proof
+remains applicable. Independent refactor and later hosted verdict remain gates.
+
+Independent `refactor_codex_start_ci` returned `REFACTOR COMPLETE`: only renamed
+the private resolver to releaseHeldAnswers, leaving public release synchronous
+and behavior/selection/assertions unchanged. Accepted seven-case/control proof
+reused; no tests repeated. All17 dispositions:
+`/tmp/dough-refactor-ci-responsive-consumer-trace.md`. Affected retrospective
+outcome/test conclusions remain satisfied; product advice stays no change.

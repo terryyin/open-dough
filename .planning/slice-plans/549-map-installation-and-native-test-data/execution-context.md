@@ -99,3 +99,25 @@ or removal. No process proposal enters a product correction plan.
 Review complete, no unresolved attention. CI for accepted revision1d002f928
 remains pending input here; execution completion owns its applicable verdict
 and shutdown, and later trunk integration needs separate observation.
+
+## Owned CI repair after execution completion
+
+Completion revision0e1fc25e returned exact CI failure run42862962650/attempt1,
+dashboard5/12 only, shutdown retained. Diagnostic inventory complete, no gaps.
+All writers were finished; worktree clean. Installed repair save receipt:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-cNZPaw/record.json`,
+status clean, OID null; no existing stash touched. Fresh implementation agent
+`repair_codex_start_ci` repaired only responsiveStart.ts with focused/control
+proof and no running commands on return. Observer Q3D5st remains the same owner.
+
+Reconsidered the affected retrospective conclusion: real starts/publication and
+UI transitions/assertions remain, while released requests regain real browser
+transport. No production behavior or domain model changes. Product advice stays
+no change; no correction plan or new backlog item is needed. Independent
+refactor, repair publication/register, clean-record restore and applicable CI
+completion remain required before automatic wrap-up.
+
+CI repair independent refactor completed: private resolver naming only, accepted
+seven-case/control proof reused. No writers or test commands remain active.
+The original reviewed product outcome remains satisfied; only the later
+applicable hosted CI verdict/shutdown is still required.

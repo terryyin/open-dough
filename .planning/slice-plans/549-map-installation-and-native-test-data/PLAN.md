@@ -235,6 +235,11 @@ Reported: slice 7 — "Renewed full repository run failed only dashboard-dev-por
 Story clause: "the existing independent behavioral proof intact"
 Disposition: proved by slice 7: slice-7-proof.md; private cache/normal-info isolation, unchanged real port/HTTP assertions, focused proof and final full repository exit0.
 
+### G9. Released acceptance gate kept an unnecessary API transport
+Reported: slice 7 — "CI repair: Run 42862962650 attempt 1 failed responsive-session-start-codex: route.fetch socket hang up preceded teardown; the empty Taken-card assertion followed cleanup. The released helper still proxied continuation POSTs through APIRequestContext."
+Story clause: "the existing independent behavioral proof intact"
+Disposition: proved by slice 7: slice-7-proof.md; primary trace timing, original-fails/repaired-passes control and all seven actual Codex/Claude caller cases.
+
 ## Execution complete
 
 Product advice: no change.

@@ -18,7 +18,7 @@ finally reconciled in slice 7 and apply throughout.
 | C03 | A shared setup fact can be changed in one place. | slice 7 | observed: slice-7-proof.md; inspected source setup and independent observations |
 | C04 | The conversion represents real release relationships. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C05 | The conversion represents real installation relationships. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
-| C06 | Existing independent behavioral proof remains intact. | slice 7 | observed: slice-7-proof.md; inspected source setup and independent observations |
+| C06 | Existing independent behavioral proof remains intact. | slice 7 | observed: slice-7-proof.md; original independent observations, final local full suites, G7/G8 stability repairs and G9 whole-journey/control proof after owned CI failure |
 | C07 | Remaining arranged release facts enter through the shared MakeMe entry point. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C08 | Remaining arranged payload facts enter through that entry point. | slice 1 | observed: slice-1-proof.md; real old/new installer assertions, ADR release byte equivalence and focused transition checks |
 | C09 | Remaining arranged host-hook settings enter through that entry point. | slice 3 | observed: slice-3-proof.md; inspected source setup and independent observations |
