@@ -13,6 +13,7 @@ retain local facets. The full source before this compaction is
 - Recovery: `e155eb11b71a410f93793a889b3c713aa9691272:DearDough.md` preserves the ODF-074 SEED-286 analyzer-endpoint occurrence pruned during SEED-298 integration; current required-preview/CI repair evidence was retained over this already-corrected observation that caused no additional test run.
 - Recovery: `53fd020780ae447e7ee00363e2ab49a9f055f2f0:DearDough.md` holds DD-483 before this SEED-278 ODF-154 occurrence retention prune.
 - Recovery: `a0357d569ac3bd2fc4d866d511fdf354963881bc:DearDough.md` preserves the catalog-only ODF-238/253/262/263 stubs removed to retain current ODF-329/396 recurrence evidence; their meaning/evidence remain in the maintained finding catalog.
+- Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -343,6 +344,13 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: launch `ee3cee74-5c29-456a-b16c-eb4336e7011c`; startup setup/plan read reported 14,032 original tokens with truncation, and first-delegation guidance batch reported 12,088 with truncation; coordinator retrieved missing plan and decision passages separately.
   - Observed effect: broad combined output lost needed passages and required targeted rereads before delegation. Dependent execution waited for the missing context.
   - Inference: recurrence of agent read-batching deviation under existing targeted-retrieval rules; no isolated time or token saving measured.
+
+- Execution: SEED-296#prove-repeat-destination-cue-restarts (plan 579; implementation `536dcf13218bae15339ffbd1288464649940047e`)
+  - Timestamp: unknown (2026-11-10 execution; exact read-event times not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `579604374`)
+  - Evidence: launch `cd709693-c387-4de7-8e97-2c96d9d47ed2`; first-delegation batch reported 11,904 original tokens with truncation; retrospective ADR/direction batch reported 10,825 and findings batch 7,895 with truncation. Missing passages were retrieved by heading/range.
+  - Observed effect: repeated loss and recovery of requested context under existing targeted-retrieval guidance; no measured token/time saving. Inference: recurring agent read-batching deviation, not missing instructions.
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 
@@ -961,20 +969,6 @@ Focused Playwright configuration selection passed; the commit hook's typecheck t
   - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
   - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
 
-## DD-487 — Native trial harness launches the agent outside the prepared scratch cwd
-
-A paired native-trial runner prepared and set up an isolated scratch worktree in a subshell, then launched the host agent from the parent checkout cwd, so arms rediscovered the scratch path instead of starting there.
-
-### Occurrences
-
-- Execution: SEED-258#make-intent-coverage-results-easier-to-act-on (plan 573; first related implementation `be07058e3550a5527ed77bba00b3d7be4b1f4f2a`)
-  - Timestamp: unknown
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: `.planning/slice-plans/573-make-intent-coverage-results-easier-to-act-on/trial/run-arm.sh` runs setup under `( cd "${scratch}" … )` then invokes `claude --print …` without changing into `${scratch}`; `trial/02-comparison-and-keep-decision.md` Confounds records that B1/B2 agents rediscovered the scratch checkout.
-  - Observed effect: inflated discovery cost on some arms; keep criteria still met (candidate not worse on the focused pair); confound disclosed rather than claimed as a universal saving.
-  - Inference: Ephemeral ADR 0010 trial harnesses need the agent process cwd (or an explicit working-directory flag) to match the prepared scratch; a setup-only `cd` subshell does not. Plan-local harness; not a shipped skill defect.
-
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
 Former branch-local code: DD-487 in `39c075087`; renumbered during integration to preserve the unrelated finding already published on trunk.
@@ -993,3 +987,9 @@ a manual records-only repair before its first slice commit.
   - Evidence: This execution's first guarded `fresh` result on 2026-11-10 returned `preparation-failed`, operation `staged whitespace`, `PLAN.md:69: trailing whitespace`, `+Status: done`. Installed `selected-slice-status.mjs` replaces only `planned` with `done`, preserving the line suffix; `execution-increment-preparation.mjs` formats before mutation and later runs `git diff --cached --check`. The prepared plan originally used the conventional two-space hard break after its status.
   - Observed effect: no commit or push occurred; the coordinator removed that hard break and retried preparation. A later independent hook lint repair was separate.
   - Inference: The status writer and staged-whitespace gate disagree on an accepted Markdown representation. Retaining or normalizing a compatible status shape before staging could remove this repair loop; no guidance/runtime fix is authorized by this retrospective.
+- Execution: SEED-296#prove-repeat-destination-cue-restarts (plan 579; implementation `536dcf13218bae15339ffbd1288464649940047e`)
+  - Timestamp: unknown (2026-11-10 execution; precise refusal time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `579604374`)
+  - Evidence: launch `cd709693-c387-4de7-8e97-2c96d9d47ed2`; first guarded fresh returned `preparation-failed`, operation `staged whitespace`, `PLAN.md:91: trailing whitespace`, `+Status: done`; removing only that inherited hard break allowed the same guarded operation to publish `536dcf132`.
+  - Observed effect: one mechanical refusal/repair/retry, no commit or publication on refusal. Inference: recurrence of the same retained-status-suffix mismatch; no runtime repair authorized here.
