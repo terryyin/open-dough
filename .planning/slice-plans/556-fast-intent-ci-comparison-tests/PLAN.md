@@ -174,6 +174,10 @@ All rules stay<1000ms including case cleanup; defaults/failure policy remain.
 Carry unrelated accepted trunk changes with final all-job acceptance; no new
 selected rules are inferred from them. C067 stays final target-CI-only.
 
+## Execution complete
+
+Product advice: no change.
+
 ## Current decisions and learnings
 
 c216 proves the pre-integration201-rule checkpoint; preserve its actual proof.
