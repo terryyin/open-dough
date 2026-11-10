@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-261#map-ci-adapter-and-coverage-test-data",
+  "title": "Make CI adapter attempt, queue and coverage test setup map directly to the domain",
+  "completedAt": "2026-11-10T14:01:30.729Z",
+  "developer": "Terry Yin",
+  "agent": "jackson-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "# Dough Intent Coverage — SEED-261#map-ci-adapter-and-coverage-test-data\n\n**Outcome:** Caught.\n\n**Story:** SEED-261#map-ci-adapter-and-coverage-test-data\n\n**Revision probed:** `24422fd6f594aae70574b5be4b328a82481a6318`\n\n## Selected promise\n\nKey example 3: queue-only progress keeps coverage undiscovered and must not receive a completion verdict.\n\n## Finding\n\n**Caught.** Inventing a completion verdict from queue-only progress failed `recordedVerdict(...) === undefined` in `ci-queue-coverage.test.mjs`.\n\n## Costs\n\n- Test runtime: baseline 5.7 s, faulted 7.8 s, restored 6.2 s for `ci-queue-coverage.test.mjs`.\n- Human/agent effort: Unavailable.\n- Invocation-to-report elapsed: 294643 ms.\n"
+  }
+}
