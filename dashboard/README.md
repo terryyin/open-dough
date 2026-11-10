@@ -182,25 +182,28 @@ destinations](AGENT-LAUNCH-HISTORY.md) and [navigation](../docs/dashboard-naviga
 
 The frame (banner, Sessions sidebar, terminal chrome, System settings,
 dialogs, Column containers, and page states) draws on one shared foundation:
-colour (`--raised-surface` for shared raised fills), type, spacing, radius,
-elevation, and control-size tokens on `:root` in
-`src/styles.css`; `Icon` and `IconButton` in `src/Icon.tsx`, which wrap the
-bundled `lucide-react` glyphs at one size and stroke and hide them from
-assistive technology; and the frame button, field, and disclosure classes in
-`src/frame-controls.css`. Extend these rather than adding another token set or
-a component library. Light theme only.
-
-Icon-only controls are kept for familiar frame actions (sessions, help,
-settings, panel controls). Each keeps its accessible name and shows it, with
-its shortcut where it has one, in a styled tooltip on hover and on keyboard
-focus; the tooltip is hidden from assistive technology so the name is
-announced once. A labelled button can show its accessible description in the
+colour roles on `:root` in `src/appearance.css` (imported by `src/styles.css`,
+including `--raised-surface` for shared raised fills), type, spacing, radius,
+elevation, and control-size tokens; `Icon`/`IconButton` in `src/Icon.tsx`;
+and frame button, field, and disclosure classes in `src/frame-controls.css`.
+Extend these rather than adding another token set or a component library.
+Appearance follows system `prefers-color-scheme` through those roles: light
+keeps today's look; dark pairs cover the reading surface (badges, location
+headers, status fills, CI cues, diffs, charts, source tokens). No dashboard
+appearance switch, saved override, or per-project theme. Terminal colours stay
+an explicit choice (`terminalThemes.ts`, System settings → Terminal theme,
+xterm) whose palette and sample keep their meaning while surrounding controls
+use the shared roles. Icon-only controls are kept for familiar frame actions
+(sessions, help, settings, panel controls). Each keeps its accessible name and
+shows it, with its shortcut where it has one, in a styled tooltip on hover and
+on keyboard focus; the tooltip is hidden from assistive technology so the name
+is announced once. A labelled button can show its accessible description in the
 same tooltip (`FrameTooltip`), as a noted Start shows its note. Labelled
 actions keep their text and may add a leading icon; a button that opens and
 closes content in place (`aria-expanded`) leads with the frame disclosure's
-chevron, turned while expanded.
-Text meets 4.5:1 contrast; controls, icons, and focus outlines meet 3:1, checked
-with the other icon-only requirements by `tests/frameIconControl.ts`.
+chevron, turned while expanded. Text meets 4.5:1 contrast; controls, icons,
+and focus outlines meet 3:1, checked with the other icon-only requirements by
+`tests/frameIconControl.ts`.
 
 ## Open Dough identity
 

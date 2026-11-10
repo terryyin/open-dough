@@ -1,6 +1,7 @@
 /* Shared whole-file source lines (`./SourceLines.tsx`): line numbers beside
    selectable text so copying leaves the numbers behind. Token colours come
-   from on-demand Shiki highlighting when a language is supplied. */
+   from on-demand Shiki highlighting when a language is supplied; light and
+   dark variants select through the system appearance without re-tokenization. */
 
 .source-lines {
   margin: 0;
@@ -35,4 +36,14 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font-family: inherit;
+}
+
+.source-token {
+  color: var(--shiki-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  .source-token {
+    color: var(--shiki-dark, var(--shiki-light));
+  }
 }

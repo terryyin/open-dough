@@ -11,6 +11,7 @@ retain local facets. The full source before this compaction is
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Recovery: `e155eb11b71a410f93793a889b3c713aa9691272:DearDough.md` preserves the ODF-074 SEED-286 analyzer-endpoint occurrence pruned during SEED-298 integration; current required-preview/CI repair evidence was retained over this already-corrected observation that caused no additional test run.
+- Recovery: `53fd020780ae447e7ee00363e2ab49a9f055f2f0:DearDough.md` holds DD-483 before this SEED-278 ODF-154 occurrence retention prune.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -24,6 +25,16 @@ Former local code: DD-057. [Meaning, evidence and response](docs/maintainer/find
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
 Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
+
+### Occurrences
+
+- Execution: SEED-278#dashboard-dark-theme (plan 578; first related implementation `53fd020780ae447e7ee00363e2ab49a9f055f2f0`)
+  - Timestamp: 2026-11-10T14:30:36.369Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Deliver receipt in terminal `818682.txt` for accepted `53fd020780ae447e7ee00363e2ab49a9f055f2f0` on `refs/heads/cursor/give-the-dashboard-a-dark-theme`: `observation.state: unobserved`, `pendingCi: unobserved`, reason `Cursor conversation identity is unavailable: CURSOR_CONVERSATION_ID is unset and no --session-json was supplied…`; deliver `--session-json` carried only `observerDirectory` `/tmp/dough-ci-501/watch-prFFAc`. Coordinator transcript `4df873ee-74e0-4b1a-bd17-30a37a4c6a18` started that observer before deliver.
+  - Observed effect: Publication accepted; hosted CI coverage for the increment stayed unobserved/unidentified despite a started observer directory.
+  - Inference: Post-release recurrence of missing Cursor conversation identity. Native verification of ODF-154 proved the identity path when `CURSOR_CONVERSATION_ID` is set; this coordinator Shell left it unset and did not pass `conversation_id` in `--session-json`. Distinct from a failed released deliver-path when the ID is present.
 
 ## ODF-074 — Unverified planning premises <a id="odf-074"></a>
 
@@ -906,20 +917,6 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `921ad3c98` PLAN.md has `## Slice`; published tip `8fa1b522` has `## Slices`. Coordinator transcript `058c51db-7e9f-4095-86f9-2783c98271b9` renamed the heading before the successful `story-obligations.mjs list --slice 1`. Reader regex: `^## +(?:Ordered slices|Slices) *$`. Sibling Taken plan 568 still has `## Slice` at line 112.
   - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
   - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.
-
-## DD-483 — A message to a completed agent left its follow-up task idle
-
-The coordinator sent a new task through a message API that does not activate a completed agent, then waited and chased status before using the activation operation. This is an operator mistake against the explicit host contract; no missing Open Dough rule is established.
-
-### Occurrences
-
-- Execution: SEED-286#fast-intent-ci-comparison-tests (plan 556; first implementation `2d1c966890a2c8ebf0b552275200655b8d036b22`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: unknown
-  - Evidence: coordinator history after the slice9 oracle-migration final return: repeated send_message manifest requests/status chases, interrupt_agent returning previous_status.completed, then the corrective followup_task beginning "START scratch manifest task now"; the coordinator acknowledged the activation mistake and the actual manifest returned257 owners/207rules/50connections.
-  - Observed effect: the follow-up task remained unstarted across several status messages and waits; it ran after activation was corrected. No source work or accepted proof was lost. Elapsed time and token cost were not measured.
-  - Inference: One execution-level coordination error. The tool description already distinguishes message delivery from starting a turn; this observation does not justify another wording rule or claim a host defect.
 
 ## DD-484 — New Node test files placed outside suite discovery
 
