@@ -9,8 +9,8 @@
 // human removes it after confirming no writer holds it. Lock waits are
 // bounded.
 
-import { mkdirSync, rmSync } from "node:fs";
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
@@ -42,7 +42,8 @@ async function releaseAbandonedLock(lock: string): Promise<boolean> {
   const owner = await lockOwnerPid(lock);
   if (owner === undefined || processAlive(owner)) return false;
   try {
-    await rm(lock, { recursive: true, force: true });
+    // Removing a dead owner's file cannot leave an unowned directory at exit.
+    rmSync(lock, { recursive: true, force: true });
     return true;
   } catch {
     return false;
@@ -56,9 +57,10 @@ process.on("exit", () => {
   for (const held of heldLocks) rmSync(held, { recursive: true, force: true });
 });
 
-export async function releaseWriteLock(lock: string): Promise<void> {
+export function releaseWriteLock(lock: string): void {
+  // Removal and dropping ownership cannot yield to a normal process exit.
+  rmSync(lock, { recursive: true, force: true });
   heldLocks.delete(lock);
-  await rm(lock, { recursive: true, force: true });
 }
 
 export async function acquireWriteLock(lock: string): Promise<void> {
@@ -80,11 +82,12 @@ export async function acquireWriteLock(lock: string): Promise<void> {
       continue;
     }
     heldLocks.add(lock);
+    // No owner-file write may still be in flight when exit cleanup removes it.
     try {
-      await writeFile(path.join(lock, lockOwnerFile), `${process.pid}\n`);
+      writeFileSync(path.join(lock, lockOwnerFile), `${process.pid}\n`);
       return;
     } catch (error) {
-      await releaseWriteLock(lock);
+      releaseWriteLock(lock);
       throw error;
     }
   }

@@ -202,7 +202,7 @@ export async function replaceMachineJson<T>(
     try {
       await rm(temporary, { force: true });
     } finally {
-      await releaseWriteLock(lock);
+      releaseWriteLock(lock);
     }
   }
 }
@@ -219,6 +219,6 @@ export async function readMachineJsonLocked<T, R>(
   try {
     return await observe(await authoritativeMachineJson(store));
   } finally {
-    await releaseWriteLock(lock);
+    releaseWriteLock(lock);
   }
 }
