@@ -210,7 +210,7 @@ adapter identity assembly only where the existing projection can own it.
 
 ### 3. Command observation preserves opaque attempts and failure evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: Example 1. Run all `ci-command-adapter*.test.mjs` plus `ci-command-attempts.test.mjs` through the Node runner under `src/skills/dough-execute-plan/scripts/`; include traced observer/CLI consumers.
 
 Shared valid attempt facts enter a generated adapter response → the real

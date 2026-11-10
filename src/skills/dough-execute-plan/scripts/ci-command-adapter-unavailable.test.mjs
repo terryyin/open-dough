@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { endProcess } from "./process-lifetime-test-fixtures.mjs";
@@ -20,6 +21,14 @@ import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
 const observer = fileURLToPath(new URL("./watch-ci.mjs", import.meta.url));
 const checkedSha = "e".repeat(40).toUpperCase();
+const validFailureAttempt = makeMe.aCiAdapterAttempt
+  .with({
+    runId: "known-run",
+    attemptId: "known-attempt",
+    sha: checkedSha,
+    outcome: "failure",
+  })
+  .please();
 
 function unavailableFixture(t, mode) {
   const root = mkdtempSync(join(tmpdir(), "ci-adapter-unavailable-test-"));
@@ -63,7 +72,7 @@ else if (mode === 'timeout' || mode === 'blocking') {
   }
   const first = !existsSync(${JSON.stringify(discovered)});
   writeFileSync(${JSON.stringify(discovered)}, '');
-  process.stdout.write(JSON.stringify({ attempts: first ? [{ runId: 'known-run', attemptId: 'known-attempt', sha: ${JSON.stringify(checkedSha)}, outcome: 'failure' }] : [] }));
+  process.stdout.write(JSON.stringify({ attempts: first ? [${JSON.stringify(validFailureAttempt)}] : [] }));
 } else { process.stderr.write('diagnostic endpoint unavailable '.repeat(100)); process.exitCode = 3; }
 `,
   );
