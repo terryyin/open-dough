@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-287#fit-dashboard-journeys-in-default-timeout",
+  "mode": "story-branch",
+  "branch": "codex/make-dashboard-journeys-fit-the-default-timeout",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
