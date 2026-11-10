@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-295_inspect-project-configuration-in-dashboard.json",
+      "identity": "SEED-295#inspect-project-configuration-in-dashboard",
+      "completedAt": "2026-11-10T09:17:17.645Z",
+      "blob": "56c5d200362df6fd5b980994b0549bae2bf35375"
+    },
+    {
       "fileName": "SEED-290_publish-frontend-test-proof.json",
       "identity": "SEED-290#publish-frontend-test-proof",
       "completedAt": "2026-11-10T07:42:58.137Z",

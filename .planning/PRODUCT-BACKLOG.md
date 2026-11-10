@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data ([plan](slice-plans/553-map-github-actions-ci-test-data/PLAN.md))
 - [Opt in to Intent Coverage during story wrap-up](seeds/SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up) — SEED-294#opt-in-to-intent-coverage-at-wrap-up ([plan](slice-plans/571-opt-in-to-wrap-up-intent-coverage/PLAN.md))
-- [View each project's Open Dough configuration in dashboard settings](seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard) — SEED-295#inspect-project-configuration-in-dashboard ([plan](slice-plans/570-inspect-project-configuration-in-dashboard/PLAN.md))
 
 ## Backlog list
 

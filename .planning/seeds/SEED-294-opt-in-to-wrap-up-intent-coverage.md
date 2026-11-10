@@ -44,9 +44,8 @@ the check consumes additional review resources. This does not restrict an
 explicit review request. Deferred promises: dashboard configuration editing,
 per-story preferences, a new wrap-up flag, changes to the checking technique or
 done-record format, and measuring whether routine checking is worthwhile.
-The separate [configuration-view story](SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard)
-owns dashboard inspection. Installation, release, and project rollout are not
-part of this increment.
+The separate configuration-view story owns dashboard inspection. Installation,
+release, and project rollout are not part of this increment.
 
 **Key examples:**
 
