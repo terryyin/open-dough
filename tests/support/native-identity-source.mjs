@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { copiedLayer } from "./repository-revision-files.mjs";
+import { uncoveredSupervisionRoots } from "./native-supervision-inputs.mjs";
 
 const [source, destination] = process.argv.slice(2);
 if (!source || !destination)
@@ -30,5 +31,9 @@ await materializeLocalCheckout(
     layer: copiedLayer(source, installerFiles),
   },
 );
-for (const path of ["tests", "src", "install.sh", "VERSION", "CHANGELOG.md"])
+const harnessPaths = ["tests", "src", "install.sh", "VERSION", "CHANGELOG.md"];
+for (const path of [
+  ...harnessPaths,
+  ...uncoveredSupervisionRoots(source, harnessPaths),
+])
   cpSync(join(source, path), join(destination, path), { recursive: true });

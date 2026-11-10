@@ -15,14 +15,9 @@ identity_source="${work_dir}/identity-source"
 identity_out="${work_dir}/identity-hashes"
 mkdir -p -- "${identity_source}" "${identity_out}"
 node "${source_dir}/tests/support/native-identity-source.mjs" "${source_dir}" "${identity_source}"
-supervision_inputs=(
-  tests/support/native-run-supervise.sh
-  tests/support/native-run-stream.sh
-  tests/support/native-host-stream.sh
-  tests/support/native-host-stream.mjs
-  tests/support/native-host-stream-adapters.mjs
-  tests/support/native-run-watchdog.sh
-  tests/helpers/wait-for.bash
+# Expected supervision paths come from native-run-supervise.sh's one list.
+mapfile -t supervision_inputs < <(
+  node "${source_dir}/tests/support/native-supervision-inputs.mjs" "${source_dir}"
 )
 # Each entry: the file defining the writer, then the call that prints its lines.
 identity_writers=(

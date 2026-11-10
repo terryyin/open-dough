@@ -225,6 +225,10 @@ repair handoff. A passing focused check proves its own boundary only.
 - Capability proof lives in `tests/support/test-runner-deadline.test.mjs` and
   `tests/support/test-runner-deadline-continuation.test.mjs` (TERM-resistant,
   watcher retirement, admission release).
+- Identity and admission harness trees that source `native-run-supervise.sh`
+  must materialize every path that script's supervision-input list names
+  (including `scripts/owned-process-group.bash`); `native-supervision-inputs.mjs`
+  keeps that list and uncovered roots in one place.
 
 ## Plan review
 

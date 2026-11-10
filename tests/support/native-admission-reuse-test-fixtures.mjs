@@ -8,6 +8,7 @@ import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { copiedLayer } from "./repository-revision-files.mjs";
 import { candidateIdentity } from "./native-admission-reuse.mjs";
+import { uncoveredSupervisionRoots } from "./native-supervision-inputs.mjs";
 
 const root = fileURLToPath(new URL("../..", import.meta.url));
 const cli = join(root, "tests/support/native-admission-reuse.mjs");
@@ -18,6 +19,18 @@ const context = {
   runtimeSettings: "controlled permissions and settings",
   promptHash: "a".repeat(64),
 };
+const sourcePathspecs = [
+  "src",
+  "tests/support",
+  "tests/helpers",
+  "dashboard/server",
+  "dashboard/src",
+  "install.sh",
+  "VERSION",
+  "CHANGELOG.md",
+  "package.json",
+  "tests/git-publication-native.sh",
+];
 const sourcePaths = spawnSync(
   "git",
   [
@@ -27,16 +40,8 @@ const sourcePaths = spawnSync(
     "--exclude-standard",
     "-z",
     "--",
-    "src",
-    "tests/support",
-    "tests/helpers",
-    "dashboard/server",
-    "dashboard/src",
-    "install.sh",
-    "VERSION",
-    "CHANGELOG.md",
-    "package.json",
-    "tests/git-publication-native.sh",
+    ...sourcePathspecs,
+    ...uncoveredSupervisionRoots(root, sourcePathspecs),
   ],
   { cwd: root, encoding: "utf8" },
 );
