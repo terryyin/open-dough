@@ -19,6 +19,7 @@ import {
   run,
 } from "../intentCiProofPage.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   counts,
   proofSummary,
@@ -79,14 +80,16 @@ async function openWithSummary(
     () => runArtifactsAnswer(run, artifactId),
     () => summaryZipAnswer(summary),
     () => [
-      {
-        headSha: judged,
-        conclusion: "success",
-        url: runUrl,
-        id: run.runId,
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:03:00Z",
-      },
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          conclusion: "success",
+          url: runUrl,
+          databaseId: run.runId,
+          startedAt: "2026-11-05T10:00:00Z",
+          completedAt: "2026-11-05T10:03:00Z",
+        })
+        .please(),
     ],
   );
 }

@@ -11,6 +11,7 @@ import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import { completeThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
 import { createReuseCheckCommands } from "./ci-reuse-check-command-test-fixtures.mjs";
+import { coveredJob, sourceRun } from "./ci-reuse-github-test-fixtures.mjs";
 
 export async function installReuseProvider(fixture) {
   Object.assign(fixture, { env: workerPollingEnvironment(fixture.env) });
@@ -50,13 +51,12 @@ export async function installReuseProvider(fixture) {
       return {
         total_count: 1,
         jobs: [
-          {
-            id: source.id,
+          coveredJob({
+            databaseId: source.id,
             name: policy.unit,
-            status: "completed",
             conclusion: source.conclusion,
             completed_at: source.updated_at,
-          },
+          }),
         ],
       };
     return source;
@@ -72,18 +72,21 @@ export async function installReuseProvider(fixture) {
       const result = await runCovered(sha, failed);
       const at = new Date().toISOString();
       const source = {
-        id: `source-opaque-${sources.length}`,
-        run_attempt: 1,
-        head_sha: sha,
-        head_branch: "exec/story",
-        event: "push",
-        workflow_id: 7,
-        head_repository: { full_name: policy.repo },
-        html_url: "https://ci.example/source",
-        status: "completed",
-        conclusion: result.success ? "success" : "failure",
-        run_started_at: at,
-        updated_at: at,
+        ...sourceRun(
+          {
+            databaseId: `source-opaque-${sources.length}`,
+            attempt: 1,
+            headSha: sha,
+            headBranch: "exec/story",
+            event: "push",
+            status: "completed",
+            conclusion: result.success ? "success" : "failure",
+            url: "https://ci.example/source",
+            workflowId: 7,
+            headRepository: { full_name: policy.repo },
+          },
+          { startedAt: at, completedAt: at },
+        ),
         log: result.log,
       };
       sources.push(source);

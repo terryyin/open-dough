@@ -26,19 +26,3 @@ export class TakenStoryEndpointBuilder {
     };
   }
 }
-
-export class RevisionCiRunBuilder {
-  /** @param {import("../../dashboard/server/baseCiNearest.ts").ListedRun} facts */
-  with(facts) {
-    return {
-      please: () => ({
-        status: "completed",
-        conclusion: "success",
-        createdAt: "2026-11-09T00:00:00.000Z",
-        startedAt: "2026-11-09T00:00:00Z",
-        completedAt: "2026-11-09T00:04:00Z",
-        ...facts,
-      }),
-    };
-  }
-}

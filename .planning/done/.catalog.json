@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-261_map-github-actions-ci-test-data.json",
+      "identity": "SEED-261#map-github-actions-ci-test-data",
+      "completedAt": "2026-11-10T11:32:55.730Z",
+      "blob": "dbe46488ec9518b973161be51dbd5e26602f952b"
+    },
+    {
       "fileName": "SEED-298_insert-common-prompts-in-the-dashboard-terminal.json",
       "identity": "SEED-298#insert-common-prompts-in-the-dashboard-terminal",
       "completedAt": "2026-11-10T11:20:25.308Z",

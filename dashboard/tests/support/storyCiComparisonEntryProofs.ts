@@ -153,7 +153,7 @@ function runForId(
   runId: number,
 ): CiRunAnswer | undefined {
   for (const group of Object.values(runsBySha)) {
-    const found = group.find((run) => run.id === runId);
+    const found = group.find((run) => (run.databaseId ?? run.id) === runId);
     if (found !== undefined) return found;
   }
   return undefined;

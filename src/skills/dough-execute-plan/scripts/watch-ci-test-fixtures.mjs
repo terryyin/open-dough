@@ -7,6 +7,7 @@ import { setTimeout as pause } from "node:timers/promises";
 import { promisify } from "node:util";
 import { readMailboxEvents, readWorkerIdentity } from "./ci-mailbox-store.mjs";
 import { checkMailboxWorkerLiveness } from "./ci-mailbox-worker-process.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   apiAnswer,
   apiWorkflow,
@@ -26,18 +27,25 @@ const runCommand = promisify(execFile);
 
 export const sha = "a".repeat(40);
 
-export const run = (overrides = {}) => ({
-  databaseId: 42,
-  attempt: 1,
-  headSha: sha,
-  headBranch: "main",
-  workflowName: "CI",
-  event: "push",
-  status: "completed",
-  conclusion: "success",
-  url: "https://github.com/example/example/actions/runs/42",
-  ...overrides,
-});
+// Observed GitHub run facts through MakeMe; call sites keep deciding overrides.
+// `createdAt: undefined` drops the builder's incidental creation time unless a
+// caller states one — startup selection treats missing creation as pre-baseline.
+export const run = (overrides = {}) =>
+  makeMe.aCiRun
+    .with({
+      databaseId: 42,
+      attempt: 1,
+      headSha: sha,
+      headBranch: "main",
+      workflowName: "CI",
+      event: "push",
+      status: "completed",
+      conclusion: "success",
+      url: "https://github.com/example/example/actions/runs/42",
+      createdAt: undefined,
+      ...overrides,
+    })
+    .please();
 
 export async function waitForFile(path, timeoutMs = 5000) {
   const deadline = Date.now() + timeoutMs;

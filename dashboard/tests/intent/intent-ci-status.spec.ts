@@ -30,6 +30,7 @@ import {
 } from "../intentCiStatusPage.ts";
 import { intentModeTab } from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { intentSettingsText } from "../support/intentSettingsFile.ts";
 
 test("CI status names main, its nearest Passed result, later commits without a result, the run, and when it was checked; the mode strip keeps its keys", async ({
@@ -42,7 +43,9 @@ test("CI status names main, its nearest Passed result, later commits without a r
   });
   published.serveCi(
     trunkCi(openDough.revision, () => [
-      { headSha: judged, conclusion: "success", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "success", url: runUrl })
+        .please(),
     ]),
   );
   await openUntilRead(page);
@@ -107,7 +110,9 @@ test("CI status is shown without Intent locations and with unreadable Intent set
   await page.setViewportSize({ width: 1280, height: 800 });
   publishProject(page, doughnut).serveCi(
     trunkCi(doughnut.revision, () => [
-      { headSha: judged, conclusion: "cancelled", url: runUrl },
+      makeMe.aCiRun
+        .with({ headSha: judged, conclusion: "cancelled", url: runUrl })
+        .please(),
     ]),
   );
   publishProject(page, pygardon, {
