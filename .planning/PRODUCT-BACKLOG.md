@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Compare landed timing with a filtered moving average](seeds/SEED-285-landed-ci-timing-history.md#compare-landed-timing-with-recent-builds) — SEED-285#compare-landed-timing-with-recent-builds ([plan](slice-plans/555-compare-landed-timing-with-recent-builds/PLAN.md))
 - [Make GitHub Actions run and attempt-job test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-github-actions-ci-test-data) — SEED-261#map-github-actions-ci-test-data ([plan](slice-plans/553-map-github-actions-ci-test-data/PLAN.md))
 - [View each project's Open Dough configuration in dashboard settings](seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard) — SEED-295#inspect-project-configuration-in-dashboard ([plan](slice-plans/570-inspect-project-configuration-in-dashboard/PLAN.md))
+- [Finish opted-in stories with an Intent Coverage report](seeds/SEED-258-dough-intent-coverage.md#finish-opted-in-stories-with-intent-coverage) — SEED-258#finish-opted-in-stories-with-intent-coverage ([plan](slice-plans/572-finish-opted-in-stories-with-intent-coverage/PLAN.md))
 
 ## Backlog list
 
-- [Finish opted-in stories with an Intent Coverage report](seeds/SEED-258-dough-intent-coverage.md#finish-opted-in-stories-with-intent-coverage) — SEED-258#finish-opted-in-stories-with-intent-coverage
 - [Make Intent Coverage results easier to act on](seeds/SEED-258-dough-intent-coverage.md#make-intent-coverage-results-easier-to-act-on) — SEED-258#make-intent-coverage-results-easier-to-act-on
 - [Repeat a slow landed CI build once and flag a persistent slowdown](seeds/SEED-285-landed-ci-timing-history.md#retry-a-slow-landed-ci-build) — SEED-285#retry-a-slow-landed-ci-build
 - [Make CI adapter attempt, queue and coverage test setup map directly to the domain](seeds/SEED-261-share-domain-test-data.md#map-ci-adapter-and-coverage-test-data) — SEED-261#map-ci-adapter-and-coverage-test-data

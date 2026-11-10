@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "yusuke-chan",
+  "email": "yusuke-chan@example.org",
+  "identity": "SEED-258#finish-opted-in-stories-with-intent-coverage",
+  "mode": "story-branch",
+  "branch": "cursor/finish-opted-in-stories-with-an-intent-coverage",
+  "host": "cursor",
+  "model": "auto"
+}
