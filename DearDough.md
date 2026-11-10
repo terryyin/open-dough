@@ -187,6 +187,14 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: dashboard launch `def96917-5b2c-44f1-a2ea-005183e658da`; first-delegation reference batch returned 11,478 original tokens and delivery batch 17,001 with truncation; the coordinator then retrieved missing passages. During acceptance it also sent a complete consumer trace plus `head` of a minified report, producing a 395,412-token original-output warning, then correctly parsed only report stats. Retrospective repeated an oversized findings read.
   - Observed effect: omitted requested passages, repeated targeted retrieval and excessive raw diagnostic output; terminal command handles and semantic results remained intact.
   - Inference: this is an agent deviation under existing boundary/targeted-retrieval guidance. Keep individual required passages and parse large generated evidence before emitting it; no total-token or elapsed-time saving is measured.
+- Execution: SEED-294#opt-in-to-intent-coverage-at-wrap-up (plan 571; implementation `92c060c8efe3a38b0ceb43ea1bec83603b550f4a`)
+  - Timestamp: unknown (2026-11-10 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `d5a3da31f`)
+  - Evidence: launch `ee3cee74-5c29-456a-b16c-eb4336e7011c`; startup setup/plan read reported 14,032 original tokens with truncation, and first-delegation guidance batch reported 12,088 with truncation; coordinator retrieved missing plan and decision passages separately.
+  - Observed effect: broad combined output lost needed passages and required targeted rereads before delegation. Dependent execution waited for the missing context.
+  - Inference: recurrence of agent read-batching deviation under existing targeted-retrieval rules; no isolated time or token saving measured.
+
 
 ## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
 Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
@@ -371,6 +379,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: slice-2 agent returns and coordinator conversation; /tmp/seed281-slice2-final-consumer-trace.md enumerated 590 consumers, and /tmp/seed281-slice2-refactor-consumer-trace.md enumerated 627 across four disposition parts. The latter explicitly derives PLAN.md, execution-history.md and source-review.md basenames; its PLAN term matched 2,257 files. Published implementation 3c3c1da7 retains the shared mapper and affected proof locations.
   - Observed effect: implementation and refactor owners dispositioned unrelated planning, guidance and historical matches alongside the actual four comparison and four adapter caller files; all 17 affected cases passed, and no missed consumer was established.
   - Inference: the existing planning-basename noise recurred. Refactoring reported about 15 minutes total, including edits, workload sequencing and proof; isolated trace cost was not measured.
+- Execution: SEED-294#opt-in-to-intent-coverage-at-wrap-up (plan 571; implementation `92c060c8efe3a38b0ceb43ea1bec83603b550f4a`)
+  - Timestamp: unknown (2026-11-10 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `d5a3da31f`)
+  - Evidence: `/tmp/seed294-consumer-trace-reviewed.md` and the implementation return enumerate 786 classified rows (16 run, 770 excluded), deriving generic `PLAN.md`, `source-review.md` and `SKILL.md` terms; plan proof is recoverable at the implementation revision above.
+  - Observed effect: a two-file guidance change required broad per-file dispositions. The trace also found a real dashboard unconditional-copy consumer, which was corrected and passed focused browser proof.
+  - Inference: generic basename noise recurred alongside useful effect tracing; isolated trace cost is unmeasured, and no missed consumer is established.
+
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).

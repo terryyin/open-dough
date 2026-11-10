@@ -246,3 +246,14 @@ adds future scope only; no product behavior changed. Current proof remains valid
 Independent refactor: none — already clean; all accepted proof unchanged.
 Pre-delivery freshness unchanged at `001d6782d7ab8c6cac5190971d9e4534e0180dcc`;
 additional trunk edits queue future work only, with no affecting sibling delivery.
+
+## Execution complete
+
+Product advice: no change. Explicit opt-in control matches near-future intent-review
+direction; the newly queued SEED-258 work owns later probe completion and usefulness
+changes. No correction or new backlog item is needed. Outcome and whole-product
+review found coherent selection/check/storage owners and sufficient focused proof;
+existing browser journeys and completion tests retain distinct integration coverage.
+This was a guidance-first change, not E2E-driven development; no suite consolidation
+was justified. Process review recorded ODF-264/ODF-396 recurrences in DearDough.md.
+Implementation `92c060c8e` is published; applicable branch CI remains pending.
