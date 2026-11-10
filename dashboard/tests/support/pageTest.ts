@@ -39,8 +39,25 @@ export { expect } from "@playwright/test";
 endDescendantsAtExit();
 
 // Playwright's worker-only extension takes an empty test-fixture type.
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const test = base.extend<{}, { launchJourney: LaunchJourney }>({
+export const test = base.extend<
+  object,
+  { launchJourney: LaunchJourney; queuedCodexOriginReady: undefined }
+>({
+  // Requested only by native readers that need this installed queued input.
+  // Its setup has the worker's default budget, before a reading test starts.
+  queuedCodexOriginReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const [{ requestRunArtifact }, { startOriginArtifactKey }] =
+        await Promise.all([
+          import("./runArtifacts.ts"),
+          import("./startOriginPreparation.ts"),
+        ]);
+      await requestRunArtifact(startOriginArtifactKey("codex", "queued"));
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
   // The launch journeys' origin (../launchJourney.ts says what it publishes),
   // published once per worker and read, never written, by every journey the
   // worker runs from it (../launchStoryCardPage.ts serves it as GitHub would).

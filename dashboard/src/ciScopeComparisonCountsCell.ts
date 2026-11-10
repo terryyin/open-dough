@@ -9,73 +9,39 @@
 
 import {
   comparableUnits,
-  unitNoun,
   whyNotCompared,
   type CiProofUnit,
 } from "./ciProofUnits.ts";
 import {
   countWords,
-  formatTotal,
   measuredCountsChangeWords,
   measuredUnitsOf,
   signedCountWords,
-  type MeasuredCount,
   type ScopeEndpointCount,
 } from "./ciScopeComparisonCounts.ts";
-import { unreportedWords } from "./ciScopeComparisonTiming.ts";
+import {
+  afterCountText,
+  baselineCountText,
+  groupsWords,
+  isMeasuredCount,
+  measuredCountWords,
+  nounAfter,
+} from "./ciScopeComparisonEndpointCountWords.ts";
+import type { UnitGroup } from "./ciScopeComparisonUnits.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 
-const noFileBreakdown = "no file breakdown";
-
-const isMeasured = (count: ScopeEndpointCount) =>
-  count.kind === "measured" || count.kind === "units";
-
-// "5 test cases and 1 test file": a measured endpoint's totals with their
-// units.
-function measuredWords(count: MeasuredCount | ScopeEndpointCount): string {
-  if (count.kind === "measured") return countWords(count.total, count.unit);
-  if (count.kind === "units")
-    return count.counts.map(measuredWords).join(" and ");
-  return "";
-}
-
-// An endpoint's words in a Counts cell, ABSENT standing in where the
-// endpoint holds no result for the scope.
-function endpointCountText(count: ScopeEndpointCount, absent: string): string {
-  if (count.kind === "checking") return "…";
-  if (count.kind === "status") return count.text;
-  if (count.kind === "no-breakdown") return noFileBreakdown;
-  if (count.kind === "absent") return absent;
-  if (count.kind === "unreported") return unreportedWords;
-  if (count.kind === "nothing") return "nothing counted";
-  if (count.kind === "units") return measuredWords(count);
-  return formatTotal(count.total);
-}
-
-// Baseline's words: a scope only a later endpoint holds was added.
-const baselineCountText = (
-  count: ScopeEndpointCount,
-  presentLater: boolean,
-): string => endpointCountText(count, presentLater ? "added" : "—");
-
-// An after endpoint's words: where it lacks the scope, removed when the
-// scope was deleted or the baseline held it, and added otherwise.
-const afterCountText = (
-  count: ScopeEndpointCount,
-  presentInBaseline: boolean,
-  changeKind?: ChangeKind,
-): string =>
-  endpointCountText(
-    count,
-    changeKind === "deleted" || presentInBaseline ? "removed" : "added",
-  );
+type CountGroups = {
+  readonly before: readonly UnitGroup[] | undefined;
+  readonly branch: readonly UnitGroup[] | undefined;
+  readonly landed: readonly UnitGroup[] | undefined;
+};
 
 // The one declared unit every measured endpoint of COUNTS has, when they
 // all have exactly one and it compares; undefined otherwise.
 function comparedUnitOf(
   counts: readonly ScopeEndpointCount[],
 ): CiProofUnit | undefined {
-  const measured = counts.filter(isMeasured);
+  const measured = counts.filter(isMeasuredCount);
   const [first] = measured;
   if (first?.kind !== "measured") return undefined;
   return measured.every(
@@ -98,16 +64,6 @@ function sameMeasured(
   );
 }
 
-// " test cases" after AFTER's total in UNIT; nothing for a gap.
-function nounAfter(
-  after: ScopeEndpointCount,
-  unit: CiProofUnit | undefined,
-): string {
-  return after.kind === "measured" && unit !== undefined
-    ? ` ${unitNoun(unit, after.total)}`
-    : "";
-}
-
 function countsChangePhrase(
   before: ScopeEndpointCount,
   after: ScopeEndpointCount,
@@ -115,14 +71,23 @@ function countsChangePhrase(
   presentInBaseline: boolean,
   changeKind: ChangeKind | undefined,
   unit: CiProofUnit | undefined,
+  beforeGroups?: readonly UnitGroup[],
+  afterGroups?: readonly UnitGroup[],
 ): string {
   if (before.kind === "measured" && after.kind === "measured") {
     return measuredCountsChangeWords(before.total, after.total, after.unit);
   }
-  const baselineText = baselineCountText(before, presentLater);
-  const afterText = afterCountText(after, presentInBaseline, changeKind);
-  // The unit follows only a total an after endpoint measured, so
-  // "1 → removed" stays a gap and "added → 1 test case" keeps its unit.
+  const baselineText =
+    before.kind === "measured" && after.kind !== "measured"
+      ? countWords(before.total, before.unit)
+      : baselineCountText(before, presentLater, beforeGroups);
+  const afterText = afterCountText(
+    after,
+    presentInBaseline,
+    changeKind,
+    afterGroups,
+  );
+  // A total keeps its unit even when no later endpoint measured it.
   const noun = nounAfter(after, unit);
   if (baselineText === afterText) return `${afterText}${noun}`;
   return `${baselineText} → ${afterText}${noun}`;
@@ -132,7 +97,7 @@ function countsChangePhrase(
 // Nothing when fewer than two endpoints are measured, as a gap or "—"
 // already says why.
 function uncomparedReason(shown: readonly ScopeEndpointCount[]): string {
-  const measured = shown.filter(isMeasured);
+  const measured = shown.filter(isMeasuredCount);
   if (measured.length < 2) return "";
   return ` (${whyNotCompared(measured.flatMap(measuredUnitsOf))})`;
 }
@@ -148,17 +113,31 @@ function uncomparedCountsText(
   presentLater: boolean,
   presentInBaseline: boolean,
   changeKind: ChangeKind | undefined,
+  groups?: CountGroups,
 ): string {
-  const words = (count: ScopeEndpointCount, text: string) => ({
+  const words = (
+    count: ScopeEndpointCount,
+    text: string,
+    shown?: readonly UnitGroup[],
+  ) => ({
     count,
-    text: isMeasured(count) ? measuredWords(count) : text,
-    measured: isMeasured(count),
+    text:
+      shown !== undefined && shown.length > 0
+        ? groupsWords(shown)
+        : isMeasuredCount(count)
+          ? measuredCountWords(count)
+          : text,
+    measured: isMeasuredCount(count),
   });
-  const baseline = words(before, baselineCountText(before, presentLater));
-  const after = (count: ScopeEndpointCount) =>
-    words(count, afterCountText(count, presentInBaseline, changeKind));
-  const branchWords = after(branch);
-  const landedWords = after(landed);
+  const baseline = words(
+    before,
+    baselineCountText(before, presentLater),
+    groups?.before,
+  );
+  const after = (count: ScopeEndpointCount, shown?: readonly UnitGroup[]) =>
+    words(count, afterCountText(count, presentInBaseline, changeKind), shown);
+  const branchWords = after(branch, groups?.branch);
+  const landedWords = after(landed, groups?.landed);
   const shownAfter =
     branch.kind === "checking" || branch.kind === "status"
       ? [landedWords]
@@ -188,9 +167,10 @@ export function countsCellText(
   presentLater: boolean,
   presentInBaseline: boolean,
   changeKind?: ChangeKind,
+  groups?: CountGroups,
 ): string {
   const unit = comparedUnitOf([before, branch, landed]);
-  if (unit === undefined && [before, branch, landed].some(isMeasured))
+  if (unit === undefined && [before, branch, landed].some(isMeasuredCount))
     return uncomparedCountsText(
       before,
       branch,
@@ -198,8 +178,9 @@ export function countsCellText(
       presentLater,
       presentInBaseline,
       changeKind,
+      groups,
     );
-  const phrase = (after: ScopeEndpointCount) =>
+  const phrase = (after: ScopeEndpointCount, shown?: readonly UnitGroup[]) =>
     countsChangePhrase(
       before,
       after,
@@ -207,30 +188,42 @@ export function countsCellText(
       presentInBaseline,
       changeKind,
       unit,
+      groups?.before,
+      shown,
     );
-  const branchText = afterCountText(branch, presentInBaseline, changeKind);
-  const landedText = afterCountText(landed, presentInBaseline, changeKind);
+  const branchText = afterCountText(
+    branch,
+    presentInBaseline,
+    changeKind,
+    groups?.branch,
+  );
+  const landedText = afterCountText(
+    landed,
+    presentInBaseline,
+    changeKind,
+    groups?.landed,
+  );
 
   if (
-    baselineCountText(before, presentLater) === branchText &&
+    baselineCountText(before, presentLater, groups?.before) === branchText &&
     branchText === landedText &&
     !(before.kind === "measured" && branch.kind === "measured")
   ) {
-    return phrase(branch);
+    return phrase(branch, groups?.branch);
   }
   if (sameMeasured(branch, landed) || landed.kind !== "measured") {
     if (branch.kind === "measured" || branchText === landedText) {
-      return phrase(branch);
+      return phrase(branch, groups?.branch);
     }
   }
   if (branch.kind === "status" || branch.kind === "checking") {
-    return phrase(landed);
+    return phrase(landed, groups?.landed);
   }
   if (landed.kind === "status" || landed.kind === "checking") {
-    return phrase(branch);
+    return phrase(branch, groups?.branch);
   }
   if (branchText === landedText) {
-    return phrase(branch);
+    return phrase(branch, groups?.branch);
   }
   if (
     before.kind === "measured" &&
@@ -244,5 +237,5 @@ export function countsCellText(
     before.kind === "measured" && landed.kind === "measured"
       ? ` (${signedCountWords(landed.total - before.total)})`
       : "";
-  return `${phrase(branch)} → ${landedText}${nounAfter(landed, unit)}${signed}`;
+  return `${phrase(branch, groups?.branch)} → ${landedText}${nounAfter(landed, unit)}${signed}`;
 }

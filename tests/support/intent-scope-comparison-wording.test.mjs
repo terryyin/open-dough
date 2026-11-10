@@ -124,7 +124,7 @@ test("a unit Branch does not report keeps Landed's own difference from Baseline,
       true,
       true,
     ),
-    "5 → — → 7 test cases (+2)",
+    "5 test cases → — → 7 test cases (+2)",
   );
   assert.equal(
     countsCellText(

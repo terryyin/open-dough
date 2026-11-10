@@ -6,13 +6,14 @@ import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import { expectSelected } from "../storyCardSelection.ts";
+import { openUntilRead } from "../pageRequestNotes.ts";
 
 export async function selectDoneStoryInIntent(
   page: Page,
   title = "Story A",
   beforeIntent?: () => Promise<void>,
 ) {
-  await page.goto("/");
+  await openUntilRead(page);
   await showColumn(page, "Recently done");
   const { recentlyDone, intentChoice, intent } = parts(page);
   const card = recentlyDone.getByRole("article", { name: title, exact: true });

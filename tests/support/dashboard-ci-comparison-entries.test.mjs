@@ -102,7 +102,7 @@ test("a removed entry is marked without inventing an after value", () => {
   );
   assert.equal(result.kind, "rows");
   const gone = result.rows.find((row) => row.path === "old");
-  assert.equal(gone.cells.counts, "1 → removed");
+  assert.equal(gone.cells.counts, "1 test case → removed");
   assert.equal(gone.cells.baseline.text, "1 min");
   assert.equal(gone.cells.branch.text, "removed");
   assert.equal(gone.cells.landed.text, "removed");

@@ -5,38 +5,25 @@
 // (`./ciScopeProof.ts`, `./ciProofUnits.ts`) with its count
 // (`./ciScopeComparisonCounts.ts`) and timing
 // (`./ciScopeComparisonTiming.ts`); an endpoint with a group holds the scope.
-// Each declared unit that Baseline and a later endpoint both show compares
-// on its own row. The units matching nothing on the other side share one
-// row, each endpoint showing its own, when both sides have such units
-// (legacy test results → test cases, test files → test cases), so that row
-// shows both labelled ends and no difference; otherwise each such unit has
-// its own row, where an endpoint reporting the scope only in other units
-// shows it unreported, never as a zero.
+// `./ciScopeComparisonUnitRows.ts` selects the compared units and takes each
+// row's count and timing from these endpoint groups.
 
 import { entryTimingOf, scopeTimingOf } from "./ciProofTiming.ts";
 import {
   countedAny,
   hasFileBreakdown,
-  listedUnits,
+  namesUnits,
   type CiProofUnit,
 } from "./ciProofUnits.ts";
-import {
-  measuredOf,
-  type MeasuredCount,
-  type ScopeEndpointCount,
-} from "./ciScopeComparisonCounts.ts";
+import { measuredOf, type MeasuredCount } from "./ciScopeComparisonCounts.ts";
 import {
   endpointProofReadOf,
   type ScopeEndpointGap,
 } from "./ciScopeComparisonEndpoint.ts";
-import {
-  unitTimingOf,
-  type ScopeEndpointTiming,
-  type UnitTiming,
-} from "./ciScopeComparisonTiming.ts";
+import { unitTimingOf, type UnitTiming } from "./ciScopeComparisonTiming.ts";
 import {
   entryOutsidesOf,
-  holdsResultInside,
+  showsEvidenceInside,
   noResultsKindOf,
   owningEntryOf,
   unitResultsAt,
@@ -45,18 +32,30 @@ import {
 } from "./ciScopeProof.ts";
 import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
 
+export {
+  comparedRowsOf,
+  inRowUnits,
+  rowEndpointOf,
+  type ComparedRow,
+  type RowEndpoint,
+} from "./ciScopeComparisonUnitRows.ts";
+
 const noBreakdown = { kind: "no-breakdown" } as const;
+const noCiResult = { kind: "status", text: "no CI result" } as const;
 
 // One unit's results at a scope in one endpoint's summary.
 export type UnitGroup = {
   readonly unit: CiProofUnit;
   readonly count:
-    MeasuredCount | { readonly kind: "nothing" } | typeof noBreakdown;
+    | MeasuredCount
+    | { readonly kind: "nothing" }
+    | typeof noBreakdown
+    | typeof noCiResult;
   readonly timing: UnitTiming | typeof noBreakdown;
 };
 
 export type EndpointUnits =
-  | ScopeEndpointGap
+  | (ScopeEndpointGap & { readonly groups?: readonly UnitGroup[] })
   | { readonly kind: "groups"; readonly groups: readonly UnitGroup[] };
 
 // Whether ENDPOINT holds the scope: it shows a group of its results.
@@ -72,8 +71,8 @@ export const absentOn = (endpoint: EndpointUnits): boolean =>
 
 // Each unit SHOWN at a scope (`unitResultsAt`) with results there: at its
 // entry's path every unit, counted or not; inside it each unit holding a
-// result there (`holdsResultInside`), counted from its file breakdown, or
-// without one, so cannot say.
+// result or evidence gap there (`showsEvidenceInside`), counted from its
+// file breakdown when a path matched, otherwise unable to say.
 function groupsShownOf(shown: readonly UnitResults[]): readonly UnitGroup[] {
   return shown.flatMap(({ evidence, figures }): UnitGroup[] => {
     const { unit } = evidence;
@@ -88,28 +87,30 @@ function groupsShownOf(shown: readonly UnitResults[]): readonly UnitGroup[] {
         },
       ];
     }
-    if (!holdsResultInside(evidence, figures)) return [];
+    if (!showsEvidenceInside(evidence, figures)) return [];
     if (!hasFileBreakdown(evidence))
       return [{ unit, count: noBreakdown, timing: noBreakdown }];
     return [
       {
         unit,
-        count: measuredOf(evidence, figures),
+        count: figures.paths > 0 ? measuredOf(evidence, figures) : noCiResult,
         timing: unitTimingOf(evidence, scopeTimingOf(evidence, figures)),
       },
     ];
   });
 }
 
-// GROUPS at an endpoint, OTHERWISE without any; no file breakdown when no
-// group can say what the scope holds.
+// GROUPS at an endpoint, OTHERWISE without any. Preserve each unit's gap
+// when NAMED beside another unit; otherwise keep the single-unit scope
+// gap and its known unit for wording.
 function endpointUnitsOf(
   groups: readonly UnitGroup[],
   otherwise: EndpointUnits,
+  named = false,
 ): EndpointUnits {
   if (groups.length === 0) return otherwise;
-  if (groups.every(({ count }) => count.kind === "no-breakdown"))
-    return noBreakdown;
+  if (!named && groups.every(({ count }) => count.kind === "no-breakdown"))
+    return { ...noBreakdown, groups };
   return { kind: "groups", groups };
 }
 
@@ -124,9 +125,11 @@ export function scopeEndpointUnitsOf(
   const entry = owningEntryOf(read.entries, lookup);
   if (entry === undefined) return { kind: "absent" };
   const shown = unitResultsAt(entry, lookup);
-  return endpointUnitsOf(groupsShownOf(shown), {
-    kind: noResultsKindOf(shown),
-  });
+  return endpointUnitsOf(
+    groupsShownOf(shown),
+    { kind: noResultsKindOf(shown) },
+    namesUnits(entry),
+  );
 }
 
 // What one endpoint's proof holds under PATH that none of CHILDREN's rows
@@ -149,92 +152,4 @@ export function outsideEndpointUnitsOf(
     }),
   );
   return endpointUnitsOf(groups, { kind: "absent" });
-}
-
-// One compared row of a scope: the units its figures are taken in (every
-// unit when no endpoint shows one).
-export type ComparedRow = {
-  readonly units: readonly CiProofUnit[] | undefined;
-};
-
-// Whether a compared row in UNITS takes figures in UNIT.
-export const inRowUnits = (
-  units: ComparedRow["units"],
-  unit: CiProofUnit,
-): boolean => units === undefined || units.includes(unit);
-
-const unitsOf = (endpoint: EndpointUnits): readonly CiProofUnit[] =>
-  endpoint.kind === "groups" ? endpoint.groups.map(({ unit }) => unit) : [];
-
-// The rows a scope compares in across BASELINE and the later endpoints.
-export function comparedRowsOf(
-  baseline: EndpointUnits,
-  branch: EndpointUnits,
-  landed: EndpointUnits,
-): readonly ComparedRow[] {
-  const before = unitsOf(baseline);
-  const later = [...unitsOf(branch), ...unitsOf(landed)];
-  const shown = listedUnits.filter(
-    (unit) => before.includes(unit) || later.includes(unit),
-  );
-  if (shown.length === 0) return [{ units: undefined }];
-  const matched = shown.filter(
-    (unit) =>
-      unit !== "legacy" && before.includes(unit) && later.includes(unit),
-  );
-  const unmatched = (units: readonly CiProofUnit[]) =>
-    units.some((unit) => !matched.includes(unit));
-  const own = (unit: CiProofUnit): ComparedRow => ({ units: [unit] });
-  if (!unmatched(before) || !unmatched(later)) return shown.map(own);
-  return [
-    ...matched.map(own),
-    { units: shown.filter((unit) => !matched.includes(unit)) },
-  ];
-}
-
-// An endpoint's count and timing in one row.
-export type RowEndpoint = {
-  readonly count: ScopeEndpointCount;
-  readonly timing: ScopeEndpointTiming;
-};
-
-const unreported = { kind: "unreported" } as const;
-
-// Several groups' counts and timings kept apart; a group that cannot say
-// stands in only when no other can.
-function severalOf(groups: readonly [UnitGroup, ...UnitGroup[]]): RowEndpoint {
-  const counts = groups.flatMap(({ count }) =>
-    count.kind === "measured" ? [count] : [],
-  );
-  const timings = groups.flatMap(({ timing }) =>
-    timing.kind === "no-breakdown" ? [] : [timing],
-  );
-  const [count] = counts;
-  const [timing] = timings;
-  return {
-    count:
-      counts.length > 1
-        ? { kind: "units", counts }
-        : (count ?? groups[0].count),
-    timing:
-      timings.length > 1
-        ? { kind: "units", timings }
-        : (timing ?? groups[0].timing),
-  };
-}
-
-// ENDPOINT's count and timing in ROW's units.
-export function rowEndpointOf(
-  endpoint: EndpointUnits,
-  row: ComparedRow,
-): RowEndpoint {
-  if (endpoint.kind !== "groups") return { count: endpoint, timing: endpoint };
-  const groups = endpoint.groups.filter(({ unit }) =>
-    inRowUnits(row.units, unit),
-  );
-  const [first, ...rest] = groups;
-  if (first === undefined) return { count: unreported, timing: unreported };
-  return rest.length === 0
-    ? { count: first.count, timing: first.timing }
-    : severalOf([first, ...rest]);
 }

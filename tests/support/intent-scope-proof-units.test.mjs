@@ -136,3 +136,107 @@ test("legacy results read as legacy test results whatever unit they spelled; a d
     "no file breakdown of test files",
   );
 });
+
+for (const [gap, files, expectedGaps] of [
+  [
+    "missing part",
+    () =>
+      makeMe.aCiProofEvidence
+        .inUnit("file")
+        .brokenDown({ path: "tests/elsewhere/check.sh", passed: 1 })
+        .missingPart(2)
+        .please(),
+    ["part 2 of 2 missing"],
+  ],
+  [
+    "ambiguous part",
+    () =>
+      makeMe.aCiProofEvidence
+        .inUnit("file")
+        .brokenDown({ path: "tests/elsewhere/check.sh", passed: 1 })
+        .inParts(2, { ambiguous: [2] })
+        .please(),
+    ["part 2 of 2 ambiguous"],
+  ],
+  [
+    "part without a file breakdown",
+    () =>
+      makeMe.aCiProofEvidence
+        .inUnit("file")
+        .brokenDown({ path: "tests/elsewhere/check.sh", passed: 1 })
+        .withUnbrokenPart({ passed: 1 })
+        .please(),
+    ["part 2 of 2 has no file breakdown"],
+  ],
+]) {
+  test(`a unit with a ${gap} stays at folder and file scopes where its breakdown has no result, beside another unit's results or alone`, () => {
+    const entry = makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .brokenDown({ path: "tests/folder/a.spec.ts", passed: 3 })
+          .please(),
+        files(),
+      )
+      .please();
+    for (const scope of [
+      "tests/folder",
+      "tests/folder/a.spec.ts",
+      "tests/empty",
+      "tests/empty/b.spec.ts",
+    ]) {
+      const rows = unitCellsAt(entry, scope);
+      const row = rows.find(({ evidence }) => evidence.unit === "file");
+      assert.ok(row, `${scope} retains the test files unit`);
+      assert.equal(row.cells.counts, "no CI result");
+      assert.equal(row.cells.countedResults, undefined);
+      assert.deepEqual(row.cells.gaps, expectedGaps);
+      assert.equal(
+        row.cells.completeness,
+        gap === "part without a file breakdown"
+          ? "2 of 2 parts present"
+          : "1 of 2 parts present",
+      );
+      assert.deepEqual(
+        rows.map(({ evidence }) => evidence.unit),
+        scope.startsWith("tests/folder") ? ["case", "file"] : ["file"],
+      );
+    }
+  });
+}
+
+test("a unit without any file breakdown or any present part retains its own gap beside a complete unit at folder and file scopes", () => {
+  for (const files of [
+    makeMe.aCiProofEvidence.inUnit("file").counting(1).please(),
+    makeMe.aCiProofEvidence
+      .inUnit("file")
+      .inParts(1, { missing: [1] })
+      .please(),
+    makeMe.aCiProofEvidence
+      .inUnit("file")
+      .inParts(1, { ambiguous: [1] })
+      .please(),
+  ]) {
+    const entry = makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .brokenDown({ path: "tests/folder/a.spec.ts", passed: 3 })
+          .please(),
+        files,
+      )
+      .please();
+    for (const scope of ["tests/folder", "tests/folder/a.spec.ts"]) {
+      const rows = unitCellsAt(entry, scope);
+      assert.deepEqual(
+        rows.map(({ evidence }) => evidence.unit),
+        ["case", "file"],
+      );
+      assert.equal(rows[1].cells.counts, "no file breakdown of test files");
+      assert.equal(rows[1].cells.countedResults, undefined);
+      assert.equal(rows[1].cells.gaps.length, 1);
+    }
+  }
+});

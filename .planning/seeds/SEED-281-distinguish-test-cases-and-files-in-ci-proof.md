@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-281#keep-unit-gaps-and-names-visible
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84540cc7a6c1d70b331309d89282028c63e8bec4469971e31e6fae9de9c398ba","plan":"0495a324e61e3ff36fecdc5c42a330de7ec8b9702e014d8315b4b9b049fa0bc9"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/557-keep-unit-gaps-and-names-visible/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84540cc7a6c1d70b331309d89282028c63e8bec4469971e31e6fae9de9c398ba","plan":"397a288743b6883b02b4c76083dfc160c634fe6bd6d2999567b30bb527e725e7"}}
 ```
 
 **Goal.** Developers reading Intent's CI proof and comparisons for a location

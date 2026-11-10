@@ -1,9 +1,13 @@
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
+  proofDirectory,
   readProof,
   removeProofDirectories,
   startProofRun,
+  waitForProofState,
 } from "../../tests/support/proofRecordRun.ts";
+
+import { processRunning } from "../../tests/support/processGroup.ts";
 
 test.afterAll(removeProofDirectories);
 
@@ -33,19 +37,12 @@ test("a deadline preserves finished attempts separately from unfinished work", a
 test("graceful interruption records strict failure after one completed assertion", async () => {
   const run = startProofRun({ spec: "ordered.proof.ts" });
   try {
-    await expect
-      .poll(() => {
-        try {
-          const record = readProof(run.recordPath);
-          return (
-            record.tests[0]?.attempts[0]?.status === "passed" &&
-            record.tests[1]?.attempts.length === 1
-          );
-        } catch {
-          return false;
-        }
-      })
-      .toBe(true);
+    await waitForProofState(
+      run,
+      (record) =>
+        record.tests[0]?.attempts[0]?.status === "passed" &&
+        record.tests[1]?.attempts.length === 1,
+    );
     run.child.kill("SIGINT");
     const result = await run.result;
     expect(result.status).not.toBe(0);
@@ -65,15 +62,7 @@ test("graceful interruption records strict failure after one completed assertion
 test("a forced group kill after selection leaves a readable nonterminal snapshot", async () => {
   const run = startProofRun({ spec: "hanging.proof.ts" });
   try {
-    await expect
-      .poll(() => {
-        try {
-          return readProof(run.recordPath).selectedCount;
-        } catch {
-          return 0;
-        }
-      })
-      .toBe(1);
+    await waitForProofState(run, (record) => record.selectedCount === 1);
     const pid = run.child.pid;
     if (pid === undefined) throw new Error("The proof runner did not start");
     process.kill(-pid, "SIGKILL");
@@ -85,4 +74,48 @@ test("a forced group kill after selection leaves a readable nonterminal snapshot
   } finally {
     await run.stop();
   }
+});
+
+test("readiness reports a completed child when the requested progress cannot arrive", async () => {
+  const run = startProofRun({ spec: "passing.proof.ts" });
+  try {
+    await expect(
+      waitForProofState(run, (record) => record.selectedCount === 2),
+    ).rejects.toThrow(
+      /Proof runner ended before requested progress: .*"status":0/,
+    );
+    expect(await run.result).toMatchObject({ status: 0, signal: null });
+  } finally {
+    await run.stop();
+  }
+});
+
+test("readiness surfaces a proof predicate error and lets the caller retire its producer", async () => {
+  const run = startProofRun({ spec: "ordered.proof.ts" });
+  const failure = new Error("The proof predicate failed");
+  try {
+    await expect(
+      waitForProofState(run, () => {
+        throw failure;
+      }),
+    ).rejects.toBe(failure);
+  } finally {
+    await run.stop();
+  }
+  expect(processRunning(run.child.pid)).toBe(false);
+});
+
+test("readiness surfaces a record read error instead of treating it as missing progress", async () => {
+  const run = startProofRun({
+    spec: "passing.proof.ts",
+    recordPath: proofDirectory(),
+  });
+  try {
+    await expect(waitForProofState(run, () => false)).rejects.toMatchObject({
+      code: "EISDIR",
+    });
+  } finally {
+    await run.stop();
+  }
+  expect(processRunning(run.child.pid)).toBe(false);
 });

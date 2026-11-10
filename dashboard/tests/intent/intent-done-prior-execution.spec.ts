@@ -37,6 +37,10 @@ import { commitAll, git, lines } from "../support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
+test.beforeAll(({ queuedCodexOriginReady }) =>
+  Promise.resolve(queuedCodexOriginReady),
+);
+
 test("a Done story's later completion outranks its execution launch's first captured increment", async ({
   page,
   request,

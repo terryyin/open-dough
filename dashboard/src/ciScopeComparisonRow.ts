@@ -84,6 +84,7 @@ export function rowCellsOf(
       presentLater,
       presentInBaseline,
       changeKind,
+      { before: before.groups, branch: branch.groups, landed: landed.groups },
     ),
     countedResults: countedResultsOfCount(after.count),
     ...context.parts(row),
