@@ -18,7 +18,9 @@ import {
   type CiRunAnswer,
 } from "./baseCiActions.ts";
 import type { RevisionFacts } from "../../../tests/support/repositoryTestData.mjs";
+import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
+import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
 import {
@@ -221,9 +223,11 @@ export async function precedeClaimWithPlanning(
   }
   commitAll(origin.project, "ship a built revision");
   const baseline = git(origin.project, "rev-parse", "HEAD");
-  push(origin.project);
+  // No reader observes these intermediate publications. Keep their complete
+  // first-parent history, but transport the baseline and planning chain once.
   for (const revision of planningBeforeClaim) {
-    await origin.publishRevision(revision);
+    await commitDeclaredRevision(origin.project, revision, dashboardDeveloper);
   }
+  push(origin.project);
   return baseline;
 }

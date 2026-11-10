@@ -178,3 +178,26 @@ The plan now selects the stronger simpler original private owner. Its next
 bounded observation is one unchanged focused Git Trace2 profile to identify
 actual removable cost before a new implementation choice, not another shared
 history-cache variant. A fresh implementation owner resumes this same slice.
+
+## Retained transport increment and pressure failure
+
+The original private publisher now preserves all declared commits/authors and
+publishes their chain once, removing four redundant pushes per invocation.
+Three quiet primary runs passed3/3 each; thirty additional affected specs
+passed39/39; typecheck and independent refactor were clean. Median primary
+shell19.225s versus paired unchanged19.680s is variable evidence, not a precise
+speedup claim. No setup moved out of elapsed. Full details, literal commands,
+consumer dispositions and phase traces: /tmp/seed287-slice3-publisher-profile-20261110.
+
+Root’s bounded CPU-pressure check began at load20.38 and ended32.04, overshooting
+the declared upper profile. Sort and clean-source timed out; conflict passed
+29.667s. It stopped after that one failure, with no retry; all20owned work threads
+terminated. Raw proof/log/host samples and wrapper are under
+/tmp/seed287-slice3-pressure-20261110 and /tmp/seed287-source-pressure.mjs.
+This is not a successful20–30 observation and does not close comparison repair.
+
+Independent original watcher/closure/touch work is now3–5; remaining launch/
+Cursor corrections6–9; comparison10; final11. G4 stays interim6,7,8,10, G5receives9,
+G7 remains a return in slice 10. Every reported failure stays owned. Reordering changes no goal,
+assertion, timeout or story priority. The one-file transport cut is kept as a
+validated partial increment with comparison still planned.
