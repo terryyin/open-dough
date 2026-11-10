@@ -71,12 +71,12 @@ Proof: `agent-completion-quiet.spec.ts` still proves real Git retirement, instal
 
 Behavior: Browser recovery repeats full retirement and low-level fault variants → retain real retirement/reporting retry/visible Done once and establish each variant at the existing CLI/HTTP/store boundary before removing covered browser steps → the same closure promises fit the default with margin. Slice 12 removes the recovery allowance after that observation.
 
-### 6. Touch reading and remaining supported harness costs fit the default
+### 6. Touch reading and its required cold inputs fit the default
 Type: Behavior
 Status: planned
-Proof: Touch reading case passes under local load 20–30 on 2 workers inside 30 s with reading proof preserved and its 60 s allowance removed. Apply only harness leads slice 1 still supports (for example cheaper fake `gh` without losing auth/hold/pid/signal/gone-fake behavior, avoiding repeated start-origin/app prep charged to the first case while including moved prep in suite elapsed, cutting gesture cost). Focused before/after for affected first-in-worker and touch selections.
+Proof: The whole four-case touch spec passes three consecutive two-worker runs at load 20–30 inside default 30 s, with native reading/rotation/geometry assertions retained and the 60 s allowance removed only after fit. Include desktop large-review consumers and all total elapsed preparation. Reuse existing artifact keys and run owner for required Claude queued origin, app and server bundle readiness; retain private case repositories/servers and real gestures. No new artifact lifetime, native gesture rewrite or broad prewarm.
 
-Behavior: Named touch and first-in-worker pressure cases under the probe's load profile → apply the still-supported cost cuts → those cases finish with margin inside the default 30 s and 5 s observations without raising deadlines.
+Behavior: A shorter still-overflowing reading line reduces strokes but first-worker setup consumes 15.173 s and rotation times out → request the spec's exact immutable inputs before cases, within the unchanged hook budget, then retain its real user actions → all four journeys complete with margin and paid total elapsed. The width-only attempt and G10 remain unaccepted; if this supported readiness cut fails, return evidence before another variant. See [touch evidence](touch-evidence.md).
 
 ### 7. A non-owner server overlaps independent preparation
 Type: Behavior
@@ -135,6 +135,8 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
   Watcher consolidation missed the family target; slice 4 now owns the measured
   full-source fixture-ingestion experiment using the existing run-artifact owner;
   real deployment installs, builds, and starts remain required.
+  New slice 6 pressure evidence supports exact required-input readiness, despite
+  the earlier quiet 3–4 s hypothesis being insufficient; no blanket prewarm.
 
 ## Accepted probe evidence
 
@@ -192,19 +194,22 @@ Reported: slice 3 — "Three alternating pairs passed 32/31 cases, but median sh
 Story clause: "the watcher family gets at least 10 s faster in median elapsed time"
 Disposition: proved by slice 4: three strict-passing original32/changed31 pairs measured median complete shell156.893714 to136.400577s (20.493137s saving), including cold first-demand preparation3.532/3.352/3.461s; all moved work and load qualifiers retained in source-ingestion-evidence.md
 
+### G10. Touch width alone misses the pressure budget
+Reported: slice 6 — "At measured load21.042–26.039, phone reading took37.715s under its60s allowance and default-budget phone rotation timed out at31.504s; width reduction alone does not fit."
+Story clause: "A flaky or environment-dependent timeout remains a defect"
+Disposition: return
+
 ## Plan concern assessment
 
-Completed 1/2 and compatible watcher behavior proof remain. Split original 3's
-independent preservation and cost proof loops: 3 retains the safe consolidation;
-4 owns that cost target; its single source-snapshot variant observed a20.493s
-median saving including cold preparation (see source-ingestion evidence). The assumption that deletion alone earned 10 s was false
-(5.367 s nominal, with host variation). Two code paths are safely parked before
-this refinement; [watcher evidence](watcher-evidence.md) retains restoration/proof.
-Closure/touch (5/6), launch/Cursor repairs (7–10), comparison (11), and final gates
-(12) retain their outcomes. Twelve bounded slices; no numeric exception/resplit.
-No goal, evaluation, architecture decision, or failure obligation is waived.
-The small comparison cut remains partial and G4/G7 stay open. The final trunk
-measurement keeps its explicit human checkpoint. This execution stays Taken.
+Completed 1–5 and their accepted proof remain. Slice 6 is refined in place:
+width alone missed the default under valid pressure; exact cold-input readiness
+uses the existing owner and leaves actual actions/observations in each case.
+Its three incomplete paths were safely parked before this rewrite; touch
+proof/evidence and consumer obligations remain. Remaining 7–12 retain their
+single outcomes and proof loops. Twelve slices; no numeric exception/resplit,
+goal change, architecture decision or failure waiver. G4/G5/G7/G10 stay owned.
+The final trunk measurement keeps its explicit human checkpoint; execution
+stays Taken. This records refinement, not accepted slice 6 implementation.
 
 ## Trunk measurement checkpoint
 

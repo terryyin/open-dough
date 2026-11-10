@@ -160,3 +160,12 @@ The single selected source-snapshot variant retained all fixture boundaries and
 observed20.493s complete-family median saving against original, with cold prep
 included; [source-ingestion evidence](source-ingestion-evidence.md) retains
 comparability, all pairs, preserving assertions and remaining final gates.
+
+## Touch required-input premise after valid pressure failure
+
+Slice6 width alone failed at load21.042–26.039: reading37.715s and rotation
+31.504s timeout. First-case hooks15.173s change the earlier quiet premise.
+Reuse exact required Claude queued/app/bundle readiness through the existing
+run owner before cases; all moved preparation stays in suite elapsed. No new
+cache or native gesture model. See touch-evidence.md for PFE and the bounded
+remaining proof; return before another variant if this one fails.
