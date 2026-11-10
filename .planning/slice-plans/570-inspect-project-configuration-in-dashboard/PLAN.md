@@ -2,6 +2,7 @@
 
 **Identity:** SEED-295#inspect-project-configuration-in-dashboard
 **Source:** [Refined story](../../seeds/SEED-295-view-project-configuration-in-dashboard.md#inspect-project-configuration-in-dashboard)
+**Source review:** [source-review.md](source-review.md)
 **Preparation:** owned workspace
 `/Users/terryyin/git/open-dough/.worktrees/view-each-project-s-open-dough-configuration-in`,
 branch `cursor/view-each-project-s-open-dough-configuration-in`, starting
@@ -73,7 +74,7 @@ UI or HTTP outcomes; do not sleep.
 ### 1. Show each project's Client configuration on its Projects settings entry
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source examples 1–5 and the read-only / boundary promises in the table.
 Focused dashboard configuration selection covering the new System settings
 Projects journey(s) and the settings-boundary HTTP checks; extend existing
@@ -100,11 +101,62 @@ not accept a mutating method for that read.
 
 ## Learnings
 
-None yet.
+- Keep Client-configuration CSS out of `project-configuration.css` (already at
+  the 250-line limit); use `project-client-configuration.css`.
+- Do not reuse `readCiConfiguration` for inspectable on-disk text (parse/throw
+  and CI subset).
+- Prefer a status-union assertion for `clientConfiguration` in the existing
+  settings journey rather than pinning host-specific unreadability.
 
 ## Story obligations
 
-None yet.
+### G1. Editing or saving Client configuration
+Reported: slice 1 — "Not undertaken: editing or saving `.planning/open-dough.json`."
+Story clause: "editing or saving `.planning/open-dough.json`"
+Disposition: excluded "editing or saving `.planning/open-dough.json`"
+Commitment: 36
+
+### G2. Side-by-side project comparison
+Reported: slice 1 — "Not undertaken: comparing two projects side by side."
+Story clause: "comparing two projects side by side"
+Disposition: excluded "comparing two projects side by side"
+Commitment: 37
+
+### G3. Published GitHub revision display
+Reported: slice 1 — "Not undertaken: showing the published GitHub revision that Intent or the agent roster use."
+Story clause: "showing the published GitHub revision that Intent or the agent roster use"
+Disposition: excluded "showing the published GitHub revision that Intent or the agent roster use"
+Commitment: 38
+
+### G4. Key interpretation or validation
+Reported: slice 1 — "Not undertaken: interpreting or validating individual keys for the maintainer."
+Story clause: "interpreting or validating individual keys for the maintainer"
+Disposition: excluded "interpreting or validating individual keys for the maintainer"
+Commitment: 39
+
+### G5. External editor from settings
+Reported: slice 1 — "Not undertaken: opening the file in an external editor from settings."
+Story clause: "opening the file in an external editor from settings"
+Disposition: excluded "opening the file in an external editor from settings"
+Commitment: 40
+
+### G6. Published-revision or local-vs-published comparison
+Reported: slice 1 — "Deferred: published-revision inspection or local-vs-published comparison."
+Story clause: "published-revision inspection or local-vs-published comparison"
+Disposition: excluded "published-revision inspection or local-vs-published comparison"
+Commitment: 41
+
+### G7. Structured field explanations
+Reported: slice 1 — "Deferred: structured field explanations."
+Story clause: "structured field explanations"
+Disposition: excluded "structured field explanations"
+Commitment: 42
+
+### G8. Editing from the dashboard
+Reported: slice 1 — "Deferred: editing from the dashboard."
+Story clause: "editing from the dashboard"
+Disposition: excluded "editing from the dashboard"
+Commitment: 43
 
 ## Local verification
 

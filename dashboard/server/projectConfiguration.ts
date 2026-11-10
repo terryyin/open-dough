@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ProjectSettings } from "../src/projectConfiguration.ts";
 import { ProjectInputProblem } from "../src/projectInput.ts";
+import { inspectClientConfiguration } from "./clientConfigurationInspection.ts";
 import { productionSeedProjects } from "./projectConfigurationSeed.ts";
 import { replaceFile } from "./fileReplacement.ts";
 import { machineDashboardPath } from "./machineHome.ts";
@@ -113,10 +114,15 @@ export function publishedProjects(): readonly PublishedSource[] {
   );
 }
 
-// Settings reads expose only configured identities and their own checkout paths.
+// Settings reads expose configured identities, checkout paths, and each
+// project's own Client configuration inspection from that checkout alone.
 export function projectSettings(): readonly ProjectSettings[] {
   if (problem !== undefined) throw new Error(problem);
-  return configuredProjects().map(({ id, localPath }) => ({ id, localPath }));
+  return configuredProjects().map(({ id, localPath }) => ({
+    id,
+    localPath,
+    clientConfiguration: inspectClientConfiguration(localPath),
+  }));
 }
 
 // Recheck admission at the synchronous write boundary after asynchronous validation.
