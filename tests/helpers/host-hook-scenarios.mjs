@@ -1,3 +1,4 @@
+import { makeMe } from "../support/makeMe.mjs";
 import {
   handlers,
   readFragment,
@@ -12,63 +13,67 @@ function empty(target) {
     ["cursor", "Cursor"],
     ["claude", "Claude"],
   ]) {
-    writeSettings(target, host, {
-      hooks: {},
-      sentinel: `keep ${label} settings`,
-    });
+    writeSettings(
+      target,
+      host,
+      makeMe.hostHookSettings
+        .forHost(host)
+        .with({ sentinel: `keep ${label} settings` })
+        .please(),
+    );
   }
 }
 
 function mergeable(target) {
-  writeSettings(target, "codex", {
-    sentinel: "keep Codex settings",
-    hooks: {
-      PostToolUse: [
-        {
-          matcher: "Bash",
-          hooks: [{ type: "command", command: "echo unrelated-codex-event" }],
-        },
-      ],
-    },
-  });
-  writeSettings(target, "cursor", {
-    version: 1,
-    sentinel: "keep Cursor settings",
-    permissionMode: "default",
-    hooks: {
-      sessionStart: [{ command: "echo unrelated-cursor-event", timeout: 1 }],
-      stop: [{ command: "echo unrelated-cursor-sibling", timeout: 2 }],
-    },
-  });
-  writeSettings(target, "claude", {
-    sentinel: "keep Claude settings",
-    permissions: { allow: ["Bash(ls)"] },
-    hooks: {
-      PostToolUse: [
-        {
-          matcher: "Bash",
-          hooks: [
-            {
-              type: "command",
-              command: "echo unrelated-claude-matcher",
-              timeout: 3,
-            },
-          ],
-        },
-      ],
-      Stop: [
-        {
-          hooks: [
-            {
-              type: "command",
-              command: "echo unrelated-claude-stop",
-              timeout: 4,
-            },
-          ],
-        },
-      ],
-    },
-  });
+  writeSettings(
+    target,
+    "codex",
+    makeMe.hostHookSettings
+      .forHost("codex")
+      .with({ sentinel: "keep Codex settings" })
+      .handling("PostToolUse", {
+        matcher: "Bash",
+        command: "echo unrelated-codex-event",
+      })
+      .please(),
+  );
+  writeSettings(
+    target,
+    "cursor",
+    makeMe.hostHookSettings
+      .forHost("cursor")
+      .with({
+        version: 1,
+        sentinel: "keep Cursor settings",
+        permissionMode: "default",
+      })
+      .handling("sessionStart", {
+        command: "echo unrelated-cursor-event",
+        timeout: 1,
+      })
+      .handling("stop", {
+        command: "echo unrelated-cursor-sibling",
+        timeout: 2,
+      })
+      .please(),
+  );
+  writeSettings(
+    target,
+    "claude",
+    makeMe.hostHookSettings
+      .forHost("claude")
+      .with({
+        sentinel: "keep Claude settings",
+        permissions: { allow: ["Bash(ls)"] },
+      })
+      .handling("PostToolUse", {
+        matcher: "Bash",
+        command: "echo unrelated-claude-matcher",
+        timeout: 3,
+      })
+      .handling("Stop", { command: "echo unrelated-claude-stop", timeout: 4 })
+      .please(),
+  );
 }
 
 function exact(target, root) {
@@ -80,16 +85,11 @@ function exact(target, root) {
     ["cursor", [cursor, cursorGuard]],
     ["claude", [claude, claudeGuard]],
   ]) {
-    const settings = readSettings(target, host);
-    if (host === "cursor") {
-      settings.version = cursor.version;
-    }
-    for (const fragment of fragments.filter(Boolean)) {
-      for (const [event, entries] of Object.entries(fragment.hooks)) {
-        settings.hooks[event] = [...(settings.hooks[event] ?? []), ...entries];
-      }
-    }
-    writeSettings(target, host, settings);
+    const settings = makeMe.hostHookSettings
+      .forHost(host)
+      .with(readSettings(target, host));
+    if (host === "cursor") settings.with({ version: cursor.version });
+    writeSettings(target, host, settings.registeredWith(...fragments).please());
   }
 }
 

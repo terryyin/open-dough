@@ -18,6 +18,7 @@ import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 import { ciMakeMeProperties } from "./ciMakeMe.mjs";
 import { launchMakeMeProperties } from "./launchMakeMe.mjs";
+import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../dashboard/tests/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -57,12 +58,19 @@ import { launchMakeMeProperties } from "./launchMakeMe.mjs";
  * @property {FactBuilder<PublishedComparison>} aPublishedComparison
  * @property {PlanSliceBuilder} aPlanSlice
  * @property {SlicePlanBuilder} aSlicePlan
+ * @property {HostHookSettingsBuilder} hostHookSettings
  */
 
 /** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe} */
 export const makeMe = Object.defineProperties(
   /** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe} */ ({}),
   {
+    hostHookSettings: {
+      enumerable: true,
+      get() {
+        return new HostHookSettingsBuilder();
+      },
+    },
     aNativeEvidenceRecord: {
       enumerable: true,
       get() {

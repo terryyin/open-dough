@@ -94,7 +94,8 @@ installer protection needs duplicate cases beyond its existing owning checks.
 
 ### 2. Host settings retain their unrelated handlers through installation
 Type: Behavior
-Status: planned
+Status: done
+Accepted proof: [slice 2](slice-2-proof.md).
 Proof: Source example 2. Run `npm test -- tests/install-ci-host-hooks.sh tests/install-ci-background-hook.sh tests/install-all-tools.sh tests/execution-payload-update.sh tests/update-skip-verified.sh tests/install-preserves-open-dough-json.sh` and any additional consumers of the host-settings helper.
 
 Make the shell's existing Node scenarios delegate valid empty, mergeable and
