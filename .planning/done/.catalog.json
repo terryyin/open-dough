@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-296_prove-repeat-destination-cue-restarts.json",
+      "identity": "SEED-296#prove-repeat-destination-cue-restarts",
+      "completedAt": "2026-11-10T15:31:40.437Z",
+      "blob": "2e0e2dd9a1eb656ea8d367a502ca4343ae9e8b5f"
+    },
+    {
       "fileName": "SEED-261_map-ci-adapter-and-coverage-test-data.json",
       "identity": "SEED-261#map-ci-adapter-and-coverage-test-data",
       "completedAt": "2026-11-10T14:01:30.729Z",
