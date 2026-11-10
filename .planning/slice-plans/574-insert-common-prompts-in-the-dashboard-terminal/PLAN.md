@@ -2,6 +2,7 @@
 
 **Identity:** SEED-298#insert-common-prompts-in-the-dashboard-terminal
 **Source:** [Refined story](../../seeds/SEED-298-insert-common-prompts-in-the-dashboard-terminal.md#insert-common-prompts-in-the-dashboard-terminal)
+**Source review:** [Independent source commitments](source-review.md)
 **Preparation:** owned workspace
 `/Users/terryyin/git/open-dough/.worktrees/insert-common-prompts-in-the-dashboard-terminal`,
 branch `cursor/insert-common-prompts-in-the-dashboard-terminal`, starting
@@ -65,7 +66,8 @@ submit; recording owns the same slot as today.
 
 ### 1. Reply with common prompts or dictate from the terminal header
 Type: Behavior  
-Status: planned  
+Status: done
+
 Proof: Focused dashboard Playwright covering preset insert without Enter, Dictate via Prompts with Stop recording slot swap, unavailable-attachment recovery for a preset, and updated existing voice/cursor terminal specs that currently click Dictate directly; update `AGENT-LAUNCH-TERMINAL-INPUT.md`. Run the touched terminal voice and related terminal specs through the dashboard Playwright project (named path selection, not a mandatory full suite).
 
 Behavior: Side panel terminal open → developer opens **Prompts** in the former Dictate slot → choosing `OK` or `as recommended` inserts that literal text without Enter and leaves focus for edit/Enter; choosing **Dictate into terminal** starts the existing dictation flow with **Stop recording** in that slot until recording ends; when the attachment cannot accept input, a preset is not inserted and status names the panel's recovery.
@@ -97,3 +99,28 @@ human-owned scope or ADR decision is pending.
   arranges automated domain data where applicable; no sleeps, `test.slow()`, or
   suite/hook timeout overrides. Execution owns applicable local and published
   CI repairs.
+
+
+## Execution resume
+
+- Established execution: story-branch; workspace `/Users/terryyin/git/open-dough/.worktrees/insert-common-prompts-in-the-dashboard-terminal`; branch `codex/insert-common-prompts-in-the-dashboard-terminal`; reused established owned worktree. Agent YeongSheng-chan; publisher `dashboard-territory.local-open-dough`.
+- Authorized remote/trunk: `origin` / `main`; story increments publish to the execution branch. Starting revision `5ec7ad11c80893a0a7b7156ce4c8f0dcdcb52744`; accepted claim and published base `3d3c17e2a155f7a3b5a504b70ab908fe053395ef`, confirmed on remote main and execution branch. Claim CI: unobserved.
+- Setup: locked `npm ci` completed in this checkout with unchanged lockfile; `npm run typecheck:dashboard` passed. Check-only pre-commit hook runs selective staged lint and dashboard typecheck; selective formatter is `npx prettier --write <changed files>`.
+- Replanning: preserve existing planned authority; no explicit no-replan instruction. No numeric slice budget supplied.
+- CI: GitHub Actions `terryyin/open-dough`, verified selector `ci.yml`, display name `CI`. Story-branch observer coordinator `codex-seed298`, directory `/tmp/dough-ci-501/watch-NWidVz`, PID 18508, session 6874, yielded cell `g1068:12`, bound to this checkout and execution branch.
+- Reorganization before editing: `dashboard/src/Terminal.tsx` is 255 lines. Extract the cohesive attachment recovery state (attempt, ending/refusal, shown recovery and attach-again) into a terminal recovery hook. Keep Terminal's public API and attachment, paste, dictation and reconnect behavior; callers remain the keyed Terminal. Slice 1 owns the extraction and existing terminal recovery/voice/browser proof. This is within the terminal UI subsystem.
+- Proof decision: local macOS host on AC, 48 GiB RAM with 59% free; load averages 38/26/18 and no competing active Playwright test run observed. Use named terminal/voice specs at one worker under `caffeinate -s -i`, owned by implementation; avoid full suite. Reconsider concurrency or sequencing if contention or failures invalidate the basis. Setup/typecheck completes before browser proof.
+
+
+## Slice 1 accepted proof
+
+- Source freshness: unchanged at pinned trunk `2d7d7e3d86c00cabb407efa18b68b42609475ae2`, base `3d3c17e2a155f7a3b5a504b70ab908fe053395ef`; no named coordination siblings. Source-review P01–P43 inspected and observed; qualifications and six journeys agree with implementation. No uncovered promises or story obligations.
+- Passed, terminal exit 0: `caffeinate -s -i npm run test:dashboard -- --project=chromium --workers=1 dashboard/tests/terminals dashboard/frontend-tests/terminal-prompts-recovery.spec.ts`. This selects all terminal browser specs plus held-connection/refusal frontend checks, not the full dashboard suite.
+- Setup and observations: `session-terminal-prompts.spec.ts` uses launched sessions on desktop/phone, asserts exact menu items, literal input, typed prefix, focus, no Enter/native line before edit and manual Enter, ended/Open again and no replay. `terminal-prompts-recovery.spec.ts` uses MakeMe machine/session facts and external socket substitutes for connecting/refused acceptance, named recovery and new deliberate choice. Voice keyboard/phone journeys and helper observe menu close, recording control swap, stopped tracks and restored Prompts. Existing recovery/lifecycle specs observe pending Insert/Discard and close/switch/late-callback cancellation. Shared attachment input and other terminal input paths retain deliberate Enter.
+- Earlier seven-file focused run failed one recovery test: the new menu availability inspection moved focus before its existing focus assertion. Moved that inspection after the deliberate edit/Enter path; corrected recovery-only command and final directory selection passed. Original failure evidence: `dashboard/test-results/2026-11-10T10-52-55.118Z-72790/`. No passing rerun was used as a substitute for the test correction.
+- Consumer trace: base `3d3c17e2a155f7a3b5a504b70ab908fe053395ef`, supplied terms `Dictate into terminal`, `Prompts`, `useTerminalDictation`, `terminalVoicePage`, `Alt+F10`. Traces and dispositions retained at `/tmp/seed298-consumer-trace.md` and `/tmp/seed298-consumer-trace-full.md`. Affected voice/helper, cursor header, ended/pending readiness and terminal UI consumers passed. PageFrame and Side panel controls/title retain API, observed through close/switch/reopen, heading and phone-layout assertions; linked docs retain destinations. Generic prompt vocabulary, historical records/durations and unchanged backend contracts do not consume the header change. No consumer proof gap.
+- Delivered recovery seam: `Terminal.tsx` reduced from 255 to 218 lines, recovery hook owns attempt/ending/refusal/status/action and stable recovery callback; attachment and control public APIs unchanged. `git diff --check` passed. No generation trigger applies.
+
+- Independent refactor `/root/refactor`: none — already clean; no edits/tests needed, accepted proof unchanged, whitespace check passed, `## REFACTOR COMPLETE` received. Freshness rechecked unchanged before delivery at the same pinned trunk; no named siblings.
+
+- Guarded delivery initially stopped before commit: generated Status hard-break whitespace, then hook-required explicit braces on void callbacks. Repaired those mechanical forms within the independently accepted TerminalPrompts paths/trace; no changed behavior, setup or assertion invalidates accepted proof. Already-traced refactor disposition retains `/root/refactor` acceptance. Freshness unchanged on retry against trunk `673002452f18b7fc7a9427f7a6db662b63c8b0b7`; no sibling hold.
