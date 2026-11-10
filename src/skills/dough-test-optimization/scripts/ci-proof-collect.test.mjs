@@ -3,12 +3,12 @@
 // duplicated one ambiguous, neither counted, and a summary refuses what is
 // wrong. Attempt identity: ci-proof-attempt.test.mjs; units:
 // ci-proof-units.test.mjs.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summarize } from "./ci-proof-collect.mjs";
 import { summaryProblems } from "./ci-proof-contract.mjs";
 import {
-  fragment,
   fragmentsRead as read,
   revision,
   run,
@@ -17,9 +17,27 @@ import {
 test("two dashboard shards and one tests share total without overwriting or double counting (example 1)", () => {
   const { summary, notes } = summarize({
     fragments: read(
-      fragment("dashboard/tests", 2, 2, { passed: 7, failed: 1 }),
-      fragment("dashboard/tests", 1, 2, { passed: 12 }),
-      fragment("tests", 1, 1, { passed: 5 }, { unit: "file" }),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(2, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(7, 1, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(1, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(12, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 1)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("file")
+        .counting(5, 0, 0)
+        .please(),
     ),
     expect: [
       { entry: "dashboard/tests", parts: 2 },
@@ -74,13 +92,31 @@ test("two dashboard shards and one tests share total without overwriting or doub
 
 test("a missing part is a gap, a duplicated part is ambiguous, and neither is counted (example 2)", () => {
   const present = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11].map((part) =>
-    fragment("dashboard/tests", part, 12, { passed: 10 }),
+    makeMe.aCiProofFragment
+      .at("dashboard/tests")
+      .part(part, 12)
+      .ofAttempt(run.attempt, revision)
+      .inUnit("case")
+      .counting(10, 0, 0)
+      .please(),
   );
   const { summary } = summarize({
     fragments: read(
       ...present,
-      fragment("dashboard/tests", 12, 12, { passed: 4 }),
-      fragment("dashboard/tests", 12, 12, { passed: 9, failed: 2 }),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(12, 12)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(4, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("dashboard/tests")
+        .part(12, 12)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(9, 2, 0)
+        .please(),
     ),
     expect: [{ entry: "dashboard/tests", parts: 12 }],
     run,
@@ -100,9 +136,27 @@ test("a missing part is a gap, a duplicated part is ambiguous, and neither is co
 test("the declaration is the expectation: undeclared, out-of-count and invalid fragments add nothing", () => {
   const { summary, notes } = summarize({
     fragments: read(
-      fragment("tests", 1, 3, { passed: 5 }),
-      fragment("src/skills", 1, 3, { passed: 4 }),
-      fragment("tests", 2, 2, { passed: 6 }),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(1, 3)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(5, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("src/skills")
+        .part(1, 3)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(4, 0, 0)
+        .please(),
+      makeMe.aCiProofFragment
+        .at("tests")
+        .part(2, 2)
+        .ofAttempt(run.attempt, revision)
+        .inUnit("case")
+        .counting(6, 0, 0)
+        .please(),
       { schemaVersion: 2, entry: "tests" },
       undefined,
     ),
