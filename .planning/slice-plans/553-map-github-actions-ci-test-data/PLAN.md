@@ -266,7 +266,7 @@ No mailbox coverage record or command-adapter construction moves here.
 
 ### 4. Reused validation keeps exact revision and current source attempt
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 5. Run `ci-reuse-github.test.mjs`, `ci-reuse-github-command.test.mjs`, `ci-reuse-story-journey.test.mjs`, `ci-reuse-trunk-journey.test.mjs` and `ci-reuse-resource-journey.test.mjs` under `src/skills/dough-execute-plan/scripts/` with the Node runner. Preserve exact-SHA, opaque source identity, newer rerun, changing/partial answers and distinct target completion assertions.
 
 Valid GitHub source runs/jobs come from MakeMe → the real reuse acquisition
@@ -358,6 +358,15 @@ and teardown stay put; diagnostic log text stays literal. Omit incidental
 Accepted focused proof: named watch-ci / ci-github / observer-stream Node
 selections; mailbox + revision-coverage consumers of those factories;
 refactor diagnostic/acquisition Node recheck; typecheck; lint; native-evidence.
+
+### Slice 4
+Reuse fixtures arrange source runs/jobs through MakeMe with `apiRun`/`apiJob`
+carrying `workflowId`/`headRepository` ownership. Observed-first `run` /
+`sourceRun` / `coveredJob` keep encoding in one place; opaque source ids stay
+distinct from numeric dashboard `databaseId`.
+
+Accepted focused proof: ci-reuse-github + command + story/trunk/resource
+journeys; typecheck; lint; native-evidence.
 
 ## Story obligations
 

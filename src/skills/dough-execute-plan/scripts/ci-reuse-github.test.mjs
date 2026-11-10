@@ -35,8 +35,8 @@ test("unreadable, bounded partial, capped or changing answers choose fresh", asy
           ? { ...r, run_attempt: 2 }
           : r,
     },
-    { runs: [run({ head_repository: { full_name: "fork/project" } })] },
-    { runs: [run({ head_sha: "b".repeat(40) })] },
+    { runs: [run({ headRepository: { full_name: "fork/project" } })] },
+    { runs: [run({ headSha: "b".repeat(40) })] },
   ])
     assert.equal((await observe(options)).decision.reuse, false);
 });
@@ -70,12 +70,12 @@ test("green workflows, skipped jobs, echoed commands, duplicate markers and wron
 test("an older run's pending rerun is current and newer; its later successful retry can qualify", async () => {
   const first = run();
   const rerun = run({
-    id: "opaque-a",
-    run_attempt: 2,
-    run_started_at: time(18),
+    databaseId: "opaque-a",
+    attempt: 2,
+    startedAt: time(18),
     status: "in_progress",
     conclusion: null,
-    created_at: time(0),
+    createdAt: time(0),
   });
   assert.equal((await observe({ runs: [first, rerun] })).decision.reuse, false);
   const success = {
@@ -90,7 +90,8 @@ test("an older run's pending rerun is current and newer; its later successful re
   assert.equal(decision.source.runId, "opaque-a");
   assert.equal(decision.source.attemptId, "3");
   assert.equal(
-    (await observe({ runs: [first, run({ id: "tie" })] })).decision.reason,
+    (await observe({ runs: [first, run({ databaseId: "tie" })] })).decision
+      .reason,
     "ambiguous-order",
   );
 });
@@ -119,7 +120,7 @@ test("an aborted overall acquisition remains incomplete and chooses fresh", asyn
 
 test("bounded listing exhaustion cannot certify complete relevant evidence", async () => {
   const runs = Array.from({ length: 301 }, (...[, index]) =>
-    run({ id: `opaque-${index}` }),
+    run({ databaseId: `opaque-${index}` }),
   );
   const { query, routes } = await observe({ runs });
   assert.equal(query.complete, false);

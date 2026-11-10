@@ -16,7 +16,8 @@ import { isActionsRequest } from "./ghActionsRequest.ts";
 export const defaultBaseCiRevision = "ab".repeat(20);
 
 // Observed GitHub run facts (`apiRun` / MakeMe `aCiRun`). Compatibility `id`
-// mirrors `databaseId` while unconverted consumers still read it.
+// mirrors `databaseId` while unconverted consumers still read it. Reuse may
+// also state workflow/repository ownership for the shared encoder.
 export type CiRunAnswer = {
   readonly headSha: string;
   readonly databaseId?: number;
@@ -31,6 +32,8 @@ export type CiRunAnswer = {
   readonly createdAt?: string;
   readonly startedAt?: string;
   readonly completedAt?: string;
+  readonly workflowId?: number;
+  readonly headRepository?: { readonly full_name: string };
 };
 
 export function actionsWorkflowAnswer(

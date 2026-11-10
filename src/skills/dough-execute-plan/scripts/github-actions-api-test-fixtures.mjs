@@ -60,6 +60,7 @@ const present = (fields) =>
   );
 
 // A run as GitHub's API answers it, from the fields `run` names.
+// `workflowId` / `headRepository` carry ownership reuse inspects.
 export const apiRun = (observed) =>
   present({
     id: observed.databaseId,
@@ -73,6 +74,8 @@ export const apiRun = (observed) =>
     created_at: observed.createdAt,
     run_started_at: observed.startedAt,
     updated_at: observed.completedAt,
+    workflow_id: observed.workflowId,
+    head_repository: observed.headRepository,
   });
 
 // Observed `databaseId` → API `id`, and observed `url` → API `html_url`.
