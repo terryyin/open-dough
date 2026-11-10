@@ -229,7 +229,7 @@ consumers even when its case's data conversion is assigned to a later slice.
 
 ### 2. Story comparisons share attempt identity and job timing facts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Source example 3. Run `tests/intent/intent-ci-comparison`, `tests/intent/intent-summary-story-comparison`, `tests/intent/intent-summary-ci-proof`, the `backend-tests/intent/ci-comparison-` family and `backend-tests/intent/ci-time-without-runner-waits.spec.ts` through the dashboard runner. Use the current endpoint, published-endpoint, timing, memory, finality and client-read owners for their rules; retained GitHub/UI journeys and mounted presentation tests keep their existing boundaries. The retired fast-forward spec is not an execution selector. Retain equivalent focused coverage of the observed unique job pages `401/1/1` and `402/1/1` at the actual GitHub lookup boundary, plus independent endpoint/timing observations, retry/recovery counts and settled caching; do not restore a large journey solely to own a rule. Run the slice 1 status selections again if their encoding seam changes.
 
 A comparison's Baseline, Branch and Landed name runs/attempts and synthetic
@@ -336,6 +336,17 @@ dashboard agent-launch-base-ci / intent-ci-status / intent-ci-proof-* /
 intent-project-visit-ci / intent-home-activation (46 passed) plus
 agent-launch-base-ci-recheck (2); Node nearest / story-branch / requested-revision
 and ci-proof-leads*; typecheck:dashboard; lint; native-evidence-identity.
+
+### Slice 2
+Comparison fixtures arrange runs through `wall` → `makeMe.aCiRun` and
+synthetic jobs through `aGitHubJob`; attempt/jobs transport uses shared
+`apiRun`/`apiJob`. Captured observed jobs and the LandedOutcome reversed-time
+distractor stay literal. `githubCiRunFacts` owns attempt-1
+`createdAt`↔`startedAt` alignment when creation is omitted.
+
+Accepted focused proof: backend ci-time + ci-comparison- (103); Intent
+comparison/summary (136); encoding recheck of slice-1 status selections (42);
+refactor wall/execution recheck (7); typecheck; lint; native-evidence.
 
 ## Story obligations
 

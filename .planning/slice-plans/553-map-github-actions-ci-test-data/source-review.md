@@ -13,7 +13,7 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | 3 | Existing independent behavioral proof is preserved. | slice 5 |  |
 | 4.1 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: dashboard base-CI judgment | slice 1 | observed: dashboard/tests/support/baseCiActions.ts actionsRunsAnswer→apiRun; dashboard/tests/launches/agent-launch-base-ci*.spec.ts MakeMe runs |
 | 4.2 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: Intent CI status | slice 1 | observed: dashboard/tests/intent/intent-ci-status*.spec.ts + intentCiStoryRecords/intentCiProofPage MakeMe aCiRun |
-| 4.3 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: story comparisons | slice 2 |  |
+| 4.3 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: story comparisons | slice 2 | observed: storyCiComparisonFixture wall→makeMe.aCiRun; attempt/jobs via apiRun/apiJob; fixtures + backend timing consumers |
 | 4.4 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: the execution skill's GitHub observation | slice 3 |  |
 | 4.5 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: reuse fixtures | slice 4 |  |
 | 4.6 | Convert valid synthetic workflow runs, run attempts, and attempt jobs in: integrated-state fixtures | slice 5 |  |
@@ -37,11 +37,11 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | 14.2 | Preserve as distinct facts: queued | slice 1 | observed: queued distractor in status/ancestor selections preserved |
 | 14.3 | Preserve as distinct facts: in-progress | slice 1 | observed: in-progress + ancestor wall-time/status cases |
 | 14.4 | Preserve as distinct facts: cancelled | slice 1 | observed: cancelled latest → earlier completed in nearest + status |
-| 14.5 | Preserve as distinct facts: skipped | slice 2 |  |
+| 14.5 | Preserve as distinct facts: skipped | slice 2 | observed: Skipped comparison fixtures retain conclusion skipped / empty tip runs |
 | 14.6 | Preserve as distinct facts: absent | slice 1 | observed: absent timing / missing run paths remain unavailable (wall-time not recorded) |
 | 14.7 | Preserve as distinct facts: completed | slice 1 | observed: completed success paths in base-CI and status |
 | 15 | An earlier completed attempt and a current rerun keep separate identities. | slice 1 | observed: tests/support/dashboard-ci-revision-nearest.test.mjs selectRevisionAttempt cancelled attempt 2 vs completed attempt 1 |
-| 16 | Synthetic job setup states the facts the consumer needs. | slice 2 |  |
+| 16 | Synthetic job setup states the facts the consumer needs. | slice 2 | observed: tests/support/ciJobTestData.mjs aGitHubJob.withFacts; ci-time-without-runner-waits synthetic jobs |
 | 17 | Conversion adds no new restriction on opaque identities or absent timing. | slice 1 | observed: githubCiRunFacts omits invented timing/ids; absent startedAt/completedAt stay absent |
 | 18.1 | Keep in the harness: real Git histories | slice 5 |  |
 | 18.2 | Keep in the harness: executed commands | slice 5 |  |
@@ -51,7 +51,7 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | 18.6 | Keep in the harness: held or failing reads | slice 3 |  |
 | 18.7 | Keep in the harness: controlled clocks | slice 3 |  |
 | 18.8 | Keep in the harness: process lifetime and teardown | slice 3 |  |
-| 19.1 | Keep literal where their form is under proof: captured job timestamps | slice 2 |  |
+| 19.1 | Keep literal where their form is under proof: captured job timestamps | slice 2 | observed: storyCiObservedJobs captured baseline/branch/rerun job timestamps left literal |
 | 19.2 | Keep literal where their form is under proof: log text | slice 3 |  |
 | 19.3 | Keep literal where their form is under proof: malformed/partial responses | slice 1 | observed: unchanged literal malformed/partial response examples (no conversion touch) |
 | 19.4 | Keep literal where their form is under proof: exact encoder-input examples | slice 1 | observed: unchanged exact encoder-input examples in github-actions-api-test-fixtures (apiRun reused, examples literal) |
@@ -66,7 +66,7 @@ SEED-261#map-github-actions-ci-test-data; no plan, product, proof, or slice scop
 | 24.3 | This story makes no new: CI-policy promise |  | G2 |
 | E1 | A run at the checked revision is in progress while a strict ancestor has completed → base-CI judgment and revision lookup keep running vs completed evidence distinct; use only eligible ancestor results; do not treat a sibling or queued rerun as a completed verdict. For one run whose latest attempt is cancelled, an earlier completed timed attempt at that same revision remains selectable. | slice 1 | observed: dashboard-ci-revision-nearest + intent-ci-proof-ancestor / status in-progress+ancestor selections |
 | E2 | Listed run 41, attempt 1, starts 10:00 / completes 10:03 for the shown revision → Intent shows that attempt and CI wall time 3 min; absent timing remains unavailable. A cancelled latest attempt does not erase an earlier completed result's usable time. | slice 1 | observed: intent-ci-status-wall-time.spec.ts run 41 attempt 1 10:00–10:03 → CI wall time 3 min; absent timing not recorded |
-| E3 | A story's Branch and Landed results refer to the same attempt → comparison retains correct baseline and both endpoint identities, shows the same attempt-job timing, and reads the shared attempt's jobs once. A refused read can recover; settled evidence stops further reads. | slice 2 |  |
+| E3 | A story's Branch and Landed results refer to the same attempt → comparison retains correct baseline and both endpoint identities, shows the same attempt-job timing, and reads the shared attempt's jobs once. A refused read can recover; settled evidence stops further reads. | slice 2 | observed: intent-ci-comparison + taken listedAttemptJobPages + backend ci-comparison memory/endpoint one-read sharing |
 | E4 | Workflow still running when one attempt's job fails, or a failed earlier attempt is discovered after a later success → observer keeps that failure actionable with its own run, attempt, and job evidence, including a failing job on a second page. Diagnostic log evidence remains the original text. | slice 3 |  |
 | E5 | Exact-revision run has successful direct job proof with matching repository, workflow, and context → reuse selects its current attempt; a newer pending rerun or a changed/partial read chooses fresh execution. A later successful retry can qualify, preserving an opaque source run ID separately from the target's own completion. | slice 4 |  |
 | E6 | Accepted B has a `not_required` basis and no run; descendant C executes the declared check successfully → with the integrated-state policy, the observer can validate B at C while retaining B's own basis; without that policy B stays unresolved, and B's own failure remains a failure beside C's green. Git ancestry and the command producing C's result stay real. | slice 5 |  |

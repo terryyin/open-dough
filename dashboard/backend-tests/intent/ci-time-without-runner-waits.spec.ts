@@ -171,7 +171,9 @@ test("a re-run retains the durations of carried-over jobs even when they started
   // before the second attempt was created but can still own the longest chain.
   const withLongerCarryover = observedRerunJobs.map((job) =>
     job.name === "dashboard (3/12)"
-      ? { ...job, completed_at: "2026-11-06T09:47:07Z" }
+      ? makeMe.aGitHubJob
+          .withFacts({ ...job, completed_at: "2026-11-06T09:47:07Z" })
+          .please()
       : job,
   );
   expect(
@@ -181,11 +183,13 @@ test("a re-run retains the durations of carried-over jobs even when they started
   });
 });
 
-const reportedJob = {
-  name: "Build",
-  started_at: "2026-11-07T07:00:00Z",
-  completed_at: "2026-11-07T07:01:00Z",
-};
+const reportedJob = makeMe.aGitHubJob
+  .withFacts({
+    name: "Build",
+    started_at: "2026-11-07T07:00:00Z",
+    completed_at: "2026-11-07T07:01:00Z",
+  })
+  .please();
 const buildWorkflow = "jobs:\n  build:\n    name: Build\n";
 
 test("a job with missing timing bounds leaves the estimate unavailable", () => {

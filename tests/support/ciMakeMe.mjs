@@ -21,6 +21,7 @@ import {
   StoryCiComparisonBuilder,
 } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
+import { GitHubJobBuilder } from "./ciJobTestData.mjs";
 import { CiRunBuilder, RevisionCiRunBuilder } from "./ciRunTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
@@ -53,6 +54,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./ciTimingTestData.mjs").CiAdapterAttemptBuilder} aCiAdapterAttempt
  * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
+ * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
  * @property {FactBuilder<import("../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} anIntentCiStatus
  */
 
@@ -167,6 +169,12 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new CiRunBuilder();
+      },
+    },
+    aGitHubJob: {
+      enumerable: true,
+      get() {
+        return new GitHubJobBuilder();
       },
     },
     anIntentCiStatus: {

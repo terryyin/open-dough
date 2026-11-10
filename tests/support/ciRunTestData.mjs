@@ -32,7 +32,9 @@ const asObserved = (value) => /** @type {ObservedCiRun} */ (value);
 
 /**
  * Shared GitHub run facts: named call-site facts win; incidental defaults do
- * not invent identity or wall-time bounds.
+ * not invent identity or wall-time bounds. Attempt 1 wall time prefers
+ * `createdAt`; when a case states `startedAt` without `createdAt`, align
+ * creation so that fact is not shadowed by an incidental or revision default.
  *
  * @param {Record<string, unknown>} [facts]
  * @param {Record<string, unknown>} [defaults]
@@ -50,13 +52,17 @@ export function githubCiRunFacts(facts = {}, defaults = {}) {
         : status === "completed"
           ? "success"
           : null;
+  const aligned =
+    rest.startedAt !== undefined && rest.createdAt === undefined
+      ? { ...rest, createdAt: rest.startedAt }
+      : rest;
   return asObserved(
     present({
       attempt: 1,
       event: "push",
       createdAt: incidentalCreatedAt,
       ...defaults,
-      ...rest,
+      ...aligned,
       status,
       conclusion,
       ...(databaseId === undefined ? {} : { databaseId, id: databaseId }),
@@ -99,7 +105,9 @@ export class CiRunBuilder {
 export class RevisionCiRunBuilder {
   /**
    * ListedRun projection: shared GitHub facts plus optional `branch` /
-   * `adapterAttempt`. Timing defaults match prior comparison construction.
+   * `adapterAttempt`. Timing defaults match prior comparison construction;
+   * `githubCiRunFacts` owns createdAt↔startedAt alignment when creation is
+   * omitted.
    *
    * @param {ListedRun & { id?: number }} facts
    */

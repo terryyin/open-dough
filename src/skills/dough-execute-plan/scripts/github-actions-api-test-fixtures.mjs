@@ -75,6 +75,9 @@ export const apiRun = (observed) =>
     updated_at: observed.completedAt,
   });
 
+// Renames observed `databaseId` to API `id` only. Other fields pass through;
+// an observed `url` is not GitHub's `html_url` and must not be remapped here.
+/** @param {{ databaseId?: number, [key: string]: unknown }} observed */
 export const apiJob = ({ databaseId, ...job }) =>
   present({ id: databaseId, ...job });
 

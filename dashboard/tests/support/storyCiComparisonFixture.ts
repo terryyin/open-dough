@@ -13,6 +13,12 @@
 import type { ReportedAttemptJob } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import {
+  apiJob,
+  apiRun,
+} from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { observedRunForApi } from "../../../tests/support/ciRunTestData.mjs";
+import {
   actionsRunsAnswer,
   actionsWorkflowAnswer,
   type CiRunAnswer,
@@ -47,6 +53,8 @@ export {
   untimedBaselineMixedProofs,
 } from "./storyCiComparisonEntryProofs.ts";
 
+// Timed comparison run: MakeMe owns construction; call sites keep the same
+// identity and wall-time facts (including deliberately reversed bounds).
 export function wall(
   headSha: string,
   id: number,
@@ -55,17 +63,19 @@ export function wall(
   conclusion: CiRunAnswer["conclusion"] = "success",
   status: CiRunAnswer["status"] = "completed",
 ): CiRunAnswer {
-  return {
-    headSha,
-    id,
-    attempt: 1,
-    conclusion,
-    status,
-    createdAt: startedAt,
-    startedAt,
-    completedAt,
-    url: `https://ci.invalid/runs/${String(id)}`,
-  };
+  return makeMe.aCiRun
+    .with({
+      headSha,
+      databaseId: id,
+      attempt: 1,
+      conclusion,
+      status,
+      createdAt: startedAt,
+      startedAt,
+      completedAt,
+      url: `https://ci.invalid/runs/${String(id)}`,
+    })
+    .please();
 }
 
 type AttemptJobs = Record<string, readonly ReportedAttemptJob[]>;
@@ -142,7 +152,10 @@ export function serveActionsFor(
         return {
           status: 200,
           contentType: "application/json; charset=utf-8",
-          body: JSON.stringify({ jobs: listed, total_count: listed.length }),
+          body: JSON.stringify({
+            jobs: listed.map(apiJob),
+            total_count: listed.length,
+          }),
         };
     }
     const attempt = /\/actions\/runs\/(\d+)\/attempts\/(\d+)$/.exec(route);
@@ -154,18 +167,9 @@ export function serveActionsFor(
         return {
           status: 200,
           contentType: "application/json; charset=utf-8",
-          body: JSON.stringify({
-            id: runId,
-            run_attempt: found.attempt ?? 1,
-            head_sha: found.headSha,
-            head_branch: "main",
-            status: found.status ?? "completed",
-            conclusion: found.conclusion ?? "success",
-            html_url: found.url,
-            created_at: found.createdAt ?? "2026-11-05T12:00:00Z",
-            run_started_at: found.startedAt,
-            updated_at: found.completedAt,
-          }),
+          body: JSON.stringify(
+            apiRun(observedRunForApi(found, found.headBranch ?? "main", 0)),
+          ),
         };
       }
     }
