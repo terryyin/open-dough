@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-281_keep-unit-gaps-and-names-visible.json",
+      "identity": "SEED-281#keep-unit-gaps-and-names-visible",
+      "completedAt": "2026-11-10T06:40:08.969Z",
+      "blob": "635a188ea02316156b8cfad3b1a6c3a7e330cc71"
+    },
+    {
       "fileName": "SEED-010_plan-cohesive-reorganization-of-oversized-files.json",
       "identity": "SEED-010#plan-cohesive-reorganization-of-oversized-files",
       "completedAt": "2026-11-10T00:01:03.477Z",
@@ -1866,42 +1872,6 @@
       "identity": "SEED-130#slow-startup-safe-recovery",
       "completedAt": "2026-10-11T09:37:41.486Z",
       "blob": "2eddc4bb9cf9603467c29993469919fb419a248d"
-    },
-    {
-      "fileName": "SEED-121_finish-retirement-without-verdict.json",
-      "identity": "SEED-121#finish-retirement-without-verdict",
-      "completedAt": "2026-10-11T06:12:06.990Z",
-      "blob": "9aba95f2bb873d24e930f4760b5e22b9c4457853"
-    },
-    {
-      "fileName": "SEED-088_review-trunk-mode-story-changes.json",
-      "identity": "SEED-088#review-trunk-mode-story-changes",
-      "completedAt": "2026-10-11T03:20:11.436Z",
-      "blob": "e7d9920f74bf1a78ca9c9105dd9a0297dac6b9f1"
-    },
-    {
-      "fileName": "SEED-088_found-worktree-matches-published-agent.json",
-      "identity": "SEED-088#found-worktree-matches-published-agent",
-      "completedAt": "2026-10-11T02:27:21.169Z",
-      "blob": "10d9c0d8b17e034be1186eb593c076aec019bada"
-    },
-    {
-      "fileName": "SEED-088_review-trunk-mode-story-worktree.json",
-      "identity": "SEED-088#review-trunk-mode-story-worktree",
-      "completedAt": "2026-10-11T01:42:20.703Z",
-      "blob": "1eba24a74b1e3c45389d72b3e86f62076051f5ee"
-    },
-    {
-      "fileName": "SEED-088_resolved-integration-survives-reruns.json",
-      "identity": "SEED-088#resolved-integration-survives-reruns",
-      "completedAt": "2026-10-11T01:41:54.628Z",
-      "blob": "90b8a3a62c0337e27dd685ed261e6b7c71e9a5b2"
-    },
-    {
-      "fileName": "SEED-123_unpublished-preparation-recovery.json",
-      "identity": "SEED-123#unpublished-preparation-recovery",
-      "completedAt": "2026-10-11T00:36:51.878Z",
-      "blob": "dfcab224098e15ff0b5112107dfcda9453e641d9"
     }
   ],
   "unreadable": []

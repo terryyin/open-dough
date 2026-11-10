@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-281#keep-unit-gaps-and-names-visible",
+  "title": "Keep each unit's gaps and name visible in Intent CI proof",
+  "completedAt": "2026-11-10T06:40:08.969Z",
+  "developer": "Terry Yin",
+  "agent": "chaifeng-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
