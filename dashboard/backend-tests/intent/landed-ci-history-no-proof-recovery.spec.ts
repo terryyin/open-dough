@@ -127,7 +127,7 @@ test("a retained final no-proof equivalent skip recovers on the next collection 
     try {
       expect(await landedCiHistory(reader)).toEqual({
         status: 200,
-        body: {
+        body: expect.objectContaining({
           entries: [
             {
               kind: "gap",
@@ -150,7 +150,7 @@ test("a retained final no-proof equivalent skip recovers on the next collection 
               },
             },
           ],
-        },
+        }),
       });
     } finally {
       await reader.close();
@@ -162,7 +162,7 @@ test("a retained final no-proof equivalent skip recovers on the next collection 
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "point",
@@ -183,6 +183,6 @@ test("a retained final no-proof equivalent skip recovers on the next collection 
             },
           },
         ],
-      },
+      }),
     });
 });

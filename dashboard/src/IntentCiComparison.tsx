@@ -16,6 +16,7 @@
 // (`./IntentCiJudgedBranch.tsx`), disabled while it is read, whatever it
 // shows: the comparison, an unavailable answer, or a failed read.
 
+import { IntentCiDoneWallTimeReference } from "./IntentCiDoneWallTimeReference.tsx";
 import type { ReactNode } from "react";
 import { useCiProofSorting } from "./CiProofTable.tsx";
 import { CheckAgain } from "./IntentCiJudgedBranch.tsx";
@@ -38,12 +39,13 @@ function endpointProofsOf(
 function ComparisonShown(
   props: Omit<
     Parameters<typeof IntentCiComparisonContent>[0],
-    "preference" | "sorting"
+    "preference" | "sorting" | "labelled"
   >,
 ) {
   return (
     <IntentCiComparisonContent
       {...props}
+      labelled={false}
       preference={useCiComparisonPreference()}
       sorting={useCiProofSorting()}
     />
@@ -58,7 +60,7 @@ function ComparisonGap({
   readonly checkAgainButton: ReactNode;
 }) {
   return (
-    <section className="intent-ci-status" aria-label="CI timing comparison">
+    <section className="intent-ci-status">
       <h3>{ciTimingHeading}</h3>
       {children}
       {checkAgainButton}
@@ -66,14 +68,16 @@ function ComparisonGap({
   );
 }
 
-export function IntentCiComparison({
-  reading,
-  checkAgain,
-}: {
+type IntentCiComparisonProps = {
   readonly reading: ComparisonReading;
   // Offered for a done comparison only.
   readonly checkAgain?: () => void;
-}) {
+};
+
+function CiComparisonContents({
+  reading,
+  checkAgain,
+}: IntentCiComparisonProps) {
   const proofs = endpointProofsOf(useIntentCiEvidence());
   const checkAgainButton = checkAgain !== undefined && (
     <CheckAgain reading={reading.reading} checkAgain={checkAgain} />
@@ -109,5 +113,16 @@ export function IntentCiComparison({
       proofs={proofs}
       checkAgainButton={checkAgainButton}
     />
+  );
+}
+
+// One stable local history owner across reading, failed, unavailable and shown
+// CI states. Those states keep their own existing refresh lifecycle.
+export function IntentCiComparison(props: IntentCiComparisonProps) {
+  return (
+    <section aria-label="CI timing comparison">
+      <CiComparisonContents {...props} />
+      <IntentCiDoneWallTimeReference />
+    </section>
   );
 }

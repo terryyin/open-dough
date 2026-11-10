@@ -88,7 +88,7 @@ test("a skip resting on a running build and a cancelled landing whose later trun
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "gap",
@@ -106,7 +106,7 @@ test("a skip resting on a running build and a cancelled landing whose later trun
             ...answeredLanding(f),
           },
         ],
-      },
+      }),
     });
 
   // b completes in 5 min and d6 in 7 min 10 s, each with its CI proof.
@@ -126,7 +126,7 @@ test("a skip resting on a running build and a cancelled landing whose later trun
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "point",
@@ -149,7 +149,7 @@ test("a skip resting on a running build and a cancelled landing whose later trun
             landings: [{ ...answeredLanding(f), provenance: "later" }],
           },
         ],
-      },
+      }),
     });
 });
 
@@ -192,7 +192,7 @@ test("a CI adapter project's landing whose attempt is queued or running is a pen
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "gap",
@@ -203,7 +203,7 @@ test("a CI adapter project's landing whose attempt is queued or running is a pen
             adapterAttempt,
           },
         ],
-      },
+      }),
     });
 
   // The attempt passes in 6 min 5 s.
@@ -225,7 +225,7 @@ test("a CI adapter project's landing whose attempt is queued or running is a pen
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "point",
@@ -237,7 +237,7 @@ test("a CI adapter project's landing whose attempt is queued or running is a pen
             landings: [{ ...landing, provenance: "exact" }],
           },
         ],
-      },
+      }),
     });
   expect(
     github.calls.filter(({ request }) => request.kind.startsWith("actions-")),

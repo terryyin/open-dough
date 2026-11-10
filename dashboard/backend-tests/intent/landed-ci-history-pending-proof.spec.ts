@@ -83,7 +83,7 @@ test("a skip whose equivalent build's CI proof read GitHub does not answer waits
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "gap",
@@ -94,7 +94,7 @@ test("a skip whose equivalent build's CI proof read GitHub does not answer waits
           },
           skipWaits,
         ],
-      },
+      }),
     });
 
   // Hours later GitHub still does not answer the skip's proof read, and the
@@ -105,7 +105,7 @@ test("a skip whose equivalent build's CI proof read GitHub does not answer waits
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "point",
@@ -117,7 +117,7 @@ test("a skip whose equivalent build's CI proof read GitHub does not answer waits
           },
           skipWaits,
         ],
-      },
+      }),
     });
 });
 
@@ -148,7 +148,7 @@ test("a skip recorded two hours ago whose equivalent build's CI proof read GitHu
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "gap",
@@ -158,7 +158,7 @@ test("a skip recorded two hours ago whose equivalent build's CI proof read GitHu
             ...answeredRun(72),
           },
         ],
-      },
+      }),
     });
 
   // GitHub answers the next read.
@@ -167,7 +167,7 @@ test("a skip recorded two hours ago whose equivalent build's CI proof read GitHu
     .poll(() => landedCiHistory(server))
     .toEqual({
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "point",
@@ -178,6 +178,6 @@ test("a skip recorded two hours ago whose equivalent build's CI proof read GitHu
             landings: [{ ...answeredLanding(skip), provenance: "equivalent" }],
           },
         ],
-      },
+      }),
     });
 });

@@ -41,12 +41,14 @@ export function IntentCiComparisonContent({
   checkAgainButton,
   preference,
   sorting,
+  labelled = true,
 }: {
   readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   readonly proofs: ComparisonEndpointProofs | undefined;
   readonly checkAgainButton: ReactNode;
   readonly preference: ComparisonPreference;
   readonly sorting: CiProofSorting;
+  readonly labelled?: boolean;
 }) {
   const taken = answer.phase === "taken";
   const active =
@@ -63,6 +65,7 @@ export function IntentCiComparisonContent({
   return (
     <IntentCiComparisonFrameView
       preference={preference}
+      labelled={labelled}
       answer={answer}
       proofs={proofs}
       relatives={

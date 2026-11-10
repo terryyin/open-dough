@@ -133,3 +133,18 @@
 .intent-scope-timing-history .intent-ci-history-evidence li {
   overflow-wrap: anywhere;
 }
+
+.intent-ci-history-reference line {
+  stroke: var(--ci-history-words);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.intent-ci-prior-reference {
+  margin-block: var(--space-2);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.intent-ci-prior-reference p { margin-block: var(--space-1); }
+.intent-ci-reference-evidence { font-size: var(--text-sm); overflow-wrap: anywhere; }

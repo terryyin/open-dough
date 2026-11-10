@@ -161,10 +161,14 @@ test("an execution's exact build and the refinements reusing it are one point na
   );
   // Trunk builds no landing resolves to are not shown.
   await expect(builds).not.toContainText(sha(ci));
-  // No average, difference, excluded mark, slowdown flag or story's place.
-  await expect(history).not.toContainText(
-    /average|slower|faster|slowdown|exclu|selected landing/i,
-  );
+  // The selected proofless equivalent keeps its observed point, while the
+  // two complete prior attempts are insufficient for a numeric reference.
+  await expect(history).toContainText("2 prior builds used");
+  await expect(history).toContainText("Insufficient comparable history");
+  await expect(history).toContainText(`Selected landing ${sha(r4.revision)}`);
+  await expect(history).toContainText("CI proof unavailable: none");
+  await expect(history.locator(".intent-ci-history-reference")).toHaveCount(0);
+  await expect(history).not.toContainText("Possible CI slowdown");
   await expectLinksByKeyboard(page, builds, [41, 43, 47].map(runLink));
   const chart = await chartOf(history);
   expect(chart.points).toHaveLength(3);

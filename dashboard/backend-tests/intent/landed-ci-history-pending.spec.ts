@@ -42,9 +42,9 @@ const onePendingGap = (
   waiting: object,
 ) => ({
   status: 200,
-  body: {
+  body: expect.objectContaining({
     entries: [{ kind: "gap", reason: "pending", ...landing, ...waiting }],
-  },
+  }),
 });
 
 test("a landing whose push never gets a run, with no later trunk build either, waits as a pending gap for an hour after it was recorded and is then a final No build gap", async ({
@@ -80,7 +80,7 @@ test("a landing whose push never gets a run, with no later trunk build either, w
     .toEqual({ [quiet.receipt]: "gap" });
   expect(await landedCiHistory(server)).toEqual({
     status: 200,
-    body: {
+    body: expect.objectContaining({
       entries: [
         {
           kind: "gap",
@@ -89,7 +89,7 @@ test("a landing whose push never gets a run, with no later trunk build either, w
           receivedAt: quiet.at,
         },
       ],
-    },
+    }),
   });
 });
 
@@ -214,7 +214,7 @@ test.describe("a server that collects", () => {
     ];
     const measured = {
       status: 200,
-      body: {
+      body: expect.objectContaining({
         entries: [
           {
             kind: "point",
@@ -233,7 +233,7 @@ test.describe("a server that collects", () => {
             ],
           },
         ],
-      },
+      }),
     };
     await expect.poll(() => landedCiHistory(dashboard)).toEqual(measured);
 

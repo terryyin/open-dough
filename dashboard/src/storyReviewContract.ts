@@ -125,6 +125,8 @@ export const storyReviewSchema = z
     z.object({
       kind: z.literal("published"),
       completion: objectIdSchema,
+      // The represented trunk landing; completion retains its own identity.
+      landingRevision: objectIdSchema.optional(),
       completedAt: z.iso.datetime(),
       agent: z.string().min(1),
       remote: z.string().min(1),

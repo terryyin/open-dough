@@ -14,7 +14,7 @@ import {
 import { ownRecordContinuation } from "./ownRecordContinuation.ts";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
-import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+import { fsSyncHook } from "../../tests/support/serverFsHook.ts";
 import { startOrigin } from "../../tests/support/startOrigin.ts";
 
 for (const state of ["running", "settled"] as const)
@@ -22,13 +22,13 @@ for (const state of ["running", "settled"] as const)
     const origin = await startOrigin(queuedReadyRepository().please());
     const hold = path.join(origin.machine, "hold-attempt-lock");
     const reached = path.join(origin.machine, "attempt-lock-reached");
-    const env = fsPromisesHook(
+    const env = fsSyncHook(
       path.join(origin.machine, "hold-attempt-lock.mjs"),
-      "mkdir",
-      `async (folder, ...args) => {
+      "mkdirSync",
+      `(folder, ...args) => {
       if (String(folder).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)})) {
         fs.writeFileSync(${JSON.stringify(reached)}, 'reached');
-        await heldWhile(${JSON.stringify(hold)}, 25000);
+        throw Object.assign(new Error("acquisition held by test"), { code: "EEXIST" });
       }
       return original(folder, ...args);
     }`,
@@ -104,18 +104,19 @@ test("Continue reads an own record again at admission after pre-acceptance", asy
   const hold = path.join(origin.machine, "hold-readmission");
   const reached = path.join(origin.machine, "readmission-reached");
   const count = path.join(origin.machine, "admission-count");
-  const env = fsPromisesHook(
+  const env = fsSyncHook(
     path.join(origin.machine, "hold-readmission.mjs"),
-    "mkdir",
-    `async (folder, ...args) => {
+    "mkdirSync",
+    `(folder, ...args) => {
     if (String(folder).endsWith('/launch-attempts.json.lock') && fs.existsSync(${JSON.stringify(hold)})) {
-      const countFile = ${JSON.stringify(count)};
-      const number = fs.existsSync(countFile) ? Number(fs.readFileSync(countFile, 'utf8')) + 1 : 1;
-      fs.writeFileSync(countFile, String(number));
-      if (number === 2) {
-        fs.writeFileSync(${JSON.stringify(reached)}, 'reached');
-        await heldWhile(${JSON.stringify(hold)}, 25000);
+      if (!fs.existsSync(${JSON.stringify(reached)})) {
+        const countFile = ${JSON.stringify(count)};
+        const number = fs.existsSync(countFile) ? Number(fs.readFileSync(countFile, 'utf8')) + 1 : 1;
+        fs.writeFileSync(countFile, String(number));
+        if (number === 2) fs.writeFileSync(${JSON.stringify(reached)}, 'reached');
       }
+      if (fs.existsSync(${JSON.stringify(reached)}))
+        throw Object.assign(new Error("acquisition held by test"), { code: "EEXIST" });
     }
     return original(folder, ...args);
   }`,

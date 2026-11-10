@@ -5,6 +5,7 @@ import { z } from "zod";
 import { runIdentityShape } from "./baseCiConfirmation.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 import { runUrlSchema } from "./landedCiHistory.ts";
+import { priorBuildReferenceSchema } from "./ciPriorBuildReference.ts";
 
 export type ScopeHistoryEndpoint = {
   readonly revision: string;
@@ -85,5 +86,14 @@ export const ciScopeHistorySchema = z.object({
     "order-unavailable",
   ]),
   entries: z.array(ciScopeHistoryEntrySchema),
+  references: z
+    .array(
+      z.object({
+        unit: z.enum(["case", "file"]),
+        reason: z.string().optional(),
+        reference: priorBuildReferenceSchema,
+      }),
+    )
+    .optional(),
 });
 export type CiScopeHistory = z.infer<typeof ciScopeHistorySchema>;

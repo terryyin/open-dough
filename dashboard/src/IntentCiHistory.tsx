@@ -23,6 +23,11 @@
 // Proof keep their own reading; nothing here changes them. Its look is
 // `./intent-ci-history.css`'s.
 
+import {
+  IntentCiPriorBuildReference,
+  PriorBuildReferenceEvidence,
+} from "./IntentCiPriorBuildReference.tsx";
+import { wholeSecondWords } from "./ciProofTimeWords.ts";
 import { useId } from "react";
 import { shortSha } from "./baseCiWording.ts";
 import {
@@ -170,8 +175,21 @@ export function IntentCiHistory({
                 <dt>Latest measured build</dt>
                 <dd>{pointWallTimeWords(latest)}</dd>
               </dl>
-              <IntentCiHistoryChart entries={entries} />
+              <IntentCiHistoryChart
+                entries={entries}
+                reference={
+                  shown.reference?.averageMs === undefined
+                    ? undefined
+                    : {
+                        ms: shown.reference.averageMs,
+                        label: `Prior-build average ${wholeSecondWords(shown.reference.averageMs)}`,
+                      }
+                }
+              />
             </>
+          )}
+          {shown.reference !== undefined && (
+            <IntentCiPriorBuildReference reference={shown.reference} />
           )}
           {entries.length > 0 && (
             <details className="intent-ci-history-evidence">
@@ -188,6 +206,12 @@ export function IntentCiHistory({
                   ),
                 )}
               </ul>
+              {shown.reference !== undefined && (
+                <PriorBuildReferenceEvidence
+                  reference={shown.reference}
+                  entries={entries}
+                />
+              )}
             </details>
           )}
         </>

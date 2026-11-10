@@ -21,12 +21,15 @@ export function IntentCiComparisonFrameView({
   answer,
   proofs,
   relatives,
+  labelled = true,
   children,
   preference,
 }: {
   readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   readonly proofs: ComparisonEndpointProofs | undefined;
   readonly relatives: readonly (number | undefined)[];
+  // A containing story comparison owns its region across all CI states.
+  readonly labelled?: boolean;
   readonly children: ReactNode;
   readonly preference: ComparisonPreference;
 }) {
@@ -36,7 +39,7 @@ export function IntentCiComparisonFrameView({
   return (
     <section
       className="intent-ci-comparison-frame"
-      aria-label="CI timing comparison"
+      aria-label={labelled ? "CI timing comparison" : undefined}
     >
       <div className="intent-ci-comparison-head">
         <div>

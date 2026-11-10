@@ -57,6 +57,7 @@ import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
 import {
   PublishedWorkBuilder,
   StoryCiComparisonBuilder,
+  comparisonViewFacts,
 } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
 import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
@@ -70,26 +71,22 @@ import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
 /** @typedef {Record<keyof Pick<PublicationResume, "candidateSha" | "suffixBase">, string>} RetainedComparison */
 /** @typedef {NonNullable<import("../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice["comparison"]>} PublishedComparison */
 /** @typedef {Parameters<typeof import("../../dashboard/tests/support/baseCiActions.ts").actionsRunsAnswer>[0][number]} CiRun */
-/** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
-/** @typedef {import("../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
+/** @typedef {import("../../dashboard/server/startStore.ts").StartRecord} StartRecord */
 /**
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
  */
 export const makeMe = {
+  ...comparisonViewFacts,
+  /** @returns {FactBuilder<StartRecord>} */
+  get aStartRecord() {
+    return { with: copyFacts };
+  },
   get aCiProof() {
     return new CiProofBuilder();
   },
-  /** @returns {FactBuilder<ComparisonEndpointProof>} */
-  get aComparisonEndpointProof() {
-    return { with: copyFacts };
-  },
   get aLandedCiResolution() {
     return new LandedCiResolutionBuilder();
-  },
-  /** @returns {FactBuilder<CiScopeHistory>} */
-  get aCiScopeHistory() {
-    return { with: copyFacts };
   },
   get aNativeEvidenceRecord() {
     return new NativeEvidenceRecordBuilder();
@@ -109,9 +106,6 @@ export const makeMe = {
   },
   get aPublishedWork() {
     return new PublishedWorkBuilder();
-  },
-  get aStoryCiComparison() {
-    return new StoryCiComparisonBuilder();
   },
   get aConfiguredProject() {
     return new ConfiguredProjectBuilder();
@@ -183,14 +177,6 @@ export const makeMe = {
   get aMachineAnswer() {
     return new MachineAnswerBuilder();
   },
-  /** @returns {FactBuilder<import("../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} */
-  get aReviewedStory() {
-    return { with: copyFacts };
-  },
-  /** @returns {FactBuilder<import("../../dashboard/src/storyReviewFiles.ts").ReviewedFile>} */
-  get aReviewedFile() {
-    return { with: copyFacts };
-  },
   get aPublishedStoryEndpoint() {
     return new PublishedStoryEndpointBuilder();
   },
@@ -205,6 +191,9 @@ export const makeMe = {
   },
   get aCiTimingJob() {
     return new CiTimingJobBuilder();
+  },
+  get aStoryCiComparison() {
+    return new StoryCiComparisonBuilder();
   },
   get aCiProofEntry() {
     return new CiProofEntryBuilder();
@@ -229,10 +218,6 @@ export const makeMe = {
   },
   /** @returns {FactBuilder<CiRun>} */
   get aCiRun() {
-    return { with: copyFacts };
-  },
-  /** @returns {FactBuilder<import("../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */
-  get anIntentCiStatus() {
     return { with: copyFacts };
   },
   /** @returns {FactBuilder<IncrementPublicationFacts>} */

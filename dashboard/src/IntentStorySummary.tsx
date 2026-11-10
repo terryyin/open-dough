@@ -58,10 +58,36 @@ export function publishedDoneEndpointOf(
   return storySummary?.story.completed !== true
     ? undefined
     : review?.kind === "published"
-      ? { revision: review.completion, at: review.completedAt }
+      ? review.landingRevision === undefined
+        ? undefined
+        : { revision: review.landingRevision, at: review.completedAt }
       : review?.kind === "landed"
         ? { revision: review.landing.revision, at: review.landing.receivedAt }
         : undefined;
+}
+
+// Absence while reading is pending; a settled owner must explain absence.
+export function publishedDoneEndpointReasonOf(
+  storySummary: StorySummary | undefined,
+): string | undefined {
+  if (
+    storySummary?.story.completed !== true ||
+    publishedDoneEndpointOf(storySummary) !== undefined
+  )
+    return undefined;
+  const comparison = storySummary.comparison;
+  if (comparison.state === "reading") return undefined;
+  if (comparison.state === "failed") return comparison.problem;
+  if (comparison.state === "unavailable")
+    return (
+      comparison.explanation ??
+      "The selected Done result’s published landing is unavailable."
+    );
+  const review = comparison.review;
+  return review?.kind === "unavailable" ||
+    review?.kind === "landing-unavailable"
+    ? review.explanation
+    : "Published history does not identify this Done result’s represented landing.";
 }
 
 // "Selected story only" heading the Changed tests tree, with its message when

@@ -1,7 +1,6 @@
-// Replaces one `node:fs/promises` function inside a dashboard server process,
-// so a spec can observe, hold, or fail the server's own file operations at a
-// chosen point. The server imports the written module through the returned
-// environment.
+// Replaces one filesystem function inside a dashboard server process so a spec
+// can observe, hold, or fail its file operations at a chosen point. The server
+// imports the written module through the returned environment.
 
 import { writeFileSync } from "node:fs";
 
@@ -23,6 +22,23 @@ const heldWhile = async (marker, ms) => {
 };
 const original = promises.${name};
 promises.${name} = ${replacement};
+syncBuiltinESMExports();`,
+  );
+  return { NODE_OPTIONS: `--import=${JSON.stringify(module)}` };
+}
+
+// A synchronous filesystem probe cannot await a marker. It can observe a call
+// or refuse acquisition with EEXIST, letting the production retry yield.
+export function fsSyncHook(
+  module: string,
+  name: "mkdirSync",
+  replacement: string,
+): { NODE_OPTIONS: string } {
+  writeFileSync(
+    module,
+    `import fs from 'node:fs'; import {syncBuiltinESMExports} from 'node:module';
+const original = fs.${name};
+fs.${name} = ${replacement};
 syncBuiltinESMExports();`,
   );
   return { NODE_OPTIONS: `--import=${JSON.stringify(module)}` };
