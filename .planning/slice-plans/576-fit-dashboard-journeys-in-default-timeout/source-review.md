@@ -69,12 +69,12 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | C56 | Existing checks proving these recovery promises are identified. | slice 4 | |
 | C57 | Missing recovery proof is added at the existing boundary. | slice 4 | |
 | C58 | Covered browser steps are then removed. | slice 4 | |
-| C59 | History comparison waits for persisted collector results. | slice 2 | |
-| C60 | Revisit request counting waits for the first request to finish. | slice 2 | |
-| C61 | A story-state check waits for the selected story to render. | slice 2 | |
-| C62 | Exact counts remain where avoiding duplicate work is the promise. | slice 2 | |
-| C63 | Siblings sharing each affected setup are inspected. | slice 2 | |
-| C64 | Landed fixes serve as examples. | slice 2 | |
+| C59 | History comparison waits for persisted collector results. | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-history-lifecycle.spec.ts persisted run43 summary and run41 unavailable proof before equal reads; gaps stops collector; three strict focused passes in execution-evidence.md |
+| C60 | Revisit request counting waits for the first request to finish. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts completed trunk/story proof and fresh revisit judgment precede counts; three strict focused passes in execution-evidence.md |
+| C61 | A story-state check waits for the selected story to render. | slice 2 | observed: dashboard/tests/intent/intent-ci-status-story.spec.ts and story-gaps selected heading/title precede state; ad hoc selected identity/title guarded; three strict passes in execution-evidence.md |
+| C62 | Exact counts remain where avoiding duplicate work is the promise. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts exact two artifact calls and unchanged revisit count retained; spy uses exact per-request linked-file list; execution-evidence.md |
+| C63 | Siblings sharing each affected setup are inspected. | slice 2 | observed: Inspected history-collection, scope-proof lifecycle/completion, project-visit-selection and ad hoc check/review sibling guards; unchanged; execution-evidence.md |
+| C64 | Landed fixes serve as examples. | slice 2 | observed: Current guards checked against ad581992a, f1a992a75, fa274447d and ancestor f97907d27 repair patterns; execution-evidence.md |
 | C65 | Domain data uses MakeMe. | slice 6 | |
 | C66 | Synchronization uses observable events or a controlled clock. | slice 6 | |
 | C67 | Existing shard weights are refreshed after work is removed. | slice 6 | |
@@ -100,7 +100,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | Q05 | Standalone C reactivation is deleted only after the preceding preservation and detection obligations are satisfied. | slice 3 | |
 | Q06 | Story Branch Wrap Up reuse is conditional on its ability to carry the required closure proof. | slice 4 | |
 | Q07 | Recovery variants belong at the existing real CLI, HTTP, and store boundary; the source does not require every variant independently at all three boundaries. | slice 4 | |
-| Q08 | Exact-count preservation applies where avoiding duplicate work is the behavioral promise. | slice 2 | |
+| Q08 | Exact-count preservation applies where avoiding duplicate work is the behavioral promise. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts duplicate-avoidance exact counts unchanged and passed three times; execution-evidence.md |
 | Q09 | Weight refresh uses all 12 artifacts from a complete passing trunk run. | slice 6 | |
 | Q10 | The restrictions protect trustworthy gate meaning; omitted examples do not become rejection rules. | slice 6 | |
 | Q11 | Other allowances remain outside unless a harness change made by this story must keep those cases green. | slice 6 | |
@@ -135,9 +135,9 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | J26 | The restart example detects ignored SIGHUP. | slice 3 | |
 | J27 | The restart example detects reuse of the previously served revision. | slice 3 | |
 | J28 | The retained closure example combines real retirement, reporting retry without repeated Git/native work, and visible Done. | slice 4 | |
-| J29 | The history example waits for persistence before comparing reads. | slice 2 | |
-| J30 | The revisit example waits for first-request completion before counting. | slice 2 | |
-| J31 | The selected-story example waits for rendering before checking state. | slice 2 | |
+| J29 | The history example waits for persistence before comparing reads. | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-history-lifecycle.spec.ts retainedHistory proof waits precede expectCollectedScopePoints; three focused passes in execution-evidence.md |
+| J30 | The revisit example waits for first-request completion before counting. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts trunk proof finishes before baseline count and revisit judgment before no-new-proof count; execution-evidence.md |
+| J31 | The selected-story example waits for rendering before checking state. | slice 2 | observed: dashboard/tests/intent/intent-ci-status-story.spec.ts selected branch and story title assertions before state; three strict focused passes in execution-evidence.md |
 | X01 | The Intent CI comparison family belongs to SEED-286. | slice 6 | |
 | X02 | Infrastructure acquisition is outside. | slice 6 | |
 | X03 | Unrelated branch defects are outside. | slice 6 | |

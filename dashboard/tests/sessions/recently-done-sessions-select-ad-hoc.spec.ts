@@ -98,7 +98,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
 
   await test.step("Select links the ad hoc row to Story A, keeps Intent and the Side panel report, and skips blanket Done bodies during association", async () => {
     const linkedDoneFile = doneRecordFileName(linked.identity);
-    const bodiesFilesDuringLookup: string[] = [];
+    const bodyRequestsDuringLookup: string[][] = [];
     let watchingLookup = false;
     const onRequest = (request: { url: () => string }) => {
       if (!watchingLookup) return;
@@ -107,7 +107,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
         url.pathname === authenticatedReadEndpoint &&
         url.searchParams.get("done") === "bodies"
       )
-        bodiesFilesDuringLookup.push(...url.searchParams.getAll("file"));
+        bodyRequestsDuringLookup.push(url.searchParams.getAll("file"));
     };
     page.on("request", onRequest);
     const associationRequest = page.waitForRequest(
@@ -134,9 +134,8 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     // Association is server-side git. Intent may race a single linked Done
     // body before Playwright settles the association response; bulk Done
     // bodies (no file, or any file other than the linked story) must not.
-    expect(
-      bodiesFilesDuringLookup.every((file) => file === linkedDoneFile),
-    ).toBe(true);
+    for (const files of bodyRequestsDuringLookup)
+      expect(files).toEqual([linkedDoneFile]);
     await expect(shown.entry(sessionTitle)).toHaveAttribute(
       "aria-pressed",
       "true",

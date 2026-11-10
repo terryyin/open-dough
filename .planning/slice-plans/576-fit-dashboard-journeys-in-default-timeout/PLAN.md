@@ -81,7 +81,7 @@ Behavior: Preparation workspace at the starting revision → run the focused tim
 
 ### 2. Remaining assertion races wait at their causal boundary
 Type: Behavior  
-Status: planned
+Status: done
 Proof: Focused specs for remaining history-compare, revisit-request-count, and selected-story-render reproductions (and siblings sharing each setup) pass three consecutive times under comparable load; exact counts kept where duplicate avoidance is the promise; no sleeps/retries/skips.
 
 Behavior: A case that previously asserted while async work was settling → wait for the persisted collector result, finished first request, or rendered selected story as applicable → the assertion observes the settled state under load without a case-local timeout allowance.
@@ -129,44 +129,8 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
 
 ## Accepted probe evidence
 
-Slice 1 is records-only; no test or runtime changed. Freshness settlement found
-the selected source unchanged at `b57936969`. The coordinator inspected the
-strict terminal records and existing touch geometry, deployment isolation,
-retirement, and watcher signal/serving assertions. Evidence is retained under
-`/tmp/seed287-probe-20261110`; each `*-run.json` carries the literal command,
-times, conditions, and terminal exit; `*-proof.json` records exact selection.
-
-- `before-all`: the six named specs at two workers passed all 41 cases;
-  143.551 s shell / 143.031 s runner elapsed, load 7.24–11.33. Phone/tablet
-  reading 25.725/15.667 s; deployment 13.479 s; recovery 10.329 s; policy
-  repair 6.145 s. Spec sums plus hooks are separate in `before-all-times.txt`.
-- `before-family-{1,2,3}`: the three watcher specs at two workers passed
-  all 32 cases each. Elapsed shell 96.316/155.125/151.214 s, median
-  151.214 s; runner 95.979/154.773/150.834 s. Loads 7.88→7.06,
-  7.06→11.36, 11.36→17.73. Preserve this variation in the after comparison.
-  C reactivation alone cost 6.003 s in run 1 and 15.155 s in run 2;
-  deletion alone has not established the required ten-second family saving.
-- `before-phone-cold`: phone reading alone passed, 15.760 s case,
-  17.899 s runner / 18.715 s shell, load 15.35→13.53. Existing artifact
-  traces measured queued origin 1.710 s, app 1.468 s, bundle 0.257 s.
-  The broad phone/tablet difference does not prove ten seconds of preparation.
-- `harness-costs.json`: twenty-sample medians at load about 8 were fake
-  `gh` auth 33.50 ms, HTTP 37.25 ms, `git rev-parse` 13.24 ms.
-  Watcher answers use static publishes, so per-answer revision caching is not
-  a watcher lead. Git traces show three initial fixture source additions
-  totaling 3.182/3.272/5.294 s across the family runs; copying is unmeasured.
-- Hosted baseline is preserved at
-  `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/open-dough-seed287-baseline.90so09xd/README.md`:
-  run 42795867875 attempt 1, all twelve timing artifacts and reports.
-  Slowest job 321 s; its suite step 297 s / reporter 295.014 s.
-  Complete watcher sums are 390.430 s cases / 437.118 s with hooks;
-  the seed's 371.737 s names four case-source groups, not the entire family.
-- No comparable local full-suite baseline was found. An unchanged two-worker
-  full baseline is owned by `/root/slice1_probe`, command session `90172`:
-  `caffeinate -s -i node /tmp/seed287-probe-20261110/full-suite-measure.mjs before-suite`.
-  This retained wrapper measures admission separately and is reused for after.
-  Its result is pending; do not invalidate its running implementation.
-  Resolve it before performance edits; slice 6 owns the final comparison.
+[Probe observations and full-baseline diagnosis](execution-evidence.md) retain
+commands, timing conditions, inspected boundaries, and outstanding proof.
 
 ## Story obligations
 
@@ -185,6 +149,16 @@ Reported: slice 1 — "Only retained baseline CI is available; no implementation
 Story clause: "on a hosted shard about 1.5× slower overall"
 Disposition: receiving slice 6
 
+### G4. Full-baseline budget defects remain owned
+Reported: slice 1 — "The unchanged full baseline exposed two Intent comparison and five launch case-budget failures; no repair is claimed."
+Story clause: "A flaky or environment-dependent timeout remains a defect"
+Disposition: receiving slice 5
+
+### G5. Cursor recovery records are not observed before the case deadline
+Reported: slice 1 — "Cursor runner helper-survival and replacement-controls both timed out in launchSecondHeldSession while polling absent launch records; diagnosis is pending."
+Story clause: "A flaky or environment-dependent timeout remains a defect"
+Disposition: receiving slice 5
+
 ## Plan concern assessment
 
 Slice-plan refinement was not needed: six slices share one common rule (honest
@@ -193,6 +167,11 @@ where the seed already named distinct consolidation homes, and one authorized
 early probe for the open harness-cost premise. This review found no remaining
 slice-specific concern beyond that probe-bounded premise. No human-owned scope
 or ADR decision is pending.
+
+Execution learning: G4 and G5 add independent repair proof loops to the remaining
+harness work. Reassess and refine that boundary after the full-baseline
+inventory is complete, before delegating dependent implementation. The initial
+six-slice assessment above does not dispose of those newly observed defects.
 
 ## Execution notes
 
