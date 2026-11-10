@@ -3,6 +3,7 @@
 **Identity:** SEED-291#select-story-completed-in-ad-hoc-session
 
 **Source:** [Refined story](../../seeds/SEED-291-select-story-completed-in-ad-hoc-session.md#select-story-completed-in-ad-hoc-session)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -109,12 +110,12 @@ site. Actions, exact malformed inputs and independent expectations stay outside
 builders. Use synthetic external hosts/GitHub; do not alter the real Pygardon
 repository or retained session as test setup.
 
-## Slice
+## Slices
 
 ### 1. Reach a completed story from its retained ad hoc session
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: all rows of the outside-in table; the primary journey starts with the
 storyless retained session and ends with its historical changes and saved
 assessment after actual workspace retirement and trunk advancement.
@@ -171,6 +172,30 @@ behavior or separate prerequisite Structure slice.
 - Execution retains its normal independent refactoring, delivery and applicable
   CI repair duties. No actual host launch, credential change, paid probe, or
   release is required by this plan.
+- New regressions named during execution:
+  `dashboard/backend-tests/sessions/completed-story-association.spec.ts`,
+  `completed-story-association-competing-history.spec.ts`,
+  `completed-story-association-ambiguous.spec.ts`,
+  `dashboard/tests/sessions/recently-done-sessions-select-ad-hoc.spec.ts`,
+  `recently-done-sessions-select-ad-hoc-development.spec.ts`,
+  `recently-done-sessions-select-ad-hoc-check.spec.ts`,
+  `recently-done-sessions-select-ad-hoc-review.spec.ts`,
+  support `adHocCompletedAssociation.ts`.
+- Accepted slice-1 proof (coordinator): association boundary variants
+  (link / absent / unavailable / dual-candidate / takeover / intermediate /
+  Done-at-base / wrong target); Intent ad-hoc select with Side panel report
+  preserved and no `done=bodies` during association GET; Development older
+  Done reveal; check/retry/supersede; historical Review + Range-resume after
+  retirement; lint and `typecheck:dashboard`. Refactor pass preserved those
+  outcomes after file-size/cohesion edits.
+
+## Learnings
+
+- StartOrigin UI journeys need `publishCommittedOrigin({ follows: true })`;
+  base-CI-only fake GitHub leaves the Done catalog empty so titles stay as
+  identities.
+- Takeover false links need a `base..revision` other-publisher claim check;
+  recovered `facts.claims` alone can omit the later claim.
 
 ## Decisive premises observed
 
@@ -198,3 +223,37 @@ selection-to-historical-reading result, its evidence cases and proof; no layer
 or test-only boundaries need repair. Cumulatively this extends one association
 rule and existing selection/review owners, not a chain of special recognizers.
 No remaining slice-specific concern was identified in this preparation review.
+
+
+## Story obligations
+
+### G1. Deferred standalone session review
+Reported: slice 1 — "Deferred promise: standalone session review remains out of scope."
+Story clause: "Deferred promises: standalone session review"
+Disposition: excluded "Deferred promises: standalone session review"
+Commitment: 16a
+
+
+### G2. Deferred manual story attachment
+Reported: slice 1 — "Deferred promise: manually attaching stories to sessions remains out of scope."
+Story clause: "manually attaching stories to sessions"
+Disposition: excluded "manually attaching stories to sessions"
+Commitment: 16b
+
+### G3. Deferred conversation interpretation
+Reported: slice 1 — "Deferred promise: interpreting conversation text remains out of scope."
+Story clause: "interpreting conversation text"
+Disposition: excluded "interpreting conversation text"
+Commitment: 16c
+
+### G4. Deferred session retention change
+Reported: slice 1 — "Deferred promise: changing session retention remains out of scope."
+Story clause: "changing session retention"
+Disposition: excluded "changing session retention"
+Commitment: 16d
+
+### G5. No new layout or launch workflow
+Reported: slice 1 — "No new layout or launch workflow is needed."
+Story clause: "No new layout or launch workflow is needed."
+Disposition: excluded "No new layout or launch workflow is needed."
+Commitment: 16e

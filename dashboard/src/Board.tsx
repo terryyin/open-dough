@@ -4,6 +4,7 @@ import type { MachineSessions } from "./agentLaunches.ts";
 import { ColumnPagingControl } from "./ColumnPagingControl.tsx";
 import type { ColumnSummary } from "./columnSummary.ts";
 import { useColumnPaging } from "./columnPaging.ts";
+import { useStorySelection } from "./pageStorySelection.tsx";
 import type { PublishedWork } from "./publishedWork.ts";
 import { RecentlyDone } from "./RecentlyDone.tsx";
 import { useRecentlyDone } from "./recentlyDoneView.ts";
@@ -41,6 +42,7 @@ export function Board({
     [...work.backlog, ...work.taken].map(({ identity }) => identity),
   );
   const columns = columnsOf(work, sessions.taken);
+  const { selectedIdentity } = useStorySelection(sourceId);
   const recent = useRecentlyDone({
     sourceId,
     work,
@@ -49,6 +51,7 @@ export function Board({
     records: launches.sessionsSettled ? sessions.done : undefined,
     noneKept: sessions.noneKept,
     sessionsSettled: launches.sessionsSettled,
+    includeIdentity: selectedIdentity,
   });
   const summaries: readonly ColumnSummary[] = [
     ...columns.map(({ column }) => column),

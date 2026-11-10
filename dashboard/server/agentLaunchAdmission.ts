@@ -14,21 +14,13 @@ import {
 } from "./launchSettingsAdmission.ts";
 import { launchHostOptionsEndpoint } from "../src/launchHostOptions.ts";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
-import { finalReportEndpoint } from "../src/finalReportContract.ts";
 import { storyReviewMarkEndpoint } from "../src/storyReviewContract.ts";
-import {
-  markReviewedRequest,
-  type AdmittedReviewedFile,
-  type AdmittedStoryReview,
-  type AdmittedStoryReviewRange,
-} from "./storyReviewAdmission.ts";
-import { storyReviewExactReads } from "./storyReviewExactReads.ts";
+import { markReviewedRequest } from "./storyReviewAdmission.ts";
 import type { AdmittedStoryReviewMark } from "./storyReviewMarks.ts";
 import { launchHost } from "./launchHosts.ts";
 import type { IncomingMessage } from "node:http";
 import {
   agentAcceptEndpoint,
-  agentChangedEndpoint,
   agentContinueEndpoint,
   agentLaunchEndpoint,
   agentLaunchRequestSchema,
@@ -48,10 +40,6 @@ import { agentStopEndpoint } from "../src/sessionStop.ts";
 import type { CompletionReport } from "../src/completionReport.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
-import {
-  changedRequest,
-  type AdmittedChanged,
-} from "./launchAttemptChanges.ts";
 import { withSelectedOptions } from "./launchOptions.ts";
 import { withSessionPolicy } from "./launchSessionPolicy.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
@@ -66,9 +54,9 @@ import {
   stopRequest,
 } from "./sessionAdmission.ts";
 import {
-  finalReportRequest,
-  type AdmittedFinalReport,
-} from "./finalReportAdmission.ts";
+  launchExactReads,
+  type LaunchExactAdmitted,
+} from "./launchExactReads.ts";
 import { sessionsRequest, type AdmittedSessions } from "./sessionsAdmission.ts";
 
 export type Admitted =
@@ -76,12 +64,8 @@ export type Admitted =
   | { readonly kind: "drain" }
   | { readonly kind: "cursor-sessions" }
   | AdmittedHostOptions
-  | AdmittedFinalReport
-  | AdmittedStoryReview
-  | AdmittedStoryReviewRange
-  | AdmittedReviewedFile
+  | LaunchExactAdmitted
   | AdmittedStoryReviewMark
-  | AdmittedChanged
   | {
       // Answered once the launch is accepted.
       readonly kind: "accept";
@@ -195,13 +179,6 @@ const postRequests = new Map<
   ],
 ]);
 
-// The reads only a GET may make with exactly their parameters, by path.
-const exactReads = new Map<string, (url: URL) => Admitted | Promise<Admitted>>([
-  [agentChangedEndpoint, changedRequest],
-  [finalReportEndpoint, finalReportRequest],
-  ...storyReviewExactReads,
-]);
-
 // Every path whose requests this boundary admits or refuses.
 export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
@@ -210,7 +187,7 @@ export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   landingPrepareEndpoint,
   launchHostOptionsEndpoint,
   agentLaunchEndpoint,
-  ...exactReads.keys(),
+  ...launchExactReads.keys(),
   cursorRunnerSessionsEndpoint,
   ...postRequests.keys(),
 ]);
@@ -221,7 +198,7 @@ export async function admitted(
   launches: AgentLaunches,
 ): Promise<Admitted> {
   verifyLocalOrigin(req);
-  const exactRead = exactReads.get(url.pathname);
+  const exactRead = launchExactReads.get(url.pathname);
   if (exactRead !== undefined) {
     if (req.method !== "GET")
       throw new RefusedRequest(405, "Only GET is accepted here.");

@@ -8,15 +8,19 @@
 //
 // A story launch is linked when the done catalog its project publishes now
 // lists that exact story identity within the recent window Board Recently
-// done uses (`recentDoneRecords`). The shown project's current-revision
-// catalog is reused; another project's is read on demand through the same
-// authenticated snapshot reader and the Board's catalog reading
-// (`cataloguedAt`), and no done record body is read. An unread catalog is
-// checking, and a failed one, a catalog gap said in the Board's words, or one
-// naming the story's record as unreadable is unknown, each said apart from a
-// confirmed miss, which selects the session. A later choice, an explicit
-// Open, or another project chosen meanwhile supersedes an unanswered check. A
-// linked row stays chosen while its story is the page's Selected story.
+// done uses (`recentDoneRecords`). An ad hoc row may derive a completed-story
+// association from retained launch and published claim/completion evidence
+// (`./completedStoryAssociation.ts`) without rewriting its request identity
+// or Ad hoc label; that association may name a catalogued Done story beyond
+// the recent window. The shown project's current-revision catalog is reused;
+// another project's is read on demand through the same authenticated snapshot
+// reader and the Board's catalog reading (`cataloguedAt`), and no done record
+// body is read. An unread catalog or association is checking, and a failed
+// one, a catalog gap said in the Board's words, or one naming the story's
+// record as unreadable is unknown, each said apart from a confirmed miss,
+// which selects the session. A later choice, an explicit Open, or another
+// project chosen meanwhile supersedes an unanswered check. A linked row stays
+// chosen while its story is the page's Selected story.
 //
 // In Development the choice also shows its project's stories and brings into
 // view its done story's card, or, for a standalone row, its session's entry,
@@ -32,14 +36,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
-import { readPublishedSnapshot } from "./authenticatedRead.ts";
-import {
-  cataloguedAt,
-  recentDoneRecords,
-  type DoneStories,
-} from "./doneStories.ts";
 import {
   sameSelectedStory,
   type SelectedStory,
@@ -47,6 +44,13 @@ import {
 } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import {
+  associatedIdentity,
+  currentCatalog,
+  linkIn,
+  readLink,
+  type DoneLink,
+} from "./recentlyDoneLink.ts";
 import type { GoToSession } from "./sessionNavigation.ts";
 import { sessionKey } from "./sessionReference.ts";
 
@@ -88,51 +92,6 @@ export function useChosenSession(key: string) {
   return useContext(ChosenSessionOnPage) === key;
 }
 
-type DoneLink = "linked" | "absent" | { readonly problem: string };
-
-// Whether the catalog lists the story recently done, lacks it, or cannot say.
-function linkIn(
-  done: Extract<DoneStories, { status: "catalogued" }>,
-  identity: string,
-): DoneLink {
-  if (
-    recentDoneRecords(done, new Date()).some(
-      (record) => record.identity === identity,
-    )
-  )
-    return "linked";
-  const fileName = doneRecordFileName(identity);
-  return done.unreadable.some((record) => record.fileName === fileName)
-    ? { problem: `Its done record ${fileName} could not be read.` }
-    : "absent";
-}
-
-// The shown project's done catalog, when it was read at the revision shown.
-function currentCatalog(work: PublishedWork | undefined, project: string) {
-  const done = work?.done;
-  return work?.source.id === project &&
-    done?.status === "catalogued" &&
-    done.revision === work.revision
-    ? done
-    : undefined;
-}
-
-async function readLink(
-  source: PublishedSource,
-  identity: string,
-  signal: AbortSignal,
-): Promise<DoneLink> {
-  try {
-    const { revision } = await readPublishedSnapshot(source, signal);
-    const done = await cataloguedAt(source, revision, signal);
-    return done.status === "catalogued"
-      ? linkIn(done, identity)
-      : { problem: done.problem };
-  } catch (error) {
-    return { problem: error instanceof Error ? error.message : String(error) };
-  }
-}
-
 export function useRecentlyDoneSelection(
   projects: readonly PublishedSource[],
   stories: RecentlyDoneProjects,
@@ -164,7 +123,7 @@ export function useRecentlyDoneSelection(
   const select = (record: LaunchRecord) => {
     abandonCheck();
     const key = sessionKey(record.session);
-    const { identity } = launchSubject(record.request);
+    const { identity: requested } = launchSubject(record.request);
     const source = projects.find(({ id }) => id === record.request.source);
     // In Development, shows the session's project's stories and goes to the
     // session, or its done `story`; elsewhere, gives up an earlier going.
@@ -181,38 +140,68 @@ export function useRecentlyDoneSelection(
       setChoice({ key, kind: "standalone" });
       goThere();
     };
-    if (identity === undefined || source === undefined) {
+    if (source === undefined) {
       standalone();
       return;
     }
-    const story = { project: source.id, identity };
-    const settle = (link: DoneLink) => {
+    const settle = (link: DoneLink, identity?: string) => {
       if (link === "absent") {
         standalone();
-      } else if (link === "linked") {
+      } else if (link === "linked" && identity !== undefined) {
+        const story = { project: source.id, identity };
         setChoice({ key, kind: "linked", story });
         selection.api.select(story);
         if (now.current.stories.development) goThere(identity);
         else now.current.stories.select(source);
-      } else {
+      } else if (typeof link === "object") {
         setChoice({ key, kind: "unknown", problem: link.problem });
         now.current.goTo();
+      } else {
+        standalone();
       }
     };
-    const shown = currentCatalog(stories.work, source.id);
-    if (shown !== undefined) {
-      settle(linkIn(shown, identity));
+    const checkCatalog = (identity: string, recentOnly: boolean) => {
+      // Use the page as it is when the association answers, not the work
+      // snapshot from the click that started an earlier unread check.
+      const shown = currentCatalog(now.current.stories.work, source.id);
+      if (shown !== undefined) {
+        settle(linkIn(shown, identity, { recentOnly }), identity);
+        return;
+      }
+      const controller = new AbortController();
+      checking.current = controller;
+      setChoice({ key, kind: "checking" });
+      goTo();
+      void readLink(source, identity, controller.signal, recentOnly).then(
+        (link) => {
+          if (checking.current !== controller) return;
+          checking.current = undefined;
+          settle(link, identity);
+        },
+      );
+    };
+    if (requested !== undefined) {
+      checkCatalog(requested, true);
       return;
     }
     const controller = new AbortController();
     checking.current = controller;
     setChoice({ key, kind: "checking" });
     goTo();
-    void readLink(source, identity, controller.signal).then((link) => {
-      if (checking.current !== controller) return;
-      checking.current = undefined;
-      settle(link);
-    });
+    void associatedIdentity(source, record, controller.signal).then(
+      (answer) => {
+        if (checking.current !== controller) return;
+        checking.current = undefined;
+        // Association already validated published claim/completion evidence.
+        // Select that identity without the recent-window catalog gate story
+        // launches use; Board reveal may still include a catalogued older Done.
+        if (typeof answer === "object" && "kind" in answer) {
+          settle("linked", answer.identity);
+          return;
+        }
+        settle(answer);
+      },
+    );
   };
 
   const chosen =

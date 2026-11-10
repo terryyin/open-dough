@@ -129,6 +129,9 @@ export function useRecentlyDone({
   records,
   noneKept,
   sessionsSettled,
+  // A selected Done story this list must still place, even outside the
+  // Board's default recent window (retained ad hoc association).
+  includeIdentity,
 }: {
   readonly sourceId: string;
   readonly work: PublishedWork;
@@ -138,6 +141,7 @@ export function useRecentlyDone({
   // Whether a read of the machine's sessions asked after the latest change
   // of the project list has ended, answered or not.
   readonly sessionsSettled: boolean;
+  readonly includeIdentity?: string | undefined;
 }) {
   const range = usePageRange();
   // While a newer revision reads its catalog, the snapshot carries the
@@ -146,11 +150,19 @@ export function useRecentlyDone({
   // Records are read at the revision whose catalog lists them.
   const revision =
     done?.status === "catalogued" ? done.revision : work.revision;
-  const listed = newestFirst(
-    recentDoneRecords(done, new Date()),
-    records ?? [],
-    sourceId,
-  );
+  const recent = recentDoneRecords(done, new Date());
+  const included =
+    includeIdentity === undefined ||
+    done?.status !== "catalogued" ||
+    recent.some((record) => record.identity === includeIdentity)
+      ? recent
+      : [
+          ...recent,
+          ...done.records.filter(
+            (record) => record.identity === includeIdentity,
+          ),
+        ];
+  const listed = newestFirst(included, records ?? [], sourceId);
   // The entry holding the keyboard stays shown wherever it now stands.
   const held = range.heldIn(sourceId);
   const heldAt =

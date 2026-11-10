@@ -1,16 +1,12 @@
 // Done Intent follows the completed story, independently of whichever launch
 // happened to retain a readable first-publication capture.
-import path from "node:path";
-import { doneRecordFileName } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import {
   reviewRunKey,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
-import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
-import { doneRecordDirectoryOf } from "./recordsBesideBacklog.ts";
-import { storyCompletionEndpoints } from "./storyCompletionEndpoints.ts";
+import { landingCompletesStory } from "./completedStoryCapture.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 
@@ -27,51 +23,21 @@ async function completedCapture(
   if (
     record.request.workflow !== "execution" ||
     record.request.source !== source.id ||
-    landing === undefined ||
-    landing.identity !== identity ||
-    landing.target !== `refs/heads/${source.ref}` ||
-    landing.target !== `refs/heads/${established.target}` ||
-    landing.remote !== established.remote
+    landing === undefined
   )
     return undefined;
-  const call: GitCall = {
-    cwd: landing.repository,
+  const match = await landingCompletesStory(
+    source,
+    identity,
+    landing,
+    established,
     signal,
-    maxBuffer: 64 * 1024 * 1024,
-  };
-  try {
-    if (!(await isAncestor(landing.base, landing.revision, call)))
-      return undefined;
-    const file = path.posix.join(
-      doneRecordDirectoryOf(source),
-      doneRecordFileName(identity),
-    );
-    if (
-      (
-        await runGit(["ls-tree", "--name-only", landing.base, "--", file], call)
-      ).stdout.trim() !== ""
-    )
-      return undefined;
-    const completed = await storyCompletionEndpoints(
-      source,
-      identity,
-      landing.revision,
-      call,
-      landing.revision,
-    );
-    if (
-      completed.kind !== "facts" ||
-      completed.facts.completion !== landing.revision
-    )
-      return undefined;
-    const review = await landedStoryReview(run, signal);
-    return review.kind === "landed"
-      ? { ...review, selectedRun: reviewRunKey(record) }
-      : undefined;
-  } catch (error) {
-    if (signal.aborted) throw error;
-    return undefined;
-  }
+  );
+  if (match !== "matched") return undefined;
+  const review = await landedStoryReview(run, signal);
+  return review.kind === "landed"
+    ? { ...review, selectedRun: reviewRunKey(record) }
+    : undefined;
 }
 
 export async function historicalStoryReview(
