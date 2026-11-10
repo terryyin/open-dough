@@ -49,19 +49,19 @@ product, proof, or project files.
 | 38 | Keep the existing completion-record schema. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs + src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage combined Done report text |
 | 39 | Keep the existing reading surface. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs + src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage combined Done report text |
 | 40 | No temporary file is the only home of the final result. | slice 1 | observed: tests/support/product-backlog-complete-intent-coverage.test.mjs + src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage combined Done report text |
-| 41 | When the ordinary execution process retrospective is selected and automatic coverage runs: keep product and proof review before wrap-up. | slice 2 | |
-| 42 | Under that same condition: defer that one process review until the report and dispositions are available. | slice 2 | |
-| 43.1 | Supply to that deferred process review: report. | slice 2 | |
-| 43.2 | Supply to that deferred process review: available run history. | slice 2 | |
-| 43.3 | Supply to that deferred process review: elapsed time. | slice 2 | |
-| 43.4 | Supply to that deferred process review: setup/waiting problems. | slice 2 | |
-| 43.5 | Supply to that deferred process review: follow-up decision. | slice 2 | |
-| 44 | Existing execution-retrospective selection rules still apply. | slice 2 | |
-| 45 | Existing explicit-skip rules still apply. | slice 2 | |
-| 46 | Existing missing-history rules still apply. | slice 2 | |
-| 47 | Do not start another process review just for wrap-up. | slice 2 | |
-| 48 | Remove Story Wrap Up's separate `--process-retrospective` flag. | slice 2 | |
-| 49 | Retain Dough Land's `--process-retrospective` flag. | slice 2 | |
+| 41 | When the ordinary execution process retrospective is selected and automatic coverage runs: keep product and proof review before wrap-up. | slice 2 | observed: src/skills/dough-execute-plan/references/finish-or-stop.md#deferred-process-review-into-wrap-up product/proof before wrap-up when coverage runs |
+| 42 | Under that same condition: defer that one process review until the report and dispositions are available. | slice 2 | observed: src/skills/dough-execute-plan/references/finish-or-stop.md#deferred-process-review-into-wrap-up defer process until report/dispositions; not skip-process |
+| 43.1 | Supply to that deferred process review: report. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review supply report |
+| 43.2 | Supply to that deferred process review: available run history. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review supply available run history |
+| 43.3 | Supply to that deferred process review: elapsed time. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review supply elapsed time |
+| 43.4 | Supply to that deferred process review: setup/waiting problems. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review supply setup/waiting problems |
+| 43.5 | Supply to that deferred process review: follow-up decision. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review supply follow-up decision |
+| 44 | Existing execution-retrospective selection rules still apply. | slice 2 | observed: src/skills/dough-execution-retrospective/SKILL.md#select-reviews existing selection rules |
+| 45 | Existing explicit-skip rules still apply. | slice 2 | observed: src/skills/dough-execution-retrospective/SKILL.md#select-reviews explicit-skip rules |
+| 46 | Existing missing-history rules still apply. | slice 2 | observed: src/skills/dough-execution-retrospective/SKILL.md#select-reviews missing-history rules |
+| 47 | Do not start another process review just for wrap-up. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review no wrap-up-only invented process review |
+| 48 | Remove Story Wrap Up's separate `--process-retrospective` flag. | slice 2 | observed: src/skills/dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review flag removed; docs/installation-and-updates.md |
+| 49 | Retain Dough Land's `--process-retrospective` flag. | slice 2 | observed: src/skills/dough-land/SKILL.md --process-retrospective retained |
 | 50 | Protect truthful completion. | slice 1 | observed: src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage join before Done/delete/retire; unfinished+recovery |
 | 51 | Protect recoverable work. | slice 1 | observed: src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage join before Done/delete/retire; unfinished+recovery |
 | 52 | Protect human decision ownership. | slice 1 | observed: src/skills/dough-story-wrap-up/references/follow-up-disposition.md#dispose-intent-coverage-findings dispositions, routing, priority, judgment |

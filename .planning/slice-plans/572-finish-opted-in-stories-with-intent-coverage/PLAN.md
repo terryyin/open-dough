@@ -182,7 +182,7 @@ No interim behavior or Structure slice is needed.
 ### 2. Review the selected execution process with the coverage outcome
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Slice-2 walkthrough rows and affected instruction-contract checks above,
 retaining the first slice's report/disposition observations.
 
@@ -220,6 +220,7 @@ Explicit skips remain skips; direct wrap-up invents no process review.
 - Learning: keep join concise in wrap-up; route gap/priority detail through
   `follow-up-disposition.md` to stay under the 250-line check.
 - CI repair (run 42789213880): restore 120s on `agent-completion-recovery.spec.ts` (30s default insufficient under shard load; SEED-287 owns fitting without it).
+- Slice 2: defer selected process review into wrap-up when automatic coverage runs; remove Wrap Up `--process-retrospective`; retain Land flag. Structural guidance tests pass.
 - Expected runtime edits currently fit the 250-line check: Wrap Up 250,
   retrospective 246, finish-or-stop 219, follow-up disposition 59 and shared
   process-review reference 25. Replace obsolete sections and keep cohesive

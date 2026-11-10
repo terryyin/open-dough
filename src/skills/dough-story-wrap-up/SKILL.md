@@ -7,8 +7,8 @@ description: >-
   decisions, and removes spent plan and history with Git recovery. Reports missing
   or unfinished inputs truthfully. Use to close completed work, delete spent
   records, or continue settled planned execution under Execute Plan's continuation
-  rule. With `--process-retrospective`, it also reviews the wrap-up's own process
-  and records supported findings in `DearDough.md`.
+  rule. When continuation carries a selected deferred process review, completes
+  that review after Intent Coverage report and dispositions.
 ---
 
 # Story wrap-up
@@ -16,7 +16,8 @@ description: >-
 Close one work item when the coordinator invokes wrap-up explicitly or through Execute
 Plan's authorized [planned continuation](../dough-execute-plan/references/finish-or-stop.md#continue-settled-planned-work-into-wrap-up), retaining the same execution context and publication authority, including local-only/no-push instructions.
 Use available context and optional retrospective advice; preserve lasting product knowledge and Git recovery.
-With `--process-retrospective`, also [review this wrap-up's process](#review-this-wrap-ups-process).
+When continuation carries a selected deferred process review, also
+[complete that deferred process review](#complete-a-deferred-process-review).
 
 ## Resolve this project's context
 
@@ -130,15 +131,27 @@ Supported changes: relevant reorder, queue membership, understood new-story addi
 
 A skipped, empty, or absent product review, or absent extra human input, introduces no mandatory question. Ordinary closure continues using the other available inputs. Leave unresolved necessary context with active work and report the choice; do not invent scope, launch discovery, or start another review.
 
+## Complete a deferred process review
+
+When continuation carries a selected deferred process review, complete that one
+review under
+[Deferred process review into wrap-up](../dough-execute-plan/references/finish-or-stop.md#deferred-process-review-into-wrap-up)
+and
+[review process only from a real record](../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record)
+before the before-cleanup commit. Supply the Intent Coverage report, wrap-up
+dispositions, follow-up decision, available run history, elapsed time and
+setup/waiting problems. Do not re-enter Select reviews or invent a
+wrap-up-only process review.
+
 ## Commit closure inputs and preserve Git recovery
 
-After supported follow-up queue changes and before deleting anything, make the
-current revision recoverable with this project's ordinary Git conventions.
-Commit all uncommitted owned review and closure-input changes in that revision:
-applicable retrospective edits to the process log in the execution checkout,
+After supported follow-up queue changes, any deferred process review that was
+due, and before deleting anything, make the current revision recoverable with
+this project's ordinary Git conventions. Commit all uncommitted owned review and closure-input changes in that revision: applicable retrospective edits to the
+process log in the execution checkout (including deferred process findings),
 uncommitted follow-up records (including an explicitly dropped follow-up before
-its deletion) and queue edits, assimilated product
-knowledge, and the spent material. Records the execution already committed in its
+its deletion) and queue edits, assimilated product knowledge, and the spent
+material. Records the execution already committed in its
 [completion commit](../dough-execute-plan/references/finish-or-stop.md#record-execution-completion)
 need no second commit. Preserve unrelated changes and include only files or
 portions whose ownership is unambiguous. Resolve ownership of the
@@ -199,16 +212,6 @@ Keep an active follow-up's [provenance](references/follow-up-disposition.md#keep
 Repair Markdown links broken by cleanup without recreating spent history.
 Repeating wrap-up must recognize already-completed cleanup without duplicating
 edits. Missing artifacts alone do not establish completion of another work item.
-
-## Review this wrap-up's process
-
-Only with `--process-retrospective`, after spent history is deleted, apply the
-shared [process review of a run](../dough-execution-retrospective/references/process-review-of-a-run.md)
-once per wrap-up, with the execution checkout as the write location. Point
-evidence in deleted sources at the before-cleanup commit, as an active
-follow-up's locator does above. Recorded findings are owned closure changes for
-[Commit final closure](#commit-final-closure) and travel with that commit. A
-rerun that finds the final closure already committed does not review again.
 
 ## Commit final closure
 

@@ -184,7 +184,7 @@ test("whole-journey recovery resumes unfinished closure without repeating accept
   );
   assert.match(
     continuation,
-    /first unfinished operation without repeating accepted[\s\S]+publication, completed review or settled dispositions/,
+    /first unfinished operation without repeating accepted[\s\S]+publication, completed product or proof[\s\S]+review or settled dispositions/,
   );
   assert.match(continuation, /already[\s\S]+queued canonical correction/);
   assert.match(

@@ -32,19 +32,22 @@ without another confirmation as soon as delivered implementation is available.
 Preserve explicit review instructions and project preferences through its review
 selection; its authority excludes implementing findings or changing the backlog.
 Delivered implementation starts review; require no execution-completion banner as input.
-When review returns, publish the
-[execution-complete record](#record-execution-completion), invoke the
+[Select reviews](../../dough-execution-retrospective/SKILL.md#select-reviews) may
+[defer process](#deferred-process-review-into-wrap-up) when automatic coverage will
+run. When review returns — including product/proof complete with process deferred —
+publish the [execution-complete record](#record-execution-completion), invoke the
 completion operation, handle its receipt, then apply
 [planned continuation](#continue-settled-planned-work-into-wrap-up).
 
 Continue in the recorded execution project/checkout. Supply available references/context:
 source contract, original plan and approved changes, attributable commits, decisions, proof,
 delivery state, CI limitations, and checkout/branch identity. Supply the execution checkout
-path as the retrospective's write location, so its process findings and correction stories
-and plans stay with this execution's changes and enter its completion commit. Trunk Mode
-attributable commits are that identity's retained published revisions, not another ledger or a
-rewrite's unpublished SHA. Include an initial quick attempt and its planned
-continuation as one execution. The retrospective validates attribution and
+path as the retrospective's write location, so correction stories and plans, and any
+process findings written in this invocation, stay with this execution's changes and
+enter its completion commit; deferred process findings enter wrap-up's closure commit.
+Trunk Mode attributable commits are that identity's retained published revisions, not
+another ledger or a rewrite's unpublished SHA. Include an initial quick attempt and its
+planned continuation as one execution. The retrospective validates attribution and
 follows its
 [process-review evidence rules](../../dough-execution-retrospective/SKILL.md#review-process-only-from-a-real-record).
 
@@ -52,16 +55,39 @@ Execution completion and review completion are distinct. A retrospective context
 stop leaves implementation delivered but the final execution/review handoff
 incomplete: preserve its partial review, observer, applicable target/revision,
 and CI state, and report the missing input without rerunning implementation or
-claiming review completion. It writes no execution-complete record. On
-recovery, use retained review state to continue or recognize completed review;
-ambiguous state requires recovery rather than duplicate review or guessed
-completion. A CI failure handled through an authorized repair invalidates only
-the conclusions its changed code or proof affects; reconsider those on the
-repaired candidate, amending changed product advice in the execution-complete
-record, instead of restarting the full retrospective.
+claiming review completion. It writes no execution-complete record. Selected
+deferred process alone is not that stop. On recovery, use retained review state to
+continue or recognize completed review; ambiguous state requires recovery rather
+than duplicate review or guessed completion. A CI failure handled through an
+authorized repair invalidates only the conclusions its changed code or proof
+affects; reconsider those on the repaired candidate, amending changed product
+advice in the execution-complete record, instead of restarting the full
+retrospective.
 
 When process history is unavailable, report the review limitation and continue
 independently supported outcome review and delivery.
+
+## Deferred process review into wrap-up
+
+When process is enabled under
+[Select reviews](../../dough-execution-retrospective/SKILL.md#select-reviews),
+obtain automatic-check selection from wrap-up's
+[Assess intent coverage](../../dough-story-wrap-up/SKILL.md#assess-intent-coverage)
+with no parallel selector. If that owner will request the check, keep process
+selected and defer its analysis, suggestions and log access until wrap-up
+supplies the report and dispositions — neither `--skip-process` nor an
+include-process override. Otherwise run process in the retrospective. Product and
+proof complete before continuation; carry selected deferred process as pending
+closure state, not a context error blocking wrap-up. Wrap-up
+[completes it](../../dough-story-wrap-up/SKILL.md#complete-a-deferred-process-review)
+once after report, dispositions and follow-up decision, supplying those with
+available run history, elapsed time and setup/waiting problems, writing findings
+in the execution checkout before deleting needed sources. Findings enter the
+before-cleanup commit. Retain partial deferred review state on interruption;
+resume without repeating product or proof review or settled dispositions.
+Explicit skips, unresolved selection, missing history, coverage off, ineligible
+work and direct wrap-up without a pending deferred review invent no process
+review.
 
 ## Continue settled planned work into wrap-up
 
@@ -69,8 +95,9 @@ For both reviewed and skipped planned completion, after completion handling,
 judge whether established authority and this project's rules settle the remaining
 choices. Include an initial quick attempt that continued into planned execution.
 This judgment authorizes continuation only after required proof, delivery,
-selected review or explicit skip, execution-complete record publication and the
-applicable completion operation are settled. Execution success alone does not
+selected review or explicit skip (including process deferred into wrap-up),
+execution-complete record publication and the applicable
+completion operation are settled. Execution success alone does not
 declare the story or session Done.
 
 Distinguish authorized closure duties from choices needing a human:
@@ -83,20 +110,23 @@ Distinguish authorized closure duties from choices needing a human:
   need existing delegated authority or explicit human direction and must remain
   compatible with this project's rules. A recommendation alone grants no
   adoption or drop authority.
-- A human-owned product, constraint, ownership or permission decision, missing
-  required context (including incomplete correction input), unfinished required
-  review, or failed/unconfirmed required operation stops the dependent path.
+- A selected deferred process review is an allowed closure duty under
+  [Deferred process review into wrap-up](#deferred-process-review-into-wrap-up),
+  not a context error that blocks entering wrap-up. Other unfinished required
+  review, a human-owned product, constraint, ownership or permission decision,
+  missing required context (including incomplete correction input), or
+  failed/unconfirmed required operation stops the dependent path.
   Confidence, silence, a ready assessment or green CI cannot settle that choice.
 - Keep an explicit review/retain/stop instruction and the selected review
   omissions effective. An explicitly skipped optional review creates no new
-  question. Provide explicitly requested details without inventing a review
+  question and invents no deferred process review. Provide explicitly requested details without inventing a review
   stop. Preserve the explicit background-CI handoff above while it is pending.
 
 When no such stop remains, invoke
 [dough-story-wrap-up](../../dough-story-wrap-up/SKILL.md) now in the same session
 and execution checkout. Carry the selected story/source, plan and approved
-changes, proof decisions, review results and authorized dispositions, execution
-identity, mode, checkout/branch management context, publication target and
+changes, proof decisions, review results and authorized dispositions, any
+selected deferred process review still pending, execution identity, mode, checkout/branch management context, publication target and
 receipts, CI/shutdown state, and supplied dashboard launch/reporting/landing
 context. Name any missing required input and stop before the affected action;
 do not reconstruct it after deletion. Require no second worktree, Take, review,
@@ -105,19 +135,15 @@ authority; continuation grants no additional publication permission.
 
 Give no final execution response, routine recap or quiet dashboard report
 between workflows. Wrap-up owns assimilation, follow-up and product dispositions,
-recoverable cleanup, assignment completion, applicable publication/integration,
-CI/shutdown and safe retirement. Its final completion attention and, when
-supplied, dashboard operation and matching receipt follow those closure gates.
-Direct use makes no dashboard contact. An execution-branch CI receipt never
-substitutes for required trunk-integration observation.
+any carried deferred process review, recoverable cleanup, assignment completion,
+applicable publication/integration, CI/shutdown and safe retirement. Its final
+completion attention and, when supplied, dashboard operation and matching receipt follow those closure gates. Direct use makes no dashboard contact. An
+execution-branch CI receipt never substitutes for required trunk-integration observation.
 
 If closure fails or is held, preserve the workspace, resumable session, proof and
-active records still needed for resolution. Successful execution is not successful
-closure. Resume at the first unfinished operation without repeating accepted
-publication, completed review or settled dispositions, including an already
-queued canonical correction. Apply wrap-up's attention/reporting handling to its
-actual unfinished step; retirement cannot erase resources needed by an unresolved
-choice.
+active records and any partial deferred process review state still needed.
+Successful execution is not successful closure. Resume at the first unfinished operation without repeating accepted publication, completed product or proof review or settled dispositions, including an already queued canonical correction. Apply wrap-up's attention/reporting handling to its actual unfinished
+step; retirement cannot erase resources needed by an unresolved choice.
 
 When continuation stops here, apply the shared
 [completion attention](../../dough-land/references/completion-attention.md)
@@ -138,16 +164,14 @@ advice, CI or shutdown recap or execution-completion banner.
 
 ## Other completion and stop paths
 
-Wholly planless completion
-retains source, conversation, identity, delivered changes, and proof, invokes
-the completion operation when
-publication created that CI obligation,
-reports delivered work, the CI verdict or exact unresolved reason, and shutdown,
-and ends with `## QUICK EXECUTION COMPLETE` after required delivery/completion,
-without automatic retrospective or automatic planned continuation. Its coordinator
-invokes wrap-up separately after successful delivery. Do not
-report integrated completion here; wrap-up owns Story Branch merge and required
-target push, Trunk Mode closure publication, and resource cleanup.
+Wholly planless completion retains source, conversation, identity, delivered
+changes, and proof, invokes the completion operation when publication created
+that CI obligation, reports delivered work, the CI verdict or exact unresolved
+reason, and shutdown, and ends with `## QUICK EXECUTION COMPLETE` after required
+delivery/completion, without automatic retrospective or automatic planned continuation. Its coordinator invokes wrap-up separately after successful
+delivery. Do not report integrated completion here; wrap-up owns Story Branch
+merge and required target push, Trunk Mode closure publication, and resource
+cleanup.
 
 For incomplete work, failed delivery/shutdown, cancellation, or a human-judgment stop, report
 source, active plan/next slice or quick-slice state, preserved work, observer state,
