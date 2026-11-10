@@ -7,7 +7,7 @@ retain local facets. The full source before this compaction is
 
 ## Retention
 
-- Highest allocated local number: 481. Removed numbers are never reused.
+- Highest allocated local number: 482. Removed numbers are never reused.
 - Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
 - Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
 - Occurrence history is partial.
@@ -92,6 +92,15 @@ Former local code: DD-263. [Evidence and current response](docs/maintainer/findi
 Former local code: DD-264. [Evidence and current response](docs/maintainer/findings/ODF-228.md).
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
+
+### Occurrences
+- Execution: SEED-290#publish-frontend-test-proof (plan 567; first related implementation `85a494d276d277daeb205e9e7bfa0ea4a5a9c5c7`)
+  - Timestamp: 2026-11-10T14:50:00+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L30–L40: first slice-1 Task `bbd17e64-071d-4489-a9dd-d70541ffa072` started 2026-11-10T10:41+08:00, explored CI proof surfaces with zero product edits, and never returned; after the developer's continue at 14:50+08:00 the coordinator recovered the interrupted delegation and launched replacement Task `d9a4a8e5-65a5-4920-b277-aba999c83366`, which delivered the product change. Checkout held only the coordinator's source-review files across the stall.
+  - Observed effect: multi-hour wait with no agent return; one empty-tree interruption recovery and one replacement implementer before acceptance; no dual-writer conflict or unauthorized publish.
+  - Inference: Matches ODF-229 empty-tree recurrence (interrupted Cursor implementation Task, no return, no product edits). Distinct from ODF-204 (no commit/push by the stalled agent) and ODF-059 (implementation Task, not a refactor handoff).
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 Former local code: DD-266. [Evidence and current response](docs/maintainer/findings/ODF-230.md).
 ## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>
@@ -480,3 +489,15 @@ The source-freshness gate takes one `git merge-base` as the Take. After publishe
   - Evidence: Native session `01a1beb7-a487-7fd0-989e-e7d2ab99461d`, terminal call `call_1d5dbd7a47274ae6ad7c75c7303c324e` returned `refused/not-taken-at-base` at `db8ca909986425b77080466a47ba4ff8079040b0`. At 10:34:10Z, `git merge-base --all HEAD origin/main` (the preserved graph is `50f4f4f1` versus `1c784a6d6`) returned that SHA and accepted Take `8554eb19e1b0944f7261120ff38af38de5f40ab0`; trunk `1c784a6d6` and the Take both held this Taken story. Current source-freshness.mjs still uses one merge-base.
   - Observed effect: The gate withheld the done boundary; read-only graph/backlog inspection diagnosed the mismatch. Published-main integration `fcf4c0041` made trunk the common base; the 11:03:46Z receipt returned unchanged for story/plan. No guard bypass or managed-copy edit occurred.
   - Inference: A merge base is not necessarily the accepted Take when history-preserving sibling imports produce several best bases. Use the retained claim context or resolve all bases safely; do not waive source drift checking. Diagnosis/recovery are observed; later V2-contract proof renewal is not attributed solely to this false refusal. Distinct from ODF-403's already-absorbed text conflict and ODF-169's stale publication suffix.
+
+## DD-482 — New Node test files placed outside suite discovery
+Discriminating renderer tests were added under `scripts/`, which this project's Intent/CI discovery roots do not include, so the full suite would not have run them until acceptance relocated the file.
+
+### Occurrences
+- Execution: SEED-290#publish-frontend-test-proof (plan 567; first related implementation `85a494d276d277daeb205e9e7bfa0ea4a5a9c5c7`)
+  - Timestamp: unknown
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
+  - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
+  - Inference: Place new Node test files under a discovered root (or extend discovery) before claiming suite coverage; acceptance caught this before push. Distinct from ODF-150 (missed indirect consumer of a changed contract after publish).
