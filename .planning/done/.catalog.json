@@ -1890,6 +1890,18 @@
       "identity": "SEED-121#finish-retirement-without-verdict",
       "completedAt": "2026-10-11T06:12:06.990Z",
       "blob": "9aba95f2bb873d24e930f4760b5e22b9c4457853"
+    },
+    {
+      "fileName": "SEED-088_review-trunk-mode-story-changes.json",
+      "identity": "SEED-088#review-trunk-mode-story-changes",
+      "completedAt": "2026-10-11T03:20:11.436Z",
+      "blob": "e7d9920f74bf1a78ca9c9105dd9a0297dac6b9f1"
+    },
+    {
+      "fileName": "SEED-088_found-worktree-matches-published-agent.json",
+      "identity": "SEED-088#found-worktree-matches-published-agent",
+      "completedAt": "2026-10-11T02:27:21.169Z",
+      "blob": "10d9c0d8b17e034be1186eb593c076aec019bada"
     }
   ],
   "unreadable": []
