@@ -202,7 +202,9 @@ remains planned.
 ## Execution complete
 
 Product advice: No backlog change. Story promises for per-project local Client
-configuration inspection on System settings → Projects are delivered. Optional
-wrap-up assimilation: mention the read-only inspection beside existing Projects
+configuration inspection on System settings → Projects are delivered. CI repair
+updated `system-settings-look.spec.ts` for the third Projects-row Client
+configuration fact (missed consumer of the new `dd`). Optional wrap-up
+assimilation: mention the read-only inspection beside existing Projects
 settings guidance in `dashboard/PROJECT-CONFIGURATION.md`. Process findings
 DD-485 and DD-486 recorded.

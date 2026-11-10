@@ -143,6 +143,7 @@ test.describe(`${name} settings reading`, () => {
     await expect(first.locator("dd")).toHaveText([
       configured[0]?.repository ?? "",
       configured[0]?.localPath ?? "",
+      "The Client configuration could not be read from this project's local checkout.",
     ]);
     await expect(
       projects.getByText(
