@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "joey-chan",
-  "email": "joey-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-294#opt-in-to-intent-coverage-at-wrap-up",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
