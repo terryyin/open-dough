@@ -376,6 +376,11 @@ journeys; typecheck; lint; native-evidence.
   `test.setTimeout(90_000)` on that case (SEED-287 removes the allowance).
   Full serial file: 7 passed.
 
+### CI repair (registered SHA 2a2038247)
+- `run-processes` nested `passing.proof` page setup exhausted the 5s budget
+  on a cold first consumer of shared dashboard/server artifacts; pre-warm
+  those before preview substitutes. Focused file: 4 passed.
+
 ## Story obligations
 
 ### G1. CI adapter attempts belong to sibling stories
