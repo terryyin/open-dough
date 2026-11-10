@@ -102,7 +102,11 @@ test("settled findings defer disposition to wrap-up rather than creating approva
     /recommendation alone grants no[\s\S]+adoption or drop authority/,
   );
   assert.match(followUp, /No further approval is needed/);
-  assert.match(followUp, /Do not refine, replan, or execute it/);
+  assert.match(followUp, /Do not\s+execute it during wrap-up/);
+  assert.match(
+    followUp,
+    /Do not refine or replan it except for the Intent Coverage\s+amendment authorized below/,
+  );
   assert.match(followUp, /Repeating wrap-up[\s\S]+must[\s\S]+not duplicate/);
 });
 
@@ -110,7 +114,7 @@ test("human choices and explicit stops still block the dependent continuation", 
   for (const stop of [
     /human-owned product, constraint, ownership or permission decision/,
     /missing[\s\S]+required context[\s\S]+incomplete correction input/,
-    /unfinished required[\s\S]+review/,
+    /Other unfinished required review/,
     /failed\/unconfirmed required operation stops the dependent path/,
     /Keep an explicit review\/retain\/stop instruction/,
   ])
@@ -180,7 +184,7 @@ test("whole-journey recovery resumes unfinished closure without repeating accept
   );
   assert.match(
     continuation,
-    /first unfinished operation without repeating accepted[\s\S]+publication, completed review or settled dispositions/,
+    /first unfinished operation without repeating accepted[\s\S]+publication, completed product or proof\s+review or settled dispositions/,
   );
   assert.match(continuation, /already[\s\S]+queued canonical correction/);
   assert.match(
@@ -194,7 +198,11 @@ test("whole-journey recovery resumes unfinished closure without repeating accept
 });
 
 test("wholly planless and explicit background journeys retain their own handoffs", () => {
-  const other = section(finish, "## Other completion and stop paths");
+  assert.match(
+    finish,
+    /\[other completion and stop paths\]\(other-completion-paths\.md\)/,
+  );
+  const other = read("dough-execute-plan/references/other-completion-paths.md");
   assert.match(
     other,
     /Wholly planless completion[\s\S]+`## QUICK EXECUTION COMPLETE`/,

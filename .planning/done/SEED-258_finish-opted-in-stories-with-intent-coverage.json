@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-258#finish-opted-in-stories-with-intent-coverage",
+  "title": "Finish opted-in stories with an Intent Coverage report",
+  "completedAt": "2026-11-10T10:41:26.970Z",
+  "developer": "Terry Yin",
+  "agent": "yusuke-chan",
+  "host": "cursor",
+  "model": "auto"
+}

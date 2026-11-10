@@ -8,6 +8,9 @@ import { markdownSection as section } from "../../../../tests/support/markdown-s
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(join(skills, path), "utf8");
 const finish = read("dough-execute-plan/references/finish-or-stop.md");
+const otherCompletion = read(
+  "dough-execute-plan/references/other-completion-paths.md",
+);
 const mechanics = read("dough-execute-plan/references/ci-completion-wait.md");
 const reportingInstruction = read(
   "../../dashboard/server/reportingInstruction.ts",
@@ -71,11 +74,11 @@ test("partial review, missing history, failed completion and background state re
     /process history is unavailable, report the review limitation and continue/,
   );
   assert.match(
-    finish,
+    otherCompletion,
     /failed delivery\/shutdown[\s\S]+required decision\/recovery action/,
   );
   assert.match(
-    finish,
+    otherCompletion,
     /planned work[\s\S]+begin with `DEVELOPER ATTENTION REQUIRED`[\s\S]+actual gap and\s+required recovery/,
   );
   assert.match(
@@ -121,8 +124,8 @@ test("the execution-complete handoff reports attention only when a supplied dash
     /incomplete, failed, cancelled, or human-judgment stop[\s\S]+settle the exact stop response[\s\S]+`--outcome unfinished --message-file <file>`[\s\S]+wait for its matching receipt before giving\s+exactly that response/,
   );
   assert.match(
-    finish,
-    /For incomplete work, failed delivery\/shutdown, cancellation, or a human-judgment stop, report[\s\S]+apply\s+\[report attention at the execution-complete handoff\]\(#report-attention-at-the-execution-complete-handoff\)\s+as an unfinished report/,
+    otherCompletion,
+    /For incomplete work, failed delivery\/shutdown, cancellation, or a human-judgment stop, report[\s\S]+apply\s+\[report attention at the execution-complete handoff\]\(finish-or-stop\.md#report-attention-at-the-execution-complete-handoff\)\s+as an unfinished report/,
   );
   // Quiet success submits nothing at the handoff; Land/Wrap Up stays final.
   assert.match(

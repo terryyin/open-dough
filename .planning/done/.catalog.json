@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-258_finish-opted-in-stories-with-intent-coverage.json",
+      "identity": "SEED-258#finish-opted-in-stories-with-intent-coverage",
+      "completedAt": "2026-11-10T10:41:26.970Z",
+      "blob": "f8bf193c41eaa59cb1fd424432a3f6e958b9ee05"
+    },
+    {
       "fileName": "SEED-297_submit-revived-cursor-continuation.json",
       "identity": "SEED-297#submit-revived-cursor-continuation",
       "completedAt": "2026-11-10T09:53:00.072Z",

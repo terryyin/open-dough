@@ -111,6 +111,14 @@ Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L30–L40: first slice-1 Task `bbd17e64-071d-4489-a9dd-d70541ffa072` started 2026-11-10T10:41+08:00, explored CI proof surfaces with zero product edits, and never returned; after the developer's continue at 14:50+08:00 the coordinator recovered the interrupted delegation and launched replacement Task `d9a4a8e5-65a5-4920-b277-aba999c83366`, which delivered the product change. Checkout held only the coordinator's source-review files across the stall.
   - Observed effect: multi-hour wait with no agent return; one empty-tree interruption recovery and one replacement implementer before acceptance; no dual-writer conflict or unauthorized publish.
   - Inference: Matches ODF-229 empty-tree recurrence (interrupted Cursor implementation Task, no return, no product edits). Distinct from ODF-204 (no commit/push by the stalled agent) and ODF-059 (implementation Task, not a refactor handoff).
+- Execution: SEED-258#finish-opted-in-stories-with-intent-coverage (plan 572; first related implementation `93f5b5bd8611cd1e529de025490fee4e8366b7b9`)
+  - Timestamp: 2026-11-10T17:29:00+08:00
+  - Tool: Cursor
+  - Model: auto
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `bb3c5d04-c060-415e-b558-61ea996fd885` L56–L84: slice-2 Task `7a3a0ba5-c436-4c08-88d6-9d569db5c804` started 2026-11-10T17:16+08:00, left uncommitted guidance/test edits mid-reorganization with no proof return; developer continue at 17:29 recovered interruption. After owned CI stash/restore around timeout repair `476a9c007`, focused structural tests still failed; completion Task `9297fc23-a7d3-4964-86f6-719f8ca839e3` finished the slice before `d347ad037`.
+  - Observed effect: one interrupted implementation Task with edits present; coordinator re-established proof from the checkout after repair restore, then one completion implementer before acceptance; no dual-writer publish.
+  - Inference: Matches ODF-229 edits-present recurrence (interrupted Cursor implementation Task, no return). Distinct from ODF-059 (implementation Task) and ODF-225 (stash parked unfinished next-slice work; no invalidated still-running proof recorded).
 ## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
 Former local code: DD-266. [Evidence and current response](docs/maintainer/findings/ODF-230.md).
 ## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>

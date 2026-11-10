@@ -37,8 +37,10 @@ absent, the execution retrospective skips its process review. The JSON
 contract — including defaults, invocation overrides, and invalid-file
 handling — lives once in
 [Select reviews](../src/skills/dough-execution-retrospective/SKILL.md#select-reviews).
-Dough Land and Story Wrap Up ignore this key; they review their own process
-only when invoked with `--process-retrospective`.
+Dough Land ignores this key; it reviews its own landing process only when
+invoked with `--process-retrospective`. Story Wrap Up has no such flag: it
+completes only a process review already selected and deferred by execution
+continuation after Intent Coverage report and dispositions.
 A project that wants process retrospectives enables them:
 
 ```json
