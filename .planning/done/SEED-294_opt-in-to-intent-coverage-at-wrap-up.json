@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-294#opt-in-to-intent-coverage-at-wrap-up",
+  "title": "Opt in to Intent Coverage during story wrap-up",
+  "completedAt": "2026-11-10T08:46:34.555Z",
+  "developer": "Terry Yin",
+  "agent": "ealden-chan",
+  "host": "codex",
+  "model": "gpt-6-astra",
+  "intentCoverage": {
+    "report": "Outcome: Insufficient evidence\n\nStory: SEED-294#opt-in-to-intent-coverage-at-wrap-up\nRevision: 3821ece015d288c3298e3d1eea9f963852511cf9\nPromise: Missing project configuration or a missing/false intentCoverage preference skips the automatic check while ordinary closure remains available.\nPlausible fault: Remove the explicit opt-in condition from src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage, restoring an unconditional automatic request.\nEvidence: The candidate instructions select only boolean true. The plan deliberately assigns this agent-guidance behavior to an authoring walkthrough, not an executable policy test. The inspected maintained continuation-guidance test asserts invocation and authority, while product-backlog-complete-credit.test.mjs and product-backlog-complete-intent-coverage.test.mjs exercise report storage through the real CLI. Their fixtures do not execute an agent's configuration-selection journey. No existing assertion for the selected fault was established by this bounded inspection.\nNo scratch edit or test was run: the required observing assertion was missing, so the check stopped before mutation. Wrong-behavior reach and assertion sensitivity were not established; this is not an Assertion gap claim. The execution checkout stayed clean at the selected revision, with no restoration required. Existing authoring and completion proof retain their original limits.\n\nTest runtime: unavailable (no test ran for this probe).\nHuman effort: unavailable (no separate human-effort observation).\nAgent effort: unavailable (no separate effort counter).\n\n\n- **Invocation-to-report elapsed.** 27631 ms (measured), from 1794300289275 to 1794300316906 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n"
+  }
+}

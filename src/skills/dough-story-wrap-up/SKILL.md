@@ -14,10 +14,8 @@ description: >-
 # Story wrap-up
 
 Close one work item when the coordinator invokes wrap-up explicitly or through Execute
-Plan's authorized [planned continuation](../dough-execute-plan/references/finish-or-stop.md#continue-settled-planned-work-into-wrap-up),
-which retains the same execution context and publication authority, including local-only
-or no-push instructions. Use available context and optional retrospective advice.
-Preserve lasting product knowledge and keep spent history recoverable through Git.
+Plan's authorized [planned continuation](../dough-execute-plan/references/finish-or-stop.md#continue-settled-planned-work-into-wrap-up), retaining the same execution context and publication authority, including local-only/no-push instructions.
+Use available context and optional retrospective advice; preserve lasting product knowledge and Git recovery.
 With `--process-retrospective`, also [review this wrap-up's process](#review-this-wrap-ups-process).
 
 ## Resolve this project's context
@@ -67,24 +65,27 @@ outside it. Reporting is the final operation.
 
 ## Assess intent coverage
 
-After execution completion and before the before-cleanup commit, assess only
-feature stories, planned or planless. Corrections and contextual work proceed
-to knowledge assimilation. Preserve any existing result in this story's
-published done record beside the backlog, or its committed local record for
-local-only closure. Otherwise explicitly request one check from the installed
-[Dough Intent Coverage](../dough-intent-coverage/SKILL.md) skill on behalf of
-wrap-up, supplying the story section, its plan when present, and the completed
-work's revision. Prefer a plausible protection gap for an important promise
-raised by the retrospective or another review. Otherwise let the skill choose
-the most important promise from the story's key examples. It owns scratch
-checkout setup and restoration.
+After execution completion and before the before-cleanup commit, assess only planned
+or planless feature stories. Corrections and contextual work proceed to knowledge
+assimilation. Preserve any result in this story's published done record beside the
+backlog, or its committed local record for local-only closure; do not repeat the check.
 
-Continue follow-up, cleanup, and integration decisions while the check runs.
-Save any returned report verbatim outside the checkout, including **Insufficient
-evidence** and unavailable costs with their reasons. When ready to complete,
-pass the saved file or the concrete reason no report is available to the
-[completion command](../dough-product-backlog/SKILL.md#remove-completed-items)
-and continue closure without waiting or retrying.
+Read this project's optional `.planning/open-dough.json` as a JSON object. Only boolean
+`intentCoverage: true` opts in; missing file/key or `false` skips the automatic check.
+Ignore unrelated keys. For unreadable, malformed or non-object JSON, or a non-boolean
+`intentCoverage`, report the file/key error, skip checking, and continue independent closure.
+Never coerce values or create, rewrite or repair configuration. Explicit developer
+review requests remain available regardless of this preference.
+
+When enabled and no result exists, explicitly request one check from the installed
+[Dough Intent Coverage](../dough-intent-coverage/SKILL.md), supplying the story section,
+plan when present, and completed revision. Prefer a plausible protection gap for an
+important promise raised by review; otherwise let the skill choose the most important
+promise from the key examples. It owns scratch checkout setup and restoration; continue closure while it runs.
+Save its report verbatim outside the checkout, including **Insufficient evidence** and
+unavailable costs/reasons. Pass the saved file or concrete no-report reason to the
+[completion command](../dough-product-backlog/SKILL.md#remove-completed-items) and continue
+without waiting or retrying. If skipped with no supplied result, complete without coverage input.
 
 ## Assimilate lasting knowledge
 
@@ -160,9 +161,8 @@ Work without a Taken entry has no story section or plan to compare. On
   remaining section is spent;
 - its **Taken** or **Backlog list** entry when one exists, through the
   [dough-product-backlog](../dough-product-backlog/SKILL.md) `complete` command,
-  passing any saved Intent Coverage file or unavailable reason. Include its
-  agent profile removals, done record, expiry removals, and catalog changes in
-  the closure; and
+  passing Intent Coverage input only when available or a check was requested.
+  Include agent profile removals, done record, expiry removals, and catalog changes; and
 - links whose sole purpose is preserving that history.
 
 Also remove follow-up records selected for explicit drop under [follow-up disposition](references/follow-up-disposition.md);

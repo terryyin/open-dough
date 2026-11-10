@@ -99,7 +99,7 @@ The trial's trunk recheck identified this test opportunity.
 ```
 
 **Goal:** A developer closing a feature story in a project that
-[opts in to Intent Coverage](SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up)
+[opts in to Intent Coverage](../../src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage)
 can read the returned report in Done and see the disposition of every actionable
 finding. Closure must not discard evidence merely because the probe finishes later.
 

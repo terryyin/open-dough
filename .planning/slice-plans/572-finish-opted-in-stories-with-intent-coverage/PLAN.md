@@ -26,7 +26,7 @@ Remove Wrap Up's separate process flag while preserving Dough Land's flag.
 Excluded: new opt-in policy, checker verdict/handoff changes, routine-benefit
 measurement, dashboard/schema redesign, historical Done migration, a generic
 worker service, installation, release and rollout. Coordinate with
-[SEED-294](../../seeds/SEED-294-opt-in-to-wrap-up-intent-coverage.md#opt-in-to-intent-coverage-at-wrap-up)
+[the opt-in rule](../../../src/skills/dough-story-wrap-up/SKILL.md#assess-intent-coverage)
 at the existing selection owner; preserve its enabled/off behavior on integration.
 Shared code and a linked product outcome create no cannot-start dependency:
 common direction and reconciliation suffice under ADR 0002.
