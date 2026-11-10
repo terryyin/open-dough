@@ -13,6 +13,7 @@ import {
 import type { FakeGitHub } from "../../tests/support/fakeGitHub.ts";
 import { dirty, status } from "../../tests/support/defaultCheckoutChanges.ts";
 import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
+import { launchWaitMs } from "../../tests/support/launchWait.ts";
 import {
   defaultMainSession,
   sessionBlock,
@@ -147,7 +148,11 @@ startTest.describe(dueOnCodex, () => {
 
       const turns = () =>
         native.calls.filter((call) => call.method === "turn/start");
-      await expect.poll(() => turns().length).toBe(1);
+      // Contested CI can stretch the first due check past the 5s default poll
+      // (gh ref + watch-list read + Codex launch). Bound matches launchWaitMs.
+      await expect
+        .poll(() => turns().length, { timeout: launchWaitMs })
+        .toBe(1);
       const [record] = stored(dashboard.home);
       expect(record?.request).toMatchObject({
         workflow: "ad-hoc",

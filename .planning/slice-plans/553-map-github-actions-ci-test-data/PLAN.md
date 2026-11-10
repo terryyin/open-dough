@@ -389,6 +389,23 @@ journeys; typecheck; lint; native-evidence.
   narrow cleanup `pkill` to each check script path. Serial focused proof green.
   N-way self-parallel copies still contend past 90s (not CI's one-file shape).
 
+### CI repair (registered SHA 53152ef1)
+- Hosted run 42804393525: dashboard (7/12) failed
+  `agent-launch-ad-hoc-codex-input` (5s poll, 0 turns),
+  `landed-ci-scope-pending-proof` (landing-prepare `AbortSignal.timeout(10s)`
+  under contested CPU; second case 30s test timeout), and
+  `production-deployment` (45s install/build/preview budget).
+  dashboard (5/12) aborted at `OPEN_DOUGH_DASHBOARD_DEADLINE` with 0 failed
+  tests after ~300s — stale `longest-first` left 87 unrecorded specs at the
+  median assumption and overloaded the deal.
+- Repair: raise retained-report delivery to 30s (matches landing git op
+  budget); interim 90s allowances on production-deployment and both
+  landed-ci pending-proof cases; bound the Codex maintenance poll with
+  `launchWaitMs`; refresh `dashboard/longest-first*` from this run's twelve
+  times artifacts (87→12 unrecorded; ~992s predicted/share). SEED-287 owns
+  removing the interim allowances. Focused three-file proof green under
+  caffeinate.
+
 ### Slice 5
 Integrated-state provider facts arrange runs/jobs through MakeMe
 (`observedCiRun` / `coveredJob`) and encode with `apiRun`/`apiJob` at publish.
@@ -417,4 +434,4 @@ Commitment: 24.1, 24.2, 24.3
 
 ## Execution complete
 
-Product advice: no change — keep SEED-261 sibling conversions and SEED-287#fit-dashboard-journeys-in-default-timeout ahead of any new test-data work; this execution’s interim production-watcher 90s allowance (`2a2038247`) and nested run-processes artifact pre-warm (`31fbac1e2`) are evidence for SEED-287, not new queue items.
+Product advice: no change — keep SEED-261 sibling conversions and SEED-287#fit-dashboard-journeys-in-default-timeout ahead of any new test-data work; this execution’s interim production-watcher 90s allowance (`2a2038247`), nested run-processes artifact pre-warm (`31fbac1e2`), and SHA `53152ef1` interim 90s deployment/landed-ci allowances plus 30s retained-report delivery are evidence for SEED-287, not new queue items.
