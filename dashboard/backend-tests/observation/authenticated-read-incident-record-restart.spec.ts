@@ -64,6 +64,16 @@ test("a dev server restarted in place lists both instances' failures, reads the 
         })
         .toBe(true);
       await failedRead(restarted);
+      // Diagnostics include this process's still-queued entries; a kill drops
+      // them. Wait until both failures are on disk before SIGKILL so the
+      // successor can read what the record retained.
+      await expect
+        .poll(
+          () =>
+            linesOf(pid).filter((entry) => entry.kind === "failed-read").length,
+          { timeout: 10_000 },
+        )
+        .toBe(2);
 
       const seen = await inspect(restarted);
       expect(seen.status).toBe(200);
