@@ -20,6 +20,7 @@ import type { GhCall } from "../../tests/support/fakeGitHub.ts";
 import {
   collectingLandedCi,
   landedCiHistory,
+  restartAsLandedCiReader,
   resultToLand,
 } from "../../tests/support/landedCiHistory.ts";
 import {
@@ -104,13 +105,19 @@ test.describe("a server that collects", () => {
       ),
     ).toHaveLength(1);
 
-    // Reading the history again asks CI nothing.
-    const asked = github.calls.length;
-    expect(await landedCiHistory(dashboard)).toMatchObject({
-      status: 200,
-      body: { entries: [{ kind: "point", revision }] },
-    });
-    expect(github.calls.slice(asked)).toEqual([]);
+    // The point is kept before collection reads its proof. Stop collection
+    // before counting the reader's calls, so that work cannot race the read.
+    const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+    try {
+      const asked = github.calls.length;
+      expect(await landedCiHistory(reader)).toMatchObject({
+        status: 200,
+        body: { entries: [{ kind: "point", revision }] },
+      });
+      expect(github.calls.slice(asked)).toEqual([]);
+    } finally {
+      await reader.close();
+    }
   });
 });
 

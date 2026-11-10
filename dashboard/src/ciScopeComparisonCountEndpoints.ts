@@ -4,6 +4,7 @@
 
 import {
   comparableUnits,
+  unitName,
   unitNoun,
   whyNotCompared,
   type CiProofUnit,
@@ -16,10 +17,27 @@ import {
   type MeasuredCount,
   type ScopeEndpointCount,
 } from "./ciScopeComparisonCounts.ts";
+import { noFileBreakdownOf, nothingCountedAs } from "./ciProofWording.ts";
+import type { UnitGroup } from "./ciScopeComparisonEndpointUnits.ts";
 import { unreportedWords } from "./ciScopeComparisonTiming.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 
-const noFileBreakdown = "no file breakdown";
+export type CountGroups = {
+  readonly before: readonly UnitGroup[] | undefined;
+  readonly branch: readonly UnitGroup[] | undefined;
+  readonly landed: readonly UnitGroup[] | undefined;
+};
+
+function groupWords({ unit, count }: UnitGroup): string {
+  if (count.kind === "measured" || count.kind === "unobserved")
+    return observedCountWords(count);
+  if (count.kind === "nothing") return nothingCountedAs(unit);
+  if (count.kind === "no-breakdown") return noFileBreakdownOf(unit);
+  return `${count.text} (${unitName(unit)})`;
+}
+
+const groupsWords = (groups: readonly UnitGroup[]): string =>
+  groups.map(groupWords).join(" and ");
 
 export const isMeasured = (count: ScopeEndpointCount) =>
   count.kind === "measured" || count.kind === "units";
@@ -36,10 +54,16 @@ function measuredWords(count: MeasuredCount | ScopeEndpointCount): string {
 
 // An endpoint's words in a Counts cell, ABSENT standing in where the
 // endpoint holds no result for the scope.
-function endpointCountText(count: ScopeEndpointCount, absent: string): string {
+function endpointCountText(
+  count: ScopeEndpointCount,
+  absent: string,
+  groups?: readonly UnitGroup[],
+): string {
+  if (groups !== undefined && groups.length > 0 && !isMeasured(count))
+    return groupsWords(groups);
   if (count.kind === "checking") return "…";
   if (count.kind === "status") return count.text;
-  if (count.kind === "no-breakdown") return noFileBreakdown;
+  if (count.kind === "no-breakdown") return noFileBreakdownOf(undefined);
   if (count.kind === "absent") return absent;
   if (count.kind === "unreported") return unreportedWords;
   if (count.kind === "nothing") return "nothing counted";
@@ -54,7 +78,8 @@ function endpointCountText(count: ScopeEndpointCount, absent: string): string {
 export const baselineCountText = (
   count: ScopeEndpointCount,
   presentLater: boolean,
-): string => endpointCountText(count, presentLater ? "added" : "—");
+  groups?: readonly UnitGroup[],
+): string => endpointCountText(count, presentLater ? "added" : "—", groups);
 
 // An after endpoint's words: where it lacks the scope, removed when the
 // scope was deleted or the baseline held it, and added otherwise.
@@ -62,10 +87,12 @@ export const afterCountText = (
   count: ScopeEndpointCount,
   presentInBaseline: boolean,
   changeKind?: ChangeKind,
+  groups?: readonly UnitGroup[],
 ): string =>
   endpointCountText(
     count,
     changeKind === "deleted" || presentInBaseline ? "removed" : "added",
+    groups,
   );
 
 // The one declared unit every measured endpoint of COUNTS has, when they
@@ -127,17 +154,31 @@ export function uncomparedCountsText(
   presentLater: boolean,
   presentInBaseline: boolean,
   changeKind: ChangeKind | undefined,
+  groups?: CountGroups,
 ): string {
-  const words = (count: ScopeEndpointCount, text: string) => ({
+  const words = (
+    count: ScopeEndpointCount,
+    text: string,
+    shown?: readonly UnitGroup[],
+  ) => ({
     count,
-    text: isMeasured(count) ? measuredWords(count) : text,
+    text:
+      shown !== undefined && shown.length > 0
+        ? groupsWords(shown)
+        : isMeasured(count)
+          ? measuredWords(count)
+          : text,
     measured: isMeasured(count),
   });
-  const baseline = words(before, baselineCountText(before, presentLater));
-  const after = (count: ScopeEndpointCount) =>
-    words(count, afterCountText(count, presentInBaseline, changeKind));
-  const branchWords = after(branch);
-  const landedWords = after(landed);
+  const baseline = words(
+    before,
+    baselineCountText(before, presentLater),
+    groups?.before,
+  );
+  const after = (count: ScopeEndpointCount, shown?: readonly UnitGroup[]) =>
+    words(count, afterCountText(count, presentInBaseline, changeKind), shown);
+  const branchWords = after(branch, groups?.branch);
+  const landedWords = after(landed, groups?.landed);
   const shownAfter =
     branch.kind === "checking" || branch.kind === "status"
       ? [landedWords]

@@ -29,6 +29,7 @@ import {
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { commitAll, git } from "../support/storyReviewWorktree.ts";
 import { pull, push } from "../support/storyReviewTrunkCommits.ts";
+import { openUntilRead } from "../pageRequestNotes.ts";
 
 const releases: (() => void)[] = [];
 test.afterEach(() => {
@@ -41,7 +42,14 @@ test("a newly selected Done story shows only its own historical source after hel
   dashboard,
 }) => {
   publishIntentTrunk(origin.project);
-  const first = await completedPublishedStory(origin);
+  const first = await completedPublishedStory(
+    origin,
+    "trunk",
+    undefined,
+    undefined,
+    undefined,
+    { interleaved: false },
+  );
   pull(origin.project);
   const second = await origin.publishTake({
     agent: "Yui",
@@ -92,7 +100,7 @@ test("a newly selected Done story shows only its own historical source after hel
     repository: "terryyin/open-dough",
     follows: true,
   });
-  await page.goto("/");
+  await openUntilRead(page);
   await showColumn(page, "Recently done");
   const { recentlyDone, intentChoice, intent } = parts(page);
   await recentlyDone

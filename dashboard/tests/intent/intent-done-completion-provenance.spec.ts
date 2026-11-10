@@ -28,6 +28,10 @@ import { git, lines } from "../support/storyReviewWorktree.ts";
 const modified = "Modified dashboard/tests/a.spec.ts";
 const unchanged = "dashboard/tests/boundary/kept.spec.ts";
 
+test.beforeAll(({ queuedCodexOriginReady }) =>
+  Promise.resolve(queuedCodexOriginReady),
+);
+
 test("a Done story reads its published execution instead of an earlier refinement capture", async ({
   page,
   dashboard,

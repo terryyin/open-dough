@@ -34,6 +34,10 @@ import { queuedIdentity } from "../support/startOrigin.ts";
 import { claimedLaunchWithStoryCommit } from "../support/storyBranchIntegration.ts";
 import { commitAll, git, lines } from "../support/storyReviewWorktree.ts";
 
+test.beforeAll(({ queuedCodexOriginReady }) =>
+  Promise.resolve(queuedCodexOriginReady),
+);
+
 test("selecting another Done story follows its published default instead of retaining an automatic captured run", async ({
   page,
   dashboard,

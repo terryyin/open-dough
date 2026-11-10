@@ -12,7 +12,11 @@ import {
   agentNameOf,
   renderAgentProfile,
 } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import type { IntentCoverage } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import {
+  requireUninterleavedTrunkInput,
+  writeCompletedStoryImplementation,
+  type CompletedStoryOptions,
+} from "./completedStoryInput.ts";
 import {
   installedBacklogScript,
   publishCompletedStory,
@@ -56,21 +60,13 @@ export async function completedPublishedStory(
   change?: (workspace: string) => void,
   // More edits the story's integration merge makes, after the variant's own.
   integrate?: (workspace: string) => void,
-  // When the caller already committed `shared.txt` as lines("line") on the
-  // claim parent (for example a planning-only start after a built baseline),
-  // skip the usual initial shared commit so that parent stays unchanged.
-  options?: {
-    readonly sharedAlreadyReady?: boolean;
-    readonly intentCoverage?: IntentCoverage | undefined;
-    readonly retainWorkspace?: boolean;
-    readonly skillsDirectory?: string;
-    // After the story branch integrates main and before completion publish
-    // (for example a planning-only tip so Branch walks to an ancestor build).
-    readonly beforeComplete?: (workspace: string) => void;
-  },
+  options?: CompletedStoryOptions,
 ) {
+  const interleavedHistory = options?.interleaved !== false;
+  if (options?.interleaved === false)
+    requireUninterleavedTrunkInput(mode, variant, integrate, options);
   const ownConflict = variant === "own-conflict-extra";
-  if (options?.sharedAlreadyReady !== true) {
+  if (interleavedHistory && options?.sharedAlreadyReady !== true) {
     writeAt(origin.project, "shared.txt", lines("line"));
     if (ownConflict) placeMergeEditFiles(origin.project);
     commitAll(origin.project, "initial shared file");
@@ -87,112 +83,115 @@ export async function completedPublishedStory(
       : { mode: "story-branch" as const }),
   });
   const { workspace, branch } = start;
-  writeAt(
-    workspace,
-    "shared.txt",
-    lines("line").replace("line 0\n", "story first\n"),
-  );
-  writeAt(workspace, "[literal]*.txt", "delivered on another machine\n");
+  writeCompletedStoryImplementation(workspace);
   change?.(workspace);
   if (ownConflict) moveAgentsFolder(workspace);
   commitAll(workspace, "story implementation");
-  if (mode === "trunk") push(workspace);
-  pull(origin.project);
-  writeAt(origin.project, "other-story.txt", "another story\n");
-  const shared =
-    mode === "trunk"
-      ? lines("line").replace("line 0\n", "story first\n")
-      : lines("line");
-  const interleaved = shared.replace("line 11\n", "other last\n");
-  writeAt(
-    origin.project,
-    "shared.txt",
-    interleaved.replace("line 0\n", ownConflict ? "trunk first\n" : "line 0\n"),
-  );
-  if (ownConflict) addTrunkAgentProfile(origin.project);
-  commitAll(origin.project, "another writer interleaves");
-  if (variant === "unrelated-merge" || variant === "non-owning-story-file")
-    resolveForeignMerge(origin.project, variant, interleaved);
-  if (variant === "foreign-octopus") foreignOctopusMerge(origin.project);
-  push(origin.project);
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  if (ownConflict) {
-    resolveStoryConflict(
-      workspace,
-      ["merge", "--quiet", "--no-edit", "origin/main"],
-      "shared.txt",
-      lines("line")
-        .replace("line 0\n", "resolved story and trunk\n")
-        .replace("line 11\n", "other last\n"),
-      "resolve story integration conflict",
-    );
-  } else if (variant === "own-octopus") {
-    ownOctopusIntegration(workspace);
-  } else {
-    git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
-  }
-  if (ownConflict) editIntegrationMerge(workspace);
-  if (variant === "merge-edit") addIntegrationEdit(workspace);
-  if (integrate !== undefined) amendIntegrationMerge(workspace, integrate);
-  if (variant === "takeover" || variant === "returned-takeover") {
-    const name = "Akiho";
-    const next = agentIdentity(name);
-    rmSync(path.join(workspace, ".planning", claim.path));
-    writeAt(
-      workspace,
-      `.planning/${next.path}`,
-      renderAgentProfile(
-        makeMe.anAgentProfile
-          .executing({
-            name,
-            identity: queuedIdentity,
-            mode,
-            branch,
-          })
-          .please(),
-      ),
-    );
-    git(workspace, "config", "--worktree", "author.name", next.agent);
-    git(workspace, "config", "--worktree", "author.email", next.email);
-    commitAll(workspace, "take over the story");
-    writeAt(workspace, "takeover.txt", "second agent work\n");
-    commitAll(workspace, "finish after takeover");
-  }
-  if (variant === "inseparable") {
-    push(workspace);
+  if (interleavedHistory) {
+    if (mode === "trunk") push(workspace);
     pull(origin.project);
+    writeAt(origin.project, "other-story.txt", "another story\n");
+    const shared =
+      mode === "trunk"
+        ? lines("line").replace("line 0\n", "story first\n")
+        : lines("line");
+    const interleaved = shared.replace("line 11\n", "other last\n");
     writeAt(
       origin.project,
       "shared.txt",
-      lines("line")
-        .replace("line 0\n", "other rewrites story\n")
-        .replace("line 11\n", "other last\n"),
+      interleaved.replace(
+        "line 0\n",
+        ownConflict ? "trunk first\n" : "line 0\n",
+      ),
     );
-    commitAll(origin.project, "rewrite story line");
+    if (ownConflict) addTrunkAgentProfile(origin.project);
+    commitAll(origin.project, "another writer interleaves");
+    if (variant === "unrelated-merge" || variant === "non-owning-story-file")
+      resolveForeignMerge(origin.project, variant, interleaved);
+    if (variant === "foreign-octopus") foreignOctopusMerge(origin.project);
     push(origin.project);
     git(workspace, "fetch", "--quiet", "origin", "main");
-    git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
-  }
-  if (variant === "returned" || variant === "returned-takeover") {
-    execFileSync(
-      process.execPath,
-      [
-        installedBacklogScript(workspace, options?.skillsDirectory),
-        "place",
-        "--identity",
-        queuedIdentity,
-        "--return",
-        "--position",
-        "first",
-      ],
-      { cwd: workspace },
-    );
-    const owner = agentIdentity(
-      agentNameOf(git(workspace, "config", "--worktree", "author.name")) ??
-        "Yui",
-    );
-    rmSync(path.join(workspace, ".planning", owner.path));
-    commitAll(workspace, "return the story and release its execution profile");
+    if (ownConflict) {
+      resolveStoryConflict(
+        workspace,
+        ["merge", "--quiet", "--no-edit", "origin/main"],
+        "shared.txt",
+        lines("line")
+          .replace("line 0\n", "resolved story and trunk\n")
+          .replace("line 11\n", "other last\n"),
+        "resolve story integration conflict",
+      );
+    } else if (variant === "own-octopus") {
+      ownOctopusIntegration(workspace);
+    } else {
+      git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
+    }
+    if (ownConflict) editIntegrationMerge(workspace);
+    if (variant === "merge-edit") addIntegrationEdit(workspace);
+    if (integrate !== undefined) amendIntegrationMerge(workspace, integrate);
+    if (variant === "takeover" || variant === "returned-takeover") {
+      const name = "Akiho";
+      const next = agentIdentity(name);
+      rmSync(path.join(workspace, ".planning", claim.path));
+      writeAt(
+        workspace,
+        `.planning/${next.path}`,
+        renderAgentProfile(
+          makeMe.anAgentProfile
+            .executing({
+              name,
+              identity: queuedIdentity,
+              mode,
+              branch,
+            })
+            .please(),
+        ),
+      );
+      git(workspace, "config", "--worktree", "author.name", next.agent);
+      git(workspace, "config", "--worktree", "author.email", next.email);
+      commitAll(workspace, "take over the story");
+      writeAt(workspace, "takeover.txt", "second agent work\n");
+      commitAll(workspace, "finish after takeover");
+    }
+    if (variant === "inseparable") {
+      push(workspace);
+      pull(origin.project);
+      writeAt(
+        origin.project,
+        "shared.txt",
+        lines("line")
+          .replace("line 0\n", "other rewrites story\n")
+          .replace("line 11\n", "other last\n"),
+      );
+      commitAll(origin.project, "rewrite story line");
+      push(origin.project);
+      git(workspace, "fetch", "--quiet", "origin", "main");
+      git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
+    }
+    if (variant === "returned" || variant === "returned-takeover") {
+      execFileSync(
+        process.execPath,
+        [
+          installedBacklogScript(workspace, options?.skillsDirectory),
+          "place",
+          "--identity",
+          queuedIdentity,
+          "--return",
+          "--position",
+          "first",
+        ],
+        { cwd: workspace },
+      );
+      const owner = agentIdentity(
+        agentNameOf(git(workspace, "config", "--worktree", "author.name")) ??
+          "Yui",
+      );
+      rmSync(path.join(workspace, ".planning", owner.path));
+      commitAll(
+        workspace,
+        "return the story and release its execution profile",
+      );
+    }
   }
   options?.beforeComplete?.(workspace);
   const completion = publishCompletedStory(origin, {

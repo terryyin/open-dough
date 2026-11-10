@@ -1,4 +1,5 @@
 // Real subprocesses exercise reporter hooks, storage, and the final CLI verdict.
+import { expect } from "@playwright/test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -127,4 +128,60 @@ export function startProofRun(options: {
     options.env,
   );
   return { ...run, directory, recordPath, outputDir, configFile };
+}
+
+// Wait for the producer's actual progress before interrupting it. Readiness
+// uses the existing test deadline, not the generic five-second matcher limit.
+// Observe either progress or producer/error disposition, then throw after
+// polling stops so diagnostics never become a retried readiness predicate.
+export async function waitForProofState(
+  run: ReturnType<typeof startProofRun>,
+  reached: (record: DashboardProofRecord) => boolean,
+): Promise<void> {
+  let ended: string | undefined;
+  const observation: { failure?: Error } = {};
+  const failed = (error: unknown) => {
+    observation.failure =
+      error instanceof Error
+        ? error
+        : new Error(`Proof readiness failed: ${String(error)}`);
+    return true;
+  };
+  void run.result.then(
+    (result) => {
+      ended = JSON.stringify({
+        ...result,
+        stdout: result.stdout.slice(-4_000),
+        stderr: result.stderr.slice(-4_000),
+      });
+    },
+    (error: unknown) => {
+      ended = String(error);
+    },
+  );
+  await expect
+    .poll(
+      () => {
+        let record: DashboardProofRecord | undefined;
+        try {
+          record = readProof(run.recordPath);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+            return failed(error);
+        }
+        try {
+          if (record !== undefined && reached(record)) return true;
+        } catch (error) {
+          return failed(error);
+        }
+        if (ended !== undefined)
+          return failed(
+            new Error(`Proof runner ended before requested progress: ${ended}`),
+          );
+        return false;
+      },
+      { timeout: 0 },
+    )
+    .toBe(true);
+  if ("failure" in observation) throw observation.failure;
 }

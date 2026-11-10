@@ -60,7 +60,7 @@ export type UnitGroup = {
 };
 
 export type EndpointUnits =
-  | ScopeEndpointGap
+  | (ScopeEndpointGap & { readonly groups?: readonly UnitGroup[] })
   | { readonly kind: "groups"; readonly groups: readonly UnitGroup[] };
 
 // Whether ENDPOINT holds the scope: it shows a group of its results.
@@ -126,7 +126,7 @@ function endpointUnitsOf(
 ): EndpointUnits {
   if (groups.length === 0) return otherwise;
   if (!named && groups.every(({ count }) => count.kind === "no-breakdown"))
-    return noBreakdown;
+    return { ...noBreakdown, groups };
   return { kind: "groups", groups };
 }
 

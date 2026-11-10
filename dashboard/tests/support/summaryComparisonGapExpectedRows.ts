@@ -21,7 +21,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "folder/",
     "",
-    "no file breakdown → 3 test cases → 2 test cases",
+    "no file breakdown of test cases → 3 test cases → 2 test cases",
     "no file breakdown",
     "17.4 s",
     "14.4 s",
@@ -29,7 +29,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "added.spec.ts",
     "added",
-    "no file breakdown → 1 test case",
+    "no file breakdown of test cases → 1 test case",
     "no file breakdown",
     "800 ms",
     "800 ms",
@@ -37,7 +37,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "gone.spec.ts",
     "removed",
-    "no file breakdown → removed",
+    "no file breakdown of test cases → removed",
     "no file breakdown",
     "removed",
     "removed",
@@ -45,7 +45,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "renamed.spec.ts",
     "renamed",
-    "no file breakdown → 1 test case",
+    "no file breakdown of test files → 1 test case",
     "no file breakdown",
     "2.1 s",
     "2.1 s",
@@ -53,7 +53,7 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
   [
     "root.spec.ts",
     "",
-    "no file breakdown → 1 test case",
+    "no file breakdown of test cases → 1 test case",
     "no file breakdown",
     "1.2 s",
     "1.2 s",
@@ -89,7 +89,7 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
   [
     "gone.spec.ts",
     "removed",
-    "1 → removed",
+    "1 test case → removed",
     "500 ms",
     "removed",
     "Build is still running.",
@@ -135,7 +135,14 @@ export const trunkEntryRows: ComparisonScopeRows = [
     trunkBranch,
     "800 ms",
   ],
-  ["gone.spec.ts", "removed", "1 → removed", "500 ms", trunkBranch, "removed"],
+  [
+    "gone.spec.ts",
+    "removed",
+    "1 test case → removed",
+    "500 ms",
+    trunkBranch,
+    "removed",
+  ],
   [
     "renamed.spec.ts",
     "renamed",

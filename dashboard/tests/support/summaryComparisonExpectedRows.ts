@@ -35,7 +35,14 @@ export const entryComparisonRows: ComparisonScopeRows = [
     "800 ms",
     "800 ms",
   ],
-  ["gone.spec.ts", "removed", "1 → removed", "500 ms", "removed", "removed"],
+  [
+    "gone.spec.ts",
+    "removed",
+    "1 test case → removed",
+    "500 ms",
+    "removed",
+    "removed",
+  ],
   // A shell check's own file outcome renamed into a Playwright spec's test
   // case: the units differ, so neither its count nor its time compares; each
   // endpoint keeps its own time, with no signed change.

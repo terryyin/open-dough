@@ -25,6 +25,13 @@ import { selectDoneStoryInIntent } from "../support/selectDoneStoryInIntent.ts";
 import { trunkCommitFromAnotherWriter } from "../support/storyBranchIntegration.ts";
 import { git, lines } from "../support/storyReviewWorktree.ts";
 
+// This installed queued origin is input to the real native journey. Its
+// maintained owner prepares it before the first test's budget starts; every
+// case still performs its own launch, completion, capture and browser reads.
+test.beforeAll(({ queuedCodexOriginReady }) =>
+  Promise.resolve(queuedCodexOriginReady),
+);
+
 const modified = "Modified dashboard/tests/a.spec.ts";
 const unchanged = "dashboard/tests/boundary/kept.spec.ts";
 
@@ -49,6 +56,9 @@ for (const history of ["published", "capture"] as const)
       origin,
       codexProtocol,
       implementation,
+      // The later writer below supplies this reading's conflicting trunk;
+      // an unrelated writer before integration adds no relevant evidence.
+      { trunkAdvanced: false },
     );
     const later = makeMe.aRepository
       .withRevision("later-trunk", {

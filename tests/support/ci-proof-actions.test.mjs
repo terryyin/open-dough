@@ -3,8 +3,8 @@
 // npm test's outcomes, one line per check file it ran as one job, publish
 // test files, the dashboard's Playwright record publishes each test as a
 // test case to its own proof entry, and a part whose runner wrote no report
-// stays missing. One location reporting both units:
-// ./ci-proof-action-units.test.mjs.
+// stays missing. One location reporting both units is covered by
+// ../../src/skills/dough-test-optimization/scripts/ci-proof-units-cli.test.mjs.
 import assert from "node:assert/strict";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";

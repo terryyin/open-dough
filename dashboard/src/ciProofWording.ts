@@ -34,6 +34,7 @@ import {
   namesUnits,
   unitName,
   unitNoun,
+  type CiProofUnit,
 } from "./ciProofUnits.ts";
 import {
   unitResultsAt,
@@ -41,12 +42,15 @@ import {
   type UnitResults,
 } from "./ciScopeProof.ts";
 
-// "nothing counted" for EVIDENCE without a present part, naming the unit its
-// publisher declared: "nothing counted as test files".
-const nothingCountedWords = (evidence: CiProofEvidence): string =>
-  evidence.unit === "legacy"
+// "nothing counted", naming the publisher's declared UNIT when known:
+// "nothing counted as test files".
+export const nothingCountedAs = (unit: CiProofUnit | undefined): string =>
+  unit === undefined
     ? "nothing counted"
-    : `nothing counted as ${unitName(evidence.unit)}`;
+    : `nothing counted as ${unitName(unit)}`;
+
+const nothingCountedWords = (evidence: CiProofEvidence): string =>
+  nothingCountedAs(evidence.unit === "legacy" ? undefined : evidence.unit);
 
 // "19 passed and 1 failed test cases": every nonzero outcome of FIGURES,
 // then EVIDENCE's unit, singular for one result.
@@ -131,12 +135,12 @@ export function ciProofCellsOf(evidence: CiProofEvidence): CiProofCells {
 
 const noCiResult = "no CI result";
 
-// "no file breakdown", naming EVIDENCE's unit when NAMED, as beside another
-// unit's results: "no file breakdown of test files".
-const noFileBreakdownWords = (evidence: CiProofEvidence, named: boolean) =>
-  named
-    ? `no file breakdown of ${unitName(evidence.unit)}`
-    : "no file breakdown";
+// "no file breakdown", naming UNIT when given, as beside another unit's
+// results: "no file breakdown of test files".
+export const noFileBreakdownOf = (unit: CiProofUnit | undefined): string =>
+  unit === undefined
+    ? "no file breakdown"
+    : `no file breakdown of ${unitName(unit)}`;
 
 // The cells of a scope inside an entry with FIGURES (`CiScopeFigures`) of one
 // unit's EVIDENCE: no CI result when no breakdown path matched, and no file
@@ -155,7 +159,7 @@ export function ciScopeCellsOf(
     gaps,
   };
   if (!hasFileBreakdown(evidence)) {
-    const words = noFileBreakdownWords(evidence, named);
+    const words = noFileBreakdownOf(named ? evidence.unit : undefined);
     return {
       counts: words,
       countedResults: undefined,

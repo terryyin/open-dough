@@ -75,7 +75,7 @@ test("a scope absent from present shards beneath an incomplete unit establishes 
   );
   assert.equal(
     rows("t/f/a.ts", known, completeOther)[0].counts,
-    "1,000 → removed",
+    "1,000 test cases → removed",
   );
   assert.equal(
     rows("t/f/a.ts", completeOther, known)[0].counts,

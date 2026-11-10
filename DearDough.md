@@ -355,6 +355,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: `/tmp/count-gaps-consumers-adopted-disposition.md` derives `PLAN.md` and `source-review.md` and exceeds 1,900 lines; `/tmp/count-gaps-board-consumer-trace.md` lists 481 matches with 381 excluded, including basename collisions with `dashboardPage.ts`. Execution proof and trace locators are retained at `6217de68c:.planning/slice-plans/566-no-count-difference-across-gaps/verification.md`.
   - Observed effect: implementation, refactor and coordinator passes repeatedly classified unrelated planning/history/text matches alongside actual rendered, indirect and test consumers. Required observations were retained and all current dispositions settled; no missed consumer was established by this noise.
   - Inference: automatic planning-basename and substring noise recurred. Disposition volume is observed; isolated time/token cost is unmeasured. Later repair traces using explicit changed paths and narrow effect terms stayed bounded.
+- Execution: SEED-281#keep-unit-gaps-and-names-visible (plan 557; first implementation `b7e35aa83838aa1eeefdafac8ad726b5c4dbecd7`)
+  - Timestamp: unknown (2026-11-10 UTC, slice-2 implementation and independent refactor)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance)
+  - Evidence: slice-2 agent returns and coordinator conversation; /tmp/seed281-slice2-final-consumer-trace.md enumerated 590 consumers, and /tmp/seed281-slice2-refactor-consumer-trace.md enumerated 627 across four disposition parts. The latter explicitly derives PLAN.md, execution-history.md and source-review.md basenames; its PLAN term matched 2,257 files. Published implementation 3c3c1da7 retains the shared mapper and affected proof locations.
+  - Observed effect: implementation and refactor owners dispositioned unrelated planning, guidance and historical matches alongside the actual four comparison and four adapter caller files; all 17 affected cases passed, and no missed consumer was established.
+  - Inference: the existing planning-basename noise recurred. Refactoring reported about 15 minutes total, including edits, workload sequencing and proof; isolated trace cost was not measured.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).

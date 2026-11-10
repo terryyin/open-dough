@@ -62,6 +62,7 @@ export function comparedRowsOf(
 export type RowEndpoint = {
   readonly count: ScopeEndpointCount;
   readonly timing: ScopeEndpointTiming;
+  readonly groups?: readonly UnitGroup[];
 };
 
 const unreported = { kind: "unreported" } as const;
@@ -94,13 +95,20 @@ export function rowEndpointOf(
   endpoint: EndpointUnits,
   row: ComparedRow,
 ): RowEndpoint {
-  if (endpoint.kind !== "groups") return { count: endpoint, timing: endpoint };
+  if (endpoint.kind !== "groups")
+    return {
+      count: endpoint,
+      timing: endpoint,
+      ...(endpoint.groups === undefined ? {} : { groups: endpoint.groups }),
+    };
   const groups = endpoint.groups.filter(({ unit }) =>
     inRowUnits(row.units, unit),
   );
   const [first, ...rest] = groups;
   if (first === undefined) return { count: unreported, timing: unreported };
-  return rest.length === 0
-    ? { count: first.count, timing: first.timing }
-    : severalOf([first, ...rest]);
+  const figures =
+    rest.length === 0
+      ? { count: first.count, timing: first.timing }
+      : severalOf([first, ...rest]);
+  return { ...figures, groups };
 }

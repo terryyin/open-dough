@@ -95,3 +95,23 @@ test("entirely missing or ambiguous declared units remain unobserved and legacy 
     assert.deepEqual(summary.entries[0], entry);
   }
 });
+
+test("legacy units with no present part keep their null provenance at every compared build", () => {
+  for (const status of ["missing", "ambiguous"]) {
+    const evidence = makeMe.aCiProofEvidence
+      .legacy(null)
+      .inParts(2, { [status]: [1, 2] })
+      .please();
+    const entry = makeMe.aCiProofEntry.at("t").holding(evidence).please();
+    const served = entryProofs(revisions, {
+      baseline: [entry],
+      branch: [entry],
+      landed: [entry],
+    });
+    for (const run of [101, 102, 103]) {
+      const { summary } = served[run];
+      assert.deepEqual(summaryProblems(summary), []);
+      assert.deepEqual(summary.entries[0], entry);
+    }
+  }
+});

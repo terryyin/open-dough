@@ -41,10 +41,28 @@ endDescendantsAtExit();
 
 // Playwright's worker-only extension takes an empty test-fixture type.
 export const test = base.extend<
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  {},
-  { launchJourney: LaunchJourney; comparisonRenderer: ComparisonRenderer }
+  object,
+  {
+    launchJourney: LaunchJourney;
+    comparisonRenderer: ComparisonRenderer;
+    queuedCodexOriginReady: undefined;
+  }
 >({
+  // Requested only by native readers that need this installed queued input.
+  // Its setup has the worker's default budget, before a reading test starts.
+  queuedCodexOriginReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const [{ requestRunArtifact }, { startOriginArtifactKey }] =
+        await Promise.all([
+          import("./runArtifacts.ts"),
+          import("./startOriginPreparation.ts"),
+        ]);
+      await requestRunArtifact(startOriginArtifactKey("codex", "queued"));
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
   comparisonRenderer: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {

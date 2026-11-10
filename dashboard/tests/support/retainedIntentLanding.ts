@@ -19,29 +19,35 @@ export async function retainedIntentLanding(
   origin: StartOrigin,
   native: FakeCodex,
   implementation: RevisionFacts,
+  { trunkAdvanced = true }: { readonly trunkAdvanced?: boolean } = {},
 ) {
   publishIntentTrunk(origin.project);
   Object.assign(native, { threadId: "story-branch-execution" });
-  const story = await claimedLaunchWithStoryCommit(origin, dashboard, true, {
-    host: "codex",
-    storyWork(workspace) {
-      writeRevisionFiles(workspace, implementation);
-      execFileSync(
-        process.execPath,
-        [
-          path.join(
-            scripts(workspace, "dough-product-backlog"),
-            "product-backlog.mjs",
-          ),
-          "complete",
-          "--identity",
-          queuedIdentity,
-        ],
-        { cwd: workspace, stdio: "pipe" },
-      );
-      commitAll(workspace, "complete the captured test execution");
+  const story = await claimedLaunchWithStoryCommit(
+    origin,
+    dashboard,
+    trunkAdvanced,
+    {
+      host: "codex",
+      storyWork(workspace) {
+        writeRevisionFiles(workspace, implementation);
+        execFileSync(
+          process.execPath,
+          [
+            path.join(
+              scripts(workspace, "dough-product-backlog"),
+              "product-backlog.mjs",
+            ),
+            "complete",
+            "--identity",
+            queuedIdentity,
+          ],
+          { cwd: workspace, stdio: "pipe" },
+        );
+        commitAll(workspace, "complete the captured test execution");
+      },
     },
-  });
+  );
   const captured = capturedPublicationSchema.parse(await story.integrated())
     .landing.receipt;
   expect(captured.base).toBe(story.trunkTip);

@@ -86,7 +86,7 @@ test("a unit an endpoint does not report shows as unreported, never as a measure
   );
   assert.deepEqual(filesRow, [
     "test files",
-    "1 → — → 1 test file (0)",
+    "1 test file → — → 1 test file (0)",
     { text: "300 ms", ms: 300 },
     { text: "—" },
     { text: "0 ms", ms: 300, changeMs: 0, relative: 0 },

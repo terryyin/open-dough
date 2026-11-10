@@ -35,7 +35,7 @@ export async function retainedIntentCompletion(
       writeRevisionFiles(workspace, facts.implementation);
     },
     undefined,
-    { retainWorkspace: true },
+    { retainWorkspace: true, interleaved: false },
   );
   keepLaunchRecord(dashboard, story.workspace);
   advanceCompletedTrunk(origin);

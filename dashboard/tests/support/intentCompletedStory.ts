@@ -52,12 +52,14 @@ export async function selectCompletedStoryInIntent(
     beforeIntent,
     later,
     implementation,
+    interleaved,
   }: {
     readonly history?: "complete" | "shallow";
     readonly intentCoverage?: IntentCoverage;
     readonly beforeIntent?: () => Promise<void>;
     readonly later?: RevisionFacts;
     readonly implementation?: RevisionFacts;
+    readonly interleaved?: boolean;
   } = {},
 ) {
   publishIntentTrunk(origin.project);
@@ -71,7 +73,7 @@ export async function selectCompletedStoryInIntent(
         writeRevisionFiles(workspace, implementation);
     },
     undefined,
-    { intentCoverage },
+    { intentCoverage, interleaved },
   );
   if (history === "complete") advanceCompletedTrunk(origin);
   else git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");

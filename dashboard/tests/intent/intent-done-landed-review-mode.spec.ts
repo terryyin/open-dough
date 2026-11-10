@@ -23,6 +23,10 @@ import { commitAll, git, lines } from "../support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
+test.beforeAll(({ queuedCodexOriginReady }) =>
+  Promise.resolve(queuedCodexOriginReady),
+);
+
 test("ordinary Done Review resets Intent's captured run while the same panel stays open and waits for its live workspace", async ({
   page,
   dashboard,
@@ -43,6 +47,8 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     origin,
     codexProtocol,
     implementation,
+    // The later trunk publication below supplies this reading's newer head.
+    { trunkAdvanced: false },
   );
   // The configured checkout cannot recover its published claims, while the
   // saved completed M and its parents remain readable from their own start.
