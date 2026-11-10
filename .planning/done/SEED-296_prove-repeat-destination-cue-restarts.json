@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-296#prove-repeat-destination-cue-restarts",
+  "title": "Prove the destination cue restarts on repeated activation",
+  "completedAt": "2026-11-10T15:31:40.437Z",
+  "developer": "Terry Yin",
+  "agent": "ebacky-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol",
+  "intentCoverage": {
+    "unavailable": "The requested isolated Intent Coverage check was still running when backlog completion was ready; its report was not yet available."
+  }
+}
