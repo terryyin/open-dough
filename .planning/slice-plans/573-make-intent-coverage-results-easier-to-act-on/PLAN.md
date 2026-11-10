@@ -2,6 +2,7 @@
 
 **Identity:** SEED-258#make-intent-coverage-results-easier-to-act-on
 **Source:** [Refined story](../../seeds/SEED-258-dough-intent-coverage.md#make-intent-coverage-results-easier-to-act-on)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -115,9 +116,14 @@ Observed on 2026-11-10 in this owned preparation at
 ### 1. Return the proof action supported by the observed path
 
 Type: Behavior
-Status: planned
-Proof: Slice-1 rows above and representative behavior review, including historical
-Recently done and Side panel counterexamples plus assertion-gap/helper-catch cases.
+Status: done
+Proof: Accepted guidance in `src/skills/dough-intent-coverage/SKILL.md` (selection,
+run/reach, four verdicts, next proof action, prior disposition). Behavior review
+of Recently done → Confirmed missing test path; assertion gap; helper Caught;
+Side panel Insufficient evidence. Consumer-trace dispositions: manual invocation
+and Wrap Up request reused; free-string completion and whole-report render
+excluded as unchanged. Source-review ids 1–12, 30–31, 37–40, 43, 50/50.1/50.3/50.4,
+54 observed. Refactor: intro naming aligned to next proof action.
 
 Behavior: Given evidence for one selected promise and fault, when the checker
 returns its result, the reviewer distinguishes an omitted journey, a weak
@@ -197,12 +203,14 @@ benchmark matrix is committed. Reconsider only on new diagnostic evidence.
 
 ## Gates and current decisions
 
-- Preparation only: no Take, implementation or native trial has started.
-- Expected source edits are checker 89 lines and Wrap Up 250 lines. Replace the
-  existing request prose cohesively and keep it within the 250-line check; detailed
+- Slice 1 implemented in the execution checkout; Slice 2 native trial not started.
+- Checker skill is 119 lines after slice 1. Wrap Up remains 250 lines; replace its
+  request prose cohesively in slice 2 and keep it within the 250-line check; detailed
   probe rules remain with the checker. Inspect concurrent changes before editing.
   No already-oversized source file or installer edit is expected. If scope reaches
   one, settle its cohesive reorganization before implementation.
+- Learning: historical Done reports keep prior wording; only new runs follow
+  Confirmed missing test path. Verdict clarity can ship before the handoff trial.
 - Local gates: mapped behavior review, affected consumer proof, conditional
   commands above and ordinary commit hooks; no mandatory full-suite run for this
   guidance change. For long runs start fully awake: on AC use `caffeinate -s -i`;
@@ -227,3 +235,19 @@ review found no remaining slice-specific concern outside the permitted slice-2
 early paid probe. Native feasibility and benefit are not claimed as observed;
 the probe can stop sampling, and a negative/inconclusive comparison is an expressly
 supported trial result. No human-owned scope or ADR decision is pending.
+
+
+## Story obligations
+
+### X1. Deferred promises remain out of scope
+Reported: slice 1 — "source review — deferred promises listed as not in this story"
+Story clause: "Deferred promises: changing opt-in, wrap-up's join/disposition lifecycle, Done storage or dashboard presentation, repairing sampled product tests, historical report backfill, automatic token collection, general benchmarking, release and rollout."
+Disposition: excluded "Deferred promises: changing opt-in, wrap-up's join/disposition lifecycle, Done storage or dashboard presentation, repairing sampled product tests, historical report backfill, automatic token collection, general benchmarking, release and rollout."
+Commitment: 34, 34.1, 34.2, 34.3, 34.4, 34.5, 34.6, 34.7, 34.8
+
+
+### X2. Closure story keeps persistence and follow-up routing
+Reported: slice 1 — "source review — closure story ownership of persistence and follow-up routing"
+Story clause: "The [closure story](#finish-opted-in-stories-with-intent-coverage) keeps ownership of persistence and follow-up routing."
+Disposition: excluded "The [closure story](#finish-opted-in-stories-with-intent-coverage) keeps ownership of persistence and follow-up routing."
+Commitment: 35
