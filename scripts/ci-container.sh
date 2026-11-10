@@ -91,6 +91,8 @@ playwright_version=$(awk '
 
 # Git from the git-core PPA and Node from nodejs.org, as GitHub's runner image
 # and actions/setup-node install them; the host's native architecture.
+# Hosted Ubuntu font inventory: ubuntu24/20261101.360 (tests/ci-container.md).
+# Playwright's dependency fonts alone do not reproduce its system-ui fallback.
 dockerfile=$(
   cat << DOCKERFILE
 FROM ubuntu:${ubuntu_version}
@@ -98,6 +100,8 @@ ENV DEBIAN_FRONTEND=noninteractive PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN apt-get update \\
  && apt-get install -y --no-install-recommends ca-certificates curl gnupg jq \\
       procps software-properties-common xz-utils \\
+      fonts-dejavu fonts-dejavu-core fonts-dejavu-extra fonts-dejavu-mono \\
+      fonts-lato fonts-liberation fonts-noto-color-emoji fonts-ubuntu-console \\
  && add-apt-repository -y ppa:git-core/ppa \\
  && apt-get install -y --no-install-recommends git \\
  && rm -rf /var/lib/apt/lists/*
