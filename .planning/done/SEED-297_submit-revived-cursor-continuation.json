@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-297#submit-revived-cursor-continuation",
+  "title": "Submit a revived Cursor continuation",
+  "completedAt": "2026-11-10T09:53:00.072Z",
+  "developer": "Terry Yin",
+  "agent": "bas-chan",
+  "host": "cursor",
+  "model": "Grok 4.7",
+  "intentCoverage": {
+    "report": "# Intent coverage\n\n**Outcome:** Caught.\n\n**Story:** SEED-297#submit-revived-cursor-continuation\n**Revision:** 137b21a90328851c14c3e447be1a14a60264c7fe\n\n**Promise.** When revival or Recover leaves a multiline continuation as text in the composer, Enter is sent once and the continuation is not typed again.\n\n**Fault.** In `dashboard/server/launchInstruction.ts`, submit only when the screen shows a paste chip: `if (pastedChip || draft)` became `if (pastedChip)`. The fixture and the assertion were left unchanged.\n\n**Assertion.** `dashboard/backend-tests/sessions/cursor-recovery-frame.spec.ts`, \"a multiline continuation left in the composer is submitted once\", expects the typed input to be the continuation followed by a return and `confirmed` 1. After the draft paint it received the continuation alone and `confirmed` 0. The unframed draft test failed the same way. The command was `npm run test:dashboard -- backend-tests/sessions/cursor-recovery-frame.spec.ts`.\n\n**Baseline.** That command passed on the scratch checkout before the fault.\n**Restoration.** `git checkout -- dashboard/server/launchInstruction.ts` left no diff, and the same command passed again.\n\n## Cost\n\n- **Test runtime.** Fault run 1475 ms and restored run 2130 ms, both measured as the shell elapsed time of the dashboard command. The quiet reporter prints no runner duration. The baseline run was inside the same shell command as `npm ci` (6213 ms total), so its test runtime is not separately measured.\n- **Human effort.** Unavailable. No separate human-effort measure was taken.\n- **Agent effort.** Unavailable. No separate agent-effort measure was taken.\n\n\n- **Invocation-to-report elapsed.** 67333 ms (measured), from 1794304265622 to 1794304332955 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n"
+  }
+}
