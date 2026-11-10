@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "YeongSheng-chan",
+  "email": "yeongsheng-chan@example.org",
+  "identity": "SEED-298#insert-common-prompts-in-the-dashboard-terminal",
+  "mode": "story-branch",
+  "branch": "codex/insert-common-prompts-in-the-dashboard-terminal",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
