@@ -27,13 +27,18 @@ export type RawRequestOptions = {
 // is closed by the server once idle, and a test that blocked its own loop
 // meanwhile (a synchronous child, say) would send its next request on that
 // closed socket and fail with "socket hang up".
-export function rawRequest(options: RawRequestOptions): Promise<RawResponse> {
+// A known listener can select its bound address family. Node's default
+// ADDRCONFIG lookup may omit usable IPv6 loopback inside a container.
+export function rawRequest(
+  options: RawRequestOptions & { readonly family?: 4 | 6 },
+): Promise<RawResponse> {
   const url = new URL(options.url);
   return new Promise((resolve, reject) => {
     const req = http.request(
       {
         agent: false,
         hostname: url.hostname,
+        family: options.family,
         port: url.port,
         path: `${url.pathname}${url.search}`,
         method: options.method ?? "GET",
