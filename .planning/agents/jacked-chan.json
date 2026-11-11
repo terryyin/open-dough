@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jacked-chan",
+  "email": "jacked-chan@example.org",
+  "identity": "SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates",
+  "mode": "story-branch",
+  "branch": "codex/keep-ci-wall-time-history-readable-across-dashbo",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
