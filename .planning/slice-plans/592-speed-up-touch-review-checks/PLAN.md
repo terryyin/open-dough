@@ -2,6 +2,7 @@
 
 **Identity:** SEED-312#speed-up-touch-review-checks
 **Source:** [Story](../../seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -127,7 +128,7 @@ one-minute load before and after each timed run.
 
 ### 1. The execution base and its controls are on record
 Type: Behavior
-Status: planned
+Status: done
 Proof: The plan records the base revision and whether it holds SEED-287's
 touch reading changes: the spec's `queuedClaudePreviewTest`, no
 `test.setTimeout`, and `largeReviewFiles.ts`. A detached worktree of that
@@ -141,6 +142,10 @@ Behavior: Main as it is at Take → the probe runs → the base revision, its
 SEED-287 state, four case identities, strokes and fault owners are recorded.
 This is an authorized early probe: a base whose strokes or fault owners differ
 from the premise rows revises slices 2–4 before they start.
+
+Accepted 2026-11-11: the [execution base record](#execution-base-record) holds
+the proof; the coordinator read `base-proof-1.json` and recounted the traces.
+Refactor disposition: records-only.
 
 ### 2. Touch reading covers only the distance its assertions need
 Type: Behavior
@@ -232,6 +237,58 @@ observed with every preparation and teardown paid.
 
 A miss is not rounded up. Record the observations and stop for the
 coordinator's decision on keeping the smaller gain or continuing.
+
+## Execution base record
+
+Observed by slice 1 on 2026-11-11.
+
+- Base revision: `58442ace806e4d1110d9b47e2d2fd6644ce7a1b2`, main as it was at
+  Take; `origin/main` still names it. Story Branch Mode. The retained
+  published revision is `58442ace8`, accepted on `main` as the Take claim.
+- SEED-287 state: base without SEED-287. At the base,
+  `story-review-touch.spec.ts` imports `test` from
+  `../support/preparationPage.ts` and names no `queuedClaudePreviewTest`; it
+  carries `test.setTimeout(60_000)` at line 18; and
+  `dashboard/tests/support/largeReviewFiles.ts` does not exist. SEED-287's
+  shorter line, worker inputs and removal of the 60 s allowance are therefore
+  not on the base, and neither story waited for the other.
+- Consequence: slice 2 takes its "Base without SEED-287" bullet. It creates
+  `dashboard/tests/support/largeReviewFiles.ts` and leaves the 60 s allowance,
+  its comment and the worker inputs untouched. The "Base with SEED-287" bullet
+  is not triggered.
+- Base worktree: detached at
+  `/Users/terryyin/.claude/jobs/cb428881/tmp/base-58442ace8`, set up with
+  `node scripts/setup-native.mjs npm`, `browser` and `check`, each exit 0. It
+  is never edited. Slice 5 measures against it and then removes it.
+- Carried from the premise rows, not rerun: F1–F4 and the burner observation.
+  `git diff --stat 77716145b 58442ace8 -- dashboard/tests dashboard/src/client`
+  is empty, so the base's touch paths are those the premises observed.
+
+Commands, from the base worktree root, each after
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i`:
+
+- Record: `npm run --silent test:dashboard -- tests/review/story-review-touch.spec.ts --workers=1`
+  with `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/Users/terryyin/.claude/jobs/cb428881/tmp/base-proof-1.json`.
+  4 passed; whole command 113 s; one-minute load 37.1 before, 19.2 after.
+- Traced: the same command with `--trace=on --reporter=list`. 4 passed; whole
+  command 90 s; load 17.9 before, 15.4 after. Sends are `Send CDP command`
+  steps issued from `scrollByTouch` in each case's `test.trace`, six per
+  stroke. Range reads are `/__agent-launch/review/range` requests in the
+  case's `*.network` files.
+
+| Case | Record `durationMs` | Traced run | Sends | Strokes | Range reads |
+| --- | --- | --- | --- | --- | --- |
+| phone review by touch › chooses a comparison and file and reads within each pane | 45,917 | 34.5 s | 186 | 31 | 2 |
+| phone review by touch › keeps the chosen file and reading places through rotation and panel controls | 13,812 | 13.5 s | 18 | 3 | 3 |
+| tablet review by touch › chooses a comparison and file and reads within each pane | 26,560 | 24.2 s | 132 | 22 | 2 |
+| tablet review by touch › keeps the chosen file and reading places through rotation and panel controls | 10,897 | 12.9 s | 18 | 3 | 3 |
+| All four | 97,186 | 85.1 s | 354 | 59 | 10 |
+
+Sends, strokes and each context case's three range reads equal the premise
+rows, so slices 2–4 stand as planned. Wall times are relative to load: the
+premise's 35.2 and 37.2 s were at load 4–9. At load 37 the phone reading case
+took 45.9 s, past the default 30 s and inside the 60 s allowance SEED-287
+owns.
 
 ## Current decisions
 
