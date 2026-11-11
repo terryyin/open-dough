@@ -6,7 +6,7 @@ import { commonGitDir } from "./launchLanding.ts";
 import { git } from "./storyReviewWorktree.ts";
 import { keepLandedCiHistory } from "./landedCiHistory.ts";
 
-export function keepDoneWallProvenanceHistory(
+export async function keepDoneWallProvenanceHistory(
   home: string,
   origin: StartOrigin,
   setup: StoryCiComparisonSetup,
@@ -107,5 +107,5 @@ export function keepDoneWallProvenanceHistory(
     selected.selection,
     8,
   );
-  keepLandedCiHistory(home, builder.please());
+  await keepLandedCiHistory(home, builder.please());
 }

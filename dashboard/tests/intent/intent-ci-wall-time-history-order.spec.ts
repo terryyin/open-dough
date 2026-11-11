@@ -19,7 +19,7 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
   const aStart = "2026-11-09T10:00:00Z";
   const cStart = "2026-11-05T10:00:00Z";
   const gapAt = "2026-11-30T10:00:00Z";
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     makeMe.aLandedCiHistory
       .inTrunkOrder([a, b, c])

@@ -99,7 +99,7 @@ test("once a pass holds 20 measured builds, the history keeps only that window's
     first.revision,
     second.revision,
   ]);
-  keepLandedCiHistory(home, kept.please());
+  await keepLandedCiHistory(home, kept.please());
   serveTrunkRuns(github, origin, () => [
     trunkRun(
       first.revision,

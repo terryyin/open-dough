@@ -140,7 +140,7 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
       ...(day === 34 ? ["e3".repeat(20)] : []),
     ]),
   );
-  keepLandedCiHistory(dashboard.home, history.please());
+  await keepLandedCiHistory(dashboard.home, history.please());
   const shown = historyOf(await openJudgedCiStatus(page));
 
   const newest = [...wallSeconds.keys()].slice(15);

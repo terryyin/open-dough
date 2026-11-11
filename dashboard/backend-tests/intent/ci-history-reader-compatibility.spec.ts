@@ -69,7 +69,7 @@ test("the previous reader keeps measured builds and understandable gaps by defau
         (i) => facts(i + 1).revision,
       ),
     );
-  keepLandedCiHistory(dashboard.home, history.please());
+  await keepLandedCiHistory(dashboard.home, history.please());
   const source = makeMe.aPublishedSource
     .with({
       id: "open-dough",

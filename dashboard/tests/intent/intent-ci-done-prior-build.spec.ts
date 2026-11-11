@@ -37,7 +37,10 @@ test("Done wall time keeps the execution publication reference through restart, 
   github,
 }) => {
   const setup = await publishComparedStoryBranch(page, origin);
-  keepLandedCiHistory(dashboard.home, doneWallReferenceHistory(origin, setup));
+  await keepLandedCiHistory(
+    dashboard.home,
+    doneWallReferenceHistory(origin, setup),
+  );
   setup.serveRuns({
     [setup.baseline]: [
       wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
@@ -121,7 +124,7 @@ test("Done wall time keeps the execution publication reference through restart, 
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { selected, later: true }),
   );
@@ -134,7 +137,7 @@ test("Done wall time keeps the execution publication reference through restart, 
   ]);
   await expect(history).toContainText("Prior-build average · 1 min 43 s");
   await expect(history).toContainText("+17 s (+17%)");
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { selected, later: true, drop: 1 }),
   );

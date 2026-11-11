@@ -83,7 +83,7 @@ for (const bounds of ["available", "unavailable"] as const) {
       .deliveredAs({ delivery: "legacy", receipt: originalLanding.receipt })
       .receivedAt(originalLanding.at)
       .please();
-    keepLandedCiHistory(
+    await keepLandedCiHistory(
       home,
       makeMe.aLandedCiHistory
         .inTrunkOrder([trunk.revision("ci"), originalLanding.revision])
