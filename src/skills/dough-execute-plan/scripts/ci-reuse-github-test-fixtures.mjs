@@ -5,17 +5,19 @@ import { readGitHubReuseFacts } from "./ci-reuse-github.mjs";
 import { reusableValidation } from "./ci-reuse-policy.mjs";
 
 export const sha = "a".repeat(40);
-export const policy = {
-  repo: "owner/project",
-  workflow: "ci.yml",
-  unit: "covered",
-  configuration: "checks-v1",
-  context: "inputs-v1",
-  targetRef: "main",
-  refs: ["exec/story"],
-  events: ["push"],
-  maxAgeMs: 60000,
-};
+export const policy = makeMe.aCiReusePolicy
+  .with({
+    repo: "owner/project",
+    workflow: "ci.yml",
+    unit: "covered",
+    configuration: "checks-v1",
+    context: "inputs-v1",
+    targetRef: "main",
+    refs: ["exec/story"],
+    events: ["push"],
+    maxAgeMs: 60000,
+  })
+  .please();
 export const time = (seconds) =>
   `2026-10-14T01:00:${String(seconds).padStart(2, "0")}.000Z`;
 

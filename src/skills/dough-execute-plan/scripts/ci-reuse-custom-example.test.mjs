@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   customAdapterResponse,
   scheduleCustomAttempt,
@@ -16,14 +17,22 @@ test("provider publishes pending current facts before execution and direct proof
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const state = join(root, "journal.json");
   const observed = join(root, "observed");
+  // Domain attempt identity through MakeMe; covered command stays harness-owned.
   const job = {
-    repo: "owner/project",
-    workflow: "checks",
-    ref: "trusted",
-    event: "push",
-    sha: "a".repeat(40),
-    runId: "opaque:z",
-    attemptId: "try:not-a-number",
+    ...makeMe.aCiReuseAttempt
+      .with({
+        repo: "owner/project",
+        workflow: "checks",
+        unit: "covered",
+        configuration: "checks-v1",
+        context: "inputs-v1",
+        ref: "trusted",
+        event: "push",
+        sha: "a".repeat(40),
+        runId: "opaque:z",
+        attemptId: "try:not-a-number",
+      })
+      .please(),
     covered: [
       process.execPath,
       "-e",

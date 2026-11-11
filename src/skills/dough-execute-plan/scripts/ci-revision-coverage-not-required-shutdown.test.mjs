@@ -64,11 +64,13 @@ function fourAncestorsGithub({ branch, ancestors }) {
       const ancestor = ancestors.find((a) => a.databaseId === runId);
       return {
         jobs: [
-          {
-            databaseId: runId * 10,
-            name: "build",
-            conclusion: ancestor?.conclusion === "failure" ? "failure" : null,
-          },
+          makeMe.aGitHubJob
+            .withFacts({
+              databaseId: runId * 10,
+              name: "build",
+              conclusion: ancestor?.conclusion === "failure" ? "failure" : null,
+            })
+            .please(),
         ],
       };
     }

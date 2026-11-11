@@ -17,6 +17,7 @@ import {
   claudeHookInput,
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   customPolicy,
   customProvider,
@@ -181,12 +182,14 @@ export async function backgroundFixture(
       join(fixture.fixture, "release.json"),
       JSON.stringify({
         attempts: [
-          {
-            runId: "pending-provider",
-            attemptId: "first",
-            sha,
-            outcome: "pending",
-          },
+          makeMe.aCiAdapterAttempt
+            .with({
+              runId: "pending-provider",
+              attemptId: "first",
+              sha,
+              outcome: "pending",
+            })
+            .please(),
         ],
       }),
     );

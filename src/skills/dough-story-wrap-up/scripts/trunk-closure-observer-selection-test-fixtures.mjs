@@ -4,6 +4,7 @@
 // the final closure, and the records those wrote through the observer's own
 // writer, `observeRevisionCoverage`.
 import assert from "node:assert/strict";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { observeRevisionCoverage } from "../../dough-execute-plan/scripts/ci-mailbox-revision-coverage.mjs";
 import {
   readRevisionCoverage,
@@ -53,13 +54,16 @@ export async function endedCovering(checkouts, sha, count) {
 // The ended observer at `directory` records the CI attempts `runs`, as its
 // worker did on each poll while it ran. An attempt's `conclusion` gives the
 // record's state: `success`, `failure`, or `cancelled` for `incomplete`.
-export const attempt = (headSha, conclusion) => ({
-  headSha,
-  status: "completed",
-  conclusion,
-  databaseId: 1,
-  attempt: 1,
-});
+export const attempt = (headSha, conclusion) =>
+  makeMe.aCiRun
+    .with({
+      headSha,
+      status: "completed",
+      conclusion,
+      databaseId: 1,
+      attempt: 1,
+    })
+    .please();
 export const observe = (directory, ...runs) =>
   observeRevisionCoverage(directory, runs, {
     repo: "owner/project",

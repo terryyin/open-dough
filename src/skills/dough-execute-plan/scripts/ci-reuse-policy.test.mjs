@@ -1,35 +1,40 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { reusableValidation } from "./ci-reuse-policy.mjs";
 
-const policy = {
-  repo: "owner/project",
-  workflow: "ci.yml",
-  unit: "covered",
-  configuration: "checks-v1",
-  context: "pinned-inputs-v1",
-  targetRef: "main",
-  refs: ["exec/story", "main"],
-  events: ["push"],
-  maxAgeMs: 10000,
-};
+const policy = makeMe.aCiReusePolicy
+  .with({
+    repo: "owner/project",
+    workflow: "ci.yml",
+    unit: "covered",
+    configuration: "checks-v1",
+    context: "pinned-inputs-v1",
+    targetRef: "main",
+    refs: ["exec/story", "main"],
+    events: ["push"],
+    maxAgeMs: 10000,
+  })
+  .please();
 const now = 20000;
 const sha = "a".repeat(40);
-const source = {
-  ...policy,
-  sha,
-  ref: "exec/story",
-  event: "push",
-  runId: "run:opaque/z",
-  attemptId: "attempt:opaque/z",
-  url: "https://ci.example/source",
-  current: true,
-  order: 10000,
-  outcome: "success",
-  direct: true,
-  validatedAt: 15000,
-  validUntil: 25000,
-};
+const source = makeMe.aCiReuseAttempt
+  .with({
+    ...policy,
+    sha,
+    ref: "exec/story",
+    event: "push",
+    runId: "run:opaque/z",
+    attemptId: "attempt:opaque/z",
+    url: "https://ci.example/source",
+    current: true,
+    order: 10000,
+    outcome: "success",
+    direct: true,
+    validatedAt: 15000,
+    validUntil: 25000,
+  })
+  .please();
 const input = (attempts = [source], query = {}) => ({
   sha,
   targetRef: "main",

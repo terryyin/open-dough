@@ -72,14 +72,17 @@ async function history(t) {
   };
 }
 
-const attempt = (sha, outcome) => ({
-  sha,
-  outcome,
-  branch: "main",
-  runId: `provider/${sha}`,
-  attemptId: "opaque/2",
-  time: "2026-10-20T00:00:00Z",
-});
+const attempt = (sha, outcome) =>
+  makeMe.aCiAdapterAttempt
+    .with({
+      sha,
+      outcome,
+      branch: "main",
+      runId: `provider/${sha}`,
+      attemptId: "opaque/2",
+      time: "2026-10-20T00:00:00Z",
+    })
+    .please();
 
 test("a nearer retained failure replaces inherited success in the existing mailbox", async (t) => {
   const h = await history(t);

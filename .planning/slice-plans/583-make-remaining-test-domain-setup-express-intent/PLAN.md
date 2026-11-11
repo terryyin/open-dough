@@ -252,7 +252,7 @@ shell seed renderer.
 
 ### 7. CI provider runs, jobs, policy, and adapter attempts express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Audit section for CI provider runs, jobs, policy, and adapter evidence.
 Convert inline runs, jobs, reuse policy, current-attempt, and adapter-attempt
 setup through existing CI builders. Run affected skill and dashboard CI
@@ -262,6 +262,12 @@ under proof in the harness or at the call site.
 Behavior: Provider and policy fixtures assemble valid CI facts inline → convert
 through MakeMe → call sites name run, job, attempt, and policy facts; harness
 owns encoding and registration.
+
+Accepted evidence (pre-done): reuse/policy builders plus existing CI MakeMe;
+encoding and malformed fields stay harness/call-site. Commitment 5.5 observed.
+Typecheck, native-evidence identity, and focused skill/dashboard CI selections
+passed. Refactor moved reuse-policy MakeMe properties into
+`ciReusePolicyTestData` and shortened oversized converted tests.
 
 ### 8. CI comparison, retained builds, and proof answers express intent through MakeMe
 Type: Behavior

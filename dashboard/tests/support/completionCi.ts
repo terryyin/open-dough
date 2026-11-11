@@ -1,23 +1,33 @@
 // Synthetic remote CI answers; mailbox observation and terminal receipts stay real.
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { apiRun } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
 import { privateRequestOwner } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 export function completionCi(machine: string, revisions: readonly string[]) {
   const release = path.join(machine, "release-ci");
   const bin = path.join(machine, "ci-provider-bin");
   mkdirSync(bin);
-  const runs = revisions.map((head_sha, index) => ({
-    id: index + 1,
-    run_attempt: 1,
-    head_sha,
-    head_branch: "main",
-    event: "push",
-    status: "completed",
-    conclusion: "success",
-    html_url: `https://ci.invalid/${index}`,
-    created_at: `2026-10-02T00:0${index}:00Z`,
-  }));
+  // Observed run facts through MakeMe; `apiRun` owns transport field names
+  // embedded in the provider script.
+  const runs = revisions.map((headSha, index) =>
+    apiRun(
+      makeMe.aCiRun
+        .with({
+          headSha,
+          id: index + 1,
+          attempt: 1,
+          headBranch: "main",
+          event: "push",
+          status: "completed",
+          conclusion: "success",
+          url: `https://ci.invalid/${index}`,
+          createdAt: `2026-10-02T00:0${index}:00Z`,
+        })
+        .please(),
+    ),
+  );
   const provider = path.join(bin, "gh");
   const requests = privateRequestOwner();
   // Answers `gh api --include` as GitHub's Actions API does: the workflow,

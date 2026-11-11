@@ -41,13 +41,22 @@ timestamp alone. Build an adapter queue entry with
 alone is not a check result. Build a stored revision-coverage record with
 `makeMe.aRevisionCoverage.with({ sha, state, ...facts }).please()` and
 publish arranged starting facts through the real JSON publication seam when
-the consumer reads stored records. Keep discovery input, normalized
-attempts, observed coverage and completion receipts distinct. Keep actual
-Git, adapter programs and response encoding, workers, wake-ups, controlled
-clocks, process lifetime and teardown in the harness. Keep malformed queue
-counterexamples, captured evidence and independently written
-`validated` / `unresolved` expectations outside builders. CI proof
-fragments and summaries use their own builders.
+the consumer reads stored records. Build reuse policy with
+`makeMe.aCiReusePolicy.with({ repo, workflow, unit, configuration, context,
+targetRef, refs, events, maxAgeMs }).please()` and a reuse query attempt with
+`makeMe.aCiReuseAttempt.with({ ...facts }).please()`. Build a project's
+integrated-state completion policy with
+`makeMe.anIntegratedStatePolicy.with({ check, context, jobs }).please()`.
+Build a history-read answered run with
+`makeMe.anAnsweredCiRun.with({ runUrl, runId, runAttempt }).please()`. Keep
+discovery input, normalized attempts, observed coverage and completion
+receipts distinct. Keep actual Git, adapter programs and response encoding,
+mailbox registration, workers, wake-ups, controlled clocks, process lifetime
+and teardown in the harness. Keep malformed queue or reuse counterexamples,
+captured evidence and independently written `validated` / `unresolved`
+expectations outside builders. CI proof fragments and summaries use their
+own builders.
 [Attempt builder](support/ciTimingTestData.mjs) ·
 [Queue builder](support/ciQueueTestData.mjs) ·
-[Coverage builder](support/ciRevisionCoverageTestData.mjs)
+[Coverage builder](support/ciRevisionCoverageTestData.mjs) ·
+[Reuse and policy builders](support/ciReusePolicyTestData.mjs)

@@ -60,12 +60,14 @@ const job = apiJob(
     .please(),
 );
 // The listed run as the observer's candidate lookup reports it.
-const listed = {
-  databaseId: 9001,
-  attempt: 1,
-  headSha: sha,
-  headBranch: "main",
-};
+const listed = makeMe.aCiRun
+  .with({
+    databaseId: 9001,
+    attempt: 1,
+    headSha: sha,
+    headBranch: "main",
+  })
+  .please();
 
 function readerOver(t, run, answers = {}) {
   const github = instrumentedGithubFixture(t, {

@@ -132,15 +132,18 @@ test("without a declared policy, docs-only B on a replaced ancestor stays incomp
       .withRevision("c", { files: { "app.js": "c\n" } })
       .please(),
   );
-  const run = (headSha, databaseId, conclusion) => ({
-    headSha,
-    headBranch: "main",
-    databaseId,
-    attempt: 1,
-    status: "completed",
-    conclusion,
-    event: "push",
-  });
+  const run = (headSha, databaseId, conclusion) =>
+    makeMe.aCiRun
+      .with({
+        headSha,
+        headBranch: "main",
+        databaseId,
+        attempt: 1,
+        status: "completed",
+        conclusion,
+        event: "push",
+      })
+      .please();
   const request = {
     mode: "execution",
     repo: "owner/repo",
@@ -150,8 +153,9 @@ test("without a declared policy, docs-only B on a replaced ancestor stays incomp
   };
   const readCurrentAttempt = async (listed) => ({
     ...listed,
-    check: "ci.yml",
-    context: "push",
+    ...makeMe.anIntegratedStatePolicy
+      .with({ check: "ci.yml", context: "push" })
+      .please(),
   });
 
   async function complete(integratedPolicy) {

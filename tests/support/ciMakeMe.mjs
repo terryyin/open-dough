@@ -26,6 +26,7 @@ import { GitHubJobBuilder } from "./ciJobTestData.mjs";
 import { CiRunBuilder, RevisionCiRunBuilder } from "./ciRunTestData.mjs";
 import { aCiQueueEntry } from "./ciQueueTestData.mjs";
 import { aRevisionCoverage } from "./ciRevisionCoverageTestData.mjs";
+import { ciReusePolicyMakeMeProperties } from "./ciReusePolicyTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../dashboard/src/ciScopeHistory.ts").CiScopeHistory} CiScopeHistory */
@@ -63,6 +64,10 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
  * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReusePolicy"]} aCiReusePolicy
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["aCiReuseAttempt"]} aCiReuseAttempt
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["anIntegratedStatePolicy"]} anIntegratedStatePolicy
+ * @property {import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe["anAnsweredCiRun"]} anAnsweredCiRun
  * @property {FactBuilder<import("../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} anIntentCiStatus
  */
 
@@ -215,6 +220,7 @@ export function ciMakeMeProperties() {
         return new GitHubJobBuilder();
       },
     },
+    ...ciReusePolicyMakeMeProperties(),
     anIntentCiStatus: {
       enumerable: true,
       /** @returns {FactBuilder<import("../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */
