@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-313#speed-up-cursor-session-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/592-speed-up-cursor-session-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"88837eadce1c005a1ec279c7dea2985c9e3acc0601736ee9364fefec3a391441","plan":"a02f95b29ce6ba749485806839efa67040b6c18f0d2489e677e9c9edac309394"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/593-speed-up-cursor-session-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"88837eadce1c005a1ec279c7dea2985c9e3acc0601736ee9364fefec3a391441","plan":"a02f95b29ce6ba749485806839efa67040b6c18f0d2489e677e9c9edac309394"}}
 ```
 
 #### Goal
