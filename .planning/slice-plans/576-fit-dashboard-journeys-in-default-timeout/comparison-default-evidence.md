@@ -155,3 +155,36 @@ Three fresh complete comparisons must establish headroom/no-growth; touch and
 shared consumers need no unchanged rerun. Reobserve actual Git semantics,
 minimal trees and private isolation. Thirteen slices; no source amendment,
 new numeric requirement, deadline exception or failure waiver.
+
+## Payload cut rejected; covered planning padding is the next bounded probe
+
+The payload-free Git probe passed1/1, but first loaded family failed sort30.265 s
+before final return to A; sources25.025/12.181 s passed. Whole shell48.468 s /
+runner46.837 s at valid22.461–24.631. Precondition6.266 s did not improve;
+CI6.782 s overlaps review4.265 s, and first loop7.467 s grew. No saving, no-growth
+or useful-margin claim. Raw complete stop/cleanup:
+`/tmp/seed287-slice12-sort-minimal-tree-20261111/return.md`. All20workers and
+commands/resources retired. Root parked all nine exact paths and patch with
+7c8c4a0 base at `/tmp/seed287-slice12-payload-failed-park-20261111`, restored
+seven owned HEAD files and removed only two owned new files before refinement.
+
+Revert the unproved payload removal. The preserved canonical nine-path variant
+remains the stronger before state. Its four `.planning/notes-*` commits are
+setup padding for a several-step baseline walk. That deeper protection remains
+in `intent-story-ci-cues.spec.ts`: the unchanged full-CLI publisher uses all
+four, then the real initial comparison and exact independent accessible figures
+`4 → 6 test cases (+2) → 5 test cases (+1), +6.5 s` catch a missing/wrong Baseline.
+That whole file passed within current17files23/23 before this proposed removal.
+Source publishers remain unchanged. A helper's old four-note input check was
+setup validation, not an extra sort promise; adjust only that disposable probe
+expectation while retaining all semantic parent/author/profile/Done/file checks.
+
+One remaining12 probe omits only four padding revisions from sort, preserving
+its unbuilt shared ancestor before claim and older built baseline, all other
+story/merge/file facts, and ALL UI assertions/two loops. Shared APIs and full
+installed payload stay unchanged. This reduces sequential Git work and empty
+baseline candidates without a second encoding/cache/lifetime. Existing MakeMe
+remains the single domain shape; no core-writer optimization is selected.
+Gain is unverified. Require three fresh complete comparisons, useful headroom
+and qualified family no-growth; reuse compatible touch/shared proof. Retain
+1–11/13 and thirteen slices, same Goal/Scope, no numeric exception or waiver.

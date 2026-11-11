@@ -40,3 +40,12 @@ The only incoming product repair since the earlier timing display fix is
 `beb28c58a`, Cursor launchInstruction's paste-chip/footer match and its recovery
 frame proof. It does not affect slice 12. Reconcile incoming product effects
 and applicable proof at actual landing; keep branch/trunk observations separate.
+
+At pinned `49201bc5b659d625ee23fcfbf48d7e31254e42e3`, SEED-305 history
+compatibility and SEED-304 grouped homepage Proof landed, plus matrix timing
+matching. Inspecting attributable `a6efa3d48` shared CiProofTable/ciProofSort
+shows table runtime unchanged and single-unit/comparison sorting preserved;
+new unitLines sorting serves homepage entries. Slice12 still uses the preserved
+single-figure/comparison path. No selected-slice hold; recheck actual incoming
+product effects when reconciling the landing. SEED-303 has no attributed landed
+product change at this pin and remains an active ownership boundary for13.

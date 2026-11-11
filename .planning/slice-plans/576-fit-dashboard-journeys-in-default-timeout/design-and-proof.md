@@ -45,28 +45,30 @@ clock; measure family and suite elapsed separately from summed case time.
 ## Reuse choices for execution-owned repairs
 
 PFE searched the dashboard, shared builders and comparison/runtime boundaries.
-Original CLI sort plus accepted cheaper gh/readiness still missed its second
-return to A. Terry's already approved MakeMe-described actual Git precondition
-then preserved all observations: three whole comparison passes, touch4/4,
-shared consumers23/23 and independent actual Git1/1. Full CLI stays in source.
-The worst sort still consumes about 29.020 s of its charged body budget.
+The canonical/current-client setup preserved every observation in three whole
+comparisons, touch4/4, consumers23/23 and independent Git1/1. Full CLI remains
+in source. Worst sort still consumes about29.020 s. Removing704 `.claude`
+files then failed at30.265 s and increased precondition cost to6.266 s; park
+and discard that unproved input cut, retaining the full installed payload.
 
-The independent Git probe found 732 published paths, including 704 `.claude`
-files unused by sort. `commitDeclaredRevision` calls `writeRevisionFiles`,
-which reads the full checkout for every declared revision. Current
-sort precondition varies1.803–5.689s. This supports ONE narrower input probe,
-not a claim that all initial CI cost comes from tree size. Reuse MakeMe's
-existing revision `remove` facts before baseline to omit only that payload in
-sort, retaining private HOME/Git and every revision/parent/author/profile/Done/
-backlog/file fact and all actions/assertions. Source CLI cases keep installed
-payload. No builder, artifact owner, cache, graph engine or product change.
+The existing `planningBeforeClaim` array contributes four planning-only notes
+so a built baseline is several ancestors back. Sort needs the same Baseline/
+Branch/Landed figures and cross-story preferences, not that exact depth. Its
+unchanged full-CLI CI-cue consumer already exercises the four-note history and
+asserts independent `4 → 6 → 5` CI figures; current whole-consumer23/23 passed
+before removing any padding. Source publishers keep it. This preserves the
+deeper-walk protection at an observed boundary rather than assuming setup is
+proof. Sort keeps its unbuilt shared ancestor and older measured baseline.
 
-Actual gain and remaining headroom are unverified; slice 12 is a bounded early
-probe and returns on failure. Preserve and reuse unchanged touch/shared-owner
-proof; obtain three new complete comparison commands and current actual-Git
-facts. Compare with the qualified current three-pass before family, paying all
-cold work. Final 13 retains broad/full/hosted/trunk gates. See
-[comparison proof](comparison-default-evidence.md) and transport-evidence.md.
+Reuse the same MakeMe graph but omit only those four padding revisions there;
+keep every remaining story/merge/author/profile/Done/backlog/file fact and every
+UI action/assertion. This lowers both setup Git work and baseline-candidate
+search without changing a shared API, owner, cache, artifact or lifetime.
+Actual gain remains unverified; slice12 is one bounded early probe and returns
+on failure. Current touch/shared proof stays reusable while unchanged. Verify
+new actual Git and three whole comparisons with all cold work paid against the
+qualified prior three-pass baseline. Final13 retains broad/full/hosted gates.
+See [comparison proof](comparison-default-evidence.md).
 
 Launch orchestration reuses `agentLaunchBoundary.ts`, existing acceptance and
 settlement observations, and `startDashboardServer`; native/publication behavior

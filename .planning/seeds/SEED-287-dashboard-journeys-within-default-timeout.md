@@ -50,7 +50,7 @@ belongs to SEED-286#fast-intent-ci-comparison-tests.
 
 **Identity:** SEED-287#fit-dashboard-journeys-in-default-timeout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a37f4d7d837cf16bc0361c68e89de2da0cb63c038abbdd5ea1b57cbb9805dd4","plan":"dde7c72aba1abe57e5c9128c853b8a61168978d061f5aca6ea4c2f6864df73ce"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a37f4d7d837cf16bc0361c68e89de2da0cb63c038abbdd5ea1b57cbb9805dd4","plan":"70798fdc81e674838a77221bcf07776ce43a0099323bc6a4d34c9e9851130a55"}}
 ```
 
 #### Goal

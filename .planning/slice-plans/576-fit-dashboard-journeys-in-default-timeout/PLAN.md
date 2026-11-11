@@ -113,28 +113,27 @@ Proof: Installed-client exact argv/binary stdout/stderr/status, local/held auth,
 
 Behavior: Every synthetic gh starts Node and the valid-pressure prototype costs118.344ms versus54.509ms → change the existing client/fakeGitHub wire once to shell/curl while reusing answer conversion and private request ownership → the same complete CLI behavior costs less. No compiler, product/cache/lifetime or answer-model change. One supported variant, return if proof/cost misses. [Decisive profile and selected owners](transport-evidence.md).
 
-### 12. Sort's Git precondition omits unused installed payload
+### 12. Sort's Git precondition keeps only the history it needs
 Type: Behavior
 Status: planned
-Proof: One bounded early probe keeps the approved actual Git sort precondition,
-cheaper client and readiness, but removes unused `.claude` payload only from
-sort's published history before baseline. Keep every revision, parent, author,
-profile, Done/backlog fact and all sort actions/assertions/two loops. Both source
-variants retain full installed CLI completion. Verify actual Git semantics and
-three fresh whole-family worker-two/default-30 passes at load 20–30, with useful
-headroom and all cold costs paid. Compare complete elapsed with the retained
-three-pass current-client baseline (37.290/41.069/57.110 s), honestly qualified.
-Reuse compatible touch4/4 and shared-consumer23/23 proof only while unchanged;
-recheck private isolation and the affected sort/actual-Git boundary. No family
-growth, private-HOME loss, cache, new lifetime or timeout change.
+Proof: One bounded early probe removes only four planning-padding revisions
+from sort's approved actual Git setup. Keep the built baseline older than the
+claim, an unbuilt shared ancestor, all branch/integration/completion and file
+facts, and every sort action/assertion/two loops. Full CLI source publishers
+retain all four planning revisions. Their deeper walk remains protected by the
+already-passing complete CI-cue owner and its independent Baseline figures.
+Verify actual Git semantics and three fresh whole-family worker-two/default-30
+passes at load 20–30, useful headroom and all cold costs paid. Compare with the
+qualified 37.290/41.069/57.110 s three-pass before. Reuse unchanged touch4/4 and
+shared consumers23/23 only while compatible. No family growth, private-HOME
+loss, payload removal, new cache/lifetime, graph engine or timeout change.
 
-Behavior: The approved graph preserves every observation, but worst charged
-sort reaches about 29.020 s; its writer rereads 704 unused installed skill files
-for every revision → express their removal through existing MakeMe revision
-facts before baseline, retaining private Git and all story facts → measure
-useful default margin or return this single supported cut. Saving remains
-unverified; this is test data, not a new graph engine or native-owner shortcut.
-[Preservation and measured premise](comparison-default-evidence.md).
+Behavior: Canonical setup preserves every observation but worst body reaches
+about29.020 s; four padding commits duplicate deeper-walk coverage outside sort
+→ keep the same actual Git story and unbuilt-baseline distinction with less
+incidental history → measure useful default margin or return this one cut.
+The failed payload-removal experiment is parked and reverted. Saving remains
+unverified; [coverage and measured basis](comparison-default-evidence.md).
 
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -207,14 +206,14 @@ Disposition: receiving slice 13
 Commitment: Q09
 ## Plan concern assessment
 
-Slices 1–11 retain accepted proof. The canonical/current-client variant passed
-all preservation checks, but worst sort body has under one second headroom.
-Its nine paths are parked. Slice 12 now probes removal of unused skill payload
-from only sort's Git trees, using the existing MakeMe API; all Git semantics,
-source CLI flows and observations remain. Thirteen slices, no Goal/Scope change,
-numeric exception or waiver. Slice 13 still owns broad/full/hosted gates and
-G11's current thirteen-part input at the existing human checkpoint. Branch
-validation uses twelve shards; every current trunk artifact remains required.
+Slices 1–11 retain accepted proof. Canonical/current-client preservation passed,
+but worst sort has under one second headroom. Payload removal failed and is
+parked. Slice 12 now removes only sort's four padding commits; deeper baseline
+coverage remains in the unchanged full-CLI CI-cue journey, already23/23 green
+with its shared consumers. No sort assertion or meaningful story fact is lost.
+Thirteen slices, no Goal/Scope change, numeric exception or waiver. Slice 13
+owns broad/full/hosted gates and G11's thirteen-part trunk input at the existing
+human checkpoint. Branch validation still uses twelve shards.
 
 ## Trunk measurement checkpoint
 

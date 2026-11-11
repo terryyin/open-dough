@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `8f52f39fbed2cd842ac6a7e55ab909938f5b5643`
-  (remaining-sort refinement; slice 11 client remains accepted); completed slice 2
+- Last accepted revision on entry to this increment: `7c8c4a029cb0d07a1bb4d88aab15dd4fbd4a3516`
+  (bounded sort-input probe; slice 11 client remains accepted); completed slice 2
   was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
