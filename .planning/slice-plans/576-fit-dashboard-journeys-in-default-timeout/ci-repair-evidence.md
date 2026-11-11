@@ -127,3 +127,48 @@ Root replaced only the two equivalent index generators with literal job IDs
 1–8, within the accepted refactor's path/trace, with no helper or behavior
 change. The focused new test file passes the maintained wrapper at terminal0;
 `/tmp/seed287-shutdown-format-repair-test-20261111.log` retains the command.
+
+## All dashboard shards pass; interruption-fixture CI repair is owned
+
+Published `edba4cd924f7d968da6961257f46611a89b0867a`, exact observer
+[run42957320139/attempt1](https://github.com/terryyin/open-dough/actions/runs/42957320139),
+is failure only in repository share1/3: tests/test-runner-interrupt.sh timed
+out after30s waiting for never-ending.sh to start, at line83. Complete
+diagnostic `/tmp/seed287-ci-failure-42957320139-1.json` has one failed job/test;
+full log `/tmp/seed287-ci-failure-42957320139-1-job1.json`.
+All twelve dashboard jobs, lint, repository shares2/3 and proof job passed.
+The original turns spec passes4/4 and new disconnect source file passes1/1;
+all325 source files pass. Full overall CI remains open under G14.
+
+Fresh owner `ci_interrupt_runner_repair` reports a controlled pre-edit failure:
+hold external touch after it creates readiness, send INT only to check Bash,
+then let touch finish normally; Bash survives instead of exiting. Builtin
+`: > marker` removes that foreground-marker-child race. Runner scheduling,
+INT/TERM/process-group assertions and deadlines stay unchanged. Complete
+normal and CI=true focused wrapper proof passes; final return/refactor remain.
+
+New clean/no-OID repair record:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-Vi5lPN/record.json`.
+No CI rerun is used as a fix. Dashboard-specific current proof and limitations
+are in comparison-hosted-evidence.md; remaining pressure/full/trunk gates stay13.
+
+G14 local return: `/tmp/seed287-ci-interrupt-runner-20261111/return.md`.
+Only tests/test-runner-interrupt.sh changes,151 lines. The controlled before
+probe observes Bash survive INT; builtin after exits-2 and both owned PIDs
+retire. The CI log did not identify which await_ready invocation timed out:
+this is a demonstrated reachable INT race consistent with the symptom, not
+an asserted absent CI phase trace. TERM/INT now label readiness failure
+messages, so any remaining exact-CI failure is attributable.
+
+Proper standalone whole-file normal and CI=true wrapper commands pass. The
+whole check passes again after phase-label diagnostics; signals, waits,
+marker paths and every retirement/status/output assertion remain unchanged.
+An earlier CI-environment log with lost individual exit is retained but is
+not counted as passing proof. Four metadata/documentation consumer rows have
+complete dispositions and original fields; both direct blocking-check
+callers are covered by the whole file. All commands retired, cleanup checked.
+No runtime runner, budget, allocation, package or domain data change. Root
+owns independent refactor, ordinary hooks, publication and exact complete CI.
+Independent `interrupt_readiness_refactor` returned `REFACTOR COMPLETE`, none,
+with all four consumer dispositions and actual proof compatible; no edits or
+extra tests. The original CI phase remains unattributed until fresh CI.

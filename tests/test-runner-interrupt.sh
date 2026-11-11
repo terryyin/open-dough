@@ -29,11 +29,13 @@ write_check() {
   printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$2" > "${checks}/$1"
 }
 
-# Each blocking check prints a line, announces that it is running, then opens a
-# FIFO no one writes. Its command line carries the check's unique path.
+# Announce from Bash itself: an external marker command could create the file
+# before it exits, leaving Bash waiting on a child when the test sends INT.
+# Bash can disregard that INT if the child then exits normally. A builtin
+# announcement leaves only the check's own FIFO read after readiness.
 write_blocking_check() {
   write_check "$1" "echo $1-printed
-touch -- '${temporary_dir}/$1.ready'
+: > '${temporary_dir}/$1.ready'
 read -r _ < '${blocked}'"
 }
 write_check pass-a.sh 'true'
@@ -80,15 +82,15 @@ expect_quiet_launch() {
 }
 
 await_ready() {
-  wait_for "$1 to start in the runner" 30 \
+  wait_for "$1 to start in the $2 runner" 30 \
     "[[ -e ${temporary_dir}/$1.ready ]] || ! kill -0 ${runner} 2> /dev/null"
   if [[ ! -e ${temporary_dir}/$1.ready ]]; then
-    printf 'FAIL: the runner ended before %s started.\n' "$1" >&2
+    printf 'FAIL: the %s runner ended before %s started.\n' "$2" "$1" >&2
     cat -- "${temporary_dir}"/*.log >&2
     exit 1
   fi
   if ! pgrep -f -- "${checks}/$1" > /dev/null; then
-    printf 'FAIL: %s announced it was running, but no process runs it.\n' "$1" >&2
+    printf 'FAIL: %s announced it was running in the %s runner, but no process runs it.\n' "$1" "$2" >&2
     exit 1
   fi
   # A running check means the runner started, so its launch output is complete.
@@ -123,7 +125,7 @@ assert_interrupted() {
 # TERM: only the never-ending check is listed; the run exits 143.
 order pass-a.sh pass-b.sh
 start_runner term
-await_ready never-ending.sh
+await_ready never-ending.sh TERM
 interrupt_runner TERM 143 term
 assert_interrupted term never-ending.sh
 if grep -E -- 'pass-(a|b)|FAIL' "${temporary_dir}/term.log"; then
@@ -137,9 +139,9 @@ fi
 write_blocking_check ended-by-int.sh
 order pass-a.sh ended-by-int.sh pass-b.sh
 start_runner int
-await_ready ended-by-int.sh
+await_ready ended-by-int.sh INT
 pkill -INT -f -- "${checks}/ended-by-int.sh"
-await_ready never-ending.sh
+await_ready never-ending.sh INT
 interrupt_runner INT 130 int
 assert_interrupted int ended-by-int.sh
 assert_interrupted int never-ending.sh

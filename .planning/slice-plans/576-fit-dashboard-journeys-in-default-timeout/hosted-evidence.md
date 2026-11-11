@@ -58,3 +58,10 @@ shutdown cancellation, so it does not duplicate G13's queued-read repair.
 Reconcile that source overlap at retained landing, preserving the accepted
 action contract through any required link-module extraction. Current repair
 uses this branch's read behavior and does not introduce unrelated actions.
+
+## Historical baseline
+
+Retained hosted baseline for suite comparison: passing `main` run42795867875
+at `31a826c77` (story CI evidence). Keep wall time and summed case time separate.
+Historical slowest dashboard job11/12 wall321s; reporter295.014s. The required
+current-trunk thirteen-part collection and redistribution remain separate.

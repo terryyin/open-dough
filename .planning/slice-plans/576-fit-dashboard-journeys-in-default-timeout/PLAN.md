@@ -214,10 +214,15 @@ Reported: slice 12 — "Run 42952620767/1 exposed one shutdown failure: a waitin
 Story clause: "Keep exact counts where avoiding duplicate work is the promise."
 Disposition: return
 
+### G14. Runner interruption fixture never reaches its next child
+Reported: slice 12 — "Run 42957320139/1 passed all twelve dashboard shards but test-runner-interrupt.sh timed out waiting for its never-ending child."
+Story clause: "A flaky or environment-dependent timeout remains a defect"
+Disposition: return
+
 ## Plan concern assessment
 
 [Current assessment](design-and-proof.md#current-plan-assessment) and
-[owned CI repair](ci-repair-evidence.md); G4/G7/G12/G13 stay open.
+[owned CI repair](ci-repair-evidence.md); G4/G7/G12/G13/G14 stay open.
 
 ## Trunk measurement checkpoint
 
@@ -241,6 +246,4 @@ The required retained-landing and trunk-only timing checkpoint is in
   timeout overrides. Case-local timeout overrides stay forbidden except as the
   temporary allowances this story removes. Execution owns applicable local and
   published CI repairs.
-- Retained hosted baseline for suite comparison: passing `main` run
-  42795867875 at `31a826c77` (story CI evidence). Keep wall time and summed
-  case time separate.
+- [Retained hosted baseline](hosted-evidence.md#historical-baseline); keep wall and summed case time separate.

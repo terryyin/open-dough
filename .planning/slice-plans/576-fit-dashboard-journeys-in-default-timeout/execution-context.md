@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `fb94704947c341ff0944e43fec83e820c558a981`
-  (portable streams; one hosted shutdown defect remains open); completed slice 2
+- Last accepted revision on entry to this increment: `edba4cd924f7d968da6961257f46611a89b0867a`
+  (all dashboard shards pass; runner fixture CI defect remains); completed slice 2
   was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
