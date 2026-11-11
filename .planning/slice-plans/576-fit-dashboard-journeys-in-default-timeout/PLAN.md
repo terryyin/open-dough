@@ -108,7 +108,7 @@ Behavior: Two expensive execution starts prevent the runner test reaching its su
 
 ### 11. Synthetic gh keeps its CLI contract at lower startup cost
 Type: Behavior
-Status: planned
+Status: done
 Proof: Installed-client exact argv/binary stdout/stderr/status, local/held auth, recorded/held request, PID, both signals, gone-fake and child/file cleanup survive. Measure actual client lower cost at load20–30 and matching complete source/sort family no-growth; all moved work included. Establish surviving contract proof before replacing the Node transport; three focused passes for changed synchronization and sufficient current direct/transitive consumers. No prototype-only acceptance.
 
 Behavior: Every synthetic gh starts Node and the valid-pressure prototype costs118.344ms versus54.509ms → change the existing client/fakeGitHub wire once to shell/curl while reusing answer conversion and private request ownership → the same complete CLI behavior costs less. No compiler, product/cache/lifetime or answer-model change. One supported variant, return if proof/cost misses. [Decisive profile and selected owners](transport-evidence.md).
@@ -197,19 +197,21 @@ Reported: slice 6 — "At measured load21.042–26.039, phone reading took37.715
 Story clause: "A flaky or environment-dependent timeout remains a defect"
 Disposition: proved by slice 6: touch-evidence.md accepted worker-input implementation; three actual default30s four-case passes at load20.629–25.571 and desktop5/5, all moved setup included; hosted/full-suite proof remains in13
 
+
+### G11. Current trunk has thirteen complete timing parts
+Reported: slice 11 — "Incoming c73b4d00d applies Terry-approved thirteen dashboard shards while this source still names twelve timing artifacts."
+Story clause: "Refresh existing shard weights from all 12 artifacts"
+Disposition: receiving slice 13
+Commitment: Q09
 ## Plan concern assessment
 
-Completed1–10 remain accepted. Canonical sort setup still timed out30.980s
-at valid predeadline load; exact9paths parked before refinement. Compatible
-proof and Terry's scoped approval remain, not implementation acceptance.
-The critical8.071s backend interval contains gh outside its timing counter;
-24 alternating ordinary-client pairs under valid pressure measured118.344→
-54.509ms, but full contract/journey gain remain unproved. Reuse current CLI/
-fakeGitHub ownership in one bounded11, then simplest original comparison
-owner plus readiness in12; keep canonical history parked unless needed.
-Thirteen slices, one coherent gate per remaining slice; no numeric exception,
-scope change or waiver. G4/G7 receive12; G1/G2/G3/G8 receive13. Final trunk
-measurement keeps its human checkpoint. Goal/Scope/source review unchanged.
+Local proof for slices 1–11 is accepted; slice 11 refactor is none. Canonical
+setup still failed at 30.980 s; its nine paths and compatible proof are parked.
+Slice 11 owns CLI preservation and lower actual ordinary cost; slice 12 owns
+comparison budgets with readiness; slice 13 owns broad/full/hosted gates.
+Thirteen slices introduce no numeric exception, Goal/Scope change or waiver.
+G11 owns the separately approved thirteen-shard trunk input at the existing
+checkpoint; this branch’s twelve-shard proof stays separate. [Measured basis](transport-evidence.md) retains all attempt limits.
 
 ## Trunk measurement checkpoint
 

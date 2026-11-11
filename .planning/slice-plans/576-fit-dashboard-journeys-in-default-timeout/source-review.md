@@ -101,7 +101,7 @@ verbatim per numbered item; allocation is the coordinator’s subsequent mapping
 | Q06 | Story Branch Wrap Up reuse is conditional on its ability to carry the required closure proof. | slice 5 | observed: StoryBranch reuse proved able to carry the entire actual retirement+installedretry+no repeatedGit/native+Done example under default30; separate Land/Trunk variants remain. |
 | Q07 | Recovery variants belong at the existing real CLI, HTTP, and store boundary; the source does not require every variant independently at all three boundaries. | slice 5 | observed: Detailed variants run at existing actual CLI/HTTP/store boundary appropriate to each promise; no demand or parallel suite repeats every variant at all3. |
 | Q08 | Exact-count preservation applies where avoiding duplicate work is the behavioral promise. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts duplicate-avoidance exact counts unchanged and passed three times; execution-evidence.md |
-| Q09 | Weight refresh uses all 12 artifacts from a complete passing trunk run. | slice 13 |  |
+| Q09 | Weight refresh uses all 12 artifacts from a complete passing trunk run. | slice 13 | G11 |
 | Q10 | The restrictions protect trustworthy gate meaning; omitted examples do not become rejection rules. | slice 13 |  |
 | Q11 | Other allowances remain outside unless a harness change made by this story must keep those cases green. | slice 13 |  |
 | Q12 | The remaining-flake exclusion applies once the named journeys fit. | slice 13 |  |

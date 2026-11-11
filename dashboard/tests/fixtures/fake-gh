@@ -1,79 +1,112 @@
-#!/usr/bin/env node
-"use strict";
+#!/bin/sh
+# One isolated synthetic gh: exact argv goes only to its own fake GitHub.
+# That fake's asGhReply owns GitHub semantics; this client only transports
+# argv and prints its framed stdout/stderr bytes and status.
 
-// A synthetic `gh` this suite puts first on PATH for one isolated dashboard
-// server (see ../support/dashboardServer). It never touches the network or
-// real credentials: it hands its argv to the test's own fake GitHub
-// (../support/fakeGitHub, at FAKE_GH_ORIGIN) and prints exactly the stdout,
-// stderr, and exit code that fake answers with -- the way the real `gh`
-// would print GitHub's answer. That fake records every invocation, argv and
-// all, as it arrives -- including invocations that it then holds or fails --
-// so refusal-before-launch and pinned-argument assertions have something to
-// inspect, and a held answer keeps this process alive to prove cancellation.
-
-const fs = require("fs");
-const http = require("http");
-
-const args = process.argv.slice(2);
-const origin = process.env.FAKE_GH_ORIGIN;
-const pidPath = process.env.FAKE_GH_PIDFILE;
-
-// Asked which login it holds (`gh auth token`), it prints the token its
-// environment names and asks the fake GitHub nothing. When FAKE_GH_AUTH_HOLD
-// names a file, this branch records that it was reached (`${hold}.reached`)
-// and waits while that file still exists, so a test can hold request-owner
-// scope resolution; absent the variable, behavior is unchanged.
-if (args[0] === "auth") {
-  const hold = process.env.FAKE_GH_AUTH_HOLD;
-  if (hold) {
-    fs.writeFileSync(`${hold}.reached`, "");
-    const pause = new Int32Array(new SharedArrayBuffer(4));
-    while (fs.existsSync(hold)) {
-      Atomics.wait(pause, 0, 0, 50);
-    }
-  }
+# Auth is local and precedes ordinary PID/signal setup. Only the optional
+# held-auth observer needs Node; watch before marking arrival to avoid a
+# release between observing the file and installing the watcher.
+if [ "${1-}" = auth ]; then
+  if [ -n "${FAKE_GH_AUTH_HOLD-}" ]; then
+    exec node - "${FAKE_GH_AUTH_HOLD}" << 'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+const hold = process.argv[2];
+let finished = false;
+const finish = () => {
+  if (finished || fs.existsSync(hold)) return;
+  finished = true;
+  watcher.close();
   process.stdout.write(process.env.GH_TOKEN || "");
-  process.exit(process.env.GH_TOKEN ? 0 : 1);
-}
+  process.exitCode = process.env.GH_TOKEN ? 0 : 1;
+};
+const watcher = fs.watch(path.dirname(hold), finish);
+fs.writeFileSync(`${hold}.reached`, "");
+finish();
+NODE
+  fi
+  printf '%s' "${GH_TOKEN-}"
+  [ -n "${GH_TOKEN-}" ]
+  exit $?
+fi
 
-if (pidPath) {
-  fs.writeFileSync(pidPath, String(process.pid));
+child=
+reply=
+launching=no
+interrupted=
+# shellcheck disable=SC2329 # Invoked by the EXIT trap below.
+cleanup() {
+  if [ -n "${child}" ]; then
+    kill -TERM "${child}" 2> /dev/null || :
+    wait "${child}" 2> /dev/null || :
+  fi
+  if [ -n "${reply}" ]; then rm -rf "${reply}"; fi
 }
-for (const signal of ["SIGTERM", "SIGINT"]) {
-  process.on(signal, () => {
-    if (pidPath) {
-      fs.writeFileSync(`${pidPath}.exited`, signal);
-    }
-    process.exit(143);
-  });
+exit_signal() {
+  trap '' INT TERM
+  if [ -n "${FAKE_GH_PIDFILE-}" ]; then
+    printf '%s' "${interrupted}" > "${FAKE_GH_PIDFILE}.exited"
+  fi
+  exit 143
 }
+# shellcheck disable=SC2329 # Invoked by the INT and TERM traps below.
+on_signal() {
+  interrupted=$1
+  # Own a new child or temp directory before a signal can clean it up.
+  if [ "${launching}" = no ]; then exit_signal; fi
+}
+trap cleanup EXIT
+trap 'on_signal SIGTERM' TERM
+trap 'on_signal SIGINT' INT
+if [ -n "${FAKE_GH_PIDFILE-}" ]; then
+  printf '%s' "$$" > "${FAKE_GH_PIDFILE}"
+fi
+if [ -z "${FAKE_GH_ORIGIN-}" ]; then
+  printf '%s\n' 'fake gh: FAKE_GH_ORIGIN is not set' >&2
+  exit 1
+fi
+launching=yes
+reply=$(mktemp -d "${TMPDIR:-/tmp}/fake-gh-reply.XXXXXX")
+created=$?
+launching=no
+if [ -n "${interrupted}" ]; then exit_signal; fi
+if [ "${created}" -ne 0 ]; then exit 1; fi
+if [ "$#" -gt 0 ]; then printf '%s\000' "$@"; fi > "${reply}/argv"
 
-if (!origin) {
-  process.stderr.write("fake gh: FAKE_GH_ORIGIN is not set\n");
-  process.exitCode = 1;
-  return;
-}
+# Disable curl configuration and proxies: this local test client must not
+# inherit the user's network settings. Native diagnostics never become gh's.
+launching=yes
+curl --disable --silent --noproxy '*' --proxy '' --proto '=http' \
+  --request POST --header 'content-type: application/octet-stream' \
+  --data-binary "@${reply}/argv" "${FAKE_GH_ORIGIN}" > "${reply}/stdio" 2> /dev/null &
+child=$!
+launching=no
+if [ -n "${interrupted}" ]; then exit_signal; fi
+wait "${child}"
+status=$?
+child=
+if [ "${status}" -ne 0 ]; then
+  printf '%s\n' "fake gh: the test's fake GitHub is gone" >&2
+  exit 1
+fi
 
-const request = http.request(
-  origin,
-  { method: "POST", headers: { "content-type": "application/json" } },
-  (response) => {
-    const chunks = [];
-    response.on("data", (chunk) => chunks.push(chunk));
-    response.on("end", () => {
-      const reply = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-      process.stdout.write(
-        reply.stdoutBase64
-          ? Buffer.from(reply.stdoutBase64, "base64")
-          : reply.stdout || "",
-      );
-      process.stderr.write(reply.stderr || "");
-      process.exitCode = reply.exitCode || 0;
-    });
-  },
-);
-request.on("error", () => {
-  process.stderr.write("fake gh: the test's fake GitHub is gone\n");
-  process.exit(1);
-});
-request.end(JSON.stringify(args));
+# The first two lines frame stderr by bytes; stdout occupies the remainder.
+# macOS head rejects -c 0, so empty stderr needs no head invocation.
+print_bytes() {
+  launching=yes
+  "$@" <&0 &
+  child=$!
+  launching=no
+  if [ -n "${interrupted}" ]; then exit_signal; fi
+  wait "${child}"
+  printed=$?
+  child=
+  return "${printed}"
+}
+{
+  IFS= read -r status
+  IFS= read -r stderr_bytes
+  if [ "${stderr_bytes}" -gt 0 ]; then print_bytes head -c "${stderr_bytes}" >&2; fi
+  print_bytes cat
+  exit "${status}"
+} < "${reply}/stdio"

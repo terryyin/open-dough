@@ -59,6 +59,8 @@ export type FakeGitHub = {
   readonly calls: readonly GhCall[];
   // Every avatar image read's path and query, in arrival order.
   readonly avatarReads: readonly string[];
+  // Calls whose HTTP response is still open, including held answers.
+  readonly unansweredCalls: number;
   // Starts observing how many `gh` calls are unanswered at once: arrived
   // here and neither answered nor given up by their `gh`. The function it
   // returns reports the most there have been since.
@@ -131,9 +133,10 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
     const chunks: Buffer[] = [];
     req.on("data", (chunk: Buffer) => chunks.push(chunk));
     req.on("end", () => {
-      const argv = JSON.parse(
-        Buffer.concat(chunks).toString("utf8"),
-      ) as string[];
+      // One trailing NUL per argv element preserves empty arguments and all
+      // bytes an OS argument can carry. No arguments means an empty body.
+      const body = Buffer.concat(chunks).toString("utf8");
+      const argv = body === "" ? [] : body.split("\0").slice(0, -1);
       const call: GhCall = { argv, request: parseRequest(argv) };
       calls.push(call);
       unanswered += 1;
@@ -147,15 +150,26 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
         if (res.destroyed) {
           return;
         }
-        res.writeHead(200, { "content-type": "application/json" });
+        const reply = asGhReply(
+          argv,
+          call.request,
+          labeledAsAccepted(call.request, answer),
+        );
+        const stderr = Buffer.from(reply.stderr);
+        const stdout = reply.stdoutBase64
+          ? Buffer.from(reply.stdoutBase64, "base64")
+          : Buffer.from(reply.stdout);
+        // Transport framing only: exit code, stderr byte length, stderr,
+        // then stdout through HTTP EOF. Domain conversion stays in asGhReply.
+        res.writeHead(200, { "content-type": "application/octet-stream" });
         res.end(
-          JSON.stringify(
-            asGhReply(
-              argv,
-              call.request,
-              labeledAsAccepted(call.request, answer),
+          Buffer.concat([
+            Buffer.from(
+              `${String(reply.exitCode)}\n${String(stderr.length)}\n`,
             ),
-          ),
+            stderr,
+            stdout,
+          ]),
         );
       });
     });
@@ -169,6 +183,9 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
     url: `http://127.0.0.1:${String(port)}/`,
     calls,
     avatarReads,
+    get unansweredCalls() {
+      return unanswered;
+    },
     observeUnanswered() {
       const observer = { most: unanswered };
       observers.add(observer);

@@ -58,3 +58,56 @@ in every comparison when it fits; the separately approved canonical sort
 precondition stays parked unless a later evidenced refinement needs it.
 This avoids selecting extra graph code after its pressure failure. All original
 reading/sort/source promises, touch consumers and G4/G7 still need acceptance.
+
+
+## Returned current implementation and accepted proof basis
+
+Five paths: existing fake-gh/fakeGitHub pair, new shared private client fixture,
+and byte/auth plus lifecycle specs. Same asGhReply domain conversion; NUL argv
+and framed byte stdio. Ordinary/local-auth paths avoid Node; held-auth watches
+before.reached and guards once. Curl ignores user config/proxy, HTTP only.
+Per-call temp directory and curl/output children are owned/reaped; PID and
+both signal markers/143 remain. Interrupt deferral covers child and directory
+assignment; deterministic FIFO proof covers that cancellation window without
+blocking test Node. Auth/request/byte/native ownership meanings unchanged.
+
+Measured source SHA256 4f5e37eb43929a33392d997a5a66b96989f7198d384bb88847d2d3307ff9ad40:
+actual installed current client vs retained0208 Node/client+oldserver,
+24alternating ordinary pairs95.914→54.734ms (ratio.57066, ~43%lower) at valid
+load20.573–21.408. Complete measurement child5.435s, finite13106total batches,
+no pressure gap; inFlightfalse/all20workersjoined. This supersedes earlier
+134.186→55.545 measurement after the final ordinary-path guard. CPU samples
+are not a claim of saturation. Raw /tmp/seed287-gh-transport-resource-final-pressure-20261111.
+
+Old surviving contract8/8 established before replacement. Final current
+nonblocking FIFO/auth/HTTP/native set24/24 three consecutive passes, strict/
+retry0,5.754/5.752/5.639s. Broad actual consumers407/407223.923s; remaining
+46/4625.020s; native owner/login/parser/archive units30/303.707s. Current
+endFakeGh recorded heldPID62174 gone. Native setup first incorrectly included
+--include(owner adds), diagnosed before gh and repaired; failed evidence kept.
+No passing retry substituted for a cause/fix. Later guards cover real resource
+and duplicate-auth-callback risks, not alternate performance strategies.
+
+Original fullCLI source/sort/privateGit unchanged, whole3/3 before runner37.421s,
+after15.467s includes cold/global/preparation/teardown. Ambient9.09 external
+pygardon versus4.19 after: observed no-growth, no precise causal family saving.
+Before shell timer absent; no shell-saving claim/work moved into npmbootstrap.
+Ordinary current remeasurement and final focused proof cover later guard edits;
+no unnecessary407/family rerun for unchanged call semantics.
+
+Literal complete commands, setup/observing assertions and current hashes:
+/tmp/seed287-gh-transport-actual-20261111/handoff.md.205/205 consumer dispositions
+in that directory distinguish actual complete-file proof, composed helpers,
+independent protocols/types and later13deployment regression. Parent checked
+all strict/retry0 terminals and current source hash; no command/watch remains.
+Root two-spec preview958 jobs/856recorded/102unrecorded, lifecycle share3 and
+byte/auth share8 exactly once across current branch's12. Sum weights are not
+wall time. /tmp/seed287-gh-transport-final-preview-20261111.txt.
+Independent refactor /root/gh_transport_refactor returned REFACTOR COMPLETE:
+none, already clean. Five paths/205 consumers and all accepted proof unchanged;
+no unnecessary tests. Formatting/hook/publication use guarded normal delivery.
+
+Formatter findings repaired: callbacks return Promise.resolve; trap-only
+functions document ShellCheck’s unused-function false positive. Runtime flow
+is unchanged. The same four-spec set passes 24/24 after this repair:
+/tmp/seed287-gh-transport-actual-20261111/format-repair-proof.json.
