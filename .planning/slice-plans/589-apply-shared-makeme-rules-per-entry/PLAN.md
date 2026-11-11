@@ -7,7 +7,7 @@
 ## Execution context
 
 - Story branch: `codex/apply-shared-makeme-rules-per-entry`, workspace this worktree, publisher `dashboard-territory.local-open-dough`, agent `aki-chan`, `origin` / trunk `main`.
-- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slices 1–3 and current published base `3940c9d798a60bfd047456b31b4243a07730c768` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
+- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slices 1–4 and current published base `e56729e06262e913110cb98ebc0f9fa579f52a58` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
 - Live CI: GitHub `terryyin/open-dough`, `ci.yml` / `CI`, execution-branch target, coordinator `aki-chan-seed307`, directory `/tmp/dough-ci-501/watch-cUOT3m`, PID `64581`, stream `85379`, cell `g228:4`.
 - [Slice 1 evidence and retained startup/stop history](slice-1-evidence.md) owns native commands, proof locations, source freshness and the explicitly waived Cursor gap. No numeric slice limit; existing replanning authority retained. Current awake AC load 6.78/5.60/7.51; one native CLI at a time, focused proof only, reconsider changed pressure.
 
@@ -179,6 +179,13 @@ Reuse shared host installation/discovery evidence only where the mechanism and
 inputs still correspond. Refresh native behavior from slices 1–3 where final
 payload changes invalidate it. Complete all affected host requirements before
 release eligibility; no release or rollout is performed by this story.
+
+## Execution complete
+
+Product advice: retain the delivered behavior and dispose the bounded
+`SEED-307#run-makeme-harness-once` correction during wrap-up; no additional
+feature recommendation. Process review remains selected and deferred until
+wrap-up's configured Intent Coverage report and dispositions are available.
 
 ## Verification and delivery gates
 
