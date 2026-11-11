@@ -1,7 +1,8 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `0208aaaa331ad9294b4670e3f872b4ccd19c3191`
-  (records-only transport refinement; canonical attempt parked); completed slice 2 was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
+- Last accepted revision on entry to this increment: `e7a9265c48eb6fec1dd64c89754994617502d5c0`
+  (slice 11 client, accepted proof and independent refactor); completed slice 2
+  was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
   `SEED-287#fit-dashboard-journeys-in-default-timeout`; publisher

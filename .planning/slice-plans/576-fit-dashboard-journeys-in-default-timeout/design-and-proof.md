@@ -44,22 +44,24 @@ clock; measure family and suite elapsed separately from summed case time.
 
 ## Reuse choices for execution-owned repairs
 
-PFE searched the dashboard, shared builders, frontend/backend comparison
-boundaries and runtime. Original private preparation/CLI remains the stronger
-simpler owner when it fits. Canonical sort setup was approved and attempted,
-but still failed at valid predeadline load; exact9paths and compatible proof
-are parked, not accepted. Existing MakeMe materializers remain available if a
-later bounded correction needs them; no extra graph is selected now.
-The current failed trace locates8.071s backend CI plus return-review readiness.
-Provider gh bypasses the header counter. Actual ordinary-client probe at
-load21.333–22.748 measured118.344→54.509ms; complete client contract and family
-gain remain unproved. Slice11 changes only the existing synthetic-gh/fakeGitHub
-transport pair, preserving answer conversion/private request ownership and all
-auth/hold/PID/signal/binary/cleanup contracts. Slice12 then proves original
-comparison/private CLI with compatible worker readiness; final13 owns broad
-local/hosted/trunk weight gates. No cache, generic graph engine or production
-architecture change. See transport-evidence.md and comparison-evidence.md.
-Component mounts cannot replace the full App cross-story observations.
+PFE searched the dashboard, shared builders and comparison/runtime boundaries.
+The original private publisher remains the simpler choice when it fits. With
+accepted cheaper gh and readiness, it still fails sort's second return to A:
+9.977 s original CLI precondition, 9.823 s initial navigation including CI,
+versus .678 s total row-rest polling. This does not support a broad board-helper
+change. Both source variants pass once but still need repeated proof.
+
+Terry already approved MakeMe-described actual Git as sort's precondition,
+with full CLI retained in source variants and every sort assertion kept. The
+older canonical attempt failed with the old Node client and remains unaccepted.
+Current valid pressure failure supports reusing that exact approved alternative
+with the now-proved cheaper client. No new graph engine, cache or product
+architecture choice: existing MakeMe/commitDeclaredRevision, private repositories
+and serving owner. Actual current cost and margin remain unverified; slice 12
+is one bounded early probe and must return if it misses, preserving all proof.
+Reuse the failed 61.002 s current-client/readiness family only as its qualified
+before observation. Final 13 retains broad/full/hosted/trunk gates. See
+[comparison proof](comparison-default-evidence.md) and transport-evidence.md.
 
 Launch orchestration reuses `agentLaunchBoundary.ts`, existing acceptance and
 settlement observations, and `startDashboardServer`; native/publication behavior
@@ -176,3 +178,21 @@ all moved preparation stays in suite elapsed. BeforeAll duplicated a private
 hook dashboard and its direct requests were redundant; that attempt is rejected.
 Use the existing default worker slot, no new cache or native gesture model. See touch-evidence.md for PFE and the bounded
 remaining proof; return before another variant if this one fails.
+
+## Execution decisions
+
+- Prefer consolidating onto existing journey homes over new parallel specs.
+- Remove a case-local allowance only after that case fits the default with margin.
+- Drop experiments that add cost or leave proof or speedup unestablished.
+- Comparison cache experiments were rejected after the paired +46.5% cost result.
+  Seven owned paths were preserved and reverted; the private publisher is the
+  stronger simpler starting point. Profile before another implementation cut.
+- Slice 1's probe may revise which harness leads slices 3–6 apply; it does not widen product scope.
+- Probe selection: retain watcher/closure consolidation and touch gesture cuts.
+  Probe1 did not establish those earlier preparation/fake-gh leads; later
+  readiness and transport measurements now support only their named cuts.
+  Watcher consolidation missed the family target; slice 4 now owns the measured
+  full-source fixture-ingestion experiment using the existing run-artifact owner;
+  real deployment installs, builds, and starts remain required.
+  New slice 6 pressure evidence supports exact required-input readiness, despite
+  the earlier quiet 3–4 s hypothesis being insufficient; no blanket prewarm.

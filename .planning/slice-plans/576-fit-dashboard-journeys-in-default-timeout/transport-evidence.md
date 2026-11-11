@@ -52,13 +52,12 @@ A retained baseline checkout at24ea6698 or retained exact old-client source
 keeps before proof honest; never overwrite a live writer. Include cold/setup
 cost and qualify host differences. Return on a failed supported variant.
 
-Slice12 then tests the simpler original private CLI publisher with cheaper
-transport and compatible required-input readiness. Keep full CLI completion
-in every comparison when it fits; the separately approved canonical sort
-precondition stays parked unless a later evidenced refinement needs it.
-This avoids selecting extra graph code after its pressure failure. All original
-reading/sort/source promises, touch consumers and G4/G7 still need acceptance.
-
+Slice 12 first tested the simpler original private CLI publisher with this
+client and compatible readiness. It still failed its second return to A under
+valid load. Current comparison-default-evidence.md supports revisiting the
+already approved actual Git sort precondition with this client, retaining full
+CLI in source variants and every reading/sort assertion. No prior failed
+canonical attempt is accepted; current margin and touch proof remain due.
 
 ## Returned current implementation and accepted proof basis
 

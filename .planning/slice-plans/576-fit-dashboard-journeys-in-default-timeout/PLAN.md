@@ -113,12 +113,27 @@ Proof: Installed-client exact argv/binary stdout/stderr/status, local/held auth,
 
 Behavior: Every synthetic gh starts Node and the valid-pressure prototype costs118.344ms versus54.509ms → change the existing client/fakeGitHub wire once to shell/curl while reusing answer conversion and private request ownership → the same complete CLI behavior costs less. No compiler, product/cache/lifetime or answer-model change. One supported variant, return if proof/cost misses. [Decisive profile and selected owners](transport-evidence.md).
 
-### 12. Loaded comparison journeys fit with the cheaper client
+### 12. Sort uses its approved Git precondition with the cheaper client
 Type: Behavior
 Status: planned
-Proof: Whole source variants and sort's two cross-story loops pass three fresh two-worker/default30 runs at load20–30. Preserve completion-revision reads, later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback and restored sort. Prove affected touch native/readiness and cold concurrency before private origins; include every preparation cost in elapsed, no family growth/private-HOME loss.
+Proof: One bounded early probe reuses the already approved MakeMe-described,
+actual Git sort precondition with the accepted cheaper client and readiness.
+All source variants and sort's two cross-story loops must pass three fresh
+worker-two/default-30 runs at load 20–30. Keep completion-revision reads,
+later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback
+and restored sort. Source variants retain full CLI completion. Prove actual
+Git facts, affected touch/native readiness and cold concurrency before private
+origins. Include all preparation in family elapsed; compare with the retained
+current-client/readiness failed 61.002 s baseline, honestly qualified. No new
+family growth, private-HOME loss or acceptance of old failed proof.
 
-Behavior: Original private comparison publisher still nears30s under load → use the proved cheaper client and restore compatible required-input readiness → all original private Git, full CLI completion and reading actions fit with margin. Prefer this simpler original publisher over extra canonical sort history after its failed attempt; that approved9path variant remains parked. No cache, new pool/lifetime, beforeAll, timeout or weakened assertion. Return if this single supported profile fails. [All prior attempts](comparison-evidence.md).
+Behavior: Original CLI sort setup still costs 9.977 s and misses the second
+return to A → reuse its already approved actual private Git precondition,
+keeping every sort action/assertion and both full-CLI source variants → prove
+useful default margin or return this single supported attempt. No cache,
+generic graph engine, new pool/lifetime, beforeAll or timeout change. Previous
+canonical/Node and current original-client failures remain retained in
+[comparison evidence](comparison-default-evidence.md).
 
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -129,21 +144,7 @@ Behavior: All prior slices' retained proof is green with margin → delete the n
 
 ## Current decisions
 
-- Prefer consolidating onto existing journey homes over new parallel specs.
-- Remove a case-local allowance only after that case fits the default with margin.
-- Drop experiments that add cost or leave proof or speedup unestablished.
-- Comparison cache experiments were rejected after the paired +46.5% cost result.
-  Seven owned paths were preserved and reverted; the private publisher is the
-  stronger simpler starting point. Profile before another implementation cut.
-- Slice 1's probe may revise which harness leads slices 3–6 apply; it does not widen product scope.
-- Probe selection: retain watcher/closure consolidation and touch gesture cuts.
-  Probe1 did not establish those earlier preparation/fake-gh leads; later
-  readiness and transport measurements now support only their named cuts.
-  Watcher consolidation missed the family target; slice 4 now owns the measured
-  full-source fixture-ingestion experiment using the existing run-artifact owner;
-  real deployment installs, builds, and starts remain required.
-  New slice 6 pressure evidence supports exact required-input readiness, despite
-  the earlier quiet 3–4 s hypothesis being insufficient; no blanket prewarm.
+[Retained execution decisions and reuse basis](design-and-proof.md#execution-decisions).
 
 ## Story obligations
 
@@ -205,13 +206,14 @@ Disposition: receiving slice 13
 Commitment: Q09
 ## Plan concern assessment
 
-Local proof for slices 1–11 is accepted; slice 11 refactor is none. Canonical
-setup still failed at 30.980 s; its nine paths and compatible proof are parked.
-Slice 11 owns CLI preservation and lower actual ordinary cost; slice 12 owns
-comparison budgets with readiness; slice 13 owns broad/full/hosted gates.
-Thirteen slices introduce no numeric exception, Goal/Scope change or waiver.
-G11 owns the separately approved thirteen-shard trunk input at the existing
-checkpoint; this branch’s twelve-shard proof stays separate. [Measured basis](transport-evidence.md) retains all attempt limits.
+Slices 1–11 retain accepted proof. Original sort plus cheaper client/readiness
+still fails; its five paths are parked. Slice 12 now probes the already approved
+canonical sort setup with this client; its old Node-client failure is not proof.
+All sort actions and full-CLI source variants survive. This remains thirteen
+slices with one bounded remaining comparison proof loop, no Goal/Scope change,
+new numeric exception or waiver. Slice 13 owns broad/full/hosted gates and G11's
+current thirteen-part trunk input at the existing human checkpoint. Current
+branch validation still uses twelve shards. See the linked measured basis.
 
 ## Trunk measurement checkpoint
 

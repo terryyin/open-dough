@@ -200,3 +200,5 @@ comparison outcome continues in12, final broad/trunk gates in13. Inspect the
 simpler original private CLI publisher with cheaper transport before restoring
 special canonical history. Terry's scoped approval remains available, but no
 failed experiment is accepted or repeated merely because it was authorized.
+
+Current slice 12 proof: [default comparison evidence](comparison-default-evidence.md).
