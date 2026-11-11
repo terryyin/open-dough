@@ -114,6 +114,7 @@ managed_files+=(
   dough-execute-plan/scripts/consumer-trace-record.mjs
   dough-execute-plan/scripts/consumer-trace-terms.mjs
   dough-execute-plan/scripts/consumer-trace.mjs
+  dough-execute-plan/scripts/git-changes.mjs
   dough-execute-plan/scripts/github-request-admission.mjs
   dough-execute-plan/scripts/github-request-answer.mjs
   dough-execute-plan/scripts/github-request-calls.mjs
@@ -173,4 +174,9 @@ managed_files+=(
   dough-execute-plan/scripts/workspace-publication-ownership.mjs
   dough-execute-plan/scripts/workspace-publication-push.mjs
   dough-execute-plan/scripts/workspace-publication-select.mjs
+  dough-execute-plan/references/test-entry-rules.md
+  dough-execute-plan/scripts/test-entry-settings.mjs
+  dough-execute-plan/scripts/test-entry-rules.mjs
+  dough-execute-plan/scripts/test-entry-rules-runtime.mjs
+  dough-execute-plan/scripts/test-entry-rules-LICENSE.txt
 )

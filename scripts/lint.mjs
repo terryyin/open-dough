@@ -1,4 +1,4 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdtempSync,
@@ -24,19 +24,23 @@ if (fix && staged) {
 }
 let failed = false;
 
+function reportError(command, error) {
+  if (error?.code === "ENOENT") {
+    console.error(
+      `${command}: not found on PATH. Run npm ci to install eslint and prettier; shellcheck and shfmt come from your system package manager.`,
+    );
+  } else if (error) {
+    console.error(`${command}: ${error.message}`);
+  }
+}
+
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
     stdio: "inherit",
     ...options,
   });
-  if (result.error?.code === "ENOENT") {
-    console.error(
-      `${command}: not found on PATH. Run npm ci to install eslint and prettier; shellcheck and shfmt come from your system package manager.`,
-    );
-  } else if (result.error) {
-    console.error(`${command}: ${result.error.message}`);
-  }
+  reportError(command, result.error);
   return result;
 }
 
@@ -51,6 +55,33 @@ function check(command, args) {
 function checkFiles(command, args, files) {
   if (files.length > 0) {
     check(command, [...args, "--", ...files]);
+  }
+}
+
+// Full-tree checks read independently. Join every result; fixes and staged
+// hooks retain serial order.
+function readOnlyCheck(command, args, files) {
+  if (files.length === 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    const child = spawn(command, [...args, "--", ...files], {
+      stdio: "inherit",
+    });
+    child.once("error", (error) => {
+      reportError(command, error);
+      failed = true;
+    });
+    child.once("close", (code) => {
+      if (code !== 0) failed = true;
+      resolve();
+    });
+  });
+}
+
+async function readOnlyShellCheck(files) {
+  // ShellCheck may follow sources named in the same invocation, even without
+  // -x. Keep each input's original dependency context and bound concurrency.
+  for (const file of files) {
+    await readOnlyCheck("shellcheck", [], [file]);
   }
 }
 
@@ -121,6 +152,7 @@ if (staged || changed) {
   prettierFiles = prettierFiles.filter((file) => !prettierIgnored.has(file));
 }
 const eslintOptions = ["--max-warnings=0", "--no-warn-ignored"];
+const shfmtOptions = ["-i", "2", "-ci", "-bn", "-sr"];
 const shellFiles = files.filter(
   (file) =>
     /\.(?:sh|bash|ksh|bats)$/.test(file) ||
@@ -160,16 +192,25 @@ if (fix) {
         failed = true;
       }
     }
-    check("shfmt", ["-w", "-i", "2", "-ci", "-bn", "-sr", "--", file]);
+    check("shfmt", ["-w", ...shfmtOptions, "--", file]);
   }
 }
 
 console.log("Checking lint and formatting (warnings fail)...");
-checkFiles("eslint", eslintOptions, eslintFiles);
-checkFiles("prettier", ["--check"], prettierFiles);
-for (const file of shellFiles) {
-  check("shellcheck", ["--", file]);
-  check("shfmt", ["-d", "-i", "2", "-ci", "-bn", "-sr", "--", file]);
+if (fix || staged) {
+  checkFiles("eslint", eslintOptions, eslintFiles);
+  checkFiles("prettier", ["--check"], prettierFiles);
+  for (const file of shellFiles) {
+    check("shellcheck", ["--", file]);
+    check("shfmt", ["-d", ...shfmtOptions, "--", file]);
+  }
+} else {
+  await Promise.all([
+    readOnlyCheck("eslint", eslintOptions, eslintFiles),
+    readOnlyCheck("prettier", ["--check"], prettierFiles),
+    readOnlyShellCheck(shellFiles),
+    readOnlyCheck("shfmt", ["-d", ...shfmtOptions], shellFiles),
+  ]);
 }
 
 if (failed) {

@@ -99,6 +99,11 @@ stay off. Membership uses the same `kind`/`include` or `sources` rules above;
 another matching location's opt-out does not veto an enabled match. Installation
 and updates preserve each project's choices.
 
+Set `"pageObjects": true` independently to apply the shared
+[page-object guidance](../src/skills/dough-page-objects/SKILL.md) to browser tests
+selected by that location. The same membership and opt-in rules apply; neither
+flag implies the other. Both rules share the standalone selection command.
+
 Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings
 file and malformed JSON are distinct from that absence. The dashboard reads

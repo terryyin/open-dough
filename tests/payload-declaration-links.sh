@@ -78,6 +78,9 @@ awk '
 printf '%s\n' 'printf "%s\n" "${managed_files[@]}"' >> "${copy}/declaration.sh"
 native_paths=$(bash "${copy}/declaration.sh")
 declared_paths=$(read_managed_files_declaration "${source_dir}/install.sh")
+native_declared=$(/bin/bash -c 'source "$1"; read_managed_files_declaration "$2"' \
+  payload-declaration "${source_dir}/src/install/open-dough-payload-declaration.sh" "${source_dir}/install.sh")
+[[ "${native_declared}" == "${native_paths}" ]]
 [[ "${declared_paths}" == "${native_paths}" ]]
 {
   printf '%s\n' 'managed_files=('

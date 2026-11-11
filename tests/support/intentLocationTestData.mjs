@@ -17,8 +17,19 @@ export class IntentLocationBuilder {
   #label;
   /** @type {{ kind: string, include?: string[] } | { sources: SourceDeclaration[] } | undefined} */
   #selection;
-  /** @type {boolean | undefined} */
-  #makeMe;
+  /** @type {{ makeMe?: boolean, pageObjects?: boolean }} */
+  #rules = {};
+
+  /** @param {{ makeMe?: boolean, pageObjects?: boolean }} rules */
+  withRules(rules) {
+    this.#rules = { ...this.#rules, ...rules };
+    return this;
+  }
+
+  /** @param {boolean} [enabled] */
+  usingMakeMe(enabled = true) {
+    return this.withRules({ makeMe: enabled });
+  }
 
   /** @param {string} path the location's repository folder */
   at(path) {
@@ -29,12 +40,6 @@ export class IntentLocationBuilder {
   /** @param {string} label */
   labelled(label) {
     this.#label = label;
-    return this;
-  }
-
-  /** @param {boolean} [enabled] */
-  usingMakeMe(enabled = true) {
-    this.#makeMe = enabled;
     return this;
   }
 
@@ -76,8 +81,8 @@ export class IntentLocationBuilder {
     return {
       path: this.#path,
       ...(this.#label === undefined ? {} : { label: this.#label }),
-      ...(this.#makeMe === undefined ? {} : { makeMe: this.#makeMe }),
       ...this.#selection,
+      ...this.#rules,
     };
   }
 }

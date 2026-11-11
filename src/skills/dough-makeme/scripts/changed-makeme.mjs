@@ -2,10 +2,12 @@
 // only to sources that currently exist. Old move paths remain context, never a
 // reason to convert a deletion or an opted-out destination.
 import { spawnSync } from "node:child_process";
-import { statSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { repositoryChangePaths } from "../../dough-execute-plan/scripts/consumer-trace-terms.mjs";
+import {
+  currentSourcePaths,
+  repositoryChangePaths,
+} from "../../dough-execute-plan/scripts/git-changes.mjs";
 import { isSafeRepositoryPath } from "./repository-path.mjs";
 import { selectMakeMe } from "./select-makeme.mjs";
 
@@ -19,15 +21,6 @@ function git(root, args) {
     );
   }
   return result.stdout;
-}
-
-function currentSource(project, path) {
-  try {
-    return statSync(resolve(project, path)).isFile();
-  } catch (error) {
-    if (error.code === "ENOENT" || error.code === "ENOTDIR") return false;
-    throw error;
-  }
 }
 
 /** @param {string} projectPath
@@ -53,9 +46,7 @@ export function selectChangedMakeMe(
         message: "Scope contains an unsafe repository-relative path.",
       };
     }
-    const currentPaths = changedPaths.filter((path) =>
-      currentSource(project, path),
-    );
+    const currentPaths = currentSourcePaths(project, changedPaths);
     return {
       ...selectMakeMe(project, currentPaths, { allowEmpty: true }),
       changedPaths,

@@ -23,6 +23,12 @@ part of the change under review: read their diffs and include their concepts in
 this discovery. If there is no uncommitted change and no supplied disposition,
 report empty scope and use the completion handoff below without edits or tests.
 
+For nonempty scope, use [shared test-entry selection](../dough-execute-plan/references/test-entry-rules.md#select-implicated-tests-for-refactoring)
+before reviewing or changing tests. It discovers staged, unstaged, untracked and
+supplied committed sources and loads each selected convention once. Apply it only
+to implicated tests within this refactor's authority; preserve independent proof
+and caller intent. Recheck applicability if refactoring extends the scope.
+
 For a nonempty change, resolve this project's navigation, domain vocabulary,
 production subsystem boundaries and applicable architectural decisions, tooling wrapper,
 whitespace check with generated-artifact exclusions, and focused test commands.
@@ -41,24 +47,6 @@ delivered seams rather than rediscovering the size cost. When the change edits
 an oversized file without that decision, or the delivered structure contradicts
 it, stop through the decision handoff below before claiming the size check
 satisfied.
-
-Before the decision pass, resolve changed test entries through
-[the shared MakeMe entrypoint](../dough-makeme/SKILL.md) using its changed-source
-resolver from the installed MakeMe directory:
-
-```sh
-node '<installed dough-makeme directory>/scripts/changed-makeme.mjs' --project '<project root>' [--committed '<range>']... [--path '<repository-relative source>']...
-```
-
-The default scope includes staged, unstaged and untracked changes and both move
-paths. Pass every caller-supplied committed disposition range or path as well.
-Follow the shared entrypoint's result handling: read its convention once when
-selected and apply it to the selected current sources within this refactor's
-scope. Old move paths and deletions supply context; the current destination
-controls applicability, so an opted-out destination requires no conversion.
-If discovery or editing extends the implicated test scope, rerun selection with
-those paths before continuing there. Report an unresolved diagnostic and stop
-dependent test refactoring without claiming completion.
 
 ## Decide before editing
 

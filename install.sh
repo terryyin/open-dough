@@ -122,18 +122,6 @@ managed_files=(
   dough-slice-planning/references/settle-decisive-premises.md
   dough-pfe/SKILL.md
   dough-slice-plan-refinement/SKILL.md
-)
-source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"
-managed_files+=(
-  dough-makeme/SKILL.md
-  dough-makeme/references/convention.md
-  dough-makeme/scripts/changed-makeme.mjs
-  dough-makeme/scripts/intent-location-selection.mjs
-  dough-makeme/scripts/intent-location-settings.mjs
-  dough-makeme/scripts/minimatch.LICENSE.md
-  dough-makeme/scripts/minimatch.bundle.mjs
-  dough-makeme/scripts/repository-path.mjs
-  dough-makeme/scripts/select-makeme.mjs
   dough-post-change-refactor/SKILL.md
   dough-post-change-refactor/references/refactor-checks.md
   dough-test-optimization/SKILL.md
@@ -181,5 +169,17 @@ managed_files+=(
   dough-story-wrap-up/scripts/trunk-closure-visit.mjs
   dough-story-wrap-up/scripts/trunk-closure.mjs
   dough-story-wrap-up/scripts/trunk-closure-completion.mjs
+  dough-page-objects/SKILL.md
+  dough-page-objects/references/convention.md
+  dough-makeme/SKILL.md
+  dough-makeme/references/convention.md
+  dough-makeme/scripts/changed-makeme.mjs
+  dough-makeme/scripts/intent-location-selection.mjs
+  dough-makeme/scripts/intent-location-settings.mjs
+  dough-makeme/scripts/minimatch.LICENSE.md
+  dough-makeme/scripts/minimatch.bundle.mjs
+  dough-makeme/scripts/repository-path.mjs
+  dough-makeme/scripts/select-makeme.mjs
 )
+source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"

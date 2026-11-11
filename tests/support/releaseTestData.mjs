@@ -32,9 +32,7 @@ export const openDoughSource = fileURLToPath(
 );
 
 const installerPath = join(openDoughSource, "install.sh");
-const managedFilesDeclaration = /^managed_files(?:\+)?=\(\n[\s\S]*?^\)\n?/gm;
-const payloadInclude =
-  /^source "\$\(dirname -- "\$\{BASH_SOURCE\[0\]\}"\)\/src\/install\/[a-z0-9-]+-payload\.sh"\n?/gm;
+const managedFilesDeclaration = /^managed_files=\(\n([\s\S]*?)^\)/m;
 
 /** @param {string} prefix @param {string} path */
 const withholds = (prefix, path) => path !== "" && path.startsWith(prefix);
@@ -69,25 +67,31 @@ export function shippedPayload({ removed }) {
 }
 
 /**
- * The working tree's installer, declaring the release's added paths first and
- * no managed path under a prefix the release withholds.
+ * The working tree's declaration files, declaring added paths first and no
+ * managed path under a prefix the release withholds. Preserve the source's
+ * grouped layout so release-history tests read actual fragmented declarations.
  * @param {Pick<Release, "withheld" | "added">} release
  */
-export function releaseInstaller({ withheld, added }) {
-  const declared = [
-    ...Object.keys(added),
-    ...declaredPayload().filter(
-      (path) => !withheld.some((prefix) => withholds(prefix, path)),
+export function releaseDeclarationFiles({ withheld, added }) {
+  const fragment = "src/install/open-dough-execution-payload.sh";
+  const keep = (/** @type {string} */ source) =>
+    source
+      .split("\n")
+      .filter(
+        (line) => !withheld.some((prefix) => withholds(prefix, line.trim())),
+      )
+      .join("\n");
+  const declared = Object.keys(added).map((path) => `  ${path}`);
+  return {
+    "install.sh": readFileSync(installerPath, "utf8").replace(
+      managedFilesDeclaration,
+      (declaration) => {
+        const [opening, ...entries] = keep(declaration).split("\n");
+        return [opening, ...declared, ...entries].join("\n");
+      },
     ),
-  ];
-  let replaced = false;
-  return readFileSync(installerPath, "utf8")
-    .replace(managedFilesDeclaration, () => {
-      if (replaced) return "";
-      replaced = true;
-      return `managed_files=(\n${declared.map((path) => `  ${path}`).join("\n")}\n)\n`;
-    })
-    .replace(payloadInclude, "");
+    [fragment]: keep(readFileSync(join(openDoughSource, fragment), "utf8")),
+  };
 }
 
 /**

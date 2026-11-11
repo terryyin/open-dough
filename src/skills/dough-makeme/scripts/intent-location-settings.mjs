@@ -2,7 +2,7 @@
 import { isSafeRepositoryPath } from "./repository-path.mjs";
 
 /** @typedef {import("./intent-location-selection.mjs").SourceDeclaration} SourceDeclaration */
-/** @typedef {import("./intent-location-selection.mjs").LocationSelection & { readonly label?: string, readonly makeMe?: boolean }} DeclaredLocation */
+/** @typedef {import("./intent-location-selection.mjs").LocationSelection & { readonly label?: string, readonly makeMe?: boolean, readonly pageObjects?: boolean }} DeclaredLocation */
 /** @typedef {{ readonly kind: "absent" } | { readonly kind: "malformed" } | { readonly kind: "locations", readonly locations: DeclaredLocation[] }} DeclaredSettings */
 
 /** @param {unknown} value @returns {readonly string[] | undefined} */
@@ -58,7 +58,7 @@ export function declaredLocations(settings) {
   for (const entry of locations) {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry))
       continue;
-    const { path, kind, include, label, sources, makeMe } = entry;
+    const { path, kind, include, label, sources, makeMe, pageObjects } = entry;
     if (typeof path !== "string" || !isSafeRepositoryPath(path)) continue;
     const named = {
       path,
@@ -66,6 +66,7 @@ export function declaredLocations(settings) {
         ? { label: label.trim() }
         : {}),
       ...(typeof makeMe === "boolean" ? { makeMe } : {}),
+      ...(typeof pageObjects === "boolean" ? { pageObjects } : {}),
     };
     if ("sources" in entry) {
       const declarations = sourceDeclarationsOf(sources);

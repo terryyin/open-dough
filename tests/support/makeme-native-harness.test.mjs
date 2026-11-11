@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -121,4 +122,63 @@ test("native skill expansion and statusless shell reads retain their real eviden
   assert.equal(assessGuidance(read, "opted-out").skillLoaded, false);
   read.calls[0].output = "Permission denied";
   assert.equal(assessGuidance(read, "opted-out").configurationLoaded, false);
+});
+
+test("ordinary guidance evidence accepts the shared command and rejects a different project or flag", async (t) => {
+  const at = mkdtempSync(join(tmpdir(), "makeme-common-harness-"));
+  const fixture = await createMakeMeNativeFixture(source, "codex", at);
+  t.after(fixture.cleanup);
+  const root = fixture.integration;
+  const scripts = join(root, ".agents/skills/dough-execute-plan");
+  const configuration = join(root, ".planning/open-dough.json");
+  const paths = [
+    "backend/tests/access.test.mjs",
+    "frontend/tests/preview.test.mjs",
+  ];
+  const output = execFileSync(
+    process.execPath,
+    [
+      join(scripts, "scripts/test-entry-rules.mjs"),
+      "--project",
+      root,
+      ...paths.flatMap((path) => ["--source", path]),
+    ],
+    { encoding: "utf8" },
+  );
+  const command = `node '${scripts}/scripts/test-entry-rules.mjs' --project '${root}' --source ${paths[0]} --source ${paths[1]}`;
+  const read = {
+    status: "complete",
+    tools: [],
+    reads: [],
+    calls: [
+      {
+        command: `cat ${scripts}/references/test-entry-rules.md`,
+        output: readFileSync(
+          join(scripts, "references/test-entry-rules.md"),
+          "utf8",
+        ),
+        exitCode: 0,
+      },
+      { command, output, exitCode: 0 },
+      {
+        command: "cat .agents/skills/dough-makeme/references/convention.md",
+        output: "# Shared MakeMe convention",
+        exitCode: 0,
+      },
+    ],
+  };
+  assert.equal(assessGuidance(read, "mixed", configuration).gateHeld, true);
+  read.calls[1].command = command.replace(
+    `--project '${root}'`,
+    `--project '${source}'`,
+  );
+  assert.equal(
+    assessGuidance(read, "mixed", configuration).selectionResolved,
+    false,
+  );
+  read.calls[1].command = command;
+  const answer = JSON.parse(output);
+  answer.sources[0].makeMe = false;
+  read.calls[1].output = JSON.stringify(answer);
+  assert.equal(assessGuidance(read, "mixed", configuration).gateHeld, false);
 });

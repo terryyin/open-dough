@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { readHostStream } from "./native-host-stream.mjs";
 import { runTests } from "./makeme-native-test-run.mjs";
 import { guidanceReadCount } from "./makeme-native-guidance-observe.mjs";
+import { commonSelectionResolved } from "./makeme-common-selection-observe.mjs";
 import { retainedCodexSkillExpansion } from "./makeme-native-codex-expansion.mjs";
 import { assessAuthoredTests, loaded } from "./makeme-native-assess.mjs";
 import { application, baselineFrontend } from "./makeme-native-fixture.mjs";
@@ -32,44 +33,51 @@ export function assessRefactorGuidance(read, configurationPath, expansion) {
         text(entry.input)?.includes("dough-post-change-refactor") &&
         entry.output === "Launching skill: dough-post-change-refactor",
     );
-  const resolved = read.calls.some((call) => {
-    if (
-      !/(?:^|[;&\n]|-(?:lc|c)\s+['"])\s*(?:\S*\/)?node\s+[^\n;]*changed-makeme\.mjs/.test(
-        call.command,
-      ) ||
-      ![0, null].includes(call.exitCode)
-    )
-      return false;
-    return String(call.output)
-      .split("\n")
-      .some((line) => {
-        let answer;
-        try {
-          answer = JSON.parse(line);
-        } catch {
-          return false;
-        }
-        if (configurationPath !== undefined) {
+  const resolved =
+    commonSelectionResolved(read, {
+      configuration: configurationPath,
+      selected,
+      optedOut: ["frontend/tests/preview.test.mjs"],
+      changed: true,
+    }) ||
+    read.calls.some((call) => {
+      if (
+        !/(?:^|[;&\n]|-(?:lc|c)\s+['"])\s*(?:\S*\/)?node\s+[^\n;]*changed-makeme\.mjs/.test(
+          call.command,
+        ) ||
+        ![0, null].includes(call.exitCode)
+      )
+        return false;
+      return String(call.output)
+        .split("\n")
+        .some((line) => {
+          let answer;
           try {
-            if (
-              realpathSync(answer.configuration) !==
-              realpathSync(configurationPath)
-            )
-              return false;
+            answer = JSON.parse(line);
           } catch {
             return false;
           }
-        }
-        return (
-          answer.status === "selected" &&
-          JSON.stringify(answer.files) === JSON.stringify(selected) &&
-          JSON.stringify(answer.entries) ===
-            JSON.stringify([{ path: "backend/tests", files: selected }]) &&
-          selected.every((path) => answer.changedPaths?.includes(path)) &&
-          answer.changedPaths?.includes("frontend/tests/preview.test.mjs")
-        );
-      });
-  });
+          if (configurationPath !== undefined) {
+            try {
+              if (
+                realpathSync(answer.configuration) !==
+                realpathSync(configurationPath)
+              )
+                return false;
+            } catch {
+              return false;
+            }
+          }
+          return (
+            answer.status === "selected" &&
+            JSON.stringify(answer.files) === JSON.stringify(selected) &&
+            JSON.stringify(answer.entries) ===
+              JSON.stringify([{ path: "backend/tests", files: selected }]) &&
+            selected.every((path) => answer.changedPaths?.includes(path)) &&
+            answer.changedPaths?.includes("frontend/tests/preview.test.mjs")
+          );
+        });
+    });
   const conventionPath = "dough-makeme/references/convention.md";
   const conventionMarker = "# Shared MakeMe convention";
   const conventionReads = guidanceReadCount(
@@ -80,11 +88,17 @@ export function assessRefactorGuidance(read, configurationPath, expansion) {
   return {
     complete: read.status === "complete",
     refactorSkillLoaded: refactorLoaded,
-    makeMeSkillLoaded: loaded(
-      read,
-      "dough-makeme/SKILL.md",
-      "# Apply MakeMe to selected tests",
-    ),
+    makeMeSkillLoaded:
+      loaded(
+        read,
+        "dough-makeme/SKILL.md",
+        "# Apply MakeMe to selected tests",
+      ) ||
+      loaded(
+        read,
+        "dough-execute-plan/references/test-entry-rules.md",
+        "# Select shared conventions before test work",
+      ),
     changedSelectionResolved: resolved,
     sharedConventionLoadedOnce: conventionReads === 1,
   };

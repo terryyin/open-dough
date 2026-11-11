@@ -13,6 +13,10 @@ Before the obligations listing below, complete
 
 ## List promises and assign the agent
 
+Before planned or planless test-authoring delegation, follow
+[shared test-entry selection](test-entry-rules.md). Carry its paths and selected
+conventions, including checks the author must perform for newly identified tests.
+
 Before planned delegation, run the installed
 [story-obligations script](../scripts/story-obligations.mjs):
 `node '<installed-execute-plan>/scripts/story-obligations.mjs' list --plan '<PLAN.md>' --slice N`.
@@ -116,9 +120,6 @@ Give the agent:
   done, refactor pass, selective formatting, or independent hook-owned lint
   command.
 - The [CI pause and resume contract](ci-monitor.md#pause-and-resume-writers).
-- For test work, [MakeMe entry selection](../../dough-makeme/SKILL.md) before
-  arranging data. Pass established source-path selection when available; require
-  the agent to check new test paths once known and additions beyond that scope.
 
 ## Own verification to its terminal result
 

@@ -1,16 +1,17 @@
 // Public installed entry selection. No target-project npm dependency is needed.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { declaredLocations } from "./intent-location-settings.mjs";
-import { locationSelectsRepositoryPath } from "./intent-location-selection.mjs";
-import { isSafeRepositoryPath } from "./repository-path.mjs";
+import { readTestEntrySettings } from "../../dough-execute-plan/scripts/test-entry-settings.mjs";
+import {
+  isSafeRepositoryPath,
+  selectMakeMeEntries,
+} from "../../dough-execute-plan/scripts/test-entry-rules-runtime.mjs";
 
 /** @param {string} project @param {readonly string[]} paths
  * @param {{ allowEmpty?: boolean }} [options] Changed scope can contain no current files.
  */
 export function selectMakeMe(project, paths, { allowEmpty = false } = {}) {
-  const configuration = resolve(project, ".planning/open-dough.json");
+  const settings = readTestEntrySettings(project);
+  const { configuration } = settings;
   const invalid = paths.find((path) => !isSafeRepositoryPath(path));
   if ((!allowEmpty && paths.length === 0) || invalid !== undefined)
     return {
@@ -19,11 +20,8 @@ export function selectMakeMe(project, paths, { allowEmpty = false } = {}) {
       configuration,
       message: "Supply repository-relative test source paths.",
     };
-  let settings;
-  try {
-    settings = readFileSync(configuration, "utf8");
-  } catch (error) {
-    return error.code === "ENOENT"
+  if (settings.kind !== "text") {
+    return settings.kind === "absent"
       ? {
           status: "not-selected",
           reason: "configuration-absent",
@@ -35,30 +33,18 @@ export function selectMakeMe(project, paths, { allowEmpty = false } = {}) {
           status: "unresolved",
           reason: "configuration-unreadable",
           configuration,
-          message: error.message,
+          message: settings.message,
         };
   }
-  const declared = declaredLocations(settings);
-  if (declared.kind === "malformed")
+  const selection = selectMakeMeEntries(settings.text, paths);
+  if (selection.status === "unresolved")
     return {
       status: "unresolved",
       reason: "configuration-malformed",
       configuration,
       message: "Configuration is not readable JSON.",
     };
-  const entries =
-    declared.kind === "absent"
-      ? []
-      : declared.locations
-          .filter((entry) => entry.makeMe === true)
-          .map((entry) => ({
-            path: entry.path,
-            files: [...new Set(paths)].filter((path) =>
-              locationSelectsRepositoryPath(path, entry),
-            ),
-          }))
-          .filter((entry) => entry.files.length > 0);
-  const files = [...new Set(entries.flatMap((entry) => entry.files))];
+  const { entries, files } = selection;
   return {
     status: files.length > 0 ? "selected" : "not-selected",
     configuration,

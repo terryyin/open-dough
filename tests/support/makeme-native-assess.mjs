@@ -29,11 +29,13 @@ export function loaded(read, path, marker) {
 
 export function assessGuidance(read, journey, configurationPath) {
   const resolved = selectionResolved(read, journey, configurationPath);
-  const skill = loaded(
-    read,
-    "dough-makeme/SKILL.md",
-    "# Apply MakeMe to selected tests",
-  );
+  const skill =
+    loaded(read, "dough-makeme/SKILL.md", "# Apply MakeMe to selected tests") ||
+    loaded(
+      read,
+      "dough-execute-plan/references/test-entry-rules.md",
+      "# Select shared conventions before test work",
+    );
   const convention = loaded(
     read,
     "dough-makeme/references/convention.md",

@@ -5,7 +5,7 @@
 
 ## Goal and scope
 
-Keep all seven MakeMe assessment controls while removing their second execution
+Keep all nine maintained MakeMe assessment controls while removing their second execution
 from the default suite. Preserve both direct Node jobs and explicit aggregate
 and native invocation. Change default discovery only; no rule/runtime, host,
 installation, opt-in, paid proof or unrelated suite cleanup is included.
@@ -20,7 +20,8 @@ published `ec131e188ece02d28504c610a2812f0c325798d2`,
 The wrapper and first harness arrived in the first commit; the second harness
 arrived in the fourth. No intervening unrelated branch commits are attributed.
 
-At the reviewed fourth commit, `scripts/test-jobs.sh` discovers the top-level
+At the reviewed fourth commit, its seven controls were protected through two
+harness files. `scripts/test-jobs.sh` discovers the top-level
 `tests/makeme-native-use.sh` shell job and both harness files through
 `tests/node-test-files`' `tests/support/*.test.mjs` pattern. The wrapper's
 zero-argument branch runs those same two files with `node --test`. Different job
@@ -36,10 +37,12 @@ duplicate executions and setup, not a measured speedup.
   and its actual full/split/explicit-discovery assertions in
   `tests/test-runner-selection.sh`. The one-shot native aggregate already uses
   this seam. No new registry or discovery mechanism is needed.
-- The surviving directly scheduled harness files own the same four ordinary
-  and three refactor controls: baseline rejection, actual guidance/selection,
-  mutation discrimination, convention-read count and owned Codex expansion.
-  Keep their assertions intact and keep the explicit wrapper available.
+- The surviving directly scheduled harness files now own five ordinary and
+  four refactor controls. Preserve the original seven (baseline rejection,
+  actual guidance/selection, mutation discrimination, convention-read count and
+  owned Codex expansion), plus common-command authoring evidence that rejects a
+  wrong project/flag and common changed-command evidence that rejects omitted
+  opted-out scope. Keep all nine assertions and the explicit wrapper available.
 - Accepted [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
   supports one representation of test work. [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md)
   supports deterministic controls once without redundant native matrices.
@@ -58,6 +61,18 @@ duplicate executions and setup, not a measured speedup.
 | Explicit wrapper reaches the same controls: accepted `env PATH=/opt/homebrew/bin:$PATH npm test -- tests/makeme-native-use.sh` at the fourth commit, followed by independent refactor renewal | All seven controls pass. Direct Node discovery runs those exact files; no distinct wrapper-only behavioral assertion is lost. Reuse is valid while those controls and wrapper remain unchanged. |
 | Existing selection proof can observe aggregate routing | `tests/test-runner-selection.sh` drives actual full, three-share and explicit `scripts/test-jobs.sh` listings and checks aggregate exclusion/group membership. Extend that public assertion for MakeMe; no claim that its present one-shot-only assertions already detect this defect. |
 
+## Current compatibility reconciliation
+
+Shared-rule reconciliation retained the original seven controls and added the
+common-command authoring and changed-scope controls above. Current default NUL
+listing (`OPEN_DOUGH_TEST_DIR=tests bash scripts/test-jobs.sh`) contains the
+wrapper and each harness file once among 617 jobs. Their test cases now
+number five and four; the wrapper still names those exact two files. The same
+duplicate route remains; this observation changes no discovery or slice status.
+Both files passed through their direct maintained runner jobs during
+reconciliation. Historical seven-control proof above remains historical;
+current protection and any future reuse must include all nine.
+
 ## Ordered slices
 
 ### 1. Discover MakeMe harness controls once without losing explicit use
@@ -72,7 +87,7 @@ default discovery and run
 `env PATH=/opt/homebrew/bin:$PATH npm test -- tests/test-runner-selection.sh tests/test-runner-split.sh`.
 
 Behavior: Default suite discovery currently produces the wrapper and both Node
-jobs → select the direct harness jobs as the only default route → all seven
+jobs → select the direct harness jobs as the only default route → all nine
 controls remain covered once, including across CI shares. Explicit aggregate
 and native entrypoints keep their current behavior. Reuse accepted harness
 proof if its code and invocation remain unchanged; rerun affected cheap controls
