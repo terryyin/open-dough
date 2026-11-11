@@ -15,7 +15,7 @@ import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { expectOriginalProofNavigation } from "../support/ciFollowUpReadingPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 
-test.use({ extraEnv: recheckingLandedCi });
+test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 
 test("the completed card opens both collected attempts and their frozen reference without acquiring CI, including first render, revisit and reload on a phone", async ({
   page,
@@ -38,9 +38,21 @@ test("the completed card opens both collected attempts and their frozen referenc
     realHistory: true,
   });
   scenario.serve();
+  // The landing starts asynchronous collection. Observe its actual rerun
+  // submission before asserting; this callback returns immediately and holds
+  // no producer or teardown resource.
+  let notifySubmission: (() => void) | undefined;
+  const submissionReached = new Promise<void>((resolve) => {
+    notifySubmission = resolve;
+  });
+  scenario.holdSubmission(() => {
+    notifySubmission?.();
+    return Promise.resolve();
+  });
   await followUpSettings(dashboard, true);
   await scenario.ingest(dashboard);
-  await expect.poll(() => scenario.repeatCalls.length).toBe(1);
+  await submissionReached;
+  expect(scenario.repeatCalls).toHaveLength(1);
   scenario.setRepeat({ seconds: 100 });
   await expect
     .poll(() => followUpSettings(dashboard))

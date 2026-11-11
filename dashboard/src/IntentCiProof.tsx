@@ -22,7 +22,6 @@ import { useId } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
 import {
   CiProofTable,
-  ScopePath,
   useCiProofSorting,
   type CiProofSorting,
 } from "./CiProofTable.tsx";
@@ -35,6 +34,7 @@ import {
   wallTimeLabel,
 } from "./CiEvidenceLabels.tsx";
 import { entryProofCellsOf } from "./ciProofEntryCells.ts";
+import { IntentCiEntryLink } from "./IntentCiEntryLink.tsx";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import { shownProofStateOf, type ShownProof } from "./useIntentCiShownProof.ts";
 
@@ -56,7 +56,7 @@ function ProofEntries({
       sorting={sorting}
       rows={entries.map((entry) => ({
         key: entry.path,
-        scope: <ScopePath path={entry.path} />,
+        scope: <IntentCiEntryLink path={entry.path} />,
         name: entry.path,
         cells: entryProofCellsOf(entry),
       }))}

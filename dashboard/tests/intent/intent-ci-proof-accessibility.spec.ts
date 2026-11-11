@@ -1,6 +1,7 @@
 import {
   ciProofReading,
   artifactId,
+  ciEntryName,
   expectProofRows,
   failedVerdict,
   openFailedRun,
@@ -20,6 +21,8 @@ import { expect, test } from "../dashboardTest.ts";
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { wordsBrokenApart } from "../wholeWords.ts";
 import { evidenceLabels } from "../ciEvidenceLabelsPage.ts";
+import { parts } from "../dashboardPage.ts";
+import { summaryRegion } from "../intentScopeProofPage.ts";
 import {
   proofSummaryForEntries,
   runArtifactsAnswer,
@@ -122,8 +125,8 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
 
   // Every row reads exactly, every column fits the reading pane with nothing
   // scrolling sideways, `whole` cells keep their words whole, and between the
-  // run link above it and Check again the keyboard stops only at the table's
-  // sortable column headers, in order.
+  // run link above it and Check again the keyboard stops at the table's
+  // sortable column headers, then its configured entry link.
   const readsAt = async (
     window: { width: number; height: number },
     whole: string,
@@ -151,6 +154,8 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
       ).toBeFocused();
     }
     await page.keyboard.press("Tab");
+    await expect(ciEntryName(proof, "dashboard/tests")).toBeFocused();
+    await page.keyboard.press("Tab");
     await expect(again).toBeFocused();
   };
 
@@ -159,5 +164,14 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
   });
   await test.step("a narrow window under 400% zoom wraps the long path within its own column", async () => {
     await readsAt(zoomedWindow, "thead th, tbody td");
+  });
+  await test.step("Space opens the configured entry at the narrow width", async () => {
+    await ciEntryName(proof, "dashboard/tests").focus();
+    await page.keyboard.press("Space");
+    const { intent } = parts(page);
+    await expect(
+      summaryRegion(intent).locator(".intent-summary-path"),
+    ).toHaveText("dashboard/tests");
+    await expect(intent.locator(".intent-reading")).toBeFocused();
   });
 });

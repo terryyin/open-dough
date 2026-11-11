@@ -124,6 +124,8 @@ and evidence ordering across the reading pane:
 | Where the developer is reading | What the timing history answers |
 | --- | --- |
 | Project Intent → **CI status** | Has CI wall time changed across recent trunk builds collected from dashboard-recorded landed executions? |
+| Project Intent → entry or folder **Summary** | How has measured test execution time changed in this scope through the observed configured-trunk head? |
+| Project Intent → test file **Proof** | What did collected builds measure for this file through the observed trunk head, and where is evidence missing? **Purpose** continues to show its source. |
 | Done story → **CI comparison** | Where does this landing sit in that history, and how does it compare with earlier eligible builds? Keep the existing Baseline, Branch, and Landed evidence together. |
 | Done story → **Changed tests** → entry or folder **Summary** | How has measured test execution time changed in this scope through the story's landing? |
 | Done story → **Changed tests** → test file **Proof** | What did CI measure for this file through the landing? **Purpose** continues to show its source or diff. |

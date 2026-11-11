@@ -1,21 +1,27 @@
 // Supplemental receiving/presentation proof. Actual collection and retained
 // unit projection belong to the integrated collector-to-Summary journey.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
-import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 import {
-  openSummaryComparison,
-  selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
-import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts";
+  expect,
+  test,
+  mountComparison,
+} from "../tests/support/comparisonMountPage.ts";
+import {
+  summaryScopeFacts,
+  serveComparison,
+} from "../tests/support/comparisonScopeFacts.ts";
+import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
 
 test("one collected attempt has separate case and file histories with one common evidence row and independent selected gaps", async ({
   page,
-  origin,
+  comparisonServer,
+  comparisonServices,
 }) => {
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const facts = summaryScopeFacts();
+  serveComparison(comparisonServices, facts, facts.entries);
+  const setup = { completion: facts.work.revision };
   const previous = "1".repeat(40);
   const collected = makeMe.aCiScopeHistory
     .with({
@@ -100,8 +106,11 @@ test("one collected attempt has separate case and file histories with one common
     (route) => route.fulfill({ json: collected }),
   );
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  const summary = await openSummaryComparison(intent, "dashboard/tests");
+  await mountComparison(page, comparisonServer, {
+    ...facts,
+    doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
+  });
+  const summary = page.getByRole("region", { name: "Summary", exact: true });
   const history = summary.getByRole("region", {
     name: "Test execution time history",
     exact: true,

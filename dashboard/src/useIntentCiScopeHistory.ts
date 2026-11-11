@@ -1,17 +1,27 @@
 // One scope's locally collected history, independent of the live comparison.
-// A failed read keeps its last answer and retries only on the reader's action.
+// Its last answered reading survives navigation in the existing Project/story
+// reading place; explicit CI judgment rounds and retry can refresh local evidence.
 
 import { useCallback } from "react";
 import { readIntentCiScopeHistory } from "./authenticatedIntentCiHistoryRead.ts";
 import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { useIntentCiEndpointHistory } from "./useIntentCiEndpointHistory.ts";
+import {
+  useIntentCiEndpointHistory,
+  type EndpointHistoryAnswer,
+} from "./useIntentCiEndpointHistory.ts";
+import type { CiScopeHistory } from "./ciScopeHistory.ts";
+import { useKeptReading } from "./pageIntentReading.tsx";
 
 export function useIntentCiScopeHistory(
   source: PublishedSource | undefined,
   path: string,
   endpoint: ScopeHistoryEndpoint | undefined,
+  checkedAgain?: string,
 ) {
+  const [kept, remember] = useKeptReading<
+    EndpointHistoryAnswer<CiScopeHistory> | undefined
+  >("ciScopeHistory", () => undefined);
   const read = useCallback(
     (
       selectedSource: PublishedSource,
@@ -25,6 +35,9 @@ export function useIntentCiScopeHistory(
     source,
     endpoint,
     scope: path,
+    kept,
+    onAnswer: remember,
+    checkedAgain,
     read,
     unreadReason:
       "The collected test execution time history could not be read.",

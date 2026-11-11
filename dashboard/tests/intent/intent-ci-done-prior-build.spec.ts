@@ -26,7 +26,7 @@ import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiC
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 
-test.use({ extraEnv: recheckingLandedCi });
+test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -79,11 +79,11 @@ test("Done wall time keeps the execution publication reference through restart, 
     throw new Error("Actual selected attempt was not collected");
   const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
   readers.push(reader);
-  await page.setViewportSize({ width: 390, height: 844 });
   const { panel, intent } = await selectDoneStoryForCiComparison(
     page,
     reader.origin,
   );
+  await page.setViewportSize({ width: 390, height: 844 });
   await expect(comparisonReading(panel).entryTable).toBeVisible();
   const history = panel.getByRole("region", {
     name: "Done CI wall time reference",

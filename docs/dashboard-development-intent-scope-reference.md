@@ -4,12 +4,29 @@ Part of [CI timing comparison](dashboard-development-intent-ci-comparison.md).
 
 ## Collected timing history
 
-For a Done story, entry and folder **Summary** and file **Proof** also show
-**Test execution time history** beside the existing evidence. File history
-stays available across Purpose/Proof navigation and when live Proof is absent.
-The endpoint is the published Done result's landing,
+Project Intent and Done stories show **Test execution time history** in entry
+and folder **Summary** and file **Proof**, beside existing evidence. No selected
+story is needed in Project Intent. File history stays available across
+Purpose/Proof navigation and when live Proof is absent.
+
+Project Intent ends at the last observed configured-trunk head, naming its
+branch, revision and observation time. A later snapshot of the same head keeps
+that observation time: elapsed time alone reads no history. Showing Project
+Intent, an observed new head and **Check again** read locally collected history.
+The last answer has its own read time, distinct from the trunk observation; a
+refresh labels the old answer **Previously retrieved history** until a new
+answer replaces it. A failed refresh keeps that matching answer and offers
+**Retry history**. An answer for another project, scope or endpoint is never
+shown as the current one. Reading and retry acquire no historical CI proof.
+
+A Done story ends at its exact published result's landing,
 independent of the build that measured it or another publication of the same
-story. Background landing collection retains each measured attempt's validated
+story. Visiting Project Intent while it stays selected uses the project endpoint;
+returning restores its Done series, selected test and reading place. A project
+endpoint without a collected observation remains named, with supported earlier
+observations and an explained endpoint gap. Unknown ancestry is conservative;
+neither an older CI measured revision nor the latest collected landing silently
+replaces the observed head. Background landing collection retains each measured attempt's validated
 GitHub Actions or adapter proof once. History reads use that local evidence,
 including after server restart.
 Opening, drilling or revisiting Summary or file Proof, including history Retry,
@@ -42,11 +59,11 @@ with dates, represented landings and the common measured build link. A mixed
 legacy result adds an unknown-unit note without adding another history; a
 legacy-only result remains a unit gap, even if its old label names test cases.
 It names equivalent-build reuse and later-build measurements separately from
-the selected landing. History matches the recorded owning entry, repository
+the displayed endpoint. History matches the recorded owning entry, repository
 path and declared unit. It does not infer historical renames or use current
 trunk's scopes to fill unavailable evidence. Unsupported entry/path/unit changes and unavailable,
 partial or untimed proof break the line and keep their reasons. Earlier supported
-segments remain readable when the selected landing is a gap. These are
+segments remain readable when the endpoint is a gap. These are
 observations of each build's scope, not timing attributed to the story. The
 history has its own local read failure and retry, preserving other evidence,
 the selected story, Purpose/Proof navigation and comparison.
@@ -55,14 +72,14 @@ history.
 
 ## Prior-build references
 
-A Done story's entry and folder Summary, and file Proof, show a **Prior-build
-average** for each declared test-case or test-file measure. This is cumulative
+Project Intent and Done entry and folder Summary, and file Proof, show a
+**Prior-build average** for each declared test-case or test-file measure. This is cumulative
 test execution time, separate from the wall-time reference in CI comparison.
 The existing observed points and gaps remain visible, with one horizontal
-reference for the displayed landing rather than a retrospective average curve.
+reference for the displayed endpoint rather than a retrospective average curve.
 
-The comparison uses the exact published Done landing and its evidenced owning
-entry, repository path and counted unit. Entry-only totals can measure an entry;
+The comparison uses the observed configured-trunk endpoint or exact published
+Done landing, with its evidenced owning entry, repository path and counted unit. Entry-only totals can measure an entry;
 folders and files need complete supporting breakdown. Another entry's missing
 proof does not reject a complete target scope.
 

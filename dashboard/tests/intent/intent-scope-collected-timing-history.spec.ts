@@ -231,6 +231,11 @@ test("a Done entry shows collector-acquired test timing through its middle landi
       await expect(storyTitle(intent)).toHaveText("Story A");
       await expectComparison();
     },
+    expectRecovered: async () => {
+      await expect(history.getByRole("listitem")).toHaveCount(2);
+      await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
+      await expect(history).toContainText("0 ms");
+    },
   });
   expect(ciCalls()).toHaveLength(beforeHistory);
 });
