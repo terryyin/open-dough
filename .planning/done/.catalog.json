@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-307_apply-shared-page-object-rules-per-entry.json",
+      "identity": "SEED-307#apply-shared-page-object-rules-per-entry",
+      "completedAt": "2026-11-11T13:30:24.708Z",
+      "blob": "14aff586dea01130dfae42ceefcb521ad1d0a963"
+    },
+    {
       "fileName": "SEED-302_make-remaining-test-domain-setup-express-intent.json",
       "identity": "SEED-302#make-remaining-test-domain-setup-express-intent",
       "completedAt": "2026-11-11T06:43:41.436Z",
@@ -1968,18 +1974,6 @@
       "identity": "SEED-063#background-ci-failure-delivery",
       "completedAt": "2026-10-12T23:55:32.494Z",
       "blob": "16955965e73026dcce9304d2f25c719856207877"
-    },
-    {
-      "fileName": "SEED-131_retain-strict-proof-selection.json",
-      "identity": "SEED-131#retain-strict-proof-selection",
-      "completedAt": "2026-10-12T12:34:18.135Z",
-      "blob": "b43735f2a0e56e3041771fda4a416f324ee44443"
-    },
-    {
-      "fileName": "SEED-132_accept-indirect-consumer-proof-natively.json",
-      "identity": "SEED-132#accept-indirect-consumer-proof-natively",
-      "completedAt": "2026-10-12T07:30:18.773Z",
-      "blob": "96bb8ea8f4a7c90bd8575b53b08e2b16d7eb27ed"
     }
   ],
   "unreadable": []

@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Express Intent test reading through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects ([plan](slice-plans/581-intent-test-reading/PLAN.md))
 - [Speed up production watcher lifecycle checks](seeds/SEED-311-production-watcher-lifecycle-checks.md#speed-up-production-watcher-lifecycle-checks) — SEED-311#speed-up-production-watcher-lifecycle-checks ([plan](slice-plans/589-speed-up-production-watcher-lifecycle-checks/PLAN.md))
 - [Apply shared MakeMe rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry) — SEED-307#apply-shared-makeme-rules-per-entry ([plan](slice-plans/589-apply-shared-makeme-rules-per-entry/PLAN.md))
-- [Apply shared page-object rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-page-object-rules-per-entry) — SEED-307#apply-shared-page-object-rules-per-entry ([plan](slice-plans/590-apply-shared-page-object-rules-per-entry/PLAN.md))
 
 ## Backlog list
 
