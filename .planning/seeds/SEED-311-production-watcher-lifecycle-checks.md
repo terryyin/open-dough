@@ -15,44 +15,65 @@ scope: story
 
 **Identity:** SEED-311#speed-up-production-watcher-lifecycle-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Queued by the early handoff; selected-story refinement and independent saving/proof criteria are unfinished. Prior slice readiness does not transfer and no execution authority is granted."],"basis":{"document":"68f260ddba5a9a2dbfdf15500c82b77054f55d0c60e4064dfa4230f7f174106f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/589-speed-up-production-watcher-lifecycle-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ce3b59566e20f35aeee2408605d4a0bbe444570b84b73fb6c5a07cc535f0fb02","plan":"17dc30036d5d022e2f813893d13c306f3b3975a8b88257eab8ae88c5e47e1e5b"}}
 ```
 
 #### Goal
 
-Dashboard maintainers get faster local feedback for production watcher deployment and recovery behavior, with the same ordinary CI protection and less repeated staging/support code.
+Dashboard maintainers get substantially faster local feedback on how the
+production watcher selects, deploys, replaces and recovers published main.
+Ordinary CI continues to catch the same product regressions.
 
-#### Scope to refine
+#### Scope
 
-- Cover actual build failure/retry, preview start failure/restoration/retry, unavailable origin/resumption, unchanged and excluded checks, published policy rejection/recovery, selected-commit pinning, native-start drain, shared records/configuration, signals, fatal restoration, preview loss and cleanup.
-- Retain real Git, builds, processes and serving where they distinguish a regression. Include every retained or replacement check and all preparation/teardown in one ordinary one-worker measurement.
-- Keep the delivered production update-selection owner and three Git cases; do not repeat that completed work. The standalone pinned-deployment proof remains in SEED-303 unless a later evidenced agreement transfers it.
-- Choose a new supported strategy before implementation. The archived shared-output experiment is evidence of a rejected strategy, not a measured irreducible floor or an additional mandatory CI suite.
+- Minimize each input to what its assertions distinguish. Exercise Open Dough's
+  behavior through actual Git, subprocesses, files and HTTP where their
+  interaction matters. Use the shared MakeMe builders for domain data.
+- Use real events to drive each transition and let the next action proceed on
+  that event. Replace fixed sleeps and test polling. Failure deadlines can
+  bound an absent event. Keep the public watch interval's production behavior.
+- Keep representative full-dashboard startup, update and shutdown journeys.
+  Move detailed failure, restoration and process-lifetime cases to cheaper
+  real production boundaries only after equivalent proof exists. Preserve
+  coverage for published reads, durable launch admission and runner lifetime.
+- Use no mocks in the replacement proof. Retain exact checks of port ownership,
+  published versus dirty local source, accepted starts, shared bytes and
+  identity, and independent development and runner processes.
+- Keep the delivered Git update-selection checks. The standalone pinning and
+  distribution proof belongs to SEED-303. Preserve normal CI selection, default
+  timeout policy and the [failure policy](../../AGENTS.md#failing-and-flaky-tests).
 
-Preserve ordinary CI selection and equivalent behavioral protection. Exclude
-local-only archived experiments from the maintained selection. Use shared MakeMe
-and existing external fixtures. No new internal mocks, wall-clock sleeps,
-retries, skips, timeout inflation or special runner modes to obtain a saving.
-Follow [the failure policy](../../AGENTS.md#failing-and-flaky-tests).
+#### Key examples
 
-#### Key examples to refine
+- A watcher stages exactly B while origin advances to C. B replaces A at the
+  same URL after accepted starts settle. Shared records and configuration
+  retain their contents and identity, and C is available for the later check.
+- A build failure leaves A serving. A failed preview start restores A. The
+  unchanged candidate remains retryable. Failed restoration reports both
+  causes and closes the URL. An unexpected preview exit ends the owning watcher.
+- An unavailable origin preserves the working dashboard. When origin returns,
+  the watcher resumes. Quiet, excluded and rejected ranges avoid staging.
+- SIGTERM during a build, SIGHUP, and SIGINT end owned processes and retire
+  checkouts. Independent services, the runner and its client stay alive.
+  Restart serves the current published commit. An occupied port stays owned by
+  its existing listener.
 
-- A candidate fails its build or preview start; the last working revision keeps serving or is restored, and the same candidate remains retryable.
-- Main advances during a held build; the selected revision activates only after accepted starts drain, preserving shared records and configuration.
-- Shutdown or fatal preview loss stops owned processes and removes deployments without harming development or shared state.
+#### Success measure
 
-#### Retained planning input — not executable
+Save at least 25 seconds of whole-command wall time on the same ordinary
+one-worker selection with every replacement, preparation and teardown paid.
+Budget around 90 seconds from the retained 129.90-second local comparison.
+Require repeated passing observations and a fresh comparison on the current
+execution base. The 85.50–93.61-second feasibility result retained 31 cases
+and included only partial synchronization changes. The 11.22-second
+lower-boundary trial covered four recovery cases and established a restoration
+fault control. Retain the live watcher observations whose faults it did not
+exercise.
 
-Former slice 4 supplies provisional planning input; delivered slices 2–3 supply compatible source preparation and update-selection work. Current watcher/pinning selection: 103.32 s for 24 cases. Matched watcher-only comparison: 115.55 s before versus 95.93 s after (median). The rejected local watcher/preview reuse experiment took 44.61 s for an incomplete subset. Refinement must establish a worthwhile family saving and a credible strategy; no inherited eight-second allocation or combined-five-family deadline applies.
+#### Provenance
 
-This story is queued, not assigned. Refine its goal, measurable saving, scope and
-examples before creating or realigning an executable plan. Old slice readiness
-does not transfer. It can deliver its own improvement if the other extracted
-stories are deferred; no dependency is inferred from priority or shared files.
-
-#### Provenance and evidence
-
-Extracted by Terry's instruction from [SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks),
-with the [slice mapping](../evidence/SEED-303-early-handoff/README.md).
-Use [watcher-evidence.md](../evidence/SEED-303-early-handoff/watcher-evidence.md) and
-[preview-evidence.md](../evidence/SEED-303-early-handoff/preview-evidence.md) as retained evidence, not a new baseline.
+Extracted from [SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks)
+under the [slice mapping](../evidence/SEED-303-early-handoff/README.md).
+The [watcher evidence](../evidence/SEED-303-early-handoff/watcher-evidence.md)
+records delivered Git selection work. The [preview evidence](../evidence/SEED-303-early-handoff/preview-evidence.md)
+records the earlier shared-output experiment and its coverage gaps.
