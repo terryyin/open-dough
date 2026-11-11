@@ -6,6 +6,7 @@
 // the page decide everything shown.
 
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership, parts } from "../dashboardPage.ts";
@@ -60,6 +61,12 @@ The retrospective found nothing to record.
 const seedPath = ".planning/seeds/SEED-094-complete.md";
 const href = (anchor: string) => `seeds/SEED-094-complete.md#${anchor}`;
 
+const membership = stories.map(({ title, anchor }) =>
+  makeMe.aBacklogEntry
+    .with({ title, identity: `SEED-094#${anchor}`, href: href(anchor) })
+    .please(),
+);
+
 // The seed prose the dashboard reads; each story's planned state is a
 // declared fact beside it.
 const seed = `---
@@ -67,27 +74,14 @@ id: SEED-094
 ---
 
 # Execution complete fixture
-${stories
-  .map(
-    ({ title, anchor }) => `
-<a id="${anchor}"></a>
 
-### ${title}
-
-**Identity:** SEED-094#${anchor}
-`,
-  )
-  .join("\n")}`;
+${membership.map((story) => renderStorySection(story)).join("\n")}`;
 
 const published = describedRevision(
   makeMe.aRepository
     .withRevision("completion", {
       backlog: {
-        taken: stories.map(({ title, anchor }) =>
-          makeMe.aBacklogEntry
-            .with({ title, identity: `SEED-094#${anchor}`, href: href(anchor) })
-            .please(),
-        ),
+        taken: membership,
       },
       files: {
         [seedPath]: seed,

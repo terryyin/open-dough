@@ -10,6 +10,7 @@
 // landings, which stay exact, in ./dashboard-landed-exact-build.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
+import { makeMe } from "./makeMe.mjs";
 import { lookupResultBuild } from "../../dashboard/server/baseCiRevisionLookup.ts";
 import { baselineAncestorLimit } from "../../dashboard/server/exactSkippedEquivalent.ts";
 import { unreadableBy } from "../../dashboard/server/ciProofArtifact.ts";
@@ -134,14 +135,17 @@ test("a cancelled landing without later proof says why and names the build it co
     async () => absent("none"),
   );
   // A later build as the walk names it: run 65 from noon for 3 min.
-  const laterBuild = (revision, runId) => ({
-    revision,
-    selection: "later",
-    runId,
-    runAttempt: 1,
-    startedAt: "2026-11-05T12:00:00Z",
-    completedAt: "2026-11-05T12:03:00Z",
-  });
+  const laterBuild = (revision, runId) =>
+    makeMe.anUnusableBuild
+      .with({
+        revision,
+        selection: "later",
+        runId,
+        runAttempt: 1,
+        startedAt: "2026-11-05T12:00:00Z",
+        completedAt: "2026-11-05T12:03:00Z",
+      })
+      .please();
   assert.deepEqual(prooflessBeforeRunning, {
     kind: "none",
     explanation: `${cancelled} The nearest later trunk build at ${short(later1)} (run 65 #1) published no CI proof summary. A later trunk build at ${short(later2)} (run 66 #1) is still running.`,

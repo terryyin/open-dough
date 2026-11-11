@@ -6,6 +6,7 @@ import {
   openTerminalVoice,
   stopTerminalClip,
   openTerminalPrompts,
+  unfocusedPromptButtons,
 } from "../support/terminalVoicePage.ts";
 import {
   noteTerminalTraffic,
@@ -131,6 +132,7 @@ test.describe("phone terminal microphone", () => {
     provider,
     launchJourney,
   }) => {
+    await unfocusedPromptButtons(page);
     seedVoiceKey(dashboard.home);
     provider.setText("the session header");
     const { sizes, sent } = noteTerminalTraffic(page);

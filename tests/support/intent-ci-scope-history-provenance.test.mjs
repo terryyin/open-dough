@@ -19,23 +19,31 @@ test("shared equivalent attempts appear once and later-build measurement keeps i
     .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(older, "run/1/1", {
-      revision: older.revision,
-      state: "pass",
-      runId: 1,
-      runAttempt: 1,
-      proof,
-    })
+    .recording(
+      older,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: older.revision,
+          state: "pass",
+          runId: 1,
+          runAttempt: 1,
+          proof,
+        })
+        .please(),
+    )
     .recording(
       selected,
       "run/1/1",
-      {
-        revision: older.revision,
-        state: "pass",
-        runId: 1,
-        runAttempt: 1,
-        proof,
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision: older.revision,
+          state: "pass",
+          runId: 1,
+          runAttempt: 1,
+          proof,
+        })
+        .please(),
       "equivalent",
     )
     .please();
@@ -53,15 +61,17 @@ test("shared equivalent attempts appear once and later-build measurement keeps i
     .recording(
       selected,
       "run/3/1",
-      {
-        revision: "c".repeat(40),
-        state: "pass",
-        startedAt: "2026-11-03T00:00:00Z",
-        proof: makeMe.aCiProof
-          .forRun({ revision: "c".repeat(40), runId: 3 })
-          .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
-          .please(),
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision: "c".repeat(40),
+          state: "pass",
+          startedAt: "2026-11-03T00:00:00Z",
+          proof: makeMe.aCiProof
+            .forRun({ revision: "c".repeat(40), runId: 3 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+            .please(),
+        })
+        .please(),
       "later",
     )
     .please();
@@ -99,21 +109,35 @@ test("an unselected equivalent receipt keeps its own role when a later distinct 
     .please();
   const history = makeMe.aLandedCiHistory
     .inTrunkOrder([a.revision, p.revision, e.revision])
-    .recording(a, "run/1/1", { revision: a.revision, state: "pass", proof })
+    .recording(
+      a,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({ revision: a.revision, state: "pass", proof })
+        .please(),
+    )
     .recording(
       p,
       "run/1/1",
-      { revision: a.revision, state: "pass", proof },
+      makeMe.aKeptBuild
+        .with({ revision: a.revision, state: "pass", proof })
+        .please(),
       "equivalent",
     )
-    .recording(e, "run/3/1", {
-      revision: e.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: e.revision, runId: 3 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+    .recording(
+      e,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: e.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: e.revision, runId: 3 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+            .please(),
+        })
         .please(),
-    })
+    )
     .please();
   const read = scopeHistoryOf(
     history,

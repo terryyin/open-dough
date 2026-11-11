@@ -99,12 +99,16 @@ export async function createRevisionCoverageFixture(
   writeFileSync(adapterCalls, "0");
   writeFileSync(
     join(project, ".planning/open-dough.json"),
-    JSON.stringify({
-      ciAdapter: [process.execPath, adapter],
-      ...(integratedPolicy
-        ? { integratedStateCompletion: integratedPolicy }
-        : {}),
-    }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({
+          ciAdapter: [process.execPath, adapter],
+          ...(integratedPolicy
+            ? { integratedStateCompletion: integratedPolicy }
+            : {}),
+        })
+        .please(),
+    ),
   );
 
   const launcher = join(installed, "scripts/ci-mailbox.mjs");

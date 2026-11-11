@@ -87,25 +87,35 @@ for (const bounds of ["available", "unavailable"] as const) {
       home,
       makeMe.aLandedCiHistory
         .inTrunkOrder([trunk.revision("ci"), originalLanding.revision])
-        .recording(landing, "run/41/1", {
-          revision: originalLanding.revision,
-          state: "pass",
-          runId: 41,
-          runAttempt: 1,
-          runUrl: "https://ci.invalid/runs/41",
-          startedAt: original.createdAt,
-          completedAt: original.completedAt,
-          timingBasis: undefined,
-          proof: makeMe.aCiProof
-            .forRun({ revision: originalLanding.revision, runId: 41 })
-            .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+        .recording(
+          landing,
+          "run/41/1",
+          makeMe.aKeptBuild
+            .with({
+              revision: originalLanding.revision,
+              state: "pass",
+              runId: 41,
+              runAttempt: 1,
+              runUrl: "https://ci.invalid/runs/41",
+              startedAt: original.createdAt,
+              completedAt: original.completedAt,
+              timingBasis: undefined,
+              proof: makeMe.aCiProof
+                .forRun({ revision: originalLanding.revision, runId: 41 })
+                .entries([
+                  makeMe.aCiProofEntry.at("tests").counting(1).please(),
+                ])
+                .please(),
+            })
             .please(),
-        })
+        )
         .please(),
     );
     const beforeCollection = await startServer({ environment: "development" });
     const beforeRead = github.calls.length;
-    expect(await landedCiHistory(beforeCollection)).toMatchObject({
+    expect(
+      await landedCiHistory(beforeCollection, "timing-basis"),
+    ).toMatchObject({
       body: {
         entries: [
           {
@@ -120,7 +130,7 @@ for (const bounds of ["available", "unavailable"] as const) {
     await beforeCollection.close();
     const server = await startServer();
     await expect
-      .poll(() => landedCiHistory(server))
+      .poll(() => landedCiHistory(server, "timing-basis"))
       .toMatchObject({
         body: {
           entries: [
@@ -173,7 +183,7 @@ for (const bounds of ["available", "unavailable"] as const) {
     const reader = await restartAsLandedCiReader(server, origin, "boundary");
     try {
       const asked = github.calls.length;
-      expect(await landedCiHistory(reader)).toMatchObject({
+      expect(await landedCiHistory(reader, "timing-basis")).toMatchObject({
         body: {
           entries: [
             bounds === "available"

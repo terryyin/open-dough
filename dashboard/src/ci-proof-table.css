@@ -94,3 +94,15 @@
 .intent-ci-sort-mark[data-direction="none"] {
   color: var(--quiet);
 }
+
+/* Labeled result-type lines inside a homepage Proof Counts or Test execution
+   time cell: the unit name sits above its figure so matching lines stay
+   aligned across columns without widening the table. */
+.intent-ci-proof-unit-line + .intent-ci-proof-unit-line {
+  margin-top: var(--space-1);
+}
+
+.intent-ci-proof-unit-label {
+  display: block;
+  color: var(--quiet);
+}

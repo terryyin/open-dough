@@ -126,9 +126,11 @@ test("development mode and unsupported providers retain reading but cannot enabl
   const configuration = makeMe.aRepository
     .withRevision("adapter", {
       files: {
-        ".planning/open-dough.json": JSON.stringify({
-          ciAdapter: ["node", "provider.mjs"],
-        }),
+        ".planning/open-dough.json": JSON.stringify(
+          makeMe.projectCiSettings
+            .with({ ciAdapter: ["node", "provider.mjs"] })
+            .please(),
+        ),
       },
     })
     .please().revisions[0];

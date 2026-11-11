@@ -15,14 +15,20 @@ test("a missing endpoint uses evidenced trunk order to retain preceding observat
     .receivedAt("2026-11-03T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(before, "run/1/1", {
-      revision: before.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: before.revision })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+    .recording(
+      before,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: before.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: before.revision })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+            .please(),
+        })
         .please(),
-    })
+    )
     .gap(after, "Failed")
     .please();
   const read = scopeHistoryOf(
@@ -85,33 +91,51 @@ test("published trunk order controls the cohort when preparation and receipt dat
     .please();
   const history = makeMe.aLandedCiHistory
     .inTrunkOrder([p.revision, e.revision, r.revision])
-    .recording(p, "run/1/1", {
-      revision: p.revision,
-      state: "pass",
-      startedAt: "2026-11-01T00:00:00Z",
-      proof: makeMe.aCiProof
-        .forRun({ revision: p.revision })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+    .recording(
+      p,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: p.revision,
+          state: "pass",
+          startedAt: "2026-11-01T00:00:00Z",
+          proof: makeMe.aCiProof
+            .forRun({ revision: p.revision })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+            .please(),
+        })
         .please(),
-    })
-    .recording(e, "run/2/1", {
-      revision: e.revision,
-      state: "pass",
-      startedAt: "2026-11-02T00:00:00Z",
-      proof: makeMe.aCiProof
-        .forRun({ revision: e.revision, runId: 2 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+    )
+    .recording(
+      e,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: e.revision,
+          state: "pass",
+          startedAt: "2026-11-02T00:00:00Z",
+          proof: makeMe.aCiProof
+            .forRun({ revision: e.revision, runId: 2 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+            .please(),
+        })
         .please(),
-    })
-    .recording(r, "run/3/1", {
-      revision: r.revision,
-      state: "pass",
-      startedAt: "2026-11-03T00:00:00Z",
-      proof: makeMe.aCiProof
-        .forRun({ revision: r.revision, runId: 3 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+    )
+    .recording(
+      r,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: r.revision,
+          state: "pass",
+          startedAt: "2026-11-03T00:00:00Z",
+          proof: makeMe.aCiProof
+            .forRun({ revision: r.revision, runId: 3 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+            .please(),
+        })
         .please(),
-    })
+    )
     .please();
   const read = scopeHistoryOf(
     history,

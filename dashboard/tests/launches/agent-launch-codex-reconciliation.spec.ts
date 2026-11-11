@@ -12,18 +12,19 @@ import {
   attempts,
   continued,
   launch,
-  refinementRequest,
   machineSessions,
 } from "../agentLaunchBoundary.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
-const request = {
-  ...refinementRequest,
-  host: "codex",
-  identity: notRefinedIdentity,
-  title: notRefinedStory,
-  instruction: "Preserve this exact intent.",
-};
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+const request = makeMe.aLaunchRequest
+  .refining({
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+    host: "codex",
+  })
+  .withInstruction("Preserve this exact intent.")
+  .please();
 test.use({ projectFolders: ["open-dough"] });
 
 test("explicit input refusal allows the saved input once in the resumed same conversation", async ({

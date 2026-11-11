@@ -23,7 +23,9 @@ const signal = new AbortController().signal;
 
 // The asked GitHub Actions run attempt, and its summary artifact as GitHub
 // lists it.
-const run = { runId: 41, runAttempt: 1, revision };
+const run = makeMe.aCiProofRun
+  .with({ runId: 41, runAttempt: 1, revision })
+  .please();
 const listedArtifact = makeMe.aCiProofArtifact
   .with({ id: 9, runId: 41, runAttempt: 1 })
   .please();

@@ -1,7 +1,7 @@
 // @ts-check
 // What a session submits to report its completion, as the dashboard's
 // completion admission (`../../dashboard/server/completionAdmission.ts`)
-// receives it. The report the store keeps is `./launchOutcomeTestData.mjs`'s.
+// receives it. The report the store keeps is `./completionReportTestData.mjs`.
 
 import { reportingReference } from "./launchLandingTestData.mjs";
 

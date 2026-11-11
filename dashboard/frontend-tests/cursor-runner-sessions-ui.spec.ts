@@ -43,18 +43,14 @@ const heldRecord = makeMe.aLaunchRecord
   .launchedAt("2026-10-01T00:00:00.000Z")
   .please();
 
-const heldSessions: RunningCursorSessions = {
-  runner: "running",
-  sessions: [{ record: heldRecord, label: "working" }],
-};
-const unreachable: RunningCursorSessions = {
-  runner: "unreachable",
-  sessions: [],
-};
-const noHeldSessions: RunningCursorSessions = {
-  runner: "running",
-  sessions: [],
-};
+const heldSessions: RunningCursorSessions = makeMe.aRunningCursorSessions
+  .holding({ record: heldRecord, label: "working" })
+  .please();
+const unreachable: RunningCursorSessions = makeMe.aRunningCursorSessions
+  .unreachable()
+  .please();
+const noHeldSessions: RunningCursorSessions =
+  makeMe.aRunningCursorSessions.please();
 
 function holdCursorSession(frontendServices: FrontendServiceState) {
   putFrontendMachine(

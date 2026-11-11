@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { backlogOf } from "../../../../tests/support/product-backlog-fixture.mjs";
 import { renderPlanSlice } from "../../../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../../tests/support/published-seed.mjs";
+import { renderEntry } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   executionBranch,
   git,
@@ -20,25 +22,42 @@ import { materializeRepository } from "../../../../tests/support/repository-fixt
 export const cli = fileURLToPath(
   new URL("./source-freshness.mjs", import.meta.url),
 );
-const identity = "SEED-900#story";
+const story = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-900#story",
+    href: "seeds/SEED-900-freshness.md#story",
+    title: "The story",
+  })
+  .please();
+const identity = story.identity;
 export const seedPath = ".planning/seeds/SEED-900-freshness.md";
 export const planPath = ".planning/slice-plans/001-story/PLAN.md";
 const backlogPath = ".planning/PRODUCT-BACKLOG.md";
+const linkedStory = {
+  ...story,
+  plan: { label: "plan", target: "slice-plans/001-story/PLAN.md" },
+};
+const planHomed = makeMe.aBacklogEntry
+  .with({
+    identity,
+    href: "slice-plans/001-story/PLAN.md",
+    title: "Correction",
+  })
+  .please();
 // Taken entries: a story with its linked plan, a quick story without one, and
 // a plan-homed correction whose home is the plan.
 export const takenEntries = {
-  linked: `- [The story](seeds/SEED-900-freshness.md#story) — ${identity} ([plan](slice-plans/001-story/PLAN.md))`,
-  quick: `- [The story](seeds/SEED-900-freshness.md#story) — ${identity}`,
-  planHomed: `- [Correction](slice-plans/001-story/PLAN.md) — ${identity}`,
+  linked: renderEntry(linkedStory),
+  quick: renderEntry(story),
+  planHomed: renderEntry(planHomed),
 };
 
-export const storySection = (extra = "") => `<a id="story"></a>
-
-### The story
-
-**Identity:** ${identity}
-
-Promise one.${extra}`;
+// No final newline: sectionText and freshness application compare this string.
+export const storySection = (extra = "") =>
+  renderStorySection(story, { body: `Promise one.${extra}` }).replace(
+    /\n$/,
+    "",
+  );
 
 export const seedOf = ({
   story = storySection(),

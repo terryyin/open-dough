@@ -5,14 +5,20 @@ import {
   accept,
   attempts,
   launch,
-  refinementRequest,
+  identity,
+  title,
   machineSessions,
   deleteRecord,
 } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+
+const codexRefinement = makeMe.aLaunchRequest
+  .refining({ identity, title, host: "codex" })
+  .please();
 
 test("an active detached caller still records acknowledgment and a later connection failure retains recovery/disposes resources", async ({
   dashboard,
@@ -24,7 +30,7 @@ test("an active detached caller still records acknowledgment and a later connect
   const response = fetch(`${dashboard.baseURL}${agentAcceptEndpoint}`, {
     method: "POST",
     headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-    body: JSON.stringify({ ...refinementRequest, host: "codex" }),
+    body: JSON.stringify(codexRefinement),
     signal: AbortSignal.timeout(1000),
   }).catch(() => undefined);
   await expect
@@ -66,7 +72,7 @@ test("an accepted launch outlives its caller; server shutdown keeps it unsettled
   const native = protocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;
-  const request = { ...refinementRequest, host: "codex" };
+  const request = codexRefinement;
   const answered = JSON.parse((await accept(dashboard, request)).body) as {
     kind: string;
     attempt?: { id: string; acceptedAt: string };
@@ -147,10 +153,7 @@ for (const ending of ["complete", "disconnect"] as const) {
     const native = protocol;
     if (native === undefined) throw new Error("Missing native fixture.");
     native.afterAcceptance = ending;
-    const response = await launch(dashboard, {
-      ...refinementRequest,
-      host: "codex",
-    });
+    const response = await launch(dashboard, codexRefinement);
     expect(JSON.parse(response.body)).toMatchObject({ kind: "launched" });
     await expect.poll(() => native.sockets.size).toBe(0);
     expect(stored(dashboard.home)[0]?.firstInput?.state).toBe("confirmed");
@@ -174,9 +177,9 @@ test("deleting an unreadable Codex record remains deleted after a later native c
   if (native === undefined) throw new Error("Missing native fixture.");
   expect(
     (
-      JSON.parse(
-        (await launch(dashboard, { ...refinementRequest, host: "codex" })).body,
-      ) as { kind: unknown }
+      JSON.parse((await launch(dashboard, codexRefinement)).body) as {
+        kind: unknown;
+      }
     ).kind,
   ).toBe("launched");
   expect(native.sockets.size).toBe(1);

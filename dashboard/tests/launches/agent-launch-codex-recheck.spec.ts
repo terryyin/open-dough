@@ -3,16 +3,18 @@
 import { agentVerifyEndpoint } from "../../src/agentLaunch.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
-import { attempts, launch, refinementRequest } from "../agentLaunchBoundary.ts";
+import { attempts, launch } from "../agentLaunchBoundary.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { test, expect } from "../support/codexLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...refinementRequest,
-  host: "codex",
-  identity: notRefinedIdentity,
-  title: notRefinedStory,
-};
+const request = makeMe.aLaunchRequest
+  .refining({
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+    host: "codex",
+  })
+  .please();
 const subject = `${notRefinedStory} (${notRefinedIdentity})`;
 test.use({ projectFolders: ["open-dough"] });
 

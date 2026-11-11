@@ -43,7 +43,11 @@ process.stdout.write(readFileSync(${JSON.stringify(attempts)}, 'utf8'));
   mkdirSync(join(project, ".planning"));
   writeFileSync(
     join(project, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   // Published whole: the adapter may read it while a poll is in flight, and
   // a partial read would be a poll error, which waits a full interval.

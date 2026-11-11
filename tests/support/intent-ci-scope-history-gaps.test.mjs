@@ -64,11 +64,17 @@ test("failed, partial, untimed, missing, invalid and null-unit observations rema
     ],
   ]) {
     const history = makeMe.aLandedCiHistory
-      .recording(landing, "run/1/1", {
-        revision: landing.revision,
-        state,
-        proof,
-      })
+      .recording(
+        landing,
+        "run/1/1",
+        makeMe.aKeptBuild
+          .with({
+            revision: landing.revision,
+            state,
+            proof,
+          })
+          .please(),
+      )
       .please();
     const read = scopeHistoryOf(
       history,
@@ -99,13 +105,19 @@ test("a missing measured-build date remains a gap at the recorded landing, witho
     .entries([makeMe.aCiProofEntry.at("tests").timed(1200).please()])
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(landing, "run/1/1", {
-      revision: landing.revision,
-      state: "pass",
-      startedAt: undefined,
-      completedAt: undefined,
-      proof,
-    })
+    .recording(
+      landing,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: landing.revision,
+          state: "pass",
+          startedAt: undefined,
+          completedAt: undefined,
+          proof,
+        })
+        .please(),
+    )
     .please();
   const read = scopeHistoryOf(
     history,

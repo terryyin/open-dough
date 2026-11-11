@@ -42,21 +42,33 @@ test("stored v1 and v2 proof with an old gap normalize locally without inferring
     .please();
   const history = makeMe.aLandedCiHistory
     .inTrunkOrder([legacy.revision, modern.revision, missing.revision])
-    .recording(legacy, "run/1/1", {
-      revision: legacy.revision,
-      state: "pass",
-      runId: 1,
-      runAttempt: 1,
-      startedAt: legacy.receivedAt,
-    })
-    .recording(modern, "run/2/1", {
-      revision: modern.revision,
-      state: "pass",
-      runId: 2,
-      runAttempt: 1,
-      startedAt: modern.receivedAt,
-      proof: modernProof,
-    })
+    .recording(
+      legacy,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: legacy.revision,
+          state: "pass",
+          runId: 1,
+          runAttempt: 1,
+          startedAt: legacy.receivedAt,
+        })
+        .please(),
+    )
+    .recording(
+      modern,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: modern.revision,
+          state: "pass",
+          runId: 2,
+          runAttempt: 1,
+          startedAt: modern.receivedAt,
+          proof: modernProof,
+        })
+        .please(),
+    )
     .gap(missing, "The older collector could not establish this result.")
     .please();
   // Deliberate v1 wire bytes: even a label spelling "test cases" is provenance,

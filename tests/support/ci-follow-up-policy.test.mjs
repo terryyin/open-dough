@@ -35,25 +35,27 @@ function cohort({
     builder.recording(
       landing,
       `run/${runId}/1`,
-      {
-        revision,
-        runId,
-        runAttempt: 1,
-        startedAt,
-        completedAt,
-        state: index === samples ? state : "pass",
-        timingBasis,
-        ...(proof
-          ? {
-              proof: makeMe.aCiProof
-                .forRun({ revision, runId })
-                .entries([
-                  makeMe.aCiProofEntry.at("tests").counting(1).please(),
-                ])
-                .please(),
-            }
-          : {}),
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          runId,
+          runAttempt: 1,
+          startedAt,
+          completedAt,
+          state: index === samples ? state : "pass",
+          timingBasis,
+          ...(proof
+            ? {
+                proof: makeMe.aCiProof
+                  .forRun({ revision, runId })
+                  .entries([
+                    makeMe.aCiProofEntry.at("tests").counting(1).please(),
+                  ])
+                  .please(),
+              }
+            : {}),
+        })
+        .please(),
       index === samples ? selection : "exact",
     );
   }

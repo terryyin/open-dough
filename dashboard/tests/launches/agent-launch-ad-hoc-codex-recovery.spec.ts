@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // Store/HTTP recovery owns intent and decisions; the fixture only answers native RPC.
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, machineSessions } from "../agentLaunchBoundary.ts";
@@ -10,7 +11,7 @@ import { parts } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 
-const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });
 
 for (const blank of [true, false]) {

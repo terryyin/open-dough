@@ -72,18 +72,25 @@ export function doneWallReferenceHistory(
   if (options.later) {
     for (const [index, revision] of order.slice(end + 1).entries()) {
       const runId = index + 301;
-      record(revision, `later-${index}`, runId, {
+      record(
         revision,
-        state: "pass",
+        `later-${index}`,
         runId,
-        runAttempt: 1,
-        startedAt: "2026-11-08T10:00:00Z",
-        completedAt: "2026-11-08T10:01:40Z",
-        proof: makeMe.aCiProof
-          .forRun({ revision, runId })
-          .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+        makeMe.aKeptBuild
+          .with({
+            revision,
+            state: "pass",
+            runId,
+            runAttempt: 1,
+            startedAt: "2026-11-08T10:00:00Z",
+            completedAt: "2026-11-08T10:01:40Z",
+            proof: makeMe.aCiProof
+              .forRun({ revision, runId })
+              .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+              .please(),
+          })
           .please(),
-      });
+      );
     }
   }
   return builder.please();

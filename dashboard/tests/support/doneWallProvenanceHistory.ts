@@ -64,19 +64,21 @@ export function keepDoneWallProvenanceHistory(
         .receivedAt(startedAt)
         .please(),
       `run/${runId}/1`,
-      {
-        revision: measured,
-        state: "pass",
-        runId,
-        runAttempt: 1,
-        runUrl: `https://ci.invalid/runs/${runId}`,
-        startedAt,
-        completedAt: new Date(Date.parse(startedAt) + ms).toISOString(),
-        proof: makeMe.aCiProof
-          .forRun({ revision: measured, runId })
-          .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
-          .please(),
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision: measured,
+          state: "pass",
+          runId,
+          runAttempt: 1,
+          runUrl: `https://ci.invalid/runs/${runId}`,
+          startedAt,
+          completedAt: new Date(Date.parse(startedAt) + ms).toISOString(),
+          proof: makeMe.aCiProof
+            .forRun({ revision: measured, runId })
+            .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+            .please(),
+        })
+        .please(),
       selection,
     );
   };

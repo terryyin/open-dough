@@ -5,7 +5,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import type { AttemptObservation } from "../../src/agentLaunch.ts";
+import type {
+  AttemptObservation,
+  LaunchAttemptRecord,
+} from "../../src/agentLaunch.ts";
 import {
   accept,
   attempts,
@@ -61,14 +64,7 @@ export const nothingStarted = async (
 // Seeds one kept attempt into the machine's launch-attempts store.
 export const seedKeptAttempt = (
   home: string,
-  attempt: {
-    readonly id: string;
-    readonly request: typeof openSessionRequest;
-    readonly acceptedAt: string;
-    readonly publication: { readonly kind: string };
-    readonly outcome: object;
-    readonly settledAt: string;
-  },
+  attempt: LaunchAttemptRecord,
 ): void => {
   const folder = path.join(home, ".open-dough", "dashboard");
   mkdirSync(folder, { recursive: true });

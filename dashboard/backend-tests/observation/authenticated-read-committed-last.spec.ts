@@ -34,27 +34,28 @@ const profilePath = ".planning/agents/yui-chan.json";
 const secretsPath = ".planning/secrets/not-in-backlog.md";
 const settingsPath = ".planning/open-dough.json";
 const updatedAt = "2026-09-23T08:30:00Z";
+const clockStory = makeMe.aBacklogEntry
+  .with({
+    title: "Clock story",
+    identity: "SEED-clock#story",
+    href: "seeds/SEED-clock.md#story",
+  })
+  .please();
 // Yui holds the Taken clock story on trunk.
 const published = describedRevision(
   makeMe.aRepository
     .withRevision("clock", {
       backlog: {
-        taken: [
-          makeMe.aBacklogEntry
-            .with({
-              title: "Clock story",
-              identity: "SEED-clock#story",
-              href: "seeds/SEED-clock.md#story",
-            })
-            .please(),
-        ],
+        taken: [clockStory],
       },
-      files: { [seedPath]: "# Seed\n\n**Identity:** SEED-clock#story\n" },
+      files: {
+        [seedPath]: `# Seed\n\n**Identity:** ${clockStory.identity}\n`,
+      },
       agentProfiles: [
         makeMe.anAgentProfile
           .executing({
             name: "Yui",
-            identity: "SEED-clock#story",
+            identity: clockStory.identity,
             mode: "trunk",
             branch: "origin/main",
           })

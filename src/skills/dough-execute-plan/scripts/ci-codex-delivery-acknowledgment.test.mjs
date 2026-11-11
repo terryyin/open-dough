@@ -37,15 +37,28 @@ import {
   deferObserverStop,
 } from "./watch-ci-test-fixtures.mjs";
 import { awaitSignalWhileRunning } from "./process-lifetime-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 const first = "a".repeat(40);
 const repair = "b".repeat(40);
 const green = "c".repeat(40);
-const failedRun = (databaseId, headSha) => ({
-  databaseId,
-  headSha,
-  conclusion: "failure",
-});
+// Case-driving run facts for `releaseRun` (which builds through MakeMe).
+const failedRun = (databaseId, headSha) =>
+  makeMe.aCiRun
+    .with({
+      databaseId,
+      headSha,
+      conclusion: "failure",
+    })
+    .please();
+const successRun = (databaseId, headSha) =>
+  makeMe.aCiRun
+    .with({
+      databaseId,
+      headSha,
+      conclusion: "success",
+    })
+    .please();
 
 // Starts the documented binding on a real `ci-mailbox.mjs stream` and
 // resolves once its first yielded output reported the mailbox.
@@ -131,11 +144,12 @@ test("two failures notified to a Codex coordinator and repaired no longer hold c
   await register(env, directory, repair);
   await codex.deliveredThrough(2, "the repair's failure acknowledged");
 
-  releaseRun(root, failedRun(41, first), failedRun(42, repair), {
-    databaseId: 43,
-    headSha: green,
-    conclusion: "success",
-  });
+  releaseRun(
+    root,
+    failedRun(41, first),
+    failedRun(42, repair),
+    successRun(43, green),
+  );
   await register(env, directory, green);
   const completed = await complete(env, directory, green);
 
@@ -169,11 +183,12 @@ test("a failure recorded after the Codex coordinator stopped reading stays unrea
   codex.host.stopReading();
   assert.deepEqual(await codex.binding, { completed: true });
 
-  releaseRun(root, failedRun(41, first), failedRun(42, repair), {
-    databaseId: 43,
-    headSha: green,
-    conclusion: "success",
-  });
+  releaseRun(
+    root,
+    failedRun(41, first),
+    failedRun(42, repair),
+    successRun(43, green),
+  );
   await register(env, directory, repair);
   await register(env, directory, green);
   await awaitWorkerState(

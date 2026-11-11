@@ -11,6 +11,9 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { readHome } from "../../src/skills/dough-product-backlog/scripts/product-backlog-home-reader.mjs";
 import { readPlanSlices } from "../../src/skills/dough-product-backlog/scripts/product-backlog-plan-reader.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { renderStorySection } from "./published-seed.mjs";
+import { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   backlogOf,
   projectFile,
@@ -23,12 +26,21 @@ import { readState, recordArgs } from "./story-state-fixture.mjs";
 
 const seedPath = "seeds/SEED-030-release-notes.md";
 const planPath = "slice-plans/070-order-release-notes/PLAN.md";
-const story = {
-  identity: "SEED-030#order-release-notes",
-  href: `${seedPath}#order-release-notes`,
-  title: "Order release notes by tag date",
-};
-const storyLine = `- [${story.title}](${story.href}) — ${story.identity}`;
+const completed = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-030#publish-notes",
+    href: `${seedPath}#publish-notes`,
+    title: "Publish notes with each tagged release",
+  })
+  .please();
+const story = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-030#order-release-notes",
+    href: `${seedPath}#order-release-notes`,
+    title: "Order release notes by tag date",
+  })
+  .please();
+const storyLine = renderEntry(story);
 
 // The completed story stays until its wrap-up; the correction story beside it
 // holds only purpose and scope, and links the plan.
@@ -38,29 +50,19 @@ id: SEED-030
 
 # Publish release notes
 
-<a id="publish-notes"></a>
-
-### Publish notes with each tagged release
-
-**Identity:** SEED-030#publish-notes
-
-**Goal:** Readers find the notes for every tagged release.
-
-<a id="order-release-notes"></a>
-
-### ${story.title}
-
-**Identity:** ${story.identity}
-
-**Goal:** Readers see the notes of the newest tag first, as the published
+${renderStorySection(completed, {
+  goal: "Readers find the notes for every tagged release.",
+})}
+${renderStorySection(story, {
+  body: `**Goal:** Readers see the notes of the newest tag first, as the published
 notes promised.
 
 **Scope:** Correct the note order only; no new release-note features.
 
-**Plan:** [Order release notes](../${planPath}).
-`;
+**Plan:** [Order release notes](../${planPath}).`,
+})}`;
 
-const plan = `# Order release notes by tag date
+const plan = `# ${story.title}
 
 ## Source
 

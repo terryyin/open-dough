@@ -4,17 +4,26 @@
 // among equal totals, a timing column by its measured milliseconds
 // (`./ciProofTiming.ts`) — or, for Branch and Landed cells showing their
 // change from Baseline, by that signed change — and a story comparison's
-// Change by kind: added, modified, removed, then renamed. A row
-// without a value for the sorted column (partial or unavailable timing, no CI
-// result, an endpoint gap, a scope the story leaves unchanged, an entry
-// without a measured change where changes are shown) follows the
-// rows with one in either direction; such rows, and ties, keep the order the
-// caller gave. A pinned row stays last under any sort. The first activation of
-// a column sorts it ascending, the next reverses it. The sort choice is the
-// caller's in-memory state.
+// Change by kind: added, modified, removed, then renamed. A homepage Proof
+// row with several units (`unitLines`) compares each unit's figures in case,
+// file, then legacy order, using the next unit only to break a tie, and never
+// sums different units into one count, time, or sort key. A row without a
+// value for the sorted column (partial or unavailable timing, no CI result, an
+// endpoint gap, a scope the story leaves unchanged, an entry without a measured
+// change where changes are shown, or a unit that entry does not report) follows
+// the rows with one in either direction; such rows, and ties, keep the order
+// the caller gave. A pinned row stays last under any sort. The first activation
+// of a column sorts it ascending, the next reverses it. The sort choice is the
+// caller's in-memory state. Single-unit and comparison callers keep the
+// single-figure path below.
 
 import type { TimingCell } from "./ciProofTiming.ts";
-import type { CiProofCells, CountedResults } from "./ciProofWording.ts";
+import { listedUnits, type CiProofUnit } from "./ciProofUnits.ts";
+import type {
+  CiProofCells,
+  CiProofUnitLine,
+  CountedResults,
+} from "./ciProofWording.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import {
   isComparisonCells,
@@ -103,6 +112,29 @@ function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
   return byChange ? cell?.changeMs : cell?.ms;
 }
 
+// Homepage entry unit lines when CELLS carry them; none for a comparison row.
+export const unitLinesIn = (
+  cells: CiProofCells | ComparisonEntryCells,
+): readonly CiProofUnitLine[] | undefined =>
+  isComparisonCells(cells) ? undefined : cells.unitLines;
+
+function lineValue(
+  line: CiProofUnitLine | undefined,
+  column: CiProofColumn,
+): SortValue {
+  if (line === undefined) return undefined;
+  if (column === "counts") return line.countedResults;
+  if (column === "executionTime") return line.executionTime.ms;
+  return undefined;
+}
+
+function unitLine(
+  lines: readonly CiProofUnitLine[],
+  unit: CiProofUnit,
+): CiProofUnitLine | undefined {
+  return lines.find((line) => line.unit === unit);
+}
+
 // Signed order of two values in DIRECTION; failed results come first among
 // equal totals whichever the direction.
 function compareValues(
@@ -122,6 +154,35 @@ function compareValues(
   return 0;
 }
 
+function compareDefined(
+  left: SortValue,
+  right: SortValue,
+  direction: SortDirection,
+): number {
+  if (left === undefined || right === undefined) {
+    return Number(left === undefined) - Number(right === undefined);
+  }
+  return compareValues(left, right, direction);
+}
+
+// Unit-by-unit order for a homepage entry with several result types.
+function compareUnitLines(
+  left: readonly CiProofUnitLine[],
+  right: readonly CiProofUnitLine[],
+  column: CiProofColumn,
+  direction: SortDirection,
+): number {
+  for (const unit of listedUnits) {
+    const order = compareDefined(
+      lineValue(unitLine(left, unit), column),
+      lineValue(unitLine(right, unit), column),
+      direction,
+    );
+    if (order !== 0) return order;
+  }
+  return 0;
+}
+
 // ROWS in SORT's order, or as given until a column is sorted.
 export function sortedRows<Row extends SortableRow>(
   rows: readonly Row[],
@@ -132,19 +193,27 @@ export function sortedRows<Row extends SortableRow>(
     row,
     at,
     value: valueOf(row, sort.column),
+    unitLines: unitLinesIn(row.cells),
   }));
   ranked.sort((left, right) => {
     const pinned =
       Number(left.row.pinned ?? false) - Number(right.row.pinned ?? false);
     if (pinned !== 0) return pinned;
-    if (left.value === undefined || right.value === undefined) {
-      const unmeasured =
-        Number(left.value === undefined) - Number(right.value === undefined);
-      if (unmeasured !== 0) return unmeasured;
-    } else {
-      const order = compareValues(left.value, right.value, sort.direction);
+    if (
+      (sort.column === "counts" || sort.column === "executionTime") &&
+      (left.unitLines !== undefined || right.unitLines !== undefined)
+    ) {
+      const order = compareUnitLines(
+        left.unitLines ?? [],
+        right.unitLines ?? [],
+        sort.column,
+        sort.direction,
+      );
       if (order !== 0) return order;
+      return left.at - right.at;
     }
+    const order = compareDefined(left.value, right.value, sort.direction);
+    if (order !== 0) return order;
     return left.at - right.at;
   });
   return ranked.map(({ row }) => row);

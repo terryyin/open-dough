@@ -15,6 +15,7 @@ import {
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { publishJson } from "../../dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import { deliverThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
@@ -122,13 +123,17 @@ export async function commitFinalClosure(fixture, file = "closure.txt") {
 // CI reports `outcome` for each SHA once the observer discovers attempts.
 export function releaseCi(fixture, outcomes) {
   publishJson(fixture.fixture, "release.json", {
-    attempts: Object.entries(outcomes).map(([sha, outcome], index) => ({
-      runId: `run:opaque/closure-${index}`,
-      attemptId: `attempt:opaque/closure-${index}`,
-      sha,
-      outcome,
-      url: `https://ci.example.test/run/closure-${index}`,
-    })),
+    attempts: Object.entries(outcomes).map(([sha, outcome], index) =>
+      makeMe.aCiAdapterAttempt
+        .with({
+          runId: `run:opaque/closure-${index}`,
+          attemptId: `attempt:opaque/closure-${index}`,
+          sha,
+          outcome,
+          url: `https://ci.example.test/run/closure-${index}`,
+        })
+        .please(),
+    ),
   });
 }
 

@@ -10,12 +10,14 @@ import {
   signal,
 } from "../support/ciProofMemory.ts";
 
-const attempt = {
-  runId: "pipeline#1",
-  attemptId: "2",
-  branch: "main",
-  revision,
-};
+const attempt = makeMe.aCiAdapterProofAttempt
+  .with({
+    runId: "pipeline#1",
+    attemptId: "2",
+    branch: "main",
+    revision,
+  })
+  .please();
 
 test("a configured adapter receives the exact subject once, then valid proof is reused", async () => {
   const project = configuredAdapter();

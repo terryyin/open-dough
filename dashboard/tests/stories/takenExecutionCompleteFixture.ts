@@ -1,6 +1,7 @@
 // Published records and a paused page clock for the Taken completion journey.
 
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
@@ -59,24 +60,20 @@ const entry = ({ title, anchor }: Story) =>
     .with({ title, identity: `SEED-094#${anchor}`, href: href(anchor) })
     .please();
 
+const membership = stories.map(entry);
+
 // The seed prose the dashboard reads; each story's state is a declared fact.
 const seed = `# Execution complete card fixture
 
-${stories
-  .map(
-    ({ title, anchor }) => `<a id="${anchor}"></a>
-
-### ${title}
-
-**Identity:** SEED-094#${anchor}
-`,
-  )
-  .join("\n")}`;
+${membership.map((story) => renderStorySection(story)).join("\n")}`;
 
 const { trunk, branchTip } = describedRevisions(
   makeMe.aRepository
     .withRevision("trunk", {
-      backlog: { taken: taken.map(entry), queued: [entry(queuedStory)] },
+      backlog: {
+        taken: membership.slice(0, taken.length),
+        queued: membership.slice(taken.length),
+      },
       files: {
         [seedPath]: seed,
         // Trunk's copy of the branch story's plan is as it was at Take.

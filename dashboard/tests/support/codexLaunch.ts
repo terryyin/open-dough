@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test as base } from "../dashboardTest.ts";
 import { installFakeCodex, type FakeCodex } from "./fakeCodex.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
@@ -63,17 +64,24 @@ export function codexSkill(home: string, flag?: string, label?: string) {
   if (flag !== undefined)
     writeFileSync(
       path.join(root, "references", "refinement-options.json"),
-      JSON.stringify({
-        command: "dough-story-refinement",
-        options: [
-          {
-            flag,
-            label: label ?? "Codex option",
-            summary: label === undefined ? "Selected in Codex." : `${label}.`,
-            instruction: "Investigate.",
-          },
-        ],
-      }),
+      JSON.stringify(
+        makeMe.anOptionsDefinition
+          .with({
+            command: "dough-story-refinement",
+            options: [
+              makeMe.anOptionsEntry
+                .with({
+                  flag,
+                  label: label ?? "Codex option",
+                  summary:
+                    label === undefined ? "Selected in Codex." : `${label}.`,
+                  instruction: "Investigate.",
+                })
+                .please(),
+            ],
+          })
+          .please(),
+      ),
     );
   return root;
 }

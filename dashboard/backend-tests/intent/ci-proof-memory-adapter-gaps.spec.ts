@@ -9,12 +9,14 @@ import {
   signal,
 } from "../support/ciProofMemory.ts";
 
-const attempt = {
-  runId: "pipeline",
-  attemptId: "retry:2",
-  branch: "story",
-  revision,
-};
+const attempt = makeMe.aCiAdapterProofAttempt
+  .with({
+    runId: "pipeline",
+    attemptId: "retry:2",
+    branch: "story",
+    revision,
+  })
+  .please();
 
 for (const [reason, changed] of [
   ["invalid", { schemaVersion: 0 }],

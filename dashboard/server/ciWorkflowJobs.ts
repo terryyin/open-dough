@@ -151,19 +151,26 @@ export function readWorkflowJobs(workflow: string): WorkflowJob[] | undefined {
   return jobs === undefined || jobs.length === 0 ? undefined : jobs;
 }
 
+// GitHub's matrix instance of a declared job label is that label plus a
+// parenthesized context. Long static display names may also truncate with "...".
+function matchesDeclaredJobLabel(
+  declared: string,
+  allowTruncation: boolean,
+): (name: string) => boolean {
+  const matrixPrefix = `${declared} (`;
+  return (name) =>
+    name === declared ||
+    (name.startsWith(matrixPrefix) &&
+      ((name.endsWith(")") && name.length > matrixPrefix.length + 1) ||
+        (allowTruncation && name.endsWith("..."))));
+}
+
 export function workflowJobNameMatcher(
   job: WorkflowJob,
 ): (name: string) => boolean {
-  if (job.name === undefined) {
-    const matrixPrefix = `${job.id} (`;
-    return (name) =>
-      name === job.id ||
-      (name.startsWith(matrixPrefix) &&
-        name.endsWith(")") &&
-        name.length > matrixPrefix.length + 1);
-  }
+  if (job.name === undefined) return matchesDeclaredJobLabel(job.id, false);
   const [first = "", ...rest] = job.name.split(expression);
-  if (rest.length === 0) return (name) => name === first;
+  if (rest.length === 0) return matchesDeclaredJobLabel(first, true);
   const last = rest.pop() ?? "";
   return (name) => {
     if (!name.startsWith(first) || !name.endsWith(last)) return false;

@@ -15,6 +15,7 @@ import {
   summaryZipAnswer,
 } from "../../../../dashboard/tests/support/ciProofArtifacts.ts";
 import { parseActionsRequest } from "../../../../dashboard/tests/support/ghActionsRequest.ts";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { GitHubAcquisitionFailed } from "../../dough-execute-plan/scripts/ci-github-actions.mjs";
 
 /**
@@ -38,12 +39,14 @@ export function gitHubHolding({ repository, runs, summaries = {}, refused }) {
   };
   const runOf = (runId) => {
     const run = runs.find((each) => (each.databaseId ?? each.id) === runId);
-    return {
-      repository,
-      runId,
-      attempt: run?.attempt ?? 1,
-      revision: run?.headSha ?? "",
-    };
+    return makeMe.aCiProofCollectorRun
+      .with({
+        repository,
+        runId,
+        attempt: run?.attempt ?? 1,
+        revision: run?.headSha ?? "",
+      })
+      .please();
   };
   return {
     asked,

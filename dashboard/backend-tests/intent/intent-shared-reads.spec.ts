@@ -14,16 +14,16 @@ import {
 } from "../../src/answerMemo.ts";
 import { readIntentLocationsAt } from "../../src/authenticatedIntentRead.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
-import type { PublishedSource } from "../../src/publishedSource.ts";
 import { readCachedFile } from "../../src/repositoryFileReads.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const source: PublishedSource = {
-  id: "shared-reads",
-  label: "Shared reads",
-  repository: "owner/shared-reads",
-  ref: "main",
-  backlogPath: ".planning/PRODUCT-BACKLOG.md",
-};
+const source = makeMe.aPublishedSource
+  .with({
+    id: "shared-reads",
+    label: "Shared reads",
+    repository: "owner/shared-reads",
+  })
+  .please();
 const revision = "a1".repeat(20);
 const path = "docs/seed.md";
 const readFile = (file = path, signal = new AbortController().signal) =>

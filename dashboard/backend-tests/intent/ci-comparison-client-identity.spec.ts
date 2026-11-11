@@ -18,15 +18,19 @@ test("equal slot subjects stay independent while attempt and source-object chang
     const runId = Number(query.get("run"));
     const revision = query.get("revision") ?? "";
     const runAttempt = correctAttempt ? Number(query.get("attempt")) : 1;
-    return Response.json({
-      runId,
-      runAttempt,
-      revision,
-      checkedAt: facts.answer.checkedAt,
-      proof: makeMe.aCiProof
-        .summaryFor({ runId, runAttempt, revision })
+    return Response.json(
+      makeMe.anIntentCiProofAnswer
+        .with({
+          runId,
+          runAttempt,
+          revision,
+          checkedAt: facts.answer.checkedAt,
+          proof: makeMe.aCiProof
+            .summaryFor({ runId, runAttempt, revision })
+            .please(),
+        })
         .please(),
-    });
+    );
   });
   const owner = createCiComparisonProofs();
   try {

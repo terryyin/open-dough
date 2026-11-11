@@ -9,6 +9,7 @@ import type { Locator } from "@playwright/test";
 import type { PlanSlice } from "../../src/storyPlan.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renderSlicePlan } from "../../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
@@ -34,6 +35,11 @@ const story = (title: string, anchor: string) =>
     })
     .please();
 
+const countedStory = story(counted, "counted");
+const planlessStory = story(planless, "planless");
+const unreadableStory = story(unreadable, "unreadable");
+const queuedStory = story(queued, "queued");
+
 // Each planned story's state, recorded in the seed.
 const planned = (anchor: string) => ({
   identity: `SEED-090#${anchor}`,
@@ -51,32 +57,12 @@ id: SEED-090
 
 # Slice progress fixture
 
-<a id="counted"></a>
-
-### ${counted}
-
-**Identity:** SEED-090#counted
-
-<a id="planless"></a>
-
-### ${planless}
-
-**Identity:** SEED-090#planless
-
-**Status:** Taken before structured story state existed.
-
-<a id="unreadable"></a>
-
-### ${unreadable}
-
-**Identity:** SEED-090#unreadable
-
-<a id="queued"></a>
-
-### ${queued}
-
-**Identity:** SEED-090#queued
-`;
+${renderStorySection(countedStory)}
+${renderStorySection(planlessStory, {
+  body: "**Status:** Taken before structured story state existed.",
+})}
+${renderStorySection(unreadableStory)}
+${renderStorySection(queuedStory)}`;
 
 // The exact plan bytes the reader refuses: a status it does not know.
 const unreadablePlan = `${renderSlicePlan(
@@ -96,12 +82,8 @@ const { A, B } = describedRevisions(
   makeMe.aRepository
     .withRevision("A", {
       backlog: {
-        taken: [
-          story(counted, "counted"),
-          story(planless, "planless"),
-          story(unreadable, "unreadable"),
-        ],
-        queued: [story(queued, "queued")],
+        taken: [countedStory, planlessStory, unreadableStory],
+        queued: [queuedStory],
       },
       files: {
         [seedPath]: seed,

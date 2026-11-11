@@ -3,7 +3,8 @@
 // words (path name, counted results with failed first among equal totals,
 // measured time, number of gaps); a row without a figure for the sorted column
 // follows the rows with one in either direction; ties and unmeasured rows keep
-// the given order; a pinned row stays last. Story comparison columns:
+// the given order; a pinned row stays last. Multi-unit homepage entries:
+// ./intent-ci-proof-grouped-sort.test.mjs. Story comparison columns:
 // ./intent-ci-comparison-sort.test.mjs. Browser journey:
 // ../../dashboard/tests/intent/intent-ci-status-sort.spec.ts.
 import assert from "node:assert/strict";

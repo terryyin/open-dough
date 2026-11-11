@@ -14,11 +14,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
 import { keptAttempts } from "../../tests/acceptedAttempts.ts";
-import {
-  keptStarts,
-  launchRequest,
-  runningStarts,
-} from "../../tests/agentLaunchBoundary.ts";
+import { keptStarts, runningStarts } from "../../tests/agentLaunchBoundary.ts";
 import { machineHome } from "../../tests/machineLaunchRecords.ts";
 import {
   keepLaunchStore,
@@ -38,19 +34,12 @@ export function ownRecordContinuation(
 ) {
   const id = randomUUID();
   const acceptedAt = new Date().toISOString();
-  const request = {
-    ...launchRequest,
-    identity: queuedIdentity,
-    title: "Story A",
-    workflow,
-  };
+  const story = { identity: queuedIdentity, title: "Story A" };
+  const request = makeMe.aLaunchRequest.ofWorkflow(workflow, story).please();
   const folder = path.join(dashboard.home, ".open-dough/dashboard");
   const file = path.join(folder, "launch-attempts.json");
   mkdirSync(folder, { recursive: true });
-  const story = { identity: request.identity, title: request.title };
-  const accepted = makeMe.anAcceptedAttempt.withId(id);
-  if (workflow === "execution") accepted.executing(story);
-  else accepted.refining(story);
+  const accepted = makeMe.anAcceptedAttempt.withId(id).requesting(request);
   // Its worker's process is gone, so no server runs it.
   accepted
     .acceptedAt(acceptedAt)
@@ -76,7 +65,7 @@ export function ownRecordContinuation(
     identity = queuedIdentity,
   ) =>
     makeMe.aLaunchRecord
-      .ofWorkflow(launchWorkflow, { identity, title: request.title })
+      .ofWorkflow(launchWorkflow, { identity, title: story.title })
       .launchedAt(new Date(Date.parse(acceptedAt) + offset).toISOString());
   const otherWorkflow = workflow === "execution" ? "refinement" : "execution";
   const records = [

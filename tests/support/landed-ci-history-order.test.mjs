@@ -41,30 +41,48 @@ test("local landing ancestry ignores receipt order and missing Git falls back to
     .receivedAt("2026-11-01T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(pLanding, "run/1/1", {
-      revision: p,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: p })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+    .recording(
+      pLanding,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: p,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: p })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+            .please(),
+        })
         .please(),
-    })
-    .recording(eLanding, "run/2/1", {
-      revision: e,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: e, runId: 2 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+    )
+    .recording(
+      eLanding,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: e,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: e, runId: 2 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+            .please(),
+        })
         .please(),
-    })
-    .recording(rLanding, "run/3/1", {
-      revision: r,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: r, runId: 3 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+    )
+    .recording(
+      rLanding,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: r,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: r, runId: 3 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+            .please(),
+        })
         .please(),
-    })
+    )
     .please();
   const order = await readLandingOrder([repository.integration], [e, p, r], e);
   assert.deepEqual(order, [p, e, r]);
@@ -198,30 +216,48 @@ test("a story-first merge retains its earlier accepted second-parent landing thr
     .receivedAt("2026-11-01T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(pLanding, "run/1/1", {
-      revision: p,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: p })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+    .recording(
+      pLanding,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: p,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: p })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(100).please()])
+            .please(),
+        })
         .please(),
-    })
-    .recording(cLanding, "run/2/1", {
-      revision: c,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: c, runId: 2 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+    )
+    .recording(
+      cLanding,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: c,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: c, runId: 2 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+            .please(),
+        })
         .please(),
-    })
-    .recording(rLanding, "run/3/1", {
-      revision: r,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: r, runId: 3 })
-        .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+    )
+    .recording(
+      rLanding,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: r,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: r, runId: 3 })
+            .entries([makeMe.aCiProofEntry.at("tests").timed(300).please()])
+            .please(),
+        })
         .please(),
-    })
+    )
     .please();
   const order = await readLandingOrder([repository.integration], [c, p, r], c);
   assert.deepEqual(order, [p, c, r]);

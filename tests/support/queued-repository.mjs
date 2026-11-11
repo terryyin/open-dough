@@ -12,6 +12,7 @@ import {
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
 import { makeMe } from "./makeMe.mjs";
 import { direction } from "./product-backlog-fixture.mjs";
+import { renderStorySeed } from "./published-seed.mjs";
 
 /** @typedef {Parameters<typeof makeMe.aBacklogEntry.with>[0]} BacklogEntry */
 /** @typedef {ReturnType<ReturnType<typeof makeMe.aSupplierAgreement.with>["please"]>} SupplierAgreement */
@@ -45,8 +46,7 @@ export function storySeed(
   body,
   documentTitle = `Seed ${seedKey(entry)}`,
 ) {
-  const { identity, title, href } = entry;
-  return `---\nid: ${seedId(entry)}\n---\n\n# ${documentTitle}\n\n<a id="${splitHref(href).anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n${body}\n`;
+  return renderStorySeed(entry, body, documentTitle);
 }
 
 /** @param {BacklogEntry} entry */

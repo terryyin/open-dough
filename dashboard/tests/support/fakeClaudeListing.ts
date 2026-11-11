@@ -6,39 +6,15 @@
 import { randomUUID } from "node:crypto";
 import { readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { claudeListingAppearance } from "../../../tests/support/claudeListingTestData.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // What a listed session becomes, as the real `claude agents --json --all`
-// lists it (Claude Code 2.1.284): working with its process busy (`working`)
-// or idle between steps (`working-idle`); blocked, waiting on the developer
-// (`blocked`, with what it waits for when a test gives it); done with its
-// process still running idle (`done-live`) or exited (`done-exited`); failed
-// or stopped with its process exited (`failed`, `stopped`); or no longer
-// listed at all (`forgotten`); or in a state this dashboard does not know
-// (`unrecognized`). Each replaces the session's `state`, `status`,
-// and `waitingFor` whole.
+// lists it (Claude Code 2.1.284): a background appearance from MakeMe's
+// listing row, or no longer listed (`forgotten`). Each replaces the
+// session's `state`, `status`, and `waitingFor` whole.
 export type ClaudeSessionChange =
-  | "working"
-  | "working-idle"
-  | "blocked"
-  | "done-live"
-  | "done-exited"
-  | "failed"
-  | "stopped"
-  | "forgotten"
-  | "unrecognized";
-
-const listedAs = {
-  working: { state: "working", status: "busy" },
-  "working-idle": { state: "working", status: "idle" },
-  blocked: { state: "blocked", status: "waiting" },
-  "done-live": { state: "done", status: "idle" },
-  "done-exited": { state: "done" },
-  failed: { state: "failed" },
-  stopped: { state: "stopped" },
-  unrecognized: { state: "napping" },
-} as const;
-
-const replacedFields = new Set(["state", "status", "waitingFor"]);
+  keyof typeof claudeListingAppearance | "forgotten";
 
 export type ClaudeListingControls = {
   // Changes how the fake lists the session with this id; only a blocked
@@ -100,15 +76,11 @@ export function fakeClaudeListing(
         listed.flatMap((session): object[] => {
           if (session.sessionId !== sessionId) return [session];
           if (change === "forgotten") return [];
-          const kept = Object.entries(session).filter(
-            ([key]) => !replacedFields.has(key),
-          );
+          const row = makeMe.aClaudeListingRow.fromListed(session).as(change);
           return [
-            {
-              ...Object.fromEntries(kept),
-              ...listedAs[change],
-              ...(waitingFor === undefined ? {} : { waitingFor }),
-            },
+            waitingFor === undefined
+              ? row.please()
+              : row.waitingFor(waitingFor).please(),
           ];
         }),
       );
@@ -120,32 +92,30 @@ export function fakeClaudeListing(
     claudeListsInteractiveSession() {
       relist([
         ...claudeListing(),
-        {
-          pid: 3394,
-          cwd: home,
-          kind: "interactive",
-          startedAt: Date.now(),
-          sessionId: "3ab4613a-744d-4545-adba-15346379854a",
-          name: "terminal session",
-          status: "busy",
-        },
+        makeMe.aClaudeListingRow
+          .interactive({
+            pid: 3394,
+            cwd: home,
+            startedAt: Date.now(),
+            sessionId: "3ab4613a-744d-4545-adba-15346379854a",
+            name: "terminal session",
+          })
+          .please(),
       ]);
     },
     claudeListsSession({ name, cwd, startedAt }) {
       const sessionId = randomUUID();
       relist([
         ...claudeListing(),
-        {
-          pid: 4242,
-          id: sessionId.slice(0, 8),
-          cwd,
-          kind: "bg",
-          startedAt,
-          sessionId,
-          name,
-          status: "busy",
-          state: "working",
-        },
+        makeMe.aClaudeListingRow
+          .background({
+            pid: 4242,
+            sessionId,
+            name,
+            cwd,
+            startedAt,
+          })
+          .please(),
       ]);
       return sessionId;
     },

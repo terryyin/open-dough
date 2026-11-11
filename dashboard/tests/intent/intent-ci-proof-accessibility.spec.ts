@@ -1,6 +1,8 @@
 // Proof table accessibility at narrow and zoomed windows: rows stay whole,
 // the reading pane never scrolls sideways, and keyboard navigation passes
-// sortable headers in their visible order. Basic proof behavior: ./intent-ci-proof.spec.ts.
+// sortable headers in their visible order. Multi-unit locations keep labeled
+// lines and full gap descriptions readable in that same boundary. Basic proof
+// behavior: ./intent-ci-proof.spec.ts.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
@@ -29,6 +31,11 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     makeMe.aCiProofEntry
       .at(longEntry)
       .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(8, 0, 0)
+          .timed(75_000)
+          .please(),
         makeMe.aCiProofEvidence
           .inUnit("file")
           .counting(40, 2, 1)
@@ -61,8 +68,16 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
       )
       .please(),
   ]);
+  const gapWhy = "Partial: part 2 of 3 missing";
   const rows = [
-    [longEntry, "52 passed, 2 failed and 1 other test files", "Part 2 missing"],
+    [
+      longEntry,
+      [
+        "test cases: 8 passed test cases",
+        "test files: 52 passed, 2 failed and 1 other test files",
+      ],
+      ["test cases: 1 min 15 s", "test files: Part 2 missing"],
+    ],
     ["dashboard/tests", "12 passed test cases", "2 min"],
   ] as const;
   const { panel, proof } = await openFailedRun(
@@ -71,6 +86,11 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, rows);
+  const fileGap = proof
+    .locator(".intent-ci-proof-unit-line")
+    .filter({ hasText: "Part 2 missing" });
+  await expect(fileGap).toHaveAttribute("title", gapWhy);
+  await expect(fileGap).toHaveAccessibleDescription(gapWhy);
   // A wider installed font lays the table out as Linux's fallback font does.
   await page.addStyleTag({
     content:
@@ -108,6 +128,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     await page.setViewportSize(window);
     await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
     await expectProofRows(proof, rows);
+    await expect(fileGap).toHaveAccessibleDescription(gapWhy);
     await table.scrollIntoViewIfNeeded();
     await expect(table).toBeVisible();
     expect(await fit()).toEqual({

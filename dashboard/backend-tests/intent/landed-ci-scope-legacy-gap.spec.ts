@@ -112,24 +112,36 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     "Earlier collection could not establish this landing's result.";
   const history = makeMe.aLandedCiHistory
     .inTrunkOrder([old.revision, good.revision, gap.revision])
-    .recording(old, "run/220/1", {
-      revision: old.revision,
-      state: "pass",
-      runId: 220,
-      runAttempt: 1,
-      startedAt: "2026-11-05T09:00:00Z",
-      completedAt: "2026-11-05T09:01:00Z",
-      proof: normalizedOldProof,
-    })
-    .recording(good, "run/221/1", {
-      revision: good.revision,
-      state: "pass",
-      runId: 221,
-      runAttempt: 1,
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:01:00Z",
-      proof,
-    })
+    .recording(
+      old,
+      "run/220/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: old.revision,
+          state: "pass",
+          runId: 220,
+          runAttempt: 1,
+          startedAt: "2026-11-05T09:00:00Z",
+          completedAt: "2026-11-05T09:01:00Z",
+          proof: normalizedOldProof,
+        })
+        .please(),
+    )
+    .recording(
+      good,
+      "run/221/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: good.revision,
+          state: "pass",
+          runId: 221,
+          runAttempt: 1,
+          startedAt: "2026-11-05T10:00:00Z",
+          completedAt: "2026-11-05T10:01:00Z",
+          proof,
+        })
+        .please(),
+    )
     .gap(gap, explanation)
     .please();
   const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");

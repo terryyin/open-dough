@@ -157,9 +157,12 @@ export const answeredLanding = (landing: {
 // Open Dough's landed CI wall-time history as the server answers it now.
 export async function landedCiHistory(
   dashboard: DashboardServer,
+  gapReasons?: "timing-basis",
 ): Promise<{ readonly status: number; readonly body: unknown }> {
+  const vocabulary =
+    gapReasons === undefined ? "" : `&gap-reasons=${gapReasons}`;
   const answer = await rawRequest({
-    url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history`,
+    url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history${vocabulary}`,
     headers: { Origin: dashboard.origin },
   });
   return { status: answer.status, body: JSON.parse(answer.body) as unknown };

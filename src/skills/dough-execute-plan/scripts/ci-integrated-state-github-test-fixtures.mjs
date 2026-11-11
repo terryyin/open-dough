@@ -100,16 +100,21 @@ export function integratedStateGithub(t) {
     recordRun,
     // The listed runs as the observer's GitHub reader reports them.
     observedRuns: () =>
-      [...runs.values()].reverse().map((run) => ({
-        databaseId: run.databaseId,
-        attempt: run.attempt,
-        headSha: run.headSha,
-        headBranch: run.headBranch,
-        event: run.event,
-        status: run.status,
-        conclusion: run.conclusion,
-        createdAt: run.createdAt,
-      })),
+      [...runs.values()].reverse().map((run) =>
+        makeMe.aCiRun
+          .with({
+            databaseId: run.databaseId,
+            attempt: run.attempt,
+            headSha: run.headSha,
+            headBranch: run.headBranch,
+            event: run.event,
+            status: run.status,
+            conclusion: run.conclusion,
+            createdAt: run.createdAt,
+            url: run.url,
+          })
+          .please(),
+      ),
     // Answers `route` with `answer` instead of its recorded facts.
     answer(route, answer) {
       answers = { ...answers, [route]: answer };

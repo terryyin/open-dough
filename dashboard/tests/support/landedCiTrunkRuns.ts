@@ -44,11 +44,14 @@ export const trunkRun = (
 
 // `trunkRun`'s run `id` as the history read answers it: its link and its
 // first attempt.
-export const answeredRun = (id: number) => ({
-  runUrl: runUrlOf(id),
-  runId: id,
-  runAttempt: 1,
-});
+export const answeredRun = (id: number) =>
+  makeMe.anAnsweredCiRun
+    .with({
+      runUrl: runUrlOf(id),
+      runId: id,
+      runAttempt: 1,
+    })
+    .please();
 
 // A run's facts once it passed, from its start to its completion, created as
 // it started.

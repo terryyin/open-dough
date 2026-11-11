@@ -53,32 +53,42 @@ export async function prepareRelativeComparisonReading(
   ).entries()) {
     const runId = index + 101;
     const startedAt = `2026-11-05T${12 + index}:00:00Z`;
-    slots.set(endpoint, {
-      kind: "build",
-      revision: revision[endpoint],
-      subject: `${endpoint} build`,
-      state: "pass",
-      selection: "exact",
-      laterWithoutResult: 0,
-      runId,
-      runAttempt: 1,
-      runUrl: `https://ci.invalid/runs/${runId}`,
-      startedAt,
-      completedAt: new Date(
-        Date.parse(startedAt) + wallTimes[endpoint],
-      ).toISOString(),
-      timeWithoutRunnerWaits: { reason: "Runner waits not recorded" },
-    });
-    proofByRun.set(String(runId), {
-      runId,
-      runAttempt: 1,
-      revision: revision[endpoint],
-      checkedAt: "2026-11-05T15:00:00Z",
-      proof: makeMe.aCiProof
-        .forRun({ runId, revision: revision[endpoint] })
-        .entries([...entries[endpoint]])
+    slots.set(
+      endpoint,
+      makeMe.aStoryCiComparisonSlot
+        .with({
+          kind: "build" as const,
+          revision: revision[endpoint],
+          subject: `${endpoint} build`,
+          state: "pass" as const,
+          selection: "exact" as const,
+          laterWithoutResult: 0,
+          runId,
+          runAttempt: 1,
+          runUrl: `https://ci.invalid/runs/${runId}`,
+          startedAt,
+          completedAt: new Date(
+            Date.parse(startedAt) + wallTimes[endpoint],
+          ).toISOString(),
+          timeWithoutRunnerWaits: { reason: "Runner waits not recorded" },
+        })
         .please(),
-    });
+    );
+    proofByRun.set(
+      String(runId),
+      makeMe.anIntentCiProofAnswer
+        .with({
+          runId,
+          runAttempt: 1 as const,
+          revision: revision[endpoint],
+          checkedAt: "2026-11-05T15:00:00Z",
+          proof: makeMe.aCiProof
+            .forRun({ runId, revision: revision[endpoint] })
+            .entries([...entries[endpoint]])
+            .please(),
+        })
+        .please(),
+    );
   }
   const baseline = slots.get("baseline");
   const branch = slots.get("branch");

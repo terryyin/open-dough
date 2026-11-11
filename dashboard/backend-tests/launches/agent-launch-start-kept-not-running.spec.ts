@@ -7,20 +7,17 @@ import { expect, test } from "../../tests/support/preparationPage.ts";
 import {
   keptStarts,
   launch,
-  launchRequest,
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-const request = {
-  ...launchRequest,
-  workflow: "execution",
-  identity: queuedIdentity,
-  title: "Story A",
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: "Story A" })
+  .please();
 
 test("a start kept in the store with no running process is kept, never running", async ({
   dashboard,

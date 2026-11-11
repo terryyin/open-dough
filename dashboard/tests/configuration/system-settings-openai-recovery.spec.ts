@@ -23,7 +23,11 @@ test.describe(`${name} OpenAI settings recovery`, () => {
     await page.goto(`${server.baseURL}/?view=settings`);
     await readSetting(status(page));
     await expect(status(page)).toHaveText("API key: Not configured");
-    await apiKey(page).scrollIntoViewIfNeeded();
+    // Align the field to the scrollport end the way a short phone view can:
+    // without scroll-margin on the field, Save sits past the bottom edge.
+    await apiKey(page).evaluate((field) => {
+      field.scrollIntoView({ block: "end", inline: "nearest" });
+    });
     await tapWhereShown(apiKey(page));
     await apiKey(page).pressSequentially(original);
     await tapWhereShown(save(page));

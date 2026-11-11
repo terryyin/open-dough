@@ -7,6 +7,7 @@
 import { describedRevision, publishedFile } from "./describedRevisions.ts";
 import { backlogPath } from "./publishedOriginBasics.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 
 export const doughnutRepository = "nerds-odd-e/doughnut";
 
@@ -21,33 +22,26 @@ export const doughnutSharedGoal = "Doughnut's goal for the shared story.";
 
 const sharedSeed = ".planning/seeds/SEED-777-shared.md";
 
+const sharedStory = makeMe.aBacklogEntry
+  .with({
+    identity: sharedStoryIdentity,
+    title: doughnutSharedTitle,
+    href: "seeds/SEED-777-shared.md#shared-story",
+  })
+  .please();
+
 // The shared story queued alone, with a readable canonical story that has no
 // dependency agreement.
 const doughnut = describedRevision(
   makeMe.aRepository
     .withRevision("published", {
       backlog: {
-        queued: [
-          makeMe.aBacklogEntry
-            .with({
-              identity: sharedStoryIdentity,
-              title: doughnutSharedTitle,
-              href: "seeds/SEED-777-shared.md#shared-story",
-            })
-            .please(),
-        ],
+        queued: [sharedStory],
       },
       files: {
         [sharedSeed]: `# Shared
 
-<a id="shared-story"></a>
-
-### ${doughnutSharedTitle}
-
-**Identity:** ${sharedStoryIdentity}
-
-**Goal:** ${doughnutSharedGoal}
-`,
+${renderStorySection(sharedStory, { goal: doughnutSharedGoal })}`,
       },
     })
     .please(),

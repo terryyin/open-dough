@@ -3,6 +3,7 @@
 // setting, and one saved conversation under its `chats`.
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 export type FakeCursorSharedConfig = {
   // The fake's shared Cursor configuration directory (its effective
@@ -28,11 +29,7 @@ export function installFakeCursorSharedConfig(
   mkdirSync(path.join(sharedConfigDir, "chats"), { recursive: true });
   writeFileSync(
     sharedConfigPath,
-    `${JSON.stringify({
-      model: "auto",
-      hasChangedDefaultModel: false,
-      fixtureSetting: "from-shared-config",
-    })}\n`,
+    `${JSON.stringify(makeMe.aCursorCliConfig.please())}\n`,
   );
   writeFileSync(
     path.join(sharedConfigDir, "chats", "saved-conversation.txt"),
@@ -53,11 +50,7 @@ export function installFakeCursorSharedConfig(
     changeSharedModel(model: string) {
       writeFileSync(
         sharedConfigPath,
-        `${JSON.stringify({
-          model,
-          hasChangedDefaultModel: true,
-          fixtureSetting: "from-shared-config",
-        })}\n`,
+        `${JSON.stringify(makeMe.aCursorCliConfig.withModel(model).please())}\n`,
       );
     },
   };

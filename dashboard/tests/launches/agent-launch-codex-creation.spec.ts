@@ -16,21 +16,19 @@ import {
 } from "../support/launchStore.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import {
-  launch,
-  refinementRequest,
-  machineSessions,
-} from "../agentLaunchBoundary.ts";
+import { launch, machineSessions } from "../agentLaunchBoundary.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
-const request = {
-  ...refinementRequest,
-  host: "codex",
-  identity: notRefinedIdentity,
-  title: notRefinedStory,
-  instruction: "Preserve this exact intent.",
-};
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+const request = makeMe.aLaunchRequest
+  .refining({
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+    host: "codex",
+  })
+  .withInstruction("Preserve this exact intent.")
+  .please();
 test.use({ projectFolders: ["open-dough"] });
 
 // The launch's answer to the request above, and the saved launch records of
@@ -191,12 +189,16 @@ test("confirmation clears pending evidence; legacy reload is truthful and connec
   expect(
     JSON.parse(
       (
-        await launch(dashboard, {
-          ...refinementRequest,
-          identity: notRefinedIdentity,
-          title: notRefinedStory,
-          host: "codex",
-        })
+        await launch(
+          dashboard,
+          makeMe.aLaunchRequest
+            .refining({
+              identity: notRefinedIdentity,
+              title: notRefinedStory,
+              host: "codex",
+            })
+            .please(),
+        )
       ).body,
     ),
   ).toMatchObject({ kind: "launched" });

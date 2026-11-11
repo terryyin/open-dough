@@ -117,6 +117,31 @@ test("a multiline continuation stays unsent when the next frame is not that draf
   }
 });
 
+test("a status footer that repeats the worktree does not submit before the paste chip", async () => {
+  const text = [
+    "Continue the recorded Execution from this launch.",
+    "Worktree: /Users/terryyin/git/open-dough/.worktrees/keep-ci-wall-time-history-readable-across-dashbo",
+    "Continue from this worktree's committed and uncommitted state without opening another assignment.",
+  ].join("\n");
+  const { instruction, observed } = recoveryInstruction(text);
+  const footer =
+    "\u001b[?2026h\u001b[2J\u001b[H\r\nAuto\r\n~/git/open-dough/.worktrees/keep-ci-wall-time-history-readable-across-dashbo\r\ncursor/keep-ci-wall-time-history-readable-across-dashbo\r\n\u001b[?2026l";
+  const chip =
+    "\u001b[?2026h\u001b[2J\u001b[H→ [Pasted text #1 +3 lines]\r\nAuto\r\n~/git/open-dough/.worktrees/keep-ci-wall-time-history-readable-across-dashbo\r\n\u001b[?2026l";
+  try {
+    await instruction.write(
+      "\u001b[?2026h\u001b[2J\u001b[H→ Add a follow-up\r\n~/git/open-dough/.worktrees/keep-ci-wall-time-history-readable-across-dashbo\r\n\u001b[?2026l",
+    );
+    expect(observed).toEqual({ typed: [text], confirmed: 0 });
+    await instruction.write(footer);
+    expect(observed).toEqual({ typed: [text], confirmed: 0 });
+    await instruction.write(chip);
+    expect(observed).toEqual({ typed: [text, "\r"], confirmed: 1 });
+  } finally {
+    instruction.dispose();
+  }
+});
+
 test("an unframed composer draft of a multiline continuation is submitted once", async () => {
   const { instruction, observed } = recoveryInstruction(continuation);
   const draft =

@@ -15,17 +15,30 @@ function showsPasteChip(screen: string): boolean {
   return screen.includes("Pasted text");
 }
 
+// The composer is the last line that carries Cursor's prompt arrow. The
+// status footer repeats the worktree and branch, which also appear in a
+// launch prompt, so a match anywhere on the screen is not the draft.
+function composerLine(screen: string): string {
+  const lines = screen.split(/\r?\n/u);
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index];
+    if (line?.includes("→")) return line;
+  }
+  return "";
+}
+
 // Cursor sometimes leaves a multiline paste as composer text instead of a
-// chip. A visible line of that text, including one wrapped to the tail of
-// the screen, is the draft waiting for Enter. Short fragments are ignored.
+// chip. The arrow line then shows that text, including its wrapped tail.
+// Short fragments are ignored.
 function showsUnsentInstruction(screen: string, instruction: string): boolean {
-  const flattened = screen.replace(/\s+/gu, " ");
+  const composer = composerLine(screen);
+  if (composer === "") return false;
   for (const line of instruction.split("\n")) {
     const text = line.trim();
     if (text.length < 16) continue;
     const head = text.slice(0, 48);
     const tail = text.slice(-40);
-    if (flattened.includes(head) || flattened.includes(tail)) return true;
+    if (composer.includes(head) || composer.includes(tail)) return true;
   }
   return false;
 }

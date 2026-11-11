@@ -4,10 +4,11 @@ import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { launchHostOptionsEndpoint } from "../../src/launchHostOptions.ts";
 import { launchSubject, keptStartSchema } from "../../src/agentLaunch.ts";
 import { startRecordSchema } from "../../server/startStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 
-const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
 test("catalog read enforces same origin, project and method, and reads every native page", async ({
   dashboard,

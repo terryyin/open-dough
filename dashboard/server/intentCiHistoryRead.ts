@@ -14,6 +14,7 @@ import { readLandingOrder } from "./launchLandingGit.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { wallTimeReferenceOf } from "./ciWallTimeReference.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
+import { readableHistoryEntries } from "./ciHistoryGapVocabulary.ts";
 import { readLandedCiHistory } from "./landedCiHistoryStore.ts";
 import {
   mostCompleteLandingOrder,
@@ -25,12 +26,14 @@ import { refused, type RefusedParameters } from "./refusedParameters.ts";
 export type IntentCiHistoryRead =
   | {
       readonly kind: "intent-ci-history";
+      readonly gapReasons?: "timing-basis";
       readonly scope?: never;
       readonly revision?: never;
       readonly through?: never;
     }
   | {
       readonly kind: "intent-ci-history";
+      readonly gapReasons?: "timing-basis";
       readonly scope?: string;
       readonly revision: string;
       readonly through: string;
@@ -45,11 +48,22 @@ export function parseIntentCiHistoryRead(
   params: URLSearchParams,
 ): IntentCiHistoryRead | RefusedParameters | undefined {
   if (params.get("intent") !== "ci-history") return undefined;
+  const gapReasons = params.get("gap-reasons");
+  if (
+    params.has("gap-reasons") &&
+    (params.getAll("gap-reasons").length !== 1 ||
+      gapReasons !== "timing-basis" ||
+      params.has("scope"))
+  )
+    return refused(historyRefusal);
+  const vocabulary =
+    gapReasons === "timing-basis" ? ({ gapReasons } as const) : {};
   if (params.has("scope") || params.has("revision") || params.has("through")) {
     const names = [
       "intent",
       "revision",
       "through",
+      ...(params.has("gap-reasons") ? ["gap-reasons"] : []),
       ...(params.has("scope") ? ["scope"] : []),
     ];
     const scope = params.has("scope")
@@ -72,6 +86,7 @@ export function parseIntentCiHistoryRead(
       );
     return {
       kind: "intent-ci-history",
+      ...vocabulary,
       ...(scope === undefined ? {} : { scope }),
       revision,
       through,
@@ -79,11 +94,14 @@ export function parseIntentCiHistoryRead(
   }
   if (
     params.getAll("intent").length !== 1 ||
-    [...params.keys()].some((name) => name !== "source" && name !== "intent")
+    [...params.keys()].some(
+      (name) =>
+        name !== "source" && name !== "intent" && name !== "gap-reasons",
+    )
   ) {
     return refused(historyRefusal);
   }
-  return { kind: "intent-ci-history" };
+  return { kind: "intent-ci-history", ...vocabulary };
 }
 
 // What a CI wall time history read names as being read.
@@ -153,12 +171,12 @@ export async function performIntentCiHistoryRead(
     return answered({
       selectedRevision: read.revision,
       availability,
-      entries: historyEntries(history),
+      entries: readableHistoryEntries(historyEntries(history), read.gapReasons),
       reference: wallTimeReferenceOf(history, read.revision, order),
     });
   }
   return answered({
-    entries: historyEntries(history),
+    entries: readableHistoryEntries(historyEntries(history), read?.gapReasons),
     reference: wallTimeReferenceOf(history, undefined, order),
   });
 }

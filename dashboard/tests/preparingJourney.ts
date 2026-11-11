@@ -5,6 +5,7 @@ import { rmSync } from "node:fs";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { agentIdentity } from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import {
   integrationDeveloper as developer,
   materializeRepository,
@@ -14,6 +15,7 @@ import {
   queuedDashboardRepository,
   readyIdentity as identityB,
   takenIdentity as identityA,
+  notRefinedStory as titleC,
 } from "./launchJourney.ts";
 
 export {
@@ -62,19 +64,22 @@ const storyCState = {
   refinement: "refined",
 } as const;
 
+const storyCEntry = makeMe.aBacklogEntry
+  .with({
+    identity: identityC,
+    href: "seeds/C.md#c",
+    title: titleC,
+  })
+  .please();
+
 const refinedStoryC = `---
 id: SEED-C
 ---
 
 # Seed C
 
-<a id="c"></a>
-
-### Story C
-
-**Identity:** ${identityC}
-
-#### Goal
+${renderStorySection(storyCEntry, {
+  body: `#### Goal
 
 C is useful.
 
@@ -84,8 +89,8 @@ C is useful.
 
 #### Key examples
 
-1. It works.
-`;
+1. It works.`,
+})}`;
 
 const authorOf = ({ agent, email }: ReturnType<typeof agentIdentity>) => ({
   name: agent,

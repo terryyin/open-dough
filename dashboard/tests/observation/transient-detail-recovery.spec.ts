@@ -4,6 +4,9 @@
 // its own gap without reload. The page, local boundary, and `gh` invocation
 // are production; only GitHub's answers are supplied. Page time is paused.
 
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
+import { renderEntry } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   callsSince,
   contentReads,
@@ -43,6 +46,13 @@ const preparationGap =
 const detailRecovery = "this page reads it";
 const terminalSeed = ".planning/seeds/SEED-264-terminal.md";
 const terminalTitle = "A story whose record is missing";
+const terminalStory = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-264#terminal",
+    href: "seeds/SEED-264-terminal.md#terminal",
+    title: terminalTitle,
+  })
+  .please();
 
 async function expectDetailRecoveryNotice(
   page: Parameters<typeof parts>[0],
@@ -58,18 +68,13 @@ test("eligible preparation recovers beside kept facts, and a terminal missing se
   await pausePageClockAt(page, opened);
   const terminalFiles = {
     ...filesBesideUnreachable,
-    [".planning/PRODUCT-BACKLOG.md"]: `${filesBesideUnreachable[".planning/PRODUCT-BACKLOG.md"]}- [${terminalTitle}](seeds/SEED-264-terminal.md#terminal) — SEED-264#terminal
+    [".planning/PRODUCT-BACKLOG.md"]: `${filesBesideUnreachable[".planning/PRODUCT-BACKLOG.md"]}${renderEntry(terminalStory)}
 `,
     [terminalSeed]: `# Terminal
 
-<a id="terminal"></a>
-
-### ${terminalTitle}
-
-**Identity:** SEED-264#terminal
-
-**Goal:** Missing at this pin; recovery of another gap must not loop it.
-`,
+${renderStorySection(terminalStory, {
+  goal: "Missing at this pin; recovery of another gap must not loop it.",
+})}`,
   };
   let withheldFails = true;
   const published = publishes({ revision, files: terminalFiles });

@@ -26,11 +26,11 @@ const savedCodex = makeMe.aHostSession
   .please();
 const { continuation } = savedCodex;
 // A predecessor Codex session, kept before its continuation was saved.
-const codex = {
-  host: "codex" as const,
-  sessionId: "codex-conversation",
-  name: "Codex conversation",
-};
+const predecessorCodex = { sessionId: "codex-conversation" };
+const codex = makeMe.aHostSession
+  .codex(predecessorCodex)
+  .named("Codex conversation")
+  .please();
 // A story's execution kept by each host, in that host's session.
 const story = { identity: "SEED-001#story", title: "A story" };
 const keptBy = {
@@ -38,7 +38,10 @@ const keptBy = {
     .executing(story)
     .inClaudeSession(claude)
     .please(),
-  codex: makeMe.aLaunchRecord.executing(story).inCodexSession(codex).please(),
+  codex: makeMe.aLaunchRecord
+    .executing(story)
+    .inCodexSession(predecessorCodex)
+    .please(),
 };
 // The record of the session's own host, holding the session exactly as given.
 type GivenSession = {
@@ -86,7 +89,7 @@ test("accepts an older launch record's established session without retaining its
   const established = defaultMainSession("/project", "auto-land", "revision");
   const kept = makeMe.aLaunchRecord
     .adHoc({ title: "A session" })
-    .inCodexSession(codex)
+    .inCodexSession(predecessorCodex)
     .inDefaultCheckout({
       workspace: "/project",
       landing: "auto-land",

@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // Actual HTTP/store launch decisions; the fixture only supplies native replies.
 import path from "node:path";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
@@ -22,7 +23,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 
-const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
 test("HTTP text preserves exact bytes once; completed blank launches permit another deliberate session", async ({
   dashboard,

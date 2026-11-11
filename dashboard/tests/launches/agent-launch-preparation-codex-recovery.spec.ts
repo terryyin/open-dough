@@ -9,7 +9,6 @@ import {
   attempts,
   continued,
   launch,
-  launchRequest,
   keptStarts,
 } from "../agentLaunchBoundary.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
@@ -18,6 +17,7 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex" });
 test("accepted input with lost acknowledgment resumes its prepared conversation without another announcement or input", async ({
@@ -34,15 +34,15 @@ test("accepted input with lost acknowledgment resumes its prepared conversation 
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
   });
-  const request = {
-    ...launchRequest,
-    host: "codex",
-    workflow: "refinement",
-    identity: queuedIdentity,
-    title: "Story A",
-    options: ["--explore"],
-    instruction: "Keep this preparation context.",
-  };
+  const request = makeMe.aLaunchRequest
+    .refining({
+      identity: queuedIdentity,
+      title: "Story A",
+      host: "codex",
+    })
+    .withOptions(["--explore"])
+    .withInstruction("Keep this preparation context.")
+    .please();
   native.hold = true;
   const starting = launch(dashboard, request);
   await expect.poll(() => native.history.length, { timeout: 30_000 }).toBe(1);

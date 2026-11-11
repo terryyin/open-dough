@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // An unattached Start session's identity includes its Workspace and After
 // checks choices, over raw HTTP with a real bare origin
 // (../../tests/support/startOrigin.ts), the installed start recorded
@@ -25,7 +26,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-const request = { source: "open-dough", workflow: "ad-hoc", host: "codex" };
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 const isolated = { workspace: "isolated", landing: "review" };
 const landing = { workspace: "isolated", landing: "auto-land" };
 

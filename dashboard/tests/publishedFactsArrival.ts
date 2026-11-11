@@ -10,6 +10,7 @@ import {
   updateStoryDependency,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
 import { branchRefAnswer } from "./originAnswers.ts";
@@ -54,20 +55,21 @@ export const preparer = "Pat Preparer";
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
 
-const preparingText = `<a id="preparing"></a>
-
-### ${preparing}
-
-**Identity:** ${preparingIdentity}
-
-**Goal:** ${purpose}
-`;
+const preparingStory = makeMe.aBacklogEntry
+  .with({
+    identity: preparingIdentity,
+    href: preparingHref,
+    title: preparing,
+  })
+  .please();
+const preparingText = renderStorySection(preparingStory, { goal: purpose });
 // The seed prose, with the supplier agreement the dependency writer records.
 const withAgreement = z.string().parse(
   updateStoryDependency(preparingText, {
-    identity: preparingIdentity,
-    href: preparingHref,
-    expectedBasis: readStoryDependencies(preparingText, preparingHref).basis,
+    identity: preparingStory.identity,
+    href: preparingStory.href,
+    expectedBasis: readStoryDependencies(preparingText, preparingStory.href)
+      .basis,
     dependency: makeMe.aSupplierAgreement
       .with({
         supplier: {
@@ -93,15 +95,7 @@ const publishedTrunk = (moreDone: number) =>
       .withRevision(
         "clock",
         clockedFacts({
-          queued: [
-            makeMe.aBacklogEntry
-              .with({
-                identity: preparingIdentity,
-                href: preparingHref,
-                title: preparing,
-              })
-              .please(),
-          ],
+          queued: [preparingStory],
         }),
       )
       .withRevision("prepared", {
@@ -112,8 +106,8 @@ const publishedTrunk = (moreDone: number) =>
         },
         storyStates: [
           {
-            identity: preparingIdentity,
-            href: preparingHref,
+            identity: preparingStory.identity,
+            href: preparingStory.href,
             ...makeMe.aStoryPreparation
               .plannedIn("../slice-plans/091-preparing/PLAN.md")
               .please(),

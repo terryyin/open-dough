@@ -126,7 +126,7 @@ export function cursorSession({
 
 /**
  * A host session on its own, named by its ID unless stated.
- * @template {ClaudeSession | SavedCodexSession | CursorSession} Session
+ * @template {ClaudeSession | CodexSession | CursorSession} Session
  */
 export class HostSessionBuilder {
   /** @type {(name: string) => Session} */
@@ -160,7 +160,11 @@ export const hostSessionChoices = {
   /** @param {ClaudeFacts} facts */
   claude: (facts) =>
     new HostSessionBuilder(claudeSession(facts), facts.sessionId),
-  /** @param {CodexFacts} facts */
+  /**
+   * A Codex thread with its saved continuation, or a predecessor that kept
+   * none.
+   * @param {CodexFacts | PredecessorCodexFacts} facts
+   */
   codex: (facts) =>
     new HostSessionBuilder(codexSession(facts), facts.sessionId),
   /** @param {CursorFacts} facts */

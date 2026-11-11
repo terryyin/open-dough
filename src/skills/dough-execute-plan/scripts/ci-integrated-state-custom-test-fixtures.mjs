@@ -19,6 +19,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { installCustomReuseProvider } from "./ci-reuse-custom-test-fixtures.mjs";
 import { publishFileAsAnotherWriter } from "./publication-test-fixtures.mjs";
 
@@ -85,10 +86,14 @@ export function customProvider(shape = "example") {
     );
     writeFileSync(
       join(fixture.execution, ".planning/open-dough.json"),
-      JSON.stringify({
-        ciAdapter: [process.execPath, wrapper],
-        ...(declared ? { integratedStateCompletion: declared } : {}),
-      }),
+      JSON.stringify(
+        makeMe.projectCiSettings
+          .with({
+            ciAdapter: [process.execPath, wrapper],
+            ...(declared ? { integratedStateCompletion: declared } : {}),
+          })
+          .please(),
+      ),
     );
     const operations = () =>
       existsSync(requests)
