@@ -298,6 +298,28 @@ an application drew stay breaks.
 
 Replaces slice 2's interim. Covers source examples 3 and 4.
 
+## Execution complete
+
+Product advice: no backlog change.
+
+- The key toolbar is the developer's choice after the phone round. With
+  **Select** pinned beside **Paste**, a 390-pixel phone shows ↓ partly cut at
+  rest and needs a sideways scroll to reach Ctrl+C after More. Keep it unless
+  the round shows it hurts; the smallest change then is a new small story
+  that leads the lane with ↑ and ↓.
+- When SEED-300#express-terminal-test-intent-through-page-objects is refined,
+  its audit should take in this story's terminal specs and page helpers
+  (`terminalSelectPage.ts`, `terminalPausedScrollPage.ts`,
+  `frontendTouchTerminal.ts`); its line link into
+  `frontend-tests/agent-terminal-touch-paste-image.spec.ts` no longer lands
+  on a direct xterm selector.
+- Unbroken text from a session's conversation stays unqueued, as decided on
+  2026-11-11, until copying from a phone-width terminal hurts in practice.
+
+The outcome review found no correction. Its proof conclusions for slices 2 and
+3 are conditional on hosted CI for their published revisions. The process
+review is selected and deferred into wrap-up with the Intent Coverage check.
+
 ## Developer confirmation after delivery
 
 No tool available to an agent performs a phone's long-press, so the device
