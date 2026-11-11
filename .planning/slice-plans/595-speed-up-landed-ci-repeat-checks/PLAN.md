@@ -2,6 +2,7 @@
 
 **Identity:** SEED-314#speed-up-landed-ci-repeat-checks
 **Source:** [Story](../../seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -155,6 +156,81 @@ edits were reverted before recording.
 | The node tests that use `repeatLedgerFacts` run through the repository runner | Slice 3 consumer proof | `bash scripts/test.sh tests/support/ci-follow-up-ledger.test.mjs tests/support/ci-follow-up-reading.test.mjs` | Settled: exit 0 |
 | No shard weight names either spec | Scope | `grep -rn` of both spec names under `dashboard/longest-first*` | Settled: no match |
 
+## Execution base
+
+Recorded by slice 1 on 2026-11-11.
+
+Base revision: `629548d2c371b102df54f0d582f8903d2fc49107`, main before the
+Take. The Take commit `e151b007e` adds only `.planning/PRODUCT-BACKLOG.md` and
+`.planning/agents/ivan-chan.json` to it. `f9ed9f52b` is an ancestor of the
+base, 24 commits behind.
+
+Base worktree: `/Users/terryyin/.claude/jobs/7b8897aa/tmp/base-595`, detached
+at the base, with `node scripts/setup-native.mjs npm`, `browser` and `check`
+each exiting 0 on Node 24.21.0. It stays for slice 5.
+
+Listed paths, `git diff f9ed9f52b 629548d2c -- <path>`:
+
+| Path | Versus `f9ed9f52b` |
+| --- | --- |
+| `dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts` | same |
+| `dashboard/backend-tests/intent/landed-ci-repeat-verdict.spec.ts` | same |
+| `dashboard/tests/support/ciFollowUpScenario.ts` | same |
+| `dashboard/tests/support/ciFollowUpPriors.ts` | same |
+| `dashboard/tests/support/ciFollowUpProviderVerdict.ts` | same |
+| `dashboard/tests/support/landedCiHistoryTest.ts` | same |
+| `dashboard/tests/dashboardTest.ts` | same |
+| `dashboard/tests/support/preparationPage.ts` | same |
+| `dashboard/tests/support/fakeGitHub.ts` | same |
+| `tests/support/ciFollowUpLedgerFacts.mjs` | same |
+| `dashboard/server/ciFollowUpCollection.ts` | same |
+| `dashboard/server/ciFollowUpObservation.ts` | same |
+| `dashboard/server/ciFollowUpAdmission.ts` | same |
+
+Reopened premises: none. Every listed path is the same, so the rows of
+[Decisive premises](#decisive-premises) stand as settled, the fault owners
+among them, and were not repeated.
+
+Proof record on the base, one worker, under `caffeinate -s -i` on AC power
+with Homebrew Bash first on `PATH`:
+
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/Users/terryyin/.claude/jobs/7b8897aa/tmp/slice1/base-run1.proof.json npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts --workers=1`
+
+Exit 0: 12 selected, 12 passed, twelve attempts with `durationMs`, no retry.
+Wall time 215 s; the record's own run duration is 211.9 s and the twelve
+cases sum to 200.2 s. One-minute load 39.88 → 33.66.
+
+| Case | Title | `durationMs` | Status |
+| --- | --- | ---: | --- |
+| `landed-ci-automatic-repeat.spec.ts:14` | new Done receipt at exactly105 seconds gets one full POST after sufficient prior collection, then106 seconds shows possible slowdown | 24848 | passed |
+| `landed-ci-automatic-repeat.spec.ts:102` | collected repeat recovered retains the original and its particular honest outcome | 17460 | passed |
+| `landed-ci-automatic-repeat.spec.ts:102` | collected repeat failed retains the original and its particular honest outcome | 21484 | passed |
+| `landed-ci-automatic-repeat.spec.ts:102` | collected repeat cancelled retains the original and its particular honest outcome | 18500 | passed |
+| `landed-ci-automatic-repeat.spec.ts:102` | collected repeat partial retains the original and its particular honest outcome | 15950 | passed |
+| `landed-ci-automatic-repeat.spec.ts:102` | collected repeat refused retains the original and its particular honest outcome | 12244 | passed |
+| `landed-ci-automatic-repeat.spec.ts:102` | collected repeat uncertain retains the original and its particular honest outcome | 15713 | passed |
+| `landed-ci-repeat-verdict.spec.ts:17` | completed repeat verdict undefined is never invented as a failure or success | 17793 | passed |
+| `landed-ci-repeat-verdict.spec.ts:17` | completed repeat verdict null is never invented as a failure or success | 16269 | passed |
+| `landed-ci-repeat-verdict.spec.ts:17` | completed repeat verdict neutral is never invented as a failure or success | 13724 | passed |
+| `landed-ci-repeat-verdict.spec.ts:17` | completed repeat verdict skipped is never invented as a failure or success | 13976 | passed |
+| `landed-ci-repeat-verdict.spec.ts:17` | completed repeat verdict provider-future-state is never invented as a failure or success | 12233 | passed |
+
+SEED-287's repair of the
+[admission misses](#admission-misses-owned-by-seed-287): the base is without
+it. `landed-ci-repeat-admission.spec.ts` and
+`landed-ci-history-no-proof-recovery.spec.ts` are the same on the base as at
+`f9ed9f52b`; the cases at `:11`, `:58`, `:82` and `:36` keep their 5 s polls
+after the receipt. The story is Taken, and its branch
+`codex/make-dashboard-journeys-fit-the-default-timeout` is unmerged on origin
+at `9739dd6eb`, 30 commits beside the base from merge base `b57936969`, with
+no landed CI spec among its committed changes. Its execution worktree is
+active: a merge of main `467ab91fe` is in progress there, with uncommitted
+edits that add `await scenario.collectPriors(server)` before the receipt in
+four admission cases, a `collectPriors` member in `ciFollowUpScenario.ts`, and
+`{ runs, untilCollected }` as the return of `prepareRepeatPriors` in
+`ciFollowUpPriors.ts`. SEED-287's execution therefore owns that exact repair,
+and its edits meet slice 3 in `ciFollowUpScenario.ts`.
+
 ## Verification
 
 Local gate on fully awake AC macOS uses
@@ -220,7 +296,7 @@ any commit. `observeRepeat` is in `dashboard/server/ciFollowUpObservation.ts`.
 
 ### 1. The execution base is on record
 Type: Behavior
-Status: planned
+Status: done
 Proof: The plan records the base revision and whether these paths differ from
 `f9ed9f52b`: both specs, `ciFollowUpScenario.ts`, `ciFollowUpPriors.ts`,
 `ciFollowUpProviderVerdict.ts`, `landedCiHistoryTest.ts`, `dashboardTest.ts`,
@@ -298,6 +374,12 @@ provider receives no rerun request.
 - The recovered, failed, cancelled and partial variants leave the journey loop
   only after their faults fail the saved-request case. Refused and uncertain
   stay in the loop with their assertions unchanged.
+- SEED-287's uncommitted repair edits the prior-build lines of
+  `prepareRepeatScenario`, adds a `collectPriors` member to its return, and
+  changes the return of `prepareRepeatPriors` (see
+  [Execution base](#execution-base)). Keep this slice's edit of
+  `ciFollowUpScenario.ts` to the provider answerer and leave those lines and
+  `ciFollowUpPriors.ts` as they are, so the two changes merge.
 - A saved request that the product's schema refuses makes the ledger
   unreadable and the case fails; the builders are typed by the product's
   `RepeatRequest`. The uncertain journey still reads a product-written request
@@ -385,6 +467,15 @@ early probe in slice 1. This review found no remaining slice-specific concern
 inside the story's two specs. The admission spec's misses under load are
 SEED-287's by Terry's routing on 2026-11-11:
 [Admission misses owned by SEED-287](#admission-misses-owned-by-seed-287).
+
+## Execution record
+
+Story Branch Mode in
+`/Users/terryyin/git/open-dough/.worktrees/speed-up-landed-ci-repeat-checks`
+on `claude/speed-up-landed-ci-repeat-checks`, publishing to that branch on
+`origin`; trunk is `main`. The Take `e151b007e2f3728a8010315f01d94301a7fe38cb`
+was accepted on `origin/main` and is the first increment's published base.
+Overrun replanning keeps the plan's existing authority.
 
 ## Execution notes
 
