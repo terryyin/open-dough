@@ -21,7 +21,7 @@ observed as review range reads.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1a | "Dashboard maintainers get faster feedback on reviewing a story by touch." (commitment) | slice 5 | |
+| 1a | "Dashboard maintainers get faster feedback on reviewing a story by touch." (commitment) | slice 5 | observed: PLAN.md Measured comparison: candidate median whole command 74.4 s against the base 130.8 s at one worker, 33.9 against 62.8 s at two; hosted shard 20.7 s against 63.0 s |
 | 1b | "Real finger input still proves that each review pane scrolls on its own" (commitment) | slice 4 | observed: F1 fails both reading cases at dashboard/tests/support/storyReviewTouchJourney.ts :186 and F2 fails all four cases, on slice 4's final code (tmp/s4 final-F1, final-F2 logs) |
 | 1c | Real finger input still proves that "the chosen file ... survive[s] rotation" (commitment) | slice 4 | observed: F3 fails both context cases at dashboard/tests/support/storyReviewTouchContext.ts :47 via :91 (chosen file after rotation) |
 | 1d | Real finger input still proves that "the chosen file ... survive[s] ... panel controls" (commitment) | slice 4 | observed: dashboard/tests/support/storyReviewTouchContext.ts :98, :101, :132, :146, :163: the chosen file after Maximize, Restore, Show files, Refresh and explicit Commits |
@@ -68,19 +68,19 @@ observed as review range reads.
 | 7b.1 | "An assigned scroll position ... does not prove that a finger moves the intended pane." (exclusion) | slice 4 | observed: diff 58442ace8.. adds no scrollTop or scrollLeft assignment and no scrollTo call |
 | 7b.2 | "a synthesized scroll ... does not prove that a finger moves the intended pane." (exclusion) | slice 4 | observed: diff 58442ace8.. adds no dispatchEvent, wheel or synthesized scroll; strokes are CDP touch events from scrollByTouch |
 | 7b.3 | "a layout-only assertion does not prove that a finger moves the intended pane." (exclusion) | slice 4 | observed: each pane's movement is asserted after its stroke (dashboard/tests/support/storyReviewTouchContext.ts :75, :78; dashboard/tests/support/storyReviewTouchJourney.ts :168, :186, :216); F1 and F2 fail when a pane stops scrolling |
-| 8a | "No case this story changes takes longer than before under SEED-287's load profile, local load 20–30 on 2 workers" (commitment) | slice 5 | |
-| 8b | "this story adds no case-local allowance" (exclusion) | slice 5 | |
-| 8c | "Fitting the default 30 s there is SEED-287's promise" (qualification) | slice 5 | |
-| 8d | "a consolidated case that outgrows it trades one defect for another" (qualification) | slice 5 | |
-| 9a | "No internal mocks, wall-clock sleeps, retries, skips, timeout inflation or special runner modes obtain a saving." (exclusion) | slice 5 | |
-| 9a.1 | No "internal mocks" obtain a saving (exclusion) | slice 5 | |
-| 9a.2 | No "wall-clock sleeps" obtain a saving (exclusion) | slice 5 | |
-| 9a.3 | No "retries" obtain a saving (exclusion) | slice 5 | |
-| 9a.4 | No "skips" obtain a saving (exclusion) | slice 5 | |
-| 9a.5 | No "timeout inflation" obtains a saving (exclusion) | slice 5 | |
-| 9a.6 | No "special runner modes" obtain a saving (exclusion) | slice 5 | |
-| 9b | "Preserve ordinary CI selection" (commitment) | slice 5 | |
-| 9c | "follow the failure policy (AGENTS.md, "Failing and flaky tests")" (commitment) | slice 5 | |
+| 8a | "No case this story changes takes longer than before under SEED-287's load profile, local load 20–30 on 2 workers" (commitment) | slice 5 | observed: PLAN.md Measured comparison, two workers at load 22-37: per-case candidate medians 21.4, 21.5, 9.1, 7.7 s against base 40.0, 29.7, 22.6, 15.0 s; G16 records the means |
+| 8b | "this story adds no case-local allowance" (exclusion) | slice 5 | observed: git diff 58442ace8 b9d7cb61a adds no test.setTimeout or timeout override; the spec file is byte-identical |
+| 8c | "Fitting the default 30 s there is SEED-287's promise" (qualification) | slice 5 | observed: PLAN.md Measured comparison: phone reading at two workers took 39.3-45.4 s on the base and 18.6-32.1 s on the candidate, inside the allowance SEED-287 owns; nothing was changed to fit 30 s |
+| 8d | "a consolidated case that outgrows it trades one defect for another" (qualification) | slice 5 | observed: no case absorbed another's steps: strokes fell in every case and each case's candidate median is below its base median; phone context still passes 30 s first in its worker above the profile, as the base does (G1) |
+| 9a | "No internal mocks, wall-clock sleeps, retries, skips, timeout inflation or special runner modes obtain a saving." (exclusion) | slice 5 | observed: git diff 58442ace8 b9d7cb61a outside .planning: 0 added lines match timeout, sleep, retry, skip, mock or runner-mode patterns (slice 5 diff review) |
+| 9a.1 | No "internal mocks" obtain a saving (exclusion) | slice 5 | observed: diff review: 0 added lines match mock, route, fulfill or stub |
+| 9a.2 | No "wall-clock sleeps" obtain a saving (exclusion) | slice 5 | observed: diff review: 0 added lines match sleep, waitForTimeout or setTimeout; the two requestAnimationFrame waits are frame events |
+| 9a.3 | No "retries" obtain a saving (exclusion) | slice 5 | observed: diff review: 0 added lines match retry, retries or repeatEach |
+| 9a.4 | No "skips" obtain a saving (exclusion) | slice 5 | observed: diff review: 0 added lines match test.skip, fixme or only |
+| 9a.5 | No "timeout inflation" obtains a saving (exclusion) | slice 5 | observed: diff review: 0 added lines match test.setTimeout, test.slow or timeout: |
+| 9a.6 | No "special runner modes" obtain a saving (exclusion) | slice 5 | observed: diff review: no change to playwright.config.ts, package.json scripts, .github or CLI flags |
+| 9b | "Preserve ordinary CI selection" (commitment) | slice 5 | observed: the spec path and blob are unchanged; base and candidate proof records hold the same four titlePaths; hosted CI run 43062775307 passed on b9d7cb61a |
+| 9c | "follow the failure policy (AGENTS.md, "Failing and flaky tests")" (commitment) | slice 5 | observed: PLAN.md Measured comparison failure table and PLAN.md Failures seen outside this story: each failed run has its cause and owner recorded; G1 timeouts belong to SEED-287's active execution |
 | 10a | "SEED-287 ("Fit dashboard journeys in default timeout") owns the reading case's fit in the default timeout." (qualification) | slice 1 | observed: PLAN.md "Execution base record": base 58442ace8 is main at Take and holds none of SEED-287's touch changes (spec imports preparationPage test, test.setTimeout(60_000) at line 18, no largeReviewFiles.ts) |
 | 10b.1 | "Its shorter overflowing line ... [is] accepted on its story branch (`codex/make-dashboard-journeys-fit-the-default-timeout`, `90cfdde52`) and [was] not on main at `77716145b`." (qualification) | slice 1 | observed: PLAN.md "Execution base record": base 58442ace8 is main at Take and holds none of SEED-287's touch changes (spec imports preparationPage test, test.setTimeout(60_000) at line 18, no largeReviewFiles.ts) |
 | 10b.2 | "its worker inputs ahead of the private origin ... are accepted on its story branch ... and were not on main at `77716145b`." (qualification) | slice 1 | observed: PLAN.md "Execution base record": base 58442ace8 is main at Take and holds none of SEED-287's touch changes (spec imports preparationPage test, test.setTimeout(60_000) at line 18, no largeReviewFiles.ts) |
@@ -93,10 +93,10 @@ observed as review range reads.
 | 10f.1 | "Where they are not, leave the allowance ... to SEED-287." (alternative to 10e) (commitment) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty: test.setTimeout(60_000) and its comment stand |
 | 10f.2 | "Where they are not, leave ... the worker inputs to SEED-287." (alternative to 10e) (commitment) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty: the spec still imports test from preparationPage.ts |
 | 10f.3 | "Its integration then keeps this story's comparison and journeys." (alternative to 10e) (qualification) | slice 2 | observed: dashboard/tests/support/largeReviewFiles.ts sits at SEED-287's path with its header, longA, longB and largeReviewRevision returning the same revision shape, so its integration has one file to keep; no merge was exercised |
-| 11a | "first-in-worker preparation ... stay[s] as [it is]" (exclusion) | slice 5 | |
-| 11b | "other touch specs ... stay as they are" (exclusion) | slice 5 | |
-| 11c | "the desktop review checks stay as they are" (exclusion) | slice 5 | |
-| 11d | "Local-only archived experiments are excluded from the maintained selection." (exclusion) | slice 5 | |
+| 11a | "first-in-worker preparation ... stay[s] as [it is]" (exclusion) | slice 5 | observed: diff review: no change to preparationPage.ts, dashboardServer.ts, startOrigin.ts, global setup or fixtures |
+| 11b | "other touch specs ... stay as they are" (exclusion) | slice 5 | observed: diff review: touchGestures.ts and the other touch specs are unchanged |
+| 11c | "the desktop review checks stay as they are" (exclusion) | slice 5 | observed: diff review: story-review-panes.spec.ts and story-review-file-moves.spec.ts change only the module longA and longB come from; G5 |
+| 11d | "Local-only archived experiments are excluded from the maintained selection." (exclusion) | slice 5 | observed: diff review: the only added file is dashboard/tests/support/largeReviewFiles.ts; no spec was added |
 | 12a | Reading on a phone: "The chosen file has more lines than its pane shows" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :142-149: the wide line is reached only after a vertical stroke and scrollTop(code) > 0 |
 | 12b | Reading on a phone: "[The chosen file has] one line wider than the pane" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :133 overflows(code).sideways and :151 the line's end not visible before the sideways read |
 | 12c | Reading on a phone: "the file browser sits above the code" (example) | slice 2 | observed: setup, not an assertion: the phone's 390 px portrait viewport from launchTouchViewports stacks the review; F4, which breaks only the side-by-side body, passes both phone cases (tmp/s2/F4.log) |
@@ -136,10 +136,10 @@ observed as review range reads.
 | 18b | SEED-287 still on its branch at Take: "the worker inputs stay untouched on main" (example) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty |
 | 18c | SEED-287 still on its branch at Take: "the smaller comparison lands." (example) | landing | |
 | 18d | SEED-287 still on its branch at Take: "SEED-287's integration removes the allowance over this story's journeys." (example) | slice 2 | observed: dashboard/tests/support/largeReviewFiles.ts at SEED-287's path; the allowance and its comment are left for its integration to remove |
-| 19a | "Save at least a quarter of whole-command wall time on the ordinary one-worker selection `npm run test:dashboard -- tests/review/story-review-touch.spec.ts --workers=1`" (commitment) | slice 5 | |
-| 19b | "with every replacement, preparation and teardown paid." (qualification) | slice 5 | |
-| 19c | "Send at most two thirds of the finger strokes." (commitment) | slice 5 | |
-| 19d | "Compare with the execution base" (qualification) | slice 5 | |
-| 19d.1 | "[Compare] in alternating runs" (qualification) | slice 5 | |
-| 19d.2 | "[Compare] under the same load" (qualification) | slice 5 | |
-| 19d.3 | "three passing observations of each." (qualification) | slice 5 | |
+| 19a | "Save at least a quarter of whole-command wall time on the ordinary one-worker selection `npm run test:dashboard -- tests/review/story-review-touch.spec.ts --workers=1`" (commitment) | slice 5 | observed: PLAN.md Measured comparison, one worker: 74.4 / 130.8 = 56.9%, limit 75% (tmp/s5/runs.tsv w1 rows) |
+| 19b | "with every replacement, preparation and teardown paid." (qualification) | slice 5 | observed: PLAN.md Measured comparison: wall time is taken around the whole npm command in each checkout, preparation and teardown included |
+| 19c | "Send at most two thirds of the finger strokes." (commitment) | slice 5 | observed: PLAN.md Measured comparison, strokes: 15 against 59 (tmp/s5/trace-cand, tmp/base-traces), limit 39 |
+| 19d | "Compare with the execution base" (qualification) | slice 5 | observed: PLAN.md Measured comparison: base is 58442ace8 in its own worktree, the execution base |
+| 19d.1 | "[Compare] in alternating runs" (qualification) | slice 5 | observed: PLAN.md Measured comparison: order base, candidate, candidate, base, base, candidate |
+| 19d.2 | "[Compare] under the same load" (qualification) | slice 5 | observed: PLAN.md Measured comparison: runs back to back; mean load per run base 43.3, 33.2, 28.2 and candidate 41.3, 34.4, 22.3 |
+| 19d.3 | "three passing observations of each." (qualification) | slice 5 | observed: PLAN.md Measured comparison: three passing observations of each side, the only three attempts at one worker |

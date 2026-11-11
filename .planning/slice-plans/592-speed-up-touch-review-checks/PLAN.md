@@ -317,7 +317,7 @@ Accepted 2026-11-12. Evidence is in
 
 ### 5. The saving is measured against the base and kept
 Type: Behavior
-Status: planned
+Status: done
 Proof: Alternating base and candidate runs of the one-worker touch command
 under the same load, three passing observations each, with proof records. The
 candidate's median whole-command wall time is at most 75% of the base's, and
@@ -334,6 +334,21 @@ observed with every preparation and teardown paid.
 
 A miss is not rounded up. Record the observations and stop for the
 coordinator's decision on keeping the smaller gain or continuing.
+
+Accepted 2026-11-12; the saving is kept. [Measured comparison](#measured-comparison)
+holds the runs. Evidence is in `/Users/terryyin/.claude/jobs/cb428881/tmp/s5/`.
+
+- One worker, alternating, three passes each at load 22–47: base median
+  130.8 s, candidate 74.4 s, 56.9% against the 75% limit.
+- Strokes 15 against 59; the limit is 39.
+- Two workers at ambient load 22–37, no burners because the load already met
+  the profile: every case's candidate median is below its base median, 21.4
+  against 40.0 s, 21.5 against 29.7 s, 9.1 against 22.6 s and 7.7 against
+  15.0 s.
+- The diff adds no timeout, sleep, retry, skip, mock or runner mode; the spec
+  file is byte-identical to the base.
+- Hosted CI passed on `b9d7cb61a`; its shard timed the touch file at 20.7 s.
+- Refactor disposition: records-only. The base worktree is removed.
 
 ## Execution base record
 
@@ -416,6 +431,133 @@ human-owned scope or ADR decision is pending.
 - Timed runs are relative. This machine's load moved between 4 and 36 within
   minutes during preparation; alternate base and candidate and record loads
   rather than waiting for an idle machine.
+
+## Measured comparison
+
+Observed by slice 5 on 2026-11-12: the candidate `b9d7cb61a` in the execution
+checkout against the base worktree at `58442ace8`, which was clean before and
+after. The story's success measure fixed the comparison before the run: the
+candidate's median whole-command wall time is at most 75% of the base's on the
+one-worker touch command, and its strokes are at most two thirds of the
+base's 59, over three passing observations of each in alternating runs under
+the same load. No observation was dropped and nothing was rerun for a better
+number. Records, logs and unpacked failure traces:
+`/Users/terryyin/.claude/jobs/cb428881/tmp/s5/` (`runs.tsv` lists every run).
+
+Commands, each from its own checkout root, one at a time, after
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<record> caffeinate -s -i`:
+
+- One worker: `npm run --silent test:dashboard -- tests/review/story-review-touch.spec.ts --workers=1`.
+- Two workers under load: `npm run --silent test:dashboard -- tests/review/story-review-touch.spec.ts --workers=2`.
+- Strokes: the one-worker command with `--trace=on --reporter=list`.
+
+Wall time is the whole command from start to exit, by one timer for both
+sides. Load is the one-minute `sysctl -n vm.loadavg` immediately before and
+after. Case columns are the record's `durationMs` in seconds.
+
+### One worker
+
+One unmeasured warm-up of each checkout, then base, candidate, candidate,
+base, base, candidate.
+
+| Run | Exit | Wall | Load before → after | Phone reading | Phone context | Tablet reading | Tablet context |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| base warm-up | 1 | 183.2 s | 45.5 → 42.0 | timed out, 62.1 | 28.1 | 37.0 | timed out, 32.9 |
+| candidate warm-up | 0 | 97.5 s | 42.2 → 39.9 | 31.7 | 24.0 | 16.3 | 12.6 |
+| base 1 | 0 | 130.8 s | 39.9 → 46.8 | 54.2 | 22.4 | 26.6 | 19.3 |
+| candidate 1 | 0 | 74.4 s | 46.8 → 35.9 | 27.3 | 17.6 | 10.9 | 10.3 |
+| candidate 2 | 0 | 83.4 s | 35.9 → 32.9 | 30.7 | 20.5 | 13.0 | 12.2 |
+| base 2 | 0 | 142.2 s | 32.9 → 33.4 | 59.6 | 22.3 | 24.1 | 25.3 |
+| base 3 | 0 | 87.8 s | 33.4 → 23.0 | 39.1 | 12.5 | 19.5 | 11.4 |
+| candidate 3 | 0 | 51.1 s | 23.0 → 21.5 | 16.7 | 14.1 | 8.3 | 7.9 |
+
+- Base: 130.8, 142.2 and 87.8 s, median 130.8 s, at load 23.0–46.8.
+- Candidate: 74.4, 83.4 and 51.1 s, median 74.4 s, at load 21.5–46.8.
+- Candidate over base: 56.9%. Each neighbouring pair gives 56.9%, 58.6% and
+  58.2%.
+- Case medians, base then candidate: phone reading 54.2 and 27.3 s, phone
+  context 22.3 and 17.6 s, tablet reading 24.1 and 10.9 s, tablet context
+  19.3 and 10.3 s.
+- The load fell from about 40 to about 22 during the six runs, so each side's
+  own spread (base 54 s, candidate 32 s) is as large as the 56 s between the
+  medians. The slowest candidate run, 83.4 s, is still shorter than the
+  fastest base run, 87.8 s.
+- The base warm-up failed on unedited base code at load 45, as the first run
+  of the sequence. Phone reading, first in its worker, ran out its 60 s allowance at
+  stroke 28 of 31 after 25.6 s of Before Hooks (origin 12.1 s, dashboard
+  12.5 s). Tablet context passed the default 30 s with 4.8 s of Before Hooks
+  and a 25 s body: there the body, not preparation, took the time. It is a
+  warm-up and no observation. In base 2 the phone reading case took 59.6 s,
+  0.4 s inside the allowance.
+
+### Two workers under SEED-287's load profile
+
+`dashboard/playwright.config.ts` sets two workers locally, and
+`scripts/dashboard-repeat.sh` runs at that default. The one-minute load read
+before each pair was already 20 or above (22.4, 27.8, 37.4, 48.8 and 36.2), so
+every pair ran the two-worker command without burners and its two runs differ
+only in the checkout. The burner command was not run. Order: base, candidate,
+candidate, base, base, candidate, candidate, base, base, candidate.
+
+| Run | Exit | Wall | Load before → after | Phone reading | Phone context | Tablet reading | Tablet context |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| base 1 | 0 | 61.6 s | 22.4 → 26.2 | 40.0 | 27.8 | 22.0 | 14.2 |
+| candidate 1 | 0 | 31.1 s | 26.2 → 27.8 | 18.6 | 18.8 | 8.7 | 7.7 |
+| candidate 2 | 0 | 33.9 s | 27.8 → 25.0 | 21.4 | 21.5 | 9.2 | 8.1 |
+| base 2 | 0 | 62.8 s | 25.0 → 37.4 | 39.3 | 29.9 | 24.6 | 18.8 |
+| base 3 | 1 | 74.1 s | 37.4 → 36.0 | 43.4 | timed out, 31.4 | 27.5 | 22.8 |
+| candidate 3 | 1 | 54.6 s | 36.0 → 47.4 | 28.1 | timed out, 31.6 | 11.9 | 11.3 |
+| candidate 4 | 1 | 58.3 s | 48.8 → 40.2 | 32.1 | timed out, 32.1 | 14.4 | 13.1 |
+| base 4 | 1 | 75.7 s | 40.2 → 39.3 | 45.4 | timed out, 31.1 | 26.0 | 19.4 |
+| base 5 | 0 | 63.0 s | 36.2 → 31.2 | 40.9 | 29.7 | 22.6 | 15.0 |
+| candidate 5 | 0 | 38.5 s | 31.2 → 26.3 | 24.0 | 25.1 | 9.1 | 7.7 |
+
+Medians over each side's three passing runs, 1, 2 and 5:
+
+| Case | Base | Candidate | Candidate no longer |
+| --- | ---: | ---: | --- |
+| Phone reading | 39,996 ms | 21,398 ms | yes |
+| Phone context | 29,715 ms | 21,474 ms | yes |
+| Tablet reading | 22,589 ms | 9,108 ms | yes |
+| Tablet context | 15,030 ms | 7,716 ms | yes |
+
+- Passing runs: base at load 22.4–37.4, candidate at 25.0–31.2. All ten
+  attempts: base at 22.4–40.2, candidate at 25.0–48.8.
+- Each side failed two of five attempts, in the same two pairs, at load
+  36–49, above the profile. All four failures are the phone context case,
+  first in its worker, at the default 30 s. Before Hooks took 14.4 and 15.6 s
+  on the base and 12.8 and 14.6 s on the candidate (origin 6–9 s, dashboard
+  6–7 s), and the body was cut after 14.6–17.6 s. This is obligation G1,
+  SEED-287's first-in-worker preparation; nothing was repaired.
+- Against the default 30 s: phone reading took 39.3–45.4 s in all five base
+  attempts and 18.6–32.1 s on the candidate, past 30 s once, at load 48.8.
+  Phone context took 27.8–29.9 s in the base's passing runs and 18.8–25.1 s
+  in the candidate's.
+
+### Strokes
+
+Base 59: 31, 3, 22 and 3, from slice 1's traced run
+(`tmp/base-traces`). Candidate 15: 5, 3, 5 and 2, from a traced run of
+`b9d7cb61a` (`tmp/s5/trace-cand`, 4 passed in 52 s at load 23.8 → 21.2) and
+equal to slice 4's count. 15 of 59 is 25%; two thirds is 39. Range reads: 4
+against 10.
+
+### Verdict
+
+- A quarter less whole-command wall time: met, 56.9% of the base against 75%.
+- At most two thirds of the strokes: met, 15 against 59.
+- No changed case longer under load at two workers: met on three passing
+  observations of each side, at load 22–37 without burners.
+- The diff from `58442ace8` adds no `test.setTimeout`, sleep, retry, skip,
+  mock or runner mode; the spec is byte-identical to the base's and its four
+  title paths are the same in a base and a candidate record.
+
+Hosted CI: run 43062775307 passed on `b9d7cb61a`, the published candidate.
+Its `dashboard-times` artifact gives the touch file 20.7 s, beside the
+recorded 63.0 s of run 42808747192. Earlier candidates: 34.6 s on `205452d94`
+(run 43035009375) and 23.7 s on `d7622bc2b` (run 43044486491). This is
+evidence, not acceptance; the weight in `dashboard/longest-first-journeys`
+waits for its ordinary refresh.
 
 ## Failures seen outside this story
 
@@ -553,3 +695,18 @@ Disposition: no user cost "Dashboard maintainers get faster feedback on reviewin
 Reported: slice 4 — "its branch's `storyReviewTouchContext.ts` imports `chooseCommitsByTouch` (line 19, called at line 99), which is now module-private. That file already conflicts with this story's rewrite; a stale import fails typecheck loudly."
 Story clause: "Its integration then keeps this story's comparison and journeys."
 Disposition: no user cost "Ordinary CI continues to catch the same product regressions.": SEED-287's branch does not change `storyReviewTouchContext.ts` or `reviewTouchReading.ts` (`git diff --stat 58442ace8 origin/codex/make-dashboard-journeys-fit-the-default-timeout`), so its integration takes this story's files, which do not import the helper; a stale import would stop at the typecheck hook rather than pass
+
+### G16. The under-load comparison ran at ambient load without burners
+Reported: slice 5 — "The plan's literal burner proof did not run. Part 2 used ambient load at `--workers=2` under your rule. Three of five pairs began above 30, and base passing runs reached 37.4, so the profile "20–30" was exceeded rather than matched."
+Story clause: "No case this story changes takes longer than before under SEED-287's load profile, local load 20–30 on 2 workers"
+Disposition: proved by slice 5: at two workers and load 22–37, alternating, each case's candidate median is below its base median and the candidate is faster in every pair (`tmp/s5/runs.tsv`, Measured comparison); other work already held the load at or above the profile, so burners would only have raised it further
+
+### G17. The spec's comment above the allowance still counts 31 strokes
+Reported: slice 5 — "The unchanged spec still says "Up to about 31 native touch strokes" above the allowance; the candidate's phone reading sends 5."
+Story clause: "The 60 s allowance and the worker inputs stay untouched on main"
+Disposition: no user cost "Ordinary CI continues to catch the same product regressions.": the comment belongs to the allowance lines that SEED-287's accepted branch deletes; editing it here would conflict with that deletion, and it changes no verdict
+
+### G18. The base's tablet context case passed 30 s in an unmeasured warm-up
+Reported: slice 5 — "On the unedited base at load 45, tablet context passed 30 s with only 4.8 s of Before Hooks; its body took the time. No candidate run showed it (candidate tablet context 7.7–13.1 s in every run)."
+Story clause: "No case this story changes takes longer than before under SEED-287's load profile, local load 20–30 on 2 workers"
+Disposition: proved by slice 5: the failure is the base's, at load 45; the candidate's tablet context case took 7.7–13.1 s in all ten of its measured runs and its warm-up
