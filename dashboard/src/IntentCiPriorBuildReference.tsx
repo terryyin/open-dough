@@ -24,10 +24,14 @@ export function IntentCiPriorBuildReference({
   reference,
   precise = false,
   unavailableReason,
+  endpointLabel = "Selected landing",
+  reasonWords = (reason: string) => reason,
 }: {
   readonly reference: PriorBuildReference;
   readonly precise?: boolean;
   readonly unavailableReason?: string | undefined;
+  readonly endpointLabel?: string;
+  readonly reasonWords?: (reason: string) => string;
 }) {
   const { averageMs, selected, difference, from, to } = reference;
   const durationWords = precise ? executionTimeWords : wholeSecondWords;
@@ -37,23 +41,29 @@ export function IntentCiPriorBuildReference({
         <strong>Prior-build average</strong>
         {" · "}
         {averageMs === undefined
-          ? (unavailableReason ??
-            "Insufficient comparable history: at least 5 prior builds are required after filtering")
+          ? reasonWords(
+              unavailableReason ??
+                "Insufficient comparable history: at least 5 prior builds are required after filtering",
+            )
           : durationWords(averageMs)}
       </p>
       <p>
-        Selected landing <code>{shortSha(reference.endpoint)}</code>
+        {endpointLabel} <code>{shortSha(reference.endpoint)}</code>
         {" · "}
         {selected?.ms === undefined
-          ? (selected?.reason ?? "Selected measurement unavailable")
+          ? reasonWords(selected?.reason ?? "Selected measurement unavailable")
           : durationWords(selected.ms)}
       </p>
       <p>
         {difference === undefined
           ? `Difference unavailable: ${
               averageMs === undefined
-                ? (unavailableReason ?? "insufficient comparable history")
-                : (selected?.reason ?? "selected measurement unavailable")
+                ? reasonWords(
+                    unavailableReason ?? "insufficient comparable history",
+                  )
+                : reasonWords(
+                    selected?.reason ?? "selected measurement unavailable",
+                  )
             }`
           : `${precise ? difference.text : difference.changeMs % 1000 === 0 ? wholeSecondDifferenceWords(difference.changeMs) : difference.text} (${
               difference.relative === undefined

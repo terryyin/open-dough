@@ -14,6 +14,7 @@ export type HistoryChartSeries = {
   // Includes gaps so the date range does not silently end at the last point.
   readonly dates?: readonly string[];
   readonly precise?: boolean;
+  readonly selectedLabel?: string;
   readonly reference?: { readonly ms: number; readonly label: string };
   readonly annotations?: readonly {
     readonly key: string;

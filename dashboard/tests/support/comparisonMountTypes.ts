@@ -1,3 +1,4 @@
+import type { ScopeHistoryEndpoint } from "../../src/ciScopeHistory.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
@@ -20,10 +21,11 @@ export type ComparisonMount = {
   readonly work: PublishedWork;
   readonly identity: string;
   readonly scope?: ComparisonScope | undefined;
+  readonly doneEndpoint?: ScopeHistoryEndpoint;
 };
 export type ComparisonSelection = Pick<
   ComparisonMount,
-  "work" | "identity" | "scope"
+  "work" | "identity" | "scope" | "doneEndpoint"
 >;
 
 declare global {

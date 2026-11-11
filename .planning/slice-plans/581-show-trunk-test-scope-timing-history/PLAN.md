@@ -4,6 +4,8 @@
 
 **Source:** [Refined story](../../seeds/SEED-310-trunk-test-scope-timing-history.md#show-trunk-test-scope-timing-history)
 
+**Source review:** [Source-only commitments](source-review.md)
+
 ## Goal and scope
 
 Show dated cumulative test execution time in Project Intent's entry/folder
@@ -79,7 +81,7 @@ on 2026-11-11. Preparation scratch edits are reverted before recording.
 
 ### 1. Read Project Intent scope history at its observed trunk endpoint
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Project Intent has observed a configured-trunk revision and retained
 build evidence → the developer opens entry/nested folder Summary or file Proof
@@ -180,6 +182,40 @@ counts that now include Project scope history.
   separate entry/folder/file implementations are justified.
 - Preserve source Goal/Scope and this plan until retrospective and Story Wrap
   Up. Preparation landing neither Takes this queued story nor starts execution.
+
+## Story obligations
+
+### G1. Complete same-endpoint freshness and visit/return lifecycle
+Reported: slice 1 — "Full same-head refresh/stable timestamp/visit-return remains slice2."
+Story clause: "Follow the existing CI-status observation lifecycle: showing Project Intent, observing a new trunk head, and Check again can refresh the local history; elapsed time alone does not."
+Disposition: interim until slices 2
+
+### G2. Preserve recovery and all-gap proof under the default timeout
+Reported: slice 1 — "Two existing supplemental UI specs exceed default30s before their history assertion because each constructs/publishes a full Done Git history and acquires comparison proofs."
+Story clause: "A failed history read offers its own Retry history while other Proof stays usable. An empty collection explains what is absent."
+Disposition: proved by slice 1: slice-1-proof.md preserves original failed verdicts, diagnosed setup/event causes and final passing moved frontend history/default consumer commands
+
+### G3. Preserve separate-unit proof under the default timeout
+Reported: slice 1 — "Units exhausted30s during unrelated Recently done Board navigation. All share expensive real Done publication for synthetic UI-only history."
+Story clause: "Preserve declared test-case and test-file units separately"
+Disposition: proved by slice 1: slice-1-proof.md preserves original failed verdicts, diagnosed setup/event causes and final passing moved frontend history/default consumer commands
+
+### G4. Repair direct default reference consumers
+Reported: slice 1 — "intent-ci-done-prior-build timed out30s before CI entry comparison table line87; intent-ci-follow-up failed its5s poll for scenario.repeatCalls after ingestion line42."
+Story clause: "CI status continues to describe CI wall time."
+Disposition: proved by slice 1: slice-1-proof.md preserves original failed verdicts, diagnosed setup/event causes and final passing moved frontend history/default consumer commands
+
+## Execution context
+
+[Checkout, preparation, observation and proof decisions](execution-context.md).
+
+## Slice 1 acceptance
+
+[Literal commands, setup, observations and repair evidence](slice-1-proof.md).
+Source freshness unchanged at trunk `8299f4e64f49939e1d6120390ebd0b44a0532328`;
+no named sibling coordination references. Product, MakeMe setup and observing
+assertions inspected; original failure verdicts retained, repaired cases proved
+under default timeout. G1 remains with slice 2. Independent refactor completed; affected proof passed.
 
 ## Plan review and learnings
 

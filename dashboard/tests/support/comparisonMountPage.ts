@@ -152,6 +152,9 @@ export async function mountComparison(
       work: facts.work,
       identity: facts.identity,
       scope: facts.scope,
+      ...(facts.doneEndpoint === undefined
+        ? {}
+        : { doneEndpoint: facts.doneEndpoint }),
     },
   );
   return page.getByRole("region", {
@@ -165,6 +168,13 @@ export async function updateComparison(page: Page, facts: ComparisonMount) {
     (value) => {
       window.updateCiComparison(value);
     },
-    { work: facts.work, identity: facts.identity, scope: facts.scope },
+    {
+      work: facts.work,
+      identity: facts.identity,
+      scope: facts.scope,
+      ...(facts.doneEndpoint === undefined
+        ? {}
+        : { doneEndpoint: facts.doneEndpoint }),
+    },
   );
 }

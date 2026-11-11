@@ -1,6 +1,6 @@
 // CI Proof of a selected test file (`./IntentFileReading.tsx`): Intent's one
 // CI evidence owner (`./IntentCiEvidence.tsx`) with no further acquisition.
-// A Done file also reads its locally collected timing history beside that
+// Project and Done files also read locally collected timing history beside that
 // evidence, independently of usable live Proof. For a
 // judged-run summary, one row of counts and execution time for each unit of
 // results the file shows, such as its test cases and its own test file
@@ -30,7 +30,7 @@ function FileProofContent(
   );
 }
 
-// A Done file keeps local history even when the live Proof has no usable data.
+// Local history remains available even when live Proof has no usable data.
 export function IntentFileProof(props: Parameters<typeof FileProofContent>[0]) {
   return (
     <>

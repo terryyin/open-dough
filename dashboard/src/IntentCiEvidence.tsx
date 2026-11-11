@@ -84,6 +84,7 @@ export type CiEvidence =
       readonly proof: ShownProof | undefined;
       // The trunk's: its collected CI wall time history.
       readonly history?: HistoryReading;
+      readonly projectEndpoint?: ScopeHistoryEndpoint;
       // Taken Story Branch: provisional comparison beside the live judgment.
       readonly comparison?: ComparisonReading;
       readonly comparisonStory?: string;
@@ -182,6 +183,14 @@ export function IntentCiEvidenceProvider({
       judged,
       proof,
       ...(history === undefined ? {} : { history }),
+      ...(target.story === undefined && work !== undefined
+        ? {
+            projectEndpoint: {
+              revision: work.revision,
+              at: work.retrievedAt.toISOString(),
+            },
+          }
+        : {}),
       ...(target.comparisonIdentity === undefined
         ? {}
         : {

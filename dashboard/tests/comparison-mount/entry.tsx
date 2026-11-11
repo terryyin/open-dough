@@ -21,6 +21,7 @@ window.mountCiComparison = ({
   work,
   identity,
   scope,
+  doneEndpoint,
 }: ComparisonMount) => {
   const container = document.getElementById("root");
   if (container === null) {
@@ -39,6 +40,9 @@ window.mountCiComparison = ({
                 work={selection.work}
                 selectedIdentity={selection.identity}
                 active
+                {...(selection.doneEndpoint === undefined
+                  ? {}
+                  : { doneEndpoint: selection.doneEndpoint })}
               >
                 {selection.scope === undefined ? (
                   <IntentCiStatus />
@@ -55,7 +59,12 @@ window.mountCiComparison = ({
       </IntentReadingProvider>,
     );
   };
-  update({ work, identity, scope });
+  update({
+    work,
+    identity,
+    scope,
+    ...(doneEndpoint === undefined ? {} : { doneEndpoint }),
+  });
 };
 window.updateCiComparison = (selection) => {
   if (update === undefined) {
