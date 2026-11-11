@@ -91,6 +91,25 @@ Proof: Focused backend/history checks at the local `intent=ci-history` boundary:
 
 Behavior: Collected history that would project `timing-basis` gaps → an already-loaded prior frontend reads the default `intent=ci-history` answer and a newly loaded current frontend reads with its opt-in → the prior reader still shows measured builds and an understandable gap instead of a response-shape error; the current reader can show the specific timing-basis reason; regression coverage pins that previous reader against the default updated-server answer.
 
+## Execution complete
+
+Product advice: no change. Keep the current backlog order; this response
+compatibility repair protects readable observed CI history and needs no broader
+versioning framework or new product work.
+
+Retrospective: original source, first ready plan and accepted implementation
+`c9c6c06453f04b8b6144a34a563fbda1327cc960` compared against aggregate code,
+independent source commitments and current dashboard architecture. No product
+defect, refactor residue, obsolete path or missing proof found. Regression was
+added with implementation, not demonstrated as an E2E-first development loop;
+the frozen reader's acceptance/rejection assertions discriminate the outage.
+Cheap boundary variants complement retained browser journeys without another
+full suite. Process history was available: existing ODF-329/396 and DD-486/488
+received this execution's observations in DearDough.md (988 physical lines,
+catalog-only stub retention with exact Git recovery). No correction plan or
+unresolved review attention. Branch CI remains pending on the retained observer
+until the completion operation settles it.
+
 ## Current decisions
 
 - Compatibility substitute for `timing-basis` on the default answer is
@@ -192,6 +211,11 @@ slice-specific concerns.
   typecheck required the new MakeMe PublishedSource's label and repository.
   Supplied the fixture's actual Open Dough source facts; compatibility proof
   remains a real server/read observation, not an outcome supplied by setup.
+- Slice 1 publication accepted: `c9c6c06453f04b8b6144a34a563fbda1327cc960`
+  on `origin/codex/keep-ci-wall-time-history-readable-across-dashbo`, suffix
+  base `cbed76e816e7acad4548b93fb2d335e679cc4745`; observation reused the
+  retained stream. Hook lint and dashboard typecheck passed at commit. The
+  final fixture-facts repair's focused compatibility rerun also passed.
 
 - Local gates: focused backend/history specs for the default and opt-in
   answers, plus affected neighbors that assert landed CI history shape
