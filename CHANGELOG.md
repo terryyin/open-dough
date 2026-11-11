@@ -1,3 +1,17 @@
+## 0.3.95 - 2026-11-11
+
+- Automatic Intent Coverage during feature-story wrap-up is now off unless the project's `.planning/open-dough.json` sets `intentCoverage: true`. Enabled wrap-up waits for the report and records evidence-backed follow-up dispositions before Done, cleanup, or retirement. Explicit review requests remain available. Reports distinguish caught faults, assertion gaps, confirmed missing test paths, and insufficient evidence, with a separate next proof action.
+- Execution defers an already-selected process review until Intent Coverage reports and dispositions are available. Story Wrap Up completes that deferred review and no longer accepts its own `--process-retrospective` flag; Dough Land retains its flag.
+- Intent CI review compares landed timing with a filtered recent-build average and can repeat an eligible slow landed build once, retaining the allowance across processes and restarts. Proof keeps gaps and test units distinct while presenting one row per location. Matrix-job timing, zero-test timing, frontend CI-proof publication, and compatibility with already-open dashboard versions are improved.
+- Dashboard source adds system dark appearance, terminal prompt presets that insert editable text, project-configuration inspection, and selection of uniquely identified completed stories from ad hoc sessions. Cursor continuation submission and preparation-failure explanations are corrected, and source highlighting preserves reading position.
+- Shared MakeMe builders now arrange more installation, native-host, GitHub Actions, CI-adapter and proof test data. CI retains named unfinished results at its test deadline and adds a dashboard shard.
+
+The Promoted payload changes 20 files across execution, retrospective, Intent Coverage, story wrap-up and test optimization. It adds `dough-execute-plan/references/deferred-process-review.md` and `dough-execute-plan/references/other-completion-paths.md`; no payload paths are retired. Installer, discovery and host-hook mechanisms are unchanged.
+
+Validation passed the self-installation baseline, payload declaration, public installation and execution payload update checks. [Hosted trunk CI passed all 18 jobs at `49201bc5`](https://github.com/terryyin/open-dough/actions/runs/42944546540); subsequent source-candidate changes are planning records only. The conventional guidance changes retain representative authoring reviews; the focused Intent Coverage handoff retains its four-arm Claude Code comparison, without claiming all-host performance or routine checking benefit. Unchanged installation, discovery and hook mechanisms reuse existing host integration evidence under ADR 0005.
+
+Terry explicitly approved a one-release ADR 0005 exception for 0.3.95 on 2026-11-11 for [freshness ordering](.planning/seeds/SEED-053-native-guidance-acceptance/freshness-ordering.md) and [oversized-file reorganization](.planning/seeds/SEED-053-native-guidance-acceptance/oversized-file-reorganization.md). Native acceptance for both remains pending separately on Codex, Cursor and Claude Code; this exception does not authorize later releases.
+
 ## 0.3.94 - 2026-11-10
 
 - Intent shows Landed CI wall-time history for the latest 20 builds, with build provenance, evidence gaps, and collected folder and file timing in Proof. Pending build and proof answers stay refreshable as results arrive, including after an interruption or restart.
