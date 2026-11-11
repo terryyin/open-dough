@@ -116,6 +116,9 @@ Give the agent:
   done, refactor pass, selective formatting, or independent hook-owned lint
   command.
 - The [CI pause and resume contract](ci-monitor.md#pause-and-resume-writers).
+- For test work, [MakeMe entry selection](../../dough-makeme/SKILL.md) before
+  arranging data. Pass established source-path selection when available; require
+  the agent to check new test paths once known and additions beyond that scope.
 
 ## Own verification to its terminal result
 

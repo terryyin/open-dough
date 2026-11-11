@@ -1,5 +1,6 @@
 // @ts-check
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,7 +32,9 @@ export const openDoughSource = fileURLToPath(
 );
 
 const installerPath = join(openDoughSource, "install.sh");
-const managedFilesDeclaration = /^managed_files=\(\n([\s\S]*?)^\)/m;
+const managedFilesDeclaration = /^managed_files(?:\+)?=\(\n[\s\S]*?^\)\n?/gm;
+const payloadInclude =
+  /^source "\$\(dirname -- "\$\{BASH_SOURCE\[0\]\}"\)\/src\/install\/[a-z0-9-]+-payload\.sh"\n?/gm;
 
 /** @param {string} prefix @param {string} path */
 const withholds = (prefix, path) => path !== "" && path.startsWith(prefix);
@@ -39,12 +42,20 @@ const withholds = (prefix, path) => path !== "" && path.startsWith(prefix);
 const removes = (removed, path) => `${path}/`.startsWith(`${removed}/`);
 
 /** The managed payload paths the working tree's install.sh declares. */
-function declaredPayload() {
-  const declaration = managedFilesDeclaration.exec(
-    readFileSync(installerPath, "utf8"),
-  );
-  if (!declaration) throw new Error("install.sh declares no managed_files");
-  return /** @type {string} */ (declaration[1]).split(/\s+/).filter(Boolean);
+export function declaredPayload() {
+  return execFileSync(
+    "bash",
+    [
+      "-c",
+      'source "$1"; read_managed_files_declaration "$2"',
+      "release-payload",
+      join(openDoughSource, "src/install/open-dough-payload-declaration.sh"),
+      installerPath,
+    ],
+    { encoding: "utf8" },
+  )
+    .trim()
+    .split("\n");
 }
 
 /**
@@ -63,17 +74,20 @@ export function shippedPayload({ removed }) {
  * @param {Pick<Release, "withheld" | "added">} release
  */
 export function releaseInstaller({ withheld, added }) {
-  return readFileSync(installerPath, "utf8").replace(
-    managedFilesDeclaration,
-    (declaration) => {
-      const [opening, ...entries] = declaration.split("\n");
-      const kept = entries.filter(
-        (line) => !withheld.some((prefix) => withholds(prefix, line.trim())),
-      );
-      const declared = Object.keys(added).map((path) => `  ${path}`);
-      return [opening, ...declared, ...kept].join("\n");
-    },
-  );
+  const declared = [
+    ...Object.keys(added),
+    ...declaredPayload().filter(
+      (path) => !withheld.some((prefix) => withholds(prefix, path)),
+    ),
+  ];
+  let replaced = false;
+  return readFileSync(installerPath, "utf8")
+    .replace(managedFilesDeclaration, () => {
+      if (replaced) return "";
+      replaced = true;
+      return `managed_files=(\n${declared.map((path) => `  ${path}`).join("\n")}\n)\n`;
+    })
+    .replace(payloadInclude, "");
 }
 
 /**

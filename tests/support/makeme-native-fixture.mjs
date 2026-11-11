@@ -53,7 +53,12 @@ test("a short title stays whole", () => {
 });
 `;
 
-export async function createMakeMeNativeFixture(source, host, directory) {
+export async function createMakeMeNativeFixture(
+  source,
+  host,
+  directory,
+  { skills = true } = {},
+) {
   const locations = makeMe.intentSettings
     .withLocations(
       makeMe.anIntentLocation
@@ -79,7 +84,7 @@ export async function createMakeMeNativeFixture(source, host, directory) {
     "backend/tests/access.test.mjs": baselineBackend,
     "frontend/tests/preview.test.mjs": baselineFrontend,
     "tests/support/makeMe.mjs": factory,
-    ...makeMeSkillFiles(source, root),
+    ...(skills ? makeMeSkillFiles(source, root) : {}),
   };
   return materializeLocalCheckout(
     undefined,

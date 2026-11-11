@@ -2,13 +2,14 @@
 # The sourced native helpers define and consume this runner's shared globals.
 # shellcheck disable=SC1091,SC2034,SC2154
 set -euo pipefail
-# Explicit paid native probe. Usage: HOST mixed|opted-out ARTIFACT_DIRECTORY.
+# Explicit paid native probe. Usage: HOST mixed|opted-out|refactor ARTIFACT_DIRECTORY.
 # Ordinary npm test runs only the cheap harness contract, never paid inference.
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 if (($# == 0)); then
   log=$(mktemp)
   trap 'rm -f "${log}"' EXIT
-  if node --test "${source_dir}/tests/support/makeme-native-harness.test.mjs" > "${log}" 2>&1; then
+  if node --test "${source_dir}/tests/support/makeme-native-harness.test.mjs" \
+    "${source_dir}/tests/support/makeme-native-refactor-harness.test.mjs" > "${log}" 2>&1; then
     exit 0
   fi
   cat -- "${log}" >&2
@@ -18,7 +19,7 @@ platform=$1
 journey=$2
 temporary_dir=$3
 case ${platform} in codex | cursor | claude) ;; *) exit 2 ;; esac
-case ${journey} in mixed | opted-out) ;; *) exit 2 ;; esac
+case ${journey} in mixed | opted-out | refactor) ;; *) exit 2 ;; esac
 mkdir -p -- "${temporary_dir}"
 temporary_dir=$(cd -- "${temporary_dir}" && pwd -P)
 # shellcheck source=tests/helpers/wait-for.bash
@@ -27,7 +28,9 @@ source "${source_dir}/tests/helpers/wait-for.bash"
 source "${source_dir}/tests/support/native-run-supervise.sh"
 # shellcheck source=tests/support/native-codex.sh
 source "${source_dir}/tests/support/native-codex.sh"
-node "${source_dir}/tests/support/makeme-native-fixture.mjs" "${source_dir}" \
+fixture=makeme-native-fixture.mjs
+if [[ ${journey} == refactor ]]; then fixture=makeme-native-refactor-fixture.mjs; fi
+node "${source_dir}/tests/support/${fixture}" "${source_dir}" \
   "${platform}" "${temporary_dir}/project" "${journey}" > "${temporary_dir}/fixture.json"
 target="${temporary_dir}/project"
 prompt=$(node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1])).prompt)' "${temporary_dir}/fixture.json")
@@ -66,4 +69,8 @@ printf 'host: %s\nversion: %s\njourney: %s\nexit: %s\noutcome: %s\n' \
 if [[ ${platform} != codex ]]; then native_run_write_output 1; fi
 node "${source_dir}/tests/support/native-host-stream.mjs" "${platform}" "${transcript}" status
 if ((status != 0)); then exit "${status}"; fi
-node "${source_dir}/tests/support/makeme-native-assess.mjs" "${platform}" "${journey}" "${temporary_dir}"
+if [[ ${journey} == refactor ]]; then
+  node "${source_dir}/tests/support/makeme-native-refactor-assess.mjs" "${platform}" "${temporary_dir}"
+else
+  node "${source_dir}/tests/support/makeme-native-assess.mjs" "${platform}" "${journey}" "${temporary_dir}"
+fi

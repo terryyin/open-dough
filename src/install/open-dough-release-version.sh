@@ -4,30 +4,9 @@ report_managed_payload_mismatch() {
   local skill_root=$1 managed_file=$2
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
-# Read-only extraction of an install.sh's inline managed_files=(...)
-# declaration. Refuse an unavailable/unrecognized declaration instead of
-# treating every source file as unmanaged. Historical installers use this
-# literal array, so this must keep working against an older checkout's
-# install.sh, not only this repository's current one.
-read_managed_files_declaration() {
-  local install_script=$1
-  local declared
-  if ! declared=$(awk '
-    /^managed_files=\(/ { in_payload = 1; next }
-    in_payload && /^\)/ { closed = 1; in_payload = 0 }
-    in_payload {
-      for (i = 1; i <= NF; i++) {
-        if ($i == "dough-update/SKILL.md") core = 1
-        print $i
-      }
-    }
-    END { exit !(closed && core) }
-  ' "${install_script}"); then
-    echo "Cannot read managed payload declaration: ${install_script}" >&2
-    return 1
-  fi
-  printf '%s\n' "${declared}"
-}
+# shellcheck disable=SC1091 # The selective check does not follow companion modules.
+# shellcheck source=src/install/open-dough-payload-declaration.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-declaration.sh"
 # Read-only dest vs tagged checkout. dest is the dough-update destination;
 # skill_root is its native root. No fetches or writes. Callers with a tagged
 # tree pass it as checkout; ordinary update fetches first.

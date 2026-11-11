@@ -1,9 +1,10 @@
-import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readHostStream } from "./native-host-stream.mjs";
 import { selectionResolved } from "./makeme-native-selection-observe.mjs";
+import { runTests } from "./makeme-native-test-run.mjs";
+import { guidanceReadCount } from "./makeme-native-guidance-observe.mjs";
 import {
   application,
   baselineBackend,
@@ -14,17 +15,7 @@ const text = (value) =>
   typeof value === "string" ? value : JSON.stringify(value);
 export function loaded(read, path, marker) {
   return (
-    read.reads.some(
-      (entry) =>
-        entry.path.endsWith(path) && text(entry.content)?.includes(marker),
-    ) ||
-    // The shared reader retains null where a host (Claude) omits shell status.
-    read.calls.some(
-      (entry) =>
-        entry.command.includes(path) &&
-        (entry.exitCode === 0 || entry.exitCode === null) &&
-        text(entry.output)?.includes(marker),
-    ) ||
+    guidanceReadCount(read, path, marker) > 0 ||
     read.tools.some(
       (entry) =>
         /skill/i.test(entry.name) &&
@@ -62,13 +53,6 @@ export function assessGuidance(read, journey, configurationPath) {
       resolved &&
       (journey === "mixed" ? convention : !convention),
   };
-}
-
-function runTests(checkout, paths) {
-  return spawnSync(process.execPath, ["--test", ...paths], {
-    cwd: checkout,
-    encoding: "utf8",
-  });
 }
 
 function killsFault(checkout, productionPath, testPath, faulty) {

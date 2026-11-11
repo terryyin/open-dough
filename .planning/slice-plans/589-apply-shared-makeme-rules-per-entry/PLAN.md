@@ -7,7 +7,7 @@
 ## Execution context
 
 - Story branch: `codex/apply-shared-makeme-rules-per-entry`, workspace this worktree, publisher `dashboard-territory.local-open-dough`, agent `aki-chan`, `origin` / trunk `main`.
-- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slices 1/2 and current published base `4bb85bbbeb341d41b74c21580089aa6c45fbb7d5` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
+- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slices 1–3 and current published base `3940c9d798a60bfd047456b31b4243a07730c768` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
 - Live CI: GitHub `terryyin/open-dough`, `ci.yml` / `CI`, execution-branch target, coordinator `aki-chan-seed307`, directory `/tmp/dough-ci-501/watch-cUOT3m`, PID `64581`, stream `85379`, cell `g228:4`.
 - [Slice 1 evidence and retained startup/stop history](slice-1-evidence.md) owns native commands, proof locations, source freshness and the explicitly waived Cursor gap. No numeric slice limit; existing replanning authority retained. Current awake AC load 6.78/5.60/7.51; one native CLI at a time, focused proof only, reconsider changed pressure.
 
@@ -154,7 +154,7 @@ extended scope, and proves builder reuse/extension with preserved assertions.
 
 ### 4. Install and update the complete standalone rule with existing host layouts
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real isolated install/update operations built from MakeMe release
 descriptions; compare the added guidance/runtime bytes in `.agents/skills` and
 `.claude/skills`, preserve configuration and unrelated guidance, and run the
@@ -212,15 +212,11 @@ Sleep-invalid proof is rerun under that policy, never accepted as a pass.
 ### G4. Refactor caller shares the declared-payload dependency
 Reported: slice 2 — "The managed refactor Markdown caller also requires the unpromoted skill; its hookup and useful native refactor journey move to slice 4 with declaration, while slice 3 proves changed-source resolution."
 Story clause: "During post-change refactoring, automatically resolve the entries of changed test sources and load the same convention for opted-in entries."
-Disposition: receiving slice 4
-
-
+Disposition: proved by slice 4: slice-4-evidence.md installed changed-scope caller and both useful native refactor journeys
 ### G3. Execution caller requires complete payload declaration
 Reported: slice 2 — "Managed Markdown links to the unpromoted skill would fail tests/payload-declaration-links.sh lines 26–57; caller hookup moves to the complete payload increment without weakening that check."
 Story clause: "Provide one shared, discoverable MakeMe guidance source for ordinary test authoring and Dough execution."
-Disposition: receiving slice 4
-
-
+Disposition: proved by slice 4: slice-4-evidence.md shared execution/delegation hook and representative review
 ### G1. Native authoring remains unproved on Cursor and Claude
 Reported: slice 1 — "Cursor mixed failed before inference because authentication is required; Cursor opted-out and both Claude journeys are unobserved. Codex mixed and fresh opted-out passed."
 Story clause: "Deliver one standalone shared behavior through the existing Codex, Cursor and Claude Code skill layouts."
