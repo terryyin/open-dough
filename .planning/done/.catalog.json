@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-317_upgrade-all-dependencies.json",
+      "identity": "SEED-317#upgrade-all-dependencies",
+      "completedAt": "2026-11-11T16:30:21.966Z",
+      "blob": "adcdcac8348da22e96e3d5eca8924305667e11b8"
+    },
+    {
       "fileName": "SEED-307_run-makeme-harness-once.json",
       "identity": "SEED-307#run-makeme-harness-once",
       "completedAt": "2026-11-11T16:01:28.982Z",
