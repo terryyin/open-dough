@@ -91,7 +91,7 @@ Jane-chan; Story Branch Mode; publisher `dashboard-territory.local-open-dough`.
 Owned workspace and branch: this checkout, `codex/apply-shared-page-object-rules-per-entry`.
 Origin trunk `main`; increment target `refs/heads/codex/apply-shared-page-object-rules-per-entry`.
 Starting revision `2599c7a5db27aac64c5923b592b7f5b66079d348`; published base/candidate
-`80d20ed9ec7b3df11566ac354bb29ef3065f3989`. CI observer coordinator `jane-chan-307`,
+`48fd7667f08c15e5121be38593e11fb659f20298` (slice 1 accepted on execution branch). CI observer coordinator `jane-chan-307`,
 `/tmp/dough-ci-501/watch-qLujG5`, cell `g230:3`, session 51876, PID 34832.
 See [execution context and retained proof](native-observations.md#execution-context)
 for checkout setup, accepted observations, Cursor exception and recovery boundary.
@@ -104,6 +104,18 @@ Reported: slice 1 — "Cursor exited before authoring because its CLI requires a
 Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts; prove useful application and all four MakeMe/page-object choices."
 Disposition: owner changed "For this execution, Terry authorizes skipping the Cursor native authoring probe"
 Commitment: 43
+
+
+### G2. Useful MakeMe application awaits the real shared convention
+Reported: slice 2 — "Selector proof covers four choices; both-enabled and MakeMe-only native-authored outcomes remain unperformed because shared MakeMe guidance is not integrated. Unavailable selected guidance is unresolved and dependent edits are withheld."
+Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts; prove useful application and all four MakeMe/page-object choices."
+Disposition: receiving slice 4
+Commitment: 44, 46, 72
+
+### G3. Generated artifact provenance was stripped
+Reported: slice 2 — "Independent refactoring found minification removed the claimed runtime provenance marker; generator correction and observing proof are required."
+Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts"
+Disposition: proved by slice 2: slice-2-observations.md#generator-provenance-correction-after-independent-review; generated artifact header, readable adjacent license and byte-identical executable body
 
 ## Ordered slices
 
@@ -136,7 +148,7 @@ bounded useful candidate and passing cheap harness proof; no release occurs.
 
 ### 2. Apply the convention independently through configured test membership
 Type: Behavior
-Status: planned
+Status: done
 Proof: Focused contracts at the public shared rule-selection boundary using
 MakeMe-built settings. Run `npm test -- <affected rule-selection tests>` and,
 if declaration/selection ownership changes, the affected Intent consumers through

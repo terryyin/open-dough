@@ -21,10 +21,11 @@ related = item.followRelatedItem()
 related.showsItem("Boreal")
 ```
 
-Keep the keyboard/mouse choice explicit when that variant is under proof. Fluent
+For the mouse variant, pass `using = mouse` at the same call site. Keep this
+keyboard/mouse choice explicit when the variant is under proof. Fluent
 methods may return the object reached next, or `this` when remaining in the same
 place. Use the project's construction, asynchronous, and queue mechanics. Do not
-introduce a base class, phase runner, Gherkin, or framework conversion just to
+introduce Cypress, a base class, phase/cue runner, Gherkin, or framework conversion just to
 achieve a chain. A short sequence of awaited operations is equally valid.
 
 Wait for a meaningful observation such as a visible selected item, an enabled

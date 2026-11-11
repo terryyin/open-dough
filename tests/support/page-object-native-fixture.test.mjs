@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -35,6 +36,27 @@ test("the native fixture installs one candidate in each existing host layout wit
         "utf8",
       ),
     );
+    const execution = join(installed, "..", "dough-execute-plan");
+    const selection = execFileSync(
+      process.execPath,
+      [
+        join(execution, "scripts/test-entry-rules.mjs"),
+        "--project",
+        project,
+        "--source",
+        "browser/new.spec.mjs",
+        "--source",
+        "legacy/new.spec.mjs",
+      ],
+      { encoding: "utf8" },
+    );
+    assert.deepEqual(JSON.parse(selection), {
+      status: "resolved",
+      sources: [
+        { path: "browser/new.spec.mjs", makeMe: false, pageObjects: true },
+        { path: "legacy/new.spec.mjs", makeMe: false, pageObjects: false },
+      ],
+    });
   }
 });
 

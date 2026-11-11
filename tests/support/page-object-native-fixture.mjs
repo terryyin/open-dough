@@ -19,17 +19,16 @@ export async function createPageObjectProject(
   const browser = makeMe.anIntentLocation
     .at("browser")
     .ofKind("javascript", ["**/*.spec.mjs"])
+    .withRules({ pageObjects: enabled })
     .please();
   const legacy = makeMe.anIntentLocation
     .at("legacy")
     .ofKind("javascript", ["**/*.spec.mjs"])
+    .withRules({ pageObjects: false })
     .please();
   const settings = makeMe.intentSettings
     .withLocations(browser, legacy)
     .please();
-  // The exact proposed flag shape is input under proof, not a second parser.
-  settings.intent.locations[0].pageObjects = enabled;
-  settings.intent.locations[1].pageObjects = false;
   const description = makeMe.aRepository
     .withRevision("library project", {
       backlog: null,
@@ -48,6 +47,21 @@ export async function createPageObjectProject(
   const layout = host === "claude" ? ".claude" : ".agents";
   const installed = join(integration, layout, "skills", "dough-page-objects");
   cpSync(source, installed, { recursive: true });
+  const execution = join(integration, layout, "skills", "dough-execute-plan");
+  for (const path of [
+    "references/test-entry-rules.md",
+    "scripts/test-entry-rules.mjs",
+    "scripts/ci-direct-entry.mjs",
+    "scripts/test-entry-rules-runtime.mjs",
+    "scripts/test-entry-rules-LICENSE.txt",
+  ]) {
+    const target = join(execution, path);
+    mkdirSync(join(target, ".."), { recursive: true });
+    cpSync(
+      new URL(`../../src/skills/dough-execute-plan/${path}`, import.meta.url),
+      target,
+    );
+  }
   return { project: integration, installed, settings };
 }
 

@@ -2,3 +2,4 @@ node_modules/
 dist/
 coverage/
 .planning/
+src/skills/dough-execute-plan/scripts/test-entry-rules-runtime.mjs

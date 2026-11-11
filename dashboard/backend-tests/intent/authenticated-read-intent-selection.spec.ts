@@ -59,6 +59,7 @@ test.describe("authenticated Intent location selection (development environment)
                 makeMe.anIntentLocation
                   .at("frontend/src")
                   .ofKind("typescript", include)
+                  .withRules({ makeMe: false, pageObjects: true })
                   .please(),
               )
               .please(),
@@ -111,6 +112,8 @@ test.describe("authenticated Intent location selection (development environment)
           path: "frontend/src",
           kind: "typescript",
           include,
+          makeMe: false,
+          pageObjects: true,
           files: [matchedPath],
         },
       ],

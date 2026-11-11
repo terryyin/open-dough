@@ -107,12 +107,12 @@ while candidate guidance, fixture and covered boundaries correspond.
 
 ## Current execution boundary
 
-Slice 1 is awaiting independent refactoring and delivery, with proof retained in
+Slice 1 is delivered as `48fd7667f08c15e5121be38593e11fb659f20298`, with proof retained in
 [native observations](native-observations.md). Slice 1 proof is accepted under the explicit Cursor exception; independent
-refactoring has finished. Delivery remains pending; no execution-complete record,
+refactoring has finished. Delivery is accepted on the execution branch; no execution-complete record,
 retrospective or wrap-up has run. Proposed skill
-and native harness changes remain uncommitted in this worktree. No execution
-increment was published; retained published base is still the claim SHA above.
+and native harness changes are committed and published as the slice 1 increment.
+Its accepted SHA is the new previously published base for slice 2.
 
 - Codex enabled and fresh opted-out native tasks completed with actual gate/config
   reads; enabled loaded the convention and reused owners, opted-out did not load

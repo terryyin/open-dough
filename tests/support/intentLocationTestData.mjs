@@ -17,6 +17,14 @@ export class IntentLocationBuilder {
   #label;
   /** @type {{ kind: string, include?: string[] } | { sources: SourceDeclaration[] } | undefined} */
   #selection;
+  /** @type {{ makeMe?: boolean, pageObjects?: boolean }} */
+  #rules = {};
+
+  /** @param {{ makeMe?: boolean, pageObjects?: boolean }} rules */
+  withRules(rules) {
+    this.#rules = { ...rules };
+    return this;
+  }
 
   /** @param {string} path the location's repository folder */
   at(path) {
@@ -69,6 +77,7 @@ export class IntentLocationBuilder {
       path: this.#path,
       ...(this.#label === undefined ? {} : { label: this.#label }),
       ...this.#selection,
+      ...this.#rules,
     };
   }
 }

@@ -8,4 +8,5 @@ export default [
   "dashboard/dist/",
   "dashboard/test-results/",
   "dashboard/playwright-report/",
+  "src/skills/dough-execute-plan/scripts/test-entry-rules-runtime.mjs",
 ];

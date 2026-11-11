@@ -20,6 +20,15 @@ npm test -- tests/support/page-object-native-fixture.test.mjs
 npm test -- tests/support/page-object-native-browser-proof.mjs
 ```
 
+The gate uses the shared `dough-execute-plan/scripts/test-entry-rules.mjs`
+command. Its import-free runtime bundles the maintained Intent declaration and
+membership owners, so a project needs Node but no Open Dough npm dependencies.
+Regenerate it from the locked source installation with
+`node scripts/build-test-entry-rules.mjs`; `--check` verifies correspondence
+without writes. Keep the generated license alongside the runtime. Public
+selection and isolated command contracts run through
+`npm test -- tests/support/test-entry-rules.test.mjs tests/support/test-entry-rules-standalone.test.mjs`.
+
 Run a fresh authoring task, with `codex`, `cursor` or `claude` and a new absolute
 artifact directory outside the source checkout:
 
