@@ -117,25 +117,23 @@ function recordAt(
     })
     .receivedAt(at(50 * minute))
     .please();
-  return {
-    ...launch.markedDoneAt(at(60 * minute)).please(),
-    completion: makeMe.aCompletionReport
-      .saying(prose(`message:${String(index)}`, 560))
-      .withReceipt(uuidOf(`completion-receipt:${String(index)}`))
-      .reportedFor({
-        reference,
-        delivery: uuidOf(`completion-delivery:${String(index)}`),
-      })
-      .receivedAt(at(45 * minute))
-      .please(),
-    landing,
-    landingReporting: {
+  return launch
+    .completedWith({
+      message: prose(`message:${String(index)}`, 560),
+      receipt: uuidOf(`completion-receipt:${String(index)}`),
+      reference,
+      delivery: uuidOf(`completion-delivery:${String(index)}`),
+      receivedAt: at(45 * minute),
+    })
+    .withCapturedLanding(landing)
+    .withLandingReporting({
       origin,
       authority,
       preparations: [landing],
       settledAt: at(55 * minute),
-    },
-  };
+    })
+    .markedDoneAt(at(60 * minute))
+    .please();
 }
 
 function attemptAt(
@@ -146,14 +144,15 @@ function attemptAt(
   const acceptedAt = new Date(
     Date.parse(records[index % records.length]?.launchedAt ?? "") - minute,
   ).toISOString();
-  const request = {
-    source: record?.request.source ?? "open-dough",
-    identity: identityAt(index),
-    title: record?.request.title ?? `Replay failed ${String(index)}`,
-    workflow: "execution" as const,
-    host: record?.session.host ?? "claude",
-    instruction: prose(`attempt-instruction:${String(index)}`, 71),
-  };
+  const request = makeMe.aLaunchRequest
+    .executing({
+      identity: identityAt(index),
+      title: record?.request.title ?? `Replay failed ${String(index)}`,
+      source: record?.request.source ?? "open-dough",
+      host: record?.session.host ?? "claude",
+    })
+    .withInstruction(prose(`attempt-instruction:${String(index)}`, 71))
+    .please();
   const attempt = makeMe.anAcceptedAttempt
     .withId(uuidOf(`attempt:${String(index)}`))
     .requesting(request)
@@ -173,28 +172,27 @@ function attemptAt(
     host: record.session.host,
     sessionId: record.session.sessionId,
   };
-  return {
-    ...attempt
-      .reportingTo(origin)
-      .published(commitOf(`published:${String(index)}`))
-      .launched(session)
-      .settledAt(record.launchedAt)
-      .reconciledAt(record.launchedAt)
-      .please(),
-    ...(record.request.reporting && { reporting: record.request.reporting }),
-    ...(completion && {
-      completion,
-      completionReceipts: [
-        { ...completion, state: "pending-native-session" as const },
-        { ...completion, state: "recorded" as const, session },
-      ],
-    }),
-    ...(landingReporting && {
-      landingRepository: landingReporting.authority,
-      landingPreparations: landingReporting.preparations,
-    }),
-    ...(landing && { landing }),
-  };
+  const settled = attempt
+    .reportingTo(origin)
+    .published(commitOf(`published:${String(index)}`))
+    .launched(session)
+    .settledAt(record.launchedAt)
+    .reconciledAt(record.launchedAt);
+  if (completion)
+    settled.withCompletion(completion, [
+      { ...completion, state: "pending-native-session" as const },
+      { ...completion, state: "recorded" as const, session },
+    ]);
+  if (record.request.reporting || landingReporting || landing)
+    settled.capturingLanding({
+      ...(record.request.reporting && { reporting: record.request.reporting }),
+      ...(landingReporting && {
+        landingRepository: landingReporting.authority,
+        landingPreparations: landingReporting.preparations,
+      }),
+      ...(landing && { landing }),
+    });
+  return settled.please();
 }
 
 // The replay's records, Codex ones naming `codexEndpoint`, and attempts,

@@ -178,7 +178,7 @@ Learning: story shared exports may need `StoryLaunchRequest` narrowing after
 
 ### 3. Retained launches, sessions, attempts, and receipts express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Audit groups for retained launches, observed sessions, settled attempts,
 and stored receipts. Convert shared fixtures that own construction for several
 callers first, then remaining call sites. Run affected launch, session,
@@ -188,6 +188,11 @@ continuation distinctions explicit.
 Behavior: Retained launch and attempt fixtures assemble domain facts inline →
 convert through existing launch/attempt/observation/landing builders → call
 sites state the distinguishing facts; harness store and host fakes stay.
+
+Accepted evidence (pre-done): shared fixtures and from-scratch call sites use
+MakeMe; Done/first-input mutations on live launches stay explicit. Commitment
+5.2 observed. Typecheck + focused dashboard selections passed. Refactor
+extracted `CompletionReportBuilder` and tightened attempt completion API.
 
 ### 4. Native listings, runner state, and host samples express intent through MakeMe
 Type: Behavior

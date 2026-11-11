@@ -3,35 +3,28 @@
 // store holds it: its final report, whether the developer read it, its
 // landing and its Done mark, each with fixed receipts and references
 // (`./launchTestData.mjs`). A final report can also be arranged on its own
-// (`CompletionReportBuilder`), as can the submission a session reports it
-// with (`CompletionSubmissionBuilder`, `./completionSubmissionTestData.mjs`).
-// The landing is the evidence `./launchLandingEvidenceTestData.mjs`
-// describes.
+// (`./completionReportTestData.mjs`), as can the submission a session reports
+// it with (`./completionSubmissionTestData.mjs`). The landing is the evidence
+// `./launchLandingEvidenceTestData.mjs` describes.
 
+import { finalReport } from "./completionReportTestData.mjs";
 import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
-import {
-  fixedReceivedAt,
-  landingDelivery,
-  reportingReference,
-} from "./launchLandingTestData.mjs";
+import { landingDelivery } from "./launchLandingTestData.mjs";
 
+export { CompletionReportBuilder } from "./completionReportTestData.mjs";
 export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs";
 
 /** @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
-/** @typedef {import("../../dashboard/src/completionReport.ts").CompletionReport} CompletionReport */
-
-/**
- * The facts a final report states: its outcome and message, and, when they
- * drive the case, the receipt it was received under and when.
- * @typedef {Pick<CompletionReport, "outcome" | "message"> & Partial<Pick<CompletionReport, "receipt" | "receivedAt">>} ReportFacts
- */
+/** @typedef {import("./completionReportTestData.mjs").ReportFacts} ReportFacts */
 
 /**
  * The facts a launch states after it started: the final report, whether the
  * developer read it, the revision the work landed at, when the developer
  * marked the session Done, and what that mark could not finish natively.
  * A landing is received under a fixed receipt unless it states its own, and
- * names the story it landed for only when the case states it.
+ * names the story it landed for only when the case states it. Retained
+ * landing-reporting authority rides beside the captured landing when the case
+ * keeps it.
  * @typedef {{
  *   completion?: ReportFacts,
  *   reportRead?: boolean,
@@ -39,39 +32,11 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   landingReceipt?: string,
  *   landingIdentity?: string,
  *   capturedLanding?: import("../../dashboard/src/launchLanding.ts").LaunchLanding,
+ *   landingReporting?: import("../../dashboard/src/launchLanding.ts").LandingReporting,
  *   doneAt?: string,
  *   doneProblem?: string,
  * }} LaunchOutcome
  */
-
-/**
- * A final report received at `receivedAt` unless it states its own time,
- * under a fixed receipt unless it states its own, for the launch's fixed
- * reporting reference unless stated.
- * @param {ReportFacts & Partial<Pick<CompletionReport, "reference" | "delivery">>} report
- * @param {string} at an ISO date-time
- * @returns {CompletionReport}
- */
-function finalReport(
-  {
-    delivery,
-    receipt = "11111111-1111-4111-8111-111111111111",
-    reference = reportingReference,
-    outcome,
-    message,
-    receivedAt,
-  },
-  at,
-) {
-  return {
-    ...(delivery && { delivery }),
-    receipt,
-    reference,
-    outcome,
-    message,
-    receivedAt: receivedAt ?? at,
-  };
-}
 
 // The landing under the receipt the case states, if it states one, naming
 // the story the case states it landed for, if it states one.
@@ -142,6 +107,19 @@ export class LaunchOutcomeBuilder {
   }
 
   /**
+   * The retained landing-reporting authority the store keeps beside the
+   * launch, as the case states it.
+   * @param {import("../../dashboard/src/launchLanding.ts").LandingReporting} landingReporting
+   */
+  withLandingReporting(landingReporting) {
+    this.#outcome = {
+      ...this.#outcome,
+      landingReporting: structuredClone(landingReporting),
+    };
+    return this;
+  }
+
+  /**
    * The developer marked the session Done at this time; `problem` is what a
    * native operation of that mark could not finish, kept beside it.
    * @param {string} at an ISO date-time
@@ -168,6 +146,7 @@ export class LaunchOutcomeBuilder {
       landingReceipt,
       landingIdentity,
       capturedLanding,
+      landingReporting,
       doneAt,
       doneProblem,
     } = this.#outcome;
@@ -189,60 +168,11 @@ export class LaunchOutcomeBuilder {
       ...(report && { completion: report }),
       ...(reportRead && report && { reportRead: report.receipt }),
       ...(landing === undefined ? {} : { landing }),
+      ...(landingReporting && {
+        landingReporting: structuredClone(landingReporting),
+      }),
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
     };
-  }
-}
-
-// A session's final report as the store keeps it: `completed` with no
-// message (a quiet completion), under a fixed receipt for the launch's fixed
-// reporting reference, received at a fixed instant, unless the case states
-// otherwise. Cases that read more than one report state distinct receipts.
-export class CompletionReportBuilder {
-  /** @type {ReportFacts & Partial<Pick<CompletionReport, "reference" | "delivery">>} */
-  #report = { outcome: "completed", message: "" };
-
-  /** @param {string} message the final report message */
-  saying(message) {
-    this.#report = { ...this.#report, message };
-    return this;
-  }
-
-  /** @param {CompletionReport["outcome"]} outcome */
-  withOutcome(outcome) {
-    this.#report = { ...this.#report, outcome };
-    return this;
-  }
-
-  /** @param {string} receipt the receipt the dashboard gave this report */
-  withReceipt(receipt) {
-    this.#report = { ...this.#report, receipt };
-    return this;
-  }
-
-  /**
-   * The launch's reporting reference, and the delivery that carried the
-   * report when the case keeps it.
-   * @param {{ reference: string, delivery?: string }} reporting
-   */
-  reportedFor({ reference, delivery }) {
-    this.#report = {
-      ...this.#report,
-      reference,
-      ...(delivery && { delivery }),
-    };
-    return this;
-  }
-
-  /** @param {string} at an ISO date-time */
-  receivedAt(at) {
-    this.#report = { ...this.#report, receivedAt: at };
-    return this;
-  }
-
-  /** @returns {CompletionReport} */
-  please() {
-    return finalReport(this.#report, fixedReceivedAt);
   }
 }

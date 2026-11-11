@@ -10,10 +10,8 @@ import {
   ObservedLaunchBuilder,
   SessionStateBuilder,
 } from "./launchObservationTestData.mjs";
-import {
-  CompletionReportBuilder,
-  CompletionSubmissionBuilder,
-} from "./launchOutcomeTestData.mjs";
+import { CompletionReportBuilder } from "./completionReportTestData.mjs";
+import { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs";
 import {
   LandingContextBuilder,
   LandingReceiptBuilder,
@@ -40,8 +38,8 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
  * @property {import("./launchCreationTestData.mjs").CreationRecordBuilder} aCreationRecord
- * @property {import("./launchOutcomeTestData.mjs").CompletionReportBuilder} aCompletionReport
- * @property {import("./launchOutcomeTestData.mjs").CompletionSubmissionBuilder} aCompletionSubmission
+ * @property {import("./completionReportTestData.mjs").CompletionReportBuilder} aCompletionReport
+ * @property {import("./completionSubmissionTestData.mjs").CompletionSubmissionBuilder} aCompletionSubmission
  * @property {import("./launchLandingTestData.mjs").LandingContextBuilder} aLandingContext
  * @property {import("./launchLandingTestData.mjs").LandingSubmissionBuilder} aLandingSubmission
  * @property {import("./launchLandingTestData.mjs").LandingReceiptBuilder} aLandingReceipt

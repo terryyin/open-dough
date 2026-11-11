@@ -28,21 +28,15 @@ const workspace =
 function cursorFollowUpRecord(
   firstInputState: "confirmed" | "awaiting" = "confirmed",
 ): LaunchRecord {
-  return {
-    request: {
-      source: "open-dough",
+  return makeMe.aLaunchRecord
+    .executing({
       identity: "SEED-155#cursor-background-work-reads-working",
       title: "Background work",
-      workflow: "execution",
-      host: "cursor",
-    },
-    session: makeMe.aHostSession
-      .cursor({ sessionId, continuation: { workspace } })
-      .named("Background work")
-      .please(),
-    firstInput: { state: firstInputState },
-    launchedAt: "2026-10-27T00:00:00.000Z",
-  };
+    })
+    .inCursorSession({ sessionId, continuation: { workspace } })
+    .withFirstInput({ state: firstInputState })
+    .launchedAt("2026-10-27T00:00:00.000Z")
+    .please();
 }
 
 function heldFollowUp(record: LaunchRecord): HeldCursorSession {

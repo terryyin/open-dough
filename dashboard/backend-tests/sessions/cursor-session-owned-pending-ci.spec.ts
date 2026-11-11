@@ -38,21 +38,15 @@ const workspace =
 const revisionSha = "423b18053aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
 function cursorFollowUpRecord(): LaunchRecord {
-  return {
-    request: {
-      source: "open-dough",
+  return makeMe.aLaunchRecord
+    .executing({
       identity: "SEED-175#keep-cursor-session-working-while-its-ci-runs",
       title: "Owned CI stays Working",
-      workflow: "execution",
-      host: "cursor",
-    },
-    session: makeMe.aHostSession
-      .cursor({ sessionId, continuation: { workspace } })
-      .named("Owned CI stays Working")
-      .please(),
-    firstInput: { state: "confirmed" },
-    launchedAt: "2026-10-29T00:00:00.000Z",
-  };
+    })
+    .inCursorSession({ sessionId, continuation: { workspace } })
+    .withFirstInput({ state: "confirmed" })
+    .launchedAt("2026-10-29T00:00:00.000Z")
+    .please();
 }
 
 function conversationOwner(session = sessionId, child = ""): string {

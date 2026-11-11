@@ -56,7 +56,7 @@ No plan, product, proof, or other project files were supplied.
 | 3 | Shared MakeMe builders produce the shapes the product consumes. | slice 9 | |
 | 4 | Use the line-linked audit (`../evidence/makeme-test-data-audit.md`) as the conversion list. | slice 9 | |
 | 5.1 | The conversion list covers launch requests across the shell, Node, and dashboard suites. | slice 2 | observed: converted audited launch-request call sites through makeMe.aLaunchRequest; focused dashboard launch groups passed (backend/frontend/integrated) |
-| 5.2 | The conversion list covers saved and observed sessions across the shell, Node, and dashboard suites. | slice 3 | |
+| 5.2 | The conversion list covers saved and observed sessions across the shell, Node, and dashboard suites. | slice 3 | observed: converted retained launch/session/attempt/receipt audit sites through MakeMe (sessionsReplayRecords, retainedReport, openStorySessionAcceptance, open-session-continue, completion-input, done-codex, cursor belonging/owned-CI); focused dashboard selections passed |
 | 5.3 | The conversion list covers project and launch-option configuration across the shell, Node, and dashboard suites. | slice 5 | |
 | 5.4 | The conversion list covers published planning records across the shell, Node, and dashboard suites. | slice 6 | |
 | 5.5 | The conversion list covers CI provider and policy facts across the shell, Node, and dashboard suites. | slice 7 | |

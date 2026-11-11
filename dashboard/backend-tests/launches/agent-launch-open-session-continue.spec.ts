@@ -65,18 +65,20 @@ test.describe("continuing while a story session is open", () => {
         .inClaudeSession({ sessionId: openId })
         .please(),
     ]);
-    seedKeptAttempt(server.home, {
-      id: foreignAttempt,
-      request,
-      acceptedAt,
-      publication: { kind: "none" },
-      outcome: {
-        kind: "uncertain",
-        reason: "timed-out",
-        explanation: "The launch wait expired.",
-      },
-      settledAt: acceptedAt,
-    });
+    seedKeptAttempt(
+      server.home,
+      makeMe.anAcceptedAttempt
+        .withId(foreignAttempt)
+        .requesting(request)
+        .acceptedAt(acceptedAt)
+        .ended({
+          kind: "uncertain",
+          reason: "timed-out",
+          explanation: "The launch wait expired.",
+        })
+        .settledAt(acceptedAt)
+        .please(),
+    );
     expect(await answerOf(continueAttempt(server, foreignAttempt))).toEqual(
       sessionOpen,
     );
@@ -90,17 +92,17 @@ test.describe("continuing while a story session is open", () => {
         .launchedAt(new Date(Date.parse(acceptedAt) + 1).toISOString())
         .please(),
     ]);
-    seedKeptAttempt(server.home, {
-      id: ownAttempt,
-      request,
-      acceptedAt,
-      publication: { kind: "unknown" },
-      outcome: {
-        kind: "launched",
-        session: { host: "claude", sessionId: ownId },
-      },
-      settledAt: acceptedAt,
-    });
+    seedKeptAttempt(
+      server.home,
+      makeMe.anAcceptedAttempt
+        .withId(ownAttempt)
+        .requesting(request)
+        .acceptedAt(acceptedAt)
+        .publicationUnknown()
+        .launched({ host: "claude", sessionId: ownId })
+        .settledAt(acceptedAt)
+        .please(),
+    );
     server.claudeScenario("launched");
     expect(await answerOf(continueAttempt(server, ownAttempt))).toMatchObject({
       kind: "accepted",
