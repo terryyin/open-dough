@@ -115,25 +115,29 @@ function gapTiming(
   };
 }
 
-// One unit's cumulative timing at its entry: measured when every part is
-// present with a duration and no counted result lacks one; not recorded for
-// a summary without durations; otherwise partial with each gap.
+// One unit's cumulative timing at its entry. A part that reported zero
+// results needs no duration. With no recorded duration, timing remains
+// unmeasured. Missing evidence or untimed results make the total partial.
 export function entryTimingOf(evidence: CiProofEvidence): CiTiming {
   const of = evidence.parts.length;
   const present = evidence.parts.filter((part) => part.status === "present");
   const timed = present.filter((part) => typeof part.durationMs === "number");
-  const untimed = present.filter((part) => typeof part.durationMs !== "number");
+  const untimed = present.filter(
+    (part) =>
+      typeof part.durationMs !== "number" &&
+      (part.passed !== 0 || part.failed !== 0 || part.other !== 0),
+  );
   const untimedResults = timed.reduce(
     (sum, part) => sum + (part.untimed ?? 0),
     0,
   );
   const uncounted = uncountedGaps(evidence);
+  if (uncounted.length === 0 && timed.length === 0)
+    return noTimings("this summary has no test execution durations");
   if (uncounted.length === 0 && untimed.length === 0 && untimedResults === 0) {
     const ms = timed.reduce((sum, part) => sum + (part.durationMs ?? 0), 0);
     return { kind: "measured", ms };
   }
-  if (uncounted.length === 0 && timed.length === 0)
-    return noTimings("this summary has no test execution durations");
   return gapTiming("partial", [
     ...uncounted,
     ...(timed.length > 0

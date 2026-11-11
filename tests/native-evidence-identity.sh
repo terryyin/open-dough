@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Credential-free proof that every retained native evidence identity covers the
-# native supervision inputs, taken from native-run-supervise.sh's one list, and
-# the guidance and commands its journey exercises.
+# Credential-free proof of native evidence inputs: supervised retained journeys
+# cover their supervision list, and all journeys (including direct Take) cover
+# the guidance and commands they actually exercise.
 # shellcheck disable=SC2310,SC2312 # Predicates in conditions; pipefail covers the captured identity records.
+# shellcheck disable=SC2154 # Writer arrays are supplied by the sourced inventory.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -19,80 +20,26 @@ node "${source_dir}/tests/support/native-identity-source.mjs" "${source_dir}" "$
 mapfile -t supervision_inputs < <(
   node "${source_dir}/tests/support/native-supervision-inputs.mjs" "${source_dir}"
 )
-# Each entry: the file defining the writer, then the call that prints its lines.
-identity_writers=(
-  'tests/support/story-branch-closure-native-run.sh story_closure_write_evidence_identity'
-  'tests/support/trunk-closure-native-run.sh trunk_closure_write_evidence_identity'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity selection'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity claims'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity consumers'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity gaps'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity aggregate'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity nostore'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity deferred'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity original'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity terminal'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity release'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity drift'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity scheduling'
-  'tests/support/delivery-evidence-native-run.sh delivery_evidence_write_evidence_identity amended'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity publication'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity startup'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity admission'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity one-shot'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity owned-context'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity land-default-checkout'
-  'tests/support/git-publication-native-evidence.sh git_publication_write_evidence_identity execution-review'
-  'tests/support/native-result-retain-journey.sh native_result_journey_input_hash_lines'
-  'tests/support/execution-worktree-prep-native-run.sh prep_native_input_hash_lines'
-  'tests/support/native-result-retain.sh native_result_context_input_hash_lines'
-)
+# shellcheck source=tests/support/native-identity-writers.bash
+# shellcheck disable=SC1091
+source "${source_dir}/tests/support/native-identity-writers.bash"
 
 # Whether input-hash lines FILE list INPUT.
 lists_input() {
   awk -v input="$2" '$3 == input { found = 1 } END { exit !found }' "$1"
 }
 
-# Writes each writer's input-hash lines, from the scratch source, to DIR/INDEX.
-capture_identity_hashes() {
-  local dir=$1
-  mkdir -p -- "${dir}"
-  (
-    source_dir=${identity_source}
-    # shellcheck disable=SC2034 # Read by the sourced identity writers.
-    native_case_host=codex
-    support="${identity_source}/tests/support"
-    # shellcheck disable=SC1091
-    source "${support}/git-publication-native-run.sh"
-    # shellcheck disable=SC1091
-    source "${support}/trunk-closure-native-run.sh"
-    # shellcheck disable=SC1091
-    source "${support}/story-branch-closure-native-run.sh"
-    # shellcheck disable=SC1091
-    source "${support}/delivery-evidence-native-run.sh"
-    # shellcheck disable=SC1091
-    source "${support}/native-result-retain-journey.sh"
-    # shellcheck disable=SC1091
-    source "${support}/execution-worktree-prep-native-run.sh"
-    for index in "${!identity_writers[@]}"; do
-      read -r -a call <<< "${identity_writers[index]}"
-      "${call[@]:1}" > "${dir}/${index}.record"
-      grep '^input-hash: ' "${dir}/${index}.record" > "${dir}/${index}" || true
-    done
-  )
-}
-
 capture_identity_hashes "${identity_out}/baseline"
 identity_failures=0
 
-# A supervision input added to the one list reaches every identity.
+# A supervision input added to the one list reaches every supervised identity.
 cp -- "${identity_source}/tests/support/native-run-supervise.sh" "${identity_out}/original"
 : > "${identity_source}/tests/support/native-run-probe.sh"
 printf 'native_run_supervision_inputs+=(tests/support/native-run-probe.sh)\n' \
   >> "${identity_source}/tests/support/native-run-supervise.sh"
 capture_identity_hashes "${identity_out}/extended"
 cp -- "${identity_out}/original" "${identity_source}/tests/support/native-run-supervise.sh"
-for index in "${!identity_writers[@]}"; do
+for index in "${!supervised_identity_writers[@]}"; do
   if ! grep -q ' tests/support/native-run-probe\.sh$' "${identity_out}/extended/${index}"; then
     printf 'FAIL: evidence identity %s does not take the supervision list.\n' \
       "${identity_writers[index]}" >&2
@@ -114,11 +61,24 @@ land_inputs=(
 )
 response_input=tests/support/native-response-field.sh
 journey_inputs=(
+  'prep_native_input_hash_lines|
+  tests/support/execution-worktree-prep-native-locked-node-repository.mjs
+  tests/support/execution-worktree-prep-native-wrapper-repository.mjs
+  tests/support/makeMe.mjs tests/support/repository-fixture.mjs tests/support/repositoryTestData.mjs'
+  'take_write_evidence_inputs|
+  tests/support/product-backlog-native-facts.mjs tests/support/makeMe.mjs
+  tests/support/queued-repository.mjs tests/support/published-plan.mjs
+  tests/support/slicePlanTestData.mjs tests/support/hostHookSettingsTestData.mjs'
+  'native_result_journey_input_hash_lines|
+  tests/support/release-source.mjs tests/support/makeMe.mjs
+  tests/support/releaseTestData.mjs tests/support/repository-fixture.mjs'
   "git_publication_write_evidence_identity owned-context|${land_inputs[*]}
   src/skills/dough-story-refinement/references/preparation-workspace.md"
   "git_publication_write_evidence_identity land-default-checkout|${land_inputs[*]}
   src/skills/dough-execute-plan/references/publish-the-candidate.md"
   "trunk_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
+  tests/support/native-closure-repository.mjs tests/support/native-closure-ci.mjs
+  tests/support/makeMe.mjs tests/support/repositoryTestData.mjs tests/support/ciRunTestData.mjs
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-story-wrap-up/scripts/trunk-closure.mjs
   src/skills/dough-story-wrap-up/scripts/trunk-closure-settlement.mjs
@@ -126,11 +86,14 @@ journey_inputs=(
   src/skills/dough-execute-plan/scripts/ci-host-hook.mjs
   src/skills/dough-product-backlog/scripts/product-backlog-git-rebase.mjs"
   "story_closure_write_evidence_identity|${land_inputs[*]} ${response_input}
+  tests/support/native-closure-repository.mjs tests/support/native-closure-ci.mjs
+  tests/support/makeMe.mjs tests/support/repositoryTestData.mjs tests/support/ciRunTestData.mjs
   src/skills/dough-execute-plan/references/wrap-up-closure-publication.md
   src/skills/dough-product-backlog/scripts/product-backlog-git-driver.mjs"
   "git_publication_write_evidence_identity execution-review|${response_input}
   src/skills/dough-land/references/completion-attention.md"
   'git_publication_write_evidence_identity admission|
+  tests/support/published-plan.mjs tests/support/slicePlanTestData.mjs
   tests/support/makeMe.mjs
   tests/support/story-preparation.mjs
   src/skills/dough-execute-plan/scripts/workspace-publication-admission-fixtures.mjs'
@@ -204,21 +167,19 @@ for index in "${!identity_writers[@]}"; do
     "${identity_out}/baseline/${index}" "${identity_out}/closure")
 done
 
-# Changing any supervision input, or any guidance or command input an identity
-# lists, changes that input's hash in every identity that lists it. Every
-# identity lists every supervision input, with the hash of that input's own
-# content.
+# Every listed input's bytes affect that writer's identity. The supervised
+# writers additionally hash every supervision input from the shared list.
 {
   printf '%s\n' "${supervision_inputs[@]}"
-  sed -n 's|^input-hash: [^ ]* \(src/.*\)$|\1|p' "${identity_out}/baseline"/*
+  sed -n 's|^input-hash: [^ ]* \(.*\)$|\1|p' "${identity_out}/baseline"/*
 } | sort -u > "${identity_out}/changed-inputs"
 while IFS= read -r input; do
-  printf '\n# changed input\n' >> "${identity_source}/${input}"
+  printf '\n' >> "${identity_source}/${input}"
 done < "${identity_out}/changed-inputs"
 capture_identity_hashes "${identity_out}/inputs-changed"
 (cd -- "${identity_source}" && shasum -a 256 "${supervision_inputs[@]}") \
   | awk '{ print "input-hash:", $1, $2 }' > "${identity_out}/supervision-hashes"
-for index in "${!identity_writers[@]}"; do
+for index in "${!supervised_identity_writers[@]}"; do
   while IFS= read -r line; do
     if ! grep -Fqx -- "${line}" "${identity_out}/inputs-changed/${index}"; then
       printf 'FAIL: evidence identity %s does not hash the content of supervision input %s.\n' \
@@ -226,6 +187,8 @@ for index in "${!identity_writers[@]}"; do
       identity_failures=1
     fi
   done < "${identity_out}/supervision-hashes"
+done
+for index in "${!identity_writers[@]}"; do
   # Each baseline line of a changed input needs a line with a different hash.
   while IFS= read -r input; do
     printf 'FAIL: evidence identity %s did not change when %s changed.\n' \

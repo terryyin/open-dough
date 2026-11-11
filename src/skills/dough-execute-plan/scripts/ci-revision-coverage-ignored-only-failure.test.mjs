@@ -13,9 +13,11 @@ import {
 } from "./ci-mailbox.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 import { freshPendingRevision } from "./ci-mailbox-revision-records.mjs";
-import { lateFailureWithIgnoredOnlyDescendantsGithub } from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
+import {
+  lateFailureWithIgnoredOnlyDescendantsGithub,
+  otherOwnerFailedGithub,
+} from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
-import { modeledGithubActions } from "./watch-ci-test-fixtures.mjs";
 import {
   deferWorkerStop,
   fixtureTeardown,
@@ -106,19 +108,9 @@ test("ignored-only descendants of a pending-then-failing ancestor share its one 
   );
   // Another owner's revision whose run is already discoverable and failed on
   // the first poll: a real, independent journey, not a synthesized event.
-  const otherOwnerGithub = modeledGithubActions({
-    workflows: { "ci.yml": "CI" },
-    runs: [
-      {
-        workflow: "ci.yml",
-        databaseId: 900,
-        headSha: shaOther,
-        headBranch: "feature/other-owner",
-        status: "completed",
-        conclusion: "failure",
-      },
-    ],
-    jobs: { 900: [{ databaseId: 9000, name: "build", conclusion: "failure" }] },
+  const otherOwnerGithub = otherOwnerFailedGithub({
+    sha: shaOther,
+    branch: "feature/other-owner",
   });
   const otherPolls = controllableSleep();
   const otherWorker = runMailboxWorker(otherDirectory, {

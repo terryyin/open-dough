@@ -1,150 +1,178 @@
 # Source-only review
 
-Reviewer: `/root/source_review`, fresh `fork_turns: none` general-purpose agent.
-Launch and original input: conversation `collaboration.spawn_agent` call named
-`source_review` on 2026-11-10. It supplied only the original selected story Goal,
-Scope, restrictions, exclusions, safe stopping, and key examples, with instructions
-to read no files and change nothing. The returned decomposition below is retained
-verbatim per numbered item; allocation is the coordinator’s subsequent mapping.
+Fresh reviewer: `/root/amended_source_review`, `fork_turns: none`, launched
+2026-11-11 after the human amendment at44f3e0186. The launch supplied only
+canonical Why context and Goal through end; no plan, implementation or proof.
+Input: `/tmp/seed287-amended-source-review-input-20261111.md`, SHA256
+`3170378dff3f53b8a7a5d7bf857e8caade0c96b9a3c9c86d40d1382d81b3711d`.
+Actual verbatim return: `/tmp/seed287-amended-source-review-return-20261111.md`,
+SHA256 `5879a8e462c390e495e7385cb22b0f1ba57245886aa566c35e03e135b48f6190`.
+[Qualifications](source-review-qualifications.md) retain the review's other text.
+Each numbered commitment below is verbatim; allocation/observation is subsequent
+coordinator judgment. The former137-item review and proof remain recoverable at
+`9739dd6eb603bf3f7a92d8593201d52f08044698:source-review.md` in this plan directory
+and `/tmp/seed287-source-review-before-amendment-9739.md`; compatible proof remains.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C01 | Local parallel runs and hosted CI give maintainers and agents the same dashboard suite result. | slice 13 | G1 |
-| C02 | The scoped dashboard journeys finish with margin inside the default 30 s case budget. | slice 13 | G7 |
-| C03 | Their observations finish with margin inside their 5 s budgets. | slice 13 | G18 |
-| C04 | Each temporary case-local allowance is removed after its case fits the default with margin. | slice 13 | G1 |
-| C05 | Every distinct behavioral promise survives at an observable boundary. | slice 13 | G1 |
-| C06 | Surviving proof is established before deleting a test. | slice 13 | observed: Original survivor-before-deletion chronology in closure-evidence.md/comparison-evidence.md; incoming-watcher-evidence.md retains lower6 passing before browser port-step relocation. |
-| C07 | Surviving proof is established before deleting a step. | slice 13 | observed: Closure survivor chronology in closure-evidence.md and current lower6 before occupied-port step relocation in incoming-watcher-evidence.md; distinct C/D/SIGHUP actions remain. |
-| C08 | Surviving proof is established before deleting an assertion. | slice 13 | observed: Source-only137 mapping, closure/comparison evidence and current watcher lower6 before overlapping browser assertion relocation; incoming-watcher-evidence.md. |
-| C09 | Repeated setup is reduced. | slice 13 | observed: source-ingestion-evidence.md paired complete snapshot commands and final-source-evidence.md actual closed-profile cold preparation reduction; no persistent source cache. |
-| C10 | Redundant proof is reduced. | slice 13 | observed: closure-evidence.md real retired StoryBranch survivor plus installed CLI/HTTP/store recovery; incoming-watcher-evidence.md lower selection/rollback survival before redundant deployment steps. |
-| C11 | The watcher family becomes at least 10 s faster in median elapsed time. | slice 4 | observed: Original matched three alternating32/31 commands preserve full cold work: shell medians156.893714 to136.400577 save20.493137s; source-ingestion-evidence.md. Current reconciled boundary31 includes moved lower/native proof and passes three times, shell median141.215330 (raw15.678384 below original32, power/load/date/cache qualified), incoming-watcher-evidence.md. No precise new causal saving claimed. |
-| C12 | The comparable local dashboard suite stays within its previous elapsed time. | slice 13 | G2 |
-| C13 | The slowest hosted shard stays within its previous elapsed time. | slice 13 | G3 |
-| C14 | The failure watcher journey uses one real deployment. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable/recovered origin checks retain the original served C PID/page; no watcher/served reassignment before D failure. Three whole-family after runs passed31/31. |
-| C15 | An unavailable origin leaves C serving. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable origin emits ls-remote failure, exact Keeping C/address, and expectStillServing checks real C PID plus WORKING C page. |
-| C16 | Checks resume after the origin returns. | slice 3 | observed: production-watcher-failures.spec.ts: restore the same origin path, observe watcher.checks increase, reobserve live C, then actual D publication is read and attempted. |
-| C17 | Failed-candidate proof continues on that same live deployment. | slice 3 | observed: production-watcher-failures.spec.ts: after recovered-origin live C, publish D on the same watcher; appended output names actual D failure and absence of D activation. |
-| C18 | Failed-restoration proof continues on that same live deployment. | slice 3 | observed: production-watcher-failures.spec.ts: same live-C chain faults D and C restoration, observes restoring exact servedCommit also failed, exact2 fresh causes, exit1 and cleanup. |
-| C19 | The real SIGHUP moves to the existing restart journey. | slice 3 | observed: production-watcher.spec.ts: existing stop case sends watcher.signal(SIGHUP), then awaits natural watcher.exited before stop. |
-| C20 | Its quiet-exit assertions move to that restart journey. | slice 3 | observed: production-watcher.spec.ts: natural SIGHUP exit requires no Production dashboard could not run message before group retirement. |
-| C21 | Its cleanup assertions move to that restart journey. | slice 3 | observed: production-watcher.spec.ts: SIGHUP case retains expectProductionEnded: served PID dead, HTTP unavailable and deployment directory empty. |
-| C22 | The restart journey restarts from current main. | slice 3 | observed: production-watcher.spec.ts: restart publishes Document restart, productionActivation requires its exact current SHA; output excludes pinned/next and checkout list equals current. |
-| C23 | It serves the expected page. | slice 3 | observed: production-watcher.spec.ts: restarted page title NEXT MAIN and source marker PINNED SOURCE remain independently observed alongside current-revision checks. |
-| C24 | It preserves the same runner. | slice 3 | observed: production-watcher.spec.ts: runner count1, address PID equals original runner, original process group remains separate from new preview after restart. |
-| C25 | It preserves the same client. | slice 3 | observed: production-watcher.spec.ts: attaches length1 and attached PID equals the original real held client after replacement and restart. |
-| C26 | It accepts input after restart. | slice 3 | observed: production-watcher.spec.ts: follow the saved session on restarted URL, send after-restart, observe it in cursor.input(original client PID). |
-| C27 | The active-build SIGTERM proof remains. | slice 3 | observed: productionUpdateJourney.ts: productionUpdateShutdown holds the actual next build by ordinal, observes its real PID, sends stop/SIGTERM and checks build/preview/deployment cleanup plus unchanged records/configuration; selected in every whole-family pass. |
-| C28 | The final SIGINT proof remains. | slice 3 | observed: production-watcher.spec.ts: final restart case signals SIGINT, awaits exited, checks quiet output and expectProductionEnded. |
-| C29 | Both distinct fatal-preview outcomes remain proved. | slice 3 | observed: production-watcher-failures.spec.ts: failed D plus failed C restoration reports both exact causes/exit1; subsequent unexpected-preview SIGKILL reports its distinct fatal message/exit1. |
-| C30 | Their cleanup remains proved. | slice 3 | observed: production-watcher-failures.spec.ts: both fatal-preview tests invoke expectProductionEnded for dead preview, unavailable HTTP and empty deployment directories. |
-| C31 | The relocated check detects a watcher ignoring SIGHUP. | slice 3 | observed: Actual scratch no-op SIGHUP handler held natural exited for full30s; raw trace shows first case expectation only after post-timeout scratch SIGTERM. Root inspected ignored-hup-test.trace.json and interpretation at /tmp/seed287-watcher-20261110. |
-| C32 | The restart check detects reuse of the previously served revision. | slice 3 | observed: Actual scratch resolvePublishedMain returned Document restart parent; original exact-current productionActivation rejected the actually served prior revision. Patch/log/trace retained under /tmp/seed287-watcher-20261110/stale-restart-artifacts. |
-| C33 | The standalone C-reactivation journey is deleted after the required surviving proof is established. | slice 3 | observed: production-watcher-failures.spec.ts: standalone post-hangup C-reactivation test deleted after relocated positive7/7 and both actual runtime faults; three whole-family after runs passed31 rather than32 cases. |
-| C34 | Its real install is removed. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone startProductionWatcher/shownActivation for C, eliminating its real npm install while retaining original retry/restoration activations. |
-| C35 | Its real build is removed. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone C activation eliminates its real Vite build; no prebuilt or substitute deployment added. |
-| C36 | Its real start is removed. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone C activation eliminates its repeated real preview start; live C continues into D restoration failure. |
-| C37 | One full retired-closure journey remains. | slice 5 | observed: One combined retired StoryBranch retry/Done journey remains in agent-completion-quiet; separate Land/Trunk closure paths retained, duplicate browser recovery removed after survivors passed. |
-| C38 | That journey proves real Git worktree retirement. | slice 5 | observed: withInstalledCompletionClosure actual installed publication/integration/CI closure and worktree-retirement command observes remote main==final and workspace absent before StoryBranch callback; no retirement result planted. |
-| C39 | It proves installed reporting retry. | slice 5 | observed: After actual StoryBranch retirement, initial-server EIO consumes marker and installed completed report retains exact pending retry; that installed --retry runs from surviving origin.machine and returns durable receipt/Done. |
-| C40 | Reporting retry does not repeat Git operations. | slice 5 | observed: countedGit proofEnv logs actual push and worktree remove before reporting; after failed submission, installed retry and duplicate retry, complete Git log bytes equal pre-report snapshot. |
-| C41 | Reporting retry does not repeat native operations. | slice 5 | observed: Quiet StoryBranch observes no start/resume/interrupt, exactly1 native rename after reporting; duplicate installed retry returns same receipt and adds no rename/control operation. Distinct Trunk rename-refusal retry preserved. |
-| C42 | It proves visible Done. | slice 5 | observed: Same actual retired StoryBranch retry journey publishes final history and renders RecentlyDone/Done, native-working cue, no attention message, independent thread/read(includeTurns) final answer, and Done after reload. |
-| C43 | The existing Story Branch Wrap Up journey carries this proof where it can. | slice 5 | observed: Existing StoryBranch WrapUp variant of agent-completion-quiet now carries actual retired/installretry/Git-native-idempotence/visibleDone together; it fit default30 in all focused passes. |
-| C44 | The different Land path remains. | slice 5 | observed: Existing Land variant retains its distinct actual installed retirement path and quiet reporting/native/UI observations in all3 full14-case passes and refactor4-case pass. |
-| C45 | The different Trunk Wrap Up path remains. | slice 5 | observed: Existing TrunkWrapUp variant retains its distinct installed trunk closure/retirement, refused native rename recovery and quiet/native/UI observations in all3 full14-case passes and refactor4-case pass. |
-| C46 | Recovery proof covers an unavailable receiver. | slice 5 | observed: Tracked backend quiet-closure actually closes receiver; unacknowledgedCompletion runs installed CLI, fails withoutstdout and retains exact pending/message/retry guidance while Done remains absent. |
-| C47 | Recovery proof covers lost acknowledgement. | slice 5 | observed: Real proxy drops acknowledgement only after receiver persisted; helper observes failed child/no stdout, lost1, durable delivery/Done and same receipt through installed retry/concurrent duplicates. |
-| C48 | Recovery proof covers failed writes. | slice 5 | observed: Actual fs tmp-write EIO is consumed; failed CLI leaves completion/Done absent at backend, and full retired StoryBranch preserves previous kept completion/noDone. No expected report outcome planted. |
-| C49 | Recovery proof covers concurrent writers. | slice 5 | observed: Actual concurrent bindRecord/updateRecord after reserved-unapplied receipt do not import completion/Done; lostack races update and preserves exact Concurrent native evidence firstInput alongside durable receipt. |
-| C50 | Recovery proof covers reserved-receipt isolation. | slice 5 | observed: completionRecoveryFaults observes actual reserved EIO receipt before late bind/update writers; stored completion/Done stay absent until real reporting recovery applies it. Existing identity/binding race owners also passed. |
-| C51 | Recovery proof covers message recovery after source deletion. | slice 5 | observed: Installed message submissions lose ack after persistence; original message files are deleted, then actual pending retries recover independent exact text/outcome. Covers newer attention and unfinished after manualDone. |
-| C52 | A stale receipt preserves newer Done across restart. | slice 5 | observed: Backend quiet-closure restarts the actual receiver, then the original retained producer payload over HTTP returns its old receipt while preserving newer automatic Done. Fresh CLI deliveries, file recovery, concurrent CLI duplicates and final original installed retry after the second restart remain. Repaired backend1/1 and unchanged real retirement UI3/3 pass; final-validation-evidence.md retains the boundary change and pressure renewal owner13. |
-| C53 | A stale receipt preserves manual Done across restart. | slice 5 | observed: Actual markDoneHTTP creates manualDone; fresh unfinished lostack/source-delete/retry preserves it; second real sameport receiverrestart plus originalretry preserves manualDone and latest heldreceipt/message. |
-| C54 | Altered payloads are refused. | slice 5 | observed: RawHTTP uses actual saved old submission UUID/reference with altered message and no payload origin; actual receiver returns409. |
-| C55 | Post-deletion requests are rejected. | slice 5 | observed: After real deleteRecord, original installed retry fails/no stdout, bindRecord rejects deleted reporting session, and persisted records length0. |
-| C56 | Existing checks proving these recovery promises are identified. | slice 5 | observed: Inspected and ran whole quiet-closure, identity, superseded, binding, early-recovery and attention owners with concrete request/store/native/UI expectations; unchanged helpers were reused, all250 consumer dispositions checked. |
-| C57 | Missing recovery proof is added at the existing boundary. | slice 5 | observed: Missing EIO/concurrent/reserved/source-delete/stale-Done-restart/altered/postdelete variants now execute at existing real tracked CLI/HTTP/store boundary; successful receipts/Done come from actual actions, not setup. |
-| C58 | Covered browser steps are then removed. | slice 5 | observed: First strict14-case pass established survivors before old recovery deletion; same14 passed twice afterward. Quiet/attention retain actual Done/message/markread/finalreport/manualDone/collapsedunfinished UI; lowlevel faults observed in durable store. |
-| C59 | History comparison waits for persisted collector results. | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-history-lifecycle.spec.ts persisted run43 summary and run41 unavailable proof before equal reads; gaps stops collector; three strict focused passes in execution-evidence.md |
-| C60 | Revisit request counting waits for the first request to finish. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts completed trunk/story proof and fresh revisit judgment precede counts; three strict focused passes in execution-evidence.md |
-| C61 | A story-state check waits for the selected story to render. | slice 2 | observed: dashboard/tests/intent/intent-ci-status-story.spec.ts and story-gaps selected heading/title precede state; ad hoc selected identity/title guarded; three strict passes in execution-evidence.md |
-| C62 | Exact counts remain where avoiding duplicate work is the promise. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts exact two artifact calls and unchanged revisit count retained; spy uses exact per-request linked-file list; execution-evidence.md |
-| C63 | Siblings sharing each affected setup are inspected. | slice 2 | observed: Inspected history-collection, scope-proof lifecycle/completion, project-visit-selection and ad hoc check/review sibling guards; unchanged; execution-evidence.md |
-| C64 | Landed fixes serve as examples. | slice 2 | observed: Current guards checked against ad581992a, f1a992a75, fa274447d and ancestor f97907d27 repair patterns; execution-evidence.md |
-| C65 | Domain data uses MakeMe. | slice 13 | observed: Current diff uses shared MakeMe repository/project/launch/record/attempt builders; exact wire inputs, actions and independent assertions stay at call sites. Incoming watcher native launch uses makeMe.aLaunchRequest. |
-| C66 | Synchronization uses observable events or a controlled clock. | slice 13 | observed: Actual accepted-attempt settlement, authenticated-read completion, controlled page pace and watcher filesystem/command/admission events; final-validation/final-observation/incoming-watcher-evidence.md. |
-| C67 | Existing shard weights are refreshed after work is removed. | slice 13 | G11 |
-| C68 | Shard redistribution is measured separately from summed test durations. | slice 13 | G11 |
-| C69 | The project default case timeout remains unchanged. | slice 13 | observed: dashboard/playwright.config.ts default30 is unchanged; current scoped whole68 and thin normal3x7 run default cases, no added timeout override. |
-| C70 | Shard deadlines remain unchanged. | slice 13 | observed: Branch CI workflow deadlines remain320s shard/six-minute job. Incoming separately approved13-shard context retains those ceilings; hosted-evidence.md. |
-| C71 | These journeys receive no permanent deadline increases. | slice 13 | G1 |
-| C72 | Sleeps do not absorb load variance. | slice 13 | observed: Current added/modified code audit contains no new sleep/test.slow; synchronization uses observable requests/events or controlled clocks, as retained proof records show. |
-| C73 | Retries do not absorb load variance. | slice 13 | observed: Current normal68 and three thin whole7 commands have exactly one attempt/retry0; no new retry configuration or retry tactic is introduced. |
-| C74 | Skips do not absorb load variance. | slice 13 | G1 |
-| C75 | Permanent CI jobs do not absorb load variance. | slice 13 | observed: This branch CI workflow/job count is unchanged. Separately Terry-approved incoming13-shard decision is explicitly attributed in hosted-evidence.md, with redistribution held for G11. |
-| C76 | Flaky or environment-dependent timeouts remain defects until stable locally. | slice 13 | G1 |
-| C77 | They remain defects until stable in CI. | slice 13 | G3 |
-| C78 | Each retained change preserves its proof. | slice 13 | G1 |
-| C79 | Each retained change measurably widens the affected cases’ margin. | slice 13 | G7 |
-| C80 | Experiments that add cost are dropped. | slice 13 | observed: Rejected full-dashboard config-loader/SDK-bridge experiment restored package.json/startLaunch.ts exactly to HEAD; failed costs retained in final-source/final-validation evidence. Renderer-only rewrite was rejected after diagnostic attribution. |
-| C81 | Experiments whose proof remains unestablished are dropped. | slice 13 | G7 |
-| C82 | Experiments whose speedup remains unestablished are dropped. | slice 13 | G7 |
-| Q01 | The specified local pressure is load 20–30 on 2 workers. | slice 13 | G1 |
-| Q02 | The hosted comparison includes a shard about 1.5× slower overall. | slice 13 | G3 |
-| Q03 | Watcher-family elapsed time includes moved work. | slice 4 | observed: Complete family command elapsed includes all hooks, private clones, actual installs/builds/starts and moved SIGHUP. Each changed run pays first-demand cold snapshot3.532/3.352/3.461s, exactly1 preparation3requests; no prewarm or cost outside elapsed. Artifact trace confirms removal after everyrun. |
-| Q04 | Allowance removal is conditional on that particular case fitting the default with margin. | slice 13 | G1 |
-| Q05 | Standalone C reactivation is deleted only after the preceding preservation and detection obligations are satisfied. | slice 3 | observed: Relocated restart positive7/7 and actual ignored-HUP/stale-revision fault probes completed before deletion; root inspected setup and trace chronology. Exact parked/restored bytes and complete after-family passes retained in watcher-evidence.md. |
-| Q06 | Story Branch Wrap Up reuse is conditional on its ability to carry the required closure proof. | slice 5 | observed: StoryBranch reuse proved able to carry the entire actual retirement+installedretry+no repeatedGit/native+Done example under default30; separate Land/Trunk variants remain. |
-| Q07 | Recovery variants belong at the existing real CLI, HTTP, and store boundary; the source does not require every variant independently at all three boundaries. | slice 5 | observed: Detailed variants run at existing actual CLI/HTTP/store boundary appropriate to each promise; no demand or parallel suite repeats every variant at all3. |
-| Q08 | Exact-count preservation applies where avoiding duplicate work is the behavioral promise. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts duplicate-avoidance exact counts unchanged and passed three times; execution-evidence.md |
-| Q09 | Weight refresh uses all 12 artifacts from a complete passing trunk run. | slice 13 | G11 |
-| Q10 | The restrictions protect trustworthy gate meaning; omitted examples do not become rejection rules. | slice 13 | observed: Original source/review137 remain unchanged; only named outcomes and harness/consumer reach justify implementation. Current plan records required proof rather than expanding omitted examples into rejection rules. |
-| Q11 | Other allowances remain outside unless a harness change made by this story must keep those cases green. | slice 13 | G1 |
-| Q12 | The remaining-flake exclusion applies once the named journeys fit. | slice 13 | G1 |
-| Q13 | “Margin” is required, but the source supplies no additional numerical margin threshold. | slice 13 | observed: No universal numeric margin threshold added. Particular measured normal/loaded case headroom is reported; finite experiment keeper hypotheses do not amend the source promise. |
-| Q14 | Observable events and controlled clocks are alternatives, not cumulative requirements. | slice 13 | observed: Request/command/filesystem events and controlled page clocks are used where each boundary needs them; no cumulative clock-plus-event requirement or wall-clock sleep added. |
-| J01 | Touch review: “chooses a comparison and file and reads within each pane.” | slice 6 | observed: touch-evidence.md: three default-pressure four-case passes, native reading/context/rotation assertions in storyReviewTouchJourney and storyReviewTouchContext; desktop pane/file consumers5/5 |
-| J02 | First-in-worker preparation cost. | slice 13 | G1 |
-| J03 | `agent-launch-preparation-codex`. | slice 13 | G1 |
-| J04 | Its retry. | slice 13 | G1 |
-| J05 | `responsive-session-access`. | slice 13 | G1 |
-| J06 | `responsive-session-reconciliation`. | slice 13 | G1 |
-| J07 | `responsive-session-recovery-restart`. | slice 13 | G1 |
-| J08 | `side-panel-content-replacement`. | slice 13 | G1 |
-| J09 | `production-deployment`. | slice 13 | G1 |
-| J10 | `agent-completion-recovery`. | slice 13 | G1 |
-| J11 | Watcher-family first-in-worker `beforeAll`. | slice 13 | G1 |
-| J12 | Watcher restart paths. | slice 3 | observed: production-watcher.spec.ts: complete real current-main restart with unchanged runner/client, actual post-restart input and final SIGINT/cleanup passed in all3 changed-family selections. |
-| J13 | Watcher policy-repair paths. | slice 13 | G1 |
-| J14 | Retired closure. | slice 5 | observed: Retired StoryBranch closure retains actual installed Git retirement, durable reporting retry and visible Done; other distinct closure paths retained. |
-| J15 | `story-review-completed`. | slice 13 | G1 |
-| J16 | DD-473 routes. | slice 13 | G1 |
-| J17 | DD-476 routes. | slice 13 | G1 |
-| J18 | DD-479 routes. | slice 13 | G1 |
-| J19 | The three candidates moved from SEED-284; the source does not name them individually. | slice 13 | G1 |
-| J20 | Touch review’s 2026-11-09 case-local allowance is removed after it fits. | slice 6 | observed: story-review-touch.spec.ts removes60s allowance after fit; touch-evidence.md three actual default30s passes at load20.629–25.571, every case16.508–23.085s |
-| J21 | The production-deployment allowance is removed after it fits. | slice 13 | G1 |
-| J22 | The agent-completion-recovery allowance is removed after it fits. | slice 13 | G1 |
-| J23 | The temporary watcher policy-repair allowance on main is removed after it fits. | slice 13 | G1 |
-| J24 | The temporary retired-closure allowance on main is removed after it fits. | slice 13 | G1 |
-| J25 | The watcher example proceeds from origin unavailability, through origin recovery, into failed candidate and failed restoration on one deployment. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable origin keeps actual C alive; restored origin resumes checks and same-C serving; D candidate/restoration then fails with exact2 new causes on that watcher. |
-| J26 | The restart example detects ignored SIGHUP. | slice 3 | observed: Actual ignored-SIGHUP runtime fault blocks natural exit until the default case deadline; teardown continuation is distinguished by raw trace timing. See C31 and watcher-evidence.md. |
-| J27 | The restart example detects reuse of the previously served revision. | slice 3 | observed: Actual old-parent restart runtime fault serves a different SHA and fails exact current activation. See C32 and watcher-evidence.md. |
-| J28 | The retained closure example combines real retirement, reporting retry without repeated Git/native work, and visible Done. | slice 5 | observed: Same StoryBranch test combines actual retirement, installed retained retry with Git log byteequality/native idempotence and visibleDone; independent refactor focused4case pass confirms renamed links. |
-| J29 | The history example waits for persistence before comparing reads. | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-history-lifecycle.spec.ts retainedHistory proof waits precede expectCollectedScopePoints; three focused passes in execution-evidence.md |
-| J30 | The revisit example waits for first-request completion before counting. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts trunk proof finishes before baseline count and revisit judgment before no-new-proof count; execution-evidence.md |
-| J31 | The selected-story example waits for rendering before checking state. | slice 2 | observed: dashboard/tests/intent/intent-ci-status-story.spec.ts selected branch and story title assertions before state; three strict focused passes in execution-evidence.md |
-| X01 | The Intent CI comparison family belongs to SEED-286. | slice 13 | observed: Intent CI comparison membership remains SEED286; only owned failing whole-suite Sort/source proof and implicated shared harness reach are repaired, preserving exact704/loops/CLI. |
-| X02 | Infrastructure acquisition is outside. | slice 13 | observed: No infrastructure acquisition or new branch CI resources. Current physical AC restoration is a measurement condition, not infrastructure work. |
-| X03 | Unrelated branch defects are outside. | slice 13 | observed: No proactive unrelated branch repair; applicable local/published failures remain owned under the written AGENTS failure policy. |
-| X04 | The separate collector-lock repair is outside. | slice 13 | observed: No separate collector-lock implementation in this increment; current changes address named timing/settlement/source/watcher boundaries. |
-| X05 | Other unnamed case-local allowances are outside, subject to Q11. | slice 13 | observed: Unnamed allowances remain outside except actual necessary shared-harness consumers; final-observation-evidence.md retains outside-scoped larger options explicitly. |
-| X06 | Recently-done ad-hoc session journey allowances are specifically outside, subject to Q11. | slice 13 | observed: Recently-done ad-hoc allowances are unchanged; only necessary affected consumers are checked, not a new allowance-removal scope. |
-| X07 | Intent timing-history journey allowances are specifically outside, subject to Q11. | slice 13 | observed: Intent timing-history allowances are unchanged. Incoming scope-history product paths remain preserved for actual trunk reconciliation. |
-| X08 | Causal attribution of every remaining CI flake beyond the named patterns is outside once the named journeys fit. | slice 13 | G1 |
-| X09 | Margin work does not establish that a collector-lock failure has been solved. | slice 13 | observed: No claim that current margin/settlement changes solve the separate collector-lock failure. |
-| X10 | Margin work does not establish that an infrastructure setup failure has been solved. | slice 13 | observed: No claim that current margin changes solve an infrastructure setup failure. |
+| C001 | Maintainers and agents get the same dashboard suite result under the machine’s usual parallel load and in hosted CI. | slice 13 | G1 |
+| C002 | In-scope dashboard journeys finish with margin inside the default 30 s case budget. | slice 13 | G7 |
+| C003 | In-scope observations finish with margin inside their 5 s budgets. | slice 13 | G18 |
+| C004 | Achieve the outcome without the in-scope temporary case-local timeout allowances. | slice 13 | G1 |
+| C005 | Preserve trustworthy local full-gate and hosted-shard verdicts without stretching deadlines. | slice 13 | G1 |
+| C006 | Make the touch review reading case fit with margin. | slice 13 | G1 |
+| C007 | Make first-in-worker journeys fit with margin, accounting for preparation cost. | slice 13 | G1 |
+| C008 | Make `agent-launch-preparation-codex` fit with margin. | slice 13 | G1 |
+| C009 | Make its retry case fit with margin. | slice 13 | G1 |
+| C010 | Make `responsive-session-access` fit with margin. | slice 13 | G1 |
+| C011 | Make `responsive-session-reconciliation` fit with margin. | slice 13 | G1 |
+| C012 | Make `responsive-session-recovery-restart` fit with margin. | slice 13 | G1 |
+| C013 | Make `side-panel-content-replacement` fit with margin. | slice 13 | G1 |
+| C014 | Make `production-deployment` fit with margin. | slice 13 | G20 |
+| C015 | Make `agent-completion-recovery` fit with margin. | slice 13 | G1 |
+| C016 | Make the watcher family’s first-in-worker `beforeAll` fit with margin. | slice 13 | G20 |
+| C017 | Make the watcher restart paths fit with margin. | slice 13 | G8 |
+| C018 | Make the watcher policy-repair paths fit with margin. | slice 13 | G1 |
+| C019 | Make the retained retired-closure journey fit with margin. | slice 13 | G1 |
+| C020 | Address the shared margin problem in `story-review-completed`. | slice 13 | G1 |
+| C021 | Address the shared margin problem routed through DD-473. | slice 13 | G1 |
+| C022 | Address the shared margin problem routed through DD-476. | slice 13 | G1 |
+| C023 | Address the shared margin problem routed through DD-479. | slice 13 | G1 |
+| C024 | Address `story-review-touch-reading-strokes`, moved from SEED-284. | slice 13 | G1 |
+| C025 | Address `production-deployment-pinned-build`, moved from SEED-284. | slice 13 | G1 |
+| C026 | Address `hosted-margin-dashboard-journeys`, moved from SEED-284. | slice 13 | G1 |
+| C027 | Remove the touch review allowance only after the case fits the default with margin. | slice 6 | observed: story-review-touch.spec.ts removes60s allowance after fit; touch-evidence.md three actual default30s passes at load20.629–25.571, every case16.508–23.085s |
+| C028 | Remove the production-deployment allowance only after the case fits the default with margin. | slice 13 | G1 |
+| C029 | Remove the agent-completion-recovery allowance only after the case fits the default with margin. | slice 13 | G1 |
+| C030 | Remove the temporary watcher policy-repair allowance on main only after the case fits the default with margin. | slice 13 | G1 |
+| C031 | Remove the temporary retired-closure allowance on main only after the case fits the default with margin. | slice 13 | G1 |
+| C032 | Preserve every distinct behavioral promise at an observable boundary. | slice 13 | G1 |
+| C033 | Establish surviving proof before deleting a test. | slice 13 | observed: Original survivor-before-deletion chronology in closure-evidence.md/comparison-evidence.md; incoming-watcher-evidence.md retains lower6 passing before browser port-step relocation. |
+| C034 | Establish surviving proof before deleting a step. | slice 13 | observed: Closure survivor chronology in closure-evidence.md and current lower6 before occupied-port step relocation in incoming-watcher-evidence.md; distinct C/D/SIGHUP actions remain. |
+| C035 | Establish surviving proof before deleting an assertion. | slice 13 | observed: Source-only137 mapping, closure/comparison evidence and current watcher lower6 before overlapping browser assertion relocation; incoming-watcher-evidence.md. |
+| C036 | Cut repeated setup. | slice 13 | observed: source-ingestion-evidence.md paired complete snapshot commands and final-source-evidence.md actual closed-profile cold preparation reduction; no persistent source cache. |
+| C037 | Cut redundant proof. | slice 13 | observed: closure-evidence.md real retired StoryBranch survivor plus installed CLI/HTTP/store recovery; incoming-watcher-evidence.md lower selection/rollback survival before redundant deployment steps. |
+| C038 | Make the watcher family at least 10 s faster in median elapsed time, including moved work. | slice 4 | observed: Original matched three alternating32/31 commands preserve full cold work: shell medians156.893714 to136.400577 save20.493137s; source-ingestion-evidence.md. Current reconciled boundary31 includes moved lower/native proof and passes three times, shell median141.215330 (raw15.678384 below original32, power/load/date/cache qualified), incoming-watcher-evidence.md. No precise new causal saving claimed. |
+| C039 | Keep the comparable local dashboard suite within its previous elapsed time. | slice 13 | G2 |
+| C040 | Keep the slowest hosted shard within its previous elapsed time. | slice 13 | G3 |
+| C041 | Consolidate the failure watcher journey onto one real deployment. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable/recovered origin checks retain the original served C PID/page; no watcher/served reassignment before D failure. Three whole-family after runs passed31/31. |
+| C042 | Prove that an unavailable origin leaves C serving. | slice 3 | observed: production-watcher-failures.spec.ts: unavailable origin emits ls-remote failure, exact Keeping C/address, and expectStillServing checks real C PID plus WORKING C page. |
+| C043 | Prove that checks resume after the origin returns. | slice 3 | observed: production-watcher-failures.spec.ts: restore the same origin path, observe watcher.checks increase, reobserve live C, then actual D publication is read and attempted. |
+| C044 | Continue into the failed candidate on that same live deployment. | slice 3 | observed: production-watcher-failures.spec.ts: after recovered-origin live C, publish D on the same watcher; appended output names actual D failure and absence of D activation. |
+| C045 | Continue into the failed restoration on that same live deployment. | slice 3 | observed: production-watcher-failures.spec.ts: same live-C chain faults D and C restoration, observes restoring exact servedCommit also failed, exact2 fresh causes, exit1 and cleanup. |
+| C046 | Move the real SIGHUP to the existing restart journey. | slice 3 | observed: production-watcher.spec.ts: existing stop case sends watcher.signal(SIGHUP), then awaits natural watcher.exited before stop. |
+| C047 | Move its quiet-exit assertions to that restart journey. | slice 3 | observed: production-watcher.spec.ts: natural SIGHUP exit requires no Production dashboard could not run message before group retirement. |
+| C048 | Move its cleanup assertions to that restart journey. | slice 3 | observed: production-watcher.spec.ts: SIGHUP case retains expectProductionEnded: served PID dead, HTTP unavailable and deployment directory empty. |
+| C049 | Keep the restart journey restarting from current main. | slice 3 | observed: production-watcher.spec.ts: restart publishes Document restart, productionActivation requires its exact current SHA; output excludes pinned/next and checkout list equals current. |
+| C050 | Keep the restart journey serving the expected page. | slice 3 | observed: production-watcher.spec.ts: restarted page title NEXT MAIN and source marker PINNED SOURCE remain independently observed alongside current-revision checks. |
+| C051 | Preserve the same runner across restart. | slice 3 | observed: production-watcher.spec.ts: runner count1, address PID equals original runner, original process group remains separate from new preview after restart. |
+| C052 | Preserve the same client across restart. | slice 3 | observed: production-watcher.spec.ts: attaches length1 and attached PID equals the original real held client after replacement and restart. |
+| C053 | Accept input after restart. | slice 3 | observed: production-watcher.spec.ts: follow the saved session on restarted URL, send after-restart, observe it in cursor.input(original client PID). |
+| C054 | Keep the active-build SIGTERM proof. | slice 3 | observed: productionUpdateJourney.ts: productionUpdateShutdown holds the actual next build by ordinal, observes its real PID, sends stop/SIGTERM and checks build/preview/deployment cleanup plus unchanged records/configuration; selected in every whole-family pass. |
+| C055 | Keep the final SIGINT proof. | slice 3 | observed: production-watcher.spec.ts: final restart case signals SIGINT, awaits exited, checks quiet output and expectProductionEnded. |
+| C056 | Keep both fatal preview outcomes. | slice 3 | observed: production-watcher-failures.spec.ts: failed D plus failed C restoration reports both exact causes/exit1; subsequent unexpected-preview SIGKILL reports its distinct fatal message/exit1. |
+| C057 | Keep their cleanup. | slice 3 | observed: production-watcher-failures.spec.ts: both fatal-preview tests invoke expectProductionEnded for dead preview, unavailable HTTP and empty deployment directories. |
+| C058 | Prove that the relocated check detects a watcher ignoring SIGHUP. | slice 3 | observed: Actual scratch no-op SIGHUP handler held natural exited for full30s; raw trace shows first case expectation only after post-timeout scratch SIGTERM. Root inspected ignored-hup-test.trace.json and interpretation at /tmp/seed287-watcher-20261110. |
+| C059 | Prove that the restart check detects use of the previously served revision. | slice 3 | observed: Actual scratch resolvePublishedMain returned Document restart parent; original exact-current productionActivation rejected the actually served prior revision. Patch/log/trace retained under /tmp/seed287-watcher-20261110/stale-restart-artifacts. |
+| C060 | Delete the standalone C reactivation only after the preceding preservation and detection obligations are established. | slice 3 | observed: production-watcher-failures.spec.ts: standalone post-hangup C-reactivation test deleted after relocated positive7/7 and both actual runtime faults; three whole-family after runs passed31 rather than32 cases. |
+| C061 | Remove that standalone reactivation’s real install. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone startProductionWatcher/shownActivation for C, eliminating its real npm install while retaining original retry/restoration activations. |
+| C062 | Remove that standalone reactivation’s real build. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone C activation eliminates its real Vite build; no prebuilt or substitute deployment added. |
+| C063 | Remove that standalone reactivation’s real start. | slice 3 | observed: production-watcher-failures.spec.ts: removed standalone C activation eliminates its repeated real preview start; live C continues into D restoration failure. |
+| C064 | Keep one full retired-closure journey. | slice 5 | observed: One combined retired StoryBranch retry/Done journey remains in agent-completion-quiet; separate Land/Trunk closure paths retained, duplicate browser recovery removed after survivors passed. |
+| C065 | Preserve its proof of real Git worktree retirement. | slice 5 | observed: withInstalledCompletionClosure actual installed publication/integration/CI closure and worktree-retirement command observes remote main==final and workspace absent before StoryBranch callback; no retirement result planted. |
+| C066 | Preserve its proof of installed reporting retry. | slice 5 | observed: After actual StoryBranch retirement, initial-server EIO consumes marker and installed completed report retains exact pending retry; that installed --retry runs from surviving origin.machine and returns durable receipt/Done. |
+| C067 | Prove that the reporting retry does not repeat Git operations. | slice 5 | observed: countedGit proofEnv logs actual push and worktree remove before reporting; after failed submission, installed retry and duplicate retry, complete Git log bytes equal pre-report snapshot. |
+| C068 | Prove that the reporting retry does not repeat native operations. | slice 5 | observed: Quiet StoryBranch observes no start/resume/interrupt, exactly1 native rename after reporting; duplicate installed retry returns same receipt and adds no rename/control operation. Distinct Trunk rename-refusal retry preserved. |
+| C069 | Preserve visible Done. | slice 5 | observed: Same actual retired StoryBranch retry journey publishes final history and renders RecentlyDone/Done, native-working cue, no attention message, independent thread/read(includeTurns) final answer, and Done after reload. |
+| C070 | Reuse the existing Story Branch Wrap Up journey where it can carry this proof. | slice 5 | observed: Existing StoryBranch WrapUp variant of agent-completion-quiet now carries actual retired/installretry/Git-native-idempotence/visibleDone together; it fit default30 in all focused passes. |
+| C071 | Retain the different Land path. | slice 5 | observed: Existing Land variant retains its distinct actual installed retirement path and quiet reporting/native/UI observations in all3 full14-case passes and refactor4-case pass. |
+| C072 | Retain the different Trunk Wrap Up path. | slice 5 | observed: Existing TrunkWrapUp variant retains its distinct installed trunk closure/retirement, refused native rename recovery and quiet/native/UI observations in all3 full14-case passes and refactor4-case pass. |
+| C073 | Unavailable receiver. | slice 5 | observed: Tracked backend quiet-closure actually closes receiver; unacknowledgedCompletion runs installed CLI, fails withoutstdout and retains exact pending/message/retry guidance while Done remains absent. |
+| C074 | Lost acknowledgement. | slice 5 | observed: Real proxy drops acknowledgement only after receiver persisted; helper observes failed child/no stdout, lost1, durable delivery/Done and same receipt through installed retry/concurrent duplicates. |
+| C075 | Failed writes. | slice 5 | observed: Actual fs tmp-write EIO is consumed; failed CLI leaves completion/Done absent at backend, and full retired StoryBranch preserves previous kept completion/noDone. No expected report outcome planted. |
+| C076 | Concurrent writers. | slice 5 | observed: Actual concurrent bindRecord/updateRecord after reserved-unapplied receipt do not import completion/Done; lostack races update and preserves exact Concurrent native evidence firstInput alongside durable receipt. |
+| C077 | Reserved receipt isolation. | slice 5 | observed: completionRecoveryFaults observes actual reserved EIO receipt before late bind/update writers; stored completion/Done stay absent until real reporting recovery applies it. Existing identity/binding race owners also passed. |
+| C078 | Message recovery after source deletion. | slice 5 | observed: Installed message submissions lose ack after persistence; original message files are deleted, then actual pending retries recover independent exact text/outcome. Covers newer attention and unfinished after manualDone. |
+| C079 | A stale receipt preserves newer Done across restart. | slice 5 | observed: Backend quiet-closure restarts the actual receiver, then the original retained producer payload over HTTP returns its old receipt while preserving newer automatic Done. Fresh CLI deliveries, file recovery, concurrent CLI duplicates and final original installed retry after the second restart remain. Repaired backend1/1 and unchanged real retirement UI3/3 pass; final-validation-evidence.md retains the boundary change and pressure renewal owner13. |
+| C080 | A stale receipt preserves manual Done across restart. | slice 5 | observed: Actual markDoneHTTP creates manualDone; fresh unfinished lostack/source-delete/retry preserves it; second real sameport receiverrestart plus originalretry preserves manualDone and latest heldreceipt/message. |
+| C081 | Altered payload refusal. | slice 5 | observed: RawHTTP uses actual saved old submission UUID/reference with altered message and no payload origin; actual receiver returns409. |
+| C082 | Post-deletion rejection. | slice 5 | observed: After real deleteRecord, original installed retry fails/no stdout, bindRecord rejects deleted reporting session, and persisted records length0. |
+| C083 | Identify checks that already prove the recovery promises. | slice 5 | observed: Inspected and ran whole quiet-closure, identity, superseded, binding, early-recovery and attention owners with concrete request/store/native/UI expectations; unchanged helpers were reused, all250 consumer dispositions checked. |
+| C084 | Add missing proof at the existing boundary. | slice 5 | observed: Missing EIO/concurrent/reserved/source-delete/stale-Done-restart/altered/postdelete variants now execute at existing real tracked CLI/HTTP/store boundary; successful receipts/Done come from actual actions, not setup. |
+| C085 | Remove covered browser steps after identifying and completing the surviving boundary proof. | slice 5 | observed: First strict14-case pass established survivors before old recovery deletion; same14 passed twice afterward. Quiet/attention retain actual Done/message/markread/finalreport/manualDone/collapsedunfinished UI; lowlevel faults observed in durable store. |
+| C086 | Wait for persisted collector results before comparing history reads. | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-history-lifecycle.spec.ts persisted run43 summary and run41 unavailable proof before equal reads; gaps stops collector; three strict focused passes in execution-evidence.md |
+| C087 | Let the first request finish before counting requests for a revisit. | slice 2 | observed: dashboard/tests/intent/intent-ci-proof-ancestor.spec.ts completed trunk/story proof and fresh revisit judgment precede counts; three strict focused passes in execution-evidence.md |
+| C088 | Wait for the selected story to render before checking its state. | slice 2 | observed: dashboard/tests/intent/intent-ci-status-story.spec.ts and story-gaps selected heading/title precede state; ad hoc selected identity/title guarded; three strict passes in execution-evidence.md |
+| C089 | Keep exact counts where avoiding duplicate work is the promise. | slice 13 | G19 |
+| C090 | Inspect siblings sharing each affected setup. | slice 13 | G19 |
+| C091 | Use the landed fixes as examples. | slice 2 | observed: Current guards checked against ad581992a, f1a992a75, fa274447d and ancestor f97907d27 repair patterns; execution-evidence.md |
+| C092 | Make the landed CI repeat-admission cases hold their 5 s observations at local load 20–30 on 2 workers. | slice 13 | G19 |
+| C093 | Keep those cases’ assertions. | slice 13 | G19 |
+| C094 | Have the five cases of `landed-ci-repeat-admission.spec.ts` pass in three consecutive runs under those local conditions, retaining their 5 s observations. | slice 13 | G19 |
+| E001 | The touch example is “chooses a comparison and file and reads within each pane”; its 2026-11-09 allowance is to be removed after it fits. | slice 6 | observed: story-review-touch.spec.ts removes60s allowance after fit; touch-evidence.md three actual default30s passes at load20.629–25.571, every case16.508–23.085s |
+| E002 | The named overdue cases previously timed out or missed a 5 s observation; their outcome covers both kinds of deadline. | slice 13 | G1 |
+| E003 | In repeat admission, “an unspent eligible receipt disabled while original jobs are unavailable stays old on re-enable” polls for a card or collected history for 5 s after the receipt. It missed the observation in both cited unchanged-main runs. | slice 13 | G19 |
+| E004 | “eligible105-second receipt prepared before enablement stays old after acceptance” has the same described observation window. It missed in one of those runs. | slice 13 | G19 |
+| E005 | “an otherwise eligible receipt for Taken work does not authorize a Done follow-up” missed a 5 s history poll once beside a scratch fixture change, and in no cited main run. | slice 13 | G19 |
+| E006 | `landed-ci-history-no-proof-recovery.spec.ts:36` also missed once beside that scratch fixture change, and in no cited main run. | slice 13 | G19 |
+| C095 | Use MakeMe for domain data. | slice 13 | G19 |
+| C096 | Synchronize on observable events **or** a controlled clock. These are alternatives. | slice 13 | G19 |
+| C097 | Refresh existing shard weights after removing work. | slice 13 | G11 |
+| C098 | Use all 12 artifacts of a complete passing trunk run for that refresh. | slice 13 | G11 |
+| C099 | Measure shard redistribution separately from summed test durations. | slice 13 | G11 |
+| C100 | Keep the project default case timeout. | slice 13 | observed: dashboard/playwright.config.ts default30 is unchanged; current scoped whole68 and thin normal3x7 run default cases, no added timeout override. |
+| C101 | Keep shard deadlines. | slice 13 | observed: Branch CI workflow deadlines remain320s shard/six-minute job. Incoming separately approved13-shard context retains those ceilings; hosted-evidence.md. |
+| C102 | Do not permanently raise deadlines for these journeys. | slice 13 | G1 |
+| C103 | Do not use sleeps to absorb load variance. | slice 13 | G19 |
+| C104 | Do not use retries to absorb load variance. | slice 13 | G19 |
+| C105 | Do not use skips to absorb load variance. | slice 13 | G1 |
+| C106 | Do not use permanent CI jobs to absorb load variance. | slice 13 | observed: This branch CI workflow/job count is unchanged. Separately Terry-approved incoming13-shard decision is explicitly attributed in hosted-evidence.md, with redistribution held for G11. |
+| C107 | Treat flaky or environment-dependent timeouts as defects until stable locally and in CI, under the referenced project policy. | slice 13 | G1 |
+| C108 | Every retained change preserves its proof. | slice 13 | G1 |
+| C109 | Every retained change measurably widens the affected cases’ margin. | slice 13 | G7 |
+| C110 | Remove a case allowance only after the case fits the default with margin. | slice 13 | G1 |
+| C111 | Drop experiments that add cost. | slice 13 | observed: Rejected full-dashboard config-loader/SDK-bridge experiment restored package.json/startLaunch.ts exactly to HEAD; failed costs retained in final-source/final-validation evidence. Renderer-only rewrite was rejected after diagnostic attribution. |
+| C112 | Drop experiments that leave their proof unestablished. | slice 13 | G7 |
+| C113 | Drop experiments that leave their speedup unestablished. | slice 13 | G7 |
+| C114 | Compare focused before-and-after runs using the same selection. | slice 4 | observed: source-ingestion-evidence.md: original alternating whole-family32/31 commands use the same family selection, two workers and cold cache conditions at comparable load; entire shell elapsed includes moved SIGHUP, hooks, native/build/private-clone work. Current reconciled evidence is qualified separately in incoming-watcher-evidence.md. |
+| C115 | Use the same workers in that comparison. | slice 4 | observed: source-ingestion-evidence.md: original alternating whole-family32/31 commands use the same family selection, two workers and cold cache conditions at comparable load; entire shell elapsed includes moved SIGHUP, hooks, native/build/private-clone work. Current reconciled evidence is qualified separately in incoming-watcher-evidence.md. |
+| C116 | Use the same cache conditions. | slice 4 | observed: source-ingestion-evidence.md: original alternating whole-family32/31 commands use the same family selection, two workers and cold cache conditions at comparable load; entire shell elapsed includes moved SIGHUP, hooks, native/build/private-clone work. Current reconciled evidence is qualified separately in incoming-watcher-evidence.md. |
+| C117 | Use comparable load. | slice 4 | observed: source-ingestion-evidence.md: original alternating whole-family32/31 commands use the same family selection, two workers and cold cache conditions at comparable load; entire shell elapsed includes moved SIGHUP, hooks, native/build/private-clone work. Current reconciled evidence is qualified separately in incoming-watcher-evidence.md. |
+| C118 | Include replacement proof in the family measurement. | slice 4 | observed: source-ingestion-evidence.md: original alternating whole-family32/31 commands use the same family selection, two workers and cold cache conditions at comparable load; entire shell elapsed includes moved SIGHUP, hooks, native/build/private-clone work. Current reconciled evidence is qualified separately in incoming-watcher-evidence.md. |
+| C119 | Check three consecutive focused passes for changed synchronization. | slice 13 | G19 |
+| C120 | Then use the existing local gates. | slice 13 | G2 |
+| C121 | Then use the existing hosted gates. | slice 13 | G3 |
+| C122 | On macOS, run the full local gate from an awake machine. | slice 13 | G2 |
+| C123 | Run that macOS gate on AC. | slice 13 | G2 |
+| C124 | Use `caffeinate -s -i` under the maintained sleep guard. | slice 13 | G2 |
+| C125 | Check the slowest hosted shard separately from summed test durations. | slice 13 | G3 |
+| C126 | Check local full-suite elapsed time separately from summed test durations. | slice 13 | G2 |
+| C127 | Recheck which costs from the 2026-11-09 diagnosis still occur before choosing another experiment. | slice 13 | G19 |
+| C128 | Avoid repeating start-origin preparation. | slice 4 | observed: source-ingestion-evidence.md/final-source-evidence.md: one immutable first-demand source artifact is reused for private no-hardlink fixtures within the run; cold preparation remains in complete-command elapsed, no persistent cache. |
+| C129 | Avoid repeating app-build preparation. | slice 4 | observed: source-ingestion-evidence.md/final-source-evidence.md: one immutable first-demand source artifact is reused for private no-hardlink fixtures within the run; cold preparation remains in complete-command elapsed, no persistent cache. |
+| C130 | Include work moved outside the first case’s 30 s in suite elapsed measurement. | slice 13 | G2 |
+| C131 | Answer fake Actions branch tips without a synchronous `git rev-parse` per answer. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C132 | Make fake `gh` calls cheaper. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C133 | Keep fake `gh` auth behavior. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C134 | Keep fake `gh` hold behavior. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C135 | Keep fake `gh` pid behavior. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C136 | Keep fake `gh` signal behavior. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C137 | Keep gone-fake behavior. | slice 11 | observed: transport-evidence.md and ci-repair-evidence.md: shell/curl FD3 client removes per-answer Node/Git startup while preserving actual CLI auth/hold/pid/signal/gone-fake contracts; paired whole-client timings and 407+46 unit/CLI consumers retained. |
+| C138 | Check whether the hosted fixture’s roughly 66 sequential Git commands also affect in-scope cases. | slice 12 | observed: comparison-evidence.md/final-validation-evidence.md: canonical704-file comparison and actual CLI/Git preparation were inspected before selecting the thin Sort fixture; exact loops/source assertions survive, and qualified timing/consumer evidence is retained. |
+| C139 | Cut the touch review journey’s gesture cost. | slice 6 | observed: touch-evidence.md: canonical four-column MakeMe fixture removes artificial 3000px padding while preserving real phone/tablet file/selection/reading/context/rotation gestures; independent desktop consumers and four loaded cases retained. |
+| C140 | Preserve its reading proof. | slice 6 | observed: touch-evidence.md: canonical four-column MakeMe fixture removes artificial 3000px padding while preserving real phone/tablet file/selection/reading/context/rotation gestures; independent desktop consumers and four loaded cases retained. |
+| X001 | The Intent CI comparison family belongs to `SEED-286#fast-intent-ci-comparison-tests`. | slice 13 | observed: Intent CI comparison membership remains SEED286; only owned failing whole-suite Sort/source proof and implicated shared harness reach are repaired, preserving exact704/loops/CLI. |
+| X002 | Infrastructure acquisition is outside scope. | slice 13 | observed: No infrastructure acquisition or new branch CI resources. Current physical AC restoration is a measurement condition, not infrastructure work. |
+| X003 | Unrelated branch defects are outside scope. | slice 13 | observed: No proactive unrelated branch repair; applicable local/published failures remain owned under the written AGENTS failure policy. |
+| X004 | The separate collector lock repair is outside scope. | slice 13 | observed: No separate collector-lock implementation in this increment; current changes address named timing/settlement/source/watcher boundaries. |
+| X005 | Other unnamed case-local allowances remain outside scope unless a harness change made by this story must keep those cases green. | slice 13 | observed: Unnamed allowances remain outside except actual necessary shared-harness consumers; final-observation-evidence.md retains outside-scoped larger options explicitly. |
+| X006 | Recently-done ad-hoc session journeys are an explicit example of X005. | slice 13 | observed: Recently-done ad-hoc allowances are unchanged; only necessary affected consumers are checked, not a new allowance-removal scope. |
+| X007 | Intent timing-history journeys are another explicit example of X005. | slice 13 | observed: Intent timing-history allowances are unchanged. Incoming scope-history product paths remain preserved for actual trunk reconciliation. |
+| X008 | Causal attribution of every remaining CI flake beyond the named patterns is outside scope once the named journeys fit. | slice 13 | G1 |
+| X009 | Automatic-repeat specs belong to SEED-314. | slice 13 | G19 |
+| X010 | Verdict specs belong to SEED-314. | slice 13 | G19 |
+| X011 | An Intent CI comparison timeout is not claimed as solved here. | slice 13 | observed: Intent CI comparison membership remains SEED286; only owned failing whole-suite Sort/source proof and implicated shared harness reach are repaired, preserving exact704/loops/CLI. |
+| X012 | A collector lock failure is not claimed as solved by this margin work. | slice 13 | observed: No claim that current margin/settlement changes solve the separate collector-lock failure. |
+| X013 | An infrastructure setup failure is not claimed as solved by this margin work. | slice 13 | observed: No claim that current margin changes solve an infrastructure setup failure. |

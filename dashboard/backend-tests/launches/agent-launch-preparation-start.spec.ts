@@ -17,7 +17,6 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   establishingPreparation,
   launch,
-  launchRequest,
   recordsOf,
 } from "../../tests/agentLaunchBoundary.ts";
 import {
@@ -30,14 +29,12 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...launchRequest,
-  workflow: "refinement",
-  identity: queuedIdentity,
-  title: queuedTitle,
-  instruction: "Focus on the examples.",
-};
+const request = makeMe.aLaunchRequest
+  .refining({ identity: queuedIdentity, title: queuedTitle })
+  .withInstruction("Focus on the examples.")
+  .please();
 const slug = "prepare-the-queued-start";
 
 // The profiles origin's trunk holds for one kind of activity.

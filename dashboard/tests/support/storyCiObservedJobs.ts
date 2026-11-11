@@ -1,5 +1,6 @@
 // Timing fields reported by the three GitHub Actions attempts in SEED-256,
-// and their comparison fixture across the three endpoints.
+// and their comparison fixture across the three endpoints. Captured job
+// timestamps stay literal; synthetic run wrappers delegate to MakeMe via wall.
 import { defaultMixedProofs } from "./storyCiComparisonEntryProofs.ts";
 import {
   wall,
@@ -133,7 +134,7 @@ export function serveObservedComparisonAttempts(
 ): void {
   const branch = setup.branchAncestor ?? setup.branchSide;
   const landedRevision = setup.landingMerge ?? setup.completion;
-  // A distinct reported start makes the first attempt's creation bound observable.
+  // A distinct reported start makes the first attempt's own start bound observable.
   const firstAttempts = observedFirstAttempts(
     setup.baseline,
     branch,

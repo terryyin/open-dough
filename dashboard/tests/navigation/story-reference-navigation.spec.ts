@@ -16,6 +16,8 @@ import { expectSelected, selectStory } from "../storyCardSelection.ts";
 import {
   expectCueEnds,
   expectDestinationCue,
+  expectDestinationCueRestarted,
+  holdDestinationCueWhileFading,
   passPartOfCue,
 } from "../destinationCue.ts";
 
@@ -92,9 +94,20 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   await reference.click();
   await expectDestinationCue(page, supplier, { motion: true });
   await expectSelected(supplier, true);
+  await expect(
+    supplier.getByRole("button", { name: "Hide detail" }),
+  ).toBeVisible();
+  await expectReadingTop(supplier);
   await passPartOfCue(page, 1000);
+  const fadingTime = await holdDestinationCueWhileFading(supplier, 1000);
   await reference.click();
   await expectDestinationCue(page, supplier, { motion: true });
+  await expectDestinationCueRestarted(supplier, fadingTime);
+  await expectSelected(supplier, true);
+  await expect(
+    supplier.getByRole("button", { name: "Hide detail" }),
+  ).toBeVisible();
+  await expect(supplier).toBeFocused();
   await passPartOfCue(page, 1000);
   await expectDestinationCue(page, supplier, { motion: true });
   await expectCueEnds(page, supplier);

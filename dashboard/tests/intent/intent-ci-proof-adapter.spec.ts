@@ -12,6 +12,7 @@
 
 import { adapterResponseBytes } from "../../../src/skills/dough-execute-plan/scripts/ci-command-run.mjs";
 import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
   expectAttemptAt,
@@ -101,14 +102,15 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
     discover: {
       main: [passed(ancestor, ancestor, signup, "main")],
       [running.branch]: [
-        {
-          runId: uuid,
-          attemptId: uuid,
-          sha: started,
-          outcome: "pending",
-          time: "2026-10-02T00:00:00Z",
-          branch: running.branch,
-        },
+        makeMe.aCiAdapterAttempt
+          .pending({
+            runId: uuid,
+            attemptId: uuid,
+            sha: started,
+            time: "2026-10-02T00:00:00Z",
+            branch: running.branch,
+          })
+          .please(),
       ],
     },
     proof: testsSummary(ancestor, signup),

@@ -8,6 +8,9 @@ native_result_journey_support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &&
 # shellcheck source=tests/support/native-journey-state.sh
 # shellcheck disable=SC1091
 source "${native_result_journey_support_dir}/native-journey-state.sh"
+# shellcheck source=tests/support/native-import-closure.sh
+# shellcheck disable=SC1091
+source "${native_result_journey_support_dir}/native-import-closure.sh"
 
 native_result_journey_execution_fields() {
   native_result_execution_status_fields
@@ -82,8 +85,12 @@ native_result_journey_input_hash_lines() {
     tests/support/native-result-retain.sh \
     tests/support/native-result-identity.sh \
     tests/support/native-result-retain-journey.sh \
+    tests/support/native-import-closure.sh \
+    tests/support/native-import-closure.mjs \
     tests/support/native-journey-state.sh \
     tests/support/native-adr-behavior.sh
+  native_import_closure_input_hash_lines \
+    tests/support/release-source.mjs
   native_result_supervision_input_hash_lines
   native_result_input_hash_lines \
     tests/support/native-codex.sh \

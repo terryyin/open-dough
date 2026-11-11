@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { judgeNearest } from "../../dashboard/server/baseCiNearest.ts";
 import { storyBranchOf } from "../../dashboard/src/storyBranch.ts";
+import { makeMe } from "./makeMe.mjs";
 
 const owner = (mode, branch, profilePath = ".planning/agents/a.json") => ({
   profilePath,
@@ -70,14 +71,17 @@ const history = [
   commit("c0", "Older trunk commit"),
 ];
 
-const run = (headSha, branch, status, conclusion, createdAt) => ({
-  headSha,
-  branch,
-  status,
-  conclusion,
-  createdAt,
-  url: `https://github.com/o/r/actions/runs/${headSha}-${branch}`,
-});
+const run = (headSha, branch, status, conclusion, createdAt) =>
+  makeMe.aCiRun
+    .with({
+      headSha,
+      branch,
+      status,
+      conclusion,
+      createdAt,
+      url: `https://github.com/o/r/actions/runs/${headSha}-${branch}`,
+    })
+    .please();
 
 test("a shared ancestor's trunk run is the story branch's nearest result, named by its branch", () => {
   assert.deepEqual(

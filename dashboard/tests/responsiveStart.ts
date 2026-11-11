@@ -55,9 +55,10 @@ export const startupUnavailable =
 // answer from the page until `release`; `reached` settles once the service
 // answered one.
 export async function holdAcceptanceAnswers(page: Page) {
-  let release = () => {};
+  let released = false;
+  let releaseHeldAnswers = () => {};
   const held = new Promise<void>((resolve) => {
-    release = resolve;
+    releaseHeldAnswers = resolve;
   });
   let answered = () => {};
   const reached = new Promise<void>((resolve) => {
@@ -66,13 +67,25 @@ export async function holdAcceptanceAnswers(page: Page) {
   await page.route(
     (url) => url.pathname === agentAcceptEndpoint,
     async (route) => {
+      // Only withheld answers need the API proxy. Later requests keep the
+      // browser's normal transport after the acceptance gate is released.
+      if (released) {
+        await route.continue();
+        return;
+      }
       const response = await route.fetch();
       answered();
       await held;
       await route.fulfill({ response });
     },
   );
-  return { reached, release };
+  return {
+    reached,
+    release() {
+      released = true;
+      releaseHeldAnswers();
+    },
+  };
 }
 
 // Counts the launch requests the page sends from now on.

@@ -11,14 +11,13 @@ const lost = (port: number) =>
 function launches(outcomes: readonly (Error | string)[]) {
   const log: string[] = [];
   let attempt = 0;
-  const start = async () => {
+  const start = () => {
     const outcome = outcomes[attempt++];
     if (outcome === undefined) throw new Error("No further outcome");
     log.push(`launch ${String(attempt)}`);
-    await new Promise((resolve) => setTimeout(resolve, 5));
-    if (typeof outcome === "string") return outcome;
+    if (typeof outcome === "string") return Promise.resolve(outcome);
     log.push(`end ${String(attempt)}`);
-    throw outcome;
+    return Promise.reject(outcome);
   };
   return { log, start };
 }

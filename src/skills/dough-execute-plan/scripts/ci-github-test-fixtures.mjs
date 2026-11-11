@@ -15,6 +15,13 @@ import {
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
+import { instrumentedGithub } from "./instrumented-github-test-fixtures.mjs";
+
+export {
+  completedJob,
+  completedJobs,
+  observedCompletedJob,
+} from "./ci-github-completed-jobs-test-fixtures.mjs";
 
 // A `gh` that answers `gh api --include` as GitHub's API does from the
 // `github.json` beside it, and records each call twice in `calls.jsonl`: when
@@ -29,89 +36,6 @@ import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mj
 // to end records `told-to-end` and ends, or stays when the file says `stay`.
 // A listed run's own route answers that run; `attemptJobs["RUN/ATTEMPT"]`
 // names one attempt's jobs, else every attempt has `jobs`.
-const instrumentedGithub = `#!${process.execPath}
-const fs = require('node:fs');
-const path = require('node:path');
-const root = process.env.CI_GH_FIXTURE;
-const args = process.argv.slice(2);
-const stored = path.join(process.env.GH_CONFIG_DIR ?? root, 'hosts.yml');
-const [token, user] = /secret-(\\w+)/.exec(
-  process.env.GH_TOKEN || (fs.existsSync(stored) ? fs.readFileSync(stored, 'utf8') : ''),
-) ?? [];
-if (args[0] === 'auth') {
-  process.stdout.write(token ?? '');
-  process.exit(token ? 0 : 1);
-}
-const record = (phase) =>
-  fs.appendFileSync(
-    path.join(root, 'calls.jsonl'),
-    JSON.stringify({ args, phase, at: Date.now(), pid: process.pid, user }) + '\\n',
-  );
-const onEnd = path.join(root, 'on-end');
-if (fs.existsSync(onEnd))
-  process.on('SIGTERM', () => {
-    record('told-to-end');
-    if (fs.readFileSync(onEnd, 'utf8') !== 'stay') process.exit(143);
-  });
-const waitForRelease = async (release, hold) => {
-  while ((hold === undefined || fs.existsSync(path.join(root, hold))) && !fs.existsSync(path.join(root, release)))
-    await new Promise((resolve) => setTimeout(resolve, 20));
-};
-const finish = (head, body, exitCode = 0, stderr = '') => {
-  record('answered');
-  process.stderr.write(stderr);
-  process.stdout.write(head + '\\r\\n\\r\\n' + body, () => process.exit(exitCode));
-};
-(async () => {
-  record('asked');
-  const state = JSON.parse(fs.readFileSync(path.join(root, 'github.json'), 'utf8'));
-  const route = args[2] ?? '';
-  if (args[0] !== 'api' || args[1] !== '--include' || args.length !== 3)
-    return finish('', '', 2, 'unexpected gh call');
-  await waitForRelease('release', 'hold');
-  const limited = path.join(root, 'limited.json');
-  if (fs.existsSync(limited)) {
-    const { count, match, wait, only } = JSON.parse(fs.readFileSync(limited, 'utf8'));
-    if (count > 0 && route.includes(match) && (only ?? user) === user) {
-      fs.writeFileSync(limited, JSON.stringify({ count: count - 1, match, wait, only }));
-      return finish('HTTP/2.0 429 Too Many Requests\\r\\nRetry-After: ' + wait, '{}', 1, 'gh: slow down (HTTP 429)');
-    }
-  }
-  const { pathname, searchParams } = new URL(route, 'https://api.github.test/');
-  const page = Number(searchParams.get('page') ?? 1);
-  const perPage = Number(searchParams.get('per_page') ?? 30);
-  const json = (body) => finish('HTTP/2.0 200 OK', JSON.stringify(body));
-  const asked = pathname.replace(/^\\/repos\\/owner\\/repo\\/actions\\//, '');
-  let answer = state.answers?.[asked];
-  if (!answer && /^jobs\\/\\d+\\/logs$/.test(asked))
-    answer = {
-      head: 'HTTP/2.0 200 OK',
-      body: state.log + (user ? ' for ' + user : ''),
-      holdLogs: state.holdLogs,
-    };
-  if (answer) {
-    if (answer.holdLogs) await waitForRelease('release-logs');
-    return finish(answer.head ?? '', answer.body ?? '', answer.code ?? 0, answer.stderr ?? '');
-  }
-  let found;
-  if (asked === 'workflows/ci.yml')
-    return json({ id: 7001, name: 'CI', path: '.github/workflows/ci.yml', state: 'active' });
-  if (asked === 'workflows/7001/runs')
-    return json({ total_count: state.runs.length, workflow_runs: state.runs.slice(0, perPage) });
-  if ((found = /^runs\\/(\\d+)\\/attempts\\/(\\d+)$/.exec(asked)) && state.attempts[found[1] + '/' + found[2]])
-    return json(state.attempts[found[1] + '/' + found[2]]);
-  if ((found = /^runs\\/(\\d+)$/.exec(asked)) && (state.runs ?? []).some((run) => String(run.id) === found[1]))
-    return json(state.runs.find((run) => String(run.id) === found[1]));
-  if ((found = /^runs\\/(\\d+)\\/attempts\\/(\\d+)\\/jobs$/.exec(asked))) {
-    const jobs = state.attemptJobs?.[found[1] + '/' + found[2]] ?? state.jobs;
-    return json({
-      total_count: jobs.length,
-      jobs: jobs.slice((page - 1) * perPage, page * perPage),
-    });
-  }
-  finish('HTTP/2.0 404 Not Found', '{}', 1, 'gh: Not Found (HTTP 404)');
-})();
-`;
 
 // A fixture directory holding that `gh` and what its GitHub holds. `env` puts
 // it first on PATH for a child process; `enter` does so for this process.
@@ -176,24 +100,6 @@ export function instrumentedGithubFixture(t, state) {
 // One upstream request as the fixture's `gh` was given it.
 export const apiCall = (route) =>
   `api --include repos/owner/repo/actions/${route}`;
-
-// 150 jobs, so an attempt's jobs span two pages; `failed` names the failed.
-export const completedJobs = (failed) =>
-  Array.from(Array(150).keys(), (index) => ({
-    id: 1000 + index,
-    name: `job ${index}`,
-    status: "completed",
-    conclusion: failed.includes(index) ? "failure" : "success",
-    html_url: `https://github.test/owner/repo/actions/runs/42/job/${1000 + index}`,
-    steps: [
-      { number: 1, name: "Set up job", conclusion: "success" },
-      {
-        number: 2,
-        name: "Run tests",
-        conclusion: failed.includes(index) ? "failure" : "success",
-      },
-    ],
-  }));
 
 export async function until(condition, description, timeoutMs = 20_000) {
   const deadline = Date.now() + timeoutMs;

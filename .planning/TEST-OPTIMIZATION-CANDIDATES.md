@@ -4,6 +4,8 @@
 
 ### auto-refresh-rate-limit-real-waits
 
+- **Owner:** [SEED-315](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks),
+  extracted at Terry's early handoff; queued and Not ready, with no agent assigned.
 - **Affected test or fixture:** `dashboard/tests/observation/auto-refresh-rate-limit.spec.ts`,
   its one case, which has a case-local 45 s timeout allowance, and the
   rate-limited stream case

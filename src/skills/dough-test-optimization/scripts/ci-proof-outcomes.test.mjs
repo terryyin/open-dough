@@ -5,10 +5,28 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fragmentsFromOutcomes } from "./ci-proof-fragments.mjs";
-import { fragment, revision } from "./ci-proof-test-fixtures.mjs";
+import { revision } from "./ci-proof-test-fixtures.mjs";
 
-// An outcomes file that declares no unit: legacy results, labelled checks.
-const checks = { unit: "legacy", label: "checks" };
+test("an outcomes path never declares a unit, including dashboard/tests", () => {
+  const entries = ["dashboard/tests", "dashboard/backend-tests", "tests"];
+  const values = fragmentsFromOutcomes(
+    entries.map((entry) => `passed\t${entry}/a.spec.ts\n`).join(""),
+    { entries, part: 1, of: 1, attempt: 2, revision },
+  );
+  assert.deepEqual(
+    values.map(({ entry, unit, label, passed }) => [
+      entry,
+      unit,
+      label,
+      passed,
+    ]),
+    [
+      ["dashboard/tests", "legacy", "checks", 1],
+      ["dashboard/backend-tests", "legacy", "checks", 1],
+      ["tests", "legacy", "checks", 1],
+    ],
+  );
+});
 
 test("an outcomes file counts each check toward the entry whose path contains it, and a check in no entry toward none", () => {
   const identity = {
@@ -28,8 +46,32 @@ test("an outcomes file counts each check toward the entry whose path contains it
     "",
   ].join("\n");
   assert.deepEqual(fragmentsFromOutcomes(outcomes, identity), [
-    fragment("tests", 1, 3, { passed: 1, failed: 1 }, checks),
-    fragment("src/skills", 1, 3, { passed: 1, other: 1 }, checks),
+    {
+      schemaVersion: 2,
+      entry: "tests",
+      part: 1,
+      of: 3,
+      attempt: 2,
+      revision,
+      unit: "legacy",
+      passed: 1,
+      failed: 1,
+      other: 0,
+      label: "checks",
+    },
+    {
+      schemaVersion: 2,
+      entry: "src/skills",
+      part: 1,
+      of: 3,
+      attempt: 2,
+      revision,
+      unit: "legacy",
+      passed: 1,
+      failed: 0,
+      other: 1,
+      label: "checks",
+    },
   ]);
 });
 
@@ -54,13 +96,33 @@ test("an outcomes file with a times file sets each matching entry's durationMs f
     "",
   ].join("\n");
   assert.deepEqual(fragmentsFromOutcomes(outcomes, identity, times), [
-    fragment(
-      "tests",
-      1,
-      3,
-      { passed: 1, failed: 1 },
-      { ...checks, durationMs: 1600 },
-    ),
-    fragment("src/skills", 1, 3, { passed: 1 }, { ...checks, durationMs: 250 }),
+    {
+      schemaVersion: 2,
+      entry: "tests",
+      part: 1,
+      of: 3,
+      attempt: 2,
+      revision,
+      unit: "legacy",
+      passed: 1,
+      failed: 1,
+      other: 0,
+      label: "checks",
+      durationMs: 1600,
+    },
+    {
+      schemaVersion: 2,
+      entry: "src/skills",
+      part: 1,
+      of: 3,
+      attempt: 2,
+      revision,
+      unit: "legacy",
+      passed: 1,
+      failed: 0,
+      other: 0,
+      label: "checks",
+      durationMs: 250,
+    },
   ]);
 });

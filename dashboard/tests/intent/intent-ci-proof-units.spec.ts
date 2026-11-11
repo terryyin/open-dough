@@ -3,12 +3,14 @@
 // ../../src/ciProofUnits.ts): raw runner reports go through the collector's
 // command line, a Playwright record's tests as test cases, an outcomes
 // report declared `--unit file` as test files and one without a unit as
-// legacy results, against declarations naming their units. CI status, an
-// entry's and a folder's Summary and a file's Proof show each unit's results
-// apart with their own time and parts, never one combined count, and a
-// declared unit no fragment reached stays visible as missing in that unit
-// (SEED-281 examples 36, 37, 40). Version 1 summaries:
-// ./intent-ci-proof-legacy-results.spec.ts. Collector and reader rules:
+// legacy results, against declarations naming their units. CI status shows
+// one row per location with labeled unit lines; an entry's and a folder's
+// Summary and a file's Proof show each unit's results apart with their own
+// time and parts, never one combined count, and a declared unit no fragment
+// reached stays visible as missing in that unit (SEED-281 examples 36, 37,
+// 40). Decisive grouped-location facts: ./intent-ci-proof-grouped-location.spec.ts.
+// Version 1 summaries: ./intent-ci-proof-legacy-results.spec.ts. Collector and
+// reader rules:
 // ../../../src/skills/dough-test-optimization/scripts/ci-proof-units.test.mjs,
 // ../../../tests/support/dashboard-ci-proof-units-read.test.mjs.
 
@@ -55,12 +57,12 @@ const unitsSummary = () =>
   collectedSummary(
     run,
     [
-      ["dashboard/tests", 1, "case"],
-      ["dashboard/tests", 1, "file"],
+      { entry: "dashboard/tests", parts: 1, unit: "case" },
+      { entry: "dashboard/tests", parts: 1, unit: "file" },
       // The outcomes report below declares no unit, as before units were.
-      ["tests", 1],
+      { entry: "tests", parts: 1 },
       // Declared, but no fragment arrives.
-      ["tests", 1, "case"],
+      { entry: "tests", parts: 1, unit: "case" },
     ],
     [
       {
@@ -158,12 +160,24 @@ test("one location's test cases and test files stay apart, never one count, thro
     tree,
   );
 
-  await test.step("CI status shows each declared unit of each entry on its own row, a declared unit no fragment reached missing in that unit", async () => {
+  await test.step("CI status shows each declared location once, every unit's counts and time labeled in that row, a declared unit no fragment reached missing in that unit", async () => {
     await expectProofRows(proofOf(home), [
-      ["dashboard/tests", "10 passed test cases", "1.5 s"],
-      ["dashboard/tests", "1 passed and 1 failed test files", "1.0 s"],
-      ["tests", "1 passed legacy test result", "2.5 s"],
-      ["tests", "nothing counted as test cases", "Part 1 missing"],
+      [
+        "dashboard/tests",
+        [
+          "test cases: 10 passed test cases",
+          "test files: 1 passed and 1 failed test files",
+        ],
+        ["test cases: 1.5 s", "test files: 1.0 s"],
+      ],
+      [
+        "tests",
+        [
+          "legacy test results: 1 passed legacy test result",
+          "test cases: nothing counted as test cases",
+        ],
+        ["legacy test results: 2.5 s", "test cases: Part 1 missing"],
+      ],
     ]);
   });
 

@@ -15,7 +15,19 @@ execution. A repaired individual race does not resolve every suite failure.
 
 ## Priority assessment
 
-**Maintenance assessment (2026-11-10):** Since `cf1ea1deb` six local findings arrived. [DD-426](#dd-426) and [DD-476](#dd-476) share one uncovered gap, `scripts/test.sh` has no per-job deadline (an unnamed hosted cancel; a 47-minute local hang holding suite admission), queued first as [SEED-289#name-a-test-job-past-its-deadline](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline). [DD-435](#dd-435)'s two CI-only layout failures (about 227k repair tokens) are queued second as [SEED-289#match-hosted-fonts-in-ci-container](https://github.com/terryyin/open-dough/blob/86e2e684270a8ace589626b64b731f2fae65a13b/.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container). [DD-473](#dd-473) and [DD-479](#dd-479) are journeys that [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) already covers, so they are linked there rather than given new stories. The repaired project DD-478 is retired to the [history](docs/maintainer/project-findings-history.md#dd-478-retired-2026-11-10); its number collided with DearDough's separately allocated DD-478. [DD-347](#dd-347) is the same row-headroom mechanism as shared ODF-446 and moved there in shared collection. DD-466 and DD-467 remain one-offs, retained unqueued.
+**Maintenance assessment (2026-11-11):** The named node-job deadline and
+hosted-font diagnostic both landed. [DD-426](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-426)
+is retired after the named timeout and bounded cleanup proof in
+[SEED-289's completion record](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
+[DD-435](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-435)
+is retired after the [local CI container](tests/ci-container.md#hosted-fonts-and-layout-checks)
+reproduced both historical overflows and passed the repaired journey. The
+[prior assessment](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#priority-assessment)
+records the original selection. [DD-473](#dd-473), [DD-479](#dd-479) and the
+dashboard load facet of [DD-476](#dd-476) remain covered by
+[SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+[DD-486](#dd-486) records two late TypeScript refusals caught by the project's
+commit hook. No new local response was selected.
 
 **Maintenance assessment (2026-11-08):** [DD-442](docs/maintainer/project-maintenance-findings.md#dd-442) belongs to this repository’s historical trial preflight. The corrected third checkout rejected a later object. [DD-445](docs/maintainer/project-test-findings.md#dd-445) records two repaired timeout regressions and remaining hosted variance, alongside the existing dashboard fixture-cost work. [DD-452](docs/maintainer/project-findings-history.md#dd-452) is a repaired mismatch between this repository’s shell CI job and its selected proof. No new local story was selected. The three source sections are recoverable at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
 
@@ -48,9 +60,6 @@ execution. A repaired individual race does not resolve every suite failure.
    records one Linux SIGPIPE repair cycle. The named observer was fixed;
    early-exit pipelines remain in two repository test helpers. Those are
    residual risks, not additional observed failures.
-5. **Paid native-run permission handoff — low, unqueued.** [DD-161](#dd-161)
-   records one execution's two permission round trips. The boundary is the
-   host's; no change to released Open Dough behavior is justified by it.
 
 The descendant cache policy and opt-in selection evidence are implemented and
 measured below. The selection record helps parallel contributors obtain reliable local
@@ -133,14 +142,6 @@ DD-243 remains the same finding; its later occurrences are
 **Response implemented:** `fba97e9fbb90c4f97909a5e2ab899a0031c58308`. The [maintained pre-launch comparison](tests/native-publication.md#proof-scheduling-scenarios-compare-inputs-before-launch) names the introduced inputs, actor/delegation differences and historical source limits; credential-free checks preserve the quick fixture's stated cost/layout and the planned fixture's absence of those hints. The native outcome remains unobserved: neither retained run reached implementation delegation and a refactor-time move, and this response runs no new native session. Fixture checks do not resolve the historical finding or change ODF-249's settled disposition.
 
 **Observation (2026-10-22):** [SEED-053#match-historical-replay-inputs](.planning/done/SEED-053_match-historical-replay-inputs.json) completed on 2026-10-21; no story remains queued. Keep the finding open until the next paid proof-scheduling replay prepared with the comparison runs: it supports retirement when its inputs match the recorded occurrence context and the run reaches implementation delegation without an extra corrective slice. No such run has occurred since adoption.
-
-## Paid native-run permission handoff (low priority, unqueued)
-
-<a id="dd-161"></a>
-
-### DD-161 — The developer's approval of paid runs did not let the coordinator start them
-
-[Retained findings, follow-up and occurrence evidence](docs/maintainer/project-test-findings.md#dd-161).
 
 <a id="nodes-compile-cache-fills-the-disk-under-the-dashboard-suite-queued-not-resolved"></a>
 
@@ -237,10 +238,9 @@ Former local code: DD-339 on the claude/accept-original-source-promises-when-a-p
 
 ### DD-406 — Local facet: this repository's one-suite admission made a re-profile's shell walls incomparable
 
-The occurrence (SEED-221#launch-records-poll-waits, plan 448, 2026-11-02) stays
-in [DearDough.md](DearDough.md) under DD-406 with its shared facet:
-test-optimization measurement guidance names no repository admission or queue
-among wall-time distortions. This record keeps the repository-owned facet once:
+[ODF-405](docs/maintainer/findings/ODF-405.md) holds the shared facet of the
+SEED-221#launch-records-poll-waits occurrence (plan 448, 2026-11-02). The
+measurement guidance then omitted queue or admission time. In this repository,
 `scripts/local-test-suite.mjs` (via `dashboard/playwright.config.ts`
 `acquireLocalSuite`) holds a second full run until another worktree's suite
 finishes, and `tests/local-test-resources.md` did not then say that its shell
@@ -341,25 +341,6 @@ DD-378's plan-exclusion response and `SEED-229` retirement evidence are
 retain the successful option-value probes and their provenance. This observation
 selects no new implementation story.
 
-## A degraded runner cancels the node test job without a named result (queued)
-
-<a id="dd-426"></a>
-
-### DD-426 — `test (1/3)` hit its 6-minute job limit on a slow hosted runner with no test failing
-
-### Occurrences
-
-- Execution: SEED-236#show-ci-adapter-proof (before-cleanup `779d5f96a20dd5ddf671f0eaaf3f3624cefc61cd:.planning/slice-plans/470-show-ci-adapter-proof/PLAN.md`, first implementation commit 64588d69268974f9ff44513239da95ad1bc80b42)
-  - Timestamp: 2026-11-05T12:56:05+07:00 (job cancel in run 41976448705)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.84 (installed `.claude/skills`)
-  - Evidence: run 41976448705 on main `514a70a54`, job `test (1/3)`: `npm ci` took 17 s against 4 s in run 41974427615; `scripts/test.sh` was interrupted after 5:13 with `ci-mailbox-launch.test.mjs` at 41.0 s (10.7 s in run 41974427615's `test-times-1`), `install-preserves-open-dough-json.sh` at 32.6 s (14.9 s). The same shard took about 3.3 min in the five runs before. The dashboard job counts a suite deadline from job start (`.github/workflows/ci.yml`); the node test job has only `timeout-minutes: 6`.
-  - Observed effect: a cancelled job with no named test and no timing artifact; Terry chose one rerun as attribution evidence, which passed (attempt 2).
-  - Inference: a suite deadline like the dashboard's would end a slow run with a named, recorded result instead of a silent cancel; whether the budget itself should change is a separate decision.
-
-**Queued, not resolved:** [SEED-289#name-a-test-job-past-its-deadline](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline), with DD-476's hung local job.
-
 ## Release finalization says "Do not push" while a release slice proves the remote tag (open, unqueued)
 
 <a id="dd-427"></a>
@@ -376,33 +357,6 @@ selects no new implementation story.
   - Evidence: `.agents/skills/release-version/SKILL.md` step 6 "Do not push" and step 7 "do not claim it is Released from a remote source until the tag is available there"; plan 470 slice 5 proof named the remote tag; Terry's checkpoint go-ahead covered "cut the next patch release", so the coordinator pushed `bc84cc196` to main and `v0.3.85`.
   - Observed effect: the push rested on the checkpoint's wording rather than on the release skill; trunk had moved twice before the release (`66fefb7c8`, then `80029afc9`), so the release covered other stories' payload too.
   - Inference: the release skill could name the publication step (trunk push and tag push) for a request that includes publishing, and how to describe interleaved trunk payload in the changelog.
-
-## The local CI container's hosted font contract (implemented)
-
-<a id="dd-435"></a>
-
-### DD-435 — a narrow-width layout check passed on macOS and in `scripts/ci-container.sh` but failed on CI's DejaVu Sans
-
-### Occurrences
-
-- Execution: SEED-243#improve-intent-home-and-selection-summaries (plan 480-improve-intent-home-and-selection-summaries, first implementation commit 0332f824ae60b9741732ba2c83e0db505645a805)
-  - Timestamp: unknown (2026-11-05, run 42059477099 attempt 1 on `0332f824a`)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.86 (installed `.claude/skills`)
-  - Evidence: job `dashboard (9/12)` failed `intent-ci-proof.spec.ts:150` with `sideways: 2`; the repair agent measured a 296.42 px table in a 294.41 px box under DejaVu Sans, 271.98 px on macOS and 252.16 px in the `ci-container.sh` image (Playwright's own fonts); reproduction needed an ad-hoc root container installing `fonts-dejavu-core` (job-local `ci-spec-dejavu.sh`); repair `4ad55b56d`.
-  - Observed effect: one CI failure, a stash/repair/restore cycle and about 102k repair-agent tokens; the local CI container could not reproduce it as maintained.
-  - Inference: installing the hosted runner's default fonts in the `ci-container.sh` image would let layout-measuring browser checks give the CI result locally.
-- Execution: SEED-259#scan-intent-ci-summaries (plan 499-scan-intent-ci-summaries, first implementation commit 0ffcc27cbb64b570e0bc5dbd8ddc9e5bd83dee03)
-  - Timestamp: unknown (2026-11-07, run 42379612785 attempt 1 on `d146a05d9`; test results stamped 2026-11-07T14:03Z)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.88 (installed `.claude/skills`)
-  - Evidence: job `dashboard (8/12)` failed the same `intent-ci-proof.spec.ts:150` check with `sideways: 26` after slice 2 added sortable header buttons with an arrow; the 106-test local family gate had passed on macOS. The repair agent reproduced 26 px with DejaVu loaded as `@font-face`, then made the spec force Verdana on the table so macOS reproduces Linux widths (failed 25 px before the CSS fix, passed after); repair `68e5f52b3`. Slices 3 and 5 extended the same Verdana override to the summary zoom checks.
-  - Observed effect: a second CI failure of this check, a stash/repair/restore cycle around paused slice 3 work, and about 125k repair-agent tokens.
-  - Inference: forcing a wide font inside each layout-measuring spec is a workable local stand-in, but each new narrow-width check must remember it; the fonts in the `ci-container.sh` image remain the general remedy.
-
-**Implemented:** [SEED-289#match-hosted-fonts-in-ci-container](https://github.com/terryyin/open-dough/blob/86e2e684270a8ace589626b64b731f2fae65a13b/.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#match-hosted-fonts-in-ci-container) supplies the identified hosted font inventory and its generated-recipe contract. Native arm64 observations reproduced both historical overflows (2 and 26 CSS pixels), passed the repaired normal-font journey and the complete dashboard suite. The [maintained diagnostic guide](tests/ci-container.md#hosted-fonts-and-layout-checks) records the source, refresh procedure and rendering limits; broader hosted parity and future recurrence remain unclaimed.
 
 ## MakeMe's import closure can reach dashboard code without a local signal (open, unqueued)
 
@@ -457,7 +411,7 @@ selects no new implementation story.
 
 **Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
 
-## Whole local suites under external load fail untouched journeys (queued)
+## Whole local suites under external load fail untouched journeys (dashboard response Taken)
 
 <a id="dd-476"></a>
 
@@ -474,7 +428,10 @@ selects no new implementation story.
   - Observed effect: about 5.5 hours of whole-suite time and two developer decisions; the gate was finally judged by one-worker reruns and hosted CI.
   - Inference: at this load the local whole-suite verdict mostly measures the machine; DD-473 is one such journey. Without a per-job deadline, a hung job blocks every worktree's whole runs. SEED-287 and SEED-286 address the journeys' cost.
 
-**Queued, not resolved:** the load-failing journeys are covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout); the hung job without a deadline by [SEED-289#name-a-test-job-past-its-deadline](.planning/seeds/SEED-289-named-test-results-locally-and-in-ci.md#name-a-test-job-past-its-deadline).
+**Response:** The per-job deadline and bounded process cleanup landed in
+[SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
+[SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
+is Taken and covers the dashboard load failures.
 
 ## `start-origin-isolation` successive preparations exceeded the 30 s default under external load (queued)
 
@@ -534,3 +491,32 @@ selects no new implementation story.
   - Inference: A focused-run guard that refuses an empty list would have stopped this at once; later briefs added "never pass an empty list" by hand.
 
 **Responsibility (2026-11-10):** moved from DearDough.md during shared collection. `scripts/test.sh` treats no path arguments as the full suite; the guard belongs to this repository's runner, not shared guidance. Source: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md`.
+
+<a id="dd-486"></a>
+
+## DD-486 — Playwright-only focused proof missed TypeScript test errors
+
+Focused Playwright configuration selection passed; the commit hook's typecheck then refused `getByRole("textarea")` and possibly-undefined settings payload indexing.
+
+### Occurrences
+
+- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
+  - Timestamp: 2026-11-10T08:50:00Z
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: `execution-increment-delivery.mjs fresh` returned `commit-failed` with TS2345 on `system-settings-client-configuration.spec.ts` (`"textarea"` role) and TS2532 on `system-settings.spec.ts`. Prior focused command `npx playwright test tests/configuration/system-settings-client-configuration.spec.ts tests/configuration/system-settings.spec.ts` had passed. Repairs then typechecked and the focused Playwright selection passed again before successful delivery.
+  - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
+  - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
+
+- Execution: SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates (plan 581; first implementation `c9c6c06453f04b8b6144a34a563fbda1327cc960`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
+  - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; guarded fresh commit hook returned TS2345: aPublishedSource.with({id}) lacked required label and repository, although the compatibility Playwright check passed. Supplying the actual fixture source facts and rerunning the spec preceded accepted publication.
+  - Observed effect: One commit refusal and another preparation pass; the typecheck gate contained the test-data typing defect without publishing it.
+
+**Assessment:** Open Dough's Playwright selection and dashboard typecheck are
+separate checks. The [repository proof guide](tests/README.md#waits-fixtures-and-teardown)
+documents the focused typecheck, and the commit hook caught both errors before
+publication. Retain the two occurrences as project evidence. No new story is
+queued.

@@ -53,14 +53,8 @@ suite-specific models or builders, and defaults that hide facts the test
 depends on when reviewing test changes. Preserve each test's proof boundary
 and assertions during conversion.
 
-Build CI proof with `makeMe.aCiProof` and entries with
-`makeMe.aCiProofEntry.at(path).holding(...evidence)`. Each
-`makeMe.aCiProofEvidence` states its declared `.inUnit("case")` or
-`.inUnit("file")`, or `.legacy(label)` when no unit was declared. Counts,
-timing and breakdown belong to that evidence unit. Keep deliberately old
-summary JSON outside the builder when its exact wire format is under proof.
-[Proof builders](support/ciProofEntryTestData.mjs) ·
-[Proof builder](support/ciProofTestData.mjs)
+[CI test data](ci-test-data.md) covers proof evidence, observed runs and jobs,
+adapter attempts, queue entries and stored revision coverage.
 
 Build a project this machine configures with
 `makeMe.aConfiguredProject.with({ id, label, repository, localPath }).please()`:
@@ -119,6 +113,26 @@ place with `materializeLocalCheckout`'s `at`. `release-source.mjs --add
 <source>` commits and tags a release that appears after the check has read
 the source.
 [Release](support/releaseTestData.mjs) · [Helper](support/release-source.mjs)
+
+Arrange native hook settings with `makeMe.hostHookSettings.forHost(host)`.
+State unrelated settings through `.with(...)` and handlers through `.handling(...)`;
+the builder returns each host's actual document shape. `.registeredWith(...)`
+copies the production fragments into a prior registration without running the
+merge under test. Keep edited managed handlers and independent byte or semantic
+expectations in the case. [Settings builder](support/hostHookSettingsTestData.mjs)
+
+Feedback maintenance keeps the published review (`makeMe.aFeedbackReview`),
+saved machine choice (`makeMe.aFeedbackMaintenanceChoice`), observed state
+(`makeMe.aMaintenanceObservation`) and due-check session
+(`makeMe.aMaintenanceSession`) separate. State review dates and observations
+explicitly. Compose existing launch, request, host-session and attempt builders
+for their facts; the review document's fence and storage remain harness work.
+[Feedback builders](support/feedbackTestData.mjs)
+
+Use `makeMe.jobDurations.with(entries).please()` for recorded job durations.
+It returns the runner's `Map<label, seconds>` directly. Keep allocation actions,
+expected shares and exact timing-list/parser examples in the case, independent
+of the arranged map. [Duration builder](support/jobDurationTestData.mjs)
 
 Build a kept launch with `makeMe.aLaunchRecord`: the requested story or
 instruction, the host session (the request takes the session's host), the
@@ -211,5 +225,7 @@ A case that proves behavior without a remote removes it with Git. The Git
 publication native fixtures for startup, admission, one-shot and owned-context
 journeys materialize their starting trunk from such a description, and their
 evidence identities hash the builders and materializer they reach. Dashboard
-origins, release-source fixtures and the MakeMe-free native
-worktree-preparation fixtures keep their own repository helpers.
+origins and release sources keep their own harness helpers. Native preparation
+fixtures use shared repository facts and local materialization while preserving
+their non-bare origin without a remote, sibling execution worktree and actual
+project preparation commands.

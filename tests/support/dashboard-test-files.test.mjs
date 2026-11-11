@@ -3,6 +3,8 @@
 // dashboard/longest-first (dashboard/tests/shards.md).
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
+import { durationListText } from "./job-duration-list.mjs";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -65,7 +67,9 @@ test("the config deals recorded specs by their seconds and new specs after them 
 test("invalid shares fail before selecting tests", () => {
   withSpecDirectory(
     ["tests/a.spec.ts"],
-    "1.0\ttests/a.spec.ts\n",
+    durationListText(
+      makeMe.jobDurations.with([["tests/a.spec.ts", 1]]).please(),
+    ),
     (directory) => {
       for (const invalid of [
         "",
@@ -101,10 +105,10 @@ test("a list line without seconds fails the configuration naming the file, line 
 });
 
 const suite = new URL("../../dashboard/", import.meta.url);
-const shardCount = 12;
+const shardCount = 13;
 const shardIndices = [...Array(shardCount).keys()].map((index) => index + 1);
 
-test("the twelve CI shards match every actual dashboard spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
+test("the thirteen CI shards match every actual dashboard spec exactly once, and the preview lists a new spec as unrecorded in its shard", () => {
   const files = dashboardSpecFiles(fileURLToPath(suite));
   assert.ok(files.length > 0);
   const featureGroups = new Set([

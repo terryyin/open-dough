@@ -2,10 +2,10 @@
 # shellcheck disable=SC1091,SC2154,SC2310,SC2312
 # Check the caller's managed_files declaration against the source checkout and
 # copy it into each native destination.
-# Sourced by install.sh, bringing the platform and host-hook helpers. The
-# declaration stays in install.sh: historical checkouts are read from that
-# literal array. Caller assigns managed_files, source_dir, target,
-# recorded_source, force, and replace_verified.
+# Sourced by install.sh, bringing the platform and host-hook helpers.
+# install.sh assembles the declaration; release inspection reads its current
+# groups or historical inline array as data. Caller assigns managed_files,
+# source_dir, target, recorded_source, force, and replace_verified.
 # shellcheck source=src/install/open-dough-platform.sh
 source "${source_dir}/src/install/open-dough-platform.sh"
 # shellcheck source=src/install/open-dough-register-hooks.sh

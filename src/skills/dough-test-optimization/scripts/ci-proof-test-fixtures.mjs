@@ -1,37 +1,21 @@
-// Shared construction for the CI proof collector's tests: a GitHub Actions
-// run attempt, a CI adapter's attempt, a valid fragment of the run attempt
-// (`makeMe.aCiProofFragment`) and the fragments as the collector reads them,
-// a dashboard proof record with chosen outcomes, and one whose tests name
-// their files.
+// CI proof test harness facts and input projections. Domain construction
+// delegates to the shared MakeMe builders; collector reads retain source names.
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 export const revision = "a5b0489dd0000000000000000000000000000000";
-export const run = {
-  repository: "owner/repo",
-  runId: 41776408979,
-  attempt: 2,
-  revision,
-};
+export const run = makeMe.aCiProofCollectorRun
+  .with({
+    repository: "owner/repo",
+    runId: 41776408979,
+    attempt: 2,
+    revision,
+  })
+  .please();
 
 export const attemptId = "9f1c2d3e-0000-4000-8000-000000000001";
-export const adapterRun = { repository: "O/P", attemptId, revision };
-
-// A builder of ENTRY's fragment for part PART of OF of the run attempt.
-export const fragmentOf = (entry, part, of) =>
-  makeMe.aCiProofFragment
-    .at(entry)
-    .part(part, of)
-    .ofAttempt(run.attempt, revision);
-
-// ENTRY's fragment for part PART of OF of the run attempt, test cases
-// counting COUNTS unless OVERRIDES name another unit or field.
-export function fragment(entry, part, of, counts, overrides = {}) {
-  const { passed = 0, failed = 0, other = 0 } = counts;
-  return {
-    ...fragmentOf(entry, part, of).counting(passed, failed, other).please(),
-    ...overrides,
-  };
-}
+export const adapterRun = makeMe.anAdapterProofCollectorAttempt
+  .with({ repository: "O/P", attemptId, revision })
+  .please();
 
 // The fragments VALUES as the collector reads them, named fragment-0.json
 // onward.
@@ -50,31 +34,20 @@ export function playwrightRecord(
   phase = "completed",
   durations = [],
 ) {
-  return {
-    schemaVersion: 1,
-    phase,
-    selectedCount: outcomes.length,
-    tests: outcomes.map((outcome, index) => {
-      const duration = durations[index];
-      const attemptDurations = Array.isArray(duration)
+  const record = makeMe.aDashboardProofRecord.inPhase(phase);
+  outcomes.forEach((outcome, index) => {
+    const duration = durations[index];
+    record.withTest(
+      undefined,
+      outcome,
+      Array.isArray(duration)
         ? duration
         : duration === undefined
           ? []
-          : [duration];
-      return {
-        titlePath: [`test ${index}`],
-        executions:
-          outcome === undefined
-            ? [{ testId: `t${index}` }]
-            : [{ testId: `t${index}`, outcome }],
-        attempts: attemptDurations.map((durationMs, retry) => ({
-          testId: `t${index}`,
-          retry,
-          durationMs,
-        })),
-      };
-    }),
-  };
+          : [duration],
+    );
+  });
+  return record.please();
 }
 
 // One part of the run attempt proving ENTRIES.
@@ -90,18 +63,9 @@ export const byFile = { byFile: true };
 
 // A completed dashboard proof record run from CWD whose tests name their
 // files; each test is [file, outcome, durations].
-export const locatedRecord = (cwd, tests) => ({
-  schemaVersion: 1,
-  phase: "completed",
-  run: { cwd, rootDir: `${cwd}/dashboard/tests` },
-  tests: tests.map(([file, outcome, durations = []], index) => ({
-    ...(file === undefined ? {} : { location: { file, line: 1, column: 1 } }),
-    titlePath: [`test ${index}`],
-    executions: [{ testId: `t${index}`, outcome }],
-    attempts: durations.map((durationMs, retry) => ({
-      testId: `t${index}`,
-      retry,
-      ...(durationMs === undefined ? {} : { durationMs }),
-    })),
-  })),
-});
+export const locatedRecord = (cwd, tests) => {
+  const record = makeMe.aDashboardProofRecord.from(cwd);
+  for (const [file, outcome, durations] of tests)
+    record.withTest(file, outcome, durations);
+  return record.please();
+};

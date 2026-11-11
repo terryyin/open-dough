@@ -133,16 +133,16 @@ function IntentBody({
 
   return (
     <>
-      <IntentCiEvidenceProvider
-        source={source}
-        work={work}
-        selectedIdentity={selection?.identity}
-        active={storySummary !== undefined && work !== undefined}
-        {...(doneEndpoint === undefined ? {} : { doneEndpoint })}
-        {...(doneEndpointReason === undefined ? {} : { doneEndpointReason })}
-      >
-        {storyPage !== undefined && (
-          <IntentReadingScope name="story">
+      <IntentReadingScope name="story">
+        <IntentCiEvidenceProvider
+          source={source}
+          work={work}
+          selectedIdentity={selection?.identity}
+          active={storySummary !== undefined && work !== undefined}
+          {...(doneEndpoint === undefined ? {} : { doneEndpoint })}
+          {...(doneEndpointReason === undefined ? {} : { doneEndpointReason })}
+        >
+          {storyPage !== undefined && (
             <IntentWorkspaceSelectionProvider>
               {storyPage.summary.story.completed ? (
                 <HistoricalStoryPage
@@ -160,9 +160,9 @@ function IntentBody({
                 />
               )}
             </IntentWorkspaceSelectionProvider>
-          </IntentReadingScope>
-        )}
-      </IntentCiEvidenceProvider>
+          )}
+        </IntentCiEvidenceProvider>
+      </IntentReadingScope>
       <IntentCiEvidenceProvider
         source={source}
         work={work}

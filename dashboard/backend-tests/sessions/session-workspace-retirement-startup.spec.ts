@@ -8,6 +8,7 @@ import path from "node:path";
 import type { WebSocket } from "ws";
 import { test as base, expect } from "../../tests/support/pageTest.ts";
 import { terminalWorkspaceUnavailableCode } from "../../src/agentTerminal.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const native = createRequire(import.meta.url)(
   "@lydell/node-pty",
@@ -67,12 +68,13 @@ test("loss between successful host check and real PTY startup is established by 
   observedBeforeLoss = false;
   const socket = new Socket();
   const attachments = new TerminalAttachments();
-  const session = {
-    host: "codex" as const,
-    sessionId: "retained-spawn-race",
-    name: "Retained spawn race",
-    continuation: { workspace, endpoint: "unix:///unused", args: [] },
-  };
+  const session = makeMe.aHostSession
+    .codex({
+      sessionId: "retained-spawn-race",
+      continuation: { workspace, endpoint: "unix:///unused", args: [] },
+    })
+    .named("Retained spawn race")
+    .please();
   try {
     attachments.connect(socket as unknown as WebSocket, {
       sourceId: "unused",

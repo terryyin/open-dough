@@ -31,6 +31,7 @@ import { publishes } from "../support/fakeGitHub.ts";
 import { describedRevision } from "../describedRevisions.ts";
 import { backlogPath } from "../publishedOrigin.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -55,14 +56,7 @@ const published = describedRevision(
       files: {
         [seedPath]: `# Shared
 
-<a id="shared"></a>
-
-### ${title}
-
-**Identity:** ${story.identity}
-
-**Goal:** ${goal}
-`,
+${renderStorySection(story, { goal })}`,
         ".planning/open-dough.json": "{}\n",
       },
     })

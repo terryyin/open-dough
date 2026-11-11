@@ -4,6 +4,7 @@
 // whose plan is asked only after the limit.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { describedRevision } from "./describedRevisions.ts";
 export const repository = "terryyin/open-dough";
@@ -41,40 +42,31 @@ const queued = (anchor: string, title: string) =>
 
 // The two stories' records, and the unreachable story's beside them when
 // `besideUnreachable`.
-const filesAt = (besideUnreachable: boolean) =>
-  describedRevision(
+const filesAt = (besideUnreachable: boolean) => {
+  const withheld = queued("withheld", withheldTitle);
+  const planned = queued("planned", plannedTitle);
+  const unreachable = queued("unreachable", unreachableTitle);
+  return describedRevision(
     makeMe.aRepository
       .withRevision("limited", {
         backlog: {
           queued: [
-            queued("withheld", withheldTitle),
-            queued("planned", plannedTitle),
-            ...(besideUnreachable
-              ? [queued("unreachable", unreachableTitle)]
-              : []),
+            withheld,
+            planned,
+            ...(besideUnreachable ? [unreachable] : []),
           ],
         },
         files: {
           [withheldSeed]: `# Withheld
 
-<a id="withheld"></a>
-
-### ${withheldTitle}
-
-**Identity:** SEED-264#withheld
-
-**Goal:** Only GitHub's limit keeps this record unread.
-`,
+${renderStorySection(withheld, {
+  goal: "Only GitHub's limit keeps this record unread.",
+})}`,
           [plannedSeed]: `# Planned
 
-<a id="planned"></a>
-
-### ${plannedTitle}
-
-**Identity:** SEED-264#planned
-
-**Goal:** Its plan is asked only once the limit stands.
-`,
+${renderStorySection(planned, {
+  goal: "Its plan is asked only once the limit stands.",
+})}`,
           [plannedPlan]: renderSlicePlan(
             makeMe.aSlicePlan
               .with({
@@ -94,18 +86,13 @@ const filesAt = (besideUnreachable: boolean) =>
           ...(besideUnreachable && {
             [unreachableSeed]: `# Unreachable
 
-<a id="unreachable"></a>
-
-### ${unreachableTitle}
-
-**Identity:** SEED-264#unreachable
-`,
+${renderStorySection(unreachable)}`,
           }),
         },
         storyStates: [
           {
-            identity: "SEED-264#planned",
-            href: "seeds/SEED-264-planned.md#planned",
+            identity: planned.identity,
+            href: planned.href,
             ...makeMe.aStoryPreparation
               .plannedIn("../slice-plans/264-planned/PLAN.md")
               .please(),
@@ -115,6 +102,7 @@ const filesAt = (besideUnreachable: boolean) =>
       .please(),
     revision,
   ).files;
+};
 
 export const files = filesAt(false);
 export const filesBesideUnreachable = filesAt(true);

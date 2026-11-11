@@ -1,0 +1,80 @@
+/* Shared adaptive colour roles for the dashboard frame and readers.
+   Light values preserve today's appearance; dark pairs follow the system
+   preference and the approved Story tabs mockup's dark relationships.
+   Terminal palettes stay outside this sheet. */
+
+:root {
+  color-scheme: light dark;
+  --surface: #f6f6f3;
+  --raised-surface: #ffffff;
+  /* Decorative separation only; every group it outlines is also a headed
+     region or a list item, so nothing is told by this faint line alone. */
+  --line: #c9c9c1;
+  /* An edge that has to be seen for a control to be recognised. */
+  --edge: #6f6f68;
+  --text: #1d1d1b;
+  --quiet: #55554f;
+  --accent: #1b5fa8;
+  --problem: #9b1c1c;
+  --ready: #1b6e3c;
+  /* Quiet fills behind a hovered, selected, or failed control. Each keeps the
+     colour drawn over it at its contrast. */
+  --hover: #ecece7;
+  --accent-soft: #e6eef8;
+  /* A hovered accent-filled control, darker so its text keeps contrast. */
+  --accent-strong: #154b85;
+  --problem-soft: #fbeeee;
+  /* Text drawn on a filled ready or problem mark (Sessions counts). */
+  --on-ready: #ffffff;
+  --on-problem: #ffffff;
+  /* Preparation badge pairs: text stays readable on each badge's fill. */
+  --badge-not-refined-text: #3a3a36;
+  --badge-not-refined-fill: #d9d9d2;
+  --badge-not-refined-edge: #8a8a82;
+  --badge-refined-text: #0b3d73;
+  --badge-refined-fill: #d5e6f7;
+  --badge-refined-edge: #1b5fa8;
+  --badge-slice-planned-text: #4a1d73;
+  --badge-slice-planned-fill: #eadcf5;
+  --badge-slice-planned-edge: #7a3fb0;
+  --badge-ready-text: #0f4a28;
+  --badge-ready-fill: #d8f0e0;
+  --badge-ready-edge: #2f7a4a;
+  --badge-not-ready-fill: #f8e8e8;
+  /* A muted violet location band, apart from accent and CI cue fills. */
+  --location-header: #e7e1f1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #111722;
+    --raised-surface: #192130;
+    --line: #374358;
+    --edge: #8b9bb8;
+    --text: #edf1fa;
+    --quiet: #b0bdd2;
+    --accent: #c4d2ff;
+    --problem: #f0a8a8;
+    --ready: #a4dfc1;
+    --hover: #232e41;
+    --accent-soft: #29395d;
+    --accent-strong: #9eb0f5;
+    --problem-soft: #3a2228;
+    --on-ready: #0e2418;
+    --on-problem: #2a1010;
+    --badge-not-refined-text: #e8e8e2;
+    --badge-not-refined-fill: #3a3a36;
+    --badge-not-refined-edge: #a8a89e;
+    --badge-refined-text: #d5e6f7;
+    --badge-refined-fill: #1a3358;
+    --badge-refined-edge: #7aa8e0;
+    --badge-slice-planned-text: #eadcf5;
+    --badge-slice-planned-fill: #3a2452;
+    --badge-slice-planned-edge: #b888e0;
+    --badge-ready-text: #d8f0e0;
+    --badge-ready-fill: #1a3d2a;
+    --badge-ready-edge: #5aaa78;
+    --badge-not-ready-fill: #3a2228;
+    --location-header: #2a2438;
+  }
+}

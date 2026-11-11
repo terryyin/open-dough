@@ -4,15 +4,8 @@
 // module's import closure.
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import {
-  chmodSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  realpathSync,
-  writeFileSync,
-} from "node:fs";
-import { dirname, join, sep } from "node:path";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { join, sep } from "node:path";
 import { promisify } from "node:util";
 
 const exec = promisify(execFile);
@@ -105,15 +98,6 @@ export function usesNpmOrNix(command) {
 
 export function artifactPath(cacheDir) {
   return join(cacheDir, "repository", artifactName);
-}
-
-// Writes a project's files under `root`, marking `executables` 0755.
-export function writeProject(root, files, executables = []) {
-  for (const [path, content] of Object.entries(files)) {
-    mkdirSync(dirname(join(root, path)), { recursive: true });
-    writeFileSync(join(root, path), content);
-  }
-  for (const path of executables) chmodSync(join(root, path), 0o755);
 }
 
 // The locked Node project's own files, byte for byte: a CONTRIBUTING.md naming

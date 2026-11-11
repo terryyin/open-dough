@@ -3,6 +3,7 @@
 // summary, from before units, stays readable with each entry's results read
 // as legacy results (ci-proof-contract.mjs, currentSummaryOf), never as
 // test cases or test files.
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { summarize } from "./ci-proof-collect.mjs";
@@ -12,14 +13,18 @@ import {
   summaryProblems,
 } from "./ci-proof-contract.mjs";
 import {
-  fragmentOf,
   fragmentsRead as read,
   revision,
   run,
 } from "./ci-proof-test-fixtures.mjs";
 
 test("a fragment and a summary's evidence name one unit; only legacy results carry the label their unit was spelled with", () => {
-  const valid = fragmentOf("tests", 1, 1).inUnit("file").please();
+  const valid = makeMe.aCiProofFragment
+    .at("tests")
+    .part(1, 1)
+    .ofAttempt(run.attempt, revision)
+    .inUnit("file")
+    .please();
   assert.deepEqual(fragmentProblems(valid), []);
   assert.deepEqual(fragmentProblems({ ...valid, unit: "checks" }), [
     "unit is not case, file, legacy",

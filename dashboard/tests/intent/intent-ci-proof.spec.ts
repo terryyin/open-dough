@@ -1,9 +1,10 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // The CI proof of the run Intent's CI status tab shows a result of
 // (../../src/IntentCiProof.tsx): after the judgment, which reads as it always
 // has, Proof names that run once as short labels -- its linked run and attempt,
 // revision and CI wall time -- then a table with one row per entry the run's CI
 // declared, in its order, read cell by cell under the Entry, Counts, Test
-// execution time headers (counts, unit and any timing gap). The summary is
+// execution time headers (unit and any timing gap). The summary is
 // the collector's own, served as a real zip from the run's artifact download
 // through the controlled `gh` (../support/ciProofArtifacts.ts). Each other
 // reason no proof can be shown, a running result's ancestor proof and the
@@ -15,46 +16,49 @@ import { expect, test } from "../dashboardTest.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
 import {
   artifactId,
+  ciEntryName,
   expectProofRows,
   failedVerdict,
   openFailedRun,
+  openCiEntry,
   proofCalls,
-  proofColumns,
   proofTable,
   run,
 } from "../intentCiProofPage.ts";
-import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
-import { wordsBrokenApart } from "../wholeWords.ts";
 import {
-  evidenceLabels,
   expectAttemptAt,
   expectAttemptLinked,
 } from "../ciEvidenceLabelsPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
+import { parts } from "../dashboardPage.ts";
+import { intentLocationName } from "../intentPerspectivePage.ts";
+import { summaryRegion } from "../intentScopeProofPage.ts";
 
 const notRecorded = "No timings";
 
 test("a failed run with a summary shows Failed as before, then Proof of that run's revision, link and attempt with each entry's counts and timing", async ({
   page,
 }) => {
-  const summary = proofSummary(
-    run,
-    [
-      ["dashboard/tests", 2],
-      ["tests", 1],
-    ],
-    [
-      ["dashboard/tests", 1, 2, "case", counts(12)],
-      ["dashboard/tests", 2, 2, "case", counts(7, 1)],
-      ["tests", 1, 1, "file", counts(5)],
-    ],
-  );
+  const summary = proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(12, 0, 0)
+          .inParts(2)
+          .withPresentPart(2, { passed: 7, failed: 1, other: 0, untimed: 0 })
+          .please(),
+      )
+      .please(),
+    makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+    makeMe.aCiProofEntry.at("retired-tests").counting(1, "file").please(),
+  ]);
   let release: () => void = () => undefined;
   const held = new Promise<void>((resolve) => {
     release = resolve;
@@ -83,6 +87,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
     await expectProofRows(proof, [
       ["dashboard/tests", "19 passed and 1 failed test cases", notRecorded],
       ["tests", "5 passed test files", notRecorded],
+      ["retired-tests", "1 passed test file", notRecorded],
     ]);
     await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
   });
@@ -93,15 +98,37 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       `zip ${String(artifactId)}`,
     ]);
   });
+
+  await test.step("a configured entry opens its directory Summary; historical-only entries have no dead link", async () => {
+    await expect(ciEntryName(proof, "retired-tests")).toHaveCount(0);
+    await openCiEntry(proof, "dashboard/tests");
+    const { intent } = parts(page);
+    await expect(
+      summaryRegion(intent).locator(".intent-summary-path"),
+    ).toHaveText("dashboard/tests");
+    await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(intent.locator(".intent-reading")).toBeFocused();
+  });
 });
 
 test("a missing part is shown as a gap and its counts are not counted", async ({
   page,
 }) => {
-  const present = [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12].map(
-    (part) => ["dashboard/tests", part, 12, "case", counts(10)] as const,
-  );
-  const summary = proofSummary(run, [["dashboard/tests", 12]], present);
+  const evidence = makeMe.aCiProofEvidence
+    .inUnit("case")
+    .counting(10)
+    .inParts(12, { missing: [4] });
+  for (const part of [2, 3, 5, 6, 7, 8, 9, 10, 11, 12])
+    evidence.withPresentPart(part, { passed: 10, untimed: 0 });
+  const summary = proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .holding(evidence.please())
+      .please(),
+  ]);
   const { proof } = await openFailedRun(
     page,
     () => runArtifactsAnswer(run, artifactId),
@@ -135,98 +162,4 @@ test("a CI proof query that omits the attempt is refused before asking GitHub", 
   }, `${authenticatedReadEndpoint}?source=open-dough&intent=ci-proof&run=41&revision=${judged}`);
   expect(answer.status).toBe(400);
   expect(published.requests.length).toBe(before);
-});
-
-test("at 200% zoom and on a narrow window each entry's row reads whole within the reading pane, nothing scrolls sideways and the keyboard passes the table", async ({
-  page,
-}) => {
-  const longEntry = "src/skills/dough-test-optimization/scripts";
-  const summary = proofSummary(
-    run,
-    [
-      [longEntry, 3],
-      ["dashboard/tests", 2],
-    ],
-    [
-      [longEntry, 1, 3, "file", counts(40, 2, 1), 30_000],
-      [longEntry, 3, 3, "file", counts(12), 20_000],
-      ["dashboard/tests", 1, 2, "case", counts(8), 75_000],
-      ["dashboard/tests", 2, 2, "case", counts(4), 45_000],
-    ],
-  );
-  const rows = [
-    [longEntry, "52 passed, 2 failed and 1 other test files", "Part 2 missing"],
-    ["dashboard/tests", "12 passed test cases", "2 min"],
-  ] as const;
-  const { panel, proof } = await openFailedRun(
-    page,
-    () => runArtifactsAnswer(run, artifactId),
-    () => summaryZipAnswer(summary),
-  );
-  await expectProofRows(proof, rows);
-  // A wider installed font lays the table out as Linux's fallback font does.
-  await page.addStyleTag({
-    content:
-      ".intent-ci-proof-box, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
-  });
-  const table = proofTable(proof);
-  const box = proof.locator(".intent-proof-table");
-  const again = panel.getByRole("button", { name: "Check again" });
-  const link = proof.getByRole("link", { name: "Run 41 · attempt 1" });
-  // How far the table's box scrolls sideways, and whether the box lies within
-  // the reading pane and the page does not scroll sideways.
-  const fit = () =>
-    box.evaluate((element) => {
-      const pane = element.closest(".intent-reading");
-      if (pane === null) throw new Error("no reading pane");
-      const shown = element.getBoundingClientRect();
-      const reading = pane.getBoundingClientRect();
-      return {
-        sideways: element.scrollWidth - element.clientWidth,
-        inPane: shown.left >= reading.left && shown.right <= reading.right,
-        pageSideways:
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth,
-      };
-    });
-
-  // Every row reads exactly, every column fits the reading pane with nothing
-  // scrolling sideways, `whole` cells keep their words whole, and between the
-  // run link above it and Check again the keyboard stops only at the table's
-  // sortable column headers, in order.
-  const readsAt = async (
-    window: { width: number; height: number },
-    whole: string,
-  ) => {
-    await page.setViewportSize(window);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
-    await expectProofRows(proof, rows);
-    await table.scrollIntoViewIfNeeded();
-    await expect(table).toBeVisible();
-    expect(await fit()).toEqual({
-      sideways: 0,
-      inPane: true,
-      pageSideways: false,
-    });
-    expect(await wordsBrokenApart(table, whole)).toEqual([]);
-    expect(await wordsBrokenApart(evidenceLabels(proof), "li")).toEqual([]);
-    await link.focus();
-    for (const header of proofColumns) {
-      await page.keyboard.press("Tab");
-      await expect(
-        table
-          .getByRole("columnheader", { name: header, exact: true })
-          .getByRole("button"),
-      ).toBeFocused();
-    }
-    await page.keyboard.press("Tab");
-    await expect(again).toBeFocused();
-  };
-
-  await test.step("a window under 200% zoom keeps even path parts whole", async () => {
-    await readsAt(twiceZoomedWindow, "th, td");
-  });
-  await test.step("a narrow window under 400% zoom wraps the long path within its own column", async () => {
-    await readsAt(zoomedWindow, "thead th, tbody td");
-  });
 });

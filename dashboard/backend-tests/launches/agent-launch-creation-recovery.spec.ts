@@ -1,27 +1,25 @@
 // Shared creation recovery consumes native host facts without borrowing a command.
 import { execFileSync } from "node:child_process";
 import { test, expect } from "../../tests/support/pageTest.ts";
-import { creationSchema, creationRecovery } from "../../src/launchCreation.ts";
+import { creationRecovery } from "../../src/launchCreation.ts";
 import { launchRecordsSchema } from "../../src/agentLaunch.ts";
 import { creationProblem, creationView } from "../../server/launchCreation.ts";
 import { codexHost } from "../../server/codexHost.ts";
 import { shellCommand } from "../../src/sessionCapabilities.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const record = creationSchema.parse({
-  request: {
-    source: "open-dough",
-    host: "codex",
-    workflow: "ad-hoc",
+const record = makeMe.aCreationRecord
+  .adHoc({
     title: "Kept intent",
     instruction: "Inspect.",
-  },
-  creation: {
+    host: "codex",
+  })
+  .unresolved({
     workspace: "/saved space's workspace",
     endpoint: "unix:///saved socket",
-  },
-  launchedAt: "2026-10-01T00:00:00.000Z",
-});
+  })
+  .launchedAt("2026-10-01T00:00:00.000Z")
+  .please();
 
 test("declared stand-in evidence gates and projects its own safely quoted recovery through GET parsing", () => {
   const args = [

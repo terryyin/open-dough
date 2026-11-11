@@ -56,6 +56,19 @@ test("keeps nested and escaped template text as data while following expressions
   assert.equal(result.stdout, "actual.mjs\nentry.mjs\nspawned.mjs\n");
 });
 
+test("ignores import and spawned-module examples inside comments", (t) => {
+  const result = closure(t, {
+    "entry.mjs": [
+      '// new URL("./commented.mjs", import.meta.url);',
+      '/* import "./also-commented.mjs"; */',
+      'import "./actual.mjs";',
+    ].join("\n"),
+    "actual.mjs": "export const actual = true;",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, "actual.mjs\nentry.mjs\n");
+});
+
 test("fails loudly without a partial closure when a reached module is unreadable", (t) => {
   const result = closure(t, { "entry.mjs": 'import "./missing.mjs";' });
   assert.notEqual(result.status, 0);

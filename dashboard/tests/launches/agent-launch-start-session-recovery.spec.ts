@@ -20,6 +20,7 @@ import {
   launch,
   recordsOf,
 } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { parts } from "../dashboardPage.ts";
 import {
   startSession,
@@ -177,12 +178,10 @@ for (const when of ["before", "after"] as const) {
     const starts = recordStarts(origin);
     const hold = holdStarts(origin, when);
     const before = await originMain(origin);
-    const request = {
-      source: "open-dough",
-      workflow: "ad-hoc",
-      host: "claude",
-      policy: { workspace: "isolated", landing: "review" },
-    };
+    const request = makeMe.aLaunchRequest
+      .adHoc()
+      .withPolicy({ workspace: "isolated", landing: "review" })
+      .please();
     expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
       kind: "uncertain",
       reason: "timed-out",

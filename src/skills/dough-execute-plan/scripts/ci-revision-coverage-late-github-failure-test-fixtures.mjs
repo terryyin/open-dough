@@ -1,5 +1,6 @@
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
-import { run } from "./watch-ci-test-fixtures.mjs";
+import { modeledGithubActions, run } from "./watch-ci-test-fixtures.mjs";
 
 // Controlled GitHub provider responses only: these never inject the expected
 // CI_FAILURE, coverage transition, or host delivery directly. They drive the
@@ -9,6 +10,55 @@ import { run } from "./watch-ci-test-fixtures.mjs";
 // watch-ci-execution-startup.test.mjs already use for "GitHub acquisition",
 // and reuse that seam's shared `run()` response shape rather than a parallel
 // one.
+
+/** Listed run facts for a completed failure under a named workflow. */
+export function failedListedRun(workflow, databaseId, headSha, headBranch) {
+  return {
+    workflow,
+    ...makeMe.aCiRun
+      .with({
+        databaseId,
+        headSha,
+        headBranch,
+        status: "completed",
+        conclusion: "failure",
+      })
+      .please(),
+  };
+}
+
+/** Attempt job facts for a completed failure. */
+export function failedAttemptJob(databaseId, name) {
+  return makeMe.aGitHubJob
+    .withFacts({ databaseId, name, conclusion: "failure" })
+    .please();
+}
+
+/** Listed selected-workflow run still in progress when first discovered. */
+export function runningListedCiRun(databaseId, headSha, headBranch) {
+  return {
+    workflow: "ci.yml",
+    ...makeMe.aCiRun
+      .with({
+        databaseId,
+        headSha,
+        headBranch,
+        status: "in_progress",
+        conclusion: null,
+        url: `https://github.com/owner/project/actions/runs/${databaseId}`,
+      })
+      .please(),
+  };
+}
+
+/** Another owner's already-failed run, discoverable on the first poll. */
+export function otherOwnerFailedGithub({ sha, branch }) {
+  return modeledGithubActions({
+    workflows: { "ci.yml": "CI" },
+    runs: [failedListedRun("ci.yml", 900, sha, branch)],
+    jobs: { 900: [failedAttemptJob(9000, "build")] },
+  });
+}
 
 // An ignored-only descendant's applicable ancestor A is not itself
 // registered in this mailbox (ordinary branch history the worker discovers,
@@ -54,11 +104,13 @@ export function lateFailureWithIgnoredOnlyDescendantsGithub({
     if (request.kind === "jobs")
       return {
         jobs: [
-          {
-            databaseId: databaseIdA * 10,
-            name: "build",
-            conclusion: stage === "pending" ? null : "failure",
-          },
+          makeMe.aGitHubJob
+            .withFacts({
+              databaseId: databaseIdA * 10,
+              name: "build",
+              conclusion: stage === "pending" ? null : "failure",
+            })
+            .please(),
         ],
       };
     throw new Error(`unexpected gh call ${JSON.stringify(request)}`);

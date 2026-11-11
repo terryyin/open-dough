@@ -89,15 +89,10 @@ project_backlog_rel='.planning/PRODUCT-BACKLOG.md'
 write_project_backlog_sentinel() {
   local target=$1
   mkdir -p -- "${target}/$(dirname -- "${project_backlog_rel}")"
-  cat > "${target}/${project_backlog_rel}" << 'EOF'
-# Product backlog
-
-## Taken
-
-## Backlog list
-
-- [Pre-existing project work](seeds/EXISTING.md#pre-existing) — EXISTING#pre-existing
-EOF
+  node "${source_dir}/tests/support/render-published-backlog.mjs" \
+    > "${target}/${project_backlog_rel}" << 'JSON'
+{"queued":[{"identity":"EXISTING#pre-existing","href":"seeds/EXISTING.md#pre-existing","title":"Pre-existing project work"}]}
+JSON
 }
 
 # The codex and cursor hints select the same .agents entry root, so cursor

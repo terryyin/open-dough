@@ -44,8 +44,7 @@ import {
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
@@ -58,7 +57,9 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ancestor = { repository, runId: 12, attempt: 2, revision: signup };
+  const ancestor = makeMe.aCiProofCollectorRun
+    .with({ repository, runId: 12, attempt: 2, revision: signup })
+    .please();
   const ci = publishStoryCi(page, {
     ".planning/open-dough.json": intentSettingsText(
       makeMe.intentSettings
@@ -73,23 +74,37 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     "tests/a.sh": "#!/usr/bin/env bash\n",
   });
   ci.runs.main = [
-    { headSha: login, conclusion: "success", url: mainRun, id: 11 },
-    {
-      headSha: signup,
-      conclusion: "success",
-      url: mainRun,
-      id: 12,
-      attempt: 2,
-    },
+    makeMe.aCiRun
+      .with({
+        headSha: login,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 11,
+      })
+      .please(),
+    makeMe.aCiRun
+      .with({
+        headSha: signup,
+        conclusion: "success",
+        url: mainRun,
+        databaseId: 12,
+        attempt: 2,
+      })
+      .please(),
   ];
   ci.runs[running.branch] = [
-    { headSha: started, status: "in_progress", url: runUrl, id: 13 },
+    makeMe.aCiRun
+      .with({
+        headSha: started,
+        status: "in_progress",
+        url: runUrl,
+        databaseId: 13,
+      })
+      .please(),
   ];
-  const summary = proofSummary(
-    ancestor,
-    [["tests", 1]],
-    [["tests", 1, 1, "file", counts(5)]],
-  );
+  const summary = proofSummaryForEntries(ancestor, [
+    makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+  ]);
   ci.published.serveCi((call) => {
     const { kind } = call.request;
     if (kind === "actions-run-artifacts")

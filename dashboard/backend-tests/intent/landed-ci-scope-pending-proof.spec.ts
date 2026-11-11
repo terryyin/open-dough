@@ -57,6 +57,11 @@ test("a pending landed attempt keeps its known run identity and link in the loca
   origin,
   github,
 }) => {
+  // Installed land()/prepare under contested shard CPU exhausted the 10s
+  // reporting delivery bound (run 42804393525); with the 30s delivery budget
+  // the whole publication+collection journey still needs headroom beyond the
+  // 30s default. SEED-287#fit-dashboard-journeys-in-default-timeout.
+  test.setTimeout(90_000);
   const { record, revision } = await resultToLand(
     dashboard,
     "pending-proof.txt",
@@ -95,10 +100,10 @@ test("a pending landed attempt keeps its known run identity and link in the loca
     revision,
     through: receipt.receivedAt,
   });
-  const readScope = async () => {
+  const readScope = async (address = dashboard.origin) => {
     const response = await rawRequest({
-      url: `${dashboard.origin}/__authenticated-read?${query}`,
-      headers: { Origin: dashboard.origin },
+      url: `${address}/__authenticated-read?${query}`,
+      headers: { Origin: address },
     });
     return {
       status: response.status,
@@ -124,8 +129,9 @@ test("a pending landed attempt keeps its known run identity and link in the loca
     },
   };
   await expect.poll(readScope).toMatchObject(pending);
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
-  const observed = await readScope();
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
+  const observed = await readScope(reader.origin);
   expect(observed).toMatchObject(pending);
   const entries = (observed.body as { entries: Record<string, unknown>[] })
     .entries;
@@ -134,7 +140,7 @@ test("a pending landed attempt keeps its known run identity and link in the loca
   expect(entries[0]).not.toHaveProperty("build");
 
   const asked = github.calls.length;
-  expect(await readScope()).toMatchObject(pending);
+  expect(await readScope(reader.origin)).toMatchObject(pending);
   expect(github.calls).toHaveLength(asked);
   expect(
     github.calls.filter(
@@ -148,6 +154,9 @@ test("an unread CI landing still retains independently evidenced local trunk ord
   origin,
   github,
 }) => {
+  // Same contested-land publication headroom as the pending-proof case above.
+  // SEED-287#fit-dashboard-journeys-in-default-timeout.
+  test.setTimeout(90_000);
   const { record, revision } = await resultToLand(
     dashboard,
     "unread-ci-order.txt",
@@ -169,6 +178,7 @@ test("an unread CI landing still retains independently evidenced local trunk ord
   await expect
     .poll(() => retainedState(dashboard.home).trunkOrder)
     .toEqual([revision]);
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
   expect(retainedState(dashboard.home).trunkOrder).toEqual([revision]);
 });

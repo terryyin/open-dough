@@ -29,7 +29,8 @@ trunk_closure_git() {
 }
 
 trunk_closure_write_gh() {
-  local destination=$1
+  local destination=$1 writer_q
+  printf -v writer_q '%q' "${source_dir}/tests/support/native-closure-ci.mjs"
   # shellcheck disable=SC2016 # Variables belong to the generated shim.
   printf '%s\n' \
     '#!/usr/bin/env bash' \
@@ -37,22 +38,7 @@ trunk_closure_write_gh() {
     'printf "%s\n" "$*" >> "${TRUNK_CLOSURE_GH_LOG}"' \
     'route=${3:-}' \
     'printf "HTTP/2.0 200 OK\r\n\r\n"' \
-    'run='\''{id:$id,run_attempt:1,head_sha:$sha,head_branch:"main",event:"push",status:"completed",conclusion:"success",html_url:$url,created_at:$created}'\''' \
-    'base=(--argjson id 1 --arg sha "${TRUNK_CLOSURE_BASE_SHA}" --arg url https://ci.invalid/base --arg created 2026-09-22T00:00:00Z)' \
-    'if [[ ${route} == */actions/workflows/*/runs\?* ]]; then' \
-    '  if [[ ${TRUNK_CLOSURE_SCENARIO} == source && -f ${TRUNK_CLOSURE_RELEASE} ]]; then' \
-    '    printf "%s\n" "${TRUNK_CLOSURE_CANDIDATE_SHA}" >> "${TRUNK_CLOSURE_GH_LOG}"' \
-    '    jq -n "${base[@]}" "${run}" | jq --argjson id 2 --arg sha "${TRUNK_CLOSURE_CANDIDATE_SHA}" --arg url https://ci.invalid/candidate --arg created 2026-09-22T00:01:00Z "{total_count:2,workflow_runs:[.,${run}]}"' \
-    '  else' \
-    '    jq -n "${base[@]}" "{total_count:1,workflow_runs:[${run}]}"' \
-    '  fi' \
-    'elif [[ ${route} == */actions/workflows/* ]]; then' \
-    '  jq -n '\''{id:7001,name:"CI"}'\''' \
-    'elif [[ ${route} == */jobs\?* ]]; then' \
-    '  jq -n '\''{total_count:0,jobs:[]}'\''' \
-    'else' \
-    '  jq -n '\''{run_attempt:1,status:"completed",conclusion:"success",html_url:"https://ci.invalid/run"}'\''' \
-    'fi' > "${destination}"
+    "exec node ${writer_q} trunk \"\${route}\"" > "${destination}"
   chmod +x "${destination}"
 }
 
@@ -77,9 +63,7 @@ trunk_closure_create_fixture() {
   : > "${trunk_closure_control_log}"
 
   git init --bare -q -b main "${trunk_closure_origin}"
-  git init -q -b main "${trunk_closure_integration}"
-  trunk_closure_git "${trunk_closure_integration}" remote add origin \
-    "${trunk_closure_origin}"
+  mkdir -p "${trunk_closure_integration}"
   mkdir -p "${trunk_closure_integration}/.github/workflows"
   printf 'base\n' > "${trunk_closure_integration}/product.txt"
   printf '%s\n' \
@@ -101,8 +85,10 @@ trunk_closure_create_fixture() {
     printf '%s\n' '.agents/' '.claude/' '.codex/' '.cursor/' \
       '.planning/execution-state.txt' > "${trunk_closure_integration}/.gitignore"
   fi
-  trunk_closure_git "${trunk_closure_integration}" add .
-  trunk_closure_git "${trunk_closure_integration}" commit -q -m base
+  node "${source_dir}/tests/support/native-closure-repository.mjs" \
+    "${trunk_closure_integration}" 'Trunk Closure Fixture' 'trunk-closure@example.invalid'
+  trunk_closure_git "${trunk_closure_integration}" remote add origin \
+    "${trunk_closure_origin}"
   trunk_closure_git "${trunk_closure_integration}" push -q origin main
   trunk_closure_base_sha=$(git -C "${trunk_closure_integration}" rev-parse HEAD)
 

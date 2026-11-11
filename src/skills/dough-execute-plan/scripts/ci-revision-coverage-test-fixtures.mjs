@@ -20,21 +20,25 @@ const sourceSkill = dirname(dirname(fileURLToPath(import.meta.url)));
 
 export const customCiBranch = "feature/custom";
 export const queuePolicy = { check: "project-checks", context: "push" };
-export const queueEntry = (sha, state = "queued", extra = {}) => ({
-  sha,
-  branch: customCiBranch,
-  state,
-  ...extra,
-});
-export const commandAttempt = (sha, outcome, extra = {}) => ({
-  sha,
-  branch: customCiBranch,
-  runId: "real-run",
-  attemptId: "first",
-  outcome,
-  time: "2026-10-25T00:00:00Z",
-  ...extra,
-});
+// Valid adapter queue entry for the fixture branch through MakeMe. State
+// check/context at the call site; keep deliberate invalid forms literal.
+export const queueEntry = (sha, state = "queued", extra = {}) =>
+  makeMe.aCiQueueEntry
+    .with({ sha, branch: customCiBranch, state, ...extra })
+    .please();
+// Valid discovery attempt for the fixture branch through MakeMe.
+export const commandAttempt = (sha, outcome, extra = {}) =>
+  makeMe.aCiAdapterAttempt
+    .with({
+      sha,
+      branch: customCiBranch,
+      runId: "real-run",
+      attemptId: "first",
+      outcome,
+      time: "2026-10-25T00:00:00Z",
+      ...extra,
+    })
+    .please();
 export const revisionCoverage = (h, sha) =>
   h.mailbox.readRevisionCoverage(h.directory).find((r) => r.sha === sha);
 
@@ -95,12 +99,16 @@ export async function createRevisionCoverageFixture(
   writeFileSync(adapterCalls, "0");
   writeFileSync(
     join(project, ".planning/open-dough.json"),
-    JSON.stringify({
-      ciAdapter: [process.execPath, adapter],
-      ...(integratedPolicy
-        ? { integratedStateCompletion: integratedPolicy }
-        : {}),
-    }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({
+          ciAdapter: [process.execPath, adapter],
+          ...(integratedPolicy
+            ? { integratedStateCompletion: integratedPolicy }
+            : {}),
+        })
+        .please(),
+    ),
   );
 
   const launcher = join(installed, "scripts/ci-mailbox.mjs");
@@ -122,12 +130,14 @@ export async function createRevisionCoverageFixture(
     adapterState,
     JSON.stringify({
       attempts: [
-        {
-          runId: "other",
-          attemptId: "green",
-          sha: "b".repeat(40),
-          outcome: "success",
-        },
+        makeMe.aCiAdapterAttempt
+          .with({
+            runId: "other",
+            attemptId: "green",
+            sha: "b".repeat(40),
+            outcome: "success",
+          })
+          .please(),
       ],
     }),
   );

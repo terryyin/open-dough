@@ -44,11 +44,14 @@ export const trunkRun = (
 
 // `trunkRun`'s run `id` as the history read answers it: its link and its
 // first attempt.
-export const answeredRun = (id: number) => ({
-  runUrl: runUrlOf(id),
-  runId: id,
-  runAttempt: 1,
-});
+export const answeredRun = (id: number) =>
+  makeMe.anAnsweredCiRun
+    .with({
+      runUrl: runUrlOf(id),
+      runId: id,
+      runAttempt: 1,
+    })
+    .please();
 
 // A run's facts once it passed, from its start to its completion, created as
 // it started.
@@ -99,7 +102,7 @@ const unopenableArchive = (): OriginAnswer => ({
 
 // A usable CI proof summary of `run`, as its own collector wrote it.
 export function usableProofOf(run: CiRunAnswer): ComparisonProofServe {
-  const runId = run.id ?? 0;
+  const runId = run.databaseId ?? run.id ?? 0;
   return {
     kind: "summary",
     artifactId: runId * 10,

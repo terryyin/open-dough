@@ -197,16 +197,20 @@ for (const declared of [false, true])
     assert.deepEqual(readMailboxEvents(directory), []);
 
     // A late exact attempt for B itself always wins over the path-based reuse.
-    github.setExactRun({
-      headSha: shaB,
-      headBranch: branch,
-      databaseId: 900,
-      workflowName: "CI",
-      event: "push",
-      status: "completed",
-      conclusion: "success",
-      url: "https://github.com/owner/project/actions/runs/900",
-    });
+    github.setExactRun(
+      makeMe.aCiRun
+        .with({
+          headSha: shaB,
+          headBranch: branch,
+          databaseId: 900,
+          workflowName: "CI",
+          event: "push",
+          status: "completed",
+          conclusion: "success",
+          url: "https://github.com/owner/project/actions/runs/900",
+        })
+        .please(),
+    );
     await advancePoll();
     const afterExact = coverageOf(shaB);
     assert.equal(afterExact.state, "success");

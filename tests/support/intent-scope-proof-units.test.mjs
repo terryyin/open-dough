@@ -105,18 +105,13 @@ test("one path's five test cases and its own test file outcome show apart, never
 test("legacy results read as legacy test results whatever unit they spelled; a declared unit that counted nothing names it; a unit without a breakdown beside another names its unit (examples 37, 38)", () => {
   const legacy = makeMe.aCiProofEvidence.legacy("tests").counting(5).please();
   assert.equal(ciProofCellsOf(legacy).counts, "5 passed legacy test results");
-  const nothing = (evidence) => ({
-    ...evidence,
-    passed: 0,
-    parts: [{ part: 1, status: "missing" }],
-  });
+  const nothing = (evidence) => evidence.inParts(1, { missing: [1] }).please();
   assert.equal(
-    ciProofCellsOf(nothing(makeMe.aCiProofEvidence.legacy(null).please()))
-      .counts,
+    ciProofCellsOf(nothing(makeMe.aCiProofEvidence.legacy(null))).counts,
     "nothing counted",
   );
   assert.deepEqual(
-    ciProofCellsOf(nothing(makeMe.aCiProofEvidence.inUnit("file").please())),
+    ciProofCellsOf(nothing(makeMe.aCiProofEvidence.inUnit("file"))),
     {
       counts: "nothing counted as test files",
       countedResults: { total: 0, failed: 0 },

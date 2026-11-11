@@ -37,8 +37,8 @@ import {
 } from "../support/cursorSessionRecovery.ts";
 import { expect, test, workingCursorTest } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
 import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
+import type { StartOrigin } from "../support/startOrigin.ts";
 
 // The page also lists the held session as the project's local Taken entry.
 async function showHeldSessionPage(

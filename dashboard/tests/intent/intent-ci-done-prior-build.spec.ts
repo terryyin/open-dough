@@ -24,7 +24,7 @@ import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiC
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 
-test.use({ extraEnv: recheckingLandedCi });
+test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -75,9 +75,13 @@ test("Done wall time keeps the execution publication reference through restart, 
   const selected = retainedHistory(dashboard.home)?.builds["run/103/1"];
   if (selected === undefined)
     throw new Error("Actual selected attempt was not collected");
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "preview"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
+  readers.push(reader);
+  const { panel, intent } = await selectDoneStoryForCiComparison(
+    page,
+    reader.origin,
+  );
   await page.setViewportSize({ width: 390, height: 844 });
-  const { panel, intent } = await selectDoneStoryForCiComparison(page);
   await expect(
     panel.getByRole("table", { name: "CI entry timing comparison" }),
   ).toBeVisible();
@@ -168,7 +172,7 @@ test("Done wall time keeps the execution publication reference through restart, 
     writeFileSync(file, retained);
   }
   expect(ciCalls()).toHaveLength(before);
-  await selectDoneStoryForCiComparison(page);
+  await selectDoneStoryForCiComparison(page, reader.origin);
   await expect(history).toContainText("4 prior builds used");
   await expect(
     panel.getByRole("table", { name: "CI entry timing comparison" }),

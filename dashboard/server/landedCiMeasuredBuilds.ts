@@ -11,6 +11,7 @@
 // 20th distinct measured build, with every older landing one of those builds
 // also measures.
 
+import { hasAttemptTiming } from "../src/ciAttemptTiming.ts";
 import { historyWallTimeMs, type Provenance } from "../src/landedCiHistory.ts";
 import type { StoryCiBuildSelection } from "../src/storyCiComparison.ts";
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
@@ -82,6 +83,7 @@ export function measuredBuildOf(
   const build = history.builds[observed.build];
   if (
     build?.state !== "pass" ||
+    !hasAttemptTiming(build) ||
     historyWallTimeMs(build.startedAt, build.completedAt) === undefined
   )
     return undefined;

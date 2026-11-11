@@ -1,4 +1,5 @@
 // HTTP/store and optional WS/PTY exercise native rename and exact-turn interruption.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { changeLaunchStore } from "../../tests/support/launchStore.ts";
 import {
@@ -148,11 +149,11 @@ test("missing saved endpoint retains local intent, closes attachments and report
     ...document,
     "open-dough": stored(dashboard.home).map((record) => ({
       ...record,
-      session: {
-        host: "codex",
-        sessionId: native.threadId,
-        name: record.session.name,
-      },
+      // Predecessor kept no continuation: Done retains local intent only.
+      session: makeMe.aHostSession
+        .codex({ sessionId: native.threadId })
+        .named(record.session.name)
+        .please(),
     })),
   }));
   const before = [...native.calls];

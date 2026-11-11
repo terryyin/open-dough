@@ -8,8 +8,24 @@ import {
   stringLiterals,
 } from "./consumer-trace-terms.mjs";
 import { repository, section, trace } from "./consumer-trace-test-fixtures.mjs";
+import { git } from "./publication-git.mjs";
 
 const contract = "src/contract/runnerProtocol.ts";
+
+test("index-only scope does not invent working-tree lexical terms", async (t) => {
+  const original = "export const visibleValue = 1;\n";
+  const root = await repository(t, {
+    "src/value.mjs": original,
+    "src/reader.mjs": 'import { stagedValue } from "./value.mjs";\n',
+  });
+  writeFileSync(join(root, "src/value.mjs"), "export const stagedValue = 2;\n");
+  await git(root, "add", "--", "src/value.mjs");
+  writeFileSync(join(root, "src/value.mjs"), original);
+  const result = trace("--checkout", root, "--base", "HEAD");
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Changed files not searched: none named\./);
+  assert.doesNotMatch(result.stdout, /stagedValue|src\/reader\.mjs/);
+});
 
 test("a base revision derives terms from the change, so an untouched stand-in and a test of a removed message are found", async (t) => {
   const root = await repository(t, {

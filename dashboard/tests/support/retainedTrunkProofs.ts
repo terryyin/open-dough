@@ -55,11 +55,9 @@ export function retainedTrunkProofs(
       .entries([entry.please()])
       .please();
     const startedAt = facts.measuredAt(index);
-    return {
-      landing,
-      key: `run/${String(runId)}/1`,
-      ms,
-      build: {
+    const key = `run/${String(runId)}/1`;
+    const build = makeMe.aKeptBuild
+      .with({
         revision,
         state: "pass" as const,
         runId,
@@ -70,7 +68,8 @@ export function retainedTrunkProofs(
         startedAt,
         completedAt: new Date(Date.parse(startedAt) + 30_000).toISOString(),
         proof,
-      },
-    };
+      })
+      .please();
+    return { landing, key, ms, build };
   });
 }

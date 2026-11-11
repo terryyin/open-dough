@@ -185,7 +185,7 @@ export function IntentCiHistoryPlot({
                 y={cy < plotTop + 20 ? cy + 22 : cy - 10}
                 textAnchor="middle"
               >
-                Selected
+                {series.selectedLabel ?? "Selected"}
               </text>
             </>
           ) : (

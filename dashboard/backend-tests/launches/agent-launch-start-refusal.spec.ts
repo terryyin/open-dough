@@ -15,11 +15,7 @@ import {
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import {
-  launch,
-  launchRequest,
-  recordsOf,
-} from "../../tests/agentLaunchBoundary.ts";
+import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -30,12 +26,11 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 
 test.describe("execution start that cannot be established", () => {
   let origin: StartOrigin;

@@ -103,22 +103,21 @@ test.describe("authenticated read boundary (development environment)", () => {
     // different backlog at its own revision.
     const revision = "cd".repeat(20);
     const seedPath = ".planning/seeds/SEED-boundary.md";
+    const story = makeMe.aBacklogEntry
+      .with({
+        title: "Boundary story",
+        identity: "SEED-boundary#story",
+        href: "seeds/SEED-boundary.md#story",
+      })
+      .please();
     // `gh` would print a JSON-typed answer's literal `\u0002` as `^B`.
-    const seedBody =
-      "# Seed\n\n**Identity:** SEED-boundary#story\n\nCtrl+B then Enter records a line holding `\\u0002`.\n";
+    // Deliberate control-character bytes stay at the call site.
+    const seedBody = `# Seed\n\n**Identity:** ${story.identity}\n\nCtrl+B then Enter records a line holding \`\\u0002\`.\n`;
     const published = describedRevision(
       makeMe.aRepository
         .withRevision("boundary", {
           backlog: {
-            queued: [
-              makeMe.aBacklogEntry
-                .with({
-                  title: "Boundary story",
-                  identity: "SEED-boundary#story",
-                  href: "seeds/SEED-boundary.md#story",
-                })
-                .please(),
-            ],
+            queued: [story],
           },
           // The exact seed bytes this case reads back.
           files: { [seedPath]: seedBody },

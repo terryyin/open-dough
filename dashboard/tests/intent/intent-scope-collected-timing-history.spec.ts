@@ -108,7 +108,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
         },
       });
   }
-  const { collected, read } = await observeRetainedScopeOrder(
+  const { collected, read, reader } = await observeRetainedScopeOrder(
     dashboard,
     origin,
     {
@@ -149,7 +149,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   ).toHaveLength(3);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await openCollectedHistoryStory(page);
+  const { intent } = await openCollectedHistoryStory(page, reader.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const beforeHistory = ciCalls().length;
@@ -230,6 +230,11 @@ test("a Done entry shows collector-acquired test timing through its middle landi
     expectPreserved: async () => {
       await expect(storyTitle(intent)).toHaveText("Story A");
       await expectComparison();
+    },
+    expectRecovered: async () => {
+      await expect(history.getByRole("listitem")).toHaveCount(2);
+      await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
+      await expect(history).toContainText("0 ms");
     },
   });
   expect(ciCalls()).toHaveLength(beforeHistory);

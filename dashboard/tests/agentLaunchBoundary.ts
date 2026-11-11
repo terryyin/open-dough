@@ -29,6 +29,8 @@ import {
 } from "./agentLaunchSessions.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { rawRequest, type RawResponse } from "./support/rawHttp.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import type { StoryLaunchRequest } from "../src/launchRequest.ts";
 
 export {
   alertsAnswered,
@@ -49,14 +51,12 @@ export {
 
 export const identity = "SEED-052#launch-claude-planned-execution";
 export const title = "Launch execution in a Claude Code background session";
-export const launchRequest = {
-  source: "open-dough",
-  identity,
-  title,
-  workflow: "execution",
-  host: "claude",
-};
-export const refinementRequest = { ...launchRequest, workflow: "refinement" };
+export const launchRequest: StoryLaunchRequest = makeMe.aLaunchRequest
+  .executing({ identity, title, host: "claude" })
+  .please() as StoryLaunchRequest;
+export const refinementRequest: StoryLaunchRequest = makeMe.aLaunchRequest
+  .refining({ identity, title, host: "claude" })
+  .please() as StoryLaunchRequest;
 
 // Asks for a launch and answers what it settled to, as a launch result: the
 // acceptance answer itself when nothing was accepted (or the request was

@@ -46,21 +46,20 @@ export const recheckingLandedCi = {
 };
 
 // After a test observes collection's persisted evidence, read that same
-// machine and port with collection stopped. A browser may keep its original
-// base URL; later CI calls then belong to its live reads, never a poll racing
-// a local-history assertion. The caller closes the returned reader.
+// machine with collection stopped. Its stopped server no longer owns that
+// address: callers use the returned reader's origin for HTTP and navigation.
+// Later CI calls then belong to live reads, never a collection poll racing a
+// local-history assertion. The caller closes the returned reader.
 export async function restartAsLandedCiReader(
   dashboard: DashboardServer,
   origin: Pick<StartOrigin, "machine">,
   mode: "boundary" | "preview",
 ): Promise<DashboardServer> {
-  const port = Number(new URL(dashboard.origin).port);
   const prebuilt = dashboard.outDir ?? sharedDashboardBuild;
   await dashboard.close();
   return startDashboardServer({
     mode,
     ...(mode === "preview" ? { prebuilt } : {}),
-    port,
     github: dashboard.github,
     machine: origin.machine,
     projectFolders: ["open-dough"],
@@ -158,9 +157,12 @@ export const answeredLanding = (landing: {
 // Open Dough's landed CI wall-time history as the server answers it now.
 export async function landedCiHistory(
   dashboard: DashboardServer,
+  gapReasons?: "timing-basis",
 ): Promise<{ readonly status: number; readonly body: unknown }> {
+  const vocabulary =
+    gapReasons === undefined ? "" : `&gap-reasons=${gapReasons}`;
   const answer = await rawRequest({
-    url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history`,
+    url: `${dashboard.origin}/__authenticated-read?source=open-dough&intent=ci-history${vocabulary}`,
     headers: { Origin: dashboard.origin },
   });
   return { status: answer.status, body: JSON.parse(answer.body) as unknown };

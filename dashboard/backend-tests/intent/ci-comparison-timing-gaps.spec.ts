@@ -67,13 +67,12 @@ test("an adapter endpoint without artifact identity keeps its own opaque attempt
     .withRevision(branch)
     .please();
   const adapter = makeMe.aCiAdapterAttempt
-    .passed({
+    .with({
       sha: branch,
       runId: "landing/opaque",
       attemptId: "retry:2",
+      outcome: "success",
       branch: "story",
-      startedAt: "",
-      completedAt: "",
     })
     .please();
   const evidence = storyCiComparisonEvidence({
@@ -94,10 +93,12 @@ test("an adapter endpoint without artifact identity keeps its own opaque attempt
             runId: adapter.runId,
             attemptId: adapter.attemptId,
           },
-          branch: adapter.branch,
+          ...(adapter.branch !== undefined ? { branch: adapter.branch } : {}),
+          // Discovery omitted wall-time bounds; empty strings clear revision
+          // timing defaults the way attemptTimesOf treats missing bounds.
           createdAt: "",
-          startedAt: adapter.startedAt,
-          completedAt: adapter.completedAt,
+          startedAt: "",
+          completedAt: "",
         })
         .please(),
     ],

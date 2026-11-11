@@ -204,20 +204,23 @@ remaining proof; return before another variant if this one fails.
 
 ## Current plan assessment
 
-Earlier proof remains retained. Slice12 preserves the canonical/current-client
-setup; three valid pressure/default commands pass, with about .980s worst local
-sort body headroom. Two ineffective small-data cuts remain discarded. Actual
-hosted comparison cases pass retry0 in two runs; exact full CI5e721503 passes
-run42963489603/1 after each exposed transport/shutdown/runner/pacing defect is
-repaired. Combined evidence settled12 and G4/G7/G12/G13/G14/G15 at that boundary,
-without a numeric exception or waiver. Slice13's C03 continuation now exposes
-Sort31.110s under valid pressure; G7 returns while the earlier evidence stays
-retained. Thirteen slices and source Goal/Scope unchanged.
-Slice13 owns G1/G2/G3/G7/G8/G11/G18, named pressure/default, comparable whole-suite and
-trunk gates. Branch validation still uses twelve shards; current trunk's
-thirteen-part input is handled at the existing human checkpoint. See
-[CI repair evidence](ci-repair-evidence.md).
-Current failures, five-second observation audit and selected corrections are in
+Earlier accepted proof remains retained. Slice12 and its exact full CI5e721503
+settled the original transport/shutdown/runner/pacing repairs. Slice13's later
+valid-pressure failures returned G7/G18; the final44 plus compatible46 then
+pass all90 named cases at defaults, with every scoped browser observation5s.
+Exact published9739dd6e passes all17 hosted jobs; slowest shard287s against321s.
+The internal whole7 shell keeper target remains refuted, as retained in
+incoming-watcher-evidence.md; no whole7 speedup is claimed.
+
+Human amendment44f3e0186 adds the five repeat-admission cases and their three
+consecutive loaded passes. The source-only review is refreshed to159 items.
+The queued full gate was cancelled with zero SUT/load work, and accepted main
+467ab91f is being reconciled to bring its repeat-admission feature into this
+branch. No merged-candidate proof or local full-suite comparison is claimed.
+Thirteen slices remain;13 owns G1/G2/G3/G7/G8/G11/G18/G19/G20, renewed affected
+pressure/default proof, comparable whole-suite and trunk gates. Accepted main
+uses thirteen shards; its final complete artifact set remains required at the
+human checkpoint. See [current amendment and PFE](amended-source-evidence.md),
 [final validation](final-validation-evidence.md) and
 [observation evidence](final-observation-evidence.md).
 
@@ -233,6 +236,11 @@ in median elapsed time including moved work; the comparable local dashboard
 suite and the slowest hosted shard stay within previous elapsed times. Every
 distinct behavioral promise stays at an observable boundary; surviving proof is
 established before deleting a test, step, or assertion.
+
+The five landed-CI repeat-admission cases retain their assertions and5s
+observations in three consecutive two-worker load20–30 runs. Automatic-repeat
+and verdict optimization belong to SEED314; the weaker-attribution history
+recovery sibling is inspected without inventing a main failure.
 
 Out of scope: SEED-286#fast-intent-ci-comparison-tests; infrastructure
 acquisition; unrelated branch defects; the separate collector lock repair;

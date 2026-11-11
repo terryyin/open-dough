@@ -28,6 +28,7 @@ import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { intentLocationName } from "./intentPerspectivePage.ts";
 import { chooseStoryTab } from "./support/intentStoryPage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";
@@ -97,8 +98,22 @@ export const testsShare = (byFile: boolean): Producer => ({
 // Judged trunk: running at the published head, so the shown proof is its
 // completed ancestor's, run 41 at the judged commit.
 const ancestorRuns = (): readonly CiRunAnswer[] => [
-  { headSha: openDough.revision, status: "in_progress", id: 42, url: runUrl },
-  { headSha: judged, conclusion: "success", id: run.runId, url: runUrl },
+  makeMe.aCiRun
+    .with({
+      headSha: openDough.revision,
+      status: "in_progress",
+      databaseId: 42,
+      url: runUrl,
+    })
+    .please(),
+  makeMe.aCiRun
+    .with({
+      headSha: judged,
+      conclusion: "success",
+      databaseId: run.runId,
+      url: runUrl,
+    })
+    .please(),
 ];
 
 // Intent opened on CI status for trunk publishing FILES (by default the
@@ -158,8 +173,8 @@ export const bothEntriesSummary = (byFile: boolean) =>
   collectedSummary(
     run,
     [
-      ["dashboard/tests", 2],
-      ["tests", 1],
+      { entry: "dashboard/tests", parts: 2 },
+      { entry: "tests", parts: 1 },
     ],
     [...dashboardShards(byFile), testsShare(byFile)],
   );

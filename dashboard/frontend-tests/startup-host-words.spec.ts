@@ -25,25 +25,26 @@ test("without a reported phase, story startup keeps its host and the installed s
     for (const workflow of ["execution", "refinement"] as const) {
       for (const establishes of [false, true]) {
         // An owned attempt still running with no session yet.
+        const request = makeMe.aLaunchRequest
+          .ofWorkflow(workflow, {
+            identity: "SEED-B#b",
+            title: readyStory,
+            host,
+          })
+          .please();
         const answer = makeMe.aMachineAnswer.answeringAttempts(
           makeMe.anAttemptObservation
-            .of(
-              makeMe.anAcceptedAttempt
-                .requesting({
-                  source: "open-dough",
-                  identity: "SEED-B#b",
-                  title: readyStory,
-                  host,
-                  workflow,
-                })
-                .please(),
-            )
+            .of(makeMe.anAcceptedAttempt.requesting(request).please())
             .owned(true)
             .running(true)
             .please(),
         );
         if (establishes)
-          answer.establishing({ source: "open-dough", workflow, host });
+          answer.establishing({
+            source: request.source,
+            workflow,
+            host: request.host,
+          });
         putFrontendMachine(frontendServices, answer.please());
         await reloadUntilRead(page);
         const words = establishes

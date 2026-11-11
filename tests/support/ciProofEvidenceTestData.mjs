@@ -3,6 +3,7 @@
 // first present part carries counts/time, or file and unplaced figures;
 // other parts may be present without a breakdown, missing or ambiguous.
 // Figures sum present parts, as the collector writes them.
+import { figuresOf, summed } from "./ciProofFiguresTestData.mjs";
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofEvidence} CiProofEvidence */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFigures} CiProofFigures */
 /** @typedef {import("../../dashboard/src/ciProof.ts").CiProofFile} CiProofFile */
@@ -16,36 +17,6 @@
  *   durationMs?: number, untimed?: number,
  * }} ResultFacts
  */
-
-/** @param {ResultFacts} facts @returns {CiProofFigures} */
-function figuresOf({ passed = 1, failed = 0, other = 0, durationMs, untimed }) {
-  const notTimed =
-    untimed ?? (durationMs === undefined ? passed + failed + other : 0);
-  return {
-    passed,
-    failed,
-    other,
-    ...(durationMs === undefined ? {} : { durationMs }),
-    ...(notTimed > 0 ? { untimed: notTimed } : {}),
-  };
-}
-
-/** @param {readonly number[]} values */
-const sum = (values) => values.reduce((total, value) => total + value, 0);
-
-/** @param {readonly CiProofFigures[]} figures @returns {CiProofFigures & { untimed: number }} */
-function summed(figures) {
-  const durations = figures.flatMap(({ durationMs }) =>
-    durationMs === undefined ? [] : [durationMs],
-  );
-  return {
-    passed: sum(figures.map(({ passed }) => passed)),
-    failed: sum(figures.map(({ failed }) => failed)),
-    other: sum(figures.map(({ other }) => other)),
-    ...(durations.length === 0 ? {} : { durationMs: sum(durations) }),
-    untimed: sum(figures.map(({ untimed = 0 }) => untimed)),
-  };
-}
 
 // One unit's results at an entry.
 export class CiProofEvidenceBuilder {
@@ -67,6 +38,8 @@ export class CiProofEvidenceBuilder {
   #unassigned;
   /** @type {CiProofFigures[]} */
   #unbroken = [];
+  /** @type {Map<number, CiProofFigures>} */
+  #present = new Map();
   // Includes an empty file list (present zero), not only non-empty withFile.
   #brokenDown = false;
 
@@ -182,6 +155,17 @@ export class CiProofEvidenceBuilder {
     return this;
   }
 
+  /**
+   * Counts and timing of one declared present part.
+   * @param {number} part
+   * @param {ResultFacts} facts
+   */
+  withPresentPart(part, facts) {
+    this.#of = Math.max(this.#of, part);
+    this.#present.set(part, figuresOf(facts));
+    return this;
+  }
+
   /** @returns {CiProofEvidence} */
   please() {
     const unassigned = this.#unassigned;
@@ -211,7 +195,8 @@ export class CiProofEvidenceBuilder {
       else if (this.#ambiguous.includes(part))
         parts.push({ part, status: "ambiguous" });
       else {
-        const figures = present.length === 0 ? first : empty;
+        const figures =
+          this.#present.get(part) ?? (present.length === 0 ? first : empty);
         present.push(figures);
         parts.push({
           part,

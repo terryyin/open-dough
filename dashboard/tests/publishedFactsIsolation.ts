@@ -2,6 +2,7 @@
 // held GitHub answers are supplied; the built page owns every displayed fact.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { githubFor } from "./dashboardTest.ts";
@@ -39,49 +40,35 @@ export function factsAt(revision: string, label: "A" | "B") {
   const purpose = `Canonical purpose published at ${label}.`;
   const doneTitle = `Completed story published at ${label}`;
   const developer = `Developer at ${label}`;
+  const taken = makeMe.aBacklogEntry
+    .with({
+      identity: sharedStoryIdentity,
+      href: "seeds/SEED-777-shared.md#shared-story",
+      title: takenTitle,
+    })
+    .please();
+  const queued = makeMe.aBacklogEntry
+    .with({
+      identity: queuedIdentity,
+      href: `seeds/SEED-777-shared.md#${queuedAnchor}`,
+      title: queuedTitle,
+    })
+    .please();
   const { files } = describedRevision(
     makeMe.aRepository
       .withRevision(`published at ${label}`, {
         backlog: {
           direction: `Direction published at ${label}.`,
-          taken: [
-            makeMe.aBacklogEntry
-              .with({
-                identity: sharedStoryIdentity,
-                href: "seeds/SEED-777-shared.md#shared-story",
-                title: takenTitle,
-              })
-              .please(),
-          ],
-          queued: [
-            makeMe.aBacklogEntry
-              .with({
-                identity: queuedIdentity,
-                href: `seeds/SEED-777-shared.md#${queuedAnchor}`,
-                title: queuedTitle,
-              })
-              .please(),
-          ],
+          taken: [taken],
+          queued: [queued],
         },
         // The seed and plan prose the page reads.
         files: {
           ".planning/open-dough.json": "{}\n",
-          [canonicalPath]: `<a id="shared-story"></a>
-
-### ${takenTitle}
-
-**Identity:** ${sharedStoryIdentity}
-
-**Goal:** ${purpose}
-
-<a id="${queuedAnchor}"></a>
-
-### ${queuedTitle}
-
-**Identity:** ${queuedIdentity}
-
-**Goal:** Queued purpose published at ${label}.
-`,
+          [canonicalPath]: `${renderStorySection(taken, { goal: purpose })}
+${renderStorySection(queued, {
+  goal: `Queued purpose published at ${label}.`,
+})}`,
           [planPath]: renderSlicePlan(
             makeMe.aSlicePlan
               .with({
@@ -109,8 +96,8 @@ export function factsAt(revision: string, label: "A" | "B") {
         },
         storyStates: [
           {
-            identity: sharedStoryIdentity,
-            href: "seeds/SEED-777-shared.md#shared-story",
+            identity: taken.identity,
+            href: taken.href,
             ...makeMe.aStoryPreparation
               .plannedIn("../slice-plans/777-facts/PLAN.md")
               .please(),

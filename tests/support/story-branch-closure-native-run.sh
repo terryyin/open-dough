@@ -104,6 +104,8 @@ story_closure_write_evidence_identity() {
     src/skills/dough-execute-plan/references/publish-the-candidate.md \
     src/skills/dough-execute-plan/references/preserve-published-history.md
   git_publication_closing_input_hash_lines \
+    tests/support/native-closure-repository.mjs \
+    tests/support/native-closure-ci.mjs \
     src/skills/dough-execute-plan/scripts/ci-mailbox.mjs \
     src/skills/dough-product-backlog/scripts/product-backlog-git-merge.mjs
 }

@@ -90,31 +90,44 @@ for bad in "${checks}/absent.sh" "${checks}/node-test-files"; do
   fi
 done
 
-# Automatic discovery schedules each one-shot journey group once, while an
-# explicit aggregate selection still names just that aggregate. Across all CI
-# shares the same group jobs occur once and the aggregate never duplicates them.
+# Automatic discovery schedules each aggregate's work once, through its
+# directly discovered jobs: the one-shot journey groups and the MakeMe harness
+# files. An explicit aggregate selection still names just that aggregate.
+# Across all CI shares the same direct jobs occur once and no aggregate
+# duplicates them.
 cd -- "${source_dir}"
-OPEN_DOUGH_TEST_DIR=tests "${BASH}" scripts/test-jobs.sh \
-  > "${temporary_dir}/one-shot-all.jobs"
+OPEN_DOUGH_TEST_DIR=tests "${BASH}" scripts/test-jobs.sh > "${temporary_dir}/all.jobs"
 for share in 1 2 3; do
   OPEN_DOUGH_TEST_DIR=tests OPEN_DOUGH_TEST_SPLIT=${share}/3 \
-    "${BASH}" scripts/test-jobs.sh >> "${temporary_dir}/one-shot-split.jobs"
+    "${BASH}" scripts/test-jobs.sh >> "${temporary_dir}/split.jobs"
 done
-OPEN_DOUGH_TEST_DIR=tests "${BASH}" scripts/test-jobs.sh \
-  tests/git-publication-native-one-shot.sh > "${temporary_dir}/one-shot-chosen.jobs"
+for aggregate in git-publication-native-one-shot makeme-native-use; do
+  OPEN_DOUGH_TEST_DIR=tests "${BASH}" scripts/test-jobs.sh "tests/${aggregate}.sh" \
+    > "${temporary_dir}/${aggregate}.jobs"
+done
 node --input-type=module - "${temporary_dir}" << 'JS'
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const directory = process.argv[2];
-const labels = (name) => readFileSync(`${directory}/one-shot-${name}.jobs`, 'utf8')
-  .split('\0').filter(Boolean).map((job) => job.split('\t')[1]);
-const aggregate = 'tests/git-publication-native-one-shot.sh';
-const groups = ['tests/git-publication-native-one-shot-results.sh',
-  'tests/git-publication-native-one-shot-workspaces.sh'];
-for (const name of ['all', 'split']) {
-  const jobs = labels(name);
-  assert.equal(jobs.filter((job) => job === aggregate).length, 0);
-  for (const group of groups) assert.equal(jobs.filter((job) => job === group).length, 1);
+const jobs = (name) => readFileSync(`${directory}/${name}.jobs`, 'utf8')
+  .split('\0').filter(Boolean);
+const directJobs = {
+  'git-publication-native-one-shot': [
+    'shell\ttests/git-publication-native-one-shot-results.sh',
+    'shell\ttests/git-publication-native-one-shot-workspaces.sh'],
+  'makeme-native-use': [
+    'node\ttests/support/makeme-native-harness.test.mjs',
+    'node\ttests/support/makeme-native-refactor-harness.test.mjs'],
+};
+for (const [name, direct] of Object.entries(directJobs)) {
+  const aggregate = `shell\ttests/${name}.sh`;
+  for (const listing of ['all', 'split']) {
+    const expectCount = (job, expected) => assert.equal(
+      jobs(listing).filter((listed) => listed === job).length, expected,
+      `occurrences of ${job} in the ${listing} listing`);
+    expectCount(aggregate, 0);
+    for (const job of direct) expectCount(job, 1);
+  }
+  assert.deepEqual(jobs(name), [aggregate]);
 }
-assert.deepEqual(labels('chosen'), [aggregate]);
 JS

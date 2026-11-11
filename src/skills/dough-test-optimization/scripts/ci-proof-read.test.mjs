@@ -23,14 +23,12 @@ const signal = new AbortController().signal;
 
 // The asked GitHub Actions run attempt, and its summary artifact as GitHub
 // lists it.
-const run = { runId: 41, runAttempt: 1, revision };
-const listedArtifact = {
-  id: 9,
-  name: "ci-proof-summary-attempt-1",
-  size_in_bytes: 512,
-  expired: false,
-  workflow_run: { id: 41 },
-};
+const run = makeMe.aCiProofRun
+  .with({ runId: 41, runAttempt: 1, revision })
+  .please();
+const listedArtifact = makeMe.aCiProofArtifact
+  .with({ id: 9, runId: 41, runAttempt: 1 })
+  .please();
 
 // GitHub answering one read: LISTING for the run's artifact listing and
 // ARCHIVE for the chosen artifact's zip; `asked` keeps each request in order.
@@ -97,13 +95,36 @@ test("the summary artifact is the run's one kept artifact of the attempt's name:
   for (const [artifacts, read] of [
     [[], { why: "no-artifact" }],
     [
-      [{ ...listedArtifact, name: "ci-proof-summary-attempt-2" }],
+      [
+        makeMe.aCiProofArtifact
+          .with({ id: 9, runId: 41, runAttempt: 2 })
+          .please(),
+      ],
       { why: "no-artifact" },
     ],
-    [[{ ...listedArtifact, workflow_run: { id: 42 } }], { why: "no-artifact" }],
-    [[{ ...listedArtifact, expired: true }], { why: "expired" }],
     [
-      [listedArtifact, { ...listedArtifact, id: 10 }],
+      [
+        makeMe.aCiProofArtifact
+          .with({ id: 9, runId: 42, runAttempt: 1 })
+          .please(),
+      ],
+      { why: "no-artifact" },
+    ],
+    [
+      [
+        makeMe.aCiProofArtifact
+          .with({ id: 9, runId: 41, runAttempt: 1, expired: true })
+          .please(),
+      ],
+      { why: "expired" },
+    ],
+    [
+      [
+        listedArtifact,
+        makeMe.aCiProofArtifact
+          .with({ id: 10, runId: 41, runAttempt: 1 })
+          .please(),
+      ],
       { why: "several-artifacts" },
     ],
     [[{ ...listedArtifact, id: "9" }], { why: "unreadable-listing" }],
@@ -121,7 +142,12 @@ test("the summary artifact is the run's one kept artifact of the attempt's name:
 
   const besideExpired = gitHubAnswering(
     {
-      artifacts: [{ ...listedArtifact, id: 8, expired: true }, listedArtifact],
+      artifacts: [
+        makeMe.aCiProofArtifact
+          .with({ id: 8, runId: 41, runAttempt: 1, expired: true })
+          .please(),
+        listedArtifact,
+      ],
     },
     archiveOf(summary),
   );
@@ -139,7 +165,14 @@ test("a summary beyond the read limit is too large as listed, downloading nothin
   const listed = gitHubAnswering(
     {
       artifacts: [
-        { ...listedArtifact, size_in_bytes: SUMMARY_READ_LIMIT_BYTES + 1 },
+        makeMe.aCiProofArtifact
+          .with({
+            id: 9,
+            runId: 41,
+            runAttempt: 1,
+            size_in_bytes: SUMMARY_READ_LIMIT_BYTES + 1,
+          })
+          .please(),
       ],
     },
     Buffer.alloc(0),

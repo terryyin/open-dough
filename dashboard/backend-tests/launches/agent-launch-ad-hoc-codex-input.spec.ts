@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // Actual HTTP/store launch decisions; the fixture only supplies native replies.
 import path from "node:path";
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
@@ -13,6 +14,7 @@ import {
 import type { FakeGitHub } from "../../tests/support/fakeGitHub.ts";
 import { dirty, status } from "../../tests/support/defaultCheckoutChanges.ts";
 import { expectReportingBlock } from "../../tests/support/reportingInputAssertions.ts";
+import { launchWaitMs } from "../../tests/support/launchWait.ts";
 import {
   defaultMainSession,
   sessionBlock,
@@ -21,7 +23,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 
-const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
 test("HTTP text preserves exact bytes once; completed blank launches permit another deliberate session", async ({
   dashboard,
@@ -147,7 +149,11 @@ startTest.describe(dueOnCodex, () => {
 
       const turns = () =>
         native.calls.filter((call) => call.method === "turn/start");
-      await expect.poll(() => turns().length).toBe(1);
+      // Contested CI can stretch the first due check past the 5s default poll
+      // (gh ref + watch-list read + Codex launch). Bound matches launchWaitMs.
+      await expect
+        .poll(() => turns().length, { timeout: launchWaitMs })
+        .toBe(1);
       const [record] = stored(dashboard.home);
       expect(record?.request).toMatchObject({
         workflow: "ad-hoc",

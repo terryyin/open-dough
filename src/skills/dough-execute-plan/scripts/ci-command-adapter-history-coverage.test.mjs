@@ -19,6 +19,7 @@ import {
 import { controllableSleep } from "./ci-observer-poll-sleep-test-fixtures.mjs";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
+import { discoverAttempt } from "./ci-command-adapter-test-fixtures.mjs";
 import {
   acceptedWorkflow,
   workflowPath,
@@ -56,37 +57,41 @@ process.stdout.write(request.operation === 'diagnose' ? JSON.stringify({ excerpt
     );
     writeFileSync(
       join(root, ".planning/open-dough.json"),
-      JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+      JSON.stringify(
+        makeMe.projectCiSettings
+          .with({ ciAdapter: [process.execPath, adapter] })
+          .please(),
+      ),
     );
     const attempts = [
-      {
+      discoverAttempt({
         runId: "obsolete",
         attemptId: "opaque/success",
         sha: ancestor,
         outcome: "success",
         time: "2026-09-14T10:00:00Z",
-      },
-      {
+      }),
+      discoverAttempt({
         runId: "history",
         attemptId: "first",
         sha: ancestor,
         outcome,
         time: "2026-09-15T10:00:00Z",
-      },
-      {
+      }),
+      discoverAttempt({
         runId: "unrelated",
         attemptId: "old",
         sha: "d".repeat(40),
         outcome: "failure",
         time: "2026-09-16T10:00:00Z",
-      },
-      {
+      }),
+      discoverAttempt({
         runId: "newest",
         attemptId: "first",
         sha: "e".repeat(40),
         outcome: "success",
         time: "2026-09-17T10:00:00Z",
-      },
+      }),
     ];
     writeFileSync(state, JSON.stringify({ attempts }));
     const directory = createMailbox(
@@ -146,16 +151,18 @@ process.stdout.write(request.operation === 'diagnose' ? JSON.stringify({ excerpt
     );
     if (outcome === "success") {
       for (const retryOutcome of ["failure", "pending"]) {
-        attempts.push({
-          runId: "history",
-          attemptId: `opaque/${retryOutcome}`,
-          sha: ancestor,
-          outcome: retryOutcome,
-          time:
-            retryOutcome === "failure"
-              ? "2026-09-18T10:00:00Z"
-              : "2026-09-19T10:00:00Z",
-        });
+        attempts.push(
+          discoverAttempt({
+            runId: "history",
+            attemptId: `opaque/${retryOutcome}`,
+            sha: ancestor,
+            outcome: retryOutcome,
+            time:
+              retryOutcome === "failure"
+                ? "2026-09-18T10:00:00Z"
+                : "2026-09-19T10:00:00Z",
+          }),
+        );
         writeFileSync(state, JSON.stringify({ attempts }));
         await poll.advance();
         assert.equal(coverage(ancestor).state, retryOutcome);
@@ -169,13 +176,15 @@ process.stdout.write(request.operation === 'diagnose' ? JSON.stringify({ excerpt
         });
       }
     }
-    attempts.push({
-      runId: "exact",
-      attemptId: "second",
-      sha: descendant,
-      outcome: "pending",
-      time: "2026-09-18T10:00:00Z",
-    });
+    attempts.push(
+      discoverAttempt({
+        runId: "exact",
+        attemptId: "second",
+        sha: descendant,
+        outcome: "pending",
+        time: "2026-09-18T10:00:00Z",
+      }),
+    );
     writeFileSync(state, JSON.stringify({ attempts }));
     await poll.advance();
     assert.equal(coverage(descendant).state, "pending");

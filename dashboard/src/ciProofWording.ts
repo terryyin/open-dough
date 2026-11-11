@@ -1,12 +1,14 @@
 // Wording of one run attempt's CI proof in Intent's CI status homepage
 // (`./IntentCiProof.tsx`) and in a selected entry's or folder's Summary
-// (`./IntentScopeProof.tsx`): each row's table cells (`./CiProofTable.tsx`)
-// show one unit's results (`./ciProofUnits.ts`): counts naming that unit
-// (test cases, test files or legacy test results) and cumulative test
-// execution time (measured, partial, or not recorded). The selected scope's
-// own figures also show how many of that unit's declared parts are present
-// and any gaps. Timing is classified by `./ciProofTiming.ts` and
-// durations are worded by `./ciProofTimeWords.ts`;
+// (`./IntentScopeProof.tsx`): each homepage row is one declared entry
+// (`./ciProofEntryCells.ts`); when it reports several units they stay as
+// labeled lines of that unit's own counts and time, never summed. A Summary's
+// table cells (`./CiProofTable.tsx`) still show one unit's results
+// (`./ciProofUnits.ts`): counts naming that unit (test cases, test files or
+// legacy test results) and cumulative test execution time (measured, partial,
+// or not recorded). The selected scope's own figures also show how many of
+// that unit's declared parts are present and any gaps. Timing is classified
+// by `./ciProofTiming.ts` and durations are worded by `./ciProofTimeWords.ts`;
 // why no proof can be shown is `./ciProofAbsenceWording.ts`'s. A gap's counts
 // are never part of the counts (the collector leaves them out), so the words
 // say how many parts were counted. A missing duration is never a measured
@@ -110,16 +112,27 @@ export const countedResultsOf = (figures: CiProofFigures): CountedResults => ({
   failed: figures.failed,
 });
 
+// One unit's figures inside an entry's Proof row when that entry reports
+// several (`unitLines`): its own counts and time, never summed with another.
+export type CiProofUnitLine = {
+  readonly unit: CiProofUnit;
+  readonly counts: string;
+  readonly countedResults: CountedResults | undefined;
+  readonly executionTime: TimingCell;
+};
+
 // One CI proof table row's cells (`./CiProofTable.tsx`): counts with their
 // unit, test execution time, and completeness followed by each gap, with the
 // counted results and the number of gaps beside their words for sorting
-// (none when the row has no such figure).
+// (none when the row has no such figure). An entry that reports several
+// units carries each as `unitLines` instead of one combined count or time.
 export type CiProofCells = {
   readonly counts: string;
   readonly countedResults: CountedResults | undefined;
   readonly executionTime: TimingCell;
   readonly completeness: string;
   readonly gaps: readonly string[];
+  readonly unitLines?: readonly CiProofUnitLine[];
 };
 
 export function ciProofCellsOf(evidence: CiProofEvidence): CiProofCells {

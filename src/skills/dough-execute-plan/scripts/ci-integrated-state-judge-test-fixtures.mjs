@@ -13,7 +13,9 @@ import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import { integratedStateJudge } from "./ci-integrated-state.mjs";
 
-export const policy = { check: "ci.yml", context: "push", jobs: ["covered"] };
+export const policy = makeMe.anIntegratedStatePolicy
+  .with({ check: "ci.yml", context: "push", jobs: ["covered"] })
+  .please();
 
 const git = (cwd, ...args) =>
   execFileSync(
@@ -90,17 +92,20 @@ export async function judgeHistory(t, { siblings = 0 } = {}) {
 let nextRun = 9001;
 
 // A listed candidate run of `sha` on main: completed green unless overridden.
-export const listedRun = (sha, overrides = {}) => ({
-  databaseId: nextRun++,
-  attempt: 1,
-  headSha: sha,
-  headBranch: "main",
-  event: "push",
-  status: "completed",
-  conclusion: "success",
-  url: `https://ci.test/runs/${sha.slice(0, 7)}`,
-  ...overrides,
-});
+export const listedRun = (sha, overrides = {}) =>
+  makeMe.aCiRun
+    .with({
+      databaseId: nextRun++,
+      attempt: 1,
+      headSha: sha,
+      headBranch: "main",
+      event: "push",
+      status: "completed",
+      conclusion: "success",
+      url: `https://ci.test/runs/${sha.slice(0, 7)}`,
+      ...overrides,
+    })
+    .please();
 
 // The provider's current attempt of a listed `run`: as listed, under the
 // declared check and context, with its one green `covered` job.
@@ -109,13 +114,15 @@ export const currentAttempt = (run, overrides = {}) => ({
   check: "ci.yml",
   context: "push",
   jobs: [
-    {
-      name: "covered",
-      status: "completed",
-      conclusion: "success",
-      databaseId: run.databaseId * 10,
-      url: `${run.url}/job`,
-    },
+    makeMe.aGitHubJob
+      .withFacts({
+        name: "covered",
+        status: "completed",
+        conclusion: "success",
+        databaseId: run.databaseId * 10,
+        url: `${run.url}/job`,
+      })
+      .please(),
   ],
   ...overrides,
 });
@@ -155,7 +162,12 @@ export function judgePoll({
 }
 
 // B's record as the observer holds it before a poll judges it.
-export const accepted = (sha, state = "undiscovered") => ({ sha, state });
+/**
+ * @param {string} sha
+ * @param {import("../../../../tests/support/ciRevisionCoverageTestData.mjs").RevisionCoverageRecord["state"]} [state]
+ */
+export const accepted = (sha, state = "undiscovered") =>
+  makeMe.aRevisionCoverage.with({ sha, state }).please();
 
 export const unresolved = (considered, declared = policy) => ({
   state: "unresolved",

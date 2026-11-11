@@ -1,9 +1,11 @@
 // @ts-check
 // The request a kept launch records, as the dashboard's machine store holds it
-// (`./launchTestData.mjs`): what a story's execution or refinement, or an ad
-// hoc session, asked of its session's host.
+// (`./launchTestData.mjs`), and the incoming AgentLaunchRequest a call site
+// asks the dashboard to accept (`makeMe.aLaunchRequest`).
 
 /** @typedef {import("../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
+/** @typedef {import("../../dashboard/src/launchRequest.ts").AgentLaunchRequest} AgentLaunchRequest */
+/** @typedef {Extract<LaunchRecord["request"], { workflow: "ad-hoc" }>} KeptAdHocRequest */
 /**
  * What a story launch's request states: the project, the story, and its
  * title as the card shows it.
@@ -12,17 +14,26 @@
 /**
  * What an ad hoc launch's request states: the project, the instruction it
  * started with (none for a blank session), and the title kept for it.
- * @typedef {{ instruction?: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} AdHocFacts
+ * @typedef {{ instruction?: string, title: string, source?: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp, maintenance?: KeptAdHocRequest["maintenance"] }} AdHocFacts
  */
 /**
  * What the launch asked for: a story by its workflow, or an ad hoc session
  * with the instruction it started with (none for a blank session).
- * @typedef {{ workflow: "execution" | "refinement", identity: string, title: string, source: string } | { workflow: "ad-hoc", instruction?: string, title: string, source: string, followUp?: import("../../dashboard/src/followUpRequest.ts").FollowUp }} Requested
+ * @typedef {{ workflow: "execution" | "refinement", identity: string, title: string, source: string } | (AdHocFacts & { workflow: "ad-hoc", source: string })} Requested
  */
 /**
  * What the request also states: the session's host, the model and reporting
  * context asked for, and the workspace policy a one-shot or ad hoc start asked for.
  * @typedef {{ host: LaunchRecord["session"]["host"], model?: LaunchRecord["request"]["model"], reporting?: LaunchRecord["request"]["reporting"], policy?: { tracking?: "standard" | "one-shot", workspace: "isolated" | "default-checkout", landing: "auto-land" | "review" } | undefined }} RequestDetails
+ */
+/**
+ * What an incoming story launch's request states: the story, its title as the
+ * card shows it, the project and the host.
+ * @typedef {{ identity: string, title: string, source?: string, host?: AgentLaunchRequest["host"] }} IncomingStoryFacts
+ */
+/**
+ * What an incoming ad hoc launch's request states beside its host and project.
+ * @typedef {{ source?: string, host?: AgentLaunchRequest["host"], instruction?: string, followUp?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["followUp"], maintenance?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["maintenance"] }} IncomingAdHocFacts
  */
 
 /**
@@ -55,6 +66,9 @@ function keptRequest(requested, { host, model, reporting, policy }) {
         instruction: requested.instruction,
       }),
       ...(requested.followUp && { followUp: requested.followUp }),
+      ...(requested.maintenance && {
+        maintenance: { ...requested.maintenance },
+      }),
       ...asked,
       ...(policy && { policy }),
     };
@@ -71,17 +85,21 @@ function keptRequest(requested, { host, model, reporting, policy }) {
   };
 }
 
-/** @typedef {import("../../dashboard/src/launchRequest.ts").AgentLaunchRequest} AgentLaunchRequest */
 /**
- * What an incoming story launch's request states: the story, its title as the
- * card shows it, the project and the host.
- * @typedef {{ identity: string, title: string, source?: string, host?: AgentLaunchRequest["host"] }} IncomingStoryFacts
+ * An accepted attempt holds the same ad hoc request before the record adds
+ * its derived title and reporting context.
+ * @param {KeptAdHocRequest} kept
+ * @returns {Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>}
  */
-/**
- * What an incoming ad hoc launch's request states beside its host and project.
- * @typedef {{ source?: string, host?: AgentLaunchRequest["host"], instruction?: string, followUp?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["followUp"], maintenance?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["maintenance"] }} IncomingAdHocFacts
- */
+export function incomingAdHocRequest({ title, reporting, ...request }) {
+  void title;
+  void reporting;
+  return request;
+}
 
+// One incoming launch request. Choose its workflow facts; it is otherwise for
+// the `open-dough` project on `claude`. Options, model, policy, and other
+// launch choices the case names stay on the builder, not invented here.
 export class LaunchRequestBuilder {
   /** @type {AgentLaunchRequest | undefined} */
   #request;

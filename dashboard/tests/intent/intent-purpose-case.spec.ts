@@ -22,32 +22,57 @@ test("opening a recorded file shows Purpose on its case, reading it once, and op
 }) => {
   // Short enough that the case sits below the start of Purpose.
   await page.setViewportSize({ width: 1280, height: 640 });
-  const requests = await publishDoughnutCasePosition(page);
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  const fileName = intent.getByRole("button", {
-    name: doughnutCaseFeaturePath,
-    exact: true,
+  let noteGrammarRequest: () => void = () => undefined;
+  const grammarRequested = new Promise<void>((resolve) => {
+    noteGrammarRequest = resolve;
   });
-
-  await openDoughnutRecordedCase(intent);
-  await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-  await expectDoughnutCasePositioned(intent);
-  await expect(fileName).toHaveAttribute("aria-pressed", "true");
-  expect(contentReadsOf(requests, doughnutCaseFeaturePath)).toBe(1);
-
-  await test.step("read from the start, opening the recorded file again shows Purpose on its case", async () => {
-    await page.locator(".intent-reading").evaluate((el) => {
-      el.scrollTo({ top: 0 });
+  let releaseGrammar: () => void = () => undefined;
+  const grammarReleased = new Promise<void>((resolve) => {
+    releaseGrammar = resolve;
+  });
+  await page.route(/\/assets\/gherkin-[^/]+\.js$/, async (route) => {
+    noteGrammarRequest();
+    await grammarReleased;
+    await route.continue();
+  });
+  const requests = await publishDoughnutCasePosition(page);
+  try {
+    await openUntilRead(page, "/?project=doughnut");
+    const { intent, intentChoice } = parts(page);
+    await intentChoice.click();
+    const fileName = intent.getByRole("button", {
+      name: doughnutCaseFeaturePath,
+      exact: true,
     });
-    await expect(intent.locator(".source-line.is-target")).not.toBeInViewport();
+
     await openDoughnutRecordedCase(intent);
-    await expect(purposeRegion(intent)).toBeVisible();
+    await grammarRequested;
+    await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await expectDoughnutCasePositioned(intent);
     await expect(fileName).toHaveAttribute("aria-pressed", "true");
-  });
+    expect(contentReadsOf(requests, doughnutCaseFeaturePath)).toBe(1);
+
+    await test.step("highlighting keeps the reader at the start, opening the recorded file again shows Purpose on its case", async () => {
+      await page.locator(".intent-reading").evaluate((el) => {
+        el.scrollTo({ top: 0 });
+      });
+      await expect(
+        intent.locator(".source-line.is-target"),
+      ).not.toBeInViewport();
+      releaseGrammar();
+      await expect(intent.locator(".source-token").first()).toBeAttached();
+      await expect(
+        intent.locator(".source-line.is-target"),
+      ).not.toBeInViewport();
+      await openDoughnutRecordedCase(intent);
+      await expect(purposeRegion(intent)).toBeVisible();
+      await expectDoughnutCasePositioned(intent);
+      await expect(fileName).toHaveAttribute("aria-pressed", "true");
+    });
+  } finally {
+    releaseGrammar();
+  }
 });

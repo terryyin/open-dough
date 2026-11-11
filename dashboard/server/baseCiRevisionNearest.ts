@@ -89,6 +89,10 @@ export type RevisionCiLookup = {
     runId: number,
     latestAttempt: number,
   ) => Promise<readonly ListedRun[]>;
+  // Authoritative bounds of a retained attempt, without selecting a newer run.
+  readonly attemptOf?: (
+    build: RunIdentity & { readonly revision: string },
+  ) => Promise<ListedRun | undefined>;
   // Timing for a selected completed attempt, read only after selection.
   readonly timeWithoutRunnerWaitsOf: (
     build: RevisionCiBuild,
@@ -178,11 +182,7 @@ export async function nearestRevisionBuild(
       laterWithoutResult: skipped,
       ...runLinkOf(run),
       ...runBranchOf(run),
-      ...attemptTimesOf({
-        ...run,
-        startedAt:
-          run.attempt === 1 ? (run.createdAt ?? run.startedAt) : run.startedAt,
-      }),
+      ...attemptTimesOf(run),
     };
     if (state === "running" && preferCompletedAncestor) {
       running = build;

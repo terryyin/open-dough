@@ -8,6 +8,7 @@
 // (its Take), are relative to the page's opening time.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
@@ -89,18 +90,18 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
+const entries = stories.map(({ title, anchor }) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: `SEED-092#${anchor}`,
+      href: `seeds/SEED-092-branch.md#${anchor}`,
+      title,
+    })
+    .please(),
+);
 const seed = `# Branch progress fixture
 
-${stories
-  .map(
-    ({ title, anchor }) => `<a id="${anchor}"></a>
-
-### ${title}
-
-**Identity:** SEED-092#${anchor}
-`,
-  )
-  .join("\n")}`;
+${entries.map((entry) => renderStorySection(entry)).join("\n")}`;
 
 // The plan with `statuses`.
 const planOf = (
@@ -114,15 +115,7 @@ const planOf = (
 // copy of the branch story's plan is as it was at Take.
 const atTrunk = {
   backlog: {
-    taken: stories.map(({ title, anchor }) =>
-      makeMe.aBacklogEntry
-        .with({
-          identity: `SEED-092#${anchor}`,
-          href: `seeds/SEED-092-branch.md#${anchor}`,
-          title,
-        })
-        .please(),
-    ),
+    taken: entries,
   },
   files: {
     [seedPath]: seed,

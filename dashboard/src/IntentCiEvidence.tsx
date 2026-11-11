@@ -23,61 +23,47 @@
 // result endpoint that its historical source owner established, separately
 // from the comparison's measured CI revision.
 
+import type { CiFollowUpReading } from "./ciFollowUpReading.ts";
 import { createContext, useContext, type ReactNode } from "react";
 import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
-import { ciTargetOf, type CiTarget } from "./intentCiTarget.ts";
+import { ciTargetOf } from "./intentCiTarget.ts";
+import { intentCiHistorySourceKey } from "./intentCiHistorySourceKey.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import {
-  useIntentCiComparison,
-  type ComparisonReading,
-} from "./useIntentCiComparison.ts";
-import {
-  useIntentCiComparisonEndpointProofs,
-  type ComparisonEndpointProofs,
-} from "./useIntentCiComparisonEntries.ts";
-import {
-  useIntentCiJudgment,
-  type JudgedReading,
-} from "./useIntentCiJudgment.ts";
-import {
-  useIntentCiHistory,
-  type HistoryReading,
-} from "./useIntentCiHistory.ts";
-import {
-  useIntentCiShownProof,
-  type ShownProof,
-} from "./useIntentCiShownProof.ts";
+import { useKeptReading } from "./pageIntentReading.tsx";
+import { useIntentCiComparison } from "./useIntentCiComparison.ts";
+import { useIntentCiComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
+import { useIntentCiJudgment } from "./useIntentCiJudgment.ts";
+import { useIntentCiHistory } from "./useIntentCiHistory.ts";
+import { useIntentCiShownProof } from "./useIntentCiShownProof.ts";
 
-export type CiEvidence =
-  // Nothing here reads CI (no owner, or not active).
-  | { readonly kind: "inactive" }
-  | Extract<CiTarget, { kind: "gap" }>
-  | {
-      readonly kind: "comparison";
-      readonly phase: "done" | "taken";
-      readonly source: PublishedSource;
-      readonly story: string;
-      readonly identity: string;
-      readonly comparison: ComparisonReading;
-      readonly endpointProofs: ComparisonEndpointProofs | undefined;
-      readonly doneEndpoint?: ScopeHistoryEndpoint;
-      readonly doneEndpointReason?: string;
-    }
-  | {
-      readonly kind: "judged";
-      readonly source: PublishedSource;
-      readonly branch: string;
-      readonly story: string | undefined;
-      readonly judged: JudgedReading;
-      readonly proof: ShownProof | undefined;
-      // The trunk's: its collected CI wall time history.
-      readonly history?: HistoryReading;
-      // Taken Story Branch: provisional comparison beside the live judgment.
-      readonly comparison?: ComparisonReading;
-      readonly comparisonStory?: string;
-      readonly endpointProofs?: ComparisonEndpointProofs;
-    };
+export type { CiEvidence } from "./intentCiEvidenceModel.ts";
+import type { CiEvidence } from "./intentCiEvidenceModel.ts";
+
+// Snapshot retrieval can happen on time alone. Only a different published head
+// changes this endpoint and the observation time attached to its local history.
+function useObservedTrunkEndpoint(
+  source: PublishedSource,
+  work: PublishedWork | undefined,
+) {
+  const key = `${intentCiHistorySourceKey(source)}#${work?.revision ?? ""}`;
+  const endpoint =
+    work === undefined
+      ? undefined
+      : {
+          revision: work.revision,
+          at: work.retrievedAt.toISOString(),
+        };
+  const [observed, setObserved] = useKeptReading(
+    "ciObservedTrunkEndpoint",
+    () => ({ key, endpoint }),
+  );
+  if (observed.key !== key) {
+    setObserved({ key, endpoint });
+    return endpoint;
+  }
+  return observed.endpoint;
+}
 
 const CiEvidenceContext = createContext<CiEvidence>({ kind: "inactive" });
 
@@ -108,6 +94,10 @@ export function IntentCiEvidenceProvider({
   readonly children: ReactNode;
 }) {
   const target = ciTargetOf(source, work, selectedIdentity);
+  const projectEndpoint = useObservedTrunkEndpoint(
+    source,
+    target.kind === "judged" && target.story === undefined ? work : undefined,
+  );
   const judgedBranch =
     active && target.kind === "judged" ? target.branch : undefined;
   const comparisonIdentity =
@@ -171,6 +161,7 @@ export function IntentCiEvidenceProvider({
       judged,
       proof,
       ...(history === undefined ? {} : { history }),
+      ...(projectEndpoint === undefined ? {} : { projectEndpoint }),
       ...(target.comparisonIdentity === undefined
         ? {}
         : {
@@ -183,5 +174,45 @@ export function IntentCiEvidenceProvider({
     <CiEvidenceContext.Provider value={evidence}>
       {children}
     </CiEvidenceContext.Provider>
+  );
+}
+
+// A static local evidence source for the retained route, without live hooks.
+export function IntentCiRetainedProvider({
+  source,
+  identity,
+  revision,
+  reading,
+  problem,
+  retry,
+  children,
+}: {
+  readonly source: PublishedSource;
+  readonly identity: string;
+  readonly revision: string;
+  readonly reading: CiFollowUpReading | undefined;
+  readonly problem: string | undefined;
+  readonly retry: () => void;
+  readonly children: ReactNode;
+}) {
+  return (
+    <CiEvidenceContext
+      value={{
+        kind: "retained",
+        source,
+        identity,
+        ...(reading === undefined
+          ? {
+              doneEndpointReason:
+                problem ?? "Reading the selected story’s published landing…",
+            }
+          : { doneEndpoint: { revision, at: reading.at } }),
+        reading,
+        problem,
+        retry,
+      }}
+    >
+      {children}
+    </CiEvidenceContext>
   );
 }

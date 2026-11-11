@@ -10,10 +10,13 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { createCommandAcquisition } from "./ci-command-adapter.mjs";
 import {
+  answeredUnitAttempts,
   callsReached,
   checkedSha,
+  historyDiscoverAttempts,
   projectFixture,
 } from "./ci-command-adapter-test-fixtures.mjs";
 import { ciAttemptKey } from "./ci-failures.mjs";
@@ -52,10 +55,14 @@ async function observeUntilCalls(root, path, count) {
 }
 
 test("observer selects one configured command and stays quiet through pending then success", async (t) => {
-  const fixture = projectFixture(t, (adapter) => ({
-    ciAdapter: [process.execPath, adapter],
-    ciWorkflow: { unusedNativeSetting: true },
-  }));
+  const fixture = projectFixture(t, (adapter) =>
+    makeMe.projectCiSettings
+      .with({
+        ciAdapter: [process.execPath, adapter],
+        ciWorkflow: { unusedNativeSetting: true },
+      })
+      .please(),
+  );
   const events = await observeUntilCalls(fixture.root, fixture.calls, 2);
   const requests = readFileSync(fixture.requests, "utf8")
     .trim()
@@ -148,10 +155,7 @@ test("command acquisition keeps every discover answer beside newest-per-check re
   const adapter = join(root, "answered-adapter.mjs");
   writeFileSync(
     adapter,
-    `process.stdout.write(JSON.stringify({ attempts: [
-  { runId: 'r2', attemptId: '1', sha: ${JSON.stringify(checkedSha)}, outcome: 'success', check: 'unit', time: '2026-09-15T10:01:00Z' },
-  { runId: 'r1', attemptId: '1', sha: ${JSON.stringify(checkedSha)}, outcome: 'success', check: 'unit', time: '2026-09-15T10:00:00Z' },
-] }));
+    `process.stdout.write(JSON.stringify({ attempts: ${JSON.stringify(answeredUnitAttempts)} }));
 `,
   );
   const acquisition = createCommandAcquisition({
@@ -186,6 +190,12 @@ test("command observer treats retained older completed attempts as startup histo
     "c",
     "d",
   ].map((digit) => digit.repeat(40));
+  const { startup, laterFailure } = historyDiscoverAttempts({
+    oldFailure,
+    oldIncomplete,
+    newestSuccess,
+    newFailure,
+  });
   writeFileSync(
     adapter,
     `import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -198,12 +208,8 @@ if (request.operation === 'diagnose') {
   const path = ${JSON.stringify(discoveries)};
   const call = existsSync(path) ? Number(readFileSync(path, 'utf8')) + 1 : 1;
   writeFileSync(path, String(call));
-  const attempts = [
-    { runId: 'r1', attemptId: '1', sha: ${JSON.stringify(oldFailure)}, outcome: 'failure', time: '2026-09-15T10:00:00Z' },
-    { runId: 'r2', attemptId: '1', sha: ${JSON.stringify(oldIncomplete)}, outcome: 'incomplete', time: '2026-09-16T10:00:00Z' },
-    { runId: 'r3', attemptId: '1', sha: ${JSON.stringify(newestSuccess)}, outcome: 'success', time: '2026-09-17T10:00:00Z' },
-  ];
-  if (call > 1) attempts.push({ runId: 'r4', attemptId: '1', sha: ${JSON.stringify(newFailure)}, outcome: 'failure', time: '2026-09-18T10:00:00Z' });
+  const attempts = ${JSON.stringify(startup)};
+  if (call > 1) attempts.push(${JSON.stringify(laterFailure)});
   process.stdout.write(JSON.stringify({ attempts }));
 }
 `,
@@ -211,7 +217,11 @@ if (request.operation === 'diagnose') {
   mkdirSync(join(root, ".planning"));
   writeFileSync(
     join(root, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   const events = await observeUntilCalls(root, discoveries, 4);
 

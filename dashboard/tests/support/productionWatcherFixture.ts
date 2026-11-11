@@ -6,6 +6,21 @@ import { projectConfigurationFile } from "./projectConfiguration.ts";
 import { localPublishedMainFixture } from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
+// Real deployment builds run beside another worker. Keep their two native
+// Rolldown pools bounded unless the caller chose their concurrency.
+export function productionBuildEnvironment(
+  environment: NodeJS.ProcessEnv,
+): NodeJS.ProcessEnv {
+  const env = { ...environment };
+  if (
+    env["ROLLDOWN_WORKER_THREADS"] === undefined &&
+    env["TOKIO_WORKER_THREADS"] === undefined
+  )
+    env["ROLLDOWN_WORKER_THREADS"] = "2";
+  env["RAYON_NUM_THREADS"] ??= "2";
+  return env;
+}
+
 export async function configureWatcherApplication(
   fixture: Awaited<ReturnType<typeof localPublishedMainFixture>>,
 ) {

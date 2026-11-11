@@ -1,8 +1,9 @@
-// Machine-local landed CI observations and their retained proof. Atomic
-// updates preserve final resolutions, accepted attempt summaries, and the
-// shared bounded cohort. References outlive launch records; unreadable bytes
-// remain a public read failure and are preserved on background rebuild.
+// Machine-local landed observations retain final proof, original pins and one bounded cohort.
 
+import {
+  originalSelectionWhenReadable,
+  withOriginalFollowUpSamples,
+} from "./ciFollowUpRetention.ts";
 import { isDeepStrictEqual } from "node:util";
 import { z } from "zod";
 import type { CiProof } from "../src/ciProof.ts";
@@ -24,6 +25,7 @@ export type {
   PendingResolution,
 } from "./landedCiObservation.ts";
 import { keepResolutionDecision } from "./landedCiKeepResolution.ts";
+import { withRefreshedAttemptTiming } from "./landedCiTimingBasis.ts";
 import { windowedHistory } from "./landedCiMeasuredBuilds.ts";
 import { withAdapterIdentity } from "./landedCiHistoryIdentity.ts";
 import type { CollectedProof } from "./landedCiCollectedProof.ts";
@@ -79,7 +81,10 @@ export async function readLandedCiHistory(
 ): Promise<ProjectHistory | undefined> {
   const read = await readStoredLandedCiHistory();
   return read.kind === "document"
-    ? withAdapterIdentity(read.document[sourceId] ?? noHistory)
+    ? withOriginalFollowUpSamples(
+        sourceId,
+        withAdapterIdentity(read.document[sourceId] ?? noHistory),
+      )
     : undefined;
 }
 
@@ -128,7 +133,7 @@ export async function keepLandedCiResolution(
   collected?: CollectedProof,
 ): Promise<ProjectHistory> {
   let history = noHistory;
-  await replaceMachineJson(historyStore(), (stored) => {
+  await replaceMachineJson(historyStore(), async (stored) => {
     const original = stored[sourceId] ?? noHistory;
     const compatible = withAdapterIdentity(original);
     const supplied =
@@ -147,7 +152,11 @@ export async function keepLandedCiResolution(
       project,
       landing.revision,
       held,
-      keptResolution(resolution),
+      await originalSelectionWhenReadable(
+        project,
+        landing,
+        keptResolution(resolution),
+      ),
     );
     if (decision.kind === "hold") {
       history = windowedHistory(project);
@@ -178,7 +187,10 @@ export async function keepLandedCiResolution(
           ? project.builds
           : {
               ...project.builds,
-              [build[0]]: project.builds[build[0]] ?? build[1],
+              [build[0]]: withRefreshedAttemptTiming(
+                project.builds[build[0]],
+                build[1],
+              ),
             },
     });
     if (collected !== undefined && build !== undefined)

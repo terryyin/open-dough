@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { readDeliveryProgress, readRevisionCoverage } from "./ci-mailbox.mjs";
-import { publishJson } from "./ci-mailbox-json-file.mjs";
+import { publishRevisionRecord } from "./ci-mailbox-revision-records.mjs";
 import {
   exec,
   launchComplete,
@@ -94,11 +95,16 @@ test("complete-revision preserves exact and ignored-only evidence without changi
     const fixture = await setupProcessMailbox(t);
     const basisSha = "d".repeat(40);
     await register(fixture.env, fixture.mailbox);
-    publishJson(join(fixture.mailbox, "coverage"), `${sha}.json`, {
-      sha,
-      state: "not_required",
-      basis: { sha: basisSha, state: "success" },
-    });
+    publishRevisionRecord(
+      fixture.mailbox,
+      makeMe.aRevisionCoverage
+        .with({
+          sha,
+          state: "not_required",
+          basis: { sha: basisSha, state: "success" },
+        })
+        .please(),
+    );
     const result = parseReceipt(
       (
         await exec(

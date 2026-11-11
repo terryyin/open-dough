@@ -61,57 +61,6 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
-## One Intent workspace with landed CI evidence
-
-Keep Intent as one reading surface. The reading context identifies the project
-or selected story and its evidence revision. The scope identifies the project,
-test entry, folder, or file within that context. Use the existing Intent frame,
-tree, Summary, Proof, and CI comparison as one path through those scopes.
-Share interpretation of run identity, measured units, comparable timing,
-partial evidence, and exact or equivalent provenance. Each view shows the
-details that answer its scope's question. A Done story stays pinned to the
-landing it represents, while navigation and reading place remain browser state.
-[ADR 0002 — Software development lifecycle principles](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus) ·
-[UX/UI North Star](../docs/dashboard-ux-ui-north-star.md#one-intent-workspace-from-project-to-file)
-
-**Published facts and collected evidence.** Git owns the published story and
-revision, the dashboard's landing receipt identifies what the execution
-delivered, and CI owns the outcome and Proof of each run attempt. Join the
-recorded landing to the measured CI attempt explicitly. Retain which revision
-was measured, the workflow and attempt, and which scopes have complete timing.
-For a confirmed skip, retain the distinction between the represented landing
-and the cached equivalent first-parent build. Reuse one observed measurement
-when several landings refer to it. Missing evidence remains a gap.
-
-**Background collection and local reading.** Once a Done report and its
-accepted landing are recorded, collect the exact landed result through the
-project's existing CI read boundary. Make collection independent of the view,
-able to wait for pending CI, and safe to resume after duplicate reports or a
-dashboard restart. Keep a bounded machine-local history of measurements and
-available Proof across restarts. Retain the Done and landing references that
-identify those observations for the history window, independently of the
-launch-list display. Derive the trend and moving average from the individual
-observations. Browsing history, including an equivalent-build lookup, uses
-available local evidence without acquiring more CI data. Current CI status and
-its explicit refresh keep their own observation lifecycle. Rebuild the history
-from recorded landings and available CI evidence, with gaps where evidence was
-missed or has expired. [ADR 0008 — Project dashboard domain and architecture](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-
-**One repeat under project authority.** Treat a timing-triggered rerun as an
-explicitly enabled CI action against the original workflow run and landed
-revision. Use the same deterministic comparison that Intent shows, with the
-prior sample held fixed for both attempts. One landing may request one repeat.
-Keep request progress separate from observed CI outcomes, reconcile uncertain
-requests before deciding what happened, and preserve both attempts for review.
-The Done card and Intent read the same follow-up evidence. Git publication and
-story completion remain owned by the established workflow.
-[ADR 0008 — Observe workflow outcomes without owning them](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
-
-The [landed CI timing seed](seeds/SEED-285-landed-ci-timing-history.md) owns the
-candidate order and calibration questions. Validate the observed cohort and
-comparison before enabling repeat actions. Choose storage and provider details
-as the selected increments need them.
-
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard adds its first action, as proposed in

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-307#run-makeme-harness-once",
+  "title": "Run MakeMe harness checks once by default",
+  "completedAt": "2026-11-11T16:01:28.982Z",
+  "developer": "Terry Yin",
+  "agent": "d.kanai-chan",
+  "host": "claude",
+  "model": "fable"
+}

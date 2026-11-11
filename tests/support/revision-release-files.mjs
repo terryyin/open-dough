@@ -5,7 +5,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   openDoughSource,
-  releaseInstaller,
+  releaseDeclarationFiles,
   shippedPayload,
 } from "./releaseTestData.mjs";
 
@@ -74,7 +74,7 @@ export function releaseFiles(files, release) {
         content,
       ]),
     ),
-    "install.sh": releaseInstaller(release),
+    ...releaseDeclarationFiles(release),
     VERSION: `${version}\n`,
     "CHANGELOG.md": `## ${version} - 2026-09-06\n\n${marker}\n`,
     [markedSkill]: `${readFileSync(join(openDoughSource, markedSkill), "utf8")}\n<!-- open-dough-payload ${marker} -->\n`,

@@ -1,6 +1,10 @@
 // Wall-time eligibility and projection use the same retained snapshot as the
 // existing points/gaps. Published declared proof, not cumulative test timing,
 // establishes completeness. No persistence or acquisition belongs here.
+import {
+  hasAttemptTiming,
+  unverifiedAttemptTiming,
+} from "../src/ciAttemptTiming.ts";
 import { z } from "zod";
 import {
   priorBuildReferenceOf,
@@ -19,6 +23,7 @@ export function wallTimeReadingOf(build: KeptBuild | undefined): {
 } {
   if (build === undefined) return { reason: "Measured build is not retained" };
   if (build.state !== "pass") return { reason: "Failed build" };
+  if (!hasAttemptTiming(build)) return { reason: unverifiedAttemptTiming };
   const ms = historyWallTimeMs(build.startedAt, build.completedAt);
   if (ms === undefined)
     return { reason: "CI wall time bounds are not recorded or invalid" };

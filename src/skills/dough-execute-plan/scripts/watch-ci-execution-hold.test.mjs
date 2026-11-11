@@ -2,12 +2,15 @@
 // outside the three-error loss path, and inside the observation budget.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { GitHubAcquisitionHeld } from "./ci-github-actions.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci-execution.mjs";
 
-const failedJob = { databaseId: 101, name: "Backend", conclusion: "failure" };
+const failedJob = makeMe.aGitHubJob
+  .withFacts({ databaseId: 101, name: "Backend", conclusion: "failure" })
+  .please();
 
 test("waits GitHub directed are not observation errors and are reported once per suspension", async () => {
   const controller = new AbortController();

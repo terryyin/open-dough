@@ -15,7 +15,7 @@ import {
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import { attempts, launch, launchRequest } from "./agentLaunchBoundary.ts";
+import { attempts, launch } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { RawResponse } from "./support/rawHttp.ts";
 import {
@@ -23,12 +23,11 @@ import {
   queuedTitle,
   type StartOrigin,
 } from "./support/startOrigin.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 
-export const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+export const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 export const slug = "prepare-the-queued-start";
 export const keptFacts = `~/git/open-dough/.worktrees/${slug}`;
 

@@ -1,7 +1,8 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `54f9ab0c9b9d523682e42e943b6ddf6dafc7e404`
-  (slice12 done; code5e721503 has exact full CI run42963489603/1 success); completed slice 2
+- Last accepted revision: `9739dd6eb603bf3f7a92d8593201d52f08044698`, with
+  exact17-job CI run43028669492/1 success. Previous54f9 retains slice12 done
+  and code5e721503's full CI run42963489603/1 success; completed slice 2
   was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
@@ -21,18 +22,22 @@
 - Current CI observer: GitHub Actions `terryyin/open-dough`, execution target
   `codex/make-dashboard-journeys-fit-the-default-timeout`, verified selector
   `ci.yml` / display `CI` / workflow351271804; coordinator `seed287-codex`,
-  directory `/tmp/dough-ci-501/watch-DItSBE`, PID35619, session55094,
-  yielded Codex cell `g3:768`. Future managed publications use this exact owner.
+  directory `/tmp/dough-ci-501/watch-kxw2JB`, PID9649, session71843,
+  yielded Codex cell `g3:1135`. Future managed publications use this exact owner.
   Do not poll its stream or wait its yielded cell.
 - Prior ar7mpH, TTextR and HqYW0f streams were explicitly stopped at clean
   boundaries with unread0/PID exit confirmed. Hq82962 stop reports ended and
   pending unobserved coverage; it proves no new CI. Exact code5e success remains
-  independent retained evidence. No new candidate has published since54f9.
-- DItSBE was armed after Hq exit, before the remaining long validation/publication,
+  independent retained evidence. The accepted9739 publication used DItSBE;
+  no subsequent candidate has published. DItSBE and the incomplete initial
+  SSEDaa arming were stopped with unread0 and PID exit confirmed; exact-owner
+  recovery, rather than a newest-mailbox lookup, identified SSEDaa.
+- kxw2JB replaces the ended DItSBE after clean finite-window renewal, before
+  remaining long validation/publication,
   with complete initial identity/session returned. Its finite eight-hour window
   does not renew any accepted-revision completion deadline. Full native binding
   delivers notifications. Recovery is retained externally in
-  `/tmp/seed287-observer-renewal-2-20261111.json`; no newest-mailbox selection.
+  `/tmp/seed287-observer-renewal-4-20261112.json`; no newest-mailbox selection.
   The unrelated old trunk stream2FVQ6l remains unowned/unobserved here.
 
 Accepted proof indices: [probe](execution-evidence.md), [source ingestion](source-ingestion-evidence.md),
@@ -50,8 +55,16 @@ landing context; later trunk publications omit it.
 
 Slice13's current evidence and incoming-work settlement are in
 [final validation](final-validation-evidence.md) and
-[application-source proof](final-source-evidence.md). No execution-complete
-claim or trunk publication has occurred.
+[application-source proof](final-source-evidence.md). The human amendment,
+cancelled zero-SUT queued full gate, current159-item source review and
+initial uncommitted merge of main467ab91f are in
+[amended-source evidence](amended-source-evidence.md). The new five-case
+admission proof is G19. [Current baseline/setup](current-baseline-evidence.md)
+records the disjoint merge refresh throughb4f395ea and finite resource stops;
+current13-shard main and every accepted product promise
+must survive reconciliation. No execution-complete
+claim or trunk publication has occurred. The subsequent valid-pressure two-case
+defect and candidate setup correction are in [native Git evidence](native-git-setup-evidence.md).
 
 ## Preparation history
 

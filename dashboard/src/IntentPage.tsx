@@ -11,6 +11,7 @@ import { Icon } from "./Icon.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
 import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
+import { IntentCiEntryNavigation } from "./IntentCiEntryLink.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentHeader } from "./IntentHeader.tsx";
 import { backToStoryId, projectTabs } from "./intentProjectTabs.ts";
@@ -65,7 +66,7 @@ export function IntentPage({
       ? project.modeIdPrefix
       : `${project.modeIdPrefix}-story`;
   const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
-  const { clearSelection } = useIntentWorkspaceSelection();
+  const { clearSelection, setSelection } = useIntentWorkspaceSelection();
   const [entryReturns, setEntryReturns] = useState(0);
   useEffect(() => {
     if (entryReturns === 0) return;
@@ -201,11 +202,26 @@ export function IntentPage({
       )}
     </>
   );
+  const navigablePage = (
+    <IntentCiEntryNavigation
+      locations={locations}
+      panelId={intentTabPanelId(tabsIdPrefix, browserView)}
+      onOpen={(path) => {
+        setSelection({ path, scope: "location" });
+        if (story === undefined) project.onModeChange("ci");
+        else chooseTab("changed");
+      }}
+    >
+      {page}
+    </IntentCiEntryNavigation>
+  );
   return story === undefined ? (
-    page
+    navigablePage
   ) : (
     <StoryCiReturnProvider idPrefix={tabsIdPrefix} chooseTab={chooseTab}>
-      <IntentCiComparisonPreference>{page}</IntentCiComparisonPreference>
+      <IntentCiComparisonPreference>
+        {navigablePage}
+      </IntentCiComparisonPreference>
     </StoryCiReturnProvider>
   );
 }

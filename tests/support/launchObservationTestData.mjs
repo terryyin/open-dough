@@ -10,8 +10,8 @@
 /** @typedef {import("../../dashboard/src/launchRecord.ts").WorkspaceState} WorkspaceState */
 /** @typedef {Extract<SessionState, { kind: "available" }>} AvailableSession */
 
-// One session's current observation. Choose exactly one of loaded, retained
-// or unknown; there is no default observation.
+// One session's current observation. Choose exactly one of loaded, retained,
+// unknown or unavailable; there is no default observation.
 export class SessionStateBuilder {
   /** @type {SessionState | undefined} */
   #state;
@@ -57,6 +57,12 @@ export class SessionStateBuilder {
       kind: "unknown",
       ...(label === undefined ? {} : { label }),
     };
+    return this;
+  }
+
+  // The host confirmed that this conversation is unavailable.
+  unavailable() {
+    this.#state = { kind: "unavailable" };
     return this;
   }
 

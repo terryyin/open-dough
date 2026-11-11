@@ -48,32 +48,38 @@ test("folder history uses each build's published descendants while excluding sib
       })
       .receivedAt(`2026-11-0${runId}T00:00:00Z`)
       .please();
-    history.recording(landing, `run/${runId}/1`, {
-      revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision, runId })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .holding(
-              ...["case", "file"].map((unit) =>
-                makeMe.aCiProofEvidence
-                  .inUnit(unit)
-                  .brokenDown(
-                    ...files[unit].map(([path, durationMs]) => ({
-                      path,
-                      passed: 1,
-                      durationMs,
-                    })),
-                  )
-                  .please(),
-              ),
-            )
+    history.recording(
+      landing,
+      `run/${runId}/1`,
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision, runId })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .holding(
+                  ...["case", "file"].map((unit) =>
+                    makeMe.aCiProofEvidence
+                      .inUnit(unit)
+                      .brokenDown(
+                        ...files[unit].map(([path, durationMs]) => ({
+                          path,
+                          passed: 1,
+                          durationMs,
+                        })),
+                      )
+                      .please(),
+                  ),
+                )
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    });
+    );
     return landing;
   });
   const selected = landings[1];
@@ -162,17 +168,23 @@ test("a longer owner's former-path evidence cannot borrow a matching parent file
       .deliveredAs({ delivery: `path-${runId}`, receipt: `path-${runId}` })
       .receivedAt(`2026-11-0${runId}T00:00:00Z`)
       .please();
-    history.recording(landing, `run/${runId}/1`, {
-      revision,
-      state: "pass",
-      proof:
-        runId === 4
-          ? { kind: "unavailable", reason: "expired" }
-          : makeMe.aCiProof
-              .forRun({ revision, runId })
-              .entries(entries[runId - 1])
-              .please(),
-    });
+    history.recording(
+      landing,
+      `run/${runId}/1`,
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          state: "pass",
+          proof:
+            runId === 4
+              ? { kind: "unavailable", reason: "expired" }
+              : makeMe.aCiProof
+                  .forRun({ revision, runId })
+                  .entries(entries[runId - 1])
+                  .please(),
+        })
+        .please(),
+    );
     return landing;
   });
   const selected = landings[3];

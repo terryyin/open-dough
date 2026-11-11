@@ -25,7 +25,7 @@ import {
   sharedReadsPublished,
 } from "../../tests/support/sharedReads.ts";
 import { RevisionChecks } from "../../server/revisionChecks.ts";
-import type { PublishedSource } from "../../src/publishedSource.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { listingTimeoutBoundary } from "./listingTimeoutBoundary.ts";
 import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 
@@ -195,13 +195,13 @@ test("a settled listing under one scope does not answer a check under another sc
       });
     },
   });
-  const source: PublishedSource = {
-    id: "open-dough",
-    label: "Open Dough",
-    repository: "terryyin/open-dough",
-    ref: "main",
-    backlogPath: ".planning/PRODUCT-BACKLOG.md",
-  };
+  const source = makeMe.aPublishedSource
+    .with({
+      id: "open-dough",
+      label: "Open Dough",
+      repository: "terryyin/open-dough",
+    })
+    .please();
   const open = () => new AbortController().signal;
   expect((await checks.check(source, open())).revision).toBe(revision);
   expect(listings).toBe(1);

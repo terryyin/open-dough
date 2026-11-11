@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { exec, git } from "./publication-test-fixtures.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
@@ -11,21 +12,24 @@ import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import { completeThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
 import { createReuseCheckCommands } from "./ci-reuse-check-command-test-fixtures.mjs";
+import { coveredJob, sourceRun } from "./ci-reuse-github-test-fixtures.mjs";
 
 export async function installReuseProvider(fixture) {
   Object.assign(fixture, { env: workerPollingEnvironment(fixture.env) });
   Object.assign(fixture.requestBase, { env: fixture.env });
-  const policy = {
-    repo: "owner/project",
-    workflow: "ci.yml",
-    unit: "covered",
-    configuration: "checks-v1",
-    context: "inputs-v1",
-    targetRef: "main",
-    refs: ["exec/story", "main"],
-    events: ["push"],
-    maxAgeMs: 3600000,
-  };
+  const policy = makeMe.aCiReusePolicy
+    .with({
+      repo: "owner/project",
+      workflow: "ci.yml",
+      unit: "covered",
+      configuration: "checks-v1",
+      context: "inputs-v1",
+      targetRef: "main",
+      refs: ["exec/story", "main"],
+      events: ["push"],
+      maxAgeMs: 3600000,
+    })
+    .please();
   const { count, runCovered, runTargetOnly } = createReuseCheckCommands(
     fixture,
     policy,
@@ -50,13 +54,12 @@ export async function installReuseProvider(fixture) {
       return {
         total_count: 1,
         jobs: [
-          {
-            id: source.id,
+          coveredJob({
+            databaseId: source.id,
             name: policy.unit,
-            status: "completed",
             conclusion: source.conclusion,
             completed_at: source.updated_at,
-          },
+          }),
         ],
       };
     return source;
@@ -72,18 +75,21 @@ export async function installReuseProvider(fixture) {
       const result = await runCovered(sha, failed);
       const at = new Date().toISOString();
       const source = {
-        id: `source-opaque-${sources.length}`,
-        run_attempt: 1,
-        head_sha: sha,
-        head_branch: "exec/story",
-        event: "push",
-        workflow_id: 7,
-        head_repository: { full_name: policy.repo },
-        html_url: "https://ci.example/source",
-        status: "completed",
-        conclusion: result.success ? "success" : "failure",
-        run_started_at: at,
-        updated_at: at,
+        ...sourceRun(
+          {
+            databaseId: `source-opaque-${sources.length}`,
+            attempt: 1,
+            headSha: sha,
+            headBranch: "exec/story",
+            event: "push",
+            status: "completed",
+            conclusion: result.success ? "success" : "failure",
+            url: "https://ci.example/source",
+            workflowId: 7,
+            headRepository: { full_name: policy.repo },
+          },
+          { startedAt: at, completedAt: at },
+        ),
         log: result.log,
       };
       sources.push(source);
@@ -125,17 +131,19 @@ export async function installReuseProvider(fixture) {
       const targetSuccess = await runTargetOnly(sha, targetFailed);
       const runId = `target:opaque/${targets.length}`;
       const report = join(fixture.fixture, `target-${targets.length}.json`);
-      const attempt = {
-        runId,
-        attemptId: "attempt:opaque/target",
-        sha,
-        outcome: cancelled
-          ? "incomplete"
-          : coveredSuccess && targetSuccess
-            ? "success"
-            : "failure",
-        url: pathToFileURL(report).href,
-      };
+      const attempt = makeMe.aCiAdapterAttempt
+        .with({
+          runId,
+          attemptId: "attempt:opaque/target",
+          sha,
+          outcome: cancelled
+            ? "incomplete"
+            : coveredSuccess && targetSuccess
+              ? "success"
+              : "failure",
+          url: pathToFileURL(report).href,
+        })
+        .please();
       writeFileSync(
         report,
         JSON.stringify({ target: attempt, decision }, null, 2),

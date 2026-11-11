@@ -4,6 +4,17 @@
 
 export type GhActionsRequest =
   | {
+      readonly kind: "actions-current-run";
+      readonly repository: string;
+      readonly runId: number;
+    }
+  | {
+      readonly kind: "actions-workflow-rerun";
+      readonly repository: string;
+      readonly runId: number;
+      readonly method: "POST";
+    }
+  | {
       // A selected Actions workflow by filename or id.
       readonly kind: "actions-workflow";
       readonly repository: string;
@@ -52,7 +63,20 @@ const pattern = (path: string) => new RegExp(`^${repository}${path}$`);
 // The Actions request `endpoint` names, undefined when it names none.
 export function parseActionsRequest(
   endpoint: string,
+  method = "GET",
 ): GhActionsRequest | undefined {
+  if (method === "POST") {
+    const rerun = pattern("runs\\/(\\d+)\\/rerun").exec(endpoint);
+    return rerun?.[1] !== undefined && rerun[2] !== undefined
+      ? {
+          kind: "actions-workflow-rerun",
+          repository: rerun[1],
+          runId: Number(rerun[2]),
+          method,
+        }
+      : undefined;
+  }
+  if (method !== "GET") return undefined;
   const workflow = pattern("workflows\\/([^/?]+)").exec(endpoint);
   if (workflow?.[1] !== undefined && workflow[2] !== undefined)
     return {
@@ -71,6 +95,13 @@ export function parseActionsRequest(
       headSha: query.get("head_sha") ?? "",
     };
   }
+  const current = pattern("runs\\/(\\d+)").exec(endpoint);
+  if (current?.[1] !== undefined && current[2] !== undefined)
+    return {
+      kind: "actions-current-run",
+      repository: current[1],
+      runId: Number(current[2]),
+    };
   const attempt = pattern("runs\\/(\\d+)\\/attempts\\/(\\d+)$").exec(endpoint);
   if (
     attempt?.[1] !== undefined &&

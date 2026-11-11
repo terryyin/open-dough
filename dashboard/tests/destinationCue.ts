@@ -49,6 +49,50 @@ export async function passPartOfCue(page: Page, ms: number) {
   await passPageMs(page, ms);
 }
 
+const cueProgress = (card: Locator, holdAt: number | null = null) =>
+  card.evaluate(async (element, time) => {
+    const animation = element
+      .getAnimations({ subtree: true })
+      .find(
+        (candidate) =>
+          candidate instanceof CSSAnimation &&
+          candidate.animationName === "story-card-destination-cue",
+      );
+    if (!animation) throw new Error("Destination cue animation is missing");
+    if (time !== null) {
+      animation.pause();
+      animation.currentTime = time;
+      await animation.ready;
+    }
+    if (typeof animation.currentTime !== "number") {
+      throw new Error("Destination cue animation has no numeric time");
+    }
+    return {
+      time: animation.currentTime,
+      opacity: Number(getComputedStyle(element, "::after").opacity),
+    };
+  }, holdAt);
+
+// Page-clock advancement controls the cue's timer, not CSS animation time.
+// Hold only the first animation; the repeated reference must restart it.
+export async function holdDestinationCueWhileFading(card: Locator, ms: number) {
+  const fading = await cueProgress(card, ms);
+  expect(fading.time).toBeGreaterThan(0);
+  expect(fading.opacity).toBeGreaterThan(0);
+  expect(fading.opacity).toBeLessThan(1);
+  return fading.time;
+}
+
+export async function expectDestinationCueRestarted(
+  card: Locator,
+  previousTime: number,
+) {
+  const restarted = await cueProgress(card);
+  expect(restarted.time).toBeGreaterThanOrEqual(0);
+  expect(restarted.time).toBeLessThan(previousTime);
+  expect(restarted.opacity).toBe(1);
+}
+
 // Once its page time has passed, the cue ends and no card shows it.
 export async function expectCueEnds(page: Page, card: Locator) {
   await passPageMs(page, destinationCueMs);

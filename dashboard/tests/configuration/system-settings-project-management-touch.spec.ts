@@ -122,6 +122,9 @@ test.describe(`${name} project settings editing`, () => {
       name: "Remove Sample App?",
       exact: true,
     });
+    // Project settings continue below the facts; scroll to their actions
+    // before observing and tapping the Remove target at its shown position.
+    await removeProject.scrollIntoViewIfNeeded();
     await tapWhereShown(removeProject);
     await tapWhereShown(
       removal.getByRole("button", { name: "Remove", exact: true }),

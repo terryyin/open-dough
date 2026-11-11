@@ -1,15 +1,25 @@
 // Whole-file source text with line numbers for Intent Purpose reading and,
 // later, other readers. Plain text shows immediately; when `language` is
 // set, Shiki token colours arrive without delaying that text, and a failed
-// grammar load leaves the lines plain with no error. An optional 1-based
-// `targetLine` identifies and scrolls that case into view.
+// grammar load leaves the lines plain with no error. Light and dark token
+// colours ride as CSS custom properties so a system appearance change updates
+// already rendered text without a new fetch or tokenization. An optional
+// 1-based `targetLine` identifies and scrolls that case into view.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   highlightSourceLines,
   type SourceTokenLine,
 } from "./sourceHighlight.ts";
 import "./source-lines.css";
+
+function tokenStyle(token: SourceTokenLine[number]): CSSProperties | undefined {
+  if (token.light === undefined && token.dark === undefined) return undefined;
+  return {
+    ...(token.light === undefined ? {} : { ["--shiki-light"]: token.light }),
+    ...(token.dark === undefined ? {} : { ["--shiki-dark"]: token.dark }),
+  } as CSSProperties;
+}
 
 function LineText({
   line,
@@ -24,10 +34,7 @@ function LineText({
   return (
     <code className="source-line-text">
       {tokens.map((token, index) => (
-        <span
-          key={index}
-          style={token.color === undefined ? undefined : { color: token.color }}
-        >
+        <span key={index} className="source-token" style={tokenStyle(token)}>
           {token.content}
         </span>
       ))}
@@ -75,7 +82,9 @@ export function SourceLines({
   useEffect(() => {
     if (targetLine === undefined) return;
     targetRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
-  }, [targetLine, text, tokenLines]);
+    // Highlighting only colours the same text; its later arrival must not
+    // move the reader back after they have scrolled away from this case.
+  }, [targetLine, text]);
 
   return (
     <pre

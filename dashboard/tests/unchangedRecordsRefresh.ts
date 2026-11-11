@@ -3,6 +3,7 @@
 // the specs of what a newly published commit costs and when its cards show.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -44,20 +45,17 @@ const entry = (anchor: string, title: string) =>
       title,
     })
     .please();
-const story = (anchor: string, title: string) => `<a id="${anchor}"></a>
-
-### ${title}
-
-**Identity:** SEED-271#${anchor}
-`;
+const refreshEntry = entry("refresh", takenTitle);
+const queuedEntry = entry("queued", queuedTitle);
+const addedEntry = entry("added", addedTitle);
 const seedProse = `# Refresh fixture
 
-${story("refresh", takenTitle)}
-${story("queued", queuedTitle)}`;
+${renderStorySection(refreshEntry)}
+${renderStorySection(queuedEntry)}`;
 // The Taken story planned in its plan, recorded in whichever seed text.
 const refreshPlanned = {
-  identity: "SEED-271#refresh",
-  href: "seeds/SEED-271-refresh.md#refresh",
+  identity: refreshEntry.identity,
+  href: refreshEntry.href,
   ...makeMe.aStoryPreparation
     .plannedIn("../slice-plans/271-refresh/PLAN.md")
     .please(),
@@ -69,8 +67,8 @@ const published = describedRevisions(
   makeMe.aRepository
     .withRevision("A", {
       backlog: {
-        taken: [entry("refresh", takenTitle)],
-        queued: [entry("queued", queuedTitle)],
+        taken: [refreshEntry],
+        queued: [queuedEntry],
       },
       files: {
         [seedPath]: seedProse,
@@ -103,10 +101,12 @@ const published = describedRevisions(
     })
     .withRevision("added", {
       backlog: {
-        taken: [entry("refresh", takenTitle)],
-        queued: [entry("queued", queuedTitle), entry("added", addedTitle)],
+        taken: [refreshEntry],
+        queued: [queuedEntry, addedEntry],
       },
-      files: { [seedPath]: `${seedProse}\n${story("added", addedTitle)}` },
+      files: {
+        [seedPath]: `${seedProse}\n${renderStorySection(addedEntry)}`,
+      },
       storyStates: [refreshPlanned],
     })
     .please(),

@@ -4,6 +4,7 @@
 // state over the selected project, independent of Development's view: Intent
 // keeps the view Development returns to, and a project change keeps both.
 
+import type { FollowUpDestination } from "./ciFollowUpReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { firstProject } from "./projectList.tsx";
 import {
@@ -21,17 +22,22 @@ export type DashboardRoute = {
   readonly view: DashboardView;
   readonly perspective: DashboardPerspective;
   readonly story?: StoryDestination;
+  readonly followUp?: FollowUpDestination;
 };
 
 // The address of a route; a story destination is not part of it.
 export function buildRouteUrl(
-  { source, view, perspective }: Omit<DashboardRoute, "story">,
+  { source, view, perspective, followUp }: Omit<DashboardRoute, "story">,
   projects: readonly PublishedSource[],
 ): string {
   if (projects.length === 0 || source === undefined) return "/";
   const defaultSource = firstProject(projects);
   const params = new URLSearchParams();
-  if (source.id !== defaultSource.id || view === "roster") {
+  if (
+    source.id !== defaultSource.id ||
+    view === "roster" ||
+    followUp !== undefined
+  ) {
     params.set("project", source.id);
   }
   if (view === "roster") {
@@ -39,6 +45,10 @@ export function buildRouteUrl(
   }
   if (perspective === "intent") {
     params.set("perspective", "intent");
+  }
+  if (followUp !== undefined) {
+    params.set("followUp", followUp.identity);
+    params.set("landing", followUp.revision);
   }
   const query = params.toString();
   return query ? `/?${query}` : "/";
@@ -114,7 +124,15 @@ export function parseRoute(
   const isInvalidView =
     viewParam !== null && viewParam !== "roster" && viewParam !== "stories";
 
-  const route = { source, view, perspective };
+  const identity = params.get("followUp"),
+    revision = params.get("landing");
+  const followUp = identity && revision ? { identity, revision } : undefined;
+  const route = {
+    source,
+    view,
+    perspective,
+    ...(followUp === undefined ? {} : { followUp }),
+  };
   return {
     route,
     normalizedUrl:

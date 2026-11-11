@@ -1,8 +1,6 @@
 // The request owner's private endpoint, spoken to directly over its socket
-// and through a consumer whose endpoint is not private: only this user's
-// directory holds it, only a caller with the owner's token is heard, and
-// only the one fixed read, asked under the owner's own login, is asked of
-// `gh`.
+// and through a consumer whose endpoint is not private: caller authentication,
+// scoped read-only arguments and the explicit action-capability welcome.
 import assert from "node:assert/strict";
 import { chmodSync, existsSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
@@ -28,6 +26,7 @@ import { GitHubRequests } from "./github-requests.mjs";
 
 const never = () => new AbortController().signal;
 const workflow = ["api", "repos/owner/repo/actions/workflows/ci.yml"];
+const welcome = { welcome: protocol, operations: ["rerun-workflow"] };
 
 function consumer(t) {
   const github = instrumentedGithubFixture(t, {
@@ -105,6 +104,7 @@ test("the owner hears only a caller holding its token and speaking its protocol,
     ["api"],
     ["api", "--input", "/etc/hosts", "repos/owner/repo"],
     ["api", "-X", "DELETE", "repos/owner/repo"],
+    ["api", "--method", "POST", "repos/owner/repo/actions/runs/71/rerun"],
     ["api", "-f", "name=changed", "repos/owner/repo"],
     ["api", "--hostname", "elsewhere.example", "repos/owner/repo"],
     ["api", "https://elsewhere.example/repos/owner/repo"],
@@ -125,7 +125,7 @@ test("the owner hears only a caller holding its token and speaking its protocol,
   );
   assert.equal(heard.closed, false);
   assert.deepEqual(heard.lines.slice(0, -1), [
-    { welcome: protocol },
+    welcome,
     ...[...refusedReads.keys(), 19, 20].map((index) => ({
       id: index + 1,
       refused: "not a GitHub API read",
@@ -140,7 +140,7 @@ test("the owner hears only a caller holding its token and speaking its protocol,
       await saidToOwner(path, [{ hello: protocol, token }, other]),
       {
         closed: true,
-        lines: [{ welcome: protocol }, { refused: "unknown operation" }],
+        lines: [welcome, { refused: "unknown operation" }],
       },
     );
 

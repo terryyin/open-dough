@@ -108,6 +108,12 @@ function headerArgument(
 
 export function parseRequest(argv: readonly string[]): GhRequest {
   const endpoint = argv.find((arg) => arg.startsWith("repos/")) ?? "";
+  const methodAt = argv.findIndex((arg) => arg === "--method" || arg === "-X");
+  const method = (
+    methodAt < 0 ? "GET" : (argv[methodAt + 1] ?? "")
+  ).toUpperCase();
+  if (method !== "GET")
+    return parseActionsRequest(endpoint, method) ?? { kind: "unknown" };
   const repository = /^repos\/([^/]+\/[^/]+)$/.exec(endpoint)?.[1];
   if (repository !== undefined) return { kind: "repository", repository };
   const ref = /^repos\/([^/]+\/[^/]+)\/commits\/(.+)$/.exec(endpoint);

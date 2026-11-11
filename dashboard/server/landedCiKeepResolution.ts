@@ -4,6 +4,7 @@
 // stays or a pending / reopenable gap may replace.
 
 import { isDeepStrictEqual } from "node:util";
+import { withRefreshedAttemptTiming } from "./landedCiTimingBasis.ts";
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
 import { hasLandingOrder, measuredBuildOf } from "./landedCiMeasuredBuilds.ts";
 import {
@@ -29,6 +30,16 @@ export function keepResolutionDecision(
     readonly build?: readonly [string, KeptBuild];
   },
 ): KeepResolutionDecision {
+  if (held?.kind === "build" && kept.build?.[0] === held.build) {
+    const previous = project.builds[held.build];
+    const refreshed = withRefreshedAttemptTiming(previous, kept.build[1]);
+    if (previous !== undefined && refreshed !== previous)
+      return {
+        kind: "replace",
+        observed: held,
+        build: [held.build, refreshed],
+      };
+  }
   const wouldMeasure =
     kept.build !== undefined &&
     measuredBuildOf(

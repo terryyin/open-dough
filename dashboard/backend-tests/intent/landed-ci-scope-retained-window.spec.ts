@@ -94,12 +94,14 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
       completedAt: "2026-11-05T10:20:30Z",
     })
     .please();
-  const proofRun = {
-    repository: "terryyin/open-dough",
-    runId: 120,
-    attempt: 1,
-    revision: newest.revision,
-  };
+  const proofRun = makeMe.aCiProofCollectorRun
+    .with({
+      repository: "terryyin/open-dough",
+      runId: 120,
+      attempt: 1,
+      revision: newest.revision,
+    })
+    .please();
   const text = collectedScopeFileSummary(proofRun, [
     ["folder/newest.spec.ts", 2100, 210],
     ["folder/zero.spec.ts", 0, 0],
@@ -170,10 +172,11 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     ),
   ).toHaveLength(1);
 
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "boundary"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  readers.push(reader);
   const asked = github.calls.length;
   const selected = await scopedHistory(
-    dashboard.origin,
+    reader.origin,
     newest.revision,
     accepted.receivedAt,
   );
@@ -209,13 +212,13 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
       ],
     }),
   ]);
-  await expectProjectHistoryCohort(dashboard, expectedOrder, [
+  await expectProjectHistoryCohort(reader, expectedOrder, [
     ...window.map(({ landing }) => landing.revision),
     shared.revision,
     newest.revision,
   ]);
   const evicted = await scopedHistory(
-    dashboard.origin,
+    reader.origin,
     oldest.landing.revision,
     oldest.landing.receivedAt,
   );
@@ -241,7 +244,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
   ).toBe(true);
   expect(evicted.body.entries[0]).not.toHaveProperty("build");
   expect(
-    await scopedHistory(dashboard.origin, newest.revision, accepted.receivedAt),
+    await scopedHistory(reader.origin, newest.revision, accepted.receivedAt),
   ).toEqual(selected);
   expect(github.calls).toHaveLength(asked);
 });

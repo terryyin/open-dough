@@ -3,6 +3,7 @@
 // the refresh merge.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { makeMe } from "./makeMe.mjs";
 import {
   dealShares,
   formatPreview,
@@ -19,12 +20,14 @@ const predicted = (deal) =>
   deal.shares.map((share) => formatSeconds(share.predicted));
 
 test("ties go to the lower share and each share starts longest first", () => {
-  const seconds = new Map([
-    ["c", 5],
-    ["a", 5],
-    ["b", 5],
-    ["d", 1],
-  ]);
+  const seconds = makeMe.jobDurations
+    .with([
+      ["c", 5],
+      ["a", 5],
+      ["b", 5],
+      ["d", 1],
+    ])
+    .please();
   const deal = dealShares(["d", "b", "a", "c"], seconds, 2);
   // a, b, c (bytewise among equal seconds): a to share 1, b to share 2, c to
   // share 1 as the lower of two equal totals; d then to share 2.
@@ -35,10 +38,12 @@ test("ties go to the lower share and each share starts longest first", () => {
   // unrecorded in bytewise order.
   const mixed = dealShares(
     ["z-new", "a-new", "short", "long"],
-    new Map([
-      ["short", 1],
-      ["long", 9],
-    ]),
+    makeMe.jobDurations
+      .with([
+        ["short", 1],
+        ["long", 9],
+      ])
+      .please(),
     1,
   );
   assert.deepEqual(shareLabels(mixed, 1), ["long", "short", "a-new", "z-new"]);
@@ -47,28 +52,36 @@ test("ties go to the lower share and each share starts longest first", () => {
 test("unrecorded jobs take the recorded median, or 1 s without a usable one", () => {
   const odd = dealShares(
     ["a", "b", "c", "n"],
-    new Map([
-      ["a", 1],
-      ["b", 10],
-      ["c", 4],
-    ]),
+    makeMe.jobDurations
+      .with([
+        ["a", 1],
+        ["b", 10],
+        ["c", 4],
+      ])
+      .please(),
     2,
   );
   assert.equal(odd.recordedMedian, 4);
   assert.equal(odd.assumedSeconds, 4);
   const even = dealShares(
     ["a", "b", "c", "d", "n"],
-    new Map([
-      ["a", 1],
-      ["b", 10],
-      ["c", 4],
-      ["d", 2],
-    ]),
+    makeMe.jobDurations
+      .with([
+        ["a", 1],
+        ["b", 10],
+        ["c", 4],
+        ["d", 2],
+      ])
+      .please(),
     2,
   );
   assert.equal(even.recordedMedian, 3);
   assert.deepEqual(predicted(even), ["10.0", "10.0"]);
-  const none = dealShares(["c", "a", "b"], new Map(), 2);
+  const none = dealShares(
+    ["c", "a", "b"],
+    makeMe.jobDurations.with([]).please(),
+    2,
+  );
   assert.equal(none.recordedMedian, undefined);
   assert.equal(none.assumedSeconds, 1);
   // Equal assumed seconds deal round-robin in bytewise order.
@@ -78,7 +91,11 @@ test("unrecorded jobs take the recorded median, or 1 s without a usable one", ()
     formatPreview(none, { listName: "none" }),
     /3 unrecorded at 1\.0 s each \(no usable recorded median\)/,
   );
-  const zero = dealShares(["a", "n"], new Map([["a", 0]]), 2);
+  const zero = dealShares(
+    ["a", "n"],
+    makeMe.jobDurations.with([["a", 0]]).please(),
+    2,
+  );
   assert.equal(zero.assumedSeconds, 1);
 });
 
@@ -110,33 +127,39 @@ test("a list line that is not <seconds><TAB><label> fails naming the file, line 
 });
 
 test("runner factor is the median over measurable recorded jobs, else unavailable", () => {
-  const recorded = new Map([
-    ["a", 10],
-    ["b", 10],
-    ["c", 10],
-    ["tiny", 1.5],
-  ]);
+  const recorded = makeMe.jobDurations
+    .with([
+      ["a", 10],
+      ["b", 10],
+      ["c", 10],
+      ["tiny", 1.5],
+    ])
+    .please();
   assert.deepEqual(
     runnerFactor(
       recorded,
-      new Map([
-        ["a", 20],
-        ["b", 30],
-        ["c", 40],
-        ["tiny", 15],
-      ]),
+      makeMe.jobDurations
+        .with([
+          ["a", 20],
+          ["b", 30],
+          ["c", 40],
+          ["tiny", 15],
+        ])
+        .please(),
     ),
     { factor: 3, available: true },
   );
   assert.equal(
     formatRunnerFactorLine(
       recorded,
-      new Map([
-        ["a", 20],
-        ["b", 30],
-        ["c", 40],
-        ["tiny", 15],
-      ]),
+      makeMe.jobDurations
+        .with([
+          ["a", 20],
+          ["b", 30],
+          ["c", 40],
+          ["tiny", 15],
+        ])
+        .please(),
     ),
     "3\t3.0\n",
   );
@@ -144,30 +167,50 @@ test("runner factor is the median over measurable recorded jobs, else unavailabl
   assert.deepEqual(
     runnerFactor(
       recorded,
-      new Map([
-        ["a", 20],
-        ["b", 40],
-        ["tiny", 100],
-      ]),
+      makeMe.jobDurations
+        .with([
+          ["a", 20],
+          ["b", 40],
+          ["tiny", 100],
+        ])
+        .please(),
     ),
     { factor: 3, available: true },
   );
-  assert.deepEqual(runnerFactor(recorded, new Map([["tiny", 10]])), {
-    factor: 1,
-    available: false,
-  });
+  assert.deepEqual(
+    runnerFactor(recorded, makeMe.jobDurations.with([["tiny", 10]]).please()),
+    {
+      factor: 1,
+      available: false,
+    },
+  );
   assert.equal(
-    formatRunnerFactorLine(recorded, new Map([["tiny", 10]])),
+    formatRunnerFactorLine(
+      recorded,
+      makeMe.jobDurations.with([["tiny", 10]]).please(),
+    ),
     "1\tunavailable\n",
   );
-  assert.deepEqual(runnerFactor(new Map(), new Map([["only", 5]])), {
-    factor: 1,
-    available: false,
-  });
-  assert.deepEqual(runnerFactor(recorded, new Map([["unrecorded", 50]])), {
-    factor: 1,
-    available: false,
-  });
+  assert.deepEqual(
+    runnerFactor(
+      makeMe.jobDurations.with([]).please(),
+      makeMe.jobDurations.with([["only", 5]]).please(),
+    ),
+    {
+      factor: 1,
+      available: false,
+    },
+  );
+  assert.deepEqual(
+    runnerFactor(
+      recorded,
+      makeMe.jobDurations.with([["unrecorded", 50]]).please(),
+    ),
+    {
+      factor: 1,
+      available: false,
+    },
+  );
 });
 
 test("refresh merges times files into a list, longest first, keeping every job and the header", () => {

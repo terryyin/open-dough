@@ -24,14 +24,10 @@ mkdir -p -- "${checks}" "${fake}/bin" "${fake}/runs"
 printf '# Substitute budget.\nper-job-seconds=71\ntotal-job-seconds=470\n' > "${checks}/time-budget"
 # Measurable recorded times for the fixture jobs; runner-factor medians use
 # these so the report divides observed times into recorded-speed units.
-cat > "${checks}/longest-first" << 'LIST'
-100.0	tests/filler.sh
-50.0	tests/thin.sh
-50.0	tests/edge.sh
-40.0	tests/git-publication-native.sh
-10.0	tests/other.sh
-5.0	tests/late.sh
-LIST
+node "${source_dir}/tests/support/job-duration-list.mjs" \
+  100 tests/filler.sh 50 tests/thin.sh 50 tests/edge.sh \
+  40 tests/git-publication-native.sh 10 tests/other.sh 5 tests/late.sh \
+  > "${checks}/longest-first"
 
 # The stand-in logs its arguments, prints the `--jq` listing from fixture
 # `listing` (or fails with `list-error` when present), and downloads a run's
@@ -66,10 +62,7 @@ artifact() {
   local dir="${fake}/runs/$1/test-times-$2"
   shift 2
   mkdir -p -- "${dir}"
-  while (($# > 0)); do
-    printf '%s\t%s\n' "$1" "$2" >> "${dir}/test-times.txt"
-    shift 2
-  done
+  node "${source_dir}/tests/support/job-duration-list.mjs" "$@" >> "${dir}/test-times.txt"
 }
 
 # Share 1 factors 1.0 / 1.3 / 0.9; share 2 factors 1.0 / 1.2 / 0.8. At

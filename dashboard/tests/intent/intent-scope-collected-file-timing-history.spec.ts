@@ -137,7 +137,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
       ],
     },
   });
-  await observeRetainedScopeOrder(
+  const { reader } = await observeRetainedScopeOrder(
     dashboard,
     origin,
     {
@@ -149,7 +149,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
     readers,
   );
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await openCollectedHistoryStory(page);
+  const { intent } = await openCollectedHistoryStory(page, reader.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;

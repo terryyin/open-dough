@@ -4,7 +4,7 @@
 import { readFileSync, existsSync, writeFileSync, rmSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import path from "node:path";
-import { launch, launchRequest } from "../../tests/agentLaunchBoundary.ts";
+import { launch } from "../../tests/agentLaunchBoundary.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import {
@@ -12,6 +12,7 @@ import {
   otherQueuedIdentity,
 } from "../../tests/support/startOrigin.ts";
 import type { StartRecord } from "../../server/startStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ serverMode: "boundary", preparationHost: "codex" });
 
@@ -36,13 +37,13 @@ for (const damage of [
     await Promise.resolve(queuedCodexOriginReady);
     if (codexProtocol === undefined) throw new Error("Native fixture missing.");
     const native = codexProtocol;
-    const request = {
-      ...launchRequest,
-      workflow: "refinement",
-      host: "codex",
-      identity: queuedIdentity,
-      title: "Story A",
-    };
+    const request = makeMe.aLaunchRequest
+      .refining({
+        identity: queuedIdentity,
+        title: "Story A",
+        host: "codex",
+      })
+      .please();
     native.refuseCreation = true;
     const first = await launch(dashboard, request);
     expect(first.body).toContain("Codex refused to create a conversation");

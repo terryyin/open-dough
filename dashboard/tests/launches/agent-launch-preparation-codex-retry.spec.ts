@@ -6,7 +6,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { launch, launchRequest } from "../agentLaunchBoundary.ts";
+import { launch } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -18,6 +18,7 @@ import { queuedIdentity } from "../support/startOrigin.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex" });
 
@@ -29,13 +30,13 @@ test("Codex retained retry refuses lost workspace without replacing its preparat
 }) => {
   if (codexProtocol === undefined) throw new Error("Native fixture missing.");
   const native = codexProtocol;
-  const request = {
-    ...launchRequest,
-    workflow: "refinement",
-    host: "codex",
-    identity: queuedIdentity,
-    title: "Story A",
-  };
+  const request = makeMe.aLaunchRequest
+    .refining({
+      identity: queuedIdentity,
+      title: "Story A",
+      host: "codex",
+    })
+    .please();
   native.refuseCreation = true;
   const first = await launch(dashboard, request);
   expect(first.body).toContain("Codex refused to create a conversation");

@@ -15,11 +15,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { renderAgentProfile } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  launch,
-  launchRequest,
-  runningStarts,
-} from "../../tests/agentLaunchBoundary.ts";
+import { launch, runningStarts } from "../../tests/agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -33,12 +29,9 @@ import {
 
 const exec = promisify(execFile);
 
-const request = {
-  ...launchRequest,
-  workflow: "refinement",
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+const request = makeMe.aLaunchRequest
+  .refining({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 
 test.describe("refinement preparation start that stops", () => {
   let origin: StartOrigin;

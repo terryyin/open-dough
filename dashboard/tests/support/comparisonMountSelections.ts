@@ -37,21 +37,23 @@ export function otherComparedStory(
     .please();
   const proof = (run: number) =>
     run === 4
-      ? {
-          runId: 4,
-          runAttempt: 1,
-          revision,
-          checkedAt: comparisonCheckedAt,
-          proof: makeMe.aCiProof
-            .summaryFor({ runId: 4, runAttempt: 1, revision }, [
-              makeMe.aCiProofEntry
-                .at("dashboard/tests")
-                .counting(10)
-                .timed(10_000)
-                .please(),
-            ])
-            .please(),
-        }
+      ? makeMe.anIntentCiProofAnswer
+          .with({
+            runId: 4,
+            runAttempt: 1,
+            revision,
+            checkedAt: comparisonCheckedAt,
+            proof: makeMe.aCiProof
+              .summaryFor({ runId: 4, runAttempt: 1, revision }, [
+                makeMe.aCiProofEntry
+                  .at("dashboard/tests")
+                  .counting(10)
+                  .timed(10_000)
+                  .please(),
+              ])
+              .please(),
+          })
+          .please()
       : facts.proof(run);
   return { source: facts.source, identity, work, answer, proof };
 }
@@ -103,14 +105,18 @@ export function takenTrunkComparison(
       storyStart: facts.answer.storyStart,
       checkedAt: comparisonCheckedAt,
       baseline: facts.answer.baseline,
-      branch: {
-        kind: "not-applicable",
-        explanation: "Trunk Mode has no Branch build.",
-      },
-      landed: {
-        kind: "not-landed",
-        explanation: "The story has not landed yet.",
-      },
+      branch: makeMe.aStoryCiComparisonSlot
+        .with({
+          kind: "not-applicable",
+          explanation: "Trunk Mode has no Branch build.",
+        })
+        .please(),
+      landed: makeMe.aStoryCiComparisonSlot
+        .with({
+          kind: "not-landed",
+          explanation: "The story has not landed yet.",
+        })
+        .please(),
       provisional: facts.answer.branch,
     })
     .please();

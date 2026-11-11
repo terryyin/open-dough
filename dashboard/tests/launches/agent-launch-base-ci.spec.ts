@@ -6,13 +6,15 @@ import { keptStarts } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
-import { actionsForRuns } from "../support/baseCiActions.ts";
 import { publishLaterHead } from "../support/publishLaterHead.ts";
-const baseCiFailedHeading = "Base CI failed";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { parts } from "../dashboardPage.ts";
 import { reachKeptStart, startAction } from "../keptStartJourney.ts";
 import { originMain } from "../support/sessionDialog.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { actionsForRuns } from "../support/baseCiActions.ts";
+
+const baseCiFailedHeading = "Base CI failed";
 
 test("a passing nearest result starts with no question when the head has none", async ({
   page,
@@ -25,7 +27,9 @@ test("a passing nearest result starts with no question when the head has none", 
     "planning-only head",
   );
   published.serveActions(
-    actionsForRuns([{ headSha: ancestor, conclusion: "success" }]),
+    actionsForRuns([
+      makeMe.aCiRun.with({ headSha: ancestor, conclusion: "success" }).please(),
+    ]),
   );
   await openUntilRead(page);
   const card = parts(page).backlog.getByRole("article", { name: "Story A" });
@@ -60,11 +64,9 @@ test("a failed base asks; Back starts nothing; Continue starts", async ({
   const runUrl = "https://ci.invalid/failed-base";
   published.serveActions(
     actionsForRuns([
-      {
-        headSha: ancestor,
-        conclusion: "failure",
-        url: runUrl,
-      },
+      makeMe.aCiRun
+        .with({ headSha: ancestor, conclusion: "failure", url: runUrl })
+        .please(),
     ]),
   );
   await openUntilRead(page);
@@ -116,96 +118,6 @@ test("a failed base asks; Back starts nothing; Continue starts", async ({
   expect(before).not.toBe(head);
 });
 
-test("confirmed failure then pass starts without asking again", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { ancestor, published } = await publishLaterHead(
-    origin,
-    page,
-    "planning for recheck",
-  );
-  let runs = actionsForRuns([
-    { headSha: ancestor, conclusion: "failure", url: "https://ci.invalid/x" },
-  ]);
-  published.serveActions((argv, head) => runs(argv, head));
-  await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", { name: "Story A" });
-  await card.getByRole("button", { name: "Start execution" }).click();
-  const dialog = page.getByRole("dialog", {
-    name: "Start execution in Claude Code",
-  });
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(
-    dialog.getByRole("heading", { name: baseCiFailedHeading }),
-  ).toBeFocused();
-
-  runs = actionsForRuns([
-    {
-      headSha: ancestor,
-      conclusion: "success",
-      url: "https://ci.invalid/fixed",
-    },
-  ]);
-  dashboard.claudeScenario("launched");
-  await dialog
-    .getByRole("button", { name: "Continue on failing base" })
-    .click();
-  await expect(dialog).toBeHidden();
-  await expect
-    .poll(() => dashboard.claudeLaunchCalls(), { timeout: launchWaitMs })
-    .toHaveLength(1);
-});
-
-test("confirmed failure then a new failure at another revision asks again", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const first = await publishLaterHead(origin, page, "first planning head");
-  let runs = actionsForRuns([
-    {
-      headSha: first.ancestor,
-      conclusion: "failure",
-      url: "https://ci.invalid/x",
-    },
-  ]);
-  first.published.serveActions((argv, head) => runs(argv, head));
-  await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", { name: "Story A" });
-  await card.getByRole("button", { name: "Start execution" }).click();
-  const dialog = page.getByRole("dialog", {
-    name: "Start execution in Claude Code",
-  });
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(
-    dialog.getByRole("heading", { name: baseCiFailedHeading }),
-  ).toBeFocused();
-  await expect(dialog).toContainText(first.ancestor.slice(0, 7));
-
-  runs = actionsForRuns([
-    {
-      headSha: first.head,
-      conclusion: "failure",
-      url: "https://ci.invalid/y",
-    },
-  ]);
-  await dialog
-    .getByRole("button", { name: "Continue on failing base" })
-    .click();
-  await expect(
-    dialog.getByRole("heading", { name: baseCiFailedHeading }),
-  ).toBeFocused();
-  await expect(dialog).toContainText(first.head.slice(0, 7));
-  await expect(dialog).toContainText(
-    "The base's CI changed after it was shown; review it again.",
-  );
-  await expect(dialog).toContainText("https://ci.invalid/y");
-  expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  expect(await keptStarts(dashboard)).toEqual([]);
-});
-
 test("a kept start resumed is not asked even with a failing base", async ({
   page,
   dashboard,
@@ -220,11 +132,13 @@ test("a kept start resumed is not asked even with a failing base", async ({
   });
   published.serveActions(
     actionsForRuns([
-      {
-        headSha: (await origin.originGit("rev-parse", "main")).trim(),
-        conclusion: "failure",
-        url: "https://ci.invalid/kept-fail",
-      },
+      makeMe.aCiRun
+        .with({
+          headSha: (await origin.originGit("rev-parse", "main")).trim(),
+          conclusion: "failure",
+          url: "https://ci.invalid/kept-fail",
+        })
+        .please(),
     ]),
   );
   dashboard.claudeScenario("launched");

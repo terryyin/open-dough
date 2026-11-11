@@ -2,15 +2,12 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import {
-  keptStarts,
-  launch,
-  launchRequest,
-} from "../../tests/agentLaunchBoundary.ts";
+import { keptStarts, launch } from "../../tests/agentLaunchBoundary.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
 import { stored } from "../../tests/support/codexLaunch.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
 import type { StartRecord } from "../../server/startStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", preparationHost: "codex" });
@@ -23,13 +20,13 @@ for (const evidence of ["legacy-sha", "lost-result"] as const) {
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Native fixture missing.");
-    const request = {
-      ...launchRequest,
-      workflow: "refinement",
-      host: "codex",
-      identity: queuedIdentity,
-      title: "Story A",
-    };
+    const request = makeMe.aLaunchRequest
+      .refining({
+        identity: queuedIdentity,
+        title: "Story A",
+        host: "codex",
+      })
+      .please();
     native.refuseCreation = true;
     expect((await launch(dashboard, request)).body).toContain(
       "Codex refused to create",

@@ -12,7 +12,10 @@ import {
 } from "../support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../support/publishedMainFixture.ts";
 import { startWatcherNativeCodex } from "../support/watcherNativeCodex.ts";
-import { configureWatcherApplication } from "../support/productionWatcherFixture.ts";
+import {
+  configureWatcherApplication,
+  productionBuildEnvironment,
+} from "../support/productionWatcherFixture.ts";
 import { processRunning } from "../support/processGroup.ts";
 import {
   deploymentWork,
@@ -126,10 +129,11 @@ export function productionUpdateJourney() {
     if (host.status === "rejected") throw host.reason;
     native = host.value;
     if (dependencies.status === "rejected") throw dependencies.reason;
-    const { env, drainEvents } = await observeLaunchAdmission(
+    const { env: observed, drainEvents } = await observeLaunchAdmission(
       fixture.home,
       native.env,
     );
+    const env = productionBuildEnvironment(observed);
     const configurationIdentity = (await stat(configuration)).ino;
     const dev = await developmentDashboard(fixture.development, env);
     development = dev.command;

@@ -6,14 +6,14 @@ import { GitHubAcquisitionHeld } from "./ci-github-actions.mjs";
 import { diagnoseFailedAttempt } from "./ci-github-diagnostic.mjs";
 import {
   apiCall,
-  completedJobs,
+  completedJob as job,
   instrumentedGithubFixture,
+  observedCompletedJob,
   startInstalledScript,
   until,
 } from "./ci-github-test-fixtures.mjs";
 
 const secret = "private-token-and-path-do-not-disclose";
-const job = (index) => completedJobs([index])[index];
 const run = (github) =>
   startInstalledScript(github, "ci-github-diagnostic.mjs", [
     "failure",
@@ -202,11 +202,11 @@ test("an unknown per-log exception has a safe fallback, never a wait parsed from
     runId: 42,
     attempt: 2,
     github: {
-      attemptJobs: async () =>
-        [job(0), job(1), job(2)].map(({ id, ...other }) => ({
-          ...other,
-          databaseId: id,
-        })),
+      attemptJobs: async () => [
+        observedCompletedJob(0),
+        observedCompletedJob(1),
+        observedCompletedJob(2),
+      ],
       jobLog: async (id) => {
         if (id === 1000) throw new Error(`${secret}: wait 999 seconds`);
         if (id === 1001) throw hold;

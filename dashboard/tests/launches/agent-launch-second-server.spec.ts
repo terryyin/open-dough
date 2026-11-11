@@ -4,7 +4,7 @@
 // bound live in ../../backend-tests/launches/agent-launch-worker-handoff.spec.ts and
 // ../../backend-tests/launches/agent-launch-change-wait.spec.ts.
 import { type AttemptObservation } from "../../src/agentLaunch.ts";
-import { accept, attempts, launchRequest } from "../agentLaunchBoundary.ts";
+import { accept, attempts } from "../agentLaunchBoundary.ts";
 import { answerOf } from "../keptExecutionStart.ts";
 import { chooseProject, storyCardSessions, parts } from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
@@ -17,17 +17,16 @@ import {
   reloadUntilRead,
 } from "../pageRequestNotes.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 
-const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: "Story A",
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: "Story A" })
+  .please();
 test.use({
   projectFolders: ["open-dough"],
   startTimeoutMs: 10_000,

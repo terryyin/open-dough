@@ -4,24 +4,41 @@
 // commands; they never carry a completion verdict.
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { apiJob, apiRun } from "./github-actions-api-test-fixtures.mjs";
 import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
 import { workerPollingEnvironment } from "./ci-worker-poll-test-fixtures.mjs";
 
 const runUrl = (id) => `https://github.test/owner/repo/actions/runs/${id}`;
 
-// A GitHub run listing entry for one attempt, as the API reports it.
-function githubRun(id, sha, overrides) {
-  return {
-    id,
-    run_attempt: 1,
-    head_sha: sha,
-    head_branch: "main",
-    event: "push",
-    workflow_id: 7001,
-    html_url: runUrl(id),
-    ...overrides,
-  };
+// Observed GitHub run facts for one attempt; encode with `apiRun` at publish.
+function observedCiRun(id, sha, overrides = {}) {
+  return makeMe.aCiRun
+    .with({
+      databaseId: id,
+      attempt: 1,
+      headSha: sha,
+      headBranch: "main",
+      event: "push",
+      workflowId: 7001,
+      url: runUrl(id),
+      createdAt: undefined,
+      ...overrides,
+    })
+    .please();
 }
+
+// Covered attempt job as observed facts; encode with `apiJob` at publish.
+const coveredJob = (runId, attempt, status, conclusion) =>
+  makeMe.aGitHubJob
+    .withFacts({
+      databaseId: runId * 10 + attempt,
+      name: "covered",
+      status,
+      conclusion,
+      url: `${runUrl(runId)}/job/${runId * 10 + attempt}`,
+    })
+    .please();
 
 export function integratedStateGithub(t) {
   const github = instrumentedGithubFixture(t, { runs: [], attempts: {} });
@@ -30,10 +47,15 @@ export function integratedStateGithub(t) {
   let answers = {};
   const publishState = () =>
     github.set({
-      // Newest first, as GitHub lists runs.
-      runs: [...runs.values()].reverse(),
+      // Newest first, as GitHub lists runs. Encode observed facts at publish.
+      runs: [...runs.values()].reverse().map(apiRun),
       attempts: {},
-      attemptJobs,
+      attemptJobs: Object.fromEntries(
+        Object.entries(attemptJobs).map(([key, jobs]) => [
+          key,
+          jobs.map(apiJob),
+        ]),
+      ),
       answers,
     });
 
@@ -51,30 +73,24 @@ export function integratedStateGithub(t) {
         : state === "cancelled"
           ? "cancelled"
           : null;
+    const status = state === "cancelled" ? "completed" : state;
+    const createdAt =
+      runs.get(runId)?.createdAt ??
+      `2026-10-14T12:${String(minute++).padStart(2, "0")}:00Z`;
     runs.set(
       runId,
-      githubRun(runId, sha, {
-        run_attempt: attempt,
-        status: state === "cancelled" ? "completed" : state,
+      observedCiRun(runId, sha, {
+        attempt,
+        status,
         conclusion,
-        created_at:
-          runs.get(runId)?.created_at ??
-          `2026-10-14T12:${String(minute++).padStart(2, "0")}:00Z`,
+        createdAt,
       }),
     );
     // A replaced run has no jobs; a running one has its job in progress.
     attemptJobs[`${runId}/${attempt}`] =
       state === "cancelled"
         ? []
-        : [
-            {
-              id: runId * 10 + attempt,
-              name: "covered",
-              status: state,
-              conclusion,
-              html_url: `${runUrl(runId)}/job/${runId * 10 + attempt}`,
-            },
-          ];
+        : [coveredJob(runId, attempt, status, conclusion)];
     publishState();
     return runId;
   }
@@ -84,16 +100,21 @@ export function integratedStateGithub(t) {
     recordRun,
     // The listed runs as the observer's GitHub reader reports them.
     observedRuns: () =>
-      [...runs.values()].reverse().map((run) => ({
-        databaseId: run.id,
-        attempt: run.run_attempt,
-        headSha: run.head_sha,
-        headBranch: run.head_branch,
-        event: run.event,
-        status: run.status,
-        conclusion: run.conclusion,
-        createdAt: run.created_at,
-      })),
+      [...runs.values()].reverse().map((run) =>
+        makeMe.aCiRun
+          .with({
+            databaseId: run.databaseId,
+            attempt: run.attempt,
+            headSha: run.headSha,
+            headBranch: run.headBranch,
+            event: run.event,
+            status: run.status,
+            conclusion: run.conclusion,
+            createdAt: run.createdAt,
+            url: run.url,
+          })
+          .please(),
+      ),
     // Answers `route` with `answer` instead of its recorded facts.
     answer(route, answer) {
       answers = { ...answers, [route]: answer };

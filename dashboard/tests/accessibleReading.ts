@@ -5,6 +5,15 @@
 /// <reference lib="dom" />
 
 import { expect, type Locator, type Page } from "@playwright/test";
+import {
+  composeBackgrounds,
+  contrastRatio,
+  painted,
+  parseCssColor,
+  toCssRgb,
+} from "./composedColours.ts";
+
+export { contrastRatio } from "./composedColours.ts";
 
 // What the browser draws around the element that holds keyboard focus.
 export async function focusIndication(page: Page) {
@@ -68,53 +77,9 @@ export const politeRegionsOfferedThenMarked = `(() =>
   })
 )()`;
 
-function relativeLuminance(channel: {
-  r: number;
-  g: number;
-  b: number;
-}): number {
-  const toLinear = (value: number) => {
-    const s = value / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  };
-  return (
-    0.2126 * toLinear(channel.r) +
-    0.7152 * toLinear(channel.g) +
-    0.0722 * toLinear(channel.b)
-  );
-}
-
-function parseCssColor(color: string): { r: number; g: number; b: number } {
-  const match = color.match(
-    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/,
-  );
-  if (!match) {
-    throw new Error(`Unsupported computed color: ${color}`);
-  }
-  return {
-    r: Number(match[1]),
-    g: Number(match[2]),
-    b: Number(match[3]),
-  };
-}
-
-export function contrastRatio(foreground: string, background: string): number {
-  const fg = relativeLuminance(parseCssColor(foreground));
-  const bg = relativeLuminance(parseCssColor(background));
-  const lighter = Math.max(fg, bg);
-  const darker = Math.min(fg, bg);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-// Whether a computed colour paints anything: not `transparent` and not any
-// colour with zero alpha.
-function painted(color: string): boolean {
-  return color !== "transparent" && !/^rgba\(.*,\s*0\)$/.test(color);
-}
-
-// The colour behind an element: the first painted background up its parent
-// chain, starting at the element itself or, for what surrounds it, at its
-// parent.
+// The colour behind an element after composing translucent fills up the
+// parent chain, starting at the element itself or, for what surrounds it, at
+// its parent.
 export async function colorBehind(
   locator: Locator,
   { includingItself }: { includingItself: boolean },
@@ -129,10 +94,10 @@ export async function colorBehind(
       found.push(getComputedStyle(at).backgroundColor);
     return found;
   }, includingItself);
-  return backgrounds.find(painted) ?? "rgba(0, 0, 0, 0)";
+  return composeBackgrounds(backgrounds);
 }
 
-// Normal text needs 4.5:1 against the color behind the badge.
+// Normal text needs 4.5:1 against the composed colour behind it.
 export async function expectReadableContrast(locator: Locator, minimum = 4.5) {
   const color = await locator.evaluate(
     (element) => getComputedStyle(element).color,
@@ -145,7 +110,8 @@ export async function expectReadableContrast(locator: Locator, minimum = 4.5) {
 }
 
 // A control needs 3:1 between what outlines it, its edge or else its fill,
-// and the color behind it, so it is recognised as a control.
+// and the colour behind it, so it is recognised as a control. A translucent
+// fill is composed over that behind colour before measuring.
 export async function expectControlContrast(locator: Locator, minimum = 3) {
   const own = await locator.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -155,16 +121,41 @@ export async function expectControlContrast(locator: Locator, minimum = 3) {
     };
   });
   const behind = await colorBehind(locator, { includingItself: false });
+  const candidates: string[] = [...own.edges.filter(painted)];
+  if (painted(own.fill)) {
+    const fill = parseCssColor(own.fill);
+    candidates.push(
+      fill.a >= 0.999 ? toCssRgb(fill) : composeBackgrounds([own.fill, behind]),
+    );
+  }
   const best = Math.max(
     0,
-    ...[...own.edges, own.fill]
-      .filter(painted)
-      .map((color) => contrastRatio(color, behind)),
+    ...candidates.map((color) => contrastRatio(color, behind)),
   );
   expect(
     best,
     `control contrast of ${(await locator.getAttribute("aria-label")) ?? (await locator.textContent())}`,
   ).toBeGreaterThanOrEqual(minimum);
+}
+
+// A chart mark needs 3:1 between its painted stroke or fill and the composed
+// colour of the chart surface behind it.
+export async function expectChartMarkContrast(
+  mark: Locator,
+  minimum = 3,
+): Promise<void> {
+  const paints = await mark.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return [style.stroke, style.fill].filter(
+      (color) => color !== "none" && color !== "transparent",
+    );
+  });
+  const behind = await colorBehind(mark, { includingItself: false });
+  const best = Math.max(
+    0,
+    ...paints.filter(painted).map((color) => contrastRatio(color, behind)),
+  );
+  expect(best, "chart mark contrast").toBeGreaterThanOrEqual(minimum);
 }
 
 // Every piece of text a reader reads in an area, and every control in it, as

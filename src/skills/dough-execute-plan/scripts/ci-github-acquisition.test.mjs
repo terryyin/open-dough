@@ -7,26 +7,47 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { declaredPayload } from "../../../../tests/support/releaseTestData.mjs";
 import {
   apiCall,
+  completedJob,
   completedJobs,
   instrumentedGithubFixture,
   startInstalledScript,
 } from "./ci-github-test-fixtures.mjs";
+import { apiRun } from "./github-actions-api-test-fixtures.mjs";
 
 const sha = "a".repeat(40);
 
-const failedRun = (overrides = {}) => ({
-  id: 42,
-  run_attempt: 1,
-  head_sha: sha,
-  head_branch: "main",
-  event: "push",
-  status: "completed",
-  conclusion: "failure",
-  html_url: "https://github.test/owner/repo/actions/runs/42",
-  created_at: "2026-09-05T10:00:00Z",
-  ...overrides,
+const failedRun = ({
+  id = 42,
+  run_attempt = 1,
+  head_sha = sha,
+  head_branch = "main",
+  event = "push",
+  status = "completed",
+  conclusion = "failure",
+  html_url = "https://github.test/owner/repo/actions/runs/42",
+  created_at = "2026-09-05T10:00:00Z",
+  ...rest
+} = {}) => ({
+  ...apiRun(
+    makeMe.aCiRun
+      .with({
+        databaseId: id,
+        attempt: run_attempt,
+        headSha: head_sha,
+        headBranch: head_branch,
+        event,
+        status,
+        conclusion,
+        url: html_url,
+        createdAt: created_at,
+      })
+      .please(),
+  ),
+  ...rest,
 });
 
 test("the observer asks GitHub one admitted API request per route and page", async (t) => {
@@ -85,7 +106,7 @@ test("a rate limit suspends the observer until the directed time without losing 
   const github = instrumentedGithubFixture(t, {
     runs: [failedRun()],
     attempts: {},
-    jobs: [completedJobs([0])[0]],
+    jobs: [completedJob(0)],
   });
   // Three limits in a row: as observation errors they would end coverage.
   github.limit(3, "/runs?");
@@ -136,13 +157,7 @@ test("a rate limit suspends the observer until the directed time without losing 
 });
 
 test("no installed file asks gh outside the one request source or names a gh run command", () => {
-  const installer = readFileSync(
-    new URL("../../../../install.sh", import.meta.url),
-    "utf8",
-  );
-  const installed = [...installer.matchAll(/^ {2}(dough-[\w./-]+)$/gm)].map(
-    ([, file]) => file,
-  );
+  const installed = declaredPayload();
   assert.ok(
     installed.includes("dough-execute-plan/scripts/ci-github-diagnostic.mjs"),
   );

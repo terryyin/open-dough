@@ -26,9 +26,9 @@ import {
 } from "../intentCiProofPage.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import { tokenColour } from "../pageColours.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
   zipOf,
@@ -55,12 +55,14 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
     () => artifacts(),
     () => zip(),
     () => [
-      {
-        headSha: judged,
-        conclusion: "failure",
-        id: shownRun.runId,
-        url: runUrl,
-      },
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          conclusion: "failure",
+          databaseId: shownRun.runId,
+          url: runUrl,
+        })
+        .please(),
     ],
   );
   const reason = proof.locator(".intent-ci-proof-unavailable");
@@ -91,11 +93,9 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
   };
   const summaryOf = (summarized: typeof run) =>
     summaryZipAnswer(
-      proofSummary(
-        summarized,
-        [["tests", 1]],
-        [["tests", 1, 1, "file", counts(5)]],
-      ),
+      proofSummaryForEntries(summarized, [
+        makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+      ]),
     );
 
   await test.step("expired", async () => {
@@ -176,7 +176,16 @@ test("a running result with no completed ancestor shows no completed run, so one
     page,
     () => runArtifactsAnswer(run, artifactId),
     () => summaryZipAnswer({}),
-    () => [{ headSha: judged, status: "in_progress", url: runUrl, id: 41 }],
+    () => [
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          status: "in_progress",
+          url: runUrl,
+          databaseId: 41,
+        })
+        .please(),
+    ],
   );
   await expect(panel.locator(".intent-ci-state")).toHaveText(
     "Running at a1b2c3d (Add login)",

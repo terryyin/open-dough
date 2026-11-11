@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { makeMe } from "./makeMe.mjs";
+import { renderStorySection } from "./published-seed.mjs";
 import { test } from "node:test";
 import {
   backlogOf,
@@ -9,7 +10,13 @@ import {
 } from "./product-backlog-fixture.mjs";
 import { updateDependency } from "./story-dependencies-fixture.mjs";
 
-const supplier = { identity: "SEED-S#supplier", href: "seeds/S.md#supplier" };
+const supplier = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-S#supplier",
+    href: "seeds/S.md#supplier",
+    title: "Supplier endpoint",
+  })
+  .please();
 
 async function discover(project) {
   const result = await run(project, [
@@ -26,7 +33,7 @@ test("documentation anchors leave neighboring unqueued consumers and plan-homed 
   projectFile(
     project,
     "seeds/S.md",
-    '---\nid: SEED-S\n---\n\n# Supplier\n\n<a id="supplier"></a>\n\n### Supplier endpoint\n',
+    `---\nid: SEED-S\n---\n\n# Supplier\n\n${renderStorySection(supplier)}`,
   );
   const examples = [
     [
@@ -47,14 +54,17 @@ test("documentation anchors leave neighboring unqueued consumers and plan-homed 
   ];
   const identities = [];
   for (const [number, anchor, prose] of examples) {
-    const story = {
-      identity: `SEED-${number}#consumer`,
-      href: `seeds/${number}.md#consumer`,
-    };
+    const story = makeMe.aBacklogEntry
+      .with({
+        identity: `SEED-${number}#consumer`,
+        href: `seeds/${number}.md#consumer`,
+        title: "Neighboring consumer",
+      })
+      .please();
     projectFile(
       project,
       `seeds/${number}.md`,
-      `---\nid: SEED-${number}\n---\n\n# Guidance\n\n<a id="${anchor}"></a>\n\n${prose}\n\n<a id="consumer"></a>\n\n### Neighboring consumer\n\nRequires the endpoint.\n`,
+      `---\nid: SEED-${number}\n---\n\n# Guidance\n\n<a id="${anchor}"></a>\n\n${prose}\n\n${renderStorySection(story, { body: "Requires the endpoint." })}`,
     );
     const updated = await updateDependency(
       project,
@@ -64,14 +74,17 @@ test("documentation anchors leave neighboring unqueued consumers and plan-homed 
     assert.equal(updated.code, 0, updated.stderr);
     identities.push(story.identity);
   }
-  const correction = {
-    identity: "slice-plans/100-correction",
-    href: "slice-plans/100-correction/PLAN.md",
-  };
+  const correction = makeMe.aBacklogEntry
+    .with({
+      identity: "slice-plans/100-correction",
+      href: "slice-plans/100-correction/PLAN.md",
+      title: "Correction",
+    })
+    .please();
   projectFile(
     project,
     correction.href,
-    `# Correction\n\n**Identity:** ${correction.identity}\n\n<a id="evidence"></a>\n\n## Evidence\n\nCompleted behavior.\n`,
+    `# ${correction.title}\n\n**Identity:** ${correction.identity}\n\n<a id="evidence"></a>\n\n## Evidence\n\nCompleted behavior.\n`,
   );
   const updated = await updateDependency(
     project,

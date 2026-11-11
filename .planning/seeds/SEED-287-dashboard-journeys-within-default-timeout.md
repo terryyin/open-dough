@@ -114,6 +114,21 @@ verdicts without stretching deadlines.
   to render before checking its state. Keep exact counts where avoiding
   duplicate work is the promise. Inspect siblings that share each setup and
   use the landed fixes as examples.
+- Make the landed CI repeat admission cases hold their 5 s observations at
+  local load 20–30 on 2 workers, with their assertions kept. In
+  [landed-ci-repeat-admission.spec.ts](../../dashboard/backend-tests/intent/landed-ci-repeat-admission.spec.ts),
+  "an unspent eligible receipt disabled while original jobs are unavailable
+  stays old on re-enable" and "eligible105-second receipt prepared before
+  enablement stays old after acceptance" each poll for 5 s after the receipt
+  for a card or a collected history. On unchanged main at `f9ed9f52b` on
+  2026-11-11, in two two-worker runs at load 19–23, the first missed that
+  observation in both and the second in one. Terry routed them here that day.
+  Two more cases missed a 5 s history poll once each beside a scratch fixture
+  change, and in no run of main: the admission sibling "an otherwise eligible
+  receipt for Taken work does not authorize a Done follow-up" and
+  `landed-ci-history-no-proof-recovery.spec.ts:36`. The automatic-repeat and
+  verdict specs belong to
+  [SEED-314](SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks).
 - Use MakeMe for domain data. Synchronize on observable events or a controlled
   clock. Refresh existing shard weights from all 12 artifacts of a complete
   passing trunk run after removing work; measure any shard redistribution
@@ -168,7 +183,9 @@ or speedup unestablished.
 5. **Causal assertion waits.** A history comparison waits for persisted
    collector results; a revisit request count waits for the first request to
    finish; a story state check waits for the selected story to render. Exact
-   counts remain where avoiding duplicate work is the promise.
+   counts remain where avoiding duplicate work is the promise. At local load
+   20–30 on 2 workers the five cases of `landed-ci-repeat-admission.spec.ts`
+   pass in three consecutive runs with their 5 s observations.
 6. **Family and suite margins.** The watcher family's median elapsed time,
    including moved work, is at least 10 s faster. The comparable local
    dashboard suite and the slowest hosted shard stay within their previous

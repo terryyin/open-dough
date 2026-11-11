@@ -89,7 +89,7 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
     await expect
       .poll(() => retainedProofs(dashboard.home)[key]?.kind)
       .toBe("summary");
-  await observeRetainedScopeOrder(
+  const { reader } = await observeRetainedScopeOrder(
     dashboard,
     origin,
     {
@@ -100,7 +100,7 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
     },
     readers,
   );
-  const { intent } = await openCollectedHistoryStory(page);
+  const { intent } = await openCollectedHistoryStory(page, reader.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;

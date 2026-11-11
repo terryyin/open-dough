@@ -149,38 +149,32 @@ retire_all_job_deadlines() {
 
 # Collect a finished job's status and stop its deadline watchdog immediately so
 # a completed check cannot later kill other work. Needed during the launch
-# loop: with one slot, the next job starts before the final wait-n loop runs.
-# job_pids, job_slots, and output_root come from scripts/test.sh.
+# loop: with one slot, the next job starts before the final drain runs.
+# job_pids and output_root come from scripts/test.sh.
 declare -a job_reaped=()
-jobs_started=0
 
 reap_finished_jobs() {
   local index
   for index in "${!job_pids[@]}"; do
     [[ -z ${job_reaped[index]:-} ]] || continue
-    if kill -0 "${job_pids[index]}" 2> /dev/null; then
+    if [[ ! -e ${output_root}/${index}.status ]] && kill -0 "${job_pids[index]}" 2> /dev/null; then
       continue
     fi
     wait "${job_pids[index]}" 2> /dev/null || true
+    # A trapped signal can interrupt wait before the worker exits.
+    if kill -0 "${job_pids[index]}" 2> /dev/null; then
+      continue
+    fi
     settle_timed_out_job "${index}"
     retire_job_deadline "${index}"
     job_reaped[index]=1
   done
 }
 
-# After the initial slot pool is in use, wait for one unreaped job then reap
-# finished deadlines so a watchdog cannot outlive the handoff to the next launch.
-# A run-cutoff USR1 interrupts wait; the caller checks run_deadline_hit before
-# starting another job.
+# The slot token already announces completion. Reap that worker directly;
+# Bash 5.2's wait -n can miss its exit and wait on a deadline watcher alone.
+# Retire finished deadlines before handing the slot to the next launch.
 await_job_slot_handoff() {
-  local wait_pids=() reaped_index
-  if ((jobs_started >= job_slots)); then
-    for reaped_index in "${!job_pids[@]}"; do
-      [[ -z ${job_reaped[reaped_index]:-} ]] || continue
-      wait_pids+=("${job_pids[reaped_index]}")
-    done
-    ((${#wait_pids[@]} > 0)) && wait -n "${wait_pids[@]}" || true
-  fi
   if ((run_deadline_hit)) || run_deadline_reached; then
     stop_running_jobs_for_run_deadline
     return 0
@@ -188,25 +182,12 @@ await_job_slot_handoff() {
   reap_finished_jobs
 }
 
-# Reap each remaining job as it ends. wait -n lists only job pids so watchdogs
-# are not collected here. USR1 from the run-cutoff watchdog interrupts wait so
-# the shared stop path can run before further reaping.
+# Reap workers from their completion records and slot events, without
+# wait-any while deadline watchers are alive. A bounded FIFO read also
+# notices a worker that died without returning its slot and a run-cutoff USR1.
 wait_remaining_jobs() {
-  local active_indices=() wait_pids=() index
-  for index in "${!job_pids[@]}"; do
-    [[ -z ${job_reaped[index]:-} ]] || continue
-    active_indices+=("${index}")
-  done
-  while ((${#active_indices[@]} > 0)); do
-    if ((run_deadline_hit)) || run_deadline_reached; then
-      stop_running_jobs_for_run_deadline
-      return 0
-    fi
-    wait_pids=()
-    for index in "${active_indices[@]}"; do
-      wait_pids+=("${job_pids[index]}")
-    done
-    wait -n "${wait_pids[@]}" || true
+  local active_indices index
+  while true; do
     if ((run_deadline_hit)) || run_deadline_reached; then
       stop_running_jobs_for_run_deadline
       return 0
@@ -217,5 +198,7 @@ wait_remaining_jobs() {
       [[ -z ${job_reaped[index]:-} ]] || continue
       active_indices+=("${index}")
     done
+    ((${#active_indices[@]} > 0)) || return 0
+    read -r -t 0.2 -u 3 _ || true
   done
 }

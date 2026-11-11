@@ -5,15 +5,12 @@
 **Source review:** [Independent commitments](source-review.md)
 **Preparation:** [Historical preparation](execution-context.md#preparation-history).
 
-## Goal and scope
+## Goal, scope and proof basis
 
-[Selected story](../../seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) owns the goal, scope and restrictions;
-[retained plan summary](design-and-proof.md#source-goal-and-scope) preserves this plan's complete summary.
+The selected source owns goal, scope and restrictions; see the
+[complete plan summary](design-and-proof.md#source-goal-and-scope).
 
-## Design and proof basis
-
-[Design, reuse decisions, premises, and proof ownership](design-and-proof.md)
-retain the source promises and their current observations.
+[Design, reuse decisions, premises and proof ownership](design-and-proof.md).
 
 ## Ordered slices
 
@@ -92,9 +89,9 @@ Behavior: [Original accepted flow](completed-slice-details.md#slice-12).
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
 Status: planned
-Proof: Remove remaining named case-local allowances, including trunk’s watcher restart allowance, only after their cases fit with margin. Comparable local dashboard suite elapsed and the slowest hosted shard stay within previous elapsed times (keep summed durations separate). Refresh shard weights from all 12 artifacts of a complete passing trunk run after removing work; measure redistribution separately. Default case and shard deadlines unchanged.
+Proof: [Required current admission, suite and shard proof](amended-source-evidence.md#required-remaining-proof).
 
-Behavior: All prior slices' retained proof is green with margin → delete the named temporary `test.setTimeout` allowances → local comparable suite and hosted slowest shard remain within previous elapsed times with refreshed weights.
+Behavior: [Admission, default-fit and elapsed progression](amended-source-evidence.md#required-remaining-proof).
 
 ## Current decisions
 
@@ -135,7 +132,7 @@ Disposition: proved by slice 11: rejected cache paths removed; original preparat
 ### G7. Sort times out31.110s during C03 continuation (first reported in slice11)
 Reported: slice 13 — "The controlled CPU-pressure run timed out in sort and clean-source; conflict-source passed at 29.667 s, while sampled load rose from 20.38 to 32.04."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: return
+Disposition: proved by slice 13: native-git-setup-evidence.md and /tmp/seed287-current-settled-local-trace-audit-20261112.json; preserved Sort/clean/conflict cases and current115 strictpass once per required attempt at actual20–30/default30, minimum case headroom2752ms; no retry/skip/allowance added
 
 ### G8. Trunk restart allowance still needs hosted default margin
 Reported: slice 3 — "Trunk commit 2a2038247 added a 90 s restart/SIGINT allowance after hosted install/build took 27.3 s before shutdown; the execution branch still uses the default."
@@ -157,7 +154,7 @@ Disposition: proved by slice 6: touch-evidence.md accepted worker-input implemen
 Reported: slice 11 — "Incoming c73b4d00d applies Terry-approved thirteen dashboard shards while this source still names twelve timing artifacts."
 Story clause: "Refresh existing shard weights from all 12 artifacts"
 Disposition: receiving slice 13
-Commitment: C67, C68, Q09
+Commitment: C097, C098, C099
 
 ### G12. Published transport loses streams under dash
 Reported: slice 12 — "Run 42949046330/1 failed all twelve dashboard jobs; installed-client contract tests received empty stdout and stderr with the expected exit codes."
@@ -193,18 +190,37 @@ Disposition: proved by slice 13: final-validation-evidence.md actual settlement 
 ### G18. Scoped browser observations still use longer budgets
 Reported: slice 13 — "The passing pressure46 retains 12 browser observations configured30s and five configured60s; cursorSessionRecovery.ts:118 actually took8.021655s, exceeding the promised five-second observation."
 Story clause: "their 5 s observations"
-Disposition: return
-Commitment: C03
+Disposition: proved by slice 13: native-git-setup-evidence.md; current115 complete traces retain1007 browser5000ms observations (maximum1378.641ms) and four stricter1000ms observations, zero errors; unchanged default-five backend admission72 outer polls maximum2634.283ms, no longer scoped30/60s budgets
+Commitment: C003
+
+### G19. Human-routed CI admission observations remain due
+Reported: slice 13 — "Human amendment44f3e0186 routes two unchanged-main five-second admission misses, asks three loaded passes of all five admission cases, and names two weaker-attribution sibling observations. The execution branch did not yet contain the accepted repeat-admission feature."
+Story clause: "At local load 20–30 on 2 workers the five cases of `landed-ci-repeat-admission.spec.ts` pass in three consecutive runs with their 5 s observations."
+Disposition: proved by slice 13: native-git-setup-evidence.md and current settled115 trace audit; exact whole5 admission cases pass three consecutive runs at actual20–30/workers2/defaults,72 enclosing polls maximum2634.283ms/error0; completed-prior readiness keeps exact-count assertions, weaker history and pacing siblings pass in current20
+
+
+### G20. Reconciled normal integration misses three default budgets
+Reported: slice 13 — "Integration45 ended33passes/3timeouts/9serial skips: updates beforeAll, pinned preview and Cursor replacement-controls. Unprotected focused proof overlapped a full run at load45–65; no exception is granted."
+Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget and their 5 s observations"
+Disposition: proved by slice 13: native-git-setup-evidence.md current real whole45 plus final controlledpinned4; watcher first-in-worker and Cursor controls retain default30 margin, pinned full stage/preview/required cleanup24732ms leaves5268ms at load23.578–24.168; all original assertions and real actions remain
+Commitment: C014, C016
+### G21. Held watcher update exhausts its default case budget
+Reported: slice 13 — "Current selected-Git watcher45 failed at production-watcher-updates.spec.ts:59 after30099ms under valid load22.229–25.605; eight later serial cases skipped. Real B build reached accepted-start drain at about25.6s. No exception or passing whole-family claim is granted."
+Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget and their 5 s observations"
+Disposition: proved by slice 13: native-git-setup-evidence.md; current real whole45 strictpasses under load22.529–25.119, held-update22271ms leaves7.729s; complete45traces/default30 and every original build/native/drain assertion retained
+
+### G22. Passing pinned deployment leaves no thirty-second margin
+Reported: slice 13 — "The current whole45 passed, but pinned deployment at production-deployment.spec.ts:61 took30466ms with actual default30000. Its final assertion ends about27.998s; required same-case cleanup reaches30.163s, then hooks add0.332s. Green status does not establish the promised margin."
+Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget and their 5 s observations"
+Disposition: proved by slice 13: native-git-setup-evidence.md; final wholepinned4 strictly passes/default30/retry0 with complete4 traces, actualpinned24732ms including setup/body/required cleanup leaves5268ms; full child-window load23.578–24.168, no profile gap or budget exception
 
 ## Plan concern assessment
 
-[Current assessment](design-and-proof.md#current-plan-assessment) and
-[owned CI repair](ci-repair-evidence.md); G4/G12/G13/G14/G15/G16/G17 are settled; G1/G2/G3/G7/G8/G11/G18 remain with13; [final proof](final-validation-evidence.md).
+[Current assessment and remaining gates](design-and-proof.md#current-plan-assessment).
 
 ## Trunk measurement checkpoint
 
-The required retained-landing and trunk-only timing checkpoint is in
-[execution context](execution-context.md#trunk-measurement-checkpoint).
+[Required retained-landing and trunk timing checkpoint](execution-context.md#trunk-measurement-checkpoint).
 
 ## Execution notes
 

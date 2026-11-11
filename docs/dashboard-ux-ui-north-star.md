@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-09, for shared Intent and landed CI timing history.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-11, for phone terminal text and scrolling.
 
 Help a developer understand Development, the project's ongoing effort to shape
 the product, and inspect the evidence behind it. The current dashboard combines
@@ -124,39 +124,11 @@ and evidence ordering across the reading pane:
 | Where the developer is reading | What the timing history answers |
 | --- | --- |
 | Project Intent → **CI status** | Has CI wall time changed across recent trunk builds collected from dashboard-recorded landed executions? |
+| Project Intent → entry or folder **Summary** | How has measured test execution time changed in this scope through the observed configured-trunk head? |
+| Project Intent → test file **Proof** | What did collected builds measure for this file through the observed trunk head, and where is evidence missing? **Purpose** continues to show its source. |
 | Done story → **CI comparison** | Where does this landing sit in that history, and how does it compare with earlier eligible builds? Keep the existing Baseline, Branch, and Landed evidence together. |
 | Done story → **Changed tests** → entry or folder **Summary** | How has measured test execution time changed in this scope through the story's landing? |
 | Done story → **Changed tests** → test file **Proof** | What did CI measure for this file through the landing? **Purpose** continues to show its source or diff. |
-
-### Read landed CI timing and follow up from Done
-
-Keep the history beside the existing evidence for the selected scope. Use a
-dated line with measured points and a clearly identified landing. Use CI wall
-time at project and story level, and test execution time in Summary and Proof.
-Label the cohort as dashboard-recorded landings, show the number of measured
-builds, and break the line where timing is unavailable. Label a confirmed skip
-that reuses a cached equivalent build, or a cancelled landing measured by a
-later trunk build, with the source build's identity. Count that measurement
-once. Provide readable values and build links alongside the
-chart so its evidence is available with a keyboard, on a phone, and without
-relying on color.
-
-Show the moving average as a reference alongside the observed measurements.
-For a Done story, the reference uses comparable builds before its landing.
-Show the actual sample count, the difference in time and percent, and why a
-visible point was excluded. Give insufficient history its own explanation.
-The timing history reads the collected evidence as the developer browses.
-Existing live CI reads keep their explicit freshness and recovery cues.
-
-In Recently done, keep follow-up on the Done card. Show **CI rerun in progress**
-while the single automatic repeat is underway. If the repeat is still slow,
-use a red **Possible CI slowdown** indicator with text and a route to the
-comparison, where both attempts and their shared reference are visible. Show
-recovery and unavailable results in distinct words. The story remains Done
-throughout. Use the threshold and sample sizes in the mockups as illustrative
-values while refining the [landed CI timing stories](../.planning/seeds/SEED-285-landed-ci-timing-history.md).
-The [Architectural North Star](../.planning/NORTH-STAR.md#one-intent-workspace-with-landed-ci-evidence)
-describes evidence ownership and collection.
 
 ## Questions the Development perspective should answer
 
@@ -324,3 +296,22 @@ hierarchy and the same existing-changes confirmation rather than a second
 dialog design, and validate it with long-title, narrow, and 200% zoom screens
 before accepting implementation. Retire this topic when that dialog is
 delivered.
+
+## Phone terminal text and scrolling
+
+On a phone or tablet, hand text work beside the terminal to the device rather
+than imitating it inside the terminal. Compose already does this for input.
+For output, **Select** on the phone key toolbar pauses the terminal screen in
+place as ordinary page text, so the device's own long-press, handles,
+magnifier and Copy apply; the same control returns the live terminal. Keep the
+pause evident where the developer is looking, send the session nothing, and
+add no dashboard selection gesture or Copy control.
+
+A one-finger swipe scrolls the output wherever it is held: the terminal's
+scrollback, or the session's application when it has taken over the screen and
+scrolls itself. Decide from what the terminal reports, never from the host's
+name, and never turn a swipe into arrow keys.
+
+Copied text matches the screen. Retire this topic when
+[the story](../.planning/seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile)
+is delivered and `dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md` describes it.

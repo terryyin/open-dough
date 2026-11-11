@@ -1,3 +1,5 @@
+import { ciFollowUpEndpoint } from "../src/ciFollowUp.ts";
+import { answerCiFollowUp } from "./ciFollowUpBoundary.ts";
 import type { IncomingMessage } from "node:http";
 import {
   projectAddEndpoint,
@@ -32,6 +34,7 @@ async function answer(
   pathname: string,
   signal: AbortSignal,
 ) {
+  if (pathname === ciFollowUpEndpoint) return answerCiFollowUp(req, signal);
   if (
     pathname === projectListEndpoint ||
     pathname === projectSettingsEndpoint
@@ -76,6 +79,7 @@ async function answer(
 export const installProjectConfigurationMiddleware = localJsonEndpoints(
   [
     projectListEndpoint,
+    ciFollowUpEndpoint,
     projectSettingsEndpoint,
     projectAddEndpoint,
     projectRemoveEndpoint,

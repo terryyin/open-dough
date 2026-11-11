@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // Proof-summary Answers for Intent's story CI comparison journeys
 // (./storyCiComparisonFixture.ts): retained summaries, expired listings and
 // the mixed entry durations from example 2. Summaries of MakeMe-built
@@ -6,11 +7,9 @@
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import {
-  counts,
-  proofSummary,
+  proofSummaryForEntries,
   runArtifactsAnswer,
   summaryZipAnswer,
-  type ProofPart,
   type ProofRun,
 } from "./ciProofArtifacts.ts";
 
@@ -32,7 +31,9 @@ export function proofRun(
   revision: string,
   attempt = 1,
 ): ProofRun {
-  return { repository, runId, attempt, revision };
+  return makeMe.aCiProofCollectorRun
+    .with({ repository, runId, attempt, revision })
+    .please();
 }
 
 const slowerMs = {
@@ -49,35 +50,33 @@ const fasterMs = {
 
 // Mixed entry changes from example 2, plus a faster entry and an added entry
 // on branch/landed.
-export function mixedEntryParts(at: "baseline" | "branch" | "landed"): {
-  readonly expect: readonly (readonly [string, number])[];
-  readonly parts: readonly ProofPart[];
-} {
-  const expect: (readonly [string, number])[] = [
-    ["dashboard/tests", 1],
-    ["tests", 1],
-  ];
-  // Entry counts differ across endpoints so the homepage Counts cell can
-  // show 2,090 → 2,092 test cases (+2) (SEED-245 example 1); test files
-  // stay flat.
-  const dashboardCounts = at === "baseline" ? counts(2090) : counts(2092);
-  const parts: ProofPart[] = [
-    ["dashboard/tests", 1, 1, "case", dashboardCounts, slowerMs[at]],
-    ["tests", 1, 1, "file", counts(5), fasterMs[at]],
-  ];
-  if (at !== "baseline") {
-    expect.push(["src/skills", 1]);
-    parts.push(["src/skills", 1, 1, "file", counts(3), 30_000]);
-  }
-  return { expect, parts };
-}
-
 export function mixedEntrySummary(
   run: ProofRun,
   at: "baseline" | "branch" | "landed",
 ) {
-  const { expect, parts } = mixedEntryParts(at);
-  return proofSummary(run, expect, parts);
+  // Counts differ so comparison reads 2,090 → 2,092 test cases (+2),
+  // while test-file counts stay flat.
+  const entries = [
+    makeMe.aCiProofEntry
+      .at("dashboard/tests")
+      .counting(at === "baseline" ? 2090 : 2092, "case")
+      .timed(slowerMs[at])
+      .please(),
+    makeMe.aCiProofEntry
+      .at("tests")
+      .counting(5, "file")
+      .timed(fasterMs[at])
+      .please(),
+  ];
+  if (at !== "baseline")
+    entries.push(
+      makeMe.aCiProofEntry
+        .at("src/skills")
+        .counting(3, "file")
+        .timed(30_000)
+        .please(),
+    );
+  return proofSummaryForEntries(run, entries);
 }
 
 // Baseline where dashboard/tests has no durations and tests is partial; branch
@@ -94,18 +93,29 @@ export function untimedBaselineMixedProofs(args: {
     101: {
       kind: "summary",
       artifactId: 1001,
-      summary: proofSummary(
-        baseline,
-        [
-          ["dashboard/tests", 1],
-          ["tests", 2],
-        ],
-        [
-          ["dashboard/tests", 1, 1, "case", counts(2090)],
-          ["tests", 1, 2, "file", counts(3), 60_000],
-          ["tests", 2, 2, "file", counts(2)],
-        ],
-      ),
+      summary: proofSummaryForEntries(baseline, [
+        makeMe.aCiProofEntry
+          .at("dashboard/tests")
+          .counting(2090, "case")
+          .please(),
+        makeMe.aCiProofEntry
+          .at("tests")
+          .holding(
+            makeMe.aCiProofEvidence
+              .inUnit("file")
+              .counting(3, 0, 0)
+              .timed(60_000)
+              .inParts(2)
+              .withPresentPart(2, {
+                passed: 2,
+                failed: 0,
+                other: 0,
+                untimed: 0,
+              })
+              .please(),
+          )
+          .please(),
+      ]),
     },
     102: {
       kind: "summary",
@@ -153,7 +163,7 @@ function runForId(
   runId: number,
 ): CiRunAnswer | undefined {
   for (const group of Object.values(runsBySha)) {
-    const found = group.find((run) => run.id === runId);
+    const found = group.find((run) => (run.databaseId ?? run.id) === runId);
     if (found !== undefined) return found;
   }
   return undefined;

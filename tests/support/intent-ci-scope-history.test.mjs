@@ -32,51 +32,69 @@ test("the exact published endpoint selects the middle landing, keeps zero, and o
     .receivedAt("2026-11-03T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(older, "run/1/1", {
-      revision: older.revision,
-      state: "pass",
-      startedAt: older.receivedAt,
-      proof: makeMe.aCiProof
-        .forRun({ revision: older.revision, runId: 1 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("dashboard/tests")
-            .counting(2)
-            .timed(1200)
+    .recording(
+      older,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: older.revision,
+          state: "pass",
+          startedAt: older.receivedAt,
+          proof: makeMe.aCiProof
+            .forRun({ revision: older.revision, runId: 1 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("dashboard/tests")
+                .counting(2)
+                .timed(1200)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
-    .recording(selected, "run/2/1", {
-      revision: selected.revision,
-      state: "pass",
-      startedAt: selected.receivedAt,
-      proof: makeMe.aCiProof
-        .forRun({ revision: selected.revision, runId: 2 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("dashboard/tests")
-            .counting(2)
-            .timed(0)
+    )
+    .recording(
+      selected,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: selected.revision,
+          state: "pass",
+          startedAt: selected.receivedAt,
+          proof: makeMe.aCiProof
+            .forRun({ revision: selected.revision, runId: 2 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("dashboard/tests")
+                .counting(2)
+                .timed(0)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
-    .recording(later, "run/3/1", {
-      revision: later.revision,
-      state: "pass",
-      startedAt: later.receivedAt,
-      proof: makeMe.aCiProof
-        .forRun({ revision: later.revision, runId: 3 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("dashboard/tests")
-            .counting(2)
-            .timed(9900)
+    )
+    .recording(
+      later,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: later.revision,
+          state: "pass",
+          startedAt: later.receivedAt,
+          proof: makeMe.aCiProof
+            .forRun({ revision: later.revision, runId: 3 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("dashboard/tests")
+                .counting(2)
+                .timed(9900)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
+    )
     .please();
   const read = scopeHistoryOf(
     history,

@@ -5,12 +5,9 @@
 // signed change from it, sortable by its columns, or why there are no rows
 // yet.
 
-import {
-  CiProofTable,
-  ScopePath,
-  type CiProofSorting,
-} from "./CiProofTable.tsx";
+import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import type { ComparisonEntries } from "./storyCiComparisonEntries.ts";
+import { IntentCiEntryLink } from "./IntentCiEntryLink.tsx";
 
 function EntryRows({
   entries,
@@ -38,7 +35,7 @@ function EntryRows({
       sorting={sorting}
       rows={entries.rows.map((row) => ({
         key: `${row.path}\0${row.cells.units ?? ""}`,
-        scope: <ScopePath path={row.path} />,
+        scope: <IntentCiEntryLink path={row.path} />,
         name: row.path,
         cells: row.cells,
       }))}

@@ -1,14 +1,8 @@
-// One process's connection to the GitHub request owner
-// (`./github-request-owner.mjs`) of the API host and login its `gh` asks
-// with, over that owner's private endpoint
-// (`./github-request-owner-endpoint.mjs`): found by its standing record,
-// started when none answers, greeted with its caller token, and kept for
-// every request this process asks while its login stands. Once the login
-// changes, whatever was asked under the earlier one is asked again under
-// this one, and no answer to the earlier is passed on. An owner that cannot
-// be reached or started, speaks another protocol or refuses the greeting
-// leaves each request unanswered -- never asked of GitHub by this process
-// itself, so no second owner of the allowance appears.
+// One process's private connection to the GitHub request owner of its host
+// and login, found by its record and started when none answers. Reads may
+// be asked again after a login change. An action requires the owner's
+// explicit capability and is never resent. Unreachable or incompatible
+// owners leave requests unanswered, never run through a fallback process.
 import {
   EndpointBinding,
   standingRecord,
@@ -17,6 +11,7 @@ import {
   greeted,
   scopeOf,
   startOwnerProcess,
+  supportsWorkflowRerun,
 } from "./github-request-owner-endpoint-connection.mjs";
 import { send } from "./github-request-owner-wire.mjs";
 import {
@@ -104,10 +99,9 @@ export class OwnerLink {
   // the call reached its own bound; `left` once `signal` ended this wait,
   // which tells the owner so, at this requester's own bound when
   // `leavingAtBound` says so; a safe `failure` when the owner cannot be
-  // asked. A reply to what was asked under a login this process has no more
-  // is dropped, and the request asked again under the one it has.
+  // asked. Reads may retry after a login change; actions never do.
   /**
-   * @param {{ readonly args: readonly string[]; readonly boundMs: number; readonly maxBufferBytes: number }} request
+   * @param {{ readonly args?: readonly string[]; readonly operation?: string; readonly repository?: string; readonly runId?: number; readonly boundMs: number; readonly maxBufferBytes: number }} request
    * @param {AbortSignal} signal
    * @param {() => boolean} leavingAtBound
    * @returns {Promise<OwnerReply>}
@@ -123,7 +117,9 @@ export class OwnerLink {
           signal,
           leavingAtBound,
         );
-        if (reply.left || reply.timedOut) return reply;
+        // Actions never enter the read loop that retries under a new login.
+        if (request.operation !== undefined || reply.left || reply.timedOut)
+          return reply;
         if (directory === (await this.#binding.directory())) return reply;
       }
     } catch (error) {
@@ -159,6 +155,13 @@ export class OwnerLink {
       this.#connected(directory).then(
         (socket) => {
           if (signal.aborted) return;
+          if (
+            request.operation !== undefined &&
+            !supportsWorkflowRerun(socket)
+          ) {
+            settle({ refused: "operation-unavailable" });
+            return;
+          }
           this.#asked += 1;
           sent = { id: this.#asked, socket, owner: link.owner };
           link.waiting.set(sent.id, settle);

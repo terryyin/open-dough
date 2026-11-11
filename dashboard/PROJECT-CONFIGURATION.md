@@ -17,6 +17,10 @@ The global banner keeps the project selector for visible projects and ends with
 the **System settings** gear at its far right, including when no project is
 visible or configured. Settings lists each configured name,
 repository, local path, and hidden state; **Add project** opens the existing dialog.
+[Automatic CI follow-up](../docs/dashboard-ci-follow-up.md) is a separate
+machine-local, default-off setting on each project row. Explicit enablement
+authorizes one full GitHub Actions repeat for qualifying new Done receipts
+on this production machine; disabling keeps existing evidence reviewable.
 Each project entry also shows that project's local Client configuration file text
 from `<localPath>/.planning/open-dough.json` when readable, or explains absence or
 unreadability for that project alone, without edit or save controls and without
@@ -85,6 +89,20 @@ When `sources` is present it alone selects the location's files; `kind` and
 such entries leaves that location out, as a malformed `include` does. The
 location header names a `sources` location's patterns without a kind. CI
 proof for either form stays keyed by the location's path and its files' paths.
+
+Set `"makeMe": true` on a location to apply the shared
+[MakeMe guidance](../src/skills/dough-makeme/SKILL.md) to its selected test sources
+during authoring, Dough execution and implicated post-change refactoring.
+For example, `{ "path": "backend/tests", "kind": "typescript", "include": ["**/*.spec.ts"], "makeMe": true }`
+enables the convention for matching specs. Omitted, false or non-boolean values
+stay off. Membership uses the same `kind`/`include` or `sources` rules above;
+another matching location's opt-out does not veto an enabled match. Installation
+and updates preserve each project's choices.
+
+Set `"pageObjects": true` independently to apply the shared
+[page-object guidance](../src/skills/dough-page-objects/SKILL.md) to browser tests
+selected by that location. The same membership and opt-in rules apply; neither
+flag implies the other. Both rules share the standalone selection command.
 
 Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings

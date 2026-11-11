@@ -1,0 +1,76 @@
+// Disposable observations over the actual watcher-built output snapshots.
+import { expect, test } from "../support/pageTest.ts";
+import { rm, writeFile } from "node:fs/promises";
+import { startProductionPreview } from "../../server/productionPreviewLifecycle.mjs";
+import type { PublishedMainFixture } from "../support/publishedMainFixture.ts";
+import { faultCause } from "../support/productionFault.ts";
+import { processRunning } from "../support/processGroup.ts";
+import { builtDeploymentDigest } from "../support/builtDeploymentDigest.ts";
+type Built = { directory: string; commit: string };
+export function compositionPreviewProof(inputs: () => { fixture: PublishedMainFixture; a: Built; b: Built }) {
+  let owner: Awaited<ReturnType<typeof startProductionPreview>> | undefined;
+  const previews: NonNullable<NonNullable<typeof owner>["current"]>[] = [];
+  function current() {
+    const preview = owner?.current;
+    if (preview?.pid === undefined) throw new Error("No working preview");
+    previews.push(preview);
+    return { ...preview, pid: preview.pid };
+  }
+  test.afterAll(async () => {
+    await owner?.stop();
+    for (const preview of previews) await preview.stop();
+  });
+  test("the paid A/B snapshots restore and retry through the production preview owner", async ({ request }) => {
+    const { fixture, a, b } = inputs();
+    const aDigest = await builtDeploymentDigest(a.directory);
+    const bDigest = await builtDeploymentDigest(b.directory);
+    owner = await startProductionPreview({ ...a, port: 0, env: fixture.env });
+    const first = current();
+    await writeFile(faultCause(fixture.home, "preview", "b"), "B start cause");
+    const failed = await owner.replace(b);
+    expect(failed.kind).toBe("restored");
+    expect((failed.error as Error).message).toContain("TRANSIENT preview FAILURE");
+    const restored = current();
+    expect(restored.commit).toBe(a.commit);
+    expect(restored.url).toBe(first.url);
+    expect(restored.pid).not.toBe(first.pid);
+    expect(processRunning(first.pid)).toBe(false);
+    expect(await (await request.get(restored.url)).text()).toContain("MAIN A");
+    await rm(faultCause(fixture.home, "preview", "b"));
+    expect((await owner.replace(b)).kind).toBe("activated");
+    const active = current();
+    expect(active.commit).toBe(b.commit);
+    expect(active.url).toBe(first.url);
+    expect(processRunning(restored.pid)).toBe(false);
+    expect(await (await request.get(active.url)).text()).toContain("MAIN B");
+    expect(await builtDeploymentDigest(a.directory)).toBe(aDigest);
+    expect(await builtDeploymentDigest(b.directory)).toBe(bDigest);
+  });
+  test("failed snapshot startup and restoration keep both causes and close the production URL", async ({ request }) => {
+    const { fixture, a, b } = inputs();
+    const previous = current();
+    await writeFile(faultCause(fixture.home, "preview"), "A cause");
+    await writeFile(faultCause(fixture.home, "preview", "b"), "B cause");
+    const failure = await owner?.replace(a).catch((error: Error) => error);
+    expect(failure).toBeInstanceOf(Error);
+    expect((failure as Error).message).toContain(`${a.commit} failed: `);
+    expect((failure as Error).message).toContain(`; restoring ${b.commit} also failed: `);
+    expect((failure as Error).message.match(/TRANSIENT preview FAILURE/g)).toHaveLength(2);
+    expect(owner?.current).toBeUndefined();
+    expect(processRunning(previous.pid)).toBe(false);
+    await expect(request.get(previous.url, { timeout: 2_000 })).rejects.toThrow();
+  });
+  test("snapshot preview loss is reported and all owned processes stop", async ({ request }) => {
+    const { fixture, b } = inputs();
+    await rm(faultCause(fixture.home, "preview"));
+    await rm(faultCause(fixture.home, "preview", "b"));
+    owner = await startProductionPreview({ ...b, port: 0, env: fixture.env });
+    const served = current();
+    process.kill(-served.pid, "SIGKILL");
+    await served.exited;
+    expect(() => owner?.check()).toThrow("Production dashboard exited unexpectedly (SIGKILL).");
+    await owner.stop();
+    expect(processRunning(served.pid)).toBe(false);
+    await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
+  });
+}

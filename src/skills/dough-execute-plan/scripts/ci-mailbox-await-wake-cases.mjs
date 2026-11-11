@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { awaitRevision } from "./ci-mailbox-await.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { whileObserving } from "./ci-mailbox-await-test-fixtures.mjs";
@@ -42,14 +43,27 @@ process.stdout.write(readFileSync(${JSON.stringify(attempts)}, 'utf8'));
   mkdirSync(join(project, ".planning"));
   writeFileSync(
     join(project, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   // Published whole: the adapter may read it while a poll is in flight, and
   // a partial read would be a poll error, which waits a full interval.
   const setAttempt = (outcome) =>
     publishJson(project, "attempts.json", {
       attempts: outcome
-        ? [{ runId: "run", attemptId: "1", sha: pushed, outcome }]
+        ? [
+            makeMe.aCiAdapterAttempt
+              .with({
+                runId: "run",
+                attemptId: "1",
+                sha: pushed,
+                outcome,
+              })
+              .please(),
+          ]
         : [],
     });
   setAttempt(undefined);

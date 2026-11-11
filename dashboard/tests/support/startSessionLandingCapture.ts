@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // What the unattached landing-capture specs assert on a real start origin
 // (./startOrigin.ts) with the synthetic `claude`: a raw launch with its first
 // message, the landing handoff that message and the launch's attempt carry,
@@ -25,11 +26,7 @@ export type UnattachedPolicy = {
   workspace: "isolated" | "default-checkout";
   landing: "review" | "auto-land";
 };
-export const adHocRequest = {
-  source: "open-dough",
-  workflow: "ad-hoc",
-  host: "claude",
-};
+export const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 
 // Launches over raw HTTP and answers the record kept and the first message.
 export async function launched(dashboard: DashboardServer, body: object) {

@@ -21,6 +21,7 @@ import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   chooseCiStatus,
   expectChecked,
@@ -54,7 +55,11 @@ test("CI status that could not be read names main and the reason; Check again re
   const ci = trunkCi(openDough.revision, () =>
     runsMissing
       ? httpErrorAnswer(404, "Not Found")
-      : [{ headSha: judged, conclusion: "success", url: runUrl }],
+      : [
+          makeMe.aCiRun
+            .with({ headSha: judged, conclusion: "success", url: runUrl })
+            .please(),
+        ],
   );
   published.serveCi((call) =>
     historyMissing &&
@@ -117,14 +122,22 @@ test("a ciAdapter project is judged from its discover attempts, and a story bran
   const project = path.join(dashboard.home, "git", "open-dough");
   const adapter = "scripts/ci-status-fixture-adapter.mjs";
   const asked = path.join(dashboard.home, "ci-status-adapter-asked.log");
-  const attempt = (sha: string, outcome: string, url: string) => ({
-    runId: url,
-    attemptId: "1",
-    sha,
-    outcome,
-    url,
-    time: "2026-10-01T00:00:00Z",
-  });
+  const attempt = (
+    sha: string,
+    outcome: "success" | "failure",
+    url: string,
+  ) => {
+    const facts = {
+      runId: url,
+      attemptId: "1",
+      sha,
+      url,
+      time: "2026-10-01T00:00:00Z",
+    };
+    return outcome === "failure"
+      ? makeMe.aCiAdapterAttempt.failed(facts).please()
+      : makeMe.aCiAdapterAttempt.passedWithoutTimes(facts).please();
+  };
   // Each discover answered by the branch asked: main's head fails (a commit
   // on main only), main's "Add login" passes, the failing story's own head
   // fails, and the planning-only story has no result of its own.
@@ -152,7 +165,11 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
   chmodSync(path.join(project, adapter), 0o700);
   writeFileSync(
     path.join(project, ".planning", "open-dough.json"),
-    `${JSON.stringify({ ciAdapter: [process.execPath, adapter] })}\n`,
+    `${JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    )}\n`,
   );
   const askedBranches = () =>
     existsSync(asked)

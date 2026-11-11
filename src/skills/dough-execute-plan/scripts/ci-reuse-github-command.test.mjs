@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { exec } from "./publication-test-fixtures.mjs";
 import { instrumentedGithubFixture } from "./ci-github-test-fixtures.mjs";
+import { coveredJob, sourceRun } from "./ci-reuse-github-test-fixtures.mjs";
 
 const command = fileURLToPath(
   new URL("./ci-reuse-github-command.mjs", import.meta.url),
@@ -25,20 +26,22 @@ const policy = {
 
 test("actual GitHub command writes hit/miss/fallback outputs and inspectable distinct source/target reports", async (t) => {
   const at = new Date().toISOString();
-  const run = {
-    id: 42,
-    run_attempt: 1,
-    workflow_id: 7001,
-    head_sha: sha,
-    head_branch: "trusted",
-    event: "push",
-    head_repository: { full_name: policy.repo },
-    status: "completed",
-    conclusion: "success",
-    run_started_at: at,
-    updated_at: at,
-    html_url: "https://github.test/source/42",
-  };
+  const qualifyingRun = sourceRun(
+    {
+      databaseId: 42,
+      attempt: 1,
+      headSha: sha,
+      headBranch: "trusted",
+      event: "push",
+      status: "completed",
+      conclusion: "success",
+      url: "https://github.test/source/42",
+      workflowId: 7001,
+      headRepository: { full_name: policy.repo },
+    },
+    { startedAt: at, completedAt: at },
+  );
+  const qualifyingJob = coveredJob({ completed_at: at });
   const json = (body) => ({
     head: "HTTP/2.0 200 OK",
     body: JSON.stringify(body),
@@ -51,19 +54,11 @@ test("actual GitHub command writes hit/miss/fallback outputs and inspectable dis
     `require('node:fs').appendFileSync(${JSON.stringify(count)}, 'executed\\n'); console.log('DOUGH_CI_DIRECT '+JSON.stringify(${JSON.stringify({ sha, unit: policy.unit, configuration: policy.configuration, context: policy.context })}));`,
   ]);
   const state = {
-    runs: [run],
-    attempts: { "42/1": run },
-    jobs: [
-      {
-        id: 9,
-        name: "covered",
-        status: "completed",
-        conclusion: "success",
-        completed_at: at,
-      },
-    ],
+    runs: [qualifyingRun],
+    attempts: { "42/1": qualifyingRun },
+    jobs: [qualifyingJob],
     answers: {
-      "runs/42": json(run),
+      "runs/42": json(qualifyingRun),
       "jobs/9/logs": { head: "HTTP/2.0 200 OK", body: direct.stdout },
     },
   };

@@ -72,12 +72,14 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
           completedAt: "2026-11-05T10:06:05Z",
         })
         .please();
-      const proofRun = {
-        repository: "terryyin/open-dough",
-        runId: 41,
-        attempt: 1,
-        revision: main,
-      };
+      const proofRun = makeMe.aCiProofCollectorRun
+        .with({
+          repository: "terryyin/open-dough",
+          runId: 41,
+          attempt: 1,
+          revision: main,
+        })
+        .please();
       if (call.request.kind === "actions-run-artifacts")
         return runArtifactsAnswer(proofRun, 901, proofState === "expired");
       if (call.request.kind === "actions-artifact-zip") {
@@ -89,8 +91,8 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
             revision: proofState === "mismatched" ? "f".repeat(40) : main,
           },
           [
-            ["dashboard/tests", 1, "case"],
-            ["dashboard/tests", 1, "file"],
+            { entry: "dashboard/tests", parts: 1, unit: "case" },
+            { entry: "dashboard/tests", parts: 1, unit: "file" },
           ],
           [
             {
@@ -165,12 +167,15 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
       expect(
         Object.keys(retainedHistory(dashboard.home)?.builds ?? {}),
       ).toEqual(["run/41/1"]);
-      readers.push(
-        await restartAsLandedCiReader(dashboard, origin, "boundary"),
+      const reader = await restartAsLandedCiReader(
+        dashboard,
+        origin,
+        "boundary",
       );
+      readers.push(reader);
       const before = github.calls.length;
       const reading = await collectedScopeHistory(
-        dashboard.origin,
+        reader.origin,
         "dashboard/tests",
         revision,
         receipt.receivedAt,
@@ -192,7 +197,7 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
         },
       });
       expect(reading.body.entries).toHaveLength(1);
-      expect((await landedCiHistory(dashboard)).body).toMatchObject({
+      expect((await landedCiHistory(reader)).body).toMatchObject({
         entries: [{ kind: "point", revision }],
       });
       expect(github.calls).toHaveLength(before);

@@ -98,9 +98,10 @@ test("each Done scope compares its own collected time through restart, accessibl
         ],
       },
     });
-  readers.push(await restartAsLandedCiReader(dashboard, origin, "preview"));
+  const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
+  readers.push(reader);
   const api = await collectedScopeHistory(
-    dashboard.origin,
+    reader.origin,
     "dashboard/tests/folder",
     setup.completion,
     "2026-11-07T10:10:00Z",
@@ -117,7 +118,7 @@ test("each Done scope compares its own collected time through restart, accessibl
     difference: { changeMs: 411 },
   });
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await openCollectedHistoryStory(page);
+  const { intent } = await openCollectedHistoryStory(page, reader.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;

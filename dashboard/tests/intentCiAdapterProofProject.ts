@@ -11,21 +11,13 @@ import {
   fragmentsFromOutcomes,
   summarize,
 } from "../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { parts } from "./dashboardPage.ts";
 import { chooseCiStatus } from "./intentCiStatusPage.ts";
 import { proofOf } from "./intentCiProofPage.ts";
 import { mainRun, publishStoryCi, repository } from "./intentCiStoryRecords.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
-import { counts, proofSummary } from "./support/ciProofArtifacts.ts";
-
-// The collector is untyped JavaScript; these name the results it gives.
-type FragmentsFromOutcomes = (
-  text: string,
-  identity: Record<string, unknown>,
-  times: undefined,
-  options: { readonly byFile: boolean; readonly unit?: "case" | "file" },
-) => readonly Record<string, unknown>[];
-type SummarizeFragments = (input: unknown) => { readonly summary: unknown };
+import { proofSummaryForEntries } from "./support/ciProofArtifacts.ts";
 
 export const uuid = "9f1c2d3e-0000-4000-8000-000000000001";
 
@@ -116,7 +108,11 @@ process.stdout.write(JSON.stringify(answer));
   );
   writeFileSync(
     path.join(project, ".planning", "open-dough.json"),
-    `${JSON.stringify({ ciAdapter: [process.execPath, adapter] })}\n`,
+    `${JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    )}\n`,
   );
   const requestsFile = path.join(project, "adapter-requests.jsonl");
   writeFileSync(requestsFile, "");
@@ -148,30 +144,61 @@ process.stdout.write(JSON.stringify(answer));
   };
 }
 
+type ListedAttemptOptions = { time?: string; check?: string; url?: string };
+
 // A passed attempt as the adapter's discover answers it.
 export const passed = (
   runId: string | number,
   attemptId: string | number,
   sha: string,
   branch: string,
-) => ({
-  runId,
-  attemptId,
-  sha,
-  outcome: "success",
-  url: mainRun,
-  time: "2026-10-01T00:00:00Z",
-  branch,
-});
+  options: ListedAttemptOptions = {},
+) =>
+  listedAttempt("passedWithoutTimes", runId, attemptId, sha, branch, options);
+
+// A failed attempt as the adapter's discover answers it.
+export const failed = (
+  runId: string | number,
+  attemptId: string | number,
+  sha: string,
+  branch: string,
+  options: ListedAttemptOptions = {},
+) => listedAttempt("failed", runId, attemptId, sha, branch, options);
+
+function listedAttempt(
+  method: "passedWithoutTimes" | "failed",
+  runId: string | number,
+  attemptId: string | number,
+  sha: string,
+  branch: string,
+  options: ListedAttemptOptions,
+) {
+  return makeMe.aCiAdapterAttempt[method]({
+    runId,
+    attemptId,
+    sha,
+    branch,
+    url: options.url ?? mainRun,
+    time: options.time ?? "2026-10-01T00:00:00Z",
+    ...(options.check !== undefined ? { check: options.check } : {}),
+  }).please();
+}
 
 // The adapter's proof answer: a valid summary of `attemptId` at `revision`
 // whose one row is `testsRow`.
 export const testsSummary = (attemptId: string, revision: string) => ({
-  summary: proofSummary(
-    { repository, attemptId, revision },
-    [["tests", 1]],
-    [["tests", 1, 1, "case", counts(1000, 0, 3)]],
-  ),
+  summary: proofSummaryForEntries({ repository, attemptId, revision }, [
+    makeMe.aCiProofEntry
+      .at("tests")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(1000, 0, 3)
+          .inParts(1)
+          .please(),
+      )
+      .please(),
+  ]),
 });
 
 // A valid matching summary with `--by-file` for `files` test files, each
@@ -185,7 +212,8 @@ export const byFileTestsSummary = (
   const outcomes = [...Array(files).keys()]
     .map((index) => `passed\ttests/${String(index).padStart(20, "x")}.sh\n`)
     .join("");
-  const [value] = (fragmentsFromOutcomes as FragmentsFromOutcomes)(
+  const options = { byFile: true, unit: "file" };
+  const [value] = fragmentsFromOutcomes(
     outcomes,
     {
       entries: ["tests"],
@@ -195,13 +223,13 @@ export const byFileTestsSummary = (
       revision,
     },
     undefined,
-    { byFile: true, unit: "file" },
-  );
-  const { summary } = (summarize as SummarizeFragments)({
+    options,
+  ) as readonly unknown[];
+  const { summary } = summarize({
     fragments: [{ source: "f.json", value }],
     expect: [{ entry: "tests", parts: 1 }],
     run: { repository, attemptId, revision },
-  });
+  }) as { readonly summary: unknown };
   return { summary };
 };
 

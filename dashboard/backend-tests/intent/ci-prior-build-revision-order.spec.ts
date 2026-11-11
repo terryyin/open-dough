@@ -47,19 +47,21 @@ test("the local history read orders unrecorded measured revisions and excludes a
     builder.recording(
       landing,
       `run/${runId}/1`,
-      {
-        revision,
-        state: "pass",
-        runId,
-        runAttempt: 1,
-        // All wall times and timestamps are identical; they cannot order builds.
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:01:40Z",
-        proof: makeMe.aCiProof
-          .forRun({ revision, runId })
-          .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
-          .please(),
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          state: "pass",
+          runId,
+          runAttempt: 1,
+          // All wall times and timestamps are identical; they cannot order builds.
+          startedAt: "2026-11-05T10:00:00Z",
+          completedAt: "2026-11-05T10:01:40Z",
+          proof: makeMe.aCiProof
+            .forRun({ revision, runId })
+            .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+            .please(),
+        })
+        .please(),
       selection,
     );
   }

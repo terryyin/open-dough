@@ -19,6 +19,7 @@ import {
   runUrl,
   trunkCi,
 } from "./intentCiStatusPage.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
 import { openUntilRead } from "./pageRequestNotes.ts";
 import type { CiAnswerer, CiRunAnswer } from "./support/baseCiActions.ts";
@@ -26,12 +27,14 @@ import type { ProofRun } from "./support/ciProofArtifacts.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
-export const run: ProofRun = {
-  repository: openDough.repository,
-  runId: 41,
-  attempt: 1,
-  revision: judged,
-};
+export const run: ProofRun = makeMe.aCiProofCollectorRun
+  .with({
+    repository: openDough.repository,
+    runId: 41,
+    attempt: 1,
+    revision: judged,
+  })
+  .please();
 export const artifactId = 9041;
 export const failedVerdict = "Failed at a1b2c3d (Add login)";
 
@@ -40,7 +43,14 @@ export async function openFailedRun(
   artifacts: () => OriginAnswer,
   zip: () => OriginAnswer | Promise<OriginAnswer>,
   runs: () => readonly CiRunAnswer[] = () => [
-    { headSha: judged, conclusion: "failure", id: run.runId, url: runUrl },
+    makeMe.aCiRun
+      .with({
+        headSha: judged,
+        conclusion: "failure",
+        databaseId: run.runId,
+        url: runUrl,
+      })
+      .please(),
   ],
 ) {
   const judgment = trunkCi(openDough.revision, runs);
@@ -71,21 +81,65 @@ export function proofTable(proof: Locator): Locator {
   return proof.getByRole("table", { name: "CI proof by declared entry" });
 }
 
+// A CI entry's in-page destination, shared by single-run and comparison rows.
+export function ciEntryName(panel: Locator, path: string): Locator {
+  return panel
+    .getByRole("rowheader", { name: path, exact: true })
+    .getByRole("button", { name: path, exact: true });
+}
+
+export async function openCiEntry(
+  panel: Locator,
+  path: string,
+  how: "click" | "Enter" = "click",
+) {
+  const entry = ciEntryName(panel, path);
+  if (how === "click") await entry.click();
+  else {
+    await entry.focus();
+    await entry.press(how);
+  }
+}
+
 export const proofColumns = ["Entry", "Counts", "Test execution time"];
 
+// One cell's reading: a single-unit string, or each labeled unit line's
+// accessible name (`unit: value`) when the entry reports several types.
+export type ProofCell = string | readonly string[];
+
 // One body row as read across its columns: the entry path (its row header),
-// then counts with their unit and test execution time.
+// then counts with their unit and test execution time. Homepage multi-unit
+// rows may pass labeled line names via `ProofCell` arrays; Summary helpers
+// keep the string form.
 export type ProofRow = readonly [
   entry: string,
   counts: string,
   executionTime: string,
 ];
 
+export type HomepageProofRow = readonly [
+  entry: string,
+  counts: ProofCell,
+  executionTime: ProofCell,
+];
+
+async function expectProofCell(cell: Locator, expected: ProofCell) {
+  if (typeof expected === "string") {
+    await expect(cell).toHaveText(expected);
+    return;
+  }
+  const lines = cell.locator(".intent-ci-proof-unit-line");
+  await expect(lines).toHaveCount(expected.length);
+  for (const [at, name] of expected.entries()) {
+    await expect(lines.nth(at)).toHaveAttribute("aria-label", name);
+  }
+}
+
 // Proof's table has the shared column headers and exactly `rows`, in order,
 // each read cell by cell under its header.
 export async function expectProofRows(
   proof: Locator,
-  rows: readonly ProofRow[],
+  rows: readonly HomepageProofRow[],
   options?: { readonly timeout?: number },
 ) {
   const table = proofTable(proof);
@@ -97,7 +151,11 @@ export async function expectProofRows(
   await expect(body).toHaveCount(rows.length);
   for (const [at, [entry, ...cells]] of rows.entries()) {
     await expect(body.nth(at).getByRole("rowheader")).toHaveText(entry);
-    await expect(body.nth(at).getByRole("cell")).toHaveText(cells);
+    const shown = body.nth(at).getByRole("cell");
+    await expect(shown).toHaveCount(cells.length);
+    for (const [cellAt, expected] of cells.entries()) {
+      await expectProofCell(shown.nth(cellAt), expected);
+    }
   }
 }
 

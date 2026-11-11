@@ -27,30 +27,16 @@ story_closure_git() {
 }
 
 story_closure_write_gh() {
-  local destination=$1
-  # shellcheck disable=SC2016
+  local destination=$1 writer_q
+  printf -v writer_q '%q' "${source_dir}/tests/support/native-closure-ci.mjs"
+  # shellcheck disable=SC2016 # Variables belong to the generated shim.
   printf '%s\n' \
     '#!/usr/bin/env bash' \
     'set -euo pipefail' \
     'printf "%s\n" "$*" >> "${STORY_CLOSURE_GH_LOG}"' \
     'route=${3:-}' \
     'printf "HTTP/2.0 200 OK\r\n\r\n"' \
-    'run='\''{id:$id,run_attempt:1,head_sha:$sha,head_branch:$branch,event:"push",status:"completed",conclusion:"success",html_url:$url,created_at:$created}'\''' \
-    'base=(--argjson id 21 --arg sha "${STORY_CLOSURE_TRUNK_SHA}" --arg branch main --arg url https://ci.invalid/trunk-base --arg created 2026-09-22T00:02:00Z)' \
-    'if [[ ${route} == */jobs\?* ]]; then' \
-    '  jq -n '\''{total_count:0,jobs:[]}'\''' \
-    'elif [[ ${route} != */actions/workflows/* ]]; then' \
-    '  jq -n '\''{run_attempt:1,status:"completed",conclusion:"success",html_url:"https://ci.invalid/run"}'\''' \
-    'elif [[ ${route} != */runs\?* ]]; then' \
-    '  jq -n '\''{id:7001,name:"CI"}'\''' \
-    'elif [[ ${route} == *branch=exec%2Fstory* ]]; then' \
-    '  jq -n --argjson id 11 --arg sha "${STORY_CLOSURE_BRANCH_SHA}" --arg branch exec/story --arg url https://ci.invalid/branch --arg created 2026-09-22T00:01:00Z "{total_count:1,workflow_runs:[${run}]}"' \
-    'elif [[ -f ${STORY_CLOSURE_RELEASE} && -s ${STORY_CLOSURE_INTEGRATED_SHA_FILE} ]]; then' \
-    '  candidate=$(cat "${STORY_CLOSURE_INTEGRATED_SHA_FILE}")' \
-    '  jq -n "${base[@]}" "${run}" | jq --argjson id 22 --arg sha "${candidate}" --arg branch main --arg url https://ci.invalid/integrated --arg created 2026-09-22T00:03:00Z "{total_count:2,workflow_runs:[.,${run}]}"' \
-    'else' \
-    '  jq -n "${base[@]}" "{total_count:1,workflow_runs:[${run}]}"' \
-    'fi' > "${destination}"
+    "exec node ${writer_q} story \"\${route}\"" > "${destination}"
   chmod +x "${destination}"
 }
 
@@ -71,9 +57,7 @@ story_closure_create_fixture() {
   : > "${story_closure_control_log}"
 
   git init --bare -q -b main "${story_closure_origin}"
-  git init -q -b main "${story_closure_integration}"
-  story_closure_git "${story_closure_integration}" remote add origin \
-    "${story_closure_origin}"
+  mkdir -p "${story_closure_integration}"
   mkdir -p "${story_closure_integration}/.github/workflows"
   printf 'base source\n' > "${story_closure_integration}/product.txt"
   printf '%s\n' '.agents/' '.claude/' '.codex/' '.cursor/' \
@@ -86,8 +70,10 @@ story_closure_create_fixture() {
     '# Fixture project guidance' '' \
     'The accepted product state keeps `trunk source` followed by `story source` in `product.txt`.' \
     > "${story_closure_integration}/AGENTS.md"
-  story_closure_git "${story_closure_integration}" add .
-  story_closure_git "${story_closure_integration}" commit -q -m base
+  node "${source_dir}/tests/support/native-closure-repository.mjs" \
+    "${story_closure_integration}" 'Story Closure Fixture' 'story-closure@example.invalid'
+  story_closure_git "${story_closure_integration}" remote add origin \
+    "${story_closure_origin}"
   story_closure_git "${story_closure_integration}" push -q origin main
   story_closure_base_sha=$(git -C "${story_closure_integration}" rev-parse HEAD)
 

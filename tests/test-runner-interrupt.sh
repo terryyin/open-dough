@@ -17,7 +17,13 @@ source "${source_dir}/scripts/lost-setpgid-race.bash"
 temporary_dir=$(mktemp -d)
 checks="${temporary_dir}/checks"
 cleanup() {
-  pkill -KILL -f -- "${checks}/" 2> /dev/null || true
+  # Kill only check scripts by their exact paths. A broad "${checks}/" pattern
+  # can match unrelated argv that merely embeds the directory string.
+  local check
+  for check in "${checks}"/*.sh; do
+    [[ -e ${check} ]] || continue
+    pkill -KILL -f -- "${check}" 2> /dev/null || true
+  done
   rm -rf -- "${temporary_dir}"
 }
 trap cleanup EXIT
@@ -29,13 +35,13 @@ write_check() {
   printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$2" > "${checks}/$1"
 }
 
-# Announce from Bash itself: an external marker command could create the file
-# before it exits, leaving Bash waiting on a child when the test sends INT.
-# Bash can disregard that INT if the child then exits normally. A builtin
-# announcement leaves only the check's own FIFO read after readiness.
+# Announce with Bash builtins: an external marker can leave Bash waiting on
+# its child when INT arrives, which Bash can disregard if that child exits
+# normally. Ready precedes output and the FIFO no one writes, so a mid-start
+# TERM still records the started check by its unique command path.
 write_blocking_check() {
-  write_check "$1" "echo $1-printed
-: > '${temporary_dir}/$1.ready'
+  write_check "$1" ": > '${temporary_dir}/$1.ready'
+echo $1-printed
 read -r _ < '${blocked}'"
 }
 write_check pass-a.sh 'true'
@@ -48,23 +54,36 @@ write_blocking_check never-ending.sh
 # given order, and an unlisted check starts after them.
 order() {
   local name seconds=$#
-  : > "${checks}/longest-first"
+  local -a durations=()
   for name in "$@"; do
-    printf '%s.0\t%s/%s\n' "${seconds}" "${checks}" "${name}" >> "${checks}/longest-first"
+    durations+=("${seconds}" "${checks}/${name}")
     seconds=$((seconds - 1))
   done
+  node "${source_dir}/tests/support/job-duration-list.mjs" "${durations[@]}" > "${checks}/longest-first"
 }
 
 # Job control starts the runner in its own process group with INT not ignored;
 # a non-interactive shell otherwise starts background commands ignoring INT.
 # What Bash writes while starting the runner, before the runner's own
 # redirection, goes to the run's launch file; await_ready checks it.
+# Clear inherited OPEN_DOUGH_TEST_* so only the intentional JOBS/DIR settings
+# apply: nested suites own their settings (tests/runner-settings.md).
 start_runner() {
+  local -a env_clear=()
+  local name
   rm -f -- "${temporary_dir}"/*.ready
   launch="${temporary_dir}/$1.launch"
+  for name in $(compgen -e OPEN_DOUGH_TEST_ || true); do
+    env_clear+=(-u "${name}")
+  done
   exec 5>&2 2> "${launch}"
   set -m
-  OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_DIR="${checks}" \
+  # env -u clears inherited OPEN_DOUGH_TEST_* without putting ${checks} on
+  # argv: cleanup's pkill -f "${checks}/" must not match the nested runner.
+  # ${arr[@]+...} keeps set -u from treating an empty clear list as unbound.
+  # shellcheck disable=SC2086 # intentional: empty clear list must expand to nothing
+  env ${env_clear[@]+"${env_clear[@]}"} \
+    OPEN_DOUGH_TEST_JOBS=1 OPEN_DOUGH_TEST_DIR="${checks}" \
     "${BASH}" "${source_dir}/scripts/test.sh" > "${temporary_dir}/$1.log" 2>&1 &
   set +m
   exec 2>&5 5>&-
@@ -81,16 +100,38 @@ expect_quiet_launch() {
   fi
 }
 
+# Nested scripts/test.sh sources its environment and modules, runs
+# test-jobs.sh (including the node share allocator), then JOBS=1 runs the
+# ordered prefix checks before the named check touches ready. Under contested
+# CI CPU that lifecycle routinely exceeds 30s; 90s covers it without borrowing
+# the 180s per-job safety ceiling.
+dump_nested_runner() {
+  local log
+  [[ ! -e ${launch} ]] || cat -- "${launch}" >&2
+  for log in "${temporary_dir}"/*.log; do
+    [[ -e ${log} ]] || continue
+    cat -- "${log}" >&2
+  done
+}
+
 await_ready() {
-  wait_for "$1 to start in the $2 runner" 30 \
-    "[[ -e ${temporary_dir}/$1.ready ]] || ! kill -0 ${runner} 2> /dev/null"
+  if ! wait_for "$1 to start in the runner" 90 \
+    "[[ -e ${temporary_dir}/$1.ready ]] || ! kill -0 ${runner} 2> /dev/null"; then
+    # Ready may land on the deadline edge after the last failed poll.
+    if [[ ! -e ${temporary_dir}/$1.ready ]]; then
+      printf 'FAIL: timed out waiting for %s to start; nested runner launch and log:\n' \
+        "$1" >&2
+      dump_nested_runner
+      exit 1
+    fi
+  fi
   if [[ ! -e ${temporary_dir}/$1.ready ]]; then
-    printf 'FAIL: the %s runner ended before %s started.\n' "$2" "$1" >&2
-    cat -- "${temporary_dir}"/*.log >&2
+    printf 'FAIL: the runner ended before %s started.\n' "$1" >&2
+    dump_nested_runner
     exit 1
   fi
   if ! pgrep -f -- "${checks}/$1" > /dev/null; then
-    printf 'FAIL: %s announced it was running in the %s runner, but no process runs it.\n' "$1" "$2" >&2
+    printf 'FAIL: %s announced it was running, but no process runs it.\n' "$1" >&2
     exit 1
   fi
   # A running check means the runner started, so its launch output is complete.
@@ -125,7 +166,7 @@ assert_interrupted() {
 # TERM: only the never-ending check is listed; the run exits 143.
 order pass-a.sh pass-b.sh
 start_runner term
-await_ready never-ending.sh TERM
+await_ready never-ending.sh
 interrupt_runner TERM 143 term
 assert_interrupted term never-ending.sh
 if grep -E -- 'pass-(a|b)|FAIL' "${temporary_dir}/term.log"; then
@@ -139,9 +180,9 @@ fi
 write_blocking_check ended-by-int.sh
 order pass-a.sh ended-by-int.sh pass-b.sh
 start_runner int
-await_ready ended-by-int.sh INT
+await_ready ended-by-int.sh
 pkill -INT -f -- "${checks}/ended-by-int.sh"
-await_ready never-ending.sh INT
+await_ready never-ending.sh
 interrupt_runner INT 130 int
 assert_interrupted int ended-by-int.sh
 assert_interrupted int never-ending.sh

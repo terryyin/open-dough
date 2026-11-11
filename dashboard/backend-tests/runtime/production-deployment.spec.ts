@@ -17,6 +17,7 @@ import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
 import { expectOwnOriginReadsOnly } from "../../tests/support/localOriginReads.ts";
 import { incidentEntries } from "../../tests/support/readDiagnostics.ts";
+import { productionBuildEnvironment } from "../../tests/support/productionWatcherFixture.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -64,6 +65,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
 }) => {
   await Promise.resolve(publishedApplicationSourceReady);
   const fixture = await publishedMainFixture(true, "application");
+  const env = productionBuildEnvironment(fixture.env);
   let staged: Awaited<ReturnType<typeof stageDeployment>> | undefined;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {
@@ -94,7 +96,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
       developmentRoot: fixture.development,
       published,
       deploymentsRoot: fixture.deploymentsRoot,
-      env: fixture.env,
+      env,
     });
     expect(path.basename(staged.directory)).toEqual(deploymentCheckout(commit));
     expect(path.relative(fixture.development, staged.directory)).toMatch(
@@ -116,7 +118,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     preview = await startDeploymentPreview({
       directory: staged.directory,
       port: 0,
-      env: fixture.env,
+      env,
     });
     expect(new URL(preview.url).hostname).toBe("127.0.0.1");
     const page = await request.get(preview.url);

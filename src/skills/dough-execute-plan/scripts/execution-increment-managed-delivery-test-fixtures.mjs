@@ -17,6 +17,7 @@ import { readMailboxEvents } from "./ci-mailbox-store.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../../tests/support/repository-fixture.mjs";
 import {
   awaitWorkerState,
@@ -122,7 +123,11 @@ export async function installManagedDelivery(
   const adapter = writeAdapter(fixture, releasePath, callsPath);
   writeFileSync(
     join(root, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   const env = {
     ...process.env,

@@ -1,9 +1,10 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // Endpoint proof summaries for Intent Summary CI timing comparison
 // (./intentSummaryStoryComparisonFixture.ts): file-breakdown proofs for
 // baseline / branch / landed, a baseline without breakdowns, and a landed
 // proof whose figures hold what no Summary row shows.
 
-import { counts, proofSummary } from "./ciProofArtifacts.ts";
+import { proofSummaryForEntries } from "./ciProofArtifacts.ts";
 import {
   collectedSummary,
   playwrightRecord,
@@ -79,8 +80,8 @@ function breakdownSummary(
   return collectedSummary(
     proofRun(runId, revision),
     [
-      ["dashboard/tests", 1],
-      ["tests", 1],
+      { entry: "dashboard/tests", parts: 1 },
+      { entry: "tests", parts: 1 },
     ],
     [dashboardProducer(at), testsProducer(at)],
   );
@@ -95,23 +96,17 @@ export function breakdownProofs(args: {
     101: {
       kind: "summary",
       artifactId: 1001,
-      summary: JSON.parse(
-        breakdownSummary(101, args.baseline, "baseline"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(101, args.baseline, "baseline")),
     },
     102: {
       kind: "summary",
       artifactId: 1002,
-      summary: JSON.parse(
-        breakdownSummary(102, args.branchSide, "branch"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(102, args.branchSide, "branch")),
     },
     103: {
       kind: "summary",
       artifactId: 1003,
-      summary: JSON.parse(
-        breakdownSummary(103, args.completion, "landed"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(103, args.completion, "landed")),
     },
   };
 }
@@ -127,31 +122,28 @@ export function noBreakdownBaselineProofs(args: {
     101: {
       kind: "summary",
       artifactId: 1001,
-      summary: proofSummary(
-        baselineRun,
-        [
-          ["dashboard/tests", 1],
-          ["tests", 1],
-        ],
-        [
-          ["dashboard/tests", 1, 1, "case", counts(4), 12_040],
-          ["tests", 1, 1, "file", counts(2), 2_500],
-        ],
-      ),
+      summary: proofSummaryForEntries(baselineRun, [
+        makeMe.aCiProofEntry
+          .at("dashboard/tests")
+          .counting(4, "case")
+          .timed(12_040)
+          .please(),
+        makeMe.aCiProofEntry
+          .at("tests")
+          .counting(2, "file")
+          .timed(2_500)
+          .please(),
+      ]),
     },
     102: {
       kind: "summary",
       artifactId: 1002,
-      summary: JSON.parse(
-        breakdownSummary(102, args.branchSide, "branch"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(102, args.branchSide, "branch")),
     },
     103: {
       kind: "summary",
       artifactId: 1003,
-      summary: JSON.parse(
-        breakdownSummary(103, args.completion, "landed"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(103, args.completion, "landed")),
     },
   };
 }
@@ -164,16 +156,12 @@ export function trunkModeProofs(args: {
     200: {
       kind: "summary",
       artifactId: 2001,
-      summary: JSON.parse(
-        breakdownSummary(200, args.baseline, "baseline"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(200, args.baseline, "baseline")),
     },
     201: {
       kind: "summary",
       artifactId: 2002,
-      summary: JSON.parse(
-        breakdownSummary(201, args.implementation, "landed"),
-      ) as unknown,
+      summary: JSON.parse(breakdownSummary(201, args.implementation, "landed")),
     },
   };
 }
@@ -189,8 +177,8 @@ export function outsideLandedProofs(args: {
   const landed = collectedSummary(
     proofRun(103, args.completion),
     [
-      ["dashboard/tests", 2],
-      ["tests", 1],
+      { entry: "dashboard/tests", parts: 2 },
+      { entry: "tests", parts: 1 },
     ],
     [
       {
@@ -220,7 +208,7 @@ export function outsideLandedProofs(args: {
     103: {
       kind: "summary",
       artifactId: 1003,
-      summary: JSON.parse(landed) as unknown,
+      summary: JSON.parse(landed),
     },
   };
 }

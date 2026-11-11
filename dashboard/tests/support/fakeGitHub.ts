@@ -66,7 +66,10 @@ export type FakeGitHub = {
   // returns reports the most there have been since.
   observeUnanswered(): () => number;
   // Answers `repository` (or `everyRepository`) with `answerer` from now on.
-  serve(repository: string, answerer: RepositoryAnswerer): void;
+  serve(
+    repository: string,
+    answerer: RepositoryAnswerer,
+  ): RepositoryAnswerer | undefined;
   // Answers avatar image reads with `answerer` from now on; until then every
   // avatar is not found.
   serveAvatars(answerer: AvatarAnswerer): void;
@@ -192,7 +195,9 @@ export async function startFakeGitHub(): Promise<FakeGitHub> {
       return () => observer.most;
     },
     serve(repository, answerer) {
+      const previous = served.get(repository);
       served.set(repository, answerer);
+      return previous;
     },
     serveAvatars(answerer) {
       avatars = answerer;

@@ -12,6 +12,7 @@ import type {
   LaunchAttemptRecord,
   LaunchRecord,
 } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { FakeCodex } from "./fakeCodexTypes.ts";
 import { keepLaunchStore } from "./launchStore.ts";
 import { replayRecords, replayScale } from "./sessionsReplayRecords.ts";
@@ -27,15 +28,18 @@ export type ReplaySeed = {
   readonly listed: readonly Record<string, unknown>[];
 };
 
-const listedFor = (record: LaunchRecord, open: boolean) => ({
-  id: record.session.sessionId.slice(0, 8),
-  cwd: record.start?.workspace,
-  kind: "bg",
-  startedAt: Date.parse(record.launchedAt),
-  sessionId: record.session.sessionId,
-  name: record.session.name,
-  ...(open ? { status: "busy", state: "working" } : { state: "done" }),
-});
+const listedFor = (record: LaunchRecord, open: boolean) =>
+  makeMe.aClaudeListingRow
+    .background({
+      sessionId: record.session.sessionId,
+      name: record.session.name,
+      ...(record.start?.workspace === undefined
+        ? {}
+        : { cwd: record.start.workspace }),
+      startedAt: Date.parse(record.launchedAt),
+    })
+    .as(open ? "working" : "done-exited")
+    .please();
 
 const byProject = <T extends { readonly request: { readonly source: string } }>(
   items: readonly T[],
@@ -73,15 +77,15 @@ export function seedReplaySessions(
     ),
     ...indices(replayScale.listed - claudeRecords.length).map((index) => {
       const sessionId = uuidOf(`unrecorded:${String(index)}`);
-      return {
-        id: sessionId.slice(0, 8),
-        cwd: path.join(home, "git", "open-dough"),
-        kind: "bg",
-        startedAt: now - index * minute,
-        sessionId,
-        name: `Unrecorded ${String(index)}`,
-        state: index % 3 === 0 ? "stopped" : "done",
-      };
+      return makeMe.aClaudeListingRow
+        .background({
+          sessionId,
+          name: `Unrecorded ${String(index)}`,
+          cwd: path.join(home, "git", "open-dough"),
+          startedAt: now - index * minute,
+        })
+        .as(index % 3 === 0 ? "stopped" : "done-exited")
+        .please();
     }),
   ];
   keepLaunchStore(home, byProject(records));

@@ -7,6 +7,7 @@
 // reads its progress on its branch and its revision check watches that head.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { describedFiles } from "./describedRevisions.ts";
 
@@ -101,23 +102,15 @@ const plan = renderSlicePlan(
   { heading: "Slices" },
 );
 
+const membership = [...taken, queued, preparing].map(entry);
 const seed = `# Story CI fixture
 
-${[...taken, queued, preparing]
-  .map(
-    ({ title, anchor }) => `<a id="${anchor}"></a>
-
-### ${title}
-
-**Identity:** ${identity(anchor)}
-`,
-  )
-  .join("\n")}`;
+${membership.map((story) => renderStorySection(story)).join("\n")}`;
 
 export const storyBoardFiles: Record<string, string> = describedFiles({
   backlog: {
-    taken: taken.map(entry),
-    queued: [entry(queued), entry(preparing)],
+    taken: membership.slice(0, taken.length),
+    queued: membership.slice(taken.length),
   },
   files: {
     ".planning/seeds/SEED-219-story-ci.md": seed,

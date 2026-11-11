@@ -20,6 +20,7 @@ prepare_target() {
 
 assert_sentinels() {
   local target=$1
+  local claude_sentinel=${2:-${target}/.claude/skills/other-skill/SKILL.md}
   local contents
 
   contents=$(cat "${target}/.agents/skills/unrelated/SKILL.md")
@@ -32,7 +33,7 @@ assert_sentinels() {
     echo "FAIL: assert_sentinels lost Cursor sentinel" >&2
     return 1
   fi
-  contents=$(cat "${target}/.claude/skills/other-skill/SKILL.md")
+  contents=$(cat "${claude_sentinel}")
   if [[ "${contents}" != 'Keep this Claude sentinel.' ]]; then
     echo "FAIL: assert_sentinels lost Claude sentinel" >&2
     return 1

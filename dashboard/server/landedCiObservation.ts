@@ -13,6 +13,7 @@
 // one read back from the file.
 
 import { z } from "zod";
+import { attemptTimingBasis } from "../src/ciAttemptTiming.ts";
 import { buildKeyOf } from "../src/landedCiBuildKey.ts";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
 import { ciProofSchema } from "../src/ciProof.ts";
@@ -73,6 +74,8 @@ export const keptBuildSchema = z.object({
   runBranch: z.string().min(1).optional(),
   startedAt: z.string().min(1).optional(),
   completedAt: z.string().min(1).optional(),
+  // Absent on older measurements whose start may have been workflow creation.
+  timingBasis: z.string().min(1).optional(),
   proof: retainedProofSchema.optional(),
   // Absent in older records; a classified final answer is not acquired again.
   proofPending: z.boolean().optional(),
@@ -216,6 +219,7 @@ export function keptResolution(resolution: LandedResolution): {
       {
         revision,
         state,
+        timingBasis: attemptTimingBasis,
         ...keptRunOf(resolution),
         ...(runBranch === undefined ? {} : { runBranch }),
         ...(startedAt === undefined ? {} : { startedAt }),
