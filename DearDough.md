@@ -18,6 +18,7 @@ retain local facets. The full source before this compaction is
 - Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
 - Recovery: `296db77062d35455cf7b830aaeebb6671d396d1b:DearDough.md` preserves the redundant ODF-396 SEED-281 unit-gaps occurrence removed at final SEED-285 integration to retain current published-failure and native-proof maintenance evidence; newer occurrences retain the trace-noise finding.
 - Recovery: `c9c6c06453f04b8b6144a34a563fbda1327cc960:DearDough.md` preserves catalog-only ODF-355–360 stubs removed to retain SEED-305 delivery-gate and trace recurrence observations. Their complete meaning/evidence remains in docs/maintainer/findings/; current observations have higher information value than duplicated catalog pointers.
+- Recovery: `a06716541ff03aa73ecaec0e522773cd45fe8912:DearDough.md` preserves the SEED-304 branch tip before this integration; its temporary prune of DD-485/DD-486 was superseded by trunk's retained DD-485/DD-486 (including SEED-305's DD-486 recurrence) while SEED-304 ODF-333/ODF-427 occurrences remain below.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -545,6 +546,17 @@ Former local code: DD-386. [Evidence and current response](docs/maintainer/findi
 
 Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`. Two local facets enter this gate: closure commitments owned by completion or wrap-up but allocated to the last slice must be observed before its done transition (DD-387), and a Story Branch rollout slice released from trunk without a step landing the earlier slices (DD-401). [Meaning, evidence and response](docs/maintainer/findings/ODF-333.md).
 
+### Occurrences
+
+- Execution: SEED-304#show-one-ci-proof-row-per-location (plan 582; first related implementation `a6efa3d48ea6acd5d6682b769e2fd135710a728b`)
+  - Timestamp: 2026-11-11T09:44:00+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Plan Existing solutions required Trunk Mode (`--trunk`) so production deployment needed no branch landing checkpoint; established start was `mode: story-branch` on `cursor/show-one-ci-proof-row-per-location`. Slice 2 pre-condition needs `origin/main`. Coordinator transcript `2dce1ff7-595f-4119-8243-6da1ce9127bb` turn 58 unfinished handoff; owner authorized land; merge `28cf896d38d64aaff6af0f7c3954704ff360f169`.
+  - Observed effect: One mid-execution human stop and `--keep-worktree` land before live production observation; slice 1 branch CI left unobserved when that stop closed its observer.
+  - Inference: Plan Trunk Mode prose did not change the Take's story-branch mode or name a retained-landing checkpoint, so the trunk-before-completion gate recurred. Distinct from lifecycle-commitment allocation (DD-387 facet).
+
+
 ## ODF-367 — Source-only review arrived after the first slice was delegated
 
 Former local code: DD-388. Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`. [Evidence and current response](docs/maintainer/findings/ODF-367.md).
@@ -705,6 +717,17 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
+
+### Occurrences
+
+- Execution: SEED-304#show-one-ci-proof-row-per-location (plan 582; first related implementation `a6efa3d48ea6acd5d6682b769e2fd135710a728b`)
+  - Timestamp: 2026-11-11T09:48:53+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `2dce1ff7-595f-4119-8243-6da1ce9127bb` turns 71–76: `history-preserving-publication.mjs integrate --help` then inline `node --input-type=module` calling `publishHistoryPreservingCandidate` with `onFetchedTarget`/`affectedCheck`; land accepted as merge `28cf896d38d64aaff6af0f7c3954704ff360f169`.
+  - Observed effect: Keep-worktree landing required a hand-written publication wrapper again before slice 2 could observe production.
+  - Inference: Same CLI/callback gap as prior ODF-427; not resolved by 0.3.94.
+
 
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 
