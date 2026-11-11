@@ -3,6 +3,8 @@
 **Identity:** SEED-311#speed-up-production-watcher-lifecycle-checks
 **Source:** [Story](../../seeds/SEED-311-production-watcher-lifecycle-checks.md#speed-up-production-watcher-lifecycle-checks)
 
+**Source review:** [Independent source review](source-review.md)
+
 ## Goal and scope
 
 Keep ordinary proof for selected commits, activation and replacement,
@@ -57,7 +59,7 @@ new synchronization.
 
 ### 1. Prove recovery and refusal with minimum inputs and events
 Type: Behavior
-Status: planned
+Status: done
 Proof: All existing recovery and early refusal observations pass through the
 real CLI. The minimal app uses the installed Vite toolchain and the real
 admission middleware. Record counts and comparable timings before layering.
@@ -100,3 +102,29 @@ comparison and retain the change only with the declared saving and coverage.
   product boundaries before removing that evidence. If no equivalent proof
   is feasible without live credentialed host services, surface the exact
   gap for a decision before claiming coverage or landing.
+
+## Accepted slice 1 proof
+
+- Unmodified base `4d7a2ff66`: 31/31 strict in 138.77 seconds whole wall
+  using the baseline selector above. The 11 recovery/refusal cases took
+  51.459 seconds summed. AC host one-minute load was 5.94 before launch.
+- Minimal recovery/refusal selection
+  `/usr/bin/time -p caffeinate -s -i npm run --silent test:dashboard -- --workers=1 'production-watcher-(failures|refusals)\.spec\.ts'`:
+  11/11 three consecutive strict passes (26.90, 24.61, 23.24 seconds).
+  The independent refactor awaited the whole failure report and passed
+  11/11 in 22.61 seconds. This is focused evidence.
+- Actual local Git publication, real npm/Vite build, stream and Git trace
+  events, and the installed launch middleware preserve the recovery inputs
+  and assertions. Build failure retains the running commit; retry stages the
+  same commit. Origin loss and resumption are observed through Git output.
+- Direct Git fixture, qualification, selection and deployment neighbors
+  passed 12/12 in 18.43 seconds under the normal one-worker AC command
+  `npm run --silent test:dashboard -- --workers=1 'production-(publication-fixture|qualification|update-selection|deployment)\.spec\.ts'`.
+  Dashboard typecheck and whitespace checks passed.
+
+## Execution context
+
+Take `61eee0b54b3831c17749de0875d896214fea16b6`, agent `ziqing-chan`.
+Publisher and CI coordinator `seed311-watcher-lifecycle-20261111`.
+Story branch `codex/speed-up-production-watcher-lifecycle-checks`.
+Observer directory `/tmp/dough-ci-501/watch-TF4UVr`, PID 31792.

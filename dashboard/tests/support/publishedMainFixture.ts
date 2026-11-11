@@ -1,8 +1,7 @@
 // Disposable origin/main publication with the actual current dashboard/package
 // scripts. Every repository, deployment directory, and machine HOME belongs to
-// this test, and so does the `gh` its commands find: the synthetic one
-// (./fakeGh.ts), asked through a request owner of this fixture's own, which
-// fails every request until a test points it at a fake GitHub.
+// this test. Fixtures that need GitHub answers also own their synthetic
+// `gh` and request owner (./fakeGh.ts).
 import { execFile } from "node:child_process";
 import {
   cpSync,
@@ -16,22 +15,40 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
+import {
+  endFakeGh,
+  fakeGhEnv,
+  installFakeGh,
+  type FakeGhPaths,
+} from "./fakeGh.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
 const exec = promisify(execFile);
 
 // Path contents to publish; `null` deletes the path. Nothing else changes.
-export type PathChanges = Record<string, string | null>;
+export type PathChanges = Record<string, string | Buffer | null>;
 
 // One test's fixture: its repositories, HOME, environment and publication.
 export type PublishedMainFixture = Awaited<
   ReturnType<typeof publishedMainFixture>
 >;
 
-export async function publishedMainFixture(
+export function publishedMainFixture(
   fullSource = false,
   sourcePaths: readonly string[] = [],
+) {
+  return createPublishedMainFixture(fullSource, sourcePaths, installFakeGh);
+}
+
+// The real-Git fixture for CLI cases that supply no GitHub data.
+export function localPublishedMainFixture(sourcePaths: readonly string[]) {
+  return createPublishedMainFixture(true, sourcePaths, () => undefined);
+}
+
+async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
+  fullSource: boolean,
+  sourcePaths: readonly string[],
+  gitHub: (root: string) => Gh,
 ) {
   const root = mkdtempSync(path.join(tmpdir(), "dough-published-main-"));
   const development = path.join(root, "development");
@@ -40,15 +57,19 @@ export async function publishedMainFixture(
   const deploymentsRoot = path.join(root, "deployments");
   mkdirSync(development);
   mkdirSync(home);
-  const gh = installFakeGh(root);
-  const env = { ...process.env, HOME: home, ...fakeGhEnv(gh) };
+  const gh = gitHub(root);
+  const env = {
+    ...process.env,
+    HOME: home,
+    ...(gh === undefined ? {} : fakeGhEnv(gh)),
+  };
   // Stops the Cursor runner a production dashboard of this HOME detached
   // (its own process group, so no command's stop reaches it), ends the
   // request owner this fixture's commands asked `gh` through, then removes
   // everything the fixture made.
   const cleanup = async () => {
     await stopCursorRunner(home);
-    await endFakeGh(gh);
+    if (gh !== undefined) await endFakeGh(gh);
     rmSync(root, { recursive: true, force: true });
   };
   const git = async (...args: string[]) =>

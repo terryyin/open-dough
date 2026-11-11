@@ -2,10 +2,10 @@
 // serving any production dashboard.
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { dashboardCommand } from "../../tests/support/dashboardCommand.ts";
-import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
+import { unpublishedWatcherFixture } from "../../tests/support/productionWatcherFixture.ts";
 
 test("npm watcher refuses invalid options and an origin without published main", async () => {
-  const fixture = await publishedMainFixture(true);
+  const fixture = await unpublishedWatcherFixture();
   try {
     for (const [args, reason] of [
       [["--port", "43127"], "distinct from development's 43127"],

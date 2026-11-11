@@ -9,6 +9,7 @@ import { dashboardCommand } from "./dashboardCommand.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { processRunning } from "./processGroup.ts";
 import { recordedBuilds } from "./productionBuildGate.ts";
+import { waitForWatcherFile, waitForWatcherOutput } from "./watcherEvents.ts";
 
 export type ProductionWatcher = ReturnType<typeof startProductionWatcher>;
 // A preview the watcher reported serving: its URL and process.
@@ -36,6 +37,12 @@ export function startProductionWatcher(
   );
   return {
     ...command,
+    waitForChecks(after: number) {
+      return waitForWatcherFile(command, trace, () => {
+        const count = this.checks();
+        return count > after ? count : undefined;
+      });
+    },
     checks() {
       const reads = new Set<string>();
       let completed = 0;
@@ -94,12 +101,12 @@ export async function productionActivation(
   commit: string,
   restored = false,
 ): Promise<ProductionActivation> {
-  const expression = activationPattern(commit, restored);
-  await expect
-    .poll(() => watcher?.output() ?? "", { timeout: 0 })
-    .toMatch(expression);
-  const match = expression.exec(watcher?.output() ?? "");
-  if (!match?.[1] || !match[2]) throw new Error("Missing preview address/PID");
+  if (watcher === undefined) throw new Error("No watcher");
+  const match = await waitForWatcherOutput(
+    watcher,
+    activationPattern(commit, restored),
+  );
+  if (!match[1] || !match[2]) throw new Error("Missing preview address/PID");
   return { url: match[1], pid: Number(match[2]) };
 }
 
@@ -128,7 +135,8 @@ export async function productionReplacement(
   const replacement = await productionActivation(watcher, commit, restored);
   expect(replacement.url).toBe(served.url);
   expect(replacement.pid).not.toBe(served.pid);
-  await expect.poll(() => processRunning(served.pid)).toBe(false);
+  // Activation is reported after the watcher awaited the former preview exit.
+  expect(processRunning(served.pid)).toBe(false);
   expect(processRunning(replacement.pid)).toBe(true);
   return replacement;
 }
