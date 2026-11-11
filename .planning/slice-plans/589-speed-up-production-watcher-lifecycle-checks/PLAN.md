@@ -238,3 +238,9 @@ outer setup and reporting overhead included in the wall times above.
 The independent refactor review kept the shared production owner and
 event helpers as implemented. Its traced consumers preserve the ordinary
 CLI, single-preview and Git selection contracts.
+
+## Execution complete
+
+Product advice: no change. The optimization meets the local saving target
+with equivalent behavioral proof through the ordinary watcher selection.
+Standalone pinning and distribution remain with SEED-303.
