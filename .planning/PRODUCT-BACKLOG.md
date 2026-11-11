@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Run the slowest Dashboard checks together in under 30 seconds](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks
 - [Make remaining test domain setup express intent](seeds/SEED-302-remaining-makeme-test-data.md#make-remaining-test-domain-setup-express-intent) — SEED-302#make-remaining-test-domain-setup-express-intent
 - [Express dashboard test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects
 - [Limit first-layer test cases to ten lines](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#limit-first-layer-test-cases-to-ten-lines) — SEED-301#limit-first-layer-test-cases-to-ten-lines
