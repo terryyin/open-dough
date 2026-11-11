@@ -6,7 +6,9 @@
 // paste on the real terminal path is
 // ../tests/terminals/agent-terminal-touch-select.spec.ts; fit and an
 // application that scrolls itself are
-// ./agent-terminal-touch-select-fit.spec.ts.
+// ./agent-terminal-touch-select-fit.spec.ts; scrollback and what a selection
+// copies are ./agent-terminal-touch-select-held.spec.ts; other screens are
+// ./agent-terminal-touch-select-screens.spec.ts.
 
 import { expect, test } from "../tests/support/frontendApp.ts";
 import {
@@ -23,7 +25,7 @@ import { expectStillHolds } from "../tests/sidePanelWidthPage.ts";
 import {
   expectLive,
   expectPaused,
-  expectPausedHoldsDrawnRows,
+  expectPausedShowsDrawnRowsInPlace,
   expectPausedOverScreen,
   pausedLines,
   pausedText,
@@ -73,7 +75,7 @@ test.describe("phone Select", () => {
     await tapWhereShown(selectKey(panel));
     await expectPaused(panel);
     await expect(input).not.toBeFocused();
-    await expectPausedHoldsDrawnRows(panel);
+    await expectPausedShowsDrawnRowsInPlace(panel);
     const paused = await pausedLines(panel);
     expect(paused.slice(0, 2)).toEqual(["attached select01", "first output"]);
 
@@ -136,7 +138,7 @@ test.describe("phone Select", () => {
       await tapTerminalKey(panel, "Select");
       await expectPaused(panel);
       await expectPausedOverScreen(panel);
-      await expectPausedHoldsDrawnRows(panel);
+      await expectPausedShowsDrawnRowsInPlace(panel);
       expect(await selectPausedRange(panel, "words", "before it")).toBe(
         "words\nbefore it",
       );

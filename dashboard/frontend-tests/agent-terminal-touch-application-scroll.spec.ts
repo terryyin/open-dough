@@ -6,7 +6,11 @@
 // stays with ../tests/terminals/agent-terminal-touch-keys.spec.ts.
 
 import { expect, test } from "../tests/support/frontendApp.ts";
-import { openFrontendTerminalByTouch } from "../tests/support/frontendTouchTerminal.ts";
+import {
+  openFrontendTerminalByTouch,
+  reportedSize,
+  travelOverRows,
+} from "../tests/support/frontendTouchTerminal.ts";
 import {
   conversationLine,
   selfScrollingApplication,
@@ -68,8 +72,7 @@ test("a swipe scrolls an application that scrolls its own output, at the touched
     });
     return { touched, heard };
   });
-  const size = sizes.at(-1);
-  if (size === undefined) throw new Error("The page reported no size.");
+  const size = reportedSize(sizes);
   const cell = await screen.evaluate((element, { cols, rows }) => {
     const at = element.getBoundingClientRect();
     return {
@@ -83,7 +86,7 @@ test("a swipe scrolls an application that scrolls its own output, at the touched
   // each, so the whole rows it reports include the parts carried between
   // moves.
   const steps = 5;
-  const travel = Math.round(cell.height * (steps + 0.5));
+  const travel = await travelOverRows(screen, size.rows, steps);
   // Each stroke: one wheel report per whole row of travel, in the cell the
   // finger went down on, and nothing else.
   const typed = sent.length;

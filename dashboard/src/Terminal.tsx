@@ -102,7 +102,7 @@ export function Terminal({
   // While marking, the attachment's ending the mark causes is not shown.
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
-  const { insertText, getPaste, getShownText } = useAttachedTerminal(
+  const { insertText, getPaste, getHeldText } = useAttachedTerminal(
     screen,
     session,
     attempt,
@@ -116,7 +116,7 @@ export function Terminal({
   usePortraitPreview(identity);
   const dictation = useTerminalDictation(insertText, recovery);
   const paste = useTerminalPaste(record, getPaste, recovery);
-  const { paused, pauseOrReturn } = usePausedTerminalText(getShownText);
+  const { paused, pauseOrReturn } = usePausedTerminalText(getHeldText);
   const { title, name } = launchSubject(record.request);
   const agent = assignedAgent(record.start ?? record.preparation);
   const agentName = agentNameOf(agent);

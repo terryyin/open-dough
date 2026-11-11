@@ -1,7 +1,8 @@
 // The one session a frontend-only journey on a touch device observes, and its
 // terminal behind the attached-terminal substitute
-// (./frontendServiceSubstitutes.ts). The fine-pointer desktop those journeys
-// are contrasted with opens the same terminal by mouse.
+// (./frontendServiceSubstitutes.ts), with the size that terminal last reported
+// and the finger travel that swipes over its rows. The fine-pointer desktop
+// those journeys are contrasted with opens the same terminal by mouse.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, openFrontendTakenBacklog } from "./frontendApp.ts";
@@ -11,7 +12,7 @@ import {
 } from "./frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "./frontendServiceSubstitutes.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { tapWhereShown } from "../pageLayout.ts";
+import { box, tapWhereShown } from "../pageLayout.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
@@ -88,4 +89,24 @@ export function openFrontendTerminalByMouse(
     substitute,
     (control) => control.click(),
   );
+}
+
+// The size the page last reported for its terminal, among the `sizes` the
+// substitute recorded.
+export function reportedSize<Size>(sizes: readonly Size[]): Size {
+  const size = sizes.at(-1);
+  if (size === undefined) throw new Error("The page reported no size.");
+  return size;
+}
+
+// How far a finger travels on the terminal's `screen`, which shows
+// `shownRows` rows, for a swipe over `rows` whole rows: half a row more, so
+// the rows the terminal counts do not turn on where a move ends.
+export async function travelOverRows(
+  screen: Locator,
+  shownRows: number,
+  rows: number,
+) {
+  const rowHeight = (await box(screen)).height / shownRows;
+  return Math.round(rowHeight * (rows + 0.5));
 }

@@ -6,13 +6,18 @@
 // ./agent-terminal-touch-select.spec.ts for the other variants.
 
 import { expect, test } from "../tests/support/frontendApp.ts";
-import { openFrontendTerminalByTouch } from "../tests/support/frontendTouchTerminal.ts";
+import {
+  openFrontendTerminalByTouch,
+  reportedSize,
+  travelOverRows,
+} from "../tests/support/frontendTouchTerminal.ts";
 import {
   conversationLine,
   selfScrollingApplication,
 } from "../tests/support/terminalSubstituteApplication.ts";
 import { box } from "../tests/pageLayout.ts";
 import { resizeUntilArranged } from "../tests/sidePanelWidthPage.ts";
+import { pausedHidden } from "../tests/terminalPausedScrollPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -62,8 +67,7 @@ test("after an application scrolled itself, Select pauses that earlier screen, a
   await focusByTouch(panel);
   // Five and a half rows of finger travel show a screen five lines earlier.
   const steps = 5;
-  const rowHeight = (await box(screen)).height / (sizes.at(-1)?.rows ?? 1);
-  const travel = Math.round(rowHeight * (steps + 0.5));
+  const travel = await travelOverRows(screen, reportedSize(sizes).rows, steps);
   await scrollByTouch(page, screen, travel);
   const earliest = latest - steps;
   await expect(rows).toContainText(conversationLine(earliest));
@@ -80,6 +84,9 @@ test("after an application scrolled itself, Select pauses that earlier screen, a
     // The draft row, with the space the application printed after its mark.
     "> ",
   ]);
+  // The application holds its conversation; the terminal holds this screen
+  // and no scrollback, so the paused text is that screen and no more.
+  expect(await pausedLines(panel)).toHaveLength(reportedSize(sizes).rows);
   // Ready to copy from: a range across two of its lines selects.
   const range = `${conversationLine(earliest + 1)}\n${conversationLine(earliest + 2)}`;
   expect(
@@ -131,14 +138,11 @@ test("the paused text keeps to the visible area above a soft keyboard, where a f
       .poll(async () => (await box(panel)).height)
       .toBeCloseTo(320, 0);
     await expectPausedFitsVisibleArea();
-    const hidden = () =>
-      text.evaluate((element) => ({
-        above: element.scrollTop,
-        below: element.scrollHeight - element.clientHeight - element.scrollTop,
-      }));
-    expect((await hidden()).below).toBeGreaterThan(100);
+    expect((await pausedHidden(panel)).below).toBeGreaterThan(100);
     await scrollByTouch(page, text, -100, "vertical", undefined, text);
-    await expect.poll(async () => (await hidden()).above).toBeGreaterThan(50);
+    await expect
+      .poll(async () => (await pausedHidden(panel)).above)
+      .toBeGreaterThan(50);
     // The device, not the dashboard, would select: the stroke selected nothing.
     expect(await selectedText(panel)).toBe("");
   });

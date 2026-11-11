@@ -257,7 +257,7 @@ Covers source examples 1, 2, 5 (selecting the earlier screen) and 7.
 
 ### 3. The paused text reaches everything the terminal holds, from the place shown
 Type: Behavior
-Status: planned
+Status: done
 Proof: A frontend-tier spec whose substitute prints 200 numbered lines, one
 100-character line the terminal wraps over three rows, and a long token an
 application drew over two rows. After swiping the terminal up to line 40,
@@ -271,6 +271,24 @@ keyboard paragraph: what the paused text holds, that copied text matches the
 screen, and that landscape gives longer rows.
 `npm run test:dashboard -- frontend-tests/agent-terminal-touch tests/terminals/agent-terminal-touch`
 and `npm run typecheck:dashboard`.
+Accepted: `dashboard/frontend-tests/agent-terminal-touch-select-held.spec.ts`
+proves the 200-line case as written, the wrapped line's length taken from the
+columns the page reported (100 at 41 columns) and the range from line 35 to
+line 80 being 49 lines. `agent-terminal-touch-select-screens.spec.ts` proves
+phone landscape (the same line over two rows), a tablet touch viewport and a
+phone at device pixel ratio 2.625 holding a full 1000-line scrollback. Rows in
+place are observed by `expectPausedShowsDrawnRowsInPlace` in
+`dashboard/tests/terminalSelectPage.ts`, which slice 2's specs now use too.
+The opening place is measured from where the browser laid the first shown row,
+and the row height is read from the terminal's laid-out rows, which the swipe
+shares. Mutations that left wrapped rows unjoined, joined them without the
+drawn break, opened at the top or the bottom, dropped scrollback, removed the
+slack below the last row or the overscroll containment each failed these
+specs; removing the row-start mark's zero-width character failed none, so
+that cross-browser defence is unproven in Chromium.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard -- dashboard/tests/terminals/agent-terminal-touch frontend-tests/ --reporter=list --workers=3`
+passed 63 tests on 2026-11-11 at load 43–50, and `dashboard/tests/terminals/ frontend-tests/`
+passed 95 on the final product code, with `npm run typecheck:dashboard`.
 
 Behavior: A terminal holds 200 lines of scrollback and the developer has
 swiped up to line 40 → **Select** → the paused text opens at line 40, touch
@@ -295,6 +313,11 @@ reminder:
   **Select**; long-press a word, drag a handle across a line break and choose
   Copy; paste into another app and compare; tap **Select** again and confirm
   the live terminal returns.
+- **Also in that round, since only Chromium is automated:** pause at the
+  bottom of a long session and check the text does not shift from where the
+  terminal showed it; copy a line the terminal itself wrapped and check it
+  pastes without a break; look at the key toolbar, where ↓ is partly cut at
+  rest on a 390-pixel phone and Ctrl+C needs a sideways scroll after More.
 - **Retained baseline:** Terry's observation of 2026-11-11 above. A round
   that fails is reported against this story for the developer to route.
 
@@ -354,4 +377,4 @@ Commitment: S1.7, S1.8, S1.9, X5.2, X5.9
 ### O2. Paused text holds only the rows the terminal shows
 Reported: slice 2 — "The paused text holds exactly the terminal's rows, read once at the tap from the lines it shows; terminal-wrapped rows are not joined, scrollback is not included, and there is no opening-place logic."
 Story clause: "The paused text holds every line the terminal holds at that moment: its screen and any scrollback it keeps."
-Disposition: interim until slices 3
+Disposition: proved by slice 3: dashboard/frontend-tests/agent-terminal-touch-select-held.spec.ts, where the paused lines equal every line the terminal holds (its opening line, 200 numbered lines of scrollback, the wrapped line as one line and the drawn token as two), open at line 40 in place and scroll by finger to line 1 and line 200; the ended, disconnected and application-screen paths stay proved by agent-terminal-touch-select.spec.ts and agent-terminal-touch-select-fit.spec.ts

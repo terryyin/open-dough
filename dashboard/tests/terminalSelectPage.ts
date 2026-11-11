@@ -12,22 +12,64 @@ export function pausedText(panel: Locator) {
   return panel.locator(".terminal-paused-text");
 }
 
+// The lines the paused text holds, as a copy of all of it gives them.
 export async function pausedLines(panel: Locator): Promise<string[]> {
   return ((await pausedText(panel).textContent()) ?? "").split("\n");
 }
 
-// The lines the terminal itself draws, row by row, without the blank cells
-// that end a row.
-async function drawnRows(panel: Locator): Promise<string[]> {
-  const rows = await panel.locator(".xterm-rows > div").allTextContents();
-  return rows.map((row) => row.trimEnd());
-}
-
-// The paused text holds exactly the rows the terminal draws.
-export async function expectPausedHoldsDrawnRows(panel: Locator) {
+// Every row the terminal draws is what the paused text shows at that row's
+// place: the same characters, from where the row begins to where the paused
+// text's own row ends, in columns of one width. The text at a place is read
+// as a finger there would find it.
+export async function expectPausedShowsDrawnRowsInPlace(panel: Locator) {
   await expect(pausedText(panel)).toBeVisible();
-  const lines = (await pausedLines(panel)).map((line) => line.trimEnd());
-  await expect.poll(() => drawnRows(panel)).toEqual(lines);
+  await expect
+    .poll(() =>
+      pausedText(panel).evaluate((text) => {
+        const drawn = text
+          .closest(".side-panel")
+          ?.querySelectorAll(".xterm-rows > div");
+        if (!drawn?.length) return ["no terminal rows in the panel"];
+        const edge = text.getBoundingClientRect().right - 1;
+        const faults: string[] = [];
+        const columns: number[] = [];
+        drawn.forEach((row, index) => {
+          const live = row.getBoundingClientRect();
+          const middle = live.top + live.height / 2;
+          const start = document.caretPositionFromPoint(live.left + 1, middle);
+          const end = document.caretPositionFromPoint(edge, middle);
+          if (
+            !start ||
+            !end ||
+            !text.contains(start.offsetNode) ||
+            !text.contains(end.offsetNode)
+          ) {
+            faults.push(`row ${String(index)} is not paused text`);
+            return;
+          }
+          const shown = document.createRange();
+          shown.setStart(start.offsetNode, start.offset);
+          shown.setEnd(end.offsetNode, end.offset);
+          const characters = shown.toString().trimEnd();
+          if (characters !== row.textContent.trimEnd())
+            faults.push(`row ${String(index)} shows "${characters}"`);
+          if (characters === "") return;
+          const paused = shown.getBoundingClientRect();
+          if (
+            Math.abs(paused.left - live.left) > 1 ||
+            Math.abs(paused.top - live.top) > 1
+          )
+            faults.push(
+              `row ${String(index)} lies at ${String(paused.left)},${String(paused.top)}, drawn at ${String(live.left)},${String(live.top)}`,
+            );
+          columns.push(paused.width / shown.toString().length);
+        });
+        if (Math.max(...columns) - Math.min(...columns) > 0.05)
+          faults.push(`columns of widths ${columns.join(", ")}`);
+        return faults;
+      }),
+    )
+    .toEqual([]);
 }
 
 // The paused text lies over the terminal screen's whole box, opaque in the
@@ -71,37 +113,13 @@ export async function expectPausedOverScreen(panel: Locator) {
         if (look.backgroundColor.startsWith("rgba")) faults.push("see-through");
         if (look.userSelect !== "text") faults.push("not selectable");
         if (look.touchAction !== "auto") faults.push("takes touches itself");
+        if (look.overscrollBehaviorY !== "contain")
+          faults.push("hands a stroke at its end to the page");
         if (screen.contains(text)) faults.push("inside the terminal screen");
         return faults;
       }),
     )
     .toEqual([]);
-}
-
-// Paused line `row` lies where the terminal draws its row `row`.
-export async function expectPausedLineInPlace(panel: Locator, row: number) {
-  const places = await pausedText(panel).evaluate((text, line) => {
-    const node = text.firstChild;
-    const drawn = text
-      .closest(".side-panel")
-      ?.querySelectorAll(".xterm-rows > div");
-    const lines = text.textContent.split("\n");
-    if (node === null || drawn === undefined) return undefined;
-    const start = lines.slice(0, line).join("\n").length + (line > 0 ? 1 : 0);
-    const range = document.createRange();
-    range.setStart(node, start);
-    range.setEnd(node, start + (lines[line]?.length ?? 0));
-    const paused = range.getBoundingClientRect();
-    const live = drawn[line]?.getBoundingClientRect();
-    return live && { paused: [paused.x, paused.y], live: [live.x, live.y] };
-  }, row);
-  expect(places, "a paused line and its terminal row").toBeDefined();
-  for (const axis of [0, 1]) {
-    expect(
-      Math.abs((places?.paused[axis] ?? 0) - (places?.live[axis] ?? 0)),
-      `paused line ${String(row)} lies on its terminal row`,
-    ).toBeLessThanOrEqual(1);
-  }
 }
 
 // Selects the paused text from the first `from` to the end of the next `to`,
@@ -110,15 +128,27 @@ export async function expectPausedLineInPlace(panel: Locator, row: number) {
 export function selectPausedRange(panel: Locator, from: string, to: string) {
   return pausedText(panel).evaluate(
     (text, { from: first, to: last }) => {
-      const node = text.firstChild;
       const content = text.textContent;
       const start = content.indexOf(first);
       const end = content.indexOf(last, start);
-      if (node === null || start < 0 || end < 0)
+      // The place in the text's own nodes `offset` characters into it: where
+      // a range ends, or else where it begins.
+      const place = (offset: number, ends: boolean) => {
+        const nodes = document.createTreeWalker(text, NodeFilter.SHOW_TEXT);
+        let left = offset;
+        for (let node = nodes.nextNode(); node; node = nodes.nextNode()) {
+          const length = node.textContent?.length ?? 0;
+          if (left < length || (ends && left === length))
+            return [node, left] as const;
+          left -= length;
+        }
+        throw new Error("The paused text does not hold that range.");
+      };
+      if (start < 0 || end < 0)
         throw new Error("The paused text does not hold that range.");
       const range = document.createRange();
-      range.setStart(node, start);
-      range.setEnd(node, end + last.length);
+      range.setStart(...place(start, false));
+      range.setEnd(...place(end + last.length, true));
       const selection = window.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);

@@ -11,8 +11,7 @@ import { phonePasteJourney, test } from "../terminalPastePage.ts";
 import {
   expectLive,
   expectPaused,
-  expectPausedHoldsDrawnRows,
-  expectPausedLineInPlace,
+  expectPausedShowsDrawnRowsInPlace,
   expectPausedOverScreen,
   pausedLines,
   pausedText,
@@ -78,12 +77,12 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
     await expect(select).not.toHaveCSS("background-color", lookWhenOff);
     lookWhenOn = await look();
     await expectPausedOverScreen(panel);
-    await expectPausedHoldsDrawnRows(panel);
+    await expectPausedShowsDrawnRowsInPlace(panel);
+    // The terminal holds its screen and no scrollback yet.
     const lines = await pausedLines(panel);
     expect(lines).toHaveLength(reportedRows(sizes));
     const answer = lines.indexOf(`echo ${path}`);
     expect(lines[answer - 1]).toBe(path);
-    await expectPausedLineInPlace(panel, answer);
     // The dashboard selected nothing and offers no Copy of its own.
     expect(await selectedText(panel)).toBe("");
     await expect(panel.getByRole("button", { name: /copy/i })).toHaveCount(0);

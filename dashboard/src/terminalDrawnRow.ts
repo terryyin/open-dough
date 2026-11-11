@@ -3,7 +3,12 @@
 // (./terminalText.ts).
 import type { Terminal } from "@xterm/xterm";
 
-// Zero while the terminal's element has no height of its own.
+// Read from the rows as the terminal laid them out, where it draws them as
+// elements: their height is often not a whole pixel, while the terminal
+// rounds its own element to one. Zero while the terminal's element has no
+// height of its own.
 export function drawnRowHeight(terminal: Terminal): number {
-  return (terminal.element?.clientHeight ?? 0) / terminal.rows;
+  const drawn =
+    terminal.element?.querySelector(".xterm-rows") ?? terminal.element;
+  return (drawn?.getBoundingClientRect().height ?? 0) / terminal.rows;
 }

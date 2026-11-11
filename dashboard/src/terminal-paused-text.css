@@ -25,10 +25,11 @@
 
 @media (any-pointer: coarse) {
   /* Covers the screen's box exactly and opaquely, padded as the screen is,
-     in the terminal's colours, font and row height, so each line lies where
-     its row did and nothing moves or blinks behind it. It is ordinary text:
-     the device selects it, and scrolls it when the visible area has become
-     smaller than the paused screen. */
+     in the terminal's colours, font and row height, so each row lies where
+     the terminal draws it and nothing moves or blinks behind it. It is
+     ordinary text holding everything the terminal holds: the device selects
+     it and scrolls through it, and a stroke that reaches its first or last
+     line does not go on to move the page behind the panel. */
   .terminal-paused-text {
     position: absolute;
     inset: 0;
@@ -37,11 +38,34 @@
     margin: 0;
     padding: 0.4rem;
     overflow: auto;
+    overscroll-behavior: contain;
     white-space: pre;
     color: var(--terminal-foreground, #fff);
     background: var(--terminal-background, #000);
     -webkit-user-select: text;
     user-select: text;
+  }
+
+  /* The room the screen's box has below the terminal's rows stays below the
+     last line, so the latest rows also scroll to where the terminal shows
+     them. It is none once the visible area is smaller than the rows the
+     terminal showed. */
+  .terminal-paused-text::after {
+    display: block;
+    height: calc(100% - var(--terminal-shown-height, 100%));
+    content: "";
+  }
+
+  /* Where the terminal wrapped a line, the next row starts as the terminal
+     drew it. The break is drawn, not text, so the line copies whole. */
+  .terminal-paused-wrap::after {
+    content: "\A";
+  }
+
+  /* Where a row starts, for reading where the browser set it: a character
+     without width that is drawn, not text, so it is never copied. */
+  .terminal-paused-row-start::before {
+    content: "\200B";
   }
 
   /* Select reads as on while it pauses, also under the hover a tap leaves on

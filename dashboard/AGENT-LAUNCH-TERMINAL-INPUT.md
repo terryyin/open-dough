@@ -76,17 +76,25 @@ selection, autocorrection and dictation; deliberate Insert offers the draft
 once through the same attachment `insert` path dictation uses, without a
 trailing Enter, and deliberate Enter submits. An unavailable attachment keeps
 the unsent draft for another deliberate Insert and never auto-replays it.
-**Select**, beside **Paste**, pauses the terminal in place: the lines it shows
-stay where they were as ordinary page text, without the terminal’s colors or
-text styles, and **Select** reads as on. The device’s own selection and Copy
-work on that text; the dashboard adds no selection gesture, highlight or Copy
-control. Tapping **Select** again returns the live terminal with its current
-output. Pausing and returning send the session nothing, keep the same
+**Select**, beside **Paste**, pauses the terminal in place as ordinary page
+text, without the terminal’s colors or text styles, and **Select** reads as
+on. The paused text holds every line the terminal holds at that moment: its
+screen and any scrollback it keeps. It opens with the lines the terminal was
+showing where they were and scrolls by ordinary touch to the first and the
+last line, so one selection can span more than a screen. An application that
+has taken over the screen leaves the terminal that screen only: swipe to the
+output wanted, then **Select**. The device’s own selection and Copy work on
+the text; the dashboard adds no selection gesture, highlight or Copy control.
+Copied text matches the screen. Each row lies where the terminal drew it; a
+line the terminal itself wrapped over several rows copies as one line, as a
+desktop terminal selection does, while line breaks and indentation an
+application drew stay in the copy. Landscape gives longer rows. Tapping
+**Select** again returns the live terminal at the place it showed, with its
+current output. Pausing and returning send the session nothing, keep the same
 attachment at the same size and leave the soft keyboard as it was; output that
-arrived meanwhile shows on return. The remaining screen of a disconnected or
-ended attachment pauses the same way. The paused text fits the visible area
-as the terminal does and scrolls by ordinary touch when that area becomes
-smaller than the paused screen.
+arrived meanwhile shows on return. What a disconnected or ended attachment
+still holds pauses the same way. The paused text fits the visible area as the
+terminal does.
 Direct typing remains available. One-finger swipe scrolls the output wherever
 it is held. Where the terminal holds it, the swipe moves terminal scrollback
 and sends the session nothing. Where the session’s application has taken over
