@@ -66,7 +66,7 @@ jobs:
         timeout-minutes: 1
         env:
           SHELLCHECK_VERSION: "0.11.0"
-          SHFMT_VERSION: "3.14.0"
+          SHFMT_VERSION: "3.14.1"
         run: bash scripts/setup-lint-tools.sh
       - name: Diagnose lint tool acquisition failure
         if: failure() && steps.lint-tools.outcome == 'failure'
@@ -169,7 +169,7 @@ jobs:
       - name: Install npm dependencies
         run: node scripts/setup-native.mjs npm
       - name: Cache Playwright Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: playwright-cache
         timeout-minutes: 1
         continue-on-error: true

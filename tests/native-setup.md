@@ -8,7 +8,7 @@ on the product installer's supported Node versions.
 Install Git and Bash 5 or newer using your host's normal tool installation.
 On macOS put the newer Bash first on `PATH` (for example `/opt/homebrew/bin`);
 macOS's system Bash 3.2 cannot run these checks. Lint additionally needs
-ShellCheck 0.11.0 and shfmt 3.14.0, matching `.github/workflows/ci.yml`.
+ShellCheck 0.11.0 and shfmt 3.14.1, matching `.github/workflows/ci.yml`.
 These host tools are explicit prerequisites; checks do not update the OS.
 
 ## First setup or changed lockfile
