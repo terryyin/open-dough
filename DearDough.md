@@ -19,6 +19,7 @@ retain local facets. The full source before this compaction is
 - Recovery: `296db77062d35455cf7b830aaeebb6671d396d1b:DearDough.md` preserves the redundant ODF-396 SEED-281 unit-gaps occurrence removed at final SEED-285 integration to retain current published-failure and native-proof maintenance evidence; newer occurrences retain the trace-noise finding.
 - Recovery: `c9c6c06453f04b8b6144a34a563fbda1327cc960:DearDough.md` preserves catalog-only ODF-355–360 stubs removed to retain SEED-305 delivery-gate and trace recurrence observations. Their complete meaning/evidence remains in docs/maintainer/findings/; current observations have higher information value than duplicated catalog pointers.
 - Recovery: `a06716541ff03aa73ecaec0e522773cd45fe8912:DearDough.md` preserves the SEED-304 branch tip before this integration; its temporary prune of DD-485/DD-486 was superseded by trunk's retained DD-485/DD-486 (including SEED-305's DD-486 recurrence) while SEED-304 ODF-333/ODF-427 occurrences remain below.
+- Recovery: `f4aaa098d0121964aee0c6418e501b649515f8e6:DearDough.md` preserves DD-485 removed after merge to keep the 1,000-line ceiling; DD-486 retained for SEED-305 recurrence.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -942,20 +943,7 @@ Discriminating renderer tests were added under `scripts/`, which this project's 
   - Open Dough release: 0.3.94
   - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
   - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
-  - Inference: Place new Node test files under a discovered root (or extend discovery) before claiming suite coverage; acceptance caught this before push. Distinct from ODF-150 (missed indirect consumer of a changed contract after publish).
-
-## DD-485 — Selective formatter preparation without npm PATH
-
-Fresh preparation invoked `node scripts/lint.mjs --fix` directly; eslint and prettier were not on PATH, so formatting failed before commit.
-
-### Occurrences
-
-- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
-  - Timestamp: 2026-11-10T08:45:00Z
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: `execution-increment-delivery.mjs fresh` returned `preparation-failed`, `operation: formatting`, with `eslint: not found on PATH` / `prettier: not found on PATH`. Retry with `npm run format` succeeded.
-  - Observed effect: one preparation refusal and retry; no owned edits lost.
+  - Inference: Place new Node test files under a discovered roots lost.
   - Inference: This project's selective formatter expects `npm run format` (or equivalent PATH including `node_modules/.bin`), not a bare `node scripts/lint.mjs --fix`.
 
 ## DD-486 — Playwright-only focused proof missed TypeScript test errors
