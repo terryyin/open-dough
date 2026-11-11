@@ -12,7 +12,7 @@ installation, opt-in, paid proof or unrelated suite cleanup is included.
 
 ## Provenance and current finding
 
-The completed [MakeMe execution](https://github.com/terryyin/open-dough/blob/e56729e06262e913110cb98ebc0f9fa579f52a58/.planning/seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry)
+The completed [MakeMe execution](https://github.com/terryyin/open-dough/blob/e45f54631caf66d160a09c5a7a4a04b4669a25e8/.planning/seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry)
 published `ec131e188ece02d28504c610a2812f0c325798d2`,
 `4bb85bbbeb341d41b74c21580089aa6c45fbb7d5`,
 `3940c9d798a60bfd047456b31b4243a07730c768` and
