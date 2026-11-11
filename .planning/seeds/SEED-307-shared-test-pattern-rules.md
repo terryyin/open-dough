@@ -89,6 +89,12 @@ skill discovery; evidence that a host needs another activation mechanism
 returns for planning rather than silently narrowing the authoring promise.
 No generic policy framework is needed in anticipation of later rules.
 
+Execution proof exception authorized by Terry on 2026-11-11: "skip the cursor
+test this time then". For this execution only, Cursor native probes are waived.
+Preserve selector and installation checks and the other hosts' native proof;
+report Cursor native behavior as unverified. This grants no default waiver for
+future execution or release eligibility.
+
 #### Key examples
 
 1. A project declares `backend/tests` with MakeMe on and `frontend/tests` with

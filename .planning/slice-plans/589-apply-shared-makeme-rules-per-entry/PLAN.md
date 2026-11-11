@@ -2,8 +2,23 @@
 
 **Identity:** SEED-307#apply-shared-makeme-rules-per-entry
 **Source:** [Refined story](../../seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry)
+**Source review:** [Source-only commitments](source-review.md)
+
+## Execution context
+
+- Story branch: `codex/apply-shared-makeme-rules-per-entry`, workspace this worktree, publisher `dashboard-territory.local-open-dough`, agent `aki-chan`, `origin` / trunk `main`.
+- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; published base `24f1647fb91aea54cced8e5ff5f0321579b29353`. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
+- Live CI: GitHub `terryyin/open-dough`, `ci.yml` / `CI`, execution-branch target, coordinator `aki-chan-seed307`, directory `/tmp/dough-ci-501/watch-cUOT3m`, PID `64581`, stream `85379`, cell `g228:4`.
+- [Slice 1 evidence and retained startup/stop history](slice-1-evidence.md) owns native commands, proof locations, source freshness and the explicitly waived Cursor gap. No numeric slice limit; existing replanning authority retained. Current awake AC load 6.78/5.60/7.51; one native CLI at a time, focused proof only, reconsider changed pressure.
 
 ## Goal and scope
+
+Terry's 2026-11-11 instruction, "skip the cursor test this time then", waives
+Cursor native probes for this execution only. Preserve selector, standalone
+installation and other-host native proof. Report Cursor native application as
+unverified; this is no future default or release-eligibility claim. The seed
+retains the authorized proof exception. The credential stop no longer holds
+dependent slices within this waiver; no authentication change is authorized.
 
 A developer opts an existing test entry into one shared MakeMe convention.
 Agents apply it during ordinary test authoring, Dough execution and implicated
@@ -89,11 +104,11 @@ claim that existing tests already prove the new rule. No new test is represented
 as passing. Native observation is the only paid/credentialed unresolved premise;
 its permitted early probe stops dependent slices if the mechanism fails.
 
-## Ordered slices and proof ownership
+## Ordered slices
 
 ### 1. Establish that ordinary test work receives scoped MakeMe guidance
 Type: Behavior
-Status: planned
+Status: done
 Proof: Early native probe using the existing native host adapters and shared
 stream readers. Keep one candidate skill and a tiny MakeMe-built project with
 two configured entries, one enabled and one disabled, plus a usable builder.
@@ -213,15 +228,14 @@ plug in, or keep the lid open under `caffeinate -i` and inspect sleep logs under
 [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
 Sleep-invalid proof is rerun under that policy, never accepted as a pass.
 
-## Plan concern assessment
+## Story obligations
 
-Slice-plan refinement ran after independent review, clarified current-path
-applicability in slice 3 and retained all four boundaries: one model owns
-applicability, one rule owns the convention, and each slice has one bounded
-observation/delivery loop. There were no consolidate, split or escalate findings
-and no supplied numeric sizing exception or story-resplit recommendation.
-Slice 4 includes the necessary declaration reorganization rather than a
-standalone cleanup outcome. No remaining slice-specific concern was found
-outside the explicitly bounded native activation premise in slice 1. Failure
-of that probe stops dependent work and changes the plan; it is not evidence of
-readiness for a substitute activation mechanism. This plan grants no execution.
+### G1. Native authoring remains unproved on Cursor and Claude
+Reported: slice 1 — "Cursor mixed failed before inference because authentication is required; Cursor opted-out and both Claude journeys are unobserved. Codex mixed and fresh opted-out passed."
+Story clause: "Deliver one standalone shared behavior through the existing Codex, Cursor and Claude Code skill layouts."
+Disposition: owner changed "For this execution only, Cursor native probes are waived."
+
+### G2. Candidate entry membership is provisional prose
+Reported: slice 1 — "The early candidate manually evaluates the tiny fixture's simple membership; the final deterministic resolver and refreshed native correspondence remain owed."
+Story clause: "File membership retains the entry's `kind`/`include` or `sources` selection; folder containment alone does not select a test."
+Disposition: receiving slice 2
