@@ -2,6 +2,30 @@
 
 ## Live candidates
 
+### dashboard-shared-output-budget
+
+- **Affected proof:** SEED-303 watcher, deployment-pinning and preview-lifecycle
+  protections, retained in their original ordinary CI selection.
+- **Observed cost:** at execution base `f9264268ed39a88c98caa123722d6ff018979748`,
+  a normal strict one-worker composition passed 7/7 in 44.61 seconds on AC.
+  It paid four deployment installs/build-command attempts, one development
+  install, nine preview invocations and two genuine A/B snapshot copies.
+  Startup, preparation, native drain/records, transitions and teardown were
+  included. This subset excludes origin/HUP/restart, policy/qualification,
+  complete pinning distribution/incident protection and all other families.
+- **Alternative tried:** the actual CLI's process-only lifecycle owner could
+  reuse genuinely built isolated A/B outputs; six focused cases and five
+  discriminating fault controls established that seam. The shared composition
+  already exceeded the entire story target by 14.61 seconds. This invalidates
+  that proposed strategy, not every possible lower bound. The experiment's
+  runtime/test edits were parked; original tests remain intact.
+- **Decision needed:** choose a supported different strategy, explicitly
+  continue independently valuable partial improvements, or revise the target.
+  Thirty seconds and equivalent coverage remain binding until a human changes
+  the source. Slices 1–3 stay delivered; slice 4 and later execution remain open.
+  [Retained evidence and precise gaps](slice-plans/580-speed-up-slowest-dashboard-checks/preview-evidence.md)
+  distinguish the paid subset from complete replacement proof.
+
 ### auto-refresh-rate-limit-real-waits
 
 - **Affected test or fixture:** `dashboard/tests/observation/auto-refresh-rate-limit.spec.ts`,

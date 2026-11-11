@@ -162,6 +162,7 @@ Behavior: The intended behavior remains mapped to maintained checks → run all 
 
 ## Current decisions
 
+- Decisive slice 4 checkpoint: a strict 7/7 genuine shared-output composition costs 44.61 seconds, 14.61 seconds above the entire target before unpaid protections and other families. The [measured checkpoint and gaps](preview-evidence.md) invalidate the current staging/lifecycle-sharing strategy, not a universal lower bound. Stop further experiments for the developer to choose a supported new strategy, independently valuable continuation, or a changed target; retain completed slices and the thirty-second/equivalent-coverage contract. Slice 4 stays unfinished and owns G3. The reserved clock decision in slice 5 also remains unanswered.
 - Each experiment starts with the measured cost, an expected worthwhile
   saving in combined elapsed time, the smallest testable hypothesis, the
   protection at risk, and a focused command. Measure before and after with
@@ -193,11 +194,11 @@ Behavior: The intended behavior remains mapped to maintained checks → run all 
 
 ## Learnings
 
-Slice 1 retains [historical probes and overlap](baseline-evidence.md), the [frozen corrected baseline](comparable-baseline.md), and the [45-check coverage map](coverage-map.md). Three consecutive strict 45/45 passes took 266.38/287.15/303.80 seconds, median 287.15, with unchanged measured inputs. Earlier passing and failed cohorts remain separate. The measured cost order and proposed next probes are recorded without claiming a saving, fewer checks or the under-30-second outcome. G1/G2 and source commitments remain coordinator-owned; no slice is marked done.
+Slices 1–3 are delivered: the [frozen corrected baseline](comparable-baseline.md), [pinning source projection](pinning-evidence.md), and [stateful watcher substitution](watcher-evidence.md). The watcher family falls from 25 to 23 checks with a matched median 19.62-second saving. The [coverage map](coverage-map.md) distinguishes accepted proof from future hypotheses. The complete replacement count and under-thirty-second outcome remain unobserved. Slice 4's paid probe invalidates the current shared-output strategy; its evidence and unfinished state remain for the next decision.
 
 ## Plan concern assessment
 
-Refinement split the former watcher slice into stateful real-Git selection (3) and genuine preview lifecycle/integration (4), preserving completed slices and all source promises. Both owners serve the actual CLI; no parallel model is justified. Eleven slices remain, with no numeric sizing exception. Existing paid early probes bound minimum-cost and preparation assumptions. The opt-in request-owner clock choice, now slice 5, still awaits developer authority; independent authorized execution continues. Cumulative direction and the thirty-second target are unchanged.
+Refinement split the former watcher slice into stateful real-Git selection (3) and genuine preview lifecycle/integration (4), preserving completed slices and all source promises. Slice 4's paid minimum composition fails the current strategy's budget; its unfinished runtime/test changes are parked as evidence and originals retained. Remaining slices await the Current decisions checkpoint rather than ordinary dispatch. The opt-in request-owner clock choice in slice 5 still awaits developer authority. The thirty-second target and equivalent coverage remain binding.
 
 ## Execution notes
 

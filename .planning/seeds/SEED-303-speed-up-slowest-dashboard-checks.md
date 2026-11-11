@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-303#speed-up-slowest-dashboard-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md","assessment":"not-ready","reasons":["The opt-in request-owner clock contract in refined slice 5 awaits the explicit developer choice reserved by that slice. Independent already-authorized execution in the Taken workspace continues; this assessment creates no execution authority."],"basis":{"document":"359db1b1d9f86cf7e18fb67dea156522b03eaf075fc139740c1dbdb6c3922e99","plan":"a993cba6ed5325e22c3b2f1434dc416e76bc6423566e3f3e912d2ede3e5768fe"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md","assessment":"not-ready","reasons":["Slice 4 genuine shared-output composition strictly passed 7/7 in 44.61 seconds before unpaid protections and other families. The current strategy cannot plausibly meet the binding combined thirty-second target; Current decisions stops further experiments for a supported new strategy, explicitly retained independent continuation, or human target change.","The reserved opt-in request-owner clock decision in slice 5 remains unanswered. Completed slices 1-3 remain delivered and the existing Taken identity/workspace are preserved; this assessment grants no execution authority."],"basis":{"document":"359db1b1d9f86cf7e18fb67dea156522b03eaf075fc139740c1dbdb6c3922e99","plan":"b59f2ada5624a8123d2ac849ee07aedc922868b7e06dd37d7e47f1533c76e52b"}}
 ```
 
 #### Goal
