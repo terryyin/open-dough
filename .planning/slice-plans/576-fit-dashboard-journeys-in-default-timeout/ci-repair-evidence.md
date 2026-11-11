@@ -232,3 +232,13 @@ refactor, ordinary hooks, publication and exact complete CI remain root-owned.
 Independent attention_settlement_refactor returned REFACTOR COMPLETE, none,
 with original/held proof and55/486 consumer dispositions compatible, all11
 archived blocks verbatim and matching anchors. No edits or extra tests.
+
+## Exact repaired CI accepted
+
+Observer exact success: `5e7215037546c52eabfddf64b5a1e4eab1ba1a89`,
+run42963489603, attempt1; all17 jobs passed (lint, three repository,
+twelve dashboard, proof). The bounded progress wait first retained pending;
+all jobs then completed and the same observer returned exact success, with
+no workflow rerun. G12–G15 are closed by their local proof plus this result.
+Combined retained pressure/default and hosted comparison proof settles G7;
+G4's repaired cases retain their final named/full local gate in13.

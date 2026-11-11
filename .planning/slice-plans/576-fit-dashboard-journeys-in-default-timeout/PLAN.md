@@ -104,24 +104,21 @@ Behavior: [Original accepted flow](completed-slice-details.md#slice-11).
 
 ### 12. Settle comparison budgets with the preserved canonical setup
 Type: Behavior
-Status: planned
-Proof: Retain the canonical/current-client/readiness variant that passed three
-fresh full comparison commands, touch4/4, shared consumers23/23 and independent
-actual Git1/1. Every sort action/assertion/two loops and both full-CLI sources
-remain. Local worst body headroom is about .980 s; no extra numeric threshold
-is supplied, and useful margin is not settled by pass count alone. Publish this
-preservation-validated increment with G7 open, after independent refactor and
-ordinary hooks, then obtain exact applicable branch CI and actual case timings
-before further implementation. All cold work and observed local variability
-remain explicit. Settle the outcome from local/hosted evidence or return the
-specific remaining decision. No timeout, skip/retry, cache/lifetime or waiver.
+Status: done
+Proof: Preserved canonical setup passes three fresh default comparison
+commands, touch4/4, shared consumers23/23 and independent actual Git1/1.
+Hosted comparison cases pass retry0 in runs42952620767/1 and42957320139/1;
+exact full CI5e721503 passes run42963489603/1. Combined local/hosted proof
+settles G7 without a new numeric threshold. Worst local body headroom remains
+about .980 s; variability and all cold work stay explicit. All sort actions,
+assertions/two loops and both full-CLI sources remain. No timeout, skip/retry,
+cache/lifetime or waiver. See [local proof](comparison-default-evidence.md),
+[hosted cases](comparison-hosted-evidence.md) and [CI repairs](ci-repair-evidence.md).
 
-Behavior: Two further small-data cuts did not establish useful headroom and
-are discarded → observe the preserved three-pass implementation on the actual
-hosted environment → decide the remaining comparison budget on applicable
-proof before adding more machinery. This is a validated progress publication,
-not a done mark or execution completion. Global/named/default/trunk gates stay
-with13. [Current proof and limits](comparison-default-evidence.md).
+Behavior: Discard two ineffective small-data cuts → retain the canonical
+three-pass implementation → repair each exposed CI defect → accept combined
+local/hosted comparison proof. Named pressure/default/full/trunk gates remain
+with13; this acceptance does not claim those later observations.
 
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -154,7 +151,7 @@ Disposition: receiving slice 13
 ### G4. Full-baseline budget defects remain owned
 Reported: slice 1 — "The unchanged full baseline exposed two Intent comparison and five launch case-budget failures; no repair is claimed."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: interim until slices 7, 8, 9, 12
+Disposition: proved by slice 12: launch-evidence.md and comparison-default-evidence.md retain targeted repairs; exact full CI5e721503 passes run42963489603/1; final named pressure and local whole-suite proof remain in13
 
 ### G5. Cursor recovery records are not observed before the case deadline
 Reported: slice 1 — "Cursor runner helper-survival and replacement-controls both timed out in launchSecondHeldSession while polling absent launch records; diagnosis is pending."
@@ -169,7 +166,7 @@ Disposition: proved by slice 11: rejected cache paths removed; original preparat
 ### G7. Controlled-pressure comparison budgets remain unproved
 Reported: slice 11 — "The controlled CPU-pressure run timed out in sort and clean-source; conflict-source passed at 29.667 s, while sampled load rose from 20.38 to 32.04."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: receiving slice 12
+Disposition: proved by slice 12: comparison-default-evidence.md three valid pressure/default3/3 passes, preserved canonical setup and .980s worst local headroom; comparison-hosted-evidence.md retry0 hosted cases and exact full CI5e721503 run42963489603/1 settle the combined proof
 
 ### G8. Trunk restart allowance still needs hosted default margin
 Reported: slice 3 — "Trunk commit 2a2038247 added a 90 s restart/SIGINT allowance after hosted install/build took 27.3 s before shutdown; the execution branch still uses the default."
@@ -196,27 +193,27 @@ Commitment: Q09
 ### G12. Published transport loses streams under dash
 Reported: slice 12 — "Run 42949046330/1 failed all twelve dashboard jobs; installed-client contract tests received empty stdout and stderr with the expected exit codes."
 Story clause: "Preserve every distinct behavioral promise at an observable boundary."
-Disposition: return
+Disposition: proved by slice 12: ci-repair-evidence.md retains portable FD3 transport with installed byte-contract and whole consumer proof; exact full CI5e721503 passes run42963489603/1
 
 ### G13. Waiting read escapes during server shutdown
 Reported: slice 12 — "Run 42952620767/1 exposed one shutdown failure: a waiting seed-9 read reached GitHub while the server was closing."
 Story clause: "Keep exact counts where avoiding duplicate work is the promise."
-Disposition: return
+Disposition: proved by slice 12: ci-repair-evidence.md retains atomic shutdown closes read admission before aborting the real connection; peer/reconnect and installed shutdown proof; exact full CI5e721503 passes run42963489603/1
 
 ### G14. Runner interruption fixture never reaches its next child
 Reported: slice 12 — "Run 42957320139/1 passed all twelve dashboard shards but test-runner-interrupt.sh timed out waiting for its never-ending child."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: return
+Disposition: proved by slice 12: ci-repair-evidence.md retains builtin readiness marker removes interrupt startup race; controlled signal and whole runner proof; exact full CI5e721503 passes run42963489603/1
 
 ### G15. Controlled attention cadence observes an early read
 Reported: slice 12 — "Run 42960450409/1 expected six record reads before the paced deadline but observed seven in the installed attention-report journey."
 Story clause: "Keep exact counts where avoiding duplicate work is the promise."
-Disposition: return
+Disposition: proved by slice 12: ci-repair-evidence.md retains accepted launch and pending page answers settle before pacing; original and held-final-answer whole journeys pass default2/2; exact full CI5e721503 passes run42963489603/1
 
 ## Plan concern assessment
 
 [Current assessment](design-and-proof.md#current-plan-assessment) and
-[owned CI repair](ci-repair-evidence.md); G4/G7/G12/G13/G14/G15 stay open.
+[owned CI repair](ci-repair-evidence.md); G4/G7/G12/G13/G14/G15 are settled; G1/G2/G3/G8/G11 remain with13.
 
 ## Trunk measurement checkpoint
 

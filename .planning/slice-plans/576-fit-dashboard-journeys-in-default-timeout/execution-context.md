@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `8488f1f8c92c427b651650512c0797f8ccca5a7f`
-  (runner CI passes; attention cadence CI defect remains); completed slice 2
+- Last accepted revision on entry to this increment: `5e7215037546c52eabfddf64b5a1e4eab1ba1a89`
+  (exact full CI passes run42963489603/1; slice12 proof accepted); completed slice 2
   was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity

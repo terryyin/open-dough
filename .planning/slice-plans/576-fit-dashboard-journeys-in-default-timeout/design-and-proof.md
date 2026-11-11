@@ -204,12 +204,14 @@ remaining proof; return before another variant if this one fails.
 
 ## Current plan assessment
 
-Earlier local proof remains retained. Canonical/current-client preservation
-passed its local checks, but worst sort body has about .980 s headroom. Both
-small-data cuts are parked/discarded. Slice12's actual hosted observation at
-b7f58fde failed all twelve dashboard jobs; the installed transport byte tests
-received empty streams under Ubuntu. G12 owns that repair before renewed
-hosted margin proof, and G4/G7 remain open. Thirteen slices, no Goal/Scope,
-numeric exception or waiver. Slice13 owns broader/full/named/trunk gates and
-G11's thirteen-part input at the existing human checkpoint. Branch validation
-still uses twelve shards. See [CI repair evidence](ci-repair-evidence.md).
+Earlier proof remains retained. Slice12 preserves the canonical/current-client
+setup; three valid pressure/default commands pass, with about .980s worst local
+sort body headroom. Two ineffective small-data cuts remain discarded. Actual
+hosted comparison cases pass retry0 in two runs; exact full CI5e721503 passes
+run42963489603/1 after each exposed transport/shutdown/runner/pacing defect is
+repaired. Combined evidence settles12 and G4/G7/G12/G13/G14/G15, without a new
+numeric exception or waiver. Thirteen slices and source Goal/Scope unchanged.
+Slice13 owns G1/G2/G3/G8/G11, named pressure/default, comparable whole-suite and
+trunk gates. Branch validation still uses twelve shards; current trunk's
+thirteen-part input is handled at the existing human checkpoint. See
+[CI repair evidence](ci-repair-evidence.md).
