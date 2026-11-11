@@ -2,6 +2,7 @@
 
 **Identity:** SEED-307#apply-shared-page-object-rules-per-entry
 **Source:** [Refined story](../../seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-page-object-rules-per-entry)
+**Source review:** [Source-only review](source-review.md)
 **Reference:** [MakeMe refinement and plan](../../seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry),
 [plan 589](../589-apply-shared-makeme-rules-per-entry/PLAN.md)
 
@@ -84,11 +85,31 @@ Observed in this owned preparation checkout at `1c470849e` on 2026-11-11:
 No scratch edits remain. No automated test or native application result is
 claimed by these observations. New proof must discriminate the behavior it owns.
 
-## Ordered slices and proof ownership
+## Execution context
+
+Jane-chan; Story Branch Mode; publisher `dashboard-territory.local-open-dough`.
+Owned workspace and branch: this checkout, `codex/apply-shared-page-object-rules-per-entry`.
+Origin trunk `main`; increment target `refs/heads/codex/apply-shared-page-object-rules-per-entry`.
+Starting revision `2599c7a5db27aac64c5923b592b7f5b66079d348`; published base/candidate
+`80d20ed9ec7b3df11566ac354bb29ef3065f3989`. CI observer coordinator `jane-chan-307`,
+`/tmp/dough-ci-501/watch-qLujG5`, cell `g230:3`, session 51876, PID 34832.
+See [execution context and retained proof](native-observations.md#execution-context)
+for checkout setup, accepted observations, Cursor exception and recovery boundary.
+No numeric slice budget supplied; existing planned refinement authority applies.
+
+## Story obligations
+
+### G1. Cursor ordinary-authoring observation needs authentication
+Reported: slice 1 — "Cursor exited before authoring because its CLI requires authentication; no discovery or useful application was observed."
+Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts; prove useful application and all four MakeMe/page-object choices."
+Disposition: owner changed "For this execution, Terry authorizes skipping the Cursor native authoring probe"
+Commitment: 43
+
+## Ordered slices
 
 ### 1. Observe scoped page-object guidance during ordinary browser test work
 Type: Behavior
-Status: planned
+Status: done
 Proof: Early native probe through maintained native adapters, supervision and
 stream readers, using the writable launch profile observed above rather than
 the read-only ADR context launcher. Use an isolated MakeMe-built project with a focused UI
@@ -108,7 +129,8 @@ evidence only for matching mechanisms/inputs; its behavior proof does not establ
 this convention. Share the scenario and assessment, rather than a host/language
 matrix. This is an early probe because the remaining operation spends inference
 and needs authentication. Unavailable native use, failed discovery or an unusable
-result stops dependent slices 2–4 and returns evidence for planning; do not silently
+result stops dependent slices 2–4 and returns evidence for planning (the
+explicit Cursor exception above applies only to this execution); do not silently
 introduce hooks, require explicit invocation or narrow ordinary authoring. Keep a
 bounded useful candidate and passing cheap harness proof; no release occurs.
 

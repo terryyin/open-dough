@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Manually invoked paid probe. Reuse writable native launch profiles, owned
+# supervision, and the one native stream reader; never run from npm test.
+# shellcheck disable=SC2034,SC2154 # Native helper globals are assigned and consumed by sourced functions.
+set -euo pipefail
+support_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+candidate=$(cd -- "${support_dir}/../.." && pwd)
+# shellcheck source=tests/support/git-publication-native-run.sh
+# shellcheck disable=SC1091
+source "${support_dir}/git-publication-native-run.sh"
+platform=$1
+selection=${2:-on}
+temporary_dir=$3
+mkdir -p -- "${temporary_dir}"
+temporary_dir=$(cd -- "${temporary_dir}" && pwd -P)
+mkdir -p -- "${temporary_dir}/tmp"
+export TMPDIR="${temporary_dir}/tmp"
+target="${temporary_dir}/project"
+node "${support_dir}/page-object-native-fixture.mjs" "${target}" "${platform}" "${selection}" > "${temporary_dir}/fixture.json"
+transcript="${temporary_dir}/events.jsonl"
+output_file="${temporary_dir}/response.md"
+native_stderr="${temporary_dir}/stderr.log"
+: > "${transcript}"
+: > "${native_stderr}"
+native_case_deadline=480
+native_case_grace=15
+test_entry=browser
+if [[ ${selection} == off ]]; then
+  test_entry=legacy
+fi
+prompt="Add ${test_entry}/library.spec.mjs to test opening Atlas from the Library and following its related item to Boreal. Hold the Atlas response, verify Loading item before releasing it, and verify exactly the Atlas then Boreal reads. Use the README to run your scenario and confirm it passes. Leave application and harness files unchanged."
+printf '%s\n' "${prompt}" > "${temporary_dir}/prompt.txt"
+status=0
+git_publication_run_native_command || status=$?
+printf '%s\n' "${tool_version}" > "${temporary_dir}/version.txt"
+printf 'host=%s exit=%s outcome=%s stream=%s reason=%s\n' \
+  "${platform}" "${status}" "${native_run_outcome}" "${native_run_stream_status}" "${native_run_failure_reason}" \
+  | tee "${temporary_dir}/result.txt"
+native_host_stream "${platform}" "${transcript}" calls > "${temporary_dir}/calls.jsonl" || true
+native_host_stream "${platform}" "${transcript}" reads > "${temporary_dir}/reads.jsonl" || true
+native_host_stream "${platform}" "${transcript}" tools > "${temporary_dir}/tools.jsonl" || true
+exit "${status}"

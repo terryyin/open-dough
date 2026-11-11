@@ -210,6 +210,13 @@ Scope limits: no release, project rollout, opt-in changes, local-rule removal,
 unrelated suite conversion, new test framework or generic policy registry.
 Page-object selection adds no browser abstraction requirement to non-browser work.
 
+#### Execution exception
+
+For this execution, Terry authorizes skipping the Cursor native authoring probe
+("skip the cursor test this time", 2026-11-11). Record it as skipped and
+unverified, not passed. This exception permits continuation and does not waive
+deterministic Cursor delivery checks or establish a default for other work.
+
 #### Key examples
 
 1. Four entries select both flags, page objects only, MakeMe only and neither →
@@ -227,16 +234,7 @@ Page-object selection adds no browser abstraction requirement to non-browser wor
 
 #### Investigation and alternatives
 
-Observed 2026-11-11: Donut `4e328b86ead11bf711ec84071a34bd7170effa9e` supplies
-fluent handoffs and focused mechanics in `.agents/skills/e2e-authoring/SKILL.md`.
-Open Dough `1c470849e` keeps independent evidence and limits its cue pilot to three
-journeys. Its parser drops both proposed flags; direct membership still works.
-Recommend MakeMe's conditional skill and callers. Local pointers retain routing
-maintenance; generated host rules add activation/coexistence machinery. Borrow
-scoped-policy binding: entries select subjects, flags select conventions, consumers
-share one resolver. Routing does not prove application. The strongest doubt is
-fluent syntax hiding causal order or expectations: native proof must inspect useful
-results. Discovery remains a hypothesis bounded by an early execution probe.
+See [preparation investigation](../slice-plans/590-apply-shared-page-object-rules-per-entry/native-observations.md#preparation-investigation).
 
 #### Architecture
 
