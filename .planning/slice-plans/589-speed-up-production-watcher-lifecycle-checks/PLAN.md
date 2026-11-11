@@ -228,12 +228,12 @@ runs give three consecutive passes of the changed native drain sequence.
 Playwright case durations locate the savings. These sums exclude the
 outer setup and reporting overhead included in the wall times above.
 
-| Behavior family | Baseline seconds | Repaired seconds |
-| --- | ---: | ---: |
-| Recovery, refusal and lower preview lifecycle | 51.46 | 21.89–22.28 |
-| Full startup, independent development and Cursor runner | 27.06 | 17.08–17.48 |
-| Full update and focused policy decisions | 36.24 | 27.97–28.70 |
-| Real Git update selection | 2.38 | 2.19–2.30 |
+| Behavior family | Baseline seconds | First two passing candidates | Final candidate seconds |
+| --- | ---: | ---: | ---: |
+| Recovery, refusal and lower preview lifecycle | 51.46 | 21.89–22.28 | 20.43 |
+| Full startup, independent development and Cursor runner | 27.06 | 17.08–17.48 | 16.27 |
+| Full update and focused policy decisions | 36.24 | 27.97–28.70 | 26.73 |
+| Real Git update selection | 2.38 | 2.19–2.30 | 2.16 |
 
 The independent refactor review kept the shared production owner and
 event helpers as implemented. Its traced consumers preserve the ordinary
@@ -271,6 +271,13 @@ The production watcher and individual timeout stay as before.
 The ordinary one-worker startup and recovery selection passed 13/13 on
 their first attempts in 36.30 seconds on AC under `caffeinate -s -i`.
 Both real signal and checkout retirement journeys ran in that selection.
+
+The directed real-process control passed filesystem-first and command-close-first
+retirement, plus 40 ungated SIGINT samples. On the accepted candidate with
+both the native PATH and retirement fixes, the final matched run passed
+29/29 on their first attempts in 78.03 seconds including all setup and
+teardown. That saves 60.74 seconds (43.8%) from the 138.77-second baseline.
+The AC Mac had one-minute load 6.06 at launch.
 
 ## Execution complete
 

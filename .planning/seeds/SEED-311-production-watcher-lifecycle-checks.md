@@ -70,6 +70,17 @@ lower-boundary trial covered four recovery cases and established a restoration
 fault control. Retain the live watcher observations whose faults it did not
 exercise.
 
+#### Measured outcome
+
+The final ordinary one-worker selection passed 29/29 first attempts in
+78.03 seconds including preparation and teardown, down from 138.77 seconds
+for the 31-case baseline. The measured saving is 60.74 seconds (43.8%).
+The full dashboard journeys preserve native drain, shared state, runner
+lifetime and pinned replacement. The focused real preview owner and tiny
+watcher preserve detailed restoration, refusal and cleanup. The
+[completed plan](../slice-plans/589-speed-up-production-watcher-lifecycle-checks/PLAN.md#accepted-slice-3-proof)
+maps the proof and records the measurements.
+
 #### Provenance
 
 Extracted from [SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks)

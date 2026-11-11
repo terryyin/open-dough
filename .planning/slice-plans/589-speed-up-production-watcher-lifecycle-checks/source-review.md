@@ -36,7 +36,7 @@ was instructed to read no files and change nothing.
 | C25 | Keep the delivered production update-selection owner. | slice 2 | observed: productionUpdates.mjs remains the actual CLI update-selection owner |
 | C26 | Keep the three Git cases. | slice 2 | observed: production-update-selection.spec.ts 3/3 in the direct native update gate |
 | C27 | Replace remaining polling with events. | slice 2 | observed: watcherEvents.ts output and file subscriptions, productionBuildGate.ts real release event, launchAdmissionObservation.ts HTTP/diagnostic events, productionWatcherClient.ts actual terminal events |
-| C28 | Measure the speedup with the same behavioral coverage. | slice 3 | observed: Matched ordinary selector and mapped coverage passed 31/31 in 138.77 s on base and 29/29 in 82.43 and 83.90 s after repair (39.5–40.6% faster). |
+| C28 | Measure the speedup with the same behavioral coverage. | slice 3 | observed: Fresh strict 31/31 baseline was 138.77 s. Equivalent maintained 29/29 first-attempt coverage at exact final implementation took 78.03 s (43.8% faster); two earlier passing candidates took 82.43 and 83.90 s. |
 | C29 | Proceed with SEED-311 and update its story. | slice 1 | observed: origin/main preparation commit 04ec5b24c |
 | C30 | Update its plan. | slice 1 | observed: origin/main preparation commit 04ec5b24c |
 | C31 | Land everything. | landing |  |
