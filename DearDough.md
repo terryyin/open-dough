@@ -68,6 +68,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: an owned published failure required pause, independent repair/proof and restoration of in-flight slice 2. No installation boundary was widened.
   - Inference: shared builders' fixture-materialization consumers belong in the changed import contract's proof; full dashboard timing proof could not expose the absent dashboard tree.
 
+
+- Execution: SEED-307#apply-shared-page-object-rules-per-entry (plan 590; first implementation `48fd7667f08c15e5121be38593e11fb659f20298`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (checkout-bound installed VERSION at accepted Take `80d20ed9e`)
+  - Evidence: Published slice 2 `f31723244` linked delegation to new `test-entry-rules.md` before declaring that reference/runtime closure; CI run43010890708/1 test3/3 failed `tests/payload-declaration-links.sh`. Repair `e2806cc5e` added the complete closure and ran real install/update plus grouped/historical declaration readers. Recover proof at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/ci-repair-observations.md`.
+  - Observed effect: one owned dependency-closure CI failure, paused next-slice work and an independent repair before resuming. The same run's watcher teardown budget defect had a separate accepted solution; it is not attributed to this omission.
+  - Inference: linking promoted runtime prose makes its delivery inventory an immediate consumer; a later installation slice does not postpone that compatibility proof. Matches ODF-150's indirect-consumer omission; no new framework or duplicate finding is needed.
+
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
@@ -292,6 +301,15 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
   - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; /tmp/seed305-consumer-dispositions.md and /tmp/seed305-direct-consumer-dispositions.md; combined coordinator read reported 81,029 original tokens before output truncation, including PLAN.md/source-review.md and broad schema matches.
   - Observed effect: Targeted follow-up reads recovered actual response, hook and browser consumers; every affected consumer passed. No missed consumer is established; isolated trace cost is unmeasured.
+
+
+- Execution: SEED-307#apply-shared-page-object-rules-per-entry (plan 590; first implementation `48fd7667f08c15e5121be38593e11fb659f20298`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (checkout-bound installed VERSION at accepted Take `80d20ed9e`)
+  - Evidence: Final slice-4 trace at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/slice-4-makeme-integration.md#independent-controls-correspondence-and-disposition` recorded815 dispositions:27 run,21 reused,767 excluded. Automatically derived `PLAN.md`, `source-review.md`, `SKILL.md` and `convention.md` appeared beside concrete product-effect terms. The independent refactor reused the same disposition set and made no edits.
+  - Observed effect: hundreds of lexical-only exclusions and repeated coordinator inspection were required alongside useful runtime/payload tracing. No missed product consumer or isolated time/token saving is established.
+  - Inference: same generic source-basename expansion cost as ODF-396. Separating record/basename noise from meaningful effect leads is a proposal for later judgment, not authorization to weaken indirect proof.
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
