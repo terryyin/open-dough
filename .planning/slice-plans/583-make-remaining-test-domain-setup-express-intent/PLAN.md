@@ -150,6 +150,11 @@ Also `npm run typecheck:dashboard` → pass. Refactor: none — already clean.
 Learning: unresolved creation is request + `{ workspace, endpoint }` + time, not
 `aHostSession` (session continuation).
 
+CI repair on registered SHA `21bab414…` (run 42954307191): phone OpenAI settings
+recovery clipped Save when the API key field scrolled to the scrollport end.
+Product `scroll-margin-bottom` on `.openai-settings-form input`; recovery test
+pins end-aligned setup.
+
 ### 2. Launch requests and creations express intent through MakeMe
 Type: Behavior
 Status: planned
