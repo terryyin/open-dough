@@ -1,7 +1,8 @@
 // The touch review journey that keeps its context: the chosen file and both
 // panes' reading places through rotation and panel controls, on story A's
-// comparison opened by touch (./storyReviewTouchJourney.ts).
-import type { Page } from "@playwright/test";
+// comparison opened by touch (./storyReviewTouchJourney.ts), which also says
+// which viewport owns what no arrangement changes.
+import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
 import {
@@ -23,15 +24,23 @@ import {
 } from "./reviewTouchReading.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import {
-  chooseAllChangesFileByTouch,
+  chooseCommitThenAllChangesByTouch,
   openReviewByTouch,
+  ownsSharedObservations,
+  type TouchReview,
 } from "./storyReviewTouchJourney.ts";
 
 type Viewport = { width: number; height: number };
+// The chosen file's row, its code pane and the place that pane was moved to.
+type ChosenFile = { selected: Locator; code: Locator; codeAt: number };
 
-// The chosen file and both panes' reading places, each reached by touch,
-// survive rotation, Maximize, hidden files, Next file and Refresh; explicit
-// Commits keeps its reading place through rotation too.
+// Every viewport chooses the long file, moves both panes by touch and rotates
+// to landscape and back: the file, All changes and the code's reading place
+// stay, with the panel covering the page up to 800 px wide and through
+// Maximize and Restore beside it, and the review is read no further. The
+// phone, owner of what no arrangement changes, chooses its comparison by
+// touch first and goes on through the panel controls; any other viewport
+// ends with the rotation.
 export async function keepReviewContextThroughTouch(
   page: Page,
   dashboard: DashboardServer,
@@ -40,8 +49,10 @@ export async function keepReviewContextThroughTouch(
   landscape: Viewport,
 ) {
   const opened = await openReviewByTouch(page, dashboard, origin);
-  const { action, review, browser, comparison, changedFiles } = opened;
-  const diff = await chooseAllChangesFileByTouch(opened);
+  const { review, browser, comparison } = opened;
+  const ownsShared = ownsSharedObservations(page);
+  if (ownsShared) await chooseCommitThenAllChangesByTouch(opened);
+  const diff = await selectAddedFileByTouch(review, longA);
   const code = diff.locator(".story-review-code");
   await expect(code).toContainText("+first 0");
   await scrollByTouch(page, code, -300, "vertical", undefined, code);
@@ -75,6 +86,28 @@ export async function keepReviewContextThroughTouch(
     }
   }
   expect(reads).toBe(0);
+  if (ownsShared)
+    await keepReviewContextThroughPanelControls(
+      page,
+      opened,
+      { selected, code, codeAt },
+      portrait,
+      landscape,
+    );
+}
+
+// What no arrangement changes, after the rotation: Hide files and Show files
+// keep the chosen file and both reading places, Next file opens at its top,
+// Refresh keeps the chosen file, explicit Commits keeps its file and reading
+// place through rotation, uncommitted changes stay left out, and Close
+// returns focus to Review changes.
+async function keepReviewContextThroughPanelControls(
+  page: Page,
+  { action, review, browser, comparison, changedFiles }: TouchReview,
+  { selected, code, codeAt }: ChosenFile,
+  portrait: Viewport,
+  landscape: Viewport,
+) {
   const browserBeforeHide = await scrollTopOf(browser);
   await tapWhereShown(control(review, "Hide files"));
   await expect(browser).toBeHidden();

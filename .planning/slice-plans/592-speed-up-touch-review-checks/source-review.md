@@ -45,18 +45,18 @@ observed as review range reads.
 | 3a.5 | "move the file browser without moving the code" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :193-195 browser stroke moves the list and scrollTop(code) is unchanged |
 | 3b | "The 200 lines above the wide line ... are incidental distance." (qualification) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts longLines = 50 above the wide line, where the base had 200 |
 | 3c | "the length of the line beyond the widest pane [is] incidental distance." (qualification) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts wideLine is 75 characters, where the base had 405; the least that passed is 61 |
-| 4a | "Keep one owner for each observation that does not depend on the viewport" (commitment) | slice 3 | |
-| 4a.1 | "such as tap-target size" (example) | slice 3 | |
-| 4a.2 | "[such as] the context reveal" (example) | slice 3 | |
-| 4a.3 | "[such as] the folder toggle" (example) | slice 3 | |
-| 4a.4 | "[such as] the commit choice" (example) | slice 3 | |
-| 4b | "The second viewport repeats only what its arrangement changes" (commitment) | slice 3 | |
-| 4b.1 | "the file browser above the code in a narrow review" (alternative to 4b.2) (commitment) | slice 3 | |
-| 4b.2 | "or beside it in a wide one" (alternative to 4b.1) (commitment) | slice 3 | |
-| 4b.3 | "the panel covering the page up to 800 px wide" (commitment) | slice 3 | |
-| 4b.4 | "Maximize and Restore when the panel sits beside the page" (commitment) | slice 3 | |
-| 4c | "This applies the one-device rule in "where a check goes" (dashboard/tests/README.md)" (qualification) | slice 3 | |
-| 4d | "which keeps tablet portrait for the side-by-side review body" (qualification) | slice 3 | |
+| 4a | "Keep one owner for each observation that does not depend on the viewport" (commitment) | slice 3 | observed: dashboard/tests/support/storyReviewTouchJourney.ts ownsSharedObservations: the phone runs observeSharedControlsByTouch and the context journey's controls; PLAN.md Surviving proof names each removed tablet observation's phone owner and fault |
+| 4a.1 | "such as tap-target size" (example) | slice 3 | observed: phone reading dashboard/tests/support/storyReviewTouchJourney.ts :122-127, five heights >= 44; Surviving proof row 1 (label out of min-height fails phone reading) |
+| 4a.2 | "[such as] the context reveal" (example) | slice 3 | observed: phone reading dashboard/tests/support/storyReviewTouchJourney.ts :128 readContextByTouch; Surviving proof row 2 |
+| 4a.3 | "[such as] the folder toggle" (example) | slice 3 | observed: phone reading dashboard/tests/support/storyReviewTouchJourney.ts :129-134; Surviving proof row 3 |
+| 4a.4 | "[such as] the commit choice" (example) | slice 3 | observed: phone reading dashboard/tests/support/storyReviewTouchJourney.ts :135 and phone context dashboard/tests/support/storyReviewTouchContext.ts :54 through chooseCommitThenAllChangesByTouch and chooseLargeChangesCommitByTouch; Surviving proof rows 4-5 |
+| 4b | "The second viewport repeats only what its arrangement changes" (commitment) | slice 3 | observed: dashboard/tests/support/storyReviewTouchJourney.ts and dashboard/tests/support/storyReviewTouchContext.ts: where ownsSharedObservations is false the tablet selects the file, reads (5 strokes) and runs only the rotation loop (2 strokes, 0 range reads; tmp/s3/trace-final) |
+| 4b.1 | "the file browser above the code in a narrow review" (alternative to 4b.2) (commitment) | slice 3 | observed: phone reading runs the stacked review at 390 px; F4 passes both phone cases (tmp/s3 final-F4-w1) |
+| 4b.2 | "or beside it in a wide one" (alternative to 4b.1) (commitment) | slice 3 | observed: tablet reading at 768 px: F4 fails it at dashboard/tests/support/storyReviewTouchJourney.ts :155 overflows(code).sideways and no phone case |
+| 4b.3 | "the panel covering the page up to 800 px wide" (commitment) | slice 3 | observed: tablet context dashboard/tests/support/storyReviewTouchContext.ts :78 expectCovering at 768 px; K1 (narrowWindow 800 to 700) fails only it, at sidePanelWidthPage.ts:50 |
+| 4b.4 | "Maximize and Restore when the panel sits beside the page" (commitment) | slice 3 | observed: tablet context dashboard/tests/support/storyReviewTouchContext.ts :80-85 Maximize and Restore at 1024x768 with the code place kept |
+| 4c | "This applies the one-device rule in "where a check goes" (dashboard/tests/README.md)" (qualification) | slice 3 | observed: dashboard/tests/README.md Where a check goes, one-device rule, applied inside the two tablet cases; sentence unchanged |
+| 4d | "which keeps tablet portrait for the side-by-side review body" (qualification) | slice 3 | observed: dashboard/tests/README.md:88-89 still names story-review-touch tablet portrait for the side-by-side review body, which tablet reading keeps |
 | 5a | "A journey prepares only what its own assertions use." (commitment) | slice 4 | |
 | 5b | "Remove comparison choices that only repeat another case's proof as setup." (commitment) | slice 4 | |
 | 6a | "Establish surviving proof before removing a case, step or assertion" (commitment) | slice 4 | |
@@ -109,8 +109,8 @@ observed as review range reads.
 | 12j | Reading on a phone: "the page stay[s] where [it was]." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :170 pageFits(page) |
 | 12k | Reading on a phone: "A drag in the file browser then moves the list" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :193-194 scrollByTouch(browser) then scrollTop(browser) < browserAt |
 | 12l | Reading on a phone: "[A drag in the file browser] leaves the code where it was." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :195 scrollTop(code) equals codeBeforeBrowserScroll |
-| 13a | Reading on a tablet: "With the file browser beside the code" (example) | slice 3 | |
-| 13b | Reading on a tablet: "the same drags give the same independent result in each pane." (example) | slice 3 | |
+| 13a | Reading on a tablet: "With the file browser beside the code" (example) | slice 3 | observed: tablet reading runs at 768x1024 from launchTouchViewports; F4 shows its body is side by side (fails only there) |
+| 13b | Reading on a tablet: "the same drags give the same independent result in each pane." (example) | slice 3 | observed: tablet reading keeps every drag and assertion of dashboard/tests/support/storyReviewTouchJourney.ts :151-218: wide line reached, end and beginning read sideways, parts visible, browser place, fixed boxes and page unmoved, browser drag leaves the code; 5 strokes |
 | 14a | Rotation and panel controls: "A file is chosen and both panes are moved by touch." (example) | slice 4 | |
 | 14b | Rotation and panel controls: "Rotating to landscape and back keeps the file" (example) | slice 4 | |
 | 14c | Rotation and panel controls: "Rotating to landscape and back keeps ... the comparison" (example) | slice 4 | |

@@ -216,7 +216,7 @@ Accepted 2026-11-11 on the "Base without SEED-287" bullet. Evidence is in
 
 ### 3. The tablet repeats only what its side-by-side arrangement changes
 Type: Behavior
-Status: planned
+Status: done
 Proof: The touch command passes three consecutive times. A surviving-proof
 table in this plan lists each observation removed from a tablet case, its
 remaining owner, and a scratch fault that owner fails. F4 still fails a tablet
@@ -233,6 +233,38 @@ toggle and the commit choice stay with their phone owner.
 - `dashboard/tests/README.md` keeps its statement that this spec holds tablet
   portrait for the side-by-side review body; correct it if the kept role
   changes.
+
+Accepted 2026-11-11. Evidence is in
+`/Users/terryyin/.claude/jobs/cb428881/tmp/s3/` and `tmp/s3-proof-*.json`.
+
+- The phone owns what no arrangement changes, decided by
+  `ownsSharedObservations` in `storyReviewTouchJourney.ts`. Tablet reading
+  selects the long file under the default comparison and keeps the whole
+  reading. Tablet context moves both panes and keeps the rotation loop:
+  covering at 768 px, Maximize and Restore beside the page at 1024 px, no
+  review read. Neither tablet case goes entirely: F4 needs tablet reading, and
+  K1 (`narrowWindow` 800 → 700 in `sidePanelWidth.ts`) fails only tablet
+  context, at `sidePanelWidthPage.ts:50`.
+- [Surviving proof](#surviving-proof) lists the eleven removed observations.
+- Touch command: 4 passed three times, 43, 52 and 63 s at load 11–24.
+- Strokes, traced: 5, 3, 5 and 2; 15 in all. Range reads 2, 3, 0 and 0.
+- F1 fails both reading cases at `storyReviewTouchJourney.ts:186`. F2 fails
+  all four. F3 fails both context cases at `storyReviewTouchContext.ts:71`.
+  F4 fails only tablet reading, at `storyReviewTouchJourney.ts:155`.
+- The README sentence stands: tablet portrait is still held for the
+  side-by-side review body. The spec file is unchanged.
+- Line numbers in slice 2's records are those of `205452d94`.
+- For slice 4: the tablet context case no longer chooses a commit; only the
+  phone path remains. Phone reading keeps `chooseCommitThenAllChangesByTouch` as the
+  owner of the commit choice and the return to All changes.
+- For wrap-up: rows 36–39 of SEED-303's coverage map describe the base's
+  tablet observations.
+- Refactor pass complete: every viewport selects the long file in one
+  statement, `chooseCommitThenAllChangesByTouch` no longer selects it, and the
+  phone's panel controls are `keepReviewContextThroughPanelControls`. After it
+  the touch command passed three times (`tmp/s3-refactor-proof-*.json`, 59, 63
+  and 57 s at load 19–32), strokes and range reads were unchanged, and F3 and
+  F4 failed as above.
 
 ### 4. Context journeys prepare only what they assert
 Type: Behavior
@@ -352,6 +384,30 @@ human-owned scope or ADR decision is pending.
   minutes during preparation; alternate base and candidate and record loads
   rather than waiting for an idle machine.
 
+## Surviving proof
+
+Recorded by slice 3 on 2026-11-11. Each fault is a scratch product edit,
+reverted after its run. The faults ran on `205452d94`, before the removal,
+with the touch command at one worker and `--reporter=list`: the tablet case
+and its phone owner failed at the same place. Owner lines are those of the
+code as slice 3 leaves it, after its refactor pass. On that code the context-reveal and Hide files
+faults fail only the phone cases. Logs:
+`/Users/terryyin/.claude/jobs/cb428881/tmp/s3/`.
+
+| Observation removed from a tablet case, and where it was | Remaining owner | Scratch fault | Observed failure of the owner |
+| --- | --- | --- | --- |
+| Reading: the context line, All changes, Commits, the folder and the uncommitted label are each at least 44 px tall (`storyReviewTouchJourney.ts:115-120`) | Phone reading, `storyReviewTouchJourney.ts:122-127`, the same five heights | `story-review-touch.css`: `.story-review-uncommitted label` left out of the `min-height` rule | Phone reading at `:126`: "Include uncommitted changes", expected >= 44, received 23.1875 |
+| Reading: a tap shows the context in full with the worktree unclipped, and a second returns it to one line (`storyReviewTouchJourney.ts:121`) | Phone reading, `storyReviewTouchJourney.ts:128`, through `readContextByTouch`, `reviewTouchReading.ts:89-106` | `StoryReviewContextLine.tsx`: the tap only ever shows the line in full | Phone reading at `reviewTouchReading.ts:105`: `aria-expanded` expected "false", received "true" |
+| Reading: a tap closes the folder and a second opens it (`storyReviewTouchJourney.ts:122-127`) | Phone reading, `storyReviewTouchJourney.ts:129-134` | `StoryReviewSnapshotView.tsx`: `onToggle` never collapses a folder | Phone reading at `:131`: `aria-expanded` expected "false", received "true" |
+| Reading and context: the "large changes" commit chosen by touch lists every changed file (`chooseAllChangesFileByTouch` as it was, called at `storyReviewTouchJourney.ts:128` and `storyReviewTouchContext.ts:44`) | Phone reading, `storyReviewTouchJourney.ts:135`, and phone context, `storyReviewTouchContext.ts:54`, through `chooseCommitThenAllChangesByTouch` and `chooseLargeChangesCommitByTouch`, `reviewTouchReading.ts:195-214` | `useStoryReviewComparison.ts`: `onSelect` leaves the range on its anchored item | Both phone cases at `reviewTouchReading.ts:208`: `aria-pressed` expected "true", received "false" |
+| Reading and context: All changes chosen by touch after the commit is the comparison shown (the same call) | The same two phone calls, at `storyReviewTouchJourney.ts:107-111` | `StoryReview.tsx`: `onSwitch` ignores the All changes choice | Both phone cases at `:111`: expected checked, received unchecked |
+| Context: Hide files and Show files keep the chosen file and both reading places (`storyReviewTouchContext.ts:78-85`) | Phone context, `storyReviewTouchContext.ts:111-118` | `StoryReviewSnapshotView.tsx`: the file browser keyed by whether it is shown | Phone context at `:117`: expected 625, received 0 |
+| Context: Next file opens the next file at its top (`storyReviewTouchContext.ts:86-89`) | Phone context, `storyReviewTouchContext.ts:119-122` | `StoryReviewSnapshotView.tsx`: `FileDiff` without its `key` | Phone context at `:122`: expected 0, received 285 |
+| Context: Refresh reads again, says so and keeps the chosen file (`storyReviewTouchContext.ts:90-99`) | Phone context, `storyReviewTouchContext.ts:123-132` | `StoryReview.tsx`: the review body keyed by the Refresh round | Phone context at `:132`: `aria-pressed` expected "true", received "false" |
+| Context: explicit Commits reports its range and keeps its file and reading place through rotation (`storyReviewTouchContext.ts:100-118`) | Phone context, `storyReviewTouchContext.ts:134-151` | `StoryReview.tsx`: the section keyed by `shown === "commits" && offerMaximize` | Phone context at `:148`: heading "Added long-b.txt", element not found |
+| Context: leaving uncommitted changes out by its tap-sized label survives rotation (`storyReviewTouchContext.ts:120-125`) | Phone context, `storyReviewTouchContext.ts:153-158`, through `leaveUncommittedOutByTouchLabel`, `reviewTouchReading.ts:217-244` | `StoryReview.tsx`: an effect on `offerMaximize` includes uncommitted changes again. The label: the first row's fault | Phone context at `reviewTouchReading.ts:243`: expected not checked, received checked. The label, at `:235`: "touch target height", expected >= 44, received 23.1875 |
+| Context: Close removes the review and returns focus to Review changes (`storyReviewTouchContext.ts:126-129`) | Phone context, `storyReviewTouchContext.ts:159-162` | `keyboardReturn.ts`: a return focuses nothing | Phone context at `:161`: expected focused, received inactive |
+
 ## Story obligations
 
 ### G1. Phone context case passes 30 s first in its worker under load; SEED-287's active execution owns the repair
@@ -383,3 +439,33 @@ Disposition: no user cost "Ordinary CI continues to catch the same product regre
 Reported: slice 2 — "If a fault leaves the pane less than the touch slop to travel, it fails after 5 s at "the stroke's scrolling comes to rest" (seen under F2 on the tablet), not at a reading expectation."
 Story clause: "a file browser that no longer scrolls on its own"
 Disposition: proved by slice 2: F2 fails all four cases by a named expectation inside the case's own budget (`tmp/s2/F2-delta.log`); the story asks that the fault fails a remaining case
+
+### G7. Controls the tablet no longer taps are reached by touch at phone sizes only
+Reported: slice 3 — "The tablet no longer taps or reaches the context line, comparison labels, folder, commit row, Hide/Show files, Next file, Refresh, uncommitted label or Close. A fault that clips one of them only at 768 or 1024 px wide would pass."
+Story clause: "The second viewport repeats only what its arrangement changes"
+Disposition: excluded "The second viewport repeats only what its arrangement changes"
+
+### G8. Hide files and Show files by touch no longer run with the file browser beside the code
+Reported: slice 3 — "Hide files / Show files by touch is no longer exercised with the browser beside the code. The phone runs it stacked."
+Story clause: "The second viewport repeats only what its arrangement changes"
+Disposition: excluded "The second viewport repeats only what its arrangement changes"
+
+### G9. Explicit Commits and leaving uncommitted changes out survive rotation at phone sizes only
+Reported: slice 3 — "Explicit Commits and uncommitted-out through rotation are proven at 390 ↔ 844 only, no longer at 768 ↔ 1024."
+Story clause: "The second viewport repeats only what its arrangement changes"
+Disposition: excluded "The second viewport repeats only what its arrangement changes"
+
+### G10. Rotation-loop assertions kept on the tablet without a tablet-only fault
+Reported: slice 3 — "Kept without a tablet-only fault: the code pane height floors, `All changes` checked and `pageFits` in the loop, `reads` 0, and Maximize/Restore at 1024."
+Story clause: "Maximize and Restore when the panel sits beside the page"
+Disposition: no user cost "Dashboard maintainers get faster feedback on reviewing a story by touch.": these assertions send no stroke and read no review; they belong to the rotation loop that K1 and F3 fail on the tablet, and the story names covering and Maximize and Restore for the second viewport
+
+### G11. The helpers decide the owning viewport from the page's width
+Reported: slice 3 — "Ownership is read from the viewport inside the helper. `ownsSharedObservations` compares `page.viewportSize()?.width` with `phoneLaunchTouchViewport.portrait.width`. This keeps the spec byte-identical; any edit to spec line 19 would abut SEED-287's removal of lines 15–18."
+Story clause: "Keep one owner for each observation that does not depend on the viewport"
+Disposition: no user cost "Ordinary CI continues to catch the same product regressions.": the rule has one home, `ownsSharedObservations`, and the phone is its owner in both journeys; the spec file stays as SEED-287's branch expects it, and the refactor pass judged the viewport the honest input to decide from
+
+### G12. The two tablet case titles say more than the tablet now does
+Reported: slice 3 — "Tablet titles now overstate. "chooses a comparison and file" and "panel controls" remain by instruction; the tablet chooses only a file and uses only Maximize and Restore."
+Story clause: "The second viewport repeats only what its arrangement changes"
+Disposition: no user cost "Dashboard maintainers get faster feedback on reviewing a story by touch.": the titles come from the unchanged spec loop that SEED-287's branch also edits; each journey's comment now says that the title describes the phone's journey and what every other viewport runs
