@@ -33,33 +33,30 @@ and ledger tests, which are credited with no replacement. No list under
 requires the comparison and the result worth keeping to be set before the
 measured run. The story's success measure sets both.
 
-## Decision before Take
+## Admission misses owned by SEED-287
 
-Terry decides who repairs the admission spec's 5 s observations, which miss
-under load on main. Evidence: in the two two-worker runs of unchanged main at
-load 19–23,
+Terry routed the admission spec's 5 s observations, which miss under load on
+main, to
+[SEED-287](../../seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
+on 2026-11-11. Its scope names the cases. That story was Taken and in
+execution on `codex/make-dashboard-journeys-fit-the-default-timeout` that day.
+
+Evidence: in the two two-worker runs of unchanged main at load 19–23,
 `landed-ci-repeat-admission.spec.ts:82` failed twice and `:11` once, each a
 5 s poll for a collected history or card after the receipt. A scratch run
 with slice 2's fixture change also failed `:58`, and once
 `landed-ci-history-no-proof-recovery.spec.ts:36` at its 5 s history poll.
 
-Under the
+The consumer selections in slices 2–4 are the proof that this story's changes
+keep those specs behaving as on the base. A failure there that the base does
+not show is this story's. One the base shows too is the defect SEED-287 owns,
+and the
 [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-these are defects to fix, and reproducing them on main is attribution, not an
-exemption. They sit outside this story's two specs, and no story names them.
-
-- Recommended: SEED-287. Its scope names 5 s observations at local load 20–30
-  on 2 workers and waiting for persisted collector results, and tells its
-  executor to inspect siblings that share a setup. Its named cases predate
-  these specs. This plan then stands as written.
-- Otherwise this story: one more Behavior slice through plan refinement,
-  before slice 5, with those specs added to the load proof.
-
-Until Terry routes them, the consumer selections in slices 2–4 are the proof
-that this story's changes keep those specs behaving as on the base. A failure
-there that the base does not show is this story's. One the base shows too is
-the defect above, and the policy leaves it with the executing agent unless
-another active execution owns that exact repair by then.
+applies to it as written: reproducing it on the base is attribution, not an
+exemption. While SEED-287's execution owns that exact repair, preserve its
+files, write no duplicate repair, and report that owner and the remaining
+gate as the coordination boundary. With no such active owner, the repair is
+the executing agent's.
 
 ## Architecture and reuse
 
@@ -133,7 +130,7 @@ exist. No ADR, North Star topic or product documentation changes.
 | Every case inside the default 30 s with its 5 s observations at load 20–30 on 2 workers; no allowance | 5: three consecutive two-worker runs in that load; no `test.setTimeout` or expectation timeout in the diff |
 | A quarter less whole-command wall time; at most three journey cases | 5: alternating base and candidate runs, three passing observations each; the count of cases that ingest a receipt |
 | Ordinary CI selection; no mocks, sleeps, retries, skips or runner modes | 5: same spec paths and command; diff review; hosted CI on the published revision |
-| The other repeat specs and browser journeys keep passing as they do | 2: the 27-file consumer selection. 3–4: the specs that import `ciFollowUpScenario.ts`. Each compared with the base under [Decision before Take](#decision-before-take) |
+| The other repeat specs and browser journeys keep passing as they do | 2: the 27-file consumer selection. 3–4: the specs that import `ciFollowUpScenario.ts`. Each compared with the base under [Admission misses owned by SEED-287](#admission-misses-owned-by-seed-287) |
 
 ## Decisive premises
 
@@ -181,7 +178,7 @@ Focused commands, from the repository root:
   `ciFollowUpScenario.ts`, at `--workers=2`.
 - A consumer failure is compared with the base worktree in the same load
   window, at two workers and at one. See
-  [Decision before Take](#decision-before-take).
+  [Admission misses owned by SEED-287](#admission-misses-owned-by-seed-287).
 - Node consumers of the ledger facts:
   `bash scripts/test.sh tests/support/ci-follow-up-ledger.test.mjs tests/support/ci-follow-up-reading.test.mjs`
   with Homebrew Bash first on `PATH`.
@@ -239,8 +236,9 @@ them.
 Behavior: Main as it is at Take → the probe runs → the base revision, the
 twelve case identities with durations, and any reopened premise are recorded.
 This is an authorized early probe: a premise that no longer holds revises the
-slices that consume it before they start. It also records where
-[Decision before Take](#decision-before-take) stands.
+slices that consume it before they start. It also records whether the base
+holds SEED-287's repair of the
+[admission misses](#admission-misses-owned-by-seed-287).
 
 ### 2. Landed CI history cases start only the servers they ask for
 Type: Behavior
@@ -384,9 +382,9 @@ repaired before this slice is done.
 Slice-plan refinement was not needed: five slices share one rule, each has one
 proof loop, and the premise rows that can move before Take are bounded by the
 early probe in slice 1. This review found no remaining slice-specific concern
-inside the story's two specs. One human-owned decision is pending and is
-recorded as the readiness reason:
-[Decision before Take](#decision-before-take).
+inside the story's two specs. The admission spec's misses under load are
+SEED-287's by Terry's routing on 2026-11-11:
+[Admission misses owned by SEED-287](#admission-misses-owned-by-seed-287).
 
 ## Execution notes
 

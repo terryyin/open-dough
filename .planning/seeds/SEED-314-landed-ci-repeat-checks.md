@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-314#speed-up-landed-ci-repeat-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/595-speed-up-landed-ci-repeat-checks/PLAN.md","assessment":"not-ready","reasons":["Terry has not yet routed the admission spec's 5 s observation misses under load on main: to SEED-287 (recommended, and this plan then stands as written) or to this story as one more slice through plan refinement. See the plan's Decision before Take."],"basis":{"document":"522c97c723ec1bfb80586a9d433b9dfc81710943ade052b50be10ddf3f986bac","plan":"9cd73adf889f3686a9fd21e26d047f95f6c1e85124feeca8bf6d2ebb07ea82d1"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/595-speed-up-landed-ci-repeat-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0daac0e67e48ab790083287e9dd27ae7b8b607d33eb3c8be7031e4bf72cea842","plan":"0604203073c70a4dfe86f99c930aa9a16dbf371e5f76ee7a91d58e28133541f5"}}
 ```
 
 #### Goal
@@ -90,13 +90,11 @@ no saving. First-in-worker origin preparation stays with
 [SEED-287](SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
 Local-only archived experiments are excluded from the maintained selection.
 
-Open decision, Terry's: who repairs the 5 s observations of the admission
-spec, which also miss under load on main. Two of its five cases failed in the
-two two-worker runs of unchanged main at load 19–23, each waiting 5 s after
-the receipt for a collected history or card. Waiting for persisted collector
-results is a pattern SEED-287 names, and its cases predate these specs.
-Recommended: SEED-287, which leaves this story as bounded here. Routed here,
-that repair becomes one more slice of this story's plan.
+The 5 s observations of the admission spec, which also miss under load on
+main, belong to SEED-287 by Terry's routing on 2026-11-11, and its scope names
+the cases. Two of that spec's five cases failed in the two two-worker runs of
+unchanged main at load 19–23, each waiting 5 s after the receipt for a
+collected history or card.
 
 #### Key examples
 
