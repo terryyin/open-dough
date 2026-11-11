@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
 - [Run the slowest Dashboard checks together in under 30 seconds](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
 - [Show one CI proof row per location](seeds/SEED-304-ci-proof-one-row-per-location.md#show-one-ci-proof-row-per-location) — SEED-304#show-one-ci-proof-row-per-location ([plan](slice-plans/582-show-one-ci-proof-row-per-location/PLAN.md))
-- [Show CI time without runner waits for matrix jobs](seeds/SEED-306-ci-time-without-runner-waits-for-matrix-jobs.md#show-ci-time-without-runner-waits-for-matrix-jobs) — SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs ([plan](slice-plans/583-show-ci-time-without-runner-waits-for-matrix-jobs/PLAN.md))
 
 ## Backlog list
 

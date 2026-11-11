@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-306_show-ci-time-without-runner-waits-for-matrix-jobs.json",
+      "identity": "SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs",
+      "completedAt": "2026-11-11T01:55:45.948Z",
+      "blob": "98c3e5b17f7893f810bb73990fee06b0221ae6d6"
+    },
+    {
       "fileName": "SEED-305_keep-ci-wall-time-history-readable-across-dashboard-updates.json",
       "identity": "SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates",
       "completedAt": "2026-11-11T01:31:51.013Z",
