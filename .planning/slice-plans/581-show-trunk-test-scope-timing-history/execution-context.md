@@ -36,8 +36,7 @@ already staged deletions; no failed attempt committed or published anything.
 ## Story-only live Intent Coverage measurement
 
 Terry opted this story into the live measurement at normal Story Wrap Up, with
-no installed guidance/default/authority changes. No Intent Coverage worker has
-started. At its qualifying handoff-preparation response emit
+no installed guidance/default/authority changes. The one Intent Coverage worker completed; see closure state below. At its qualifying handoff-preparation response emit
 `IC-LIVE-START SEED-310#show-trunk-test-scope-timing-history`, spawn exactly one
 fresh native Codex worker without inherited context, supplying source, completed
 revision and focused test/suspected fault known from ordinary work. Ask it to
@@ -80,9 +79,43 @@ Process review is enabled by project preference and deferred under installed
 `deferred-process-review.md`: wrap-up will request Intent Coverage (feature,
 intentCoverage:true, no published result). Do not read/write process findings
 until its report/dispositions. Complete that selected review once then, with
-this actual conversation/tool history, before source cleanup. The user live
-measurement handoff remains not started. All six obligations/143 commitments
+this actual conversation/tool history, before source cleanup. The user live measurement handoff later completed; see closure state below. All six obligations/143 commitments
 passed completion check; source freshness unchanged at `1c470849e73ce9ad2bb2c37d525628e2c08aa305`.
 Completion-record delivery is records-only; accepted semantic/refactor proof is
 unchanged. Wrap-up can align the existing UI-direction table and shared
 endpoint wording with the canonical implemented contract during assimilation.
+
+## Wrap-up state after Intent Coverage join
+
+One fresh native worker `/root/intent_coverage_live` returned Caught for
+`e37801b5c98285c8558deace0ca5be5d9ad5024e`, with independent wrong-path trace
+and clean restoration/restored pass. Joined its native terminal notification
+while independent closure work ran; no polling, restart, duplicate or overdue
+recovery. Verbatim report `/tmp/seed310-intent-coverage-worker-report.txt`;
+combined report/disposition `/tmp/seed310-intent-coverage-combined.txt`. Retain
+existing timestamp/request-count proof; no new correction/follow-up is supported.
+Do not start another check. Worker elapsed137206ms and runner total12737.926ms
+are distinct; human/agent effort unavailable, host usage left to the requested audit.
+
+Selected deferred process review completed from this actual conversation/tool
+history, the report/disposition and no-follow-up decision. Added this execution's
+occurrences to existing ODF-264/329/337/396 only; no new ID, queue or guidance
+change. Bounded ordinary candidate fits1000 lines. No distinct new IC process
+problem was supported; the fresh worker reused hints, batched its scratch runs,
+reported a bounded caught path and used the final report finisher.
+
+Execution completion accepted3945352b with successful e37801b5 CI basis and
+confirmed shutdown of `/tmp/dough-ci-501/watch-gagzqr`. No pending lifecycle
+rows. Workspace creation ref names this exact identity; management context
+`/Users/terryyin/git/open-dough/.git`. Surviving reporting cwd is
+`/Users/terryyin/git/open-dough`; original supplied reporting executable/context
+remain under `/Users/terryyin/.open-dough/dashboard/reporting/5c494f68-0b89-4fd0-9561-2ebba78cc986/`.
+Landing context must accompany the first history-preserving trunk integration;
+final reporting remains the last operation. Current source/plan are intact.
+
+Lasting rules are in code/tests and the scope-history contract. The broader
+North Star reading-boundary/workspace topics remain relevant to active Intent
+page-object and dashboard work (SEED-300); this bounded extension does not retire
+those broader topics. UI direction table now names the implemented Project
+Summary/file surfaces; shared contract says displayed endpoint rather than only
+selected landing. These documentation edits preserve the checked promise.

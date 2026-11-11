@@ -59,7 +59,7 @@ with dates, represented landings and the common measured build link. A mixed
 legacy result adds an unknown-unit note without adding another history; a
 legacy-only result remains a unit gap, even if its old label names test cases.
 It names equivalent-build reuse and later-build measurements separately from
-the selected landing. History matches the recorded owning entry, repository
+the displayed endpoint. History matches the recorded owning entry, repository
 path and declared unit. It does not infer historical renames or use current
 trunk's scopes to fill unavailable evidence. Unsupported entry/path/unit changes and unavailable,
 partial or untimed proof break the line and keep their reasons. Earlier supported

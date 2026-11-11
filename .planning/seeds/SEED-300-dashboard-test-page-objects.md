@@ -70,8 +70,8 @@ are static source observations.
   scenarios that prove them.
   [CI wall-time ordering](../../dashboard/tests/intent/intent-ci-wall-time-history-order.spec.ts#L58),
   [prior-build reference](../../dashboard/tests/intent/intent-ci-prior-build-average.spec.ts#L191),
-  [scope history reading](../../dashboard/tests/intent/intent-scope-timing-history-reading.spec.ts#L145),
-  [scope history units](../../dashboard/tests/intent/intent-scope-timing-history-units.spec.ts#L111).
+  [scope history reading](../../dashboard/frontend-tests/intent-scope-timing-history-reading.spec.ts#L143),
+  [scope history units](../../dashboard/frontend-tests/intent-scope-timing-history-units.spec.ts#L148).
 - **Locations, source and recovery.** Code and Gherkin browsers, Purpose,
   revision notices and candidate journeys rebuild source rows, target lines,
   selected-file and reading-place probes. Share the operations for choosing a
