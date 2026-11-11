@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-302#make-remaining-test-domain-setup-express-intent",
+  "mode": "story-branch",
+  "branch": "cursor/make-remaining-test-domain-setup-express-intent",
+  "host": "cursor",
+  "model": "auto"
+}
