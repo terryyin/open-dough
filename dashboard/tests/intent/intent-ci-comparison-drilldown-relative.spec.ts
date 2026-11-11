@@ -2,12 +2,19 @@
 // its own figures and rows, with one live story preference and no CI reread.
 import type { Locator } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
+import {
+  fileReadingTab,
+  intentReadingScroll,
+  proofRegion,
+  scrollIntentReadingHalfway,
+} from "../intentPerspectivePage.ts";
 import {
   childName,
   scopeFigures,
   scopeTable,
+  summaryRegion,
 } from "../intentScopeProofPage.ts";
+import { openCiEntry } from "../intentCiProofPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -16,7 +23,7 @@ import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
 } from "../support/selectDoneStoryForSummaryComparison.ts";
-import { chooseStoryTab } from "../support/intentStoryPage.ts";
+import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
 import {
   expectMark,
   markGeometry,
@@ -47,6 +54,7 @@ test("story, location, folder and file share signed words, preference and per-di
   page,
   origin,
 }) => {
+  await page.setViewportSize({ width: 1280, height: 600 });
   await publishSummaryComparisonStory(page, origin, "own-conflict-extra");
   const ciReads: string[] = [];
   const textReads: string[] = [];
@@ -60,6 +68,8 @@ test("story, location, folder and file share signed words, preference and per-di
       textReads.push(url.search);
   });
   const { intent } = await selectDoneStoryForSummaryComparison(page);
+  await openSummaryComparison(intent, "dashboard/tests");
+  await scrollIntentReadingHalfway(intent);
   await chooseStoryTab(intent, "CI comparison");
   const story = intent.getByRole("tabpanel", { name: "CI comparison" });
   await expect(
@@ -79,8 +89,17 @@ test("story, location, folder and file share signed words, preference and per-di
     initialReads.filter((read) => read.startsWith("ci-proof ")),
   ).toHaveLength(3);
 
-  await chooseStoryTab(intent, "Changed tests");
-  const summary = await openSummaryComparison(intent, "dashboard/tests");
+  await openCiEntry(story, "dashboard/tests", "Enter");
+  await expectStoryTab(intent, "Changed tests");
+  const summary = summaryRegion(intent);
+  await expect(summary.locator(".intent-summary-path")).toHaveText(
+    "dashboard/tests",
+  );
+  await expect(intent.locator(".intent-reading")).toBeFocused();
+  await expect.poll(() => intentReadingScroll(intent)).toBe(0);
+  await expect(
+    summary.getByRole("heading", { name: "Summary", exact: true }),
+  ).toBeInViewport();
   await expect(
     compared(summary).getByRole("heading", {
       name: "Baseline compared with Landed",

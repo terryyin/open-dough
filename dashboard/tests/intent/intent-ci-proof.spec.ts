@@ -16,9 +16,11 @@ import { expect, test } from "../dashboardTest.ts";
 import { judged, runUrl } from "../intentCiStatusPage.ts";
 import {
   artifactId,
+  ciEntryName,
   expectProofRows,
   failedVerdict,
   openFailedRun,
+  openCiEntry,
   proofCalls,
   proofTable,
   run,
@@ -33,6 +35,9 @@ import {
   runArtifactsAnswer,
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
+import { parts } from "../dashboardPage.ts";
+import { intentLocationName } from "../intentPerspectivePage.ts";
+import { summaryRegion } from "../intentScopeProofPage.ts";
 
 const notRecorded = "No timings";
 
@@ -52,6 +57,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       )
       .please(),
     makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+    makeMe.aCiProofEntry.at("retired-tests").counting(1, "file").please(),
   ]);
   let release: () => void = () => undefined;
   const held = new Promise<void>((resolve) => {
@@ -81,6 +87,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
     await expectProofRows(proof, [
       ["dashboard/tests", "19 passed and 1 failed test cases", notRecorded],
       ["tests", "5 passed test files", notRecorded],
+      ["retired-tests", "1 passed test file", notRecorded],
     ]);
     await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
   });
@@ -90,6 +97,20 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       "artifacts of run 41: ci-proof-summary-attempt-1",
       `zip ${String(artifactId)}`,
     ]);
+  });
+
+  await test.step("a configured entry opens its directory Summary; historical-only entries have no dead link", async () => {
+    await expect(ciEntryName(proof, "retired-tests")).toHaveCount(0);
+    await openCiEntry(proof, "dashboard/tests");
+    const { intent } = parts(page);
+    await expect(
+      summaryRegion(intent).locator(".intent-summary-path"),
+    ).toHaveText("dashboard/tests");
+    await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(intent.locator(".intent-reading")).toBeFocused();
   });
 });
 

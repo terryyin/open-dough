@@ -81,6 +81,26 @@ export function proofTable(proof: Locator): Locator {
   return proof.getByRole("table", { name: "CI proof by declared entry" });
 }
 
+// A CI entry's in-page destination, shared by single-run and comparison rows.
+export function ciEntryName(panel: Locator, path: string): Locator {
+  return panel
+    .getByRole("rowheader", { name: path, exact: true })
+    .getByRole("button", { name: path, exact: true });
+}
+
+export async function openCiEntry(
+  panel: Locator,
+  path: string,
+  how: "click" | "Enter" = "click",
+) {
+  const entry = ciEntryName(panel, path);
+  if (how === "click") await entry.click();
+  else {
+    await entry.focus();
+    await entry.press(how);
+  }
+}
+
 export const proofColumns = ["Entry", "Counts", "Test execution time"];
 
 // One cell's reading: a single-unit string, or each labeled unit line's
