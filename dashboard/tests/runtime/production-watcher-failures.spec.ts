@@ -166,7 +166,10 @@ test("an unavailable origin keeps production and checks resume when it returns; 
   const checks = watcher.checks();
   await rename(`${fixture.origin}.unavailable`, fixture.origin);
   await watcher.waitForChecks(checks);
-  const retired = waitForEmptyDirectory(productionDeployments(fixture.home));
+  const retired = waitForEmptyDirectory(
+    watcher,
+    productionDeployments(fixture.home),
+  );
   watcher.signal("SIGHUP");
   // npm can finish before the watcher removes its checkout. Await retirement
   // before the harness ends any remaining members of npm's process group.

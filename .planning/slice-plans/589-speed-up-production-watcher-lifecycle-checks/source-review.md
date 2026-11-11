@@ -29,7 +29,7 @@ was instructed to read no files and change nothing.
 | C18 | Cover native-start drain before the selected revision activates. | slice 2 | observed: productionHeldUpdate.ts uses actual Codex resolved through a private developer-shell bin, actual store lock, persisted pending attempt and real admission closure/503, and a durable successful native outcome at drain response. |
 | C19 | Cover preservation of shared records. | slice 2 | observed: production-watcher-updates.spec.ts shared record served in both environments and bytes through replacement and shutdown |
 | C20 | Cover preservation of shared configuration. | slice 2 | observed: productionUpdateJourney.ts checks machine configuration bytes and inode after shutdown |
-| C21 | Cover signals. | slice 2 | observed: production-watcher.spec.ts SIGINT, update journey SIGTERM and recovery SIGHUP |
+| C21 | Cover signals. | slice 2 | observed: Full watcher restart and real SIGINT, update journey SIGTERM, and minimal recovery SIGHUP prove process ownership. Both terminal-signal checks observe checkout retirement through real filesystem and command-close events. |
 | C22 | Cover fatal restoration. | slice 3 | observed: The lower real owner check asserts both commit IDs, both real preview error causes, no live preview and a closed URL. Fatal watcher cleanup stays proved through real preview loss. |
 | C23 | Cover preview loss. | slice 3 | observed: Killing the restarted preview produces a nonzero watcher exit, exact failure signal and cleared deployment root, while independent development still serves. |
 | C24 | Cover cleanup. | slice 2 | observed: productionUpdateJourney.ts build and preview ended, absent URL and checkouts, independent development alive |

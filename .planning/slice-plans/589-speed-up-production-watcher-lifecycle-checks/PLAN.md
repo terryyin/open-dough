@@ -256,6 +256,22 @@ at version 0.167.1. The ordinary one-worker update selector passed all
 attempt, closed admission, HTTP 503 and native settlement assertions
 remain unchanged.
 
+### macOS retirement observation
+
+A later whole-family run reached the restarted preview and live runner, then
+timed out in its final terminal and SIGINT sequence. Its failed 167.64-second
+run is excluded from the passing timing comparison. A directed real npm and
+Node signal experiment observed 26 of 40 checkouts already empty at command
+close before a directory notification arrived. The shared retirement wait
+now checks the actual directory on both its filesystem event and command
+close, staying subscribed if npm closes while a checkout remains. Named
+steps identify the remaining terminal, retirement and exit observations.
+The production watcher and individual timeout stay as before.
+
+The ordinary one-worker startup and recovery selection passed 13/13 on
+their first attempts in 36.30 seconds on AC under `caffeinate -s -i`.
+Both real signal and checkout retirement journeys ran in that selection.
+
 ## Execution complete
 
 Product advice: no change. The optimization meets the local saving target

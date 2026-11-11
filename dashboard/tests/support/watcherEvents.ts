@@ -90,17 +90,28 @@ export function waitForWatcherFile<T>(
   });
 }
 
-// A terminal signal can end npm before the watcher retires its checkouts.
-export function waitForEmptyDirectory(directory: string): Promise<void> {
+// npm can close before retirement, or before a completed retirement's file
+// event is delivered. Either event lets us observe the actual directory.
+export function waitForEmptyDirectory(
+  command: WatchCommand,
+  directory: string,
+): Promise<void> {
   return new Promise((resolve, reject) => {
-    function fail(error: unknown) {
+    let settled = false;
+    function complete() {
+      settled = true;
       changes.close();
+    }
+    function fail(error: unknown) {
+      if (settled) return;
+      complete();
       reject(error instanceof Error ? error : new Error(String(error)));
     }
     function check() {
+      if (settled) return;
       try {
         if (readdirSync(directory).length !== 0) return;
-        changes.close();
+        complete();
         resolve();
       } catch (error) {
         fail(error);
@@ -108,6 +119,7 @@ export function waitForEmptyDirectory(directory: string): Promise<void> {
     }
     const changes = watch(directory, { persistent: false }, check);
     changes.once("error", fail);
+    void command.exited.then(check, fail);
     check();
   });
 }

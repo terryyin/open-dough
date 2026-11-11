@@ -189,18 +189,26 @@ test("a restart serves current main as its baseline with the same runner, and SI
   expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
   expect(processGroup(runner.pid)).toBe(runner.pid);
   expect(processGroup(runner.pid)).not.toBe(processGroup(restarted.pid));
-  const follow = await machine.followCursorSession(
-    restarted.url,
-    cursorSessionId,
-    cursorClientPid,
-  );
-  follow.send({ input: "after-restart\r" });
-  await waitForWatcherTerminal(follow, "WATCHER INPUT <after-restart>");
-  const retired = waitForEmptyDirectory(deployments);
-  watcher.signal("SIGINT");
-  await retired;
-  await watcher.exited;
-  await watcher.stop();
+  const follow =
+    await test.step("Join the existing terminal after restart", () =>
+      machine.followCursorSession(
+        restarted.url,
+        cursorSessionId,
+        cursorClientPid,
+      ));
+  await test.step("Read the existing terminal's response to input", async () => {
+    follow.send({ input: "after-restart\r" });
+    await waitForWatcherTerminal(follow, "WATCHER INPUT <after-restart>");
+  });
+  await test.step("SIGINT retires the deployment checkout", async () => {
+    const retired = waitForEmptyDirectory(watcher, deployments);
+    watcher.signal("SIGINT");
+    await retired;
+  });
+  await test.step("The watcher command exits after SIGINT", async () => {
+    await watcher.exited;
+    await watcher.stop();
+  });
   expect(watcher.output()).not.toContain("could not run");
   await expectProductionEnded(request, restarted, fixture.home);
   machine.watcher = undefined;
