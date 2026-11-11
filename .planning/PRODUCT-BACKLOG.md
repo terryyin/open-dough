@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
 - [Run the slowest Dashboard checks together in under 30 seconds](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
 - [Make remaining test domain setup express intent](seeds/SEED-302-remaining-makeme-test-data.md#make-remaining-test-domain-setup-express-intent) — SEED-302#make-remaining-test-domain-setup-express-intent ([plan](slice-plans/583-make-remaining-test-domain-setup-express-intent/PLAN.md))
-- [Restore Safari terminal prompts](seeds/SEED-309-restore-safari-terminal-prompts.md#restore-safari-terminal-prompts) — SEED-309#restore-safari-terminal-prompts
 
 ## Backlog list
 

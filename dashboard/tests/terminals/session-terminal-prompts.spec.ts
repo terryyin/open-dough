@@ -2,6 +2,7 @@ import { test, expect } from "../dashboardTest.ts";
 import {
   openTerminalPrompts,
   openTerminalVoice,
+  unfocusedPromptButtons,
 } from "../support/terminalVoicePage.ts";
 import { noteTerminalTraffic } from "../touchTerminalPage.ts";
 import { tapWhereShown } from "../pageLayout.ts";
@@ -22,6 +23,7 @@ for (const pointer of ["desktop", "phone"] as const) {
       dashboard,
       launchJourney,
     }) => {
+      if (pointer === "phone") await unfocusedPromptButtons(page);
       const { sent } = noteTerminalTraffic(page);
       const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
       const input = panel.locator(".xterm-helper-textarea");
@@ -57,10 +59,10 @@ for (const pointer of ["desktop", "phone"] as const) {
         if (pointer === "phone") await tapWhereShown(choice);
         else await choice.click();
         await expect(menu).toHaveCount(0);
-        await expect(input).toBeFocused();
         await expect
           .poll(() => sent.filter((text) => text === phrase))
           .toEqual([phrase]);
+        await expect(input).toBeFocused();
         await expect(panel.locator(".xterm-rows")).toContainText(
           `${prefix}${phrase}`,
         );
