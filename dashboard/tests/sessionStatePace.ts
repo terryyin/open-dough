@@ -8,7 +8,10 @@
 // words and whether its solid edge says the developer is needed there.
 
 import type { Locator, Page, Response } from "@playwright/test";
-import { agentLaunchEndpoint } from "../src/agentLaunch.ts";
+import {
+  agentChangedEndpoint,
+  agentLaunchEndpoint,
+} from "../src/agentLaunch.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import { sessionsRevisionHeader } from "../src/machineSessionsRevision.ts";
 import { expect } from "./dashboardTest.ts";
@@ -16,47 +19,59 @@ import { sessionStateOf } from "./dashboardPage.ts";
 import { givePageItsTurns } from "./pageRequestNotes.ts";
 
 // What the page notes about its own records reads (see `watchRecordReads`):
-// how many it has asked, and those whose answer it has not yet read whole.
+// how many it has asked; what is on its way to one, which are the reads
+// whose answer it has not yet read whole and its waits on a followed launch
+// attempt's next change (`../src/attemptChangeWaits.ts`), whose answer makes
+// it read at once; and how many of those have ended so far.
 type RecordReadsNoted = {
   recordReadsAsked?: number;
-  recordReadsUnanswered?: Set<Promise<unknown>>;
+  recordReadsOnTheirWay?: Set<Promise<unknown>>;
+  recordReadsOnTheirWayEnded?: number;
 };
 
-// From the page's first document on, the page notes each records read at the
-// moment it calls `fetch`, and keeps it until its answer has been read whole
-// or the read has failed. Noting it in the page, rather than from
-// Playwright's `request` and `response` events, keeps the count in step with
-// page time: those events may arrive only after later steps have passed, and
-// a read asked before a pace began may be answered inside it.
+// From the page's first document on, the page notes each records read, and
+// each wait on an attempt's change, at the moment it calls `fetch`, and
+// keeps it until its answer has been read whole or it has failed. Noting it
+// in the page, rather than from Playwright's `request` and `response`
+// events, keeps the count in step with page time: those events may arrive
+// only after later steps have passed, and a read asked before a pace began
+// may be answered inside it.
 async function noteRecordReadsInPage(page: Page): Promise<void> {
-  await page.addInitScript((endpoint) => {
-    const noted = window as RecordReadsNoted & typeof window;
-    const unanswered = new Set<Promise<unknown>>();
-    noted.recordReadsAsked = 0;
-    noted.recordReadsUnanswered = unanswered;
-    const send = window.fetch.bind(window);
-    window.fetch = (input, init) => {
-      const url = new URL(
-        input instanceof Request ? input.url : String(input),
-        window.location.href,
-      );
-      const method = (
-        init?.method ?? (input instanceof Request ? input.method : "GET")
-      ).toUpperCase();
-      const sent = send(input, init);
-      if (url.pathname === endpoint && method === "GET") {
-        noted.recordReadsAsked = (noted.recordReadsAsked ?? 0) + 1;
-        const answered = sent
-          .then((response) => response.clone().arrayBuffer())
-          .catch(() => undefined)
-          .finally(() => {
-            unanswered.delete(answered);
-          });
-        unanswered.add(answered);
-      }
-      return sent;
-    };
-  }, agentLaunchEndpoint);
+  await page.addInitScript(
+    ({ endpoint, changeWait }) => {
+      const noted = window as RecordReadsNoted & typeof window;
+      const onTheirWay = new Set<Promise<unknown>>();
+      noted.recordReadsAsked = 0;
+      noted.recordReadsOnTheirWay = onTheirWay;
+      noted.recordReadsOnTheirWayEnded = 0;
+      const send = window.fetch.bind(window);
+      window.fetch = (input, init) => {
+        const url = new URL(
+          input instanceof Request ? input.url : String(input),
+          window.location.href,
+        );
+        const method = (
+          init?.method ?? (input instanceof Request ? input.method : "GET")
+        ).toUpperCase();
+        const sent = send(input, init);
+        const read = url.pathname === endpoint && method === "GET";
+        if (read) noted.recordReadsAsked = (noted.recordReadsAsked ?? 0) + 1;
+        if (read || url.pathname === changeWait) {
+          const ended = sent
+            .then((response) => response.clone().arrayBuffer())
+            .catch(() => undefined)
+            .finally(() => {
+              onTheirWay.delete(ended);
+              noted.recordReadsOnTheirWayEnded =
+                (noted.recordReadsOnTheirWayEnded ?? 0) + 1;
+            });
+          onTheirWay.add(ended);
+        }
+        return sent;
+      };
+    },
+    { endpoint: agentLaunchEndpoint, changeWait: agentChangedEndpoint },
+  );
 }
 
 const recordReadsAsked = (page: Page) =>
@@ -64,34 +79,45 @@ const recordReadsAsked = (page: Page) =>
     () => (window as RecordReadsNoted & typeof window).recordReadsAsked ?? 0,
   );
 
-// Waits, with page time standing still, until every records read the page
-// has asked is answered and the page has acted on its answer, so its next
-// read waits one steady pace from page time now.
-async function untilRecordReadsAnswered(page: Page): Promise<void> {
+// Waits, with page time standing still, until nothing is on its way to a
+// records read: every read the page has asked, and every wait on a followed
+// attempt's change, is answered, and the page has since had its turns
+// without asking or ending another, so it has acted on each answer and its
+// next read waits one steady pace from page time now. Tells how many records
+// reads the page had asked by then. A wait the server holds open, on an
+// attempt that does not change, holds this open with it.
+async function untilRecordReadsAnswered(page: Page): Promise<number> {
+  let last: { asked: number; ended: number } | undefined;
   for (;;) {
     await givePageItsTurns(page);
-    const waited = await page.evaluate(async () => {
-      const unanswered = [
-        ...((window as RecordReadsNoted & typeof window)
-          .recordReadsUnanswered ?? []),
-      ];
-      await Promise.all(unanswered);
-      return unanswered.length > 0;
+    const { waited, ...now } = await page.evaluate(async () => {
+      const noted = window as RecordReadsNoted & typeof window;
+      const onTheirWay = [...(noted.recordReadsOnTheirWay ?? [])];
+      await Promise.all(onTheirWay);
+      return {
+        waited: onTheirWay.length > 0,
+        asked: noted.recordReadsAsked ?? 0,
+        ended: noted.recordReadsOnTheirWayEnded ?? 0,
+      };
     });
-    if (!waited) return;
+    const acted =
+      last !== undefined &&
+      now.asked === last.asked &&
+      now.ended === last.ended;
+    if (!waited && acted) return now.asked;
+    last = now;
   }
 }
 
 // Counts the page's records reads, and lets exactly one steady pace of page
-// time pass once every earlier read is answered: no records read is asked a
-// moment before it, and one is asked and answered once it has passed; and
-// tells what the one read asked during a pace, one by default, sent and was
-// answered (`answeredDuring`). Call it before the page opens.
+// time pass once nothing is on its way to an earlier read: no records read
+// is asked a moment before it, and one is asked and answered once it has
+// passed; and tells what the one read asked during a pace, one by default,
+// sent and was answered (`answeredDuring`). Call it before the page opens.
 export async function watchRecordReads(page: Page) {
   await noteRecordReadsInPage(page);
   const passOnePace = async () => {
-    await untilRecordReadsAnswered(page);
-    const before = await recordReadsAsked(page);
+    const before = await untilRecordReadsAnswered(page);
     await page.clock.runFor(checkIntervalMs - 1);
     await givePageItsTurns(page);
     expect(await recordReadsAsked(page)).toBe(before);
