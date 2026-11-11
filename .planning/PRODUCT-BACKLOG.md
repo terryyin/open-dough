@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
-- [Show trunk test scope timing history](seeds/SEED-310-trunk-test-scope-timing-history.md#show-trunk-test-scope-timing-history) — SEED-310#show-trunk-test-scope-timing-history ([plan](slice-plans/581-show-trunk-test-scope-timing-history/PLAN.md))
 
 ## Backlog list
 
