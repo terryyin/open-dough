@@ -24,35 +24,36 @@ export const dashboardStory =
   "See the project's published work in a story dashboard";
 export const workspaceStory =
   "Prepare stories in a clear developer workspace workflow";
-const queue = "Queue trunk integration for agents on the same machine";
+export const queueStory =
+  "Queue trunk integration for agents on the same machine";
 const claims = "Publish shared backlog claims";
 
 const repairPlan = "slice-plans/059-installer-update-report/PLAN.md";
 const repairEntry = makeMe.aBacklogEntry
   .with({ identity: repairPlan, title: repair, href: repairPlan })
   .please();
-const dashboardEntry = makeMe.aBacklogEntry
+export const dashboardEntry = makeMe.aBacklogEntry
   .with({
     identity: "SEED-021#see-published-work",
     title: dashboardStory,
     href: "seeds/SEED-021-progress.md#see-published-work",
   })
   .please();
-const workspaceEntry = makeMe.aBacklogEntry
+export const workspaceEntry = makeMe.aBacklogEntry
   .with({
     identity: "SEED-008#planning-workspace-procedure",
     title: workspaceStory,
     href: "seeds/SEED-008-sync.md#planning-workspace-procedure",
   })
   .please();
-const queueEntry = makeMe.aBacklogEntry
+export const queueEntry = makeMe.aBacklogEntry
   .with({
     identity: "SEED-008#same-machine-merge-queue",
-    title: queue,
+    title: queueStory,
     href: "seeds/SEED-008-sync.md#same-machine-merge-queue",
   })
   .please();
-const claimsEntry = makeMe.aBacklogEntry
+export const claimsEntry = makeMe.aBacklogEntry
   .with({
     identity: "SEED-040#publish-claims",
     title: claims,
@@ -97,11 +98,11 @@ export const backlogC = publishedFile(published.C, backlogPath);
 
 export const titlesOfA = {
   taken: [repair],
-  backlog: [dashboardStory, workspaceStory, queue],
+  backlog: [dashboardStory, workspaceStory, queueStory],
 };
 export const titlesOfB = {
   taken: [dashboardStory, repair],
-  backlog: [queue, claims],
+  backlog: [queueStory, claims],
 };
 
 export async function openAtA(page: Page): Promise<MovingOrigin> {

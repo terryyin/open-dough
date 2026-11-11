@@ -8,7 +8,6 @@ import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { codexAttaches } from "./codexTerminal.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyBranchFacts } from "../../../tests/support/launchWorkspaceTestData.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -111,15 +110,10 @@ export async function recordedCursor(
     "Missing Cursor launch",
   );
   const sessionId = "11111111-1111-4111-8111-111111111111";
-  record.session = {
-    host: "cursor",
-    sessionId,
-    name: record.session.name,
-    continuation: {
-      workspace,
-      args: ["cursor-agent", "--workspace", workspace, "--resume", sessionId],
-    },
-  };
+  record.session = makeMe.aHostSession
+    .cursor({ sessionId, continuation: { workspace } })
+    .named(record.session.name)
+    .please();
   record.completion = makeMe.aCompletionReport.saying(message).please();
   save(dashboard.home, [record]);
   return { record, workspace };
@@ -170,13 +164,18 @@ export function keepTrackedClosureEvidence(
     .capturedFrom({ repository, identity })
     .comparing({ base: revision, revision });
   const reference = record.request.reporting?.reference;
+  const claimed = makeMe.aLaunchRecord
+    .executing({
+      identity,
+      title: record.request.title,
+      source: record.request.source,
+    })
+    .onStoryBranch({ workspace, branch: "cursor/retired" })
+    .please();
   return {
     ...record,
-    request: { ...record.request, workflow: "execution" },
-    ...storyBranchFacts(
-      { workflow: "execution", identity },
-      { workspace, branch: "cursor/retired" },
-    ),
+    request: { ...record.request, workflow: claimed.request.workflow },
+    start: claimed.start,
     landing: (reference === undefined
       ? landing
       : landing.forLaunch(reference)

@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // The launch boundary honors an unattached request's isolated workspace,
 // with a real bare origin (../support/startOrigin.ts), the installed start
 // recorded as it runs (../support/startSessionLanding.ts): slug variations
@@ -36,7 +37,7 @@ const launched = async (dashboard: DashboardServer, body: unknown) =>
     record?: LaunchRecord;
   };
 
-const request = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+const request = makeMe.aLaunchRequest.adHoc().please();
 const isolated = (landing: "review" | "auto-land") => ({
   workspace: "isolated",
   landing,

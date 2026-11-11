@@ -20,39 +20,57 @@ test("a missing terminal proof retains earlier unit segments and distinct gaps w
     .receivedAt("2026-11-03T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(first, "run/1/1", {
-      revision: first.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: first.revision })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .counting(2, "file")
-            .timed(100)
+    .recording(
+      first,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: first.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: first.revision })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .counting(2, "file")
+                .timed(100)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
-    .recording(second, "run/2/1", {
-      revision: second.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: second.revision, runId: 2 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .counting(2, "case")
-            .timed(200)
+    )
+    .recording(
+      second,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: second.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: second.revision, runId: 2 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .counting(2, "case")
+                .timed(200)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
-    .recording(terminal, "run/3/1", {
-      revision: terminal.revision,
-      state: "pass",
-      proof: { kind: "unavailable", reason: "expired" },
-    })
+    )
+    .recording(
+      terminal,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: terminal.revision,
+          state: "pass",
+          proof: { kind: "unavailable", reason: "expired" },
+        })
+        .please(),
+    )
     .please();
   const read = scopeHistoryOf(
     history,
@@ -86,25 +104,31 @@ test("a missing terminal proof retains earlier unit segments and distinct gaps w
   const unitless = makeMe.aLandedCiHistory
     .recording(first, "run/1/1", history.builds["run/1/1"])
     .recording(second, "run/2/1", history.builds["run/2/1"])
-    .recording(terminal, "run/3/1", {
-      revision: terminal.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: terminal.revision, runId: 3 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .holding(
-              makeMe.aCiProofEvidence
-                .legacy("test cases")
-                .counting(2)
-                .timed(300)
+    .recording(
+      terminal,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: terminal.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: terminal.revision, runId: 3 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .holding(
+                  makeMe.aCiProofEvidence
+                    .legacy("test cases")
+                    .counting(2)
+                    .timed(300)
+                    .please(),
+                )
                 .please(),
-            )
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
+    )
     .please();
   const missingUnit = scopeHistoryOf(
     unitless,
@@ -128,20 +152,26 @@ test("a missing terminal proof retains earlier unit segments and distinct gaps w
   const onlyCase = makeMe.aLandedCiHistory
     .recording(first, "run/1/1", history.builds["run/1/1"])
     .recording(second, "run/2/1", history.builds["run/2/1"])
-    .recording(terminal, "run/3/1", {
-      revision: terminal.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: terminal.revision, runId: 3 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .counting(2, "case")
-            .timed(300)
+    .recording(
+      terminal,
+      "run/3/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: terminal.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: terminal.revision, runId: 3 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .counting(2, "case")
+                .timed(300)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
+    )
     .please();
   const terminalUnitGap = scopeHistoryOf(
     onlyCase,
@@ -171,34 +201,46 @@ test("selected entry and unit evidence reject an unsupported older owner while e
     .receivedAt("2026-11-02T00:00:00Z")
     .please();
   const history = makeMe.aLandedCiHistory
-    .recording(older, "run/1/1", {
-      revision: older.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: older.revision })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .counting(2, "case")
-            .timed(100)
+    .recording(
+      older,
+      "run/1/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: older.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: older.revision })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .counting(2, "case")
+                .timed(100)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
-    .recording(selected, "run/2/1", {
-      revision: selected.revision,
-      state: "pass",
-      proof: makeMe.aCiProof
-        .forRun({ revision: selected.revision, runId: 2 })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests/sub")
-            .counting(2, "case")
-            .timed(200)
+    )
+    .recording(
+      selected,
+      "run/2/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: selected.revision,
+          state: "pass",
+          proof: makeMe.aCiProof
+            .forRun({ revision: selected.revision, runId: 2 })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests/sub")
+                .counting(2, "case")
+                .timed(200)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    })
+    )
     .please();
   const read = scopeHistoryOf(
     history,

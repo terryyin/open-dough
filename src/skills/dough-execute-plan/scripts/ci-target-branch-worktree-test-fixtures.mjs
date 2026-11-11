@@ -121,7 +121,11 @@ if (request.operation === 'discover') {
   chmodSync(adapter, 0o700);
   writeFileSync(
     join(execution, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   const env = { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage };
   const branch = (

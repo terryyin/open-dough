@@ -1,6 +1,5 @@
-/* System settings (./SystemSettings.tsx): a bar with the page's name and the
-   way back, then one card (.settings-section) per setting group in a centred
-   column. Buttons and fields share the frame's look (./frame-controls.css). */
+/* System settings (./SystemSettings.tsx): bar, then .settings-section cards.
+   Buttons and fields share ./frame-controls.css. */
 
 .system-settings {
   --settings-column: 60rem;
@@ -42,8 +41,7 @@
   letter-spacing: -0.01em;
 }
 
-/* Reading a lower setting group must leave the touch view's way back in
-   reach. Ordinary settings content still uses the page's own scrolling. */
+/* Touch: keep the way-back bar reachable; content still scrolls the page. */
 @media (any-pointer: coarse) {
   .settings-bar {
     position: sticky;
@@ -186,10 +184,13 @@
 
 .openai-settings-form input {
   width: min(100%, 32rem);
+  /* Keep Save/Remove in view when this field scrolls or focuses into place. */
+  scroll-margin-bottom: calc(
+    var(--space-2) + var(--space-1) + var(--control-size) + var(--focus-ring-clearance)
+  );
 }
 
-/* Feedback maintenance's Host and Model, the launch dialog's row
-   (./launch-dialog.css) at the width of the OpenAI key field. */
+/* Feedback Host/Model: same width as the OpenAI key field. */
 .feedback-maintenance-choices {
   width: min(100%, 32rem);
   min-width: 0;
@@ -224,8 +225,7 @@
   }
 }
 
-/* The Add project and Remove project dialogs: the frame's dialog
-   (./launch-dialog.css), narrower, its actions on a footer below the body. */
+/* Add/Remove project dialogs: narrower ./launch-dialog.css with action footer. */
 .launch-dialog.project-dialog {
   width: min(32rem, calc(100% - 1.5rem));
 }

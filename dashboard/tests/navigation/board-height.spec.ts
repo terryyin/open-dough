@@ -11,6 +11,7 @@
 // ./board-paging-sessions-sidebar.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import { inspectedDetail } from "../storyCardControls.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
@@ -36,6 +37,7 @@ import {
   queuedTitle as inspectedTitle,
   repository,
   revision,
+  workspaceEntry,
 } from "../recentlyDoneRecords.ts";
 
 test.describe("in a two-column Board", () => {
@@ -63,14 +65,8 @@ test.describe("in a two-column Board", () => {
             .please(),
         ),
         files: {
-          ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md": `<a id="planning-workspace-procedure"></a>
-
-### ${inspectedTitle}
-
-**Identity:** SEED-008#planning-workspace-procedure
-
-**Goal:** ${purpose}
-`,
+          ".planning/seeds/SEED-008-worktree-branch-trunk-sync.md":
+            renderStorySection(workspaceEntry, { goal: purpose }),
         },
       }),
     });

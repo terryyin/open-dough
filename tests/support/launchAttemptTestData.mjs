@@ -1,12 +1,12 @@
 // @ts-check
 // A launch request the dashboard accepted, as the machine's attempt store
 // keeps it; a server's live answer about it is
-// `./launchAttemptObservationTestData.mjs`. An attempt can precede any launch
-// record: until it settles it holds only its incoming request and acceptance
-// facts. A launched outcome names the session it launched by host and native
-// ID; the kept launch itself is `./launchTestData.mjs`.
+// `./launchAttemptObservationTestData.mjs`. Until it settles it holds only its
+// incoming request and acceptance facts. A launched outcome names the session
+// by host and native ID; the kept launch itself is `./launchTestData.mjs`.
 
-import { CompletionReportBuilder } from "./launchOutcomeTestData.mjs";
+import { CompletionReportBuilder } from "./completionReportTestData.mjs";
+import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
 
 /** @typedef {import("../../dashboard/src/launchOutcome.ts").LaunchAttemptRecord} LaunchAttemptRecord */
 /** @typedef {import("../../dashboard/src/launchOutcome.ts").AttemptOutcome} AttemptOutcome */
@@ -14,12 +14,8 @@ import { CompletionReportBuilder } from "./launchOutcomeTestData.mjs";
 /** @typedef {Extract<AttemptOutcome, { kind: "launched" }>["session"]} LaunchedSession */
 /** @typedef {Exclude<AttemptOutcome, { kind: "launched" }>} UnlaunchedOutcome */
 /** @typedef {NonNullable<LaunchAttemptRecord["worker"]>} AttemptWorker */
-
-/**
- * What a story launch's request states: the story, its title as the card
- * shows it, the project and the host.
- * @typedef {{ identity: string, title: string, source?: string, host?: AgentLaunchRequest["host"] }} StoryRequestFacts
- */
+/** @typedef {import("./launchRequestTestData.mjs").IncomingStoryFacts} IncomingStoryFacts */
+/** @typedef {import("./launchRequestTestData.mjs").IncomingAdHocFacts} IncomingAdHocFacts */
 
 // One accepted attempt. Choose its request; it is otherwise accepted at a
 // fixed instant under a fixed ID, has published nothing, and has not settled.
@@ -32,8 +28,8 @@ export class AcceptedAttemptBuilder {
   #acceptedAt = "2026-01-01T00:00:00.000Z";
   /** @type {string | undefined} */
   #reportingOrigin;
-  /** @type {Pick<LaunchAttemptRecord, "reporting" | "landingRepository">} */
-  #landingReporting = {};
+  /** @type {Pick<LaunchAttemptRecord, "reporting" | "landingRepository" | "landingPreparations" | "landing">} */
+  #landingCapture = {};
   /** @type {LaunchAttemptRecord["publication"]} */
   #publication = { kind: "none" };
   /** @type {AttemptWorker | undefined} */
@@ -48,6 +44,8 @@ export class AcceptedAttemptBuilder {
   #reconciledAt;
   /** @type {LaunchAttemptRecord["completion"]} */
   #completion;
+  /** @type {LaunchAttemptRecord["completionReceipts"]} */
+  #completionReceipts;
 
   /** @param {string} id a UUID */
   withId(id) {
@@ -67,30 +65,30 @@ export class AcceptedAttemptBuilder {
   /**
    * An execution start of the story, in the `open-dough` project with
    * `claude` unless stated.
-   * @param {StoryRequestFacts} facts
+   * @param {IncomingStoryFacts} facts
    */
-  executing({ identity, title, source = "open-dough", host = "claude" }) {
-    this.#request = { source, identity, title, workflow: "execution", host };
+  executing(facts) {
+    this.#request = new LaunchRequestBuilder().executing(facts).please();
     return this;
   }
 
   /**
    * A refinement start of the story, in the `open-dough` project with
    * `claude` unless stated.
-   * @param {StoryRequestFacts} facts
+   * @param {IncomingStoryFacts} facts
    */
-  refining({ identity, title, source = "open-dough", host = "claude" }) {
-    this.#request = { source, identity, title, workflow: "refinement", host };
+  refining(facts) {
+    this.#request = new LaunchRequestBuilder().refining(facts).please();
     return this;
   }
 
   /**
    * An ad hoc session start, in the `open-dough` project with `claude`
    * unless stated.
-   * @param {{ source?: string, host?: AgentLaunchRequest["host"] }} [facts]
+   * @param {IncomingAdHocFacts} [facts]
    */
-  adHoc({ source = "open-dough", host = "claude" } = {}) {
-    this.#request = { source, workflow: "ad-hoc", host };
+  adHoc(facts = {}) {
+    this.#request = new LaunchRequestBuilder().adHoc(facts).please();
     return this;
   }
 
@@ -198,9 +196,26 @@ export class AcceptedAttemptBuilder {
     return this;
   }
 
-  /** @param {Pick<LaunchAttemptRecord, "reporting" | "landingRepository">} facts */
+  /**
+   * The exact final report the attempt keeps, and the receipts it kept while
+   * settling that report when the case states them.
+   * @param {NonNullable<LaunchAttemptRecord["completion"]>} completion
+   * @param {NonNullable<LaunchAttemptRecord["completionReceipts"]>} [receipts]
+   */
+  withCompletion(completion, receipts) {
+    this.#completion = structuredClone(completion);
+    if (receipts !== undefined)
+      this.#completionReceipts = structuredClone(receipts);
+    return this;
+  }
+
+  /**
+   * Landing capture facts the attempt keeps: reporting context, repository
+   * authority, preparations, and a recorded landing when the case states them.
+   * @param {Pick<LaunchAttemptRecord, "reporting" | "landingRepository" | "landingPreparations" | "landing">} facts
+   */
   capturingLanding(facts) {
-    this.#landingReporting = structuredClone(facts);
+    this.#landingCapture = structuredClone(facts);
     return this;
   }
 
@@ -212,11 +227,14 @@ export class AcceptedAttemptBuilder {
       );
     return {
       id: this.#id,
-      ...this.#landingReporting,
+      ...this.#landingCapture,
       ...(this.#reportingOrigin !== undefined && {
         reportingOrigin: this.#reportingOrigin,
       }),
       ...(this.#completion && { completion: { ...this.#completion } }),
+      ...(this.#completionReceipts && {
+        completionReceipts: structuredClone(this.#completionReceipts),
+      }),
       request: structuredClone(this.#request),
       acceptedAt: this.#acceptedAt,
       ...(this.#worker && { worker: { ...this.#worker } }),

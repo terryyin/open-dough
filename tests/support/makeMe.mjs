@@ -8,11 +8,14 @@ import {
   IntentLocationBuilder,
   IntentSettingsBuilder,
 } from "./intentLocationTestData.mjs";
+import { optionsDefinitionMakeMeProperties } from "./optionsDefinitionTestData.mjs";
 import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
+import { projectCiSettingsMakeMeProperties } from "./projectCiSettingsTestData.mjs";
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
+import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
@@ -31,6 +34,9 @@ import { jobDurations } from "./jobDurationTestData.mjs";
 /** @typedef {import("./ciMakeMe.mjs").CiMakeMe} CiMakeMe */
 /** @typedef {import("./launchMakeMe.mjs").LaunchMakeMe} LaunchMakeMe */
 /** @typedef {import("./feedbackTestData.mjs").FeedbackMakeMe} FeedbackMakeMe */
+/** @typedef {import("./optionsDefinitionTestData.mjs").OptionsDefinitionMakeMe} OptionsDefinitionMakeMe */
+/** @typedef {import("./projectCiSettingsTestData.mjs").ProjectCiSettingsMakeMe} ProjectCiSettingsMakeMe */
+/** @typedef {import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe} TerminalThemeSettingMakeMe */
 /** @typedef {import("./publicationTestData.mjs").PublishedIntegration} PublishedIntegration */
 /**
  * @template {object} Facts
@@ -65,9 +71,9 @@ import { jobDurations } from "./jobDurationTestData.mjs";
  * @property {{ with: typeof jobDurations }} jobDurations
  */
 
-/** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */
+/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */ ({}),
+  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & FeedbackMakeMe} */ ({}),
   {
     jobDurations: {
       enumerable: true,
@@ -213,6 +219,9 @@ export const makeMe = Object.defineProperties(
         return new SlicePlanBuilder();
       },
     },
+    ...optionsDefinitionMakeMeProperties(),
+    ...projectCiSettingsMakeMeProperties(),
+    ...terminalThemeSettingMakeMeProperties(),
     ...ciMakeMeProperties(),
     ...launchMakeMeProperties(),
     ...feedbackMakeMeProperties(),

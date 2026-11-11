@@ -14,26 +14,19 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { expect } from "./pageTest.ts";
-import {
-  attempts,
-  continued,
-  launch,
-  launchRequest,
-} from "../agentLaunchBoundary.ts";
+import { attempts, continued, launch } from "../agentLaunchBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
 import { queuedIdentity, queuedTitle, startOrigin } from "./startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 export const preparationSlug = "prepare-the-queued-start";
 const slug = preparationSlug;
-const request = {
-  ...launchRequest,
-  workflow: "refinement",
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+const request = makeMe.aLaunchRequest
+  .refining({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 type Answer = { kind: string; reason?: string; explanation: string };
 
 export type KeptPreparation = Awaited<ReturnType<typeof keptPreparation>>;

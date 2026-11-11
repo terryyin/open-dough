@@ -1,4 +1,5 @@
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
+import { requestFacts } from "../../../tests/support/launchRequestTestData.mjs";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import { test, expect } from "../../tests/support/pageTest.ts";
 import { launch, recordsOf } from "../../tests/agentLaunchBoundary.ts";
@@ -16,25 +17,23 @@ test("shared reporting instruction preserves host input grammar and truly blank 
     origin: "http://127.0.0.1:1234",
     command: "'node' '/installed/report.mjs'",
   };
-  const blank: RecordedLaunchRequest = {
-    workflow: "ad-hoc",
-    source: "open-dough",
-    host: "codex",
-    title: "Session",
-    reporting,
-  };
+  const blank: RecordedLaunchRequest = requestFacts(
+    { workflow: "ad-hoc", title: "Session", source: "open-dough" },
+    { host: "codex", reporting },
+  ).request;
   expect(reportingInstruction(blank)).toBeUndefined();
   expect(codexInput(blank, "/workspace")).toEqual([{ type: "text", text: "" }]);
   expect(cursorPrompt({ ...blank, host: "cursor" }, undefined)).toBeUndefined();
 
-  const request: RecordedLaunchRequest = {
-    source: "open-dough",
-    host: "cursor",
-    workflow: "execution",
-    title: "Story",
-    identity: "SEED-A#a",
-    reporting,
-  };
+  const request: RecordedLaunchRequest = requestFacts(
+    {
+      workflow: "execution",
+      identity: "SEED-A#a",
+      title: "Story",
+      source: "open-dough",
+    },
+    { host: "cursor", reporting },
+  ).request;
   const instruction = reportingInstruction(request);
   expect(cursorPrompt(request, undefined)).toBe(
     `/dough-execute-plan SEED-A#a\n\n${instruction}`,

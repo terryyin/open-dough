@@ -1,6 +1,7 @@
 import { test, expect, stored } from "../../tests/support/codexLaunch.ts";
 import { launch } from "../../tests/agentLaunchBoundary.ts";
-const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 
 for (const settings of [
   { model: "native-sol", effort: "ultra" },

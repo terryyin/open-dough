@@ -3,7 +3,6 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   accept,
   continueAttempt,
-  launchRequest,
   recordsOf,
 } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
@@ -14,6 +13,7 @@ import {
 } from "../../tests/support/startOrigin.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 import { settledOutcome } from "../../tests/acceptedAttempts.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test("update drain closes admission and waits through published execution start and durable native confirmation", async () => {
   const origin = await startOrigin(queuedReadyRepository().please());
@@ -26,11 +26,9 @@ test("update drain closes admission and waits through published execution start 
   const push = origin.holdPushes();
   server.claudeScenario("held");
   try {
-    const request = {
-      ...launchRequest,
-      identity: queuedIdentity,
-      title: queuedTitle,
-    };
+    const request = makeMe.aLaunchRequest
+      .executing({ identity: queuedIdentity, title: queuedTitle })
+      .please();
     const accepted = JSON.parse((await accept(server, request)).body) as {
       attempt: { id: string };
     };

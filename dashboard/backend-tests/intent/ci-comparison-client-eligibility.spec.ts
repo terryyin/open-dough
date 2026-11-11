@@ -10,7 +10,9 @@ for (const reason of [
 ]) {
   test(`unavailable discovery suppresses every endpoint proof: ${reason}`, async () => {
     const facts = preparedComparison();
-    const slot = { kind: "unavailable" as const, explanation: reason };
+    const slot = makeMe.aStoryCiComparisonSlot
+      .with({ kind: "unavailable" as const, explanation: reason })
+      .please();
     const answer = makeMe.aStoryCiComparison
       .with({ ...facts.answer, baseline: slot, branch: slot, landed: slot })
       .please();
@@ -42,38 +44,54 @@ test("only the unambiguous Baseline adapter attempt is read and its invalid proo
   const answer = makeMe.aStoryCiComparison
     .with({
       ...facts.answer,
-      baseline: {
-        ...facts.answer.baseline,
-        runBranch: "main",
-        adapterAttempt: { runId: "pipeline", attemptId: "1" },
-      },
-      branch: {
-        ...facts.answer.branch,
-        runBranch: "main",
-        adapterAttempt: { runId: "pipeline", attemptId: "2", ambiguous: true },
-      },
-      landed: {
-        ...facts.answer.landed,
-        revision: "b".repeat(40),
-        runBranch: "main",
-        adapterAttempt: { runId: "pipeline", attemptId: "2", ambiguous: true },
-      },
+      baseline: makeMe.aStoryCiComparisonSlot
+        .with({
+          ...facts.answer.baseline,
+          runBranch: "main",
+          adapterAttempt: { runId: "pipeline", attemptId: "1" },
+        })
+        .please(),
+      branch: makeMe.aStoryCiComparisonSlot
+        .with({
+          ...facts.answer.branch,
+          runBranch: "main",
+          adapterAttempt: {
+            runId: "pipeline",
+            attemptId: "2",
+            ambiguous: true,
+          },
+        })
+        .please(),
+      landed: makeMe.aStoryCiComparisonSlot
+        .with({
+          ...facts.answer.landed,
+          revision: "b".repeat(40),
+          runBranch: "main",
+          adapterAttempt: {
+            runId: "pipeline",
+            attemptId: "2",
+            ambiguous: true,
+          },
+        })
+        .please(),
     })
     .please();
   const client = ciComparisonClient(facts.source, (query) =>
     Response.json(
       query.get("intent") === "ci-comparison"
         ? answer
-        : {
-            runId: "pipeline",
-            attemptId: "1",
-            branch: "main",
-            revision: "a".repeat(40),
-            checkedAt: facts.answer.checkedAt,
-            proof: makeMe.aCiProof
-              .unavailable("invalid", "schemaVersion is not 1 or 2")
-              .please(),
-          },
+        : makeMe.anIntentCiProofAnswer
+            .with({
+              runId: "pipeline",
+              attemptId: "1",
+              branch: "main",
+              revision: "a".repeat(40),
+              checkedAt: facts.answer.checkedAt,
+              proof: makeMe.aCiProof
+                .unavailable("invalid", "schemaVersion is not 1 or 2")
+                .please(),
+            })
+            .please(),
     ),
   );
   try {

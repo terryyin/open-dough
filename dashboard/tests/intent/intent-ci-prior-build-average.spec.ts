@@ -90,19 +90,25 @@ test("project history explains its five-build average, strict slow exclusion and
       .deliveredAs({ delivery: facts.receipt, receipt: facts.receipt })
       .receivedAt(facts.at)
       .please();
-    retained.recording(landing, `run/${run.id}/1`, {
-      revision: facts.revision,
-      state: "pass",
-      runId: run.id,
-      runAttempt: 1,
-      runUrl: run.url,
-      startedAt: run.startedAt,
-      completedAt: run.completedAt,
-      proof: makeMe.aCiProof
-        .forRun({ revision: facts.revision, runId: run.id })
-        .entries([makeMe.aCiProofEntry.at("tests").counting(2).please()])
+    retained.recording(
+      landing,
+      `run/${run.id}/1`,
+      makeMe.aKeptBuild
+        .with({
+          revision: facts.revision,
+          state: "pass",
+          runId: run.id,
+          runAttempt: 1,
+          runUrl: run.url,
+          startedAt: run.startedAt,
+          completedAt: run.completedAt,
+          proof: makeMe.aCiProof
+            .forRun({ revision: facts.revision, runId: run.id })
+            .entries([makeMe.aCiProofEntry.at("tests").counting(2).please()])
+            .please(),
+        })
         .please(),
-    });
+    );
   }
   // Settled background history is the starting precondition; only the new
   // selected landing needs collection in this comparison journey.

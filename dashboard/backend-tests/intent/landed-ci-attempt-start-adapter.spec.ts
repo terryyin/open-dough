@@ -56,15 +56,17 @@ test("legacy adapter timing refreshes the original opaque attempt, never the new
     runId: original.runId,
     attemptId: original.attemptId,
   };
-  const build = {
-    revision: recorded.revision,
-    state: "pass" as const,
-    adapterAttempt,
-    runUrl: "https://ci.invalid/builds/original",
-    startedAt: "2026-11-05T10:00:00Z",
-    completedAt: original.completedAt,
-    timingBasis: undefined,
-  };
+  const build = makeMe.aKeptBuild
+    .with({
+      revision: recorded.revision,
+      state: "pass" as const,
+      adapterAttempt,
+      runUrl: "https://ci.invalid/builds/original",
+      startedAt: "2026-11-05T10:00:00Z",
+      completedAt: original.completedAt,
+      timingBasis: undefined,
+    })
+    .please();
   keepLandedCiHistory(
     home,
     makeMe.aLandedCiHistory

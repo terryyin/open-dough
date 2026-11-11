@@ -5,6 +5,7 @@
 // to this chain, which a prepared or prebuilt deployment would bypass. Setup
 // and waits around the activations stay open to improvement.
 import { expect, test } from "../support/pageTest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { processRunning } from "../support/processGroup.ts";
@@ -68,12 +69,11 @@ test("a commit held in its build is served exactly at the same URL while the nex
   const { fixture, page, watcher, hosts } = state;
   hosts.claude.controls.claudeScenario("held");
   const launchesBefore = hosts.claude.controls.claudeLaunchCalls().length;
-  const launch = {
-    source: "open-dough",
-    workflow: "ad-hoc",
-    host: "claude",
-    instruction: "Keep this accepted start through the dashboard update.",
-  };
+  const launch = makeMe.aLaunchRequest
+    .adHoc({
+      instruction: "Keep this accepted start through the dashboard update.",
+    })
+    .please();
   const start = (data = launch) =>
     request.post(`${state.served.url}/__agent-launch/accept`, {
       headers: { Origin: state.served.url },

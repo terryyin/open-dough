@@ -31,7 +31,9 @@ export function proofRun(
   revision: string,
   attempt = 1,
 ): ProofRun {
-  return { repository, runId, attempt, revision };
+  return makeMe.aCiProofCollectorRun
+    .with({ repository, runId, attempt, revision })
+    .please();
 }
 
 const slowerMs = {

@@ -16,6 +16,7 @@ import {
   launchRecordsSchema,
 } from "../../src/agentLaunch.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
 // Stand-in host inspection-args UI: dashboard/frontend-tests/agent-launch-creation-gates.spec.ts.
@@ -29,11 +30,9 @@ test("unreadable evidence refuses Codex before native creation but admits Claude
     throw new Error("Missing native machine fixture.");
   const unreadable = "{ unreadable launch evidence";
   keepLaunchStoreText(machineHome(machine), unreadable);
-  const request = {
-    source: "open-dough",
-    workflow: "ad-hoc",
-    instruction: "Inspect safely.",
-  };
+  const request = makeMe.aLaunchRequest
+    .adHoc({ instruction: "Inspect safely." })
+    .please();
   const refused = JSON.parse(
     (await launch(dashboard, { ...request, host: "codex" })).body,
   ) as { kind: string; reason?: string; explanation: string };
@@ -64,20 +63,18 @@ test("a saved creation whose host lacks recovery stays visible with unavailable 
   launchJourney,
 }) => {
   if (machine === undefined) throw new Error("Missing machine fixture.");
-  const record: CreationRecord = {
-    request: {
-      source: "open-dough",
-      host: "claude",
-      workflow: "ad-hoc",
+  const record: CreationRecord = makeMe.aCreationRecord
+    .adHoc({
       title: "Unsupported recovery",
       instruction: "Inspect.",
-    },
-    creation: {
+      host: "claude",
+    })
+    .unresolved({
       workspace: "/saved workspace",
       endpoint: "unix:///saved endpoint",
-    },
-    launchedAt: "2026-10-01T00:00:00.000Z",
-  };
+    })
+    .launchedAt("2026-10-01T00:00:00.000Z")
+    .please();
   keepLaunchStore(machineHome(machine), {
     "open-dough": [record],
   });

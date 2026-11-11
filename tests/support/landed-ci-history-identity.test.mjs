@@ -21,14 +21,16 @@ test("a supported legacy exact adapter build is retained once when new equivalen
     .forAdapter({ revision: a.revision, attemptId })
     .entries([makeMe.aCiProofEntry.at("tests").timed(1200).please()])
     .please();
-  const build = {
-    revision: a.revision,
-    state: "pass",
-    adapterAttempt: { runId: "run/a", attemptId },
-    startedAt: "2026-11-05T10:00:00Z",
-    completedAt: "2026-11-05T10:01:00Z",
-    proof,
-  };
+  const build = makeMe.aKeptBuild
+    .with({
+      revision: a.revision,
+      state: "pass",
+      adapterAttempt: { runId: "run/a", attemptId },
+      startedAt: "2026-11-05T10:00:00Z",
+      completedAt: "2026-11-05T10:01:00Z",
+      proof,
+    })
+    .please();
   const history = makeMe.aLandedCiHistory
     .recording(a, `attempt/${attemptId}`, build)
     .inTrunkOrder([a.revision, p.revision, later.revision])
@@ -94,13 +96,15 @@ test("legacy adapter collisions retain the compatible exact build and explain mi
     .forAdapter({ revision: b.revision, attemptId: "reused" })
     .entries([makeMe.aCiProofEntry.at("tests").timed(3400).please()])
     .please();
-  const build = {
-    revision: b.revision,
-    state: "pass",
-    adapterAttempt: { runId: "later-run", attemptId: "reused" },
-    startedAt: "2026-11-06T10:00:00Z",
-    proof,
-  };
+  const build = makeMe.aKeptBuild
+    .with({
+      revision: b.revision,
+      state: "pass",
+      adapterAttempt: { runId: "later-run", attemptId: "reused" },
+      startedAt: "2026-11-06T10:00:00Z",
+      proof,
+    })
+    .please();
   const history = makeMe.aLandedCiHistory
     .recording(a, "attempt/reused", build)
     .recording(b, "attempt/reused", build)
@@ -151,17 +155,19 @@ for (const variant of ["ambiguous", "mismatched-proof"]) {
       })
       .entries([makeMe.aCiProofEntry.at("tests").timed(1200).please()])
       .please();
-    const build = {
-      revision: a.revision,
-      state: "pass",
-      adapterAttempt: {
-        runId: "run",
-        attemptId: "old",
-        ...(variant === "ambiguous" ? { ambiguous: true } : {}),
-      },
-      startedAt: "2026-11-05T10:00:00Z",
-      proof,
-    };
+    const build = makeMe.aKeptBuild
+      .with({
+        revision: a.revision,
+        state: "pass",
+        adapterAttempt: {
+          runId: "run",
+          attemptId: "old",
+          ...(variant === "ambiguous" ? { ambiguous: true } : {}),
+        },
+        startedAt: "2026-11-05T10:00:00Z",
+        proof,
+      })
+      .please();
     const history = makeMe.aLandedCiHistory
       .recording(a, "attempt/old", build)
       .inTrunkOrder([a.revision])

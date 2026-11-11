@@ -72,12 +72,14 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
           completedAt: "2026-11-05T10:06:05Z",
         })
         .please();
-      const proofRun = {
-        repository: "terryyin/open-dough",
-        runId: 41,
-        attempt: 1,
-        revision: main,
-      };
+      const proofRun = makeMe.aCiProofCollectorRun
+        .with({
+          repository: "terryyin/open-dough",
+          runId: 41,
+          attempt: 1,
+          revision: main,
+        })
+        .please();
       if (call.request.kind === "actions-run-artifacts")
         return runArtifactsAnswer(proofRun, 901, proofState === "expired");
       if (call.request.kind === "actions-artifact-zip") {

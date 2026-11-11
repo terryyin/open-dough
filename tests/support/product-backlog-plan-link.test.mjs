@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
+import { renderEntry } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   backlogOf,
   direction,
@@ -28,10 +29,8 @@ import {
 const planPath = "slice-plans/075-example/PLAN.md";
 const sectionLink = `${planPath}#ordered-slices`;
 const otherPlan = "slice-plans/075-other/PLAN.md";
-const firstLine =
-  "- [First story](seeds/SEED-021-two-stories.md#first-story) — SEED-021#first-story";
-const secondLine =
-  "- [Second story](seeds/SEED-021-two-stories.md#second-story) — SEED-021#second-story";
+const firstLine = renderEntry(first);
+const secondLine = renderEntry(second);
 const planned = {
   refinement: "refined",
   approach: "planned",

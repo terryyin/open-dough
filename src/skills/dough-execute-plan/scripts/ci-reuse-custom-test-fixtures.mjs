@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import assert from "node:assert/strict";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { exec, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import { git } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { publishHistoryPreservingCandidate } from "./history-preserving-publication.mjs";
@@ -14,39 +15,52 @@ import { createReuseCheckCommands } from "./ci-reuse-check-command-test-fixtures
 export async function installCustomReuseProvider(fixture) {
   Object.assign(fixture, { env: workerPollingEnvironment(fixture.env) });
   Object.assign(fixture.requestBase, { env: fixture.env });
-  const policy = {
-    repo: "owner/project",
-    workflow: "project-checks",
-    unit: "covered",
-    configuration: "checks-v1",
-    context: "inputs-v1",
-    targetRef: "main",
-    refs: ["exec/story", "main"],
-    events: ["push"],
-    maxAgeMs: 3600000,
-  };
+  const policy = makeMe.aCiReusePolicy
+    .with({
+      repo: "owner/project",
+      workflow: "project-checks",
+      unit: "covered",
+      configuration: "checks-v1",
+      context: "inputs-v1",
+      targetRef: "main",
+      refs: ["exec/story", "main"],
+      events: ["push"],
+      maxAgeMs: 3600000,
+    })
+    .please();
   const checks = createReuseCheckCommands(fixture, policy);
   const state = join(fixture.fixture, "custom-provider.json");
   const script = join(fixture.skill, "scripts/ci-reuse-custom-example.mjs");
   const command = [process.execPath, script, "adapter", state];
   writeFileSync(
     join(fixture.execution, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: command }),
+    JSON.stringify(
+      makeMe.projectCiSettings.with({ ciAdapter: command }).please(),
+    ),
   );
   let sequence = 0;
   const schedule = async (mode, sha, options = {}) => {
     const job = join(fixture.fixture, "custom-job.json");
+    // Domain identity and policy through MakeMe; covered/target commands and
+    // fresh override stay harness-owned schedule inputs.
     writeFileSync(
       job,
       JSON.stringify({
-        repo: policy.repo,
-        workflow: policy.workflow,
-        ref: options.ref ?? (mode === "source" ? "exec/story" : "main"),
-        event: "push",
-        sha,
-        // Deliberately reverse lexical/numeric-looking identity order.
-        runId: options.runId ?? `${mode}/opaque:${1000 - sequence++}`,
-        attemptId: options.attemptId ?? "try:alpha",
+        ...makeMe.aCiReuseAttempt
+          .with({
+            repo: policy.repo,
+            workflow: policy.workflow,
+            unit: policy.unit,
+            configuration: policy.configuration,
+            context: policy.context,
+            sha,
+            ref: options.ref ?? (mode === "source" ? "exec/story" : "main"),
+            event: "push",
+            // Deliberately reverse lexical/numeric-looking identity order.
+            runId: options.runId ?? `${mode}/opaque:${1000 - sequence++}`,
+            attemptId: options.attemptId ?? "try:alpha",
+          })
+          .please(),
         policy: options.noPolicy ? undefined : policy,
         covered: options.covered ?? checks.coveredCommand(sha, options.failed),
         targetOnly: checks.targetOnlyCommand(sha, options.targetFailed),

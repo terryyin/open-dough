@@ -16,6 +16,7 @@ import {
   awaitWorkerSignal,
   deferObserverStop,
 } from "./watch-ci-test-fixtures.mjs";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 const exec = promisify(execFile);
 
@@ -84,31 +85,39 @@ test("worktree launch observes target-branch final SHA and ignores old coverage"
   await register(claimSha);
   await register(finalSha);
   fixture.publishAttempts([
-    {
-      runId: "run:old",
-      attemptId: "old",
-      sha: oldSha,
-      outcome: "failure",
-    },
-    {
-      runId: "run:sibling",
-      attemptId: "other",
-      sha: siblingSha,
-      outcome: "failure",
-    },
-    {
-      runId: "run:final",
-      attemptId: "ours",
-      sha: finalSha,
-      outcome: "failure",
-      url: "https://ci.example.test/run/final",
-    },
-    {
-      runId: "run:claim",
-      attemptId: "claim",
-      sha: claimSha,
-      outcome: "success",
-    },
+    makeMe.aCiAdapterAttempt
+      .with({
+        runId: "run:old",
+        attemptId: "old",
+        sha: oldSha,
+        outcome: "failure",
+      })
+      .please(),
+    makeMe.aCiAdapterAttempt
+      .with({
+        runId: "run:sibling",
+        attemptId: "other",
+        sha: siblingSha,
+        outcome: "failure",
+      })
+      .please(),
+    makeMe.aCiAdapterAttempt
+      .with({
+        runId: "run:final",
+        attemptId: "ours",
+        sha: finalSha,
+        outcome: "failure",
+        url: "https://ci.example.test/run/final",
+      })
+      .please(),
+    makeMe.aCiAdapterAttempt
+      .with({
+        runId: "run:claim",
+        attemptId: "claim",
+        sha: claimSha,
+        outcome: "success",
+      })
+      .please(),
   ]);
   fixture.releaseDiscovery();
 

@@ -9,7 +9,9 @@ import type { CiProofRun } from "../../src/ciProof.ts";
 
 export const repository = "example/project";
 export const revision = "a".repeat(40);
-export const run = { runId: 1, runAttempt: 1, revision };
+export const run = makeMe.aCiProofRun
+  .with({ runId: 1, runAttempt: 1, revision })
+  .please();
 export const signal = () => new AbortController().signal;
 export const archiveOf = (summary: unknown) =>
   zipOf("ci-proof-summary.json", JSON.stringify(summary));
@@ -24,9 +26,11 @@ export function configuredAdapter() {
   const described = makeMe.aRepository
     .withRevision("configured", {
       files: {
-        ".planning/open-dough.json": JSON.stringify({
-          ciAdapter: ["adapter", "proof"],
-        }),
+        ".planning/open-dough.json": JSON.stringify(
+          makeMe.projectCiSettings
+            .with({ ciAdapter: ["adapter", "proof"] })
+            .please(),
+        ),
       },
     })
     .please();

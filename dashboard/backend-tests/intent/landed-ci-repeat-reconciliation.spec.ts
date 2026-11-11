@@ -124,16 +124,22 @@ test("new current reference and history eviction cannot rewrite the frozen decis
         delivery: "00000000-0000-4000-8000-000000000001",
       })
       .please();
-    builder.recording(landing, retained.observed.build, {
-      ...build,
-      ...(build.runId === 71
-        ? {}
-        : {
-            completedAt: new Date(
-              Date.parse(build.startedAt) + 300000,
-            ).toISOString(),
-          }),
-    });
+    builder.recording(
+      landing,
+      retained.observed.build,
+      makeMe.aKeptBuild
+        .with({
+          ...build,
+          ...(build.runId === 71
+            ? {}
+            : {
+                completedAt: new Date(
+                  Date.parse(build.startedAt) + 300000,
+                ).toISOString(),
+              }),
+        })
+        .please(),
+    );
   }
   keepLandedCiHistory(server.home, builder.please());
   await expect

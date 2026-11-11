@@ -77,17 +77,19 @@ export const usable = async () => undefined;
 export const absent = (reason) => ({ kind: "unavailable", reason });
 
 export function run(sha, id, conclusion, extra = {}) {
-  return {
-    databaseId: id,
-    attempt: 1,
-    headSha: sha,
-    status: "completed",
-    conclusion,
-    createdAt: "2026-11-05T12:00:00Z",
-    startedAt: "2026-11-05T12:00:00Z",
-    completedAt: "2026-11-05T12:03:00Z",
-    ...extra,
-  };
+  return makeMe.aCiRun
+    .with({
+      databaseId: id,
+      attempt: 1,
+      headSha: sha,
+      status: "completed",
+      conclusion,
+      createdAt: "2026-11-05T12:00:00Z",
+      startedAt: "2026-11-05T12:00:00Z",
+      completedAt: "2026-11-05T12:03:00Z",
+      ...extra,
+    })
+    .please();
 }
 
 export function lookupOf(runs) {
@@ -121,9 +123,12 @@ export function sourceFor(repo, lookup) {
 
 // The landing's own run `runId` at `revision`, as Landed names it when it
 // could not use it: its exact build.
-export const ownBuild = (revision, runId) => ({
-  revision,
-  selection: "exact",
-  runId,
-  runAttempt: 1,
-});
+export const ownBuild = (revision, runId) =>
+  makeMe.anUnusableBuild
+    .with({
+      revision,
+      selection: "exact",
+      runId,
+      runAttempt: 1,
+    })
+    .please();

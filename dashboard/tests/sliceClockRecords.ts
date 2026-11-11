@@ -5,6 +5,7 @@
 // time.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type {
   AgentProfile,
@@ -41,18 +42,18 @@ export const planPath = (anchor: string) =>
 export const profilePath = (agent: string) =>
   `.planning/agents/${agent.toLowerCase()}-chan.json`;
 
+const entries = stories.map(({ title, anchor }) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: `SEED-091#${anchor}`,
+      href: `seeds/SEED-091-clock.md#${anchor}`,
+      title,
+    })
+    .please(),
+);
 const seed = `# Slice clock fixture
 
-${stories
-  .map(
-    ({ title, anchor }) => `<a id="${anchor}"></a>
-
-### ${title}
-
-**Identity:** SEED-091#${anchor}
-`,
-  )
-  .join("\n")}`;
+${entries.map((entry) => renderStorySection(entry)).join("\n")}`;
 
 const plan = renderSlicePlan(
   makeMe.aSlicePlan
@@ -90,15 +91,7 @@ export function clockedFacts({
 } = {}): RevisionFacts {
   return {
     backlog: {
-      taken: stories.map(({ title, anchor }) =>
-        makeMe.aBacklogEntry
-          .with({
-            identity: `SEED-091#${anchor}`,
-            href: `seeds/SEED-091-clock.md#${anchor}`,
-            title,
-          })
-          .please(),
-      ),
+      taken: entries,
       queued,
     },
     files: {

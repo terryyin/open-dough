@@ -5,6 +5,7 @@
 // the saved theme, is ../../backend-tests/configuration/terminal-theme-boundary.spec.ts.
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../support/pageTest.ts";
 import { systemSettingsMachine } from "../support/systemSettingsMachine.ts";
 import { rawRequest } from "../support/rawHttp.ts";
@@ -41,7 +42,12 @@ test("an unreadable or unknown saved terminal theme is a read problem shown in S
   writeFileSync(file, "{");
   await alert.getByRole("button", { name: "Retry", exact: true }).click();
   await expect(alert).toContainText("could not be read");
-  writeFileSync(file, '{"theme":"light"}\n');
+  writeFileSync(
+    file,
+    `${JSON.stringify(
+      makeMe.aTerminalThemeSetting.with({ theme: "light" }).please(),
+    )}\n`,
+  );
   await alert.getByRole("button", { name: "Retry", exact: true }).click();
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(themeChoice(page).locator("option:checked")).toHaveText("Light");

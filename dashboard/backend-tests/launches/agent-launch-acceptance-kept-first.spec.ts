@@ -10,11 +10,7 @@ import { queuedReadyRepository } from "../../../tests/support/queued-repository.
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import {
-  accept,
-  attempts,
-  launchRequest,
-} from "../../tests/agentLaunchBoundary.ts";
+import { accept, attempts } from "../../tests/agentLaunchBoundary.ts";
 import {
   keptAttempts as keptOfMachine,
   ownedRunning,
@@ -31,12 +27,11 @@ import {
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
 import { fsPromisesHook } from "../../tests/support/serverFsHook.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 
 test.describe("an accepted launch whose change is being kept", () => {
   let origin: StartOrigin;

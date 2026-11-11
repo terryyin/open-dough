@@ -98,16 +98,18 @@ export function scopePriorReferenceHistory(
         .receivedAt("2026-11-07T10:10:00Z")
         .please(),
       "run/103/1",
-      {
-        revision: setup.completion,
-        state: "pass",
-        runId: 103,
-        runAttempt: 1,
-        runUrl: "https://ci.invalid/runs/103",
-        startedAt: "2026-11-07T10:00:00Z",
-        completedAt: "2026-11-07T10:01:00Z",
-        proof: options.selectedProof,
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision: setup.completion,
+          state: "pass",
+          runId: 103,
+          runAttempt: 1,
+          runUrl: "https://ci.invalid/runs/103",
+          startedAt: "2026-11-07T10:00:00Z",
+          completedAt: "2026-11-07T10:01:00Z",
+          proof: options.selectedProof,
+        })
+        .please(),
     );
   }
   return history.please();

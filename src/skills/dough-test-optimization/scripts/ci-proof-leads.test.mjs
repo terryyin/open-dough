@@ -186,7 +186,9 @@ test("with no successful attempt, the newest failed one is read and its failed a
     t,
     project,
   );
-  const run = { runId: 42, runAttempt: 2, revision: revisions.requested };
+  const run = makeMe.aCiProofRun
+    .with({ runId: 42, runAttempt: 2, revision: revisions.requested })
+    .please();
   const github = gitHubHolding({
     repository,
     runs: [

@@ -3,15 +3,19 @@
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
 
 export const revision = "a5b0489dd0000000000000000000000000000000";
-export const run = {
-  repository: "owner/repo",
-  runId: 41776408979,
-  attempt: 2,
-  revision,
-};
+export const run = makeMe.aCiProofCollectorRun
+  .with({
+    repository: "owner/repo",
+    runId: 41776408979,
+    attempt: 2,
+    revision,
+  })
+  .please();
 
 export const attemptId = "9f1c2d3e-0000-4000-8000-000000000001";
-export const adapterRun = { repository: "O/P", attemptId, revision };
+export const adapterRun = makeMe.anAdapterProofCollectorAttempt
+  .with({ repository: "O/P", attemptId, revision })
+  .please();
 
 // The fragments VALUES as the collector reads them, named fragment-0.json
 // onward.

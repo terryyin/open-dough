@@ -24,7 +24,6 @@ import {
   attempts,
   keptStarts,
   launch,
-  launchRequest,
   recordsOf,
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
@@ -43,13 +42,12 @@ import {
   type PushHold,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: queuedTitle,
-  instruction: "Keep this exact instruction.",
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .withInstruction("Keep this exact instruction.")
+  .please();
 
 type Answer = {
   kind: string;
@@ -124,7 +122,10 @@ test.describe("an accepted launch", () => {
     expect(await attempts(server)).toEqual([ownedRunning(keptAttempts()[0])]);
 
     // No workflow's launch of the story is accepted while it is unsettled.
-    const refinement = { ...request, workflow: "refinement" };
+    const refinement = makeMe.aLaunchRequest
+      .refining({ identity: queuedIdentity, title: queuedTitle })
+      .withInstruction("Keep this exact instruction.")
+      .please();
     expect(await answerOf(accept(server, refinement))).toEqual(alreadyStarting);
     expect(await answerOf(accept(server, request))).toEqual(alreadyStarting);
     expect(server.claudeCalls()).toEqual([]);

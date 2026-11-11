@@ -1,6 +1,7 @@
 // Reused canonical entry facts; independently written expectations stay in specs.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
+import type { StoryCiComparisonSlot } from "../../src/storyCiComparison.ts";
 import { preparedComparison } from "./comparisonMountFacts.ts";
 
 type EndpointEntries = [CiProofEntry[], CiProofEntry[], CiProofEntry[]];
@@ -26,15 +27,24 @@ export function adapterSlot<T extends object>(
   },
   slotFields: object = {},
 ) {
-  return {
-    ...withoutGithubRunIdentity(slot),
-    runBranch: "main",
-    ...slotFields,
+  return makeMe.aStoryCiComparisonSlot
+    .with({
+      ...withoutGithubRunIdentity(slot),
+      runBranch: "main",
+      ...slotFields,
+      adapterAttempt: {
+        runId: attempt.runId ?? "pipeline",
+        attemptId: attempt.attemptId,
+        ...(attempt.ambiguous === true ? { ambiguous: true as const } : {}),
+      },
+    } as unknown as StoryCiComparisonSlot)
+    .please() as unknown as T & {
+    runBranch: string;
     adapterAttempt: {
-      runId: attempt.runId ?? "pipeline",
-      attemptId: attempt.attemptId,
-      ...(attempt.ambiguous === true ? { ambiguous: true as const } : {}),
-    },
+      runId: string;
+      attemptId: string;
+      ambiguous?: true;
+    };
   };
 }
 
@@ -91,12 +101,15 @@ export function relativeEntryFacts(): EndpointEntries {
 
 export function wallComparedFacts() {
   const facts = preparedComparison();
-  const at = (slot: typeof facts.answer.baseline, durationMs: number) => ({
-    ...slot,
-    completedAt: new Date(
-      Date.parse("2026-11-09T00:00:00Z") + durationMs,
-    ).toISOString(),
-  });
+  const at = (slot: typeof facts.answer.baseline, durationMs: number) =>
+    makeMe.aStoryCiComparisonSlot
+      .with({
+        ...slot,
+        completedAt: new Date(
+          Date.parse("2026-11-09T00:00:00Z") + durationMs,
+        ).toISOString(),
+      })
+      .please() as typeof slot;
   const answer = makeMe.aStoryCiComparison
     .with({
       ...facts.answer,

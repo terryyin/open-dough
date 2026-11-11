@@ -27,12 +27,14 @@ import type { ProofRun } from "./support/ciProofArtifacts.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 import { intentSettingsText } from "./support/intentSettingsFile.ts";
 
-export const run: ProofRun = {
-  repository: openDough.repository,
-  runId: 41,
-  attempt: 1,
-  revision: judged,
-};
+export const run: ProofRun = makeMe.aCiProofCollectorRun
+  .with({
+    repository: openDough.repository,
+    runId: 41,
+    attempt: 1,
+    revision: judged,
+  })
+  .please();
 export const artifactId = 9041;
 export const failedVerdict = "Failed at a1b2c3d (Add login)";
 

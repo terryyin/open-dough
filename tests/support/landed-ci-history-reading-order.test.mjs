@@ -72,27 +72,35 @@ test("one attempt keeps exact and equivalent represented landings at its first a
   const b = landing("b2".repeat(20), "b", "2026-11-30T00:00:00Z");
   const c = landing("c3".repeat(20), "c", "2026-11-02T00:00:00Z");
   const d = landing("d4".repeat(20), "d", "2026-11-01T00:00:00Z");
-  const build = {
-    revision: a.revision,
-    state: "pass",
-    runId: 21,
-    runAttempt: 1,
-    startedAt: "2026-11-09T10:00:00Z",
-    completedAt: "2026-11-09T10:01:00Z",
-  };
+  const build = makeMe.aKeptBuild
+    .with({
+      revision: a.revision,
+      state: "pass",
+      runId: 21,
+      runAttempt: 1,
+      startedAt: "2026-11-09T10:00:00Z",
+      completedAt: "2026-11-09T10:01:00Z",
+    })
+    .please();
   const history = makeMe.aLandedCiHistory
     .inTrunkOrder([a.revision, b.revision, c.revision, d.revision])
     .recording(a, "run/21/1", build)
     .gap(b, "CI did not build this recorded landing.", "no-build")
     .recording(c, "run/21/1", build, "equivalent")
-    .recording(d, "run/24/1", {
-      revision: d.revision,
-      state: "pass",
-      runId: 24,
-      runAttempt: 1,
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:02:00Z",
-    })
+    .recording(
+      d,
+      "run/24/1",
+      makeMe.aKeptBuild
+        .with({
+          revision: d.revision,
+          state: "pass",
+          runId: 24,
+          runAttempt: 1,
+          startedAt: "2026-11-05T10:00:00Z",
+          completedAt: "2026-11-05T10:02:00Z",
+        })
+        .please(),
+    )
     .please();
 
   const entries = historyEntries(history);

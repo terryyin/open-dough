@@ -14,6 +14,7 @@ import { publishes } from "../support/fakeGitHub.ts";
 import { describedRevision } from "../describedRevisions.ts";
 import { backlogPath } from "../publishedOrigin.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { heldInTurn } from "../support/heldGitHubAnswer.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
@@ -30,31 +31,27 @@ function project(name: string, revision: string) {
   const files: Record<string, string> = {
     ".planning/open-dough.json": "{}\n",
   };
-  titles.forEach((title, index) => {
+  const queued = titles.map((title, index) =>
+    makeMe.aBacklogEntry
+      .with({
+        identity: `SEED-${String(900 + index)}#story`,
+        title,
+        href: `${seed(index)}#story`,
+      })
+      .please(),
+  );
+  queued.forEach((entry, index) => {
     files[`.planning/${seed(index)}`] = `# ${name}
 
-<a id="story"></a>
-
-### ${title}
-
-**Identity:** SEED-${String(900 + index)}#story
-
-**Goal:** ${title} is read once its turn comes.
-`;
+${renderStorySection(entry, {
+  goal: `${entry.title} is read once its turn comes.`,
+})}`;
   });
   const published = describedRevision(
     makeMe.aRepository
       .withRevision("published", {
         backlog: {
-          queued: titles.map((title, index) =>
-            makeMe.aBacklogEntry
-              .with({
-                identity: `SEED-${String(900 + index)}#story`,
-                title,
-                href: `${seed(index)}#story`,
-              })
-              .please(),
-          ),
+          queued,
         },
         files,
       })

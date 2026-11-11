@@ -7,6 +7,7 @@
 // story's profile and re-add it with identical text, by another human.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import {
@@ -45,18 +46,18 @@ export const titleOf = (agent: string) => `Credit kept for ${agent}`;
 const anchorOf = (agent: string) => agent.toLowerCase();
 export const planned = "Yua";
 
+const entries = agents.map((agent) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: `SEED-281#${anchorOf(agent)}`,
+      href: `seeds/SEED-281-credit.md#${anchorOf(agent)}`,
+      title: titleOf(agent),
+    })
+    .please(),
+);
 const seed = `# Credit fixture
-${agents
-  .map(
-    (agent) => `
-<a id="${anchorOf(agent)}"></a>
 
-### ${titleOf(agent)}
-
-**Identity:** SEED-281#${anchorOf(agent)}
-`,
-  )
-  .join("")}`;
+${entries.map((entry) => renderStorySection(entry)).join("\n")}`;
 
 const agentProfileOf = (agent: string, host = "claude") =>
   makeMe.anAgentProfile
@@ -75,15 +76,7 @@ const published = describedRevisions(
   makeMe.aRepository
     .withRevision("A", {
       backlog: {
-        taken: agents.map((agent) =>
-          makeMe.aBacklogEntry
-            .with({
-              identity: `SEED-281#${anchorOf(agent)}`,
-              href: `seeds/SEED-281-credit.md#${anchorOf(agent)}`,
-              title: titleOf(agent),
-            })
-            .please(),
-        ),
+        taken: entries,
       },
       files: {
         [seedPath]: seed,

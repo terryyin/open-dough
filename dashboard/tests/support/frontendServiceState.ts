@@ -14,28 +14,38 @@ import {
   testOptimizationCandidatesPath,
 } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 
 export const frontendRevision = openDough.revision;
 
-export const openDoughSource: PublishedSource = {
-  id: "open-dough",
-  label: "Open Dough",
-  repository: openDough.repository,
-  ref: openDough.ref,
-  backlogPath: ".planning/PRODUCT-BACKLOG.md",
-};
+export const openDoughSource: PublishedSource = makeMe.aPublishedSource
+  .with({
+    id: "open-dough",
+    label: "Open Dough",
+    repository: openDough.repository,
+    ref: openDough.ref,
+  })
+  .please();
 
-export const doughnutSource: PublishedSource = {
-  id: "doughnut",
-  label: "Doughnut",
-  repository: "nerds-odd-e/doughnut",
-  ref: "main",
-  backlogPath: ".planning/PRODUCT-BACKLOG.md",
-};
+export const doughnutSource: PublishedSource = makeMe.aPublishedSource
+  .with({
+    id: "doughnut",
+    label: "Doughnut",
+    repository: "nerds-odd-e/doughnut",
+  })
+  .please();
 
 const story = (title: string, identity: string, href: string) =>
   makeMe.aBacklogEntry.with({ identity, title, href }).please();
+
+const taken = story(takenStory, "SEED-A#a", "seeds/SEED-A-taken.md#a");
+const ready = story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b");
+const notRefined = story(
+  notRefinedStory,
+  "SEED-C#c",
+  "seeds/SEED-C-queued.md#c",
+);
 
 // The project the page reads on open: one Taken and two queued stories with
 // their seeds, a direction, Intent settings, and test-optimization candidates.
@@ -45,18 +55,21 @@ const frontendPublished = backlogApart(
       .withRevision("frontend", {
         backlog: {
           direction: "Frontend substitute direction.",
-          taken: [story(takenStory, "SEED-A#a", "seeds/SEED-A-taken.md#a")],
-          queued: [
-            story(readyStory, "SEED-B#b", "seeds/SEED-B-ready.md#b"),
-            story(notRefinedStory, "SEED-C#c", "seeds/SEED-C-queued.md#c"),
-          ],
+          taken: [taken],
+          queued: [ready, notRefined],
         },
         files: {
           [testOptimizationCandidatesPath]: openDoughCandidatesRecord,
           ".planning/open-dough.json": intentSettingsText(openDoughSettings),
-          ".planning/seeds/SEED-A-taken.md": `# Taken\n\n<a id="a"></a>\n\n### ${takenStory}\n\n**Identity:** SEED-A#a\n`,
-          ".planning/seeds/SEED-B-ready.md": `# Ready\n\n<a id="b"></a>\n\n### ${readyStory}\n\n**Identity:** SEED-B#b\n\n**Goal:** Ready goal.\n`,
-          ".planning/seeds/SEED-C-queued.md": `# Queued\n\n<a id="c"></a>\n\n### ${notRefinedStory}\n\n**Identity:** SEED-C#c\n`,
+          ".planning/seeds/SEED-A-taken.md": `# Taken
+
+${renderStorySection(taken)}`,
+          ".planning/seeds/SEED-B-ready.md": `# Ready
+
+${renderStorySection(ready, { goal: "Ready goal." })}`,
+          ".planning/seeds/SEED-C-queued.md": `# Queued
+
+${renderStorySection(notRefined)}`,
         },
       })
       .please(),
@@ -106,7 +119,9 @@ export function defaultFrontendServiceState(
       candidates: openDoughCandidatesRecord,
     },
     machine: options.machine ?? makeMe.aMachineAnswer.please(),
-    hostStatus: { cpuPercent: 12, freeBytes: 64_000_000_000 },
+    hostStatus: makeMe.aHostStatus
+      .with({ cpuPercent: 12, freeBytes: 64_000_000_000 })
+      .please(),
     hostOptions: { models: [] },
   };
 }

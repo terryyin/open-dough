@@ -56,11 +56,7 @@ test.describe("a scoped record dropped by retention expiry", () => {
     // its saved conversation under `chats`.
     const sharedConfigDir = path.join(machine, "shared-cursor-config");
     mkdirSync(path.join(sharedConfigDir, "chats"), { recursive: true });
-    const sharedConfig = `${JSON.stringify({
-      model: "auto",
-      hasChangedDefaultModel: false,
-      fixtureSetting: "from-shared-config",
-    })}\n`;
+    const sharedConfig = `${JSON.stringify(makeMe.aCursorCliConfig.please())}\n`;
     writeFileSync(path.join(sharedConfigDir, "cli-config.json"), sharedConfig);
     const savedConversation = path.join(
       sharedConfigDir,
@@ -82,11 +78,7 @@ test.describe("a scoped record dropped by retention expiry", () => {
       mkdirSync(scope, { recursive: true });
       writeFileSync(
         path.join(scope, "cli-config.json"),
-        `${JSON.stringify({
-          model,
-          hasChangedDefaultModel: true,
-          fixtureSetting: "from-shared-config",
-        })}\n`,
+        `${JSON.stringify(makeMe.aCursorCliConfig.withModel(model).please())}\n`,
       );
       symlinkSync(
         path.join(sharedConfigDir, "chats"),

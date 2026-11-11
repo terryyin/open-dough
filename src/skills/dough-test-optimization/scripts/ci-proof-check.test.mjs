@@ -11,7 +11,9 @@ import { checkedRetainedSummary, checkedSummary } from "./ci-proof-check.mjs";
 const repository = "owner/repo";
 const revision = "a1b2c3d".padEnd(40, "0");
 const otherRevision = "b".repeat(40);
-const run = { runId: 41, runAttempt: 1, revision };
+const run = makeMe.aCiProofRun
+  .with({ runId: 41, runAttempt: 1, revision })
+  .please();
 
 test("a summary that is not valid by the collector contract is refused with its problems before its identity is compared", () => {
   const summary = makeMe.aCiProofSummary
@@ -70,7 +72,9 @@ test("a valid summary is a run attempt's only when it names its repository in an
 });
 
 test("a valid summary is a CI adapter attempt's only when it names its repository, its attemptId and its revision in either case", () => {
-  const asked = { repository, attemptId: "2", revision };
+  const asked = makeMe.anAdapterProofCollectorAttempt
+    .with({ repository, attemptId: "2", revision })
+    .please();
   const usable = makeMe.aCiProofSummary
     .inRepository(repository)
     .ofAdapterAttempt({ attemptId: "2", revision: revision.toUpperCase() })

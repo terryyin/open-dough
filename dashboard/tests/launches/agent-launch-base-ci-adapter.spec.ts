@@ -25,9 +25,11 @@ function installAdapter(project: string, body: string): void {
   mkdirSync(path.join(project, ".planning"), { recursive: true });
   writeFileSync(
     path.join(project, ".planning", "open-dough.json"),
-    `${JSON.stringify({
-      ciAdapter: [process.execPath, adapterRelative],
-    })}\n`,
+    `${JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapterRelative] })
+        .please(),
+    )}\n`,
   );
 }
 

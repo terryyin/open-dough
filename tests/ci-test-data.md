@@ -41,13 +41,44 @@ timestamp alone. Build an adapter queue entry with
 alone is not a check result. Build a stored revision-coverage record with
 `makeMe.aRevisionCoverage.with({ sha, state, ...facts }).please()` and
 publish arranged starting facts through the real JSON publication seam when
-the consumer reads stored records. Keep discovery input, normalized
-attempts, observed coverage and completion receipts distinct. Keep actual
-Git, adapter programs and response encoding, workers, wake-ups, controlled
-clocks, process lifetime and teardown in the harness. Keep malformed queue
-counterexamples, captured evidence and independently written
-`validated` / `unresolved` expectations outside builders. CI proof
-fragments and summaries use their own builders.
+the consumer reads stored records. Build reuse policy with
+`makeMe.aCiReusePolicy.with({ repo, workflow, unit, configuration, context,
+targetRef, refs, events, maxAgeMs }).please()` and a reuse query attempt with
+`makeMe.aCiReuseAttempt.with({ ...facts }).please()`. Build a project's
+integrated-state completion policy with
+`makeMe.anIntegratedStatePolicy.with({ check, context, jobs }).please()`.
+Build a history-read answered run with
+`makeMe.anAnsweredCiRun.with({ runUrl, runId, runAttempt }).please()`. Keep
+discovery input, normalized attempts, observed coverage and completion
+receipts distinct. Keep actual Git, adapter programs and response encoding,
+mailbox registration, workers, wake-ups, controlled clocks, process lifetime
+and teardown in the harness. Keep malformed queue or reuse counterexamples,
+captured evidence and independently written `validated` / `unresolved`
+expectations outside builders. CI proof fragments and summaries use their
+own builders.
 [Attempt builder](support/ciTimingTestData.mjs) ·
 [Queue builder](support/ciQueueTestData.mjs) ·
-[Coverage builder](support/ciRevisionCoverageTestData.mjs)
+[Coverage builder](support/ciRevisionCoverageTestData.mjs) ·
+[Reuse and policy builders](support/ciReusePolicyTestData.mjs)
+
+Build a retained landed build with
+`makeMe.aKeptBuild.with({ revision, state, runId, ...facts }).please()`
+(attempt-start `timingBasis` is incidental unless the case overrides or clears
+it) and a comparison endpoint slot with
+`makeMe.aStoryCiComparisonSlot.with({ kind, ...facts }).please()`.
+Build an authenticated CI proof endpoint answer with
+`makeMe.anIntentCiProofAnswer.with({ ...subject, checkedAt, proof }).please()`.
+Name a GitHub proof subject with
+`makeMe.aCiProofRun.with({ runId, runAttempt, revision }).please()`,
+an adapter proof subject with
+`makeMe.aCiAdapterProofAttempt.with({ runId, attemptId, branch, revision }).please()`,
+a collector/artifact run with
+`makeMe.aCiProofCollectorRun.with({ repository, runId, attempt, revision }).please()`,
+and a collector adapter attempt with
+`makeMe.anAdapterProofCollectorAttempt.with({ repository, attemptId, revision }).please()`.
+Name an unusable Landed build identity with
+`makeMe.anUnusableBuild.with({ revision, selection, runId, ...facts }).please()`.
+Keep collector fragment values and deliberately invalid wire inputs literal.
+[Comparison answer builders](support/ciComparisonAnswerTestData.mjs) ·
+[Landed history builder](support/landedCiHistoryTestData.mjs) ·
+[Comparison view builders](support/comparisonViewTestData.mjs)

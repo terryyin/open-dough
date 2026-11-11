@@ -17,6 +17,7 @@ import {
   queuedTitle,
   startOrigin,
 } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 for (const expired of [false, true]) {
   test(`post-publication recording failure preserves preparation (${expired ? "slow start" : "ordinary wait"})`, async () => {
@@ -36,13 +37,14 @@ for (const expired of [false, true]) {
       unhandled.push(reason);
     };
     process.on("unhandledRejection", rejected);
-    const request = {
-      source: defaultSource.id,
-      identity: queuedIdentity,
-      title: queuedTitle,
-      workflow: "refinement" as const,
-      host: "codex" as const,
-    };
+    const request = makeMe.aLaunchRequest
+      .refining({
+        identity: queuedIdentity,
+        title: queuedTitle,
+        source: defaultSource.id,
+        host: "codex",
+      })
+      .please();
     const project = { path: origin.project, shown: "~/git/open-dough" };
     const progress = new StartProgress();
     try {

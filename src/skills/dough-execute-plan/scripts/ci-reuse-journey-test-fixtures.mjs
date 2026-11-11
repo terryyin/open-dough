@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { exec, git } from "./publication-test-fixtures.mjs";
 import { publishJson } from "./ci-mailbox-json-file.mjs";
 import { readRevisionCoverage } from "./ci-mailbox.mjs";
@@ -16,17 +17,19 @@ import { coveredJob, sourceRun } from "./ci-reuse-github-test-fixtures.mjs";
 export async function installReuseProvider(fixture) {
   Object.assign(fixture, { env: workerPollingEnvironment(fixture.env) });
   Object.assign(fixture.requestBase, { env: fixture.env });
-  const policy = {
-    repo: "owner/project",
-    workflow: "ci.yml",
-    unit: "covered",
-    configuration: "checks-v1",
-    context: "inputs-v1",
-    targetRef: "main",
-    refs: ["exec/story", "main"],
-    events: ["push"],
-    maxAgeMs: 3600000,
-  };
+  const policy = makeMe.aCiReusePolicy
+    .with({
+      repo: "owner/project",
+      workflow: "ci.yml",
+      unit: "covered",
+      configuration: "checks-v1",
+      context: "inputs-v1",
+      targetRef: "main",
+      refs: ["exec/story", "main"],
+      events: ["push"],
+      maxAgeMs: 3600000,
+    })
+    .please();
   const { count, runCovered, runTargetOnly } = createReuseCheckCommands(
     fixture,
     policy,
@@ -128,17 +131,19 @@ export async function installReuseProvider(fixture) {
       const targetSuccess = await runTargetOnly(sha, targetFailed);
       const runId = `target:opaque/${targets.length}`;
       const report = join(fixture.fixture, `target-${targets.length}.json`);
-      const attempt = {
-        runId,
-        attemptId: "attempt:opaque/target",
-        sha,
-        outcome: cancelled
-          ? "incomplete"
-          : coveredSuccess && targetSuccess
-            ? "success"
-            : "failure",
-        url: pathToFileURL(report).href,
-      };
+      const attempt = makeMe.aCiAdapterAttempt
+        .with({
+          runId,
+          attemptId: "attempt:opaque/target",
+          sha,
+          outcome: cancelled
+            ? "incomplete"
+            : coveredSuccess && targetSuccess
+              ? "success"
+              : "failure",
+          url: pathToFileURL(report).href,
+        })
+        .please();
       writeFileSync(
         report,
         JSON.stringify({ target: attempt, decision }, null, 2),

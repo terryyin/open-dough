@@ -9,11 +9,12 @@ import { readFileSync, realpathSync } from "node:fs";
 import { keptLaunchRecords } from "../support/launchStore.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
 import path from "node:path";
-import { keptStarts, launch, launchRequest } from "../agentLaunchBoundary.ts";
+import { keptStarts, launch } from "../agentLaunchBoundary.ts";
 import { expect } from "../dashboardTest.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   reachKeptStart,
   startAction,
@@ -106,11 +107,9 @@ test("a refused session launch after a published claim answers the Agent and wor
   dashboard,
   origin,
 }) => {
-  const request = {
-    ...launchRequest,
-    identity: queuedIdentity,
-    title: "Story A",
-  };
+  const request = makeMe.aLaunchRequest
+    .executing({ identity: queuedIdentity, title: "Story A" })
+    .please();
   expect(await keptStarts(dashboard)).toEqual([]);
   dashboard.claudeScenario("refused");
   const failed = JSON.parse((await launch(dashboard, request)).body) as {

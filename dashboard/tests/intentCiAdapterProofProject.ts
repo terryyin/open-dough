@@ -108,7 +108,11 @@ process.stdout.write(JSON.stringify(answer));
   );
   writeFileSync(
     path.join(project, ".planning", "open-dough.json"),
-    `${JSON.stringify({ ciAdapter: [process.execPath, adapter] })}\n`,
+    `${JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    )}\n`,
   );
   const requestsFile = path.join(project, "adapter-requests.jsonl");
   writeFileSync(requestsFile, "");

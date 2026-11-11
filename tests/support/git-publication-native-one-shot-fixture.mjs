@@ -120,7 +120,11 @@ if (request.operation === "discover") {
   process.stdout.write(JSON.stringify({ unavailable: "the check never fails" }));
 }
 `,
-  ".planning/open-dough.json": `${JSON.stringify({ ciAdapter: ["node", "scripts/ci-check.mjs"] })}\n`,
+  ".planning/open-dough.json": `${JSON.stringify(
+    makeMe.projectCiSettings
+      .with({ ciAdapter: ["node", "scripts/ci-check.mjs"] })
+      .please(),
+  )}\n`,
 };
 
 const startingTrunk = (

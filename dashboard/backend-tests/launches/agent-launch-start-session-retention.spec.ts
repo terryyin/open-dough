@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // Retention removes only the machine evidence of actually pruned attempts,
 // after a real installed unattached start finishes; Git workspaces remain.
 import { randomUUID } from "node:crypto";
@@ -27,7 +28,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-const request = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+const request = makeMe.aLaunchRequest.adHoc().please();
 const isolated = { workspace: "isolated", landing: "review" };
 
 test("a completed expired start loses only its pruned attempt's machine evidence, across projects, and keeps its Git workspace", async ({

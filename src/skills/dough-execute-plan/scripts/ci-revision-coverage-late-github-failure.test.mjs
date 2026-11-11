@@ -20,6 +20,11 @@ import {
   deferWorkerStop,
   fixtureTeardown,
 } from "./fixture-teardown-test-fixtures.mjs";
+import {
+  failedAttemptJob,
+  failedListedRun,
+  runningListedCiRun,
+} from "./ci-revision-coverage-late-github-failure-test-fixtures.mjs";
 
 test("a selected workflow with a non-default display name delivers a late failure to its owning coordinator and then records the registered repair's success, while unrelated runs, a sibling, and another owner stay isolated", async (t) => {
   const storage = mkdtempSync(join(tmpdir(), "ci-late-github-"));
@@ -33,14 +38,6 @@ test("a selected workflow with a non-default display name delivers a late failur
   const shaUnrelated = "e".repeat(40);
   const branch = "feature/late";
   const otherBranch = "feature/other";
-  const failed = { status: "completed", conclusion: "failure" };
-  const failedRun = (workflow, databaseId, headSha, headBranch) => ({
-    workflow,
-    databaseId,
-    headSha,
-    headBranch,
-    ...failed,
-  });
 
   // One modeled repository: the selected `ci.yml` declares a display name
   // other than `CI`, beside a deployment workflow. Every listing is answered
@@ -48,16 +45,16 @@ test("a selected workflow with a non-default display name delivers a late failur
   const github = modeledGithubActions({
     workflows: { "ci.yml": "Project checks", "deploy.yml": "Deploy" },
     runs: [
-      failedRun("deploy.yml", 300, shaA, branch),
-      failedRun("ci.yml", 301, shaUnrelated, branch),
-      failedRun("ci.yml", 302, shaRepair, "main"),
-      failedRun("ci.yml", 900, shaOther, otherBranch),
+      failedListedRun("deploy.yml", 300, shaA, branch),
+      failedListedRun("ci.yml", 301, shaUnrelated, branch),
+      failedListedRun("ci.yml", 302, shaRepair, "main"),
+      failedListedRun("ci.yml", 900, shaOther, otherBranch),
     ],
     jobs: {
-      300: [{ databaseId: 3000, name: "deploy", conclusion: "failure" }],
-      301: [{ databaseId: 3010, name: "build", conclusion: "failure" }],
-      302: [{ databaseId: 3020, name: "build", conclusion: "failure" }],
-      900: [{ databaseId: 9000, name: "build", conclusion: "failure" }],
+      300: [failedAttemptJob(3000, "deploy")],
+      301: [failedAttemptJob(3010, "build")],
+      302: [failedAttemptJob(3020, "build")],
+      900: [failedAttemptJob(9000, "build")],
     },
   });
 
@@ -113,16 +110,6 @@ test("a selected workflow with a non-default display name delivers a late failur
     await poll.advance();
     assert.equal(github.listCallCount(branch), pollCount, `poll ${pollCount}`);
   };
-  // A selected run for this branch, still running when it first appears.
-  const runningCiRun = (databaseId, headSha) => ({
-    workflow: "ci.yml",
-    databaseId,
-    headSha,
-    headBranch: branch,
-    status: "in_progress",
-    conclusion: null,
-    url: `https://github.com/owner/project/actions/runs/${databaseId}`,
-  });
   const coverage = () =>
     Object.fromEntries(
       readRevisionCoverage(directory).map(({ sha, state }) => [sha, state]),
@@ -139,7 +126,7 @@ test("a selected workflow with a non-default display name delivers a late failur
   });
   assert.deepEqual(readMailboxEvents(directory), []);
 
-  const runA = runningCiRun(501, shaA);
+  const runA = runningListedCiRun(501, shaA, branch);
   github.runs.push(runA);
   await advancePoll(); // exposes the running attempt for A only
   assert.deepEqual(coverage(), {
@@ -148,10 +135,9 @@ test("a selected workflow with a non-default display name delivers a late failur
   });
   assert.deepEqual(readMailboxEvents(directory), []);
 
-  Object.assign(runA, failed);
-  github.jobs[501] = [
-    { databaseId: 5010, name: "build", conclusion: "failure" },
-  ];
+  // Mid-poll mutation of the already-listed run: status and conclusion under proof.
+  Object.assign(runA, { status: "completed", conclusion: "failure" });
+  github.jobs[501] = [failedAttemptJob(5010, "build")];
   await advancePoll(); // A fails; the sibling never appears
   assert.deepEqual(coverage(), {
     [shaA]: "failure",
@@ -200,7 +186,7 @@ test("a selected workflow with a non-default display name delivers a late failur
 
   // The owner pushes and registers a repair; its selected run then succeeds.
   registerPushedRevision(directory, shaRepair);
-  const runRepair = runningCiRun(502, shaRepair);
+  const runRepair = runningListedCiRun(502, shaRepair, branch);
   github.runs.push(runRepair);
   await advancePoll();
   assert.equal(coverage()[shaRepair], "pending");

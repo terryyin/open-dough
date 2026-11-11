@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // The follow-up boundary specs' sources, requests and first-input reading:
 // agent-launch-follow-up-boundary.spec.ts (what the first input holds),
 // agent-launch-follow-up-identity.spec.ts (identity, retries and refusals),
@@ -28,11 +29,7 @@ export type Answer = {
 export const answerOf = async (answer: Promise<{ body: string }>) =>
   JSON.parse((await answer).body) as Answer;
 
-export const request = {
-  source: "open-dough",
-  workflow: "ad-hoc",
-  host: "claude",
-};
+export const request = makeMe.aLaunchRequest.adHoc().please();
 
 const landed = "ab".repeat(20);
 export const report =

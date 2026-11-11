@@ -57,7 +57,11 @@ process.stdout.write(request.operation === 'diagnose' ? JSON.stringify({ excerpt
     );
     writeFileSync(
       join(root, ".planning/open-dough.json"),
-      JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+      JSON.stringify(
+        makeMe.projectCiSettings
+          .with({ ciAdapter: [process.execPath, adapter] })
+          .please(),
+      ),
     );
     const attempts = [
       discoverAttempt({

@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // The local launch boundary (../../server/launchBoundary.ts) over raw HTTP,
 // at the boundary server, for an ad hoc session: a project's folder and no story.
 // The server derives the label, names the session `<project> · Ad hoc ·
@@ -18,11 +19,7 @@ import {
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
 
-const adHocRequest = {
-  source: "open-dough",
-  workflow: "ad-hoc",
-  host: "claude",
-};
+const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
 
 test.describe(`agent launch boundary, ad hoc`, () => {

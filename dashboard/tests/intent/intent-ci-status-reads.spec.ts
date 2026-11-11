@@ -165,7 +165,11 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
   chmodSync(path.join(project, adapter), 0o700);
   writeFileSync(
     path.join(project, ".planning", "open-dough.json"),
-    `${JSON.stringify({ ciAdapter: [process.execPath, adapter] })}\n`,
+    `${JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    )}\n`,
   );
   const askedBranches = () =>
     existsSync(asked)

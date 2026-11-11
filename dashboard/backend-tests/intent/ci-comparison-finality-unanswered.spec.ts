@@ -39,11 +39,13 @@ for (const provenance of ["equivalent", "later"] as const) {
         provenance,
         provenance === "later" ? 30 : 0,
       );
-      const subject = {
-        revision: facts.represented,
-        runId: 201,
-        runAttempt: 1,
-      };
+      const subject = makeMe.aCiProofRun
+        .with({
+          revision: facts.represented,
+          runId: 201,
+          runAttempt: 1,
+        })
+        .please();
       const proof = facts.proofs[201];
       if (proof?.kind !== "summary")
         throw new Error("Expected arranged summary");

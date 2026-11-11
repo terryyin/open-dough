@@ -45,15 +45,21 @@ for (const [linkKind, runUrl] of [
         .please();
       const history = makeMe.aLandedCiHistory
         .inTrunkOrder([landing.revision])
-        .recording(landing, "measured-attempt", {
-          revision: landing.revision,
-          state: "pass",
-          ...identity,
-          runUrl,
-          startedAt: "2026-11-05T10:00:00Z",
-          completedAt: "2026-11-05T10:01:00Z",
-          proof,
-        })
+        .recording(
+          landing,
+          "measured-attempt",
+          makeMe.aKeptBuild
+            .with({
+              revision: landing.revision,
+              state: "pass",
+              ...identity,
+              runUrl,
+              startedAt: "2026-11-05T10:00:00Z",
+              completedAt: "2026-11-05T10:01:00Z",
+              proof,
+            })
+            .please(),
+        )
         .please();
 
       const answer = scopeHistoryOf(

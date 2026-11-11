@@ -6,6 +6,7 @@ import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import { launchHost } from "../../server/launchHosts.ts";
 import type { HostSession } from "../../src/agentLaunch.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   installFakeCodex,
   type FakeCodex,
@@ -26,16 +27,17 @@ async function withNative(
 ) {
   const root = mkdtempSync(path.join(tmpdir(), "dough-codex-result-"));
   const native = await installFakeCodex(root, process.env["PATH"] ?? "", true);
-  const session: HostSession = {
-    host: "codex",
-    sessionId: native.threadId,
-    name: "Retained example",
-    continuation: {
-      workspace: path.join(root, "absent-workspace"),
-      endpoint: `unix://${path.join(root, "codex.sock")}`,
-      args: [],
-    },
-  };
+  const session: HostSession = makeMe.aHostSession
+    .codex({
+      sessionId: native.threadId,
+      continuation: {
+        workspace: path.join(root, "absent-workspace"),
+        endpoint: `unix://${path.join(root, "codex.sock")}`,
+        args: [],
+      },
+    })
+    .named("Retained example")
+    .please();
   native.cwd = session.continuation?.workspace ?? "";
   native.history = [
     {

@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // An unattached Start session whose choices cannot be honored starts no
 // native session and silently runs nowhere else, with a real bare origin
 // (../../tests/support/startOrigin.ts) and the synthetic `claude`: a choice the
@@ -31,12 +32,10 @@ import type { StartOrigin } from "../../tests/support/startOrigin.ts";
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-const request = {
-  source: "open-dough",
-  workflow: "ad-hoc",
-  host: "claude",
-  policy: { workspace: "default-checkout", landing: "auto-land" },
-};
+const request = makeMe.aLaunchRequest
+  .adHoc()
+  .withPolicy({ workspace: "default-checkout", landing: "auto-land" })
+  .please();
 
 const isolated = { workspace: "isolated", landing: "review" };
 

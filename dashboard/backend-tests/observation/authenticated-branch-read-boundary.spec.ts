@@ -11,6 +11,7 @@
 // approach.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../tests/support/published-seed.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   developmentBoundary,
@@ -55,30 +56,24 @@ test.describe("authenticated read boundary on a story branch (development enviro
           href: `seeds/SEED-branch.md#${anchor}`,
         })
         .please();
+    const branchStory = entry("Branch story", "story");
+    const trunkStory = entry("Trunk story", "trunk");
     const at = describedRevision(
       makeMe.aRepository
         .withRevision("branch", {
           backlog: {
-            taken: [
-              entry("Branch story", "story"),
-              entry("Trunk story", "trunk"),
-            ],
+            taken: [branchStory, trunkStory],
           },
           files: {
             [seedPath]: `# Seed
 
-<a id="story"></a>
-
-### Branch story
-
-**Identity:** SEED-branch#story
-`,
+${renderStorySection(branchStory)}`,
             [planPath]: planText,
           },
           storyStates: [
             {
-              identity: "SEED-branch#story",
-              href: "seeds/SEED-branch.md#story",
+              identity: branchStory.identity,
+              href: branchStory.href,
               ...makeMe.aStoryPreparation
                 .plannedIn("../slice-plans/092-branch/PLAN.md")
                 .please(),
@@ -88,7 +83,7 @@ test.describe("authenticated read boundary on a story branch (development enviro
             makeMe.anAgentProfile
               .executing({
                 name: "Yui",
-                identity: "SEED-branch#story",
+                identity: branchStory.identity,
                 mode: "story-branch",
                 branch: "story/recorded",
               })
@@ -96,7 +91,7 @@ test.describe("authenticated read boundary on a story branch (development enviro
             makeMe.anAgentProfile
               .executing({
                 name: "Akiho",
-                identity: "SEED-branch#trunk",
+                identity: trunkStory.identity,
                 mode: "trunk",
                 branch: "origin/main",
               })

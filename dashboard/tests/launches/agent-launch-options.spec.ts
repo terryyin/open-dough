@@ -12,6 +12,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { optionsDefinitionSchema } from "../../src/commandOptions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { repoRoot } from "../support/repositoryRoot.ts";
 import {
@@ -83,12 +84,14 @@ test("the refinement dialog offers the installed definition's entries with label
     ...real,
     options: [
       ...real.options,
-      {
-        flag: "--zoom",
-        label: "Zoom",
-        summary: "Look closer.",
-        instruction: ".",
-      },
+      makeMe.anOptionsEntry
+        .with({
+          flag: "--zoom",
+          label: "Zoom",
+          summary: "Look closer.",
+          instruction: ".",
+        })
+        .please(),
     ],
   };
   writeFileSync(file, JSON.stringify(changed));

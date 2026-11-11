@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-302_make-remaining-test-domain-setup-express-intent.json",
+      "identity": "SEED-302#make-remaining-test-domain-setup-express-intent",
+      "completedAt": "2026-11-11T06:43:41.436Z",
+      "blob": "c6ffccc4e3ffd6ff755ccdb823d38a8e8f48fb84"
+    },
+    {
       "fileName": "SEED-304_show-one-ci-proof-row-per-location.json",
       "identity": "SEED-304#show-one-ci-proof-row-per-location",
       "completedAt": "2026-11-11T02:10:56.251Z",

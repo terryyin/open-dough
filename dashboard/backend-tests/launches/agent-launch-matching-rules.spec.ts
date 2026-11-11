@@ -3,15 +3,16 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   sameLaunch,
   type AgentLaunchRequest,
+  type StoryLaunchRequest,
 } from "../../src/launchRequest.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const story: AgentLaunchRequest = {
-  source: "open-dough",
-  host: "claude",
-  workflow: "refinement",
-  identity: "SEED-075#launch-gates-every-host",
-  title: "Launch gates apply to every host",
-};
+const story: StoryLaunchRequest = makeMe.aLaunchRequest
+  .refining({
+    identity: "SEED-075#launch-gates-every-host",
+    title: "Launch gates apply to every host",
+  })
+  .please() as StoryLaunchRequest;
 
 test("story choices preserve identity while project, host, workflow and subject distinguish launches", () => {
   expect(
@@ -38,11 +39,7 @@ test("story choices preserve identity while project, host, workflow and subject 
 });
 
 test("ad hoc matching retains exact instruction including omitted and empty text", () => {
-  const blank: AgentLaunchRequest = {
-    source: "open-dough",
-    host: "claude",
-    workflow: "ad-hoc",
-  };
+  const blank: AgentLaunchRequest = makeMe.aLaunchRequest.adHoc().please();
   for (const instruction of [undefined, "", " ", "Investigate."]) {
     const request = {
       ...blank,
@@ -62,12 +59,9 @@ test("ad hoc matching retains exact instruction including omitted and empty text
 test("ad hoc matching includes attached image content digests", () => {
   const digestA = "a".repeat(64);
   const digestB = "b".repeat(64);
-  const base: AgentLaunchRequest = {
-    source: "open-dough",
-    host: "claude",
-    workflow: "ad-hoc",
-    instruction: "Why is this card clipped?",
-  };
+  const base: AgentLaunchRequest = makeMe.aLaunchRequest
+    .adHoc({ instruction: "Why is this card clipped?" })
+    .please();
   const withA = { ...base, attachmentDigests: [digestA] };
   const withB = { ...base, attachmentDigests: [digestB] };
   const withBoth = { ...base, attachmentDigests: [digestA, digestB] };
@@ -82,11 +76,9 @@ test("ad hoc matching includes attached image content digests", () => {
 });
 
 test("ad hoc matching includes the Workspace and After checks choices, the default ones when none are named", () => {
-  const blank: AgentLaunchRequest = {
-    source: "open-dough",
-    host: "codex",
-    workflow: "ad-hoc",
-  };
+  const blank = makeMe.aLaunchRequest
+    .adHoc({ host: "codex" })
+    .please() as Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>;
   const defaults = {
     workspace: "default-checkout",
     landing: "review",

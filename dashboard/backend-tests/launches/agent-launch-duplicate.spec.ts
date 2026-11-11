@@ -4,12 +4,14 @@ import {
   accept,
   launch,
   recordsOf,
-  refinementRequest,
+  identity,
+  title,
 } from "../../tests/agentLaunchBoundary.ts";
 import { installRefinementSkill } from "../../tests/launchStoryCardPage.ts";
 import { settledOutcome } from "../../tests/acceptedAttempts.ts";
 import type { AttemptObservation } from "../../src/agentLaunch.ts";
 import type { FakeCodex } from "../../tests/support/fakeCodex.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests. Each wait for a
 // launch to reach its native host is bounded by the test timeout alone.
@@ -40,13 +42,13 @@ for (const host of ["claude", "codex"] as const) {
       if (native === undefined) throw new Error("Missing native fixture.");
       const request =
         subject === "start-less story"
-          ? { ...refinementRequest, host }
-          : {
-              source: "open-dough",
-              workflow: "ad-hoc",
-              host,
-              instruction: subject === "blank" ? "" : "Investigate.",
-            };
+          ? makeMe.aLaunchRequest.refining({ identity, title, host }).please()
+          : makeMe.aLaunchRequest
+              .adHoc({
+                host,
+                instruction: subject === "blank" ? "" : "Investigate.",
+              })
+              .please();
       dashboard.claudeScenario("held");
       native.hold = true;
       native.holdCreation = subject === "blank";
@@ -87,11 +89,10 @@ for (const host of ["claude", "codex"] as const) {
     if (native === undefined) throw new Error("Missing native fixture.");
     if (host === "claude") installRefinementSkill(dashboard.home);
     else codexSkill(dashboard.home, "--explore");
-    const request = {
-      ...refinementRequest,
-      host,
-      instruction: "Original intent.",
-    };
+    const request = makeMe.aLaunchRequest
+      .refining({ identity, title, host })
+      .withInstruction("Original intent.")
+      .please();
     dashboard.claudeScenario("held");
     native.hold = true;
     const first = launch(dashboard, request);
@@ -146,12 +147,9 @@ for (const host of ["claude", "codex"] as const) {
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    const request = {
-      source: "open-dough",
-      host,
-      workflow: "ad-hoc",
-      instruction: "Investigate.",
-    };
+    const request = makeMe.aLaunchRequest
+      .adHoc({ host, instruction: "Investigate." })
+      .please();
     dashboard.claudeScenario("held");
     native.hold = true;
     // The caller is gone once acceptance answered; the launch goes on.
@@ -207,12 +205,9 @@ for (const host of ["claude", "codex"] as const) {
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    const request = {
-      source: "open-dough",
-      host,
-      workflow: "ad-hoc",
-      instruction: "Investigate.",
-    };
+    const request = makeMe.aLaunchRequest
+      .adHoc({ host, instruction: "Investigate." })
+      .please();
     dashboard.claudeScenario("refused");
     native.refuseCreation = true;
     expect(await answerOf(launch(dashboard, request))).toMatchObject({
@@ -233,12 +228,9 @@ test("distinct Claude instructions remain independent while both launches are he
   dashboard,
 }) => {
   dashboard.claudeScenario("held");
-  const request = {
-    source: "open-dough",
-    host: "claude",
-    workflow: "ad-hoc",
-    instruction: "First subject.",
-  };
+  const request = makeMe.aLaunchRequest
+    .adHoc({ instruction: "First subject." })
+    .please();
   const first = launch(dashboard, request);
   await expect
     .poll(() => dashboard.claudeLaunchCalls(), { timeout: 0 })

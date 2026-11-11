@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../../../tests/support/published-seed.mjs";
 import { recordPreparationArgs } from "../../../../tests/support/story-preparation.mjs";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
 import { parseBacklog } from "../../dough-product-backlog/scripts/product-backlog-document.mjs";
@@ -21,8 +22,9 @@ const backlogCli = fileURLToPath(
   ),
 );
 
+/** Ordinary seed section; callers still pass identity and title beside purpose. */
 export function storySection(anchor, identity, title, goal) {
-  return `<a id="${anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n**Goal:** ${goal}\n`;
+  return renderStorySection({ identity, title, href: `#${anchor}` }, { goal });
 }
 
 // The text of the section anchored at `anchor`, up to the `next` anchor or the
