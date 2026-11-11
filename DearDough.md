@@ -17,6 +17,7 @@ retain local facets. The full source before this compaction is
 - Recovery: `a0357d569ac3bd2fc4d866d511fdf354963881bc:DearDough.md` preserves the catalog-only ODF-238/253/262/263 stubs removed to retain current ODF-329/396 recurrence evidence; their meaning/evidence remain in the maintained finding catalog.
 - Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
 - Recovery: `296db77062d35455cf7b830aaeebb6671d396d1b:DearDough.md` preserves the redundant ODF-396 SEED-281 unit-gaps occurrence removed at final SEED-285 integration to retain current published-failure and native-proof maintenance evidence; newer occurrences retain the trace-noise finding.
+- Recovery: `a06716541ff03aa73ecaec0e522773cd45fe8912:DearDough.md` preserves DD-485 and DD-486 removed to retain SEED-304 ODF-333/ODF-427 recurrence evidence; DD-485 was a one-off selective-formatter PATH miss, DD-486 a one-off Playwright-without-typecheck miss.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -573,6 +574,17 @@ Former local code: DD-386. [Evidence and current response](docs/maintainer/findi
 
 Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`. Two local facets enter this gate: closure commitments owned by completion or wrap-up but allocated to the last slice must be observed before its done transition (DD-387), and a Story Branch rollout slice released from trunk without a step landing the earlier slices (DD-401). [Meaning, evidence and response](docs/maintainer/findings/ODF-333.md).
 
+### Occurrences
+
+- Execution: SEED-304#show-one-ci-proof-row-per-location (plan 582; first related implementation `a6efa3d48ea6acd5d6682b769e2fd135710a728b`)
+  - Timestamp: 2026-11-11T09:44:00+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Plan Existing solutions required Trunk Mode (`--trunk`) so production deployment needed no branch landing checkpoint; established start was `mode: story-branch` on `cursor/show-one-ci-proof-row-per-location`. Slice 2 pre-condition needs `origin/main`. Coordinator transcript `2dce1ff7-595f-4119-8243-6da1ce9127bb` turn 58 unfinished handoff; owner authorized land; merge `28cf896d38d64aaff6af0f7c3954704ff360f169`.
+  - Observed effect: One mid-execution human stop and `--keep-worktree` land before live production observation; slice 1 branch CI left unobserved when that stop closed its observer.
+  - Inference: Plan Trunk Mode prose did not change the Take's story-branch mode or name a retained-landing checkpoint, so the trunk-before-completion gate recurred. Distinct from lifecycle-commitment allocation (DD-387 facet).
+
+
 ## ODF-367 — Source-only review arrived after the first slice was delegated
 
 Former local code: DD-388. Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`. [Evidence and current response](docs/maintainer/findings/ODF-367.md).
@@ -726,6 +738,17 @@ Former local code: DD-424. [Evidence and current response](docs/maintainer/findi
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
+
+### Occurrences
+
+- Execution: SEED-304#show-one-ci-proof-row-per-location (plan 582; first related implementation `a6efa3d48ea6acd5d6682b769e2fd135710a728b`)
+  - Timestamp: 2026-11-11T09:48:53+08:00
+  - Tool: Cursor
+  - Open Dough release: 0.3.94
+  - Evidence: Coordinator transcript `2dce1ff7-595f-4119-8243-6da1ce9127bb` turns 71–76: `history-preserving-publication.mjs integrate --help` then inline `node --input-type=module` calling `publishHistoryPreservingCandidate` with `onFetchedTarget`/`affectedCheck`; land accepted as merge `28cf896d38d64aaff6af0f7c3954704ff360f169`.
+  - Observed effect: Keep-worktree landing required a hand-written publication wrapper again before slice 2 could observe production.
+  - Inference: Same CLI/callback gap as prior ODF-427; not resolved by 0.3.94.
+
 
 ## ODF-428 — A refactor moved tests after acceptance had cited them, leaving source-review observations stale
 
@@ -941,34 +964,6 @@ Discriminating renderer tests were added under `scripts/`, which this project's 
   - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
   - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
   - Inference: Place new Node test files under a discovered root (or extend discovery) before claiming suite coverage; acceptance caught this before push. Distinct from ODF-150 (missed indirect consumer of a changed contract after publish).
-
-## DD-485 — Selective formatter preparation without npm PATH
-
-Fresh preparation invoked `node scripts/lint.mjs --fix` directly; eslint and prettier were not on PATH, so formatting failed before commit.
-
-### Occurrences
-
-- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
-  - Timestamp: 2026-11-10T08:45:00Z
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: `execution-increment-delivery.mjs fresh` returned `preparation-failed`, `operation: formatting`, with `eslint: not found on PATH` / `prettier: not found on PATH`. Retry with `npm run format` succeeded.
-  - Observed effect: one preparation refusal and retry; no owned edits lost.
-  - Inference: This project's selective formatter expects `npm run format` (or equivalent PATH including `node_modules/.bin`), not a bare `node scripts/lint.mjs --fix`.
-
-## DD-486 — Playwright-only focused proof missed TypeScript test errors
-
-Focused Playwright configuration selection passed; the commit hook's typecheck then refused `getByRole("textarea")` and possibly-undefined settings payload indexing.
-
-### Occurrences
-
-- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
-  - Timestamp: 2026-11-10T08:50:00Z
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: `execution-increment-delivery.mjs fresh` returned `commit-failed` with TS2345 on `system-settings-client-configuration.spec.ts` (`"textarea"` role) and TS2532 on `system-settings.spec.ts`. Prior focused command `npx playwright test tests/configuration/system-settings-client-configuration.spec.ts tests/configuration/system-settings.spec.ts` had passed. Repairs then typechecked and the focused Playwright selection passed again before successful delivery.
-  - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
-  - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 

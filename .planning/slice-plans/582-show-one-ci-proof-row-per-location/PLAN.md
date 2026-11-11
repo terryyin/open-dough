@@ -151,6 +151,18 @@ zeros. Resolve an available existing published summary before completing it.
 If production is unavailable or requires developer credentials, stop this path
 with the exact missing observation and owner; keep slice 1's accepted proof.
 
+## Execution complete
+
+Product advice: Outcome matches the story — one Proof row per location with
+labeled per-type counts, times, and gaps; whole-row sort; live production
+reading of Doughnut run 42828209530 attempt 1 on deployed revision
+28cf896d…. Aligns with near-future direction for readable CI proof beside
+intent. Presentation stayed at the homepage Proof boundary. Reasoned no
+backlog change: lasting prose is in docs/dashboard-development-intent-ci-status.md;
+SEED-305 already covers wall-time history compatibility. No product defects
+or suite-cleanup corrections planned. Tip CI on a06716541… remained pending
+at review time.
+
 ## Execution gates and boundaries
 
 - Follow [AGENTS.md: failing and flaky tests](../../../AGENTS.md#failing-and-flaky-tests)
