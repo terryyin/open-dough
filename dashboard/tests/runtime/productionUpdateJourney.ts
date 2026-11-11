@@ -52,7 +52,6 @@ type PublishedMainFixture = Awaited<
 type Shared = Awaited<ReturnType<typeof writeSharedLaunchRecord>>;
 type Started = {
   fixture: PublishedMainFixture;
-  native: Native;
   drainEvents: string;
   page: Page;
   watcher: ProductionWatcher;
@@ -141,7 +140,6 @@ export function productionUpdateJourney() {
     page = await browser.newPage();
     prepared = {
       fixture,
-      native,
       drainEvents,
       page,
       watcher,
@@ -155,7 +153,6 @@ export function productionUpdateJourney() {
   });
   test.afterAll(async () => {
     try {
-      native?.release();
       await page?.close();
       await watcher?.stop();
       await development?.stop();

@@ -3,19 +3,30 @@
 import type { APIRequestContext } from "@playwright/test";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  acquireWriteLock,
+  releaseWriteLock,
+} from "../../server/machineJsonLock.ts";
 import type { Acceptance } from "../../src/agentLaunch.ts";
+import { keptAttempts } from "../acceptedAttempts.ts";
 import { attempts, machineSessions } from "../agentLaunchSessions.ts";
 import {
   settledAtFirstDrain,
   waitForLaunchAdmissionClosed,
 } from "../support/launchAdmissionObservation.ts";
 import { expect } from "../support/pageTest.ts";
-import { holdBuildPath, waitForBuild } from "../support/productionBuildGate.ts";
+import {
+  holdBuildPath,
+  holdCompletedBuildPath,
+  waitForBuild,
+  waitForCompletedBuild,
+} from "../support/productionBuildGate.ts";
 import {
   deploymentCheckout,
   productionBoundary,
 } from "../support/productionWatcher.ts";
 import { processRunning } from "../support/processGroup.ts";
+import { waitForWatcherOutput } from "../support/watcherEvents.ts";
 import type { ProductionUpdateJourney } from "./productionUpdateJourney.ts";
 
 export async function replaceWhileStartDrains(
@@ -23,51 +34,71 @@ export async function replaceWhileStartDrains(
   request: APIRequestContext,
 ) {
   const state = journey.started();
-  const { fixture, page, watcher, native, drainEvents } = state;
+  const { fixture, page, watcher, drainEvents } = state;
+  const boundary = productionBoundary(state.served.url, fixture.home);
   const launch = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
-  const start = (data = launch) =>
+  const start = () =>
     request.post(`${state.served.url}/__agent-launch/accept`, {
       headers: { Origin: state.served.url },
-      data,
+      data: launch,
     });
   // B is selected and held in its real build while C reaches main. B is
   // served exactly; a later check then selects C.
   await writeFile(holdBuildPath(fixture.home, 2), "");
   await writeFile(holdBuildPath(fixture.home, 3), "");
+  const completedBuildHold = holdCompletedBuildPath(fixture.home);
+  await writeFile(completedBuildHold, "");
   const b = await fixture.publish(fixture.markerChanges("MAIN B"), "Main B");
   const heldBuild = await waitForBuild(watcher, fixture.home, 2);
   expect(await journey.builds()).toHaveLength(2);
   expect(heldBuild.checkout).toEqual(deploymentCheckout(b));
   const c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
-  native.hold();
-  const accepted = (await (await start()).json()) as Extract<
-    Acceptance,
-    { kind: "accepted" }
-  >;
-  expect(accepted.kind).toBe("accepted");
-  expect(accepted.attempt.outcome).toBeUndefined();
   await rm(holdBuildPath(fixture.home, 2));
-  await waitForLaunchAdmissionClosed(watcher, drainEvents);
-  expect(watcher.output()).toContain(
-    "Waiting for accepted dashboard starts before updating.",
+  expect(await waitForCompletedBuild(watcher, fixture.home)).toEqual(
+    deploymentCheckout(b),
   );
-  expect(processRunning(state.served.pid)).toBe(true);
-  expect(watcher.output()).not.toContain(`Production dashboard ${b} at`);
-  const blocked = await start();
-  expect(blocked.status()).toBe(503);
-  native.release();
-  expect(await settledAtFirstDrain(watcher, drainEvents)).toContain(
-    accepted.attempt.id,
-  );
+
+  // Acceptance writes its own record. Hold the separate machine session
+  // writer lock so the native launch stays pending while admission closes.
+  const sessionLock = `${journey.shared().store}.lock`;
+  let acceptedId: string;
+  await acquireWriteLock(sessionLock);
+  try {
+    const accepted = (await (await start()).json()) as Extract<
+      Acceptance,
+      { kind: "accepted" }
+    >;
+    expect(accepted.kind).toBe("accepted");
+    expect(accepted.attempt.outcome).toBeUndefined();
+    acceptedId = accepted.attempt.id;
+    await rm(completedBuildHold);
+    await waitForWatcherOutput(
+      watcher,
+      /Waiting for accepted dashboard starts before updating\./,
+    );
+    await waitForLaunchAdmissionClosed(watcher, drainEvents);
+    const pending = keptAttempts(boundary).find(({ id }) => id === acceptedId);
+    expect(pending).toBeDefined();
+    expect(pending?.outcome).toBeUndefined();
+    expect(
+      processRunning(state.served.pid),
+      `Expected preview ${state.served.pid} to be serving at admission close. Attempt: ${JSON.stringify(pending)}\n${watcher.output()}`,
+    ).toBe(true);
+    expect(watcher.output()).not.toContain(`Production dashboard ${b} at`);
+    const blocked = await start();
+    expect(blocked.status()).toBe(503);
+  } finally {
+    releaseWriteLock(sessionLock);
+  }
+  expect(await settledAtFirstDrain(watcher, drainEvents)).toContain(acceptedId);
   await journey.replacedBy(b);
-  const boundary = productionBoundary(state.served.url, fixture.home);
   // A settled launch no longer needs attention, so its attempt is read with
   // the history rather than the regular answer.
   const history = await attempts(boundary);
   expect(history).toHaveLength(1);
   const [attempt] = history;
   expect(attempt).toMatchObject({
-    id: accepted.attempt.id,
+    id: acceptedId,
     request: launch,
     outcome: { kind: "launched" },
     settledAt: expect.any(String),

@@ -137,13 +137,14 @@ Observer directory `/tmp/dough-ci-501/watch-TF4UVr`, PID 31792.
   while production remains pinned. The same runner and client survive
   replacement and restart, with actual post-restart terminal input.
 - The full update uses a real isolated Codex app-server with a blank native
-  conversation. SIGSTOP holds the actual daemon until the admission-closed
-  event and a refused second start. SIGCONT releases it. A Node HTTP
-  response-finish observer records the successful durable attempt before
-  the old preview's drain response finishes. No GitHub or native host
-  doubles participate in the watcher selection. The real held build,
-  same-URL replacements, post-start durable bytes and SIGTERM cleanup are
-  still exercised.
+  conversation. B's successful real Vite build reports its completion while
+  the npm command is still held. The real launch-record store lock holds
+  the accepted attempt until admission closes and a second HTTP start
+  returns 503. A Node HTTP response-finish observer records the successful
+  durable attempt before the old preview's drain response finishes.
+  No GitHub or native host doubles participate in the watcher selection.
+  The real held build, same-URL replacements, post-start durable bytes
+  and SIGTERM cleanup are exercised.
 - Runtime acquisition uses pinned `@openai/codex@0.167.1` via npm exec.
   Cold tool lookup/install was 9.98 seconds on this Mac and cached lookup
   was 0.29 seconds. Include it in ordinary elapsed runs. The daemon and
@@ -168,3 +169,21 @@ Observer directory `/tmp/dough-ci-501/watch-TF4UVr`, PID 31792.
   Typecheck and whitespace checks passed. It consolidated the two minimal
   catalogs and credential isolation, made admission/drain records explicit,
   and stopped the fixture-owned native updater independently of its PID file.
+
+### Linux CI repair
+
+GitHub Actions run 42999113837 attempt 1 on `44e8554d0` failed the
+held-start case. At admission closure the old preview had already exited.
+The signal-based native gate did not guarantee a pending attempt on Linux.
+The repair uses the actual launch-record writer lock, separate from durable
+attempt acceptance. It acquires that lock after B's real Vite build finishes,
+asserts the kept attempt is still pending when the old admission closes,
+then releases the lock after the refused second start. The replacement
+still requires a real successful Codex launch to have settled before drain
+answers. No timeout or test retry changed.
+
+The repaired update and direct drain selector passed all 11 checks on their
+first attempt in 42.70 seconds on macOS with one worker under
+`caffeinate -s -i`. Dashboard typecheck, scoped formatting and lint, and
+`git diff --check` passed. This proof covers the pending attempt,
+live old preview, second-start refusal, and durable native settlement.

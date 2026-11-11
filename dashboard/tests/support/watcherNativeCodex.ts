@@ -47,26 +47,11 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
     Reflect.deleteProperty(env, key);
   }
 
-  let pid: number | undefined;
-  let held = false;
   const daemon = (operation: "start" | "stop") =>
     exec(codex, ["app-server", "daemon", operation], { env });
-  function release() {
-    if (pid === undefined || !held) return;
-    try {
-      process.kill(pid, "SIGCONT");
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ESRCH") throw error;
-    }
-    held = false;
-  }
   async function close() {
     try {
-      try {
-        release();
-      } finally {
-        await daemon("stop");
-      }
+      await daemon("stop");
     } finally {
       await removeNativeHome(codexHome);
     }
@@ -82,7 +67,6 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
     ) {
       throw new Error("The isolated native daemon did not report its process");
     }
-    pid = response.pid;
   } catch (error) {
     try {
       await close();
@@ -96,15 +80,7 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
     throw error;
   }
 
-  return {
-    env,
-    hold() {
-      process.kill(pid, "SIGSTOP");
-      held = true;
-    },
-    release,
-    close,
-  };
+  return { env, close };
 }
 
 async function removeNativeHome(codexHome: string): Promise<void> {

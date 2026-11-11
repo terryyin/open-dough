@@ -1,6 +1,5 @@
-// Published with main: each real build appends its ordinal and checkout, then
-// waits while HOME/hold-build-<ordinal> exists. It delays the build, never
-// supplying its result.
+// Published with main: record each build's process and checkout, and allow
+// the test to gate the real build before it starts or after Vite succeeds.
 import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -8,14 +7,24 @@ import type { PathChanges } from "./publishedMainFixture.ts";
 import type { ProductionWatcher } from "./productionWatcher.ts";
 import { waitForWatcherFile } from "./watcherEvents.ts";
 
+const completedBuildFile = "completed-build";
+const completedBuildHold = "hold-completed-build";
+
 const buildGate = `
-import { appendFileSync, existsSync, readFileSync, watch } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, watch, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-const log = path.join(homedir(), "builds.log");
-appendFileSync(log, process.pid + " " + path.basename(process.cwd()) + "\\n");
-const ordinal = readFileSync(log, "utf8").trim().split("\\n").length;
-const hold = path.join(homedir(), "hold-build-" + ordinal);
+const checkout = path.basename(process.cwd());
+let hold;
+if (process.argv[2] === "completed") {
+  hold = path.join(homedir(), "${completedBuildHold}");
+  writeFileSync(path.join(homedir(), "${completedBuildFile}"), checkout);
+} else {
+  const log = path.join(homedir(), "builds.log");
+  appendFileSync(log, process.pid + " " + checkout + "\\n");
+  const ordinal = readFileSync(log, "utf8").trim().split("\\n").length;
+  hold = path.join(homedir(), "hold-build-" + ordinal);
+}
 if (existsSync(hold)) {
   let observer;
   try {
@@ -41,7 +50,7 @@ export async function buildGateChanges(
     await readFile(path.join(development, "package.json"), "utf8"),
   ) as { scripts: Record<string, string> };
   packageJson.scripts["build:dashboard"] =
-    `node build-gate.mjs && ${packageJson.scripts["build:dashboard"]}`;
+    `node build-gate.mjs && ${packageJson.scripts["build:dashboard"]} && if [ -e "$HOME/${completedBuildHold}" ]; then node build-gate.mjs completed; fi`;
   return {
     "package.json": `${JSON.stringify(packageJson, null, 2)}\n`,
     "build-gate.mjs": buildGate,
@@ -50,6 +59,25 @@ export async function buildGateChanges(
 
 export function holdBuildPath(home: string, ordinal: number) {
   return path.join(home, `hold-build-${ordinal}`);
+}
+
+export function holdCompletedBuildPath(home: string) {
+  return path.join(home, completedBuildHold);
+}
+
+export function waitForCompletedBuild(
+  watcher: ProductionWatcher,
+  home: string,
+) {
+  const file = path.join(home, completedBuildFile);
+  return waitForWatcherFile(watcher, home, () => {
+    try {
+      return readFileSync(file, "utf8") || undefined;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      return undefined;
+    }
+  });
 }
 
 // Builds started so far, in order, with their process and checkout names.
