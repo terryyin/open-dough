@@ -2,6 +2,7 @@
 
 **Identity:** SEED-307#run-makeme-harness-once
 **Source:** [Minimal correction story](../../seeds/SEED-307-shared-test-pattern-rules.md#run-makeme-harness-once)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -77,7 +78,7 @@ current protection and any future reuse must include all nine.
 
 ### 1. Discover MakeMe harness controls once without losing explicit use
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the existing public runner selection check so full default
 discovery and the union of its three shares contain each of the two MakeMe Node
 harness files exactly once and omit the aggregate wrapper. Explicitly naming
@@ -92,6 +93,29 @@ controls remain covered once, including across CI shares. Explicit aggregate
 and native entrypoints keep their current behavior. Reuse accepted harness
 proof if its code and invocation remain unchanged; rerun affected cheap controls
 only if implementation changes those boundaries. No paid native run is needed.
+
+Accepted proof: with the extended check and base discovery,
+`env PATH=/opt/homebrew/bin:$PATH npm test -- tests/test-runner-selection.sh`
+failed on `occurrences of shell	tests/makeme-native-use.sh in the all listing`
+(`1 !== 0`). After `scripts/test-jobs.sh` skipped the wrapper beside the
+one-shot aggregate, the slice's named command passed for the implementer and
+again for the coordinator on the final tree. The final Node block of
+`tests/test-runner-selection.sh` asserts the wrapper absent and each harness
+file present once, as kind `node`, in the full listing and the three-share
+union, and the explicit wrapper listing equal to its one shell job. The default
+listing went from 617 to 616 jobs. Every other runner test that lists through
+`scripts/test-jobs.sh`, both harness files as direct jobs, and the explicit
+zero-argument wrapper passed through the runner; no paid native run was made.
+The refactor pass changed only the wrapper's header comment, which had said
+ordinary `npm test` starts it, and reran the zero-argument wrapper. The harness
+files are unchanged, so their accepted nine-control proof is reused.
+
+## Execution
+
+Story Branch Mode in `.worktrees/run-makeme-harness-checks-once-by-default` on
+`claude/run-makeme-harness-checks-once-by-default`, target `origin` `main`. The
+Take `0cc07ac0443d5f9d1c807e4cc533cda165136426` is published on `main` and is
+the execution branch's published base.
 
 ## Verification and delivery gates
 
