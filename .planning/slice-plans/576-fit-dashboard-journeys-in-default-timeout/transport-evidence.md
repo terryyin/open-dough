@@ -52,12 +52,12 @@ A retained baseline checkout at24ea6698 or retained exact old-client source
 keeps before proof honest; never overwrite a live writer. Include cold/setup
 cost and qualify host differences. Return on a failed supported variant.
 
-Slice 12's original private publisher failed with this client/readiness.
-Its approved actual Git sort precondition preserved every reading and sort
-observation in three passes, but worst headroom was under one second. Payload
-removal then failed and is discarded. comparison-default-evidence.md now owns
-one narrower omission of four sort-only planning-padding commits; the full-CLI
-CI-cue owner keeps deeper-walk coverage and source publishers remain intact.
+Slice12's original publisher failed with this client/readiness. Its approved
+canonical Git setup preserved every reading/sort observation in three passes,
+but worst local headroom was under one second. Two small-data cuts established
+no useful improvement and are discarded. comparison-default-evidence.md now
+owns actual hosted observation of the preserved nine-path implementation,
+with full CLI source cases, all history and all assertions unchanged.
 
 ## Returned current implementation and accepted proof basis
 

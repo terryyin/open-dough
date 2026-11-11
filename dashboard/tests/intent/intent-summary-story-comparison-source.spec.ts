@@ -3,7 +3,10 @@
 // Changed-file Purpose and Proof journeys live in
 // ./intent-summary-story-comparison-file.spec.ts.
 
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import {

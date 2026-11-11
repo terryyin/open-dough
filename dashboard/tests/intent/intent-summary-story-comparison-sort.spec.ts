@@ -3,14 +3,17 @@
 // Column ordering and zoom rules live in ./intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
 import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expectStoryTab } from "../support/intentStoryPage.ts";
-import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
+import { publishDeclaredSummaryComparisonStory } from "../support/intentSummaryStoryComparisonRepository.ts";
 import {
   drillComparisonChild,
   openSummaryComparison,
@@ -76,7 +79,7 @@ test("Summary keeps its sort through drilling and story selection, falling back 
   page,
   origin,
 }) => {
-  await publishSummaryComparisonStory(page, origin);
+  await publishDeclaredSummaryComparisonStory(page, origin);
   const { intent, card: storyA } =
     await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, entry);

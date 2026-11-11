@@ -49,7 +49,7 @@ export const test = base.extend<
     queuedClaudePreviewReady: undefined;
   }
 >({
-  // Touch journeys need these immutable inputs before their private origin.
+  // Queued Claude previews need these immutable inputs before their private origin.
   // Worker setup keeps its default budget; all work stays in suite elapsed.
   queuedClaudePreviewReady: [
     // eslint-disable-next-line no-empty-pattern

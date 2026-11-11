@@ -1,10 +1,10 @@
 # Comparison default-budget proof
 
 Slice 11 published the measured cheaper synthetic gh at
-`e7a9265c48eb6fec1dd64c89754994617502d5c0`. Slice 12 selects only the compatible
-five-path required-input readiness cut, with the original private publisher,
-HOME and all installed CLI completion flows. The nine-path canonical attempt
-remains parked. G4/G7 remain open until current proof is accepted.
+`e7a9265c48eb6fec1dd64c89754994617502d5c0`. Slice 12 now retains the canonical
+nine-path setup, both full installed-CLI sources and every sort observation.
+Three complete loaded comparisons and preservation checks pass; useful margin
+still needs the actual hosted proof below. G4/G7 remain open.
 
 ## First current-client baseline: invalid pressure admission
 
@@ -188,3 +188,46 @@ remains the single domain shape; no core-writer optimization is selected.
 Gain is unverified. Require three fresh complete comparisons, useful headroom
 and qualified family no-growth; reuse compatible touch/shared proof. Retain
 1–11/13 and thirteen slices, same Goal/Scope, no numeric exception or waiver.
+
+## Padding probe stopped; actual hosted proof is next
+
+The first padding-cut family passed3/3 but sort reporter29.749 s and charged
+body about29.010 s left about .990 s. Rigorous headroom is greater than .250
+and at most1.001 s. Whole shell52.620 s / runner50.032 s at22.277–23.629;
+precondition6.980 s, CI4.825 s overlaps review3.011 s. No useful gain or family
+no-growth established. Deliberately stopped admission2 before a second child;
+no test failed or completed proof was discarded as pressure-invalid. All20
+workers and owned resources retired. Complete stop/limits:
+`/tmp/seed287-slice12-sort-history-padding-20261111/return.md`.
+
+Root preserved its exact nine paths/patch/2df60dce base at
+`/tmp/seed287-slice12-padding-miss-park-20261111`, restored seven owned HEAD
+files and removed only two owned new files before remaining-plan refinement.
+Both small-data experiments are discarded; restore the exact canonical nine
+paths from canonical-preserved, with full payload and all four planning notes.
+All three-pass/touch/shared/Git preservation proof remains matched and reusable.
+
+No new implementation is selected. Refactor and publish that validated progress
+with G7 still open, then inspect actual applicable hosted case proof before
+more cost hypotheses. The existing local three passes and qualified whole
+elapsed remain evidence; worst body headroom is explicitly thin. Source Q13
+supplies no extra numeric margin threshold. Combined local/hosted evidence must
+settle the outcome or identify a specific remaining human decision. No waiver,
+done mark, execution-complete or early retrospective/wrap-up is granted.
+
+Independent `canonical_increment_refactor` returned `REFACTOR COMPLETE` with
+none — already clean. All nine code hashes match the retained manifest;
+618 consumer dispositions have no gaps. No edit invalidated accepted proof,
+so no test rerun. Root retains formatting, size and ordinary hook checks.
+
+Formatting refused five forbidden non-null assertions before commit. Root
+replaced only those lookups with explicit missing-revision guards. The same
+disposable actual-Git/public-parser probe passes strict1/1, retry0, with all30
+reads and private-machine cleanup at
+`/tmp/seed287-canonical-format-repair-20261111/graph-proof.json`.
+This verifies unchanged valid graph facts; it is no new timing-margin proof.
+Fresh `canonical_lookup_refactor` returned `REFACTOR COMPLETE`, none, with all
+six focused consumer rows dispositioned and eight other code ASTs unchanged.
+Hook typecheck then required the existing optional removals field to fall back
+to an empty array. Its actual two-path array is unchanged; this is already
+traced within that return's Repository path. No proof boundary is invalidated.

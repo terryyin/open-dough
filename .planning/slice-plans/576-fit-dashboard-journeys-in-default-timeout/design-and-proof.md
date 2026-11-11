@@ -45,30 +45,28 @@ clock; measure family and suite elapsed separately from summed case time.
 ## Reuse choices for execution-owned repairs
 
 PFE searched the dashboard, shared builders and comparison/runtime boundaries.
-The canonical/current-client setup preserved every observation in three whole
+Canonical/current-client setup preserved every observation in three whole
 comparisons, touch4/4, consumers23/23 and independent Git1/1. Full CLI remains
-in source. Worst sort still consumes about29.020 s. Removing704 `.claude`
-files then failed at30.265 s and increased precondition cost to6.266 s; park
-and discard that unproved input cut, retaining the full installed payload.
+in source. Worst local sort body is about29.020 s, leaving about .980 s.
+Removing704 payload files then failed30.265 s; removing four planning-padding
+commits passed once with about .990 s headroom but established no useful gain.
+Both cuts are parked/discarded, including their provisional data changes.
 
-The existing `planningBeforeClaim` array contributes four planning-only notes
-so a built baseline is several ancestors back. Sort needs the same Baseline/
-Branch/Landed figures and cross-story preferences, not that exact depth. Its
-unchanged full-CLI CI-cue consumer already exercises the four-note history and
-asserts independent `4 → 6 → 5` CI figures; current whole-consumer23/23 passed
-before removing any padding. Source publishers keep it. This preserves the
-deeper-walk protection at an observed boundary rather than assuming setup is
-proof. Sort keeps its unbuilt shared ancestor and older measured baseline.
+Reuse the exact preservation-validated nine-path canonical variant with full
+payload and all planning history. Its real MakeMe/commitDeclaredRevision
+precondition, private HOME, shared facts and serving preserve every observer;
+no new graph engine, cache, owner, lifetime or API is needed. Existing full-CLI
+CI-cue coverage also remains unchanged. Source supplies no additional numeric
+margin threshold. Current local evidence alone leaves the qualitative margin
+judgment unsettled; obtain actual hosted case proof of this validated increment
+before adding more implementation or changing proof boundaries.
 
-Reuse the same MakeMe graph but omit only those four padding revisions there;
-keep every remaining story/merge/author/profile/Done/backlog/file fact and every
-UI action/assertion. This lowers both setup Git work and baseline-candidate
-search without changing a shared API, owner, cache, artifact or lifetime.
-Actual gain remains unverified; slice12 is one bounded early probe and returns
-on failure. Current touch/shared proof stays reusable while unchanged. Verify
-new actual Git and three whole comparisons with all cold work paid against the
-qualified prior three-pass baseline. Final13 retains broad/full/hosted gates.
-See [comparison proof](comparison-default-evidence.md).
+Slice12's remaining bounded operation is independent refactor, guarded progress
+publication with G7 open, then exact applicable branch CI and actual case
+observations. Passing count alone is insufficient; all local timing qualifiers
+remain visible. Settle from the combined evidence or return the specific needed
+human decision. Final13 retains broader/named/full/local/trunk gates. See
+[comparison proof](comparison-default-evidence.md).
 
 Launch orchestration reuses `agentLaunchBoundary.ts`, existing acceptance and
 settlement observations, and `startDashboardServer`; native/publication behavior

@@ -113,27 +113,26 @@ Proof: Installed-client exact argv/binary stdout/stderr/status, local/held auth,
 
 Behavior: Every synthetic gh starts Node and the valid-pressure prototype costs118.344ms versus54.509ms → change the existing client/fakeGitHub wire once to shell/curl while reusing answer conversion and private request ownership → the same complete CLI behavior costs less. No compiler, product/cache/lifetime or answer-model change. One supported variant, return if proof/cost misses. [Decisive profile and selected owners](transport-evidence.md).
 
-### 12. Sort's Git precondition keeps only the history it needs
+### 12. Settle comparison budgets with the preserved canonical setup
 Type: Behavior
 Status: planned
-Proof: One bounded early probe removes only four planning-padding revisions
-from sort's approved actual Git setup. Keep the built baseline older than the
-claim, an unbuilt shared ancestor, all branch/integration/completion and file
-facts, and every sort action/assertion/two loops. Full CLI source publishers
-retain all four planning revisions. Their deeper walk remains protected by the
-already-passing complete CI-cue owner and its independent Baseline figures.
-Verify actual Git semantics and three fresh whole-family worker-two/default-30
-passes at load 20–30, useful headroom and all cold costs paid. Compare with the
-qualified 37.290/41.069/57.110 s three-pass before. Reuse unchanged touch4/4 and
-shared consumers23/23 only while compatible. No family growth, private-HOME
-loss, payload removal, new cache/lifetime, graph engine or timeout change.
+Proof: Retain the canonical/current-client/readiness variant that passed three
+fresh full comparison commands, touch4/4, shared consumers23/23 and independent
+actual Git1/1. Every sort action/assertion/two loops and both full-CLI sources
+remain. Local worst body headroom is about .980 s; no extra numeric threshold
+is supplied, and useful margin is not settled by pass count alone. Publish this
+preservation-validated increment with G7 open, after independent refactor and
+ordinary hooks, then obtain exact applicable branch CI and actual case timings
+before further implementation. All cold work and observed local variability
+remain explicit. Settle the outcome from local/hosted evidence or return the
+specific remaining decision. No timeout, skip/retry, cache/lifetime or waiver.
 
-Behavior: Canonical setup preserves every observation but worst body reaches
-about29.020 s; four padding commits duplicate deeper-walk coverage outside sort
-→ keep the same actual Git story and unbuilt-baseline distinction with less
-incidental history → measure useful default margin or return this one cut.
-The failed payload-removal experiment is parked and reverted. Saving remains
-unverified; [coverage and measured basis](comparison-default-evidence.md).
+Behavior: Two further small-data cuts did not establish useful headroom and
+are discarded → observe the preserved three-pass implementation on the actual
+hosted environment → decide the remaining comparison budget on applicable
+proof before adding more machinery. This is a validated progress publication,
+not a done mark or execution completion. Global/named/default/trunk gates stay
+with13. [Current proof and limits](comparison-default-evidence.md).
 
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -206,13 +205,12 @@ Disposition: receiving slice 13
 Commitment: Q09
 ## Plan concern assessment
 
-Slices 1–11 retain accepted proof. Canonical/current-client preservation passed,
-but worst sort has under one second headroom. Payload removal failed and is
-parked. Slice 12 now removes only sort's four padding commits; deeper baseline
-coverage remains in the unchanged full-CLI CI-cue journey, already23/23 green
-with its shared consumers. No sort assertion or meaningful story fact is lost.
-Thirteen slices, no Goal/Scope change, numeric exception or waiver. Slice 13
-owns broad/full/hosted gates and G11's thirteen-part trunk input at the existing
+Slices 1–11 retain accepted proof. Canonical/current-client preservation passed
+all current checks, but worst local sort body has about .980 s headroom. Both
+small-data cuts are parked/discarded. Slice12 now obtains actual hosted case
+proof of the preserved implementation before another change; G4/G7 remain
+open. Thirteen slices, no Goal/Scope change, numeric exception or waiver. Slice13
+owns broader/full/named/trunk gates and G11's thirteen-part input at the existing
 human checkpoint. Branch validation still uses twelve shards.
 
 ## Trunk measurement checkpoint
