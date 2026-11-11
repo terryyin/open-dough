@@ -8,7 +8,7 @@
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { expectProofTableRows } from "./proofTablePage.ts";
+import { expectProofTableRows, proofTableRowsNamed } from "./proofTablePage.ts";
 export { expectProofTableRows } from "./proofTablePage.ts";
 import { proofColumns, type ProofRow } from "./intentCiProofPage.ts";
 
@@ -172,11 +172,7 @@ export async function expectNamedScopeRows(
   name: string,
   rows: readonly (readonly string[])[],
 ) {
-  const named = scopeTable(summary, path)
-    .locator("tbody tr")
-    .filter({
-      has: summary.page().getByRole("rowheader", { name, exact: true }),
-    });
+  const named = proofTableRowsNamed(scopeTable(summary, path), name);
   await expect(named).toHaveCount(rows.length);
   for (const [at, cells] of rows.entries()) {
     await expect(named.nth(at).getByRole("cell")).toHaveText([...cells]);
@@ -193,4 +189,29 @@ export async function expectNamedScopeFigures(
   await expect(
     summary.getByRole("group", { name, exact: true }).getByRole("definition"),
   ).toHaveText([...figures]);
+}
+
+export type ComparisonColumn = (typeof comparisonTableColumns)[number];
+
+// A selected scope's own comparison figure, above the child table.
+export function scopeComparisonFigure(
+  summary: Locator,
+  path: string,
+  column: ComparisonColumn,
+): Locator {
+  return scopeFigures(summary, path)
+    .getByRole("definition")
+    .nth(comparisonTableColumns.indexOf(column));
+}
+
+// One child's comparison figure; the Change cell precedes the shared columns.
+export function scopeComparisonCell(
+  summary: Locator,
+  path: string,
+  child: string,
+  column: ComparisonColumn,
+): Locator {
+  return proofTableRowsNamed(scopeTable(summary, path), child)
+    .getByRole("cell")
+    .nth(1 + comparisonTableColumns.indexOf(column));
 }

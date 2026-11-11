@@ -1,6 +1,9 @@
 // A selected file's compared Proof, independent of how the scenario selected it.
 import type { Locator } from "@playwright/test";
-import { comparisonTableColumns } from "./intentScopeProofPage.ts";
+import {
+  comparisonTableColumns,
+  type ComparisonColumn,
+} from "./intentScopeProofPage.ts";
 import { expectProofTableRows } from "./proofTablePage.ts";
 
 export function fileProofTable(proof: Locator, path: string): Locator {
@@ -38,4 +41,16 @@ export async function expectFileComparisonRow(
   row: FileComparisonRow,
 ) {
   await expectFileComparisonRows(proof, path, [row]);
+}
+
+// One figure of a file's single-row comparison, regardless of selection route.
+export function fileComparisonCell(
+  proof: Locator,
+  path: string,
+  column: ComparisonColumn,
+): Locator {
+  return fileProofTable(proof, path)
+    .locator("tbody")
+    .getByRole("cell")
+    .nth(comparisonTableColumns.indexOf(column));
 }

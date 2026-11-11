@@ -6,7 +6,7 @@ import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import { scopeFigures, scopeTable } from "../intentScopeProofPage.ts";
 import {
   expectRenderedSortedBy,
-  rowNames,
+  expectUnsortedRows,
 } from "../support/expectSortedColumns.ts";
 import {
   entryComparisonRows,
@@ -26,14 +26,13 @@ test("Summary Change keeps unchanged children last in both directions", async ({
   await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   const table = scopeTable(summary, entry);
-  await expect(rowNames(table)).toHaveText([
+  await expectUnsortedRows(table, [
     "folder/",
     "added.spec.ts",
     "gone.spec.ts",
     "renamed.spec.ts",
     "root.spec.ts",
   ]);
-  await expect(table.locator("th[aria-sort]")).toHaveCount(0);
   await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "change", direction: "ascending" },
   });

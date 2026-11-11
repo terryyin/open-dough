@@ -58,3 +58,13 @@ export async function expectProofTableRows(
       ]),
     ]);
 }
+
+// The rows naming one scope, including separate units when they share its name.
+export function proofTableRowsNamed(table: Locator, name: string): Locator {
+  return table
+    .locator("tbody")
+    .getByRole("row")
+    .filter({
+      has: table.page().getByRole("rowheader", { name, exact: true }),
+    });
+}

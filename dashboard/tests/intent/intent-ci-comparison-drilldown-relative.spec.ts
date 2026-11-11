@@ -1,12 +1,13 @@
 // One comparison language while drilling: each displayed scope scales only
 // its own figures and rows, with one live story preference and no CI reread.
 import type { Locator } from "@playwright/test";
+import { fileComparisonCell } from "../intentFileProofPage.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { fileReadingTab, proofRegion } from "../intentPerspectivePage.ts";
 import {
   childName,
-  scopeFigures,
-  scopeTable,
+  scopeComparisonFigure,
+  scopeComparisonCell,
 } from "../intentScopeProofPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
@@ -32,16 +33,6 @@ test.beforeEach(async ({ page }) => {
 
 const compared = (region: Locator) =>
   region.locator(".intent-ci-comparison-frame");
-const childBranch = (summary: Locator, path: string, name: string) =>
-  scopeTable(summary, path)
-    .locator("tbody tr")
-    .filter({
-      has: summary.page().getByRole("rowheader", { name, exact: true }),
-    })
-    .getByRole("cell")
-    .nth(3);
-const ownBranch = (summary: Locator, path: string) =>
-  scopeFigures(summary, path).getByRole("definition").nth(2);
 
 test("story, location, folder and file share signed words, preference and per-display relative scales without rereading CI", async ({
   page,
@@ -91,42 +82,60 @@ test("story, location, folder and file share signed words, preference and per-di
     "Observed builds; differences are not attributed to the story",
   );
   await expect(showPercent(summary)).not.toBeChecked();
-  await expect(ownBranch(summary, "dashboard/tests")).toHaveText("+9.5 s");
-  await expectMark(ownBranch(summary, "dashboard/tests"), "slower", 1);
+  await expect(
+    scopeComparisonFigure(summary, "dashboard/tests", "Branch"),
+  ).toHaveText("+9.5 s");
+  await expectMark(
+    scopeComparisonFigure(summary, "dashboard/tests", "Branch"),
+    "slower",
+    1,
+  );
   // Entry scale includes its own +9470/12040 and immediate child +7070/10340.
   await expectMark(
-    childBranch(summary, "dashboard/tests", "folder/"),
+    scopeComparisonCell(summary, "dashboard/tests", "folder/", "Branch"),
     "slower",
     7070 / 10340 / (9470 / 12040),
   );
   await showPercent(summary).focus();
   await page.keyboard.press("Space");
   await expect(showPercent(summary)).toBeChecked();
-  await expect(ownBranch(summary, "dashboard/tests")).toHaveText("+9.5 s+79%");
+  await expect(
+    scopeComparisonFigure(summary, "dashboard/tests", "Branch"),
+  ).toHaveText("+9.5 s+79%");
 
   await childName(summary, "folder/").click();
   await expectMark(
-    ownBranch(summary, "dashboard/tests/folder"),
+    scopeComparisonFigure(summary, "dashboard/tests/folder", "Branch"),
     "slower",
     7070 / 10340 / 0.7,
   );
   await expectMark(
-    childBranch(summary, "dashboard/tests/folder", "a.spec.ts"),
+    scopeComparisonCell(
+      summary,
+      "dashboard/tests/folder",
+      "a.spec.ts",
+      "Branch",
+    ),
     "slower",
     1,
   );
   await expect(showPercent(summary)).toBeChecked();
   await childName(summary, "nested/").click();
-  await expect(ownBranch(summary, "dashboard/tests/folder/nested")).toHaveText(
-    "+70 ms+21%",
-  );
+  await expect(
+    scopeComparisonFigure(summary, "dashboard/tests/folder/nested", "Branch"),
+  ).toHaveText("+70 ms+21%");
   await expectMark(
-    ownBranch(summary, "dashboard/tests/folder/nested"),
+    scopeComparisonFigure(summary, "dashboard/tests/folder/nested", "Branch"),
     "slower",
     70 / 340 / 0.5,
   );
   await expectMark(
-    childBranch(summary, "dashboard/tests/folder/nested", "c.spec.ts"),
+    scopeComparisonCell(
+      summary,
+      "dashboard/tests/folder/nested",
+      "c.spec.ts",
+      "Branch",
+    ),
     "slower",
     70 / 340 / 0.5,
   );
@@ -135,8 +144,11 @@ test("story, location, folder and file share signed words, preference and per-di
   await childName(summary, "c.spec.ts").click();
   await fileReadingTab(intent, "Proof").click();
   const proof = proofRegion(intent);
-  const row = proof.getByRole("table").locator("tbody tr");
-  const branch = row.getByRole("cell").nth(2);
+  const branch = fileComparisonCell(
+    proof,
+    "dashboard/tests/folder/nested/c.spec.ts",
+    "Branch",
+  );
   await expect(
     compared(proof).getByRole("heading", {
       name: "Baseline compared with Landed",

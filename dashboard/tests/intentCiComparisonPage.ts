@@ -1,6 +1,11 @@
 // Browser observations of one CI comparison, shared by integrated, live-mounted
 // and static-rendered scenarios. Expected words and endpoint order belong to callers.
 import type { Locator } from "@playwright/test";
+import { proofTableRowsNamed } from "./proofTablePage.ts";
+import {
+  comparisonTableColumns,
+  type ComparisonColumn,
+} from "./intentScopeProofPage.ts";
 
 export function comparisonReading(panel: Locator) {
   return {
@@ -31,4 +36,15 @@ export function comparisonBuildReading(panel: Locator, name: string) {
     wallTime: reading.wallTimes,
     timeWithoutWaits: reading.timesWithoutWaits,
   };
+}
+
+// One entry's displayed figure, with the expected words kept at the call site.
+export function comparisonEntryCell(
+  panel: Locator,
+  entry: string,
+  column: ComparisonColumn,
+): Locator {
+  return proofTableRowsNamed(comparisonReading(panel).entryTable, entry)
+    .getByRole("cell")
+    .nth(comparisonTableColumns.indexOf(column));
 }

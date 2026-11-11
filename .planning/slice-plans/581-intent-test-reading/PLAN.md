@@ -90,7 +90,7 @@ from fixture-specific navigation; include mounted legacy/units siblings.
 
 ### 2. Express sort and presentation choices in the scenario
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 2 and affected consumers. Retain live keyboard/sort transitions,
 percentage marks, signed words, gaps-last order and static render inputs.
 
@@ -213,6 +213,10 @@ See [design assessment](design-assessment.md) for the slice boundary review and
 - Plan reorganization: preserve executable slices here; preparation baseline and design
   assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
+Latest accepted revision: `71d39d5965906dd4dcd28d4d3cd0c1ffcb0a4385` on
+`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `8299f4e64f49939e1d6120390ebd0b44a0532328`; observer reused.
+
 ## Accepted slice evidence
 
 - Slice 1: [comparison and Summary acceptance](slice-1-evidence.md).
+- Slice 2: [sort and presentation acceptance](slice-2-evidence.md).

@@ -38,9 +38,9 @@ requirements apply throughout even when their final cumulative observation is sl
 | 18 | Keep pinned revisions explicit where they distinguish the outcome. | slice 7 |  |
 | 19 | Keep native attach evidence explicit where it distinguishes the outcome. | slice 9 |  |
 | 20 | Keep PTY evidence explicit where it distinguishes the outcome. | slice 9 |  |
-| 21 | Keep exact input modality explicit where it distinguishes the outcome. | slice 2 |  |
+| 21 | Keep exact input modality explicit where it distinguishes the outcome. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 22 | Keep expected focus explicit where it distinguishes the outcome. | slice 8 |  |
-| 23 | Keep direct accessibility observations independent when accessibility is the tested contract. | slice 2 |  |
+| 23 | Keep direct accessibility observations independent when accessibility is the tested contract. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 24 | Keep direct measurement observations independent when measurement is the tested contract. | slice 4 |  |
 | 25 | Keep expected rows at the call site. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 26 | Keep expected row order in each relevant case. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
@@ -64,19 +64,19 @@ requirements apply throughout even when their final cumulative observation is sl
 | 44 | Make source choices understandable without that reconstruction. | slice 7 |  |
 | 45 | Make retained reading understandable without that reconstruction. | slice 8 |  |
 | 46 | Use one reading owner when integrated and static-rendered comparisons show the same table; explicit expected rows, order, units and unsupported absence. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
-| 47 | Keep static sort options as fixture inputs. | slice 2 |  |
-| 48 | Keep static percent options as fixture inputs. | slice 2 |  |
-| 49 | Have live cases activate real controls; static fixture-input alternatives remain valid. | slice 2 |  |
+| 47 | Keep static sort options as fixture inputs. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
+| 48 | Keep static percent options as fixture inputs. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
+| 49 | Have live cases activate real controls; static fixture-input alternatives remain valid. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 50 | Expose comparison identity through the shared comparison reading API. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 51 | Expose comparison wall time through that shared reading API. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 52 | Expose comparison active time through that shared reading API. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 53 | Expose comparison gaps through that shared reading API. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 54 | Give entry tables a shared reading API usable by both setups. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 55 | Give Summary rows a shared reading API usable by both setups. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
-| 56 | Name shared table operations across mounted and integrated specs. | slice 2 |  |
-| 57 | Name shared sort operations across those specs, including sort state. | slice 2 |  |
-| 58 | Name shared display-mode operations across those specs, including percent marks. | slice 2 |  |
-| 59 | Cover keyboard activation of time controls through shared operations; exact keyboard/focus evidence remains explicit where distinguishing. | slice 2 |  |
+| 56 | Name shared table operations across mounted and integrated specs. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
+| 57 | Name shared sort operations across those specs, including sort state. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
+| 58 | Name shared display-mode operations across those specs, including percent marks. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
+| 59 | Cover keyboard activation of time controls through shared operations; exact keyboard/focus evidence remains explicit where distinguishing. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 60 | Extend existing CI status/proof pages for freshness. | slice 3 |  |
 | 61 | Extend those existing pages for kept answers. | slice 3 |  |
 | 62 | Extend those existing pages for scope. | slice 3 |  |

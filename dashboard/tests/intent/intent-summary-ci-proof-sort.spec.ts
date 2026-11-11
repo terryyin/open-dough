@@ -29,7 +29,7 @@ import {
 } from "../support/ciProofCollected.ts";
 import {
   expectSortedBy,
-  rowNames,
+  expectUnsortedRows,
   sortButton,
 } from "../support/expectSortedColumns.ts";
 
@@ -101,9 +101,12 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
       ["root.spec.ts", "13 passed and 1 failed test cases", "280 ms"],
       [outside, "3 passed test cases", "30 ms"],
     ]);
-    await expect(
-      scopeTable(summary, "dashboard/tests").locator("th[aria-sort]"),
-    ).toHaveCount(0);
+    await expectUnsortedRows(scopeTable(summary, "dashboard/tests"), [
+      "folder/",
+      "added.spec.ts",
+      "root.spec.ts",
+      outside,
+    ]);
     await expectGroupAbove(summary, "dashboard/tests");
   });
 
@@ -111,16 +114,14 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
   await test.step("Counts sorts the children by their counted results, the row without one after them and the outside row last either way", async () => {
     const counts = sortButton(table, "Counts");
     await counts.click();
-    await expectSortedBy(table, "Counts", "ascending");
-    await expect(rowNames(table)).toHaveText([
+    await expectSortedBy(table, "Counts", "ascending", [
       "folder/",
       "root.spec.ts",
       "added.spec.ts",
       outside,
     ]);
     await counts.press("Enter");
-    await expectSortedBy(table, "Counts", "descending");
-    await expect(rowNames(table)).toHaveText([
+    await expectSortedBy(table, "Counts", "descending", [
       "root.spec.ts",
       "folder/",
       "added.spec.ts",
@@ -136,8 +137,7 @@ test("a folder's Summary shows its own figures above its children and keeps a Co
   const folderPath = "dashboard/tests/folder";
   const folderSorted = async () => {
     const folderTable = scopeTable(summary, folderPath);
-    await expectSortedBy(folderTable, "Counts", "descending");
-    await expect(rowNames(folderTable)).toHaveText([
+    await expectSortedBy(folderTable, "Counts", "descending", [
       "b.spec.ts",
       "nested/",
       "a.spec.ts",

@@ -1,3 +1,4 @@
+import { timeMarks } from "../support/relativeTimingMarks.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // File-level Purpose and CI Proof (../../src/IntentFileProof.tsx).
@@ -190,9 +191,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
             durationReason: "units not comparable",
           },
         );
-        await expect(renamedProof.locator(".intent-ci-time-mark")).toHaveCount(
-          0,
-        );
+        await expect(timeMarks(renamedProof)).toHaveCount(0);
         await fileReadingTab(intent, "Purpose").click();
       });
 
