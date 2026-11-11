@@ -30,34 +30,7 @@ timed selection, including pre-existing checks.
 
 ## Architecture and existing proof
 
-- Reuse normal Playwright, its strict proof record, shared MakeMe and existing
-  external-provider fixtures. Existing [run artifacts](../../../dashboard/tests/support/globalSetup.ts)
-  already share the app and published origins. Start by measuring their
-  paid setup and reusing them where the consumed state is identical.
-- Qualification already has a [real Git boundary](../../../dashboard/backend-tests/runtime/production-qualification.spec.ts).
-  [Deployment](../../../dashboard/backend-tests/runtime/production-deployment.spec.ts)
-  exercises real pinning and preview. Read the failure chain's accepted cost
-  before proposing a smaller lifecycle proof. Keep real process signals and
-  preview drain where they establish distinct protection.
-- The [request admission policy](../../../src/skills/dough-execute-plan/scripts/github-request-admission.mjs)
-  already receives time for some operations. The [observation clock](../../../dashboard/server/observationClock.ts)
-  serves a different owner. Reuse its controlled-time pattern if useful and
-  trace the installed request owner through real requests. Accepted
-  [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-  and the [North Star](../../NORTH-STAR.md) keep authority in Git and local
-  request admission at the existing boundary. Keep production clocks, routing,
-  credential handling, and process ownership on their existing paths. Any
-  change to the released owner follows [ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).
-- Reuse Cursor's [last-held proof](../../../dashboard/backend-tests/sessions/cursor-runner-last-held.spec.ts),
-  [reconciliation boundary](../../../dashboard/backend-tests/launches/settled-attempt-reconciliation.spec.ts),
-  and landed repeat's [receipt](../../../dashboard/backend-tests/intent/landed-ci-repeat-receipt-boundary.spec.ts),
-  [admission](../../../dashboard/backend-tests/intent/landed-ci-repeat-admission.spec.ts)
-  and [verdict](../../../dashboard/backend-tests/intent/landed-ci-repeat-verdict.spec.ts)
-  checks as coverage candidates. Their presence does not establish overlap.
-  Verify which plausible regression each would detect before crediting it.
-- Accepted [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
-  requires comparable gain that justifies future maintenance. Judge new setup
-  or timing control by the proof it preserves and its maintenance cost.
+[Architecture constraints and selected existing proof](proof-context.md).
 
 ## Outside-in proof ownership
 
@@ -96,9 +69,11 @@ Behavior: A maintainer selects the original protections → measures the ordinar
 ### 2. Keep one real pinned deployment with minimal preparation
 Type: Structure
 
-Status: planned
+Status: done
 
 Proof: Select the deployment pinning case by its title and run its affected deployment siblings. Observe real source, selected revision, fetch/build/serve and shutdown. Use a scratch comparison that serves the newer revision to verify the retained assertion catches the error. Compare elapsed phases including source and dependency preparation.
+
+[Accepted measured experiment and negative control](pinning-evidence.md); [consumer dispositions](pinning-consumers.md).
 
 Structure: Test the smallest source variation and supported reuse of identical preparation through the existing production deployment entry. Quantify the floor for a real build and preview before slice 3 spends it. Preserve independent distribution, isolation, and refusal promises at their existing real boundaries.
 
@@ -183,6 +158,7 @@ Behavior: The intended behavior remains mapped to maintained checks → run all 
   the new total before keeping, revising, or reverting an experiment.
 - The [corrected baseline](comparable-baseline.md) is 266.38–303.80 seconds (median 287.15), with all 45 cases. Current pinning alone costs 7.969–8.629 case seconds; the illustrative 8-second watcher-plus-pinning allocation is unproved. Slices 2–3 settle smaller genuine preparation and lifecycle boundaries before accepting that allocation.
 - The canonical Cursor lifetime helper from committed SEED-287 source was reused at the same path and freshly proved here; [its provenance and proof](cursor-repair-evidence.md) distinguish this adoption from the other unlanded ownership leads.
+- Slice 2 retained the [pinning source projection](pinning-evidence.md); its checkpoint keeps the combined target and smaller watcher-lifecycle premise open.
 - Start with 30 distinct checks as a working count target, down from 45. Use
   the coverage map to revise that estimate as evidence warrants. Record the
   reduction and the equivalent protection on the final selection.
@@ -244,3 +220,18 @@ Disposition: proved by slice 1: repeat-wait-evidence.md and comparable-baseline.
 Reported: slice 1 — "Run 4 timed out during the second initial Cursor launch before reaching revival; initial fixture and UI lifetime setup consumed the default case budget."
 Story clause: "Each check should protect one coherent intent."
 Disposition: proved by slice 1: cursor-repair-evidence.md and comparable-baseline.md — real scoped/Default execution preconditions, visible first input and the full unchanged revival observations passed three focused 2/2 runs and three combined 45/45 runs under the default case deadline.
+
+### G3. Watcher lifecycle cost must replace the unsupported allocation
+Reported: slice 2 — "The smallest observed pin case is 5.613 seconds; the illustrative eight-second watcher-plus-pin allocation has only 2.387 seconds left for every watcher distinction, and repeated full staging remains inconsistent with that allocation."
+Story clause: "under 30 seconds of elapsed time"
+Disposition: receiving slice 3
+
+### G4. Replacement count and combined elapsed remain unmeasured after the change
+Reported: slice 2 — "The source projection retains the same checks; no complete replacement selection, substantially lower maintained count or three under-thirty-second combined passes has been observed. The approximately 255-second estimated remaining gap is not a measured replacement run."
+Story clause: "The replacement selection contains substantially fewer distinct maintained checks. Three consecutive comparable ordinary runs each pass in under 30 seconds, with a recorded mapping from every original promise to passing retained proof."
+Disposition: receiving slice 10
+
+### G5. Request-owner controlled time awaits its reserved authority
+Reported: slice 2 — "Independent coordinator discovery during slice 1: KeptAdmissions refusal/answered and ReadAdmission turn settlement use the request process real clock; the observation-clock seam does not reach it. The developer question about an opt-in clock-file seam remains unanswered."
+Story clause: "Advancing to just before and then to the deadline proves no upstream read before it, recovery at the deadline, and the return to steady pacing, including the reset that falls beyond the normal cadence."
+Disposition: receiving slice 4

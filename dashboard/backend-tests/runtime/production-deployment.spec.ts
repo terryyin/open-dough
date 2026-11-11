@@ -65,7 +65,24 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
   // contested hosted shard load (run 42804393525). Removing this allowance
   // belongs to SEED-287#fit-dashboard-journeys-in-default-timeout.
   test.setTimeout(90_000);
-  const fixture = await publishedMainFixture(true);
+  // Publish the real app and runtime, leaving this checkout's tests and
+  // maintenance records outside this deployment's source.
+  const fixture = await publishedMainFixture(true, [
+    "dashboard/src",
+    "dashboard/server",
+    "dashboard/public",
+    "dashboard/index.html",
+    "dashboard/vite.config.mts",
+    "dashboard/tsconfig*.json",
+    "src",
+    "scripts",
+    "assets",
+    "package.json",
+    "package-lock.json",
+    ".gitignore",
+    ".githooks",
+    "VERSION",
+  ]);
   let staged: Awaited<ReturnType<typeof stageDeployment>> | undefined;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {

@@ -42,7 +42,7 @@ Input: only the original selected story Goal, Scope and Key examples, supplied v
 | SC-33 | Exclude exploratory testing from the improvement scope. | slice 10 | |
 | SC-34 | Carry experiments and their reassessment forward into planning. | slice 10 |  |
 | SC-35 | Carry forward accepted proof from the default-timeout story wherever the work overlaps. | slice 10 |  |
-| SC-36 | After a published Dashboard revision is selected and main advances, the real preview still serves the selected revision. | slice 2 | |
+| SC-36 | After a published Dashboard revision is selected and main advances, the real preview still serves the selected revision. | slice 2 | observed: pinning-evidence.md and production-deployment.spec.ts: selected SHA before later main, actual checkout/dist/HTTP pinned marker, images/icons/origin and shutdown assertions; three strict candidate passes, six siblings, and a real newer-main preview control failing exactly at the retained HTTP content assertion. |
 | SC-37 | Failed candidates preserve or restore the last working deployment. | slice 3 | |
 | SC-38 | Rejected changes follow the correct baseline. | slice 3 | |
 | SC-39 | Excluded changes follow the correct baseline. | slice 3 | |
