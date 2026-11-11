@@ -34,11 +34,11 @@ intent introduced or affected by a newly developed story.
 - [Select and copy text in the Dashboard terminal on mobile](seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile) — SEED-316#select-and-copy-terminal-text-on-mobile ([plan](slice-plans/591-select-and-copy-terminal-text-on-mobile/PLAN.md))
 - [Upgrade all dependencies](seeds/SEED-317-upgrade-all-dependencies.md#upgrade-all-dependencies) — SEED-317#upgrade-all-dependencies
 - [Speed up touch review checks](seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) — SEED-312#speed-up-touch-review-checks ([plan](slice-plans/592-speed-up-touch-review-checks/PLAN.md))
+- [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks ([plan](slice-plans/593-speed-up-cursor-session-checks/PLAN.md))
 
 ## Backlog list
 
 - [Run MakeMe harness checks once by default](seeds/SEED-307-shared-test-pattern-rules.md#run-makeme-harness-once) — SEED-307#run-makeme-harness-once
-- [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks
 - [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks
 - [Speed up provider rate-limit checks](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) — SEED-315#speed-up-provider-rate-limit-checks
 - [Speed up the remaining Dashboard checks](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
