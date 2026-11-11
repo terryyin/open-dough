@@ -70,8 +70,9 @@ every test, so each case starts that server whether or not it asks for it.
 None of the 27 files opens a page; five ask for `dashboard` themselves. Change
 the one owner so `baseURL` no longer depends on the page fixture's server
 there. A spec that asks for `dashboard` still gets it. That server collects
-nothing: a test server collects only with `collectingLandedCi` in its
-environment.
+only with `collectingLandedCi` in its environment, which one consumer that
+leaves `dashboard` alone set on the base:
+`landed-ci-scope-pending-order.spec.ts`.
 
 PFE, a saved repeat request: the existing owners are `makeMe.aCiRepeatRequest`
 and `makeMe.aCiFollowUpEntry` with `repeatLedgerFacts()` in
@@ -318,7 +319,7 @@ holds SEED-287's repair of the
 
 ### 2. Landed CI history cases start only the servers they ask for
 Type: Behavior
-Status: planned
+Status: done
 Proof: The family command passes three consecutive times. A traced run shows
 no `Fixture "dashboard"` step in any family case, and shows one in a case of a
 spec that asks for `dashboard`. The consumer selection of
@@ -335,6 +336,61 @@ starts or asks for by name.
 - Change `landedCiHistoryTest.ts`, the one owner. A consumer that turns out to
   need the page fixture's `baseURL` keeps it by asking for it there; do not
   move the change into individual specs.
+
+Accepted proof, 2026-11-12, candidate `c39dbd98` plus the `baseURL` fixture in
+`landedCiHistoryTest.ts`; records and logs under
+`/Users/terryyin/.claude/jobs/7b8897aa/tmp/slice2/`:
+
+- Family, one worker, three consecutive passes of 12 at load 17.7 → 20.1,
+  20.1 → 12.3 and 12.3 → 22.6: 146, 102 and 153 s
+  (`cand-family-gate-{1,2,3}`). Six earlier candidate runs and three base runs
+  at load 26–62 each missed the verdict spec's 5 s count poll at `:26`, and
+  above load 35 some automatic-repeat cases passed 30 s on both sides.
+- Traces: no `Fixture "dashboard"` step in any of the twelve family cases
+  (`cand-family-traced.fixtures.txt`); one in
+  `landed-ci-scope-proof-adapter-recovery.spec.ts:24`, which asks for
+  `dashboard` (`cand-asker-traced.fixtures.txt`). On the base all five verdict
+  cases hold the step, at 0.86–1.93 s each.
+- Consumers, the 27 specs and 59 cases at two workers: 59 passed on the
+  candidate at load 14.8 → 20.2 (`reach-consumers-w2`). In one window at load
+  33–39 the candidate passed 48 and the base 35; at one worker on the six
+  files with a candidate failure the candidate passed 12 of 22 and the base 5.
+  Every case that failed on the candidate also failed on the base in that
+  window or in the one-worker rerun, at a 5 s poll or the 30 s case bound
+  (`consumers-w2.compare.txt`, `failed6-w1.compare.txt`).
+- `landed-ci-history-no-proof-recovery.spec.ts`, three alternating two-worker
+  runs at load 39.0 → 34.3: base passed three and candidate three. The base
+  failed `:36` at `:163` once inside the 27-file run.
+- F1 fails the lifecycle case by the 30 s bound with no rerun request for
+  24 s after the receipt; F2 fails it at `:83` with `[71, 71]`, twice; F3 at
+  `:70` with "CI timing returned to range". Each at load 21–27.
+- The fixture's other effect: a case that leaves `dashboard` alone is also
+  without that fixture's `serveOriginBaseCi` answerer. In the 59 cases no call
+  reaches the `github` fixture's every-repository answerer or the scenario's
+  last-resort answer; a control spec shows the observation reports both
+  (`reach-control`). `prepareRepeatScenario`'s `fallback` is the trunk-runs
+  answerer from `serveTrunkRuns` on base and candidate.
+- `landed-ci-scope-pending-order.spec.ts` set `extraEnv: collectingLandedCi`
+  and leaves `dashboard` alone, so on the base its page-fixture server also
+  collected on that machine. The case observes only the server it starts and
+  passed on both. The refactor pass removed the option, which nothing reads
+  there now; the case passes alone at load 20.8 → 19.7 with no
+  `Fixture "dashboard"` step (`refactor-pending-order`).
+
+Learnings for the remaining slices:
+
+- A single-case fault control attributes on this machine at a one-minute load
+  of about 27 or less. Above 40 the lifecycle case reaches the 30 s bound
+  before the faulted expectation, and F2 passed once. Run fault controls in
+  such a window, and for F2 read the refused journey too.
+- Base failures at load 33–39, two workers, outside this family: the
+  follow-up reading, reconciliation, receipt boundary, history pending proof,
+  pending sources and comparison run specs, each at a 5 s poll or the 30 s
+  bound, and `intent-ci-comparison-pending-proof.spec.ts:31`. All 59 cases
+  pass on the candidate at load 15–20. SEED-287's scope covers 5 s history
+  observations and their siblings at load 20–30, and SEED-286 owns the Intent
+  CI comparison family; the consumer comparisons of slices 3–4 run in the
+  20–30 profile.
 
 ### 3. Provider-decided outcomes are read from saved accepted requests
 Type: Behavior

@@ -41,8 +41,8 @@ story's own words.
 | 9c.2 | These outcomes are proved without prior builds of their own. | slice 4 | |
 | 9c.3 | These outcomes are proved without receipt ingestion of their own. | slice 4 | |
 | 9c.4 | These outcomes are proved without admission of their own. | slice 4 | |
-| 10a | A case prepares only what its own assertions use. | slice 2 | |
-| 10b | Every case on main starts a dashboard server through the page fixture and never asks it anything. | slice 2 | |
+| 10a | A case prepares only what its own assertions use. | slice 2 | observed: slice 2 traces: the twelve family cases hold only baseURL, origin, github and startServer fixtures, no Fixture "dashboard" step (PLAN.md slice 2 accepted proof) |
+| 10b | Every case on main starts a dashboard server through the page fixture and never asks it anything. | slice 2 | observed: base traces: Fixture "dashboard" in the seven automatic-repeat cases (Decisive premises) and the five verdict cases (slice 2 accepted proof), none asking it anything |
 | 11a.1 | Establish surviving proof before removing a case. | slice 4 | |
 | 11a.2 | Establish surviving proof before removing a step. | slice 4 | |
 | 11a.3 | Establish surviving proof before removing an assertion. | slice 4 | |
