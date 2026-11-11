@@ -44,11 +44,11 @@ Fresh reviewer `/root/source_review_waiver` launched with `fork_turns: none` aft
 | C36 | Permit shared safely resettable resources only with demonstrated isolation. | slice 2 | observed: src/skills/dough-makeme/references/convention.md; inspected seed examples in /tmp/makeme-slice2-convention-review.md; slice-2-evidence.md convention walkthrough (not all examples native) |
 | C37 | Automatically resolve entries for changed test sources during post-change refactoring. | slice 4 | G4 |
 | C38 | Load the shared convention for opted-in entries. | slice 4 | G4 |
-| C39 | Include staged changes in resolution. | slice 3 | |
-| C40 | Include unstaged changes in resolution. | slice 3 | |
-| C41 | Include untracked changes in resolution. | slice 3 | |
-| C42 | Discover both sides of moves. | slice 3 | |
-| C43 | Include committed dispositions supplied by the caller. | slice 3 | |
+| C39 | Include staged changes in resolution. | slice 3 | observed: tests/makeme-changed-scope.test.mjs staged/worktree cancellation assertion plus selected staged path; slice-3-evidence.md inspected setup and results |
+| C40 | Include unstaged changes in resolution. | slice 3 | observed: tests/makeme-changed-scope.test.mjs unstaged enabled path in public selected files; slice-3-evidence.md inspected setup and results |
+| C41 | Include untracked changes in resolution. | slice 3 | observed: tests/makeme-changed-scope.test.mjs newline-named untracked path preserved in discovery and selection; slice-3-evidence.md inspected setup and results |
+| C42 | Discover both sides of moves. | slice 3 | observed: tests/makeme-changed-moves.test.mjs both move directions and deletion: context versus current destination/files; slice-3-evidence.md inspected setup and results |
+| C43 | Include committed dispositions supplied by the caller. | slice 3 | observed: tests/makeme-changed-scope.test.mjs committed range and explicit enabled/disabled disposition paths; slice-3-evidence.md inspected setup and results |
 | C44 | Apply the convention to implicated tests within the refactoring skill’s existing scope. | slice 4 | G4 |
 | C45 | Deliver the standalone shared behavior through the existing Codex layout. | slice 4 | |
 | C46 | Deliver it through the existing Cursor layout. | slice 4 | |
@@ -123,7 +123,7 @@ Fresh reviewer `/root/source_review_waiver` launched with `fork_turns: none` aft
 | X05 | Do not enable either project’s entries. | slice 4 | |
 | X06 | Do not remove their local rules. | slice 4 | |
 | X07 | Do not convert tests as adoption work. | slice 4 | |
-| X08 | Do not convert unrelated suites during refactoring. | slice 3 | |
+| X08 | Do not convert unrelated suites during refactoring. | slice 3 | observed: tests/makeme-changed-scope.test.mjs non-test/opted-out exclusion, production-only empty selection and unchanged Git status; no conversion command; slice-3-evidence.md inspected setup and results |
 | X09 | Do not introduce a generic policy framework for future rules. | slice 2 | observed: src/skills/dough-makeme/scripts/select-makeme.mjs and shared declaration/membership owner: one explicit makeMe flag and command, no policy registry/framework; coordinator inspected implementation and diff |
 | X10 | Do not universalize Donut’s Java persistence default. | slice 2 | observed: src/skills/dough-makeme/references/convention.md; inspected seed examples in /tmp/makeme-slice2-convention-review.md; slice-2-evidence.md convention walkthrough (not all examples native) |
 | X11 | Do not universalize Open Dough’s JavaScript paths. | slice 2 | observed: src/skills/dough-makeme/references/convention.md; inspected seed examples in /tmp/makeme-slice2-convention-review.md; slice-2-evidence.md convention walkthrough (not all examples native) |

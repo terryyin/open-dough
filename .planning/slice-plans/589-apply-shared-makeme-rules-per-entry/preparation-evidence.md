@@ -35,3 +35,47 @@ finds that the seam needs a different architecture or wider responsibility,
 return that evidence before proceeding. Other inspected expected guidance and
 selection edits are below 250 lines (execute skill 243, delegation 240,
 refactor skill 158, parser 174, selector 142); keep additions proportionate.
+
+## Installer preflight and declaration-reader seam
+
+Read-only `/root/installer_preflight` confirmed the settled slice-4 seam:
+execution payload lines 125–295 are one 171-line contiguous group. Move that
+group to data-only `src/install/open-dough-execution-payload.sh` using an append;
+keep prefix initialization and suffix append in `install.sh`, preserving order.
+Estimated main/fragment sizes are 177/174. Bootstrap already requires full
+`src/install` companions, and updates run a complete pinned Git checkout.
+
+`open-dough-release-version.sh` is 240 lines. Slice 4 owns cohesive extraction
+of declaration reading into `src/install/open-dough-payload-declaration.sh` if
+new composition support would exceed 250. Preserve its existing public
+`read_managed_files_declaration(path)` API and read-only behavior: statically
+read bounded initialization/append/include forms without evaluating installer
+shell; continue reading historical grouped/multiline literal arrays. Missing
+fragments/incomplete declarations must fail, with core-entry validation across
+the assembled result. The main assembled array remains the sole inventory.
+
+Historical leftovers currently read only each tag's installer into a flat
+file. Retrieve companion data from that same tag, preferably using existing
+blob batching, and retain a compatible temporary layout. Never substitute the
+current fragment for historical data. Preserve unavailable-history behavior,
+edited-leftover refusal and force behavior. Add a differing-inventory historical
+control so flattened fixture installers cannot hide a broken composed path.
+
+`releaseTestData.mjs` currently reads/replaces only the first literal block;
+make reading and fixture overrides cover the full assembled declaration.
+`revision-release-files.mjs` and `copy_installer_modules` already copy new `.sh`
+modules automatically. `payload-declaration-links.sh` must compare the complete
+declaration-only composition with Bash, carry companion data into its malicious
+installer fixture, retain no-installer-execution/legacy/order/link controls, and
+add missing-fragment coverage. Explicit helper inspection lists in
+`docs/installation-and-updates.md` (217 lines) and `tests/pin-and-inspect.sh`
+(239 lines) must include the new data/reader files. The update skill already
+requires inspecting sourced helpers. No other inspected expected edit exceeds
+250 lines; leftovers is 179, execution SKILL 243, delegation 240, refactor 158.
+
+In addition to the four planned install/payload checks, affected existing proof
+includes `repository-release.test.mjs`, `update-removes-dropped-files.sh`,
+`retrospective-reference-payload.sh`, `compare-payload.sh`,
+`install-preserves-open-dough-json.sh` and `pin-and-inspect.sh`. Trace actual
+consumers and run their observing assertions under the project's failure policy.
+This preflight ran no tests or installer and changed no source behavior.

@@ -7,7 +7,7 @@
 ## Execution context
 
 - Story branch: `codex/apply-shared-makeme-rules-per-entry`, workspace this worktree, publisher `dashboard-territory.local-open-dough`, agent `aki-chan`, `origin` / trunk `main`.
-- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slice 1 and current published base `ec131e188ece02d28504c610a2812f0c325798d2` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
+- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slices 1/2 and current published base `4bb85bbbeb341d41b74c21580089aa6c45fbb7d5` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
 - Live CI: GitHub `terryyin/open-dough`, `ci.yml` / `CI`, execution-branch target, coordinator `aki-chan-seed307`, directory `/tmp/dough-ci-501/watch-cUOT3m`, PID `64581`, stream `85379`, cell `g228:4`.
 - [Slice 1 evidence and retained startup/stop history](slice-1-evidence.md) owns native commands, proof locations, source freshness and the explicitly waived Cursor gap. No numeric slice limit; existing replanning authority retained. Current awake AC load 6.78/5.60/7.51; one native CLI at a time, focused proof only, reconsider changed pressure.
 
@@ -136,7 +136,7 @@ only where final instructions, selection or invocation changed its boundary.
 
 ### 3. Resolve changed test-entry scope for refactoring
 Type: Behavior
-Status: planned
+Status: done
 Proof: Public changed-scope command tests materialize MakeMe repository
 descriptions, then perform the Git actions under proof at the call site. Run
 `npm test -- <new changed-scope test paths>`. Native refactor application and

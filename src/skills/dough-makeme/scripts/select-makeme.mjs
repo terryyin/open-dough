@@ -6,11 +6,13 @@ import { declaredLocations } from "./intent-location-settings.mjs";
 import { locationSelectsRepositoryPath } from "./intent-location-selection.mjs";
 import { isSafeRepositoryPath } from "./repository-path.mjs";
 
-/** @param {string} project @param {readonly string[]} paths */
-export function selectMakeMe(project, paths) {
+/** @param {string} project @param {readonly string[]} paths
+ * @param {{ allowEmpty?: boolean }} [options] Changed scope can contain no current files.
+ */
+export function selectMakeMe(project, paths, { allowEmpty = false } = {}) {
   const configuration = resolve(project, ".planning/open-dough.json");
   const invalid = paths.find((path) => !isSafeRepositoryPath(path));
-  if (paths.length === 0 || invalid !== undefined)
+  if ((!allowEmpty && paths.length === 0) || invalid !== undefined)
     return {
       status: "unresolved",
       reason: "invalid-test-path",

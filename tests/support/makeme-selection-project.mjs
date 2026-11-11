@@ -1,29 +1,21 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
+import { makeMeSkillFiles } from "./makeme-skill-files.mjs";
 
-const skill = fileURLToPath(
-  new URL("../../src/skills/dough-makeme/", import.meta.url),
-);
 const installed = ".agents/skills/dough-makeme";
 
-export async function materializeSelectionProject(t, settings) {
+export async function materializeSelectionProject(t, settings, sources = {}) {
   const files = {
-    [`${installed}/references/convention.md`]: readFileSync(
-      join(skill, "references/convention.md"),
-      "utf8",
+    ...sources,
+    ...makeMeSkillFiles(
+      fileURLToPath(new URL("../..", import.meta.url)),
+      ".agents/skills",
     ),
   };
-  for (const name of readdirSync(join(skill, "scripts"))) {
-    files[`${installed}/scripts/${name}`] = readFileSync(
-      join(skill, "scripts", name),
-      "utf8",
-    );
-  }
   if (settings !== undefined)
     files[".planning/open-dough.json"] =
       typeof settings === "string" ? settings : JSON.stringify(settings);
@@ -35,15 +27,15 @@ export async function materializeSelectionProject(t, settings) {
   return fixture.integration;
 }
 export function runMakeMeSelection(root, ...paths) {
+  return runSelection(root, "select-makeme.mjs", ["--", ...paths]);
+}
+export function runChangedMakeMeSelection(root, ...args) {
+  return runSelection(root, "changed-makeme.mjs", args);
+}
+function runSelection(root, command, args) {
   const result = spawnSync(
     process.execPath,
-    [
-      join(root, installed, "scripts/select-makeme.mjs"),
-      "--project",
-      root,
-      "--",
-      ...paths,
-    ],
+    [join(root, installed, `scripts/${command}`), "--project", root, ...args],
     { cwd: root, encoding: "utf8" },
   );
   assert.equal(result.stderr, "");

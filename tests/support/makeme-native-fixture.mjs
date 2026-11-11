@@ -1,8 +1,7 @@
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
+import { makeMeSkillFiles } from "./makeme-skill-files.mjs";
 
 export const mixedPrompt =
   "Add regression tests in backend/tests/access.test.mjs and frontend/tests/preview.test.mjs. Cover a reader reading their own note and being denied another reader's note, and cover previewTitle truncating a note title to its first four characters. Keep production behavior unchanged and run the tests. Do not commit.";
@@ -80,20 +79,8 @@ export async function createMakeMeNativeFixture(source, host, directory) {
     "backend/tests/access.test.mjs": baselineBackend,
     "frontend/tests/preview.test.mjs": baselineFrontend,
     "tests/support/makeMe.mjs": factory,
+    ...makeMeSkillFiles(source, root),
   };
-  const candidateFiles = [
-    "SKILL.md",
-    "references/convention.md",
-    ...readdirSync(join(source, "src/skills/dough-makeme/scripts")).map(
-      (name) => `scripts/${name}`,
-    ),
-  ];
-  for (const path of candidateFiles) {
-    files[`${root}/dough-makeme/${path}`] = readFileSync(
-      join(source, "src/skills/dough-makeme", path),
-      "utf8",
-    );
-  }
   return materializeLocalCheckout(
     undefined,
     makeMe.aRepository.withRevision("base", { backlog: null, files }).please(),
