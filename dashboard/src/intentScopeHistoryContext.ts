@@ -10,7 +10,11 @@ export type ScopeHistoryContext = {
   readonly reason: string | undefined;
 } & (
   | { readonly kind: "done" }
-  | { readonly kind: "project"; readonly branch: string }
+  | {
+      readonly kind: "project";
+      readonly branch: string;
+      readonly checkedAgain: string | undefined;
+    }
 );
 
 export function scopeHistoryContextOf(
@@ -33,6 +37,7 @@ export function scopeHistoryContextOf(
       branch: evidence.branch,
       endpoint: evidence.projectEndpoint,
       reason: "Reading the configured trunk’s published revision…",
+      checkedAgain: evidence.judged.round,
     };
   return undefined;
 }

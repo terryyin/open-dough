@@ -114,7 +114,7 @@ remaining source-scope decision or an execution-complete claim.
 
 ### 2. Keep project history fresh and separate from the selected Done story
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A Done story ends at a middle landing while newer trunk evidence is
 collected → the developer visits Project Intent and returns → project history
@@ -188,7 +188,7 @@ counts that now include Project scope history.
 ### G1. Complete same-endpoint freshness and visit/return lifecycle
 Reported: slice 1 — "Full same-head refresh/stable timestamp/visit-return remains slice2."
 Story clause: "Follow the existing CI-status observation lifecycle: showing Project Intent, observing a new trunk head, and Check again can refresh the local history; elapsed time alone does not."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: slice-2-proof.md frontend refresh/remount and actual Project/Done visit/return observations
 
 ### G2. Preserve recovery and all-gap proof under the default timeout
 Reported: slice 1 — "Two existing supplemental UI specs exceed default30s before their history assertion because each constructs/publishes a full Done Git history and acquires comparison proofs."
@@ -205,7 +205,19 @@ Reported: slice 1 — "intent-ci-done-prior-build timed out30s before CI entry c
 Story clause: "CI status continues to describe CI wall time."
 Disposition: proved by slice 1: slice-1-proof.md preserves original failed verdicts, diagnosed setup/event causes and final passing moved frontend history/default consumer commands
 
+### G5. Observe retained-answer isolation after the old reply settles
+Reported: slice 2 — "Coordinator inspection found late-reply assertions can pass before the released old handler fulfills; scope/project isolation also needs an observing boundary for the changed retained hook."
+Story clause: "another project, scope or endpoint's answer never appears as the current one."
+Disposition: proved by slice 2: slice-2-proof.md awaited late replies and scope/project/configuration failure observations; paired real collector default-timeout repair proof
+
+### G6. Keep the Project collection journey stable under the default timeout
+Reported: slice 2 — "The new remount case and other seven current Project lifecycle/isolation paths passed, but slice1’s existing Project collector journey hit default30s during nested history rows under host load23. Its setup still launches/lands an extra native session and starts a preview collector before restarting preview."
+Story clause: "With no selected story, a developer opens entry Summary, nested folder Summary and file Proof"
+Disposition: proved by slice 2: slice-2-proof.md awaited late replies and scope/project/configuration failure observations; paired real collector default-timeout repair proof
+
 ## Execution context
+
+
 
 [Checkout, preparation, observation and proof decisions](execution-context.md).
 
@@ -216,6 +228,13 @@ Source freshness unchanged at trunk `8299f4e64f49939e1d6120390ebd0b44a0532328`;
 no named sibling coordination references. Product, MakeMe setup and observing
 assertions inspected; original failure verdicts retained, repaired cases proved
 under default timeout. G1 remains with slice 2. Independent refactor completed; affected proof passed.
+
+## Slice 2 acceptance
+
+[Commands, observations, lifetime rationale and repairs](slice-2-proof.md). Source
+freshness unchanged at `31f14719b1ab8330680ee2e7fefdf9742b242746`; no named
+sibling coordination references. Source commitments and actual assertions inspected;
+G1/G5/G6 settled. Independent refactor completed; affected proof passed.
 
 ## Plan review and learnings
 

@@ -86,11 +86,13 @@ function CollectedHistory({
 export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
   const evidence = useIntentCiEvidence();
   const context = scopeHistoryContextOf(evidence);
-  const { shown, failed, retry } = useIntentCiScopeHistory(
-    context?.source,
-    path,
-    context?.endpoint,
-  );
+  const { shown, failed, retry, reading, previouslyRetrieved, answeredAt } =
+    useIntentCiScopeHistory(
+      context?.source,
+      path,
+      context?.endpoint,
+      context?.kind === "project" ? context.checkedAgain : undefined,
+    );
   const heading = useId();
   if (context === undefined) return null;
   return (
@@ -130,6 +132,15 @@ export function IntentScopeTimingHistory({ path }: { readonly path: string }) {
         )
       ) : (
         <CollectedHistory history={shown} context={context} />
+      )}
+      {shown !== undefined && answeredAt !== undefined && (
+        <p className="intent-ci-history-note">
+          {previouslyRetrieved
+            ? "Previously retrieved history"
+            : "History read"}{" "}
+          <time dateTime={answeredAt}>{answeredAt}</time>.
+          {reading === true && " Checking collected evidence again…"}
+        </p>
       )}
       {failed !== undefined && (
         <p className="intent-ci-history-note" role="alert">

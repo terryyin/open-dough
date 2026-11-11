@@ -23,3 +23,37 @@
   rechecking load/memory and competing work immediately before launch or repeat.
 - Replanning permission: retain ordinary active-plan refinement authority; no
   explicit replan prohibition. No numeric slice limit; one proof loop per slice.
+
+## Accepted slice 1 publication
+
+Managed fresh delivery accepted `2e8d46e0ecfdca9183102690c26c34a075bde715`
+on `refs/heads/codex/show-trunk-test-scope-timing-history`, suffix base
+`4f52bca1dbaac29a5d3d479975c50106774ee5fd`. Same coordinator/observer reused.
+The last accepted publication is the next increment's previously published base.
+Preparation repaired lint, an extra EOF blank line and retried staging of
+already staged deletions; no failed attempt committed or published anything.
+
+## Story-only live Intent Coverage measurement
+
+Terry opted this story into the live measurement at normal Story Wrap Up, with
+no installed guidance/default/authority changes. No Intent Coverage worker has
+started. At its qualifying handoff-preparation response emit
+`IC-LIVE-START SEED-310#show-trunk-test-scope-timing-history`, spawn exactly one
+fresh native Codex worker without inherited context, supplying source, completed
+revision and focused test/suspected fault known from ordinary work. Ask it to
+batch reads and scratch baseline/fault/independent observation/restoration/proof.
+Continue independent wrap-up; join with exact-worker native completion and a
+bounded supported blocking wait, no periodic status/tool polling. Use installed
+overdue recovery if needed. Retain terminal report/disposition verbatim in Done,
+verify them there and emit `IC-LIVE-END SEED-310#show-trunk-test-scope-timing-history`.
+Final dashboard completion receipt remains unchanged.
+
+## Slice 2 reassessment
+
+The smallest outcome remained the planned Project refresh/Done-return lifecycle.
+Provider-local stable timestamps were simpler but failed the reachable
+ConfiguredDashboard unmount + publishedWorkRead same-revision recovery path.
+Existing page reading state, with scope ownership around each provider, supplies
+the missing lifetime without a store. Answer retention stays scope-owned, so
+wall-time state/cadence remains mount-local. Added proof observes that path and
+full source/scope/endpoint isolation; no story scope or authority changed.

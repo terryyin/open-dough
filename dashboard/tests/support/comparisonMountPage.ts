@@ -152,6 +152,7 @@ export async function mountComparison(
       work: facts.work,
       identity: facts.identity,
       scope: facts.scope,
+      ...(facts.shown === undefined ? {} : { shown: facts.shown }),
       ...(facts.doneEndpoint === undefined
         ? {}
         : { doneEndpoint: facts.doneEndpoint }),
@@ -172,6 +173,7 @@ export async function updateComparison(page: Page, facts: ComparisonMount) {
       work: facts.work,
       identity: facts.identity,
       scope: facts.scope,
+      ...(facts.shown === undefined ? {} : { shown: facts.shown }),
       ...(facts.doneEndpoint === undefined
         ? {}
         : { doneEndpoint: facts.doneEndpoint }),

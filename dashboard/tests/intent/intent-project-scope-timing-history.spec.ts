@@ -14,9 +14,8 @@ import { openSummary } from "../intentSummaryCiProofFixtures.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
-  collectingLandedCi,
+  recheckingLandedCi,
   restartAsLandedCiReader,
-  resultToLand,
 } from "../support/landedCiHistory.ts";
 import {
   recordScopeHistoryLandings,
@@ -24,13 +23,12 @@ import {
   serveCollectedScopeFileRuns,
 } from "../support/scopeHistoryCollection.ts";
 import { collectedScopeHistory } from "../support/collectedScopeHistory.ts";
-import { land } from "../support/startSessionLandingContext.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { expectCollectedHistoryRecovery } from "../support/scopeHistoryCollectedPage.ts";
 
-test.use({ extraEnv: collectingLandedCi });
+test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 
 test("Project Intent reads dated entry, nested folder and file history through its observed uncollected trunk head", async ({
   page,
@@ -39,13 +37,14 @@ test("Project Intent reads dated entry, nested folder and file history through i
   github,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  const newest = await resultToLand(dashboard, "project-scope-history.txt");
+  // The shared publisher already leaves an actual later trunk commit.
+  const newest = { revision: await originMain(origin) };
   const revisions = [setup.baseline, setup.completion, newest.revision];
   recordScopeHistoryLandings(
     dashboard,
     origin,
     setup.identity,
-    revisions.slice(0, 2).map((revision, index) => ({
+    revisions.map((revision, index) => ({
       revision,
       at: `2026-11-0${String(index + 5)}T10:10:00.000Z`,
       workflow: "execution" as const,
@@ -73,9 +72,6 @@ test("Project Intent reads dated entry, nested folder and file history through i
         ] as const,
     ),
   );
-  expect(
-    land(newest.record, origin, dashboard.home).result.landing.receipt.revision,
-  ).toBe(newest.revision);
   for (const runId of [101, 102, 103]) {
     await expect
       .poll(
