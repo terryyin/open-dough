@@ -124,7 +124,7 @@
   gap: 0;
 }
 
-.side-panel:has(> .terminal-screen) > .side-panel-header {
+.side-panel:has(> .terminal-output) > .side-panel-header {
   column-gap: var(--space-1);
 }
 

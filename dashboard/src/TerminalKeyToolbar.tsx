@@ -3,7 +3,8 @@
 // typing, without dismissing that soft keyboard (Blink-style pointerdown
 // preventDefault so xterm's textarea keeps focus). Owns the optional Compose
 // reveal and an explicit Hide keyboard control so phone chrome stays one
-// accessory mount beside the screen.
+// accessory mount beside the screen. Select, beside Paste, pauses the output
+// as selectable text (./TerminalPausedText.tsx) and reads as on while it does.
 
 import { useState, type PointerEvent } from "react";
 import { TerminalComposer } from "./TerminalComposer.tsx";
@@ -99,10 +100,15 @@ function HideKeyboardKey() {
 export function TerminalKeyToolbar({
   insert,
   onPaste,
+  selecting,
+  onSelect,
 }: {
   // Offers one sequence on the live attachment; false when none is attached.
   readonly insert: (sequence: string) => boolean;
   readonly onPaste: () => void;
+  // Whether the output is paused as selectable text, and how to change that.
+  readonly selecting: boolean;
+  readonly onSelect: () => void;
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
@@ -129,6 +135,15 @@ export function TerminalKeyToolbar({
             onClick={onPaste}
           >
             Paste
+          </button>
+          <button
+            type="button"
+            className="terminal-key-toolbar-key"
+            aria-pressed={selecting}
+            onPointerDown={keepTerminalFocus}
+            onClick={onSelect}
+          >
+            Select
           </button>
           <ToolbarToggle
             name="More terminal keys"

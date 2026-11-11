@@ -55,10 +55,12 @@ itself; text already offered is never resent.
 
 On coarse-pointer / soft-keyboard use, tap the terminal to focus its ordinary
 input, edit with the browser keyboard and submit with Enter. A key toolbar
-above the soft keyboard supplies Esc, Tab, arrows, Enter and Paste. Expand
-**More** for less-frequent controls such as Ctrl+C. Sequence keys use the
-same terminal → WebSocket → PTY path as typing. Toolbar taps preserve the
-soft keyboard’s current visibility.
+above the soft keyboard supplies Esc, Tab, arrows, Enter, Paste and Select.
+Expand **More** for less-frequent controls such as Ctrl+C. Where the phone is
+narrower than the keys, the keys before Enter scroll sideways in a lane of
+their own and the expanded toolbar scrolls sideways as a whole. Sequence keys
+use the same terminal → WebSocket → PTY path as typing. Toolbar taps preserve
+the soft keyboard’s current visibility.
 **Paste** reads the phone clipboard and offers its text as one terminal paste
 with control sequences removed and no trailing Enter. If the browser cannot
 read the clipboard, open Compose and use the keyboard’s own Paste. If the
@@ -74,6 +76,17 @@ selection, autocorrection and dictation; deliberate Insert offers the draft
 once through the same attachment `insert` path dictation uses, without a
 trailing Enter, and deliberate Enter submits. An unavailable attachment keeps
 the unsent draft for another deliberate Insert and never auto-replays it.
+**Select**, beside **Paste**, pauses the terminal in place: the lines it shows
+stay where they were as ordinary page text, without the terminal’s colors or
+text styles, and **Select** reads as on. The device’s own selection and Copy
+work on that text; the dashboard adds no selection gesture, highlight or Copy
+control. Tapping **Select** again returns the live terminal with its current
+output. Pausing and returning send the session nothing, keep the same
+attachment at the same size and leave the soft keyboard as it was; output that
+arrived meanwhile shows on return. The remaining screen of a disconnected or
+ended attachment pauses the same way. The paused text fits the visible area
+as the terminal does and scrolls by ordinary touch when that area becomes
+smaller than the paused screen.
 Direct typing remains available. One-finger swipe scrolls the output wherever
 it is held. Where the terminal holds it, the swipe moves terminal scrollback
 and sends the session nothing. Where the session’s application has taken over
@@ -95,6 +108,8 @@ orientation or reducing visible height fits that same attachment without
 launching or reconnecting it. Closing and reopening follow the
 [embedded terminal lifecycles](AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions). Local Chromium touch viewport proof covers phone/tablet portrait,
 landscape and a 240-pixel visible height, including toolbar keys, composer
-Insert, soft-keyboard fit, Backspace, Enter and actual
+Insert, soft-keyboard fit, Backspace, Enter, a range of the paused text
+copied by the platform and pasted back, and actual
 browser-to-WebSocket-to-PTY replies. It does not establish physical iOS
-keyboard, predictive-IME or remote connectivity behavior.
+keyboard, predictive-IME, long-press selection or remote connectivity
+behavior.

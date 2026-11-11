@@ -1,4 +1,5 @@
 import type { Terminal } from "@xterm/xterm";
+import { drawnRowHeight } from "./terminalDrawnRow.ts";
 
 // Pointer tracking in which the session's application takes the wheel.
 const wheelTracking: readonly string[] = ["vt200", "drag", "any"];
@@ -49,7 +50,7 @@ export function listenToTerminalTouchScroll(
       finger = undefined;
       return;
     }
-    const rowHeight = (terminal.element?.clientHeight ?? 0) / terminal.rows;
+    const rowHeight = drawnRowHeight(terminal);
     if (rowHeight <= 0) return;
     const distance = finger.y - touch.clientY;
     if (distance === 0) return;

@@ -2,7 +2,8 @@
 // session's native setup and input/output assertions.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { tapWhereShown } from "./pageLayout.ts";
+import { box, tapWhereShown } from "./pageLayout.ts";
+import { scrollByTouch } from "./touchGestures.ts";
 export {
   scrollByTouch,
   readAfterTouchFrame,
@@ -28,6 +29,12 @@ export function noteTerminalTraffic(page: Page) {
     });
   });
   return { sent, sizes };
+}
+
+// The rows of the size the session last reported, among the `COLSxROWS`
+// sizes noted above.
+export function reportedRows(sizes: readonly string[]) {
+  return Number(sizes.at(-1)?.split("x")[1]);
 }
 
 // Fitting is observed at the native PTY and the rendered cells, not merely
@@ -79,7 +86,7 @@ export async function expectFittedInput(panel: Locator, sizes: string[]) {
               document.documentElement.clientWidth,
         };
       });
-      return sizes.at(-1)?.split("x")[1] === String(fitted.rows) && fitted.fits;
+      return reportedRows(sizes) === fitted.rows && fitted.fits;
     })
     .toBe(true);
 }
@@ -118,6 +125,36 @@ export function terminalKeyToolbar(panel: Locator) {
 
 export function terminalKey(panel: Locator, name: string) {
   return terminalKeyToolbar(panel).getByRole("button", { name, exact: true });
+}
+
+// Where the phone is narrower than its keys, the keys before Enter scroll
+// sideways in a lane of their own and the toolbar scrolls sideways as a
+// whole. A finger stroke along whichever cuts `name`, as long as the cut and
+// one key's width more, brings that key wholly into view whatever travel the
+// browser spends recognizing the stroke.
+export async function bringKeyIntoView(panel: Locator, name: string) {
+  const key = terminalKey(panel, name);
+  const toolbar = terminalKeyToolbar(panel);
+  const lane = toolbar.locator(".terminal-key-toolbar-primary");
+  const scroller = (await lane
+    .getByRole("button", { name, exact: true })
+    .count())
+    ? lane
+    : toolbar;
+  // How far the key reaches past the end of what scrolls it.
+  const cut = async () => {
+    const [at, room] = [await box(key), await box(scroller)];
+    return at.x + at.width - (room.x + room.width);
+  };
+  await scrollByTouch(
+    panel.page(),
+    scroller,
+    -(Math.max(0, await cut()) + 44),
+    "horizontal",
+    undefined,
+    scroller,
+  );
+  await expect.poll(cut, `${name} is wholly in view`).toBeLessThanOrEqual(0);
 }
 
 // Docs 44px primary targets without tapping; tapWhereShown also enforces size

@@ -233,6 +233,12 @@ export async function installAttachedTerminalSubstitute(
     // Binary readiness frame, then text output the page renders.
     ws.send(Buffer.from(JSON.stringify({ readiness: "attached" }), "utf8"));
     ws.send(application.opening);
+    application.attached?.({
+      print: (output) => {
+        ws.send(output);
+      },
+      close: (code) => void ws.close({ code }),
+    });
   });
   return { sent, sizes };
 }

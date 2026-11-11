@@ -4,8 +4,9 @@
 // supported, maximize/restore and Close. Closing or replacing the view detaches
 // without ending the session; plain Escape still goes to the native terminal.
 // On coarse-pointer phones the key toolbar, Paste and optional composer
-// share the terminal input path. The panel fits the visual viewport as the
-// soft keyboard or orientation changes.
+// share the terminal input path, and Select pauses the output in place as
+// text the device selects. The panel fits the visual viewport as the soft
+// keyboard or orientation changes.
 // Disconnected or ended attachments can reopen the same session; dictation
 // and Paste that cannot be offered name that action.
 // The saved terminal theme applies to this content and its Side panel border.
@@ -49,6 +50,10 @@ import { terminalPalette } from "./terminalThemes.ts";
 import { useTerminalDictation } from "./useTerminalDictation.tsx";
 import { useTerminalPaste } from "./useTerminalPaste.ts";
 import { TerminalKeyToolbar } from "./TerminalKeyToolbar.tsx";
+import {
+  TerminalPausedText,
+  usePausedTerminalText,
+} from "./TerminalPausedText.tsx";
 import { useTerminalVisualViewportFit } from "./useTerminalVisualViewportFit.ts";
 
 export function Terminal({
@@ -97,7 +102,7 @@ export function Terminal({
   // While marking, the attachment's ending the mark causes is not shown.
   const { asksFirst, marking, mark } = useDoneMark(current, hostOperations);
   const asking = useAskInPlace(asksFirst, () => mark(onMarkDone(session)));
-  const { insertText, getPaste } = useAttachedTerminal(
+  const { insertText, getPaste, getShownText } = useAttachedTerminal(
     screen,
     session,
     attempt,
@@ -111,10 +116,11 @@ export function Terminal({
   usePortraitPreview(identity);
   const dictation = useTerminalDictation(insertText, recovery);
   const paste = useTerminalPaste(record, getPaste, recovery);
+  const { paused, pauseOrReturn } = usePausedTerminalText(getShownText);
   const { title, name } = launchSubject(record.request);
   const agent = assignedAgent(record.start ?? record.preparation);
   const agentName = agentNameOf(agent);
-  const { background } = terminalPalette(useShownTerminalTheme());
+  const { background, foreground } = terminalPalette(useShownTerminalTheme());
   return (
     <section ref={panel} className="side-panel" aria-label="Terminal">
       <PanelDivider />
@@ -189,29 +195,41 @@ export function Terminal({
         Press Alt+F10 to focus session actions, then Tab to Prompts.
       </p>
       <div
-        ref={screen}
-        aria-describedby={inputHelp}
-        onKeyDownCapture={(event) => {
-          if (
-            event.key === "F10" &&
-            event.altKey &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            !event.shiftKey
-          ) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (!event.repeat) actions.current?.focus();
-          }
-        }}
-        className="terminal-screen"
-        style={{ "--terminal-background": background } as CSSProperties}
-      />
+        className="terminal-output"
+        style={
+          {
+            "--terminal-background": background,
+            "--terminal-foreground": foreground,
+          } as CSSProperties
+        }
+      >
+        <div
+          ref={screen}
+          aria-describedby={inputHelp}
+          onKeyDownCapture={(event) => {
+            if (
+              event.key === "F10" &&
+              event.altKey &&
+              !event.ctrlKey &&
+              !event.metaKey &&
+              !event.shiftKey
+            ) {
+              event.preventDefault();
+              event.stopPropagation();
+              if (!event.repeat) actions.current?.focus();
+            }
+          }}
+          className="terminal-screen"
+        />
+        <TerminalPausedText paused={paused} />
+      </div>
       <TerminalKeyToolbar
         insert={insertText}
         onPaste={() => {
           void paste.read();
         }}
+        selecting={paused !== undefined}
+        onSelect={pauseOrReturn}
       />
     </section>
   );

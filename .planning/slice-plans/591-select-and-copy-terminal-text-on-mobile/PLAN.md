@@ -111,7 +111,7 @@ plan's existing authority.
   `answer` to each input) prints only at opening and in answer to input. A
   test that needs output at a moment it chooses, or an ended attachment,
   extends `terminalSubstituteApplication.ts` or a new module:
-  `frontendServiceSubstitutes.ts` is at 238 lines.
+  `frontendServiceSubstitutes.ts` is at 244 lines.
 - Frontend-tier phone terminal specs open through
   `openFrontendTerminalByTouch` (`dashboard/tests/support/frontendTouchTerminal.ts`)
   and pass the substitute `{ application }`.
@@ -119,6 +119,28 @@ plan's existing authority.
   pointer reports (motion, press, release). A "sent nothing" expectation takes
   its baseline after the focusing tap.
 - The bare selector `tests/terminals/` also selects `backend-tests/terminals/`.
+- **Select** does not fit beside the old keys at 390 pixels. With Enter,
+  Paste, Select and More pinned, the lane before Enter shows Esc, Tab and ↑
+  whole and 28 of ↓'s 44 pixels at rest; with More open, Ctrl+C needs a
+  sideways scroll of the toolbar. The story fixes Select in one tap beside
+  Paste and the lane already scrolls sideways by design, so slice 2 keeps
+  that and `agent-terminal-touch-keys.spec.ts` brings ↓ and Ctrl+C into view
+  with a finger stroke (`bringKeyIntoView`). Whether to reorder or re-pin
+  keys is the developer's product choice, carried in the completion handoff.
+- Under load above about 30 from other worktrees,
+  `tests/navigation/side-panel-width.spec.ts`,
+  `side-panel-content-replacement.spec.ts` and
+  `tests/sessions/session-management-touch.spec.ts` exceed the 30-second
+  default, on the base revision as well; at load 16–20 they pass
+  (session-management-touch in 12 seconds). The Taken story
+  SEED-287#fit-dashboard-journeys-in-default-timeout owns journeys fitting
+  the default timeout under load.
+- Touching the paused text takes focus from the terminal, as a long-press
+  does, so the platform's copy is not a key the terminal takes. On a phone
+  that closes the soft keyboard and the terminal beneath refits; that resize
+  comes from the keyboard, not from pausing.
+- The paused text scrolls natively once it overflows its box. Slice 3 sets
+  its opening place after layout.
 
 ## Decisive premises and observations
 
@@ -184,7 +206,7 @@ Covers source examples 5 (the swipe) and 6.
 
 ### 2. Select pauses the shown screen as selectable text and returns
 Type: Behavior
-Status: planned
+Status: done
 Proof: One integrated journey on the phone clipboard setup: **Select** is
 shown beside **Paste** without opening More, with a 44-pixel target; a tap
 shows the terminal's shown lines as ordinary text over the screen's box,
@@ -205,6 +227,21 @@ terminal specs that use the substitute. Describe **Select** in the Phone
 keyboard paragraph and the `Terminal.tsx` header comment.
 `npm run test:dashboard -- tests/terminals/agent-terminal-touch frontend-tests/agent-terminal-touch frontend-tests/terminal-prompts-recovery.spec.ts`
 and `npm run typecheck:dashboard`.
+Accepted: `dashboard/tests/terminals/agent-terminal-touch-select.spec.ts` is
+the integrated journey (Select beside Paste, paused text over the screen's box
+with each line on its terminal row, a two-line range copied by the platform,
+return on the same attachment with no new size, Paste of the copied range the
+only input sent). `dashboard/frontend-tests/agent-terminal-touch-select.spec.ts`
+proves output while paused, ended and disconnected attachments and the
+fine-pointer desktop; `agent-terminal-touch-select-fit.spec.ts` proves the
+earlier screen of a self-scrolling application, reduced visible height and
+rotation. Observations live in `dashboard/tests/terminalSelectPage.ts`; the
+substitute's `directedApplication` prints, ends and disconnects when a test
+says. Mutations that put the paused text inside the screen, let the swipe
+listener reach it, collapsed the screen while paused, let Select take focus,
+made the text see-through or removed the on look each failed these specs.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard -- dashboard/tests/terminals/ frontend-tests/ tests/navigation/frame-sessions-look tests/navigation/side-panel- tests/navigation/board-paging-side-panel tests/navigation/development-intent-frame-sessions tests/sessions/session-management-touch tests/sessions/sessions-sidebar-touch tests/sessions/agent-terminal-done tests/sessions/agent-terminal-delete tests/sessions/compact-session-entry tests/configuration/system-settings.spec.ts --reporter=list --workers=3`
+passed 128 tests on 2026-11-11 at load 13–32, with `npm run typecheck:dashboard`.
 
 Behavior: A phone shows an attached terminal with output → the developer taps
 **Select** → the lines shown stay in place as paused ordinary text and
@@ -313,3 +350,8 @@ Reported: slice 2 — "Chromium phone touch emulation performs no long-press sel
 Story clause: "The device's own selection works on that text: long-press, handles, magnifier and the system Copy."
 Disposition: excluded "The device gesture itself is confirmed once by a developer on a physical phone after delivery."
 Commitment: S1.7, S1.8, S1.9, X5.2, X5.9
+
+### O2. Paused text holds only the rows the terminal shows
+Reported: slice 2 — "The paused text holds exactly the terminal's rows, read once at the tap from the lines it shows; terminal-wrapped rows are not joined, scrollback is not included, and there is no opening-place logic."
+Story clause: "The paused text holds every line the terminal holds at that moment: its screen and any scrollback it keeps."
+Disposition: interim until slices 3

@@ -1,8 +1,9 @@
 // The one session a frontend-only journey on a touch device observes, and its
 // terminal behind the attached-terminal substitute
-// (./frontendServiceSubstitutes.ts).
+// (./frontendServiceSubstitutes.ts). The fine-pointer desktop those journeys
+// are contrasted with opens the same terminal by mouse.
 
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect, openFrontendTakenBacklog } from "./frontendApp.ts";
 import {
   putFrontendMachine,
@@ -14,16 +15,19 @@ import { tapWhereShown } from "../pageLayout.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
+type Substitute = Parameters<typeof installAttachedTerminalSubstitute>[1];
+
 // The machine observes `record`'s session at work, the substitute stands in
-// for its attachment, and a tap on its Sessions sidebar entry opens the
-// Terminal panel. Gives the substitute's record of what the page sent, and
-// where the journey finds the terminal: its rows, the screen a finger moves
-// on, and the textarea a key is pressed in.
-export async function openFrontendTerminalByTouch(
+// for its attachment, and its Sessions sidebar entry, reached as `press`
+// presses a control, opens the Terminal panel. Gives the substitute's record
+// of what the page sent, and where the journey finds the terminal: its rows,
+// the screen a finger moves on, and the textarea a key is pressed in.
+async function openFrontendTerminal(
   page: Page,
   frontendServices: FrontendServiceState,
   record: LaunchRecord,
-  substitute: Parameters<typeof installAttachedTerminalSubstitute>[1] = {},
+  substitute: Substitute,
+  press: (control: Locator) => Promise<void>,
 ) {
   putFrontendMachine(
     frontendServices,
@@ -39,10 +43,10 @@ export async function openFrontendTerminalByTouch(
   const traffic = await installAttachedTerminalSubstitute(page, substitute);
   await openFrontendTakenBacklog(page);
   const sidebar = sessionsSidebarParts(page);
-  await tapWhereShown(sidebar.button);
+  await press(sidebar.button);
   await expect(sidebar.sidebar).toBeVisible();
   await expect(sidebar.entries).toHaveCount(1);
-  await tapWhereShown(sidebar.entry(record.request.title));
+  await press(sidebar.entry(record.request.title));
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel).toBeVisible();
   return {
@@ -52,4 +56,36 @@ export async function openFrontendTerminalByTouch(
     screen: panel.locator(".xterm-screen"),
     input: panel.locator("textarea.xterm-helper-textarea"),
   };
+}
+
+// By a tap where each control is shown.
+export function openFrontendTerminalByTouch(
+  page: Page,
+  frontendServices: FrontendServiceState,
+  record: LaunchRecord,
+  substitute: Substitute = {},
+) {
+  return openFrontendTerminal(
+    page,
+    frontendServices,
+    record,
+    substitute,
+    tapWhereShown,
+  );
+}
+
+// By a mouse click, where the page has no touch.
+export function openFrontendTerminalByMouse(
+  page: Page,
+  frontendServices: FrontendServiceState,
+  record: LaunchRecord,
+  substitute: Substitute = {},
+) {
+  return openFrontendTerminal(
+    page,
+    frontendServices,
+    record,
+    substitute,
+    (control) => control.click(),
+  );
 }
