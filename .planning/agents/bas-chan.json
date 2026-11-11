@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "bas-chan",
+  "email": "bas-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-307#apply-shared-makeme-rules-per-entry",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
