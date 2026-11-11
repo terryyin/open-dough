@@ -21,14 +21,14 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 | 9 | Provide one discoverable, conditional convention. | slice 1 | observed: native-observations.md: Codex enabled and clean Claude actual gate/config/convention reads; fresh Codex opted-out no convention read; Cursor waived via G1 |
 | 10 | That convention covers ordinary browser authoring. | slice 1 | observed: native-observations.md: clean Claude ordinary prompt, Skill activation and passing browser/library.spec.mjs |
 | 11 | That convention covers Dough execution. | slice 2 | observed: slice-2-observations.md: Execution delegation loads the common selection reference before planned/planless test work and assigns new-path checks. |
-| 12 | That convention covers refactoring implicated by the change. | slice 3 |  |
-| 13 | Changed-source scope follows MakeMe’s existing scope. | slice 3 |  |
-| 14 | That scope includes staged changes. | slice 3 |  |
-| 15 | That scope includes unstaged changes. | slice 3 |  |
-| 16 | That scope includes untracked files. | slice 3 |  |
-| 17 | That scope includes moves. | slice 3 |  |
-| 18 | That scope includes supplied committed dispositions. | slice 3 |  |
-| 19 | Current file membership determines application. | slice 3 |  |
+| 12 | That convention covers refactoring implicated by the change. | slice 3 | observed: slice-3-observations.md: Shared refactor link and N1 actual corrected browser result. |
+| 13 | Changed-source scope follows MakeMe’s existing scope. | slice 3 | observed: slice-3-observations.md: One extracted existing Git owner and unchanged independent selector; actual MakeMe guidance remains G2. |
+| 14 | That scope includes staged changes. | slice 3 | observed: slice-3-observations.md: P1 reversed-worktree staged case and N1 staged new test. |
+| 15 | That scope includes unstaged changes. | slice 3 | observed: slice-3-observations.md: P1 public changed-command case. |
+| 16 | That scope includes untracked files. | slice 3 | observed: slice-3-observations.md: P1 new spec and N1 legacy untracked scenario. |
+| 17 | That scope includes moves. | slice 3 | observed: slice-3-observations.md: P1 both-path discovery, staged/unstaged destinations and real installed move. |
+| 18 | That scope includes supplied committed dispositions. | slice 3 | observed: slice-3-observations.md: P1 exact supplied commit, unrelated committed history omitted, duplicate supplied commit deduplicated. |
+| 19 | Current file membership determines application. |  | G5 |
 | 20 | Draw the convention from Donut’s e2e-authoring guidance. | slice 2 | observed: slice-2-observations.md: Retained Donut source observation plus browser-guide walk; focused mechanics/handoffs/independent evidence retained. |
 | 21 | Draw the convention from the browser journey guide. | slice 2 | observed: slice-2-observations.md: Retained Donut source observation plus browser-guide walk; focused mechanics/handoffs/independent evidence retained. |
 | 22 | Keep action order visible at the caller. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
@@ -63,7 +63,7 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 | 51 | Missing configuration means the rule is off. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
 | 52 | Malformed configuration is reported unresolved. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
 | 53 | Unreadable configuration is reported unresolved. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
-| 54 | Deletion alone requires no conversion. | slice 3 |  |
+| 54 | Deletion alone requires no conversion. | slice 3 | observed: slice-3-observations.md: P1 deletion-only returns no current sources. |
 | 55 | Assertions may run inside the focused owner. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
 | 56 | Allowing assertions inside the owner does not remove the requirement to keep expectations explicit at the caller. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
 | 57 | Fluent handoffs are conditional on usefulness. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
@@ -94,9 +94,9 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 | 82 | The caller shows the expected item. | slice 1 | observed: /tmp/page-object-307-claude-clean-on/project/browser/library.spec.mjs: explicit Atlas and Boreal expected values without prompt convention cue |
 | 83 | An independent held-read observation remains visible. | slice 1 | observed: /tmp/page-object-307-claude-clean-on/project/browser/library.spec.mjs: heldAtlas.started, independent requests, release, finally disposal |
 | 84 | An incorrect expected item produces an actionable expected-versus-actual failure. | slice 1 | observed: /tmp/page-object-307-codex-on/negative-control.log: Wrong expected item versus actual Boreal; scenario restored |
-| 85 | Mixed changed tests undergo refactoring. | slice 3 |  |
-| 86 | Opted-in tests reuse focused objects while preserving intent. | slice 3 |  |
-| 87 | Moving a test out of selected membership imposes no page-object rule at its destination. | slice 3 |  |
+| 85 | Mixed changed tests undergo refactoring. | slice 3 | observed: slice-3-observations.md: N1 discovers staged enabled/untracked off tests, corrects enabled and preserves off practice; both pass. |
+| 86 | Opted-in tests reuse focused objects while preserving intent. | slice 3 | observed: slice-3-observations.md: N1 LibraryPage/ItemPanel result retains Atlas/Boreal/order/held-read/request proof. |
+| 87 | Moving a test out of selected membership imposes no page-object rule at its destination. | slice 3 | observed: slice-3-observations.md: P1 staged destination legacy/out.spec.mjs has pageObjects false; deleted browser source omitted. |
 | 88 | No release work. | slice 4 |  |
 | 89 | No project rollout. | slice 4 |  |
 | 90 | No opt-in changes. | slice 4 |  |

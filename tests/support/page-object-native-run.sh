@@ -16,7 +16,18 @@ temporary_dir=$(cd -- "${temporary_dir}" && pwd -P)
 mkdir -p -- "${temporary_dir}/tmp"
 export TMPDIR="${temporary_dir}/tmp"
 target="${temporary_dir}/project"
-node "${support_dir}/page-object-native-fixture.mjs" "${target}" "${platform}" "${selection}" > "${temporary_dir}/fixture.json"
+if [[ ${selection} == refactor ]]; then
+  node "${support_dir}/page-object-native-refactor-fixture.mjs" "${target}" "${platform}" > "${temporary_dir}/fixture.json"
+else
+  node "${support_dir}/page-object-native-fixture.mjs" "${target}" "${platform}" "${selection}" > "${temporary_dir}/fixture.json"
+fi
+if [[ ${selection} == refactor ]]; then
+  (
+    cd -- "${target}"
+    node run-tests.mjs browser/library.spec.mjs
+    node run-tests.mjs legacy/library.spec.mjs
+  ) > "${temporary_dir}/before-tests.txt" 2>&1
+fi
 transcript="${temporary_dir}/events.jsonl"
 output_file="${temporary_dir}/response.md"
 native_stderr="${temporary_dir}/stderr.log"
@@ -29,6 +40,9 @@ if [[ ${selection} == off ]]; then
   test_entry=legacy
 fi
 prompt="Add ${test_entry}/library.spec.mjs to test opening Atlas from the Library and following its related item to Boreal. Hold the Atlas response, verify Loading item before releasing it, and verify exactly the Atlas then Boreal reads. Use the README to run your scenario and confirm it passes. Leave application and harness files unchanged."
+if [[ ${selection} == refactor ]]; then
+  prompt='Use Dough Post Change Refactor for the current uncommitted change. Run each changed browser scenario using the README command. Preserve application and harness files, and do not commit or push.'
+fi
 printf '%s\n' "${prompt}" > "${temporary_dir}/prompt.txt"
 status=0
 git_publication_run_native_command || status=$?

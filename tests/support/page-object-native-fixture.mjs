@@ -52,6 +52,7 @@ export async function createPageObjectProject(
     "references/test-entry-rules.md",
     "scripts/test-entry-rules.mjs",
     "scripts/ci-direct-entry.mjs",
+    "scripts/git-changes.mjs",
     "scripts/test-entry-rules-runtime.mjs",
     "scripts/test-entry-rules-LICENSE.txt",
   ]) {

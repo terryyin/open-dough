@@ -35,6 +35,7 @@ artifact directory outside the source checkout:
 ```sh
 caffeinate -s -i bash tests/support/page-object-native-run.sh codex on /tmp/page-object-codex-on
 caffeinate -s -i bash tests/support/page-object-native-run.sh codex off /tmp/page-object-codex-off
+caffeinate -s -i bash tests/support/page-object-native-run.sh codex refactor /tmp/page-object-codex-refactor
 ```
 
 `on` selects the browser entry and leaves the legacy entry off. `off` creates a
@@ -44,6 +45,16 @@ the skill or its convention. The fixture uses MakeMe's repository and location
 builders; copying the candidate into the native layout is harness preparation,
 not installer/update proof. Browser runtime imports use this checkout's locked
 installation; the later standalone-delivery check owns installed independence.
+
+`refactor` installs the current refactoring skill and its shared references,
+stages one new enabled scenario and leaves a different opted-out scenario
+untracked. Both direct-control scenarios pass before native use. The prompt
+invokes post-change refactoring without naming the selected convention. Inspect
+the resulting enabled test's reuse of the existing page/component owners,
+visible Atlas/Boreal values, held-read ordering and independent request evidence.
+Inspect the opted-out result and actual selector/reference reads too; selection
+output alone is insufficient. Run both resulting scenarios and retain their
+terminal result alongside `before-tests.txt`.
 
 Inspect `events.jsonl` through `native-host-stream.mjs`, plus `calls.jsonl`,
 `reads.jsonl`, `tools.jsonl` and the authored test. An enabled result must show

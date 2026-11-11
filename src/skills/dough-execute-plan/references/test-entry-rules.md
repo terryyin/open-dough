@@ -37,3 +37,29 @@ the brief. If exact new test paths emerge during implementation, require the
 author to check them before authoring. Recheck when paths or scope change.
 Selection adds no authority to convert unrelated tests and imposes no browser
 abstraction on non-browser work.
+
+## Select implicated tests for refactoring
+
+During post-change refactoring, run the same selector with changed-source scope:
+
+```sh
+node '<installed-execute-plan>/scripts/test-entry-rules.mjs' \
+  --project '<project-root>' --changed
+```
+
+When the caller supplies committed dispositions since the last refactor pass,
+append `--committed '<revision>'` for each supplied commit. Read those diffs too;
+do not add arbitrary committed history. The shared Git discovery includes staged
+and unstaged changes independently, untracked non-ignored files, and both sides
+of moves. Selection then uses existing source files, following source symlinks,
+at their current paths and the same entry membership above. Missing or deleted
+sources and missing symlink targets require no conversion;
+a destination outside selected membership receives no page-object rule.
+Production-only changes select no testing convention merely by folder proximity.
+
+Load each selected convention once, including the same page-object reference
+above for implicated browser tests. Correct enabled tests through existing
+focused owners while preserving scenario inputs, expectations and independent
+evidence. Leave other entries' practices intact. Missing selected guidance and
+unresolved configuration keep the same stop conditions above. Recheck selection
+if refactoring implicates additional paths; selection never expands authority.

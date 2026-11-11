@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import {
   cpSync,
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -13,6 +14,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { makeMe } from "./makeMe.mjs";
+import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const runtime =
@@ -72,6 +74,7 @@ test("the copied public command selects an intended new source without project d
     "test-entry-rules.mjs",
     "test-entry-rules-runtime.mjs",
     "ci-direct-entry.mjs",
+    "git-changes.mjs",
   ]) {
     cpSync(
       join(root, "src/skills/dough-execute-plan/scripts", name),
@@ -103,4 +106,75 @@ test("the copied public command selects an intended new source without project d
     problem: "malformed",
     sources: [],
   });
+});
+
+test("a real installation runs changed-source selection in both native roots outside the source repository", async (t) => {
+  const settings = makeMe.intentSettings
+    .withLocations(
+      makeMe.anIntentLocation
+        .at("browser")
+        .ofKind("javascript", ["**/*.spec.mjs"])
+        .withRules({ pageObjects: true })
+        .please(),
+    )
+    .please();
+  const { integration: project } = await materializeLocalCheckout(
+    t,
+    makeMe.aRepository
+      .withRevision("project", {
+        backlog: null,
+        files: {
+          ".planning/open-dough.json": JSON.stringify(settings),
+          "legacy/moving.spec.mjs": "export {};\n",
+        },
+      })
+      .please(),
+  );
+  execFileSync("bash", [
+    join(root, "install.sh"),
+    "--target",
+    project,
+    "--source",
+    root,
+    "--platform",
+    "codex",
+  ]);
+  const git = (...args) => execFileSync("git", ["-C", project, ...args]);
+  git("add", ".");
+  git("commit", "-m", "install guidance");
+  mkdirSync(join(project, "browser"));
+  git("mv", "legacy/moving.spec.mjs", "browser/moving.spec.mjs");
+  writeFileSync(join(project, "browser/new.spec.mjs"), "export {};\n");
+  assert.equal(existsSync(join(project, "node_modules")), false);
+  for (const layout of [".agents", ".claude"]) {
+    const scripts = join(project, layout, "skills/dough-execute-plan/scripts");
+    assert.equal(
+      readFileSync(join(scripts, "git-changes.mjs"), "utf8"),
+      readFileSync(
+        join(root, "src/skills/dough-execute-plan/scripts/git-changes.mjs"),
+        "utf8",
+      ),
+    );
+    const result = spawnSync(
+      process.execPath,
+      [
+        join(scripts, "test-entry-rules.mjs"),
+        "--project",
+        project,
+        "--changed",
+      ],
+      {
+        cwd: dirname(project),
+        encoding: "utf8",
+      },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), {
+      status: "resolved",
+      sources: [
+        { path: "browser/moving.spec.mjs", makeMe: false, pageObjects: true },
+        { path: "browser/new.spec.mjs", makeMe: false, pageObjects: true },
+      ],
+    });
+  }
 });

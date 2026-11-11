@@ -91,7 +91,7 @@ Jane-chan; Story Branch Mode; publisher `dashboard-territory.local-open-dough`.
 Owned workspace and branch: this checkout, `codex/apply-shared-page-object-rules-per-entry`.
 Origin trunk `main`; increment target `refs/heads/codex/apply-shared-page-object-rules-per-entry`.
 Starting revision `2599c7a5db27aac64c5923b592b7f5b66079d348`; published base/candidate
-`48fd7667f08c15e5121be38593e11fb659f20298` (slice 1 accepted on execution branch). CI observer coordinator `jane-chan-307`,
+`e2806cc5e0e2a87eff183cb0305e17cb6b6fd9d0` (CI repair accepted on execution branch). CI observer coordinator `jane-chan-307`,
 `/tmp/dough-ci-501/watch-qLujG5`, cell `g230:3`, session 51876, PID 34832.
 See [execution context and retained proof](native-observations.md#execution-context)
 for checkout setup, accepted observations, Cursor exception and recovery boundary.
@@ -122,6 +122,12 @@ Reported: slice 2 — "CI payload-declaration-links failed because delegation.md
 Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts"
 Disposition: proved by slice 2: ci-repair-observations.md; full payload closure, real install/update, grouped and legacy inspection, and Bash 3.2 regression pass
 
+
+### G5. Changed-scope regular-file filter needs membership correspondence
+Reported: slice 3 — "Acceptance found lstat regular-file filtering excludes an existing symlink source before shared membership is consulted; source semantics and observing proof must settle this restriction."
+Story clause: "Current membership determines application"
+Disposition: proved by slice 3: slice-3-observations.md, acceptance correction for current symlink source membership; public changed command selects an in-repository symlink by its current alias path, and missing target/deleted link requires no conversion
+Commitment: 19
 ## Ordered slices
 
 ### 1. Observe scoped page-object guidance during ordinary browser test work
@@ -179,7 +185,7 @@ MakeMe-only work must still use its builder without receiving a page-object rule
 
 ### 3. Apply the same rule automatically during implicated refactoring
 Type: Behavior
-Status: planned
+Status: done
 Proof: Public changed-scope command contracts, materializing MakeMe repository
 descriptions with Git actions/independent expectations at the call site, through
 `npm test -- <affected changed-scope tests>`. One representative native mixed-entry

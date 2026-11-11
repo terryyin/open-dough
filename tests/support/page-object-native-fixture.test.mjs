@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { createPageObjectProject } from "./page-object-native-fixture.mjs";
+import { createPageObjectRefactorProject } from "./page-object-native-refactor-fixture.mjs";
 
 test("the native fixture installs one candidate in each existing host layout with distinct entries", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "page-object-layout-"));
@@ -72,4 +73,46 @@ test("the fresh opted-out fixture has no enabled entry", async (t) => {
     settings.intent.locations.map((entry) => entry.pageObjects),
     [false, false],
   );
+});
+
+test("the refactor fixture carries current guidance and mixed staged/untracked scenarios", async (t) => {
+  const root = mkdtempSync(join(tmpdir(), "page-object-refactor-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const { project, installed } = await createPageObjectRefactorProject(
+    join(root, "project"),
+    "codex",
+  );
+  const status = execFileSync("git", ["-C", project, "status", "--short"], {
+    encoding: "utf8",
+  });
+  assert.equal(
+    status,
+    "A  browser/library.spec.mjs\n?? legacy/library.spec.mjs\n",
+  );
+  assert.equal(
+    readFileSync(
+      join(installed, "..", "dough-post-change-refactor", "SKILL.md"),
+      "utf8",
+    ),
+    readFileSync("src/skills/dough-post-change-refactor/SKILL.md", "utf8"),
+  );
+  const result = execFileSync(
+    process.execPath,
+    [
+      join(
+        installed,
+        "..",
+        "dough-execute-plan",
+        "scripts/test-entry-rules.mjs",
+      ),
+      "--project",
+      project,
+      "--changed",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.deepEqual(JSON.parse(result).sources, [
+    { path: "browser/library.spec.mjs", makeMe: false, pageObjects: true },
+    { path: "legacy/library.spec.mjs", makeMe: false, pageObjects: false },
+  ]);
 });
