@@ -60,3 +60,25 @@ own builders.
 [Queue builder](support/ciQueueTestData.mjs) ·
 [Coverage builder](support/ciRevisionCoverageTestData.mjs) ·
 [Reuse and policy builders](support/ciReusePolicyTestData.mjs)
+
+Build a retained landed build with
+`makeMe.aKeptBuild.with({ revision, state, runId, ...facts }).please()`
+(attempt-start `timingBasis` is incidental unless the case overrides or clears
+it) and a comparison endpoint slot with
+`makeMe.aStoryCiComparisonSlot.with({ kind, ...facts }).please()`.
+Build an authenticated CI proof endpoint answer with
+`makeMe.anIntentCiProofAnswer.with({ ...subject, checkedAt, proof }).please()`.
+Name a GitHub proof subject with
+`makeMe.aCiProofRun.with({ runId, runAttempt, revision }).please()`,
+an adapter proof subject with
+`makeMe.aCiAdapterProofAttempt.with({ runId, attemptId, branch, revision }).please()`,
+a collector/artifact run with
+`makeMe.aCiProofCollectorRun.with({ repository, runId, attempt, revision }).please()`,
+and a collector adapter attempt with
+`makeMe.anAdapterProofCollectorAttempt.with({ repository, attemptId, revision }).please()`.
+Name an unusable Landed build identity with
+`makeMe.anUnusableBuild.with({ revision, selection, runId, ...facts }).please()`.
+Keep collector fragment values and deliberately invalid wire inputs literal.
+[Comparison answer builders](support/ciComparisonAnswerTestData.mjs) ·
+[Landed history builder](support/landedCiHistoryTestData.mjs) ·
+[Comparison view builders](support/comparisonViewTestData.mjs)

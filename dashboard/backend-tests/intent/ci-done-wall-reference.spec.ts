@@ -53,21 +53,23 @@ test("a Done read uses its exact publication, excludes its shared equivalent att
         .receivedAt(facts.at)
         .please(),
       `run/${runId}/1`,
-      {
-        revision,
-        state: "pass",
-        runId,
-        runAttempt: 1,
-        runUrl: `https://ci.invalid/runs/${runId}`,
-        startedAt: start,
-        completedAt: new Date(
-          Date.parse(start) + (selected ? 120000 : 100000),
-        ).toISOString(),
-        proof: makeMe.aCiProof
-          .forRun({ revision, runId })
-          .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
-          .please(),
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          state: "pass",
+          runId,
+          runAttempt: 1,
+          runUrl: `https://ci.invalid/runs/${runId}`,
+          startedAt: start,
+          completedAt: new Date(
+            Date.parse(start) + (selected ? 120000 : 100000),
+          ).toISOString(),
+          proof: makeMe.aCiProof
+            .forRun({ revision, runId })
+            .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+            .please(),
+        })
+        .please(),
       title === "execution" ? "equivalent" : future ? "later" : "exact",
     );
   }

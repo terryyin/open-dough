@@ -94,12 +94,14 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
       completedAt: "2026-11-05T10:20:30Z",
     })
     .please();
-  const proofRun = {
-    repository: "terryyin/open-dough",
-    runId: 120,
-    attempt: 1,
-    revision: newest.revision,
-  };
+  const proofRun = makeMe.aCiProofCollectorRun
+    .with({
+      repository: "terryyin/open-dough",
+      runId: 120,
+      attempt: 1,
+      revision: newest.revision,
+    })
+    .please();
   const text = collectedScopeFileSummary(proofRun, [
     ["folder/newest.spec.ts", 2100, 210],
     ["folder/zero.spec.ts", 0, 0],

@@ -17,19 +17,25 @@ const build = (n, ms = 100, measuredRevision = n, facts = {}) => {
   const startedAt = `2026-11-${String(20 - n).padStart(2, "0")}T10:00:00Z`;
   const key = `run/${n}/1`;
   return makeMe.aLandedCiHistory
-    .recording(landing(n), key, {
-      revision: rev(measuredRevision),
-      state: "pass",
-      runId: n,
-      runAttempt: 1,
-      startedAt,
-      completedAt: new Date(Date.parse(startedAt) + ms).toISOString(),
-      proof: makeMe.aCiProof
-        .forRun({ revision: rev(measuredRevision), runId: n })
-        .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+    .recording(
+      landing(n),
+      key,
+      makeMe.aKeptBuild
+        .with({
+          revision: rev(measuredRevision),
+          state: "pass",
+          runId: n,
+          runAttempt: 1,
+          startedAt,
+          completedAt: new Date(Date.parse(startedAt) + ms).toISOString(),
+          proof: makeMe.aCiProof
+            .forRun({ revision: rev(measuredRevision), runId: n })
+            .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+            .please(),
+          ...facts,
+        })
         .please(),
-      ...facts,
-    })
+    )
     .please().builds[key];
 };
 

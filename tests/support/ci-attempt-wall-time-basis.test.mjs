@@ -56,21 +56,31 @@ for (const timingBasis of [undefined, "workflow-creation"]) {
       .please();
     const history = makeMe.aLandedCiHistory
       .inTrunkOrder([revision])
-      .recording(landing, "run/41/1", {
-        revision,
-        state: "pass",
-        runId: 41,
-        runAttempt: 1,
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:03:00Z",
-        timingBasis,
-        proof: makeMe.aCiProof
-          .forRun({ revision, runId: 41 })
-          .entries([
-            makeMe.aCiProofEntry.at("tests").counting(1).timed(450).please(),
-          ])
+      .recording(
+        landing,
+        "run/41/1",
+        makeMe.aKeptBuild
+          .with({
+            revision,
+            state: "pass",
+            runId: 41,
+            runAttempt: 1,
+            startedAt: "2026-11-05T10:00:00Z",
+            completedAt: "2026-11-05T10:03:00Z",
+            timingBasis,
+            proof: makeMe.aCiProof
+              .forRun({ revision, runId: 41 })
+              .entries([
+                makeMe.aCiProofEntry
+                  .at("tests")
+                  .counting(1)
+                  .timed(450)
+                  .please(),
+              ])
+              .please(),
+          })
           .please(),
-      })
+      )
       .please();
     assert.deepEqual(
       historyEntries(history).map(({ kind, reason }) => ({ kind, reason })),

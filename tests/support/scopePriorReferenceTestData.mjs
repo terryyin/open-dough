@@ -51,20 +51,22 @@ export function scopeReferenceReading(
     history.recording(
       landing,
       `run/${runId}/1`,
-      {
-        revision: measuredRevision,
-        state: "pass",
-        runId,
-        runAttempt: 1,
-        startedAt: `2026-11-${String(runId).padStart(2, "0")}T00:00:00Z`,
-        proof:
-          measuredEntries === undefined
-            ? makeMe.aCiProof.unavailableBecause("expired").please()
-            : makeMe.aCiProof
-                .forRun({ revision: measuredRevision, runId })
-                .entries(measuredEntries)
-                .please(),
-      },
+      makeMe.aKeptBuild
+        .with({
+          revision: measuredRevision,
+          state: "pass",
+          runId,
+          runAttempt: 1,
+          startedAt: `2026-11-${String(runId).padStart(2, "0")}T00:00:00Z`,
+          proof:
+            measuredEntries === undefined
+              ? makeMe.aCiProof.unavailableBecause("expired").please()
+              : makeMe.aCiProof
+                  .forRun({ revision: measuredRevision, runId })
+                  .entries(measuredEntries)
+                  .please(),
+        })
+        .please(),
       options.future && index === 0
         ? "later"
         : options.sameAttempt && index === entries.length - 1

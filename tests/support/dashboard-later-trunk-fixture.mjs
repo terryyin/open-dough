@@ -123,9 +123,12 @@ export function sourceFor(repo, lookup) {
 
 // The landing's own run `runId` at `revision`, as Landed names it when it
 // could not use it: its exact build.
-export const ownBuild = (revision, runId) => ({
-  revision,
-  selection: "exact",
-  runId,
-  runAttempt: 1,
-});
+export const ownBuild = (revision, runId) =>
+  makeMe.anUnusableBuild
+    .with({
+      revision,
+      selection: "exact",
+      runId,
+      runAttempt: 1,
+    })
+    .please();

@@ -96,12 +96,14 @@ test("an unpositioned twenty-first landing waits without losing the known twenty
       .please(),
   ]);
 
-  const proofRun = {
-    repository: "terryyin/open-dough",
-    runId: 320,
-    attempt: 1,
-    revision: newest.revision,
-  };
+  const proofRun = makeMe.aCiProofCollectorRun
+    .with({
+      repository: "terryyin/open-dough",
+      runId: 320,
+      attempt: 1,
+      revision: newest.revision,
+    })
+    .please();
   const run = makeMe.aCiRun
     .with({
       headSha: newest.revision,

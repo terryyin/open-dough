@@ -56,8 +56,8 @@ export function retainedTrunkProofs(
       .please();
     const startedAt = facts.measuredAt(index);
     const key = `run/${String(runId)}/1`;
-    const build = makeMe.aLandedCiHistory
-      .recording(landing, key, {
+    const build = makeMe.aKeptBuild
+      .with({
         revision,
         state: "pass" as const,
         runId,
@@ -69,9 +69,7 @@ export function retainedTrunkProofs(
         completedAt: new Date(Date.parse(startedAt) + 30_000).toISOString(),
         proof,
       })
-      .please().builds[key];
-    if (build === undefined)
-      throw new Error(`No arranged retained build ${key}`);
+      .please();
     return { landing, key, ms, build };
   });
 }

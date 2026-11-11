@@ -58,21 +58,27 @@ test("each declared unit keeps its own values and segments across partial, untim
       .deliveredAs({ delivery: `units-${runId}`, receipt: `units-${runId}` })
       .receivedAt(`2026-11-0${runId}T00:00:00Z`)
       .please();
-    history.recording(landing, `run/${runId}/1`, {
-      revision,
-      state: "pass",
-      runId,
-      runAttempt: 1,
-      proof: makeMe.aCiProof
-        .forRun({ revision, runId })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .holding(...results)
+    history.recording(
+      landing,
+      `run/${runId}/1`,
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          state: "pass",
+          runId,
+          runAttempt: 1,
+          proof: makeMe.aCiProof
+            .forRun({ revision, runId })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .holding(...results)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    });
+    );
     return landing;
   });
   const selected = landings.at(-1);
@@ -174,21 +180,27 @@ test("declared-unit scope absence, missing breakdown and absent unit remain diff
       .deliveredAs({ delivery: `scope-${runId}`, receipt: `scope-${runId}` })
       .receivedAt(`2026-11-0${runId}T00:00:00Z`)
       .please();
-    history.recording(landing, `run/${runId}/1`, {
-      revision,
-      state: "pass",
-      runId,
-      runAttempt: 1,
-      proof: makeMe.aCiProof
-        .forRun({ revision, runId })
-        .entries([
-          makeMe.aCiProofEntry
-            .at("tests")
-            .holding(...evidence)
+    history.recording(
+      landing,
+      `run/${runId}/1`,
+      makeMe.aKeptBuild
+        .with({
+          revision,
+          state: "pass",
+          runId,
+          runAttempt: 1,
+          proof: makeMe.aCiProof
+            .forRun({ revision, runId })
+            .entries([
+              makeMe.aCiProofEntry
+                .at("tests")
+                .holding(...evidence)
+                .please(),
+            ])
             .please(),
-        ])
+        })
         .please(),
-    });
+    );
     return landing;
   });
   const selected = landings.at(-1);

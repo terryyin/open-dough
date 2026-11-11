@@ -271,7 +271,7 @@ passed. Refactor moved reuse-policy MakeMe properties into
 
 ### 8. CI comparison, retained builds, and proof answers express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Key example 2 and the comparison / landed-history / proof audit section.
 Convert remaining inline retained builds, comparison slots, proof subjects, and
 endpoint responses through shared builders. Run affected Node history tests and
@@ -281,6 +281,12 @@ wire inputs literal.
 Behavior: Comparison and history sites still hand-build builds or slots →
 convert through MakeMe → call sites name revision, run or adapter attempt, and
 proof; retained build and endpoint response come from builders.
+
+Accepted evidence (pre-done): `aKeptBuild`, `aStoryCiComparisonSlot`,
+`anIntentCiProofAnswer`, and related builders; collector/invalid wire stay
+literal. Commitments 5.6 and E2 observed (`comparisonMountFacts`). Typecheck,
+native-evidence identity, and focused Node/dashboard/skill selections passed.
+Refactor shared `attemptTimingBasis` and compacted oversized converted tests.
 
 ### 9. Audited locations are converted or recorded; displaced constructors are gone
 Type: Behavior

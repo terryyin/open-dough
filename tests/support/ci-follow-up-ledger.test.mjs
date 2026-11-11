@@ -168,12 +168,18 @@ test("history eviction and faster workflow representation restore the original o
   await ledgerAction(machine.home, { ...facts, action: "register" });
   await ledgerAction(machine.home, { ...facts, action: "spend" });
   const rebuilt = makeMe.aLandedCiHistory
-    .recording(facts.landing, "run/72/2", {
-      ...facts.request.original,
-      runId: 72,
-      runAttempt: 2,
-      completedAt: "2026-11-10T00:01:40Z",
-    })
+    .recording(
+      facts.landing,
+      "run/72/2",
+      makeMe.aKeptBuild
+        .with({
+          ...facts.request.original,
+          runId: 72,
+          runAttempt: 2,
+          completedAt: "2026-11-10T00:01:40Z",
+        })
+        .please(),
+    )
     .please();
   const answer = await ledgerAction(machine.home, {
     ...facts,
@@ -197,11 +203,13 @@ test("unreadable follow-up evidence blocks a rebuilt later attempt from replacin
   const machine = repeatMachine(t),
     facts = inputs();
   await ledgerAction(machine.home, setting(true));
-  const repeat = {
-    ...facts.request.original,
-    runAttempt: 2,
-    completedAt: "2026-11-10T00:01:40Z",
-  };
+  const repeat = makeMe.aKeptBuild
+    .with({
+      ...facts.request.original,
+      runAttempt: 2,
+      completedAt: "2026-11-10T00:01:40Z",
+    })
+    .please();
   const resolution = makeMe.aLandedCiResolution.measuring(repeat).please();
   writeFileSync(machine.file, "{unreadable");
   const answer = await ledgerAction(machine.home, {
@@ -225,7 +233,9 @@ test("an already retained exact original at attempt2 remains readable when the f
   const machine = repeatMachine(t),
     facts = inputs();
   await ledgerAction(machine.home, setting(true));
-  const original = { ...facts.request.original, runAttempt: 2 };
+  const original = makeMe.aKeptBuild
+    .with({ ...facts.request.original, runAttempt: 2 })
+    .please();
   const resolution = makeMe.aLandedCiResolution.measuring(original).please();
   await ledgerAction(machine.home, {
     ...facts,

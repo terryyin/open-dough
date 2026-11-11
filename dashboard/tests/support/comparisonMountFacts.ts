@@ -38,19 +38,22 @@ export function preparedComparison() {
     })
     .please();
   const slots = comparisonRevisions.map(
-    (revision, index): Extract<StoryCiComparisonSlot, { kind: "build" }> => ({
-      kind: "build",
-      revision,
-      subject: ["before", "branch", "landed"][index] ?? "build",
-      state: "pass",
-      selection: "exact",
-      laterWithoutResult: 0,
-      runId: index + 1,
-      runAttempt: 1,
-      startedAt: "2026-11-09T00:00:00Z",
-      completedAt: "2026-11-09T00:04:00Z",
-      timeWithoutRunnerWaits: { milliseconds: 120_000 },
-    }),
+    (revision, index): Extract<StoryCiComparisonSlot, { kind: "build" }> =>
+      makeMe.aStoryCiComparisonSlot
+        .with({
+          kind: "build" as const,
+          revision,
+          subject: ["before", "branch", "landed"][index] ?? "build",
+          state: "pass" as const,
+          selection: "exact" as const,
+          laterWithoutResult: 0,
+          runId: index + 1,
+          runAttempt: 1,
+          startedAt: "2026-11-09T00:00:00Z",
+          completedAt: "2026-11-09T00:04:00Z",
+          timeWithoutRunnerWaits: { milliseconds: 120_000 },
+        })
+        .please(),
   );
   const [baseline, branch, landed] = slots;
   if (!baseline || !branch || !landed) {
@@ -75,21 +78,23 @@ export function preparedComparison() {
     if (revision === undefined) {
       throw new Error("An unarranged proof was requested");
     }
-    return {
-      runId,
-      runAttempt: 1,
-      revision,
-      checkedAt: comparisonCheckedAt,
-      proof: makeMe.aCiProof
-        .summaryFor({ runId, runAttempt: 1, revision }, [
-          makeMe.aCiProofEntry
-            .at("dashboard/tests")
-            .counting(runId + 1)
-            .timed(runId * 1_000)
-            .please(),
-        ])
-        .please(),
-    };
+    return makeMe.anIntentCiProofAnswer
+      .with({
+        runId,
+        runAttempt: 1,
+        revision,
+        checkedAt: comparisonCheckedAt,
+        proof: makeMe.aCiProof
+          .summaryFor({ runId, runAttempt: 1, revision }, [
+            makeMe.aCiProofEntry
+              .at("dashboard/tests")
+              .counting(runId + 1)
+              .timed(runId * 1_000)
+              .please(),
+          ])
+          .please(),
+      })
+      .please();
   };
   return { source, work, identity: comparisonIdentity, answer, proof };
 }

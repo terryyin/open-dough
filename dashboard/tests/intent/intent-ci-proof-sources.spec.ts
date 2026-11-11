@@ -37,7 +37,9 @@ test("a published CI summary for a sources location shows its group and file res
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ancestor = { repository, runId: 12, attempt: 2, revision: signup };
+  const ancestor = makeMe.aCiProofCollectorRun
+    .with({ repository, runId: 12, attempt: 2, revision: signup })
+    .please();
   const shellTest = "scripts/test/worktree_setup.sh.test";
   const nodeTest = "scripts/ci/ci-proof-outcomes.test.mjs";
   const settings = makeMe.intentSettings

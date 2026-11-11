@@ -57,7 +57,9 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const ancestor = { repository, runId: 12, attempt: 2, revision: signup };
+  const ancestor = makeMe.aCiProofCollectorRun
+    .with({ repository, runId: 12, attempt: 2, revision: signup })
+    .please();
   const ci = publishStoryCi(page, {
     ".planning/open-dough.json": intentSettingsText(
       makeMe.intentSettings
