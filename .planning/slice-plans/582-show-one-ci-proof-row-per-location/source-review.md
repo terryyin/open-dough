@@ -9,7 +9,7 @@ No plan, product, or proof supplied. Returned 2026-11-11.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer reading Intent's CI status can see the full result for a test location without scanning repeated paths. | slice 2 | |
+| 1 | A developer reading Intent's CI status can see the full result for a test location without scanning repeated paths. | slice 2 | observed: production Doughnut run 42828209530 attempt 1 Proof shows one row per path with both types' labeled counts/times; no repeated paths |
 | 2 | Show each location once in the Proof table, with each result type's own labeled counts and execution time in that row. | slice 1 | observed: dashboard/tests/intent/intent-ci-proof-units.spec.ts one location row; IntentCiProof entryProofCellsOf one row per path |
 | 3 | In the CI status tab's Proof table, show one row for each declared location. | slice 1 | observed: dashboard/tests/intent/intent-ci-proof-units.spec.ts expectProofRows four paths; getByRole row count 5 |
 | 4.1 | Within that row, label each reported result type: test cases | slice 1 | observed: intent-ci-proof-units.spec.ts labeled test cases lines in frontend/tests and scripts rows |
@@ -31,7 +31,7 @@ No plan, product, or proof supplied. Returned 2026-11-11.
 | 13 | Keep whole location rows together when sorting the table. | slice 1 | observed: intent-ci-status-sort.spec.ts multi-unit whole-row keyboard sort |
 | 14.1 | Preserve readable single-type summaries | slice 1 | observed: single-unit flat presentation retained; neighboring intent-ci-proof.spec.ts green |
 | 14.2 | Preserve readable legacy summaries | slice 1 | observed: intent-ci-proof-legacy-results.spec.ts green |
-| 15 | A dashboard deployment delivers the change for already published summaries, without rerunning the observed project's CI. | slice 2 | |
+| 15 | A dashboard deployment delivers the change for already published summaries, without rerunning the observed project's CI. | slice 2 | observed: watcher running 28cf896d… (contains slice 1); same published run 42828209530 attempt 1 read with grouped rows; no Doughnut CI rerun |
 | 16 | This increment does not redesign folder Summaries. | | G1 |
 | 17 | This increment does not redesign file Proof. | | G2 |
 | 18 | This increment does not redesign story comparison tables. | | G3 |
@@ -41,7 +41,7 @@ No plan, product, or proof supplied. Returned 2026-11-11.
 | 22 | Doughnut's two Vitest shards appear as one `frontend/tests` row with 2,542 passing test cases and zero file-level failures. The case execution time is the sum across both shards. If a file fails before any cases run, its failure is visible in that same row, labeled as a test file result. | slice 1 | observed: intent-ci-proof-units.spec.ts frontend/tests 2542 + zero files + with-failure file failure |
 | 23 | Doughnut's `scripts` row shows 450 passing Node test cases and 22 passing Bash test files, with separately labeled execution times (about 1 min 39 s for cases and 34.2 s for files in the observed summary). Its thirteen empty Node file reports do not make the Bash file time partial. | slice 1 | observed: intent-ci-proof-units.spec.ts scripts 450 cases / 22 files / 1 min 39 s / 34.2 s |
 | 24 | A location reports timed cases and a missing file-results shard. It still has one row: the case time remains measured, and the missing-part explanation names test files. Sorting moves this whole row without mixing its figures with another location's or summing different types. | slice 1 | observed: intent-ci-proof-units.spec.ts mixed/gap measured case time + file Part 2 missing; sort moves whole row |
-| 25 | After the new dashboard is deployed, opening the same already published run shows these combined rows. A single-type or older legacy summary remains readable with its own labels and timing information. | slice 2 | |
+| 25 | After the new dashboard is deployed, opening the same already published run shows these combined rows. A single-type or older legacy summary remains readable with its own labels and timing information. | slice 2 | observed: frontend/tests and scripts combined rows; single-type e2e_test/features and backend/src/test/java still readable with own counts/times |
 | 26.1 | Keep the Entry column | slice 1 | observed: CiProofFigures/Table keep Entry scope column |
 | 26.2 | Keep the Counts column | slice 1 | observed: CiProofFigures proofHeaders Counts column |
 | 26.3 | Keep the Test execution time column | slice 1 | observed: CiProofFigures proofHeaders Test execution time column |

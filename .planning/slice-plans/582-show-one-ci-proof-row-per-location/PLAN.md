@@ -130,7 +130,7 @@ implementation, lasting intent prose, regression proof, and local refactoring.
 ### 2. Read an existing run through the deployed dashboard
 Type: Behavior
 
-Status: planned
+Status: done
 
 Pre-condition: slice 1 has passing proof and is published to `origin/main`.
 Trigger: the ordinary watcher activates a qualifying revision containing it,
@@ -260,3 +260,11 @@ Commitment: 30
 - Node sort: `caffeinate -s -i node --test tests/support/intent-ci-proof-sort.test.mjs tests/support/intent-ci-proof-grouped-sort.test.mjs tests/support/intent-ci-comparison-sort.test.mjs tests/support/intent-ci-comparison-signed-sort.test.mjs` — pass (14).
 - Neighbors reused: `intent-ci-status-execution-time.spec.ts`, `intent-ci-proof.spec.ts`.
 - `npm run typecheck:dashboard` — pass.
+
+## Accepted proof (slice 2)
+
+Live production observation 2026-11-11 at `http://127.0.0.1:4173/`:
+
+- Selected/running deployment `28cf896d38d64aaff6af0f7c3954704ff360f169` (merge of slice 1); deployment dir `~/.open-dough/dashboard/deployments/28cf896d38d6-d70RLh` HEAD matches.
+- Doughnut Intent CI status: run `42828209530` attempt 1, revision `35366d2509bd7568d8ac4813245f62f80687d142`. No Doughnut CI rerun; artifact readable.
+- Proof table four paths once each: `frontend/tests` 2542 cases / no test files / 1 min 5 s / No timings; `scripts` 450 cases / 22 files / 1 min 39 s / 34.2 s; single-type `e2e_test/features` and `backend/src/test/java` still readable.
