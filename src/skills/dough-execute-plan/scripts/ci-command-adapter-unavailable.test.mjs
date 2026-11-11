@@ -79,7 +79,11 @@ else if (mode === 'timeout' || mode === 'blocking') {
   chmodSync(adapter, 0o700);
   writeFileSync(
     join(planning, "open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   return { root, requests, pids };
 }

@@ -9,6 +9,8 @@
 
 import { cpSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import type { OptionsDefinition } from "../../src/commandOptions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   launch,
@@ -57,35 +59,32 @@ test.describe(`agent launch boundary, exclusive option groups`, () => {
     );
   });
 
-  const entry = (flag: string) => ({
-    flag,
-    label: flag,
-    summary: `${flag}.`,
-    instruction: `${flag}.`,
-  });
+  const entry = (flag: string) => makeMe.anOptionsEntry.with({ flag }).please();
 
   // Installs a definition of options A and B and focus C, with these groups.
   const defineWith = (
-    groups: unknown[],
+    groups: NonNullable<OptionsDefinition["groups"]>,
     { focuses = [c] }: { focuses?: readonly string[] } = {},
   ) => {
     writeFileSync(
       path.join(skillFolder(), "references", "refinement-options.json"),
-      JSON.stringify({
-        command: skill,
-        options: [a, b].map(entry),
-        focuses: focuses.map(entry),
-        groups,
-      }),
+      JSON.stringify(
+        makeMe.anOptionsDefinition
+          .with({
+            command: skill,
+            options: [a, b].map(entry),
+            focuses: focuses.map(entry),
+            groups,
+          })
+          .please(),
+      ),
     );
   };
 
-  const group = (...flags: string[]) => ({
-    id: "pair",
-    label: "Pair",
-    selection: "exclusive",
-    flags,
-  });
+  const group = (...flags: string[]) =>
+    makeMe.anExclusiveOptionGroup
+      .with({ id: "pair", label: "Pair", flags })
+      .please();
 
   const argvOf = async (options: string[]) => {
     await closeOpenSessions(server);

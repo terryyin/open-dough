@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { receiptPrefix } from "./ci-mailbox.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import {
@@ -71,7 +72,11 @@ if (request.operation === 'discover') {
   chmodSync(adapter, 0o700);
   writeFileSync(
     join(project, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   const env = {
     ...process.env,

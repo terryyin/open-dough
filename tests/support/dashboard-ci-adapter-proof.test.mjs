@@ -36,7 +36,11 @@ else process.stdout.write(answer);
   );
   writeFileSync(
     path.join(folder, ".planning", "open-dough.json"),
-    `${JSON.stringify({ ciAdapter: [process.execPath, "adapter.mjs"] })}\n`,
+    `${JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, "adapter.mjs"] })
+        .please(),
+    )}\n`,
   );
   return folder;
 }

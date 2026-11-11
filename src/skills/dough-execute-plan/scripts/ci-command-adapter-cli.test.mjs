@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import {
   callsReached,
   projectFixture,
@@ -55,9 +56,11 @@ async function runObserverUntil(path, count, fixture, entry = observer) {
 }
 
 test("normal observer CLI selects the configured command", async (t) => {
-  const fixture = projectFixture(t, (adapter) => ({
-    ciAdapter: [process.execPath, adapter],
-  }));
+  const fixture = projectFixture(t, (adapter) =>
+    makeMe.projectCiSettings
+      .with({ ciAdapter: [process.execPath, adapter] })
+      .please(),
+  );
   const stdout = await runObserverUntil(fixture.calls, 1, fixture);
 
   assert.equal(stdout, "");
@@ -69,9 +72,11 @@ test("normal observer CLI selects the configured command", async (t) => {
 });
 
 test("a symlink-equivalent entry path still selects the configured command", async (t) => {
-  const fixture = projectFixture(t, (adapter) => ({
-    ciAdapter: [process.execPath, adapter],
-  }));
+  const fixture = projectFixture(t, (adapter) =>
+    makeMe.projectCiSettings
+      .with({ ciAdapter: [process.execPath, adapter] })
+      .please(),
+  );
   const linkDir = mkdtempSync(join(tmpdir(), "ci-command-adapter-symlink-"));
   const entry = join(linkDir, "watch-ci-entry.mjs");
   symlinkSync(observer, entry);
@@ -89,7 +94,7 @@ test("a symlink-equivalent entry path still selects the configured command", asy
 
 for (const [name, configuration] of [
   ["absent", null],
-  ["empty", () => ({ ciAdapter: [] })],
+  ["empty", () => makeMe.projectCiSettings.with({ ciAdapter: [] }).please()],
 ]) {
   test(`${name} ciAdapter retains GitHub discovery`, async (t) => {
     const fixture = projectFixture(t, configuration);

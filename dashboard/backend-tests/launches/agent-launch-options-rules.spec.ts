@@ -14,44 +14,47 @@ import {
   selectionProblems,
   withChoice,
   withoutGroup,
+  type OptionsDefinition,
 } from "../../src/commandOptions.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 const [a, b, c, d] = ["--a", "--b", "--c", "--d"];
 
-const entry = (flag: string) => ({
-  flag,
-  label: flag,
-  summary: `${flag}.`,
-  instruction: `${flag}.`,
-});
+const entry = (flag: string) => makeMe.anOptionsEntry.with({ flag }).please();
 
-const group = (id: string, ...flags: string[]) => ({
-  id,
-  label: id.toUpperCase(),
-  selection: "exclusive",
-  flags,
-});
+const group = (id: string, ...flags: string[]) =>
+  makeMe.anExclusiveOptionGroup
+    .with({ id, label: id.toUpperCase(), flags })
+    .please();
 
 // A definition of options A and B and focuses C and D, with these groups.
-const definitionWith = <Group>(
-  groups: readonly Group[] | undefined,
+const definitionWith = (
+  groups: OptionsDefinition["groups"],
   {
     options = [a, b],
     focuses = [c, d],
   }: { options?: readonly string[]; focuses?: readonly string[] } = {},
-) => ({
-  command: "dough-story-refinement",
-  options: options.map(entry),
-  focuses: focuses.map(entry),
-  ...(groups ? { groups } : {}),
-});
+) =>
+  makeMe.anOptionsDefinition
+    .with({
+      command: "dough-story-refinement",
+      options: options.map(entry),
+      focuses: focuses.map(entry),
+      ...(groups ? { groups } : {}),
+    })
+    .please();
 
 test.describe("options definition schema", () => {
   test("accepts a definition with or without groups and focuses", () => {
     for (const definition of [
       definitionWith([group("pair", a, b)]),
       definitionWith(undefined),
-      { command: "dough-story-refinement", options: [entry(a)] },
+      makeMe.anOptionsDefinition
+        .with({
+          command: "dough-story-refinement",
+          options: [entry(a)],
+        })
+        .please(),
     ]) {
       expect(optionsDefinitionSchema.safeParse(definition).success).toBe(true);
     }
@@ -76,7 +79,12 @@ test.describe("options definition schema", () => {
     ],
     [
       "a group whose selection is not exclusive",
-      definitionWith([{ ...group("pair", a, b), selection: "any" }]),
+      {
+        command: "dough-story-refinement",
+        options: [entry(a), entry(b)],
+        focuses: [entry(c), entry(d)],
+        groups: [{ ...group("pair", a, b), selection: "any" }],
+      },
     ],
     [
       "a flag in both options and focuses",

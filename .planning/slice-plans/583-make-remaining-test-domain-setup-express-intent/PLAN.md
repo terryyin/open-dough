@@ -213,7 +213,7 @@ methods and oversized records setup.
 
 ### 5. Project sources, CI settings, and launch options express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Audit section for project and launch-option configuration. Convert
 published sources, skill option definitions, project CI adapter settings, and
 valid terminal-theme recovery inputs. Run affected option, intent, adapter, and
@@ -223,6 +223,12 @@ explicit.
 Behavior: Configuration fixtures hand-build valid sources and options → convert
 through `aPublishedSource` and related builders → call sites state chosen flags,
 groups, and adapters; invalid inputs stay literal.
+
+Accepted evidence (pre-done): `anOptionsDefinition` / `projectCiSettings` /
+`aTerminalThemeSetting` plus reused `aPublishedSource`; audit section converted;
+corrupt/invalid inputs stay literal. Commitment 5.3 observed. Typecheck,
+native-evidence identity, and focused dashboard/Node selections passed. Refactor
+extracted MakeMe property helpers to keep `makeMe.mjs` under the size check.
 
 ### 6. Published seeds, plans, and backlog membership express intent through MakeMe
 Type: Behavior

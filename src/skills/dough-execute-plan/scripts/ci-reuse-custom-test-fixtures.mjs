@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import assert from "node:assert/strict";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { exec, lsRemoteSha } from "./publication-test-fixtures.mjs";
 import { git } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { publishHistoryPreservingCandidate } from "./history-preserving-publication.mjs";
@@ -31,7 +32,9 @@ export async function installCustomReuseProvider(fixture) {
   const command = [process.execPath, script, "adapter", state];
   writeFileSync(
     join(fixture.execution, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: command }),
+    JSON.stringify(
+      makeMe.projectCiSettings.with({ ciAdapter: command }).please(),
+    ),
   );
   let sequence = 0;
   const schedule = async (mode, sha, options = {}) => {

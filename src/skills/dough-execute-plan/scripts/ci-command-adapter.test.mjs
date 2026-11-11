@@ -10,6 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { createCommandAcquisition } from "./ci-command-adapter.mjs";
 import {
   answeredUnitAttempts,
@@ -54,10 +55,14 @@ async function observeUntilCalls(root, path, count) {
 }
 
 test("observer selects one configured command and stays quiet through pending then success", async (t) => {
-  const fixture = projectFixture(t, (adapter) => ({
-    ciAdapter: [process.execPath, adapter],
-    ciWorkflow: { unusedNativeSetting: true },
-  }));
+  const fixture = projectFixture(t, (adapter) =>
+    makeMe.projectCiSettings
+      .with({
+        ciAdapter: [process.execPath, adapter],
+        ciWorkflow: { unusedNativeSetting: true },
+      })
+      .please(),
+  );
   const events = await observeUntilCalls(fixture.root, fixture.calls, 2);
   const requests = readFileSync(fixture.requests, "utf8")
     .trim()
@@ -212,7 +217,11 @@ if (request.operation === 'diagnose') {
   mkdirSync(join(root, ".planning"));
   writeFileSync(
     join(root, ".planning/open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   const events = await observeUntilCalls(root, discoveries, 4);
 

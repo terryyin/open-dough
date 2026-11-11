@@ -9,6 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { makeMe } from "../../../../tests/support/makeMe.mjs";
 import { diagnosticExcerptBytes } from "./ci-command-adapter.mjs";
 import { discoverAttempt } from "./ci-command-adapter-test-fixtures.mjs";
 import { watchCiExecution } from "./watch-ci.mjs";
@@ -72,7 +73,11 @@ if (request.operation === 'discover') {
   chmodSync(adapter, 0o700);
   writeFileSync(
     join(planning, "open-dough.json"),
-    JSON.stringify({ ciAdapter: [process.execPath, adapter] }),
+    JSON.stringify(
+      makeMe.projectCiSettings
+        .with({ ciAdapter: [process.execPath, adapter] })
+        .please(),
+    ),
   );
   t.after(() => rmSync(root, { recursive: true, force: true }));
   return root;

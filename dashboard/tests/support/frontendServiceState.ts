@@ -18,21 +18,22 @@ import { intentSettingsText } from "./intentSettingsFile.ts";
 
 export const frontendRevision = openDough.revision;
 
-export const openDoughSource: PublishedSource = {
-  id: "open-dough",
-  label: "Open Dough",
-  repository: openDough.repository,
-  ref: openDough.ref,
-  backlogPath: ".planning/PRODUCT-BACKLOG.md",
-};
+export const openDoughSource: PublishedSource = makeMe.aPublishedSource
+  .with({
+    id: "open-dough",
+    label: "Open Dough",
+    repository: openDough.repository,
+    ref: openDough.ref,
+  })
+  .please();
 
-export const doughnutSource: PublishedSource = {
-  id: "doughnut",
-  label: "Doughnut",
-  repository: "nerds-odd-e/doughnut",
-  ref: "main",
-  backlogPath: ".planning/PRODUCT-BACKLOG.md",
-};
+export const doughnutSource: PublishedSource = makeMe.aPublishedSource
+  .with({
+    id: "doughnut",
+    label: "Doughnut",
+    repository: "nerds-odd-e/doughnut",
+  })
+  .please();
 
 const story = (title: string, identity: string, href: string) =>
   makeMe.aBacklogEntry.with({ identity, title, href }).please();

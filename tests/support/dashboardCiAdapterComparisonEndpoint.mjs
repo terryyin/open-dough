@@ -12,7 +12,9 @@ export function configureAdapter(root, command) {
   const described = makeMe.aRepository
     .withRevision("configured", {
       files: {
-        ".planning/open-dough.json": JSON.stringify({ ciAdapter: command }),
+        ".planning/open-dough.json": JSON.stringify(
+          makeMe.projectCiSettings.with({ ciAdapter: command }).please(),
+        ),
       },
     })
     .please();
