@@ -46,21 +46,20 @@ new plans, not an invented slice history.
 | 1 | [Express Intent test reading through page objects](#express-dashboard-test-intent-through-page-objects) | 7 | Refined first plan; retains original queue position |
 | 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Provisional plan; selected for queue |
 | 3 | [Express Terminal test intent through page objects](#express-terminal-test-intent-through-page-objects) | 1 | Provisional plan; selected for queue |
-| 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Provisional plan; deferred candidate |
-| 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; deferred candidate |
-| 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; deferred candidate |
-| 7 | [Express settings test intent through page objects](#express-settings-test-intent-through-page-objects) | 2 | Provisional plan; deferred candidate |
-| 8 | [Express browser measurement test intent through shared setup](#express-browser-measurement-test-intent) | 1 | Provisional plan; deferred candidate |
+| 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Provisional plan; queued 2026-11-11 |
+| 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
+| 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
+| 7 | [Express settings test intent through page objects](#express-settings-test-intent-through-page-objects) | 2 | Provisional plan; queued 2026-11-11 |
+| 8 | [Express browser measurement test intent through shared setup](#express-browser-measurement-test-intent) | 1 | Provisional plan; queued 2026-11-11 |
 
 Intent most directly serves the backlog direction of reviewing Purpose and CI
 proof. Review follows with the pilot's concrete control/handoff evidence;
 Terminal tests a broad shared-control ownership claim. Retain published Taken ownership and higher-priority work; place these three
 at the original SEED-300 position. Preserve the shared MakeMe/page-object
-rules and SEED-301 in their published relative order. The five
-remaining candidates retain all their scope outside the selected queue;
-they do not automatically inherit the original priority. Board follows for
+rules and SEED-301 in their published relative order. Terry queued the five
+remaining stories on 2026-11-11, directly after Terminal: Board first for
 causal navigation value, then session reading, launch variants, settings, and
-measurement setup. Deferred work is scheduling, not a rejected capability.
+measurement setup.
 
 Every story delivers a useful reading/maintenance improvement if later stories
 are cancelled. Shared owners are reused across boundaries; there is no new

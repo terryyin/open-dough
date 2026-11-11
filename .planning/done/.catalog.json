@@ -8,6 +8,30 @@
       "blob": "f996622331b240e3872f728afe9b3656ea2c9054"
     },
     {
+      "fileName": "SEED-317_upgrade-all-dependencies.json",
+      "identity": "SEED-317#upgrade-all-dependencies",
+      "completedAt": "2026-11-11T16:30:21.966Z",
+      "blob": "adcdcac8348da22e96e3d5eca8924305667e11b8"
+    },
+    {
+      "fileName": "SEED-307_run-makeme-harness-once.json",
+      "identity": "SEED-307#run-makeme-harness-once",
+      "completedAt": "2026-11-11T16:01:28.982Z",
+      "blob": "1292e278b8d8127d85735e12fcf58baf23457a05"
+    },
+    {
+      "fileName": "SEED-307_apply-shared-makeme-rules-per-entry.json",
+      "identity": "SEED-307#apply-shared-makeme-rules-per-entry",
+      "completedAt": "2026-11-11T13:38:25.650Z",
+      "blob": "523e2e22bdc052c5db5e5aa392e0f19fc6a60a81"
+    },
+    {
+      "fileName": "SEED-307_apply-shared-page-object-rules-per-entry.json",
+      "identity": "SEED-307#apply-shared-page-object-rules-per-entry",
+      "completedAt": "2026-11-11T13:30:24.708Z",
+      "blob": "8db52cfd25231d11fb565c8dceabb38fd867a8b4"
+    },
+    {
       "fileName": "SEED-311_speed-up-production-watcher-lifecycle-checks.json",
       "identity": "SEED-311#speed-up-production-watcher-lifecycle-checks",
       "completedAt": "2026-11-11T10:44:00.526Z",

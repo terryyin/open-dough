@@ -90,6 +90,20 @@ such entries leaves that location out, as a malformed `include` does. The
 location header names a `sources` location's patterns without a kind. CI
 proof for either form stays keyed by the location's path and its files' paths.
 
+Set `"makeMe": true` on a location to apply the shared
+[MakeMe guidance](../src/skills/dough-makeme/SKILL.md) to its selected test sources
+during authoring, Dough execution and implicated post-change refactoring.
+For example, `{ "path": "backend/tests", "kind": "typescript", "include": ["**/*.spec.ts"], "makeMe": true }`
+enables the convention for matching specs. Omitted, false or non-boolean values
+stay off. Membership uses the same `kind`/`include` or `sources` rules above;
+another matching location's opt-out does not veto an enabled match. Installation
+and updates preserve each project's choices.
+
+Set `"pageObjects": true` independently to apply the shared
+[page-object guidance](../src/skills/dough-page-objects/SKILL.md) to browser tests
+selected by that location. The same membership and opt-in rules apply; neither
+flag implies the other. Both rules share the standalone selection command.
+
 Absence of the `intent` key
 means Intent shows that no locations are configured. An unreadable settings
 file and malformed JSON are distinct from that absence. The dashboard reads
