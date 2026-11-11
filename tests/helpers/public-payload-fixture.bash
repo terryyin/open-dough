@@ -9,9 +9,9 @@ internal_skill_names=(
   triage-retrospective-findings
 )
 
-# install.sh's own managed_files=(...) declaration is the single source of
-# truth for the current client payload; read it rather than hand-duplicating
-# the list here, so this fixture cannot drift from the real installer.
+# install.sh's assembled managed_files declaration is the single source of
+# truth for the current client payload; inspect it with the shared reader
+# rather than hand-duplicating the list here.
 fixture_repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=src/install/open-dough-release-version.sh

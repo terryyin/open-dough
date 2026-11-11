@@ -33,3 +33,5 @@ export function resolveBesideFile(
   }
   return segments.join("/");
 }
+
+export { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";

@@ -135,6 +135,10 @@ PATH as well (`brew install shellcheck shfmt` on macOS).
 
 - `npm run lint` checks JavaScript with ESLint, code and JSON
   formatting with Prettier, and shell scripts with ShellCheck and shfmt.
+  Its full-tree read-only checks run independently and every result contributes
+  to the final status. ShellCheck retains each input's separate source context;
+  shfmt checks its complete file set in one invocation.
+  Formatting and staged-hook checks retain their serial ordering.
 - `npm run format` applies ESLint fixes, Prettier formatting, ShellCheck's
   available patch fixes, and shfmt formatting only to tracked files whose index
   or working-tree content differs from `HEAD`, plus untracked files Git does not
