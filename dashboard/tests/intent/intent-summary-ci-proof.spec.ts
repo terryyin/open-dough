@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // A selected Intent entry's or folder's Summary from CI's own evidence
 // (../../src/IntentScopeProof.tsx, ../../src/ciScopeProof.ts,
 // ../../src/IntentCiEvidence.tsx): raw runner reports go through the
@@ -173,13 +174,10 @@ test("an entry's and its folders' CI summaries come from CI's collected file bre
     await page.keyboard.press("Space");
     await expect(summary).toHaveCount(0);
     await expect(
-      intent.getByLabel("dashboard/tests/folder/nested/c.spec.ts source"),
+      fileSource(intent, "dashboard/tests/folder/nested/c.spec.ts"),
     ).toContainText('test("nested c"');
     await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/folder/nested/c.spec.ts",
-        exact: true,
-      }),
+      sourceFile(intent, "dashboard/tests/folder/nested/c.spec.ts"),
     ).toHaveAttribute("aria-pressed", "true");
     expect(bodyReads).toEqual(["dashboard/tests/folder/nested/c.spec.ts"]);
   });

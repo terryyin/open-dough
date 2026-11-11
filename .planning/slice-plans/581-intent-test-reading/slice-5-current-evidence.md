@@ -198,3 +198,10 @@ contains no Sleep/Wake entries. The longer run supports no performance claim.
 The bounded already-traced refactor disposition above applies; no new refactor or
 tests were run merely to repeat accepted evidence. G4 is proved. Final CI remains
 the coordinator's later completion gate; this local result does not claim it.
+
+Repair published as3f1c22bf160f7ebb5e9f68ecff511842c7daa5a6, suffix15633ccd,
+same observer attached. Official restore reported partial/conflict only for PLAN:
+both saved plan hunks were already included in repairHEAD. Root inspected those
+exact hunks and confirmed every24 saved slice6 code blob byte-equal restored bytes;
+no unmerged paths. Official drop removed only cc608f0 and retained the prior shared
+stash. Same slice6 agent resumed; no repair or saved work was reapplied by hand.

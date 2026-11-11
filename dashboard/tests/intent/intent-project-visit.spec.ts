@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Project Intent visits (../../src/IntentPerspective.tsx, ../../src/IntentPage.tsx)
 // keep the selected story and each context's file, Proof/Purpose and scroll.
 // Project tests read published text and trunk CI; returning restores the
@@ -108,15 +109,13 @@ test("a candidate's test the story changes reads as published in Project Intent,
   const readsBefore = await record.getAttribute("data-candidates-reads");
 
   await test.step("the candidate's test reads as published, not as the story's diff", async () => {
-    await entry
-      .getByRole("button", { name: candidatePath, exact: true })
-      .click();
+    await sourceFile(entry, candidatePath).click();
     await expectIntentModeChosen(intent, "CI status");
     await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
       "aria-selected",
       "true",
     );
-    const source = intent.getByLabel(`${candidatePath} source`);
+    const source = fileSource(intent, candidatePath);
     await expect(source).toContainText("a 11");
     await expect(source).not.toContainText("more");
     await expect(intent.locator(".intent-story-diff")).toHaveCount(0);

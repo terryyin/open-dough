@@ -20,7 +20,9 @@ import {
   expectDarkSurface,
   expectLightSurface,
   expectNoAppearanceSwitch,
+  expectSourceReadable,
   setColorScheme,
+  sourceAppearance,
 } from "../systemAppearanceReading.ts";
 import {
   expandIntentGroup,
@@ -130,11 +132,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
 
     await intentFile(intent, unchangedPath).click();
     await fileReadingTab(intent, "Purpose").click();
-    const source = purposeRegion(intent).locator(".source-lines");
-    await expect(source).toBeVisible();
-    await expectReadableContrast(source.locator(".source-line-number").first());
-    const token = source.locator(".source-token").first();
-    if ((await token.count()) > 0) await expectReadableContrast(token);
+    await expectSourceReadable(intent, unchangedPath);
   });
 
   await test.step("Summary timing history marks stay readable on the dark chart", async () => {
@@ -225,9 +223,8 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     await expandIntentGroup(intent, "dashboard/tests");
     await intentFile(intent, unchangedPath).click();
     await fileReadingTab(intent, "Purpose").click();
-    const source = purposeRegion(intent).locator(".source-lines");
+    const { source, token } = sourceAppearance(intent, unchangedPath);
     await expect(source).toBeVisible();
-    const token = source.locator(".source-token").first();
     const darkColour =
       (await token.count()) > 0 ? await colourOf(token) : undefined;
 

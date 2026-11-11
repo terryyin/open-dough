@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "./intentCodeBrowsePage.ts";
 // Intent's revision journeys: Pygardon published with Intent locations and
 // its jobs feature selected, on a paused clock, with a trunk that moves on
 // demand, and the Intent reads the page makes meanwhile.
@@ -73,12 +74,9 @@ export async function openWithFeatureSelected(
   await openUntilRead(page, "/?project=pygardon&perspective=intent");
   const { intent } = parts(page);
   await expandIntentGroup(intent, "e2e_test/features");
-  const feature = intent.getByRole("button", {
-    name: featurePath,
-    exact: true,
-  });
+  const feature = sourceFile(intent, featurePath);
   await feature.click();
-  const source = intent.getByLabel(`${featurePath} source`);
+  const source = fileSource(intent, featurePath);
   await expect(source).toContainText("Scenario: Archive a job");
   const moveTrunk = async (
     revision: string,

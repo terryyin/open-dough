@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent explains absent, unreadable, mismatched, and empty Test
 // Optimization Candidates records on its Optimization Candidates tab while
 // location browsing stays usable on the Intent tab (example 7;
@@ -72,16 +73,12 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     );
     await intentTab.click();
     await expandIntentGroup(intent, "scripts");
-    await intent
-      .getByRole("button", {
-        name: "scripts/backend-test-worktree-admission.test.mjs",
-        exact: true,
-      })
-      .click();
+    await sourceFile(
+      intent,
+      "scripts/backend-test-worktree-admission.test.mjs",
+    ).click();
     await expect(
-      intent.getByLabel(
-        "scripts/backend-test-worktree-admission.test.mjs source",
-      ),
+      fileSource(intent, "scripts/backend-test-worktree-admission.test.mjs"),
     ).toContainText("assert.equal(1, 1)");
   });
 
@@ -104,10 +101,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await intentTab.click();
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/intent-gherkin-browse.spec.ts",
-        exact: true,
-      }),
+      sourceFile(intent, "dashboard/tests/intent-gherkin-browse.spec.ts"),
     ).toBeVisible();
   });
 
@@ -128,15 +122,10 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     );
     await intentTab.click();
     await expandIntentGroup(intent, "tests");
-    await intent
-      .getByRole("button", {
-        name: "tests/test_example.py",
-        exact: true,
-      })
-      .click();
-    await expect(
-      intent.getByLabel("tests/test_example.py source"),
-    ).toContainText("def test_example");
+    await sourceFile(intent, "tests/test_example.py").click();
+    await expect(fileSource(intent, "tests/test_example.py")).toContainText(
+      "def test_example",
+    );
   });
 
   await test.step("Ex 7 unreadable: own explanation with retry; locations still browse", async () => {
@@ -165,10 +154,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await intentTab.click();
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/intent-gherkin-browse.spec.ts",
-        exact: true,
-      }),
+      sourceFile(intent, "dashboard/tests/intent-gherkin-browse.spec.ts"),
     ).toBeVisible();
   });
 });

@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry, including after Development →
 // Intent. Unreadable settings: ./intent-revision-settings-update.spec.ts
@@ -82,8 +83,8 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
     "aria-expanded",
     "true",
   );
-  await intent.getByRole("button", { name: otherPath, exact: true }).click();
-  await expect(intent.getByLabel(`${otherPath} source`)).toContainText(
+  await sourceFile(intent, otherPath).click();
+  await expect(fileSource(intent, otherPath)).toContainText(
     "Report free space",
   );
   await feature.click();

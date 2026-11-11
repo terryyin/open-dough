@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent code browse for Doughnut javascript and Pygardon TypeScript/Python
 // locations (../../src/IntentPerspective.tsx). Companion to
 // ./intent-code-browse.spec.ts Open Dough TypeScript and shell coverage, and
@@ -54,25 +55,21 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     );
     await expandIntentGroup(intent, "scripts");
     await expect(
-      intent.getByRole("button", {
-        name: "scripts/backend-test-worktree-admission.test.mjs",
-        exact: true,
-      }),
+      sourceFile(intent, "scripts/backend-test-worktree-admission.test.mjs"),
     ).toBeVisible();
     await expect(
-      intent.getByRole("button", {
-        name: "scripts/backend-test-worktree-admission-fixtures.mjs",
-        exact: true,
-      }),
+      sourceFile(
+        intent,
+        "scripts/backend-test-worktree-admission-fixtures.mjs",
+      ),
     ).toHaveCount(0);
-    await intent
-      .getByRole("button", {
-        name: "scripts/backend-test-worktree-admission.test.mjs",
-        exact: true,
-      })
-      .click();
-    const source = intent.getByLabel(
-      "scripts/backend-test-worktree-admission.test.mjs source",
+    await sourceFile(
+      intent,
+      "scripts/backend-test-worktree-admission.test.mjs",
+    ).click();
+    const source = fileSource(
+      intent,
+      "scripts/backend-test-worktree-admission.test.mjs",
     );
     await expect(source).toContainText("assert.equal(1, 1)");
     await expectKeywordAndStringColours(
@@ -91,32 +88,22 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     await expandIntentGroup(intent, "frontend/src");
     await expandIntentFolders(intent, "frontend/src");
     await expect(
-      intent.getByRole("button", {
-        name: "frontend/src/pages/AspyPage.devices.spec.tsx",
-        exact: true,
-      }),
+      sourceFile(intent, "frontend/src/pages/AspyPage.devices.spec.tsx"),
     ).toBeVisible();
     await expect(
-      intent.getByRole("button", {
-        name: "frontend/src/pages/AspyPage.tsx",
-        exact: true,
-      }),
+      sourceFile(intent, "frontend/src/pages/AspyPage.tsx"),
     ).toHaveCount(0);
     await expect(
-      intent.getByRole("button", {
-        name: "frontend/src/pages/AspyPage.spec.helpers.tsx",
-        exact: true,
-      }),
+      sourceFile(intent, "frontend/src/pages/AspyPage.spec.helpers.tsx"),
     ).toHaveCount(0);
 
-    await intent
-      .getByRole("button", {
-        name: "frontend/src/pages/AspyPage.devices.spec.tsx",
-        exact: true,
-      })
-      .click();
-    const tsxSource = intent.getByLabel(
-      "frontend/src/pages/AspyPage.devices.spec.tsx source",
+    await sourceFile(
+      intent,
+      "frontend/src/pages/AspyPage.devices.spec.tsx",
+    ).click();
+    const tsxSource = fileSource(
+      intent,
+      "frontend/src/pages/AspyPage.devices.spec.tsx",
     );
     await expect(tsxSource).toContainText('return "devices";');
     await expectKeywordAndStringColours(tsxSource, /^return$/, /^"devices"$/);
@@ -125,26 +112,13 @@ test("Intent lists Doughnut javascript and Pygardon TypeScript/Python matches, o
     await expect(pythonHeading).toContainText("python");
     await expect(pythonHeading).toContainText("**/test_*.py");
     await expandIntentGroup(intent, "tests");
+    await expect(sourceFile(intent, "tests/test_example.py")).toBeVisible();
     await expect(
-      intent.getByRole("button", {
-        name: "tests/test_example.py",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(
-      intent.getByRole("button", {
-        name: "tests/worktree_check_support.py",
-        exact: true,
-      }),
+      sourceFile(intent, "tests/worktree_check_support.py"),
     ).toHaveCount(0);
 
-    await intent
-      .getByRole("button", {
-        name: "tests/test_example.py",
-        exact: true,
-      })
-      .click();
-    const pythonSource = intent.getByLabel("tests/test_example.py source");
+    await sourceFile(intent, "tests/test_example.py").click();
+    const pythonSource = fileSource(intent, "tests/test_example.py");
     await expect(pythonSource).toContainText("def test_example():");
     await expect(intent).toContainText(
       `at revision ${shortRevision(pygardon.revision)}`,

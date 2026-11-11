@@ -115,7 +115,7 @@ express it without a competing universal chart model.
 
 ### 6. Choose locations and read exact source targets
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 6. Preserve selected location/file and target line, code/Gherkin
 and Purpose/candidate distinctions, with exact expected source content.
 
@@ -179,37 +179,7 @@ See [design assessment](design-assessment.md) for the slice boundary review and
 
 ## Execution context
 
-- Established Story Branch execution: `codex/express-intent-test-reading-through-page-objects`
-  in `/Users/terryyin/git/open-dough/.worktrees/express-intent-test-reading-through-page-objects`;
-  publisher `dashboard-territory.local-open-dough`, agent `stanly-chan`.
-- Start `8ad6544887fc2d0302bf208034b2b88bf39370b4`; accepted claim and first
-  published base `8299f4e64f49939e1d6120390ebd0b44a0532328`. Remote `origin`, trunk `main`.
-  Optional default checkout `/Users/terryyin/git/open-dough`; increments target the story branch.
-- Exact-checkout `npm ci` and `npm run typecheck:dashboard` passed. Check-only staged lint
-  and script-triggered typecheck hook; selective formatting is `npm run format`.
-- CI source GitHub Actions, verified `ci.yml` / `CI` (351271804). Observer coordinator
-  `seed300-stanly`, cell `g136:24`, session `77557`, PID `89606`, mailbox
-  `/tmp/dough-ci-501/watch-KYQ9Uh`, target the remote execution branch. Claim trunk CI unobserved.
-- No numeric slice target/limit supplied. Existing in-scope planning authority retained.
-- Local host: 16 logical CPUs, 48 GiB RAM, AC; initial load 32.71, memory 41% free.
-  One browser worker; implementation owner rechecks pressure before each expensive launch.
-  Other worktrees have active proof; do not modify their processes. Reconsider on contention/failure.
-- Plan reorganization: preserve executable slices here; preparation baseline and design
-  assessment moved to cohesive linked records to keep each maintained file under 250 lines.
-
-Latest accepted revision: `15633ccd2da9d27f07f323daa2f8d882ddcc1746` on
-`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `4446ceef699107eee308c7f9545d8e10dd6b8874`; observer reused.
-
-Execution structure decisions are retained in [design assessment](design-assessment.md#execution-structure-decisions).
-
-Slice5 cold-case repair reuses the completed canonical worker readiness component;
-see [design evidence](design-assessment.md#slice5-cold-case-defect-and-canonical-worker-readiness-reuse).
-
-Reconciliation recovery: `/tmp/seed300-slice5-reconcile-c6-20261111` retains the
-exact owned overlay before history-preserving merge of pinnedc6d2645; publication held.
-
-Integration `534ac4d5538a4270483b51109854b1373351353e` preserves parents4446
-andc6d2645 and is published within accepted15633ccd on the execution target.
+See [execution identity, delivery and recovery context](execution-context.md).
 
 ## Accepted slice evidence
 
@@ -221,6 +191,8 @@ andc6d2645 and is published within accepted15633ccd on the execution target.
 - Slice 4: [build history and reference acceptance](slice-4-evidence.md).
 
 - Slice 5: [current scope history, recovery and readiness acceptance](slice-5-current-evidence.md).
+
+- Slice 6: [source locations and target-line acceptance](slice-6-evidence.md).
 
 ## Story obligations
 
@@ -242,3 +214,13 @@ Commitment: 30
 Reported: slice 5 — "CI43012675687/1 dashboard8/13 at15633ccd failed the frontend scope reading case: after Retry and reads2, the old error alert was absent; local45-case proof did not establish stability."
 Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
 Disposition: proved by slice 5: slice-5-current-evidence.md CI repair acceptance; deterministic pending-state regression failed at the original absent-alert boundary, then complete46-case strict pass with the held request, selected landing, unchanged comparison and replacement evidence; typecheck passed
+
+### G5. Plain source selection still bypasses its shared owner
+Reported: slice 6 — "Coordinator inspection found the edited frontend appearance case still clicks notes.check through a raw role/regex locator, although plainPath is explicit and its highlighted-file sibling uses sourceFile."
+Story clause: "Share the operations for choosing a location, reading the target line, retaining the reading place, and seeing or retrying a failed read."
+Disposition: proved by slice 6: slice-6-evidence.md; exact plainPath choice uses sourceFile and the complete frontend appearance journey passed1/1 strict with its independent source, contrast, colors and retained-state observations
+
+### G6. Candidate absence probes still bypass the source owner
+Reported: slice 6 — "Coordinator found the movedAway absent-location probe still using its raw button locator; implementation inspection found the analogous outside-configured pygardonClipPath probe. Both are ordinary recorded-file controls."
+Story clause: "Share the operations for choosing a location, reading the target line, retaining the reading place, and seeing or retrying a failed read."
+Disposition: proved by slice 6: slice-6-evidence.md; both ordinary candidate absence probes use sourceFile and their two complete owning journeys passed2/2 strict, including open/return/focus/read counts, authored Markdown opening and outside-configured explanation

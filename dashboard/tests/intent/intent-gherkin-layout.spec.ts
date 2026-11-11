@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent Gherkin layout: the height below the banner, left-edge location
 // browser, and independent pane scrolling
 // (`../intentGherkinBrowseFixtures.ts`, ../../src/IntentBrowser.tsx).
@@ -35,11 +36,9 @@ test("Intent fills the height below the banner; the location browser meets the l
   await intentChoice.click();
   await expandIntentGroup(intent, "e2e_test/features");
   await expandIntentFolders(intent, "e2e_test/features");
-  await intent
-    .getByRole("button", { name: "e2e_test/features/area/case_00.feature" })
-    .click();
+  await sourceFile(intent, "e2e_test/features/area/case_00.feature").click();
   await expect(
-    intent.getByLabel("e2e_test/features/area/case_00.feature source"),
+    fileSource(intent, "e2e_test/features/area/case_00.feature"),
   ).toContainText("Feature: Long");
 
   const region = page.locator(".intent-scroll");

@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Project Intent opens recorded test locations from a candidate entry on the
 // Optimization Candidates tab into the CI status tab's Purpose selection,
 // and choosing Optimization Candidates again returns the keyboard to that
@@ -44,21 +45,13 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     // while still "0" races the open/return assertion on CI.
     await expect(record).toHaveAttribute("data-candidates-reads", /^[1-9]\d*$/);
     const readsBefore = await record.getAttribute("data-candidates-reads");
-    await poles
-      .getByRole("button", {
-        name: openDoughSpecPaths.polesSecond,
-        exact: true,
-      })
-      .click();
+    await sourceFile(poles, openDoughSpecPaths.polesSecond).click();
 
     await expect(
-      intent.getByLabel(`${openDoughSpecPaths.polesSecond} source`),
+      fileSource(intent, openDoughSpecPaths.polesSecond),
     ).toContainText('test("browses"');
     await expect(
-      intent.getByRole("button", {
-        name: openDoughSpecPaths.polesSecond,
-        exact: true,
-      }),
+      sourceFile(intent, openDoughSpecPaths.polesSecond),
     ).toHaveAttribute("aria-pressed", "true");
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(candidatesTab).toHaveAttribute("aria-selected", "false");
@@ -86,19 +79,12 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
       openDoughSpecPaths.watcherUpdates,
       openDoughSpecPaths.watcherFailures,
     ]) {
-      await expect(
-        family.getByRole("button", { name: path, exact: true }),
-      ).toBeVisible();
+      await expect(sourceFile(family, path)).toBeVisible();
     }
-    await family
-      .getByRole("button", {
-        name: openDoughSpecPaths.watcher,
-        exact: true,
-      })
-      .click();
-    await expect(
-      intent.getByLabel(`${openDoughSpecPaths.watcher} source`),
-    ).toContainText('test("browses"');
+    await sourceFile(family, openDoughSpecPaths.watcher).click();
+    await expect(fileSource(intent, openDoughSpecPaths.watcher)).toContainText(
+      'test("browses"',
+    );
     await chooseOptimizationCandidates(intent);
     const after = candidatesRecord(intent).getByRole("article", {
       name: "long-integrated-journeys",
@@ -108,9 +94,7 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
       openDoughSpecPaths.watcherUpdates,
       openDoughSpecPaths.watcherFailures,
     ]) {
-      await expect(
-        after.getByRole("button", { name: path, exact: true }),
-      ).toBeVisible();
+      await expect(sourceFile(after, path)).toBeVisible();
     }
   });
 
@@ -120,47 +104,28 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     });
     await expect(ambiguous).toContainText("names several files");
     await expect(
-      ambiguous.getByRole("button", {
-        name: openDoughSpecPaths.storyReview,
-        exact: true,
-      }),
+      sourceFile(ambiguous, openDoughSpecPaths.storyReview),
     ).toBeVisible();
     await expect(
-      ambiguous.getByRole("button", {
-        name: openDoughSpecPaths.storyReviewBoundary,
-        exact: true,
-      }),
+      sourceFile(ambiguous, openDoughSpecPaths.storyReviewBoundary),
     ).toBeVisible();
     await expect(intent.getByLabel(/source$/)).toBeHidden();
-    await ambiguous
-      .getByRole("button", {
-        name: openDoughSpecPaths.storyReview,
-        exact: true,
-      })
-      .click();
+    await sourceFile(ambiguous, openDoughSpecPaths.storyReview).click();
     await expect(
-      intent.getByLabel(`${openDoughSpecPaths.storyReview} source`),
+      fileSource(intent, openDoughSpecPaths.storyReview),
     ).toBeVisible();
   });
 
   await test.step("Ex 8: a file opened from the record inside a folder shows selected, its folders opened in the collapsed tree", async () => {
     await chooseOptimizationCandidates(intent);
-    await candidatesRecord(intent)
-      .getByRole("article", {
-        name: "story-review-completed-journey-landed-runs-tail",
-      })
-      .getByRole("button", {
-        name: openDoughSpecPaths.storyReviewBoundary,
-        exact: true,
-      })
-      .click();
-    await expect(
-      intent.getByLabel(`${openDoughSpecPaths.storyReviewBoundary} source`),
-    ).toBeVisible();
-    const row = intent.getByRole("button", {
-      name: openDoughSpecPaths.storyReviewBoundary,
-      exact: true,
+    const entry = candidatesRecord(intent).getByRole("article", {
+      name: "story-review-completed-journey-landed-runs-tail",
     });
+    await sourceFile(entry, openDoughSpecPaths.storyReviewBoundary).click();
+    await expect(
+      fileSource(intent, openDoughSpecPaths.storyReviewBoundary),
+    ).toBeVisible();
+    const row = sourceFile(intent, openDoughSpecPaths.storyReviewBoundary);
     await expect(row).toBeVisible();
     await expect(row).toHaveAttribute("aria-pressed", "true");
     await expect(
@@ -174,9 +139,9 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
       name: "moved-test-after-record",
     });
     await expect(moved).toContainText("not published at this revision");
-    await expect(
-      moved.getByRole("button", { name: openDoughSpecPaths.movedAway }),
-    ).toHaveCount(0);
+    await expect(sourceFile(moved, openDoughSpecPaths.movedAway)).toHaveCount(
+      0,
+    );
     await expect(candidatesTab).toHaveAttribute("aria-selected", "true");
   });
 
@@ -186,7 +151,7 @@ test("Intent opens a recorded location into the Intent tab's Purpose, marks the 
     });
     await poles.getByRole("button", { name: /second-server journey/i }).click();
     await expect(
-      intent.getByLabel(`${openDoughSpecPaths.polesSecond} source`),
+      fileSource(intent, openDoughSpecPaths.polesSecond),
     ).toBeVisible();
   });
 });
@@ -208,9 +173,7 @@ test("Intent explains outside configured locations for a Pygardon-shaped python 
   });
   await expect(entry).toContainText(pygardonClipPath);
   await expect(entry).toContainText("outside configured Intent locations");
-  await expect(
-    entry.getByRole("button", { name: pygardonClipPath }),
-  ).toHaveCount(0);
+  await expect(sourceFile(entry, pygardonClipPath)).toHaveCount(0);
   await expect(intent.getByLabel(/source$/)).toHaveCount(0);
 });
 
@@ -237,10 +200,8 @@ test("Intent leaves Doughnut prose without a gap and opens a unique bare feature
   const bare = candidatesRecord(intent).getByRole("article", {
     name: "e2e-batch-cold-start",
   });
-  await bare
-    .getByRole("button", { name: "cli_notebook_lfs.feature", exact: true })
-    .click();
-  await expect(
-    intent.getByLabel(`${doughnutFeaturePath} source`),
-  ).toContainText("Feature: notebook LFS");
+  await sourceFile(bare, "cli_notebook_lfs.feature").click();
+  await expect(fileSource(intent, doughnutFeaturePath)).toContainText(
+    "Feature: notebook LFS",
+  );
 });
