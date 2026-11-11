@@ -24,7 +24,7 @@ type Endpoints = Pick<
 
 export async function serveSummaryComparisonStory(
   page: Page,
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "origin">,
   endpoints: Endpoints,
 ): Promise<StoryCiComparisonSetup> {
   const { baseline, branchSide, completion } = endpoints;

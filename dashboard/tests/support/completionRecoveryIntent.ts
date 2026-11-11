@@ -2,7 +2,10 @@
 import { readFileSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import type { CompletionSubmission } from "../../server/completionAdmission.ts";
+import {
+  submissionSchema,
+  type CompletionSubmission,
+} from "../../server/completionAdmission.ts";
 import type { ReportingContext } from "../../src/launchRequest.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
@@ -19,7 +22,7 @@ import {
   quote,
 } from "./completionRecovery.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
-import { markDone } from "../agentLaunchBoundary.ts";
+import { markDone, machineSessions } from "../agentLaunchBoundary.ts";
 
 export async function observeLaterCompletionIntent(options: {
   receiver: DashboardServer;
@@ -47,6 +50,23 @@ export async function observeLaterCompletionIntent(options: {
     proxy,
     restart,
   } = options;
+  // The producer persists before delivery; --retry only reads this same file.
+  // Receiver-state replays use its exact payload, as the real CLI sends it.
+  const retained = JSON.parse(
+    readFileSync(pending, "utf8"),
+  ) as CompletionSubmission & { origin?: string };
+  delete retained.origin;
+  const original = submissionSchema.parse(retained);
+  const replayOld = async () => {
+    const answer = await rawRequest({
+      url: `${context.origin}/__agent-launch/completion`,
+      method: "POST",
+      headers: { Origin: context.origin, "Content-Type": "application/json" },
+      body: JSON.stringify(original),
+    });
+    expect(answer.status).toBe(200);
+    return completionReceiptSchema.parse(JSON.parse(answer.body));
+  };
   expect(stored(receiver.home)[0]?.doneAt).toBe(receipt.receivedAt);
   // Fresh unfinished attention replaces automatic Done without controlling
   // the native conversation; the next quiet submission can close it again.
@@ -65,6 +85,9 @@ export async function observeLaterCompletionIntent(options: {
     message: openText,
   });
   expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
+  expect(await machineSessions(receiver)).toMatchObject([
+    { sessionState: { kind: "available", activity: "working" } },
+  ]);
   expect(
     native.calls
       .slice(nativeBefore)
@@ -85,9 +108,7 @@ export async function observeLaterCompletionIntent(options: {
     quietReceipt.receipt,
   );
   expect(stored(receiver.home)[0]?.doneAt).toBe(quietReceipt.receivedAt);
-  expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
-    receipt,
-  );
+  expect(await replayOld()).toEqual(receipt);
   expect(stored(receiver.home)[0]?.completion?.receipt).toBe(
     quietReceipt.receipt,
   );
@@ -95,9 +116,7 @@ export async function observeLaterCompletionIntent(options: {
   // The old receipt remains idempotent across a real receiver restart, without
   // replacing the newer automatic Done that came from a distinct submission.
   await restart();
-  expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
-    receipt,
-  );
+  expect(await replayOld()).toEqual(receipt);
   expect(stored(receiver.home)[0]?.completion?.receipt).toBe(
     quietReceipt.receipt,
   );
@@ -128,9 +147,7 @@ export async function observeLaterCompletionIntent(options: {
   const newerReceipt = completionReceiptSchema.parse(JSON.parse(newer.stdout));
   expect(newerReceipt.message).toBe(text);
   expect(newerReceipt.delivery).not.toBe(receipt.delivery);
-  expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
-    receipt,
-  );
+  expect(await replayOld()).toEqual(receipt);
   expect(stored(receiver.home)[0]?.completion?.receipt).toBe(
     newerReceipt.receipt,
   );
@@ -143,7 +160,7 @@ export async function observeLaterCompletionIntent(options: {
   expect(done.status).toBe(200);
   expect(stored(receiver.home)[0]?.doneAt).toBeDefined();
   const manualDone = stored(receiver.home)[0]?.doneAt;
-  expect((await reportingChild(retry, cwd, env)).ok).toBe(true);
+  expect(await replayOld()).toEqual(receipt);
   expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
   // A fresh unfinished delivery must preserve deliberate Done, including
   // persistence before a lost acknowledgment and its subsequent retry.
@@ -177,9 +194,7 @@ export async function observeLaterCompletionIntent(options: {
     stored(receiver.home)[0]?.completion?.receipt,
   );
   expect(stored(receiver.home)[0]?.doneAt).toBe(manualDone);
-  expect(JSON.parse((await reportingChild(retry, cwd, env)).stdout)).toEqual(
-    receipt,
-  );
+  expect(await replayOld()).toEqual(receipt);
   expect(stored(receiver.home)[0]?.completion?.receipt).toBe(
     heldReceipt.receipt,
   );

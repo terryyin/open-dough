@@ -1,6 +1,6 @@
-# Accepted slice details1–11
+# Accepted slice details1–12
 
-These completed blocks are retained verbatim from PLAN.md at8488f1f8.
+Blocks1–11 are retained verbatim from PLAN.md at8488f1f8; block12 at54f9ab0c.
 Current statuses and remaining work stay in [PLAN.md](PLAN.md). This changes
 only the evidence home; no source promise, proof or slice outcome changes.
 
@@ -102,3 +102,23 @@ Status: done
 Proof: Installed-client exact argv/binary stdout/stderr/status, local/held auth, recorded/held request, PID, both signals, gone-fake and child/file cleanup survive. Measure actual client lower cost at load20–30 and matching complete source/sort family no-growth; all moved work included. Establish surviving contract proof before replacing the Node transport; three focused passes for changed synchronization and sufficient current direct/transitive consumers. No prototype-only acceptance.
 
 Behavior: Every synthetic gh starts Node and the valid-pressure prototype costs118.344ms versus54.509ms → change the existing client/fakeGitHub wire once to shell/curl while reusing answer conversion and private request ownership → the same complete CLI behavior costs less. No compiler, product/cache/lifetime or answer-model change. One supported variant, return if proof/cost misses. [Decisive profile and selected owners](transport-evidence.md).
+
+<a id="slice-12"></a>
+
+### 12. Settle comparison budgets with the preserved canonical setup
+Type: Behavior
+Status: done
+Proof: Preserved canonical setup passes three fresh default comparison
+commands, touch4/4, shared consumers23/23 and independent actual Git1/1.
+Hosted comparison cases pass retry0 in runs42952620767/1 and42957320139/1;
+exact full CI5e721503 passes run42963489603/1. Combined local/hosted proof
+settles G7 without a new numeric threshold. Worst local body headroom remains
+about .980 s; variability and all cold work stay explicit. All sort actions,
+assertions/two loops and both full-CLI sources remain. No timeout, skip/retry,
+cache/lifetime or waiver. See [local proof](comparison-default-evidence.md),
+[hosted cases](comparison-hosted-evidence.md) and [CI repairs](ci-repair-evidence.md).
+
+Behavior: Discard two ineffective small-data cuts → retain the canonical
+three-pass implementation → repair each exposed CI defect → accept combined
+local/hosted comparison proof. Named pressure/default/full/trunk gates remain
+with13; this acceptance does not claim those later observations.

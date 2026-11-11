@@ -11,11 +11,24 @@ import {
   launchRequest,
 } from "../agentLaunchBoundary.ts";
 import { answerOf } from "../keptExecutionStart.ts";
+import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
+import {
+  agentContinueEndpoint,
+  type Acceptance,
+} from "../../src/agentLaunch.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { expectProtected, test } from "../responsiveStart.ts";
+import {
+  expectProtected,
+  queuedClaudePreviewTest as test,
+} from "../responsiveStart.ts";
 import { recoveryOf, subject, worktrees } from "../responsiveRecovery.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import {
+  openUntilRead,
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "../pageRequestNotes.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
@@ -45,7 +58,7 @@ for (const workflow of ["execution", "refinement"] as const) {
     try {
       // Initial card/dialog admission is proved by the start journeys. Here
       // the real installed publication runs while the recovery page opens.
-      const acceptance = await answerOf<{ kind: string }>(
+      const acceptance = await answerOf<Acceptance>(
         accept(dashboard, {
           ...launchRequest,
           identity: queuedIdentity,
@@ -54,12 +67,12 @@ for (const workflow of ["execution", "refinement"] as const) {
         }),
       );
       expect(acceptance.kind).toBe("accepted");
+      if (acceptance.kind !== "accepted")
+        throw new Error("Launch not accepted");
       await openUntilRead(page);
-      await expect
-        .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
-          timeout: 60_000,
-        })
-        .toBe("failed");
+      expect(
+        (await settledOutcome(dashboard, acceptance.attempt.id)).kind,
+      ).toBe("failed");
       const [stopped] = await attempts(dashboard);
       const [profile] = await origin.takenProfiles();
       const published = (await origin.originGit("rev-parse", "main")).trim();
@@ -129,8 +142,14 @@ for (const workflow of ["execution", "refinement"] as const) {
       );
       chmodSync(directory, 0o755);
       chmodSync(hook, 0o644);
+      const continuation = nextAcceptedAttemptId(page, agentContinueEndpoint);
       await continueButton.click();
-      await expect(storyCardSessions(card)).toHaveCount(1, { timeout: 60_000 });
+      expect(await continuation).toBe(stopped.id);
+      expect((await settledOutcome(dashboard, stopped.id)).kind).toBe(
+        "launched",
+      );
+      await untilPageRequestsAnswered(page);
+      await expect(storyCardSessions(card)).toHaveCount(1);
       await expect(recovery).toHaveCount(0);
       expect(await attempts(dashboard)).toEqual([
         expect.objectContaining({

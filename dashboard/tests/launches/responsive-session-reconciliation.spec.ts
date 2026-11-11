@@ -10,12 +10,15 @@
 // reconciled, a reload reconciles it again without asking GitHub.
 
 import { attempts } from "../agentLaunchBoundary.ts";
+import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
 import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
 } from "../autoRefreshJourney.ts";
 import {
+  givePageItsTurns,
   reloadUntilRead,
   untilPageRequestsAnswered,
 } from "../pageRequestNotes.ts";
@@ -55,10 +58,12 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const { published, story, takenStory } = await openStories(page, origin);
 
   await story.getByRole("button", { name: "Start execution" }).click();
+  const acceptance = nextAcceptedAttemptId(page);
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
+  const attemptId = await acceptance;
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
 
   // A check asked before the Take is published, and the fresh read the
@@ -79,7 +84,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     revision: accepted,
   });
   dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
+  await givePageItsTurns(page);
+  await expect(storyCardSessions(story)).toHaveCount(1);
   await expect(story).toContainText(waiting);
   await expectProtected(story);
 
@@ -185,10 +192,12 @@ test("a refinement's announcement, read before its session settles, keeps the st
   const { published, story } = await openStories(page, origin);
 
   await story.getByRole("button", { name: "Start refinement" }).click();
+  const acceptance = nextAcceptedAttemptId(page);
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
+  const attemptId = await acceptance;
   await expect
     .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
       timeout: 30_000,
@@ -206,7 +215,9 @@ test("a refinement's announcement, read before its session settles, keeps the st
   await expectProtected(story);
 
   dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
+  await givePageItsTurns(page);
+  await expect(storyCardSessions(story)).toHaveCount(1);
   await expect(story).not.toContainText("Local startup in progress");
   await expect(story).not.toContainText(waiting);
   const startRefinement = story.getByRole("button", {

@@ -8,6 +8,7 @@
 // no card locked.
 
 import { accept, attempts, launchRequest } from "../agentLaunchBoundary.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import {
@@ -44,12 +45,13 @@ test("a start a closed server left unsettled stays protected after restart, relo
   await startExecution(page, story);
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
   const [running] = await attempts(dashboard);
-  expect(running?.owned).toBe(true);
+  if (running === undefined) throw new Error("No accepted running start");
+  expect(running.owned).toBe(true);
 
   const restarted = await restartAfterPush(dashboard, push, origin, github);
   try {
     expect(await attempts(restarted)).toEqual([
-      expect.objectContaining({ id: running?.id, owned: false }),
+      expect.objectContaining({ id: running.id, owned: false }),
     ]);
     expect(restarted.claudeLaunchCalls()).toEqual([]);
     // Its Take reached origin while no server ran it.
@@ -94,6 +96,8 @@ test("a start a closed server left unsettled stays protected after restart, relo
     await recoveryOf(second)
       .getByRole("button", { name: continueLabel })
       .click();
+    expect((await settledOutcome(restarted, running.id)).kind).toBe("launched");
+    await passCheckPace(second);
     await expect(storyCardSessions(secondTaken)).toHaveCount(1);
     await expect(
       secondTaken.getByRole("button", { name: "Inspect story" }),
@@ -105,8 +109,8 @@ test("a start a closed server left unsettled stays protected after restart, relo
 
     expect(await attempts(restarted)).toEqual([
       expect.objectContaining({
-        id: running?.id,
-        acceptedAt: running?.acceptedAt,
+        id: running.id,
+        acceptedAt: running.acceptedAt,
         outcome: expect.objectContaining({ kind: "launched" }),
       }),
     ]);

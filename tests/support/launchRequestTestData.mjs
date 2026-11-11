@@ -70,3 +70,153 @@ function keptRequest(requested, { host, model, reporting, policy }) {
     }),
   };
 }
+
+/** @typedef {import("../../dashboard/src/launchRequest.ts").AgentLaunchRequest} AgentLaunchRequest */
+/**
+ * What an incoming story launch's request states: the story, its title as the
+ * card shows it, the project and the host.
+ * @typedef {{ identity: string, title: string, source?: string, host?: AgentLaunchRequest["host"] }} IncomingStoryFacts
+ */
+/**
+ * What an incoming ad hoc launch's request states beside its host and project.
+ * @typedef {{ source?: string, host?: AgentLaunchRequest["host"], instruction?: string, followUp?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["followUp"], maintenance?: Extract<AgentLaunchRequest, { workflow: "ad-hoc" }>["maintenance"] }} IncomingAdHocFacts
+ */
+
+export class LaunchRequestBuilder {
+  /** @type {AgentLaunchRequest | undefined} */
+  #request;
+
+  /**
+   * A story launch by this workflow, in the `open-dough` project with
+   * `claude` unless stated.
+   * @param {"execution" | "refinement"} workflow
+   * @param {IncomingStoryFacts} facts
+   */
+  ofWorkflow(
+    workflow,
+    { identity, title, source = "open-dough", host = "claude" },
+  ) {
+    this.#request = { source, identity, title, workflow, host };
+    return this;
+  }
+
+  /** @param {IncomingStoryFacts} facts an execution launch of the story */
+  executing(facts) {
+    return this.ofWorkflow("execution", facts);
+  }
+
+  /** @param {IncomingStoryFacts} facts a refinement launch of the story */
+  refining(facts) {
+    return this.ofWorkflow("refinement", facts);
+  }
+
+  /**
+   * An ad hoc session start, in the `open-dough` project with `claude`
+   * unless stated. A blank session omits `instruction`.
+   * @param {IncomingAdHocFacts} [facts]
+   */
+  adHoc({
+    source = "open-dough",
+    host = "claude",
+    instruction,
+    followUp,
+    maintenance,
+  } = {}) {
+    this.#request = {
+      source,
+      workflow: "ad-hoc",
+      host,
+      ...(instruction !== undefined && { instruction }),
+      ...(followUp && { followUp: { ...followUp } }),
+      ...(maintenance && { maintenance: { ...maintenance } }),
+    };
+    return this;
+  }
+
+  /**
+   * The developer's own instruction on the request.
+   * @param {string} instruction
+   */
+  withInstruction(instruction) {
+    const request = this.#chosen();
+    this.#request = { ...request, instruction };
+    return this;
+  }
+
+  /**
+   * The launch asked its host for this model.
+   * @param {NonNullable<AgentLaunchRequest["model"]>} model
+   */
+  requestingModel(model) {
+    const request = this.#chosen();
+    this.#request = { ...request, model };
+    return this;
+  }
+
+  /**
+   * The launch asked its host for this reasoning effort.
+   * @param {NonNullable<AgentLaunchRequest["effort"]>} effort
+   */
+  withEffort(effort) {
+    const request = this.#chosen();
+    this.#request = { ...request, effort };
+    return this;
+  }
+
+  /**
+   * The flags selected from the skill's options.
+   * @param {NonNullable<AgentLaunchRequest["options"]>} options
+   */
+  withOptions(options) {
+    const request = this.#chosen();
+    this.#request = { ...request, options: [...options] };
+    return this;
+  }
+
+  /**
+   * The session policy a one-shot or ad hoc start asked for.
+   * @param {NonNullable<AgentLaunchRequest["policy"]>} policy
+   */
+  withPolicy(policy) {
+    const request = this.#chosen();
+    this.#request = /** @type {AgentLaunchRequest} */ ({
+      ...request,
+      policy: { ...policy },
+    });
+    return this;
+  }
+
+  /**
+   * Ordered content digests of attached images on an ad hoc request.
+   * @param {NonNullable<AgentLaunchRequest["attachmentDigests"]>} digests
+   */
+  withAttachmentDigests(digests) {
+    const request = this.#chosen();
+    this.#request = { ...request, attachmentDigests: [...digests] };
+    return this;
+  }
+
+  /**
+   * Confirmed existing changes fingerprint for a default-checkout start.
+   * @param {NonNullable<AgentLaunchRequest["existingChanges"]>} fingerprint
+   */
+  confirmingExistingChanges(fingerprint) {
+    const request = this.#chosen();
+    this.#request = { ...request, existingChanges: fingerprint };
+    return this;
+  }
+
+  /** @returns {AgentLaunchRequest} */
+  please() {
+    return structuredClone(this.#chosen());
+  }
+
+  /** @returns {AgentLaunchRequest} */
+  #chosen() {
+    if (!this.#request)
+      throw new Error(
+        "choose .executing(...), .refining(...), .ofWorkflow(...) or .adHoc(...) first",
+      );
+    return this.#request;
+  }
+}

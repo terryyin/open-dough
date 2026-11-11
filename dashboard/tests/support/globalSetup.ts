@@ -74,6 +74,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
       ...startOriginArtifacts(),
       comparisonMountArtifact(),
       publishedMainSourceArtifact(),
+      publishedMainSourceArtifact(undefined, "application"),
       storyColumnsPrefixArtifact(),
     ]),
   ).catch(async (error: unknown) => {

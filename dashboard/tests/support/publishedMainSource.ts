@@ -1,4 +1,4 @@
-// One live-source Git snapshot per run, prepared only on first demand. Each
+// One live-source Git snapshot per input profile and run, on first demand. Each
 // fixture clones its own writable objects, index and working tree; its bare
 // publication origin is created separately and remains empty until push.
 import { execFile } from "node:child_process";
@@ -10,19 +10,49 @@ import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
 
 const exec = promisify(execFile);
-const key = "published-main-source";
+export type PublishedMainSourceProfile = "repository" | "application";
+export const publishedApplicationSourceArtifactKey =
+  "published-application-source";
+const keys = {
+  repository: "published-main-source",
+  application: publishedApplicationSourceArtifactKey,
+} as const;
+// The real app/runtime source, including the policy its watcher reads from Git.
+// Tests, maintenance records and installed guidance are not application inputs.
+const applicationPaths = [
+  "dashboard/src",
+  "dashboard/server",
+  "dashboard/public",
+  "dashboard/index.html",
+  "dashboard/vite.config.mts",
+  "dashboard/tsconfig*.json",
+  "src",
+  "scripts",
+  "assets",
+  "package.json",
+  "package-lock.json",
+  ".gitignore",
+  ".githooks",
+  "VERSION",
+  ".github/workflows/ci.yml",
+] as const;
 
 async function prepareSource(
   directory: string,
   source: string,
   env: NodeJS.ProcessEnv,
   signal?: AbortSignal,
+  profile: PublishedMainSourceProfile = "repository",
 ) {
   const git = async (...args: string[]) =>
     exec("git", args, { cwd: directory, env, signal });
+  const selected = profile === "application" ? ["--", ...applicationPaths] : [];
   const listed = async (...args: string[]) =>
     (
-      await exec("git", ["ls-files", "-z", ...args], { cwd: source, signal })
+      await exec("git", ["ls-files", "-z", ...args, ...selected], {
+        cwd: source,
+        signal,
+      })
     ).stdout
       .split("\0")
       .filter(Boolean);
@@ -58,9 +88,12 @@ async function prepareSource(
   );
 }
 
-export function publishedMainSourceArtifact(source = repoRoot) {
+export function publishedMainSourceArtifact(
+  source = repoRoot,
+  profile: PublishedMainSourceProfile = "repository",
+) {
   return [
-    key,
+    keys[profile],
     {
       create: () => mkdtempSync(path.join(tmpdir(), "dough-published-source-")),
       prepare: (directory: string, signal: AbortSignal) =>
@@ -69,6 +102,7 @@ export function publishedMainSourceArtifact(source = repoRoot) {
           source,
           { ...process.env, HOME: directory },
           signal,
+          profile,
         ),
     },
   ] as const;
@@ -77,10 +111,11 @@ export function publishedMainSourceArtifact(source = repoRoot) {
 export async function materializePublishedMainSource(
   development: string,
   env: NodeJS.ProcessEnv,
+  profile: PublishedMainSourceProfile = "repository",
 ) {
-  const snapshot = await requestRunArtifact(key);
+  const snapshot = await requestRunArtifact(keys[profile]);
   if (snapshot === undefined) {
-    await prepareSource(development, repoRoot, env);
+    await prepareSource(development, repoRoot, env, undefined, profile);
     return;
   }
   // Local transport copies the prepared pack; no hardlinks or alternates let

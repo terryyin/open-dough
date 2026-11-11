@@ -6,7 +6,10 @@ import { rmSync } from "node:fs";
 import path from "node:path";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
-import { launch } from "../../tests/agentLaunchBoundary.ts";
+import { launch, machineSessions } from "../../tests/agentLaunchBoundary.ts";
+import { keptAttempts } from "../../tests/acceptedAttempts.ts";
+import { replaceAttempts } from "../../server/launchAttemptStore.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   queuedIdentity,
   queuedTitle,
@@ -37,22 +40,82 @@ test("quiet Done needs landing and readable closure; unacked completion recovers
   codexProtocol: native,
 }) => {
   if (native === undefined) throw new Error("No native fixture");
+  const request = makeMe.anAcceptedAttempt
+    .requesting({
+      source: "open-dough",
+      host: "codex",
+      workflow: "ad-hoc",
+      instruction: "Keep this reporting conversation working.",
+      policy: { workspace: "isolated", landing: "review" },
+    })
+    .please().request;
+  expect((await launch(dashboard, request)).status).toBe(200);
+  const live = stored(dashboard.home)[0];
+  const context = live?.request.reporting;
+  const established = live?.establishedSession;
+  if (
+    live?.session.host !== "codex" ||
+    live.session.continuation === undefined ||
+    context === undefined ||
+    established?.role !== "isolated" ||
+    live.firstInput?.state !== "confirmed"
+  )
+    throw new Error("No working private Codex reporting session");
   expect(
-    (
-      await launch(dashboard, {
-        source: "open-dough",
-        host: "codex",
-        workflow: "execution",
-        identity: queuedIdentity,
-        title: queuedTitle,
-      })
-    ).status,
-  ).toBe(200);
-  const record = stored(dashboard.home)[0];
-  const context = record?.request.reporting;
-  const workspace = record?.start?.workspace;
-  if (record === undefined || context === undefined || workspace === undefined)
-    throw new Error("No recorded execution reporting context");
+    native.calls.filter(({ method }) => method === "turn/start"),
+  ).toHaveLength(1);
+  expect(await machineSessions(dashboard)).toMatchObject([
+    { sessionState: { kind: "available", activity: "working" } },
+  ]);
+  const workspace = established.workspace;
+  const published = (await origin.originGit("rev-parse", "main")).trim();
+  const record = makeMe.aLaunchRecord
+    .executing({ identity: queuedIdentity, title: queuedTitle })
+    .inCodexSession({
+      sessionId: live.session.sessionId,
+      continuation: live.session.continuation,
+    })
+    .onStoryBranch({
+      workspace,
+      branch: established.branch,
+      publishedSha: published,
+    })
+    .reportingThrough(context)
+    .withFirstInput(live.firstInput)
+    .launchedAt(live.launchedAt)
+    .please();
+  const previous = keptAttempts(dashboard).find(
+    ({ id }) => id === context.reference,
+  );
+  if (previous === undefined) throw new Error("No accepted native launch");
+  const tracked = makeMe.anAcceptedAttempt
+    .executing({ identity: queuedIdentity, title: queuedTitle, host: "codex" })
+    .withId(context.reference)
+    .acceptedAt(previous.acceptedAt)
+    .reportingTo(context.origin)
+    .published(published)
+    .launched(live.session)
+    .settledAt(live.launchedAt)
+    .please();
+  // The real ad hoc start already minted this installed context in its private HOME.
+  // Keep that producer's context and native identity while arranging tracked facts.
+  const home = process.env["HOME"];
+  if (home === dashboard.home)
+    throw new Error("Expected a private machine HOME");
+  process.env["HOME"] = dashboard.home;
+  try {
+    await replaceAttempts((kept) => ({
+      ...kept,
+      "open-dough": (kept["open-dough"] ?? []).map((entry) =>
+        entry.id === tracked.id
+          ? { ...previous, ...tracked, reporting: context }
+          : entry,
+      ),
+    }));
+  } finally {
+    if (home === undefined) delete process.env["HOME"];
+    else process.env["HOME"] = home;
+  }
   expect(record.doneAt).toBeUndefined();
   expect(record.completion).toBeUndefined();
 

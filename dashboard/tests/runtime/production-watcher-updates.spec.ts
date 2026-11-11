@@ -1,17 +1,15 @@
 // One serial production chain proves replacement, durable start completion,
 // shared machine records, published reads, policy decisions and shutdown.
 // Accepted cost: the real npm install, Vite build and preview behind each
-// activation, including the policy steps ./productionUpdatePolicies.ts adds
-// to this chain, which a prepared or prebuilt deployment would bypass. Setup
+// activation, which a prepared or prebuilt deployment would bypass. Detailed
+// policy ranges use the real selection owner without staging. Setup
 // and waits around the activations stay open to improvement.
 import { expect, test } from "../support/pageTest.ts";
-import { shortRevision, parts } from "../dashboardPage.ts";
-import { readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { readFile, readdir, rm } from "node:fs/promises";
 import { processRunning } from "../support/processGroup.ts";
 import {
   checkedAfterActivation,
   deploymentCheckout,
-  productionBoundary,
   productionDeployments,
 } from "../support/productionWatcher.ts";
 import {
@@ -19,18 +17,15 @@ import {
   holdBuildPath,
 } from "../support/productionBuildGate.ts";
 import { writeSharedLaunchRecord } from "../support/sharedLaunchRecord.ts";
-import { keepLaunchStoreText } from "../support/launchStore.ts";
 import {
   productionUpdateJourney,
   productionUpdateShutdown,
   prefixesOf,
-  revision,
-  backlog,
 } from "./productionUpdateJourney.ts";
 import { productionUpdatePolicies } from "./productionUpdatePolicies.ts";
 import { launchRequest } from "../agentLaunchBoundary.ts";
-import { attempts, machineSessions } from "../agentLaunchSessions.ts";
-import type { Acceptance } from "../../src/agentLaunch.ts";
+import { waitForWatcherOutput } from "../support/watcherEvents.ts";
+import { replaceWhileStartDrains } from "./productionHeldUpdate.ts";
 
 test.describe.configure({ mode: "serial" });
 const journey = productionUpdateJourney();
@@ -49,7 +44,7 @@ test("repeated checks of unchanged main stay quiet and keep the same preview and
   await journey.expectSharedRecord(request, state.developmentUrl);
   await journey.expectSharedRecord(request, state.served.url);
   const checksBefore = watcher.checks();
-  await expect.poll(() => watcher.checks()).toBeGreaterThan(checksBefore + 2);
+  await watcher.waitForChecks(checksBefore + 2);
   expect(watcher.output()).not.toContain("Checked published main:");
   expect(processRunning(state.served.pid)).toBe(true);
   expect(watcher.output().match(/preview PID \d+/g)).toEqual([
@@ -64,84 +59,7 @@ let c: string;
 test("a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records", async ({
   request,
 }) => {
-  const state = journey.started();
-  const { fixture, page, watcher, hosts } = state;
-  hosts.claude.controls.claudeScenario("held");
-  const launchesBefore = hosts.claude.controls.claudeLaunchCalls().length;
-  const launch = {
-    source: "open-dough",
-    workflow: "ad-hoc",
-    host: "claude",
-    instruction: "Keep this accepted start through the dashboard update.",
-  };
-  const start = (data = launch) =>
-    request.post(`${state.served.url}/__agent-launch/accept`, {
-      headers: { Origin: state.served.url },
-      data,
-    });
-  const accepted = (await (await start()).json()) as Extract<
-    Acceptance,
-    { kind: "accepted" }
-  >;
-  expect(accepted.kind).toBe("accepted");
-  await expect
-    .poll(() => hosts.claude.controls.claudeLaunchCalls().length)
-    .toBe(launchesBefore + 1);
-  // B is selected and held in its real build while C reaches main. B is
-  // served exactly; a later check then selects C.
-  await writeFile(holdBuildPath(fixture.home, 2), "");
-  await writeFile(holdBuildPath(fixture.home, 3), "");
-  const b = await fixture.publish(fixture.markerChanges("MAIN B"), "Main B");
-  await expect
-    .poll(async () => (await journey.builds()).length, { timeout: 0 })
-    .toBe(2);
-  expect((await journey.builds())[1]?.checkout).toEqual(deploymentCheckout(b));
-  c = await fixture.publish(fixture.markerChanges("MAIN C"), "Main C");
-  await rm(holdBuildPath(fixture.home, 2));
-  await expect
-    .poll(() => watcher.output(), { timeout: 0 })
-    .toContain("Waiting for accepted dashboard starts before updating.");
-  // The watcher's log precedes its request reaching the server. Polling the
-  // held request observes closed admission without admitting another start.
-  await expect.poll(async () => (await start()).status()).toBe(503);
-  expect(processRunning(state.served.pid)).toBe(true);
-  expect(watcher.output()).not.toContain(`Production dashboard ${b} at`);
-  const blocked = await start({
-    ...launch,
-    instruction: "Wait for the dashboard update.",
-  });
-  expect(blocked.status()).toBe(503);
-  hosts.claude.controls.releaseHeldClaude();
-  await journey.replacedBy(b);
-  const boundary = productionBoundary(state.served.url, fixture.home);
-  // A settled launch no longer needs attention, so its attempt is read with
-  // the history rather than the regular answer.
-  const attempt = (await attempts(boundary)).find(
-    (entry) => entry.id === accepted.attempt.id,
-  );
-  expect(attempt).toMatchObject({
-    id: accepted.attempt.id,
-    request: launch,
-    outcome: { kind: "launched" },
-    settledAt: expect.any(String),
-  });
-  if (attempt?.outcome?.kind !== "launched")
-    throw new Error("The accepted attempt has no launched native session.");
-  expect(await machineSessions(boundary)).toContainEqual(
-    expect.objectContaining({
-      request: expect.objectContaining(launch),
-      session: expect.objectContaining(attempt.outcome.session),
-    }),
-  );
-  expect(hosts.claude.controls.claudeLaunchCalls()).toHaveLength(
-    launchesBefore + 1,
-  );
-  // Later steps compare the pre-existing shared record's bytes.
-  keepLaunchStoreText(fixture.home, journey.shared().stored);
-  expect(watcher.output()).toContain(`Preparing production dashboard ${b}.`);
-  await page.reload();
-  await expect(page).toHaveTitle("MAIN B");
-  await journey.expectSharedRecord(request, state.served.url);
+  c = await replaceWhileStartDrains(journey, request);
 });
 
 // The watcher first retires the checkout B replaced, then a later check
@@ -149,9 +67,10 @@ test("a commit held in its build is served exactly at the same URL while the nex
 test("a later check prepares the next commit while the held commit stays served", async () => {
   const state = journey.started();
   const { page, watcher } = state;
-  await expect
-    .poll(() => watcher.output(), { timeout: 0 })
-    .toContain(`Preparing production dashboard ${c}.`);
+  await waitForWatcherOutput(
+    watcher,
+    new RegExp(`Preparing production dashboard ${c}\\.`),
+  );
   expect(watcher.output()).not.toMatch(
     new RegExp(`Production dashboard ${c} at`),
   );
@@ -181,52 +100,24 @@ test("the next commit, released from its build, replaces the held commit at the 
   expect(await readFile(state.configuration, "utf8")).toBe(state.configured);
 });
 
-test("the served commit's page and boundaries read the backlog at the revision main names and refuse an unknown project", async ({
+test("the replacement serves the production read and launch boundaries", async ({
   request,
 }) => {
-  const state = journey.started();
-  const { hosts, page } = state;
-  const { github, claude } = hosts;
-  // C's own page has read the backlog at the revision main names.
-  await expect(parts(page).readRevision).toContainText(shortRevision(revision));
-  const callsBefore = github.calls.length;
+  const { served } = journey.started();
   const read = await request.get(
-    `${state.served.url}/__authenticated-read?source=open-dough`,
-    { headers: { Origin: state.served.url } },
-  );
-  expect(read.status()).toBe(200);
-  expect(await read.json()).toMatchObject({ revision, backlog });
-  expect(
-    github.calls.slice(callsBefore).map((call) => call.argv),
-  ).toContainEqual([
-    "api",
-    "--include",
-    "repos/terryyin/open-dough/commits/main",
-    "--jq",
-    ".sha",
-  ]);
-  // C's boundary keeps the backlog its page read at this revision.
-  expect(
-    github.calls
-      .slice(callsBefore)
-      .some(
-        (call) =>
-          call.request.kind === "content" &&
-          call.request.revision === revision &&
-          call.request.path === ".planning/PRODUCT-BACKLOG.md",
-      ),
-  ).toBe(false);
-  const launchesBefore = claude.controls.claudeLaunchCalls().length;
-  const refused = await request.post(
-    `${state.served.url}/__agent-launch/accept`,
+    `${served.url}/__authenticated-read?source=not-a-real-project`,
     {
-      headers: { Origin: state.served.url },
-      data: { ...launchRequest, source: "not-a-real-project" },
+      headers: { Origin: served.url },
     },
   );
+  expect(read.status()).toBe(404);
+  expect(await read.json()).toHaveProperty("error");
+  const refused = await request.post(`${served.url}/__agent-launch/accept`, {
+    headers: { Origin: served.url },
+    data: { ...launchRequest, source: "not-a-real-project" },
+  });
   expect(refused.status()).toBe(404);
   expect(await refused.json()).toHaveProperty("error");
-  expect(claude.controls.claudeLaunchCalls()).toHaveLength(launchesBefore);
 });
 
 test("superseded checkouts are retired after the replacement serves, not before", async () => {

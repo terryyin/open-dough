@@ -11,7 +11,12 @@
 
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
-import { passCheckPace } from "../pageRequestNotes.ts";
+import {
+  passCheckPace,
+  untilPageRequestsAnswered,
+} from "../pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
 import {
   countMachineReads,
   indicatorOf,
@@ -177,7 +182,9 @@ test("a keyboard Start session hands the keyboard to its progress, and its sessi
   });
   await page.keyboard.type("why is CI slow?");
   await tabTo(page, dialog.getByRole("button", { name: "Start", exact: true }));
+  const acceptance = nextAcceptedAttemptId(page);
   await page.keyboard.press("Enter");
+  const attemptId = await acceptance;
 
   await expect(dialog).toBeHidden();
   const progress = page.locator(".start-session-answer");
@@ -189,8 +196,10 @@ test("a keyboard Start session hands the keyboard to its progress, and its sessi
   const otherHide = await inspectByKeyboard(page, other);
 
   dashboard.releaseHeldClaude();
+  expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
+  await untilPageRequestsAnswered(page);
   const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel).toHaveCount(1, { timeout: 30_000 });
+  await expect(panel).toHaveCount(1);
   await expect(
     parts(page).taken.locator(".session-entry").first(),
   ).toContainText("Shown in terminal");

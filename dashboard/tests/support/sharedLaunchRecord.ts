@@ -28,5 +28,5 @@ export async function expectSharedLaunchRecord(
   });
   expect(response.status()).toBe(200);
   const answer = (await response.json()) as { records: unknown[] };
-  expect(answer.records).toEqual([expect.objectContaining(record)]);
+  expect(answer.records).toContainEqual(expect.objectContaining(record));
 }

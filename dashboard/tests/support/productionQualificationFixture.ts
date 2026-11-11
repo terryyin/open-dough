@@ -15,14 +15,22 @@ import {
   ciWorkflowPath,
   qualifyPublishedRange,
 } from "../../server/productionQualification.mjs";
-import { publishedMainFixture } from "./publishedMainFixture.ts";
+import { localPublishedMainFixture } from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
 export const pushExclusions =
   '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
 
+// The watcher publishes this policy with A; its extra exclusion conflicts with
+// the dirty local workflow.
+export const publishedPolicy = (workflow: string) =>
+  workflow.replace(
+    pushExclusions,
+    `${pushExclusions}      - "extra/**"\n      - ".github/**"\n`,
+  );
+
 export async function qualificationFixture() {
-  const fixture = await publishedMainFixture();
+  const fixture = await localPublishedMainFixture();
   const workflow = await readFile(path.join(repoRoot, ciWorkflowPath), "utf8");
   expect(workflow).toContain(`  push:\n${pushExclusions}`);
   const inspectionsRoot = path.join(fixture.root, "inspections");

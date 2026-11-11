@@ -1,15 +1,15 @@
 // Sort's completed-story precondition is actual private Git history. The source
 // journeys retain installed CLI completion in intentSummaryStoryComparisonFixture.
-import type { Page } from "@playwright/test";
 import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { direction } from "../../../tests/support/product-backlog-fixture.mjs";
 import {
+  queuedReadyRepository,
   storyA,
   storyB,
   takeRevision,
 } from "../../../tests/support/queued-repository.mjs";
-import { commitDeclaredRevision } from "../../../tests/support/repository-fixture.mjs";
+import { materializeRepository } from "../../../tests/support/repository-fixture.mjs";
 import { planningBeforeClaim, revList } from "./storyCiComparisonFixture.ts";
 import {
   comparisonWorkflow,
@@ -19,15 +19,11 @@ import {
   summaryComparisonChangeRevision,
   summaryComparisonTrunkRevision,
 } from "./intentSummaryStoryComparisonShared.ts";
-import { serveSummaryComparisonStory } from "./intentSummaryStoryComparisonServing.ts";
-import type { StartOrigin } from "./startOrigin.ts";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
 import { lines } from "./storyReviewWorktree.ts";
-import { push } from "./storyReviewTrunkCommits.ts";
 
-export async function publishDeclaredSummaryComparisonStory(
-  page: Page,
-  origin: StartOrigin,
+export async function materializeDeclaredSummaryComparisonRepository(
+  parent: string,
 ) {
   const claimant = agentIdentity("Yui");
   const author = { name: claimant.agent, email: claimant.email };
@@ -63,7 +59,8 @@ export async function publishDeclaredSummaryComparisonStory(
         .please(),
     ],
   };
-  const history = makeMe.aRepository
+  const history = queuedReadyRepository()
+    .withCheckoutIdentity(dashboardDeveloper)
     .withRevision("locations", summaryComparisonTrunkRevision)
     .withRevision("baseline", {
       files: {
@@ -128,33 +125,21 @@ export async function publishDeclaredSummaryComparisonStory(
     })
     .please();
 
-  const revisions: Record<string, string> = {};
-  const revisionSha = (name: string) => {
-    const sha = revisions[name];
-    if (sha === undefined)
-      throw new Error(`Missing declared revision: ${name}`);
-    return sha;
-  };
-  for (const revision of history.revisions) {
-    revisions[revision.name] = await commitDeclaredRevision(
-      origin.project,
-      revision,
-      dashboardDeveloper,
-      revision.parents?.map(revisionSha),
-    );
-  }
-  push(origin.project);
+  const built = await materializeRepository(history, { parent });
+  const revisionSha = (name: keyof typeof built.revisions) =>
+    built.revisions[name];
   const baseline = revisionSha("baseline");
-  return serveSummaryComparisonStory(page, origin, {
+  return {
+    ...built,
     baseline,
     completion: revisionSha("completion"),
     branchSide: revisionSha("branch completion"),
     laterWithoutBuild: revList(
-      origin.project,
+      built.integration,
       revisionSha("shared"),
       20,
     ).indexOf(baseline),
     agent: claimant.agent,
     branch,
-  });
+  };
 }

@@ -7,7 +7,10 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectCodexRetryProgress } from "../support/codexRetryPage.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
 import { expectStartNote } from "../storyCardControls.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../support/preparationPage.ts";
 import { stored } from "../support/codexLaunch.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { showOptions } from "../launchStoryCardPage.ts";
@@ -65,7 +68,6 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await untilPageRequestsAnswered(page);
   await expect(card.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation",
-    { timeout: launchWaitMs },
   );
   await expect(card.locator(".launch-problem")).toContainText("Preparing as");
   const workspace = path.join(origin.project, ".worktrees", "story-a");
@@ -117,21 +119,6 @@ test("Codex refusal retains its published preparation; the page resumes the same
   await card.getByRole("button", { name: "Start refinement" }).click();
   await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
   await page.keyboard.press("Escape");
-  await reloadUntilRead(page);
-  await expectSettledPage(page);
-  await expectStartNote(
-    card,
-    "Start refinement",
-    "Started here, no session yet",
-  );
-  await card.getByRole("button", { name: "Start refinement" }).click();
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByLabel("Host", { exact: true })).toHaveValue("codex");
-  await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
-  await expect(dialog).toContainText(
-    "This start requested Codex with native-luna model.",
-  );
-  await page.keyboard.press("Escape");
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({
@@ -164,6 +151,13 @@ test("Codex refusal retains its published preparation; the page resumes the same
     expect(restarted.claudeLaunchCalls()).toEqual([]);
     await card.getByRole("button", { name: "Start refinement" }).click();
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByLabel("Host", { exact: true })).toHaveValue(
+      "codex",
+    );
+    await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
+    await expect(dialog).toContainText(
+      "This start requested Codex with native-luna model.",
+    );
     await expect(dialog).toContainText("already published on origin");
     await expect(dialog).toContainText(
       "in workspace ~/git/open-dough/.worktrees/story-a",
@@ -206,7 +200,6 @@ test("Codex refusal retains its published preparation; the page resumes the same
     await untilPageRequestsAnswered(page);
     await expect(card.getByRole("list", { name: "Sessions" })).toContainText(
       "Refinement started in Codex",
-      { timeout: launchWaitMs },
     );
     await expect(card).not.toContainText("Started here, no session yet");
     expect(await keptStarts(restarted)).toEqual([]);

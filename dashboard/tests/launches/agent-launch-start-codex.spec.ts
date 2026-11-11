@@ -10,7 +10,6 @@ import { expectCodexRetryProgress } from "../support/codexRetryPage.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { expectExecutionInput } from "../support/codexStartAssertions.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import {
   changedReviewRevision,
@@ -81,7 +80,6 @@ test("Codex card start publishes one claim and retries its retained workspace be
   // The answer follows the Take's real publication and Codex's refusal.
   await expect(queued.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation.",
-    { timeout: launchWaitMs },
   );
   const [profile] = await origin.takenProfiles();
   expect(profile).toMatchObject({
@@ -181,12 +179,8 @@ test("Codex card start publishes one claim and retries its retained workspace be
   await settledOutcome(dashboard, retryAttemptId);
   await untilPageRequestsAnswered(page);
   const sessions = claimed.getByRole("list", { name: "Sessions" });
-  await expect(sessions).toContainText("Execution started in Codex", {
-    timeout: launchWaitMs,
-  });
-  await expect(sessions).toContainText("First input accepted", {
-    timeout: launchWaitMs,
-  });
+  await expect(sessions).toContainText("Execution started in Codex");
+  await expect(sessions).toContainText("First input accepted");
   const [record] = stored(dashboard.home);
   expectExecutionInput(
     record,

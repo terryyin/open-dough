@@ -209,9 +209,34 @@ setup; three valid pressure/default commands pass, with about .980s worst local
 sort body headroom. Two ineffective small-data cuts remain discarded. Actual
 hosted comparison cases pass retry0 in two runs; exact full CI5e721503 passes
 run42963489603/1 after each exposed transport/shutdown/runner/pacing defect is
-repaired. Combined evidence settles12 and G4/G7/G12/G13/G14/G15, without a new
-numeric exception or waiver. Thirteen slices and source Goal/Scope unchanged.
-Slice13 owns G1/G2/G3/G8/G11, named pressure/default, comparable whole-suite and
+repaired. Combined evidence settled12 and G4/G7/G12/G13/G14/G15 at that boundary,
+without a numeric exception or waiver. Slice13's C03 continuation now exposes
+Sort31.110s under valid pressure; G7 returns while the earlier evidence stays
+retained. Thirteen slices and source Goal/Scope unchanged.
+Slice13 owns G1/G2/G3/G7/G8/G11/G18, named pressure/default, comparable whole-suite and
 trunk gates. Branch validation still uses twelve shards; current trunk's
 thirteen-part input is handled at the existing human checkpoint. See
 [CI repair evidence](ci-repair-evidence.md).
+Current failures, five-second observation audit and selected corrections are in
+[final validation](final-validation-evidence.md) and
+[observation evidence](final-observation-evidence.md).
+
+## Source goal and scope
+
+Maintainers and agents get the same dashboard suite result under usual parallel
+load and in hosted CI without case-local timeout allowances. Named overdue
+journeys finish with margin inside the default 30 s and their 5 s observations;
+temporary allowances for touch review, production-deployment,
+agent-completion-recovery, watcher policy-repair, and retired closure are
+removed only after each case fits. The watcher family is at least 10 s faster
+in median elapsed time including moved work; the comparable local dashboard
+suite and the slowest hosted shard stay within previous elapsed times. Every
+distinct behavioral promise stays at an observable boundary; surviving proof is
+established before deleting a test, step, or assertion.
+
+Out of scope: SEED-286#fast-intent-ci-comparison-tests; infrastructure
+acquisition; unrelated branch defects; the separate collector lock repair;
+unnamed case-local allowances (including recently-done ad-hoc session and
+Intent timing-history journeys) unless a harness change this story makes must
+keep them green; raising default case or shard deadlines; sleeps, retries,
+skips, or permanent CI jobs as the margin strategy.

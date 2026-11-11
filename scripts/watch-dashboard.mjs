@@ -10,9 +10,9 @@ import { setTimeout as wait } from "node:timers/promises";
 import {
   resolvePublishedMain,
   stageDeployment,
-  startDeploymentPreview,
 } from "../dashboard/server/productionDeployment.mjs";
-import { qualifyPublishedRange } from "../dashboard/server/productionQualification.mjs";
+import { startProductionPreview } from "../dashboard/server/productionPreviewLifecycle.mjs";
+import { publishedUpdates } from "../dashboard/server/productionUpdates.mjs";
 
 const developmentRoot = fileURLToPath(new URL("..", import.meta.url));
 const cancellation = new AbortController();
@@ -23,7 +23,6 @@ process.on("SIGHUP", stop);
 let staged;
 let preview;
 let candidate;
-let previewExit;
 try {
   const { values } = parseArgs({
     options: {
@@ -50,65 +49,49 @@ try {
     );
   }
   // The successfully served commit; replaced only after a candidate activates.
-  let baseline = await resolvePublishedMain(
+  const initial = await resolvePublishedMain(
     developmentRoot,
     process.env,
     cancellation.signal,
   );
-  console.log(`Preparing production dashboard ${baseline.commit}.`);
+  const updates = publishedUpdates({ developmentRoot, baseline: initial });
+  console.log(`Preparing production dashboard ${initial.commit}.`);
   staged = await stageDeployment({
     developmentRoot,
-    published: baseline,
+    published: initial,
     signal: cancellation.signal,
   });
   // The runner is its own process group. Replacement and shutdown below stop
   // the preview only; they do not signal this runner.
   await startCursorRunner(staged.directory, cancellation.signal);
-  preview = await startDeploymentPreview({
+  preview = await startProductionPreview({
     directory: staged.directory,
+    commit: initial.commit,
     port: Number(values.port),
     signal: cancellation.signal,
   });
   console.log(
-    `Production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
+    `Production dashboard ${initial.commit} at ${preview.current.url} (preview PID ${preview.current.pid}).`,
   );
   console.log("Development remains available through npm run dev:dashboard.");
-  // An ephemeral startup port becomes the fixed production URL for all updates.
-  const productionPort = Number(new URL(preview.url).port);
-  observePreview(preview);
-  // The last range found to hold only excluded changes; never a failed one.
-  let skippedRange;
   while (!cancellation.signal.aborted) {
     await wait(Number(values["check-interval"]), undefined, {
       signal: cancellation.signal,
     });
-    if (previewExit !== undefined) {
-      throw new Error(
-        `Production dashboard exited unexpectedly (${previewExit.signal ?? previewExit.code}).`,
-      );
-    }
+    preview.check();
     let selected;
     try {
-      const latest = await resolvePublishedMain(
+      // Pin this commit through build and startup even if main moves on.
+      selected = await resolvePublishedMain(
         developmentRoot,
         process.env,
         cancellation.signal,
       );
-      if (latest.commit === baseline.commit) continue;
-      const range = `${baseline.commit}..${latest.commit}`;
-      if (range === skippedRange) continue;
-      // Pin this commit through build and startup even if main moves on.
-      selected = latest;
-      const { qualifies } = await qualifyPublishedRange({
-        developmentRoot,
-        baseline,
-        selected,
-        signal: cancellation.signal,
-      });
-      if (!qualifies) {
-        skippedRange = range;
+      const decision = await updates.select(selected, cancellation.signal);
+      if (decision === "unchanged" || decision === "already-excluded") continue;
+      if (decision === "excluded") {
         console.log(
-          `Skipping production update ${selected.commit}: every change since ${baseline.commit} is excluded by its CI push policy.`,
+          `Skipping production update ${selected.commit}: every change since ${updates.baseline.commit} is excluded by its CI push policy.`,
         );
         continue;
       }
@@ -118,46 +101,39 @@ try {
         published: selected,
         signal: cancellation.signal,
       });
+    } catch (error) {
+      reportRetry(selected, updates.baseline, preview.current.url, error);
+      continue;
+    }
+
+    try {
       console.log("Waiting for accepted dashboard starts before updating.");
-      await preview.drain(cancellation.signal);
-      cancellation.signal.throwIfAborted();
-      await preview.stop();
-      preview = undefined;
-      try {
-        preview = await startDeploymentPreview({
-          directory: candidate.directory,
-          port: productionPort,
-          signal: cancellation.signal,
-        });
-      } catch (error) {
-        cancellation.signal.throwIfAborted();
-        try {
-          preview = await startDeploymentPreview({
-            directory: staged.directory,
-            port: productionPort,
-            signal: cancellation.signal,
-          });
-        } catch (restorationError) {
-          throw new Error(
-            `${selected.commit} failed: ${error.message}; restoring ${baseline.commit} also failed: ${restorationError.message}`,
-            { cause: restorationError },
-          );
-        }
-        observePreview(preview);
+      const replacement = await preview.replace({
+        directory: candidate.directory,
+        commit: selected.commit,
+      });
+      if (replacement.kind === "restored") {
         console.log(
-          `Restored production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
+          `Restored production dashboard ${updates.baseline.commit} at ${preview.current.url} (preview PID ${preview.current.pid}).`,
         );
-        throw error;
+      }
+      if (replacement.kind !== "activated") {
+        reportRetry(
+          selected,
+          updates.baseline,
+          preview.current.url,
+          replacement.error,
+        );
+        continue;
       }
       // Publish active ownership before retiring the superseded checkout.
       // A cleanup failure must never make finally delete the live candidate.
       const retired = staged;
       staged = candidate;
       candidate = undefined;
-      baseline = selected;
-      observePreview(preview);
+      updates.activated(selected);
       console.log(
-        `Production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
+        `Production dashboard ${updates.baseline.commit} at ${preview.current.url} (preview PID ${preview.current.pid}).`,
       );
       try {
         await retired.remove();
@@ -166,12 +142,6 @@ try {
           `Could not remove retired dashboard ${retired.directory}: ${error.message}`,
         );
       }
-    } catch (error) {
-      cancellation.signal.throwIfAborted();
-      if (preview === undefined) throw error;
-      console.error(
-        `Production update failed${selected ? ` for ${selected.commit}` : ""}: ${error.message}\nKeeping ${baseline.commit} at ${preview.url}; retrying on a later check.`,
-      );
     } finally {
       await candidate?.remove();
       candidate = undefined;
@@ -189,6 +159,13 @@ try {
   process.off("SIGINT", stop);
   process.off("SIGTERM", stop);
   process.off("SIGHUP", stop);
+}
+
+function reportRetry(selected, baseline, url, error) {
+  cancellation.signal.throwIfAborted();
+  console.error(
+    `Production update failed${selected ? ` for ${selected.commit}` : ""}: ${error.message}\nKeeping ${baseline.commit} at ${url}; retrying on a later check.`,
+  );
 }
 
 // This development checkout's runner, from a checkout that has its
@@ -237,12 +214,4 @@ async function startCursorRunner(stagedDirectory, signal) {
   console.error(
     `Cursor runner was not started${output.trim() ? `: ${output.trim()}` : "."}`,
   );
-}
-
-/** @param {Awaited<ReturnType<typeof startDeploymentPreview>>} running */
-function observePreview(running) {
-  previewExit = undefined;
-  void running.exited.then((exit) => {
-    if (preview === running) previewExit = exit;
-  });
 }

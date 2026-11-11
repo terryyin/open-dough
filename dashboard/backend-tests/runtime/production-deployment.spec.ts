@@ -60,12 +60,10 @@ test("deployment verifies the exact selected commit before running its code", as
 
 test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async ({
   request,
+  publishedApplicationSourceReady,
 }) => {
-  // Real full-source install, build and preview: 32.1s in hosted CI.
-  // Removing this allowance belongs to
-  // SEED-287#fit-dashboard-journeys-in-default-timeout.
-  test.setTimeout(45_000);
-  const fixture = await publishedMainFixture(true);
+  await Promise.resolve(publishedApplicationSourceReady);
+  const fixture = await publishedMainFixture(true, "application");
   let staged: Awaited<ReturnType<typeof stageDeployment>> | undefined;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {

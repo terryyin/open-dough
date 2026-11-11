@@ -1,3 +1,4 @@
+import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
 // @ts-check
 import { AgentProfileBuilder } from "./agentProfileTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
@@ -134,6 +135,9 @@ export const makeMe = {
   },
   get aTestOptimizationCandidatesRecord() {
     return new TestOptimizationCandidatesRecordBuilder();
+  },
+  get aLaunchRequest() {
+    return new LaunchRequestBuilder();
   },
   get aLaunchRecord() {
     return new LaunchRecordBuilder();

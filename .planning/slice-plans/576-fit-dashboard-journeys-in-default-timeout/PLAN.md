@@ -3,31 +3,12 @@
 **Identity:** SEED-287#fit-dashboard-journeys-in-default-timeout
 **Source:** [Refined story](../../seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
 **Source review:** [Independent commitments](source-review.md)
-**Preparation:** owned workspace
-`/Users/terryyin/git/open-dough/.worktrees/make-dashboard-journeys-fit-the-default-timeout`,
-branch `cursor/make-dashboard-journeys-fit-the-default-timeout`, starting
-revision `673002452f18b7fc7a9427f7a6db662b63c8b0b7`. This plan authorizes no
-execution.
+**Preparation:** [Historical preparation](execution-context.md#preparation-history).
 
 ## Goal and scope
 
-Maintainers and agents get the same dashboard suite result under usual parallel
-load and in hosted CI without case-local timeout allowances. Named overdue
-journeys finish with margin inside the default 30 s and their 5 s observations;
-temporary allowances for touch review, production-deployment,
-agent-completion-recovery, watcher policy-repair, and retired closure are
-removed only after each case fits. The watcher family is at least 10 s faster
-in median elapsed time including moved work; the comparable local dashboard
-suite and the slowest hosted shard stay within previous elapsed times. Every
-distinct behavioral promise stays at an observable boundary; surviving proof is
-established before deleting a test, step, or assertion.
-
-Out of scope: SEED-286#fast-intent-ci-comparison-tests; infrastructure
-acquisition; unrelated branch defects; the separate collector lock repair;
-unnamed case-local allowances (including recently-done ad-hoc session and
-Intent timing-history journeys) unless a harness change this story makes must
-keep them green; raising default case or shard deadlines; sleeps, retries,
-skips, or permanent CI jobs as the margin strategy.
+[Selected story](../../seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) owns the goal, scope and restrictions;
+[retained plan summary](design-and-proof.md#source-goal-and-scope) preserves this plan's complete summary.
 
 ## Design and proof basis
 
@@ -105,20 +86,8 @@ Behavior: [Original accepted flow](completed-slice-details.md#slice-11).
 ### 12. Settle comparison budgets with the preserved canonical setup
 Type: Behavior
 Status: done
-Proof: Preserved canonical setup passes three fresh default comparison
-commands, touch4/4, shared consumers23/23 and independent actual Git1/1.
-Hosted comparison cases pass retry0 in runs42952620767/1 and42957320139/1;
-exact full CI5e721503 passes run42963489603/1. Combined local/hosted proof
-settles G7 without a new numeric threshold. Worst local body headroom remains
-about .980 s; variability and all cold work stay explicit. All sort actions,
-assertions/two loops and both full-CLI sources remain. No timeout, skip/retry,
-cache/lifetime or waiver. See [local proof](comparison-default-evidence.md),
-[hosted cases](comparison-hosted-evidence.md) and [CI repairs](ci-repair-evidence.md).
-
-Behavior: Discard two ineffective small-data cuts → retain the canonical
-three-pass implementation → repair each exposed CI defect → accept combined
-local/hosted comparison proof. Named pressure/default/full/trunk gates remain
-with13; this acceptance does not claim those later observations.
+Proof: [Accepted observations](completed-slice-details.md#slice-12).
+Behavior: [Original accepted flow](completed-slice-details.md#slice-12).
 
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -163,10 +132,10 @@ Reported: slice 11 — "switching to dashboardTest alone made completion recover
 Story clause: "Preserve every distinct behavioral promise at an observable boundary."
 Disposition: proved by slice 11: rejected cache paths removed; original preparationPage/StartOrigin private checkout restored, with exact source/Proof observations in the paired-before three-case pass at /tmp/seed287-slice3-20261110-2107/pair-before-proof.json
 
-### G7. Controlled-pressure comparison budgets remain unproved
-Reported: slice 11 — "The controlled CPU-pressure run timed out in sort and clean-source; conflict-source passed at 29.667 s, while sampled load rose from 20.38 to 32.04."
+### G7. Sort times out31.110s during C03 continuation (first reported in slice11)
+Reported: slice 13 — "The controlled CPU-pressure run timed out in sort and clean-source; conflict-source passed at 29.667 s, while sampled load rose from 20.38 to 32.04."
 Story clause: "A flaky or environment-dependent timeout remains a defect"
-Disposition: proved by slice 12: comparison-default-evidence.md three valid pressure/default3/3 passes, preserved canonical setup and .980s worst local headroom; comparison-hosted-evidence.md retry0 hosted cases and exact full CI5e721503 run42963489603/1 settle the combined proof
+Disposition: return
 
 ### G8. Trunk restart allowance still needs hosted default margin
 Reported: slice 3 — "Trunk commit 2a2038247 added a 90 s restart/SIGINT allowance after hosted install/build took 27.3 s before shutdown; the execution branch still uses the default."
@@ -188,7 +157,7 @@ Disposition: proved by slice 6: touch-evidence.md accepted worker-input implemen
 Reported: slice 11 — "Incoming c73b4d00d applies Terry-approved thirteen dashboard shards while this source still names twelve timing artifacts."
 Story clause: "Refresh existing shard weights from all 12 artifacts"
 Disposition: receiving slice 13
-Commitment: Q09
+Commitment: C67, C68, Q09
 
 ### G12. Published transport loses streams under dash
 Reported: slice 12 — "Run 42949046330/1 failed all twelve dashboard jobs; installed-client contract tests received empty stdout and stderr with the expected exit codes."
@@ -210,10 +179,27 @@ Reported: slice 12 — "Run 42960450409/1 expected six record reads before the p
 Story clause: "Keep exact counts where avoiding duplicate work is the promise."
 Disposition: proved by slice 12: ci-repair-evidence.md retains accepted launch and pending page answers settle before pacing; original and held-final-answer whole journeys pass default2/2; exact full CI5e721503 passes run42963489603/1
 
+### G16. Final launch pressure exposes four budget defects
+Reported: slice 13 — "The whole launch/closure28 failed with quiet reporting, retained retry, Codex refusal/restart and execution receipt timeouts; three failed before a later hard load34.052 profile gap."
+Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget"
+Disposition: proved by slice 13: final-validation-evidence.md retains all four repaired default/retry0 case observations at10.961/12.382/23.715/19.416s during a valid full load21.776–24.719 window; later whole28 passes, while G18 owns remaining observation budgets
+
+### G17. Continued recovery leaves its second page without a session
+Reported: slice 13 — "Repaired whole launch28 failed at responsive-session-recovery-restart.spec.ts:97: the second page still showed zero sessions after its default five-second observation."
+Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget and their 5 s observations"
+Disposition: proved by slice 13: final-validation-evidence.md actual settlement plus controlled second-page pace; three strict normal2/2 passes and whole pressure28/28, target22.244s and unchanged default5 count5.511ms; every real restart/claim/native assertion retained
+
+
+### G18. Scoped browser observations still use longer budgets
+Reported: slice 13 — "The passing pressure46 retains 12 browser observations configured30s and five configured60s; cursorSessionRecovery.ts:118 actually took8.021655s, exceeding the promised five-second observation."
+Story clause: "their 5 s observations"
+Disposition: return
+Commitment: C03
+
 ## Plan concern assessment
 
 [Current assessment](design-and-proof.md#current-plan-assessment) and
-[owned CI repair](ci-repair-evidence.md); G4/G7/G12/G13/G14/G15 are settled; G1/G2/G3/G8/G11 remain with13.
+[owned CI repair](ci-repair-evidence.md); G4/G12/G13/G14/G15/G16/G17 are settled; G1/G2/G3/G7/G8/G11/G18 remain with13; [final proof](final-validation-evidence.md).
 
 ## Trunk measurement checkpoint
 
@@ -222,19 +208,6 @@ The required retained-landing and trunk-only timing checkpoint is in
 
 ## Execution notes
 
-[Execution identity, accepted revision, setup, and CI observer](execution-context.md)
-
-- No numeric slice target or hard limit is supplied; judge boundedness by one
-  proof loop and the Behavior/Structure gate above.
-- Local gates: focused selections named in each slice's proof, then the
-  existing local and hosted dashboard gates for slice 13; ordinary commit hooks.
-  For long runs start fully awake: on AC use `caffeinate -s -i`; on battery
-  plug in or keep the lid open under `caffeinate -i` and inspect sleep logs
-  per [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
-- The [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-  applies as written to every delegation and repair handoff. Shared `makeMe`
-  arranges automated domain data; no sleeps, `test.slow()`, or suite/hook
-  timeout overrides. Case-local timeout overrides stay forbidden except as the
-  temporary allowances this story removes. Execution owns applicable local and
-  published CI repairs.
-- [Retained hosted baseline](hosted-evidence.md#historical-baseline); keep wall and summed case time separate.
+Full local gate: awake/on AC with `caffeinate -s -i` per the
+[maintained sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+[Execution context and focused gates](execution-context.md#execution-notes) retain the complete notes.

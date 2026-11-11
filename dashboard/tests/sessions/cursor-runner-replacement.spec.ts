@@ -6,6 +6,7 @@
 // ./cursor-runner-helper-survival.spec.ts. Done / never-held / fail
 // controls live in ./cursor-runner-replacement-controls.spec.ts.
 import type { Page } from "@playwright/test";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
@@ -33,12 +34,11 @@ import {
 import {
   agentNotRunningLabel,
   keptRecords,
-  launchSecondHeldSession,
-  startScopedCursorExecution,
 } from "../support/cursorSessionRecovery.ts";
 import { expect, test, workingCursorTest } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
+import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 
 // The page also lists the held session as the project's local Taken entry.
 async function showHeldSessionPage(
@@ -84,14 +84,10 @@ const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(
   "sessions a replaced runner last held are revived without Recover; the third launch stays running",
   async ({ page, dashboard, origin, cursor }) => {
-    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
-    await launchSecondHeldSession(
-      page,
-      origin,
-      cursor,
-      dashboard.home,
-      secondSessionId,
-    );
+    await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+      { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+      { story: storyB, sessionId: secondSessionId },
+    ]);
     const recordsBefore = keptRecords(dashboard.home);
     expect(recordsBefore).toHaveLength(2);
     const scoped = recordsBefore.find(
@@ -130,6 +126,9 @@ replacementTest(
     await expect(entries).toHaveCount(2);
     const scopedEntry = entries.filter({ hasText: cursor.sessionId });
     const otherEntry = entries.filter({ hasText: secondSessionId });
+    await scopedEntry.getByRole("button", { name: "Session details" }).click();
+    await expect(scopedEntry.getByText("First input accepted")).toBeVisible();
+    await scopedEntry.getByRole("button", { name: "Session details" }).click();
     const panel = page.getByRole("region", { name: "Terminal" });
     for (const entry of [scopedEntry, otherEntry]) {
       await entry.getByRole("button", { name: "Open terminal" }).click();

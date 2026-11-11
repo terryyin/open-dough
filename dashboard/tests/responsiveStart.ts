@@ -34,6 +34,17 @@ export const test = base.extend<StartOriginFixtures>({
   },
 });
 
+// This view keeps the responsive server's options and requires only its queued preview inputs.
+export const queuedClaudePreviewTest = test.extend({
+  originRepository: async (
+    { queuedClaudePreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedClaudePreviewReady);
+    await use(originRepository);
+  },
+});
+
 export const instruction = "Keep this exact instruction.";
 
 // What a protected story card and each of its unavailable actions say.
