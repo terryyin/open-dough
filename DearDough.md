@@ -17,6 +17,7 @@ retain local facets. The full source before this compaction is
 - Recovery: `a0357d569ac3bd2fc4d866d511fdf354963881bc:DearDough.md` preserves the catalog-only ODF-238/253/262/263 stubs removed to retain current ODF-329/396 recurrence evidence; their meaning/evidence remain in the maintained finding catalog.
 - Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
 - Recovery: `296db77062d35455cf7b830aaeebb6671d396d1b:DearDough.md` preserves the redundant ODF-396 SEED-281 unit-gaps occurrence removed at final SEED-285 integration to retain current published-failure and native-proof maintenance evidence; newer occurrences retain the trace-noise finding.
+- Recovery: `c9c6c06453f04b8b6144a34a563fbda1327cc960:DearDough.md` preserves catalog-only ODF-355–360 stubs removed to retain SEED-305 delivery-gate and trace recurrence observations. Their complete meaning/evidence remains in docs/maintainer/findings/; current observations have higher information value than duplicated catalog pointers.
 - Occurrence history is partial.
 
 ## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
@@ -467,45 +468,16 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: commit/publication were withheld; narrow opaque return typing, typecheck/affected Node proof and preparation retry settled the gate. Browser proof stayed applicable because emitted JavaScript was identical.
   - Inference: late authored-file lint feedback recurred under coordinator-owned formatter/hook instructions; an earlier read-only lint's counterfactual saving remains unmeasured.
 
+- Execution: SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates (plan 581; first implementation `c9c6c06453f04b8b6144a34a563fbda1327cc960`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
+  - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; first guarded fresh returned formatting failure for an unused callback parameter and forbidden non-null assertion in ci-history-reader-compatibility.spec.ts after green focused proof and independent refactor; coordinator corrected them and reran that spec.
+  - Observed effect: One mechanical repair/proof/preparation loop preceded publication; formatter and hook ownership were honored. Earlier lint savings remain unmeasured.
+
 ## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
 
 Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
-
-<a id="dd-337--preparation-recorded-measured-allocations-without-their-full-sort-key"></a>
-
-## ODF-355 — Preparation recorded measured allocations without their full sort key
-
-Former local code: DD-337. [Meaning, evidence and response](docs/maintainer/findings/ODF-355.md).
-
-<a id="dd-338--a-direct-formatter-command-in-fresh-delivery-lacked-the-packages-binaries"></a>
-
-## ODF-356 — A direct formatter command in fresh delivery lacked the package's binaries
-
-Former local code: DD-338. [Meaning, evidence and response](docs/maintainer/findings/ODF-356.md).
-
-<a id="dd-340--preparation-observations-recorded-results-their-own-commands-contradict"></a>
-
-## ODF-357 — Preparation observations recorded results their own commands contradict
-
-Former local code: DD-340. [Meaning, evidence and response](docs/maintainer/findings/ODF-357.md).
-
-<a id="dd-341--coordinator-wrote-subagent-completion-notices-in-its-own-turn"></a>
-
-## ODF-358 — Coordinator wrote subagent completion notices in its own turn
-
-Former local code: DD-341. Former local code: DD-337 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision. [Meaning, evidence and response](docs/maintainer/findings/ODF-358.md).
-
-<a id="dd-342--a-developer-run-observation-inside-a-slices-proof-cannot-be-delivered-with-that-slice"></a>
-
-## ODF-359 — A developer-run observation inside a slice's proof cannot be delivered with that slice
-
-Former local code: DD-342. Former local code: DD-338 on the claude/accept-original-source-promises-when-a-plan-narr branch at `f29e9fff5daed9d384bee60b9edbd34b6ea65157`; reassigned during integration to resolve a concurrent local-code collision. [Meaning, evidence and response](docs/maintainer/findings/ODF-359.md).
-
-<a id="dd-344--a-new-installed-command-assumed-a-writable-system-temp-directory-that-host-sandboxes-refuse"></a>
-
-## ODF-360 — A new installed command assumed a writable system temp directory that host sandboxes refuse
-
-Former local code: DD-344. [Meaning, evidence and response](docs/maintainer/findings/ODF-360.md).
 
 <a id="dd-348--an-implementation-agent-met-a-file-line-limit-by-joining-wrapped-lines"></a>
 
@@ -647,6 +619,13 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: slice1's generated trace was731 lines; slice3 reported687 located rows and slice4 reported980, deriving dirty PLAN/source-review basenames beside explicit fragment/count/factory terms. `a0357d569:.planning/slice-plans/577-map-ci-proof-test-data/` retains literal focused commands and function-level consumer dispositions; raw traces stayed under `/tmp/slice*-consumer-trace.md`.
   - Observed effect: broad lexical/record matches required many exclusions and a truncated combined coordinator read. Later bounded inspection and function-level impact selection retained actual indirect consumers, including two additional browser journeys; no missed consumer is established.
   - Inference: planning-basename/generic-term noise recurred alongside useful tracing. Isolated time/token cost and savings from a narrower search were not measured.
+
+- Execution: SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates (plan 581; first implementation `c9c6c06453f04b8b6144a34a563fbda1327cc960`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
+  - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; /tmp/seed305-consumer-dispositions.md and /tmp/seed305-direct-consumer-dispositions.md; combined coordinator read reported 81,029 original tokens before output truncation, including PLAN.md/source-review.md and broad schema matches.
+  - Observed effect: Targeted follow-up reads recovered actual response, hook and browser consumers; every affected consumer passed. No missed consumer is established; isolated trace cost is unmeasured.
 
 ## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
 
@@ -970,6 +949,13 @@ Focused Playwright configuration selection passed; the commit hook's typecheck t
   - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
   - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
 
+- Execution: SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates (plan 581; first implementation `c9c6c06453f04b8b6144a34a563fbda1327cc960`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
+  - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; guarded fresh commit hook returned TS2345: aPublishedSource.with({id}) lacked required label and repository, although the compatibility Playwright check passed. Supplying the actual fixture source facts and rerunning the spec preceded accepted publication.
+  - Observed effect: One commit refusal and another preparation pass; the typecheck gate contained the test-data typing defect without publishing it.
+
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
 Former branch-local code: DD-487 in `39c075087`; renumbered during integration to preserve the unrelated finding already published on trunk.
@@ -994,3 +980,9 @@ a manual records-only repair before its first slice commit.
   - Open Dough release: 0.3.94 (checkout-bound installed guidance at claim `579604374`)
   - Evidence: launch `cd709693-c387-4de7-8e97-2c96d9d47ed2`; first guarded fresh returned `preparation-failed`, operation `staged whitespace`, `PLAN.md:91: trailing whitespace`, `+Status: done`; removing only that inherited hard break allowed the same guarded operation to publish `536dcf132`.
   - Observed effect: one mechanical refusal/repair/retry, no commit or publication on refusal. Inference: recurrence of the same retained-status-suffix mismatch; no runtime repair authorized here.
+- Execution: SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates (plan 581; first implementation `c9c6c06453f04b8b6144a34a563fbda1327cc960`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
+  - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; guarded fresh returned preparation-failed at staged whitespace, PLAN.md:89, +Status: done. The original plan used a two-space Markdown hard break; selected-slice-status.mjs:59 replaces planned only and retains that suffix.
+  - Observed effect: One records-only whitespace repair and preparation retry; no commit or push occurred on refusal. Same status-writer/whitespace-gate mismatch remains in installed 0.3.94.

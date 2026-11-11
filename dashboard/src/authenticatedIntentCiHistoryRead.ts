@@ -33,7 +33,7 @@ export async function readIntentCiHistory(
 ): Promise<MeasuredHistory> {
   const reading = readingCiHistoryOf(source.repository);
   const body = await authenticatedGet(
-    `source=${encodeURIComponent(source.id)}&intent=ci-history`,
+    `source=${encodeURIComponent(source.id)}&intent=ci-history&gap-reasons=timing-basis`,
     reading,
     signal,
     { local: true },
@@ -87,6 +87,7 @@ export async function readIntentCiDoneWallTimeHistory(
   const query = new URLSearchParams({
     source: source.id,
     intent: "ci-history",
+    "gap-reasons": "timing-basis",
     revision: endpoint.revision,
     through: endpoint.at,
   });

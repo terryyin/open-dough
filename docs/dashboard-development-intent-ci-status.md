@@ -222,6 +222,14 @@ and commit times never replace the receipt, nor does a fresh read start a new
 wait. Later first-parent CI and the existing walk limit remain independent
 ways to settle a no-run gap.
 
+The local authenticated `intent=ci-history` response keeps open tabs readable
+across dashboard updates by defaulting to the prior final-gap vocabulary.
+Newer final reasons appear as `not-recorded` with the existing “CI wall time
+not recorded” wording. Current project and Done wall-time readers request
+`gap-reasons=timing-basis` to show that specific retained-timing reason;
+other new reasons still use the compatible fallback. This projection changes
+neither collected observations nor timing calculations or scoped history.
+
 Each landing is kept by its receipt, with its own reference (revision, when
 it was recorded, its story), and each build once by its run and attempt, in
 `~/.open-dough/dashboard/landed-ci-history.json`. A final resolution is never

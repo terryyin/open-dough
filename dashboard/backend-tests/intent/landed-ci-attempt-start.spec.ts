@@ -105,7 +105,9 @@ for (const bounds of ["available", "unavailable"] as const) {
     );
     const beforeCollection = await startServer({ environment: "development" });
     const beforeRead = github.calls.length;
-    expect(await landedCiHistory(beforeCollection)).toMatchObject({
+    expect(
+      await landedCiHistory(beforeCollection, "timing-basis"),
+    ).toMatchObject({
       body: {
         entries: [
           {
@@ -120,7 +122,7 @@ for (const bounds of ["available", "unavailable"] as const) {
     await beforeCollection.close();
     const server = await startServer();
     await expect
-      .poll(() => landedCiHistory(server))
+      .poll(() => landedCiHistory(server, "timing-basis"))
       .toMatchObject({
         body: {
           entries: [
@@ -173,7 +175,7 @@ for (const bounds of ["available", "unavailable"] as const) {
     const reader = await restartAsLandedCiReader(server, origin, "boundary");
     try {
       const asked = github.calls.length;
-      expect(await landedCiHistory(reader)).toMatchObject({
+      expect(await landedCiHistory(reader, "timing-basis")).toMatchObject({
         body: {
           entries: [
             bounds === "available"
