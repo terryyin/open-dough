@@ -222,7 +222,7 @@ test.describe("launch records kept on this machine", () => {
     // Story starts refuse an unreadable store; an ad hoc launch still writes
     // and moves the unreadable copy aside.
     server.claudeScenario("launched");
-    const adHoc = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+    const adHoc = makeMe.aLaunchRequest.adHoc().please();
     const { record } = JSON.parse((await launch(server, adHoc)).body) as {
       record: unknown;
     };

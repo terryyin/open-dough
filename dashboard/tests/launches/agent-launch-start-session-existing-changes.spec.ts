@@ -22,6 +22,7 @@ import {
   launch,
   recordsOf,
 } from "../agentLaunchBoundary.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   startSession,
   startSessionDialog,
@@ -173,12 +174,7 @@ test("the boundary takes an unattached policy and confirmation, checks a request
   dashboard,
   origin,
 }) => {
-  const request = {
-    source: "open-dough",
-    workflow: "ad-hoc",
-    host: "claude",
-    instruction: text,
-  };
+  const request = makeMe.aLaunchRequest.adHoc({ instruction: text }).please();
   const defaults = { workspace: "default-checkout", landing: "review" };
   dirty(origin.project);
   dashboard.claudeScenario("launched");

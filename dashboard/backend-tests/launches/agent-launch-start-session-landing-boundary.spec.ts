@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // The launch boundary honors an unattached request's landing, with a real
 // bare origin (../../tests/support/startOrigin.ts), the installed start recorded as it
 // runs (../../tests/support/startSessionLanding.ts), and the synthetic `claude`: a
@@ -30,7 +31,7 @@ test("the boundary honors a requested automatic landing with the developer's tex
 }) => {
   const starts = recordStarts(origin);
   const before = await originMain(origin);
-  const request = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+  const request = makeMe.aLaunchRequest.adHoc().please();
   const text = "Explain how launch records are stored";
   dashboard.claudeScenario("launched");
 

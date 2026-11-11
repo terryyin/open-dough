@@ -7,13 +7,13 @@ import {
   attempts,
   continued,
   launch,
-  launchRequest,
   keptStarts,
 } from "../../tests/agentLaunchBoundary.ts";
 import { startDashboardServer } from "../../tests/support/dashboardServer.ts";
 import { test, expect, stored } from "../../tests/support/codexStart.ts";
 import { expectExecutionInput } from "../../tests/support/codexStartAssertions.ts";
 import { queuedIdentity } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -26,13 +26,14 @@ test("execution recovery retains its claim, workspace, handoff and first input w
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   const original = (await origin.originGit("rev-parse", "main")).trim();
-  const request = {
-    ...launchRequest,
-    host: "codex",
-    identity: queuedIdentity,
-    title: "Story A",
-    instruction: "Implement the selected slice.",
-  };
+  const request = makeMe.aLaunchRequest
+    .executing({
+      identity: queuedIdentity,
+      title: "Story A",
+      host: "codex",
+    })
+    .withInstruction("Implement the selected slice.")
+    .please();
   native.hold = true;
   const pending = launch(dashboard, request);
   await expect.poll(() => native.history.length, { timeout: 30_000 }).toBe(1);

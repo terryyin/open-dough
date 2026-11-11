@@ -22,7 +22,8 @@ import {
   continueAttempt,
   launchRequest,
   noteReconciled,
-  refinementRequest,
+  identity,
+  title,
 } from "../agentLaunchBoundary.ts";
 import { keptAttempts, settledOutcome } from "../acceptedAttempts.ts";
 import { parts } from "../dashboardPage.ts";
@@ -34,6 +35,7 @@ import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -56,7 +58,9 @@ test("an attempt a closed server left unsettled blocks a fresh start of its stor
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
   native.hold = true;
-  const request = { ...refinementRequest, host: "codex" };
+  const request = makeMe.aLaunchRequest
+    .refining({ identity, title, host: "codex" })
+    .please();
   const accepted = answerOf(await accept(dashboard, request)).attempt;
   if (accepted === undefined) throw new Error("The launch was not accepted.");
   const inputs = () =>

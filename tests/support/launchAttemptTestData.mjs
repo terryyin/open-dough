@@ -7,6 +7,7 @@
 // ID; the kept launch itself is `./launchTestData.mjs`.
 
 import { CompletionReportBuilder } from "./launchOutcomeTestData.mjs";
+import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
 
 /** @typedef {import("../../dashboard/src/launchOutcome.ts").LaunchAttemptRecord} LaunchAttemptRecord */
 /** @typedef {import("../../dashboard/src/launchOutcome.ts").AttemptOutcome} AttemptOutcome */
@@ -14,12 +15,8 @@ import { CompletionReportBuilder } from "./launchOutcomeTestData.mjs";
 /** @typedef {Extract<AttemptOutcome, { kind: "launched" }>["session"]} LaunchedSession */
 /** @typedef {Exclude<AttemptOutcome, { kind: "launched" }>} UnlaunchedOutcome */
 /** @typedef {NonNullable<LaunchAttemptRecord["worker"]>} AttemptWorker */
-
-/**
- * What a story launch's request states: the story, its title as the card
- * shows it, the project and the host.
- * @typedef {{ identity: string, title: string, source?: string, host?: AgentLaunchRequest["host"] }} StoryRequestFacts
- */
+/** @typedef {import("./launchRequestTestData.mjs").IncomingStoryFacts} IncomingStoryFacts */
+/** @typedef {import("./launchRequestTestData.mjs").IncomingAdHocFacts} IncomingAdHocFacts */
 
 // One accepted attempt. Choose its request; it is otherwise accepted at a
 // fixed instant under a fixed ID, has published nothing, and has not settled.
@@ -67,30 +64,30 @@ export class AcceptedAttemptBuilder {
   /**
    * An execution start of the story, in the `open-dough` project with
    * `claude` unless stated.
-   * @param {StoryRequestFacts} facts
+   * @param {IncomingStoryFacts} facts
    */
-  executing({ identity, title, source = "open-dough", host = "claude" }) {
-    this.#request = { source, identity, title, workflow: "execution", host };
+  executing(facts) {
+    this.#request = new LaunchRequestBuilder().executing(facts).please();
     return this;
   }
 
   /**
    * A refinement start of the story, in the `open-dough` project with
    * `claude` unless stated.
-   * @param {StoryRequestFacts} facts
+   * @param {IncomingStoryFacts} facts
    */
-  refining({ identity, title, source = "open-dough", host = "claude" }) {
-    this.#request = { source, identity, title, workflow: "refinement", host };
+  refining(facts) {
+    this.#request = new LaunchRequestBuilder().refining(facts).please();
     return this;
   }
 
   /**
    * An ad hoc session start, in the `open-dough` project with `claude`
    * unless stated.
-   * @param {{ source?: string, host?: AgentLaunchRequest["host"] }} [facts]
+   * @param {IncomingAdHocFacts} [facts]
    */
-  adHoc({ source = "open-dough", host = "claude" } = {}) {
-    this.#request = { source, workflow: "ad-hoc", host };
+  adHoc(facts = {}) {
+    this.#request = new LaunchRequestBuilder().adHoc(facts).please();
     return this;
   }
 

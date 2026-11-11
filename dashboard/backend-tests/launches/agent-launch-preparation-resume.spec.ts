@@ -6,7 +6,6 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   attempts,
   launch,
-  launchRequest,
   continueAttempt,
   accept,
 } from "../../tests/agentLaunchBoundary.ts";
@@ -20,6 +19,7 @@ import {
   preparationSlug as slug,
   type KeptPreparation,
 } from "../../tests/support/keptPreparation.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.describe("a kept preparation start", () => {
   let preparation: KeptPreparation;
@@ -33,12 +33,9 @@ test.describe("a kept preparation start", () => {
     await preparation.serve(3000);
     preparation.server.claudeScenario("launched");
     const push = preparation.origin.holdPushes();
-    const request = {
-      ...launchRequest,
-      workflow: "refinement",
-      identity: queuedIdentity,
-      title: queuedTitle,
-    };
+    const request = makeMe.aLaunchRequest
+      .refining({ identity: queuedIdentity, title: queuedTitle })
+      .please();
     const launching = launch(preparation.server, request);
     await expect.poll(() => push.isHeld(), { timeout: 20_000 }).toBe(true);
     await expect
@@ -61,7 +58,12 @@ test.describe("a kept preparation start", () => {
     expect(push.isHeld()).toBe(true);
     expect(
       await answerOf<unknown>(
-        accept(preparation.server, { ...request, workflow: "execution" }),
+        accept(
+          preparation.server,
+          makeMe.aLaunchRequest
+            .executing({ identity: queuedIdentity, title: queuedTitle })
+            .please(),
+        ),
       ),
     ).toMatchObject({
       kind: "failed",

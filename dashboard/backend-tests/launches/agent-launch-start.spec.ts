@@ -15,7 +15,6 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   establishingProjects,
   launch,
-  launchRequest,
   recordsOf,
 } from "../../tests/agentLaunchBoundary.ts";
 import {
@@ -28,12 +27,11 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 const slug = "prepare-the-queued-start";
 
 for (const model of ["opus", undefined] as const) {

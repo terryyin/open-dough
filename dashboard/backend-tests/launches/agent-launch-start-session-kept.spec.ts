@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // What an unattached Start session keeps of its start, and when, over raw
 // HTTP with a real bare origin (../../tests/support/startOrigin.ts) and the installed
 // start recorded and held as the case needs (../../tests/support/keptSessionStart.ts):
@@ -42,7 +43,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-const request = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+const request = makeMe.aLaunchRequest.adHoc().please();
 const isolated = { workspace: "isolated", landing: "review" };
 
 type Answer = {

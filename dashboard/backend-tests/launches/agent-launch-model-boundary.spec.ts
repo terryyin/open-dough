@@ -11,6 +11,7 @@
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   launch,
+  identity,
   launchRequest,
   machineSessions,
   openDoughFolder,
@@ -21,12 +22,9 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../tests/support/dashboardServer.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const adHocRequest = {
-  source: "open-dough",
-  workflow: "ad-hoc",
-  host: "claude",
-};
+const adHocRequest = makeMe.aLaunchRequest.adHoc().please();
 const timeLabel = /^\d{1,2} [A-Z][a-z]{2}, \d{2}:\d{2}$/;
 
 test.describe(`agent launch boundary, chosen model`, () => {
@@ -66,7 +64,11 @@ test.describe(`agent launch boundary, chosen model`, () => {
   }
 
   test("starts a story session on the chosen model before its instruction and keeps the alias", async () => {
-    const request = { ...launchRequest, model: "opus", instruction: "go" };
+    const request = makeMe.aLaunchRequest
+      .executing({ identity, title })
+      .requestingModel("opus")
+      .withInstruction("go")
+      .please();
     const { record, argv } = await launched(request);
 
     expect(argv).toEqual([
@@ -75,7 +77,7 @@ test.describe(`agent launch boundary, chosen model`, () => {
       `Open Dough · Execution · ${title}`,
       "--model",
       "opus",
-      `/dough-execute-plan ${launchRequest.identity}\n\ngo`,
+      `/dough-execute-plan ${identity}\n\ngo`,
     ]);
     expect(record.request).toEqual(request);
     expect(await machineSessions(server)).toContainEqual(
@@ -84,7 +86,10 @@ test.describe(`agent launch boundary, chosen model`, () => {
   });
 
   test("starts an ad hoc session with no text on the chosen model and no prompt", async () => {
-    const request = { ...adHocRequest, model: "sonnet" };
+    const request = makeMe.aLaunchRequest
+      .adHoc()
+      .requestingModel("sonnet")
+      .please();
     const { record, argv } = await launched(request);
 
     expect(argv).toHaveLength(5);
@@ -104,11 +109,12 @@ test.describe(`agent launch boundary, chosen model`, () => {
   });
 
   test("starts an ad hoc session on the chosen model before its text", async () => {
-    const { argv } = await launched({
-      ...adHocRequest,
-      model: "fable",
-      instruction: "look at the build",
-    });
+    const { argv } = await launched(
+      makeMe.aLaunchRequest
+        .adHoc({ instruction: "look at the build" })
+        .requestingModel("fable")
+        .please(),
+    );
 
     expect(argv).toEqual([
       "--bg",
@@ -121,12 +127,12 @@ test.describe(`agent launch boundary, chosen model`, () => {
   });
 
   test("starts a story session at the chosen effort after its model and keeps it", async () => {
-    const request = {
-      ...launchRequest,
-      model: "opus",
-      effort: "high",
-      instruction: "go",
-    };
+    const request = makeMe.aLaunchRequest
+      .executing({ identity, title })
+      .requestingModel("opus")
+      .withEffort("high")
+      .withInstruction("go")
+      .please();
     const { record, argv } = await launched(request);
 
     expect(argv).toEqual([
@@ -137,7 +143,7 @@ test.describe(`agent launch boundary, chosen model`, () => {
       "opus",
       "--effort",
       "high",
-      `/dough-execute-plan ${launchRequest.identity}\n\ngo`,
+      `/dough-execute-plan ${identity}\n\ngo`,
     ]);
     expect(record.request).toEqual(request);
   });

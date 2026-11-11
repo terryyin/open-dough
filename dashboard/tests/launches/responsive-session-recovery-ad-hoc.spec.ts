@@ -16,7 +16,7 @@ import { recoveryOf } from "../responsiveRecovery.ts";
 import { expect, stored, test } from "../support/codexLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = { source: "open-dough", host: "codex", workflow: "ad-hoc" };
+const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });
 
 test("an unconfirmed blank ad hoc session is recovered under Startup recovery with no card, and continuing it submits no input", async ({

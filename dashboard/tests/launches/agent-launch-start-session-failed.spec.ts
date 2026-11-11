@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // A definite native refusal after establishment keeps its session start.
 // The raw launch boundary resumes through Continue; the page offers recovery
 // without native uncertainty and an identical Start resumes the same attempt.
@@ -30,7 +31,7 @@ import {
   worktrees,
 } from "../support/startSessionLanding.ts";
 
-const request = { source: "open-dough", workflow: "ad-hoc", host: "claude" };
+const request = makeMe.aLaunchRequest.adHoc().please();
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";
 const continueLabel = "Continue session start of Ad hoc session";

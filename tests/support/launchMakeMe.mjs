@@ -2,6 +2,7 @@
 // Launch/landing MakeMe builders kept as accessors for fresh-builder semantics.
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
+import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
@@ -37,6 +38,7 @@ import { copyFacts } from "./factBuilder.mjs";
  * @typedef {object} LaunchMakeMe
  * @property {FactBuilder<StartRecord>} aStartRecord
  * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
+ * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
  * @property {import("./launchCreationTestData.mjs").CreationRecordBuilder} aCreationRecord
  * @property {import("./launchOutcomeTestData.mjs").CompletionReportBuilder} aCompletionReport
  * @property {import("./launchOutcomeTestData.mjs").CompletionSubmissionBuilder} aCompletionSubmission
@@ -67,6 +69,12 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return new LaunchRecordBuilder();
+      },
+    },
+    aLaunchRequest: {
+      enumerable: true,
+      get() {
+        return new LaunchRequestBuilder();
       },
     },
     aCreationRecord: {

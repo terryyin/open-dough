@@ -55,7 +55,7 @@ No plan, product, proof, or other project files were supplied.
 | 2 | Shared MakeMe builders supply incidental defaults. | slice 9 | |
 | 3 | Shared MakeMe builders produce the shapes the product consumes. | slice 9 | |
 | 4 | Use the line-linked audit (`../evidence/makeme-test-data-audit.md`) as the conversion list. | slice 9 | |
-| 5.1 | The conversion list covers launch requests across the shell, Node, and dashboard suites. | slice 2 | |
+| 5.1 | The conversion list covers launch requests across the shell, Node, and dashboard suites. | slice 2 | observed: converted audited launch-request call sites through makeMe.aLaunchRequest; focused dashboard launch groups passed (backend/frontend/integrated) |
 | 5.2 | The conversion list covers saved and observed sessions across the shell, Node, and dashboard suites. | slice 3 | |
 | 5.3 | The conversion list covers project and launch-option configuration across the shell, Node, and dashboard suites. | slice 5 | |
 | 5.4 | The conversion list covers published planning records across the shell, Node, and dashboard suites. | slice 6 | |
@@ -71,6 +71,6 @@ No plan, product, proof, or other project files were supplied.
 | 13 | Preserve independent assertions. | slice 9 | |
 | 14 | Keep case-defining dates, identities, and choices explicit, following the test data architecture. | slice 9 | |
 | 15 | When converting a listed shared fixture, update its callers that share that construction. | slice 9 | |
-| E1 | Unresolved Codex creation: call site names saved workspace, endpoint, and request through MakeMe; recovery keeps exact shell-quoting arguments visible. | slice 2 | |
+| E1 | Unresolved Codex creation: call site names saved workspace, endpoint, and request through MakeMe; recovery keeps exact shell-quoting arguments visible. | slice 2 | observed: dashboard/backend-tests/launches/agent-launch-creation-recovery.spec.ts and frontend/integrated creation-gates: workspace/endpoint/request via aCreationRecord; inspectionArgs/shellCommand remain at call site |
 | E2 | CI comparison: test names build revision, run or adapter attempt, and proof at the call site; retained build and endpoint response come from their builders. | slice 8 | |
 | E3 | Published membership: seed and backlog share identity and title from MakeMe; fixture still states purpose text the dashboard must show. | slice 6 | |

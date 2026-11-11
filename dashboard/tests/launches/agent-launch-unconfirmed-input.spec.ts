@@ -1,3 +1,4 @@
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 // A kept Claude Code conversation whose first input is unconfirmed
 // (../../server/launchRun.ts): Claude Code writes no first-input evidence and has
 // no native recovery, so only legacy or hand-edited launch evidence reaches
@@ -12,12 +13,9 @@ import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
 import { changeLaunchStore } from "../support/launchStore.ts";
 
-const request = {
-  source: "open-dough",
-  host: "claude",
-  workflow: "ad-hoc",
-  instruction: "why is the CI slow on main?",
-};
+const request = makeMe.aLaunchRequest
+  .adHoc({ instruction: "why is the CI slow on main?" })
+  .please();
 const unconfirmed =
   "This launch's recorded conversation has a first input that is not confirmed, so no other conversation was started. Check the recorded conversation for that input.";
 test.use({ projectFolders: ["open-dough"] });

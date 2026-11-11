@@ -157,7 +157,7 @@ pins end-aligned setup.
 
 ### 2. Launch requests and creations express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Key example 1 and the audit's launch-request / creation groups. Convert
 audited inline and copied launch requests, establishing requests inside
 MakeMe-backed setup, and unresolved creation fixtures. Run the affected
@@ -168,6 +168,13 @@ variations, and independent assertions.
 Behavior: Audited launch-request and creation sites still invent valid domain
 facts → convert them through MakeMe → call sites name workspace, endpoint,
 request, host, and workflow facts; recovery and refusal inputs stay visible.
+
+Accepted evidence (pre-done): `makeMe.aLaunchRequest` (`LaunchRequestBuilder`);
+audited launch-request and creation sites converted. Commitments 5.1 and E1
+observed. Focused dashboard groups passed; typecheck passed. Refactor composed
+`AcceptedAttemptBuilder` request shortcuts through `aLaunchRequest`.
+Learning: story shared exports may need `StoryLaunchRequest` narrowing after
+`please()` returns the full request union.
 
 ### 3. Retained launches, sessions, attempts, and receipts express intent through MakeMe
 Type: Behavior

@@ -1,3 +1,4 @@
+import { makeMe } from "../../tests/support/makeMe.mjs";
 // Shared uncertain Claude story launch precondition for listing and own-record
 // verification journeys, on the worker's published origin (../dashboardTest.ts
 // `launchJourney`).
@@ -11,13 +12,9 @@ import { identityB } from "../../src/skills/dough-execute-plan/scripts/workspace
 
 export { expect, test } from "./dashboardTest.ts";
 export const subject = `${readyStory} (${identityB})`;
-export const storyRequest = {
-  source: "open-dough",
-  identity: identityB,
-  title: readyStory,
-  workflow: "execution",
-  host: "claude",
-};
+export const storyRequest = makeMe.aLaunchRequest
+  .executing({ identity: identityB, title: readyStory })
+  .please();
 export const recoveryOf = (page: Page) =>
   page.getByRole("region", { name: "Startup recovery" });
 

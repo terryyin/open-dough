@@ -15,7 +15,6 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   alreadyStarting,
   launch,
-  launchRequest,
   recordsOf,
   runningStarts,
 } from "../../tests/agentLaunchBoundary.ts";
@@ -29,12 +28,11 @@ import {
   startOrigin,
   type StartOrigin,
 } from "../../tests/support/startOrigin.ts";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-const request = {
-  ...launchRequest,
-  identity: queuedIdentity,
-  title: queuedTitle,
-};
+const request = makeMe.aLaunchRequest
+  .executing({ identity: queuedIdentity, title: queuedTitle })
+  .please();
 
 type Answer = { kind: string; reason?: string; explanation?: string };
 
