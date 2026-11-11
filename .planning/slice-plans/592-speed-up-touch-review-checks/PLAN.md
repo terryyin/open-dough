@@ -350,6 +350,34 @@ holds the runs. Evidence is in `/Users/terryyin/.claude/jobs/cb428881/tmp/s5/`.
 - Hosted CI passed on `b9d7cb61a`; its shard timed the touch file at 20.7 s.
 - Refactor disposition: records-only. The base worktree is removed.
 
+## Execution complete
+
+Product advice: no backlog change is needed for this story's outcome. The
+retrospective reviewed product and proof; its process review is deferred into
+wrap-up with the Intent Coverage check.
+
+- Where the saving came from: the comparison's size and the reading distance
+  (59 → 16 strokes, hosted 63.0 → 34.6 s), then the tablet's repeated
+  observations (hosted 23.7 s), then one range read (hosted 20.7 s). Under
+  load, first-in-worker preparation is now the larger part of this file: 13–16 s
+  of Before Hooks against bodies of 8–21 s. SEED-287's worker inputs are the
+  next lever, and it already owns them.
+- For the developer, recommended: let SEED-287's story name the four review
+  cases in [Failures seen outside this story](#failures-seen-outside-this-story)
+  that it does not yet name. Its goal is the same suite result locally and in
+  hosted CI; these fail here at load 33–54 on the base and the candidate alike
+  and pass in hosted CI.
+- For the developer, recommended: when SEED-287 has landed, let
+  SEED-300#express-review-test-intent-through-page-objects settle what this
+  story held back to keep the spec file mergeable: the tablet case titles and
+  the spec's stroke comment say more than the tablet now runs, the owning
+  viewport is decided inside the helpers, and `largeReviewRevision` and
+  `largeWorktree` name an 18-file comparison (obligations G11, G12 and G17).
+- The 63.0 s weight in `dashboard/longest-first-journeys` takes its next
+  ordinary refresh; until then its shard is lighter than predicted.
+- Conditional: hosted CI on the records-only revisions after `b9d7cb61a` was
+  pending when this was written.
+
 ## Execution base record
 
 Observed by slice 1 on 2026-11-11.
