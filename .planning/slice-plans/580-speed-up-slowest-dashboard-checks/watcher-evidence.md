@@ -9,7 +9,7 @@ All work and proof return uncommitted; no CI wait or manual test was performed.
 
 ## Basis declared before the first edit
 
-Retained original watcher bodies cost 105–112 seconds and paid for 16 deployment
+Retained original watcher bodies cost 105–112 seconds and required 16 deployment
 install/build-command attempts. The bounded hypothesis was to move the serving
 baseline and excluded-range state into one production selection owner used by
 the CLI, prove its detailed variants against real published Git, and remove four
@@ -97,7 +97,7 @@ no install/build command, process boundary or runner behavior.
 | after2 | 23/23 | 99.18 | 82.552 | 12 | 12 |
 | after3 | 23/23 | 95.93 | 80.387 | 12 | 12 |
 
-Each complete-count run also paid one development install. Native npm argv/title,
+Each complete-count run also included one development install. Native npm argv/title,
 cwd and exit records count actual deployment ci/build invocations, including
 failures and held shutdown. Before2: 13 build-command exits 0, two exits 42,
 one killed held build; after: ten exits 0, one exit 42, one killed held build.
@@ -141,7 +141,7 @@ Selection1 strictly passed all three new cases plus four qualification neighbors
 Neighbors strictly passed all seven serial watcher lifecycle cases plus refusal
 (8/8,36.87s), including native runner/client survival, occupied-port refusal,
 current-main restart and SIGINT cleanup. They are regression neighbors, not
-unpaid replacement proof. Typecheck and git diff --check passed. No formatter,
+uncounted replacement proof. Typecheck and git diff --check passed. No formatter,
 hook lint, commit, push or status/source-map mutation was performed here.
 
 ## Checkpoint and handoff
@@ -166,6 +166,10 @@ coordinator `seed303-kanai`, cell `g39:11`, session `95073`, PID `68484`; this
 implementer neither queried nor managed it. Parent refactor should inspect the
 now-unconsumed heldOnceFault test-input export and fixture policy ownership.
 The SEED-287 worktree and all other-owner code/metadata were preserved.
+
+Current test home: `production-update-selection.spec.ts`, renamed from
+`production-updates.spec.ts` with rule-specific case titles. Bodies and assertions
+are unchanged; historical commands and measured identities above retain old names.
 
 Independent `/root/slice3_refactor` removed the unconsumed heldOnceFault and
 relocated byte-identical publishedPolicy into productionQualificationFixture.ts,

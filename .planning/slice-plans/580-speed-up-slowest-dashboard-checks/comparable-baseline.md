@@ -49,7 +49,7 @@ above allow a later accepted tree to identify the same implementation.
 Locked `npm ci`, native Chromium validation and dashboard typecheck had already
 passed in this exact checkout. No acquisition ran between measurements.
 Normal npm download, Playwright transform/browser and OS caches were retained;
-no artifact was prebuilt outside the timed command. Each invocation paid for
+no artifact was prebuilt outside the timed command. Each invocation included
 its own run-artifact owner, current-source preparation, app/server/origin work,
 all test/hook/fixture work and teardown. No shared mutable install was copied.
 
@@ -147,7 +147,7 @@ and all moved work. The minimum genuine build/preview floor remains open.
 Then test fewer real watcher stages/stateful Git proof. Removing only source
 copy or a serial case label does not establish the needed combined gain.
 The rate-limit experiment has a conditional roughly 18–20-second opportunity
-from paid deadlines, but controlled time must reach the actual request owner.
+from waiting for real deadlines, but controlled time must reach the actual request owner.
 Its current fixed-clock process contract and the plan's wider-authority stop
 remain unresolved; policy inputs alone are not equivalent browser/admission proof.
 

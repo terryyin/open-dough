@@ -1,4 +1,4 @@
-# Slice 4 — genuine preview lifecycle and minimum-composition probe
+# Slice 4 — local preview lifecycle experiments
 
 Base: `f9264268ed39a88c98caa123722d6ff018979748`, same owned checkout,
 branch and parent-owned observer as [execution context](execution-context.md).
@@ -26,13 +26,17 @@ kept Git/local-machine ownership; [ADR 0010](../../../docs/adrs/0010-definition-
 supplied the worthwhile-gain criterion. [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 was consulted: no released guidance, installed owner or source clock was changed.
 
-## Measurements and paid boundaries
+## Measurements and included setup
 
-| Run | Strict selected/passed | Whole elapsed s | Case sum s | Deployment npm ci/build attempts | Other paid work |
+Only the `before` row measures the maintained CI selection. The two local
+experiments were archived and removed. These alternative measurements are not
+added together. [Current names and detailed timings](test-timing-breakdown.md).
+
+| Run | Strict selected/passed | Whole elapsed s | Case sum s | Deployment npm ci/build attempts | Other included work |
 | --- | ---: | ---: | ---: | ---: | --- |
-| before | 24/24 | 103.32 | 87.134 | 13/13 | 1 development install, both original watcher chains, pin and 3 real-Git checks |
-| probe | 6/6 | 20.88 | 13.420 | 2/2 | cold publication, 8 preview invocations, all original pin boundary assertions |
-| composition | 7/7 | 44.61 | 32.856 | 4/4 | 1 development install/server, 2 full output copies, native host/runner, 9 preview invocations |
+| Current CI watcher/pinning selection (`before`) | 24/24 | 103.32 | 87.134 | 13/13 | 1 development install, both original watcher chains, pin and 3 real-Git checks |
+| Local preview lifecycle experiment (`probe`) | 6/6 | 20.88 | 13.420 | 2/2 | cold publication, 8 preview invocations, all original pin boundary assertions |
+| Local watcher and preview reuse experiment (`composition`) | 7/7 | 44.61 | 32.856 | 4/4 | 1 development install/server, 2 full output copies, native host/runner, 9 preview invocations |
 
 Every positive command terminated exit 0, ordinary strict pass, retry/repetition
 index 0, no skips. Whole elapsed includes startup, cold fixture source/Git/HOME,
@@ -56,7 +60,7 @@ development; `verifyPublishedCommit`; positive A/negative B dist marker; loopbac
 HTTP 200/A marker; untracked cartoon setup and exact WebP bytes/type; only the
 curated cartoon in dist; all four exact supplied icon bytes/types; own-origin
 404 versus missing/foreign-origin 403; stopped PID and unavailable URL; exact
-`process-started, process-ended` incident pair. Thus the paid probe repeated every
+`process-started, process-ended` incident pair. Thus the local preview lifecycle experiment repeated every
 original pin assertion. The original case was never deleted or reallocated.
 
 Restoration assertions checked the exact A commit and HTTP marker, unchanged URL,
@@ -71,14 +75,14 @@ exact marker/gate inputs and expectations remain at their test call sites.
 
 The one disposable composition used the actual native/development fixture and
 source projection plus published CI workflow. One real watcher served A beside
-development, paid a B build failure, retried B with its real build held while C
+development, triggered a B build failure, retried B with its real build held while C
 reached main, then drained one accepted native start before serving selected B.
 It observed 503 during drain, one launch call, persisted launched attempt/session,
 shared production/development records, published HTTP revision/backlog, unknown-
 project 404 without a launch, retirement of A after B served, and real C-build
 cancellation. Shutdown observed build/preview death, unavailable URL, empty actual
 deployment/inspection roots, unchanged store/config bytes and inodes, and dev 200.
-The watcher paid four stage attempts: A, failed B, successful B, held C.
+The watcher made four stage attempts: A, failed B, successful B, held C.
 
 Inside the same timed command, two full A/B checkout copies retained actual built
 source, dist and installed dependencies before CLI retirement. Relative symlinks
@@ -141,7 +145,7 @@ All sessions launched by this implementer reached terminal results. No observer
 was started, polled or managed; the parent-owned observer remains untouched.
 
 Initial typecheck found two new test typing errors (caught-error message and
-optional PID); both were corrected before the paid passing probe. Both later
+optional PID); both were corrected before the passing local preview lifecycle experiment. Both later
 literal typechecks passed. No unintended automated-test failure remains.
 Three consecutive changed-async passes were not obtained: this candidate was
 stopped at its decisive failed strategy checkpoint and is not accepted code.
@@ -161,14 +165,14 @@ restart, repeated excluded/rejected/published-policy observations and all three
 stateful Git checks; actual CLI fatal-restoration/unexpected-exit integration;
 full pin cartoon distribution and exact incident pair; and every other original
 profile/touch/Cursor/pending-Take/repeat/provider family. Those protections are
-additional unpaid proof in this subset. Separate earlier passes do not make them
+additional required proof outside this experiment. Separate earlier passes do not make them
 free. No complete replacement timing/count or >=20-second equivalent-family gain
 was established. The original 45-case baseline and all earlier accepted work stay
 valid; the current complete replacement/combined remaining gap remains unmeasured.
 
 The strongest simpler composition considered was this very one: build A/B through
 one necessary CLI chain and reuse isolated copies for detailed preview variants.
-It was paid and passed, yet exceeds the target before the omitted protections.
+Its complete timing was measured and it passed, yet exceeds the target before the omitted protections.
 Avoiding copies by retaining CLI-owned retired checkouts has no proved isolation/
 cleanup contract and would bypass a promised retirement boundary. More aggressive
 preparation/dependency reuse remains unproved, not a saving to assume. Removing

@@ -8,7 +8,7 @@
   protections, retained in their original ordinary CI selection.
 - **Observed cost:** at execution base `f9264268ed39a88c98caa123722d6ff018979748`,
   a normal strict one-worker composition passed 7/7 in 44.61 seconds on AC.
-  It paid four deployment installs/build-command attempts, one development
+  It included four deployment installs/build-command attempts, one development
   install, nine preview invocations and two genuine A/B snapshot copies.
   Startup, preparation, native drain/records, transitions and teardown were
   included. This subset excludes origin/HUP/restart, policy/qualification,
@@ -24,7 +24,7 @@
   Thirty seconds and equivalent coverage remain binding until a human changes
   the source. Slices 1–3 stay delivered; slice 4 and later execution remain open.
   [Retained evidence and precise gaps](slice-plans/580-speed-up-slowest-dashboard-checks/preview-evidence.md)
-  distinguish the paid subset from complete replacement proof.
+  distinguish the local watcher and preview reuse experiment from complete replacement proof.
 
 ### auto-refresh-rate-limit-real-waits
 

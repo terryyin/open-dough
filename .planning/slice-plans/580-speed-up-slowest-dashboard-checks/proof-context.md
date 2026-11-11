@@ -3,7 +3,7 @@
 - Reuse normal Playwright, its strict proof record, shared MakeMe and existing
   external-provider fixtures. Existing [run artifacts](../../../dashboard/tests/support/globalSetup.ts)
   already share the app and published origins. Start by measuring their
-  paid setup and reusing them where the consumed state is identical.
+  included setup cost and reusing them where the consumed state is identical.
 - Qualification already has a [real Git boundary](../../../dashboard/backend-tests/runtime/production-qualification.spec.ts).
   [Deployment](../../../dashboard/backend-tests/runtime/production-deployment.spec.ts)
   exercises real pinning and preview. Read the failure chain's accepted cost

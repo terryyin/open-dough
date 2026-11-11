@@ -10,7 +10,7 @@ import {
   qualificationFixture,
 } from "../../tests/support/productionQualificationFixture.ts";
 
-test("published updates keep excluded and accumulated changes against the last activation", async () => {
+test("excluded ranges keep the last activation as the comparison baseline", async () => {
   const { fixture, workflow, inspectionsRoot } = await qualificationFixture();
   try {
     const a = await fixture.publish(
@@ -43,7 +43,7 @@ test("published updates keep excluded and accumulated changes against the last a
   }
 });
 
-test("a rejected policy is checked again and its ignored repair retains application changes", async () => {
+test("rejected policies retain application changes until an ignored repair qualifies", async () => {
   const { fixture, workflow, inspectionsRoot } = await qualificationFixture();
   try {
     const policy = workflow.replace(
@@ -85,7 +85,7 @@ test("a rejected policy is checked again and its ignored repair retains applicat
   }
 });
 
-test("an unactivated candidate is retried and the next docs commit retains its application paths", async () => {
+test("unactivated candidates retry until successful activation advances the baseline", async () => {
   const { fixture, workflow, inspectionsRoot } = await qualificationFixture();
   try {
     const a = await fixture.publish(

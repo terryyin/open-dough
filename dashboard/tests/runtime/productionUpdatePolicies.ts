@@ -1,6 +1,6 @@
 // These real watcher observations protect no-work and repeated rejection.
 // Detailed range/baseline variants use the same production selection owner in
-// backend-tests/runtime/production-updates.spec.ts without paying for staging.
+// backend-tests/runtime/production-update-selection.spec.ts without deployment staging.
 import { expect, test } from "../support/pageTest.ts";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";

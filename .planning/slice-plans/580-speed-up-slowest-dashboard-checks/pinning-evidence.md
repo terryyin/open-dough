@@ -115,7 +115,7 @@ these six runs is discarded or pooled with that comparison.
 The coordinator authorized exactly four further normal one-case commands to
 resolve changed VM conditions. Before launch, the hypothesis and unchanged
 two-second criterion were restated: full source A around selected source B
-would bound time drift while both paid all preparation. Readiness: awake AC,
+would bound time drift while both included all preparation. Readiness: awake AC,
 load 3.08, memory free 62%, VM about two cores, no other heavy test visible.
 Only the test's source-selection edit changed between A/B; the helper and
 all production inputs stayed fixed. B was restored byte-identically after
