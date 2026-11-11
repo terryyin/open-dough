@@ -1,0 +1,25 @@
+// Observe the source and built output a real preview reuses. Dependencies and
+// Git's bookkeeping have separate owners; neither is a served build output.
+import { createHash } from "node:crypto";
+import { readFile, readdir } from "node:fs/promises";
+import path from "node:path";
+
+export async function builtDeploymentDigest(directory: string) {
+  const hash = createHash("sha256");
+  async function visit(relative: string) {
+    const entries = await readdir(path.join(directory, relative), {
+      withFileTypes: true,
+    });
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (entry.name === ".git" || entry.name === "node_modules") continue;
+      const file = path.join(relative, entry.name);
+      if (entry.isDirectory()) await visit(file);
+      else if (entry.isFile()) {
+        hash.update(file);
+        hash.update(await readFile(path.join(directory, file)));
+      }
+    }
+  }
+  await visit("");
+  return hash.digest("hex");
+}

@@ -29,10 +29,15 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
-- [Run the slowest Dashboard checks together in under 30 seconds](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
 
 ## Backlog list
 
+- [Speed up production watcher lifecycle checks](seeds/SEED-311-production-watcher-lifecycle-checks.md#speed-up-production-watcher-lifecycle-checks) — SEED-311#speed-up-production-watcher-lifecycle-checks
+- [Speed up touch review checks](seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) — SEED-312#speed-up-touch-review-checks
+- [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks
+- [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks
+- [Speed up provider rate-limit checks](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) — SEED-315#speed-up-provider-rate-limit-checks
+- [Speed up the remaining Dashboard checks](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
 - [Show trunk test scope timing history](seeds/SEED-310-trunk-test-scope-timing-history.md#show-trunk-test-scope-timing-history) — SEED-310#show-trunk-test-scope-timing-history
 - [Express dashboard test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects
 - [Apply shared test pattern rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-test-pattern-rules-per-entry) — SEED-307#apply-shared-test-pattern-rules-per-entry

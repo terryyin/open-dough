@@ -4,7 +4,7 @@
 
 ### dashboard-shared-output-budget
 
-- **Affected proof:** SEED-303 watcher, deployment-pinning and preview-lifecycle
+- **Affected proof:** watcher, deployment-pinning and preview-lifecycle
   protections, retained in their original ordinary CI selection.
 - **Observed cost:** at execution base `f9264268ed39a88c98caa123722d6ff018979748`,
   a normal strict one-worker composition passed 7/7 in 44.61 seconds on AC.
@@ -19,15 +19,19 @@
   already exceeded the entire story target by 14.61 seconds. This invalidates
   that proposed strategy, not every possible lower bound. The experiment's
   runtime/test edits were parked; original tests remain intact.
-- **Decision needed:** choose a supported different strategy, explicitly
-  continue independently valuable partial improvements, or revise the target.
-  Thirty seconds and equivalent coverage remain binding until a human changes
-  the source. Slices 1–3 stay delivered; slice 4 and later execution remain open.
-  [Retained evidence and precise gaps](slice-plans/580-speed-up-slowest-dashboard-checks/preview-evidence.md)
+- **Disposition:** Terry extracted [SEED-311](seeds/SEED-311-production-watcher-lifecycle-checks.md#speed-up-production-watcher-lifecycle-checks)
+  as the first independent backlog story. It must select a supported strategy
+  and worthwhile family saving during refinement; the former aggregate
+  thirty-second allocation no longer applies to that independent story.
+  Completed improvements stay in the product. Standalone pinned-deployment
+  protection remains in narrowed SEED-303 unless later explicitly transferred.
+  [Retained evidence and precise gaps](evidence/SEED-303-early-handoff/preview-evidence.md)
   distinguish the local watcher and preview reuse experiment from complete replacement proof.
 
 ### auto-refresh-rate-limit-real-waits
 
+- **Owner:** [SEED-315](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks),
+  extracted at Terry's early handoff; queued and Not ready, with no agent assigned.
 - **Affected test or fixture:** `dashboard/tests/observation/auto-refresh-rate-limit.spec.ts`,
   its one case, which has a case-local 45 s timeout allowance, and the
   rate-limited stream case

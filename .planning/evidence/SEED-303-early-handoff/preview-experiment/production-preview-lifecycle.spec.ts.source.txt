@@ -1,0 +1,184 @@
+// Real builds are immutable preview inputs. Every process transition uses the
+// same production owner as the CLI; all preparation remains inside this run.
+import { expect, test } from "../../tests/support/pageTest.ts";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
+import {
+  resolvePublishedMain, stageDeployment, verifyPublishedCommit,
+} from "../../server/productionDeployment.mjs";
+import { startProductionPreview } from "../../server/productionPreviewLifecycle.mjs";
+import { publishedMainFixture } from "../../tests/support/publishedMainFixture.ts";
+import { faultCause, faultGateChanges, ownCauseFault } from "../../tests/support/productionFault.ts";
+import { processRunning } from "../../tests/support/processGroup.ts";
+import { deploymentCheckout } from "../../tests/support/productionWatcher.ts";
+import { expectSuppliedIcons } from "../../tests/support/brandIcons.ts";
+import { expectOwnOriginReadsOnly } from "../../tests/support/localOriginReads.ts";
+import { incidentEntries } from "../../tests/support/readDiagnostics.ts";
+import { repoRoot } from "../../tests/support/repositoryRoot.ts";
+import { builtDeploymentDigest } from "../../tests/support/builtDeploymentDigest.ts";
+
+test.describe.configure({ mode: "serial" });
+type Fixture = Awaited<ReturnType<typeof publishedMainFixture>>;
+type Staged = Awaited<ReturnType<typeof stageDeployment>>;
+type Owner = Awaited<ReturnType<typeof startProductionPreview>>;
+let fixture: Fixture;
+let selected: Awaited<ReturnType<typeof resolvePublishedMain>>;
+let later: Awaited<ReturnType<typeof resolvePublishedMain>>;
+let a: Staged | undefined;
+let b: Staged | undefined;
+let owner: Owner | undefined;
+let cartoon: Buffer;
+let aDigest: string;
+let bDigest: string;
+const previews = new Set<NonNullable<Owner["current"]>>();
+function current() {
+  const running = owner?.current;
+  if (running === undefined || running.pid === undefined) throw new Error("No working preview");
+  previews.add(running);
+  return { ...running, pid: running.pid };
+}
+const nerds = "dashboard/public/agent-avatars/odd-e-nerds";
+
+test.beforeAll(async () => {
+  fixture = await publishedMainFixture(true, [
+    "dashboard/src", "dashboard/server", "dashboard/public", "dashboard/index.html",
+    "dashboard/vite.config.mts", "dashboard/tsconfig*.json", "src", "scripts",
+    "assets", "package.json", "package-lock.json", ".gitignore", ".githooks", "VERSION",
+  ]);
+  await fixture.publish({
+    ...fixture.markerChanges("WORKING A"),
+    ...(await faultGateChanges(fixture.development)),
+  }, "Working A");
+  selected = await resolvePublishedMain(fixture.development, fixture.env);
+  await fixture.publish({
+    ...fixture.markerChanges("WORKING B"),
+    "production-fault.mjs": ownCauseFault("b"),
+  }, "Working B after selection");
+  later = await resolvePublishedMain(fixture.development, fixture.env);
+  cartoon = await readFile(path.join(repoRoot, "dashboard/public/agent-avatars/atlas-1.webp"));
+  await mkdir(path.join(fixture.development, nerds, "cartoon"), { recursive: true });
+  await writeFile(path.join(fixture.development, nerds, "cartoon/stanly.webp"), cartoon);
+  await writeFile(path.join(fixture.development, nerds, "cartoon/notes.txt"), "LOCAL NOTES");
+  await writeFile(path.join(fixture.development, nerds, "stanly.jpg"), "PRIVATE RAW PHOTO");
+});
+test.afterAll(async () => {
+  // Independent low-level handles also make a broken lifecycle cleanup
+  // observable without leaking the deliberately faulted process.
+  await owner?.stop();
+  for (const preview of previews) await preview.stop();
+  await a?.remove();
+  await b?.remove();
+  await fixture?.cleanup();
+});
+
+test("a genuine isolated selected build serves its distribution after main advances and stops cleanly", async ({ request }) => {
+  expect(selected.commit).not.toBe(later.commit);
+  expect(await fixture.git("ls-files", "--", nerds)).toBe("");
+  a = await stageDeployment({ developmentRoot: fixture.development, published: selected,
+    deploymentsRoot: fixture.deploymentsRoot, env: fixture.env });
+  expect(path.basename(a.directory)).toEqual(deploymentCheckout(selected.commit));
+  expect(path.relative(fixture.development, a.directory)).toMatch(/^\.\./);
+  await verifyPublishedCommit(a.directory, selected, fixture.env);
+  const built = await readFile(path.join(a.directory, "dashboard/dist/index.html"), "utf8");
+  expect(built).toContain("WORKING A");
+  expect(built).not.toContain("WORKING B");
+  owner = await startProductionPreview({ ...selected, directory: a.directory, port: 0, env: fixture.env });
+  const served = current();
+  expect(new URL(served.url).hostname).toBe("127.0.0.1");
+  const response = await request.get(served.url);
+  expect(response.status()).toBe(200);
+  expect(await response.text()).toContain("WORKING A");
+  const avatar = await request.get(`${served.url}/agent-avatars/odd-e-nerds/cartoon/stanly.webp`);
+  expect(avatar.status()).toBe(200);
+  expect(avatar.headers()["content-type"]).toContain("image/webp");
+  expect(await avatar.body()).toEqual(cartoon);
+  expect(await readdir(path.join(a.directory, "dashboard/dist/agent-avatars/odd-e-nerds"))).toEqual(["cartoon"]);
+  expect(await readdir(path.join(a.directory, "dashboard/dist/agent-avatars/odd-e-nerds/cartoon"))).toEqual(["stanly.webp"]);
+  await expectSuppliedIcons(request, served.url);
+  await expectOwnOriginReadsOnly(request, served.url);
+  await owner.stop();
+  expect(processRunning(served.pid)).toBe(false);
+  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
+  expect(incidentEntries(fixture.root).map((entry) => entry.kind)
+    .filter((kind) => kind.startsWith("process-"))).toEqual(["process-started", "process-ended"]);
+});
+
+test("a genuinely built candidate stays isolated while the working preview serves", async ({ request }) => {
+  if (a === undefined) throw new Error("No A build");
+  owner = await startProductionPreview({ ...selected, directory: a.directory, port: 0, env: fixture.env });
+  const served = current();
+  b = await stageDeployment({ developmentRoot: fixture.development, published: later,
+    deploymentsRoot: fixture.deploymentsRoot, env: fixture.env });
+  expect(b.directory).not.toBe(a.directory);
+  await verifyPublishedCommit(b.directory, later, fixture.env);
+  expect(await readFile(path.join(b.directory, "dashboard/dist/index.html"), "utf8")).toContain("WORKING B");
+  expect(processRunning(served.pid)).toBe(true);
+  expect(current().pid).toBe(served.pid);
+  expect(await (await request.get(served.url)).text()).toContain("WORKING A");
+  aDigest = await builtDeploymentDigest(a.directory);
+  bDigest = await builtDeploymentDigest(b.directory);
+  expect(aDigest).not.toBe(bDigest);
+});
+
+test("a failed preview start restores the exact working output at the same URL", async ({ request }) => {
+  if (b === undefined || owner === undefined) throw new Error("No prepared previews");
+  const previous = current();
+  await writeFile(faultCause(fixture.home, "preview", "b"), "candidate start cause");
+  const result = await owner.replace({ ...later, directory: b.directory });
+  expect(result.kind).toBe("restored");
+  expect(result.error).toBeInstanceOf(Error);
+  expect((result.error as Error).message).toContain("TRANSIENT preview FAILURE");
+  const restored = current();
+  expect(restored.commit).toBe(selected.commit);
+  expect(restored.url).toBe(previous.url);
+  expect(restored.pid).not.toBe(previous.pid);
+  expect(processRunning(previous.pid)).toBe(false);
+  expect(processRunning(restored.pid)).toBe(true);
+  expect(await (await request.get(restored.url)).text()).toContain("WORKING A");
+});
+
+test("the same built candidate retries successfully without changing either prepared output", async ({ request }) => {
+  if (a === undefined || b === undefined || owner === undefined) throw new Error("No prepared previews");
+  const previous = current();
+  await rm(faultCause(fixture.home, "preview", "b"));
+  expect((await owner.replace({ ...later, directory: b.directory })).kind).toBe("activated");
+  const served = current();
+  expect(served.commit).toBe(later.commit);
+  expect(served.directory).toBe(b.directory);
+  expect(served.url).toBe(previous.url);
+  expect(served.pid).not.toBe(previous.pid);
+  expect(processRunning(previous.pid)).toBe(false);
+  expect(await (await request.get(served.url)).text()).toContain("WORKING B");
+  expect(await builtDeploymentDigest(a.directory)).toBe(aDigest);
+  expect(await builtDeploymentDigest(b.directory)).toBe(bDigest);
+});
+
+test("failed candidate and restoration preserve both causes and leave no working preview", async ({ request }) => {
+  if (a === undefined || owner === undefined) throw new Error("No prepared previews");
+  const previous = current();
+  await writeFile(faultCause(fixture.home, "preview"), "A start cause");
+  await writeFile(faultCause(fixture.home, "preview", "b"), "B start cause");
+  const failure = await owner.replace({ ...selected, directory: a.directory }).catch((error: Error) => error);
+  expect(failure).toBeInstanceOf(Error);
+  expect((failure as Error).message).toContain(`${selected.commit} failed: `);
+  expect((failure as Error).message).toContain(`; restoring ${later.commit} also failed: `);
+  expect((failure as Error).message.match(/TRANSIENT preview FAILURE/g)).toHaveLength(2);
+  expect(owner.current).toBeUndefined();
+  await owner.stop();
+  expect(processRunning(previous.pid)).toBe(false);
+  await expect(request.get(previous.url, { timeout: 2_000 })).rejects.toThrow();
+});
+
+test("unexpected preview loss is reported and shutdown cleans the owned process", async ({ request }) => {
+  if (b === undefined) throw new Error("No B build");
+  await rm(faultCause(fixture.home, "preview"));
+  await rm(faultCause(fixture.home, "preview", "b"));
+  owner = await startProductionPreview({ ...later, directory: b.directory, port: 0, env: fixture.env });
+  const served = current();
+  process.kill(-served.pid, "SIGKILL");
+  expect((await served.exited).signal).toBe("SIGKILL");
+  expect(() => owner?.check()).toThrow("Production dashboard exited unexpectedly (SIGKILL).");
+  await owner.stop();
+  expect(processRunning(served.pid)).toBe(false);
+  await expect(request.get(served.url, { timeout: 2_000 })).rejects.toThrow();
+});
