@@ -1,5 +1,4 @@
-// A described project and a minimal native candidate layout. Installation and
-// final shared membership/runtime contracts are proved by later slices.
+// A described browser project with optional minimal candidate guidance.
 import { cpSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,7 +13,7 @@ const source = fileURLToPath(
 export async function createPageObjectProject(
   directory,
   host,
-  { enabled = true } = {},
+  { enabled = true, guidance = true, files = {} } = {},
 ) {
   const browser = makeMe.anIntentLocation
     .at("browser")
@@ -35,6 +34,7 @@ export async function createPageObjectProject(
       files: {
         ...projectFiles,
         ".planning/open-dough.json": JSON.stringify(settings, null, 2),
+        ...files,
       },
     })
     .please();
@@ -46,6 +46,7 @@ export async function createPageObjectProject(
   );
   const layout = host === "claude" ? ".claude" : ".agents";
   const installed = join(integration, layout, "skills", "dough-page-objects");
+  if (!guidance) return { project: integration, installed, settings };
   cpSync(source, installed, { recursive: true });
   const execution = join(integration, layout, "skills", "dough-execute-plan");
   for (const path of [

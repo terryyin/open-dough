@@ -10,9 +10,9 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | A developer can select shared page-object guidance per test entry. | slice 4 |  |
+| 1 | A developer can select shared page-object guidance per test entry. | slice 4 | observed: slice-4-makeme-integration.md: P1 installed independent flags and useful both/MakeMe-only/neither results; corresponding page-only proof retained |
 | 2 | Page-object selection is independent of MakeMe selection. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
-| 3 | An agent receives the page-object rule when its entry selects it. | slice 4 |  |
+| 3 | An agent receives the page-object rule when its entry selects it. | slice 4 | observed: slice-4-makeme-integration.md: actual selected guide reads and authored outcomes, with shared routing observed in MakeMe-only/neither; matching page-only proof retained |
 | 4 | Selection uses `intent.locations[].pageObjects: true` in `.planning/open-dough.json`. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
 | 5 | File membership follows MakeMe’s existing semantics. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
 | 6 | Overlap follows MakeMe’s existing semantics. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
@@ -49,9 +49,9 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 | 37 | Keep keyboard variants explicit. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
 | 38 | Keep mouse variants explicit. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
 | 39 | Keep exact contracts under proof explicit. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
-| 40 | Deliver standalone guidance through Codex’s existing skill layout. | slice 4 |  |
-| 41 | Deliver standalone guidance through Cursor’s existing skill layout. | slice 4 |  |
-| 42 | Deliver standalone guidance through Claude Code’s existing skill layout. | slice 4 |  |
+| 40 | Deliver standalone guidance through Codex’s existing skill layout. | slice 4 | observed: slice-4-observations.md: P1 actual .agents installation/update/runtime; accepted Codex native proof reused. |
+| 41 | Deliver standalone guidance through Cursor’s existing skill layout. | slice 4 | observed: slice-4-observations.md: P1 Cursor install context and shared .agents bytes/runtime; native skip remains explicit. |
+| 42 | Deliver standalone guidance through Claude Code’s existing skill layout. | slice 4 | observed: slice-4-observations.md: P1 .claude delivery and fresh N1 complete installed use. |
 | 43 | Prove useful application of the guidance. |  | G1 |
 | 44 | Prove the choice with both MakeMe and page objects enabled. |  | G2 |
 | 45 | Prove the choice with only page objects enabled. | slice 2 | observed: slice-2-observations.md: N1: fresh page-only native result passes after installed selector invocation. |
@@ -76,10 +76,10 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 | 64 | Record that probe as skipped or unverified. | slice 1 | observed: native-observations.md Explicit execution exception: Cursor skipped/unverified |
 | 65 | Do not record that probe as passed. | slice 1 | observed: native-observations.md Explicit execution exception: no Cursor pass claimed |
 | 66 | The amendment authorizes continuation. | slice 1 | observed: selected story Execution exception and PLAN execution context: continuation authorized |
-| 67 | Deterministic Cursor delivery checks remain required. | slice 4 |  |
-| 68 | The waiver does not become a default for later work. | slice 4 |  |
-| 69 | Product behavior remains required. | slice 4 |  |
-| 70 | All other promises remain required. | slice 4 |  |
+| 67 | Deterministic Cursor delivery checks remain required. | slice 4 | observed: slice-4-observations.md: P1 actual Cursor installation/update plus installed runtime assertions. |
+| 68 | The waiver does not become a default for later work. | slice 4 | observed: slice-4-observations.md: Current-execution native skip only; no future waiver added. |
+| 69 | Product behavior remains required. | slice 4 | observed: slice-4-makeme-integration.md: all product promises retained; G2 real shared-guide and authored-use proof accepted |
+| 70 | All other promises remain required. | slice 4 | observed: slice-4-makeme-integration.md: no other promise waived; G2 is proved and Cursor remains the sole explicit native exception |
 | 71 | Four entries select, respectively, both flags, page objects only, MakeMe only, and neither. | slice 2 | observed: slice-2-observations.md: P1 arranges four independent entries and asserts all four selections; no authored-use claim for MakeMe cases. |
 | 72 | Agents authoring tests for those entries receive exactly the conventions selected by each entry. |  | G2 |
 | 73 | Existing entries without a page-object flag retain their previous practice. | slice 2 | observed: slice-2-observations.md: P1/P2; independent flags and exact membership/diagnostic assertions pass. |
@@ -97,13 +97,13 @@ Commitments: rows 1–47. Qualifications: rows 48–70. Illustrative trigger and
 | 85 | Mixed changed tests undergo refactoring. | slice 3 | observed: slice-3-observations.md: N1 discovers staged enabled/untracked off tests, corrects enabled and preserves off practice; both pass. |
 | 86 | Opted-in tests reuse focused objects while preserving intent. | slice 3 | observed: slice-3-observations.md: N1 LibraryPage/ItemPanel result retains Atlas/Boreal/order/held-read/request proof. |
 | 87 | Moving a test out of selected membership imposes no page-object rule at its destination. | slice 3 | observed: slice-3-observations.md: P1 staged destination legacy/out.spec.mjs has pageObjects false; deleted browser source omitted. |
-| 88 | No release work. | slice 4 |  |
-| 89 | No project rollout. | slice 4 |  |
-| 90 | No opt-in changes. | slice 4 |  |
-| 91 | No local-rule removal. | slice 4 |  |
-| 92 | No unrelated suite conversion. | slice 4 |  |
-| 93 | No new test framework. | slice 4 |  |
-| 94 | No generic policy registry. | slice 4 |  |
+| 88 | No release work. | slice 4 | observed: slice-4-observations.md: Only isolated fixture versions/tags; source VERSION/CHANGELOG/tags untouched. |
+| 89 | No project rollout. | slice 4 | observed: slice-4-observations.md: Only isolated temporary project installations. |
+| 90 | No opt-in changes. | slice 4 | observed: slice-4-observations.md: Real project configuration untouched; fixture flags describe proof cases. |
+| 91 | No local-rule removal. | slice 4 | observed: slice-4-observations.md: No project-local guidance removed; sentinels preserved. |
+| 92 | No unrelated suite conversion. | slice 4 | observed: slice-4-observations.md: Only fixture/proof support and focused observations changed. |
+| 93 | No new test framework. | slice 4 | observed: slice-4-observations.md: Existing runner, native adapters, supervision, stream reader and browser harness. |
+| 94 | No generic policy registry. | slice 4 | observed: slice-4-observations.md: Existing one declaration, parser/matcher and shared selection command reused. |
 | 95 | No browser-abstraction requirement for non-browser work. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
 | 96 | No Cypress requirement. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |
 | 97 | No Gherkin requirement. | slice 2 | observed: slice-2-observations.md: Convention walk below; N1 preserves applicable intent/evidence; illustrative variants remain explicit. |

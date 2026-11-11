@@ -16,7 +16,11 @@ temporary_dir=$(cd -- "${temporary_dir}" && pwd -P)
 mkdir -p -- "${temporary_dir}/tmp"
 export TMPDIR="${temporary_dir}/tmp"
 target="${temporary_dir}/project"
-if [[ ${selection} == refactor ]]; then
+if [[ ${selection} == both || ${selection} == makeme-only || ${selection} == neither ]]; then
+  node "${support_dir}/page-object-makeme-fixture.mjs" "${target}" "${platform}" "${selection}" > "${temporary_dir}/fixture.json"
+elif [[ ${selection} == installed ]]; then
+  node "${support_dir}/page-object-native-installed-fixture.mjs" "${target}" "${platform}" > "${temporary_dir}/fixture.json"
+elif [[ ${selection} == refactor ]]; then
   node "${support_dir}/page-object-native-refactor-fixture.mjs" "${target}" "${platform}" > "${temporary_dir}/fixture.json"
 else
   node "${support_dir}/page-object-native-fixture.mjs" "${target}" "${platform}" "${selection}" > "${temporary_dir}/fixture.json"
@@ -36,7 +40,7 @@ native_stderr="${temporary_dir}/stderr.log"
 native_case_deadline=480
 native_case_grace=15
 test_entry=browser
-if [[ ${selection} == off ]]; then
+if [[ ${selection} == off || ${selection} == makeme-only || ${selection} == neither ]]; then
   test_entry=legacy
 fi
 prompt="Add ${test_entry}/library.spec.mjs to test opening Atlas from the Library and following its related item to Boreal. Hold the Atlas response, verify Loading item before releasing it, and verify exactly the Atlas then Boreal reads. Use the README to run your scenario and confirm it passes. Leave application and harness files unchanged."

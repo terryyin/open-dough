@@ -171,6 +171,8 @@ managed_files=(
   dough-story-wrap-up/scripts/trunk-closure-completion.mjs
   dough-page-objects/SKILL.md
   dough-page-objects/references/convention.md
+  dough-makeme/SKILL.md
+  dough-makeme/references/convention.md
 )
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-install-entry.sh"

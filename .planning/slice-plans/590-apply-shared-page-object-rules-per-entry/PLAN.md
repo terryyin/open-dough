@@ -32,14 +32,13 @@ conversion, universal fluent framework or generic policy registry is included.
   patterns and overlap semantics remain one model. Each matching true flag
   independently activates its convention; an opt-out is no veto. Report missing
   configuration as off and malformed/unreadable configuration as unresolved.
-- The active MakeMe execution (Aki-chan at preparation time) owns exposing
-  standalone selection, changed paths, execution/refactor callers and installer
-  declaration extraction. At execution, inspect the integrated result and reuse
-  its actual owner/contracts. Do not assume an unpublished API or edit that
-  execution's worktree. If it has not integrated, expose the existing owner
-  coherently for this outcome and reconcile through normal integration; do not
-  build another matcher or competing rule-specific path collector. Shared code
-  alone justifies no blocking dependency under ADR 0002.
+- Terry authorized completing the missing integration on resume. Reuse the
+  real MakeMe convention published at `3940c9d79` on its execution branch;
+  preserve its bytes and attribution, and bind its entry gate to this branch's
+  already delivered common selection/runtime owners. Keep one declaration,
+  matcher and Git collector. Published sibling work is read through Git; its
+  worktree and separate assignment remain untouched. This replaces the absent
+  guidance premise for G2 without changing the story's promised outcomes.
 - Reuse or extend page/component owners. Domain-named actions and observations
   expose scenario variants and caller-supplied expectations. Fluent methods may
   return the object reached or `this`; async/queue mechanics remain local.
@@ -91,10 +90,10 @@ Jane-chan; Story Branch Mode; publisher `dashboard-territory.local-open-dough`.
 Owned workspace and branch: this checkout, `codex/apply-shared-page-object-rules-per-entry`.
 Origin trunk `main`; increment target `refs/heads/codex/apply-shared-page-object-rules-per-entry`.
 Starting revision `2599c7a5db27aac64c5923b592b7f5b66079d348`; published base/candidate
-`e2806cc5e0e2a87eff183cb0305e17cb6b6fd9d0` (CI repair accepted on execution branch). CI observer coordinator `jane-chan-307`,
-`/tmp/dough-ci-501/watch-qLujG5`, cell `g230:3`, session 51876, PID 34832.
-See [execution context and retained proof](native-observations.md#execution-context)
-for checkout setup, accepted observations, Cursor exception and recovery boundary.
+`837c307d2cb94afaa342fa4ce956a72d758c1d6e` (slice 3 accepted on execution branch). CI observer coordinator `jane-chan-307`,
+`/tmp/dough-ci-501/watch-PCKAdf`, cell `g282:4`, session 40016, PID 1361 (live).
+See [current recovery boundary](native-observations.md#resume-boundary)
+for retained setup, accepted observations, Cursor exception and remaining proof.
 No numeric slice budget supplied; existing planned refinement authority applies.
 
 ## Story obligations
@@ -106,10 +105,10 @@ Disposition: owner changed "For this execution, Terry authorizes skipping the Cu
 Commitment: 43
 
 
-### G2. Useful MakeMe application awaits the real shared convention
-Reported: slice 2 — "Selector proof covers four choices; both-enabled and MakeMe-only native-authored outcomes remain unperformed because shared MakeMe guidance is not integrated. Unavailable selected guidance is unresolved and dependent edits are withheld."
+### G2. Useful MakeMe application awaits the real shared convention (first reported in slice 2)
+Reported: slice 4 — "Selector proof covers four choices; both-enabled and MakeMe-only native-authored outcomes remain unperformed because shared MakeMe guidance is not integrated. Unavailable selected guidance is unresolved and dependent edits are withheld."
 Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts; prove useful application and all four MakeMe/page-object choices."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: slice-4-makeme-integration.md; actual published convention, both builder/object and MakeMe-only authored results, fresh neither off gate, restored expected/actual controls and complete installed bytes
 Commitment: 44, 46, 72
 
 ### G3. Generated artifact provenance was stripped
@@ -203,7 +202,7 @@ duplicating its collector; never use this rule to expand refactor authority.
 
 ### 4. Deliver a complete standalone rule through installation and updating
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real isolated install/update operations from MakeMe release descriptions,
 using `npm test -- tests/payload-declaration-links.sh tests/install-public-payload.sh tests/update-adds-new-payload-skill.sh tests/story-payload-update.sh`
 and affected declaration-reader/release-fixture regression tests. Run the installed

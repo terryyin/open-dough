@@ -17,9 +17,10 @@ alone does not establish membership. It accepts intended paths before files exis
 
 For each source, load only its selected conventions. `pageObjects: true` loads
 [the page-object convention](../../dough-page-objects/references/convention.md)
-when the task concerns browser tests. `makeMe: true` independently selects the
-shared MakeMe guidance available in this installation. If a selected convention's
-guidance is unavailable, report that rule as unresolved; do not replace it with
+when the task concerns browser tests. `makeMe: true` independently loads
+[the MakeMe convention](../../dough-makeme/references/convention.md).
+If a selected convention's guidance is unavailable, report that rule as
+unresolved; do not replace it with
 an invented convention or silently treat it as disabled. Leave changes requiring
 that rule unperformed and continue independent work. The command's `status`
 reports applicability, not whether a convention was available or applied.
@@ -57,9 +58,9 @@ sources and missing symlink targets require no conversion;
 a destination outside selected membership receives no page-object rule.
 Production-only changes select no testing convention merely by folder proximity.
 
-Load each selected convention once, including the same page-object reference
-above for implicated browser tests. Correct enabled tests through existing
-focused owners while preserving scenario inputs, expectations and independent
+Load each selected convention once, including the same references above.
+The page-object convention applies to implicated browser tests. Correct enabled
+tests through existing focused owners while preserving scenario inputs, expectations and independent
 evidence. Leave other entries' practices intact. Missing selected guidance and
 unresolved configuration keep the same stop conditions above. Recheck selection
 if refactoring implicates additional paths; selection never expands authority.

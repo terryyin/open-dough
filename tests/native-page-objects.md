@@ -16,8 +16,9 @@ separate browser control is selected explicitly because the shell/Node CI jobs
 do not install Chromium:
 
 ```sh
-npm test -- tests/support/page-object-native-fixture.test.mjs
+npm test -- tests/support/page-object-native-fixture.test.mjs tests/support/page-object-makeme-fixture.test.mjs
 npm test -- tests/support/page-object-native-browser-proof.mjs
+npm test -- tests/support/page-object-makeme-browser-proof.mjs
 ```
 
 The gate uses the shared `dough-execute-plan/scripts/test-entry-rules.mjs`
@@ -27,7 +28,7 @@ Regenerate it from the locked source installation with
 `node scripts/build-test-entry-rules.mjs`; `--check` verifies correspondence
 without writes. Keep the generated license alongside the runtime. Public
 selection and isolated command contracts run through
-`npm test -- tests/support/test-entry-rules.test.mjs tests/support/test-entry-rules-standalone.test.mjs`.
+`npm test -- tests/support/test-entry-rules.test.mjs tests/support/test-entry-rules-standalone.test.mjs tests/support/test-entry-rules-installed.test.mjs`.
 
 Run a fresh authoring task, with `codex`, `cursor` or `claude` and a new absolute
 artifact directory outside the source checkout:
@@ -36,6 +37,10 @@ artifact directory outside the source checkout:
 caffeinate -s -i bash tests/support/page-object-native-run.sh codex on /tmp/page-object-codex-on
 caffeinate -s -i bash tests/support/page-object-native-run.sh codex off /tmp/page-object-codex-off
 caffeinate -s -i bash tests/support/page-object-native-run.sh codex refactor /tmp/page-object-codex-refactor
+caffeinate -s -i bash tests/support/page-object-native-run.sh claude installed /tmp/page-object-claude-installed
+caffeinate -s -i bash tests/support/page-object-native-run.sh claude both /tmp/page-object-claude-both
+caffeinate -s -i bash tests/support/page-object-native-run.sh codex makeme-only /tmp/page-object-codex-makeme
+caffeinate -s -i bash tests/support/page-object-native-run.sh claude neither /tmp/page-object-claude-neither
 ```
 
 `on` selects the browser entry and leaves the legacy entry off. `off` creates a
@@ -45,6 +50,30 @@ the skill or its convention. The fixture uses MakeMe's repository and location
 builders; copying the candidate into the native layout is harness preparation,
 not installer/update proof. Browser runtime imports use this checkout's locked
 installation; the later standalone-delivery check owns installed independence.
+
+`installed` builds isolated MakeMe-described releases, installs the older payload,
+then updates through its recorded source to the complete current payload before
+fresh authoring. Both native roots carry every declared skill and dependency;
+project configuration and unrelated guidance remain in place. Inspect
+`install.txt`, `update.txt` and `fixture.json` alongside the native evidence.
+Fixture tags and version metadata exist only under the artifact directory.
+The installed-selection test separately exercises all four flags, custom source
+membership, diagnostics and complete bytes without project npm dependencies.
+
+`both` and `makeme-only` use that full install/update journey with an empty
+catalog, a project-owned item factory and a setup boundary exposed in README.
+The first requests browser work in an entry selecting both rules; the second
+uses a fresh project whose legacy entry selects only MakeMe and already has a
+direct-control browser example. Inspect actual selected convention reads and
+the authored domain builders, relationships, explicit expectations, causal order
+and independent held-read/request observations. The both-enabled result reuses
+the focused UI owners; the MakeMe-only result retains the legacy browser style
+without reading the page-object convention. Run the scenario and wrong-expected
+control. The separate browser control verifies fresh builders and that omitting
+catalog setup fails; this harness proof is distinct from native MakeMe use.
+`neither` supplies the same fresh full catalog with both flags false in every
+entry. Check selection and confirm neither convention is read or imposed;
+the project's existing APIs remain available without an Open Dough requirement.
 
 `refactor` installs the current refactoring skill and its shared references,
 stages one new enabled scenario and leaves a different opted-out scenario

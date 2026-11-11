@@ -185,3 +185,45 @@ concern was found outside the permitted early native probe in slice 1. Failure
 there stops dependent work and changes the plan; it does not establish readiness
 for a substitute mechanism. No numeric sizing limit or exception was supplied.
 This plan grants no execution authority.
+
+## Resume boundary
+
+Slices 1–3 are done and published on the execution branch. Latest accepted SHA
+`837c307d2cb94afaa342fa4ce956a72d758c1d6e`; CI repair e2806cc5 settled both
+delivered failures with current focused proof. Final completion CI is not claimed.
+Slice 4 independent installed/update/Claude/negative-control proof passed; six
+proof-support files remain uncommitted, with source-review/plan recovery edits.
+No product runtime changed in slice 4. All native/test commands ended.
+
+G2 is returned to slice 4: actual shared MakeMe guidance is absent from source
+and pinned trunk e138a437a738c3fc02297381097071816a263e28. No MakeMe-only/both
+authored outcome can be observed until that real guidance is integrated and the
+common boundary reconciled. Do not invent a substitute or count selection as use.
+After that input exists, finish G2, independently refactor and deliver slice 4,
+then complete review/CI/wrap-up under the same identity. Do not repeat Take or
+matching accepted proof. Current Cursor native exception remains skipped/unverified.
+
+No execution-complete record, automatic retrospective, wrap-up, trunk landing or
+worktree retirement has run. Source story remains Taken.
+
+Observer `/tmp/dough-ci-501/watch-qLujG5` confirmed stopped, coverage ended,
+pending CI unobserved, recorded/delivered through 2, unread 0; PID34832 ended.
+Both delivered failures were repaired before stopping. On resume rearm observation
+from this checkout and retain the new exact identity; no final CI verdict claimed.
+
+## Authorized continuation
+
+Terry authorized completing the missing integration. On resume, the published
+MakeMe branch now provides actual guide source at 3940c9d79 (not yet on main).
+Use that convention with the existing shared selection owners; do not edit Aki's
+worktree or close its separate assignment. G2 remains open until fresh both/only
+authored proof. New observer watch-PCKAdf, coordinator jane-chan-307, cell g282:4,
+session40016 PID1361; old observer ended. Same workspace/branch/HEAD837c307d2.
+Checkout readiness rechecked with passing public selection tests, lock unchanged.
+
+## Accepted G2 continuation
+
+Actual published MakeMe convention is integrated with the existing shared gate.
+Fresh both, MakeMe-only and neither authored results and independent controls
+are accepted in slice-4-makeme-integration.md. G2 is proved; independent refactor
+finished cleanly. Slice 4 is ready for guarded delivery; no proof waiver added.
