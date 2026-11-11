@@ -67,7 +67,7 @@ export class IntentLocationBuilder {
     return new AnsweredIntentLocationBuilder(this, files);
   }
 
-  /** @returns {DeclaredLocation & { makeMe?: boolean }} */
+  /** @returns {DeclaredLocation} */
   please() {
     if (this.#path === undefined) throw new Error("choose .at(path) first");
     if (this.#selection === undefined) {

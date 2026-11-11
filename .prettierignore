@@ -2,3 +2,4 @@ node_modules/
 dist/
 coverage/
 .planning/
+src/skills/dough-makeme/scripts/minimatch.bundle.mjs

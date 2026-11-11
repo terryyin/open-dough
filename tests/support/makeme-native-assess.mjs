@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readHostStream } from "./native-host-stream.mjs";
+import { selectionResolved } from "./makeme-native-selection-observe.mjs";
 import {
   application,
   baselineBackend,
@@ -35,7 +36,8 @@ export function loaded(read, path, marker) {
   );
 }
 
-export function assessGuidance(read, journey) {
+export function assessGuidance(read, journey, configurationPath) {
+  const resolved = selectionResolved(read, journey, configurationPath);
   const skill = loaded(
     read,
     "dough-makeme/SKILL.md",
@@ -46,19 +48,18 @@ export function assessGuidance(read, journey) {
     "dough-makeme/references/convention.md",
     "# Shared MakeMe convention",
   );
-  const configuration = loaded(
-    read,
-    ".planning/open-dough.json",
-    '"locations"',
-  );
+  const configuration =
+    resolved || loaded(read, ".planning/open-dough.json", '"locations"');
   return {
     complete: read.status === "complete",
     skillLoaded: skill,
     conventionLoaded: convention,
     configurationLoaded: configuration,
+    selectionResolved: resolved,
     gateHeld:
       skill &&
       configuration &&
+      resolved &&
       (journey === "mixed" ? convention : !convention),
   };
 }
@@ -148,7 +149,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [host, journey, directory] = process.argv.slice(2);
   const read = readHostStream(host, join(directory, "events.jsonl"));
   const observation = {
-    ...assessGuidance(read, journey),
+    ...assessGuidance(
+      read,
+      journey,
+      join(directory, "project/.planning/open-dough.json"),
+    ),
     ...assessAuthoredTests(join(directory, "project"), journey),
   };
   const failures = Object.entries(observation)

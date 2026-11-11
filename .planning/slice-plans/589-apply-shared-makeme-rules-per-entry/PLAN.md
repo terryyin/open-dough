@@ -7,7 +7,7 @@
 ## Execution context
 
 - Story branch: `codex/apply-shared-makeme-rules-per-entry`, workspace this worktree, publisher `dashboard-territory.local-open-dough`, agent `aki-chan`, `origin` / trunk `main`.
-- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; published base `24f1647fb91aea54cced8e5ff5f0321579b29353`. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
+- Starting revision `31f14719b1ab8330680ee2e7fefdf9742b242746`; claim `24f1647fb91aea54cced8e5ff5f0321579b29353`; accepted slice 1 and current published base `ec131e188ece02d28504c610a2812f0c325798d2` on the execution branch. Checkout-local locked setup passed; selective formatting `npm run format`, check-only hook lint/typecheck, agent commits.
 - Live CI: GitHub `terryyin/open-dough`, `ci.yml` / `CI`, execution-branch target, coordinator `aki-chan-seed307`, directory `/tmp/dough-ci-501/watch-cUOT3m`, PID `64581`, stream `85379`, cell `g228:4`.
 - [Slice 1 evidence and retained startup/stop history](slice-1-evidence.md) owns native commands, proof locations, source freshness and the explicitly waived Cursor gap. No numeric slice limit; existing replanning authority retained. Current awake AC load 6.78/5.60/7.51; one native CLI at a time, focused proof only, reconsider changed pressure.
 
@@ -71,38 +71,15 @@ rules, convert their suites, or implement the sibling page-object story.
 
 ### Already-oversized expected edit
 
-`install.sh` is 344 lines, almost entirely its payload array. Slice 4 owns a
-cohesive extraction of the execution skill's payload declaration (the largest
-skill group) into a data-only fragment under `src/install/`, leaving the main
-installer and that fragment below 250 lines. Keep `install.sh`'s assembled
-`managed_files` as the single authoritative payload declaration, with no
-parallel inventory. Its read-only declaration reader must read that fragment
-without running an installer, and still read historical literal arrays.
-Align `open-dough-release-version.sh`, historical-declaration recovery in
-`open-dough-release-leftovers.sh`, release fixture construction in
-`tests/support/releaseTestData.mjs`, and all traced declaration consumers.
-Installation/update and declaration proofs below preserve their contract.
-Do not replace cohesive extraction with arbitrary line folding. If execution
-finds that the seam needs a different architecture or wider responsibility,
-return that evidence before proceeding. Other inspected expected guidance and
-selection edits are below 250 lines (execute skill 243, delegation 240,
-refactor skill 158, parser 174, selector 142); keep additions proportionate.
+Slice 4 must split the 344-line installer through the cohesive execution-payload
+fragment and align its readers/fixtures under the [settled reorganization decision](preparation-evidence.md#already-oversized-expected-edit).
+Keep the assembled managed-files array authoritative and both files below 250 lines.
 
 ## Decisive premises and observations
 
-Observed in this preparation checkout at `4d7a2ff66` on 2026-11-11:
-
-| Premise / consuming operation | Observation, result and remainder |
-| --- | --- |
-| Current entry selection can own both legacy and sources membership | `node --input-type=module` imported `declaredLocations` and `locationSelectsRepositoryPath`; MakeMe-built locations selected `frontend/src/a.spec.ts` and `checks/a.check`, excluded sibling production/Markdown files and uppercase `.TS`. The exact new `makeMe` input was projected away (`futurePropertyRetained:false`), so slice 2 must deliberately preserve it. No current opt-in support is assumed. |
-| Existing glob semantics can run without dashboard/npm runtime dependencies | In the same Node profile, `rolldown({input:'dashboard/src/intentLocationSelection.ts',platform:'node',logLevel:'silent'})` then `bundle.generate({format:'esm',minify:true})` produced a 26,417-byte entry with no imports. Importing its code as a data URL selected `checks/nested/a.test`, excluded `a.TEST` and `a.txt`. This settles standalone feasibility; generated provenance/license and final installed execution remain slice 2/4 proof. No scratch edits remained. |
-| Current native entry points are available, but discovery is unproved | `codex --version` → `0.167.1`; `claude --version` → `2.1.321`; `cursor agent --version` → `2026.11.10-731fb78`. Existing `tests/support/native-run-supervise.sh`, `native-codex.sh` and shared native stream readers provide the route. No paid session was run; the consuming ordinary-authoring operation, authentication and fresh candidate activation are bounded by slice 1's early probe. |
-| Shared convention comes from actual practice, with local mechanics | Source inspection and representative builder/caller tracing reached Donut's Java/TS fluent construction, relationship derivation and fresh factory behavior; revisions and source paths are in the seed. Java persistence and some wall-clock defaults differ from Open Dough/Pygardon. The common rule therefore leaves persistence/language syntax local and states deterministic defaults as a preference. Native application remains owed, not inferred from source inspection. |
-
-The selection observations are direct calls to the consuming functions, not a
-claim that existing tests already prove the new rule. No new test is represented
-as passing. Native observation is the only paid/credentialed unresolved premise;
-its permitted early probe stops dependent slices if the mechanism fails.
+[Preparation observations](preparation-evidence.md) retain settled selection,
+standalone Rolldown feasibility and convention-source evidence. Native outcomes
+and Terry's Cursor exception are in [slice 1 evidence](slice-1-evidence.md).
 
 ## Ordered slices
 
@@ -134,7 +111,7 @@ cheap harness checks; no release declaration or target-project adoption occurs.
 
 ### 2. Apply one language-neutral convention through configured file membership
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add focused Node contract tests at the new skill's public selection
 boundary, using MakeMe-built entry/settings data. Run through
 `npm test -- <new selector test paths>`; run the existing Intent admission and
@@ -147,8 +124,8 @@ authoring and execution receive the same applicable guidance. Cover omission,
 false, true, non-boolean flags, missing/malformed/unreadable configuration,
 kind/include and sources precedence, custom extensions, case and folder-sibling
 boundaries. Preserve existing valid listing/admission and syntax behavior.
-Keep diagnostics distinct from successful no-opt-in. Link the execution caller
-before its test-writing delegation, including planless work and newly added tests.
+Keep diagnostics distinct from successful no-opt-in. Execution-caller hookup
+is delivered with its complete declared dependencies in slice 4.
 
 Walk the seed's builder, invalid-input and optimization examples against the
 actual guidance. Review definition, defaults, factory/chaining/completion,
@@ -157,26 +134,23 @@ proof-preserving optimization. Do not enforce prose wording or JavaScript
 punctuation as a language-neutral contract. Extend slice 1's native evidence
 only where final instructions, selection or invocation changed its boundary.
 
-### 3. Reapply the same rule to implicated tests during refactoring
+### 3. Resolve changed test-entry scope for refactoring
 Type: Behavior
 Status: planned
 Proof: Public changed-scope command tests materialize MakeMe repository
 descriptions, then perform the Git actions under proof at the call site. Run
-`npm test -- <new changed-scope test paths>`. Reuse native adapters for one
-representative mixed-entry refactor journey; record coverage/reuse per host.
+`npm test -- <new changed-scope test paths>`. Native refactor application and
+the managed refactor caller are delivered with the complete payload in slice 4.
 
-Behavior: Post-change refactoring discovers its actual scope → deterministically
-resolves changed test paths against entry opt-ins before its decision pass →
-loads the same rule and corrects implicated enabled test setup within existing
-refactor authority, leaving the other entry's practice intact. Cover staged,
+Behavior: The changed-scope command deterministically resolves current test
+paths against entry opt-ins for the refactor consumer. Cover staged,
 unstaged, untracked, moves across the boundary, supplied committed dispositions
 and production-only changes. Include a fault that a path-prefix-only or
 unstaged-only detector misses. Both move paths discover affected context, but
 the current destination determines applicability: an opted-out destination
 receives no MakeMe requirement, and deletion alone requires no conversion.
-The useful-result journey must observe builder
-reuse/extension and preserved assertions, not only a selected-entry report.
-Recheck entries implicated by refactor edits if they extend its test scope.
+Slice 4 connects this command before the refactor decision pass, rechecks
+extended scope, and proves builder reuse/extension with preserved assertions.
 
 ### 4. Install and update the complete standalone rule with existing host layouts
 Type: Behavior
@@ -193,6 +167,11 @@ Behavior: A project installs or updates the promoted payload → gets the shared
 gate, convention and complete local runtime in the existing layouts → its own
 entry opt-ins remain unchanged, and fresh use follows the same scoped behavior.
 Complete the declaration extraction above as part of this delivery boundary.
+Connect execution test-authoring delegation, including planless work and newly
+added test paths, to the shared gate in this same declared-payload increment.
+Connect the refactor decision pass to changed-entry selection, recheck expanded
+scope, and prove one mixed-entry useful refactor journey on Codex and Claude.
+Preserve opted-out practice and assertions; Cursor native remains waived.
 Keep older inline-declaration releases readable, including historical leftover
 recovery. Regenerate the matcher from its source and verify final installed
 membership behavior, license and absence of external runtime imports.
@@ -204,9 +183,9 @@ release eligibility; no release or rollout is performed by this story.
 ## Verification and delivery gates
 
 Every source promise has an owner: per-entry selection/backward compatibility,
-shared convention, examples and execution routing → slice 2; ordinary discovery
-→ slice 1 with final correspondence in 2/4; automatic refactoring and change
-scope → slice 3; standalone cross-tool delivery/preservation → slice 4.
+shared convention and examples → slice 2; ordinary discovery
+→ slice 1 with final correspondence in 2/4; changed-source resolution → slice 3;
+workflow hookup, useful refactoring and standalone delivery/preservation → slice 4.
 Use negative controls for the new selectors and native assessments. Preserve
 independent expectations, complete deletion relationships and test isolation.
 
@@ -230,6 +209,18 @@ Sleep-invalid proof is rerun under that policy, never accepted as a pass.
 
 ## Story obligations
 
+### G4. Refactor caller shares the declared-payload dependency
+Reported: slice 2 — "The managed refactor Markdown caller also requires the unpromoted skill; its hookup and useful native refactor journey move to slice 4 with declaration, while slice 3 proves changed-source resolution."
+Story clause: "During post-change refactoring, automatically resolve the entries of changed test sources and load the same convention for opted-in entries."
+Disposition: receiving slice 4
+
+
+### G3. Execution caller requires complete payload declaration
+Reported: slice 2 — "Managed Markdown links to the unpromoted skill would fail tests/payload-declaration-links.sh lines 26–57; caller hookup moves to the complete payload increment without weakening that check."
+Story clause: "Provide one shared, discoverable MakeMe guidance source for ordinary test authoring and Dough execution."
+Disposition: receiving slice 4
+
+
 ### G1. Native authoring remains unproved on Cursor and Claude
 Reported: slice 1 — "Cursor mixed failed before inference because authentication is required; Cursor opted-out and both Claude journeys are unobserved. Codex mixed and fresh opted-out passed."
 Story clause: "Deliver one standalone shared behavior through the existing Codex, Cursor and Claude Code skill layouts."
@@ -238,4 +229,11 @@ Disposition: owner changed "For this execution only, Cursor native probes are wa
 ### G2. Candidate entry membership is provisional prose
 Reported: slice 1 — "The early candidate manually evaluates the tiny fixture's simple membership; the final deterministic resolver and refreshed native correspondence remain owed."
 Story clause: "File membership retains the entry's `kind`/`include` or `sources` selection; folder containment alone does not select a test."
-Disposition: receiving slice 2
+Disposition: proved by slice 2: slice-2-evidence.md public selector contracts and refreshed native correspondence
+
+
+### G5. Register public selector proof in the default runner
+Reported: slice 2 — "Coordinator inspection found tests/node-test-files selects only src/skills/*/scripts/*.test.mjs and tests/support/*.test.mjs, so the two new tests/*.test.mjs files pass named runs but are absent from default CI discovery."
+Story clause: "Verify selection and useful authoring and refactoring outcomes"
+Disposition: proved by slice 2: slice-2-evidence.md default-runner registration proof and independent narrow review
+Commitment: C48

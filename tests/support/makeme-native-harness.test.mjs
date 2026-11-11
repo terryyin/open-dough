@@ -24,8 +24,10 @@ test("a copied candidate and passing baseline do not count as authoring proof", 
   assert.equal(result.denyAllFaultCaught, false);
 });
 
-test("actual conditional reference reads distinguish mixed from opted-out use", () => {
+test("resolver evidence and conditional reads distinguish mixed from opted-out use", () => {
   // Exact observation inputs are under proof; no domain starting data here.
+  const command =
+    "/bin/zsh -lc 'node .agents/skills/dough-makeme/scripts/select-makeme.mjs --project /project -- frontend/tests/preview.test.mjs'";
   const read = {
     status: "complete",
     reads: [],
@@ -37,14 +39,27 @@ test("actual conditional reference reads distinguish mixed from opted-out use", 
         exitCode: 0,
       },
       {
-        command: "cat .planning/open-dough.json",
-        output: '{"intent":{"locations":[]}}',
+        command,
+        output: JSON.stringify({
+          status: "not-selected",
+          configuration: "/project/.planning/open-dough.json",
+          files: [],
+          entries: [],
+        }),
         exitCode: 0,
       },
     ],
   };
   assert.equal(assessGuidance(read, "mixed").gateHeld, false);
   assert.equal(assessGuidance(read, "opted-out").gateHeld, true);
+  read.calls[1].output = JSON.stringify({
+    status: "selected",
+    configuration: "/project/.planning/open-dough.json",
+    files: ["backend/tests/access.test.mjs"],
+    entries: [
+      { path: "backend/tests", files: ["backend/tests/access.test.mjs"] },
+    ],
+  });
   read.calls.push({
     command: "cat .agents/skills/dough-makeme/references/convention.md",
     output: "# Shared MakeMe convention",
@@ -52,6 +67,11 @@ test("actual conditional reference reads distinguish mixed from opted-out use", 
   });
   assert.equal(assessGuidance(read, "mixed").gateHeld, true);
   assert.equal(assessGuidance(read, "opted-out").gateHeld, false);
+  read.calls[1].exitCode = 1;
+  assert.equal(assessGuidance(read, "mixed").selectionResolved, false);
+  read.calls[1].exitCode = 0;
+  read.calls[1].command = "echo 'I ran select-makeme.mjs'";
+  assert.equal(assessGuidance(read, "mixed").selectionResolved, false);
 });
 
 test("self-report and a failed read cannot stand in for loading guidance", () => {
@@ -84,8 +104,14 @@ test("native skill expansion and statusless shell reads retain their real eviden
     ],
     calls: [
       {
-        command: "cat .planning/open-dough.json",
-        output: '{"intent":{"locations":[]}}',
+        command:
+          "node .claude/skills/dough-makeme/scripts/select-makeme.mjs --project /project -- frontend/tests/preview.test.mjs",
+        output: JSON.stringify({
+          status: "not-selected",
+          configuration: "/project/.planning/open-dough.json",
+          files: [],
+          entries: [],
+        }),
         exitCode: null,
       },
     ],

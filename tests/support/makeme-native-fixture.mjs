@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "./makeMe.mjs";
@@ -81,7 +81,14 @@ export async function createMakeMeNativeFixture(source, host, directory) {
     "frontend/tests/preview.test.mjs": baselineFrontend,
     "tests/support/makeMe.mjs": factory,
   };
-  for (const path of ["SKILL.md", "references/convention.md"]) {
+  const candidateFiles = [
+    "SKILL.md",
+    "references/convention.md",
+    ...readdirSync(join(source, "src/skills/dough-makeme/scripts")).map(
+      (name) => `scripts/${name}`,
+    ),
+  ];
+  for (const path of candidateFiles) {
     files[`${root}/dough-makeme/${path}`] = readFileSync(
       join(source, "src/skills/dough-makeme", path),
       "utf8",

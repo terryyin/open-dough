@@ -4,6 +4,7 @@ export default [
   "node_modules/",
   "dist/",
   "coverage/",
+  "src/skills/dough-makeme/scripts/minimatch.bundle.mjs",
   ".planning/",
   "dashboard/dist/",
   "dashboard/test-results/",
