@@ -15,44 +15,76 @@ scope: story
 
 **Identity:** SEED-313#speed-up-cursor-session-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Queued by the early handoff; selected-story refinement and independent saving/proof criteria are unfinished. Prior slice readiness does not transfer and no execution authority is granted."],"basis":{"document":"2207c8ee95476c01eca492e645378a4a90c0e8a46d8928f68e0e17b154814a98"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/592-speed-up-cursor-session-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"88837eadce1c005a1ec279c7dea2985c9e3acc0601736ee9364fefec3a391441","plan":"a02f95b29ce6ba749485806839efa67040b6c18f0d2489e677e9c9edac309394"}}
 ```
 
 #### Goal
 
-Dashboard maintainers get faster feedback for Cursor runner replacement and scoped session continuation without losing native process, PTY, refusal or visible revival protection.
+Dashboard maintainers get substantially faster local feedback on Cursor runner
+replacement and scoped session continuation. Ordinary CI continues to catch the
+same native process, PTY, refusal and visible revival regressions.
 
-#### Scope to refine
+#### Scope
 
-- Preserve stale-runner holding and replacement, distinct session identities, shared configuration, process identity, fresh reattachment and automatic revival.
-- Preserve resumed/recovered recorded scope and refusal without spawning when scope is missing or unreadable.
-- Reuse the already delivered heldCursorExecutions helper and corrected real-lifetime setup. Reconcile SEED-287 accepted work instead of duplicating it.
-- Include all public-runner, persisted-session and browser proof credited with replacement in the ordinary timed family.
+- Keep the five maintained promises: sessions remain available through a stale
+  runner until a new launch replaces it; unfinished last-held sessions revive
+  automatically without Recover; resume, recovery and cannot-load replacement
+  use the recorded project scope, including a deliberate non-default scope;
+  Default continuations still carry no scope; missing or unreadable scope
+  refuses Recover and Open terminal with an explanation and spawns nothing
+  against shared Cursor configuration.
+- Reduce repeated full launches and incidental setup while observing those
+  promises at the real public runner, persisted-session and browser boundaries
+  that catch their faults. Keep one end-to-end journey for live PTY and visible
+  revival. Establish scope and refusal variants at cheaper real boundaries only
+  when those boundaries still discriminate the same faults.
+- Reuse the delivered `heldCursorExecutions` helper and corrected real-lifetime
+  setup. Reconcile accepted SEED-287 Cursor lifetime work instead of duplicating
+  it. SEED-287's unfinished other ownership and this story's queue position are
+  not blocking dependencies; this family can improve on its own.
+- Include every public-runner, persisted-session and browser check credited with
+  replacement in the ordinary timed family. Preserve ordinary CI selection and
+  equivalent behavioral protection. Exclude local-only archived experiments.
+- Use shared MakeMe and existing external fixtures. No new internal mocks,
+  wall-clock sleeps, retries, skips, timeout inflation or special runner modes
+  to obtain a saving. Follow
+  [the failure policy](../../AGENTS.md#failing-and-flaky-tests).
 
-Preserve ordinary CI selection and equivalent behavioral protection. Exclude
-local-only archived experiments from the maintained selection. Use shared MakeMe
-and existing external fixtures. No new internal mocks, wall-clock sleeps,
-retries, skips, timeout inflation or special runner modes to obtain a saving.
-Follow [the failure policy](../../AGENTS.md#failing-and-flaky-tests).
+#### Key examples
 
-#### Key examples to refine
+- Existing held sessions remain available through a stale runner until a new
+  launch replaces it. The replacement revives the unfinished last-held sessions
+  without Recover, preserves their identities, timestamps, scope and workspace,
+  and shows them running in the UI.
+- After a scoped client ends, Recover and a fresh Open terminal both resume
+  through the recorded chosen scope and workspace, leave a deliberate shared
+  Cursor default change untouched, send no model flag, and attach a new process.
+  A cannot-load replacement keeps the same scope on the new session ID.
+- Missing or unreadable recorded scope refuses Recover and Open terminal with
+  the saved-configuration explanation and starts neither calls nor attaches;
+  shared Cursor configuration stays unchanged. Default recovery continues to
+  carry no scope exactly as before.
+- Three comparable passing ordinary one-worker runs of this family's maintained
+  selection each finish with the stated saving, including startup, every
+  credited replacement check and teardown.
 
-- Existing held sessions remain available through a stale runner until a new launch replaces it; the UI observes actual revival.
-- Resume and recovery use the recorded project scope, including non-default scope.
-- Missing or unreadable scope refuses a launch with no native client spawn.
+#### Success measure
 
-#### Retained planning input — not executable
-
-Former slice 8 supplies provisional planning input. Five original cases cost 30.691–33.595 summed local case seconds. Necessary setup corrections and the canonical lifetime helper were already delivered and passed three focused and combined runs; preserve their evidence while refining further launch/setup reduction.
-
-This story is queued, not assigned. Refine its goal, measurable saving, scope and
-examples before creating or realigning an executable plan. Old slice readiness
-does not transfer. It can deliver its own improvement if the other extracted
-stories are deferred; no dependency is inferred from priority or shared files.
+Save at least 10 seconds of whole-command wall time on the same ordinary
+one-worker Cursor session selection with every replacement, preparation and
+teardown paid. The retained corrected baseline's five cases cost 30.691–33.595
+summed local case seconds (median 30.691 s). Require a matched family baseline
+on the current execution base and repeated passing observations. Keep the live
+PTY/UI revival and refusal observations that cheaper boundary checks do not
+exercise.
 
 #### Provenance and evidence
 
-Extracted by Terry's instruction from [SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks),
+Extracted by Terry's instruction from
+[SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks),
 with the [slice mapping](../evidence/SEED-303-early-handoff/README.md).
-Use [cursor-repair-evidence.md](../evidence/SEED-303-early-handoff/cursor-repair-evidence.md) and
-[comparable-baseline.md](../evidence/SEED-303-early-handoff/comparable-baseline.md) as retained evidence, not a new baseline.
+Use [cursor-repair-evidence.md](../evidence/SEED-303-early-handoff/cursor-repair-evidence.md),
+[comparable-baseline.md](../evidence/SEED-303-early-handoff/comparable-baseline.md)
+and [coverage-map.md](../evidence/SEED-303-early-handoff/coverage-map.md) as
+retained evidence, not a new baseline. Former slice 8 remains provisional
+planning input only; old slice readiness does not transfer.
