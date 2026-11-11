@@ -51,26 +51,26 @@ No plan, product, proof, or other project files were supplied.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Maintainers reviewing a test can read the domain facts that distinguish its scenario at the call site. | slice 9 | |
-| 2 | Shared MakeMe builders supply incidental defaults. | slice 9 | |
-| 3 | Shared MakeMe builders produce the shapes the product consumes. | slice 9 | |
-| 4 | Use the line-linked audit (`../evidence/makeme-test-data-audit.md`) as the conversion list. | slice 9 | |
+| 1 | Maintainers reviewing a test can read the domain facts that distinguish its scenario at the call site. | slice 9 | observed: audit walk — converted sites name distinguishing facts at MakeMe call sites; controlled mutations keep doneAt/landing/firstInput/session/path/summary/options-command/reuse fields explicit |
+| 2 | Shared MakeMe builders supply incidental defaults. | slice 9 | observed: converted locations use shared MakeMe builders for incidental defaults; controlled sites mutate or state only case-driving fields |
+| 3 | Shared MakeMe builders produce the shapes the product consumes. | slice 9 | observed: builders typed/encoded to production shapes (launchCreation, requests, CI runs/jobs, kept builds, membership renderers, options definitions) |
+| 4 | Use the line-linked audit (`../evidence/makeme-test-data-audit.md`) as the conversion list. | slice 9 | observed: all 362 audit locations walked; dispositions recorded in audit Slice 9 reconciliation |
 | 5.1 | The conversion list covers launch requests across the shell, Node, and dashboard suites. | slice 2 | observed: converted audited launch-request call sites through makeMe.aLaunchRequest; focused dashboard launch groups passed (backend/frontend/integrated) |
 | 5.2 | The conversion list covers saved and observed sessions across the shell, Node, and dashboard suites. | slice 3 | observed: converted retained launch/session/attempt/receipt audit sites through MakeMe (sessionsReplayRecords, retainedReport, openStorySessionAcceptance, open-session-continue, completion-input, done-codex, cursor belonging/owned-CI); focused dashboard selections passed |
 | 5.3 | The conversion list covers project and launch-option configuration across the shell, Node, and dashboard suites. | slice 5 | observed: converted project sources, options definitions, project CI adapter settings, and valid terminal-theme recovery through MakeMe; focused dashboard/node/shell fixture selections passed; corrupt/invalid inputs kept literal |
 | 5.4 | The conversion list covers published planning records across the shell, Node, and dashboard suites. | slice 6 | observed: converted audited published seed/plan/backlog membership through MakeMe and renderStorySection/Seed; focused dashboard/node/shell selections passed; delivery-evidence scenario copies remain controlled shapes |
 | 5.5 | The conversion list covers CI provider and policy facts across the shell, Node, and dashboard suites. | slice 7 | observed: converted CI provider/policy audit sites through MakeMe aCiRun/aGitHubJob/aCiAdapterAttempt and reuse/policy builders; encoding and malformed fields stay harness/call-site; focused skill and dashboard CI selections passed |
 | 5.6 | The conversion list covers CI comparison and proof answers across the shell, Node, and dashboard suites. | slice 8 | observed: converted CI comparison/landed-history/proof audit sites through MakeMe aKeptBuild/aStoryCiComparisonSlot/anIntentCiProofAnswer and related builders; collector/invalid wire stay literal; focused Node history and dashboard Intent selections passed |
-| 6 | Fix the shared fixture where it owns construction for several callers. | slice 9 | |
-| 7 | Reuse or extend the existing builders. | slice 9 | |
-| 8 | Use the production shape or encoder for each boundary. | slice 9 | |
-| 9 | For each audited location, migrate the valid setup or record the specific input shape the case needs to control. | slice 9 | |
-| 10 | Preserve literal protocol, legacy, or malformed inputs that the test exercises. | slice 9 | |
-| 11 | Preserve captured evidence. | slice 9 | |
-| 12 | Preserve real actions. | slice 9 | |
-| 13 | Preserve independent assertions. | slice 9 | |
-| 14 | Keep case-defining dates, identities, and choices explicit, following the test data architecture. | slice 9 | |
-| 15 | When converting a listed shared fixture, update its callers that share that construction. | slice 9 | |
+| 6 | Fix the shared fixture where it owns construction for several callers. | slice 9 | observed: shared fixtures converted in slices 2–8 (sessionsReplayRecords, retainedReport, comparisonMountFacts, groupedOptions, CI fixtures); no remaining shared-fixture conversion owed |
+| 7 | Reuse or extend the existing builders. | slice 9 | observed: no new suite-local constructors; reconciliation reused existing MakeMe owners only |
+| 8 | Use the production shape or encoder for each boundary. | slice 9 | observed: file/transport boundaries keep production encoders (renderPublishedBacklog, options JSON, CI provider encoding); no parallel suite shapes added |
+| 9 | For each audited location, migrate the valid setup or record the specific input shape the case needs to control. | slice 9 | observed: 335 converted + 27 controlled recorded in makeme-test-data-audit.md Slice 9 reconciliation |
+| 10 | Preserve literal protocol, legacy, or malformed inputs that the test exercises. | slice 9 | observed: deliberate options `command: "other"`, corrupt theme bytes, invalid CI wire, and collector output stay literal |
+| 11 | Preserve captured evidence. | slice 9 | observed: recovery and delivery-evidence scenario copies keep captured/scenario evidence; not rewritten as MakeMe membership |
+| 12 | Preserve real actions. | slice 9 | observed: Done/landing/first-input mutations operate on real launched or retained records via store update/replace actions |
+| 13 | Preserve independent assertions. | slice 9 | observed: no assertion text moved into builders; reuse-policy and recovery expectations remain at call sites |
+| 14 | Keep case-defining dates, identities, and choices explicit, following the test data architecture. | slice 9 | observed: doneAt timestamps, sessionId replacement, correction path/summary, reuse attempt ids/outcomes stay explicit at call sites |
+| 15 | When converting a listed shared fixture, update its callers that share that construction. | slice 9 | observed: shared-fixture callers already updated in slices 2–8; slice 9 had no further shared-fixture conversion |
 | E1 | Unresolved Codex creation: call site names saved workspace, endpoint, and request through MakeMe; recovery keeps exact shell-quoting arguments visible. | slice 2 | observed: dashboard/backend-tests/launches/agent-launch-creation-recovery.spec.ts and frontend/integrated creation-gates: workspace/endpoint/request via aCreationRecord; inspectionArgs/shellCommand remain at call site |
 | E2 | CI comparison: test names build revision, run or adapter attempt, and proof at the call site; retained build and endpoint response come from their builders. | slice 8 | observed: dashboard/tests/support/comparisonMountFacts.ts names revision/attempt/proof at call site; slots via aStoryCiComparisonSlot, endpoint answers via anIntentCiProofAnswer, retained builds via aKeptBuild |
 | E3 | Published membership: seed and backlog share identity and title from MakeMe; fixture still states purpose text the dashboard must show. | slice 6 | observed: dashboard/tests/publishedFactsIsolation.ts: seed and backlog share identity/title from aBacklogEntry; purpose prose stated at call site via renderStorySection goal |

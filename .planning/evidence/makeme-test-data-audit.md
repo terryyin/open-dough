@@ -15,6 +15,100 @@ keep their existing role. A test with one of those inputs can still have
 ordinary surrounding facts to convert. See the
 [test data architecture](../../tests/test-data-architecture.md).
 
+## Slice 9 reconciliation (2026-11-11)
+
+Walked all **362** line-linked locations on branch
+`cursor/make-remaining-test-domain-setup-express-intent` at HEAD
+`e8513214bb58a12efd595d975a3e5b1d5341c20c` (slices 1–8 already landed). Every
+location is either converted through MakeMe (or a MakeMe-backed shared
+fixture/renderer) or recorded below as a controlled shape. No audited valid
+setup remains unconverted. Suite-local domain constructors displaced by
+slices 1–8 (inline `request` / `groupedOptions` / `listedRun` / `ownBuild` /
+proof-run literals and peers) already have no callers; none remained to
+delete in this slice.
+
+### Converted (335)
+
+| Audit section | Converted locations |
+| --- | ---: |
+| Launch requests, saved launches and attempts | 88 |
+| Native session listing, runner state and host samples | 22 |
+| Project and launch-option configuration | 38 |
+| Published stories, plans and backlog membership | 55 |
+| CI provider runs, jobs, policy and adapter evidence | 42 |
+| CI comparison, landed history and proof answers | 90 |
+
+Call sites name distinguishing facts; incidental defaults and product shapes
+come from shared MakeMe builders (`aLaunchRequest`, `aCreationRecord`,
+`aLaunchRecord`, `aHostSession`, listing/host builders, `aPublishedSource`,
+`anOptionsDefinition`, membership renderers, CI run/job/attempt/policy
+builders, `aKeptBuild`, comparison slots, proof answers, and peers). Some
+original line anchors drifted after conversion; construction now sits at the
+MakeMe `please()` (or shared fixture) call in the same file or its helper.
+
+### Controlled shapes (27)
+
+Recorded here so maintainers do not treat them as unfinished conversion.
+
+**Delivery-evidence native scenario copies** (fixture prose and Git scenario
+layout the native journeys exercise; not ordinary membership setup):
+
+- [tests/support/delivery-evidence-amended-native-scenario-content.sh:135](../../tests/support/delivery-evidence-amended-native-scenario-content.sh#L135)
+- [tests/support/delivery-evidence-original-native-scenario-content.sh:126](../../tests/support/delivery-evidence-original-native-scenario-content.sh#L126)
+- [tests/support/delivery-evidence-scheduling-native-scenario-content.sh:104](../../tests/support/delivery-evidence-scheduling-native-scenario-content.sh#L104)
+
+**Supplier-dependency correction path/summary** (case-driving resolution prose
+kept explicit; agreement body still via MakeMe):
+
+- [tests/support/supplier-dependency-correction-fixture.mjs:18](../../tests/support/supplier-dependency-correction-fixture.mjs#L18)
+  (`path: ".planning/seeds/B.md#b"`, `correctionSummary`)
+
+**Done / quiet-completion mutations on live or MakeMe-backed retained
+records** (case-defining `doneAt` / cleared completion; base record from a
+real launch or `keepTrackedClosureEvidence`):
+
+- [dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts:91](../../dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts#L91)
+- [dashboard/backend-tests/sessions/session-unread-rule.spec.ts:122](../../dashboard/backend-tests/sessions/session-unread-rule.spec.ts#L122)
+- [dashboard/tests/sessions/agent-launch-codex-observation.spec.ts:112](../../dashboard/tests/sessions/agent-launch-codex-observation.spec.ts#L112)
+- [dashboard/tests/sessions/cursor-session-recovery.spec.ts:170](../../dashboard/tests/sessions/cursor-session-recovery.spec.ts#L170)
+- [dashboard/tests/sessions/recently-done-sessions-sidebar-navigation.spec.ts:87](../../dashboard/tests/sessions/recently-done-sessions-sidebar-navigation.spec.ts#L87),
+  [157](../../dashboard/tests/sessions/recently-done-sessions-sidebar-navigation.spec.ts#L157)
+- [dashboard/tests/sessions/recently-done-sessions-sidebar-reopen.spec.ts:38](../../dashboard/tests/sessions/recently-done-sessions-sidebar-reopen.spec.ts#L38),
+  [73](../../dashboard/tests/sessions/recently-done-sessions-sidebar-reopen.spec.ts#L73),
+  [110](../../dashboard/tests/sessions/recently-done-sessions-sidebar-reopen.spec.ts#L110)
+- [dashboard/tests/sessions/session-workspace-retirement-done.spec.ts:57](../../dashboard/tests/sessions/session-workspace-retirement-done.spec.ts#L57)
+- [dashboard/tests/stories/recently-done-progressive-navigation-cursor.spec.ts:91](../../dashboard/tests/stories/recently-done-progressive-navigation-cursor.spec.ts#L91)
+- [dashboard/tests/stories/recently-done-progressive-state.spec.ts:169](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L169)
+- [dashboard/tests/terminals/agent-terminal-codex-page.spec.ts:57](../../dashboard/tests/terminals/agent-terminal-codex-page.spec.ts#L57),
+  [177](../../dashboard/tests/terminals/agent-terminal-codex-page.spec.ts#L177)
+- [dashboard/tests/terminals/agent-terminal-pending-readiness-input.spec.ts:72](../../dashboard/tests/terminals/agent-terminal-pending-readiness-input.spec.ts#L72)
+
+**Landing / first-input / session-replacement mutations for recovery proof**
+(clear landing evidence, plant first-input state, or replace session id on a
+real retained launch):
+
+- [dashboard/backend-tests/review/one-shot-landing-recovery-deletion.spec.ts:101](../../dashboard/backend-tests/review/one-shot-landing-recovery-deletion.spec.ts#L101)
+- [dashboard/backend-tests/review/one-shot-landing-recovery-retention.spec.ts:126](../../dashboard/backend-tests/review/one-shot-landing-recovery-retention.spec.ts#L126),
+  [132](../../dashboard/backend-tests/review/one-shot-landing-recovery-retention.spec.ts#L132)
+- [dashboard/tests/review/one-shot-landing-recovery.spec.ts:157](../../dashboard/tests/review/one-shot-landing-recovery.spec.ts#L157)
+- [dashboard/tests/sessions/cursor-session-recovery.spec.ts:138](../../dashboard/tests/sessions/cursor-session-recovery.spec.ts#L138)
+
+**Deliberate validation / options mismatch** (wrong `command` on an otherwise
+MakeMe `groupedOptions` definition):
+
+- [dashboard/tests/launches/agent-launch-options-exclusive.spec.ts:120](../../dashboard/tests/launches/agent-launch-options-exclusive.spec.ts#L120)
+
+**CI reuse-policy attempt variations** (spread of MakeMe `aCiReuseAttempt`
+`source` with case-driving unresolved / ambiguous / superseding fields):
+
+- [src/skills/dough-execute-plan/scripts/ci-reuse-policy.test.mjs:102](../../src/skills/dough-execute-plan/scripts/ci-reuse-policy.test.mjs#L102),
+  [119](../../src/skills/dough-execute-plan/scripts/ci-reuse-policy.test.mjs#L119)
+
+Other deliberate malformed, corrupt, or invalid wire inputs cited in section
+prose (collector output, corrupt terminal-theme bytes, refused CI fields)
+remain literal at their call sites under commitments 10–13; surrounding valid
+setup is MakeMe-converted.
+
 ## Launch requests, saved launches and attempts
 
 Use shared launch request, record, observation and attempt construction for valid setup. Give unresolved creation its own canonical construction. For a case that changes a real stored launch, express the added facts through MakeMe and retain the read, write, and reload in the case.

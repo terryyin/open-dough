@@ -290,7 +290,7 @@ Refactor shared `attemptTimingBasis` and compacted oversized converted tests.
 
 ### 9. Audited locations are converted or recorded; displaced constructors are gone
 Type: Behavior
-Status: planned
+Status: done
 Proof: Walk the [audit](../../evidence/makeme-test-data-audit.md). For each
 remaining listed location, either show the MakeMe conversion or record the
 specific controlled shape. Run any still-unconverted traced consumers from
@@ -300,6 +300,11 @@ displaced suite-local domain constructors that no longer have callers.
 Behavior: The audit still lists unconverted valid setup → finish or record each
 location → maintainers reviewing those sites see distinguishing facts at the
 call site, with no obsolete duplicate constructors for converted shapes.
+
+Accepted evidence (pre-done): audit walk — 335 converted + 27 controlled;
+commitments 1–4 and 6–15 observed in source-review. Typecheck, lint, and
+native-evidence identity passed. No displaced constructors remained to delete.
+Refactor disposition: records-only (audit + source-review).
 
 ## Concern evidence
 
