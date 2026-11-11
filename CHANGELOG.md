@@ -1,3 +1,14 @@
+## 0.3.96 - 2026-11-11
+
+- Dough Test Optimization consults seven ranked approaches before proposing an experiment or writing a plan, and uses them when assessing recorded candidates. Choose and combine approaches for the measured bottleneck, seek better options where the project warrants them, and verify that the original behavior remains covered.
+- Project Intent shows trunk timing history for a selected test location through the observed revision, preserves that history when the same revision is refreshed, and keeps test units and gaps distinct. CI entry links open the corresponding Intent location.
+- Safari terminal prompt presets remain selectable, and OpenAI settings keep Save and Remove reachable when the key field scrolls into view.
+- Dashboard watcher checks use smaller real deployments and observable events while retaining rollback, preview recovery, and native-launch drain coverage. Matched local runs including setup and teardown went from 138.77 s to 78.03 s.
+
+The Promoted payload revises three existing Dough Test Optimization files. Dashboard changes are part of the Open Dough source.
+
+The self-installation baseline, four focused repository checks, and representative guidance review passed. [Hosted trunk CI passed at `c6d2645e`](https://github.com/terryyin/open-dough/actions/runs/43006975923), followed by a planning-only assignment commit. Under ADR 0005, this patch reuses prior integration evidence for the existing installation, discovery, and host-hook mechanisms. The separately tracked freshness-ordering and oversized-file native checks remain pending.
+
 ## 0.3.95 - 2026-11-11
 
 - Automatic Intent Coverage during feature-story wrap-up is now off unless the project's `.planning/open-dough.json` sets `intentCoverage: true`. Enabled wrap-up waits for the report and records evidence-backed follow-up dispositions before Done, cleanup, or retirement. Explicit review requests remain available. Reports distinguish caught faults, assertion gaps, confirmed missing test paths, and insufficient evidence, with a separate next proof action.
