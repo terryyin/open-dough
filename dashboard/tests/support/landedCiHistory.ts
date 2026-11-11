@@ -20,9 +20,9 @@ import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   sharedDashboardBuild,
-  startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
+import { startLandedCiReader } from "./landedCiReader.ts";
 import { serveTrunkRuns as serveTrunkCiRuns } from "./landedCiTrunk.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { commit } from "./launchLanding.ts";
@@ -57,14 +57,7 @@ export async function restartAsLandedCiReader(
 ): Promise<DashboardServer> {
   const prebuilt = dashboard.outDir ?? sharedDashboardBuild;
   await dashboard.close();
-  return startDashboardServer({
-    mode,
-    ...(mode === "preview" ? { prebuilt } : {}),
-    github: dashboard.github,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    extraEnv: { DOUGH_TEST_LANDED_CI_COLLECTION: "off" },
-  });
+  return startLandedCiReader(dashboard, origin, mode, prebuilt);
 }
 
 // An unattached Start session in an isolated workspace that may land, and

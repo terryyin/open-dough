@@ -130,9 +130,11 @@ owners without duplicating selection or confusing Inspect with Selected story.
 
 ### 9. Follow retained CI evidence from the Done card
 Type: Behavior
-Status: done
+Status: planned
 Proof: Cohort 9 and affected consumers. Preserve exact original/repeat/reference
 timings, attempt URLs/IDs, saved membership and no new CI acquisition.
+Delivered at a48ca574; reopened for the final-gate repairs G14/G15. Retain all
+accepted slice9 proof; do not repeat its completed implementation.
 
 Behavior: A developer follows a Done card's CI evidence → the scenario names
 each destination and expected reading → `ciFollowUpReadingPage.ts` owns the
@@ -226,3 +228,18 @@ Reported: slice 9 — "Implementation trace found15 Intent specs/21 Run-label li
 Independent refactor return: slice 9 — "Cross-tier AST sweep found5 further named Run/Attempt links in frontend reading/segments/units for the same HistoryRunAttempt emitter, including the opaque adapter identity. The initial remaining-reference sweep covered only integrated tests."
 Story clause: "Resolve the seven Intent findings below, including their same-sequence and selector siblings."
 Disposition: proved by slice 9: slice-9-evidence.md final cross-tier return; all26 native lookups across18 specs share the existing attempt owner, AST/inverse equivalence preserves receiver/name/options, current29-case24-file applicability includes whole frontend5 and opaque adapter identity, corrected1180-file sweep excludes only distinct actors/contracts
+
+### G14. Final scope history journey exceeds the default case budget
+Reported: slice 9 — "Coordinator's final591-case gate at a48ca574 passed590 and timed out in intent-project-scope-timing-refresh: the final assertion completed31253ms after start, after the default30s deadline; cumulative publication, collection and reading work left insufficient budget."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: proved by slice 9: final-gate-evidence.md G14; two cohesive real-publication journeys preserve every independent history/file/Proof/scroll/acquisition assertion and the second Project re-entry before actual trunk movement; current renewed2 pass24.021/26.634s at default budgets, retry0
+
+### G15. Summary sort preservation encounters an already-owned timeout repair
+Reported: slice 9 — "Coordinator's candidate-removal scratch for the unused-helper follow-up passed typecheck but timed out30.950s at the first A→B→A Summary return. Exact helper bytes were restored; SEED287 plan576 G7/G18 already owns the same31.110s timeout repair under chaifeng-chan."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: return
+
+### G16. Cold Done history setup consumes the final reselection budget
+Reported: slice 9 — "Renewing restart readers failed30225ms in intent-ci-done-prior-build at final Done reselection: cold origin5539ms and dashboard1215ms used7127ms of before-hooks. The aggregate's warm28564ms pass did not establish cold default-budget stability."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: return

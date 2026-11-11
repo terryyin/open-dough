@@ -100,3 +100,5 @@ that is cheaper and sufficient. Existing proof is retained unless changed.
 - Slice 8: [story and perspective reading acceptance](slice-8-evidence.md).
 
 - Slice 9: [retained CI evidence and cross-tier acceptance](slice-9-evidence.md).
+
+- Final gate: [aggregate observation, owned repairs and coordination boundary](final-gate-evidence.md).

@@ -6,7 +6,10 @@ import { comparisonReading } from "../intentCiComparisonPage.ts";
 // raw ancestors flow through the normal authenticated history reader.
 import { readFileSync, writeFileSync } from "node:fs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { defaultMixedProofs } from "../support/storyCiComparisonEntryProofs.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
