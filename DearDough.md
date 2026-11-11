@@ -106,6 +106,21 @@ Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: two interrupted Cursor implementation returns; orphaned native arms continued to completion; one replacement writer for remaining B arms; coordinator finished the keep decision after B2; no dual-writer conflict, unexpected commit, or lost trial evidence.
   - Inference: Matches ODF-229 with a native-subprocess facet: interrupted Task return does not stop already-launched supervised host arms. Recovery waited on live `run-arm`/`claude` processes before replacement writers or acceptance. Distinct from ODF-204 (no unauthorized publish by the stalled Task) and ODF-059 (implementation Task, not a refactor handoff).
 
+## ODF-158 — Disproportionate required reference reads <a id="odf-158"></a>
+
+Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/findings/ODF-158.md).
+
+### Occurrences
+
+- Execution: SEED-307#run-makeme-harness-once (plan 594; first implementation `67b8c207b174b90a30b6e2edf217d5b59b31b393`)
+  - Timestamp: unknown (2026-11-11 execution, between Take `0cc07ac04` and the execution-complete record)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` at accepted Take `0cc07ac0443d5f9d1c807e4cc533cda165136426`)
+  - Evidence: coordinator conversation: 19 `dough-execute-plan/references` files totalling 2,836 lines were read at their boundary rows for one planned slice whose product change was 64 lines in three files. The three delegated agents (source review, implementation, refactor) reported 42,579, 103,651 and 90,439 tokens. Paths read and not taken: CI failure repair and stash, rejected push, rebase conflict, interrupted publication, oversized slice and live-action proof.
+  - Observed effect: no truncation, rework or error; each boundary read arrived as its own tool result as the ODF-264 response prescribes. Context was spent on procedures the managed start, delivery and completion commands carried out.
+  - Inference: qualified. The coordinator read `execution-decisions.md`, `trunk-publication.md`, `story-obligations.md` and `ci-monitor.md` whole where a boundary row named one section, so part of the volume was its own choice. Cost only; this run shows no harm to quality.
+
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
@@ -237,6 +252,15 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
   - Evidence: slice1 guarded fresh formatting refused no-param-reassign on frontendServices.projects and require-await on an immediate rerun callback after passing browser/type proof and independent refactor. `2e8d46e0:.planning/slice-plans/581-show-trunk-test-scope-timing-history/slice-1-proof.md` retains the mechanical Object.assign/Promise.resolve repair and unchanged-proof rationale.
   - Observed effect: commit/publication were correctly withheld until the mechanical repair and preparation retry; authored-file lint feedback arrived at coordinator delivery. Earlier-check savings remain unmeasured.
+
+- Execution: SEED-307#run-makeme-harness-once (plan 594; first implementation `67b8c207b174b90a30b6e2edf217d5b59b31b393`)
+  - Timestamp: 2026-11-11T23:48:51+08:00
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` at accepted Take `0cc07ac0443d5f9d1c807e4cc533cda165136426`)
+  - Evidence: coordinator tool results: after the runner proof and the independent refactor, the first guarded fresh returned `preparation-failed`, `operation: formatting`, ShellCheck SC2249 (no default `*)` case) on the new aggregate-exclusion `case` in `scripts/test-jobs.sh`. Both briefs forbade formatting and hook-owned lint. The coordinator moved `add_job` into a `*)` branch, reran six runner tests and retried.
+  - Observed effect: commit and publication were withheld for one mechanical repair, proof and preparation loop of about two minutes before accepted `67b8c207b`.
+  - Inference: late authored-file lint feedback recurred under briefs reserving the formatter and hook-owned lint to the coordinator. The saving from an earlier read-only check is unmeasured.
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 

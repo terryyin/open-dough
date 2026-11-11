@@ -115,7 +115,15 @@ files are unchanged, so their accepted nine-control proof is reused.
 Story Branch Mode in `.worktrees/run-makeme-harness-checks-once-by-default` on
 `claude/run-makeme-harness-checks-once-by-default`, target `origin` `main`. The
 Take `0cc07ac0443d5f9d1c807e4cc533cda165136426` is published on `main` and is
-the execution branch's published base.
+the execution branch's published base. Slice 1 is published there as
+`67b8c207b174b90a30b6e2edf217d5b59b31b393`.
+
+## Execution complete
+
+Product advice: no change. The review compared the story's Goal and Scope with
+`67b8c207b` and found no defect, drift or residue: default discovery and the
+three CI shares run each harness file once, and the wrapper stays available by
+name. Branch CI for that revision was still pending when this was written.
 
 ## Verification and delivery gates
 
