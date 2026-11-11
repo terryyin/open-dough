@@ -104,26 +104,41 @@ function patchLines(names, patch) {
   return lines;
 }
 
-// Every file the working tree changes against `base`, staged or not, with
-// its changed lines; untracked non-ignored files count as added whole.
+// Keep the index, working tree and untracked layers distinct: lexical term
+// derivation reads working-tree hunks, while scope discovery also needs an
+// index change that the working tree has reversed. Disabling rename folding
+// retains both paths, including deletions. Git's NUL records preserve names.
+export function repositoryChangePaths(git, root, base, committed = []) {
+  const diff = ["-c", "core.quotePath=false", "diff", "--no-renames"];
+  const paths = (args) => git(root, args).split("\0").filter(Boolean);
+  const between = (revision, staged = false) =>
+    paths([
+      ...diff,
+      ...(staged ? ["--cached"] : []),
+      "--name-only",
+      "-z",
+      revision,
+      "--",
+    ]);
+  return {
+    worktree: between(base),
+    staged: between(base, true),
+    untracked: paths(["ls-files", "-z", "--others", "--exclude-standard"]),
+    committed: [...new Set(committed.flatMap((range) => between(range)))],
+  };
+}
+
+// Every file the working tree changes against `base`, with its changed lines;
+// untracked non-ignored files count as added whole. Index-only paths are exposed
+// by repositoryChangePaths, but do not invent working-tree hunk terms here.
 export function changedAgainst(git, root, base) {
   const diff = ["-c", "core.quotePath=false", "diff", "--no-renames"];
-  const names = git(root, [...diff, "--name-only", "-z", base])
-    .split("\0")
-    .filter(Boolean);
+  const { worktree: names, untracked } = repositoryChangePaths(git, root, base);
   const lines = patchLines(
     names,
     git(root, [...diff, "--no-ext-diff", "--no-color", "-U0", base]),
   );
   const changes = names.map((path) => ({ path, lines: lines.get(path) }));
-  const untracked = git(root, [
-    "ls-files",
-    "-z",
-    "--others",
-    "--exclude-standard",
-  ])
-    .split("\0")
-    .filter(Boolean);
   for (const path of untracked) {
     const text = readText(root, path) ?? "";
     const added = text

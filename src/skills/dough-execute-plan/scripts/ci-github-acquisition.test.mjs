@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { declaredPayload } from "../../../../tests/support/releaseTestData.mjs";
 import {
   apiCall,
   completedJob,
@@ -156,13 +157,7 @@ test("a rate limit suspends the observer until the directed time without losing 
 });
 
 test("no installed file asks gh outside the one request source or names a gh run command", () => {
-  const installer = readFileSync(
-    new URL("../../../../install.sh", import.meta.url),
-    "utf8",
-  );
-  const installed = [...installer.matchAll(/^ {2}(dough-[\w./-]+)$/gm)].map(
-    ([, file]) => file,
-  );
+  const installed = declaredPayload();
   assert.ok(
     installed.includes("dough-execute-plan/scripts/ci-github-diagnostic.mjs"),
   );

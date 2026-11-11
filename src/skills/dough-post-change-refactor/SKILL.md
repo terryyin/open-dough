@@ -42,6 +42,24 @@ an oversized file without that decision, or the delivered structure contradicts
 it, stop through the decision handoff below before claiming the size check
 satisfied.
 
+Before the decision pass, resolve changed test entries through
+[the shared MakeMe entrypoint](../dough-makeme/SKILL.md) using its changed-source
+resolver from the installed MakeMe directory:
+
+```sh
+node '<installed dough-makeme directory>/scripts/changed-makeme.mjs' --project '<project root>' [--committed '<range>']... [--path '<repository-relative source>']...
+```
+
+The default scope includes staged, unstaged and untracked changes and both move
+paths. Pass every caller-supplied committed disposition range or path as well.
+Follow the shared entrypoint's result handling: read its convention once when
+selected and apply it to the selected current sources within this refactor's
+scope. Old move paths and deletions supply context; the current destination
+controls applicability, so an opted-out destination requires no conversion.
+If discovery or editing extends the implicated test scope, rerun selection with
+those paths before continuing there. Report an unresolved diagnostic and stop
+dependent test refactoring without claiming completion.
+
 ## Decide before editing
 
 Read [refactor checks](references/refactor-checks.md) and make one read-only pass
