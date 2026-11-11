@@ -113,27 +113,28 @@ Proof: Installed-client exact argv/binary stdout/stderr/status, local/held auth,
 
 Behavior: Every synthetic gh starts Node and the valid-pressure prototype costs118.344ms versus54.509ms → change the existing client/fakeGitHub wire once to shell/curl while reusing answer conversion and private request ownership → the same complete CLI behavior costs less. No compiler, product/cache/lifetime or answer-model change. One supported variant, return if proof/cost misses. [Decisive profile and selected owners](transport-evidence.md).
 
-### 12. Sort uses its approved Git precondition with the cheaper client
+### 12. Sort's Git precondition omits unused installed payload
 Type: Behavior
 Status: planned
-Proof: One bounded early probe reuses the already approved MakeMe-described,
-actual Git sort precondition with the accepted cheaper client and readiness.
-All source variants and sort's two cross-story loops must pass three fresh
-worker-two/default-30 runs at load 20–30. Keep completion-revision reads,
-later-file exclusion, Purpose/compact Proof, drilling, missing-column fallback
-and restored sort. Source variants retain full CLI completion. Prove actual
-Git facts, affected touch/native readiness and cold concurrency before private
-origins. Include all preparation in family elapsed; compare with the retained
-current-client/readiness failed 61.002 s baseline, honestly qualified. No new
-family growth, private-HOME loss or acceptance of old failed proof.
+Proof: One bounded early probe keeps the approved actual Git sort precondition,
+cheaper client and readiness, but removes unused `.claude` payload only from
+sort's published history before baseline. Keep every revision, parent, author,
+profile, Done/backlog fact and all sort actions/assertions/two loops. Both source
+variants retain full installed CLI completion. Verify actual Git semantics and
+three fresh whole-family worker-two/default-30 passes at load 20–30, with useful
+headroom and all cold costs paid. Compare complete elapsed with the retained
+three-pass current-client baseline (37.290/41.069/57.110 s), honestly qualified.
+Reuse compatible touch4/4 and shared-consumer23/23 proof only while unchanged;
+recheck private isolation and the affected sort/actual-Git boundary. No family
+growth, private-HOME loss, cache, new lifetime or timeout change.
 
-Behavior: Original CLI sort setup still costs 9.977 s and misses the second
-return to A → reuse its already approved actual private Git precondition,
-keeping every sort action/assertion and both full-CLI source variants → prove
-useful default margin or return this single supported attempt. No cache,
-generic graph engine, new pool/lifetime, beforeAll or timeout change. Previous
-canonical/Node and current original-client failures remain retained in
-[comparison evidence](comparison-default-evidence.md).
+Behavior: The approved graph preserves every observation, but worst charged
+sort reaches about 29.020 s; its writer rereads 704 unused installed skill files
+for every revision → express their removal through existing MakeMe revision
+facts before baseline, retaining private Git and all story facts → measure
+useful default margin or return this single supported cut. Saving remains
+unverified; this is test data, not a new graph engine or native-owner shortcut.
+[Preservation and measured premise](comparison-default-evidence.md).
 
 ### 13. Named allowances removed; suite and shard margins hold
 Type: Behavior
@@ -206,14 +207,14 @@ Disposition: receiving slice 13
 Commitment: Q09
 ## Plan concern assessment
 
-Slices 1–11 retain accepted proof. Original sort plus cheaper client/readiness
-still fails; its five paths are parked. Slice 12 now probes the already approved
-canonical sort setup with this client; its old Node-client failure is not proof.
-All sort actions and full-CLI source variants survive. This remains thirteen
-slices with one bounded remaining comparison proof loop, no Goal/Scope change,
-new numeric exception or waiver. Slice 13 owns broad/full/hosted gates and G11's
-current thirteen-part trunk input at the existing human checkpoint. Current
-branch validation still uses twelve shards. See the linked measured basis.
+Slices 1–11 retain accepted proof. The canonical/current-client variant passed
+all preservation checks, but worst sort body has under one second headroom.
+Its nine paths are parked. Slice 12 now probes removal of unused skill payload
+from only sort's Git trees, using the existing MakeMe API; all Git semantics,
+source CLI flows and observations remain. Thirteen slices, no Goal/Scope change,
+numeric exception or waiver. Slice 13 still owns broad/full/hosted gates and
+G11's current thirteen-part input at the existing human checkpoint. Branch
+validation uses twelve shards; every current trunk artifact remains required.
 
 ## Trunk measurement checkpoint
 

@@ -26,3 +26,17 @@ Reconcile the incoming watcher restart’s temporary 90 s allowance and
 `storyCiComparisonFixture` MakeMe API encoding at actual landing. Preserve the
 source promises and supplied first-landing context. This execution has not
 landed on trunk or refreshed weights.
+
+At later source settlement `e52fe56804e926830c86b10f7e2766ec5e63ba72`,
+SEED-303 was Taken by d.kanai-chan on
+`codex/run-the-slowest-dashboard-checks-together-in-und`. Its plan 580
+explicitly protects active SEED-287 ownership and reuses accepted work. No
+SEED-303 product change is attributed on that pinned trunk. Current sort data
+work is independent; before overlapping final watcher/touch/runner work, inspect
+any accepted sibling change and preserve its ownership. The shared local-suite
+admission remains required for the full gate.
+
+The only incoming product repair since the earlier timing display fix is
+`beb28c58a`, Cursor launchInstruction's paste-chip/footer match and its recovery
+frame proof. It does not affect slice 12. Reconcile incoming product effects
+and applicable proof at actual landing; keep branch/trunk observations separate.

@@ -88,3 +88,70 @@ external control policy, one finite owner, three fresh full comparison commands
 and all four touch cases. Stop first failure/invalid profile. Root owns a real
 readiness reassessment before delegation. Thirteen slices; no scope amendment,
 numeric exception, failure waiver or new approval request.
+
+## Approved sort precondition with current client: first valid complete pass
+
+Exact nine parked paths were restored after base/hash checks; no assertion or
+source CLI flow changed. Root reviewed the after-only controller: only its
+known-failed baseline/continuation sequence was removed, control unchanged.
+Its first whole command strictly passed 3/3, retry zero, at load 20.726–24.448.
+Sort took 13.235 s; source variants 7.987/17.178 s. Shell elapsed 37.290 s,
+runner 35.101 s, includes all cold work. Actual Git sort setup took 1.803 s.
+All second-loop tail assertions passed; cold readiness completed before both
+private origins, five requests per key, with no extra dashboard. One pass
+observes no growth against the qualified failed 61.002 s before bound; repeated
+margin, touch, shared consumers and graph-fact inspection remain due. Raw:
+`/tmp/seed287-slice12-canonical-client-20261111/return.md`.
+
+The controller stopped during admission two, before any second child, when
+load jumped from 21.702 to 30.054. All twenty workers joined; sixteen active
+batches were accounted for, remaining busy zero and no command in flight.
+This does not invalidate the completed command’s measured pressure. The
+original check also covered external gaps, a stronger coordinator condition
+than the story’s timed-command requirement. Root now bounds pressure from
+immediate launch through terminal teardown, including every cold preparation
+cost, while admitting each child only after the same three stable updates.
+External admissions may leave the band; they retain full-range control and
+visible elapsed cost. No deadline, observation or product promise is relaxed.
+
+Continue the unchanged nine-path variant with only commands two/three and
+whole touch. Carry the original 100,000 total budget: 21,496 launched batches
+already consumed, including sixteen terminated in flight; at most 78,504
+remain. Initial priming already completed within its 40,000 bound. No new
+priming allowance, live budget renewal or first-command repeat is permitted.
+Root reviews the repaired measurement scope before the remaining proof.
+
+## Preservation passes; remaining headroom and narrower data premise
+
+The unchanged canonical/current-client variant passed three whole comparisons:
+sort13.235/24.777/29.516 s, source variants all passed; whole shell
+37.290/41.069/57.110 s, with cold work paid. Full touch4/4, seventeen whole
+shared-consumer files23/23 and independent actual-Git/public-parser probe1/1
+also passed, all retry zero. Every named preservation observation is covered.
+Raw complete return: `/tmp/seed287-slice12-canonical-continuation-20261111/return.md`.
+The original fixed budget consumed70,151 launches; all forty threads across
+the two owners and all subsequent commands/resources retired.
+
+Third sort setup+body is inferred29.020 s, about .980 s headroom; rigorous
+trace/timer bounds are greater than .483 and at most .985 s. No useful stable
+margin is claimed. Its precondition5.689 s versus first1.803 s and initial
+goto→sort12.406 versus3.759 s grew; CI7.652 overlaps review4.316. The existing
+explicit CI-read wait took8.156 s. Its configured read limit is unchanged; this
+is not evidence that every observation fits a default five-second budget.
+
+The actual Git probe counted732 paths,704 under `.claude`. Root inspected
+`repository-revision-commit.mjs` and `repository-revision-files.mjs`: every
+declared revision reads the checkout's file bytes. Sort uses no installed CLI
+action; full CLI source cases remain. Existing MakeMe revision removals can
+omit that unused payload before baseline, with every commit/story fact kept.
+This is a supported cost hypothesis, not attribution of the entire CI wait.
+
+Before refining remaining12, root safely parked all nine exact paths, patch
+and8f52f39 base at `/tmp/seed287-slice12-canonical-preserved-20261111`, restored
+only seven owned HEAD files and removed only the two owned new paths. All
+preservation proof remains reusable for unchanged owners. Retain1–11/13;
+replace only12's remaining data probe with this one narrower MakeMe fact.
+Three fresh complete comparisons must establish headroom/no-growth; touch and
+shared consumers need no unchanged rerun. Reobserve actual Git semantics,
+minimal trees and private isolation. Thirteen slices; no source amendment,
+new numeric requirement, deadline exception or failure waiver.

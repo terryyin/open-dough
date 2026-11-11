@@ -45,22 +45,27 @@ clock; measure family and suite elapsed separately from summed case time.
 ## Reuse choices for execution-owned repairs
 
 PFE searched the dashboard, shared builders and comparison/runtime boundaries.
-The original private publisher remains the simpler choice when it fits. With
-accepted cheaper gh and readiness, it still fails sort's second return to A:
-9.977 s original CLI precondition, 9.823 s initial navigation including CI,
-versus .678 s total row-rest polling. This does not support a broad board-helper
-change. Both source variants pass once but still need repeated proof.
+Original CLI sort plus accepted cheaper gh/readiness still missed its second
+return to A. Terry's already approved MakeMe-described actual Git precondition
+then preserved all observations: three whole comparison passes, touch4/4,
+shared consumers23/23 and independent actual Git1/1. Full CLI stays in source.
+The worst sort still consumes about 29.020 s of its charged body budget.
 
-Terry already approved MakeMe-described actual Git as sort's precondition,
-with full CLI retained in source variants and every sort assertion kept. The
-older canonical attempt failed with the old Node client and remains unaccepted.
-Current valid pressure failure supports reusing that exact approved alternative
-with the now-proved cheaper client. No new graph engine, cache or product
-architecture choice: existing MakeMe/commitDeclaredRevision, private repositories
-and serving owner. Actual current cost and margin remain unverified; slice 12
-is one bounded early probe and must return if it misses, preserving all proof.
-Reuse the failed 61.002 s current-client/readiness family only as its qualified
-before observation. Final 13 retains broad/full/hosted/trunk gates. See
+The independent Git probe found 732 published paths, including 704 `.claude`
+files unused by sort. `commitDeclaredRevision` calls `writeRevisionFiles`,
+which reads the full checkout for every declared revision. Current
+sort precondition varies1.803–5.689s. This supports ONE narrower input probe,
+not a claim that all initial CI cost comes from tree size. Reuse MakeMe's
+existing revision `remove` facts before baseline to omit only that payload in
+sort, retaining private HOME/Git and every revision/parent/author/profile/Done/
+backlog/file fact and all actions/assertions. Source CLI cases keep installed
+payload. No builder, artifact owner, cache, graph engine or product change.
+
+Actual gain and remaining headroom are unverified; slice 12 is a bounded early
+probe and returns on failure. Preserve and reuse unchanged touch/shared-owner
+proof; obtain three new complete comparison commands and current actual-Git
+facts. Compare with the qualified current three-pass before family, paying all
+cold work. Final 13 retains broad/full/hosted/trunk gates. See
 [comparison proof](comparison-default-evidence.md) and transport-evidence.md.
 
 Launch orchestration reuses `agentLaunchBoundary.ts`, existing acceptance and
