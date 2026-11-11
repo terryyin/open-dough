@@ -7,6 +7,7 @@
 // The evidence labels around it: ./ciEvidenceLabelsPage.ts.
 
 import type { Locator } from "@playwright/test";
+import { expectFigureDefinitions } from "./proofFigurePage.ts";
 import { expect } from "./dashboardTest.ts";
 import { expectProofTableRows, proofTableRowsNamed } from "./proofTablePage.ts";
 export { expectProofTableRows } from "./proofTablePage.ts";
@@ -35,36 +36,7 @@ async function expectOwnFigures(
   columns: readonly string[],
   figures: readonly string[],
 ) {
-  const group = scopeFigures(summary, path);
-  // Native parent and descendants are in DOM order. Keeping the parent in the
-  // raw array detects missing or duplicate empty containers while polling.
-  const parts = group
-    .or(group.getByRole("term"))
-    .or(group.getByRole("definition"));
-  await expect
-    .poll(() =>
-      parts.evaluateAll((nodes) =>
-        nodes.map((node, at) =>
-          at === 0
-            ? { parent: true }
-            : {
-                tag: node.tagName,
-                role: node.getAttribute("role"),
-                text: node.textContent
-                  .replace(/[\u200b\u00ad]/g, "")
-                  .trim()
-                  .replace(/\s+/g, " "),
-              },
-        ),
-      ),
-    )
-    .toEqual([
-      { parent: true },
-      ...columns.flatMap((text, at) => [
-        { tag: "DT", role: null, text },
-        { tag: "DD", role: null, text: figures[at] },
-      ]),
-    ]);
+  await expectFigureDefinitions(scopeFigures(summary, path), columns, figures);
 }
 
 export const scopeColumns = ["Scope", ...proofColumns.slice(1)];
@@ -236,4 +208,19 @@ export function scopeComparisonCell(
   return proofTableRowsNamed(scopeTable(summary, path), child)
     .getByRole("cell")
     .nth(1 + comparisonTableColumns.indexOf(column));
+}
+
+// Each declared unit has its own compared figures, not a combined scope total.
+export async function expectComparisonUnitFigures(
+  summary: Locator,
+  path: string,
+  unit: string,
+  figures: readonly string[],
+) {
+  await expectOwnFigures(
+    summary,
+    `${path}: ${unit}`,
+    comparisonFigureColumns,
+    figures,
+  );
 }

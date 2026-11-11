@@ -1,10 +1,17 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../intentScopeHistoryPage.ts";
 // Dark system appearance for a selected Done story's Intent reading: CI
 // comparison, Changed tests with files shown/hidden, Intent coverage, cued
 // rows, diffs, and source stay legible; captures support visual review against
 // the approved dark mockup; live preference changes keep reading state.
 
 import path from "node:path";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import {
   expectChartMarkContrast,
   expectReadableContrast,
@@ -206,12 +213,11 @@ test("a Done story's Intent evidence stays readable under the system dark appear
       },
     );
     const summary = await openSummaryComparison(intent, "dashboard/tests");
-    const history = summary.locator(".intent-scope-timing-history");
+    const history = scopeHistory(summary);
+    const reading = scopeHistoryReading(history);
     await expect(history).toBeVisible();
-    await expectReadableContrast(history.locator(".intent-ci-history-extent"));
-    await expectChartMarkContrast(
-      history.locator("circle.intent-ci-history-point").first(),
-    );
+    await expectReadableContrast(reading.extent);
+    await expectChartMarkContrast(reading.unselectedPoints.first());
   });
 
   await test.step("changing system appearance keeps the selected story and reading place", async () => {

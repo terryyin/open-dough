@@ -1,3 +1,7 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../tests/intentScopeHistoryPage.ts";
 // Changing scope/project cannot relabel an earlier local read as current proof.
 import { parts } from "../tests/dashboardPage.ts";
 import { chooseProject } from "../tests/projectChoice.ts";
@@ -53,27 +57,21 @@ test("late entry history cannot replace another file or project's history while 
     await childName(entry, "example.spec.ts").first().click();
     await fileReadingTab(intent, "Proof").click();
     const file = proofRegion(intent);
-    const history = file.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
-    await expect(history.getByRole("listitem")).toContainText("11.0 s");
+    const history = scopeHistory(file);
+    await expect(scopeHistoryReading(history).rows).toContainText("11.0 s");
     await expect(file).toContainText("Live proof unavailable");
     await chooseProject(page, "Doughnut");
     await parts(page).intentChoice.click();
     const summary = await openSummary(parts(page).intent, "dashboard/tests");
-    const current = summary.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
-    await expect(current.getByRole("listitem")).toContainText("9.0 s");
+    const current = scopeHistory(summary);
+    await expect(scopeHistoryReading(current).rows).toContainText("9.0 s");
     release?.();
     await oldAnswered;
     await untilPageReadsAnswered(page);
-    await expect(
-      current.getByRole("list", { name: "Test execution history evidence" }),
-    ).not.toContainText("8.0 s");
-    await expect(current.getByRole("listitem")).toContainText("9.0 s");
+    await expect(scopeHistoryReading(current).evidence).not.toContainText(
+      "8.0 s",
+    );
+    await expect(scopeHistoryReading(current).rows).toContainText("9.0 s");
     expect(requests).toEqual([
       "open-dough:dashboard/tests",
       `open-dough:${path}`,
@@ -105,22 +103,17 @@ test("a failed new file read cannot retain the entry's answer at the same projec
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const entry = await openSummary(intent, "dashboard/tests");
-  await expect(
-    entry.getByRole("list", { name: "Test execution history evidence" }),
-  ).toContainText("8.0 s");
+  await expect(scopeHistoryReading(scopeHistory(entry)).evidence).toContainText(
+    "8.0 s",
+  );
   await childName(entry, "example.spec.ts").first().click();
   await fileReadingTab(intent, "Proof").click();
   const file = proofRegion(intent);
-  const history = file.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  await expect(history.getByRole("alert")).toContainText(
+  const history = scopeHistory(file);
+  await expect(scopeHistoryReading(history).failure).toContainText(
     "File local history unavailable",
   );
-  await expect(
-    history.getByRole("list", { name: "Test execution history evidence" }),
-  ).toHaveCount(0);
+  await expect(scopeHistoryReading(history).evidence).toHaveCount(0);
   await expect(history).not.toContainText("Previously retrieved history");
   await expect(file).toContainText("Live proof unavailable");
   expect(requests).toEqual([

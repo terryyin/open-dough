@@ -1,3 +1,8 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  scopeHistoryChart,
+} from "../intentScopeHistoryPage.ts";
 // Real collector → Project Intent, without selecting a story. Independent
 // scope totals include a measured descendant absent from the visible tree.
 import { shortSha } from "../../src/baseCiWording.ts";
@@ -25,8 +30,12 @@ import {
 import { collectedScopeHistory } from "../support/collectedScopeHistory.ts";
 import { git } from "../support/storyReviewWorktree.ts";
 import { originMain } from "../support/sessionDialog.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { expectCollectedHistoryRecovery } from "../support/scopeHistoryCollectedPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
+import { readFileSync, writeFileSync } from "node:fs";
+import { historyFile } from "../support/collectedScopeHistory.ts";
 
 test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 
@@ -133,14 +142,9 @@ test("Project Intent reads dated entry, nested folder and file history through i
         ({ request }) => request.kind === "actions-artifact-zip",
       ).length;
     const before = historicalAcquisitions();
-    const history = intent.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
-    const evidence = history.getByRole("list", {
-      name: "Test execution history evidence",
-    });
-    const rows = evidence.getByRole("listitem");
+    const history = scopeHistory(intent);
+    const shown = scopeHistoryReading(history);
+    const { evidence, rows } = shown;
     const expectBuildRows = async (
       cases: readonly string[],
       files: readonly string[],
@@ -155,10 +159,7 @@ test("Project Intent reads dated entry, nested folder and file history through i
     await expect(history).toContainText(
       `Observed trunk endpoint main ${shortSha(endpoint)}`,
     );
-    await expect(history.locator("time").first()).toHaveAttribute(
-      "datetime",
-      /T.*Z$/,
-    );
+    await expect(shown.endpointTime).toHaveAttribute("datetime", /T.*Z$/);
     await expect(history).toContainText(
       "The observed trunk endpoint has no matching collected observation; earlier retained evidence is shown.",
     );
@@ -192,22 +193,18 @@ test("Project Intent reads dated entry, nested folder and file history through i
     await expect(rows.nth(1)).toContainText("11.0 s · test cases");
     await expect(rows.nth(2)).toContainText("9.0 s · test cases");
     await expect(
-      history.getByRole("img", {
-        name: "Test execution time for test cases by build date; observed trunk endpoint marked",
-      }),
+      scopeHistoryChart(history, "test cases", "observed trunk endpoint"),
     ).toBeVisible();
     await expect(
-      history.getByRole("img", {
-        name: "Test execution time for test files by build date; observed trunk endpoint marked",
-      }),
+      scopeHistoryChart(history, "test files", "observed trunk endpoint"),
     ).toBeVisible();
     await fileReadingTab(intent, "Purpose").click();
     await expect(purposeRegion(intent)).toBeVisible();
     await fileReadingTab(intent, "Proof").click();
     await expect(rows.nth(2)).toContainText("9.0 s · test cases");
     const links = evidence.getByRole("link");
-    await history.locator("summary").focus();
-    await expect(history.locator("summary")).toBeFocused();
+    await shown.disclosure.focus();
+    await expect(shown.disclosure).toBeFocused();
     for (const [index, id] of [101, 102, 103].entries()) {
       await page.keyboard.press("Tab");
       await expect(links.nth(index)).toBeFocused();
@@ -217,24 +214,35 @@ test("Project Intent reads dated entry, nested folder and file history through i
       );
     }
     await expectNoSidewaysScrollIn(page, history);
-    await expectCollectedHistoryRecovery({
-      home: dashboard.home,
-      history,
-      read: () =>
-        collectedScopeHistory(
-          reader.origin,
-          "dashboard/tests",
-          endpoint,
-          new Date().toISOString(),
-        ),
-      reopen: () => intentFile(intent, "dashboard/tests/root.spec.ts").click(),
-      expectPreserved: async () => {
-        await expect(file).toContainText("dashboard/tests/root.spec.ts");
-      },
-      expectRecovered: async () => {
-        await expect(rows).toHaveCount(4);
-      },
-    });
+    // Real store corruption fails the HTTP read; navigation keeps file Proof.
+    const store = historyFile(dashboard.home);
+    const retained = readFileSync(store, "utf8");
+    try {
+      writeFileSync(store, "{broken collected history", "utf8");
+      const failed = await collectedScopeHistory(
+        reader.origin,
+        "dashboard/tests",
+        endpoint,
+        new Date().toISOString(),
+      );
+      expect(failed.status).toBe(502);
+      expect(failed.body).toMatchObject({
+        error:
+          "The collected CI history could not be read. Retry the local history read.",
+      });
+      await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+      await expect(shown.failure).toContainText(
+        "The collected CI history could not be read.",
+      );
+      await expect(shown.failure).not.toContainText("gh auth");
+      await expect(file).toContainText("dashboard/tests/root.spec.ts");
+      writeFileSync(store, retained, "utf8");
+      await shown.retry.click();
+      await expect(shown.failure).toHaveCount(0);
+      await expect(rows).toHaveCount(4);
+    } finally {
+      writeFileSync(store, retained, "utf8");
+    }
     expect(historicalAcquisitions()).toBe(before);
   } finally {
     await reader.close();

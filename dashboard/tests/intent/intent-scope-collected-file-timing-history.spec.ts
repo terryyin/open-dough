@@ -1,3 +1,9 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  expectScopeHistoryEvidence,
+} from "../intentScopeHistoryPage.ts";
+import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 // Actual CLI artifacts, collected with Intent closed, remain readable while
 // navigating a Done entry, folders and file Proof. Hidden published results
 // contribute; later trunk and browsing acquisition do not.
@@ -18,12 +24,12 @@ import {
   collectingLandedCi,
   resultToLand,
 } from "../support/landedCiHistory.ts";
-import { expect, test } from "../support/preparationPage.ts";
-import { observeRetainedScopeOrder } from "../support/scopeHistoryCollectedOrder.ts";
 import {
-  expectCollectedEntryHistory,
-  openCollectedHistoryStory,
-} from "../support/scopeHistoryCollectedPage.ts";
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
+import { observeRetainedScopeOrder } from "../support/scopeHistoryCollectedOrder.ts";
+import { openCollectedHistoryStory } from "../support/scopeHistoryCollectedPage.ts";
 import {
   recordScopeHistoryLandings,
   retainedProofs,
@@ -157,19 +163,29 @@ test("a Done folder and file keep their collected history through Proof and Purp
     scope: Locator,
     values: readonly [string, string],
   ) => {
-    const history = scope.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
-    await expectCollectedEntryHistory(page, history, {
-      selected: setup.completion,
-      excluded: newest.revision,
+    const history = scopeHistory(scope);
+    await expectScopeHistoryEvidence(history, {
+      selected: `Selected landing ${shortSha(setup.completion)}`,
+      absent: [shortSha(newest.revision), "Run 104"],
+      chartUnits: ["test cases", "test files"],
+      selectedMarks: ["Selected", "Selected"],
       extent: "2 measured builds · Nov 5–Nov 6",
       rows: [
         `Nov 5 · ${values[0]} · Exact build ${shortSha(setup.baseline)} · Run 101 · attempt 1 · Represents ${shortSha(setup.baseline)} (exact build)`,
         `Nov 6 · ${values[1]} · Selected landing · Exact build ${shortSha(setup.completion)} · Run 103 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (exact build)`,
       ],
     });
+    const evidence = scopeHistoryReading(history).evidence;
+    const build = evidence.getByRole("link", { name: "Run 103 · attempt 1" });
+    await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/103");
+    await scopeHistoryReading(history).disclosure.focus();
+    await page.keyboard.press("Tab");
+    await expect(
+      evidence.getByRole("link", { name: "Run 101 · attempt 1" }),
+    ).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(build).toBeFocused();
+    await expectNoSidewaysScrollIn(page, history);
     expect(ciCalls()).toHaveLength(before);
     return history;
   };

@@ -1,8 +1,15 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../intentScopeHistoryPage.ts";
 // Supplemental UI recovery proof for the locally collected scope history.
 // The collection-to-Summary journey owns actual retained evidence; this
 // substitute fails only the local history read beside an existing comparison.
 
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
   openSummaryComparison,
@@ -100,23 +107,18 @@ test("equivalent and later build evidence names actual measured dates and revisi
   await page.setViewportSize({ width: 390, height: 844 });
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
+  const history = scopeHistory(summary);
   await expect(history).toContainText("2 measured builds · Nov 4–Nov 8");
-  const evidence = history.getByRole("list", {
-    name: "Test execution history evidence",
-  });
-  await expect(evidence.getByRole("listitem")).toHaveText([
+  const evidence = scopeHistoryReading(history).evidence;
+  await expect(scopeHistoryReading(history).rows).toHaveText([
     `Nov 4 · 1.2 s · test cases · entry dashboard/tests · Reused equivalent first-parent build ${shortSha(equivalent)} · Run 41 · attempt 1 · Represents ${shortSha(preparation)}, ${shortSha(skipped)}`,
     `Nov 8 · 2.4 s · test cases · entry dashboard/tests · Selected landing · Later trunk build, includes later changes ${shortSha(later)} · Run 42 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing)`,
   ]);
   await expect(
-    evidence.getByRole("listitem").nth(0).locator("time"),
+    scopeHistoryReading(history).rows.nth(0).locator("time"),
   ).toHaveAttribute("datetime", "2026-11-04T10:00:00Z");
   await expect(
-    evidence.getByRole("listitem").nth(1).locator("time"),
+    scopeHistoryReading(history).rows.nth(1).locator("time"),
   ).toHaveAttribute("datetime", "2026-11-08T10:00:00Z");
   await expect(
     evidence.getByRole("link", { name: "Run 41 · attempt 1" }),
@@ -222,14 +224,9 @@ test("one measured attempt labels every represented landing's exact, reused or l
   );
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
+  const history = scopeHistory(summary);
   await expect(history).toContainText("2 measured builds");
-  const rows = history
-    .getByRole("list", { name: "Test execution history evidence" })
-    .getByRole("listitem");
+  const rows = scopeHistoryReading(history).rows;
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(0)).toHaveText(
     `Nov 4 · 1.2 s · test cases · entry dashboard/tests · Measured build ${shortSha(exact)} · Run 41 · attempt 1 · Represents ${shortSha(exact)} (exact build), ${shortSha(skipped)} (reused equivalent build), ${shortSha(cancelled)} (later trunk build, includes later changes)`,

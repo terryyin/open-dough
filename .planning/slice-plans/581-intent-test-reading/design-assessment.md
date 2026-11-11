@@ -64,3 +64,47 @@ Slice4 consumer discovery: prior-build membership is the same maintained
 `PriorBuildReferenceEvidenceList` component in build/scope/follow-up views. PFE
 will reuse/modularize one pure membership reader now across all actual callers;
 chart semantics remain separate. Slices5/9 retain their distinct remaining work.
+
+### Slice5 scope reading and protocol seam
+
+Modularize pure scope-history observations from mixed setup/journey helpers into
+one component owner, reusing shared prior-build membership. Keep G1 expected facts
+and keyboard steps in its scenario; keep collected store/HTTP/reopen/restore/retry
+order explicit in its scenario. Reuse existing scope comparison-unit figure
+observation to shorten the236-line collected spec coherently. If its239-line scope
+owner would exceed250, extract its existing generic DT/DD figure observation
+whole into one native figure reader, retaining scope APIs/semantics. Preserve exact
+caller values, terms/definitions and all reached proof; no arbitrary compaction.
+Existing supplemental recovery gains the planned held retry observation before
+release, without another case/tier or product change.
+
+### Slice5 cold-case defect and canonical worker readiness reuse
+
+The first units scratch failed before its target: origin8.22s/dashboard9.40s
+cold hooks consumed18.55s; published retrieval arrived near28s of default30,
+then the row-rest poll timed out. Host load rose6.50 to21.81. This is not
+discrimination and a passing replay alone does not dispose it. Exact reader restored.
+Trace retained under the failed2026-11-11T09-57-13.415Z-38504 run and
+`/tmp/seed300-slice5-scratch-proof.json`.
+
+PFE found the exact completed supplier component in chaifeng-chan's SEED287
+published branch54f9ab0c9b9d523682e42e943b6ddf6dafc7e404: canonical
+pageTest worker registration90cfdde521e90ccd5a54c4fca4f02bc5e345a2e5 and
+preparationPage public wrapperb7f58fde6403ac154e0c18660e55c36ac9873eea. Both
+are confirmed ancestors; prerequisite blobs74d79be8c/5050320e8 match this checkout.
+Supplier touch/comparison evidence independently accepts default30 readiness,
+actual immutable-input concurrency/private isolation,12-case loaded proof and9-case
+refactor proof; later whole-story gates stay with SEED287.
+
+Reuse exactly that two-path component and adopt it in13 actual queued-Claude
+preview consumers. Current run-artifact registry and three keys already exist.
+Lazy unrequested base fixtures do no new work; worker/default case budgets and
+total suite elapsed remain unchanged. No other branch paths or uncommitted work
+are imported; the active supplier's broader repairs remain theirs. This keeps one
+canonical readiness owner rather than a second implementation. Coordinator inspected
+the exact patch. Isolated cold normal proof with artifact/Playwright trace must
+show readiness before private case setup, then restored scratch and full cohort
+must pass before acceptance.
+
+Exact retained patch: `/tmp/seed300-slice5-readiness-reuse.patch`, SHA256
+fd0b39909500755cf55856a74c86ad0ff9eef693e6ed38fb508dff63efc636d1

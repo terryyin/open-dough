@@ -1,8 +1,16 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  scopeHistoryUnit,
+} from "../intentScopeHistoryPage.ts";
 import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Normal local readers of canonical raw proof expose the selection signature
 // separately from measured completeness; never supply a finished average.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import {
   publishSummaryComparisonStory,
   summaryComparisonChanges,
@@ -68,14 +76,8 @@ test("zero, partial selected timing and missing terminal identity retain honest 
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  const cases = history.getByRole("region", {
-    name: "Test cases",
-    exact: true,
-  });
+  const history = scopeHistory(summary);
+  const cases = scopeHistoryUnit(history, "Test cases");
   await expect(cases).toContainText("Prior-build average · 0 ms");
   await expect(cases).toContainText(
     "+1.2 s (percentage unavailable: average is zero)",
@@ -97,7 +99,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
     "Difference unavailable: Partial: part 2 of 2 missing",
   );
   await expect(cases).not.toContainText("+1.2 s");
-  await expect(cases.locator(".intent-ci-history-reference")).toHaveCount(1);
+  await expect(scopeHistoryReading(cases).reference).toHaveCount(1);
   const partial = priorBuildReferenceReading(cases).selected;
   await expect(partial).toContainText("part 2 of 2 missing");
   await expect(partial).not.toContainText("1.2 s");
@@ -118,18 +120,16 @@ test("zero, partial selected timing and missing terminal identity retain honest 
     "Selected scope identity unavailable: no comparable reference can be established",
   );
   await expect(cases).toContainText("0 prior builds used");
-  await expect(history.locator(".intent-ci-history-reference")).toHaveCount(0);
-  const readings = history.getByRole("list", {
-    name: "Test execution history evidence",
-  });
+  await expect(scopeHistoryReading(history).reference).toHaveCount(0);
+  const readings = scopeHistoryReading(history).evidence;
   await expect(readings).toContainText("test cases · entry dashboard/tests");
   await expect(readings).toContainText(
     "test files · entry dashboard/tests/folder",
   );
   await expect(readings).toContainText("Expired CI proof summary");
-  await expect(
-    history.getByRole("region", { name: "Test files", exact: true }),
-  ).toContainText("no comparable reference can be established");
+  await expect(scopeHistoryUnit(history, "Test files")).toContainText(
+    "no comparable reference can be established",
+  );
   await intentFile(intent, summaryComparisonChanges.modified).click();
   await fileReadingTab(intent, "Proof").click();
   await expect(proofRegion(intent)).toContainText(

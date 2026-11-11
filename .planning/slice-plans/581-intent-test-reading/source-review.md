@@ -47,7 +47,7 @@ requirements apply throughout even when their final cumulative observation is sl
 | 27 | Keep expected units at the call site. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 28 | Keep expected dates in the scenarios. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
 | 29 | Keep expected values in the relevant cases and scenarios. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
-| 30 | Keep expected gaps in the scenarios. | slice 5 |  |
+| 30 | Keep expected gaps in the scenarios. | slice 5 | G3 |
 | 31 | Keep expected reference membership at the call site. | slice 9 |  |
 | 32 | Keep unsupported-comparison absence explicit in each relevant case. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 33 | Keep the selected source or expected file explicit at the call site. | slice 6 |  |

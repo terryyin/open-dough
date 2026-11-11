@@ -68,3 +68,15 @@ export const test = base.extend<
     await server.close();
   },
 });
+
+// These reading journeys use the queued Claude preview inputs before their
+// private origin, without moving any preparation out of suite elapsed.
+export const queuedClaudePreviewTest = test.extend({
+  originRepository: async (
+    { queuedClaudePreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedClaudePreviewReady);
+    await use(originRepository);
+  },
+});

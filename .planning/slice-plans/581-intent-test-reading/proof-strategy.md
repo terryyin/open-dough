@@ -42,3 +42,22 @@ Before accepting any replacement proof, observe discrimination with one
 plausible scratch fault at its real boundary and restore it. Unimplemented API
 designs are proposals, not settled runtime facts. An unchanged existing proof
 keeps its boundary; changing it reopens its corresponding premise.
+
+## Focused commands
+
+Use `npm run test:dashboard -- <selection> --workers=1` initially. These are
+starting cohorts, not exclusions. Add every consumer found by the implementation
+trace, including callers outside these names; run a whole affected family when
+that is cheaper and sufficient. Existing proof is retained unless changed.
+
+| Slice | Initial selection arguments |
+| --- | --- |
+| 1 | `'tests/intent/intent-ci-comparison' 'tests/intent/intent-summary'` |
+| 2 | `'tests/intent/intent-ci-comparison.*(sort\|relative\|presentation)' 'tests/intent/intent-summary.*(sort\|relative\|presentation)' 'tests/intent/intent-ci-status-sort.spec.ts'` |
+| 3 | `'tests/intent/intent-ci-status' 'tests/intent/intent-ci-proof'` |
+| 4 | `'tests/intent/intent-ci-wall-time-history' 'tests/intent/intent-ci-prior-build-average.spec.ts'` |
+| 5 | `'tests/intent/intent-scope' 'frontend-tests/intent-scope' 'frontend-tests/intent-project-scope-history' 'tests/intent/intent-project-scope'` |
+| 6 | `'tests/intent/intent-code-browse' 'tests/intent/intent-gherkin' 'tests/intent/intent-purpose' 'tests/intent/intent-test-optimization-candidates-case.spec.ts'` |
+| 7 | `'tests/intent/intent-revision-notice.spec.ts' 'tests/intent/intent-read-recovery.spec.ts' 'tests/intent/intent-test-optimization-candidates' 'frontend-tests/intent-candidates-read-recovery.spec.ts'` |
+| 8 | `'tests/intent/intent-story-changes' 'tests/intent/intent-done-project-refresh-reading.spec.ts' 'tests/intent/intent-project-visit' 'tests/intent/intent-reading-place.spec.ts' 'tests/intent/intent-sidebar-toggle.spec.ts' 'tests/intent/intent-story-views-narrow.spec.ts'` |
+| 9 | `'tests/intent/intent-ci-follow-up.spec.ts' 'tests/intent/recently-done-ci-automatic-repeat.spec.ts'` |

@@ -1,6 +1,13 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../intentScopeHistoryPage.ts";
 // Presentation of a named stand-in build beside an unmeasured scoped gap.
 // Actual collection-to-public metadata is proved in landed-ci-history-gaps.
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
   openSummaryComparison,
@@ -55,16 +62,13 @@ test("a final proof gap names its later build and keyboard link without counting
   await page.setViewportSize({ width: 390, height: 844 });
   const { intent } = await selectDoneStoryForSummaryComparison(page);
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
+  const history = scopeHistory(summary);
   await expect(history).toContainText(
     "No complete test execution times are available for this scope.",
   );
   await expect(history).toContainText("0 measured builds");
-  await expect(history.getByRole("img")).toHaveCount(0);
-  const row = history.getByRole("listitem");
+  await expect(scopeHistoryReading(history).charts).toHaveCount(0);
+  const row = scopeHistoryReading(history).rows;
   await expect(row).toHaveText(
     `Nov 7 · Expired CI proof summary · Selected landing · Later trunk build, includes later changes ${shortSha(later)} · Run 42 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (later trunk build, includes later changes)`,
   );

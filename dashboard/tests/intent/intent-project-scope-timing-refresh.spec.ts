@@ -1,3 +1,7 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../intentScopeHistoryPage.ts";
 // Real collected history separates a middle Done landing from observed trunk.
 import { shortSha } from "../../src/baseCiWording.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
@@ -26,7 +30,10 @@ import {
 import { intentFile } from "../support/intentStoryPage.ts";
 import { originMain } from "../support/sessionDialog.ts";
 import { git } from "../support/storyReviewWorktree.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 
 test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
 
@@ -92,13 +99,8 @@ test("visiting Project Intent reads later collected trunk builds and returning r
     const path = "dashboard/tests/folder/a.spec.ts";
     await intentFile(intent, `Modified ${path}`).click();
     await fileReadingTab(intent, "Proof").click();
-    const history = proofRegion(intent).getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
-    const rows = history
-      .getByRole("list", { name: "Test execution history evidence" })
-      .getByRole("listitem");
+    const history = scopeHistory(proofRegion(intent));
+    const rows = scopeHistoryReading(history).rows;
     await expect(history).toContainText(
       `Selected landing ${shortSha(setup.completion)}`,
     );
@@ -145,10 +147,8 @@ test("visiting Project Intent reads later collected trunk builds and returning r
     await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
 
     await openProjectIntent(intent);
-    const observed = await history
-      .locator("time")
-      .first()
-      .getAttribute("datetime");
+    const observed =
+      await scopeHistoryReading(history).endpointTime.getAttribute("datetime");
     const main = await originMain(origin);
     const next = (
       await origin.originGit(
@@ -179,7 +179,7 @@ test("visiting Project Intent reads later collected trunk builds and returning r
     ).toContainText(`Revision ${shortSha(latest.revision)}`);
     await expect(history).toContainText("no matching collected observation");
     await expect(rows.filter({ hasText: /Run \d/ })).toHaveCount(3);
-    await expect(history.locator("time").first()).not.toHaveAttribute(
+    await expect(scopeHistoryReading(history).endpointTime).not.toHaveAttribute(
       "datetime",
       observed ?? "",
     );

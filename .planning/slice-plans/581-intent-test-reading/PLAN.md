@@ -57,22 +57,7 @@ its sibling sweep, before/after source comparison, independent facts and preserv
 
 ## Focused commands
 
-Use `npm run test:dashboard -- <selection> --workers=1` initially. These are
-starting cohorts, not exclusions. Add every consumer found by the implementation
-trace, including callers outside these names; run a whole affected family when
-that is cheaper and sufficient. Existing proof is retained unless changed.
-
-| Slice | Initial selection arguments |
-| --- | --- |
-| 1 | `'tests/intent/intent-ci-comparison' 'tests/intent/intent-summary'` |
-| 2 | `'tests/intent/intent-ci-comparison.*(sort\|relative\|presentation)' 'tests/intent/intent-summary.*(sort\|relative\|presentation)' 'tests/intent/intent-ci-status-sort.spec.ts'` |
-| 3 | `'tests/intent/intent-ci-status' 'tests/intent/intent-ci-proof'` |
-| 4 | `'tests/intent/intent-ci-wall-time-history' 'tests/intent/intent-ci-prior-build-average.spec.ts'` |
-| 5 | `'tests/intent/intent-scope-timing-history'` |
-| 6 | `'tests/intent/intent-code-browse' 'tests/intent/intent-gherkin' 'tests/intent/intent-purpose' 'tests/intent/intent-test-optimization-candidates-case.spec.ts'` |
-| 7 | `'tests/intent/intent-revision-notice.spec.ts' 'tests/intent/intent-read-recovery.spec.ts' 'tests/intent/intent-test-optimization-candidates' 'frontend-tests/intent-candidates-read-recovery.spec.ts'` |
-| 8 | `'tests/intent/intent-story-changes' 'tests/intent/intent-done-project-refresh-reading.spec.ts' 'tests/intent/intent-project-visit' 'tests/intent/intent-reading-place.spec.ts' 'tests/intent/intent-sidebar-toggle.spec.ts' 'tests/intent/intent-story-views-narrow.spec.ts'` |
-| 9 | `'tests/intent/intent-ci-follow-up.spec.ts' 'tests/intent/recently-done-ci-automatic-repeat.spec.ts'` |
+Use the [cohort commands](proof-strategy.md#focused-commands), extended by actual consumer discovery.
 
 ## Ordered slices
 
@@ -120,7 +105,7 @@ mechanics. Extend `intentCiHistoryPage.ts` and `ciHistoryWindowPage.ts`.
 
 ### 5. Read selected scope history and its recovery
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 5. Preserve units, selected sample/reference, gap/provenance and
 failed/held read results, with independent request/store evidence.
 
@@ -212,10 +197,19 @@ See [design assessment](design-assessment.md) for the slice boundary review and
 - Plan reorganization: preserve executable slices here; preparation baseline and design
   assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
-Latest accepted revision: `a7ede26cd2b49c1ea251c98741bba62e0f8bb7b2` on
-`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `298d51c27b626fb99f171bebba279b91e091d06d`; observer reused.
+Latest accepted revision: `4446ceef699107eee308c7f9545d8e10dd6b8874` on
+`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `a7ede26cd2b49c1ea251c98741bba62e0f8bb7b2`; observer reused.
 
 Execution structure decisions are retained in [design assessment](design-assessment.md#execution-structure-decisions).
+
+Slice5 cold-case repair reuses the completed canonical worker readiness component;
+see [design evidence](design-assessment.md#slice5-cold-case-defect-and-canonical-worker-readiness-reuse).
+
+Reconciliation recovery: `/tmp/seed300-slice5-reconcile-c6-20261111` retains the
+exact owned overlay before history-preserving merge of pinnedc6d2645; publication held.
+
+Local unpublished integration `534ac4d5538a4270483b51109854b1373351353e` preserves
+parents4446 andc6d2645; last accepted execution target remains4446 pending slice5 delivery.
 
 ## Accepted slice evidence
 
@@ -226,10 +220,21 @@ Execution structure decisions are retained in [design assessment](design-assessm
 
 - Slice 4: [build history and reference acceptance](slice-4-evidence.md).
 
+- Slice 5: [current scope history, recovery and readiness acceptance](slice-5-current-evidence.md).
+
 ## Story obligations
 
-### G1. Scope reference facts hidden in journey (reported in slice 4)
-Reported: slice 4 — "scopePriorReferencePage still has its pre-existing hardcoded5 included samples/Nov1–Nov5/Run201→202 keyboard expectations; the caller supplies average/selected/difference."
+### G1. Scope reference facts hidden in journey (first reported in slice 4)
+Reported: slice 5 — "scopePriorReferencePage still has its pre-existing hardcoded5 included samples/Nov1–Nov5/Run201→202 keyboard expectations; the caller supplies average/selected/difference."
 Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: slice-5-current-evidence.md, current45-case strict pass with explicit caller facts, direct103ms position oracle, frontend held retry and real store recovery; retained matching faults
 Commitment: 70
+### G2. Scope reference position lacks a numeric UI observation
+Reported: slice 5 — "Coordinator acceptance found scope prior-average asserts one reference and API reference facts, but no numeric plotted position. Build-history position proof does not observe scope chart placement."
+Story clause: "Expose those observations through the history helpers, with expected dates, values, gaps and reference placement in the scenarios that prove them."
+Disposition: proved by slice 5: slice-5-current-evidence.md, current45-case strict pass with explicit caller facts, direct103ms position oracle, frontend held retry and real store recovery; retained matching faults
+### G3. Reconcile accepted scope-history context and current callers
+Reported: slice 5 — "Accepted SEED310 at c6d2645 changes scope/context/reference controls, moves reading/units/segments UI cases to frontend, and adds Project Intent scope-history callers. Old snapshot proof does not establish combined bytes."
+Story clause: "Resolve the seven Intent findings below, including their same-sequence and selector siblings."
+Disposition: proved by slice 5: slice-5-current-evidence.md, current45-case strict pass with explicit caller facts, direct103ms position oracle, frontend held retry and real store recovery; retained matching faults
+Commitment: 30
