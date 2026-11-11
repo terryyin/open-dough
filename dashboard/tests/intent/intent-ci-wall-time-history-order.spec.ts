@@ -2,7 +2,12 @@
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { chartOf, dayWords } from "../intentCiHistoryPage.ts";
+import {
+  buildHistoryReading,
+  showBuildHistoryEvidence,
+  chartOf,
+  dayWords,
+} from "../intentCiHistoryPage.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
 import { openCiStatus } from "../support/ciHistoryWindowPage.ts";
 
@@ -51,7 +56,7 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
 
   // The evidence and latest measurement follow accepted landings. The
   // measured span independently uses the actual minimum and maximum dates.
-  const heading = shown.getByRole("heading");
+  const heading = buildHistoryReading(shown).heading;
   await expect(heading).toHaveText(
     `CI wall time history 2 measured builds · ${dayWords(cStart)}–${dayWords(aStart)}`,
   );
@@ -63,11 +68,9 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
     "datetime",
     aStart,
   );
-  await expect(shown.getByRole("definition")).toHaveText("3 min");
-  await shown.locator("summary").click();
-  const rows = shown
-    .getByRole("list", { name: "Builds and evidence" })
-    .getByRole("listitem");
+  await expect(buildHistoryReading(shown).latest).toHaveText("3 min");
+  await showBuildHistoryEvidence(shown);
+  const rows = buildHistoryReading(shown).samples;
   await expect(rows).toHaveText([
     `${dayWords(aStart)} · 6 min 5 s · exact revision ${shortSha(a)} · Run 211 · attempt 1`,
     `${dayWords(gapAt)} · No build · landed revision ${shortSha(b)}`,
@@ -76,7 +79,7 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
   await expect(rows.nth(0).locator("time")).toHaveAttribute("datetime", aStart);
   await expect(rows.nth(1).locator("time")).toHaveAttribute("datetime", gapAt);
   await expect(rows.nth(2).locator("time")).toHaveAttribute("datetime", cStart);
-  await expect(shown.locator("circle.intent-ci-history-point")).toHaveCount(2);
+  await expect(buildHistoryReading(shown).points).toHaveCount(2);
   const chart = await chartOf(shown);
   const [earlier, later] = chart.points;
   expect(earlier).toBeDefined();

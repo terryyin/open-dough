@@ -1,3 +1,4 @@
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./preparationPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
@@ -30,12 +31,11 @@ export async function expectScopePriorReference(
   );
   await expect(cases.locator(".intent-ci-history-reference")).toHaveCount(1);
   await expect(cases.locator(".intent-ci-history-point")).toHaveCount(7);
-  const evidence = cases.getByRole("group", {
-    name: "Prior-build reference evidence",
-  });
-  await expect(evidence.getByText(/✓ Included/)).toHaveCount(5);
-  await expect(evidence.getByText(/× Excluded/)).toContainText("Slow outlier");
-  await expect(evidence.getByText(/◆ Selected/)).toContainText("Exact build");
+  const samples = priorBuildReferenceReading(cases);
+  const evidence = samples.evidence;
+  await expect(samples.included).toHaveCount(5);
+  await expect(samples.excluded).toContainText("Slow outlier");
+  await expect(samples.selected).toContainText("Exact build");
   const link = evidence.getByRole("link", { name: "Run 201 · attempt 1" });
   await link.focus();
   await expect(link).toBeFocused();

@@ -1,3 +1,4 @@
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Normal local readers of canonical raw proof expose the selection signature
 // separately from measured completeness; never supply a finished average.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -97,9 +98,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   );
   await expect(cases).not.toContainText("+1.2 s");
   await expect(cases.locator(".intent-ci-history-reference")).toHaveCount(1);
-  const partial = cases
-    .getByRole("group", { name: "Prior-build reference evidence" })
-    .getByText(/◆ Selected/);
+  const partial = priorBuildReferenceReading(cases).selected;
   await expect(partial).toContainText("part 2 of 2 missing");
   await expect(partial).not.toContainText("1.2 s");
   // No terminal signature: keep both declared units and a different owner's

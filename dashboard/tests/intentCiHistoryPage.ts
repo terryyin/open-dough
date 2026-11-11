@@ -8,6 +8,7 @@
 // its links in turn, the day a date falls on as the history says it, and its
 // chart's drawn points and line.
 
+import { makeMe } from "../../tests/support/makeMe.mjs";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
 import { parts } from "./dashboardPage.ts";
 import { expect } from "./dashboardTest.ts";
@@ -33,6 +34,36 @@ import type { Locator, Page } from "@playwright/test";
 // The CI wall time history in a CI status panel.
 export const historyOf = (panel: Locator) =>
   panel.getByRole("region", { name: "CI wall time history", exact: true });
+
+export const buildEvidenceRows = (builds: Locator) =>
+  builds.getByRole("listitem");
+
+// The displayed build history, without choosing its dates, values or evidence.
+export function buildHistoryReading(history: Locator) {
+  const reference = history.locator(".intent-ci-history-reference");
+  const evidence = history.getByRole("list", { name: "Builds and evidence" });
+  return {
+    heading: history.getByRole("heading"),
+    latest: history.getByRole("definition"),
+    latestLabel: history.getByRole("term"),
+    chart: history.getByRole("img", { name: "CI wall time by build date" }),
+    charts: history.getByRole("img"),
+    points: history.locator("circle.intent-ci-history-point"),
+    disclosure: history.locator("summary"),
+    evidence,
+    samples: buildEvidenceRows(evidence),
+    reference,
+    referenceLine: reference.locator("line"),
+    referenceTitle: reference.locator("title"),
+  };
+}
+
+// Reveal the retained samples by pointer; keyboard journeys keep their input explicit.
+export async function showBuildHistoryEvidence(history: Locator) {
+  const reading = buildHistoryReading(history);
+  await reading.disclosure.click();
+  return reading.evidence;
+}
 
 // Open Dough's trunk as published, its main followed as it moves, with
 // `runs` as the selected workflow's push runs and their CI proof as `proofs`
@@ -73,14 +104,16 @@ export async function chooseProjectCiStatus(page: Page) {
 export async function openJudgedCiStatus(page: Page) {
   publishProject(page, openDough).serveCi(
     trunkCi(openDough.revision, () => [
-      {
-        headSha: judged,
-        conclusion: "success",
-        url: runUrl,
-        id: 41,
-        startedAt: "2026-11-05T10:00:00Z",
-        completedAt: "2026-11-05T10:03:00Z",
-      },
+      makeMe.aCiRun
+        .with({
+          headSha: judged,
+          conclusion: "success",
+          url: runUrl,
+          id: 41,
+          startedAt: "2026-11-05T10:00:00Z",
+          completedAt: "2026-11-05T10:03:00Z",
+        })
+        .please(),
     ]),
   );
   return openProjectCiStatus(page);
@@ -104,9 +137,9 @@ export async function evidenceByKeyboard(page: Page, panel: Locator) {
   await expect(checkAgain).toBeEnabled();
   await checkAgain.focus();
   await page.keyboard.press("Shift+Tab");
-  await expect(history.locator("summary")).toBeFocused();
+  await expect(buildHistoryReading(history).disclosure).toBeFocused();
   await page.keyboard.press("Enter");
-  return history.getByRole("list", { name: "Builds and evidence" });
+  return buildHistoryReading(history).evidence;
 }
 
 // Project Intent's CI status opened on a phone: its history, and Builds and
@@ -142,9 +175,7 @@ export const runLink = (id: number) => ({
 // The chart's drawn points, in drawing order, each at its place, and the
 // line through them as its strokes, each a run of points no gap breaks.
 export async function chartOf(history: Locator) {
-  const chart = history.getByRole("img", {
-    name: "CI wall time by build date",
-  });
+  const chart = buildHistoryReading(history).chart;
   const points = await chart.locator("circle").evaluateAll((circles) =>
     circles.map((circle) => ({
       x: Number(circle.getAttribute("cx")),

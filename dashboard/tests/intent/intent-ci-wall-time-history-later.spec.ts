@@ -13,6 +13,8 @@
 
 import { shortSha } from "../../src/baseCiWording.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
   chartOf,
   dayWords,
   evidenceOnPhone,
@@ -109,11 +111,11 @@ test("a cancelled landing joins the later trunk build's point a landing there al
   const { history, builds } = await evidenceOnPhone(page);
 
   // d6 is counted once, for G and for F.
-  await expect(history.getByRole("heading")).toHaveText(
+  await expect(buildHistoryReading(history).heading).toHaveText(
     "CI wall time history 2 measured builds · Nov 5",
   );
   const sha = shortSha;
-  await expect(builds.getByRole("listitem")).toHaveText([
+  await expect(buildEvidenceRows(builds)).toHaveText([
     `Nov 5 · 6 min 5 s · exact revision ${sha(b.revision)} (SEED-9#b) · Run 40 · attempt 1`,
     `Nov 5 · 7 min 10 s · exact revision ${sha(g.revision)} · later trunk build ${sha(g.revision)} for ${sha(f.revision)} (SEED-9#f) · Run 46 · attempt 1`,
     `${dayWords(h.at)} · Failed · exact revision ${sha(h.revision)} (SEED-9#h) · Run 45 · attempt 1`,

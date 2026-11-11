@@ -17,6 +17,8 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
+  buildHistoryReading,
+  showBuildHistoryEvidence,
   chartOf,
   dayWords,
   historyOf,
@@ -145,10 +147,10 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
 
   const newest = [...wallSeconds.keys()].slice(15);
   const lastStart = firstStart + 34 * dayMs;
-  await expect(shown.getByRole("heading")).toHaveText(
+  await expect(buildHistoryReading(shown).heading).toHaveText(
     `CI wall time history 20 measured builds · ${dayWords(firstStart + 15 * dayMs)}–${dayWords(lastStart)}`,
   );
-  await expect(shown.getByRole("definition")).toHaveText("5 min");
+  await expect(buildHistoryReading(shown).latest).toHaveText("5 min");
   // The window is the newest 20; there is no other to choose.
   for (const choice of [
     "combobox",
@@ -159,14 +161,10 @@ test("of 35 measured builds, CI status shows the newest 20 in trunk order with t
   ] as const)
     await expect(shown.getByRole(choice)).toHaveCount(0);
 
-  await shown.locator("summary").click();
+  await showBuildHistoryEvidence(shown);
   const point = (day: number) =>
     `${dayWords(firstStart + day * dayMs)} · ${wallWords(wallSeconds[day] ?? 0)} · exact revision ${shortSha(revisionOf(day))} · Run ${String(100 + day)} · attempt 1`;
-  await expect(
-    shown
-      .getByRole("list", { name: "Builds and evidence" })
-      .getByRole("listitem"),
-  ).toHaveText([
+  await expect(buildHistoryReading(shown).samples).toHaveText([
     ...newest.filter((day) => day <= 20).map(point),
     `${dayWords(noBuildAt)} · No build · landed revision ${shortSha("e4".repeat(20))}`,
     ...newest.filter((day) => day > 20 && day <= 22).map(point),

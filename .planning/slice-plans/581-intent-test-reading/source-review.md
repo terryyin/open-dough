@@ -41,11 +41,11 @@ requirements apply throughout even when their final cumulative observation is sl
 | 21 | Keep exact input modality explicit where it distinguishes the outcome. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 22 | Keep expected focus explicit where it distinguishes the outcome. | slice 8 |  |
 | 23 | Keep direct accessibility observations independent when accessibility is the tested contract. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
-| 24 | Keep direct measurement observations independent when measurement is the tested contract. | slice 4 |  |
+| 24 | Keep direct measurement observations independent when measurement is the tested contract. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
 | 25 | Keep expected rows at the call site. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 26 | Keep expected row order in each relevant case. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 27 | Keep expected units at the call site. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
-| 28 | Keep expected dates in the scenarios. | slice 4 |  |
+| 28 | Keep expected dates in the scenarios. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
 | 29 | Keep expected values in the relevant cases and scenarios. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 30 | Keep expected gaps in the scenarios. | slice 5 |  |
 | 31 | Keep expected reference membership at the call site. | slice 9 |  |
@@ -85,14 +85,14 @@ requirements apply throughout even when their final cumulative observation is sl
 | 65 | Preserve kept-answer journey while next CI read is held: observe, release, read replacement. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
 | 66 | Keep expected answers outside the reading helper in that journey. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
 | 67 | Keep causal order outside the reading helper; observe, release, replacement-read remains visible. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
-| 68 | Expose wall-time history through history helpers. | slice 4 |  |
-| 69 | Expose prior-build history through history helpers. | slice 4 |  |
-| 70 | Expose scope-history observations through history helpers; expected dates, values, gaps and reference placement remain in scenarios. | slice 5 |  |
-| 71 | Expose sample selection through history helpers. | slice 4 |  |
-| 72 | Expose SVG-point observation through history helpers. | slice 4 |  |
-| 73 | Expose reference-line observation through history helpers. | slice 4 |  |
-| 74 | Expose selected-observation reading through history helpers. | slice 4 |  |
-| 75 | Keep expected reference placement in the scenarios. | slice 4 |  |
+| 68 | Expose wall-time history through history helpers. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
+| 69 | Expose prior-build history through history helpers. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
+| 70 | Expose scope-history observations through history helpers; expected dates, values, gaps and reference placement remain in scenarios. | slice 5 | G1 |
+| 71 | Expose sample selection through history helpers. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
+| 72 | Expose SVG-point observation through history helpers. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
+| 73 | Expose reference-line observation through history helpers. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
+| 74 | Expose selected-observation reading through history helpers. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
+| 75 | Keep expected reference placement in the scenarios. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
 | 76 | Share choosing a location across Code/Gherkin, Purpose, revision notices and candidates. | slice 6 |  |
 | 77 | Share reading a target line across those callers. | slice 6 |  |
 | 78 | Share retaining reading place across those callers. | slice 7 |  |

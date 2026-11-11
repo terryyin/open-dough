@@ -51,3 +51,16 @@ another execution deliberately held the machine under pressure. Its normal
 local profile was restored after that owner's pressure workers joined; both
 sample cases then passed. No slice-specific concern remains from these
 observations. Boundary review grants no execution authority.
+
+## Execution structure decisions
+
+Slice3 reorganization before oversized edits: status freshness263/homepage255
+share verdict/freshness/time/checking observation through existing status owner,
+with caller facts retained. Keep holds/releases/clocks/navigation/order and request
+evidence explicit; coherent shortening must leave both<=250. Prove whole affected
+specs and transitive consumers. Return an undelivered seam before dependent work.
+
+Slice4 consumer discovery: prior-build membership is the same maintained
+`PriorBuildReferenceEvidenceList` component in build/scope/follow-up views. PFE
+will reuse/modularize one pure membership reader now across all actual callers;
+chart semantics remain separate. Slices5/9 retain their distinct remaining work.

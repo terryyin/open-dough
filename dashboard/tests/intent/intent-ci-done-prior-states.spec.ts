@@ -1,3 +1,4 @@
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Missing local selected evidence leaves the existing Done comparison readable.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -53,11 +54,9 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
   await expect(history).toContainText(
     "Difference unavailable: Validated CI proof summary is not retained",
   );
-  await expect(
-    history
-      .getByRole("group", { name: "Prior-build reference evidence" })
-      .getByText(/◆ Selected/),
-  ).toContainText("Validated CI proof summary is not retained");
+  await expect(priorBuildReferenceReading(history).selected).toContainText(
+    "Validated CI proof summary is not retained",
+  );
   keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { drop: 6, later: true }),

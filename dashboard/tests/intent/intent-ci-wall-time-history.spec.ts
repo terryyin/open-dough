@@ -22,6 +22,8 @@ import {
   expectEvidenceLabels,
 } from "../ciEvidenceLabelsPage.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
   evidenceByKeyboard,
   historyOf,
   openProjectCiStatus,
@@ -75,22 +77,24 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
   ]);
 
   const history = historyOf(panel);
-  await expect(history.getByRole("heading")).toHaveText(
+  await expect(buildHistoryReading(history).heading).toHaveText(
     "CI wall time history 1 measured build · Nov 5",
   );
   await expect(history).toContainText(
     "Collected from dashboard-recorded landings",
   );
-  await expect(history.getByRole("term")).toHaveText("Latest measured build");
-  await expect(history.getByRole("definition")).toHaveText("6 min 5 s");
-  await expect(
-    history.getByRole("img", { name: "CI wall time by build date" }),
-  ).toBeVisible();
+  await expect(buildHistoryReading(history).latestLabel).toHaveText(
+    "Latest measured build",
+  );
+  await expect(buildHistoryReading(history).latest).toHaveText("6 min 5 s");
+  await expect(buildHistoryReading(history).chart).toBeVisible();
 
   // Builds and evidence, between Proof and Check again by keyboard.
-  await expect(history.locator("summary")).toHaveText("Builds and evidence");
+  await expect(buildHistoryReading(history).disclosure).toHaveText(
+    "Builds and evidence",
+  );
   const builds = await evidenceByKeyboard(page, panel);
-  await expect(builds.getByRole("listitem")).toHaveText([
+  await expect(buildEvidenceRows(builds)).toHaveText([
     `Nov 5 · 6 min 5 s · exact revision ${shortSha(revision)} · Run 41 · attempt 1`,
   ]);
   await page.keyboard.press("Tab");
@@ -125,10 +129,12 @@ test("a project with no recorded landing says no landing has been measured yet, 
     "CI wall time 3 min",
   ]);
   const history = historyOf(panel);
-  await expect(history.getByRole("heading")).toHaveText("CI wall time history");
+  await expect(buildHistoryReading(history).heading).toHaveText(
+    "CI wall time history",
+  );
   await expect(history).toContainText(
     "No dashboard-recorded landings have been measured yet.",
   );
-  await expect(history.getByRole("img")).toHaveCount(0);
-  await expect(history.locator("summary")).toHaveCount(0);
+  await expect(buildHistoryReading(history).charts).toHaveCount(0);
+  await expect(buildHistoryReading(history).disclosure).toHaveCount(0);
 });

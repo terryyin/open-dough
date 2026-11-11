@@ -1,3 +1,4 @@
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Real collection first, then a fresh reader process and the card-to-Intent route.
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -102,9 +103,7 @@ test("the completed card opens both collected attempts and their frozen referenc
       "Saved provisional rule: repeat once at or above 5%",
     );
     await expect(comparison).toContainText("5 prior builds used");
-    const evidence = comparison.getByRole("group", {
-      name: "Prior-build reference evidence",
-    });
+    const evidence = priorBuildReferenceReading(comparison).evidence;
     await expect(evidence.locator("p")).toHaveCount(7);
     await expect(evidence).toContainText("✓ Included");
     await expect(evidence).toContainText("◆ Selected");

@@ -17,6 +17,8 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { adapterProject } from "../intentCiAdapterProofProject.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
   dayWords,
   chooseProjectCiStatus,
   evidenceByKeyboard,
@@ -129,11 +131,11 @@ test("a CI adapter's timed attempt is a point of CI wall time that a planning-on
   const panel = await chooseProjectCiStatus(page);
   const builds = await evidenceByKeyboard(page, panel);
   const history = historyOf(panel);
-  await expect(history.getByRole("heading")).toHaveText(
+  await expect(buildHistoryReading(history).heading).toHaveText(
     "CI wall time history 1 measured build · Nov 5",
   );
   const sha = shortSha;
-  await expect(builds.getByRole("listitem")).toHaveText([
+  await expect(buildEvidenceRows(builds)).toHaveText([
     `Nov 5 · 6 min 5 s · exact revision ${sha(p.revision)} (SEED-9#p) · reused equivalent ${sha(p.revision)} for ${sha(s.revision)} (SEED-9#s) · Attempt attempt-p`,
     `${dayWords(q.at)} · Cancelled · exact revision ${sha(q.revision)} (SEED-9#q) · Attempt attempt-q`,
     `${dayWords(u.at)} · CI wall time not recorded · exact revision ${sha(u.revision)} (SEED-9#u) · Attempt attempt-u`,

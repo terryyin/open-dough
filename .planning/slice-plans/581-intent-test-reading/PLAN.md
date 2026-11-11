@@ -110,7 +110,7 @@ retains its hold/release sequence and exact evidence.
 
 ### 4. Read build samples and prior-build references
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 4. Observe selected dates/values, ordered samples, gaps and
 reference position; preserve exact SVG/geometry checks when they are the proof.
 
@@ -192,7 +192,6 @@ See [design assessment](design-assessment.md) for the slice boundary review and
   The separate restored sample passed after its intended local host profile
   was restored. Recheck host headroom before another expensive attempt.
 
-
 ## Execution context
 
 - Established Story Branch execution: `codex/express-intent-test-reading-through-page-objects`
@@ -213,18 +212,24 @@ See [design assessment](design-assessment.md) for the slice boundary review and
 - Plan reorganization: preserve executable slices here; preparation baseline and design
   assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
-Latest accepted revision: `298d51c27b626fb99f171bebba279b91e091d06d` on
-`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `71d39d5965906dd4dcd28d4d3cd0c1ffcb0a4385`; observer reused.
+Latest accepted revision: `a7ede26cd2b49c1ea251c98741bba62e0f8bb7b2` on
+`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `298d51c27b626fb99f171bebba279b91e091d06d`; observer reused.
+
+Execution structure decisions are retained in [design assessment](design-assessment.md#execution-structure-decisions).
 
 ## Accepted slice evidence
 
 - Slice 1: [comparison and Summary acceptance](slice-1-evidence.md).
 - Slice 2: [sort and presentation acceptance](slice-2-evidence.md).
 
-Slice3 reorganization before oversized edits: status freshness263/homepage255
-share verdict/freshness/time/checking observation through existing status owner,
-with caller facts retained. Keep holds/releases/clocks/navigation/order and request
-evidence explicit; coherent shortening must leave both<=250. Prove whole affected
-specs and transitive consumers. Return an undelivered seam before dependent work.
-
 - Slice 3: [CI status and Proof acceptance](slice-3-evidence.md).
+
+- Slice 4: [build history and reference acceptance](slice-4-evidence.md).
+
+## Story obligations
+
+### G1. Scope reference facts hidden in journey (reported in slice 4)
+Reported: slice 4 — "scopePriorReferencePage still has its pre-existing hardcoded5 included samples/Nov1–Nov5/Run201→202 keyboard expectations; the caller supplies average/selected/difference."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: receiving slice 5
+Commitment: 70

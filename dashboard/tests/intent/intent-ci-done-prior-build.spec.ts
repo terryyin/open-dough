@@ -1,3 +1,4 @@
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The published execution endpoint, actual selected collection and retained
 // raw ancestors flow through the normal authenticated history reader.
@@ -101,12 +102,11 @@ test("Done wall time keeps the execution publication reference through restart, 
   ]);
   await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("2 min");
   await expect(history.getByRole("img")).toHaveCount(0);
-  const evidence = history.getByRole("group", {
-    name: "Prior-build reference evidence",
-  });
-  await expect(evidence.getByText(/✓ Included/)).toHaveCount(5);
-  await expect(evidence.getByText(/× Excluded/)).toContainText("Slow outlier");
-  await expect(evidence.getByText(/◆ Selected/)).toContainText(
+  const samples = priorBuildReferenceReading(history);
+  const evidence = samples.evidence;
+  await expect(samples.included).toHaveCount(5);
+  await expect(samples.excluded).toContainText("Slow outlier");
+  await expect(samples.selected).toContainText(
     `exact revision ${shortSha(setup.completion)}`,
   );
   await history.locator("summary").focus();
@@ -125,7 +125,7 @@ test("Done wall time keeps the execution publication reference through restart, 
   await history
     .getByRole("button", { name: "Refresh history", exact: true })
     .click();
-  await expect(evidence.getByText(/× Excluded/)).toContainText([
+  await expect(samples.excluded).toContainText([
     "Slow outlier",
     "No represented landing before the selected endpoint",
   ]);

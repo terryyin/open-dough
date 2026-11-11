@@ -16,6 +16,8 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
   dayWords,
   evidenceByKeyboard,
   expectLinksByKeyboard,
@@ -89,14 +91,16 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
   const panel = await openJudgedCiStatus(page);
   const shown = historyOf(panel);
 
-  await expect(shown.getByRole("heading")).toHaveText("CI wall time history");
+  await expect(buildHistoryReading(shown).heading).toHaveText(
+    "CI wall time history",
+  );
   await expect(shown).toContainText(
     "No dashboard-recorded landings have been measured yet.",
   );
-  await expect(shown.getByRole("img")).toHaveCount(0);
+  await expect(buildHistoryReading(shown).charts).toHaveCount(0);
   const builds = await evidenceByKeyboard(page, panel);
   const sha = (revision: string) => shortSha(revision.repeat(20));
-  await expect(builds.getByRole("listitem")).toHaveText([
+  await expect(buildEvidenceRows(builds)).toHaveText([
     `${dayWords(day(0))} · No build · landed revision ${sha("e0")}`,
     `${dayWords(day(1))} · Cancelled · exact revision ${sha("e1")} · Run 301 · attempt 1`,
     `${dayWords(day(2))} · CI proof expired · reused equivalent ${sha("b2")} for ${sha("e2")} · Run 302 · attempt 1`,
