@@ -1,6 +1,7 @@
-// One published-main origin, host pair and serial watcher chain. The tests
+// One published-main origin, native daemon and serial watcher chain. The tests
 // advance it explicitly; setup never supplies a replacement or launch outcome.
 import { expect, test } from "../support/pageTest.ts";
+import { observeLaunchAdmission } from "../support/launchAdmissionObservation.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 import { readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -9,13 +10,13 @@ import {
   dashboardCommand,
   developmentDashboard,
 } from "../support/dashboardCommand.ts";
-import { publishedMainFixture } from "../support/publishedMainFixture.ts";
-import type { PublishedMainFixture } from "../support/publishedMainFixture.ts";
-import { publishedMainHosts } from "../support/publishedMainHosts.ts";
+import { localPublishedMainFixture } from "../support/publishedMainFixture.ts";
+import { startWatcherNativeCodex } from "../support/watcherNativeCodex.ts";
+import {
+  configureWatcherApplication,
+  watcherApplicationSource,
+} from "../support/productionWatcherFixture.ts";
 import { processRunning } from "../support/processGroup.ts";
-import { configureDevelopmentProjects } from "../support/projectConfiguration.ts";
-import { publishes } from "../support/fakeGitHub.ts";
-import { describedBacklog } from "../describedRevisions.ts";
 import {
   deploymentWork,
   expectProductionEnded,
@@ -31,6 +32,7 @@ import {
   buildGateChanges,
   holdBuildPath,
   recordedBuilds,
+  waitForBuild,
 } from "../support/productionBuildGate.ts";
 import { faultGateChanges } from "../support/productionFault.ts";
 import {
@@ -42,14 +44,15 @@ import {
   writeSharedLaunchRecord,
 } from "../support/sharedLaunchRecord.ts";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
-import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-type Hosts = Awaited<ReturnType<typeof publishedMainHosts>>;
+type Native = Awaited<ReturnType<typeof startWatcherNativeCodex>>;
+type PublishedMainFixture = Awaited<
+  ReturnType<typeof localPublishedMainFixture>
+>;
 type Shared = Awaited<ReturnType<typeof writeSharedLaunchRecord>>;
 type Started = {
   fixture: PublishedMainFixture;
-  hosts: Hosts;
+  drainEvents: string;
   page: Page;
   watcher: ProductionWatcher;
   developmentUrl: string;
@@ -63,9 +66,6 @@ type Started = {
   shared?: Shared;
 };
 
-export const revision = "a5".repeat(20);
-// The published project records no stories.
-export const backlog = describedBacklog(makeMe.aRepository.please());
 export const prefixesOf = (commits: string[]) =>
   commits.map((commit) => commit.slice(0, 12));
 export type ProductionUpdateJourney = ReturnType<
@@ -75,7 +75,7 @@ export type ProductionUpdateJourney = ReturnType<
 export function productionUpdateJourney() {
   // Each resource is cleaned even when a later setup operation fails.
   let fixture: PublishedMainFixture | undefined;
-  let hosts: Hosts | undefined;
+  let native: Native | undefined;
   let development: ReturnType<typeof dashboardCommand> | undefined;
   let watcher: ProductionWatcher | undefined;
   let page: Page | undefined;
@@ -96,10 +96,7 @@ export function productionUpdateJourney() {
   // activation through `activated()`, so the shared hook holds only the
   // preparation.
   test.beforeAll(async ({ browser }) => {
-    fixture = await publishedMainFixture(true);
-    hosts = await publishedMainHosts(fixture);
-    const { env } = hosts;
-    hosts.github.serve("terryyin/open-dough", publishes({ revision, backlog }));
+    fixture = await localPublishedMainFixture(watcherApplicationSource);
     const workflow = await readFile(
       path.join(fixture.development, ciWorkflowPath),
       "utf8",
@@ -120,14 +117,22 @@ export function productionUpdateJourney() {
       },
       "Fault-gated A",
     );
-    await fixture.installDevelopment();
-    configureDevelopmentProjects(fixture.home);
-    const configuration = path.join(
+    const {
+      configuration,
+      configured,
+      env: applicationEnv,
+    } = await configureWatcherApplication(fixture);
+    const [host, dependencies] = await Promise.allSettled([
+      startWatcherNativeCodex(applicationEnv),
+      fixture.installDevelopment(),
+    ]);
+    if (host.status === "rejected") throw host.reason;
+    native = host.value;
+    if (dependencies.status === "rejected") throw dependencies.reason;
+    const { env, drainEvents } = await observeLaunchAdmission(
       fixture.home,
-      ".open-dough/dashboard/projects-production.json",
+      native.env,
     );
-    const configured = `${JSON.stringify(productionSeedProjects, null, 4)}\n`;
-    await writeFile(configuration, configured);
     const configurationIdentity = (await stat(configuration)).ino;
     const dev = await developmentDashboard(fixture.development, env);
     development = dev.command;
@@ -135,7 +140,7 @@ export function productionUpdateJourney() {
     page = await browser.newPage();
     prepared = {
       fixture,
-      hosts,
+      drainEvents,
       page,
       watcher,
       developmentUrl: dev.url,
@@ -147,11 +152,17 @@ export function productionUpdateJourney() {
     };
   });
   test.afterAll(async () => {
-    await page?.close();
-    await watcher?.stop();
-    await development?.stop();
-    await fixture?.cleanup();
-    await hosts?.close();
+    try {
+      await page?.close();
+      await watcher?.stop();
+      await development?.stop();
+    } finally {
+      try {
+        await native?.close();
+      } finally {
+        await fixture?.cleanup();
+      }
+    }
   });
   return {
     // Waits for the watcher to serve A and shows A's page.
@@ -208,16 +219,13 @@ export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
       },
       "Main X with a valid policy",
     );
-    await expect
-      .poll(async () => (await journey.builds()).length, { timeout: 0 })
-      .toBe(ordinal);
-    const heldBuild = (await journey.builds())[ordinal - 1]?.pid;
+    const heldBuild = (await waitForBuild(running, fixture.home, ordinal)).pid;
+    expect(await journey.builds()).toHaveLength(ordinal);
     expect(processRunning(heldBuild)).toBe(true);
     await running.stop();
     expect(running.output()).not.toContain("could not run");
     journey.stopped();
-    await expect.poll(() => processRunning(heldBuild)).toBe(false);
-    await expect.poll(() => processRunning(state.served.pid)).toBe(false);
+    expect(processRunning(heldBuild)).toBe(false);
     await expectProductionEnded(request, state.served, fixture.home);
     expect(await readdir(productionInspections(fixture.home))).toEqual([]);
     expect(await readFile(store, "utf8")).toBe(stored);

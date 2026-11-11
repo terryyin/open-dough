@@ -8,6 +8,7 @@ import {
   expectStillServing,
   settledSkip,
 } from "../support/productionWatcher.ts";
+import { observeWatcherOutput } from "../support/watcherEvents.ts";
 import { publishedPolicy } from "../support/productionQualificationFixture.ts";
 import { ciWorkflowPath } from "../../server/productionQualification.mjs";
 import type { ProductionUpdateJourney } from "./productionUpdateJourney.ts";
@@ -64,11 +65,9 @@ export function productionUpdatePolicies(journey: ProductionUpdateJourney) {
       "Unsupported policy P",
     );
     const policyError = `Production update failed for ${p}: ${ciWorkflowPath} at ${p} has an unsupported CI push path policy.\nKeeping ${baseline} at ${state.served.url}; retrying on a later check.`;
-    await expect
-      .poll(() => watcher.output().split(policyError).length - 1, {
-        timeout: 0,
-      })
-      .toBeGreaterThan(2);
+    await observeWatcherOutput(watcher, (output) =>
+      output.split(policyError).length > 3 ? true : undefined,
+    );
     expect(await journey.work()).toEqual(before);
     await expectStillServing(state.served, page, "MAIN C");
   });

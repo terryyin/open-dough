@@ -172,3 +172,16 @@ match the pre-refactor source. Bash syntax and whitespace passed. Candidate
 guidance, fixture and observed native scenarios did not change; proof is reused.
 Proof and both consumer dispositions: `/tmp/page-object-307-refactor-proof.md`,
 `/tmp/page-object-307-refactor-consumer-trace.md`. Marker: REFACTOR COMPLETE.
+
+## Plan concern assessment
+
+Slice-plan refinement ran after independent review: retain all four reference
+boundaries, each with one cohesive observation/delivery loop. The native proof-route
+concern was settled through unpaid command assembly and the actual Codex isolation
+prefix; writable host profiles are explicit. Common applicability, path discovery
+and convention ownership remain single. No consolidate, split or escalate finding,
+story-resplit recommendation or sizing exception remained. No remaining slice-specific
+concern was found outside the permitted early native probe in slice 1. Failure
+there stops dependent work and changes the plan; it does not establish readiness
+for a substitute mechanism. No numeric sizing limit or exception was supplied.
+This plan grants no execution authority.

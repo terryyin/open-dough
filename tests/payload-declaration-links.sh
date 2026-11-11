@@ -71,9 +71,14 @@ literal=$(awk '
   in_payload { print }
   in_payload && /^\)/ { exit }
 ' "${source_dir}/install.sh")
-native_paths=$(bash -c "${literal}"$'\n''printf "%s\n" "${managed_files[@]}"')
+native_paths=$(/bin/bash -c "${literal}"$'\n''source "$1"; printf "%s\n" "${managed_files[@]}"' \
+  payload-declaration "${source_dir}/src/install/open-dough-execution-payload.sh")
 declared_paths=$(read_managed_files_declaration "${source_dir}/install.sh")
 [[ "${declared_paths}" == "${native_paths}" ]]
+# macOS /bin/bash is 3.2: both assembly and inspection retain that contract.
+native_declared=$(/bin/bash -c 'source "$1"; read_managed_files_declaration "$2"' \
+  payload-declaration "${source_dir}/src/install/open-dough-payload-declaration.sh" "${source_dir}/install.sh")
+[[ "${native_declared}" == "${native_paths}" ]]
 {
   printf '%s\n' 'managed_files=('
   while IFS= read -r managed_file; do
@@ -81,14 +86,34 @@ declared_paths=$(read_managed_files_declaration "${source_dir}/install.sh")
   done <<< "${native_paths}"
   printf '%s\n' ')'
 } > "${copy}/legacy-install.sh"
-legacy_paths=$(read_managed_files_declaration "${copy}/legacy-install.sh")
+legacy_paths=$(/bin/bash -c 'source "$1"; read_managed_files_declaration "$2"' \
+  payload-declaration "${source_dir}/src/install/open-dough-payload-declaration.sh" "${copy}/legacy-install.sh")
 [[ "${legacy_paths}" == "${native_paths}" ]]
 mkdir -p -- "${copy}/src"
 cp -R -- "${source_dir}/src/skills" "${copy}/src/skills"
+mkdir -p -- "${copy}/src/install"
+cp -- "${source_dir}/src/install/open-dough-execution-payload.sh" "${copy}/src/install/"
 {
   printf '%s\n' '#!/usr/bin/env bash' "echo 'FAIL: installer ran.' >&2; exit 1"
   cat -- "${source_dir}/install.sh"
 } > "${copy}/install.sh"
+
+# Missing or executable fragment content cannot be mistaken for a complete
+# declaration. Reading the fragment is data inspection, never shell execution.
+fragment="${copy}/src/install/open-dough-execution-payload.sh"
+mv -- "${fragment}" "${fragment}.saved"
+if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
+  echo 'FAIL: a missing execution declaration was accepted.' >&2
+  exit 1
+fi
+# shellcheck disable=SC2016 # This literal command substitution is rejected data under proof.
+printf '%s\n' 'managed_files+=(' '  $(touch should-never-run)' ')' > "${fragment}"
+if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
+  echo 'FAIL: executable declaration content was accepted.' >&2
+  exit 1
+fi
+[[ ! -e should-never-run ]]
+mv -- "${fragment}.saved" "${fragment}"
 
 linking=dough-update/SKILL.md
 expect_undeclared() {

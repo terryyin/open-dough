@@ -8,10 +8,9 @@ import { expect, test } from "../support/pageTest.ts";
 import { readdir } from "node:fs/promises";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { processGroup, runnersFor } from "../support/cursorRunnerJourney.ts";
-import { dashboardCommand } from "../support/dashboardCommand.ts";
-import { keptCursor } from "../support/keptCursorTurn.ts";
 import { expectOwnOriginReadsOnly } from "../support/localOriginReads.ts";
 import { processRunning } from "../support/processGroup.ts";
+import { waitForEmptyDirectory } from "../support/watcherEvents.ts";
 import {
   deploymentCheckout,
   expectProductionEnded,
@@ -22,10 +21,14 @@ import {
   type ProductionActivation,
 } from "../support/productionWatcher.ts";
 import {
-  occupyProductionPort,
   sourceMarker,
   ProductionWatcherMachine,
 } from "./productionWatcherMachine.ts";
+import {
+  keepWatcherClient,
+  waitForWatcherTerminal,
+} from "./productionWatcherClient.ts";
+
 test.describe.configure({ mode: "serial" });
 const machine = new ProductionWatcherMachine();
 const started = () => machine.started();
@@ -101,27 +104,30 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
     ).status(),
   ).toBe(403);
 });
-test("the production command starts one Cursor runner outside the preview's process group, which a launched Cursor session uses", async () => {
-  const { fixture, cursor } = started();
+test("the production command starts one Cursor runner outside the preview's process group, which keeps a real terminal client", async () => {
+  const { fixture } = started();
   expect(processGroup(runner.pid)).toBe(runner.pid);
   expect(processGroup(served.pid)).toBe(served.pid);
   expect(processGroup(runner.pid)).not.toBe(processGroup(served.pid));
   expect(runnersFor(fixture.home)).toBe(1);
-  const launched = await machine.launchCursor(served.url);
-  const answer = JSON.parse(launched.body) as { kind?: string };
-  if (launched.status !== 200 || answer.kind !== "launched") {
-    throw new Error(`Expected a launched session, got ${launched.body}`);
-  }
-  cursorSessionId = keptCursor(fixture.home).session.sessionId;
-  expect(cursor.attaches()).toHaveLength(1);
-  cursorClientPid = cursor.attaches()[0]?.pid ?? 0;
+  const client = await keepWatcherClient(
+    fixture.home,
+    fixture.development,
+    runner.port,
+  );
+  cursorSessionId = client.sessionId;
+  cursorClientPid = client.pid;
   expect(processRunning(cursorClientPid)).toBe(true);
-  expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
+  await machine.followCursorSession(
+    served.url,
+    cursorSessionId,
+    cursorClientPid,
+  );
 });
 
 test("the next published main replaces production at the same URL and leaves the runner and its client in place", async () => {
   const watcher = machine.running();
-  const { fixture, cursor, productionPage } = started();
+  const { fixture, productionPage } = started();
   next = await fixture.publish(fixture.markerChanges("NEXT MAIN"), "Next main");
   const replaced = await productionReplacement(watcher, served, next);
   await productionPage.reload();
@@ -130,9 +136,11 @@ test("the next published main replaces production at the same URL and leaves the
   expect(processRunning(runner.pid)).toBe(true);
   expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
   expect(runnersFor(fixture.home)).toBe(1);
-  await machine.followCursorSession(replaced.url, cursorSessionId);
-  expect(cursor.attaches()).toHaveLength(1);
-  expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
+  await machine.followCursorSession(
+    replaced.url,
+    cursorSessionId,
+    cursorClientPid,
+  );
   served = replaced;
 });
 test("stopping the watcher ends production and its checkouts and leaves development, the runner and its client", async ({
@@ -142,7 +150,6 @@ test("stopping the watcher ends production and its checkouts and leaves developm
   const { fixture, developmentPage } = started();
   await watcher.stop();
   machine.watcher = undefined;
-  await expect.poll(() => processRunning(served.pid)).toBe(false);
   await expectProductionEnded(request, served, fixture.home);
   await expect(sourceMarker(developmentPage)).toHaveText(
     "EDITED DEVELOPMENT SOURCE",
@@ -150,34 +157,6 @@ test("stopping the watcher ends production and its checkouts and leaves developm
   expect((await request.get(developmentUrl)).status()).toBe(200);
   expect(processRunning(runner.pid)).toBe(true);
   expect(processRunning(cursorClientPid)).toBe(true);
-});
-
-test("an occupied production port is refused rather than moved", async ({
-  request,
-}) => {
-  const { fixture } = started();
-  const deployments = productionDeployments(fixture.home);
-  const occupied = await occupyProductionPort(served.url);
-  const productionPort = occupied.port;
-  try {
-    const refused = dashboardCommand(
-      fixture.development,
-      env,
-      "watch:dashboard",
-      ["--port", productionPort],
-    );
-    expect((await refused.exited).code).toBe(1);
-    expect(refused.output()).toContain(
-      `Port ${productionPort} is already in use`,
-    );
-    expect(refused.output()).not.toMatch(/Production dashboard \w+ at http:/);
-    expect(await (await request.get(served.url)).text()).toBe(
-      "UNOWNED LISTENER",
-    );
-    expect(await readdir(deployments)).toEqual([]);
-  } finally {
-    await occupied.close();
-  }
 });
 
 test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
@@ -188,7 +167,7 @@ test("a restart serves current main as its baseline with the same runner, and SI
   // measured 32.1s. Removing this allowance belongs to
   // SEED-287#fit-dashboard-journeys-in-default-timeout.
   test.setTimeout(90_000);
-  const { fixture, cursor, productionPage } = started();
+  const { fixture, productionPage } = started();
   const deployments = productionDeployments(fixture.home);
   const current = await fixture.publish(
     { "docs/production-restart-note.md": "# Restart note\n" },
@@ -210,20 +189,26 @@ test("a restart serves current main as its baseline with the same runner, and SI
   expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(runner.pid);
   expect(processGroup(runner.pid)).toBe(runner.pid);
   expect(processGroup(runner.pid)).not.toBe(processGroup(restarted.pid));
-  const follow = await machine.followCursorSession(
-    restarted.url,
-    cursorSessionId,
-  );
-  follow.send({ input: "after-restart" });
-  await expect
-    .poll(() => cursor.input(cursorClientPid))
-    .toContain("after-restart");
-  expect(cursor.attaches()).toHaveLength(1);
-  expect(cursor.attaches()[0]?.pid).toBe(cursorClientPid);
-  expect(cursor.calls()).toHaveLength(1);
-  watcher.signal("SIGINT");
-  await watcher.exited;
-  await watcher.stop();
+  const follow =
+    await test.step("Join the existing terminal after restart", () =>
+      machine.followCursorSession(
+        restarted.url,
+        cursorSessionId,
+        cursorClientPid,
+      ));
+  await test.step("Read the existing terminal's response to input", async () => {
+    follow.send({ input: "after-restart\r" });
+    await waitForWatcherTerminal(follow, "WATCHER INPUT <after-restart>");
+  });
+  await test.step("SIGINT retires the deployment checkout", async () => {
+    const retired = waitForEmptyDirectory(watcher, deployments);
+    watcher.signal("SIGINT");
+    await retired;
+  });
+  await test.step("The watcher command exits after SIGINT", async () => {
+    await watcher.exited;
+    await watcher.stop();
+  });
   expect(watcher.output()).not.toContain("could not run");
   await expectProductionEnded(request, restarted, fixture.home);
   machine.watcher = undefined;

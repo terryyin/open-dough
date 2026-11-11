@@ -55,6 +55,8 @@ EOF
   # round trip per release. If it fails, reads below still fetch lazily.
   install_blobs=$(printf '%s\n' "${tags}" | while IFS= read -r tag; do
     git -C "${history}" rev-parse --verify --quiet "${tag}:install.sh" || true
+    git -C "${history}" rev-parse --verify --quiet \
+      "${tag}:src/install/open-dough-execution-payload.sh" || true
   done)
   printf '%s\n' "${install_blobs}" | git -C "${history}" \
     -c fetch.negotiationAlgorithm=noop fetch --quiet --no-tags \
@@ -62,10 +64,17 @@ EOF
     --stdin origin > /dev/null 2>&1 || true
 
   : > "${history}.declared"
+  local declaration="${history}.declaration"
+  mkdir -p -- "${declaration}/src/install"
   while IFS= read -r tag; do
     [[ -n "${tag}" ]] || continue
-    if ! git -C "${history}" show "${tag}:install.sh" > "${history}.install" 2> /dev/null \
-      || ! read_managed_files_declaration "${history}.install" > "${history}.paths" 2> /dev/null; then
+    if ! git -C "${history}" show "${tag}:install.sh" > "${declaration}/install.sh" 2> /dev/null; then
+      continue
+    fi
+    # Only data is materialized; no historical installer or fragment runs.
+    git -C "${history}" show "${tag}:src/install/open-dough-execution-payload.sh" \
+      > "${declaration}/src/install/open-dough-execution-payload.sh" 2> /dev/null || true
+    if ! read_managed_files_declaration "${declaration}/install.sh" > "${history}.paths" 2> /dev/null; then
       continue
     fi
     git -C "${history}" ls-tree -r "${tag}" -- src/skills | awk -F'\t' '

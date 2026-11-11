@@ -117,6 +117,11 @@ Reported: slice 2 — "Independent refactoring found minification removed the cl
 Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts"
 Disposition: proved by slice 2: slice-2-observations.md#generator-provenance-correction-after-independent-review; generated artifact header, readable adjacent license and byte-identical executable body
 
+### G4. Published execution guidance omitted its payload dependency
+Reported: slice 2 — "CI payload-declaration-links failed because delegation.md links to undeclared test-entry-rules.md; the current dependency closure must be repaired."
+Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts"
+Disposition: proved by slice 2: ci-repair-observations.md; full payload closure, real install/update, grouped and legacy inspection, and Bash 3.2 regression pass
+
 ## Ordered slices
 
 ### 1. Observe scoped page-object guidance during ordinary browser test work
@@ -234,13 +239,4 @@ Sleep-invalid proof must be rerun under that policy.
 
 ## Plan concern assessment
 
-Slice-plan refinement ran after independent review: retain all four reference
-boundaries, each with one cohesive observation/delivery loop. The native proof-route
-concern was settled through unpaid command assembly and the actual Codex isolation
-prefix; writable host profiles are explicit. Common applicability, path discovery
-and convention ownership remain single. No consolidate, split or escalate finding,
-story-resplit recommendation or sizing exception remained. No remaining slice-specific
-concern was found outside the permitted early native probe in slice 1. Failure
-there stops dependent work and changes the plan; it does not establish readiness
-for a substitute mechanism. No numeric sizing limit or exception was supplied.
-This plan grants no execution authority.
+See [retained preparation assessment](native-observations.md#plan-concern-assessment).
