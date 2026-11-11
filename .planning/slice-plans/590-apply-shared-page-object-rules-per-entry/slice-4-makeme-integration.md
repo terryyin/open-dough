@@ -209,3 +209,30 @@ Read-only review found no edit candidate or uncovered consumer. Preserved guide
 blob and one shared selection/Git/payload owner; reused current 815 dispositioned
 consumers and unchanged P1/P2/P3/native observations. No tests rerun because no
 refactor edits. Fresh whitespace/size checks passed. REFACTOR COMPLETE.
+
+## Execution retrospective: product and proof
+
+Planned execution is complete at published `1378bcf30ef6f45c02d1486ae1d690ec995eda48`.
+Attributable increments are `48fd7667f`, `f31723244`, `e2806cc5e`, `837c307d2`,
+and `1378bcf30`, respectively native discovery, shared selection, owned CI repair,
+changed-scope refactoring, and final delivery. This uncontaminated branch range
+starts at Take `80d20ed9e`; sibling increments and unrelated trunk changes are
+excluded. The CI repair deliberately inherited the accepted watcher solution;
+its source/proof and failure dispositions remain in ci-repair-observations.md.
+
+Original story, all four slices and 101 source commitments were compared with
+aggregate code, guides and proof. Current parser/membership/Git owners are shared;
+the generated standalone bundle preserves one behavioral source. ADRs 0003–0006
+remain satisfied, including the explicit human Cursor exception. Initial native
+observations preceded selection implementation. Public selection variations,
+changed Git scope, generation correspondence, real install/update, native useful
+authoring and wrong-expectation controls cover distinct risks; retained browser
+journeys preserve independent evidence. The whole-suite organization uses the
+maintained runner; accepted watcher consolidation preserves integration proof.
+No supported residue, architecture conflict, missing promise or suite correction
+was found. Product advice: no change; separate release/adoption work remains out
+of scope and this outcome supports the backlog's intent/proof direction.
+
+Review remains conditional on applicable branch CI, observed by the existing
+`watch-PCKAdf` observer. Product/proof review is complete; process remains selected
+and deferred until wrap-up's enabled Intent Coverage report and dispositions.

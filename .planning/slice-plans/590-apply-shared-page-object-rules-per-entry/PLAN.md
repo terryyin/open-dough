@@ -90,7 +90,7 @@ Jane-chan; Story Branch Mode; publisher `dashboard-territory.local-open-dough`.
 Owned workspace and branch: this checkout, `codex/apply-shared-page-object-rules-per-entry`.
 Origin trunk `main`; increment target `refs/heads/codex/apply-shared-page-object-rules-per-entry`.
 Starting revision `2599c7a5db27aac64c5923b592b7f5b66079d348`; published base/candidate
-`837c307d2cb94afaa342fa4ce956a72d758c1d6e` (slice 3 accepted on execution branch). CI observer coordinator `jane-chan-307`,
+`1378bcf30ef6f45c02d1486ae1d690ec995eda48` (slice 4 accepted on execution branch). CI observer coordinator `jane-chan-307`,
 `/tmp/dough-ci-501/watch-PCKAdf`, cell `g282:4`, session 40016, PID 1361 (live).
 See [current recovery boundary](native-observations.md#resume-boundary)
 for retained setup, accepted observations, Cursor exception and remaining proof.
@@ -103,7 +103,6 @@ Reported: slice 1 — "Cursor exited before authoring because its CLI requires a
 Story clause: "Deliver standalone guidance through Codex, Cursor and Claude Code's existing skill layouts; prove useful application and all four MakeMe/page-object choices."
 Disposition: owner changed "For this execution, Terry authorizes skipping the Cursor native authoring probe"
 Commitment: 43
-
 
 ### G2. Useful MakeMe application awaits the real shared convention (first reported in slice 2)
 Reported: slice 4 — "Selector proof covers four choices; both-enabled and MakeMe-only native-authored outcomes remain unperformed because shared MakeMe guidance is not integrated. Unavailable selected guidance is unresolved and dependent edits are withheld."
@@ -245,3 +244,6 @@ Sleep-invalid proof must be rerun under that policy.
 ## Plan concern assessment
 
 See [retained preparation assessment](native-observations.md#plan-concern-assessment).
+
+## Execution complete
+Product advice: no change; release and project adoption remain separately selected work. Product/proof review is settled in slice-4-makeme-integration.md; selected process review is deferred into wrap-up after Intent Coverage.
