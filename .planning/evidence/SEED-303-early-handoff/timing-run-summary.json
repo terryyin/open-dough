@@ -1,0 +1,68 @@
+[
+  {
+    "record": "/tmp/seed303-baseline-H5jSFc/run5.json",
+    "phase": "completed",
+    "selected": 45,
+    "terminal": {
+      "runnerStatus": "passed",
+      "strictStatus": "passed",
+      "finishedAt": "2026-11-11T02:04:28.213Z",
+      "durationMs": 265811.093
+    }
+  },
+  {
+    "record": "/tmp/seed303-baseline-H5jSFc/run6.json",
+    "phase": "completed",
+    "selected": 45,
+    "terminal": {
+      "runnerStatus": "passed",
+      "strictStatus": "passed",
+      "finishedAt": "2026-11-11T02:10:08.336Z",
+      "durationMs": 286537.57300000003
+    }
+  },
+  {
+    "record": "/tmp/seed303-baseline-H5jSFc/run7.json",
+    "phase": "completed",
+    "selected": 45,
+    "terminal": {
+      "runnerStatus": "passed",
+      "strictStatus": "passed",
+      "finishedAt": "2026-11-11T02:15:43.787Z",
+      "durationMs": 303263.302
+    }
+  },
+  {
+    "record": "/tmp/seed303-preview-KwFoNb/before.json",
+    "phase": "completed",
+    "selected": 24,
+    "terminal": {
+      "runnerStatus": "passed",
+      "strictStatus": "passed",
+      "finishedAt": "2026-11-11T04:16:47.841Z",
+      "durationMs": 102947.959
+    }
+  },
+  {
+    "record": "/tmp/seed303-preview-KwFoNb/probe.json",
+    "phase": "completed",
+    "selected": 6,
+    "terminal": {
+      "runnerStatus": "passed",
+      "strictStatus": "passed",
+      "finishedAt": "2026-11-11T04:19:46.310Z",
+      "durationMs": 20474.32
+    }
+  },
+  {
+    "record": "/tmp/seed303-preview-KwFoNb/composition.json",
+    "phase": "completed",
+    "selected": 7,
+    "terminal": {
+      "runnerStatus": "passed",
+      "strictStatus": "passed",
+      "finishedAt": "2026-11-11T04:27:00.790Z",
+      "durationMs": 44239.511000000006
+    }
+  }
+]

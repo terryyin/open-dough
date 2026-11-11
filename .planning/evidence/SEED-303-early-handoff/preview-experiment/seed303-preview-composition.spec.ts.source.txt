@@ -1,0 +1,144 @@
+// Disposable decision probe: pay actual native/dev, stage, copy and preview
+// costs together. This subset does not replace any maintained protection.
+import { expect, test } from "../support/pageTest.ts";
+import { cp, readFile, readdir, realpath, rm, stat, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { productionUpdateJourney, revision, backlog } from "./seed303CompositionJourney.ts";
+import { faultCause, ownCauseFault } from "../support/productionFault.ts";
+import { holdBuildPath } from "../support/productionBuildGate.ts";
+import { writeSharedLaunchRecord } from "../support/sharedLaunchRecord.ts";
+import { keepLaunchStoreText, launchStoreFile } from "../support/launchStore.ts";
+import { processRunning } from "../support/processGroup.ts";
+import { deploymentCheckout, expectProductionEnded, expectStillServing, preparations,
+  productionBoundary, productionDeployments, productionInspections } from "../support/productionWatcher.ts";
+import { attempts, machineSessions } from "../agentLaunchSessions.ts";
+import { expectSuppliedIcons } from "../support/brandIcons.ts";
+import { expectOwnOriginReadsOnly } from "../support/localOriginReads.ts";
+import { builtDeploymentDigest } from "../support/builtDeploymentDigest.ts";
+import { compositionPreviewProof } from "./seed303CompositionPreview.ts";
+import type { Acceptance } from "../../src/agentLaunch.ts";
+
+test.describe.configure({ mode: "serial" });
+const journey = productionUpdateJourney();
+let b: string;
+let c: string;
+let aCopy: string;
+let bCopy: string;
+async function snapshot(commit: string, name: string) {
+  const { fixture } = journey.started();
+  const names = await readdir(productionDeployments(fixture.home));
+  const found = names.find((name) => name.startsWith(commit.slice(0, 12)));
+  if (found === undefined) throw new Error("No built checkout");
+  const original = path.join(productionDeployments(fixture.home), found);
+  const copy = path.join(fixture.root, name);
+  const before = await builtDeploymentDigest(original);
+  await cp(original, copy, { recursive: true, verbatimSymlinks: true });
+  expect(await builtDeploymentDigest(copy)).toBe(before);
+  expect(await realpath(path.join(copy, "node_modules/.bin/vite"))).toContain(copy);
+  const marker = await readFile(path.join(copy, "fixture-marker"), "utf8");
+  await writeFile(path.join(copy, "fixture-marker"), "SNAPSHOT ISOLATION");
+  expect(await readFile(path.join(original, "fixture-marker"), "utf8")).toBe(marker);
+  await writeFile(path.join(copy, "fixture-marker"), marker);
+  expect(await builtDeploymentDigest(original)).toBe(before);
+  expect(await builtDeploymentDigest(copy)).toBe(before);
+  return copy;
+}
+
+test("the real watcher serves A beside development and snapshots its genuine isolated output", async ({ request }) => {
+  const state = await journey.activated();
+  state.shared = writeSharedLaunchRecord(state.fixture.home);
+  await journey.expectSharedRecord(request, state.developmentUrl);
+  await journey.expectSharedRecord(request, state.served.url);
+  await expectSuppliedIcons(request, state.served.url);
+  await expectOwnOriginReadsOnly(request, state.served.url);
+  aCopy = await snapshot(state.a, "preview-a");
+});
+
+test("a real failed B build preserves A and the same B remains retryable", async () => {
+  const state = journey.started();
+  await writeFile(faultCause(state.fixture.home, "build", "b"), "B build cause");
+  b = await state.fixture.publish({ ...state.fixture.markerChanges("MAIN B"),
+    "production-fault.mjs": ownCauseFault("b") }, "B with its own causes");
+  await expect.poll(() => state.watcher.output(), { timeout: 0 }).toContain("TRANSIENT build FAILURE");
+  expect(state.watcher.output()).toContain(`Production update failed for ${b}`);
+  expect(state.watcher.output()).toContain(`Keeping ${state.a} at ${state.served.url}`);
+  await expectStillServing(state.served, state.page, "MAIN A");
+});
+
+test("the held successful B retry stays pinned while C advances and drains one accepted native start", async ({ request }) => {
+  const state = journey.started();
+  const { fixture, hosts, watcher } = state;
+  await writeFile(holdBuildPath(fixture.home, 2), "");
+  await writeFile(holdBuildPath(fixture.home, 3), "");
+  hosts.claude.controls.claudeScenario("held");
+  const launch = { source: "open-dough", workflow: "ad-hoc", host: "claude",
+    instruction: "Keep this accepted start through the dashboard update." };
+  const calls = hosts.claude.controls.claudeLaunchCalls().length;
+  const start = () => request.post(`${state.served.url}/__agent-launch/accept`, {
+    headers: { Origin: state.served.url }, data: launch });
+  const accepted = await (await start()).json() as Extract<Acceptance, { kind: "accepted" }>;
+  expect(accepted.kind).toBe("accepted");
+  await expect.poll(() => hosts.claude.controls.claudeLaunchCalls().length).toBe(calls + 1);
+  await rm(faultCause(fixture.home, "build", "b"));
+  await expect.poll(async () => (await journey.builds()).length, { timeout: 0 }).toBe(2);
+  expect((await journey.builds())[1]?.checkout).toEqual(deploymentCheckout(b));
+  c = await fixture.publish(fixture.markerChanges("MAIN C"), "C after selected B");
+  await rm(holdBuildPath(fixture.home, 2));
+  await expect.poll(() => watcher.output(), { timeout: 0 }).toContain("Waiting for accepted dashboard starts before updating.");
+  await expect.poll(async () => (await start()).status()).toBe(503);
+  expect(processRunning(state.served.pid)).toBe(true);
+  expect(watcher.output()).not.toContain(`Production dashboard ${b} at`);
+  hosts.claude.controls.releaseHeldClaude();
+  await journey.replacedBy(b);
+  expect(preparations(watcher, b)).toBeGreaterThanOrEqual(2);
+  await state.page.reload();
+  await expect(state.page).toHaveTitle("MAIN B");
+  const boundary = productionBoundary(state.served.url, fixture.home);
+  const attempt = (await attempts(boundary)).find((entry) => entry.id === accepted.attempt.id);
+  expect(attempt).toMatchObject({ id: accepted.attempt.id, request: launch,
+    outcome: { kind: "launched" }, settledAt: expect.any(String) });
+  if (attempt?.outcome?.kind !== "launched") throw new Error("No launched session");
+  expect(await machineSessions(boundary)).toContainEqual(expect.objectContaining({
+    request: expect.objectContaining(launch), session: expect.objectContaining(attempt.outcome.session) }));
+  expect(hosts.claude.controls.claudeLaunchCalls()).toHaveLength(calls + 1);
+  keepLaunchStoreText(fixture.home, journey.shared().stored);
+  await journey.expectSharedRecord(request, state.served.url);
+  await journey.expectSharedRecord(request, state.developmentUrl);
+  const read = await request.get(`${state.served.url}/__authenticated-read?source=open-dough`, {
+    headers: { Origin: state.served.url } });
+  expect(read.status()).toBe(200);
+  expect(await read.json()).toMatchObject({ revision, backlog });
+  const refused = await request.post(`${state.served.url}/__agent-launch/accept`, {
+    headers: { Origin: state.served.url }, data: { ...launch, source: "unknown" } });
+  expect(refused.status()).toBe(404);
+  expect(hosts.claude.controls.claudeLaunchCalls()).toHaveLength(calls + 1);
+  await expect.poll(async () => (await readdir(productionDeployments(fixture.home)))
+    .some((name) => name.startsWith(state.a.slice(0, 12)))).toBe(false);
+  bCopy = await snapshot(b, "preview-b");
+});
+
+test("shutdown during C's real build ends the native build and preview without rewriting shared state", async ({ request }) => {
+  const state = journey.started();
+  const { fixture, watcher } = state;
+  await expect.poll(async () => (await journey.builds()).length, { timeout: 0 }).toBe(3);
+  const build = (await journey.builds())[2];
+  expect(build?.checkout).toEqual(deploymentCheckout(c));
+  expect(processRunning(build?.pid)).toBe(true);
+  const store = launchStoreFile(fixture.home);
+  const stored = await readFile(store, "utf8");
+  const identity = (await stat(store)).ino;
+  await watcher.stop();
+  journey.stopped();
+  expect(watcher.output()).not.toContain("could not run");
+  await expect.poll(() => processRunning(build?.pid)).toBe(false);
+  await expectProductionEnded(request, state.served, fixture.home);
+  expect(await readdir(productionInspections(fixture.home))).toEqual([]);
+  expect(await readFile(store, "utf8")).toBe(stored);
+  expect((await stat(store)).ino).toBe(identity);
+  expect(await readFile(state.configuration, "utf8")).toBe(state.configured);
+  expect((await stat(state.configuration)).ino).toBe(state.configurationIdentity);
+  expect((await request.get(state.developmentUrl)).status()).toBe(200);
+});
+
+compositionPreviewProof(() => ({ fixture: journey.started().fixture,
+  a: { commit: journey.started().a, directory: aCopy }, b: { commit: b, directory: bCopy } }));

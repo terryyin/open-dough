@@ -1,0 +1,136 @@
+run,file,title,status,retry,milliseconds
+run5,tests/runtime/production-watcher-failures.spec.ts,a watcher serves the working commit whose build and start are gated,passed,0,6091
+run5,tests/runtime/production-watcher-failures.spec.ts,a failed build keeps working production,passed,0,4003
+run5,tests/runtime/production-watcher-failures.spec.ts,after a failed build the same commit is retried until it builds,passed,0,5999
+run5,tests/runtime/production-watcher-failures.spec.ts,a candidate whose preview start will fail is prepared while the working commit serves,passed,0,992
+run5,tests/runtime/production-watcher-failures.spec.ts,a failed preview start restores the working commit,passed,0,5909
+run5,tests/runtime/production-watcher-failures.spec.ts,after a failed preview start the same commit is retried until it serves,passed,0,5965
+run5,tests/runtime/production-watcher-failures.spec.ts,an unavailable origin keeps production and checks resume when it returns; SIGHUP ends the watcher without a failure,passed,0,1625
+run5,tests/runtime/production-watcher-failures.spec.ts,a watcher started after a hang-up serves current main again,passed,0,5008
+run5,tests/runtime/production-watcher-failures.spec.ts,"a failed candidate whose restoration also fails reports both causes, exits and cleans up",passed,0,5472
+run5,tests/runtime/production-watcher-failures.spec.ts,an unexpectedly ended preview ends the watcher with cleanup,passed,0,6713
+run5,tests/runtime/production-watcher-updates.spec.ts,"repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development",passed,0,8972
+run5,tests/runtime/production-watcher-updates.spec.ts,"a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records",passed,0,7175
+run5,tests/runtime/production-watcher-updates.spec.ts,a later check prepares the next commit while the held commit stays served,passed,0,1892
+run5,tests/runtime/production-watcher-updates.spec.ts,"the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration",passed,0,4094
+run5,tests/runtime/production-watcher-updates.spec.ts,the served commit's page and boundaries read the backlog at the revision main names and refuse an unknown project,passed,0,134
+run5,tests/runtime/production-watcher-updates.spec.ts,"superseded checkouts are retired after the replacement serves, not before",passed,0,857
+run5,tests/runtime/production-watcher-updates.spec.ts,"npm watcher skips an excluded-only main range without install, build or restart",passed,0,1849
+run5,tests/runtime/production-watcher-updates.spec.ts,npm watcher builds an accumulated and mixed range once at its latest commit,passed,0,6131
+run5,tests/runtime/production-watcher-updates.spec.ts,npm watcher follows the published CI policy over a different local workflow,passed,0,1865
+run5,tests/runtime/production-watcher-updates.spec.ts,"npm watcher keeps its baseline through an unsupported published policy, reported on each check before any install",passed,0,3058
+run5,tests/runtime/production-watcher-updates.spec.ts,npm watcher activates a policy repair that qualifies only through the rejected application's retained paths,passed,0,7104
+run5,tests/runtime/production-watcher-updates.spec.ts,npm watcher keeps the repaired preview serving when the next commit fails its real build,passed,0,4550
+run5,tests/runtime/production-watcher-updates.spec.ts,"npm watcher activates the next commit, compared with the last successful activation across the failed build",passed,0,6961
+run5,tests/runtime/production-watcher-updates.spec.ts,npm watcher compares the next excluded range from its latest successful activation,passed,0,1928
+run5,tests/runtime/production-watcher-updates.spec.ts,"SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched",passed,0,4343
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,"new Done receipt at exactly105 seconds gets one full POST after sufficient prior collection, then106 seconds shows possible slowdown",passed,0,5935
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat recovered retains the original and its particular honest outcome,passed,0,4025
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat failed retains the original and its particular honest outcome,passed,0,4076
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat cancelled retains the original and its particular honest outcome,passed,0,3998
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat partial retains the original and its particular honest outcome,passed,0,3993
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat refused retains the original and its particular honest outcome,passed,0,3974
+run5,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat uncertain retains the original and its particular honest outcome,passed,0,4215
+run5,backend-tests/runtime/production-deployment.spec.ts,"deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries",passed,0,8629
+run5,tests/launches/responsive-session-reconciliation.spec.ts,"a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works",passed,0,8681
+run5,tests/observation/auto-refresh-rate-limit.spec.ts,"auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace",passed,0,21575
+run5,tests/review/story-review-touch.spec.ts,chooses a comparison and file and reads within each pane,passed,0,12525
+run5,tests/review/story-review-touch.spec.ts,keeps the chosen file and reading places through rotation and panel controls,passed,0,5333
+run5,tests/review/story-review-touch.spec.ts,chooses a comparison and file and reads within each pane,passed,0,9774
+run5,tests/review/story-review-touch.spec.ts,keeps the chosen file and reading places through rotation and panel controls,passed,0,5451
+run5,tests/sessions/cursor-runner-replacement.spec.ts,sessions a replaced runner last held are revived without Recover; the third launch stays running,passed,0,10070
+run5,tests/sessions/cursor-session-scope-continuation.spec.ts,"recovery and terminal open resume a scoped session through its recorded scope, preserving a deliberate default change",passed,0,5704
+run5,tests/sessions/cursor-session-scope-continuation.spec.ts,cannot-load replacement for a scoped session keeps the scope and sends no model flag,passed,0,5030
+run5,tests/sessions/cursor-session-scope-continuation.spec.ts,"a missing or unreadable recorded scope refuses recovery and terminal open, spawning nothing",passed,0,4533
+run5,tests/sessions/cursor-session-scope-continuation.spec.ts,"a Default session's recovery carries no scope, exactly as before",passed,0,5365
+run5,tests/stories/taken-agent-profile.spec.ts,"each Taken card shows its published agent profile, or says plainly that none is recorded or readable",passed,0,7066
+run6,tests/runtime/production-watcher-failures.spec.ts,a watcher serves the working commit whose build and start are gated,passed,0,8162
+run6,tests/runtime/production-watcher-failures.spec.ts,a failed build keeps working production,passed,0,5047
+run6,tests/runtime/production-watcher-failures.spec.ts,after a failed build the same commit is retried until it builds,passed,0,6978
+run6,tests/runtime/production-watcher-failures.spec.ts,a candidate whose preview start will fail is prepared while the working commit serves,passed,0,1015
+run6,tests/runtime/production-watcher-failures.spec.ts,a failed preview start restores the working commit,passed,0,5903
+run6,tests/runtime/production-watcher-failures.spec.ts,after a failed preview start the same commit is retried until it serves,passed,0,5976
+run6,tests/runtime/production-watcher-failures.spec.ts,an unavailable origin keeps production and checks resume when it returns; SIGHUP ends the watcher without a failure,passed,0,1963
+run6,tests/runtime/production-watcher-failures.spec.ts,a watcher started after a hang-up serves current main again,passed,0,6037
+run6,tests/runtime/production-watcher-failures.spec.ts,"a failed candidate whose restoration also fails reports both causes, exits and cleans up",passed,0,6243
+run6,tests/runtime/production-watcher-failures.spec.ts,an unexpectedly ended preview ends the watcher with cleanup,passed,0,5595
+run6,tests/runtime/production-watcher-updates.spec.ts,"repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development",passed,0,6980
+run6,tests/runtime/production-watcher-updates.spec.ts,"a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records",passed,0,7182
+run6,tests/runtime/production-watcher-updates.spec.ts,a later check prepares the next commit while the held commit stays served,passed,0,1887
+run6,tests/runtime/production-watcher-updates.spec.ts,"the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration",passed,0,4021
+run6,tests/runtime/production-watcher-updates.spec.ts,the served commit's page and boundaries read the backlog at the revision main names and refuse an unknown project,passed,0,122
+run6,tests/runtime/production-watcher-updates.spec.ts,"superseded checkouts are retired after the replacement serves, not before",passed,0,356
+run6,tests/runtime/production-watcher-updates.spec.ts,"npm watcher skips an excluded-only main range without install, build or restart",passed,0,2849
+run6,tests/runtime/production-watcher-updates.spec.ts,npm watcher builds an accumulated and mixed range once at its latest commit,passed,0,6124
+run6,tests/runtime/production-watcher-updates.spec.ts,npm watcher follows the published CI policy over a different local workflow,passed,0,2876
+run6,tests/runtime/production-watcher-updates.spec.ts,"npm watcher keeps its baseline through an unsupported published policy, reported on each check before any install",passed,0,3088
+run6,tests/runtime/production-watcher-updates.spec.ts,npm watcher activates a policy repair that qualifies only through the rejected application's retained paths,passed,0,6077
+run6,tests/runtime/production-watcher-updates.spec.ts,npm watcher keeps the repaired preview serving when the next commit fails its real build,passed,0,4017
+run6,tests/runtime/production-watcher-updates.spec.ts,"npm watcher activates the next commit, compared with the last successful activation across the failed build",passed,0,4968
+run6,tests/runtime/production-watcher-updates.spec.ts,npm watcher compares the next excluded range from its latest successful activation,passed,0,2905
+run6,tests/runtime/production-watcher-updates.spec.ts,"SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched",passed,0,5476
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,"new Done receipt at exactly105 seconds gets one full POST after sufficient prior collection, then106 seconds shows possible slowdown",passed,0,6122
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat recovered retains the original and its particular honest outcome,passed,0,3987
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat failed retains the original and its particular honest outcome,passed,0,4066
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat cancelled retains the original and its particular honest outcome,passed,0,3913
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat partial retains the original and its particular honest outcome,passed,0,3984
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat refused retains the original and its particular honest outcome,passed,0,3939
+run6,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat uncertain retains the original and its particular honest outcome,passed,0,4198
+run6,backend-tests/runtime/production-deployment.spec.ts,"deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries",passed,0,7969
+run6,tests/launches/responsive-session-reconciliation.spec.ts,"a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works",passed,0,9033
+run6,tests/observation/auto-refresh-rate-limit.spec.ts,"auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace",passed,0,21624
+run6,tests/review/story-review-touch.spec.ts,chooses a comparison and file and reads within each pane,passed,0,20618
+run6,tests/review/story-review-touch.spec.ts,keeps the chosen file and reading places through rotation and panel controls,passed,0,7631
+run6,tests/review/story-review-touch.spec.ts,chooses a comparison and file and reads within each pane,passed,0,15813
+run6,tests/review/story-review-touch.spec.ts,keeps the chosen file and reading places through rotation and panel controls,passed,0,7300
+run6,tests/sessions/cursor-runner-replacement.spec.ts,sessions a replaced runner last held are revived without Recover; the third launch stays running,passed,0,9874
+run6,tests/sessions/cursor-session-scope-continuation.spec.ts,"recovery and terminal open resume a scoped session through its recorded scope, preserving a deliberate default change",passed,0,6110
+run6,tests/sessions/cursor-session-scope-continuation.spec.ts,cannot-load replacement for a scoped session keeps the scope and sends no model flag,passed,0,5367
+run6,tests/sessions/cursor-session-scope-continuation.spec.ts,"a missing or unreadable recorded scope refuses recovery and terminal open, spawning nothing",passed,0,4272
+run6,tests/sessions/cursor-session-scope-continuation.spec.ts,"a Default session's recovery carries no scope, exactly as before",passed,0,5068
+run6,tests/stories/taken-agent-profile.spec.ts,"each Taken card shows its published agent profile, or says plainly that none is recorded or readable",passed,0,8065
+run7,tests/runtime/production-watcher-failures.spec.ts,a watcher serves the working commit whose build and start are gated,passed,0,5004
+run7,tests/runtime/production-watcher-failures.spec.ts,a failed build keeps working production,passed,0,3999
+run7,tests/runtime/production-watcher-failures.spec.ts,after a failed build the same commit is retried until it builds,passed,0,4972
+run7,tests/runtime/production-watcher-failures.spec.ts,a candidate whose preview start will fail is prepared while the working commit serves,passed,0,991
+run7,tests/runtime/production-watcher-failures.spec.ts,a failed preview start restores the working commit,passed,0,4901
+run7,tests/runtime/production-watcher-failures.spec.ts,after a failed preview start the same commit is retried until it serves,passed,0,5975
+run7,tests/runtime/production-watcher-failures.spec.ts,an unavailable origin keeps production and checks resume when it returns; SIGHUP ends the watcher without a failure,passed,0,1899
+run7,tests/runtime/production-watcher-failures.spec.ts,a watcher started after a hang-up serves current main again,passed,0,5003
+run7,tests/runtime/production-watcher-failures.spec.ts,"a failed candidate whose restoration also fails reports both causes, exits and cleans up",passed,0,5793
+run7,tests/runtime/production-watcher-failures.spec.ts,an unexpectedly ended preview ends the watcher with cleanup,passed,0,5569
+run7,tests/runtime/production-watcher-updates.spec.ts,"repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development",passed,0,7016
+run7,tests/runtime/production-watcher-updates.spec.ts,"a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records",passed,0,6219
+run7,tests/runtime/production-watcher-updates.spec.ts,a later check prepares the next commit while the held commit stays served,passed,0,1889
+run7,tests/runtime/production-watcher-updates.spec.ts,"the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration",passed,0,4041
+run7,tests/runtime/production-watcher-updates.spec.ts,the served commit's page and boundaries read the backlog at the revision main names and refuse an unknown project,passed,0,122
+run7,tests/runtime/production-watcher-updates.spec.ts,"superseded checkouts are retired after the replacement serves, not before",passed,0,360
+run7,tests/runtime/production-watcher-updates.spec.ts,"npm watcher skips an excluded-only main range without install, build or restart",passed,0,2958
+run7,tests/runtime/production-watcher-updates.spec.ts,npm watcher builds an accumulated and mixed range once at its latest commit,passed,0,6126
+run7,tests/runtime/production-watcher-updates.spec.ts,npm watcher follows the published CI policy over a different local workflow,passed,0,2956
+run7,tests/runtime/production-watcher-updates.spec.ts,"npm watcher keeps its baseline through an unsupported published policy, reported on each check before any install",passed,0,2996
+run7,tests/runtime/production-watcher-updates.spec.ts,npm watcher activates a policy repair that qualifies only through the rejected application's retained paths,passed,0,6101
+run7,tests/runtime/production-watcher-updates.spec.ts,npm watcher keeps the repaired preview serving when the next commit fails its real build,passed,0,4030
+run7,tests/runtime/production-watcher-updates.spec.ts,"npm watcher activates the next commit, compared with the last successful activation across the failed build",passed,0,6974
+run7,tests/runtime/production-watcher-updates.spec.ts,npm watcher compares the next excluded range from its latest successful activation,passed,0,3998
+run7,tests/runtime/production-watcher-updates.spec.ts,"SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched",passed,0,5118
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,"new Done receipt at exactly105 seconds gets one full POST after sufficient prior collection, then106 seconds shows possible slowdown",passed,0,7468
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat recovered retains the original and its particular honest outcome,passed,0,3927
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat failed retains the original and its particular honest outcome,passed,0,3812
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat cancelled retains the original and its particular honest outcome,passed,0,3920
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat partial retains the original and its particular honest outcome,passed,0,4210
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat refused retains the original and its particular honest outcome,passed,0,4150
+run7,backend-tests/intent/landed-ci-automatic-repeat.spec.ts,collected repeat uncertain retains the original and its particular honest outcome,passed,0,4492
+run7,backend-tests/runtime/production-deployment.spec.ts,"deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries",passed,0,8197
+run7,tests/launches/responsive-session-reconciliation.spec.ts,"a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works",passed,0,8990
+run7,tests/observation/auto-refresh-rate-limit.spec.ts,"auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace",passed,0,20450
+run7,tests/review/story-review-touch.spec.ts,chooses a comparison and file and reads within each pane,passed,0,20804
+run7,tests/review/story-review-touch.spec.ts,keeps the chosen file and reading places through rotation and panel controls,passed,0,7621
+run7,tests/review/story-review-touch.spec.ts,chooses a comparison and file and reads within each pane,passed,0,16015
+run7,tests/review/story-review-touch.spec.ts,keeps the chosen file and reading places through rotation and panel controls,passed,0,7629
+run7,tests/sessions/cursor-runner-replacement.spec.ts,sessions a replaced runner last held are revived without Recover; the third launch stays running,passed,0,11835
+run7,tests/sessions/cursor-session-scope-continuation.spec.ts,"recovery and terminal open resume a scoped session through its recorded scope, preserving a deliberate default change",passed,0,6107
+run7,tests/sessions/cursor-session-scope-continuation.spec.ts,cannot-load replacement for a scoped session keeps the scope and sends no model flag,passed,0,5404
+run7,tests/sessions/cursor-session-scope-continuation.spec.ts,"a missing or unreadable recorded scope refuses recovery and terminal open, spawning nothing",passed,0,4950
+run7,tests/sessions/cursor-session-scope-continuation.spec.ts,"a Default session's recovery carries no scope, exactly as before",passed,0,5299
+run7,tests/stories/taken-agent-profile.spec.ts,"each Taken card shows its published agent profile, or says plainly that none is recorded or readable",passed,0,8353

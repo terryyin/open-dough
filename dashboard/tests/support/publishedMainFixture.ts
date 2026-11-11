@@ -29,7 +29,10 @@ export type PublishedMainFixture = Awaited<
   ReturnType<typeof publishedMainFixture>
 >;
 
-export async function publishedMainFixture(fullSource = false) {
+export async function publishedMainFixture(
+  fullSource = false,
+  sourcePaths: readonly string[] = [],
+) {
   const root = mkdtempSync(path.join(tmpdir(), "dough-published-main-"));
   const development = path.join(root, "development");
   const origin = path.join(root, "origin.git");
@@ -58,7 +61,9 @@ export async function publishedMainFixture(fullSource = false) {
       // hashed, fetched, and built into every deployment.
       const listed = async (...args: string[]) =>
         (
-          await exec("git", ["ls-files", "-z", ...args], { cwd: repoRoot })
+          await exec("git", ["ls-files", "-z", ...args, "--", ...sourcePaths], {
+            cwd: repoRoot,
+          })
         ).stdout
           .split("\0")
           .filter(Boolean);

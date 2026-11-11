@@ -1,0 +1,38 @@
+run,file,title,status,retry,milliseconds
+before,tests/runtime/production-watcher-failures.spec.ts,a watcher serves the working commit whose build and start are gated,passed,0,6089
+before,tests/runtime/production-watcher-failures.spec.ts,a failed build keeps working production,passed,0,4007
+before,tests/runtime/production-watcher-failures.spec.ts,after a failed build the same commit is retried until it builds,passed,0,4968
+before,tests/runtime/production-watcher-failures.spec.ts,a candidate whose preview start will fail is prepared while the working commit serves,passed,0,1982
+before,tests/runtime/production-watcher-failures.spec.ts,a failed preview start restores the working commit,passed,0,3896
+before,tests/runtime/production-watcher-failures.spec.ts,after a failed preview start the same commit is retried until it serves,passed,0,5984
+before,tests/runtime/production-watcher-failures.spec.ts,an unavailable origin keeps production and checks resume when it returns; SIGHUP ends the watcher without a failure,passed,0,2401
+before,tests/runtime/production-watcher-failures.spec.ts,a watcher started after a hang-up serves current main again,passed,0,5000
+before,tests/runtime/production-watcher-failures.spec.ts,"a failed candidate whose restoration also fails reports both causes, exits and cleans up",passed,0,5447
+before,tests/runtime/production-watcher-failures.spec.ts,an unexpectedly ended preview ends the watcher with cleanup,passed,0,5910
+before,tests/runtime/production-watcher-updates.spec.ts,"repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development",passed,0,6968
+before,tests/runtime/production-watcher-updates.spec.ts,"a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records",passed,0,7191
+before,tests/runtime/production-watcher-updates.spec.ts,a later check prepares the next commit while the held commit stays served,passed,0,1890
+before,tests/runtime/production-watcher-updates.spec.ts,"the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration",passed,0,4043
+before,tests/runtime/production-watcher-updates.spec.ts,the served commit's page and boundaries read the backlog at the revision main names and refuse an unknown project,passed,0,133
+before,tests/runtime/production-watcher-updates.spec.ts,"superseded checkouts are retired after the replacement serves, not before",passed,0,858
+before,tests/runtime/production-watcher-updates.spec.ts,"npm watcher skips an excluded-only main range without install, build or restart",passed,0,1849
+before,tests/runtime/production-watcher-updates.spec.ts,npm watcher follows the published CI policy over a different local workflow,passed,0,1857
+before,tests/runtime/production-watcher-updates.spec.ts,"npm watcher keeps its baseline through an unsupported published policy, reported on each check before any install",passed,0,3021
+before,tests/runtime/production-watcher-updates.spec.ts,"SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched",passed,0,5343
+before,backend-tests/runtime/production-deployment.spec.ts,"deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries",passed,0,5873
+before,backend-tests/runtime/production-updates.spec.ts,published updates keep excluded and accumulated changes against the last activation,passed,0,854
+before,backend-tests/runtime/production-updates.spec.ts,a rejected policy is checked again and its ignored repair retains application changes,passed,0,684
+before,backend-tests/runtime/production-updates.spec.ts,an unactivated candidate is retried and the next docs commit retains its application paths,passed,0,886
+probe,backend-tests/runtime/production-preview-lifecycle.spec.ts,a genuine isolated selected build serves its distribution after main advances and stops cleanly,passed,0,6074
+probe,backend-tests/runtime/production-preview-lifecycle.spec.ts,a genuinely built candidate stays isolated while the working preview serves,passed,0,4692
+probe,backend-tests/runtime/production-preview-lifecycle.spec.ts,a failed preview start restores the exact working output at the same URL,passed,0,798
+probe,backend-tests/runtime/production-preview-lifecycle.spec.ts,the same built candidate retries successfully without changing either prepared output,passed,0,946
+probe,backend-tests/runtime/production-preview-lifecycle.spec.ts,failed candidate and restoration preserve both causes and leave no working preview,passed,0,330
+probe,backend-tests/runtime/production-preview-lifecycle.spec.ts,unexpected preview loss is reported and shutdown cleans the owned process,passed,0,580
+composition,tests/runtime/seed303-preview-composition.spec.ts,the real watcher serves A beside development and snapshots its genuine isolated output,passed,0,10433
+composition,tests/runtime/seed303-preview-composition.spec.ts,a real failed B build preserves A and the same B remains retryable,passed,0,3091
+composition,tests/runtime/seed303-preview-composition.spec.ts,the held successful B retry stays pinned while C advances and drains one accepted native start,passed,0,10587
+composition,tests/runtime/seed303-preview-composition.spec.ts,shutdown during C's real build ends the native build and preview without rewriting shared state,passed,0,1000
+composition,tests/runtime/seed303-preview-composition.spec.ts,the paid A/B snapshots restore and retry through the production preview owner,passed,0,6738
+composition,tests/runtime/seed303-preview-composition.spec.ts,failed snapshot startup and restoration keep both causes and close the production URL,passed,0,327
+composition,tests/runtime/seed303-preview-composition.spec.ts,snapshot preview loss is reported and all owned processes stop,passed,0,680

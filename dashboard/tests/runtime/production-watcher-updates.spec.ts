@@ -1,8 +1,8 @@
 // One serial production chain proves replacement, durable start completion,
 // shared machine records, published reads, policy decisions and shutdown.
 // Accepted cost: the real npm install, Vite build and preview behind each
-// activation, including the policy steps ./productionUpdatePolicies.ts adds
-// to this chain, which a prepared or prebuilt deployment would bypass. Setup
+// activation, which a prepared or prebuilt deployment would bypass. Detailed
+// policy ranges use the real selection owner without staging. Setup
 // and waits around the activations stay open to improvement.
 import { expect, test } from "../support/pageTest.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";

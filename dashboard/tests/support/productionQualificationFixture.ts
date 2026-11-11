@@ -21,6 +21,14 @@ import { repoRoot } from "./repositoryRoot.ts";
 export const pushExclusions =
   '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
 
+// The watcher publishes this policy with A; its extra exclusion conflicts with
+// the dirty local workflow.
+export const publishedPolicy = (workflow: string) =>
+  workflow.replace(
+    pushExclusions,
+    `${pushExclusions}      - "extra/**"\n      - ".github/**"\n`,
+  );
+
 export async function qualificationFixture() {
   const fixture = await publishedMainFixture();
   const workflow = await readFile(path.join(repoRoot, ciWorkflowPath), "utf8");

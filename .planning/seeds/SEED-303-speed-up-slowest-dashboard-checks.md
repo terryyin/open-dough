@@ -5,77 +5,69 @@ planted: 2026-11-11
 scope: story
 ---
 
-# SEED-303 — Faster feedback from the slowest Dashboard checks
+# SEED-303 — Speed up the remaining Dashboard checks
 
 <a id="speed-up-slowest-dashboard-checks"></a>
 
-### Run the slowest Dashboard checks together in under 30 seconds
+### Speed up the remaining Dashboard checks
 
 **Identity:** SEED-303#speed-up-slowest-dashboard-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"359db1b1d9f86cf7e18fb67dea156522b03eaf075fc139740c1dbdb6c3922e99","plan":"74e268fc0096b12d01937802cfa36670034008f5dfad1d64ce0cdcecc58a5edb"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md","assessment":"not-ready","reasons":["Terry explicitly requested early return to backlog priority six and Not ready. The narrowed profile/pending-Take/pinning scope needs refinement, fresh source-only proof ownership and a matched remaining-selection baseline before the retained provisional slices can execute. No agent is assigned and no execution authority is granted."],"basis":{"document":"7083bc51af9f226b2414204f446957c522751d54f967f2d7aa2094f48c6f3095","plan":"e103124f97bddfb72ff9a8816989b15f7e937f896a8c74cf8c4f5ddeb9e6726a"}}
 ```
 
 #### Goal
 
-Dashboard maintainers get the same protection for the behavior in the
-[45-check starting selection](../evidence/SEED-303-dashboard-test-timings.md)
-in **under 30 seconds of elapsed time** in one timed local command. Run
-substantially fewer maintained checks for that protection. Use ordinary test
-runners and one Playwright worker. Count startup, shared preparation, test
-bodies, teardown, and any replacement proof in the same elapsed measure. The two exploratory local runs total
-260.84 seconds across separate invocations. The plan establishes the comparable
-single-invocation baseline before using it to claim a saving.
+Dashboard maintainers can run the remaining CI protection for Taken agent
+profiles, pending-Take reconciliation and pinned deployment in under 30 seconds
+elapsed through one ordinary local command with one Playwright worker. Include
+startup, shared preparation, all maintained or credited replacement checks and
+teardown. Preserve the distinct protection of each behavior.
 
 #### Scope
 
-Use the smallest scenario and domain data that distinguish each promised
-behavior. Each check should protect one coherent intent. Reuse a broader
-check only where its assertion would catch the same plausible regression as
-the narrower check. Establish that protection before removing the old proof.
-Prefer real public boundaries close to the rule. Keep a browser, Git
-repository, native process, or build where it supplies distinct protection.
-Reuse shared MakeMe for domain setup and existing provider fixtures for
-external inputs.
+- Keep correct Taken owner/detail, mode, branch, tool/model, missing versus
+  unreadable assignments, distinct portraits/icons, meaningful widths and
+  accessibility observable with the smallest useful board.
+- Keep pending Take actions protected through stale/unrelated and partial
+  accepted reads, comparison failure/recovery, final complete snapshot and
+  persisted reconciliation across reload.
+- Retain the already improved real pinned-deployment case: main may advance
+  after selection, while the isolated checkout/build/HTTP content, curated
+  cartoons/icons, origin boundaries and process shutdown remain correct.
+- Reduce only related setup and repeated assertions with equivalent protection.
+  Use shared MakeMe, existing external fixtures and real public boundaries;
+  preserve ordinary CI selection. Local-only archived experiments are excluded.
+- The five extracted families are owned by SEED-311–315. Their work and timings
+  do not belong in this remaining selection. There is no longer an aggregate
+  under-thirty-second promise spanning all five independent stories.
 
-Drive meaningful transitions through observable signals or controlled time.
-Use the production path through each boundary, with no new mocks, internal
-stubs, wall-clock sleeps, retries, skips, timeout inflation, or special runner
-mode to reach the target. Preserve ordinary CI selection and the protections
-of related checks affected by shared fixture changes. Unrelated Dashboard
-checks and exploratory testing are outside the improvement scope.
-
-The [slice plan](../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md)
-owns experiments and their reassessment. It carries forward accepted proof
-from the [default-timeout story](SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
-where that work overlaps.
+No new internal mocks, wall-clock sleeps, retries, skips, timeout inflation or
+special runner mode may manufacture a saving. Follow the
+[failure policy](../../AGENTS.md#failing-and-flaky-tests).
 
 #### Key examples
 
-- A published Dashboard revision is selected, main advances, and the real
-  preview still serves the selected revision. Failed candidates preserve or
-  restore the last working deployment. Rejected, excluded, and retried
-  changes follow the correct baseline and the relevant shutdown paths still
-  clean up.
-- A provider tells the dashboard when to check again. Advancing to just before
-  and then to the deadline proves no upstream read before it, recovery at the
-  deadline, and the return to steady pacing, including the reset that falls
-  beyond the normal cadence.
-- A small published board exposes the right Taken owner and detail, with
-  missing and malformed assignments distinguished. Representative real touch
-  input reaches the intended diff pane and proves reading position survives
-  layout changes. Distinct icon, portrait, viewport, and accessibility
-  promises keep observable proof.
-- A stale Cursor runner preserves existing sessions until a new launch
-  replaces it. Resumed and recovered sessions use the right recorded scope,
-  and missing or unreadable scope refuses to start a client. A pending Take
-  stays protected through stale and unrelated reads and returns its actions
-  only after the accepted snapshot is complete.
-- One accepted landing crosses real receipt ingestion, collection, and rerun
-  admission. Its repeat is requested once, survives restart, and shows the
-  correct outcome. Each outcome and threshold still has a check that would
-  catch its own regression.
-- The replacement selection contains substantially fewer distinct maintained
-  checks. Three
-  consecutive comparable ordinary runs each pass in under 30 seconds, with a
-  recorded mapping from every original promise to passing retained proof.
+- A small published board shows the correct owner and detail; absent and malformed
+  profiles remain distinct, with portrait/icon, viewport and accessibility proof.
+- A pending Take remains protected through stale/unrelated and partial accepted
+  snapshots; actions return only after the fully accepted snapshot is read, and
+  persisted reconciliation survives reload.
+- After a revision is selected and main advances, the real preview serves that
+  selected revision and preserves source/build isolation, assets, origin policy
+  and shutdown boundaries.
+- Three comparable passing ordinary one-worker runs of this remaining selection
+  each finish below 30 seconds, including all setup and replacement proof.
+
+#### Retained plan and early handoff
+
+Keep the [remaining slice plan](../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md).
+Terry returned this unfinished story to backlog priority six and explicitly
+requested Not ready. Re-refine the narrowed scope, refresh source-only proof
+ownership and settle the remaining-selection baseline before execution. Old
+whole-story readiness does not transfer. No execution agent remains assigned.
+
+Completed improvements remain in the product. The
+[early-handoff mapping and retained evidence](../evidence/SEED-303-early-handoff/README.md)
+account for every former slice and the five independent follow-ups. This is an
+early return to the backlog, not a completed-story or dropped-work record.
