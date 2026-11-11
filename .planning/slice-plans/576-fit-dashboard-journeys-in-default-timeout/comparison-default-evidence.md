@@ -6,6 +6,9 @@ nine-path setup, both full installed-CLI sources and every sort observation.
 Three complete loaded comparisons and preservation checks pass; useful margin
 still needs the actual hosted proof below. G4/G7 remain open.
 
+The first published hosted attempt failed its shared transport byte contract;
+[owned repair and renewed CI](ci-repair-evidence.md) precede margin acceptance.
+
 ## First current-client baseline: invalid pressure admission
 
 Before any candidate copy, the unchanged family failed sort at 30.669 s and

@@ -110,3 +110,9 @@ Formatter findings repaired: callbacks return Promise.resolve; trap-only
 functions document ShellCheck’s unused-function false positive. Runtime flow
 is unchanged. The same four-spec set passes 24/24 after this repair:
 /tmp/seed287-gh-transport-actual-20261111/format-repair-proof.json.
+
+The first triggering hosted increment b7f58fde exposed empty response streams
+under Ubuntu's dash despite the retained passing macOS proof. That portability
+defect is owned, not exempted by earlier results. [CI repair](ci-repair-evidence.md)
+keeps exact byte/lifecycle contract and all twelve failed jobs in scope; no
+current hosted success or comparison margin is claimed before repaired CI.

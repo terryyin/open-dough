@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `2df60dce0dd79107103572bd70fe82298d203392`
-  (bounded history probe; slice 11 client remains accepted); completed slice 2
+- Last accepted revision on entry to this increment: `b7f58fde6403ac154e0c18660e55c36ac9873eea`
+  (preservation progress; hosted transport repair remains open); completed slice 2
   was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity

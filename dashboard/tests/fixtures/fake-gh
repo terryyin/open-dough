@@ -94,7 +94,7 @@ fi
 # macOS head rejects -c 0, so empty stderr needs no head invocation.
 print_bytes() {
   launching=yes
-  "$@" <&0 &
+  "$@" <&3 &
   child=$!
   launching=no
   if [ -n "${interrupted}" ]; then exit_signal; fi
@@ -104,9 +104,10 @@ print_bytes() {
   return "${printed}"
 }
 {
-  IFS= read -r status
-  IFS= read -r stderr_bytes
+  # A separate descriptor survives dash's null stdin for asynchronous commands.
+  IFS= read -r status <&3
+  IFS= read -r stderr_bytes <&3
   if [ "${stderr_bytes}" -gt 0 ]; then print_bytes head -c "${stderr_bytes}" >&2; fi
   print_bytes cat
   exit "${status}"
-} < "${reply}/stdio"
+} 3< "${reply}/stdio"

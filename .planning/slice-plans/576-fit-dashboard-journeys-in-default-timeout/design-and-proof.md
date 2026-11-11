@@ -201,3 +201,15 @@ remaining proof; return before another variant if this one fails.
   real deployment installs, builds, and starts remain required.
   New slice 6 pressure evidence supports exact required-input readiness, despite
   the earlier quiet 3–4 s hypothesis being insufficient; no blanket prewarm.
+
+## Current plan assessment
+
+Earlier local proof remains retained. Canonical/current-client preservation
+passed its local checks, but worst sort body has about .980 s headroom. Both
+small-data cuts are parked/discarded. Slice12's actual hosted observation at
+b7f58fde failed all twelve dashboard jobs; the installed transport byte tests
+received empty streams under Ubuntu. G12 owns that repair before renewed
+hosted margin proof, and G4/G7 remain open. Thirteen slices, no Goal/Scope,
+numeric exception or waiver. Slice13 owns broader/full/named/trunk gates and
+G11's thirteen-part input at the existing human checkpoint. Branch validation
+still uses twelve shards. See [CI repair evidence](ci-repair-evidence.md).

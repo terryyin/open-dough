@@ -203,15 +203,16 @@ Reported: slice 11 — "Incoming c73b4d00d applies Terry-approved thirteen dashb
 Story clause: "Refresh existing shard weights from all 12 artifacts"
 Disposition: receiving slice 13
 Commitment: Q09
+
+### G12. Published transport loses streams under dash
+Reported: slice 12 — "Run 42949046330/1 failed all twelve dashboard jobs; installed-client contract tests received empty stdout and stderr with the expected exit codes."
+Story clause: "Preserve every distinct behavioral promise at an observable boundary."
+Disposition: return
+
 ## Plan concern assessment
 
-Slices 1–11 retain accepted proof. Canonical/current-client preservation passed
-all current checks, but worst local sort body has about .980 s headroom. Both
-small-data cuts are parked/discarded. Slice12 now obtains actual hosted case
-proof of the preserved implementation before another change; G4/G7 remain
-open. Thirteen slices, no Goal/Scope change, numeric exception or waiver. Slice13
-owns broader/full/named/trunk gates and G11's thirteen-part input at the existing
-human checkpoint. Branch validation still uses twelve shards.
+[Current assessment](design-and-proof.md#current-plan-assessment) and
+[owned CI repair](ci-repair-evidence.md); G4/G7/G12 stay open.
 
 ## Trunk measurement checkpoint
 
