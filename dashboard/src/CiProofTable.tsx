@@ -1,23 +1,24 @@
 // CI proof figures in aligned columns: one row per scope, in the order the
 // caller gives, naming the scope and its counts with their unit and cumulative
 // test execution time, including timing gaps
-// (`./ciProofWording.ts`'s `ciProofCellsOf`). Intent's homepage Proof
-// (`./IntentCiProof.tsx`) gives one row per declared entry. A story CI
-// comparison (`./IntentCiEntryComparison.tsx`) reuses this table with Baseline,
-// Branch and Landed timing columns in place of a single Test execution time
-// column, keeping Counts; when Branch and Landed show their change from
-// Baseline, their headers note "vs baseline". A Summary's story comparison
-// (`./IntentScopeComparisonTable.tsx`) adds Change after the scope, its cells
-// narrowing their padding sooner for the extra column. A scope path wraps
-// after a `/`, or within a part only in a narrow reading pane, so the columns
-// fit with their words whole; the shared Proof table box keeps any overflow
-// inside it
-// (`./ci-proof-table.css`). CI wall time is the attempt's own and never a
-// column here. A caller that gives `sorting` makes each column header a
-// button that sorts the rows by that column's figures (`./ciProofSort.ts`),
-// marking the sorted header with `aria-sort` and a direction arrow; the
-// caller holds the sort choice in memory, as CI status does
-// (`useCiProofSorting`) and a Summary does with Intent's reading place
+// (`./ciProofWording.ts`'s `ciProofCellsOf`, `./ciProofEntryCells.ts`).
+// Intent's homepage Proof (`./IntentCiProof.tsx`) gives one row per declared
+// entry, with several units as labeled lines inside Counts and Test execution
+// time.
+// A story CI comparison (`./IntentCiEntryComparison.tsx`) reuses this table
+// with Baseline, Branch and Landed timing columns in place of a single Test
+// execution time column, keeping Counts; when Branch and Landed show their
+// change from Baseline, their headers note "vs baseline". A Summary's story
+// comparison (`./IntentScopeComparisonTable.tsx`) adds Change after the
+// scope, its cells narrowing their padding sooner for the extra column. A
+// scope path wraps after a `/`, or within a part only in a narrow reading
+// pane, so the columns fit with their words whole; the shared Proof table box
+// keeps any overflow inside it (`./ci-proof-table.css`). CI wall time is the
+// attempt's own and never a column here. A caller that gives `sorting` makes
+// each column header a button that sorts the rows by that column's figures
+// (`./ciProofSort.ts`), marking the sorted header with `aria-sort` and a
+// direction arrow; the caller holds the sort choice in memory, as CI status
+// does (`useCiProofSorting`) and a Summary does with Intent's reading place
 // (`./IntentScopeProof.tsx`). A sort by a column this table lacks leaves the
 // rows in their given order with no header sorted, and is kept, so it orders
 // the next table that has the column again. Without `sorting` the headers stay

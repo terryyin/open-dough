@@ -3,6 +3,7 @@
 **Identity:** SEED-304#show-one-ci-proof-row-per-location
 
 **Source:** [Refined story](../../seeds/SEED-304-ci-proof-one-row-per-location.md#show-one-ci-proof-row-per-location)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -99,7 +100,7 @@ artifact to remain downloadable for automated tests.
 ### 1. Read all result types in one location row
 Type: Behavior
 
-Status: planned
+Status: done
 
 Pre-condition: the judged attempt has a published summary with one or several
 result types per location, including empty reports and genuine gaps.
@@ -198,8 +199,64 @@ with the exact missing observation and owner; keep slice 1's accepted proof.
   remain together. No remaining slice-specific design or proof concern was
   identified. Live activation is an acceptance operation, not assumed evidence.
 
+## Story obligations
+
+### G1. Do not redesign folder Summaries
+Reported: slice 1 — "This increment does not redesign folder Summaries."
+Story clause: "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Disposition: excluded "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Commitment: 16
+
+### G2. Do not redesign file Proof
+Reported: slice 1 — "This increment does not redesign file Proof."
+Story clause: "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Disposition: excluded "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Commitment: 17
+
+### G3. Do not redesign story comparison tables
+Reported: slice 1 — "This increment does not redesign story comparison tables."
+Story clause: "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Disposition: excluded "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Commitment: 18
+
+### G4. Do not redesign collectors
+Reported: slice 1 — "This increment does not redesign collectors."
+Story clause: "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Disposition: excluded "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Commitment: 19
+
+### G5. Do not redesign the summary format
+Reported: slice 1 — "This increment does not redesign the summary format."
+Story clause: "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Disposition: excluded "This increment does not redesign folder Summaries, file Proof, story comparison tables, collectors, or the summary format."
+Commitment: 20
+
+### G6. CI wall time history is SEED-305
+Reported: slice 1 — "CI wall time history compatibility is the separate SEED-305 story."
+Story clause: "CI wall time history compatibility is the separate SEED-305 story."
+Disposition: excluded "CI wall time history compatibility is the separate SEED-305 story."
+Commitment: 21
+
+### G7. Doughnut run observation is context only
+Reported: slice 1 — "Observed in Doughnut CI run 42828209530."
+Story clause: "A developer reading Intent's CI status can see the full result for a test location without scanning repeated paths."
+Disposition: no user cost "A developer reading Intent's CI status can see the full result for a test location without scanning repeated paths.": observational run identity anchors examples; it is not itself a product promise.
+Commitment: 30
+
 ## Learnings
 
 - The scripts false-gap concern is already handled by the existing timing
   classifier for the observed summary. Preserve and expose that result; do not
   introduce collector or schema changes to solve the repeated-path display.
+- Fixed-width side-by-side unit labels overflowed the zoomed reading pane;
+  stacked label-above-value lines kept alignment without sideways scroll.
+- Slice 1 proof for grouped locations and multi-unit sort lives in
+  `intent-ci-proof-grouped-location.spec.ts` and
+  `intent-ci-proof-grouped-sort.test.mjs` after the post-change file-size split.
+
+## Accepted proof (slice 1)
+
+- Browser: `caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-ci-proof-units.spec.ts dashboard/tests/intent/intent-ci-proof-grouped-location.spec.ts dashboard/tests/intent/intent-ci-status-sort.spec.ts dashboard/tests/intent/intent-ci-proof-accessibility.spec.ts dashboard/tests/intent/intent-ci-proof-legacy-results.spec.ts dashboard/tests/intent/intent-ci-proof-adapter.spec.ts --workers=1` — pass after refactor.
+- Node sort: `caffeinate -s -i node --test tests/support/intent-ci-proof-sort.test.mjs tests/support/intent-ci-proof-grouped-sort.test.mjs tests/support/intent-ci-comparison-sort.test.mjs tests/support/intent-ci-comparison-signed-sort.test.mjs` — pass (14).
+- Neighbors reused: `intent-ci-status-execution-time.spec.ts`, `intent-ci-proof.spec.ts`.
+- `npm run typecheck:dashboard` — pass.

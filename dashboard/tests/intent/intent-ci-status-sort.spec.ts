@@ -2,10 +2,12 @@
 // ../../src/ciProofSort.ts): declaration order until a header is activated;
 // Test execution time sorts by measured time with the partial row last in
 // either direction; Counts sorts by counted results with failed results first
-// among equal totals; each header is a button reached by Tab and activated by
-// click, Enter or Space, its column header carrying aria-sort and a direction
-// arrow; no totals row (SEED-259#scan-intent-ci-summaries key example 1). The
-// comparator's cases live in ../../../tests/support/intent-ci-proof-sort.test.mjs.
+// among equal totals; multi-unit locations move as whole rows, comparing each
+// unit in case/file/legacy order without summing types; each header is a
+// button reached by Tab and activated by click, Enter or Space, its column
+// header carrying aria-sort and a direction arrow; no totals row
+// (SEED-259#scan-intent-ci-summaries key example 1). The comparator's cases
+// live in ../../../tests/support/intent-ci-proof-sort.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
 import {
@@ -56,6 +58,49 @@ const exampleSummary = () =>
           .timed(1_000)
           .inParts(2)
           .withPresentPart(2, { passed: 1, failed: 0, other: 0, untimed: 0 })
+          .please(),
+      )
+      .please(),
+  ]);
+
+// Mixed-unit locations: whole-row sort compares case figures first, then file.
+const groupedSummary = () =>
+  proofSummaryForEntries(run, [
+    makeMe.aCiProofEntry
+      .at("grouped/slow")
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("case")
+          .counting(10)
+          .timed(5_000)
+          .please(),
+        makeMe.aCiProofEvidence.inUnit("file").counting(2).timed(900).please(),
+      )
+      .please(),
+    makeMe.aCiProofEntry
+      .at("grouped/fast")
+      .holding(
+        makeMe.aCiProofEvidence.inUnit("case").counting(10).timed(500).please(),
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .counting(4)
+          .timed(2_000)
+          .please(),
+      )
+      .please(),
+    makeMe.aCiProofEntry
+      .at("grouped/gap")
+      .holding(
+        makeMe.aCiProofEvidence.inUnit("case").counting(3).timed(800).please(),
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .inParts(2, { missing: [2] })
+          .withPresentPart(1, {
+            passed: 1,
+            failed: 0,
+            other: 0,
+            durationMs: 100,
+          })
           .please(),
       )
       .please(),
@@ -115,4 +160,60 @@ test("Proof sorts by Test execution time and Counts by click, Enter and Space, u
   // Failed first among equal totals in either direction.
   await expect(rowNames(table)).toHaveText(["tests/a", "tests/b", "tests/c"]);
   await expect(table.getByRole("row")).toHaveCount(4);
+});
+
+test("a multi-unit location sorts as one row by each unit's figures without summing types", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const { proof } = await openFailedRun(
+    page,
+    () => runArtifactsAnswer(run, artifactId),
+    () => summaryZipAnswer(groupedSummary()),
+  );
+  const table = proofTable(proof);
+  await expect(rowNames(table)).toHaveText([
+    "grouped/slow",
+    "grouped/fast",
+    "grouped/gap",
+  ]);
+  await expect(table.getByRole("row")).toHaveCount(4);
+
+  const time = sortButton(table, "Test execution time");
+  await sortButton(table, "Entry").focus();
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  await expect(time).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expectSortedBy(table, "Test execution time", "ascending");
+  // Case times 500, 800, 5000; gap's file line stays with its row.
+  await expect(rowNames(table)).toHaveText([
+    "grouped/fast",
+    "grouped/gap",
+    "grouped/slow",
+  ]);
+  await expect(
+    table
+      .locator("tbody tr")
+      .nth(1)
+      .locator(".intent-ci-proof-unit-line")
+      .filter({ hasText: "Part 2 missing" }),
+  ).toHaveAttribute("aria-label", "test files: Part 2 missing");
+
+  await page.keyboard.press("Space");
+  await expectSortedBy(table, "Test execution time", "descending");
+  await expect(rowNames(table)).toHaveText([
+    "grouped/slow",
+    "grouped/gap",
+    "grouped/fast",
+  ]);
+
+  await sortButton(table, "Counts").click();
+  await expectSortedBy(table, "Counts", "ascending");
+  // Case totals 3, then 10/10; file breaks the 10-tie (2 before 4).
+  await expect(rowNames(table)).toHaveText([
+    "grouped/gap",
+    "grouped/slow",
+    "grouped/fast",
+  ]);
 });

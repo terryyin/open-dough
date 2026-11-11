@@ -30,32 +30,34 @@ hovered as a Summary's are: the linked run and attempt
 revision, `Completed ancestor` for a running result, and that attempt's
 **CI wall time** from its start and completion (`CI wall time 3 min`, or
 `CI wall time not recorded` with why as its full words when either is
-absent), then a table with one row per declared Intent location `path` and
-unit of results it reports (test cases, test files, or legacy test results
-whose publisher declared no unit; never added together), in declaration
-order, under the columns **Entry**, **Counts** (passed, failed and other
-naming that unit, `nothing counted as test files` for a declared unit no
-part reported), **Test execution time**
-(that unit's summed durations: measured, a measured zero reading `0 ms`;
-partial as short gap labels joined by commas, such as `Part 2 untimed`,
-`Part 3 missing` or `4 test cases untimed`; or `No timings` for a summary without
-durations; never zero for absence, no lower bound for partial timing, and
-never the attempt's wall time; a gap label's full explanation, such as
-“Partial: part 2 of 3 has no duration”, is the cell's hover text and
-accessible description). A part that reports zero results needs no duration
-for the sum to be complete. Each column header is a button,
-reached by Tab and activated by click, Enter or Space: the first activation
-sorts the rows ascending by that column's figures, the next descending, and
-the sorted header carries `aria-sort` and a direction arrow. **Entry** sorts
-by path name, **Counts** by the number of counted results with failed
-results first among equal totals, and **Test execution time** by measured time.
-A row without a measured figure for the column (partial, `No timings`)
-follows the measured rows in either direction,
-and those rows and ties keep declaration order. The sort is kept in memory
-while **CI status** stays shown, never on the URL or in storage; the table
-has no totals row. A path wraps after its `/`
-separators, and within them only in a reading pane too narrow for that, so
-the columns fit a phone or zoomed window without sideways scrolling. A
+absent), then a table with one row per declared Intent location `path`. When
+that location reports several result types (test cases, test files, or legacy
+test results whose publisher declared no unit), each type keeps its own
+labeled line of counts, time, and genuine gaps inside that row — never added
+together — in declaration order, under the columns **Entry**, **Counts**
+(passed, failed and other naming that unit, `nothing counted as test files`
+for a declared unit no part reported), **Test execution time** (that unit's
+summed durations: measured, a measured zero reading `0 ms`; partial as short
+gap labels joined by commas, such as `Part 2 untimed`, `Part 3 missing` or
+`4 test cases untimed`; or `No timings` for a summary without durations;
+never zero for absence, no lower bound for partial timing, and never the
+attempt's wall time; a gap label's full explanation, such as “Partial: part 2
+of 3 has no duration”, is the line's hover text and accessible description).
+A part that reports zero results needs no duration for the sum to be complete
+and does not introduce a timing gap for another type. Each column header is a
+button, reached by Tab and activated by click, Enter or Space: the first
+activation sorts whole location rows ascending by that column's figures, the
+next descending, and the sorted header carries `aria-sort` and a direction
+arrow. **Entry** sorts by path name. **Counts** and **Test execution time**
+compare each unit's figures in case, file, then legacy order, using the next
+unit only to break a tie, with failed results first among equal totals within
+a unit; an unavailable figure follows an available one in either direction at
+that unit, and ties keep declaration order. Different units are never summed
+into a count, time, or sort key. The sort is kept in memory while **CI
+status** stays shown, never on the URL or in storage; the table has no totals
+row. A path wraps after its `/` separators, and within them only in a reading
+pane too narrow for that, so the columns fit a phone or zoomed window without
+sideways scrolling. A
 GitHub Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact,
 read with `intent=ci-proof` `run`, `attempt` and `revision`
 (`dashboard/server/ciProofArtifact.ts`) and used only when it names the same
