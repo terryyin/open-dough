@@ -215,3 +215,13 @@ literal-shell warnings (SC1091/SC2016). Added narrowly scoped annotations explai
 those existing mechanics; no runtime or observing assertion changed. The failed
 preparation committed or published nothing; only its named formatting operation
 is renewed, with the accepted proof and independent refactor still applicable.
+
+Wrap-up's configured Intent Coverage check at `703fc242c84631550a54061cfd53ac8163f10da2`
+returned Caught for an omitted cached layer: the independent witness lost the
+index-only test and the maintained public files assertion failed. Exact
+restoration, restored passing proof and scratch retirement completed. The full
+report and separate disposition are retained outside cleanup for the Done record.
+The ready duplicate-harness correction is queued first without implementation.
+The selected deferred process review completed after that report/disposition;
+supported occurrences and DD-489 are recorded in `DearDough.md`, with no remaining
+review decision. Maintained configuration documentation now states the opt-in.
