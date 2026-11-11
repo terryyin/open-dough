@@ -1,14 +1,22 @@
 // The watcher drains an actual native launch. A blank Codex conversation
 // proves successful durable settlement without credentials or model input.
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, realpath, rm } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  realpath,
+  rm,
+  symlink,
+} from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { repoRoot } from "./repositoryRoot.ts";
 import { processRunning } from "./processGroup.ts";
 
 const exec = promisify(execFile);
-const codexPackage = "@openai/codex@0.167.1";
+const codexPackage = "@openai/codex";
+const codexVersion = "0.167.1";
 
 export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
   const { stdout: command } = await exec(
@@ -18,7 +26,7 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
       "--yes",
       "--prefer-offline",
       "--package",
-      codexPackage,
+      `${codexPackage}@${codexVersion}`,
       "--",
       "sh",
       "-c",
@@ -26,17 +34,28 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
     ],
     { cwd: repoRoot },
   );
-  const codex = command.trim();
-  if (!path.isAbsolute(codex)) throw new Error("No pinned Codex executable");
+  const shim = command.trim();
+  if (!path.isAbsolute(shim)) throw new Error("No pinned Codex executable");
+  const codex = await realpath(shim);
+  const manifest = JSON.parse(
+    await readFile(
+      path.resolve(path.dirname(codex), "../package.json"),
+      "utf8",
+    ),
+  ) as { name?: string; version?: string };
+  if (manifest.name !== codexPackage || manifest.version !== codexVersion) {
+    throw new Error(`Expected ${codexPackage}@${codexVersion} at ${codex}`);
+  }
 
   // Unix socket paths have a small limit on macOS. Give the isolated daemon
   // a short private directory independently of the publication fixture.
   const codexHome = await realpath(await mkdtemp("/tmp/dough-codex."));
+  const bin = path.join(codexHome, "bin");
   const env = {
     ...fixtureEnv,
     CODEX_HOME: codexHome,
     XDG_RUNTIME_DIR: path.join(codexHome, "runtime"),
-    PATH: [path.dirname(codex), fixtureEnv["PATH"] ?? ""].join(path.delimiter),
+    PATH: [bin, fixtureEnv["PATH"] ?? ""].join(path.delimiter),
   };
   for (const key of [
     "OPENAI_API_KEY",
@@ -58,6 +77,9 @@ export async function startWatcherNativeCodex(fixtureEnv: NodeJS.ProcessEnv) {
   }
   try {
     await mkdir(env.XDG_RUNTIME_DIR, { mode: 0o700 });
+    // Launches strip npm's node_modules/.bin entries from the shell PATH.
+    await mkdir(bin, { mode: 0o700 });
+    await symlink(codex, path.join(bin, "codex"));
     const { stdout } = await daemon("start");
     const response = JSON.parse(stdout) as { pid?: number };
     if (

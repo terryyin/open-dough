@@ -26,7 +26,7 @@ was instructed to read no files and change nothing.
 | C15 | Cover rejection under published policy. | slice 2 | observed: productionUpdatePolicies.ts repeated published policy rejection, last served title and no staging |
 | C16 | Cover recovery after published policy rejection. | slice 2 | observed: productionUpdateJourney.ts repairs policy and stages its accepted replacement before SIGTERM |
 | C17 | Cover selected-commit pinning. | slice 2 | observed: productionHeldUpdate.ts B checkout during hold, publishes C then B serves exact title and URL |
-| C18 | Cover native-start drain before the selected revision activates. | slice 2 | observed: productionHeldUpdate.ts actual record-store writer lock, persisted pending attempt and real admission closure/503, successful native outcome at drain HTTP response |
+| C18 | Cover native-start drain before the selected revision activates. | slice 2 | observed: productionHeldUpdate.ts uses actual Codex resolved through a private developer-shell bin, actual store lock, persisted pending attempt and real admission closure/503, and a durable successful native outcome at drain response. |
 | C19 | Cover preservation of shared records. | slice 2 | observed: production-watcher-updates.spec.ts shared record served in both environments and bytes through replacement and shutdown |
 | C20 | Cover preservation of shared configuration. | slice 2 | observed: productionUpdateJourney.ts checks machine configuration bytes and inode after shutdown |
 | C21 | Cover signals. | slice 2 | observed: production-watcher.spec.ts SIGINT, update journey SIGTERM and recovery SIGHUP |

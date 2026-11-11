@@ -239,6 +239,23 @@ The independent refactor review kept the shared production owner and
 event helpers as implemented. Its traced consumers preserve the ordinary
 CLI, single-preview and Git selection contracts.
 
+### Linux native executable lookup
+
+GitHub Actions run 43002221743 attempt 1 on `3bbfccce7` reached admission
+closure but the accepted start had already failed with `not-installed`.
+The production developer-shell environment intentionally removes npm bin
+directories from PATH. The fixture's package-resolution path was inside
+one of those directories; an ambient Codex executable hid the dependency
+on macOS. The fixture now exposes the real pinned CLI through its own
+private bin path, which the unchanged production environment preserves.
+
+With the ambient Codex path removed, the fixture resolved the npm package
+at version 0.167.1. The ordinary one-worker update selector passed all
+10 checks on their first attempts in 36.87 seconds under AC
+`caffeinate -s -i`, including setup and teardown. The actual pending
+attempt, closed admission, HTTP 503 and native settlement assertions
+remain unchanged.
+
 ## Execution complete
 
 Product advice: no change. The optimization meets the local saving target
