@@ -207,3 +207,30 @@ state so that no host name appears in the page.
 names the terminal as Side panel content with one name per concept. The paused
 text is a state of that terminal, not another region or panel content. No
 conflict with an Accepted decision was found, and no ADR is needed.
+
+<a id="prove-swipe-under-button-event-tracking"></a>
+
+### Prove the phone swipe under button-event pointer tracking
+
+**Identity:** SEED-316#prove-swipe-under-button-event-tracking
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/596-prove-swipe-under-button-event-tracking/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2cfe45b17aa1aac450442e0727cfc99ea1b48f47d0f551ee4347690942b60e3b","plan":"00f0bc8b9b9ccf4e1f252f8d170f1b9817edb5906de1be901bf827903105ac15"}}
+```
+
+#### Goal
+
+A maintainer who changes how a one-finger swipe decides between the terminal's
+scrollback and the session's application is told by a maintained test when the
+swipe stops scrolling an application that asks for button-event or drag pointer
+tracking, as tmux and vim do. Today only any-motion tracking, which Claude Code
+reports, is protected.
+
+#### Scope
+
+- Maintained proof that a one-finger swipe gives wheel input to an application
+  on the alternate screen under each pointer tracking that includes the wheel:
+  xterm `vt200` (`?1000h`), `drag` (`?1002h`) and `any` (`?1003h`).
+- No product behavior changes. The swipe already works under all three.
+- Adds no promise about a product intent.
+
+Plan: [Prove the phone swipe under button-event pointer tracking](../slice-plans/596-prove-swipe-under-button-event-tracking/PLAN.md)
