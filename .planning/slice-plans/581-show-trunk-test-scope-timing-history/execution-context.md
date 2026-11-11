@@ -57,3 +57,32 @@ Existing page reading state, with scope ownership around each provider, supplies
 the missing lifetime without a store. Answer retention stays scope-owned, so
 wall-time state/cadence remains mount-local. Added proof observes that path and
 full source/scope/endpoint isolation; no story scope or authority changed.
+
+## Accepted slice 2 and retrospective
+
+Managed fresh delivery accepted `e37801b5c98285c8558deace0ca5be5d9ad5024e`
+on the execution branch, suffix base `2e8d46e0ecfdca9183102690c26c34a075bde715`;
+same observer reused. Product/proof retrospective completed on this aggregate.
+Manifest is those two published implementation SHAs; preparation `acb7756f`
+and Take `4f52bca1` are provenance, unrelated main landings are excluded.
+Original six examples, current domain/evidence owners, local reader/cohort,
+chart and prior-build defaults, tests and lasting contract were inspected.
+No bounded correction or further product change was supported. Direction aligns
+with reviewing intent and observed proof cost, without timing attribution.
+Two integrated collection journeys retain important navigation/integration;
+synthetic presentation variants use frontend proof and preserve their assertions.
+The record shows implementation before first new journey runs, so no test-first
+claim is made. Existing unchanged calculations/units/provenance proof is retained.
+CI remains pending for accepted execution revision/target under the exact observer
+note above; this review does not claim CI success.
+
+Process review is enabled by project preference and deferred under installed
+`deferred-process-review.md`: wrap-up will request Intent Coverage (feature,
+intentCoverage:true, no published result). Do not read/write process findings
+until its report/dispositions. Complete that selected review once then, with
+this actual conversation/tool history, before source cleanup. The user live
+measurement handoff remains not started. All six obligations/143 commitments
+passed completion check; source freshness unchanged at `1c470849e73ce9ad2bb2c37d525628e2c08aa305`.
+Completion-record delivery is records-only; accepted semantic/refactor proof is
+unchanged. Wrap-up can align the existing UI-direction table and shared
+endpoint wording with the canonical implemented contract during assimilation.
