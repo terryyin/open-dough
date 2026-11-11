@@ -96,7 +96,7 @@ export function ownsSharedObservations(page: Page) {
 }
 
 // The large-changes commit by touch, then All changes by touch again.
-export async function chooseCommitThenAllChangesByTouch({
+async function chooseCommitThenAllChangesByTouch({
   review,
   browser,
   comparison,

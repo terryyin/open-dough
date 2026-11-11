@@ -268,7 +268,7 @@ Accepted 2026-11-11. Evidence is in
 
 ### 4. Context journeys prepare only what they assert
 Type: Behavior
-Status: planned
+Status: done
 Proof: The touch command passes three consecutive times. A context case's
 trace shows fewer `/__agent-launch/review/range` requests than the base's
 three. F3 still fails a context case at the chosen file after rotation. The explicit Commits
@@ -281,6 +281,39 @@ and Show files, Next file, Refresh, explicit Commits and leaving uncommitted
 changes out run as today → the same reading places, file and comparison
 survive. The "large changes" commit is chosen where the Commits beat needs its
 range.
+
+Accepted 2026-11-12. Evidence is in
+`/Users/terryyin/.claude/jobs/cb428881/tmp/s4/` and `tmp/s4-proof-*.json`.
+
+- The context journey opens under the default comparison and selects its
+  file. The phone chooses the "large changes" commit at its Commits beat. The
+  early choice and the return to All changes are gone from it: one Commits
+  tap, one All changes tap and one range read fewer.
+- That step had detected three faults. The commit choice and the All changes
+  choice keep phone reading as owner. A chosen range forgotten outside Commits
+  (fault FR) failed the step on `d7622bc2b`, fails no touch case now, and
+  fails `story-review-commit-ranges.spec.ts:80` and
+  `story-review-commit-refresh.spec.ts:96`. [Surviving proof](#surviving-proof)
+  holds the row.
+- Returned once at acceptance for the rotation example's whole result:
+  `expectKept` now asserts the chosen file, All changes, the code's place and
+  the file browser's place after each rotation, after Maximize, after Restore
+  and after Show files. The product keeps the browser's place in every
+  arrangement (phone 625, tablet 160). Faults that lose only the browser's
+  place on rotation, or rebuild the body on Maximize, fail both context cases
+  there. No stroke, tap or read was added.
+- Touch command, final code: 4 passed three times, 87, 99 and 64 s at load
+  38–54.
+- Strokes, traced: 5, 3, 5 and 2; 15 in all against 59. Range reads 2, 2, 0
+  and 0; 4 against 10.
+- Final fault control on this code, one worker: F1 fails both reading cases at
+  `storyReviewTouchJourney.ts:186`; F2 fails all four; F3 fails both context
+  cases at the chosen file after rotation; F4 fails only tablet reading, at
+  `storyReviewTouchJourney.ts:155`.
+- For slice 5: at load 40–54 phone reading took up to 42 s in passing runs,
+  inside the allowance SEED-287 owns. Only alternating runs compare.
+- Refactor pass complete: one comment reworded above `expectKept`; no code or
+  line moved. `npm run --silent typecheck:dashboard` passes.
 
 ### 5. The saving is measured against the base and kept
 Type: Behavior
@@ -384,29 +417,65 @@ human-owned scope or ADR decision is pending.
   minutes during preparation; alternate base and candidate and record loads
   rather than waiting for an idle machine.
 
+## Failures seen outside this story
+
+Slice 4's search for a remaining owner ran the review family
+(`npm run --silent test:dashboard -- tests/review --workers=2`, 183 cases with
+`backend-tests/review`) at load 34–49. Five cases this story does not touch
+failed, and failed again at one worker with product code clean:
+`backend-tests/review/story-review-completed-conflicts.spec.ts:73`,
+`tests/review/story-review-completed-merge-edits.spec.ts:11`,
+`tests/review/story-review-one-shot-choice-races.spec.ts:12`,
+`tests/review/story-review-one-shot-choice.spec.ts:13` and
+`tests/review/story-review-story-branch-landed.spec.ts:27`. Four exceed the
+30 s case budget and one a 5 s observation; their Before Hooks took 2–4 s.
+
+Attribution, 2026-11-12, the five files at one worker with `--reporter=list`:
+the base worktree failed six cases, those five and
+`story-review-completed-conflicts.spec.ts:16`, in 260 s at load 37.2 → 33.6;
+the candidate failed the same five in 248 s at load 33.6 → 42.1
+(`tmp/five/`). Hosted CI passed on `205452d94` (run 43035009375) and
+`d7622bc2b` (run 43044486491). The cause is this machine's load from other
+work, above the 20–30 that SEED-287 promises; no changed helper is imported by
+these files.
+
+Owner: SEED-287's active execution
+(`codex/make-dashboard-journeys-fit-the-default-timeout`, Taken) owns
+dashboard journeys fitting the default budget under load, and its story names
+`story-review-story-branch-landed.spec.ts:27`. This execution writes no
+duplicate repair. Remaining gate for that owner or the developer: the other
+four cases are not named in SEED-287's story, and none is shown to pass at
+load 20–30.
+
 ## Surviving proof
 
-Recorded by slice 3 on 2026-11-11. Each fault is a scratch product edit,
-reverted after its run. The faults ran on `205452d94`, before the removal,
-with the touch command at one worker and `--reporter=list`: the tablet case
-and its phone owner failed at the same place. Owner lines are those of the
-code as slice 3 leaves it, after its refactor pass. On that code the context-reveal and Hide files
-faults fail only the phone cases. Logs:
-`/Users/terryyin/.claude/jobs/cb428881/tmp/s3/`.
+Recorded by slice 3 on 2026-11-11; slice 4 added the last row. Each fault is
+a scratch product edit, reverted after its run. Slice 3's faults ran on
+`205452d94`, before the removal, with the touch command at one worker and
+`--reporter=list`: the tablet case and its phone owner failed at the same
+place. After slice 3's removal the context-reveal and Hide files faults
+failed only the phone cases. Owner lines are those of the code as slice 4
+leaves it. Slice 4 moved lines in `storyReviewTouchContext.ts`. On its own
+code it reran the two commit-choice faults and the explicit Commits fault,
+whose lines its kept-things helper `expectKept` then moved by 17, and
+afterwards the Hide files fault and its own row's third fault; the other
+rows' lines are renumbered without a rerun. Logs:
+`/Users/terryyin/.claude/jobs/cb428881/tmp/s3/` and `tmp/s4/`.
 
-| Observation removed from a tablet case, and where it was | Remaining owner | Scratch fault | Observed failure of the owner |
+| Observation or step removed, and where it was | Remaining owner | Scratch fault | Observed failure of the owner |
 | --- | --- | --- | --- |
 | Reading: the context line, All changes, Commits, the folder and the uncommitted label are each at least 44 px tall (`storyReviewTouchJourney.ts:115-120`) | Phone reading, `storyReviewTouchJourney.ts:122-127`, the same five heights | `story-review-touch.css`: `.story-review-uncommitted label` left out of the `min-height` rule | Phone reading at `:126`: "Include uncommitted changes", expected >= 44, received 23.1875 |
 | Reading: a tap shows the context in full with the worktree unclipped, and a second returns it to one line (`storyReviewTouchJourney.ts:121`) | Phone reading, `storyReviewTouchJourney.ts:128`, through `readContextByTouch`, `reviewTouchReading.ts:89-106` | `StoryReviewContextLine.tsx`: the tap only ever shows the line in full | Phone reading at `reviewTouchReading.ts:105`: `aria-expanded` expected "false", received "true" |
 | Reading: a tap closes the folder and a second opens it (`storyReviewTouchJourney.ts:122-127`) | Phone reading, `storyReviewTouchJourney.ts:129-134` | `StoryReviewSnapshotView.tsx`: `onToggle` never collapses a folder | Phone reading at `:131`: `aria-expanded` expected "false", received "true" |
-| Reading and context: the "large changes" commit chosen by touch lists every changed file (`chooseAllChangesFileByTouch` as it was, called at `storyReviewTouchJourney.ts:128` and `storyReviewTouchContext.ts:44`) | Phone reading, `storyReviewTouchJourney.ts:135`, and phone context, `storyReviewTouchContext.ts:54`, through `chooseCommitThenAllChangesByTouch` and `chooseLargeChangesCommitByTouch`, `reviewTouchReading.ts:195-214` | `useStoryReviewComparison.ts`: `onSelect` leaves the range on its anchored item | Both phone cases at `reviewTouchReading.ts:208`: `aria-pressed` expected "true", received "false" |
-| Reading and context: All changes chosen by touch after the commit is the comparison shown (the same call) | The same two phone calls, at `storyReviewTouchJourney.ts:107-111` | `StoryReview.tsx`: `onSwitch` ignores the All changes choice | Both phone cases at `:111`: expected checked, received unchecked |
-| Context: Hide files and Show files keep the chosen file and both reading places (`storyReviewTouchContext.ts:78-85`) | Phone context, `storyReviewTouchContext.ts:111-118` | `StoryReviewSnapshotView.tsx`: the file browser keyed by whether it is shown | Phone context at `:117`: expected 625, received 0 |
-| Context: Next file opens the next file at its top (`storyReviewTouchContext.ts:86-89`) | Phone context, `storyReviewTouchContext.ts:119-122` | `StoryReviewSnapshotView.tsx`: `FileDiff` without its `key` | Phone context at `:122`: expected 0, received 285 |
-| Context: Refresh reads again, says so and keeps the chosen file (`storyReviewTouchContext.ts:90-99`) | Phone context, `storyReviewTouchContext.ts:123-132` | `StoryReview.tsx`: the review body keyed by the Refresh round | Phone context at `:132`: `aria-pressed` expected "true", received "false" |
-| Context: explicit Commits reports its range and keeps its file and reading place through rotation (`storyReviewTouchContext.ts:100-118`) | Phone context, `storyReviewTouchContext.ts:134-151` | `StoryReview.tsx`: the section keyed by `shown === "commits" && offerMaximize` | Phone context at `:148`: heading "Added long-b.txt", element not found |
-| Context: leaving uncommitted changes out by its tap-sized label survives rotation (`storyReviewTouchContext.ts:120-125`) | Phone context, `storyReviewTouchContext.ts:153-158`, through `leaveUncommittedOutByTouchLabel`, `reviewTouchReading.ts:217-244` | `StoryReview.tsx`: an effect on `offerMaximize` includes uncommitted changes again. The label: the first row's fault | Phone context at `reviewTouchReading.ts:243`: expected not checked, received checked. The label, at `:235`: "touch target height", expected >= 44, received 23.1875 |
-| Context: Close removes the review and returns focus to Review changes (`storyReviewTouchContext.ts:126-129`) | Phone context, `storyReviewTouchContext.ts:159-162` | `keyboardReturn.ts`: a return focuses nothing | Phone context at `:161`: expected focused, received inactive |
+| Reading and context: the "large changes" commit chosen by touch lists every changed file (`chooseAllChangesFileByTouch` as it was, called at `storyReviewTouchJourney.ts:128` and `storyReviewTouchContext.ts:44`) | Phone reading, `storyReviewTouchJourney.ts:135`, through `chooseCommitThenAllChangesByTouch`, and phone context at its Commits beat, `storyReviewTouchContext.ts:149`; both through `chooseLargeChangesCommitByTouch`, `reviewTouchReading.ts:195-214` | `useStoryReviewComparison.ts`: `onSelect` leaves the range on its anchored item | Both phone cases at `reviewTouchReading.ts:208`: `aria-pressed` expected "true", received "false" |
+| Reading and context: All changes chosen by touch after the commit is the comparison shown (the same call) | Phone reading, `storyReviewTouchJourney.ts:107-111`, in the same call | `StoryReview.tsx`: `onSwitch` ignores the All changes choice | Phone reading at `:111`: expected checked, received unchecked |
+| Context: Hide files and Show files keep the chosen file and both reading places (`storyReviewTouchContext.ts:78-85`) | Phone context, `storyReviewTouchContext.ts:128-132`, through `expectKept`, `:43-53` | `StoryReviewSnapshotView.tsx`: the file browser keyed by whether it is shown | Phone context at `:52`, called at `:132`: expected 625, received 0 |
+| Context: Next file opens the next file at its top (`storyReviewTouchContext.ts:86-89`) | Phone context, `storyReviewTouchContext.ts:133-136` | `StoryReviewSnapshotView.tsx`: `FileDiff` without its `key` | Phone context at `:136`: expected 0, received 285 |
+| Context: Refresh reads again, says so and keeps the chosen file (`storyReviewTouchContext.ts:90-99`) | Phone context, `storyReviewTouchContext.ts:137-146` | `StoryReview.tsx`: the review body keyed by the Refresh round | Phone context at `:146`: `aria-pressed` expected "true", received "false" |
+| Context: explicit Commits reports its range and keeps its file and reading place through rotation (`storyReviewTouchContext.ts:100-118`) | Phone context, `storyReviewTouchContext.ts:149-166` | `StoryReview.tsx`: the section keyed by `shown === "commits" && offerMaximize` | Phone context at `:163`: heading "Added long-b.txt", element not found |
+| Context: leaving uncommitted changes out by its tap-sized label survives rotation (`storyReviewTouchContext.ts:120-125`) | Phone context, `storyReviewTouchContext.ts:168-173`, through `leaveUncommittedOutByTouchLabel`, `reviewTouchReading.ts:217-244` | `StoryReview.tsx`: an effect on `offerMaximize` includes uncommitted changes again. The label: the first row's fault | Phone context at `reviewTouchReading.ts:243`: expected not checked, received checked. The label, at `:235`: "touch target height", expected >= 44, received 23.1875 |
+| Context: Close removes the review and returns focus to Review changes (`storyReviewTouchContext.ts:126-129`) | Phone context, `storyReviewTouchContext.ts:174-177` | `keyboardReturn.ts`: a return focuses nothing | Phone context at `:176`: expected focused, received inactive |
+| Phone context, removed by slice 4: the "large changes" commit chosen by touch and All changes chosen again before the long file is selected (`chooseCommitThenAllChangesByTouch`, called at `storyReviewTouchContext.ts:54` as slice 3 left it), so that the later Commits beat returned to a range chosen before All changes | The commit choice: phone reading, `storyReviewTouchJourney.ts:135`, and phone context at its Commits beat, `storyReviewTouchContext.ts:149`, where the choice now happens once. The return to All changes: phone reading, `storyReviewTouchJourney.ts:107-111`. The chosen range kept while All changes is shown: `story-review-commit-ranges.spec.ts:73-80` and `story-review-commit-refresh.spec.ts:92-96`, by pointer | The two commit-choice faults above: `onSelect` leaves the range on its anchored item; `onSwitch` ignores the All changes choice. A third, `useStoryReviewComparison.ts`: the chosen ends are forgotten whenever the comparison is not Commits | On slice 4's code. The first: phone reading and phone context at `reviewTouchReading.ts:208`, `aria-pressed` expected "true", received "false". The second: phone reading at `storyReviewTouchJourney.ts:111`, expected checked, received unchecked; phone context later, at `reviewTouchReading.ts:233`, where All changes is tapped to leave uncommitted changes out: "Include uncommitted changes", element not found. The third failed the removed step on `d7622bc2b`, phone context at `storyReviewTouchContext.ts:135`: expected "18 changed files in the chosen range", received "1 changed file". On slice 4's code no touch case fails it; `story-review-commit-ranges.spec.ts:80`, heading "Changes in 3 commits", and `story-review-commit-refresh.spec.ts:96`, heading "Changes in 2 commits", fail it, element not found, and pass without it |
 
 ## Story obligations
 
@@ -469,3 +538,18 @@ Disposition: no user cost "Ordinary CI continues to catch the same product regre
 Reported: slice 3 — "Tablet titles now overstate. "chooses a comparison and file" and "panel controls" remain by instruction; the tablet chooses only a file and uses only Maximize and Restore."
 Story clause: "The second viewport repeats only what its arrangement changes"
 Disposition: no user cost "Dashboard maintainers get faster feedback on reviewing a story by touch.": the titles come from the unchanged spec loop that SEED-287's branch also edits; each journey's comment now says that the title describes the phone's journey and what every other viewport runs
+
+### G13. Returning to Commits on an already chosen range is no longer run by touch
+Reported: slice 4 — "The lost observation's owner is not a touch check. Returning to Commits on an already chosen range is proven only by pointer, in the two desktop specs. No touch case re-enters Commits after All changes."
+Story clause: "Remove comparison choices that only repeat another case's proof as setup."
+Disposition: proved by slice 4: fault FR, the range forgotten outside Commits, fails `story-review-commit-ranges.spec.ts:80` and `story-review-commit-refresh.spec.ts:96` at one and two workers, and both pass with it reverted (`tmp/s4/final-FR-family.log`); the story asks that the fault fail a remaining check
+
+### G14. All changes after Maximize, Restore and Show files has no fault of its own
+Reported: slice 4 — "All changes after Maximize, Restore and Show files has no fault of its own. The assertion is there, but I ran no fault that changes only the comparison at those points."
+Story clause: "Maximize and Restore keep them where the panel sits beside the page."
+Disposition: no user cost "Dashboard maintainers get faster feedback on reviewing a story by touch.": the assertion is part of `expectKept`, which the story's example requires at those points; it sends no stroke and reads no review, and faults FM and FE fail `expectKept` there
+
+### G15. SEED-287's branch imports a helper this story made private
+Reported: slice 4 — "its branch's `storyReviewTouchContext.ts` imports `chooseCommitsByTouch` (line 19, called at line 99), which is now module-private. That file already conflicts with this story's rewrite; a stale import fails typecheck loudly."
+Story clause: "Its integration then keeps this story's comparison and journeys."
+Disposition: no user cost "Ordinary CI continues to catch the same product regressions.": SEED-287's branch does not change `storyReviewTouchContext.ts` or `reviewTouchReading.ts` (`git diff --stat 58442ace8 origin/codex/make-dashboard-journeys-fit-the-default-timeout`), so its integration takes this story's files, which do not import the helper; a stale import would stop at the typecheck hook rather than pass

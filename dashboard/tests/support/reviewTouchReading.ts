@@ -180,7 +180,7 @@ export async function visibleShortCodeLine(code: Locator) {
 }
 
 // Tap the Commits comparison and confirm it is the chosen one.
-export async function chooseCommitsByTouch(review: Locator) {
+async function chooseCommitsByTouch(review: Locator) {
   const comparison = review.getByRole("radiogroup", { name: "Comparison" });
   const commits = comparison.locator("label", { hasText: "Commits" });
   await reachReviewControl(review, commits);
