@@ -25,6 +25,11 @@
   --shadow-1: 0 1px 2px rgb(29 29 27 / 6%), 0 1px 3px rgb(29 29 27 / 6%);
   --shadow-2: 0 4px 14px rgb(29 29 27 / 18%);
   --control-size: 2.5rem;
+  /* What a segmented group's frame adds around its choices
+     (./project-select.css). */
+  --segmented-frame: 8px;
+  /* The one row of controls a top bar holds (see the top bars below). */
+  --top-bar-row: var(--control-size);
   --icon-size: 1.25rem;
   /* A labelled button's leading icon: a little smaller, so the button keeps
      its height. */
@@ -40,7 +45,25 @@
 @media (any-pointer: coarse) {
   :root {
     --control-size: 2.75rem;
+    /* The banner's segmented groups frame touch-sized choices
+       (./project-select.css), so the row is their height. */
+    --top-bar-row: calc(var(--control-size) + var(--segmented-frame));
   }
+}
+
+/* The frame's top bars share one height: the pinned banner (./banner.css),
+   the Sessions sidebar's title row (./sessions-sidebar.css), and the side
+   panel's header (./side-panel.css) under a terminal, story review, or final
+   report. Each holds one row of controls (`--top-bar-row`) between the same
+   padding above one line, so the three lines meet across the window. A bar
+   grows only when its content wraps, as an expanded panel title does. */
+.banner,
+.sessions-sidebar-title-row,
+.side-panel-header {
+  box-sizing: border-box;
+  min-height: calc(var(--top-bar-row) + 2 * var(--space-2) + 1px);
+  padding-block: var(--space-2);
+  border-bottom: 1px solid var(--line);
 }
 
 /* Long titles, identities, link targets, and revisions are read whole: they

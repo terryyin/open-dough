@@ -12,7 +12,7 @@ import {
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { parts } from "../dashboardPage.ts";
-import { box, tapWhereShown } from "../pageLayout.ts";
+import { box, expectTopBarsShareHeight, tapWhereShown } from "../pageLayout.ts";
 import {
   expectBoardUnreachableBehindCovering,
   expectCovering,
@@ -97,6 +97,8 @@ test.describe(`${name} terminal input`, () => {
     const titleToggle = panel.getByRole("button", { name: title, exact: true });
     await expect(heading).toHaveAccessibleName(title);
     await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
+    // The banner keeps its place behind the covering panel.
+    await expectTopBarsShareHeight(page, 2);
     expect(
       await titleToggle.evaluate(
         (element) =>

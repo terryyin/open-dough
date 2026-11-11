@@ -19,7 +19,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  min-height: calc(var(--control-size) - 8px);
+  min-height: calc(var(--control-size) - var(--segmented-frame));
   padding: 0 var(--space-3);
   font-size: var(--text-sm);
   font-weight: 500;
