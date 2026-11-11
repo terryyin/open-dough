@@ -1,152 +1,12 @@
-import { selectAdapterComparisonEndpoint } from "../../../tests/support/dashboardCiAdapterComparisonEndpoint.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../../tests/support/pageTest.ts";
-import {
-  timeWithoutAdapterRunnerWaits,
-  timeWithoutRunnerWaits,
-} from "../../server/ciTimeWithoutRunnerWaits.ts";
-import { asComparisonSlot } from "../../server/intentCiComparisonSlots.ts";
+import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { comparisonWorkflow } from "../../tests/support/storyCiComparisonFixture.ts";
 import {
   observedBaselineJobs,
   observedBranchJobs,
   observedRerunJobs,
 } from "../../tests/support/storyCiObservedJobs.ts";
-
-test("the adapter graph counts the longest chain regardless of job order", () => {
-  const jobs = [
-    makeMe.aCiTimingJob
-      .withTiming({ id: "test-a", durationMs: 40_000, needs: ["build"] })
-      .please(),
-    makeMe.aCiTimingJob
-      .withTiming({ id: "test-b", durationMs: 60_000, needs: ["build"] })
-      .please(),
-    makeMe.aCiTimingJob
-      .withTiming({ id: "build", durationMs: 30_000 })
-      .please(),
-  ];
-
-  expect(timeWithoutAdapterRunnerWaits(jobs)).toEqual({ milliseconds: 90_000 });
-});
-
-const testJob = makeMe.aCiTimingJob
-  .withTiming({ id: "test", durationMs: 40_000 })
-  .please();
-const buildJob = makeMe.aCiTimingJob
-  .withTiming({ id: "build", durationMs: 30_000 })
-  .please();
-
-for (const { name, jobs, reason } of [
-  { name: "no jobs", jobs: [], reason: "The CI adapter reported no jobs." },
-  {
-    name: "a malformed job",
-    jobs: [null],
-    reason: "The CI adapter reported a job that is not an object.",
-  },
-  {
-    name: "an empty ID",
-    jobs: [{ ...testJob, id: "" }],
-    reason: "The CI adapter reported a job without a nonempty ID.",
-  },
-  {
-    name: "a duplicate ID",
-    jobs: [testJob, testJob],
-    reason: "The CI adapter reported duplicate job ID “test”.",
-  },
-  {
-    name: "a missing duration",
-    jobs: [{ id: testJob.id, needs: testJob.needs }],
-    reason: "The CI adapter's job “test” has no numeric durationMs.",
-  },
-  {
-    name: "a negative duration",
-    jobs: [{ ...testJob, durationMs: -1 }],
-    reason: "The CI adapter's job “test” has a negative durationMs.",
-  },
-  {
-    name: "a non-finite duration",
-    jobs: [{ ...testJob, durationMs: Infinity }],
-    reason: "The CI adapter's job “test” has a non-finite durationMs.",
-  },
-  {
-    name: "an invalid needs list",
-    jobs: [{ ...testJob, needs: [3] }],
-    reason: "The CI adapter's job “test” has an invalid needs list.",
-  },
-  {
-    name: "an unknown dependency",
-    jobs: [
-      makeMe.aCiTimingJob
-        .withTiming({ id: "test", durationMs: 40_000, needs: ["lint"] })
-        .please(),
-    ],
-    reason: "The CI adapter's job “test” needs unknown job “lint”.",
-  },
-  {
-    name: "a cycle",
-    jobs: [
-      makeMe.aCiTimingJob.withTiming({ ...testJob, needs: ["build"] }).please(),
-      makeMe.aCiTimingJob.withTiming({ ...buildJob, needs: ["test"] }).please(),
-    ],
-    reason: "The CI adapter's job graph contains a dependency cycle.",
-  },
-  {
-    name: "an overflowing chain duration",
-    jobs: [
-      makeMe.aCiTimingJob
-        .withTiming({ id: "build", durationMs: Number.MAX_VALUE })
-        .please(),
-      makeMe.aCiTimingJob
-        .withTiming({
-          id: "test",
-          durationMs: Number.MAX_VALUE,
-          needs: ["build"],
-        })
-        .please(),
-    ],
-    reason: "The CI adapter's job chain duration exceeds the numeric limit.",
-  },
-]) {
-  test(`an adapter graph with ${name} explains why timing is unavailable`, () => {
-    expect(timeWithoutAdapterRunnerWaits(jobs)).toEqual({ reason });
-  });
-}
-
-test("the comparison deadline during a job graph read keeps the selected build and its proof identity", async () => {
-  const sha = "a".repeat(40);
-  const attempt = makeMe.aCiAdapterAttempt
-    .passed({
-      sha,
-      runId: "selected",
-      attemptId: "retry",
-      branch: "main",
-      startedAt: "2026-11-05T09:00:00Z",
-      completedAt: "2026-11-05T09:04:00Z",
-    })
-    .please();
-  const controller = new AbortController();
-  const { slot, lookup } = await selectAdapterComparisonEndpoint(
-    attempt,
-    "hold",
-    controller.signal,
-  );
-
-  const pending = asComparisonSlot(slot, lookup);
-  controller.abort(new DOMException("comparison deadline", "TimeoutError"));
-
-  await expect(pending).resolves.toMatchObject({
-    kind: "build",
-    revision: sha,
-    startedAt: "2026-11-05T09:00:00Z",
-    completedAt: "2026-11-05T09:04:00Z",
-    runBranch: "main",
-    adapterAttempt: { runId: "selected", attemptId: "retry" },
-    timeWithoutRunnerWaits: {
-      reason:
-        "The CI adapter did not answer the job graph read before the comparison deadline.",
-    },
-  });
-});
 
 test("the observed builds count the longest dependency chain despite different runner waits", () => {
   expect(
@@ -219,4 +79,102 @@ test("a reported job must match exactly one workflow definition", () => {
       false,
     ),
   ).toEqual({ reason: "Job “Build” has an ambiguous workflow job match." });
+});
+
+const timed = (name: string, startedAt: string, completedAt: string) =>
+  makeMe.aGitHubJob
+    .withFacts({
+      name,
+      started_at: startedAt,
+      completed_at: completedAt,
+    })
+    .please();
+
+test("a static-named matrix instance contributes its duration to the chain", () => {
+  const workflow = [
+    "jobs:",
+    "  backend:",
+    "    name: Backend Unit tests",
+    "  proof:",
+    "    name: Proof",
+    "    needs: [backend]",
+    "",
+  ].join("\n");
+
+  expect(
+    timeWithoutRunnerWaits(
+      workflow,
+      [
+        timed(
+          "Backend Unit tests (1)",
+          "2026-11-07T07:00:00Z",
+          "2026-11-07T07:00:40Z",
+        ),
+        timed("Proof", "2026-11-07T07:01:00Z", "2026-11-07T07:01:30Z"),
+      ],
+      false,
+    ),
+  ).toEqual({ milliseconds: 70_000 });
+});
+
+test("a uniquely truncated static-named matrix label keeps the longest shard on the chain", () => {
+  const workflow = [
+    "jobs:",
+    "  e2e:",
+    "    name: End-to-End tests with Database",
+    "  proof:",
+    "    name: Proof",
+    "    needs: [e2e]",
+    "",
+  ].join("\n");
+  const truncated =
+    "End-to-End tests with Database (ubuntu-latest, shard 1 of 12, postgres...";
+
+  expect(
+    timeWithoutRunnerWaits(
+      workflow,
+      [
+        timed(truncated, "2026-11-07T07:00:00Z", "2026-11-07T07:00:40Z"),
+        timed(
+          "End-to-End tests with Database (2)",
+          "2026-11-07T07:00:00Z",
+          "2026-11-07T07:01:00Z",
+        ),
+        timed("Proof", "2026-11-07T07:02:00Z", "2026-11-07T07:02:30Z"),
+      ],
+      false,
+    ),
+  ).toEqual({ milliseconds: 90_000 });
+});
+
+test("an expression-named matrix job still picks the longest shard on the chain", () => {
+  const workflow = [
+    "jobs:",
+    "  frontend:",
+    "    name: Frontend Unit Tests (${{ matrix.shard }}/2)",
+    "  proof:",
+    "    name: Proof",
+    "    needs: [frontend]",
+    "",
+  ].join("\n");
+
+  expect(
+    timeWithoutRunnerWaits(
+      workflow,
+      [
+        timed(
+          "Frontend Unit Tests (1/2)",
+          "2026-11-07T07:00:00Z",
+          "2026-11-07T07:00:40Z",
+        ),
+        timed(
+          "Frontend Unit Tests (2/2)",
+          "2026-11-07T07:00:00Z",
+          "2026-11-07T07:01:00Z",
+        ),
+        timed("Proof", "2026-11-07T07:02:00Z", "2026-11-07T07:02:30Z"),
+      ],
+      false,
+    ),
+  ).toEqual({ milliseconds: 90_000 });
 });

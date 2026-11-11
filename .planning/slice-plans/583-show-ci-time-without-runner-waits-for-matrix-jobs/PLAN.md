@@ -2,6 +2,7 @@
 
 **Identity:** SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs
 **Source:** [Refined story](../../seeds/SEED-306-ci-time-without-runner-waits-for-matrix-jobs.md#show-ci-time-without-runner-waits-for-matrix-jobs)
+**Source review:** [source-review.md](./source-review.md)
 **Preparation:** owned workspace
 `/Users/terryyin/git/open-dough/.worktrees/show-ci-time-without-runner-waits-for-matrix-job`,
 branch `cursor/show-ci-time-without-runner-waits-for-matrix-job`, starting
@@ -82,7 +83,7 @@ static display name are instances of that label, not separate definitions.
 
 ### 1. Match static-name matrix attempt labels for CI time without runner waits
 Type: Behavior  
-Status: planned  
+Status: done
 Proof: Focused Node checks in `dashboard/backend-tests/intent/ci-time-without-runner-waits.spec.ts` (and matcher coverage colocated there or in the same boundary): (a) `Backend Unit tests (1)` against a static-named matrix job yields a numeric estimate that includes that duration; (b) a uniquely identifying truncated long E2E matrix label with 40 s and 60 s parallel shards plus a 30 s dependent proof job yields 90 s; (c) zero- and multi-match cases still return the existing unavailable reasons; (d) existing expression/unnamed fixture timing cases stay green. On macOS start long runs fully awake; on AC use `caffeinate -s -i`.
 
 Behavior: Retained workflow with static display-name matrix jobs and attempt rows whose GitHub-derived names carry matrix suffixes or unique truncation → Intent computes CI time without runner waits → those instances bind to their definitions, the longest instance per definition feeds the dependency chain, and ambiguous or empty matches remain explained unavailable estimates.
@@ -99,7 +100,11 @@ Behavior: Retained workflow with static display-name matrix jobs and attempt row
 
 ## Learnings
 
-None yet.
+- Static display names need the same matrix/truncation acceptance as unnamed
+  ids; uniqueness stays at the post-match exact-one-definition filter.
+- Post-change refactor: shared `matchesDeclaredJobLabel(declared, allowTruncation)`;
+  split adapter-graph cases to `ci-time-without-adapter-runner-waits.spec.ts`
+  so the observed-GitHub matching file stays under the file-size check.
 
 ## Plan concern assessment
 
