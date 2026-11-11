@@ -67,6 +67,11 @@ export function TerminalPrompts({
           role="menu"
           aria-label="Prompts"
           className="terminal-prompts-menu"
+          onMouseDown={(event) => {
+            // Safari clears button focus before click. Keep the menu mounted
+            // through selection; keyboard focus departure still dismisses it.
+            event.preventDefault();
+          }}
           onKeyDown={(event) => {
             if (event.key === "Escape") {
               event.preventDefault();

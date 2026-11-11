@@ -10,6 +10,24 @@ import {
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stoppedTracks } from "./voicePage.ts";
 
+// Safari buttons do not take pointer focus. Model that native default after
+// the page handles mousedown, while respecting cancellation of that default.
+export async function unfocusedPromptButtons(page: Page) {
+  await page.addInitScript(() => {
+    document.addEventListener("mousedown", (event) => {
+      if (
+        !event.defaultPrevented &&
+        event.target instanceof Element &&
+        event.target.closest('[role="menuitem"]') &&
+        document.activeElement instanceof HTMLElement
+      ) {
+        event.preventDefault();
+        document.activeElement.blur();
+      }
+    });
+  });
+}
+
 export async function openTerminalVoice(
   page: Page,
   dashboard: DashboardServer,
