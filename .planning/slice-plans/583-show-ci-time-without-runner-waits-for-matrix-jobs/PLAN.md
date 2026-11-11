@@ -88,6 +88,10 @@ Proof: Focused Node checks in `dashboard/backend-tests/intent/ci-time-without-ru
 
 Behavior: Retained workflow with static display-name matrix jobs and attempt rows whose GitHub-derived names carry matrix suffixes or unique truncation → Intent computes CI time without runner waits → those instances bind to their definitions, the longest instance per definition feeds the dependency chain, and ambiguous or empty matches remain explained unavailable estimates.
 
+## Execution complete
+
+Product advice: no change
+
 ## Current decisions
 
 - Change `workflowJobNameMatcher`'s static-name arm; leave chain aggregation in
