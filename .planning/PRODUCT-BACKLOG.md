@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Apply shared MakeMe rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry) — SEED-307#apply-shared-makeme-rules-per-entry ([plan](slice-plans/589-apply-shared-makeme-rules-per-entry/PLAN.md))
 - [Apply shared page-object rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-page-object-rules-per-entry) — SEED-307#apply-shared-page-object-rules-per-entry ([plan](slice-plans/590-apply-shared-page-object-rules-per-entry/PLAN.md))
 - [Select and copy text in the Dashboard terminal on mobile](seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile) — SEED-316#select-and-copy-terminal-text-on-mobile ([plan](slice-plans/591-select-and-copy-terminal-text-on-mobile/PLAN.md))
+- [Upgrade all dependencies](seeds/SEED-317-upgrade-all-dependencies.md#upgrade-all-dependencies) — SEED-317#upgrade-all-dependencies
 
 ## Backlog list
 
