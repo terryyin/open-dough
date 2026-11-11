@@ -1,4 +1,5 @@
 // Full product admission and outcome loop, through real receipt ingestion.
+// Receipt acceptance precedes collection; observe the actual rerun POST.
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
   followUpSettings,
@@ -23,17 +24,23 @@ test("new Done receipt at exactly105 seconds gets one full POST after sufficient
   const reply = new Promise<void>((resolve) => {
     release = resolve;
   });
+  let began!: () => void;
+  const submitted = new Promise<void>((resolve) => {
+    began = resolve;
+  });
   scenario.holdSubmission(async () => {
     expect(
       Object.values(readFollowUpLedger(first).landings).find(
         (landing) => landing.request,
       )?.request?.submission.kind,
     ).toBe("intent");
+    began();
     await reply;
   });
   const second = await startServer();
   const submission = await scenario.ingest(first);
-  await expect.poll(() => scenario.repeatCalls).toEqual([71]);
+  await submitted;
+  expect(scenario.repeatCalls).toEqual([71]);
   expect(
     Object.values(readFollowUpLedger(first).landings).find(
       (landing) => landing.request,
@@ -98,12 +105,19 @@ for (const [outcome, expected] of [
     startServer,
   }) => {
     const scenario = await prepareRepeatScenario(origin, github, 120);
+    const submitted = new Promise<void>((resolve) => {
+      scenario.holdSubmission(() => {
+        resolve();
+        return Promise.resolve();
+      });
+    });
     if (outcome === "refused") scenario.refuse(403);
     if (outcome === "uncertain") scenario.refuse(503);
     const server = await startServer();
     await followUpSettings(server, true);
     await scenario.ingest(server);
-    await expect.poll(() => scenario.repeatCalls.length).toBe(1);
+    await submitted;
+    expect(scenario.repeatCalls).toEqual([71]);
     if (outcome === "recovered") scenario.setRepeat({ seconds: 104 });
     if (outcome === "failed") scenario.setRepeat({ conclusion: "failure" });
     if (outcome === "cancelled")

@@ -4,6 +4,8 @@
 
 **Source:** [Refined story](../../seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and scope
 
 Protect the same behavior with fewer checks and bring the complete replacement
@@ -75,9 +77,9 @@ timed selection, including pre-existing checks.
 
 | Premise | Observed result or consuming probe |
 | --- | --- |
-| The starting selector reaches the scoped proof | Slice 1 consumes the 45 cases listed by the ordinary Playwright command at 5a5f5e922. At 62f8c5162 the two constituent selections passed 40 and five cases with the strict reporter. The combined elapsed baseline remains slice 1's first measurement. |
+| The starting selector reaches the scoped proof | The original 45 project/file/title identities match the corrected frozen cohort: three strict 45/45 passes, 266.38/287.15/303.80 seconds, at Take 17a2f1205 plus the two necessary test corrections and canonical Cursor helper. Exact hashes and phase/load/cache evidence are in [comparable baseline](comparable-baseline.md); historical 40+5 exploration is separate. |
 | Full staging and real rate-limit time are material even with an idle worker | The retained local profiling at 62f8c5162 exercised both paths. The watcher families issued 16 actual staging installs and builds, and the rate case took 21.594 seconds. Slices 2–4 remeasure after accepted changes and probe cheaper equivalent proof. |
-| The current overlap and elapsed cost can change before execution | Slice 1 reconciles the accepted revision and current SEED-287 ownership before proposing any overlapping change. The related active plan includes watcher restart consolidation, cheaper origin and touch setup, and fake GitHub transport work. Its branch evidence is a lead until accepted. |
+| The current overlap and elapsed cost can change before execution | Slice 1 retained SEED-287 branch ownership/evidence without treating its unlanded watcher/touch/transport work as accepted trunk state. The one canonical heldCursorExecutions helper from committed 84afbf850 was explicitly reused for necessary setup and proved in the frozen cohort. Before later overlap, settle newly accepted source/ownership; the existing HUP/restart candidate requires its seven-case serial family. |
 | The cheapest boundaries still catch the important regressions and can fit the time envelope | Slice 1 identifies each proof claim and orders the smallest executable probes. Slices 2–9 settle their own premise by observing the real boundary and a distinguishing failure where replacement is claimed. The effect of the untried changes remains open. A failed premise changes that slice and dependent work. |
 
 ## Ordered slices
@@ -85,7 +87,7 @@ timed selection, including pre-existing checks.
 ### 1. Establish comparable timing and locate overlap
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Run the [45-case starting selection](../../evidence/SEED-303-dashboard-test-timings.md#reproduce-the-starting-selection) in one normal strict invocation with one worker. Take three comparable passing measurements. Record literal command, accepted revision, load, cache state, counts, elapsed and phase breakdown. Reconcile promises already moved by SEED-287. For each potential removal, name the observed behavior, its current proof, the candidate surviving check and a fault it must detect.
 
@@ -179,11 +181,8 @@ Behavior: The intended behavior remains mapped to maintained checks → run all 
   protection at risk, and a focused command. Measure before and after with
   matched conditions and include displaced work. Review recorded proof and
   the new total before keeping, revising, or reverting an experiment.
-- An illustrative **29-second** allocation is 8 seconds for watcher plus
-  pinned deployment, 5 for session and Take checks, 4 for profile and touch,
-  3 for repeat, 1 for rate limits, 6 for runner and shared setup, and 2 for
-  margin. These are feasibility hypotheses. Slice 1 replaces them with
-  measured ranges and subsequent slices can trade time between families.
+- The [corrected baseline](comparable-baseline.md) is 266.38–303.80 seconds (median 287.15), with all 45 cases. Current pinning alone costs 7.969–8.629 case seconds; the illustrative 8-second watcher-plus-pinning allocation is unproved. Slices 2–3 settle smaller genuine preparation and lifecycle boundaries before accepting that allocation.
+- The canonical Cursor lifetime helper from committed SEED-287 source was reused at the same path and freshly proved here; [its provenance and proof](cursor-repair-evidence.md) distinguish this adoption from the other unlanded ownership leads.
 - Start with 30 distinct checks as a working count target, down from 45. Use
   the coverage map to revise that estimate as evidence warrants. Record the
   reduction and the equivalent protection on the final selection.
@@ -207,9 +206,7 @@ Behavior: The intended behavior remains mapped to maintained checks → run all 
 
 ## Learnings
 
-The investigation found repeated staging and launch setup, one real-clock
-delay, and repeated UI and collection journeys. Exact overlap and the minimum
-cost of equivalent proof remain to be measured in the execution checkout.
+Slice 1 retains [historical probes and overlap](baseline-evidence.md), the [frozen corrected baseline](comparable-baseline.md), and the [45-check coverage map](coverage-map.md). Three consecutive strict 45/45 passes took 266.38/287.15/303.80 seconds, median 287.15, with unchanged measured inputs. Earlier passing and failed cohorts remain separate. The measured cost order and proposed next probes are recorded without claiming a saving, fewer checks or the under-30-second outcome. G1/G2 and source commitments remain coordinator-owned; no slice is marked done.
 
 ## Plan concern assessment
 
@@ -220,6 +217,8 @@ early baseline probe. The plan is ready for the bounded first probe. The
 sub-30-second result remains a hypothesis until the combined verification.
 
 ## Execution notes
+
+[Established execution identity, setup, observer and launch decision](execution-context.md)
 
 - Local gates: use the focused strict runner selections and affected
   neighbors above. Include the installed request-owner checks if that
@@ -233,3 +232,15 @@ sub-30-second result remains a hypothesis until the combined verification.
   for domain setup and keep the default timeout under the repository test
   rules. Keep raw timing output out of commits and record only the evidence
   needed to reproduce the decision.
+
+## Story obligations
+
+### G1. Repeat admission is not observed at its causal boundary
+Reported: slice 1 — "The baseline recovered, cancelled and uncertain repeat variants failed at the five-second request-count poll after receipt ingestion; whether admission arrived late or never happened remains unproved."
+Story clause: "Drive meaningful transitions through observable signals or controlled time."
+Disposition: proved by slice 1: repeat-wait-evidence.md and comparable-baseline.md — the real POST-arrival callback precedes the independent request/outcome assertions; three focused 7/7 runs and three combined 45/45 runs passed. Original pressured latency remains unobserved; no latency claim or waiver is made.
+
+### G2. Cursor setup exhausts the case before revival
+Reported: slice 1 — "Run 4 timed out during the second initial Cursor launch before reaching revival; initial fixture and UI lifetime setup consumed the default case budget."
+Story clause: "Each check should protect one coherent intent."
+Disposition: proved by slice 1: cursor-repair-evidence.md and comparable-baseline.md — real scoped/Default execution preconditions, visible first input and the full unchanged revival observations passed three focused 2/2 runs and three combined 45/45 runs under the default case deadline.
