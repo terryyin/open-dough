@@ -9,7 +9,7 @@ story is completed or dropped by this administrative handoff.
 
 | Priority | Canonical story | Former slices and promises |
 | --- | --- | --- |
-| 1 | [SEED-311 — watcher lifecycle](../../seeds/SEED-311-production-watcher-lifecycle-checks.md#speed-up-production-watcher-lifecycle-checks) | Former 4; watcher recovery/cleanup SC-37–41 and G3; compatible delivered update-selection/source preparation from 2–3. |
+| 1 | [SEED-311 — watcher lifecycle](https://github.com/terryyin/open-dough/blob/b2f84f3854abd116dc1a801f2d284e0acd9e1802/.planning/seeds/SEED-311-production-watcher-lifecycle-checks.md#speed-up-production-watcher-lifecycle-checks) | Former 4; watcher recovery/cleanup SC-37–41 and G3; compatible delivered update-selection/source preparation from 2–3. |
 | 2 | [SEED-312 — touch review](../../seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) | Former 7; real touch, pane/file and reading-position/viewport promises SC-50–51/54. |
 | 3 | [SEED-313 — Cursor sessions](../../seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) | Former 8; holding/replacement, recorded scope, refusal/no-spawn and revival SC-56–60. |
 | 4 | [SEED-314 — automatic repeat](../../seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) | Former 10; real receipt/collection/admission, threshold, exactly once, restart and distinct outcomes SC-64–69. |

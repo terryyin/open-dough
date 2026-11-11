@@ -73,6 +73,7 @@ test("the copied public command selects an intended new source without project d
   for (const name of [
     "test-entry-rules.mjs",
     "test-entry-rules-runtime.mjs",
+    "test-entry-settings.mjs",
     "ci-direct-entry.mjs",
     "git-changes.mjs",
   ]) {

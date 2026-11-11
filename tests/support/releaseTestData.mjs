@@ -40,7 +40,7 @@ const withholds = (prefix, path) => path !== "" && path.startsWith(prefix);
 const removes = (removed, path) => `${path}/`.startsWith(`${removed}/`);
 
 /** The managed payload paths the working tree's install.sh declares. */
-function declaredPayload() {
+export function declaredPayload() {
   return execFileSync(
     "bash",
     [

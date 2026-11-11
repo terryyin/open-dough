@@ -3,3 +3,4 @@ dist/
 coverage/
 .planning/
 src/skills/dough-execute-plan/scripts/test-entry-rules-runtime.mjs
+src/skills/dough-makeme/scripts/minimatch.bundle.mjs

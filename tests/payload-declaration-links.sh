@@ -64,21 +64,24 @@ check_declared_links "${source_dir}"
 # A copy whose installer would fail if run proves the check never runs it.
 copy=$(mktemp -d)
 trap 'rm -rf -- "${copy}"' EXIT
-# Compare the actual grouped source declaration with Bash's literal array,
-# then read an equivalent legacy one-entry-per-line historical declaration.
-literal=$(awk '
-  /^managed_files=\(/ { in_payload = 1 }
+# Compare the assembled declaration with Bash executing only its data forms.
+# The real installer, and its entrypoint, are not executed.
+mkdir -p -- "${copy}/src/install"
+cp -- "${source_dir}/src/install/open-dough-execution-payload.sh" "${copy}/src/install/"
+awk '
+  /^managed_files(\+)?=\(/ { in_payload = 1 }
   in_payload { print }
-  in_payload && /^\)/ { exit }
-' "${source_dir}/install.sh")
-native_paths=$(/bin/bash -c "${literal}"$'\n''source "$1"; printf "%s\n" "${managed_files[@]}"' \
-  payload-declaration "${source_dir}/src/install/open-dough-execution-payload.sh")
+  in_payload && /^\)/ { in_payload = 0 }
+  /^source .*open-dough-execution-payload[.]sh"$/ { print }
+' "${source_dir}/install.sh" > "${copy}/declaration.sh"
+# shellcheck disable=SC2016 # Write literal Bash for the isolated declaration-only comparison.
+printf '%s\n' 'printf "%s\n" "${managed_files[@]}"' >> "${copy}/declaration.sh"
+native_paths=$(bash "${copy}/declaration.sh")
 declared_paths=$(read_managed_files_declaration "${source_dir}/install.sh")
-[[ "${declared_paths}" == "${native_paths}" ]]
-# macOS /bin/bash is 3.2: both assembly and inspection retain that contract.
 native_declared=$(/bin/bash -c 'source "$1"; read_managed_files_declaration "$2"' \
   payload-declaration "${source_dir}/src/install/open-dough-payload-declaration.sh" "${source_dir}/install.sh")
 [[ "${native_declared}" == "${native_paths}" ]]
+[[ "${declared_paths}" == "${native_paths}" ]]
 {
   printf '%s\n' 'managed_files=('
   while IFS= read -r managed_file; do
@@ -86,34 +89,39 @@ native_declared=$(/bin/bash -c 'source "$1"; read_managed_files_declaration "$2"
   done <<< "${native_paths}"
   printf '%s\n' ')'
 } > "${copy}/legacy-install.sh"
-legacy_paths=$(/bin/bash -c 'source "$1"; read_managed_files_declaration "$2"' \
-  payload-declaration "${source_dir}/src/install/open-dough-payload-declaration.sh" "${copy}/legacy-install.sh")
+legacy_paths=$(read_managed_files_declaration "${copy}/legacy-install.sh")
 [[ "${legacy_paths}" == "${native_paths}" ]]
+printf '%s\n' 'managed_files=(' '  dough-update/SKILL.md dough-example/SKILL.md' ')' \
+  > "${copy}/grouped-install.sh"
+grouped_paths=$(read_managed_files_declaration "${copy}/grouped-install.sh")
+[[ "${grouped_paths}" == $'dough-update/SKILL.md\ndough-example/SKILL.md' ]]
+# Missing or incomplete composition never becomes a successful partial list.
+cp -- "${source_dir}/install.sh" "${copy}/install.sh"
+mv -- "${copy}/src/install/open-dough-execution-payload.sh" "${copy}/fragment"
+if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
+  echo 'FAIL: a missing declaration fragment was accepted.' >&2
+  exit 1
+fi
+printf '%s\n' 'managed_files+=(' '  dough-example/SKILL.md' \
+  > "${copy}/src/install/open-dough-execution-payload.sh"
+if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
+  echo 'FAIL: an incomplete declaration fragment was accepted.' >&2
+  exit 1
+fi
+printf '%s\n' 'managed_files+=(' '  dough-example/SKILL.md' ')' \
+  "touch '${copy}/fragment-ran'" > "${copy}/src/install/open-dough-execution-payload.sh"
+if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
+  echo 'FAIL: a fragment containing a command was accepted.' >&2
+  exit 1
+fi
+[[ ! -e "${copy}/fragment-ran" ]]
+mv -- "${copy}/fragment" "${copy}/src/install/open-dough-execution-payload.sh"
 mkdir -p -- "${copy}/src"
 cp -R -- "${source_dir}/src/skills" "${copy}/src/skills"
-mkdir -p -- "${copy}/src/install"
-cp -- "${source_dir}/src/install/open-dough-execution-payload.sh" "${copy}/src/install/"
 {
   printf '%s\n' '#!/usr/bin/env bash' "echo 'FAIL: installer ran.' >&2; exit 1"
   cat -- "${source_dir}/install.sh"
 } > "${copy}/install.sh"
-
-# Missing or executable fragment content cannot be mistaken for a complete
-# declaration. Reading the fragment is data inspection, never shell execution.
-fragment="${copy}/src/install/open-dough-execution-payload.sh"
-mv -- "${fragment}" "${fragment}.saved"
-if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
-  echo 'FAIL: a missing execution declaration was accepted.' >&2
-  exit 1
-fi
-# shellcheck disable=SC2016 # This literal command substitution is rejected data under proof.
-printf '%s\n' 'managed_files+=(' '  $(touch should-never-run)' ')' > "${fragment}"
-if read_managed_files_declaration "${copy}/install.sh" > /dev/null 2>&1; then
-  echo 'FAIL: executable declaration content was accepted.' >&2
-  exit 1
-fi
-[[ ! -e should-never-run ]]
-mv -- "${fragment}.saved" "${fragment}"
 
 linking=dough-update/SKILL.md
 expect_undeclared() {

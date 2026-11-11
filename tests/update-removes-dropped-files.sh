@@ -26,6 +26,18 @@ project_beside_b='dough-adr-awareness/extras/project-notes.md'
 # declares A and B; 0.1.1 removes A and declares B; 0.1.2 removes B. Each added
 # file's bytes name its release.
 build_dropped_files_fixture() {
+  local composed_files
+  # This historical data fragment deliberately differs from the current one.
+  # Only its same-tag bytes declare A; flattening every fixture would miss it.
+  composed_files=$(
+    node - "${leftover_a}" "${leftover_b}" << 'NODE'
+const [a, b] = process.argv.slice(2);
+process.stdout.write(JSON.stringify({
+  "install.sh": 'managed_files=(\n  dough-update/SKILL.md\n)\nsource "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"\n',
+  "src/install/open-dough-execution-payload.sh": `managed_files+=(\n  ${a}\n  ${b}\n)\n`,
+}));
+NODE
+  )
   node "${source_dir}/tests/support/release-source.mjs" "$1" << JSON
 {"revisions": [
   {"name": "release 0.0.9 with an unreadable declaration", "release": {
@@ -36,7 +48,7 @@ build_dropped_files_fixture() {
     "version": "0.1.0", "taggedAt": "2026-08-31T00:00:00",
     "marker": "payload-0.1.0", "added": {
       "${leftover_a}": "${leftover_a} from 0.1.0\\n",
-      "${leftover_b}": "${leftover_b} from 0.1.0\\n"}}},
+      "${leftover_b}": "${leftover_b} from 0.1.0\\n"}}, "files": ${composed_files}},
   {"name": "release 0.1.1", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
     "marker": "payload-0.1.1", "added": {

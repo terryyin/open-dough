@@ -5,11 +5,10 @@
 // and post-wait admission belong to `./github-request-owner.test.mjs`;
 // `./ci-github-diagnostic.test.mjs` covers the diagnostic entry.
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { makeMe } from "../../../../tests/support/makeMe.mjs";
+import { declaredPayload } from "../../../../tests/support/releaseTestData.mjs";
 import {
   apiCall,
   completedJob,
@@ -158,20 +157,7 @@ test("a rate limit suspends the observer until the directed time without losing 
 });
 
 test("no installed file asks gh outside the one request source or names a gh run command", () => {
-  const source = fileURLToPath(new URL("../../../../", import.meta.url));
-  const installed = execFileSync(
-    "bash",
-    [
-      "-c",
-      'source "$1"; read_managed_files_declaration "$2"',
-      "payload",
-      `${source}src/install/open-dough-payload-declaration.sh`,
-      `${source}install.sh`,
-    ],
-    { encoding: "utf8" },
-  )
-    .trim()
-    .split("\n");
+  const installed = declaredPayload();
   assert.ok(
     installed.includes("dough-execute-plan/scripts/ci-github-diagnostic.mjs"),
   );

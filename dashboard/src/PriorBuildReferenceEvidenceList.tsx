@@ -9,10 +9,14 @@ export function PriorBuildReferenceEvidenceList({
   evidence,
   precise = false,
   details,
+  selectedLabel = "Selected",
+  reasonWords = (reason: string) => reason,
 }: {
   readonly evidence: readonly PriorBuildEvidence[];
   readonly precise?: boolean;
   readonly details: (sample: PriorBuildEvidence) => ReactNode;
+  readonly selectedLabel?: string;
+  readonly reasonWords?: (reason: string) => string;
 }) {
   const durationWords = precise ? executionTimeWords : wholeSecondWords;
   return (
@@ -26,12 +30,14 @@ export function PriorBuildReferenceEvidenceList({
           {sample.status === "included"
             ? "✓ Included"
             : sample.status === "selected"
-              ? "◆ Selected"
+              ? `◆ ${selectedLabel}`
               : "× Excluded"}
           {" · "}
           <time dateTime={sample.date}>{buildDateWords(sample.date)}</time>
           {sample.ms === undefined ? "" : ` · ${durationWords(sample.ms)}`}
-          {sample.reason === undefined ? "" : ` · ${sample.reason}`}
+          {sample.reason === undefined
+            ? ""
+            : ` · ${reasonWords(sample.reason)}`}
           {details(sample)}
         </p>
       ))}

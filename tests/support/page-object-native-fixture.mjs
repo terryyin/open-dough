@@ -52,6 +52,7 @@ export async function createPageObjectProject(
   for (const path of [
     "references/test-entry-rules.md",
     "scripts/test-entry-rules.mjs",
+    "scripts/test-entry-settings.mjs",
     "scripts/ci-direct-entry.mjs",
     "scripts/git-changes.mjs",
     "scripts/test-entry-rules-runtime.mjs",

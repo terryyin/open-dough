@@ -4,7 +4,11 @@
 // held. Derivation is lexical; behavior the diff cannot carry stays supplied.
 import { basename, dirname, extname } from "node:path";
 
-export { changedAgainst, readText } from "./git-changes.mjs";
+export {
+  changedAgainst,
+  readText,
+  repositoryChangePaths,
+} from "./git-changes.mjs";
 
 // Prose lines hold `Word:` labels and sentences, not declarations.
 const PROSE = /\.(md|markdown|txt|rst)$/i;

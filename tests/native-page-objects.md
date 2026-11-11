@@ -24,9 +24,10 @@ npm test -- tests/support/page-object-makeme-browser-proof.mjs
 The gate uses the shared `dough-execute-plan/scripts/test-entry-rules.mjs`
 command. Its import-free runtime bundles the maintained Intent declaration and
 membership owners, so a project needs Node but no Open Dough npm dependencies.
-Regenerate it from the locked source installation with
-`node scripts/build-test-entry-rules.mjs`; `--check` verifies correspondence
-without writes. Keep the generated license alongside the runtime. Public
+When matcher dependencies change, first run `node scripts/build-intent-matcher.mjs`
+from the locked source installation to refresh the canonical matcher and notices.
+Then run `node scripts/build-test-entry-rules.mjs`; `--check` verifies that output's
+correspondence without writes. Keep the generated license alongside the runtime. Public
 selection and isolated command contracts run through
 `npm test -- tests/support/test-entry-rules.test.mjs tests/support/test-entry-rules-standalone.test.mjs tests/support/test-entry-rules-installed.test.mjs`.
 

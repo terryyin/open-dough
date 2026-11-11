@@ -1,6 +1,6 @@
 // Shared Git change discovery for consumer tracing and implicated refactoring.
 // Renames stay as deletion/addition so both paths participate in scope.
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 const DIFF = ["-c", "core.quotePath=false", "diff", "--no-renames"];
@@ -14,15 +14,48 @@ function untrackedPaths(git, root) {
   return paths(git(root, ["ls-files", "-z", "--others", "--exclude-standard"]));
 }
 
+function workingLayers(git, root, base) {
+  const revision = base === undefined ? [] : [base];
+  return {
+    worktree: diffNames(git, root, revision),
+    staged: diffNames(git, root, ["--cached", ...revision]),
+    untracked: untrackedPaths(git, root),
+  };
+}
+
+// Preserve the existing range-oriented consumer-trace/MakeMe API. A supplied
+// range is compared by Git, rather than interpreted as one commit's patch.
+export function repositoryChangePaths(git, root, base, committed = []) {
+  return {
+    ...workingLayers(git, root, base),
+    committed: [
+      ...new Set(committed.flatMap((range) => diffNames(git, root, [range]))),
+    ],
+  };
+}
+
+export function currentSourcePaths(project, paths) {
+  return paths.filter((path) => {
+    try {
+      return statSync(resolve(project, path)).isFile();
+    } catch (error) {
+      if (error.code === "ENOENT" || error.code === "ENOTDIR") return false;
+      throw error;
+    }
+  });
+}
+
 // Include index and worktree independently: an unstaged reversal of a staged
 // edit still implicates that source. Only supplied commits add committed scope.
 export function changedForRefactoring(git, root, committed = []) {
-  const changed = [
-    ...diffNames(git, root, ["--cached"]),
-    ...diffNames(git, root, []),
-    ...untrackedPaths(git, root),
-  ];
+  const changed = Object.values(workingLayers(git, root)).flat();
   for (const revision of committed) {
+    if (revision.includes("..")) {
+      if (revision.startsWith("-"))
+        throw new Error("Supply a Git revision range, not options");
+      changed.push(...diffNames(git, root, [revision]));
+      continue;
+    }
     const sha = git(root, [
       "rev-parse",
       "--verify",

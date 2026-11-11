@@ -34,18 +34,4 @@ export function resolveBesideFile(
   return segments.join("/");
 }
 
-// Reject unsafe repository paths before membership or authenticated reads.
-export function isSafeRepositoryPath(path: string): boolean {
-  if (path.length === 0 || path.startsWith("/") || path.includes("\\")) {
-    return false;
-  }
-  const segments = path.split("/");
-  if (
-    segments.some(
-      (segment) => segment === "" || segment === "." || segment === "..",
-    )
-  ) {
-    return false;
-  }
-  return true;
-}
+export { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";

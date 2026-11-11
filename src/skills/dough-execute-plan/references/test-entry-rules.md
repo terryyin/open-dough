@@ -49,7 +49,10 @@ node '<installed-execute-plan>/scripts/test-entry-rules.mjs' \
 ```
 
 When the caller supplies committed dispositions since the last refactor pass,
-append `--committed '<revision>'` for each supplied commit. Read those diffs too;
+append `--committed '<revision>'` for each supplied commit, or an explicit Git
+range for supplied range dispositions. A single revision means that commit
+only; a range uses Git's diff comparison. Add `--path '<source>'` for explicit
+caller-supplied paths or newly implicated existing sources. Read those diffs too;
 do not add arbitrary committed history. The shared Git discovery includes staged
 and unstaged changes independently, untracked non-ignored files, and both sides
 of moves. Selection then uses existing source files, following source symlinks,

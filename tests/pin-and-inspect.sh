@@ -91,6 +91,8 @@ inspected_helpers=(
   src/install/open-dough-execution-payload.sh
   src/install/open-dough-payload-declaration.sh
   src/install/open-dough-install-payload.sh
+  src/install/open-dough-execution-payload.sh
+  src/install/open-dough-payload-declaration.sh
   src/install/open-dough-payload-bytes.mjs
   src/install/open-dough-release.sh
   src/install/open-dough-release-apply.sh

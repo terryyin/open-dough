@@ -31,7 +31,7 @@ EOF
 # of the update output.
 prepare_release_history() {
   local url=$1 history=$2 version=$3
-  local tags tag install_blobs
+  local tags tag install_blobs declaration_root path declaration_available
   local -a refspecs=()
 
   tags=$(release_tags_up_to "${url}" "${version}") || return 1
@@ -51,12 +51,14 @@ EOF
     echo "Failed to fetch release history from ${url}" >&2
     return 1
   fi
-  # One request for every release's install.sh; reading each lazily costs a
-  # round trip per release. If it fails, reads below still fetch lazily.
+  # Batch installers and data fragments from each same-tag tree. If this
+  # request fails, the reads below still fetch lazily.
   install_blobs=$(printf '%s\n' "${tags}" | while IFS= read -r tag; do
-    git -C "${history}" rev-parse --verify --quiet "${tag}:install.sh" || true
-    git -C "${history}" rev-parse --verify --quiet \
-      "${tag}:src/install/open-dough-execution-payload.sh" || true
+    git -C "${history}" ls-tree -r "${tag}" -- install.sh src/install | awk -F'\t' '
+      $2 == "install.sh" || $2 ~ /^src\/install\/[a-z0-9-]+-payload[.]sh$/ {
+        split($1, meta, " "); print meta[3]
+      }
+    '
   done)
   printf '%s\n' "${install_blobs}" | git -C "${history}" \
     -c fetch.negotiationAlgorithm=noop fetch --quiet --no-tags \
@@ -64,17 +66,21 @@ EOF
     --stdin origin > /dev/null 2>&1 || true
 
   : > "${history}.declared"
-  local declaration="${history}.declaration"
-  mkdir -p -- "${declaration}/src/install"
   while IFS= read -r tag; do
     [[ -n "${tag}" ]] || continue
-    if ! git -C "${history}" show "${tag}:install.sh" > "${declaration}/install.sh" 2> /dev/null; then
-      continue
-    fi
-    # Only data is materialized; no historical installer or fragment runs.
-    git -C "${history}" show "${tag}:src/install/open-dough-execution-payload.sh" \
-      > "${declaration}/src/install/open-dough-execution-payload.sh" 2> /dev/null || true
-    if ! read_managed_files_declaration "${declaration}/install.sh" > "${history}.paths" 2> /dev/null; then
+    declaration_root="${history}.declarations/${tag}"
+    mkdir -p -- "${declaration_root}/src/install"
+    declaration_available=1
+    while IFS= read -r path; do
+      if ! git -C "${history}" show "${tag}:${path}" > "${declaration_root}/${path}" 2> /dev/null; then
+        declaration_available=0
+        break
+      fi
+    done < <(git -C "${history}" ls-tree -r --name-only "${tag}" -- src/install \
+      | awk '/^src\/install\/[a-z0-9-]+-payload[.]sh$/')
+    ((declaration_available)) || continue
+    if ! git -C "${history}" show "${tag}:install.sh" > "${declaration_root}/install.sh" 2> /dev/null \
+      || ! read_managed_files_declaration "${declaration_root}/install.sh" > "${history}.paths" 2> /dev/null; then
       continue
     fi
     git -C "${history}" ls-tree -r "${tag}" -- src/skills | awk -F'\t' '

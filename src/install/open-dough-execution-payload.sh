@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Execution guidance and its runtime dependencies, appended to install.sh's declaration.
+# Data-only declaration fragment; install.sh assembles the managed payload.
+# shellcheck disable=SC2034 # install.sh consumes the assembled managed_files array.
 managed_files+=(
   dough-execute-plan/scripts/dashboard-completion.mjs
   dough-execute-plan/scripts/dashboard-landing.mjs
@@ -174,6 +175,7 @@ managed_files+=(
   dough-execute-plan/scripts/workspace-publication-push.mjs
   dough-execute-plan/scripts/workspace-publication-select.mjs
   dough-execute-plan/references/test-entry-rules.md
+  dough-execute-plan/scripts/test-entry-settings.mjs
   dough-execute-plan/scripts/test-entry-rules.mjs
   dough-execute-plan/scripts/test-entry-rules-runtime.mjs
   dough-execute-plan/scripts/test-entry-rules-LICENSE.txt

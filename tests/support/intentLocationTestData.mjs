@@ -22,8 +22,13 @@ export class IntentLocationBuilder {
 
   /** @param {{ makeMe?: boolean, pageObjects?: boolean }} rules */
   withRules(rules) {
-    this.#rules = { ...rules };
+    this.#rules = { ...this.#rules, ...rules };
     return this;
+  }
+
+  /** @param {boolean} [enabled] */
+  usingMakeMe(enabled = true) {
+    return this.withRules({ makeMe: enabled });
   }
 
   /** @param {string} path the location's repository folder */

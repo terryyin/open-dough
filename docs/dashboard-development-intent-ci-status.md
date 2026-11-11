@@ -55,9 +55,10 @@ a unit; an unavailable figure follows an available one in either direction at
 that unit, and ties keep declaration order. Different units are never summed
 into a count, time, or sort key. The sort is kept in memory while **CI
 status** stays shown, never on the URL or in storage; the table has no totals
-row. A path wraps after its `/` separators, and within them only in a reading
-pane too narrow for that, so the columns fit a phone or zoomed window without
-sideways scrolling. A
+row. Paths wrap after `/`, or within parts when needed, so columns fit narrow panes without sideways scrolling.
+Matching entry names open their location's Summary at the top by click, Enter or Space and focus the reading pane.
+For a selected story this chooses **Changed tests**; Project Intent keeps its **CI status** view.
+Entries absent from the shown Intent locations remain plain text. A
 GitHub Actions run's summary is its `ci-proof-summary-attempt-<n>` artifact,
 read with `intent=ci-proof` `run`, `attempt` and `revision`
 (`dashboard/server/ciProofArtifact.ts`) and used only when it names the same

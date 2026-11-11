@@ -1,6 +1,6 @@
 # Dashboard UX/UI North Star
 
-**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-09, for shared Intent and landed CI timing history.
+**Status:** Temporary design direction for discussion and incremental development. **Updated:** 2026-11-11, for phone terminal text and scrolling.
 
 Help a developer understand Development, the project's ongoing effort to shape
 the product, and inspect the evidence behind it. The current dashboard combines
@@ -124,6 +124,8 @@ and evidence ordering across the reading pane:
 | Where the developer is reading | What the timing history answers |
 | --- | --- |
 | Project Intent → **CI status** | Has CI wall time changed across recent trunk builds collected from dashboard-recorded landed executions? |
+| Project Intent → entry or folder **Summary** | How has measured test execution time changed in this scope through the observed configured-trunk head? |
+| Project Intent → test file **Proof** | What did collected builds measure for this file through the observed trunk head, and where is evidence missing? **Purpose** continues to show its source. |
 | Done story → **CI comparison** | Where does this landing sit in that history, and how does it compare with earlier eligible builds? Keep the existing Baseline, Branch, and Landed evidence together. |
 | Done story → **Changed tests** → entry or folder **Summary** | How has measured test execution time changed in this scope through the story's landing? |
 | Done story → **Changed tests** → test file **Proof** | What did CI measure for this file through the landing? **Purpose** continues to show its source or diff. |
@@ -294,3 +296,22 @@ hierarchy and the same existing-changes confirmation rather than a second
 dialog design, and validate it with long-title, narrow, and 200% zoom screens
 before accepting implementation. Retire this topic when that dialog is
 delivered.
+
+## Phone terminal text and scrolling
+
+On a phone or tablet, hand text work beside the terminal to the device rather
+than imitating it inside the terminal. Compose already does this for input.
+For output, **Select** on the phone key toolbar pauses the terminal screen in
+place as ordinary page text, so the device's own long-press, handles,
+magnifier and Copy apply; the same control returns the live terminal. Keep the
+pause evident where the developer is looking, send the session nothing, and
+add no dashboard selection gesture or Copy control.
+
+A one-finger swipe scrolls the output wherever it is held: the terminal's
+scrollback, or the session's application when it has taken over the screen and
+scrolls itself. Decide from what the terminal reports, never from the host's
+name, and never turn a swipe into arrow keys.
+
+Copied text matches the screen. Retire this topic when
+[the story](../.planning/seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile)
+is delivered and `dashboard/AGENT-LAUNCH-TERMINAL-INPUT.md` describes it.

@@ -38,14 +38,13 @@ try {
     throw new Error("Test-entry selection must be one import-free module");
   }
   await retain("test-entry-rules-runtime.mjs", provenance + output[0].code);
-  const licenses = await Promise.all(
-    [
-      "minimatch/LICENSE.md",
-      "brace-expansion/LICENSE",
-      "balanced-match/LICENSE.md",
-    ].map((path) => readFile(new URL(`node_modules/${path}`, root), "utf8")),
+  // The membership owner imports this generated matcher snapshot. Its notices
+  // describe the same bundled bytes; dependency discovery stays with its build.
+  const notices = await readFile(
+    new URL("src/skills/dough-makeme/scripts/minimatch.LICENSE.md", root),
+    "utf8",
   );
-  await retain("test-entry-rules-LICENSE.txt", licenses.join("\n\n"));
+  await retain("test-entry-rules-LICENSE.txt", notices);
 } finally {
   await bundle.close();
 }

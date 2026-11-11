@@ -12,11 +12,7 @@
 // `./branchReachability.ts`.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  isSafeRepositoryPath,
-  resolveBesideFile,
-} from "../src/repositoryPath.ts";
-export { isSafeRepositoryPath } from "../src/repositoryPath.ts";
+import { resolveBesideFile } from "../src/repositoryPath.ts";
 import {
   resolveSourceLink,
   snapshotRepositoryPath,
@@ -24,6 +20,9 @@ import {
 import { peekRecordedApproach } from "../src/storyPreparation.ts";
 import type { ListedFile } from "./ghContents.ts";
 import { parseBacklog } from "../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
+
+import { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";
+export { isSafeRepositoryPath } from "../../src/skills/dough-makeme/scripts/repository-path.mjs";
 
 // Decode a query-string path, then apply the same segment rules the allowlist
 // uses for already-decoded repository paths.

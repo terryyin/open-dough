@@ -6,16 +6,25 @@ import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { CiScopeHistory } from "./ciScopeHistory.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
 import { scopeHistoryProvenance } from "./IntentScopeTimingHistoryEvidence.tsx";
+import {
+  scopeHistoryEndpointWords,
+  scopeHistorySelectionWords,
+  type ScopeHistoryContext,
+} from "./intentScopeHistoryContext.ts";
 import { IntentScopePriorBuildReference } from "./IntentScopePriorBuildReference.tsx";
 
 function UnitHistory({
   history,
   unit,
+  context,
 }: {
   readonly history: CiScopeHistory;
   readonly unit: DeclaredUnit;
+  readonly context: ScopeHistoryContext;
 }) {
   const heading = useId();
+  const endpointWords = scopeHistoryEndpointWords(context);
+  const selectionWords = scopeHistorySelectionWords(context);
   const name = unitName(unit);
   const title = `${name[0]?.toUpperCase() ?? ""}${name.slice(1)}`;
   const comparison = history.references?.find(
@@ -32,7 +41,7 @@ function UnitHistory({
               ms: reading.ms,
               segment: reading.segment,
               selected: entry.selected,
-              description: `${buildDateWords(entry.date)} · ${executionTimeWords(reading.ms)} · ${name} · ${scopeHistoryProvenance(entry)}${entry.selected ? " · Selected landing" : ""}`,
+              description: `${buildDateWords(entry.date)} · ${executionTimeWords(reading.ms)} · ${name} · ${scopeHistoryProvenance(entry)}${entry.selected ? ` · ${endpointWords}` : ""}`,
             },
           ]
         : [],
@@ -49,7 +58,7 @@ function UnitHistory({
     .map((entry) => ({
       key: entry.key,
       date: entry.date,
-      label: "Selected gap",
+      label: `${selectionWords} gap`,
     }));
   return (
     <section aria-labelledby={heading}>
@@ -57,6 +66,7 @@ function UnitHistory({
       <IntentScopePriorBuildReference
         comparison={comparison}
         entries={history.entries}
+        context={context}
       />
       {points.length === 0 ? (
         <p className="intent-ci-history-note">
@@ -65,8 +75,9 @@ function UnitHistory({
       ) : (
         <IntentCiHistoryChart
           series={{
-            label: `Test execution time for ${name} by build date; selected landing marked`,
+            label: `Test execution time for ${name} by build date; ${endpointWords.toLowerCase()} marked`,
             precise: true,
+            selectedLabel: selectionWords,
             dates: history.entries.map((entry) => entry.date),
             annotations,
             points,
@@ -87,8 +98,10 @@ function UnitHistory({
 
 export function IntentScopeTimingHistoryUnits({
   history,
+  context,
 }: {
   readonly history: CiScopeHistory;
+  readonly context: ScopeHistoryContext;
 }) {
   const units = declaredUnits.filter((unit) =>
     history.entries.some((entry) =>
@@ -98,7 +111,12 @@ export function IntentScopeTimingHistoryUnits({
   return (
     <>
       {units.map((unit) => (
-        <UnitHistory key={unit} history={history} unit={unit} />
+        <UnitHistory
+          key={unit}
+          history={history}
+          unit={unit}
+          context={context}
+        />
       ))}
     </>
   );

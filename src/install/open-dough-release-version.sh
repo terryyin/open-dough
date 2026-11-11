@@ -4,8 +4,8 @@ report_managed_payload_mismatch() {
   local skill_root=$1 managed_file=$2
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
+# shellcheck disable=SC1091 # The selective check does not follow companion modules.
 # shellcheck source=src/install/open-dough-payload-declaration.sh
-# shellcheck disable=SC1091
 source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-declaration.sh"
 # Read-only dest vs tagged checkout. dest is the dough-update destination;
 # skill_root is its native root. No fetches or writes. Callers with a tagged

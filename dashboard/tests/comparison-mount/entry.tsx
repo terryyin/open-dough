@@ -21,6 +21,8 @@ window.mountCiComparison = ({
   work,
   identity,
   scope,
+  doneEndpoint,
+  shown,
 }: ComparisonMount) => {
   const container = document.getElementById("root");
   if (container === null) {
@@ -32,30 +34,43 @@ window.mountCiComparison = ({
     mountedRoot.render(
       <IntentReadingProvider project={source.id}>
         <IntentReadingPlace project={source.id} story={selection.identity}>
-          <IntentReadingScope name="story">
+          <IntentReadingScope
+            name={selection.identity === undefined ? "project" : "story"}
+          >
             <IntentCiComparisonPreference>
-              <IntentCiEvidenceProvider
-                source={source}
-                work={selection.work}
-                selectedIdentity={selection.identity}
-                active
-              >
-                {selection.scope === undefined ? (
-                  <IntentCiStatus />
-                ) : (
-                  <ComparisonMountScope
-                    key={selection.identity}
-                    facts={selection.scope}
-                  />
-                )}
-              </IntentCiEvidenceProvider>
+              {selection.shown !== false && (
+                <IntentCiEvidenceProvider
+                  source={source}
+                  work={selection.work}
+                  selectedIdentity={selection.identity}
+                  active
+                  {...(selection.doneEndpoint === undefined
+                    ? {}
+                    : { doneEndpoint: selection.doneEndpoint })}
+                >
+                  {selection.scope === undefined ? (
+                    <IntentCiStatus />
+                  ) : (
+                    <ComparisonMountScope
+                      key={selection.identity}
+                      facts={selection.scope}
+                    />
+                  )}
+                </IntentCiEvidenceProvider>
+              )}
             </IntentCiComparisonPreference>
           </IntentReadingScope>
         </IntentReadingPlace>
       </IntentReadingProvider>,
     );
   };
-  update({ work, identity, scope });
+  update({
+    work,
+    identity,
+    scope,
+    ...(shown === undefined ? {} : { shown }),
+    ...(doneEndpoint === undefined ? {} : { doneEndpoint }),
+  });
 };
 window.updateCiComparison = (selection) => {
   if (update === undefined) {

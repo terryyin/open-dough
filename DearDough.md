@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 488. Removed numbers are never reused.
+- Highest allocated local number: 489. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -139,6 +139,14 @@ Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: excessive diagnostic output and truncated context required bounded follow-up retrieval; command handles and semantic proof results remained available.
   - Inference: recurrence of agent output/read scoping deviation under existing guidance, not a missing instruction. No total-token or elapsed-time saving was measured.
 
+- Execution: SEED-310#show-trunk-test-scope-timing-history (plan581; first implementation `2e8d46e0ecfdca9183102690c26c34a075bde715`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
+  - Evidence: launch `5c494f68-0b89-4fd0-9561-2ebba78cc986`; coordinator consumer-trace read reported50595 original tokens with truncation, followed by a6059-token filtered result that also truncated. Targeted product/assertion reads and the implementation return recovered the needed evidence.
+  - Observed effect: excessive generated output and repeated retrieval under existing disposable-research guidance; command handles and proof remained intact.
+  - Inference: agent output-scoping deviation, not missing instructions; no isolated elapsed/token saving measured.
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -213,7 +221,22 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; first guarded fresh returned formatting failure for an unused callback parameter and forbidden non-null assertion in ci-history-reader-compatibility.spec.ts after green focused proof and independent refactor; coordinator corrected them and reran that spec.
   - Observed effect: One mechanical repair/proof/preparation loop preceded publication; formatter and hook ownership were honored. Earlier lint savings remain unmeasured.
 
+- Execution: SEED-307#apply-shared-makeme-rules-per-entry (plan 589; first implementation `ec131e188ece02d28504c610a2812f0c325798d2`)
+  - Timestamp: unknown (2026-11-11 slice-3 and slice-4 delivery; exact formatter-event times unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (installed `.agents/skills/dough-update/VERSION` at accepted Take `24f1647fb91aea54cced8e5ff5f0321579b29353`)
+  - Evidence: `703fc242c84631550a54061cfd53ac8163f10da2:.planning/slice-plans/589-apply-shared-makeme-rules-per-entry/slice-3-evidence.md` and `slice-4-evidence.md`, fresh-preparation repair sections; coordinator tool results returned `operation: formatting` for no-param-reassign in changed-makeme.mjs, then SC1091/SC2016 on companion sourcing and intentionally literal shell text after the next slice's independent refactor.
+  - Observed effect: the guards withheld commit/publication; a local constant and narrowly scoped ShellCheck annotations repaired the named operations. The changed-scope tests passed after the semantic-equivalent local-constant repair; annotation-only repairs reused unchanged runtime/observing assertions. No paid native repeat was required.
+  - Inference: late authored-file lint feedback recurred under briefs reserving formatter and hook-owned lint to the coordinator. This establishes repair/preparation loops, not measured savings from an earlier read-only check.
+
 <a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
+
+- Execution: SEED-310#show-trunk-test-scope-timing-history (plan581; first implementation `2e8d46e0ecfdca9183102690c26c34a075bde715`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
+  - Evidence: slice1 guarded fresh formatting refused no-param-reassign on frontendServices.projects and require-await on an immediate rerun callback after passing browser/type proof and independent refactor. `2e8d46e0:.planning/slice-plans/581-show-trunk-test-scope-timing-history/slice-1-proof.md` retains the mechanical Object.assign/Promise.resolve repair and unchanged-proof rationale.
+  - Observed effect: commit/publication were correctly withheld until the mechanical repair and preparation retry; authored-file lint feedback arrived at coordinator delivery. Earlier-check savings remain unmeasured.
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
@@ -257,6 +280,13 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
   - Evidence: slice9 `fresh` returned `preparation-failed`, operation `staging`, `fatal: pathspec '.planning/agents/bas-chan.json' did not match any files`; `slice9-progress-delivery-repaired.log` and `slice9-merge-staging-classification.json` under `/tmp/seed286-execution-20261109/`; classifying195 working paths as ownedPaths and13 already staged merge deletions as stagedPaths published `76015682179bcf87353da6c1cbbc6da5b86e11ca`.
   - Observed effect: one staging refusal before commit/publication, then a preparation-input correction and retry; formatting reran, no tested source or deletion was lost.
   - Inference: Same already-absent-index/literal-add condition as ODF-337. This confirms that condition for merge-staged deletions, not that every unstaged deletion fails; the publication boundary contained the mistaken path classification.
+
+- Execution: SEED-310#show-trunk-test-scope-timing-history (plan581; first implementation `2e8d46e0ecfdca9183102690c26c34a075bde715`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
+  - Evidence: after a staged-whitespace stop, fresh retry returned staging failure for already-staged deleted source dashboard/tests/intent/intent-scope-timing-history-reading.spec.ts (three frontend moves). Classifying those old sources as stagedPaths and existing/new files as ownedPaths accepted `2e8d46e0`; `/tmp/seed310-slice1-preparation.json` and `e37801b5:.planning/slice-plans/581-show-trunk-test-scope-timing-history/execution-context.md` retain recovery context.
+  - Observed effect: one staging refusal and input-classification retry before publication, with no lost deletion/source/proof. Inference: same already-absent-index condition as the existing finding, not every unstaged deletion.
 
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 
@@ -310,6 +340,21 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: Final slice-4 trace at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/slice-4-makeme-integration.md#independent-controls-correspondence-and-disposition` recorded815 dispositions:27 run,21 reused,767 excluded. Automatically derived `PLAN.md`, `source-review.md`, `SKILL.md` and `convention.md` appeared beside concrete product-effect terms. The independent refactor reused the same disposition set and made no edits.
   - Observed effect: hundreds of lexical-only exclusions and repeated coordinator inspection were required alongside useful runtime/payload tracing. No missed product consumer or isolated time/token saving is established.
   - Inference: same generic source-basename expansion cost as ODF-396. Separating record/basename noise from meaningful effect leads is a proposal for later judgment, not authorization to weaken indirect proof.
+- Execution: SEED-310#show-trunk-test-scope-timing-history (plan581; first implementation `2e8d46e0ecfdca9183102690c26c34a075bde715`)
+  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
+  - Evidence: `e37801b5:.planning/slice-plans/581-show-trunk-test-scope-timing-history/slice-2-proof.md` records778 consumer dispositions (23 run,13 reused,742 lexical/unaffected exclusions), including generic field and planning terms; raw trace `/tmp/seed310-slice2-consumer-trace.md`. The later three-path private-prefix refactor used explicit --path inputs and69 dispositions; scopes differ, so this is no comparable savings measurement.
+  - Observed effect: large planning/generic lexical tables required many exclusions beside useful real-consumer tracing. Wrap-up later found and repaired two active SEED-300 audit links still pointing to the moved integrated reading/units specs; all affected browser consumers were observed, and no missing runtime proof was established.
+  - Inference: recurrence of planning-basename/generic-term noise; isolate record inputs from product effects while retaining semantic/enclosing consumer terms. No total cost reduction was measured.
+
+- Execution: SEED-307#apply-shared-makeme-rules-per-entry (plan 589; first implementation `ec131e188ece02d28504c610a2812f0c325798d2`)
+  - Timestamp: unknown (2026-11-11 slice-3 and slice-4 tracing; exact trace-event times unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (checkout-bound installed guidance at accepted Take `24f1647fb91aea54cced8e5ff5f0321579b29353`)
+  - Evidence: `703fc242c84631550a54061cfd53ac8163f10da2:.planning/slice-plans/589-apply-shared-makeme-rules-per-entry/slice-3-evidence.md` records 454 consumer rows (8 run, 446 exclusions); `slice-4-evidence.md` records 782 (42 run, 15 reused, 725 exclusions). Their `/tmp/seed307-slice{3,4}-consumer-trace-dispositioned.md` tables derive generic PLAN.md/SKILL.md terms alongside meaningful runtime effects. The final assessor-only refactor used three explicit paths and guidanceReadCount, locating six consumers.
+  - Observed effect: implementation acceptance required many concrete planning/history or unchanged-install exclusions beside real declaration, workflow and test consumers. All affected boundaries had proof; no missed consumer is established. The six-row refactor was a smaller three-helper scope, not an equivalent replacement for the whole-slice trace.
+  - Inference: the same planning-basename expansion recurred. Separating record-reference discovery from product-effect tracing remains a candidate; isolated trace time/token cost and counterfactual savings were not measured.
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
@@ -415,3 +460,20 @@ a manual records-only repair before its first slice commit.
   - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
   - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; guarded fresh returned preparation-failed at staged whitespace, PLAN.md:89, +Status: done. The original plan used a two-space Markdown hard break; selected-slice-status.mjs:59 replaces planned only and retains that suffix.
   - Observed effect: One records-only whitespace repair and preparation retry; no commit or push occurred on refusal. Same status-writer/whitespace-gate mismatch remains in installed 0.3.94.
+
+## DD-489 — Generic wrap-up publication prose contradicts Story Branch integration
+
+The closure-publication reference says every owned wrap-up commit targets trunk
+and “Do not merge the execution branch”, while its explicit Story Branch section
+requires a published final-closure branch tip followed by history-preserving
+integration. The installed mode guard agrees with the specific branch procedure.
+
+### Occurrences
+
+- Execution: SEED-307#apply-shared-makeme-rules-per-entry (plan 589; first implementation `ec131e188ece02d28504c610a2812f0c325798d2`)
+  - Timestamp: unknown (2026-11-11 wrap-up preflight; exact read-event time unavailable)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (installed guidance at accepted Take `24f1647fb91aea54cced8e5ff5f0321579b29353`; installed modules remained unchanged)
+  - Evidence: `703fc242c84631550a54061cfd53ac8163f10da2:.agents/skills/dough-execute-plan/references/wrap-up-closure-publication.md`, opening paragraphs versus “Observe Story Branch integration”; the same revision's `.agents/skills/dough-story-wrap-up/SKILL.md` requires before-cleanup publication specifically in Trunk Mode. Coordinator and read-only closure preflight inspected the installed delivery guard, which enforces story-branch delivery to the recorded execution branch and refuses main.
+  - Observed effect: two readers had to reconcile the generic wording against the mode-specific procedure and executable guard. They retained branch publication followed by history-preserving trunk integration, without changing the established mode or asking for new authority. No wrong-target push or integration failure is attributed to this discrepancy.
+  - Inference: qualify the generic opening by its applicable mode and align it with the specific Story Branch sequence. This is a guidance-consistency proposal, distinct from ODF-333's trunk-before-execution-completion cycle; no guidance change is authorized by this review.
