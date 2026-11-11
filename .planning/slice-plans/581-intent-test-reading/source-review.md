@@ -33,9 +33,9 @@ requirements apply throughout even when their final cumulative observation is sl
 | 13 | Keep domain setup with MakeMe. | slice 9 |  |
 | 14 | Keep held answers explicit where they distinguish the outcome. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
 | 15 | Keep releases explicit where they distinguish the outcome. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
-| 16 | Keep clock advances explicit where they distinguish the outcome. | slice 7 |  |
-| 17 | Keep request logs explicit where they distinguish the outcome. | slice 7 |  |
-| 18 | Keep pinned revisions explicit where they distinguish the outcome. | slice 7 |  |
+| 16 | Keep clock advances explicit where they distinguish the outcome. | slice 7 | observed: slice-7-evidence.md: original clock increments, exact request logs/pinned SHAs and explicit hold/fail/release/Retry protocols remain in callers; current46 distinct cases with literal requests and the corrected independent candidates/file inventory |
+| 17 | Keep request logs explicit where they distinguish the outcome. | slice 7 | observed: slice-7-evidence.md: original clock increments, exact request logs/pinned SHAs and explicit hold/fail/release/Retry protocols remain in callers; current46 distinct cases with literal requests and the corrected independent candidates/file inventory |
+| 18 | Keep pinned revisions explicit where they distinguish the outcome. | slice 7 | observed: slice-7-evidence.md: original clock increments, exact request logs/pinned SHAs and explicit hold/fail/release/Retry protocols remain in callers; current46 distinct cases with literal requests and the corrected independent candidates/file inventory |
 | 19 | Keep native attach evidence explicit where it distinguishes the outcome. | slice 9 |  |
 | 20 | Keep PTY evidence explicit where it distinguishes the outcome. | slice 9 |  |
 | 21 | Keep exact input modality explicit where it distinguishes the outcome. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
@@ -51,17 +51,17 @@ requirements apply throughout even when their final cumulative observation is sl
 | 31 | Keep expected reference membership at the call site. | slice 9 |  |
 | 32 | Keep unsupported-comparison absence explicit in each relevant case. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 33 | Keep the selected source or expected file explicit at the call site. | slice 6 | observed: slice-6-evidence.md: explicit caller source/file/text/target facts, one existing source owner across current Code/Gherkin/Purpose/candidate/revision callers; current44-case strict proof and numeric44-to45 scratch discrimination |
-| 34 | Keep the selected or expected revision explicit at the call site. | slice 7 |  |
+| 34 | Keep the selected or expected revision explicit at the call site. | slice 7 | observed: slice-7-evidence.md G8 and final refactor: all3 recovery callers supply expected revision; target cases distinguish old source metadata from accepted browser revision; five Done/story/Summary metadata callers retain exact path and expected SHA in9 additional passing cases, current55 total |
 | 35 | Keep keyboard behavior explicit at the call site. | slice 8 |  |
-| 36 | Independently prove expected focus in the source-recovery journey. | slice 7 |  |
-| 37 | Independently prove the expected target line in that journey. | slice 7 |  |
-| 38 | Independently prove retained reading place in that journey. | slice 7 |  |
+| 36 | Independently prove expected focus in the source-recovery journey. | slice 7 | observed: slice-7-evidence.md: source focus survives offered notice; exact file focus is observed while held/failed and after held release; original revision/outcome focus checks remain; no added final Retry-focus promise |
+| 37 | Independently prove the expected target line in that journey. | slice 7 | observed: slice-7-evidence.md G7: two selected candidate cases independently assert literal target44, exact path/content, old and replacement revisions through notice/held/failure/recovery; corrected3 strict receipt f8164b4a |
+| 38 | Independently prove retained reading place in that journey. | slice 7 | observed: slice-7-evidence.md G7: one-shot original offset observed before/while held, while failed and after replacement; original revision immediate-offset check retained; explicit caller poll preserved where originally eventual |
 | 39 | Keep exact expected timings at the retained-follow-up call site. | slice 9 |  |
 | 40 | Keep expected attempt IDs explicit in retained-follow-up cases. | slice 9 |  |
 | 41 | Keep attempt links explicit at the retained-follow-up call site. | slice 9 |  |
 | 42 | Keep absence of new acquisition explicit at that call site. | slice 9 |  |
 | 43 | Make CI evidence understandable without reconstructing browser mechanics. | slice 9 |  |
-| 44 | Make source choices understandable without that reconstruction. | slice 7 |  |
+| 44 | Make source choices understandable without that reconstruction. | slice 7 | observed: slice-7-evidence.md: existing source/recovery owners supply failure, Retry, Show latest and metadata observations across integrated/frontend callers; expected wording/files/revisions and causal protocols stay explicit; current46 distinct cases |
 | 45 | Make retained reading understandable without that reconstruction. | slice 8 |  |
 | 46 | Use one reading owner when integrated and static-rendered comparisons show the same table; explicit expected rows, order, units and unsupported absence. | slice 1 | observed: slice-1-evidence.md: integrated adapter, rendered legacy/units, live mixed-unit and Summary observations; strict158-case pass |
 | 47 | Keep static sort options as fixture inputs. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
@@ -95,13 +95,13 @@ requirements apply throughout even when their final cumulative observation is sl
 | 75 | Keep expected reference placement in the scenarios. | slice 4 | observed: slice-4-evidence.md:22-case strict pass; caller dates, sample/reference membership and direct position assertion inspected; restored coordinate scratch discriminated |
 | 76 | Share choosing a location across Code/Gherkin, Purpose, revision notices and candidates. | slice 6 | observed: slice-6-evidence.md: explicit caller source/file/text/target facts, one existing source owner across current Code/Gherkin/Purpose/candidate/revision callers; current44-case strict proof and numeric44-to45 scratch discrimination |
 | 77 | Share reading a target line across those callers. | slice 6 | observed: slice-6-evidence.md: explicit caller source/file/text/target facts, one existing source owner across current Code/Gherkin/Purpose/candidate/revision callers; current44-case strict proof and numeric44-to45 scratch discrimination |
-| 78 | Share retaining reading place across those callers. | slice 7 |  |
-| 79 | Share seeing a failed read. | slice 7 |  |
-| 80 | Share retrying a failed read. | slice 7 |  |
-| 81 | Keep the outcome-determining source request/hold/revision sequence visible. | slice 7 |  |
-| 82 | Preserve selected source line through a revision notice. | slice 7 |  |
-| 83 | Preserve selected source line through a failed read. | slice 7 |  |
-| 84 | Preserve recovery alternatives: retry or release held replacement; do not combine paths into one mandatory journey. Expected file, line, revision, focus and place independently proved. | slice 7 |  |
+| 78 | Share retaining reading place across those callers. | slice 7 | observed: slice-7-evidence.md G7: one-shot original offset observed before/while held, while failed and after replacement; original revision immediate-offset check retained; explicit caller poll preserved where originally eventual |
+| 79 | Share seeing a failed read. | slice 7 | observed: slice-7-evidence.md: existing source/recovery owners supply failure, Retry, Show latest and metadata observations across integrated/frontend callers; expected wording/files/revisions and causal protocols stay explicit; current46 distinct cases |
+| 80 | Share retrying a failed read. | slice 7 | observed: slice-7-evidence.md: existing source/recovery owners supply failure, Retry, Show latest and metadata observations across integrated/frontend callers; expected wording/files/revisions and causal protocols stay explicit; current46 distinct cases |
+| 81 | Keep the outcome-determining source request/hold/revision sequence visible. | slice 7 | observed: slice-7-evidence.md: original clock increments, exact request logs/pinned SHAs and explicit hold/fail/release/Retry protocols remain in callers; current46 distinct cases with literal requests and the corrected independent candidates/file inventory |
+| 82 | Preserve selected source line through a revision notice. | slice 7 | observed: slice-7-evidence.md G7: two selected candidate cases independently assert literal target44, exact path/content, old and replacement revisions through notice/held/failure/recovery; corrected3 strict receipt f8164b4a |
+| 83 | Preserve selected source line through a failed read. | slice 7 | observed: slice-7-evidence.md G7: two selected candidate cases independently assert literal target44, exact path/content, old and replacement revisions through notice/held/failure/recovery; corrected3 strict receipt f8164b4a |
+| 84 | Preserve recovery alternatives: retry or release held replacement; do not combine paths into one mandatory journey. Expected file, line, revision, focus and place independently proved. | slice 7 | observed: slice-7-evidence.md G7: two independently selected held-release and failed-Retry alternatives prove expected file/target44/revisions, focus at applicable phases and retained offset; source-retention scratch caught missing old text and exact product bytes restored |
 | 85 | Share story-header reading across changed-tests, Done, project visit and source selection journeys. | slice 8 |  |
 | 86 | Share story-revision reading across those journeys. | slice 8 |  |
 | 87 | Share story-file reading across those journeys. | slice 8 |  |

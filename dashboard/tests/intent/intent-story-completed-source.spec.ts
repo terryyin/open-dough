@@ -1,3 +1,4 @@
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // A Done story's historical source comes from its landing, even after trunk
 // changes tests and removes settings. Unrecoverable history never borrows the
 // current tree; an available saved coverage report remains independently useful.
@@ -81,7 +82,7 @@ test("a Done story keeps landing locations, inventory and unchanged source after
     "rewritten after landing",
   );
   await expect(
-    purposeRegion(intent).locator(".intent-source-meta"),
+    sourceRevision(intent, "dashboard/tests/boundary/kept.spec.ts"),
   ).toContainText(`at revision ${completion.slice(0, 7)}`);
   expect(await intentDiff(intent, changed.modified)).toContain("completed");
   expect(await intentDiff(intent, changed.added)).toContain("added");

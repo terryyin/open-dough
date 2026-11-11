@@ -1,3 +1,4 @@
+import { intentReadingScroll } from "../intentPerspectivePage.ts";
 import {
   expectSourceTargetLine,
   fileSource,
@@ -130,11 +131,7 @@ test("Intent opens path:line at that line and a duplicate case name at the file 
     await expect(source).toContainText("Scenario: shared scenario");
     await expect(sourceTargetLine(source)).toHaveCount(0);
     await expect(sourceLineNumbers(source).first()).toHaveText("1");
-    await expect
-      .poll(() =>
-        page.locator(".intent-reading").evaluate((el) => el.scrollTop),
-      )
-      .toBe(0);
+    await expect.poll(() => intentReadingScroll(intent)).toBe(0);
 
     await chooseOptimizationCandidates(intent);
     const returned = candidatesRecord(intent).getByRole("article", {

@@ -1,3 +1,4 @@
+import { readFailure, readRetry } from "../intentReadRecoveryPage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // A selected done story's CI comparison (../../src/IntentPage.tsx) does
 // not wait for the Intent locations read: it is the story's default view
@@ -111,9 +112,9 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
 
   await chooseStoryTab(intent, "Changed tests");
   const changedTests = intent.getByRole("tabpanel", { name: "Changed tests" });
-  const failure = changedTests.getByRole("alert");
+  const failure = readFailure(changedTests);
   await expect(failure).toContainText("could not be read");
-  const retry = failure.getByRole("button", { name: "Retry", exact: true });
+  const retry = readRetry(failure);
   await expect(retry).toBeVisible();
 
   await chooseStoryTab(intent, "CI comparison");

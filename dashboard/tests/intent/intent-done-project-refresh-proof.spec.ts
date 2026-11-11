@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // After project refresh restores a real Done file's ready Purpose, choosing
 // Proof survives a roundtrip to refreshed Project Intent and retains its report.
 
@@ -90,9 +91,7 @@ test("project refresh restores Done historical Purpose before Proof survives a l
   await openProjectIntent(intent);
   await expect(revisionNotice(intent)).toBeVisible();
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest", exact: true })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   await expect(revisionNotice(intent)).toHaveCount(0);
   await expect(browserRevision(intent)).toContainText(
     laterRevision.slice(0, 7),

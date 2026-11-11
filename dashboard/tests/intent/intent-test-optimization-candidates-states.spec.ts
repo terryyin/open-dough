@@ -1,3 +1,4 @@
+import { readRetry } from "../intentReadRecoveryPage.ts";
 import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent explains absent, unreadable, mismatched, and empty Test
 // Optimization Candidates records on its Optimization Candidates tab while
@@ -148,9 +149,7 @@ test("Intent explains absent, unreadable, mismatched, and empty candidate record
     await expect(candidatesRecord(intent)).toContainText(
       `${testOptimizationCandidatesPath} could not be read at this revision`,
     );
-    await expect(
-      candidatesRecord(intent).getByRole("button", { name: "Retry" }),
-    ).toBeVisible();
+    await expect(readRetry(candidatesRecord(intent))).toBeVisible();
     await intentTab.click();
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(

@@ -1,3 +1,4 @@
+import { readFailure } from "../intentReadRecoveryPage.ts";
 import {
   expectCiAnswer,
   chooseCiStatus,
@@ -138,7 +139,7 @@ test("CI status is shown without Intent locations and with unreadable Intent set
 
   await test.step("unreadable Intent settings: CI status still shown; no result is Could not be read", async () => {
     await chooseProject(page, "Pygardon");
-    await expect(intent.getByRole("alert")).toContainText("is not valid JSON");
+    await expect(readFailure(intent)).toContainText("is not valid JSON");
     const panel = await chooseCiStatus(intent);
     await expect(
       panel.getByRole("heading", { name: "CI status of main" }),

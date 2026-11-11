@@ -61,3 +61,38 @@ that is cheaper and sufficient. Existing proof is retained unless changed.
 | 7 | `'tests/intent/intent-revision-notice.spec.ts' 'tests/intent/intent-read-recovery.spec.ts' 'tests/intent/intent-test-optimization-candidates' 'frontend-tests/intent-candidates-read-recovery.spec.ts'` |
 | 8 | `'tests/intent/intent-story-changes' 'tests/intent/intent-done-project-refresh-reading.spec.ts' 'tests/intent/intent-project-visit' 'tests/intent/intent-reading-place.spec.ts' 'tests/intent/intent-sidebar-toggle.spec.ts' 'tests/intent/intent-story-views-narrow.spec.ts'` |
 | 9 | `'tests/intent/intent-ci-follow-up.spec.ts' 'tests/intent/recently-done-ci-automatic-repeat.spec.ts'` |
+
+## Execution gates and learnings
+
+- Run changed specs and transitive consumers, plus `npm run typecheck:dashboard`
+  for shared TypeScript changes. Use the installed consumer-trace procedure
+  during implementation. The final local selection covers Intent plus affected
+  frontend/cross-family consumers; broaden to the dashboard suite only when
+  actual changed shared fixtures or consumers justify it. CI configuration
+  alone does not add a mandatory local full-suite gate.
+- For long macOS runs start fully awake; on AC use `caffeinate -s -i`. On
+  battery plug in, or use `caffeinate -i` with lid open and inspect sleep logs.
+  See [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+- Carry the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
+  as written into every delegation and repair handoff. A failure in the base
+  or elsewhere is attribution, never an exemption. Keep MakeMe, causal waits
+  and default timeouts. Apply independent post-change refactoring before commit.
+- The missing-dependency failure was repaired by installing this worktree's
+  lockfile and validating native prerequisites; all 32 selected cases passed.
+  The separate restored sample passed after its intended local host profile
+  was restored. Recheck host headroom before another expensive attempt.
+
+## Accepted slice evidence
+
+- Slice 1: [comparison and Summary acceptance](slice-1-evidence.md).
+- Slice 2: [sort and presentation acceptance](slice-2-evidence.md).
+
+- Slice 3: [CI status and Proof acceptance](slice-3-evidence.md).
+
+- Slice 4: [build history and reference acceptance](slice-4-evidence.md).
+
+- Slice 5: [current scope history, recovery and readiness acceptance](slice-5-current-evidence.md).
+
+- Slice 6: [source locations and target-line acceptance](slice-6-evidence.md).
+
+- Slice 7: [retained source and recovery acceptance](slice-7-evidence.md).

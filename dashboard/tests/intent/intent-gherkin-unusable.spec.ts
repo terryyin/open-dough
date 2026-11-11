@@ -1,3 +1,4 @@
+import { readFailure, readRetry } from "../intentReadRecoveryPage.ts";
 import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent distinguishes unusable locations and failed reads
 // (../../src/IntentPerspective.tsx): empty or missing paths, pattern misses,
@@ -166,7 +167,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
     await expandIntentGroup(intent, "e2e_test/features");
     await expandIntentFolders(intent, "e2e_test/features");
     await sourceFile(intent, "e2e_test/features/usable/usable.feature").click();
-    const alert = intent.getByRole("alert");
+    const alert = readFailure(intent);
     await expect(alert).toContainText(
       "e2e_test/features/usable/usable.feature could not be read.",
     );
@@ -178,7 +179,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
       "No gherkin files are published at no_such_dir for this revision.",
     );
     await expandIntentGroup(intent, "e2e_test/features");
-    await alert.getByRole("button", { name: "Retry" }).click();
+    await readRetry(alert).click();
     await expect(
       fileSource(intent, "e2e_test/features/usable/usable.feature"),
     ).toContainText("Feature: Usable");

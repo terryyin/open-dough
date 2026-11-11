@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Project refresh preserves a real Done story's selected historical Purpose
 // file and reading place, including its preceding cycle through all Done tabs.
 
@@ -101,9 +102,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
   await openProjectIntent(intent);
   await expect(revisionNotice(intent)).toBeVisible();
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest", exact: true })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   await expect(revisionNotice(intent)).toHaveCount(0);
   await expect(browserRevision(intent)).toContainText(
     laterRevision.slice(0, 7),

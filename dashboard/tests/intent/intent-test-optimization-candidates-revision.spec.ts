@@ -1,3 +1,5 @@
+import { revisionNotice } from "../intentPerspectivePage.ts";
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Intent's Optimization Candidates tab, shown across a new trunk revision,
 // stays chosen (kept per project by ../../src/pageIntentMode.tsx) and keeps the
 // record of the revision Intent reads until **Show latest**, which reads the
@@ -12,7 +14,6 @@ import {
   expectCandidatesRevision,
   expectIntentModeChosen,
 } from "../intentModePage.ts";
-import { revisionNotice } from "../intentPerspectivePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { openDoughCandidatesRecord } from "../intentCandidatesFixtures.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
@@ -54,9 +55,7 @@ test("Optimization Candidates shown across a new revision stays chosen and reads
   await expectIntentModeChosen(intent, "Optimization Candidates");
   await expectCandidatesRevision(intent, openDough.revision);
   await expect(entry("launch-records-poll-waits")).toBeVisible();
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
 
   await expectIntentModeChosen(intent, "Optimization Candidates");
   await expectCandidatesRevision(intent, revision);

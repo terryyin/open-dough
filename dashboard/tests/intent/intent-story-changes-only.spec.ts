@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Example 2 and 4: "Selected story only" over a selected story's overlay
 // (../support/intentStoryWorktree.ts). Off at first; on, only the in-scope
 // changed files and their folders remain, expanded; off again, the whole
@@ -233,7 +234,7 @@ test("Selected story only stays on through a new trunk revision and refreshing P
 
   await openProjectIntent(intent);
   await expect(notice).toHaveCount(1);
-  await notice.getByRole("button", { name: "Show latest" }).click();
+  await showLatestRevision(notice).click();
   await expect(notice).toHaveCount(0);
   await returnToStory(intent);
   await expectStoryTab(intent, "Changed tests");

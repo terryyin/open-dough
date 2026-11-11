@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // A real Done story keeps its historical endpoints and saved assessment
 // across all its tabs while Project Intent independently notices a push.
 // Historical file/tab/reading-place continuity through project refresh:
@@ -67,9 +68,7 @@ test("all Done tabs ignore project freshness while Project Intent notices the la
     await chooseStoryTab(intent, tab);
     await expect(revisionNotice(intent)).toHaveCount(0);
     await expect(browserRevision(intent)).toHaveCount(0);
-    await expect(
-      intent.getByRole("button", { name: "Show latest", exact: true }),
-    ).toHaveCount(0);
+    await expect(showLatestRevision(intent)).toHaveCount(0);
     await expect(revisions).toHaveText(endpoints);
     if (tab === "Intent coverage")
       await expect(intent.locator(".intent-story-coverage-text")).toHaveText(

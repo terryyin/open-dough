@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 import {
   expectCiScope,
   expectCiAnswer,
@@ -125,9 +126,7 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     expect(branchJudgmentCalls(calls.slice(before))).toHaveLength(4);
   });
   await openProjectIntent(intent);
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   await expect(browserRevision(intent)).toContainText("c0ffee3");
   await expectCiAnswer(
     ciPanel(intent),

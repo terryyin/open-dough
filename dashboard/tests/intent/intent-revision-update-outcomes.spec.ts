@@ -1,3 +1,8 @@
+import {
+  showLatestRevision,
+  readFailure,
+  readRetry,
+} from "../intentReadRecoveryPage.ts";
 import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // An applied update that does not simply arrive: a failed update keeps the
 // shown reading with the failure and Retry, including after Development →
@@ -56,7 +61,7 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
       params.get("intent") === "locations" && params.get("revision") === c,
     releases,
   );
-  await notice.getByRole("button", { name: "Show latest" }).click();
+  await showLatestRevision(notice).click();
   await expect.poll(latest.held).toBe(1);
   await expect(browserRevision(intent)).toContainText(
     shortRevision(pygardon.revision),
@@ -98,21 +103,21 @@ test("a failed update keeps the shown reading with its failure and Retry, which 
       params.get("path") === featurePath && params.get("revision") === c,
     releases,
   );
-  await notice.getByRole("button", { name: "Retry" }).click();
+  await readRetry(notice).click();
   await expect.poll(latestText.held).toBe(1);
   await expect(browserRevision(intent)).toContainText(shortRevision(c));
   await expect(notice).toHaveCount(0);
   await expect(feature).toBeFocused();
   latestText.fail();
   const purpose = purposeRegion(intent);
-  await expect(purpose.getByRole("alert")).toHaveText(
+  await expect(readFailure(purpose)).toHaveText(
     `${featurePath} could not be read at revision ${shortRevision(c)}; showing ${shortRevision(pygardon.revision)}. Retry`,
   );
   await expect(source).toContainText("Scenario: Archive a job");
   await expect(browserRevision(intent)).toContainText(shortRevision(c));
-  await purpose.getByRole("button", { name: "Retry" }).click();
+  await readRetry(purpose).click();
   await expect(source).toContainText("Scenario: Purge a job");
-  await expect(purpose.getByRole("alert")).toHaveCount(0);
+  await expect(readFailure(purpose)).toHaveCount(0);
   await untilPageReadsAnswered(page);
   expect(reads.slice(2)).toEqual([
     `locations@${c}`,
@@ -144,7 +149,7 @@ test("Development → Intent during a held then failing update keeps the shown r
       params.get("intent") === "locations" && params.get("revision") === c,
     releases,
   );
-  await notice.getByRole("button", { name: "Show latest" }).click();
+  await showLatestRevision(notice).click();
   await expect.poll(latest.held).toBe(1);
   latest.fail();
   await expect(notice).toContainText(

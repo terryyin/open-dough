@@ -1,3 +1,4 @@
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
 import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // A completed story's unchanged file reads Purpose from its landed revision,
 // excluding later inventory, while Proof keeps the compact build comparison.
@@ -41,9 +42,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     );
     const purposeOnly = purposeRegion(intent);
     await expect(purposeOnly).toContainText("root 11");
-    await expect(purposeOnly.locator(".intent-source-meta")).toContainText(
-      `at revision ${setup.completion.slice(0, 7)}`,
-    );
+    await expect(
+      sourceRevision(intent, "dashboard/tests/root.spec.ts"),
+    ).toContainText(`at revision ${setup.completion.slice(0, 7)}`);
     expect(unchangedReads).toEqual([setup.completion]);
     await expect(
       intentFile(intent, "dashboard/tests/later.spec.ts"),

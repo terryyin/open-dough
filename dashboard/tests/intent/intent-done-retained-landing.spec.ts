@@ -1,3 +1,4 @@
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // Done Intent prefers its published completion, recovering the same completed
 // result from a validated capture when configured history becomes shallow.
 // The real installed integration captures the completed execution; ordinary
@@ -143,7 +144,7 @@ for (const history of ["published", "capture"] as const)
     const purpose = purposeRegion(intent);
     await expect(purpose).toContainText("kept 11");
     await expect(purpose).not.toContainText("rewrites unchanged source");
-    await expect(purpose.locator(".intent-source-meta")).toContainText(
+    await expect(sourceRevision(intent, unchanged)).toContainText(
       `at revision ${accepted.slice(0, 7)}`,
     );
     expect(sourceReads).toEqual([accepted]);

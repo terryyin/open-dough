@@ -19,6 +19,8 @@ import {
   locationsRequest,
   openDoughnut,
   opened,
+  readFailure,
+  readRetry,
 } from "../intentReadRecoveryPage.ts";
 import { noticedResumeTime } from "../limitNotice.ts";
 import { limiting } from "../limitedReadingJourney.ts";
@@ -43,11 +45,11 @@ test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds while
   });
 
   const intent = await openDoughnut(page);
-  const problem = intent.getByRole("alert");
+  const problem = readFailure(intent);
   await expect(problem).toContainText(
     "The local authenticated read could not be reached",
   );
-  await expect(problem.getByRole("button", { name: "Retry" })).toBeVisible();
+  await expect(readRetry(problem)).toBeVisible();
   expect(reads()).toBe(1);
   const checksBefore = headsChecks(githubFor(page).calls).length;
 
@@ -99,7 +101,7 @@ test("Intent locations make no recovery request while hidden and ask once on rev
   );
 
   const intent = await openDoughnut(page);
-  await expect(intent.getByRole("alert")).toContainText("could not be reached");
+  await expect(readFailure(intent)).toContainText("could not be reached");
   await setPageVisibility(page, "hidden");
   await advanceRecoveryClock(page, 65_000);
   expect(reads()).toBe(1);
@@ -140,7 +142,7 @@ test("published detail and Intent locations share a wait, and healing detail lea
   const publishedProblem = page.getByRole("alert").filter({
     hasText: "Reading unanswered detail again",
   });
-  const intentProblem = intent.getByRole("alert");
+  const intentProblem = readFailure(intent);
   await expect(publishedProblem).toBeVisible();
   await expect(intentProblem).toContainText("could not be reached");
   expect([detailReads, reads()]).toEqual([1, 1]);
@@ -169,7 +171,7 @@ test("malformed Intent settings stay visible until manual Retry", async ({
   const reads = countLocationsReads(page);
 
   const intent = await openDoughnut(page);
-  const problem = intent.getByRole("alert");
+  const problem = readFailure(intent);
   await expect(problem).toContainText(
     ".planning/open-dough.json is not valid JSON",
   );
@@ -177,7 +179,7 @@ test("malformed Intent settings stay visible until manual Retry", async ({
   expect(reads()).toBe(1);
   await expect(problem).toBeVisible();
 
-  await problem.getByRole("button", { name: "Retry" }).click();
+  await readRetry(problem).click();
   await untilPageRequestsAnswered(page);
   expect(reads()).toBe(2);
   await expect(problem).toContainText(
@@ -206,9 +208,7 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
   const reads = countLocationsReads(page);
 
   const intent = await openDoughnut(page);
-  await expect(intent.getByRole("alert")).toContainText(
-    "GitHub limited the rate",
-  );
+  await expect(readFailure(intent)).toContainText("GitHub limited the rate");
   const resumesAt = await noticedResumeTime(page);
   const limitSeenAt = answers.lift();
 

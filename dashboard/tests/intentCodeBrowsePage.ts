@@ -16,6 +16,9 @@ export const sourceFile = (scope: Locator, path: string) =>
 export const fileSource = (intent: Locator, path: string) =>
   intent.getByLabel(`${path} source`, { exact: true });
 
+export const sourceRevision = (intent: Locator, path: string) =>
+  fileSource(intent, path).locator("..").locator(".intent-source-meta");
+
 export const sourceLineText = (source: Locator) =>
   source.locator(".source-line-text");
 

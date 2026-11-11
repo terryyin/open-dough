@@ -124,7 +124,7 @@ observed line → source/story helpers own repeated rows and target mechanics.
 
 ### 7. Retain reading through revision and failed-read recovery
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 7. Observe reading before/after revision, held answer or retry;
 retain clocks, requests, release order, selected file/line and recovery wording.
 
@@ -157,25 +157,14 @@ navigation/observations and takes expected facts instead of embedding run 71.
 See [design assessment](design-assessment.md) for the slice boundary review and
 [preparation evidence](preparation-evidence.md) for the retained baseline and scratch fault.
 
-## Execution gates and learnings
+## Execution gates
 
-- Run changed specs and transitive consumers, plus `npm run typecheck:dashboard`
-  for shared TypeScript changes. Use the installed consumer-trace procedure
-  during implementation. The final local selection covers Intent plus affected
-  frontend/cross-family consumers; broaden to the dashboard suite only when
-  actual changed shared fixtures or consumers justify it. CI configuration
-  alone does not add a mandatory local full-suite gate.
-- For long macOS runs start fully awake; on AC use `caffeinate -s -i`. On
-  battery plug in, or use `caffeinate -i` with lid open and inspect sleep logs.
-  See [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
-- Carry the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-  as written into every delegation and repair handoff. A failure in the base
-  or elsewhere is attribution, never an exemption. Keep MakeMe, causal waits
-  and default timeouts. Apply independent post-change refactoring before commit.
-- The missing-dependency failure was repaired by installing this worktree's
-  lockfile and validating native prerequisites; all 32 selected cases passed.
-  The separate restored sample passed after its intended local host profile
-  was restored. Recheck host headroom before another expensive attempt.
+Use the [proof gates and retained setup learning](proof-strategy.md#execution-gates-and-learnings).
+Local gate: affected journeys and `npm run typecheck:dashboard`; for long macOS
+runs use `caffeinate -s -i` on AC, or `caffeinate -i` on battery with the lid open
+and sleep-log inspection, under [the maintained guard](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+The [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
+applies as written to this plan and every delegation/repair handoff.
 
 ## Execution context
 
@@ -183,16 +172,7 @@ See [execution identity, delivery and recovery context](execution-context.md).
 
 ## Accepted slice evidence
 
-- Slice 1: [comparison and Summary acceptance](slice-1-evidence.md).
-- Slice 2: [sort and presentation acceptance](slice-2-evidence.md).
-
-- Slice 3: [CI status and Proof acceptance](slice-3-evidence.md).
-
-- Slice 4: [build history and reference acceptance](slice-4-evidence.md).
-
-- Slice 5: [current scope history, recovery and readiness acceptance](slice-5-current-evidence.md).
-
-- Slice 6: [source locations and target-line acceptance](slice-6-evidence.md).
+See the [accepted proof index](proof-strategy.md#accepted-slice-evidence).
 
 ## Story obligations
 
@@ -224,3 +204,18 @@ Disposition: proved by slice 6: slice-6-evidence.md; exact plainPath choice uses
 Reported: slice 6 — "Coordinator found the movedAway absent-location probe still using its raw button locator; implementation inspection found the analogous outside-configured pygardonClipPath probe. Both are ordinary recorded-file controls."
 Story clause: "Share the operations for choosing a location, reading the target line, retaining the reading place, and seeing or retrying a failed read."
 Disposition: proved by slice 6: slice-6-evidence.md; both ordinary candidate absence probes use sourceFile and their two complete owning journeys passed2/2 strict, including open/return/focus/read counts, authored Markdown opening and outside-configured explanation
+
+### G7. Selected-target recovery needs complete independent proof
+Reported: slice 7 — "Coordinator inspection found target-line assertions in Purpose/candidate cases and revision/failure protocols in other cases, but no selected-target recovery observation joining expected file, line, revision, focus and reading place. Location/candidate backoff proof alone does not establish that source example. Coordinator also found the new offset owner replacing an existing one-shot retained-position assertion with eventual polling, which could accept a later jump-and-restore."
+Story clause: "A selected source line survives a revision notice or failed read → the scenario retries or releases a held replacement → its expected file, target line, revision, focus and retained reading place remain independently proved."
+Disposition: proved by slice 7: slice-7-evidence.md; two independently selected real line44 recovery alternatives prove exact file, target, source/browser revisions, expected focus at applicable phases and original one-shot offset through held/failed reads and replacement; current corrected3 plus43 retained positives and source-retention scratch
+
+### G8. Candidate recovery hides its expected revision
+Reported: slice 7 — "Coordinator inspected openCandidates(page): it asserts the fixed openDough.revision internally, including frontend callers arranging frontendRevision, instead of exposing the independent expected revision in the scenario."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: proved by slice 7: slice-7-evidence.md; every3 integrated/frontend openCandidates caller supplies its independent expected revision explicitly, with no default fixed expectation; actual timeout, rate-limit and manual Retry journeys retain current passing proof
+
+### G9. Revision control absence was narrowed to a notice subtree
+Reported: slice 7 — "Coordinator compared the original done-project-refresh Intent-wide Show latest absence with the migrated helper's forced status/text-filtered notice subtree; the new observation covers a narrower absence."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: proved by slice 7: slice-7-evidence.md; one container-scoped Show latest owner preserves original positive notice containers and the whole-Intent negative scope; the complete all-Done-tabs negative journey passed in corrected3

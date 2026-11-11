@@ -1,3 +1,4 @@
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can
 // still read a retained workspace's later uncommitted edits.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -120,7 +121,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   await expect(purposeRegion(intent)).toContainText("kept 11");
   await expect(purposeRegion(intent)).not.toContainText("source rewrite");
   await expect(
-    purposeRegion(intent).locator(".intent-source-meta"),
+    sourceRevision(intent, "dashboard/tests/boundary/kept.spec.ts"),
   ).toContainText(`at revision ${completion.slice(0, 7)}`);
   expect(sourceReads).toEqual([completion]);
   const original = await intentDiff(intent, modified);
