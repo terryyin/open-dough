@@ -160,11 +160,9 @@ export async function checkedAfterActivation(
   watcher: ProductionWatcher | undefined,
   commit: string,
 ) {
-  expect(watcher?.output()).toMatch(activationPattern(commit));
-  const checks = watcher?.checks() ?? 0;
-  await expect
-    .poll(() => watcher?.checks() ?? 0, { timeout: 0 })
-    .toBeGreaterThan(checks);
+  if (watcher === undefined) throw new Error("No watcher");
+  expect(watcher.output()).toMatch(activationPattern(commit));
+  await watcher.waitForChecks(watcher.checks());
 }
 
 export function outputCount(
@@ -205,11 +203,12 @@ export async function settledSkip(
   watcher: ProductionWatcher | undefined,
   commit: string,
 ) {
-  await expect
-    .poll(() => watcher?.output() ?? "", { timeout: 0 })
-    .toContain(`Skipping production update ${commit}: `);
-  const checks = watcher?.checks() ?? 0;
-  await expect.poll(() => watcher?.checks() ?? 0).toBeGreaterThan(checks + 1);
+  if (watcher === undefined) throw new Error("No watcher");
+  await waitForWatcherOutput(
+    watcher,
+    new RegExp(`Skipping production update ${commit}: `),
+  );
+  await watcher.waitForChecks(watcher.checks() + 1);
 }
 
 // Production has ended: the preview it served no longer runs or answers, and

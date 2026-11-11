@@ -15,7 +15,7 @@ import {
   ciWorkflowPath,
   qualifyPublishedRange,
 } from "../../server/productionQualification.mjs";
-import { publishedMainFixture } from "./publishedMainFixture.ts";
+import { localPublishedMainFixture } from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
 export const pushExclusions =
@@ -30,7 +30,7 @@ export const publishedPolicy = (workflow: string) =>
   );
 
 export async function qualificationFixture() {
-  const fixture = await publishedMainFixture();
+  const fixture = await localPublishedMainFixture();
   const workflow = await readFile(path.join(repoRoot, ciWorkflowPath), "utf8");
   expect(workflow).toContain(`  push:\n${pushExclusions}`);
   const inspectionsRoot = path.join(fixture.root, "inspections");

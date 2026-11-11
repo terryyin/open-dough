@@ -6,6 +6,60 @@ import { projectConfigurationFile } from "./projectConfiguration.ts";
 import { localPublishedMainFixture } from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
+// Publish the runtime and workflow used by the full dashboard journeys.
+export const watcherApplicationSource = [
+  ".github/workflows/ci.yml",
+  ".githooks",
+  ".gitignore",
+  "VERSION",
+  "assets",
+  "dashboard/index.html",
+  "dashboard/public",
+  "dashboard/server",
+  "dashboard/src",
+  "dashboard/tsconfig*.json",
+  "dashboard/vite.config.mts",
+  "package.json",
+  "package-lock.json",
+  "scripts",
+  "src",
+];
+
+export async function configureWatcherApplication(
+  fixture: Awaited<ReturnType<typeof localPublishedMainFixture>>,
+) {
+  const project = makeMe.aConfiguredProject
+    .with({
+      id: "open-dough",
+      label: "Open Dough",
+      repository: "fixture/open-dough",
+      localPath: fixture.development,
+      hidden: true,
+    })
+    .please();
+  const configuration = projectConfigurationFile(fixture.home, "production");
+  const configured = `${JSON.stringify([project], null, 4)}\n`;
+  await mkdir(path.dirname(configuration), { recursive: true });
+  await Promise.all([
+    writeFile(configuration, configured),
+    writeFile(
+      projectConfigurationFile(fixture.home, "development"),
+      configured,
+    ),
+  ]);
+
+  // The published-read boundary runs without credentials or GitHub data.
+  const env = { ...fixture.env, GH_CONFIG_DIR: path.join(fixture.home, "gh") };
+  for (const key of [
+    "GH_TOKEN",
+    "GITHUB_TOKEN",
+    "GH_ENTERPRISE_TOKEN",
+    "GITHUB_ENTERPRISE_TOKEN",
+  ])
+    Reflect.deleteProperty(env, key);
+  return { configuration, configured, env };
+}
+
 const watcherSource = [
   "scripts/watch-dashboard.mjs",
   "dashboard/server/chosenPort.mjs",

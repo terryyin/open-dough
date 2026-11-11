@@ -51,9 +51,19 @@ export function waitForWatcherOutput(
   command: WatchCommand,
   expected: RegExp,
 ): Promise<RegExpExecArray> {
+  return observeWatcherOutput(
+    command,
+    (output) => expected.exec(output) ?? undefined,
+  );
+}
+
+export function observeWatcherOutput<T>(
+  command: WatchCommand,
+  read: (output: string) => T | undefined,
+): Promise<T> {
   return observeWatcher(
     command,
-    () => expected.exec(command.output()) ?? undefined,
+    () => read(command.output()),
     (check) => {
       const { stdout, stderr } = command.child;
       stdout.on("data", check);

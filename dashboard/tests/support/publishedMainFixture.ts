@@ -41,8 +41,12 @@ export function publishedMainFixture(
 }
 
 // The real-Git fixture for CLI cases that supply no GitHub data.
-export function localPublishedMainFixture(sourcePaths: readonly string[]) {
-  return createPublishedMainFixture(true, sourcePaths, () => undefined);
+export function localPublishedMainFixture(sourcePaths?: readonly string[]) {
+  return createPublishedMainFixture(
+    sourcePaths !== undefined,
+    sourcePaths ?? [],
+    () => undefined,
+  );
 }
 
 async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(

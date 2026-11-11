@@ -51,7 +51,7 @@ integrated trunk.
 
 The baseline selector is
 `npm run --silent test:dashboard -- --workers=1 'production-watcher(-failures|-updates|-refusals)?\.spec\.ts|production-update-selection\.spec\.ts'`.
-The candidate includes any new lifecycle spec explicitly. Confirm identity and
+The final candidate adds the ordinary production-watcher-preview spec to this selector. Confirm identity and
 outcomes with the proof record. Require three consecutive focused passes for
 new synchronization.
 
@@ -68,7 +68,7 @@ watcher leaves the expected commit, process and checkout observable.
 
 ### 2. Prove full-dashboard transitions through events
 Type: Behavior
-Status: planned
+Status: done
 Proof: Real browser and CLI journeys preserve selected commits, native-start
 drain, shared files, runner and independent development. Retained assertions
 await output, process, filesystem or actual boundary events. Verify every
@@ -128,3 +128,43 @@ Take `61eee0b54b3831c17749de0875d896214fea16b6`, agent `ziqing-chan`.
 Publisher and CI coordinator `seed311-watcher-lifecycle-20261111`.
 Story branch `codex/speed-up-production-watcher-lifecycle-checks`.
 Observer directory `/tmp/dough-ci-501/watch-TF4UVr`, PID 31792.
+
+## Slice 2 proof and decisions
+
+- A full-dashboard startup uses a hidden configured local project and an
+  actual shell PTY through the product's Cursor runner and dashboard
+  WebSocket. The full app builds and hot-reloads dirty development source
+  while production remains pinned. The same runner and client survive
+  replacement and restart, with actual post-restart terminal input.
+- The full update uses a real isolated Codex app-server with a blank native
+  conversation. SIGSTOP holds the actual daemon until the admission-closed
+  event and a refused second start. SIGCONT releases it. A Node HTTP
+  response-finish observer records the successful durable attempt before
+  the old preview's drain response finishes. No GitHub or native host
+  doubles participate in the watcher selection. The real held build,
+  same-URL replacements, post-start durable bytes and SIGTERM cleanup are
+  still exercised.
+- Runtime acquisition uses pinned `@openai/codex@0.167.1` via npm exec.
+  Cold tool lookup/install was 9.98 seconds on this Mac and cached lookup
+  was 0.29 seconds. Include it in ordinary elapsed runs. The daemon and
+  its independent updater are owned and stopped by the test.
+- The deployed authenticated-read and launch endpoints are exercised at
+  the actual replacement URL. Their detailed configured-project backlog
+  retrieval, ref resolution and pinned cache behavior stay directly
+  protected by `authenticated-project-observation.spec.ts` and
+  `authenticated-read-revision-backlog.spec.ts`. Vite dev and preview mount
+  the same production boundary owner.
+- The 31-case transitional event-driven selection passed in 83.29 seconds
+  with the existing native/GitHub fixtures still present. This is evidence
+  for synchronization, and the final measurement uses the real fixture.
+- With the real native update, watcher update, Git selection and direct
+  read proof passed 18/18 strict in 45.92 seconds including teardown.
+  Literal selector under `caffeinate -s -i` and `--workers=1`:
+  `production-watcher-updates\.spec\.ts|authenticated-read-revision-backlog\.spec\.ts|authenticated-project-observation\.spec\.ts|production-update-selection\.spec\.ts`.
+  Dashboard typecheck passed. Direct drain and scheduling neighbors
+  passed 2/2 during the event refactor.
+- Independent refactor focused proof: 17/17 strict in 60.36 seconds
+  with `/usr/bin/time -p caffeinate -s -i npm run --silent test:dashboard -- --workers=1 'production-watcher(-updates)?\.spec\.ts'`.
+  Typecheck and whitespace checks passed. It consolidated the two minimal
+  catalogs and credential isolation, made admission/drain records explicit,
+  and stopped the fixture-owned native updater independently of its PID file.
