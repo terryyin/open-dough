@@ -33,7 +33,10 @@ import {
   recordedBuilds,
 } from "../support/productionBuildGate.ts";
 import { faultGateChanges } from "../support/productionFault.ts";
-import { pushExclusions } from "../support/productionQualificationFixture.ts";
+import {
+  publishedPolicy,
+  pushExclusions,
+} from "../support/productionQualificationFixture.ts";
 import {
   expectSharedLaunchRecord,
   writeSharedLaunchRecord,
@@ -111,7 +114,10 @@ export function productionUpdateJourney() {
       "Main A",
     );
     const a = await fixture.publish(
-      await faultGateChanges(fixture.development),
+      {
+        ...(await faultGateChanges(fixture.development)),
+        [ciWorkflowPath]: publishedPolicy(workflow),
+      },
       "Fault-gated A",
     );
     await fixture.installDevelopment();
@@ -195,7 +201,13 @@ export function productionUpdateShutdown(journey: ProductionUpdateJourney) {
     const storeIdentity = (await stat(store)).ino;
     const ordinal = (await journey.builds()).length + 1;
     await writeFile(holdBuildPath(fixture.home, ordinal), "");
-    await fixture.publish(fixture.markerChanges("MAIN X"), "Main X");
+    await fixture.publish(
+      {
+        ...fixture.markerChanges("MAIN X"),
+        [ciWorkflowPath]: state.workflow,
+      },
+      "Main X with a valid policy",
+    );
     await expect
       .poll(async () => (await journey.builds()).length, { timeout: 0 })
       .toBe(ordinal);

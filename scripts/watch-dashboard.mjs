@@ -12,7 +12,7 @@ import {
   stageDeployment,
   startDeploymentPreview,
 } from "../dashboard/server/productionDeployment.mjs";
-import { qualifyPublishedRange } from "../dashboard/server/productionQualification.mjs";
+import { publishedUpdates } from "../dashboard/server/productionUpdates.mjs";
 
 const developmentRoot = fileURLToPath(new URL("..", import.meta.url));
 const cancellation = new AbortController();
@@ -50,15 +50,16 @@ try {
     );
   }
   // The successfully served commit; replaced only after a candidate activates.
-  let baseline = await resolvePublishedMain(
+  const initial = await resolvePublishedMain(
     developmentRoot,
     process.env,
     cancellation.signal,
   );
-  console.log(`Preparing production dashboard ${baseline.commit}.`);
+  const updates = publishedUpdates({ developmentRoot, baseline: initial });
+  console.log(`Preparing production dashboard ${initial.commit}.`);
   staged = await stageDeployment({
     developmentRoot,
-    published: baseline,
+    published: initial,
     signal: cancellation.signal,
   });
   // The runner is its own process group. Replacement and shutdown below stop
@@ -70,14 +71,12 @@ try {
     signal: cancellation.signal,
   });
   console.log(
-    `Production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
+    `Production dashboard ${initial.commit} at ${preview.url} (preview PID ${preview.pid}).`,
   );
   console.log("Development remains available through npm run dev:dashboard.");
   // An ephemeral startup port becomes the fixed production URL for all updates.
   const productionPort = Number(new URL(preview.url).port);
   observePreview(preview);
-  // The last range found to hold only excluded changes; never a failed one.
-  let skippedRange;
   while (!cancellation.signal.aborted) {
     await wait(Number(values["check-interval"]), undefined, {
       signal: cancellation.signal,
@@ -94,21 +93,13 @@ try {
         process.env,
         cancellation.signal,
       );
-      if (latest.commit === baseline.commit) continue;
-      const range = `${baseline.commit}..${latest.commit}`;
-      if (range === skippedRange) continue;
       // Pin this commit through build and startup even if main moves on.
       selected = latest;
-      const { qualifies } = await qualifyPublishedRange({
-        developmentRoot,
-        baseline,
-        selected,
-        signal: cancellation.signal,
-      });
-      if (!qualifies) {
-        skippedRange = range;
+      const decision = await updates.select(selected, cancellation.signal);
+      if (decision === "unchanged" || decision === "already-excluded") continue;
+      if (decision === "excluded") {
         console.log(
-          `Skipping production update ${selected.commit}: every change since ${baseline.commit} is excluded by its CI push policy.`,
+          `Skipping production update ${selected.commit}: every change since ${updates.baseline.commit} is excluded by its CI push policy.`,
         );
         continue;
       }
@@ -139,13 +130,13 @@ try {
           });
         } catch (restorationError) {
           throw new Error(
-            `${selected.commit} failed: ${error.message}; restoring ${baseline.commit} also failed: ${restorationError.message}`,
+            `${selected.commit} failed: ${error.message}; restoring ${updates.baseline.commit} also failed: ${restorationError.message}`,
             { cause: restorationError },
           );
         }
         observePreview(preview);
         console.log(
-          `Restored production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
+          `Restored production dashboard ${updates.baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
         );
         throw error;
       }
@@ -154,10 +145,10 @@ try {
       const retired = staged;
       staged = candidate;
       candidate = undefined;
-      baseline = selected;
+      updates.activated(selected);
       observePreview(preview);
       console.log(
-        `Production dashboard ${baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
+        `Production dashboard ${updates.baseline.commit} at ${preview.url} (preview PID ${preview.pid}).`,
       );
       try {
         await retired.remove();
@@ -170,7 +161,7 @@ try {
       cancellation.signal.throwIfAborted();
       if (preview === undefined) throw error;
       console.error(
-        `Production update failed${selected ? ` for ${selected.commit}` : ""}: ${error.message}\nKeeping ${baseline.commit} at ${preview.url}; retrying on a later check.`,
+        `Production update failed${selected ? ` for ${selected.commit}` : ""}: ${error.message}\nKeeping ${updates.baseline.commit} at ${preview.url}; retrying on a later check.`,
       );
     } finally {
       await candidate?.remove();

@@ -36,24 +36,24 @@ timed selection, including pre-existing checks.
 
 | Promise | Slice and observation |
 | --- | --- |
-| Selection and elapsed comparisons follow the same intents through a changed test layout | 1 and 10. Strict runner transcript plus a mapping from every original case and distinct assertion to its maintained proof. |
+| Selection and elapsed comparisons follow the same intents through a changed test layout | 1 and 11. Strict runner transcript plus a mapping from every original case and distinct assertion to its maintained proof. |
 | Pinning survives a main advance and preserves real build, preview, serving and shutdown boundaries | 2. Pinned content and real preview responses from the expected revision, with an actual isolated staged checkout and process. |
-| Watcher keeps the working deployment through faults and follows the right baseline | 3. Real recovery and cleanup plus qualification, no-work, retry, pinning, replacement and failure distinctions at the appropriate Git or process boundary. |
-| Provider pacing controls real admission and visible recovery | 4. Requests before and after controlled time, no early upstream call, correct settled snapshot and return to steady cadence. |
-| Profile states and assets appear in the right card and viewport | 5. Real published profile data read through the Dashboard, with observable state and representative geometry, loading and accessibility. |
-| Touch scrolls the intended panes and retains context | 6. Real touch and viewport changes, with the selected file, scroll positions, reading location and refresh behavior observed. |
-| Cursor holds, revives, resumes and refuses with the correct scope | 7. Real runner and PTY evidence plus persisted scope and process-start observations, and a browser journey for its visible result. |
-| A pending Take protects actions until the accepted snapshot is fully read | 8. Stale and unrelated reads, comparison failure and recovery, partial accepted read, final actions, and persisted reconciliation observed at the right boundaries. |
-| A qualifying landing requests exactly one rerun and keeps an honest outcome | 9. Real receipt and collection with restart, plus independently discriminating threshold and provider outcome checks. |
+| Watcher keeps the working deployment through faults and follows the right baseline | 3–4. Real recovery and cleanup plus qualification, no-work, retry, pinning, replacement and failure distinctions at the appropriate Git or process boundary. |
+| Provider pacing controls real admission and visible recovery | 5. Requests before and after controlled time, no early upstream call, correct settled snapshot and return to steady cadence. |
+| Profile states and assets appear in the right card and viewport | 6. Real published profile data read through the Dashboard, with observable state and representative geometry, loading and accessibility. |
+| Touch scrolls the intended panes and retains context | 7. Real touch and viewport changes, with the selected file, scroll positions, reading location and refresh behavior observed. |
+| Cursor holds, revives, resumes and refuses with the correct scope | 8. Real runner and PTY evidence plus persisted scope and process-start observations, and a browser journey for its visible result. |
+| A pending Take protects actions until the accepted snapshot is fully read | 9. Stale and unrelated reads, comparison failure and recovery, partial accepted read, final actions, and persisted reconciliation observed at the right boundaries. |
+| A qualifying landing requests exactly one rerun and keeps an honest outcome | 10. Real receipt and collection with restart, plus independently discriminating threshold and provider outcome checks. |
 
 ## Decisive premises
 
 | Premise | Observed result or consuming probe |
 | --- | --- |
 | The starting selector reaches the scoped proof | The original 45 project/file/title identities match the corrected frozen cohort: three strict 45/45 passes, 266.38/287.15/303.80 seconds, at Take 17a2f1205 plus the two necessary test corrections and canonical Cursor helper. Exact hashes and phase/load/cache evidence are in [comparable baseline](comparable-baseline.md); historical 40+5 exploration is separate. |
-| Full staging and real rate-limit time are material even with an idle worker | The retained local profiling at 62f8c5162 exercised both paths. The watcher families issued 16 actual staging installs and builds, and the rate case took 21.594 seconds. Slices 2–4 remeasure after accepted changes and probe cheaper equivalent proof. |
+| Full staging and real rate-limit time are material even with an idle worker | The retained local profiling at 62f8c5162 exercised both paths. The watcher families issued 16 actual staging installs and builds, and the rate case took 21.594 seconds. Slices 2–5 remeasure after accepted changes and probe cheaper equivalent proof. |
 | The current overlap and elapsed cost can change before execution | Slice 1 retained SEED-287 branch ownership/evidence without treating its unlanded watcher/touch/transport work as accepted trunk state. The one canonical heldCursorExecutions helper from committed 84afbf850 was explicitly reused for necessary setup and proved in the frozen cohort. Before later overlap, settle newly accepted source/ownership; the existing HUP/restart candidate requires its seven-case serial family. |
-| The cheapest boundaries still catch the important regressions and can fit the time envelope | Slice 1 identifies each proof claim and orders the smallest executable probes. Slices 2–9 settle their own premise by observing the real boundary and a distinguishing failure where replacement is claimed. The effect of the untried changes remains open. A failed premise changes that slice and dependent work. |
+| The cheapest boundaries still catch the important regressions and can fit the time envelope | Slice 1 identifies each proof claim and orders the smallest executable probes. Slices 2–10 settle their own premise by observing the real boundary and a distinguishing failure where replacement is claimed. The effect of the untried changes remains open. A failed premise changes that slice and dependent work. |
 
 ## Ordered slices
 
@@ -77,16 +77,27 @@ Proof: Select the deployment pinning case by its title and run its affected depl
 
 Structure: Test the smallest source variation and supported reuse of identical preparation through the existing production deployment entry. Quantify the floor for a real build and preview before slice 3 spends it. Preserve independent distribution, isolation, and refusal promises at their existing real boundaries.
 
-### 3. Preserve watcher fault and policy proof with fewer deployments
-Type: Structure
+### 3. Keep watcher baselines with stateful real-Git proof
+Type: Behavior
+
+Status: done
+
+Proof: Drive the production selection owner used by the real CLI against actual Git histories. Establish discriminating rejected, excluded, failed-candidate and successful-activation baselines before replacing detailed policy stages. Deliberate wrong-baseline controls must fail. Run one ordinary selection including every new state check and every retained watcher observation; count real installs/builds and cold/shared work, compare matched elapsed, and obtain three consecutive passes for changed asynchronous proof. The experiment predeclared an eight-second whole-family saving worth keeping. Preserve pin, drain, preview faults, native records and shutdown protection unchanged in the retained integration.
+
+Behavior: Published changes are excluded, rejected, fail or activate → the real watcher consults its one production selection owner and real Git policy → subsequent comparisons retain the correct baseline with fewer detailed variants requiring full deployments. This is the bounded early probe for stateful selection reuse; a false premise stops policy-stage removal and changes dependent work. Keep only a measured improvement with equivalent fault detection.
+
+[Measured selection substitution and controls](watcher-evidence.md); [consumer dispositions](watcher-consumers.md). The complete watcher family is still 95.47–99.18 seconds; slice 4 owns the unsupported lifecycle allocation.
+
+### 4. Preserve preview lifecycles through genuine staged outputs
+Type: Behavior
 
 Status: planned
 
-Proof: Focus the watcher failure and updates specs, the qualifying Git boundary and any restart or cleanup checks taking ownership. Distinguish a wrong baseline after rejection, a candidate replacing the working preview on failure, a missing retry or restore, and loss of cleanup. Measure whole-chain elapsed and actual stage/install/build counts.
+Proof: Before narrowing full-deployment variants, observe real drain/stop/start/restore over genuinely built A/B outputs through the production owner used by the CLI. Prove isolation and any immutable-preparation assumption in this paid early probe. Retain one actual watcher chain for stage failure, selected pin after main advance, accepted-start drain, shared native records/config and shutdown during build. Verify wrong restoration target, missing retry/restore, failed candidate replacing working preview and lost cleanup through discriminating controls. Include all new or pre-existing credited proof, actual stage/install/build counts, cold preparation and three strict focused passes; measure the complete watcher/pinning family and settle the remaining-gap checkpoint.
 
-Structure: Reuse accepted SEED-287 results. Challenge the need for a separate real build at each transition. Try one real replacement and restoration path with a minimal revision sequence. Test policy variants against real Git and lifecycle variants against the smallest genuine process and serving boundary that exercises them. Establish each surviving proof before deleting a duplicate. If the same accepted-cost promise still requires repeated full staging, record the observed floor and reassess the gap.
+Behavior: A real staged candidate and working preview undergo failure or replacement → one production preview-lifecycle owner performs genuine process and serving transitions → working production is retained/restored or ends with the required cleanup, using fewer repeated installations/builds for detailed variants. This is a separate proof loop from Git selection. No fake stage/preview, test-only callback, parallel decision model or relaxed coverage is permitted. Co-own the pinning case only after every original source/build/distribution/origin/shutdown assertion is established in passing real integration proof; preserve its source commitment before deleting its former location. If the genuine minimum still cannot support thirty seconds, record the invalidated assumption and supported alternative or human decision before further experiments.
 
-### 4. Exercise rate-limit deadlines with controlled time
+### 5. Exercise rate-limit deadlines with controlled time
 Type: Behavior
 
 Status: planned
@@ -95,7 +106,7 @@ Proof: Run the focused auto-refresh rate-limit and stream cases and the installe
 
 Behavior: A real request path receives provider-directed pacing → the test advances the time used by the actual admission owner and browser → the observable requests and Dashboard state transition without waiting out the deadline. Probe existing time inputs first. If a change to the released owner would require a new authority or wider runtime contract, stop that path for the human decision and continue independent work.
 
-### 5. Prove Taken profile details with a smaller board
+### 6. Prove Taken profile details with a smaller board
 Type: Behavior
 
 Status: planned
@@ -104,7 +115,7 @@ Proof: Focus the Taken profile and related asset or frontend checks credited wit
 
 Behavior: A minimal published board has just the facts that distinguish the profile states → the Dashboard reads and renders them → one representative integrated journey and existing discriminating checks preserve the visible promises. Experiment with removing repeated card inspections and repeated geometry assertions before moving any proof.
 
-### 6. Prove touch reading with a smaller comparison
+### 7. Prove touch reading with a smaller comparison
 Type: Behavior
 
 Status: planned
@@ -113,7 +124,7 @@ Proof: Focus the touch review cases and any existing comparison or layout check 
 
 Behavior: A small real Git comparison still forces the required overflow and layout conditions → touch and rotation exercise the same panes and controls → the reading and retention promises stay observable with fewer gestures and incidental files. Use the accepted SEED-287 baseline and keep genuine distinctions between viewports.
 
-### 7. Preserve Cursor scope and revival with fewer full launches
+### 8. Preserve Cursor scope and revival with fewer full launches
 Type: Structure
 
 Status: planned
@@ -122,7 +133,7 @@ Proof: Focus the replacement and scope continuation cases plus the real backend 
 
 Structure: First try a minimum real runner/session lifetime fixture for state needed before recovery, using accepted SEED-287 work when applicable. Keep an end-to-end proof for live PTY and UI behavior. Establish scope and replacement variants at the public runner or persisted session boundary when that catches their fault. Count a previously green replacement check in both coverage and elapsed.
 
-### 8. Keep pending Take protection through the smallest snapshot sequence
+### 9. Keep pending Take protection through the smallest snapshot sequence
 Type: Behavior
 
 Status: planned
@@ -131,7 +142,7 @@ Proof: Focus the pending Take case and the reconciler siblings credited with its
 
 Behavior: A real accepted launch has only the facts needed to reproduce delayed reads → expose the relevant snapshots and finish their outstanding facts in order → the Dashboard shows the protected and settled states and retains reconciliation across reload. Try moving repeated launch or comparison preconditions to existing public record/HTTP proof where the browser assertion still discriminates the UI regression.
 
-### 9. Prove repeat outcomes without recollecting the same history
+### 10. Prove repeat outcomes without recollecting the same history
 Type: Structure
 
 Status: planned
@@ -140,7 +151,7 @@ Proof: Focus automatic repeat and the receipt, admission and verdict checks cred
 
 Structure: Keep one real receipt-to-repeat lifecycle. Try seeding independent outcome cases with the minimal canonical evidence that real collection leaves behind. Use the public verdict or ledger boundary where it distinguishes provider outcomes. Measure collector work and poll detection separately before tuning either.
 
-### 10. Verify fewer checks and under 30 seconds together
+### 11. Verify fewer checks and under 30 seconds together
 Type: Behavior
 
 Status: planned
@@ -156,7 +167,7 @@ Behavior: The intended behavior remains mapped to maintained checks → run all 
   protection at risk, and a focused command. Measure before and after with
   matched conditions and include displaced work. Review recorded proof and
   the new total before keeping, revising, or reverting an experiment.
-- The [corrected baseline](comparable-baseline.md) is 266.38–303.80 seconds (median 287.15), with all 45 cases. Current pinning alone costs 7.969–8.629 case seconds; the illustrative 8-second watcher-plus-pinning allocation is unproved. Slices 2–3 settle smaller genuine preparation and lifecycle boundaries before accepting that allocation.
+- The [corrected baseline](comparable-baseline.md) is 266.38–303.80 seconds (median 287.15), with all 45 cases. Current pinning alone costs 7.969–8.629 case seconds; the illustrative 8-second watcher-plus-pinning allocation is unproved. Slices 2–4 settle smaller genuine preparation and lifecycle boundaries before accepting that allocation.
 - The canonical Cursor lifetime helper from committed SEED-287 source was reused at the same path and freshly proved here; [its provenance and proof](cursor-repair-evidence.md) distinguish this adoption from the other unlanded ownership leads.
 - Slice 2 retained the [pinning source projection](pinning-evidence.md); its checkpoint keeps the combined target and smaller watcher-lifecycle premise open.
 - Start with 30 distinct checks as a working count target, down from 45. Use
@@ -186,11 +197,7 @@ Slice 1 retains [historical probes and overlap](baseline-evidence.md), the [froz
 
 ## Plan concern assessment
 
-Separate proof loops for deployment, watcher behavior, the two UI journeys,
-and the two session boundaries keep experiments independently measurable.
-Slice-plan refinement was unnecessary after assigning those loops and the
-early baseline probe. The plan is ready for the bounded first probe. The
-sub-30-second result remains a hypothesis until the combined verification.
+Refinement split the former watcher slice into stateful real-Git selection (3) and genuine preview lifecycle/integration (4), preserving completed slices and all source promises. Both owners serve the actual CLI; no parallel model is justified. Eleven slices remain, with no numeric sizing exception. Existing paid early probes bound minimum-cost and preparation assumptions. The opt-in request-owner clock choice, now slice 5, still awaits developer authority; independent authorized execution continues. Cumulative direction and the thirty-second target are unchanged.
 
 ## Execution notes
 
@@ -224,14 +231,14 @@ Disposition: proved by slice 1: cursor-repair-evidence.md and comparable-baselin
 ### G3. Watcher lifecycle cost must replace the unsupported allocation
 Reported: slice 2 — "The smallest observed pin case is 5.613 seconds; the illustrative eight-second watcher-plus-pin allocation has only 2.387 seconds left for every watcher distinction, and repeated full staging remains inconsistent with that allocation."
 Story clause: "under 30 seconds of elapsed time"
-Disposition: receiving slice 3
+Disposition: receiving slice 4
 
 ### G4. Replacement count and combined elapsed remain unmeasured after the change
 Reported: slice 2 — "The source projection retains the same checks; no complete replacement selection, substantially lower maintained count or three under-thirty-second combined passes has been observed. The approximately 255-second estimated remaining gap is not a measured replacement run."
 Story clause: "The replacement selection contains substantially fewer distinct maintained checks. Three consecutive comparable ordinary runs each pass in under 30 seconds, with a recorded mapping from every original promise to passing retained proof."
-Disposition: receiving slice 10
+Disposition: receiving slice 11
 
 ### G5. Request-owner controlled time awaits its reserved authority
 Reported: slice 2 — "Independent coordinator discovery during slice 1: KeptAdmissions refusal/answered and ReadAdmission turn settlement use the request process real clock; the observation-clock seam does not reach it. The developer question about an opt-in clock-file seam remains unanswered."
 Story clause: "Advancing to just before and then to the deadline proves no upstream read before it, recovery at the deadline, and the return to steady pacing, including the reset that falls beyond the normal cadence."
-Disposition: receiving slice 4
+Disposition: receiving slice 5

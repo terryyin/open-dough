@@ -16,23 +16,6 @@ if (existsSync(path.join(homedir(), "fault-" + phase))) {
 }
 `;
 
-// productionFault whose matching cause, once present, waits while
-// HOME/fault-<phase>-held exists, then is consumed as it fails: the cause
-// fails one build or start only.
-export const heldOnceFault = productionFault
-  .replace(
-    'import { existsSync } from "node:fs";',
-    'import { existsSync, unlinkSync } from "node:fs";',
-  )
-  .replace(
-    'if (existsSync(path.join(homedir(), "fault-" + phase))) {',
-    `const cause = path.join(homedir(), "fault-" + phase);
-if (existsSync(cause)) {
-  while (existsSync(cause + "-held"))
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  unlinkSync(cause);`,
-  );
-
 // productionFault reading only HOME/fault-<phase>-<own>: a cause of the
 // commit's own, which leaves every other commit's gate alone.
 export const ownCauseFault = (own: string) =>

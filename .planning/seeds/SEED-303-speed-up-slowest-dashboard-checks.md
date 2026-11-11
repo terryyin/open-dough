@@ -13,7 +13,7 @@ scope: story
 
 **Identity:** SEED-303#speed-up-slowest-dashboard-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"359db1b1d9f86cf7e18fb67dea156522b03eaf075fc139740c1dbdb6c3922e99","plan":"74e268fc0096b12d01937802cfa36670034008f5dfad1d64ce0cdcecc58a5edb"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md","assessment":"not-ready","reasons":["The opt-in request-owner clock contract in refined slice 5 awaits the explicit developer choice reserved by that slice. Independent already-authorized execution in the Taken workspace continues; this assessment creates no execution authority."],"basis":{"document":"359db1b1d9f86cf7e18fb67dea156522b03eaf075fc139740c1dbdb6c3922e99","plan":"a993cba6ed5325e22c3b2f1434dc416e76bc6423566e3f3e912d2ede3e5768fe"}}
 ```
 
 #### Goal
