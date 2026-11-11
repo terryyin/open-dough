@@ -37,7 +37,7 @@ import {
 } from "../intentCiStoryRecords.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyTitle } from "../support/intentStoryPage.ts";
+import { storyTitle, storySummary } from "../support/intentStoryPage.ts";
 
 test("CI status judges the selected story's branch, counts trunk runs of shared commits, replaces the judgment on a new selection, and returns to main when cleared", async ({
   page,
@@ -63,9 +63,7 @@ test("CI status judges the selected story's branch, counts trunk runs of shared 
     );
     await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
     // The selected story's persistent header stays above its CI comparison tab.
-    await expect(
-      intent.getByRole("region", { name: "Selected story", exact: true }),
-    ).toBeVisible();
+    await expect(storySummary(intent)).toBeVisible();
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
     await expect(panel).not.toContainText("run on");
     await expectChecked(panel);

@@ -8,6 +8,7 @@ import {
   intentReadingScroll,
   proofRegion,
   scrollIntentReadingHalfway,
+  intentReadingPane,
 } from "../intentPerspectivePage.ts";
 import {
   childName,
@@ -18,7 +19,10 @@ import {
 import { openCiEntry } from "../intentCiProofPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
   openSummaryComparison,
@@ -86,7 +90,7 @@ test("story, location, folder and file share signed words, preference and per-di
   await expect(summary.locator(".intent-summary-path")).toHaveText(
     "dashboard/tests",
   );
-  await expect(intent.locator(".intent-reading")).toBeFocused();
+  await expect(intentReadingPane(intent)).toBeFocused();
   await expect.poll(() => intentReadingScroll(intent)).toBe(0);
   await expect(
     summary.getByRole("heading", { name: "Summary", exact: true }),

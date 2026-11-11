@@ -96,3 +96,5 @@ that is cheaper and sufficient. Existing proof is retained unless changed.
 - Slice 6: [source locations and target-line acceptance](slice-6-evidence.md).
 
 - Slice 7: [retained source and recovery acceptance](slice-7-evidence.md).
+
+- Slice 8: [story and perspective reading acceptance](slice-8-evidence.md).

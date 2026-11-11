@@ -44,8 +44,14 @@ import {
   intentModeTab,
   openProjectIntent,
   returnToStory,
+  intentPageFrame,
+  filesColumn,
 } from "../intentModePage.ts";
-import { chooseStoryTab, expectStoryTab } from "../support/intentStoryPage.ts";
+import {
+  chooseStoryTab,
+  expectStoryTab,
+  storySummary,
+} from "../support/intentStoryPage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -97,10 +103,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   await chooseCiStatus(intent);
   const before = await toggleOnDevelopment(page, failing.title);
   await expectCiScope(before, failing.branch);
-  const summary = intent.getByRole("region", {
-    name: "Selected story",
-    exact: true,
-  });
+  const summary = storySummary(intent);
   await expect(summary).toBeVisible();
 
   await chooseStoryTab(intent, "Changed tests");
@@ -120,7 +123,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   await test.step("Project Intent judges main and browses the same file in its own selection", async () => {
     await openProjectIntent(intent);
     await expect(intent).toHaveAttribute("data-selected-story", selected);
-    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+    await expect(intentPageFrame(intent)).toHaveAttribute(
       "data-intent-context",
       "project",
     );
@@ -132,7 +135,7 @@ test("with a story selected, activating CI comparison judges that story's branch
     await expectCiAnswer(trunk, "Passed at 4774f60 (Add login)");
     // Nothing the story's Changed tests selected is selected here.
     await expect(
-      intent.locator('.intent-locations [aria-pressed="true"]'),
+      filesColumn(intent).locator('[aria-pressed="true"]'),
     ).toHaveCount(0);
     await selectFile(intent);
     await activateIntentHome(intent, "Enter");

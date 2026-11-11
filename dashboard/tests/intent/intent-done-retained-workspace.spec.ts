@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can
 // still read a retained workspace's later uncommitted edits.
@@ -180,7 +181,7 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
     explanation: expect.stringMatching(/claim|history/),
   });
   await chooseStoryTab(intent, "Changed tests");
-  await expect(intent.locator(".intent-locations")).toHaveCount(0);
+  await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText(

@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // A Done story's historical source comes from its landing, even after trunk
 // changes tests and removes settings. Unrecoverable history never borrows the
@@ -22,6 +23,7 @@ import {
   storyOnly,
   storySummary,
   storyTitle,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 import { lines } from "../support/storyReviewWorktree.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -116,13 +118,13 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
     `${unrecoverable} The story's historical test source is unavailable.`,
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
+  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
   await expect(storyOnly(intent)).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(outsideCount(intent)).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await chooseStoryTab(intent, "Changed tests");
-  await expect(intent.locator(".intent-locations")).toHaveCount(0);
+  await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText(

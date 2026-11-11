@@ -12,7 +12,7 @@ import { retainAdHocCompletedStory } from "../support/adHocCompletedAssociation.
 import {
   chooseStoryTab,
   openReviewFromIntent,
-  storySummary,
+  storyHeaderReading,
   storyTitle,
 } from "../support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
@@ -81,7 +81,7 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
 
   await test.step("historical revisions differ from current trunk and Review lists the vendor fixture edit", async () => {
     await chooseStoryTab(intent, "Changed tests");
-    const revisions = storySummary(intent).locator(".intent-story-revisions");
+    const revisions = storyHeaderReading(intent).revisions;
     await expect(revisions).toContainText(
       `with completion ${shortRevision(linked.completion)}.`,
     );

@@ -15,7 +15,7 @@ import {
 } from "../intentPerspectivePage.ts";
 import { expectProofRowCues } from "../support/expectCiComparisonCues.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "../support/intentStoryPage.ts";
+import { intentFile, intentDiffReading } from "../support/intentStoryPage.ts";
 import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
 import { unchangedFileRow } from "../support/summaryComparisonFileExpectedRows.ts";
 
@@ -49,7 +49,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     await expect(
       intentFile(intent, "dashboard/tests/later.spec.ts"),
     ).toHaveCount(0);
-    await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
+    await expect(intentDiffReading(intent).code).toHaveCount(0);
     await expect(purposeOnly.getByRole("table")).toHaveCount(0);
     await fileReadingTab(intent, "Proof").click();
     await untilPageReadsAnswered(page);

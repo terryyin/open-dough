@@ -1,3 +1,4 @@
+import { storySummary } from "../intentModePage.ts";
 import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The published execution endpoint, actual selected collection and retained
@@ -153,9 +154,10 @@ test("Done wall time keeps the execution publication reference through restart, 
     await expect(history).toContainText("4 prior builds used");
     await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("2 min");
     await expect(
-      intent
-        .getByRole("region", { name: "Selected story", exact: true })
-        .getByRole("heading", { name: "Story A", exact: true }),
+      storySummary(intent).getByRole("heading", {
+        name: "Story A",
+        exact: true,
+      }),
     ).toBeVisible();
     writeFileSync(file, retained);
     await history

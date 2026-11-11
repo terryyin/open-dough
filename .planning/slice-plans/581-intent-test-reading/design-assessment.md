@@ -108,3 +108,28 @@ must pass before acceptance.
 
 Exact retained patch: `/tmp/seed300-slice5-readiness-reuse.patch`, SHA256
 fd0b39909500755cf55856a74c86ad0ff9eef693e6ed38fb508dff63efc636d1
+
+## Architecture and existing solutions
+
+Extend the existing procedural/component owners. `intentScopeProofPage.ts`
+already supplies complete table observations; `expectCiComparisonEntryRows`
+already serves integrated and rendered callers. Modularize file Proof row
+reading from navigation in `support/ciComparisonUnitsJourney.ts` rather than
+create another table representation. `expectSortedColumns.ts` distinguishes
+live `expectSortedBy` from static `expectRenderedSortedBy`; preserve that
+meaning. Page/Locator-based observations can cross fixture tiers without
+moving server setup or transport control into them.
+
+Use existing source, history, recovery and story-view owners named in the
+slices. A different chart's semantics are a reason to retain separate owners;
+similar SVG markup alone is not a shared domain model. Share genuinely common
+controls between procedural and fluent APIs. Fluent phases require their own
+shared-control/handoff evidence under
+[the pilot evaluation](../../../dashboard/tests/writing-journeys.md#what-the-pilot-earned).
+
+Follow Accepted [ADR 0001 — Ubiquitous language](../../../docs/adrs/0001-ubiquitous-language-accepted.md),
+[ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+[ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
+and [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+No conflict or exception was found. Existing North Star direction suffices;
+this story introduces no new state authority or runtime architecture.

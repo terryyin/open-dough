@@ -1,3 +1,4 @@
+import { storySummary } from "../intentModePage.ts";
 import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent location groups expand exclusively
 // (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
@@ -151,9 +152,7 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
   });
 
   await test.step("with no story selected, full-width bold headers stand apart from rows; selection fills one header, expansion shows only in the toggle", async () => {
-    await expect(
-      intent.getByRole("region", { name: "Selected story", exact: true }),
-    ).toHaveCount(0);
+    await expect(storySummary(intent)).toHaveCount(0);
     const expandedPath = "e2e_test/features";
     const selectedPath = "e2e_test/packaged/features";
     const transparent = "rgba(0, 0, 0, 0)";

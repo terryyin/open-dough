@@ -27,21 +27,7 @@ framework and changes to dashboard behavior are outside this outcome.
 
 ## Architecture and existing solutions
 
-Extend the existing procedural/component owners. `intentScopeProofPage.ts`
-already supplies complete table observations; `expectCiComparisonEntryRows`
-already serves integrated and rendered callers. Modularize file Proof row
-reading from navigation in `support/ciComparisonUnitsJourney.ts` rather than
-create another table representation. `expectSortedColumns.ts` distinguishes
-live `expectSortedBy` from static `expectRenderedSortedBy`; preserve that
-meaning. Page/Locator-based observations can cross fixture tiers without
-moving server setup or transport control into them.
-
-Use existing source, history, recovery and story-view owners named in the
-slices. A different chart's semantics are a reason to retain separate owners;
-similar SVG markup alone is not a shared domain model. Share genuinely common
-controls between procedural and fluent APIs. Fluent phases require their own
-shared-control/handoff evidence under
-[the pilot evaluation](../../../dashboard/tests/writing-journeys.md#what-the-pilot-earned).
+See the [architecture and prior-solution assessment](design-assessment.md#architecture-and-existing-solutions).
 
 Follow Accepted [ADR 0001 — Ubiquitous language](../../../docs/adrs/0001-ubiquitous-language-accepted.md),
 [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
@@ -134,7 +120,7 @@ changes, usable under both frontend and integrated fixtures.
 
 ### 8. Follow story and perspective changes without losing reading place
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 8. Observe story/revision/file/diff/view, retained scroll,
 keyboard focus, narrow views and Files sidebar through the transitions.
 
@@ -219,3 +205,18 @@ Disposition: proved by slice 7: slice-7-evidence.md; every3 integrated/frontend 
 Reported: slice 7 — "Coordinator compared the original done-project-refresh Intent-wide Show latest absence with the migrated helper's forced status/text-filtered notice subtree; the new observation covers a narrower absence."
 Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
 Disposition: proved by slice 7: slice-7-evidence.md; one container-scoped Show latest owner preserves original positive notice containers and the whole-Intent negative scope; the complete all-Done-tabs negative journey passed in corrected3
+
+### G10. Read-only diff snapshots gained readiness policy
+Reported: slice 8 — "Implementation review found the new readIntentDiff adding visibility/busy waits to retained Done snapshots that originally read innerText immediately after their explicit protocol. Selecting operations still need their original readiness checks."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: proved by slice 8: slice-8-evidence.md; readIntentDiff retains immediate innerText, selecting actors retain original readiness, current Done/retained-reading proof and scroll-loss scratch discriminate the boundary
+
+### G11. Cold comparison setup exceeds the default case budget
+Reported: slice 8 — "The111-case proof at base31dde timed out in comparison-drilldown-relative at initial comparison reading: origin5.2s plus dashboard5.1s and publication12.15s left3.7s for the CI response. Canonical completed readiness/read-completion components need compatible reuse and current proof."
+Story clause: "Integrated and static-rendered comparisons show the same table → a developer reads their scenarios → both use one reading owner with explicit expected rows, order, units and unsupported-comparison absence."
+Disposition: proved by slice 8: slice-8-evidence.md; compatible completed canonical readiness/read-completion component, repaired cold1 under default budget and renewed31 actual method consumers pass strictly; source-only continuation remains byte-identical
+
+### G12. Shared header root narrowed a cardinality observation
+Reported: slice 8 — "Coordinator and independent refactor found story-changes originally counts every region matching Selected story nonexactly; header.region exact:true narrows that one count. All other inspected migrated Selected-story roots were originally exact."
+Story clause: "The existing tab and tree helpers leave the story header, revision evidence, file selection, diff and scroll retention to individual specs. Share these across changed-tests, Done, project visit and source selection cases."
+Disposition: proved by slice 8: slice-8-evidence.md; original nonexact region cardinality restored as explicit accessibility contract, renewed complete story-changes journey passed within48-case strict independent refactor proof; native exact reads stay shared

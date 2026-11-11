@@ -1,3 +1,4 @@
+import { intentReadingPane } from "../intentPerspectivePage.ts";
 import {
   ciProofReading,
   artifactId,
@@ -172,6 +173,6 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     await expect(
       summaryRegion(intent).locator(".intent-summary-path"),
     ).toHaveText("dashboard/tests");
-    await expect(intent.locator(".intent-reading")).toBeFocused();
+    await expect(intentReadingPane(intent)).toBeFocused();
   });
 });

@@ -6,7 +6,11 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { pausePageClock } from "../autoRefreshJourney.ts";
-import { openProjectIntent, returnToStory } from "../intentModePage.ts";
+import {
+  openProjectIntent,
+  returnToStory,
+  filesColumn,
+} from "../intentModePage.ts";
 import { browserRevision, revisionNotice } from "../intentPerspectivePage.ts";
 import { selectCompletedStoryInIntent } from "../support/intentCompletedStory.ts";
 import {
@@ -14,7 +18,10 @@ import {
   recordIntentLocations,
 } from "../support/intentDoneProjectRefresh.ts";
 import { expect, test } from "../support/preparationPage.ts";
-import { chooseStoryTab, storySummary } from "../support/intentStoryPage.ts";
+import {
+  chooseStoryTab,
+  storyHeaderReading,
+} from "../support/intentStoryPage.ts";
 
 test("all Done tabs ignore project freshness while Project Intent notices the later revision", async ({
   page,
@@ -38,16 +45,16 @@ test("all Done tabs ignore project freshness while Project Intent notices the la
   await firstRequested;
   expect(locations).toEqual([completion]);
   await chooseStoryTab(intent, "Changed tests");
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
   expect(locations).toEqual([completion]);
 
   await openProjectIntent(intent);
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
   expect(locations).toEqual([completion, published]);
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   await returnToStory(intent);
   await chooseStoryTab(intent, "Changed tests");
-  const revisions = storySummary(intent).locator(".intent-story-revisions");
+  const revisions = storyHeaderReading(intent).revisions;
   const endpoints = await revisions.innerText();
   expect(endpoints).toContain(completion.slice(0, 7));
 

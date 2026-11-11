@@ -24,11 +24,7 @@ import {
   setColorScheme,
   sourceAppearance,
 } from "../systemAppearanceReading.ts";
-import {
-  expandIntentGroup,
-  fileReadingTab,
-  purposeRegion,
-} from "../intentPerspectivePage.ts";
+import { expandIntentGroup, fileReadingTab } from "../intentPerspectivePage.ts";
 import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import {
   publishSummaryComparisonStory,
@@ -38,7 +34,11 @@ import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
 } from "../support/selectDoneStoryForSummaryComparison.ts";
-import { chooseStoryTab, intentFile } from "../support/intentStoryPage.ts";
+import {
+  chooseStoryTab,
+  intentFile,
+  intentDiffReading,
+} from "../support/intentStoryPage.ts";
 import { expectFilesShown, filesToggle } from "../intentModePage.ts";
 import { colourOf } from "../pageColours.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -119,8 +119,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     await file.focus();
     await expect(file).toBeFocused();
     await fileReadingTab(intent, "Purpose").click();
-    const purpose = purposeRegion(intent);
-    const diff = purpose.locator(".story-review-code");
+    const diff = intentDiffReading(intent).code;
     await expect(diff).toBeVisible();
     for (const kind of [
       ".story-review-added",

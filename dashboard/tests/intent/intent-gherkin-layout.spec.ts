@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent Gherkin layout: the height below the banner, left-edge location
 // browser, and independent pane scrolling
@@ -15,6 +16,7 @@ import {
 import {
   expandIntentFolders,
   expandIntentGroup,
+  intentReadingPane,
 } from "../intentPerspectivePage.ts";
 
 test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
@@ -42,8 +44,8 @@ test("Intent fills the height below the banner; the location browser meets the l
   ).toContainText("Feature: Long");
 
   const region = page.locator(".intent-scroll");
-  const browser = page.locator(".intent-locations");
-  const reading = page.locator(".intent-reading");
+  const browser = filesColumn(intent);
+  const reading = intentReadingPane(intent);
   expect(
     await region.evaluate((el) => el.scrollHeight > el.clientHeight),
     "the page below the banner does not scroll",

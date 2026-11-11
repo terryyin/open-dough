@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 // Tree file rows and location headers consume the shared CI comparison cues
 // (../../src/IntentLocationGroup.tsx, ../../src/intentTreeComparison.ts): cue
 // state and accessible names match Proof words; selection and keyboard focus
@@ -47,14 +48,16 @@ test("tree file rows and location headers show shared CI cues with distinct sele
   const { intent, card } = await selectDoneStoryForSummaryComparison(page);
 
   await expandIntentGroup(intent, "dashboard/tests");
-  const folderToggle = intent
-    .locator(".intent-locations")
-    .getByRole("button", { name: "Expand folder", exact: true });
+  const folderToggle = filesColumn(intent).getByRole("button", {
+    name: "Expand folder",
+    exact: true,
+  });
   if ((await folderToggle.count()) > 0) await folderToggle.click();
   await expect(
-    intent
-      .locator(".intent-locations")
-      .getByRole("button", { name: "Collapse folder", exact: true }),
+    filesColumn(intent).getByRole("button", {
+      name: "Collapse folder",
+      exact: true,
+    }),
   ).toBeVisible();
 
   const locationHeader = intentLocationHeader(intent, "dashboard/tests");
@@ -229,10 +232,10 @@ test("tree file rows and location headers show shared CI cues with distinct sele
     await expect(intent).toBeVisible();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(
-      intent.locator(".intent-locations [data-ci-count-cue]"),
+      filesColumn(intent).locator("[data-ci-count-cue]"),
     ).toHaveCount(0);
     await expect(
-      intent.locator(".intent-locations [data-ci-duration-cue]"),
+      filesColumn(intent).locator("[data-ci-duration-cue]"),
     ).toHaveCount(0);
   });
 });

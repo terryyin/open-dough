@@ -37,7 +37,11 @@ import {
 } from "../support/scopeHistoryCollection.ts";
 import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
 import { land } from "../support/startSessionLandingContext.ts";
-import { intentFile, storyTitle } from "../support/intentStoryPage.ts";
+import {
+  intentFile,
+  storyTitle,
+  intentDiffReading,
+} from "../support/intentStoryPage.ts";
 
 test.use({ extraEnv: collectingLandedCi });
 const readers: DashboardServer[] = [];
@@ -233,9 +237,9 @@ test("a Done folder and file keep their collected history through Proof and Purp
     }),
   ).toBeVisible();
   await fileReadingTab(intent, "Purpose").click();
-  await expect(
-    purposeRegion(intent).locator(".intent-story-diff-name"),
-  ).toHaveText(summaryComparisonChanges.modified);
+  await expect(intentDiffReading(intent).name).toHaveText(
+    summaryComparisonChanges.modified,
+  );
   await fileReadingTab(intent, "Proof").click();
   await expectHistory(file, zero);
   await expect(storyTitle(intent)).toHaveText("Story A");

@@ -21,6 +21,7 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
+  filesColumn,
 } from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
@@ -49,7 +50,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   const record = candidatesRecord(intent);
   const intentTab = intentModeTab(intent, "CI status");
   const candidatesTab = intentModeTab(intent, "Optimization Candidates");
-  const locations = intent.locator(".intent-locations");
+  const locations = filesColumn(intent);
 
   await test.step("entering Intent selects the Intent tab: locations and CI homepage, no locations-column candidates control", async () => {
     await expect(

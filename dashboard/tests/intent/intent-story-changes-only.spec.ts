@@ -16,11 +16,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
-import {
-  intentGroupToggle,
-  purposeRegion,
-  revisionNotice,
-} from "../intentPerspectivePage.ts";
+import { intentGroupToggle, revisionNotice } from "../intentPerspectivePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -34,7 +30,8 @@ import {
   selectTakenStoryInIntent,
   storyHeaderDetail,
   storyOnly,
-  storySummary,
+  storyHeaderReading,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import {
   changed,
@@ -101,8 +98,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await test.step("visiting Intent coverage and returning keeps the selected file, its reading, the open folders, and the choice", async () => {
     const file = intentFile(intent, changed.modified);
     await file.click();
-    const purpose = purposeRegion(intent);
-    const diffName = purpose.locator(".intent-story-diff-name");
+    const diffName = intentDiffReading(intent).name;
     await expect(diffName).toHaveText(changed.modified);
     const expectKept = async () => {
       await expect(file).toHaveAttribute("aria-pressed", "true");
@@ -141,7 +137,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-B#b");
     await expectStoryTab(intent, "CI comparison");
     await chooseStoryTab(intent, "Changed tests");
-    await expect(storySummary(intent).getByRole("status")).toHaveText(
+    await expect(storyHeaderReading(intent).status).toHaveText(
       "No comparison is available.",
     );
     await expect(toggle).toHaveCount(0);
@@ -174,9 +170,8 @@ test("a story that changed only product code says Selected story only has no tes
     changeProductOnly,
   );
   const none = intent.locator(".intent-story-none");
-  await expect(
-    (await storyHeaderDetail(intent)).locator(".intent-story-revisions"),
-  ).toBeVisible();
+  await storyHeaderDetail(intent);
+  await expect(storyHeaderReading(intent).revisions).toBeVisible();
   const toggle = storyOnly(intent);
   await expect(toggle).not.toBeChecked();
   await expectOutsideCount(intent, 1);

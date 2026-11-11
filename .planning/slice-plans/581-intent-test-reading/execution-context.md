@@ -18,8 +18,8 @@
 - Plan reorganization: preserve executable slices here; preparation baseline and design
   assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
-Latest accepted revision: `cd9ecc5cef7463ca68db41c7eb7f9b606b1a1091` on
-`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `3f1c22bf160f7ebb5e9f68ecff511842c7daa5a6`; observer reused.
+Latest accepted revision: `31dde0c1dfd4ef6644f173ee02724ea27036d5bf` on
+`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `cd9ecc5cef7463ca68db41c7eb7f9b606b1a1091`; observer reused.
 
 Execution structure decisions are retained in [design assessment](design-assessment.md#execution-structure-decisions).
 

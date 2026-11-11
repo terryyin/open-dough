@@ -34,7 +34,12 @@ import {
 } from "../intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-import { intentModeTab } from "../intentModePage.ts";
+import {
+  intentModeTab,
+  filesColumn,
+  intentPageFrame,
+  intentModeViews,
+} from "../intentModePage.ts";
 import {
   expandIntentFolders,
   expandIntentGroup,
@@ -77,11 +82,10 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
   await intentChoice.click();
 
   await test.step("nothing selected: Project Intent is the landing, CI status filling the reading pane; its strip is CI status and Optimization Candidates only", async () => {
-    await expect(
-      intent
-        .getByRole("tablist", { name: "Project Intent views" })
-        .getByRole("tab"),
-    ).toHaveText(["CI status", "Optimization Candidates"]);
+    await expect(intentModeViews(intent).getByRole("tab")).toHaveText([
+      "CI status",
+      "Optimization Candidates",
+    ]);
     await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
       "aria-selected",
       "true",
@@ -93,16 +97,14 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
     await expect(
       intent.getByRole("heading", { name: "No story selected", exact: true }),
     ).toBeVisible();
-    await expect(intent.locator(".intent-page-frame")).toHaveCount(1);
-    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
-      "data-intent-context",
-      "project",
-    );
-    await expect(intent.locator(".intent-page-frame > *").first()).toHaveClass(
+    const frame = intentPageFrame(intent);
+    await expect(frame).toHaveCount(1);
+    await expect(frame).toHaveAttribute("data-intent-context", "project");
+    await expect(frame.locator(":scope > *").first()).toHaveClass(
       "intent-header",
     );
     const panel = await chooseCiStatus(intent);
-    await expect(intent.locator(".intent-locations")).toBeVisible();
+    await expect(filesColumn(intent)).toBeVisible();
     await expectCiScope(panel, "main");
     await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
     await expectChecked(panel);
@@ -152,7 +154,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
       await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)", name);
       await expect(reading, name).toHaveCount(0);
       await expect(
-        intent.locator('.intent-locations [aria-pressed="true"]'),
+        filesColumn(intent).locator('[aria-pressed="true"]'),
         name,
       ).toHaveCount(0);
       await expect(
@@ -240,7 +242,7 @@ test("project CI remains readable while locations load, fail and recover without
   );
   await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
   await failure.getByRole("button", { name: "Retry", exact: true }).click();
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
   await expect(failure).toHaveCount(0);
   await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
   await untilPageReadsAnswered(page);

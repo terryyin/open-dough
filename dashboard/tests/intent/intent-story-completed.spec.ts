@@ -35,6 +35,7 @@ import {
   storyOnly,
   storySummary,
   storyTitle,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
 import { git } from "../support/storyReviewWorktree.ts";
@@ -67,8 +68,8 @@ test("Intent overlays a completed story's published history comparison, naming i
     await expect(
       scoped.getByRole("heading", { name: "Intent coverage" }),
     ).toHaveCount(0);
-    const detail = await storyHeaderDetail(intent);
-    await expect(detail.locator(".record-identity")).toHaveText("SEED-A#a");
+    await storyHeaderDetail(intent);
+    await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
   });
 
   await test.step("Intent coverage shows the exact saved assessment and all four costs as text", async () => {
@@ -86,7 +87,7 @@ test("Intent overlays a completed story's published history comparison, naming i
   });
 
   await test.step("the compared revisions are the published comparison's, not Intent's published revision", async () => {
-    const revisions = scoped.locator(".intent-story-revisions");
+    const revisions = storyHeaderReading(intent).revisions;
     await expect(revisions).toContainText(
       `with completion ${shortRevision(completion)}.`,
     );

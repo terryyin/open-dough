@@ -38,7 +38,10 @@ import {
   summaryZipAnswer,
 } from "../support/ciProofArtifacts.ts";
 import { parts } from "../dashboardPage.ts";
-import { intentLocationName } from "../intentPerspectivePage.ts";
+import {
+  intentLocationName,
+  intentReadingPane,
+} from "../intentPerspectivePage.ts";
 import { summaryRegion } from "../intentScopeProofPage.ts";
 
 const notRecorded = "No timings";
@@ -112,7 +115,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       "aria-pressed",
       "true",
     );
-    await expect(intent.locator(".intent-reading")).toBeFocused();
+    await expect(intentReadingPane(intent)).toBeFocused();
   });
 });
 

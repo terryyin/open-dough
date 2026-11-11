@@ -1,3 +1,4 @@
+import { storySummary } from "../intentModePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Pending, absent protocol ownership, and real unavailable published history
 // stay distinct; no endpoint is invented from completion or the measured run.
@@ -113,8 +114,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
   await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(historyRequests).toEqual([]);
   await page.unroute(pattern, failedReview);
-  await intent
-    .getByRole("region", { name: "Selected story", exact: true })
+  await storySummary(intent)
     .getByRole("button", { name: "Retry", exact: true })
     .click();
   await expect(history).toContainText(

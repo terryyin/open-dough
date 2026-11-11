@@ -31,7 +31,11 @@ import {
   browseSpec,
 } from "../intentCodeBrowseFixtures.ts";
 
-import { intentModeTab } from "../intentModePage.ts";
+import {
+  intentModeTab,
+  filesColumn,
+  intentModeViews,
+} from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { intentSettingsText } from "../support/intentSettingsFile.ts";
@@ -54,16 +58,16 @@ test("CI status names main, its nearest Passed result, later commits without a r
   await openUntilRead(page);
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
-  const tabs = intent.getByRole("tablist", { name: "Project Intent views" });
+  const tabs = intentModeViews(intent);
   await expect(tabs.getByRole("tab")).toHaveText([
     "CI status",
     "Optimization Candidates",
   ]);
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
 
   const panel = await chooseCiStatus(intent);
   await expect(panel).toBeVisible();
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
   await expect(
     panel.getByRole("heading", { name: "CI status of main" }),
   ).toBeVisible();
@@ -90,7 +94,7 @@ test("CI status names main, its nearest Passed result, later commits without a r
     await page.keyboard.press("ArrowRight");
     await expect(candidates).toBeFocused();
     await expect(candidates).toHaveAttribute("aria-selected", "true");
-    await expect(intent.locator(".intent-locations")).toBeHidden();
+    await expect(filesColumn(intent)).toBeHidden();
     await page.keyboard.press("ArrowLeft");
     await expect(intentTab).toBeFocused();
     await expect(intentTab).toHaveAttribute("aria-selected", "true");

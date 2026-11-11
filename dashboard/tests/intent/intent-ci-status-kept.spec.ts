@@ -31,6 +31,7 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   expectIntentModeChosen,
+  filesColumn,
 } from "../intentModePage.ts";
 import { openUntilRead, untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
@@ -62,7 +63,7 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     await intentChoice.click();
     await expectIntentModeChosen(intent, "CI status");
     await expectCiAnswer(ciPanel(intent), "Passed at a1b2c3d (Add login)");
-    await expect(intent.locator(".intent-locations")).toBeVisible();
+    await expect(filesColumn(intent)).toBeVisible();
   });
 
   await test.step("Optimization Candidates is kept across Development and back", async () => {
@@ -72,7 +73,7 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     await intentChoice.click();
     await expectIntentModeChosen(intent, "Optimization Candidates");
     await expectCandidatesRevision(intent, openDough.revision);
-    await expect(intent.locator(".intent-locations")).toBeHidden();
+    await expect(filesColumn(intent)).toBeHidden();
   });
 
   await test.step("a project change starts again on Intent, and so does returning", async () => {
@@ -84,7 +85,7 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     await chooseProject(page, "Open Dough");
     await expectIntentModeChosen(intent, "CI status");
     await expect(candidatesRecord(intent)).toBeHidden();
-    await expect(intent.locator(".intent-locations")).toBeVisible();
+    await expect(filesColumn(intent)).toBeVisible();
     await expect(ciPanel(intent)).toBeVisible();
   });
 });

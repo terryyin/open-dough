@@ -36,6 +36,7 @@ import {
   expectStoryTab,
   intentFile,
   storyTab,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
@@ -82,12 +83,10 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     const proofTab = fileReadingTab(intent, "Proof");
 
     await expect(purposeTab).toHaveAttribute("aria-selected", "true");
-    await expect(purpose.locator(".intent-story-diff-name")).toHaveText(
+    await expect(intentDiffReading(intent).name).toHaveText(
       summaryComparisonChanges.modified,
     );
-    await expect(purpose.locator(".story-review-code")).toContainText(
-      "changed",
-    );
+    await expect(intentDiffReading(intent).code).toContainText("changed");
     await expect(purpose.getByRole("table")).toHaveCount(0);
     await expectNoComparisonFraming(purpose);
     await expect(
@@ -166,9 +165,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         });
       }
       await fileReadingTab(intent, "Purpose").click();
-      await expect(
-        purposeRegion(intent).locator(".intent-story-diff-name"),
-      ).toHaveText(summaryComparisonChanges.added);
+      await expect(intentDiffReading(intent).name).toHaveText(
+        summaryComparisonChanges.added,
+      );
     });
 
     if (variant === undefined)
@@ -200,14 +199,13 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         const editedRead = nextDiff("dashboard/tests/folder/nested/c.spec.ts");
         await intentFile(intent, summaryComparisonChanges.mergeEdited).click();
         await editedRead;
-        const edited = purposeRegion(intent);
-        await expect(edited.locator(".intent-story-diff-name")).toHaveText(
+        await expect(intentDiffReading(intent).name).toHaveText(
           summaryComparisonChanges.mergeEdited,
         );
-        await expect(edited.locator(".story-review-code")).toContainText(
+        await expect(intentDiffReading(intent).code).toContainText(
           "merge edit",
         );
-        await expect(edited.locator(".story-review-code")).not.toContainText(
+        await expect(intentDiffReading(intent).code).not.toContainText(
           "changed",
         );
         await fileReadingTab(intent, "Proof").click();

@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 // A default comparison is not a remembered run choice. Switching from one
 // story's valid captured fallback to another story must use its server default.
 import { execFileSync } from "node:child_process";
@@ -190,7 +191,7 @@ test("selecting another Done story follows its published default instead of reta
       "data-selected-story",
       storyB.identity,
     );
-    await expect(intent.locator(".intent-locations")).toHaveCount(0);
+    await expect(filesColumn(intent)).toHaveCount(0);
     await expect(purposeRegion(intent)).toHaveCount(0);
     held.release();
     await held.delivery;

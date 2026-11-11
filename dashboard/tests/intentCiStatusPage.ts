@@ -7,7 +7,11 @@
 
 import { expect } from "./dashboardTest.ts";
 import { type CatalogPublication } from "./catalogProjectRecords.ts";
-import { intentModeTab } from "./intentModePage.ts";
+import {
+  intentModeTab,
+  projectIntentFrame,
+  storyTab,
+} from "./intentModePage.ts";
 import { publishMovingFiles } from "./publishedFiles.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import {
@@ -124,13 +128,9 @@ export async function expectKeptCiAnswer(
 // while it shows, else the selected story's CI comparison view.
 async function ciTab(intent: Locator) {
   const project = intentModeTab(intent, "CI status");
-  return (await intent
-    .locator('.intent-page-frame[data-intent-context="project"]')
-    .count()) > 0
+  return (await projectIntentFrame(intent).count()) > 0
     ? project
-    : intent
-        .getByRole("tablist", { name: "Selected story views" })
-        .getByRole("tab", { name: "CI comparison", exact: true });
+    : storyTab(intent, "CI comparison");
 }
 
 // Show the CI status Intent reads: with a selected story its CI comparison

@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 import { sourceFile } from "../intentCodeBrowsePage.ts";
 import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Newer revisions wait behind one polite notice, read nothing until **Show
@@ -187,7 +188,7 @@ test("a selected feature the latest revision deleted is explained, with nothing 
   await untilPageReadsAnswered(page);
   await expect(sourceFile(intent, otherPath)).toBeVisible();
   await expect(
-    intent.locator('.intent-locations [aria-pressed="true"]'),
+    filesColumn(intent).locator('[aria-pressed="true"]'),
   ).toHaveCount(0);
   await expect(intent.getByLabel(/ source$/)).toHaveCount(0);
   await expect(intentReadingPane(intent)).toBeFocused();
