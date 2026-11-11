@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "ziqing-chan",
-  "email": "ziqing-chan@example.org",
-  "identity": "SEED-311#speed-up-production-watcher-lifecycle-checks",
-  "mode": "story-branch",
-  "branch": "codex/speed-up-production-watcher-lifecycle-checks",
-  "host": "codex"
-}
