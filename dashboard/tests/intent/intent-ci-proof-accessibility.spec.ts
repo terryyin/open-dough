@@ -1,11 +1,5 @@
-// Proof table accessibility at narrow and zoomed windows: rows stay whole,
-// the reading pane never scrolls sideways, and keyboard navigation passes
-// sortable headers in their visible order. Multi-unit locations keep labeled
-// lines and full gap descriptions readable in that same boundary. Basic proof
-// behavior: ./intent-ci-proof.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
 import {
+  ciProofReading,
   artifactId,
   expectProofRows,
   failedVerdict,
@@ -14,6 +8,15 @@ import {
   proofTable,
   run,
 } from "../intentCiProofPage.ts";
+import { expectCiAnswer } from "../intentCiStatusPage.ts";
+// Proof table accessibility at narrow and zoomed windows: rows stay whole,
+// the reading pane never scrolls sideways, and keyboard navigation passes
+// sortable headers in their visible order. Multi-unit locations keep labeled
+// lines and full gap descriptions readable in that same boundary. Basic proof
+// behavior: ./intent-ci-proof.spec.ts.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { expect, test } from "../dashboardTest.ts";
+
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { wordsBrokenApart } from "../wholeWords.ts";
 import { evidenceLabels } from "../ciEvidenceLabelsPage.ts";
@@ -86,9 +89,9 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, rows);
-  const fileGap = proof
-    .locator(".intent-ci-proof-unit-line")
-    .filter({ hasText: "Part 2 missing" });
+  const fileGap = ciProofReading(proof).unitLines.filter({
+    hasText: "Part 2 missing",
+  });
   await expect(fileGap).toHaveAttribute("title", gapWhy);
   await expect(fileGap).toHaveAccessibleDescription(gapWhy);
   // A wider installed font lays the table out as Linux's fallback font does.
@@ -126,7 +129,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     whole: string,
   ) => {
     await page.setViewportSize(window);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
+    await expectCiAnswer(panel, failedVerdict);
     await expectProofRows(proof, rows);
     await expect(fileGap).toHaveAccessibleDescription(gapWhy);
     await table.scrollIntoViewIfNeeded();

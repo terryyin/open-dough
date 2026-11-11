@@ -1,3 +1,14 @@
+import {
+  expectCiScope,
+  expectCiAnswer,
+  chooseCiStatus,
+  expectChecked,
+  judged,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "../intentCiStatusPage.ts";
+
 // Reading Intent's CI status (../../src/IntentCiStatus.tsx) again and from its
 // configured source: a 404 on main's history or runs is Could not be read
 // with its reason, Check again replaces a judgment that could not be read, and
@@ -22,19 +33,11 @@ import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { openDough } from "../intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  chooseCiStatus,
-  expectChecked,
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+
 import { failing, planningOnly } from "../intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
   broken,
-  expectNamed,
   failedRun,
   login,
   mainRun,
@@ -76,9 +79,7 @@ test("CI status that could not be read names main and the reason; Check again re
 
   await test.step("a 404 on main's history is Could not be read with its reason, never not published", async () => {
     await expect(heading).toBeVisible();
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Could not be read",
-    );
+    await expectCiAnswer(panel, "Could not be read");
     const reason = panel.locator(".intent-ci-reason");
     await expect(reason).toContainText("404");
     await expect(reason).toContainText("/commits?sha=main");
@@ -93,9 +94,7 @@ test("CI status that could not be read names main and the reason; Check again re
     await expect(panel.locator(".intent-ci-reason")).toContainText(
       /\/actions\/.*failed: HTTP 404/,
     );
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Could not be read",
-    );
+    await expectCiAnswer(panel, "Could not be read");
     await expect(heading).toBeVisible();
     await expect(panel).not.toContainText(/passed/i);
     await expect(panel.getByRole("link")).toHaveCount(0);
@@ -105,9 +104,7 @@ test("CI status that could not be read names main and the reason; Check again re
   await test.step("Check again after the runs are readable shows Passed", async () => {
     runsMissing = false;
     await panel.getByRole("button", { name: "Check again" }).click();
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at a1b2c3d (Add login)",
-    );
+    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
     await expect(heading).toBeVisible();
     await expect(panel.locator(".intent-ci-reason")).toHaveCount(0);
     await expectChecked(panel);
@@ -181,10 +178,8 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
   const trunkPanel = await chooseCiStatus(parts(page).intent);
 
   await test.step("main is judged from its own discover (SEED-219 example 8)", async () => {
-    await expectNamed(trunkPanel, "main");
-    await expect(trunkPanel.locator(".intent-ci-state")).toHaveText(
-      "Failed at e1e1e1e (Plan the next story)",
-    );
+    await expectCiScope(trunkPanel, "main");
+    await expectCiAnswer(trunkPanel, "Failed at e1e1e1e (Plan the next story)");
     await expect(
       trunkPanel.getByRole("link", { name: "https://ci.invalid/adapter" }),
     ).toBeVisible();
@@ -195,10 +190,8 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
   await test.step("a story branch with no result of its own: Passed at the shared commit, run on main; main's head is not in its history", async () => {
     const before = calls.length;
     const panel = await toggleOnDevelopment(page, planningOnly.title);
-    await expectNamed(panel, planningOnly.branch);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at 4774f60 (Add login), run on main",
-    );
+    await expectCiScope(panel, planningOnly.branch);
+    await expectCiAnswer(panel, "Passed at 4774f60 (Add login), run on main");
     await expect(panel.getByRole("link", { name: mainRun })).toBeVisible();
     await expect(panel).not.toContainText("e1e1e1e");
     // Only the branch's history from GitHub; the discovers answer the runs.
@@ -210,10 +203,8 @@ process.stdout.write(JSON.stringify({ attempts: attempts.map((each) => ({ ...eac
 
   await test.step("a failed result of the story branch's own nearer the head reads Failed", async () => {
     const panel = await toggleOnDevelopment(page, failing.title);
-    await expectNamed(panel, failing.branch);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Failed at fa11ed0 (Break the login)",
-    );
+    await expectCiScope(panel, failing.branch);
+    await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
     await expect(panel.getByRole("link", { name: failedRun })).toBeVisible();
     await expect(panel).not.toContainText("run on");
   });

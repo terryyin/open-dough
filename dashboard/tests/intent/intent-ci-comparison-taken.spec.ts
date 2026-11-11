@@ -1,3 +1,4 @@
+import { ciStatusReading } from "../intentCiStatusPage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Taken-story provisional CI timing comparison
 // (../../src/IntentCiComparison.tsx, ../../server/intentCiComparisonRead.ts): a
@@ -39,7 +40,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
   await expect(status.locator(".intent-ci-story")).toHaveText("Story branch.");
   await expect(status).not.toContainText(setup.title);
   await expect(storyTitle(parts(page).intent)).toHaveText(setup.title);
-  await expect(status.locator(".intent-ci-state")).toContainText(
+  await expect(ciStatusReading(status).state).toContainText(
     shortSha(setup.branchTip),
   );
 
@@ -127,7 +128,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
       "102/1/1",
       "103/2/1",
     ]);
-    await expect(status.locator(".intent-ci-state")).toContainText(
+    await expect(ciStatusReading(status).state).toContainText(
       shortSha(nextTip),
     );
   });

@@ -1,20 +1,23 @@
+import {
+  expectCiScope,
+  expectCiAnswer,
+  chooseCiStatus,
+  ciPanel,
+  expectChecked,
+} from "../intentCiStatusPage.ts";
+
 // Project Intent visits keep the selected story and trunk CI followed
 // (../../src/IntentPerspective.tsx). Switching scopes reuses each reading;
 // an observed hidden trunk or story head refreshes only its own judgment.
 // Reading-place restoration: ./intent-project-visit.spec.ts.
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  chooseCiStatus,
-  ciPanel,
-  expectChecked,
-} from "../intentCiStatusPage.ts";
+
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
 import { failing } from "../intentCiStoryBoard.ts";
 import {
   branchJudgmentCalls,
-  expectNamed,
   failedRun,
   mainRun,
   revision,
@@ -38,14 +41,14 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const trunk = await chooseCiStatus(intent);
-  await expectNamed(trunk, "main");
+  await expectCiScope(trunk, "main");
   await expectChecked(trunk);
   await expect(browserRevision(intent)).toContainText(shortRevision(revision));
   const story = await toggleOnDevelopment(page, failing.title);
-  await expectNamed(story, failing.branch);
+  await expectCiScope(story, failing.branch);
   await expectChecked(story);
   await openProjectIntent(intent);
-  await expectNamed(ciPanel(intent), "main");
+  await expectCiScope(ciPanel(intent), "main");
   await expectChecked(ciPanel(intent));
   await returnToStory(intent);
   await untilPageReadsAnswered(page);
@@ -53,9 +56,9 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
   await test.step("visiting Project Intent and returning asks CI nothing new", async () => {
     const before = calls.length;
     await openProjectIntent(intent);
-    await expectNamed(ciPanel(intent), "main");
+    await expectCiScope(ciPanel(intent), "main");
     await returnToStory(intent);
-    await expectNamed(ciPanel(intent), failing.branch);
+    await expectCiScope(ciPanel(intent), failing.branch);
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
   });
@@ -76,9 +79,10 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
       "actions-workflow",
       "commit-list main",
     ]);
-    await expectNamed(ciPanel(intent), failing.branch);
+    await expectCiScope(ciPanel(intent), failing.branch);
     await openProjectIntent(intent);
-    await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
+    await expectCiAnswer(
+      ciPanel(intent),
       "Passed at c0ffee3 (Advance the trunk)",
     );
     await expect(browserRevision(intent)).toContainText(
@@ -111,9 +115,10 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
       "actions-workflow",
       "commit-list codex/example-story",
     ]);
-    await expectNamed(ciPanel(intent), "main");
+    await expectCiScope(ciPanel(intent), "main");
     await returnToStory(intent);
-    await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
+    await expectCiAnswer(
+      ciPanel(intent),
       "Passed at c0ffee4 (Fix the story during a visit)",
     );
     await untilPageReadsAnswered(page);
@@ -124,7 +129,8 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     .getByRole("button", { name: "Show latest" })
     .click();
   await expect(browserRevision(intent)).toContainText("c0ffee3");
-  await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
+  await expectCiAnswer(
+    ciPanel(intent),
     "Passed at c0ffee3 (Advance the trunk)",
   );
 });

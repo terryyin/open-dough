@@ -73,6 +73,53 @@ export function ciPanel(intent: Locator) {
   return intent.getByRole("region", { name: "CI status", exact: true });
 }
 
+// The answer, freshness and outstanding read currently visible in a CI region.
+export function ciStatusReading(panel: Locator) {
+  return {
+    state: panel.locator(".intent-ci-state"),
+    freshness: panel.getByRole("status"),
+    checkedTime: panel.locator("time"),
+    checking: panel.locator(".intent-ci-checking"),
+    gap: panel.locator(".intent-ci-gap"),
+  };
+}
+
+export async function expectCiAnswer(
+  panel: Locator,
+  state: string,
+  message?: string,
+) {
+  await expect(ciStatusReading(panel).state, message).toHaveText(state);
+}
+
+export async function expectCiScope(panel: Locator, scope: string) {
+  await expect(
+    panel.getByRole("heading", { name: `CI status of ${scope}`, exact: true }),
+  ).toBeVisible();
+}
+
+// Expected retained facts stay in the scenario; this performs no read or release.
+export async function expectKeptCiAnswer(
+  panel: Locator,
+  answer: {
+    readonly state: string;
+    readonly freshness: string;
+    readonly checking: string | true;
+    readonly checkedAt?: string;
+  },
+) {
+  const shown = ciStatusReading(panel);
+  await expectCiAnswer(panel, answer.state);
+  await expect(shown.freshness).toContainText(answer.freshness);
+  if (answer.checkedAt !== undefined)
+    await expect(shown.checkedTime).toHaveAttribute(
+      "datetime",
+      answer.checkedAt,
+    );
+  if (answer.checking === true) await expect(shown.checking).toBeVisible();
+  else await expect(shown.checking).toContainText(answer.checking);
+}
+
 // The tab showing the CI status Intent reads: Project Intent's CI status
 // while it shows, else the selected story's CI comparison view.
 async function ciTab(intent: Locator) {
@@ -135,8 +182,8 @@ export function judgmentCalls(calls: readonly GhCall[]): string[] {
 }
 
 export async function expectChecked(panel: Locator) {
-  await expect(panel.getByRole("status")).toContainText("Checked at");
-  await expect(panel.locator("time")).toHaveAttribute(
+  await expect(ciStatusReading(panel).freshness).toContainText("Checked at");
+  await expect(ciStatusReading(panel).checkedTime).toHaveAttribute(
     "datetime",
     /^\d{4}-\d\d-\d\dT/,
   );

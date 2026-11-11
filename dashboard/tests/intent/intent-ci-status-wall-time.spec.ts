@@ -1,3 +1,12 @@
+import {
+  ciStatusReading,
+  expectCiAnswer,
+  chooseCiStatus,
+  judged,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "../intentCiStatusPage.ts";
 // CI wall time of the attempt Intent's homepage shows
 // (../../src/IntentCiProof.tsx, ../../src/ciProofTimeWords.ts): a listed Actions run
 // 10:00→10:03 shows CI wall time 3 min with the attempt; a running result
@@ -23,13 +32,7 @@ import {
   uuid,
 } from "../intentCiAdapterProofProject.ts";
 import { proofOf } from "../intentCiProofPage.ts";
-import {
-  chooseCiStatus,
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+
 import { openDough } from "../intentCodeBrowseFixtures.ts";
 import { running } from "../intentCiStoryBoard.ts";
 import {
@@ -69,9 +72,7 @@ test("a listed run from 10:00 to 10:03 shows CI wall time 3 min with the attempt
   await intentChoice.click();
   const panel = await chooseCiStatus(intent);
   const proof = proofOf(panel);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Passed at a1b2c3d (Add login)",
-  );
+  await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
   await expectEvidenceLabels(evidenceLabels(proof), [
     "Run 41 · attempt 1",
     "Revision a1b2c3d",
@@ -121,9 +122,7 @@ test("a running result shows its completed ancestor's CI wall time", async ({
   await chooseCiStatus(parts(page).intent);
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Running at 70a0001 (Start the story)",
-  );
+  await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
   await expectEvidenceLabels(evidenceLabels(proof), [
     "Run 12 · attempt 2",
     "Revision d4e5f6a",
@@ -142,7 +141,7 @@ test("a ciAdapter attempt without start and completion shows CI wall time not re
     proof: testsSummary(uuid, login),
   });
   const { panel, proof } = await openAdapterProof(page);
-  await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
+  await expect(ciStatusReading(panel).state).toContainText("Passed");
   await expectLeadingEvidenceLabels(evidenceLabels(proof), [`Attempt ${uuid}`]);
   const wall = evidenceLabel(proof, notRecorded);
   await expect(labelWords(wall)).toHaveText(notRecorded);

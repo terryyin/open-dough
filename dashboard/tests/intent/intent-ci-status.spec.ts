@@ -1,3 +1,13 @@
+import {
+  expectCiAnswer,
+  chooseCiStatus,
+  expectChecked,
+  judged,
+  judgmentCalls,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "../intentCiStatusPage.ts";
 // Intent's CI status homepage (../../src/IntentCiStatus.tsx): Intent's empty
 // selection judges the project's trunk with the launch's base-CI rule
 // (../../server/baseCiJudgment.ts) and names `main`, the state, the judged
@@ -19,15 +29,7 @@ import {
   pygardon,
   browseSpec,
 } from "../intentCodeBrowseFixtures.ts";
-import {
-  chooseCiStatus,
-  expectChecked,
-  judged,
-  judgmentCalls,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+
 import { intentModeTab } from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -64,9 +66,7 @@ test("CI status names main, its nearest Passed result, later commits without a r
   await expect(
     panel.getByRole("heading", { name: "CI status of main" }),
   ).toBeVisible();
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Passed at a1b2c3d (Add login)",
-  );
+  await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
   await expect(panel).toContainText(
     "2 later commits have no result of their own.",
   );
@@ -98,9 +98,7 @@ test("CI status names main, its nearest Passed result, later commits without a r
     await page.keyboard.press("End");
     await expect(candidates).toBeFocused();
     await intentTab.click();
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at a1b2c3d (Add login)",
-    );
+    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
   });
 });
 
@@ -133,9 +131,7 @@ test("CI status is shown without Intent locations and with unreadable Intent set
     await expect(
       panel.getByRole("heading", { name: "CI status of main" }),
     ).toBeVisible();
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Failed at a1b2c3d (Add login)",
-    );
+    await expectCiAnswer(panel, "Failed at a1b2c3d (Add login)");
     await expect(panel.getByRole("link", { name: runUrl })).toBeVisible();
     await expectChecked(panel);
   });
@@ -147,9 +143,7 @@ test("CI status is shown without Intent locations and with unreadable Intent set
     await expect(
       panel.getByRole("heading", { name: "CI status of main" }),
     ).toBeVisible();
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Could not be read",
-    );
+    await expectCiAnswer(panel, "Could not be read");
     await expect(panel).toContainText(
       "No result of the selected check was found in the readable history",
     );

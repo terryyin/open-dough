@@ -31,8 +31,8 @@ requirements apply throughout even when their final cumulative observation is sl
 | 11 | Preserve existing test tiers. | slice 9 |  |
 | 12 | Allow shared browser helpers to accept caller-supplied expected facts; expected facts remain scenario-owned. | slice 9 |  |
 | 13 | Keep domain setup with MakeMe. | slice 9 |  |
-| 14 | Keep held answers explicit where they distinguish the outcome. | slice 3 |  |
-| 15 | Keep releases explicit where they distinguish the outcome. | slice 3 |  |
+| 14 | Keep held answers explicit where they distinguish the outcome. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 15 | Keep releases explicit where they distinguish the outcome. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
 | 16 | Keep clock advances explicit where they distinguish the outcome. | slice 7 |  |
 | 17 | Keep request logs explicit where they distinguish the outcome. | slice 7 |  |
 | 18 | Keep pinned revisions explicit where they distinguish the outcome. | slice 7 |  |
@@ -77,14 +77,14 @@ requirements apply throughout even when their final cumulative observation is sl
 | 57 | Name shared sort operations across those specs, including sort state. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 58 | Name shared display-mode operations across those specs, including percent marks. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
 | 59 | Cover keyboard activation of time controls through shared operations; exact keyboard/focus evidence remains explicit where distinguishing. | slice 2 | observed: slice-2-evidence.md: source commitment table,45-case strict pass; native input and static fixture assertions inspected |
-| 60 | Extend existing CI status/proof pages for freshness. | slice 3 |  |
-| 61 | Extend those existing pages for kept answers. | slice 3 |  |
-| 62 | Extend those existing pages for scope. | slice 3 |  |
-| 63 | Extend those existing pages for proof rows. | slice 3 |  |
-| 64 | Let a test state which answer the user sees while a read is outstanding. | slice 3 |  |
-| 65 | Preserve kept-answer journey while next CI read is held: observe, release, read replacement. | slice 3 |  |
-| 66 | Keep expected answers outside the reading helper in that journey. | slice 3 |  |
-| 67 | Keep causal order outside the reading helper; observe, release, replacement-read remains visible. | slice 3 |  |
+| 60 | Extend existing CI status/proof pages for freshness. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 61 | Extend those existing pages for kept answers. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 62 | Extend those existing pages for scope. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 63 | Extend those existing pages for proof rows. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 64 | Let a test state which answer the user sees while a read is outstanding. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 65 | Preserve kept-answer journey while next CI read is held: observe, release, read replacement. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 66 | Keep expected answers outside the reading helper in that journey. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
+| 67 | Keep causal order outside the reading helper; observe, release, replacement-read remains visible. | slice 3 | observed: slice-3-evidence.md: original held-answer/freshness/scope/unit journeys;84-case strict pass; caller facts and causal sequence inspected |
 | 68 | Expose wall-time history through history helpers. | slice 4 |  |
 | 69 | Expose prior-build history through history helpers. | slice 4 |  |
 | 70 | Expose scope-history observations through history helpers; expected dates, values, gaps and reference placement remain in scenarios. | slice 5 |  |

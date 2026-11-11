@@ -1,3 +1,15 @@
+import {
+  expectCiScope,
+  expectCiAnswer,
+  activateIntentHome,
+  chooseCiStatus,
+  ciPanel,
+  judged,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "../intentCiStatusPage.ts";
+
 // Directly activating Project Intent's CI status tab
 // (../../src/IntentPage.tsx, ../../src/intentWorkspaceSelection.ts) or the
 // selected story's CI comparison tab (../../src/intentStoryTabs.tsx) returns
@@ -20,19 +32,10 @@ import {
   openDoughSettings,
   pygardon,
 } from "../intentCodeBrowseFixtures.ts";
-import {
-  activateIntentHome,
-  chooseCiStatus,
-  ciPanel,
-  judged,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { failing } from "../intentCiStoryBoard.ts";
 import {
-  expectNamed,
   publishStoryCi,
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
@@ -93,7 +96,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   const { intent } = parts(page);
   await chooseCiStatus(intent);
   const before = await toggleOnDevelopment(page, failing.title);
-  await expectNamed(before, failing.branch);
+  await expectCiScope(before, failing.branch);
   const summary = intent.getByRole("region", {
     name: "Selected story",
     exact: true,
@@ -104,12 +107,10 @@ test("with a story selected, activating CI comparison judges that story's branch
   await selectFile(intent);
   const panel = await activateIntentHome(intent);
   await expectStoryTab(intent, "CI comparison");
-  await expectNamed(panel, failing.branch);
+  await expectCiScope(panel, failing.branch);
   await expect(panel.locator(".intent-ci-story")).toHaveText("Story branch.");
   await expect(panel).not.toContainText(failing.title);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Failed at fa11ed0 (Break the login)",
-  );
+  await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
   await expect(summary).toBeVisible();
   const selected = `SEED-219#${failing.anchor}`;
   await expect(intent).toHaveAttribute("data-selected-story", selected);
@@ -127,10 +128,8 @@ test("with a story selected, activating CI comparison judges that story's branch
       intent.getByRole("region", { name: "Project Intent", exact: true }),
     ).toBeVisible();
     const trunk = ciPanel(intent);
-    await expectNamed(trunk, "main");
-    await expect(trunk.locator(".intent-ci-state")).toHaveText(
-      "Passed at 4774f60 (Add login)",
-    );
+    await expectCiScope(trunk, "main");
+    await expectCiAnswer(trunk, "Passed at 4774f60 (Add login)");
     // Nothing the story's Changed tests selected is selected here.
     await expect(
       intent.locator('.intent-locations [aria-pressed="true"]'),
@@ -138,7 +137,7 @@ test("with a story selected, activating CI comparison judges that story's branch
     await selectFile(intent);
     await activateIntentHome(intent, "Enter");
     await expect(fileName(intent)).toHaveAttribute("aria-pressed", "false");
-    await expectNamed(ciPanel(intent), "main");
+    await expectCiScope(ciPanel(intent), "main");
   });
 
   await returnToStory(intent);
@@ -185,9 +184,7 @@ test("arrow keys, Home and End choose CI status again with the file still read; 
     await candidates.click();
     await expectIntentModeChosen(intent, "Optimization Candidates");
     const panel = await activateIntentHome(intent);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at a1b2c3d (Add login)",
-    );
+    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
     await expect(fileName(intent)).toHaveAttribute("aria-pressed", "false");
   });
 });

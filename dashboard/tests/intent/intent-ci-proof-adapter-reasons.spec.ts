@@ -1,3 +1,9 @@
+import {
+  ciProofReading,
+  expectNoProofRows,
+  expectProofRows,
+} from "../intentCiProofPage.ts";
+import { expectCiAnswer } from "../intentCiStatusPage.ts";
 // Why Intent's CI status tab shows no CI proof of a ciAdapter attempt
 // (../../src/IntentCiProof.tsx, ../../server/ciAdapterProof.ts): when the adapter
 // answers no proof read, gives its own reason, or answers what is not this
@@ -21,7 +27,7 @@ import {
   testsSummary,
   verdict,
 } from "../intentCiAdapterProofProject.ts";
-import { expectNoProofRows, expectProofRows } from "../intentCiProofPage.ts";
+
 import { login, repository, signup } from "../intentCiStoryRecords.ts";
 import { tokenColour } from "../pageColours.ts";
 
@@ -82,7 +88,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
   ];
   adapter.answer({ discover, ...cases[0][1] });
   const { panel, proof } = await openAdapterProof(page);
-  const reason = proof.locator(".intent-ci-proof-unavailable");
+  const reason = ciProofReading(proof).unavailable;
   const problemBorder = await tokenColour(page, "--problem");
 
   for (const [index, [line, answer]] of cases.entries()) {
@@ -95,7 +101,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
         expect(adapter.discoverRequests().length).toBeGreaterThan(discovers);
       } else await expect(reason).toHaveText([line]);
       expect(adapter.proofRequests()).toHaveLength(index + 1);
-      await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+      await expectCiAnswer(panel, verdict);
       await expectAttemptAt(proof, "Attempt 2", "4774f60");
       await expectNoProofRows(proof);
       await expect(proof).not.toContainText(/failed|passed/i);
@@ -130,7 +136,7 @@ test("a retried adapter attempt shows the retry's verdict and proof, and Check a
   adapter.answer({ discover, proof: testsSummary("2", login) });
   const { panel, proof } = await openAdapterProof(page);
 
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expectCiAnswer(panel, verdict);
   await expectAttemptAt(proof, "Attempt 2", "4774f60");
   await expectProofRows(proof, [testsRow]);
 
@@ -139,8 +145,8 @@ test("a retried adapter attempt shows the retry's verdict and proof, and Check a
   adapter.answer({ discover, proof: testsSummary("1", login) });
   await panel.getByRole("button", { name: "Check again" }).click();
   await expectProofRows(proof, [testsRow]);
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expect(ciProofReading(proof).unavailable).toHaveCount(0);
+  await expectCiAnswer(panel, verdict);
   const asked = {
     operation: "proof",
     check: { repo: repository, branch: "main" },
@@ -193,21 +199,17 @@ test("an adapter attempt whose attemptId another discovered attempt shares at it
       });
       const { panel, proof } = await openAdapterProof(page);
 
-      await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+      await expectCiAnswer(panel, verdict);
       await expectAttemptAt(proof, "Attempt 1", "4774f60");
-      await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
-        ambiguous,
-      ]);
+      await expect(ciProofReading(proof).unavailable).toHaveText([ambiguous]);
       await expectNoProofRows(proof);
       const discovers = adapter.discoverRequests().length;
       await panel.getByRole("button", { name: "Check again" }).click();
       await expect
         .poll(() => adapter.discoverRequests().length)
         .toBeGreaterThan(discovers);
-      await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
-        ambiguous,
-      ]);
-      await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+      await expect(ciProofReading(proof).unavailable).toHaveText([ambiguous]);
+      await expectCiAnswer(panel, verdict);
       expect(adapter.proofRequests()).toEqual([]);
     });
   }

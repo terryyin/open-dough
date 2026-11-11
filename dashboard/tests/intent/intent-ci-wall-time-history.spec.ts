@@ -1,3 +1,4 @@
+import { expectCiAnswer } from "../intentCiStatusPage.ts";
 // Project Intent's CI wall time history in CI status
 // (../../src/IntentCiHistory.tsx), on a real bare origin
 // (../support/startOrigin.ts) whose dashboard collects recorded landings'
@@ -63,7 +64,8 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
   const panel = await openProjectCiStatus(page);
 
   // The current judgment and its Proof are the trunk's, unchanged.
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
+  await expectCiAnswer(
+    panel,
     `Passed at ${shortSha(revision)} (Result landed.txt)`,
   );
   await expectEvidenceLabels(evidenceLabels(proofOf(panel)), [
@@ -116,9 +118,7 @@ test("a project with no recorded landing says no landing has been measured yet, 
 
   const panel = await openProjectCiStatus(page);
 
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    `Passed at ${shortSha(head)} (${subject})`,
-  );
+  await expectCiAnswer(panel, `Passed at ${shortSha(head)} (${subject})`);
   await expectEvidenceLabels(evidenceLabels(proofOf(panel)), [
     "Run 7 · attempt 1",
     `Revision ${shortSha(head)}`,

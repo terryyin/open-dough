@@ -1,3 +1,14 @@
+import {
+  ciProofReading,
+  artifactId,
+  expectProofRows,
+  failedVerdict,
+  openFailedRun,
+  proofCalls,
+  proofTable,
+  run,
+} from "../intentCiProofPage.ts";
+import { expectCiAnswer, judged, runUrl } from "../intentCiStatusPage.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 // The CI proof of the run Intent's CI status tab shows a result of
 // (../../src/IntentCiProof.tsx): after the judgment, which reads as it always
@@ -13,16 +24,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 // ../../../tests/support/dashboard-ci-proof-parse.test.mjs.
 
 import { expect, test } from "../dashboardTest.ts";
-import { judged, runUrl } from "../intentCiStatusPage.ts";
-import {
-  artifactId,
-  expectProofRows,
-  failedVerdict,
-  openFailedRun,
-  proofCalls,
-  proofTable,
-  run,
-} from "../intentCiProofPage.ts";
+
 import {
   expectAttemptAt,
   expectAttemptLinked,
@@ -67,7 +69,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
   );
 
   await test.step("the verdict is shown while Proof is still being read", async () => {
-    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
+    await expectCiAnswer(panel, failedVerdict);
     await expect(proof).toContainText("Checking the CI proof of this run…");
     await expect(
       panel.locator(".intent-ci-state ~ .intent-ci-proof"),
@@ -82,7 +84,7 @@ test("a failed run with a summary shows Failed as before, then Proof of that run
       ["dashboard/tests", "19 passed and 1 failed test cases", notRecorded],
       ["tests", "5 passed test files", notRecorded],
     ]);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
+    await expectCiAnswer(panel, failedVerdict);
   });
 
   await test.step("Proof was read for that run's attempt by its artifact name, then one download", () => {
@@ -130,7 +132,7 @@ test("a CI proof query that omits the attempt is refused before asking GitHub", 
     () => ({ status: 404, contentType: "application/json", body: "{}" }),
   );
   // The page's own proof read has settled before any is counted.
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toBeVisible();
+  await expect(ciProofReading(proof).unavailable).toBeVisible();
   const before = published.requests.length;
   const answer = await page.evaluate(async (url) => {
     const response = await fetch(url);

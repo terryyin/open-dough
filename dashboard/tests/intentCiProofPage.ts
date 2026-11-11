@@ -81,6 +81,15 @@ export function proofTable(proof: Locator): Locator {
   return proof.getByRole("table", { name: "CI proof by declared entry" });
 }
 
+// Proof's displayed read state and labeled result-unit lines, without setup.
+export function ciProofReading(proof: Locator) {
+  return {
+    unavailable: proof.locator(".intent-ci-proof-unavailable"),
+    checking: proof.locator(".intent-ci-proof-checking"),
+    unitLines: proof.locator(".intent-ci-proof-unit-line"),
+  };
+}
+
 export const proofColumns = ["Entry", "Counts", "Test execution time"];
 
 // One cell's reading: a single-unit string, or each labeled unit line's
@@ -108,7 +117,7 @@ async function expectProofCell(cell: Locator, expected: ProofCell) {
     await expect(cell).toHaveText(expected);
     return;
   }
-  const lines = cell.locator(".intent-ci-proof-unit-line");
+  const lines = ciProofReading(cell).unitLines;
   await expect(lines).toHaveCount(expected.length);
   for (const [at, name] of expected.entries()) {
     await expect(lines.nth(at)).toHaveAttribute("aria-label", name);

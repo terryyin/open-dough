@@ -100,7 +100,7 @@ owner expresses the shared mechanics without pretending static HTML is live.
 
 ### 3. Read CI status and Proof while answers change
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 3. Observe old answer while held, checking/freshness/time state,
 then replacement answer, scope, unit rows and gaps with caller expectations.
 
@@ -213,10 +213,18 @@ See [design assessment](design-assessment.md) for the slice boundary review and
 - Plan reorganization: preserve executable slices here; preparation baseline and design
   assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
-Latest accepted revision: `71d39d5965906dd4dcd28d4d3cd0c1ffcb0a4385` on
-`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `8299f4e64f49939e1d6120390ebd0b44a0532328`; observer reused.
+Latest accepted revision: `298d51c27b626fb99f171bebba279b91e091d06d` on
+`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `71d39d5965906dd4dcd28d4d3cd0c1ffcb0a4385`; observer reused.
 
 ## Accepted slice evidence
 
 - Slice 1: [comparison and Summary acceptance](slice-1-evidence.md).
 - Slice 2: [sort and presentation acceptance](slice-2-evidence.md).
+
+Slice3 reorganization before oversized edits: status freshness263/homepage255
+share verdict/freshness/time/checking observation through existing status owner,
+with caller facts retained. Keep holds/releases/clocks/navigation/order and request
+evidence explicit; coherent shortening must leave both<=250. Prove whole affected
+specs and transitive consumers. Return an undelivered seam before dependent work.
+
+- Slice 3: [CI status and Proof acceptance](slice-3-evidence.md).

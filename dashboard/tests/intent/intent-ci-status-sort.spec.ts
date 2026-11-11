@@ -12,6 +12,7 @@
 import { expect, test } from "../dashboardTest.ts";
 import {
   artifactId,
+  ciProofReading,
   openFailedRun,
   proofTable,
   run,
@@ -204,11 +205,9 @@ test("a multi-unit location sorts as one row by each unit's figures without summ
     "grouped/slow",
   ]);
   await expect(
-    table
-      .locator("tbody tr")
-      .nth(1)
-      .locator(".intent-ci-proof-unit-line")
-      .filter({ hasText: "Part 2 missing" }),
+    ciProofReading(table.locator("tbody tr").nth(1)).unitLines.filter({
+      hasText: "Part 2 missing",
+    }),
   ).toHaveAttribute("aria-label", "test files: Part 2 missing");
 
   await page.keyboard.press("Space");

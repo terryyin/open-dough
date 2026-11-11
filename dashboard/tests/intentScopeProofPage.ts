@@ -125,6 +125,28 @@ export async function expectScopeRows(
     [...scopeColumns.slice(1), "Parts"],
     figures,
   );
+  await expectScopeTableRows(summary, path, rows);
+}
+
+export async function expectScopeUnitFigures(
+  summary: Locator,
+  path: string,
+  unit: string,
+  figures: readonly string[],
+) {
+  await expectOwnFigures(
+    summary,
+    `${path}: ${unit}`,
+    ["Counts", "Test execution time", "Parts"],
+    figures,
+  );
+}
+
+export async function expectScopeTableRows(
+  summary: Locator,
+  path: string,
+  rows: readonly ProofRow[],
+) {
   await expectProofTableRows(scopeTable(summary, path), scopeColumns, rows);
 }
 

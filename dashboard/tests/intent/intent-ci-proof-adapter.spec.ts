@@ -1,3 +1,9 @@
+import {
+  ciProofReading,
+  expectProofRows,
+  proofOf,
+} from "../intentCiProofPage.ts";
+import { expectCiAnswer } from "../intentCiStatusPage.ts";
 // The CI proof of a ciAdapter attempt in Intent's CI status tab
 // (../../src/IntentCiProof.tsx, ../../server/ciAdapterProof.ts): the project's own
 // adapter, run from the project folder as its discover is, is asked for the
@@ -30,7 +36,7 @@ import {
   uuid,
   verdict,
 } from "../intentCiAdapterProofProject.ts";
-import { expectProofRows, proofOf } from "../intentCiProofPage.ts";
+
 import { running } from "../intentCiStoryBoard.ts";
 import {
   login,
@@ -53,11 +59,11 @@ test("a ciAdapter attempt's proof is read through the project's adapter and show
   const { ci, panel, proof } = await openAdapterProof(page);
 
   await test.step("the verdict reads as before; Proof names the attempt and shows its row", async () => {
-    await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+    await expectCiAnswer(panel, verdict);
     await expectAttemptAt(proof, `Attempt ${uuid}`, "4774f60");
     await expectAttemptLinked(proof, `Attempt ${uuid}`, mainRun);
     await expectProofRows(proof, [testsRow]);
-    await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
+    await expect(ciProofReading(proof).unavailable).toHaveCount(0);
   });
 
   await test.step("the adapter was asked the documented proof request, and GitHub for no proof", () => {
@@ -119,9 +125,7 @@ test("a running ciAdapter story branch shows its completed ancestor attempt's pr
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
 
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Running at 70a0001 (Start the story)",
-  );
+  await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
   await expectAttemptAt(proof, `Attempt ${ancestor}`, "d4e5f6a");
   await expectLabelInFull(
     proof,
@@ -157,14 +161,14 @@ test("a ciAdapter proof answer over 64 KiB with a by-file summary reaches Intent
   });
   const { panel, proof } = await openAdapterProof(page);
 
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expectCiAnswer(panel, verdict);
   await expectProofRows(proof, [byFileTestsRow()]);
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
+  await expect(ciProofReading(proof).unavailable).toHaveCount(0);
   expect(adapter.proofRequests()).toHaveLength(1);
 
   await panel.getByRole("button", { name: "Check again" }).click();
   await expectProofRows(proof, [byFileTestsRow()]);
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveCount(0);
+  await expect(ciProofReading(proof).unavailable).toHaveCount(0);
   expect(adapter.proofRequests()).toHaveLength(1);
 });
 
@@ -180,13 +184,13 @@ test("a slow adapter proof read never delays the verdict", async ({
   });
   const { panel, proof } = await openAdapterProof(page);
 
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
-  await expect(proof.locator(".intent-ci-proof-checking")).toHaveText(
+  await expectCiAnswer(panel, verdict);
+  await expect(ciProofReading(proof).checking).toHaveText(
     "Checking the CI proof of this attempt…",
   );
   await expect.poll(() => adapter.proofRequests().length).toBeGreaterThan(0);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expectCiAnswer(panel, verdict);
   adapter.releaseProof();
   await expectProofRows(proof, [testsRow]);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expectCiAnswer(panel, verdict);
 });

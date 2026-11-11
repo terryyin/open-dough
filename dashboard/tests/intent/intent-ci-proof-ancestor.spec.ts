@@ -1,3 +1,18 @@
+import {
+  ciProofReading,
+  artifactId,
+  expectProofRows,
+  proofCalls,
+  proofOf,
+  type ProofRow,
+} from "../intentCiProofPage.ts";
+import {
+  ciStatusReading,
+  expectCiAnswer,
+  activateIntentHome,
+  chooseCiStatus,
+  runUrl,
+} from "../intentCiStatusPage.ts";
 // The CI proof of a running result in Intent's CI status tab
 // (../../src/IntentCiProof.tsx): a running story branch shows its completed ancestor's run's proof,
 // naming that ancestor's revision and run, not the running commit's; and a
@@ -9,11 +24,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
-import {
-  activateIntentHome,
-  chooseCiStatus,
-  runUrl,
-} from "../intentCiStatusPage.ts";
+
 import { intentLocationName } from "../intentPerspectivePage.ts";
 import { chooseStoryTab } from "../support/intentStoryPage.ts";
 import { scopeFigures, summaryRegion } from "../intentScopeProofPage.ts";
@@ -24,13 +35,6 @@ import {
   expectLeadingEvidenceLabels,
   expectLabelInFull,
 } from "../ciEvidenceLabelsPage.ts";
-import {
-  artifactId,
-  expectProofRows,
-  proofCalls,
-  proofOf,
-  type ProofRow,
-} from "../intentCiProofPage.ts";
 
 import { running } from "../intentCiStoryBoard.ts";
 import {
@@ -118,17 +122,13 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
   // its read settles before the story's proof calls are counted.
   const trunkProof = proofOf(await chooseCiStatus(parts(page).intent));
   await expectAttemptAt(trunkProof, "Run 11 · attempt 1", "4774f60");
-  await expect(
-    trunkProof.locator(".intent-ci-proof-unavailable"),
-  ).toBeVisible();
+  await expect(ciProofReading(trunkProof).unavailable).toBeVisible();
   const before = proofCalls(calls).length;
   const panel = await toggleOnDevelopment(page, running.title);
   const proof = proofOf(panel);
 
   await test.step("Proof names the ancestor's revision and run, not the running commit", async () => {
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Running at 70a0001 (Start the story)",
-    );
+    await expectCiAnswer(panel, "Running at 70a0001 (Start the story)");
     await expectLeadingEvidenceLabels(evidenceLabels(proof), [
       "Run 12 · attempt 2",
       "Revision d4e5f6a",
@@ -194,8 +194,8 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
     // the re-read's actions-runs are counted before asserting.
     await expectProofRows(proof, [checksRow]);
     await expectAttemptAt(proof, "Run 12 · attempt 2", "d4e5f6a");
-    await expect(panel.locator(".intent-ci-checking")).toHaveCount(0);
-    await expect(panel.getByRole("status")).toContainText("Checked at");
+    await expect(ciStatusReading(panel).checking).toHaveCount(0);
+    await expect(ciStatusReading(panel).freshness).toContainText("Checked at");
     expect(
       calls.filter(({ request }) => request.kind === "actions-runs").length,
     ).toBeGreaterThan(judgedBefore);

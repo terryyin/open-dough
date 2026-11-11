@@ -1,5 +1,6 @@
-// A selected file's compared Proof, independent of how the scenario selected it.
+// A selected file's Proof, independent of how the scenario selected it.
 import type { Locator } from "@playwright/test";
+import { proofColumns, type ProofRow } from "./intentCiProofPage.ts";
 import {
   comparisonTableColumns,
   type ComparisonColumn,
@@ -8,6 +9,18 @@ import { expectProofTableRows } from "./proofTablePage.ts";
 
 export function fileProofTable(proof: Locator, path: string): Locator {
   return proof.getByRole("table", { name: `CI proof of ${path}`, exact: true });
+}
+
+export async function expectFileProofRows(
+  proof: Locator,
+  path: string,
+  rows: readonly ProofRow[],
+) {
+  await expectProofTableRows(
+    fileProofTable(proof, path),
+    ["Scope", ...proofColumns.slice(1)],
+    rows,
+  );
 }
 
 export type FileComparisonRow = readonly [

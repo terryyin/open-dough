@@ -1,3 +1,4 @@
+import { ciStatusReading } from "../intentCiStatusPage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Taken stories retain their actual live judgment and provisional endpoint words.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -121,7 +122,7 @@ for (const mode of ["story-branch", "trunk"] as const) {
           "Story branch.",
         );
         await expect(live).not.toContainText("Story A");
-        await expect(live.locator(".intent-ci-state")).toContainText("bbbbbbb");
+        await expect(ciStatusReading(live).state).toContainText("bbbbbbb");
       }
       await expect(comparisonReading(panel).activeComparison).toHaveText(
         `Baseline compared with ${mode === "trunk" ? "Provisional" : "Branch"}`,

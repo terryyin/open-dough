@@ -1,3 +1,15 @@
+import {
+  ciStatusReading,
+  expectCiAnswer,
+  chooseCiStatus,
+  ciPanel,
+  expectChecked,
+  judged,
+  judgmentCalls,
+  publishProject,
+  runUrl,
+  trunkCi,
+} from "../intentCiStatusPage.ts";
 // Intent's CI homepage shows again after a perspective switch; Optimization
 // Candidates stays chosen across Development and back; a project change
 // starts again on Intent (SEED-219 examples 2, 10). A new trunk revision
@@ -13,16 +25,7 @@ import {
   publishMovingOpenDough,
 } from "../intentMovingOpenDough.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import {
-  chooseCiStatus,
-  ciPanel,
-  expectChecked,
-  judged,
-  judgmentCalls,
-  publishProject,
-  runUrl,
-  trunkCi,
-} from "../intentCiStatusPage.ts";
+
 import {
   candidatesRecord,
   chooseOptimizationCandidates,
@@ -53,16 +56,12 @@ test("CI homepage shows again across Development and back; Optimization Candidat
 
   await test.step("CI homepage shows again across Development and back", async () => {
     const panel = await chooseCiStatus(intent);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at a1b2c3d (Add login)",
-    );
+    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
     await development.click();
     await expect(intent).toHaveCount(0);
     await intentChoice.click();
     await expectIntentModeChosen(intent, "CI status");
-    await expect(ciPanel(intent).locator(".intent-ci-state")).toHaveText(
-      "Passed at a1b2c3d (Add login)",
-    );
+    await expectCiAnswer(ciPanel(intent), "Passed at a1b2c3d (Add login)");
     await expect(intent.locator(".intent-locations")).toBeVisible();
   });
 
@@ -106,11 +105,10 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const panel = await chooseCiStatus(intent);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Passed at a1b2c3d (Add login)",
-  );
+  await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
   await expectChecked(panel);
-  const firstCheck = await panel.locator("time").getAttribute("datetime");
+  const firstCheck =
+    await ciStatusReading(panel).checkedTime.getAttribute("datetime");
   const firstCalls = judgmentCalls(published.requests);
   expect(firstCalls).toEqual([
     "actions-runs",
@@ -128,7 +126,7 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
     await passTimeUntilCheckedAfterSettled(page);
     await untilPageReadsAnswered(page);
     expect(judgmentCalls(published.requests)).toEqual(firstCalls);
-    await expect(panel.locator("time")).toHaveAttribute(
+    await expect(ciStatusReading(panel).checkedTime).toHaveAttribute(
       "datetime",
       firstCheck ?? "",
     );
@@ -151,12 +149,10 @@ test("a new trunk revision re-reads the homepage judgment at the new head; time 
   await untilPageReadsAnswered(page);
 
   await expectIntentModeChosen(intent, "CI status");
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Failed at e8e8e8e (Plan the next story)",
-  );
+  await expectCiAnswer(panel, "Failed at e8e8e8e (Plan the next story)");
   await expect(panel).not.toContainText("later commits");
   await expect
-    .poll(() => panel.locator("time").getAttribute("datetime"))
+    .poll(() => ciStatusReading(panel).checkedTime.getAttribute("datetime"))
     .not.toBe(firstCheck);
   expect(
     judgmentCalls(published.requests).filter(
