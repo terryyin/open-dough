@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { parseSync } from "rolldown/utils";
 import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
@@ -47,7 +48,17 @@ test("the generated matcher corresponds to the maintained declaration and member
     { cwd: root },
   );
   assert.equal(readFileSync(join(root, runtime), "utf8"), before);
-  assert.doesNotMatch(before, /\b(?:import\s*\(|from\s*["'])/);
+  // Parsed module requests: message text such as "patterns from '**/..'" is not an import.
+  const { module, errors } = parseSync(runtime, before);
+  assert.deepEqual(errors, []);
+  const requests = [
+    ...module.staticImports,
+    ...module.dynamicImports,
+    ...module.staticExports
+      .flatMap(({ entries }) => entries)
+      .filter(({ moduleRequest }) => moduleRequest !== null),
+  ];
+  assert.deepEqual(requests, [], "the generated runtime imports nothing");
 });
 
 test("the copied public command selects an intended new source without project dependencies", (t) => {
