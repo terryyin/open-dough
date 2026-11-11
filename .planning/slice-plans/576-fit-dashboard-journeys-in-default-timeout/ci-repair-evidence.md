@@ -172,3 +172,63 @@ owns independent refactor, ordinary hooks, publication and exact complete CI.
 Independent `interrupt_readiness_refactor` returned `REFACTOR COMPLETE`, none,
 with all four consumer dispositions and actual proof compatible; no edits or
 extra tests. The original CI phase remains unattributed until fresh CI.
+
+## Runner repair passes CI; attention startup settlement remains
+
+Published `8488f1f8c92c427b651650512c0797f8ccca5a7f` passed hooks and the clean
+stash record restored as resumed. Exact observer run42960450409/attempt1
+fails only attention journey sessions/agent-completion-attention.spec.ts:38,
+at sessionStatePace.ts:97: expected6 reads, actual7 before final paced1ms.
+All three repository jobs, lint, proof and eleven other dashboard jobs pass.
+Complete diagnostic `/tmp/seed287-ci-failure-42960450409-1.json`; full job log
+`/tmp/seed287-ci-failure-42960450409-1-job8.json`. G15 owns the remaining fix.
+
+Artifact13829201837 belongs to that exact SHA/run. Retained report ZIP6837118
+bytes SHA256`3f44851e87dc240e9ebaa40e06b05e8273c86e20229e738842e43e3175e285e0`:
+`/tmp/seed287-hosted-42960450409/report8.zip`; all ZIP CRCs checked. Trace
+9ba206d95e05d9df77d81134c23e07548ba1e9e2.zip and attention-detail.json are
+extracted as data only. A premature read while transfer ran found no file;
+the completed transport was then verified before any analysis use.
+
+Fresh owner ci_session_pace_repair reads the actual trace: count snapshot
+ends153566.693, GET#7 starts153569.516, clock advance begins153573.016.
+The last counted response still has running:true/changes3; the changed?seen3
+answer reports running:false/outcome launched and triggers a legitimate
+immediate reread. This is startup settlement crossing a records-only barrier,
+not an early periodic timer. Current proposed scope reuses accepted-attempt
+settlement and page-request observation in this journey; exact paced counts,
+all attention/retirement/restart behavior and shared helpers stay preserved.
+
+New clean/no-OID repair record:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-e9v8yo/record.json`.
+Root moved completed1–11 blocks verbatim into completed-slice-details.md104
+lines, retaining all types/done statuses and proof/flow links in PLAN243.
+This changes only the evidence home for the250-line limit, not source or
+remaining slice behavior. Global obligations and exact repaired CI stay open.
+
+G15 local return: `/tmp/seed287-session-pace-repair-handoff.md`.
+Only the231-line attention spec changes: capture the real accepted ID before
+Start, await existing settledOutcome and all pending page requests before
+report delivery/pacing. This settles startup, not the still-Working native
+session. Product and shared pacing remain unchanged, with every old assertion.
+
+Controlled pre-edit whole journey reproduces exact6/7 at the unchanged helper.
+Scratch route.fetch initially lacked Origin and got403; correcting only that
+diagnostic transport exposes the matching count failure, retained separately.
+Repaired original and held-final-answer whole journeys pass strict2/2, retry0,
+default30s at16.571/16.791s; runner18.728362s. The replay proves the new page
+barrier stays pending while the real answer is held, then completes all old
+cadence/durability/retirement/restart/read/Done and native-call assertions.
+Proof `/tmp/seed287-attention-after-proof.json`; before and controlled source,
+logs and CRC-checked failing trace are retained by the handoff.
+
+All55 repair-only consumer rows and486 full-trace rows have dispositions;
+root record effects are not treated as implementation effects. Existing three
+helper contracts/callers remain unchanged. Parent inspected actual code diff,
+strict statuses, hashes and the held-delivery observation. Scratch files are
+removed and owned PIDs retired; the neighboring one-worker run is preserved.
+No new pressure/performance or complete-CI success is claimed. Independent
+refactor, ordinary hooks, publication and exact complete CI remain root-owned.
+Independent attention_settlement_refactor returned REFACTOR COMPLETE, none,
+with original/held proof and55/486 consumer dispositions compatible, all11
+archived blocks verbatim and matching anchors. No edits or extra tests.
