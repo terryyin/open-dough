@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-302_make-remaining-test-domain-setup-express-intent.json",
+      "identity": "SEED-302#make-remaining-test-domain-setup-express-intent",
+      "completedAt": "2026-11-11T06:43:41.436Z",
+      "blob": "c6ffccc4e3ffd6ff755ccdb823d38a8e8f48fb84"
+    },
+    {
       "fileName": "SEED-304_show-one-ci-proof-row-per-location.json",
       "identity": "SEED-304#show-one-ci-proof-row-per-location",
       "completedAt": "2026-11-11T02:10:56.251Z",
@@ -1974,18 +1980,6 @@
       "identity": "SEED-132#accept-indirect-consumer-proof-natively",
       "completedAt": "2026-10-12T07:30:18.773Z",
       "blob": "96bb8ea8f4a7c90bd8575b53b08e2b16d7eb27ed"
-    },
-    {
-      "fileName": "SEED-132_prove-indirect-consumers-before-acceptance.json",
-      "identity": "SEED-132#prove-indirect-consumers-before-acceptance",
-      "completedAt": "2026-10-12T03:17:03.245Z",
-      "blob": "6fbdabe37f974bd54d46e13b79734244774f040b"
-    },
-    {
-      "fileName": "SEED-132_check-gap-dispositions-through-guided-paths.json",
-      "identity": "SEED-132#check-gap-dispositions-through-guided-paths",
-      "completedAt": "2026-10-12T02:23:32.792Z",
-      "blob": "9095612e64e4c7dd4186356bafaa8d99edcf6878"
     }
   ],
   "unreadable": []
