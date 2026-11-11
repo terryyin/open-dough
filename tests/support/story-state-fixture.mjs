@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { makeMe } from "./makeMe.mjs";
+import { renderStorySection } from "./published-seed.mjs";
 import { recordPreparationArgs } from "./story-preparation.mjs";
 import { projectFile, run } from "./product-backlog-fixture.mjs";
 
@@ -34,26 +35,16 @@ id: SEED-021
 
 Shared scope for both stories.
 
-<a id="first-story"></a>
+${renderStorySection(first, {
+  body: `**Status:** Captured, still free-form.
 
-### First story
+Goal, scope, and examples for the first story.`,
+})}
+${renderStorySection(second, {
+  body: `**Status:** Also free-form and must not be inferred.
 
-**Identity:** ${first.identity}
-
-**Status:** Captured, still free-form.
-
-Goal, scope, and examples for the first story.
-
-<a id="second-story"></a>
-
-### Second story
-
-**Identity:** ${second.identity}
-
-**Status:** Also free-form and must not be inferred.
-
-Goal, scope, and examples for the second story.
-`;
+Goal, scope, and examples for the second story.`,
+})}`;
 
 export const readerPath = fileURLToPath(
   new URL(
@@ -94,7 +85,7 @@ export const correction = makeMe.aBacklogEntry
   .please();
 
 export function correctionPlan() {
-  return `# Correction plan
+  return `# ${correction.title}
 
 **Identity:** ${correction.identity}
 

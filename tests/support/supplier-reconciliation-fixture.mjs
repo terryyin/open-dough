@@ -1,5 +1,6 @@
 // Consumer intent is starting input; real commands own outcome records.
 import { makeMe } from "./makeMe.mjs";
+import { identityLine } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -18,16 +19,24 @@ import {
 
 export const question =
   "Which endpoint compatibility behavior does the consumer promise?";
-export const decision = {
-  identity: "RECON-DECISION",
-  href: "seeds/decision.md",
-  goal: "Show retry intervals; compatibility behavior is unspecified.",
-};
-export const missingCapability = {
-  identity: "RECON-MISSING-CAPABILITY",
-  href: "seeds/missing-capability.md",
-  goal: "Show fractional-second retry intervals in the consumer UI.",
-};
+export const decision = makeMe.aBacklogEntry
+  .with({
+    identity: "RECON-DECISION",
+    href: "seeds/decision.md",
+    title: "Decision consumer",
+  })
+  .please();
+export const decisionGoal =
+  "Show retry intervals; compatibility behavior is unspecified.";
+export const missingCapability = makeMe.aBacklogEntry
+  .with({
+    identity: "RECON-MISSING-CAPABILITY",
+    href: "seeds/missing-capability.md",
+    title: "Missing-capability consumer",
+  })
+  .please();
+export const missingCapabilityGoal =
+  "Show fractional-second retry intervals in the consumer UI.";
 export const supplierCondition =
   "The integrated supplier endpoint supports fractional-second retry intervals.";
 export const boundedAssumption = "Retry intervals use milliseconds.";
@@ -55,20 +64,24 @@ export async function reconciliationFixture(t) {
       .replace("**Goal:** Deliver late work.", `**Goal:** ${boundedIntent}`),
   );
   writeAt(f, f.late.planPath, `# Retry plan\n\n${boundedAssumption}\n`);
-  for (const story of [decision, missingCapability]) {
+  for (const { entry, goal } of [
+    { entry: decision, goal: decisionGoal },
+    { entry: missingCapability, goal: missingCapabilityGoal },
+  ]) {
+    // Whole-document homes share identity from MakeMe; purpose stays explicit.
     writeAt(
       f,
-      `.planning/${story.href}`,
-      `# Consumer\n\n**Identity:** ${story.identity}\n\n**Goal:** ${story.goal}\n`,
+      `.planning/${entry.href}`,
+      `# Consumer\n\n${identityLine(entry.identity)}\n\n**Goal:** ${goal}\n`,
     );
     const result = await updateDependency(
       f.project,
-      story,
+      entry,
       makeMe.aSupplierAgreement
         .with({
           supplier,
           state: "waiting",
-          ...(story === missingCapability && { condition: supplierCondition }),
+          ...(entry === missingCapability && { condition: supplierCondition }),
         })
         .please(),
     );

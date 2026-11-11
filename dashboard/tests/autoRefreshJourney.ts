@@ -3,6 +3,7 @@
 // ./observation/auto-refresh.spec.ts.
 
 import { expect, type Page } from "@playwright/test";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectOwnersNotRecorded, expectSettledPage } from "./dashboardPage.ts";
 import { headsEtag } from "./originAnswers.ts";
@@ -10,9 +11,13 @@ import { isHeadsCheck } from "./originObservation.ts";
 import { publishMovingOrigin, type MovingOrigin } from "./publishedOrigin.ts";
 import {
   backlogA,
-  dashboardStory,
+  claimsEntry,
+  dashboardEntry,
+  queueEntry,
+  queueStory,
   revisionA,
   titlesOfA,
+  workspaceEntry,
 } from "./refreshJourney.ts";
 import {
   givePageItsTurns,
@@ -23,19 +28,20 @@ import {
 } from "./pageRequestNotes.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
-export const queueStory =
-  "Queue trunk integration for agents on the same machine";
+export { queueStory };
 const opened = new Date("2026-09-23T09:00:00.000Z");
 
 // The records the refresh journey's backlogs name, with a Goal that says at
 // which commit it was published, so a detail can only come from one.
 export function recordsAt(label: string): Record<string, string> {
-  const story = (anchor: string, identity: string, title: string) =>
-    `<a id="${anchor}"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n**Goal:** ${title}, as published at ${label}.\n`;
+  const section = (entry: { identity: string; title: string; href: string }) =>
+    renderStorySection(entry, {
+      goal: `${entry.title}, as published at ${label}.`,
+    });
   return {
-    ".planning/seeds/SEED-021-progress.md": `# Progress\n\n${story("see-published-work", "SEED-021#see-published-work", dashboardStory)}`,
-    ".planning/seeds/SEED-008-sync.md": `# Sync\n\n${story("planning-workspace-procedure", "SEED-008#planning-workspace-procedure", "Prepare stories in a clear developer workspace workflow")}\n${story("same-machine-merge-queue", "SEED-008#same-machine-merge-queue", queueStory)}`,
-    ".planning/seeds/SEED-040-claims.md": `# Claims\n\n${story("publish-claims", "SEED-040#publish-claims", "Publish shared backlog claims")}`,
+    ".planning/seeds/SEED-021-progress.md": `# Progress\n\n${section(dashboardEntry)}`,
+    ".planning/seeds/SEED-008-sync.md": `# Sync\n\n${section(workspaceEntry)}\n${section(queueEntry)}`,
+    ".planning/seeds/SEED-040-claims.md": `# Claims\n\n${section(claimsEntry)}`,
     ".planning/slice-plans/059-installer-update-report/PLAN.md": `# Repair the installer's update report\n\nWhole-document correction home, as published at ${label}.\n`,
   };
 }

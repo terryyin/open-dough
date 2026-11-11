@@ -9,6 +9,7 @@ import {
   splitHref,
 } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { describedRevision } from "./describedRevisions.ts";
 import type { PublishedRevision } from "./publishedFiles.ts";
@@ -39,7 +40,7 @@ function publishedAt(
         backlog: { taken: [taken], queued: [queued], direction },
         // The seed prose the dashboard reads.
         files: {
-          [posix.join(".planning", taken.href)]: `# Taken story
+          [posix.join(".planning", taken.href)]: `# ${taken.title}
 
 ${identityLine(taken.identity)}
 
@@ -47,14 +48,7 @@ Whole-document correction home without a story-state block.
 `,
           [posix.join(".planning", queuedHome.path)]: `# Queued seed
 
-<a id="${queuedHome.anchor}"></a>
-
-### Queued story
-
-${identityLine(queued.identity)}
-
-**Goal:** ${purpose}
-`,
+${renderStorySection(queued, { goal: purpose })}`,
         },
       })
       .please(),

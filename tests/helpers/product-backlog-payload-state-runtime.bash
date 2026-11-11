@@ -38,34 +38,30 @@ run_offline_record_state_and_reader_proof() {
 }
 EOF
   seed_path="${project_root}/.planning/${seed_rel}"
-  cat > "${seed_path}" << 'EOF'
----
-id: SEED-PAYLOAD
----
-
-# Payload recorder stories
-
-Shared scope for both stories.
-
-<a id="first-story"></a>
-
-### First story
-
-**Identity:** SEED-PAYLOAD#first-story
-
-**Status:** Captured, still free-form.
-
-Goal, scope, and examples for the first story.
-
-<a id="second-story"></a>
-
-### Second story
-
-**Identity:** SEED-PAYLOAD#second-story
-
-**Status:** Also free-form and must not be inferred.
-
-Goal, scope, and examples for the second story.
+  # shellcheck disable=SC2154 # The sourcing test supplies source_dir.
+  node "${source_dir}/tests/support/render-published-seed.mjs" > "${seed_path}" << 'EOF'
+{
+  "id": "SEED-PAYLOAD",
+  "document": "# Payload recorder stories\n\nShared scope for both stories.",
+  "sections": [
+    {
+      "entry": {
+        "identity": "SEED-PAYLOAD#first-story",
+        "href": "seeds/SEED-PAYLOAD-STATE.md#first-story",
+        "title": "First story"
+      },
+      "body": "**Status:** Captured, still free-form.\n\nGoal, scope, and examples for the first story."
+    },
+    {
+      "entry": {
+        "identity": "SEED-PAYLOAD#second-story",
+        "href": "seeds/SEED-PAYLOAD-STATE.md#second-story",
+        "title": "Second story"
+      },
+      "body": "**Status:** Also free-form and must not be inferred.\n\nGoal, scope, and examples for the second story."
+    }
+  ]
+}
 EOF
   plan_path="${project_root}/.planning/${plan_rel}"
   # shellcheck disable=SC2154 # The sourcing test supplies source_dir.

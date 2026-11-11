@@ -232,7 +232,7 @@ extracted MakeMe property helpers to keep `makeMe.mjs` under the size check.
 
 ### 6. Published seeds, plans, and backlog membership express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Key example 3 and the published-membership audit section. Convert
 hand-rendered seed, plan, and backlog construction in dashboard and Node
 fixtures, including Git publication and shell starting facts where they are
@@ -242,6 +242,13 @@ keep purpose prose and deliberate formatting or refusal inputs explicit.
 Behavior: Membership fixtures invent identity and title beside purpose prose →
 convert shared membership through MakeMe → seed and backlog share identity and
 title; purpose text the dashboard must show stays at the call site.
+
+Accepted evidence (pre-done): `renderStorySection` / `renderStorySeed` plus
+MakeMe backlog/plan membership; purpose prose at call sites. Commitments 5.4
+and E3 observed (`publishedFactsIsolation`). Delivery-evidence scenario copies
+remain controlled shapes. Typecheck, native-evidence identity, and focused
+selections passed. Refactor reused refreshJourney membership and wired the
+shell seed renderer.
 
 ### 7. CI provider runs, jobs, policy, and adapter attempts express intent through MakeMe
 Type: Behavior

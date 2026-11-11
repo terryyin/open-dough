@@ -5,6 +5,7 @@
 // publishes that record.
 
 import { renderSlicePlan } from "../../tests/support/published-plan.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { PublishedRevision } from "./publishedFiles.ts";
 import { addedAt, type MadeCommit } from "./pathHistoryAnswers.ts";
@@ -31,44 +32,34 @@ export const takenTitle = "Progress published on its story branch";
 export const queuedTitle = "Queued story whose record is missing";
 export const queuedAgainTitle = "Queued story published again";
 
+const takenStory = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-261#on-branch",
+    href: "seeds/SEED-261-reopen.md#on-branch",
+    title: takenTitle,
+  })
+  .please();
+const missingStory = (title: string) =>
+  makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-262#missing",
+      href: "seeds/SEED-262-missing.md#missing",
+      title,
+    })
+    .please();
+
 const backlogNaming = (queued: string) => ({
-  taken: [
-    makeMe.aBacklogEntry
-      .with({
-        identity: "SEED-261#on-branch",
-        href: "seeds/SEED-261-reopen.md#on-branch",
-        title: takenTitle,
-      })
-      .please(),
-  ],
-  queued: [
-    makeMe.aBacklogEntry
-      .with({
-        identity: "SEED-262#missing",
-        href: "seeds/SEED-262-missing.md#missing",
-        title: queued,
-      })
-      .please(),
-  ],
+  taken: [takenStory],
+  queued: [missingStory(queued)],
 });
 
 const seed = `# Reopen fixture
 
-<a id="on-branch"></a>
-
-### ${takenTitle}
-
-**Identity:** SEED-261#on-branch
-`;
+${renderStorySection(takenStory)}`;
 
 const missingSeed = `# Missing fixture
 
-<a id="missing"></a>
-
-### ${queuedAgainTitle}
-
-**Identity:** SEED-262#missing
-`;
+${renderStorySection(missingStory(queuedAgainTitle))}`;
 
 // The plan with `done` of its eight slices done.
 const planDone = (done: number) =>

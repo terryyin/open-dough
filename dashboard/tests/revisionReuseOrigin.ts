@@ -6,6 +6,7 @@
 // ./pathHistoryAnswers.ts); that answerer is ./revisionReuseAnswers.ts.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { renderStorySection } from "../../tests/support/published-seed.mjs";
 import type { RevisionFacts } from "../../tests/support/repositoryTestData.mjs";
 import type {
   ChangedFile,
@@ -44,31 +45,32 @@ export const newSeedEntry = makeMe.aBacklogEntry
 
 // The backlog a revision publishes: the reused story Taken, the other queued,
 // and `extra` queued after it.
-export const backlogNaming = (label: string, extra?: typeof newSeedEntry) => ({
-  taken: [
-    makeMe.aBacklogEntry
-      .with({
-        identity: "SEED-301#reuse",
-        href: "seeds/SEED-301-reuse.md#reuse",
-        title: `Reuse ${label}`,
-      })
-      .please(),
-  ],
-  queued: [
-    makeMe.aBacklogEntry
-      .with({
-        identity: "SEED-302#other",
-        href: "seeds/SEED-302-other.md#other",
-        title: `Other ${label}`,
-      })
-      .please(),
-    ...(extra === undefined ? [] : [extra]),
-  ],
-});
+export const backlogNaming = (label: string, extra?: typeof newSeedEntry) => {
+  const reuse = makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-301#reuse",
+      href: "seeds/SEED-301-reuse.md#reuse",
+      title: `Reuse ${label}`,
+    })
+    .please();
+  const other = makeMe.aBacklogEntry
+    .with({
+      identity: "SEED-302#other",
+      href: "seeds/SEED-302-other.md#other",
+      title: `Other ${label}`,
+    })
+    .please();
+  return {
+    taken: [reuse] as const,
+    queued:
+      extra === undefined ? ([other] as const) : ([other, extra] as const),
+  };
+};
 
 // The seed at `newSeedPath` named by the new backlog entry.
-export const newSeedText =
-  '# New\n\n<a id="new"></a>\n\n### New\n\n**Identity:** SEED-303#new\n';
+export const newSeedText = `# New
+
+${renderStorySection(newSeedEntry)}`;
 
 // A done record `complete` published, titled for `label`.
 export const doneRecordOf = (identity: string, label: string) =>
@@ -85,45 +87,57 @@ export const doneRecordOf = (identity: string, label: string) =>
 // no other test's blob stands in for it: the reused story planned in its
 // seed, both agents' profiles, and a done record with the catalog completion
 // publishes beside it.
-const factsFor = (label: string): RevisionFacts => ({
-  backlog: backlogNaming(label),
-  files: {
-    [seedPath]: `# Reuse fixture ${label}\n\n<a id="reuse"></a>\n\n### Reuse ${label}\n\n**Identity:** SEED-301#reuse\n`,
-    [otherSeedPath]: `# Other fixture ${label}\n\n<a id="other"></a>\n\n### Other ${label}\n\n**Identity:** SEED-302#other\n`,
-    [planPath]: `# Plan ${label}\n`,
-    [settingsPath]: `{"label":"${label}"}\n`,
-  },
-  storyStates: [
-    {
-      identity: "SEED-301#reuse",
-      href: "seeds/SEED-301-reuse.md#reuse",
-      ...makeMe.aStoryPreparation
-        .plannedIn("../slice-plans/301-reuse/PLAN.md")
-        .please(),
+const factsFor = (label: string): RevisionFacts => {
+  const backlog = backlogNaming(label);
+  const [reuse] = backlog.taken;
+  const [other] = backlog.queued;
+  return {
+    backlog: {
+      taken: [...backlog.taken],
+      queued: [...backlog.queued],
     },
-  ],
-  agentProfiles: [
-    makeMe.anAgentProfile
-      .executing({
-        name: "Akiho",
-        identity: "SEED-301#reuse",
-        mode: "story-branch",
-        branch: `story/${label}`,
-        host: "claude",
-      })
-      .please(),
-    makeMe.anAgentProfile
-      .executing({
-        name: "Maki",
-        identity: "SEED-302#other",
-        mode: "trunk",
-        host: "claude",
-        branch: "main",
-      })
-      .please(),
-  ],
-  doneRecords: [doneRecordOf("SEED-300#first", label)],
-});
+    files: {
+      [seedPath]: `# Reuse fixture ${label}
+
+${renderStorySection(reuse)}`,
+      [otherSeedPath]: `# Other fixture ${label}
+
+${renderStorySection(other)}`,
+      [planPath]: `# Plan ${label}\n`,
+      [settingsPath]: `{"label":"${label}"}\n`,
+    },
+    storyStates: [
+      {
+        identity: reuse.identity,
+        href: reuse.href,
+        ...makeMe.aStoryPreparation
+          .plannedIn("../slice-plans/301-reuse/PLAN.md")
+          .please(),
+      },
+    ],
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: reuse.identity,
+          mode: "story-branch",
+          branch: `story/${label}`,
+          host: "claude",
+        })
+        .please(),
+      makeMe.anAgentProfile
+        .executing({
+          name: "Maki",
+          identity: other.identity,
+          mode: "trunk",
+          host: "claude",
+          branch: "main",
+        })
+        .please(),
+    ],
+    doneRecords: [doneRecordOf("SEED-300#first", label)],
+  };
+};
 
 // The files of `filesFor(label)`, and, given `then`, the files after a later
 // revision changes them with those facts.
