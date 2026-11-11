@@ -73,10 +73,10 @@ test.describe("the Sessions sidebar's title row status", () => {
         )
         .please(),
     );
-    putFrontendHostStatus(frontendServices, {
-      cpuPercent: 24,
-      freeBytes: null,
-    });
+    putFrontendHostStatus(
+      frontendServices,
+      makeMe.aHostStatus.with({ cpuPercent: 24, freeBytes: null }).please(),
+    );
     const { passOnePace } = await watchRecordReads(page);
     await openFrontendTakenBacklog(page);
     const sidebar = sessionsSidebarParts(page);
@@ -91,19 +91,23 @@ test.describe("the Sessions sidebar's title row status", () => {
       await expectFigure(waiting, 1, "1 session needs attention");
     });
     await test.step("the next host read one check interval later changes both figures to its values", async () => {
-      putFrontendHostStatus(frontendServices, {
-        cpuPercent: 61.4,
-        freeBytes: 1_234_000_000_000,
-      });
+      putFrontendHostStatus(
+        frontendServices,
+        makeMe.aHostStatus
+          .with({ cpuPercent: 61.4, freeBytes: 1_234_000_000_000 })
+          .please(),
+      );
       await passOnePace();
       await expectFigure(cpu, "61%", "CPU 61%");
       await expectFigure(disk, "1.2 TB", "1.2 TB free");
     });
     await test.step("CPU unread alone: it says so while free disk shows", async () => {
-      putFrontendHostStatus(frontendServices, {
-        cpuPercent: null,
-        freeBytes: 110_000_000_000,
-      });
+      putFrontendHostStatus(
+        frontendServices,
+        makeMe.aHostStatus
+          .with({ cpuPercent: null, freeBytes: 110_000_000_000 })
+          .please(),
+      );
       await passOnePace();
       await expectFigure(cpu, "—", "CPU unavailable");
       await expectFigure(disk, "110 GB", "110 GB free");
@@ -123,10 +127,12 @@ test.describe("the Sessions sidebar's title row status", () => {
   }) => {
     await pausePageClockAt(page, new Date());
     await unreadSessions(page);
-    putFrontendHostStatus(frontendServices, {
-      cpuPercent: 37,
-      freeBytes: 52_000_000_000,
-    });
+    putFrontendHostStatus(
+      frontendServices,
+      makeMe.aHostStatus
+        .with({ cpuPercent: 37, freeBytes: 52_000_000_000 })
+        .please(),
+    );
     await openFrontendTakenBacklog(page);
     const sidebar = sessionsSidebarParts(page);
     const { figures, active, waiting, cpu, disk } = statusParts(page);

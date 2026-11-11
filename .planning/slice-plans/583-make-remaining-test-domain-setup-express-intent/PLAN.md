@@ -196,7 +196,7 @@ extracted `CompletionReportBuilder` and tightened attempt completion API.
 
 ### 4. Native listings, runner state, and host samples express intent through MakeMe
 Type: Behavior
-Status: planned
+Status: done
 Proof: Audit section for native session listing, runner state, and host samples.
 Convert Claude listing rows, saved host sessions, runner listings, and resource
 samples through MakeMe. Run affected backend and frontend host-status and
@@ -205,6 +205,11 @@ listing selections; keep fake processes and transport in the harness.
 Behavior: Listing and host-sample fixtures invent domain rows inline → convert
 through MakeMe → call sites name continuation and status facts; transport stays
 harness-owned.
+
+Accepted evidence (pre-done): `aClaudeListingRow`, `aHostStatus`,
+`aRunningCursorSessions`, `aCursorCliConfig`; audit section converted. Typecheck
++ focused listing/host-status selections passed. Refactor trimmed dead runner
+methods and oversized records setup.
 
 ### 5. Project sources, CI settings, and launch options express intent through MakeMe
 Type: Behavior

@@ -22,9 +22,13 @@ import {
   LaunchLandingBuilder,
 } from "./launchLandingEvidenceTestData.mjs";
 import { hostSessionChoices } from "./hostSessionTestData.mjs";
+import { ClaudeListingRowBuilder } from "./claudeListingTestData.mjs";
+import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
+import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../dashboard/server/startStore.ts").StartRecord} StartRecord */
+/** @typedef {import("../../dashboard/src/hostStatus.ts").HostStatus} HostStatus */
 /**
  * @template {object} Facts
  * @typedef {import("./factBuilder.mjs").FactBuilder<Facts>} FactBuilder
@@ -46,6 +50,10 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./launchLandingEvidenceTestData.mjs").LandingAuthorityBuilder} aLandingAuthority
  * @property {import("./launchLandingEvidenceTestData.mjs").LaunchLandingBuilder} aLaunchLanding
  * @property {typeof hostSessionChoices} aHostSession
+ * @property {import("./claudeListingTestData.mjs").ClaudeListingRowBuilder} aClaudeListingRow
+ * @property {FactBuilder<HostStatus>} aHostStatus
+ * @property {import("./runningCursorSessionsTestData.mjs").RunningCursorSessionsBuilder} aRunningCursorSessions
+ * @property {import("./cursorCliConfigTestData.mjs").CursorCliConfigBuilder} aCursorCliConfig
  * @property {import("./launchObservationTestData.mjs").SessionStateBuilder} aSessionState
  * @property {import("./launchObservationTestData.mjs").ObservedLaunchBuilder} anObservedLaunch
  * @property {import("./launchAttemptTestData.mjs").AcceptedAttemptBuilder} anAcceptedAttempt
@@ -127,6 +135,31 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return hostSessionChoices;
+      },
+    },
+    aClaudeListingRow: {
+      enumerable: true,
+      get() {
+        return new ClaudeListingRowBuilder();
+      },
+    },
+    aHostStatus: {
+      enumerable: true,
+      /** @returns {FactBuilder<HostStatus>} */
+      get() {
+        return { with: copyFacts };
+      },
+    },
+    aRunningCursorSessions: {
+      enumerable: true,
+      get() {
+        return new RunningCursorSessionsBuilder();
+      },
+    },
+    aCursorCliConfig: {
+      enumerable: true,
+      get() {
+        return new CursorCliConfigBuilder();
       },
     },
     aSessionState: {

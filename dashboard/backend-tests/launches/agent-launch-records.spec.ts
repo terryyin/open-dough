@@ -46,12 +46,17 @@ import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { alertReading, attentionCount } from "../../src/sessionShown.ts";
 
 const launchWaitMs = 4_000;
-
 // The story's execution, kept for the `claude` session `sessionId`.
 const execution = (sessionId: string) =>
   makeMe.aLaunchRecord
     .executing({ identity, title })
     .inClaudeSession({ sessionId });
+// A done, exited Claude listing row for that session in `cwd`.
+const doneExitedListing = (sessionId: string, cwd: string) =>
+  makeMe.aClaudeListingRow
+    .background({ sessionId, name: title, cwd, startedAt: Date.now() })
+    .as("done-exited")
+    .please();
 
 test.describe("launch records kept on this machine", () => {
   let machine: string;
@@ -136,19 +141,10 @@ test.describe("launch records kept on this machine", () => {
     ).toEqual(expected);
 
     // Native completion can arrive after closure; it must not revive attention.
+    const openDough = path.join(development.home, "git", "open-dough");
     writeFileSync(
       path.join(machine, "claude-state", "agents.json"),
-      JSON.stringify(
-        sessionIds.map((sessionId) => ({
-          id: sessionId.slice(0, 8),
-          sessionId,
-          cwd: path.join(development.home, "git", "open-dough"),
-          kind: "bg",
-          startedAt: Date.now(),
-          name: title,
-          state: "done",
-        })),
-      ),
+      JSON.stringify(sessionIds.map((id) => doneExitedListing(id, openDough))),
     );
     for (const server of [development, production]) {
       const records = (await recordsOf(server, "open-dough")).map((record) =>

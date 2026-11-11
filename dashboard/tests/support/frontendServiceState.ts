@@ -106,7 +106,9 @@ export function defaultFrontendServiceState(
       candidates: openDoughCandidatesRecord,
     },
     machine: options.machine ?? makeMe.aMachineAnswer.please(),
-    hostStatus: { cpuPercent: 12, freeBytes: 64_000_000_000 },
+    hostStatus: makeMe.aHostStatus
+      .with({ cpuPercent: 12, freeBytes: 64_000_000_000 })
+      .please(),
     hostOptions: { models: [] },
   };
 }
