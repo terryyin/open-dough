@@ -1,6 +1,6 @@
 // The touch review journey that keeps its context: the chosen file and both
 // panes' reading places through rotation and panel controls, on story A's
-// large comparison opened by touch (./storyReviewTouchJourney.ts).
+// comparison opened by touch (./storyReviewTouchJourney.ts).
 import type { Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -11,6 +11,7 @@ import {
 } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { longA, longB } from "./largeReviewFiles.ts";
 import { expect } from "./preparationPage.ts";
 import { reviewFeedback } from "./reviewContextLine.ts";
 import { pageFits, scrollTopOf } from "./reviewPanes.ts";
@@ -25,7 +26,6 @@ import {
   chooseAllChangesFileByTouch,
   openReviewByTouch,
 } from "./storyReviewTouchJourney.ts";
-import { longA, longB } from "./storyReviewWorktree.ts";
 
 type Viewport = { width: number; height: number };
 
@@ -40,7 +40,7 @@ export async function keepReviewContextThroughTouch(
   landscape: Viewport,
 ) {
   const opened = await openReviewByTouch(page, dashboard, origin);
-  const { action, review, browser, comparison } = opened;
+  const { action, review, browser, comparison, changedFiles } = opened;
   const diff = await chooseAllChangesFileByTouch(opened);
   const code = diff.locator(".story-review-code");
   await expect(code).toContainText("+first 0");
@@ -90,7 +90,9 @@ export async function keepReviewContextThroughTouch(
   await tapWhereShown(control(review, "Refresh"));
   await expectReviewRead(review);
   await expect(reviewFeedback(review)).toHaveText(
-    /^Review refreshed: 64 changed files against baseline [0-9a-f]{7}\.$/,
+    new RegExp(
+      `^Review refreshed: ${String(changedFiles)} changed files against baseline [0-9a-f]{7}\\.$`,
+    ),
   );
   await expect(
     browser.getByRole("button", { name: `Added ${longB}` }),
@@ -98,7 +100,7 @@ export async function keepReviewContextThroughTouch(
   // Hidden files: explicit Commits and its reading place survive rotation.
   await chooseCommitsByTouch(review);
   await expect(reviewFeedback(review)).toHaveText(
-    "Review refreshed: 64 changed files in the chosen range.",
+    `Review refreshed: ${String(changedFiles)} changed files in the chosen range.`,
   );
   await selectAddedFileByTouch(review, longB);
   await tapWhereShown(control(review, "Hide files"));
@@ -114,7 +116,13 @@ export async function keepReviewContextThroughTouch(
   expect(await scrollTopOf(nextCode)).toBe(nextAt);
   expect((await box(nextCode)).height).toBeGreaterThanOrEqual(44);
   expect(await pageFits(page)).toBe(true);
-  await leaveUncommittedOutByTouchLabel(review, browser, portrait);
+  // Every changed file but the uncommitted one.
+  await leaveUncommittedOutByTouchLabel(
+    review,
+    browser,
+    portrait,
+    changedFiles - 1,
+  );
   await tapWhereShown(control(review, "Close"));
   await expect(review).toHaveCount(0);
   await expect(action).toBeFocused();

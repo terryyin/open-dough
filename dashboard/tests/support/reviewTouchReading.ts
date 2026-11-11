@@ -57,6 +57,9 @@ export async function codePartGeometry(
   );
 }
 
+// Reaches a part of a code line along one axis by native strokes. The read
+// ends with the part wholly shown, or where its strokes moved nothing: the
+// caller's expectation of the part then fails by name, not by timeout.
 export async function readCodePartByTouch(
   page: Page,
   code: Locator,
@@ -65,28 +68,21 @@ export async function readCodePartByTouch(
   end: number,
   axis: "vertical" | "horizontal",
 ) {
-  for (let stroke = 0; stroke < 32; stroke += 1) {
-    const part = await codePartGeometry(line, start, end);
-    const remaining = part[axis];
-    if (remaining === 0) break;
-    await scrollByTouch(
-      page,
-      code,
-      // The native helper already splits movement into feasible in-view
-      // strokes. Send the observed distance rather than imposing a second,
-      // shorter cap and sampling geometry after every 300 pixels.
-      Math.sign(remaining) * (Math.abs(remaining) + 24),
-      axis,
-    );
-    // Observe the browser's completed movement before choosing another stroke.
-    await page.evaluate(
-      () =>
-        new Promise<void>((resolve) =>
-          requestAnimationFrame(() => {
-            resolve();
-          }),
-        ),
-    );
+  let remaining = (await codePartGeometry(line, start, end))[axis];
+  while (remaining !== 0) {
+    // The native helper already splits movement into feasible in-view
+    // strokes: send the observed distance and a little more.
+    const distance = Math.sign(remaining) * (Math.abs(remaining) + 24);
+    await scrollByTouch(page, code, distance, axis);
+    // A lift is acknowledged before the page has applied its stroke's movement,
+    // and a frame already under way may predate it: the frame after has it.
+    await page.evaluate(async () => {
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+    });
+    const after = (await codePartGeometry(line, start, end))[axis];
+    if (after === remaining) break;
+    remaining = after;
   }
 }
 
@@ -161,7 +157,7 @@ export async function selectAddedFileByTouch(review: Locator, file: string) {
   return review.getByRole("region", { name: `Added ${file}` });
 }
 
-// The large worktree fixture has short lines around its one wide line.
+// The first long file has short lines above its one wide line.
 export async function visibleShortCodeLine(code: Locator) {
   return code.locator(".story-review-line").evaluateAll((lines) => {
     const pane = lines[0]?.closest(".story-review-code") as HTMLElement;
@@ -199,6 +195,7 @@ export async function chooseCommitsByTouch(review: Locator) {
 export async function chooseLargeChangesCommitByTouch(
   review: Locator,
   browser: Locator,
+  changedFiles: number,
 ) {
   await chooseCommitsByTouch(review);
   const commits = review.getByRole("region", { name: "Story commits" });
@@ -210,7 +207,9 @@ export async function chooseLargeChangesCommitByTouch(
   });
   await expect(commit).toHaveAttribute("aria-pressed", "true");
   await expect(
-    browser.getByRole("list", { name: "64 changed files" }),
+    browser.getByRole("list", {
+      name: `${String(changedFiles)} changed files`,
+    }),
   ).toBeVisible();
 }
 
@@ -219,6 +218,7 @@ export async function leaveUncommittedOutByTouchLabel(
   review: Locator,
   browser: Locator,
   portrait: { width: number; height: number },
+  committedFiles: number,
 ) {
   const all = review
     .getByRole("radiogroup", { name: "Comparison" })
@@ -235,7 +235,9 @@ export async function leaveUncommittedOutByTouchLabel(
   await tapWhereShown(label);
   await expect(uncommitted).not.toBeChecked();
   await expect(
-    browser.getByRole("list", { name: "63 changed files" }),
+    browser.getByRole("list", {
+      name: `${String(committedFiles)} changed files`,
+    }),
   ).toBeVisible();
   await resizeUntilArranged(review, portrait);
   await expect(uncommitted).not.toBeChecked();

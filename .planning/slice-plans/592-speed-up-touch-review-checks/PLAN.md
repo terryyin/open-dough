@@ -149,7 +149,7 @@ Refactor disposition: records-only.
 
 ### 2. Touch reading covers only the distance its assertions need
 Type: Behavior
-Status: planned
+Status: done
 Proof: The touch command passes three consecutive times and the desktop
 selection passes. The traced stroke count is recorded against the two-thirds
 target that slice 5 judges. F1 fails both reading cases at a named reading
@@ -181,6 +181,38 @@ moves.
   `dashboard/tests/support/largeReviewFiles.ts`, where SEED-287's branch puts
   it, so its integration meets one file to keep. Leave the 60 s allowance and
   its comment untouched.
+
+Accepted 2026-11-11 on the "Base without SEED-287" bullet. Evidence is in
+`/Users/terryyin/.claude/jobs/cb428881/tmp/s2/` and `tmp/s2-proof-*.json`.
+
+- Facts, stated in `openReviewByTouch`: one folder of 15 files, 50-line long
+  files, a 75-character wide line, one uncommitted file; 18 changed files.
+  Tablet portrait binds each: its file browser is 691 px tall with 47 px rows
+  (12 files is the least that leaves the first long file below the fold; 11
+  fails both tablet cases), its code pane is 647 px tall and 440 px wide (47
+  lines and 61 characters are the least that passed). The margin is 3 rows, 3
+  lines and 14 characters for another machine's fonts.
+- Desktop states today's facts in `openLargeReview`; a scratch comparison
+  found its 63 files equal to the base's. Desktop selection: 5 passed.
+- Touch command, final code: 4 passed three times, 107, 91 and 103 s at load
+  25–35 (52, 51 and 52 s at load 9–25 before the one-stroke return).
+- Strokes, traced: 5, 3, 5 and 3; 16 in all against 59. Range reads unchanged.
+- F1 fails both reading cases at "the long line's ending is read within the
+  diff", `storyReviewTouchJourney.ts:164`, in 9–24 s. F2 fails all four: phone
+  reading there, the other three at "the stroke's scrolling comes to rest".
+  F3 fails both context cases at `storyReviewTouchContext.ts:60`. F4 fails
+  only tablet reading, at `overflows(code).sideways`,
+  `storyReviewTouchJourney.ts:133`.
+- For slices 3–4: tablet reading is now F4's only owner, so its `:133`
+  observation stays. `reviewTouchReading.ts` is at 244 lines. F2 no longer
+  fails at `touchGestures.ts:69`.
+- Consumer trace: `tmp/s2/consumer-trace.txt`. The touch spec and the three
+  desktop specs ran; other importers of `storyReviewWorktree.ts` use unchanged
+  exports and `npm run --silent typecheck:dashboard` passes.
+- Refactor pass complete: one local renamed and one comment reworded in
+  `readCodePartByTouch`. After it the touch command passed three times
+  (`tmp/refactor-proof-*.json`, 86, 79 and 129 s at load 31–39) and F1 still
+  fails both reading cases at `:164`.
 
 ### 3. The tablet repeats only what its side-by-side arrangement changes
 Type: Behavior
@@ -319,3 +351,35 @@ human-owned scope or ADR decision is pending.
 - Timed runs are relative. This machine's load moved between 4 and 36 within
   minutes during preparation; alternate base and candidate and record loads
   rather than waiting for an idle machine.
+
+## Story obligations
+
+### G1. Phone context case passes 30 s first in its worker under load; SEED-287's active execution owns the repair
+Reported: slice 2 — "In two `--workers=2` runs the phone context case, first in its worker, hit the default 30 s. The traces show Before Hooks at 17.4 s and 19.7 s (origin fixture 10–11 s, dashboard 5–8 s)."
+Story clause: "first-in-worker preparation, other touch specs and the desktop review checks stay as they are"
+Disposition: excluded "first-in-worker preparation, other touch specs and the desktop review checks stay as they are"
+
+### G2. Tablet context case no longer detects a side-by-side diff that keeps its width
+Reported: slice 2 — "The tablet context case no longer fails F4, because the shorter line no longer breaks the side-by-side layout for it."
+Story clause: "The last one fails only where the file browser sits beside the code."
+Disposition: proved by slice 2: F4 fails tablet reading at `storyReviewTouchJourney.ts:133` and no phone case (`tmp/s2/F4.log`); the tablet context's earlier failure came from the 405-character line, not from an assertion about width
+
+### G3. Long-named file left out of the touch comparison
+Reported: slice 2 — "Long-named file dropped from the touch comparison. The story's scope does not list it and no touch assertion names it."
+Story clause: "Give the touch journeys a comparison no larger than their assertions distinguish"
+Disposition: no user cost "Ordinary CI continues to catch the same product regressions.": no touch assertion read the long name at the base; `story-review-panes.spec.ts` ("long names and long code lines scroll sideways in their own pane") and `story-review-file-moves.spec.ts:158` still assert it on the desktop comparison, whose files equal the base's
+
+### G4. Vertical return sent four strokes on the phone
+Reported: slice 2 — "The return costs 4 strokes on the phone. Its pane gives 252 px of room and the position is 775 px."
+Story clause: "Send only the finger strokes each reading promise needs"
+Disposition: proved by slice 2: returned and corrected; `storyReviewTouchJourney.ts:176-179` sends one stroke of at most half the pane's height, and the traced total is 16 (`tmp/s2/trace-delta`)
+
+### G5. Desktop review specs changed one import line each
+Reported: slice 2 — "Desktop specs edited on one import line each. A re-export from `storyReviewWorktree.ts` would have left them untouched, but would make the two modules import each other."
+Story clause: "first-in-worker preparation, other touch specs and the desktop review checks stay as they are"
+Disposition: no user cost "Ordinary CI continues to catch the same product regressions.": only the module that `longA` and `longB` come from changed; the steps, assertions and comparison files of `story-review-panes.spec.ts` and `story-review-file-moves.spec.ts` are unchanged, and the desktop selection passed 5 of 5
+
+### G6. A pane that barely moves fails the return stroke at scrollend, not at a reading expectation
+Reported: slice 2 — "If a fault leaves the pane less than the touch slop to travel, it fails after 5 s at "the stroke's scrolling comes to rest" (seen under F2 on the tablet), not at a reading expectation."
+Story clause: "a file browser that no longer scrolls on its own"
+Disposition: proved by slice 2: F2 fails all four cases by a named expectation inside the case's own budget (`tmp/s2/F2-delta.log`); the story asks that the fault fails a remaining case

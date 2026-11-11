@@ -28,23 +28,23 @@ observed as review range reads.
 | 1e | Real finger input still proves that "both reading places survive rotation" (commitment) | slice 4 | |
 | 1f | Real finger input still proves that "both reading places survive ... panel controls" (commitment) | slice 4 | |
 | 1g | "Ordinary CI continues to catch the same product regressions." (commitment) | slice 4 | |
-| 2a | "Give the touch journeys a comparison no larger than their assertions distinguish" (commitment) | slice 2 | |
-| 2a.1 | "enough files to scroll the file browser in its tallest arrangement" (commitment) | slice 2 | |
-| 2a.2 | "two files long enough to scroll the code pane" (commitment) | slice 2 | |
-| 2a.3 | "one line wider than the widest code pane" (commitment) | slice 2 | |
-| 2a.4 | "one folder" (commitment) | slice 2 | |
-| 2a.5 | "one uncommitted file" (commitment) | slice 2 | |
-| 2b | "Arrange it through the shared MakeMe builder" (commitment) | slice 2 | |
-| 2c | "with those facts stated at the call site" (commitment) | slice 2 | |
-| 2d | "Desktop review checks keep the large comparison their own assertions need." (commitment) | slice 2 | |
-| 3a | "Send only the finger strokes each reading promise needs" (commitment) | slice 2 | |
-| 3a.1 | "reach the wide line" (commitment) | slice 2 | |
-| 3a.2 | "read its hidden end" (commitment) | slice 2 | |
-| 3a.3 | "return to its beginning" (commitment) | slice 2 | |
-| 3a.4 | "read a short line after vertical movement" (commitment) | slice 2 | |
-| 3a.5 | "move the file browser without moving the code" (commitment) | slice 2 | |
-| 3b | "The 200 lines above the wide line ... are incidental distance." (qualification) | slice 2 | |
-| 3c | "the length of the line beyond the widest pane [is] incidental distance." (qualification) | slice 2 | |
+| 2a | "Give the touch journeys a comparison no larger than their assertions distinguish" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts openReviewByTouch states 15 files in one folder, 50-line long files and a 75-character line; PLAN.md slice 2 acceptance gives the binding arrangement and least passing value of each |
+| 2a.1 | "enough files to scroll the file browser in its tallest arrangement" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts filesInFolder = 15: 19 rows overflow the tablet's 691 px file browser; 11 files fail both tablet cases |
+| 2a.2 | "two files long enough to scroll the code pane" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts longLines = 50 for long-a.txt and long-b.txt; storyReviewTouchContext.ts scrolls both and polls scrollTop > 0 |
+| 2a.3 | "one line wider than the widest code pane" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts wideLine of 75 characters; overflows(code).sideways at :133 on both viewports |
+| 2a.4 | "one folder" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts filesPerFolder { many: filesInFolder }; the folder toggle is tapped at :119-124 |
+| 2a.5 | "one uncommitted file" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts writes touch-uncommitted.txt; changedFiles = filesInFolder + 3 is asserted in the list name |
+| 2b | "Arrange it through the shared MakeMe builder" (commitment) | slice 2 | observed: dashboard/tests/support/largeReviewFiles.ts largeReviewRevision builds makeMe.aRepository.withRevision(...).please() |
+| 2c | "with those facts stated at the call site" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :55-62 and dashboard/tests/support/reviewPanes.ts :63-71 state the facts where each consumer arranges its comparison |
+| 2d | "Desktop review checks keep the large comparison their own assertions need." (commitment) | slice 2 | observed: reviewPanes.ts openLargeReview states 30 + 30 files, the long name, 200 lines and the 405-character line; tmp/s2/desktop-equal.mjs found the files equal to the base's; desktop selection 5 passed (tmp/s2-desktop-proof.json) |
+| 3a | "Send only the finger strokes each reading promise needs" (commitment) | slice 2 | observed: tmp/s2/trace-delta via count-trace.mjs: 5, 3, 5 and 3 strokes, 16 against the base's 59; G4 returned the four-stroke return |
+| 3a.1 | "reach the wide line" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :142-149 readCodePartByTouch vertical to the wide line, beginning visible, scrollTop > 0 |
+| 3a.2 | "read its hidden end" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :151-167 end not shown, then read by a horizontal stroke and visible |
+| 3a.3 | "return to its beginning" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :171-175 beginning read again by a horizontal stroke |
+| 3a.4 | "read a short line after vertical movement" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :176-191 one vertical stroke, then a +first N line wholly visible |
+| 3a.5 | "move the file browser without moving the code" (commitment) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :193-195 browser stroke moves the list and scrollTop(code) is unchanged |
+| 3b | "The 200 lines above the wide line ... are incidental distance." (qualification) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts longLines = 50 above the wide line, where the base had 200 |
+| 3c | "the length of the line beyond the widest pane [is] incidental distance." (qualification) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts wideLine is 75 characters, where the base had 405; the least that passed is 61 |
 | 4a | "Keep one owner for each observation that does not depend on the viewport" (commitment) | slice 3 | |
 | 4a.1 | "such as tap-target size" (example) | slice 3 | |
 | 4a.2 | "[such as] the context reveal" (example) | slice 3 | |
@@ -90,25 +90,25 @@ observed as review range reads.
 | 10e.1 | "Where SEED-287's changes are there, keep its worker inputs" (alternative to 10f) (commitment) | slice 1 | observed: PLAN.md "Execution base record": condition not met, SEED-287 is not on main at Take, so this alternative is not triggered |
 | 10e.2 | "Where SEED-287's changes are there, keep ... the default budget" (alternative to 10f) (commitment) | slice 1 | observed: PLAN.md "Execution base record": condition not met, SEED-287 is not on main at Take, so this alternative is not triggered |
 | 10e.3 | "[Where SEED-287's changes are there,] let this story's comparison replace the reading-specific line." (alternative to 10f) (commitment) | slice 1 | observed: PLAN.md "Execution base record": condition not met, SEED-287 is not on main at Take, so this alternative is not triggered |
-| 10f.1 | "Where they are not, leave the allowance ... to SEED-287." (alternative to 10e) (commitment) | slice 2 | |
-| 10f.2 | "Where they are not, leave ... the worker inputs to SEED-287." (alternative to 10e) (commitment) | slice 2 | |
-| 10f.3 | "Its integration then keeps this story's comparison and journeys." (alternative to 10e) (qualification) | slice 2 | |
+| 10f.1 | "Where they are not, leave the allowance ... to SEED-287." (alternative to 10e) (commitment) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty: test.setTimeout(60_000) and its comment stand |
+| 10f.2 | "Where they are not, leave ... the worker inputs to SEED-287." (alternative to 10e) (commitment) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty: the spec still imports test from preparationPage.ts |
+| 10f.3 | "Its integration then keeps this story's comparison and journeys." (alternative to 10e) (qualification) | slice 2 | observed: dashboard/tests/support/largeReviewFiles.ts sits at SEED-287's path with its header, longA, longB and largeReviewRevision returning the same revision shape, so its integration has one file to keep; no merge was exercised |
 | 11a | "first-in-worker preparation ... stay[s] as [it is]" (exclusion) | slice 5 | |
 | 11b | "other touch specs ... stay as they are" (exclusion) | slice 5 | |
 | 11c | "the desktop review checks stay as they are" (exclusion) | slice 5 | |
 | 11d | "Local-only archived experiments are excluded from the maintained selection." (exclusion) | slice 5 | |
-| 12a | Reading on a phone: "The chosen file has more lines than its pane shows" (example) | slice 2 | |
-| 12b | Reading on a phone: "[The chosen file has] one line wider than the pane" (example) | slice 2 | |
-| 12c | Reading on a phone: "the file browser sits above the code" (example) | slice 2 | |
-| 12d | Reading on a phone: "A finger drags the code to the wide line" (example) | slice 2 | |
-| 12e | Reading on a phone: "[A finger drags the code] sideways to its hidden end" (example) | slice 2 | |
-| 12f | Reading on a phone: "[A finger drags the code] back to its beginning" (example) | slice 2 | |
-| 12g | Reading on a phone: "Each named part is then wholly visible inside the code pane." (example) | slice 2 | |
-| 12h | Reading on a phone: "The file browser's position ... stay[s] where [it was]." (example) | slice 2 | |
-| 12i | Reading on a phone: "the fixed header and controls ... stay where they were." (example) | slice 2 | |
-| 12j | Reading on a phone: "the page stay[s] where [it was]." (example) | slice 2 | |
-| 12k | Reading on a phone: "A drag in the file browser then moves the list" (example) | slice 2 | |
-| 12l | Reading on a phone: "[A drag in the file browser] leaves the code where it was." (example) | slice 2 | |
+| 12a | Reading on a phone: "The chosen file has more lines than its pane shows" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :142-149: the wide line is reached only after a vertical stroke and scrollTop(code) > 0 |
+| 12b | Reading on a phone: "[The chosen file has] one line wider than the pane" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :133 overflows(code).sideways and :151 the line's end not visible before the sideways read |
+| 12c | Reading on a phone: "the file browser sits above the code" (example) | slice 2 | observed: setup, not an assertion: the phone's 390 px portrait viewport from launchTouchViewports stacks the review; F4, which breaks only the side-by-side body, passes both phone cases (tmp/s2/F4.log) |
+| 12d | Reading on a phone: "A finger drags the code to the wide line" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :142-148 native vertical strokes in the code pane to the wide line |
+| 12e | Reading on a phone: "[A finger drags the code] sideways to its hidden end" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :154-167 native horizontal stroke to the line's 15-character end |
+| 12f | Reading on a phone: "[A finger drags the code] back to its beginning" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :171-175 native horizontal stroke back to the beginning |
+| 12g | Reading on a phone: "Each named part is then wholly visible inside the code pane." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts codePartGeometry(...).visible at :147, :164 and :174 |
+| 12h | Reading on a phone: "The file browser's position ... stay[s] where [it was]." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :168 scrollTop(browser) equals browserAt |
+| 12i | Reading on a phone: "the fixed header and controls ... stay where they were." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :169 and :196 boxes(fixed) equal before: panel header, review top and diff heading |
+| 12j | Reading on a phone: "the page stay[s] where [it was]." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :170 pageFits(page) |
+| 12k | Reading on a phone: "A drag in the file browser then moves the list" (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :193-194 scrollByTouch(browser) then scrollTop(browser) < browserAt |
+| 12l | Reading on a phone: "[A drag in the file browser] leaves the code where it was." (example) | slice 2 | observed: dashboard/tests/support/storyReviewTouchJourney.ts :195 scrollTop(code) equals codeBeforeBrowserScroll |
 | 13a | Reading on a tablet: "With the file browser beside the code" (example) | slice 3 | |
 | 13b | Reading on a tablet: "the same drags give the same independent result in each pane." (example) | slice 3 | |
 | 14a | Rotation and panel controls: "A file is chosen and both panes are moved by touch." (example) | slice 4 | |
@@ -132,10 +132,10 @@ observed as review range reads.
 | 17a | SEED-287 on main at Take: "The story keeps the worker inputs" (example) | slice 1 | observed: PLAN.md "Execution base record": condition not met, SEED-287 is not on main at Take, so this alternative is not triggered |
 | 17b | SEED-287 on main at Take: "The story keeps ... the default budget." (example) | slice 1 | observed: PLAN.md "Execution base record": condition not met, SEED-287 is not on main at Take, so this alternative is not triggered |
 | 17c | SEED-287 on main at Take: "The reading case still passes within the default 30 s under load 20–30 on 2 workers." (example) | slice 1 | observed: PLAN.md "Execution base record": condition not met, SEED-287 is not on main at Take, so this alternative is not triggered |
-| 18a | SEED-287 still on its branch at Take: "The 60 s allowance ... stay[s] untouched on main" (example) | slice 2 | |
-| 18b | SEED-287 still on its branch at Take: "the worker inputs stay untouched on main" (example) | slice 2 | |
+| 18a | SEED-287 still on its branch at Take: "The 60 s allowance ... stay[s] untouched on main" (example) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty |
+| 18b | SEED-287 still on its branch at Take: "the worker inputs stay untouched on main" (example) | slice 2 | observed: git diff 58442ace8 -- dashboard/tests/review/story-review-touch.spec.ts is empty |
 | 18c | SEED-287 still on its branch at Take: "the smaller comparison lands." (example) | landing | |
-| 18d | SEED-287 still on its branch at Take: "SEED-287's integration removes the allowance over this story's journeys." (example) | slice 2 | |
+| 18d | SEED-287 still on its branch at Take: "SEED-287's integration removes the allowance over this story's journeys." (example) | slice 2 | observed: dashboard/tests/support/largeReviewFiles.ts at SEED-287's path; the allowance and its comment are left for its integration to remove |
 | 19a | "Save at least a quarter of whole-command wall time on the ordinary one-worker selection `npm run test:dashboard -- tests/review/story-review-touch.spec.ts --workers=1`" (commitment) | slice 5 | |
 | 19b | "with every replacement, preparation and teardown paid." (qualification) | slice 5 | |
 | 19c | "Send at most two thirds of the finger strokes." (commitment) | slice 5 | |

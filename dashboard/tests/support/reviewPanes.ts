@@ -5,12 +5,13 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { box } from "../pageLayout.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { largeReviewRevision, longA } from "./largeReviewFiles.ts";
 import { fileBrowser, reviewBody } from "./reviewContextLine.ts";
 import { openReview } from "./reviewRead.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
-import { largeWorktree, longA } from "./storyReviewWorktree.ts";
+import { largeWorktree, wideLine } from "./storyReviewWorktree.ts";
 
 export const scrollTopOf = (pane: Locator) =>
   pane.evaluate((element) => element.scrollTop);
@@ -52,13 +53,22 @@ export const boxes = (parts: readonly Locator[]) =>
   Promise.all(parts.map((part) => box(part)));
 
 // The large story's review, open on the first long file, selected from the
-// end of the browser's list, which the selection leaves scrolled there.
+// end of the browser's list, which the selection leaves scrolled there. Many
+// files, a name wider than the browser and long diffs.
 export async function openLargeReview(
   page: Page,
   dashboard: DashboardServer,
   origin: StartOrigin,
 ) {
-  const { workspace } = largeWorktree(origin);
+  const { workspace } = largeWorktree(
+    origin,
+    largeReviewRevision({
+      filesPerFolder: { many: 30, more: 30 },
+      wideName: `a-file-named-${"at-length-".repeat(6)}.txt`,
+      longLines: 200,
+      wideLine,
+    }),
+  );
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReview(page, card);
