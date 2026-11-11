@@ -74,8 +74,13 @@ selection, autocorrection and dictation; deliberate Insert offers the draft
 once through the same attachment `insert` path dictation uses, without a
 trailing Enter, and deliberate Enter submits. An unavailable attachment keeps
 the unsent draft for another deliberate Insert and never auto-replays it.
-Direct typing remains available. One-finger swipe moves terminal scrollback
-only; it does not send Up/Down or move an option-menu selection—toolbar arrows
+Direct typing remains available. One-finger swipe scrolls the output wherever
+it is held. Where the terminal holds it, the swipe moves terminal scrollback
+and sends the session nothing. Where the session’s application has taken over
+the screen and takes the wheel, as Claude Code does, the swipe gives it wheel
+input where the finger went down, one step per row of travel, as a desktop
+wheel would. The terminal’s reported pointer tracking decides, not the host.
+A swipe never sends Up/Down or moves an option-menu selection—toolbar arrows
 navigate menus and the application cursor. When the soft keyboard opens,
 closes or the device rotates, the Side panel terminal region, toolbar and
 composer actions fit the visible area (including an explicit Hide keyboard

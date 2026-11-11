@@ -12,6 +12,10 @@ import {
   defaultFrontendServiceState,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
+import {
+  echoingApplication,
+  type TerminalApplication,
+} from "./terminalSubstituteApplication.ts";
 
 export {
   defaultFrontendServiceState,
@@ -24,6 +28,8 @@ export {
   takenBacklogMarkdown,
   type FrontendServiceState,
 } from "./frontendServiceState.ts";
+
+type TerminalSize = { readonly cols: number; readonly rows: number };
 
 async function fulfillJson(route: Route, body: unknown, status = 200) {
   await route.fulfill({
@@ -191,25 +197,34 @@ export async function installFrontendServiceSubstitutes(
   return state;
 }
 
-// Terminal WebSocket that reports attached and echoes input as text output.
+// Terminal WebSocket that reports attached and runs a substitute application:
+// `application`, or one that prints an attached line and echoes input as text.
+// `sent` is the input the page sent; `sizes` the terminal sizes it reported.
 // With `opens`, the page's socket stays connecting until that settles.
 export async function installAttachedTerminalSubstitute(
   page: Page,
   options: {
-    readonly attachedLine?: string;
+    readonly application?: TerminalApplication;
     readonly opens?: Promise<void>;
   } = {},
-): Promise<{ readonly sent: string[] }> {
+): Promise<{ readonly sent: string[]; readonly sizes: TerminalSize[] }> {
   const sent: string[] = [];
-  const attachedLine =
-    options.attachedLine ?? "attached abcdef12\r\nClaude Code\r\n";
+  const sizes: TerminalSize[] = [];
+  const application =
+    options.application ??
+    echoingApplication("attached abcdef12\r\nClaude Code\r\n");
   await page.routeWebSocket(`**${agentTerminalEndpoint}**`, async (ws) => {
     ws.onMessage((message) => {
       if (typeof message !== "string") return;
-      const parsed = JSON.parse(message) as { input?: unknown };
+      const parsed = JSON.parse(message) as {
+        input?: unknown;
+        resize?: TerminalSize;
+      };
+      if (parsed.resize !== undefined) sizes.push(parsed.resize);
       if (typeof parsed.input === "string") {
         sent.push(parsed.input);
-        ws.send(parsed.input);
+        const answer = application.answer(parsed.input);
+        if (answer !== "") ws.send(answer);
       }
     });
     // Playwright opens a routed page socket once its handler returns or it
@@ -217,7 +232,7 @@ export async function installAttachedTerminalSubstitute(
     await options.opens;
     // Binary readiness frame, then text output the page renders.
     ws.send(Buffer.from(JSON.stringify({ readiness: "attached" }), "utf8"));
-    ws.send(attachedLine);
+    ws.send(application.opening);
   });
-  return { sent };
+  return { sent, sizes };
 }

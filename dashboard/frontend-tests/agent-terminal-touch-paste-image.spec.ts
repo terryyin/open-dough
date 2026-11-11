@@ -3,16 +3,10 @@
 // A held WebSocket substitute keeps the terminal connecting, where Paste says
 // so instead of naming a recovery action.
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../tests/support/frontendApp.ts";
-import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../tests/support/frontendServiceSubstitutes.ts";
+import { expect, test } from "../tests/support/frontendApp.ts";
+import { openFrontendTerminalByTouch } from "../tests/support/frontendTouchTerminal.ts";
+import { echoingApplication } from "../tests/support/terminalSubstituteApplication.ts";
 import { focusByTouch, tapTerminalKey } from "../tests/touchTerminalPage.ts";
-import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
-import { tapWhereShown } from "../tests/pageLayout.ts";
 import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
 import {
   launchAttachmentLimitBytes,
@@ -27,44 +21,22 @@ test.use({
   permissions: ["clipboard-read", "clipboard-write"],
 });
 
-const title = "Phone clipboard session";
-
 test("phone Paste shows the server's oversized image refusal and keeps the terminal attached", async ({
   page,
   frontendServices,
 }) => {
-  putFrontendMachine(
+  const { panel, rows, input, sent } = await openFrontendTerminalByTouch(
+    page,
     frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(
-            makeMe.aLaunchRecord
-              .adHoc({ instruction: "paste", title })
-              .inClaudeSession({
-                sessionId: "paste-session-1",
-                shortId: "paste01",
-              })
-              .launchedAt("2026-10-01T00:00:00.000Z")
-              .please(),
-          )
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
-      )
+    makeMe.aLaunchRecord
+      .adHoc({ instruction: "paste", title: "Phone clipboard session" })
+      .inClaudeSession({ sessionId: "paste-session-1", shortId: "paste01" })
+      .launchedAt("2026-10-01T00:00:00.000Z")
       .please(),
+    {
+      application: echoingApplication("attached paste01\r\nClaude Code\r\n"),
+    },
   );
-  const { sent } = await installAttachedTerminalSubstitute(page, {
-    attachedLine: "attached paste01\r\nClaude Code\r\n",
-  });
-  await openFrontendTakenBacklog(page);
-  const sidebar = sessionsSidebarParts(page);
-  await tapWhereShown(sidebar.button);
-  await expect(sidebar.sidebar).toBeVisible();
-  await expect(sidebar.entries).toHaveCount(1);
-  await tapWhereShown(sidebar.entry(title));
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel).toBeVisible();
-  const rows = panel.locator(".xterm-rows");
   await expect(rows).toContainText("attached paste01");
   await expect(rows).toContainText("Claude Code");
   await focusByTouch(panel);
@@ -103,7 +75,7 @@ test("phone Paste shows the server's oversized image refusal and keeps the termi
   );
   await expect(panel.getByRole("status")).toHaveText(launchAttachmentTooLarge);
   expect(sent).toEqual([]);
-  await panel.locator("textarea.xterm-helper-textarea").press("x");
+  await input.press("x");
   await expect.poll(() => sent).toEqual(["x"]);
   await expect(rows).toContainText("x");
 });
@@ -112,46 +84,30 @@ test("phone Paste while the terminal is still connecting says so, sends nothing,
   page,
   frontendServices,
 }) => {
-  const connecting = "Connecting clipboard session";
-  putFrontendMachine(
-    frontendServices,
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(
-            makeMe.aLaunchRecord
-              .executing({
-                identity: "SEED-901#connecting-paste",
-                title: connecting,
-              })
-              .onStoryBranch({
-                workspace: "/work/connecting-paste",
-                branch: "claude/connecting-paste",
-              })
-              .inClaudeSession({ sessionId: "connecting-1", shortId: "conn01" })
-              .please(),
-          )
-          .withSessionState(makeMe.aSessionState.loaded("working").please())
-          .please(),
-      )
-      .please(),
-  );
   let open = () => {};
   const opens = new Promise<void>((resolve) => {
     open = resolve;
   });
-  const { sent } = await installAttachedTerminalSubstitute(page, {
-    attachedLine: "attached conn01\r\nClaude Code\r\n",
-    opens,
-  });
-  await openFrontendTakenBacklog(page);
-  const sidebar = sessionsSidebarParts(page);
-  await tapWhereShown(sidebar.button);
-  await tapWhereShown(sidebar.entry(connecting));
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const { panel, rows, sent } = await openFrontendTerminalByTouch(
+    page,
+    frontendServices,
+    makeMe.aLaunchRecord
+      .executing({
+        identity: "SEED-901#connecting-paste",
+        title: "Connecting clipboard session",
+      })
+      .onStoryBranch({
+        workspace: "/work/connecting-paste",
+        branch: "claude/connecting-paste",
+      })
+      .inClaudeSession({ sessionId: "connecting-1", shortId: "conn01" })
+      .please(),
+    {
+      application: echoingApplication("attached conn01\r\nClaude Code\r\n"),
+      opens,
+    },
+  );
   const status = panel.getByRole("status");
-  const rows = panel.locator(".xterm-rows");
-  await expect(panel).toBeVisible();
   await page.evaluate(() => navigator.clipboard.writeText("after connecting"));
 
   await tapTerminalKey(panel, "Paste");

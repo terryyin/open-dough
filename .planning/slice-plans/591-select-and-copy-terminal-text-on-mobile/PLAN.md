@@ -2,6 +2,7 @@
 
 **Identity:** SEED-316#select-and-copy-terminal-text-on-mobile
 **Source:** [Refined story](../../seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -64,9 +65,15 @@ Decisions that constrain the slices:
 2. **Wheel input through xterm.** The page does not encode pointer reports.
    It gives xterm wheel input at the touched place and xterm encodes it as the
    application asked, one step per terminal row of finger travel, carrying
-   partial rows between moves as the scrollback rule does. That input must not
-   reach the page's own wheel listeners (`dashboard/src/pageMovement.ts`,
-   `dashboard/src/pageIntentReading.tsx`).
+   partial rows between moves as the scrollback rule does. The place is where
+   the finger went down, held for the whole stroke. That input does not bubble
+   to the page around the terminal, so the reading pane's wheel listener
+   (`dashboard/src/pageIntentReading.tsx`) never hears it. The window capture
+   listener in `dashboard/src/pageMovement.ts` hears every event dispatched in
+   the page before xterm can, and xterm takes wheel input only as an event; the
+   wheel changes nothing there, because the same swipe's `touchstart` on the
+   same terminal is already one of its own moves and its exceptions answer
+   alike for both (slice 1, 2026-11-11).
 3. **The terminal keeps its box while paused.** The attachment refits and
    sends a resize whenever the screen element's size changes. The paused text
    therefore covers the screen without hiding or resizing it, so pausing and
@@ -93,6 +100,26 @@ this work touches: `Terminal.tsx` 218, `attachedTerminal.ts` 222,
 `agent-terminal-touch.spec.ts` 244, `agent-terminal-touch-keys.spec.ts` 235.
 None is over the limit now; none receives a new responsibility.
 
+## Execution and learnings
+
+Story Branch Mode in `.worktrees/select-and-copy-text-in-the-dashboard-terminal-o`
+on `claude/select-and-copy-text-in-the-dashboard-terminal-o`, remote `origin`,
+target `main`; claim `19e0e454a` accepted on `main`. Replanning follows the
+plan's existing authority.
+
+- The substitute's application (`TerminalApplication`: an `opening` and an
+  `answer` to each input) prints only at opening and in answer to input. A
+  test that needs output at a moment it chooses, or an ended attachment,
+  extends `terminalSubstituteApplication.ts` or a new module:
+  `frontendServiceSubstitutes.ts` is at 238 lines.
+- Frontend-tier phone terminal specs open through
+  `openFrontendTerminalByTouch` (`dashboard/tests/support/frontendTouchTerminal.ts`)
+  and pass the substitute `{ application }`.
+- Under `selfScrollingApplication` a tap on the terminal screen sends three
+  pointer reports (motion, press, release). A "sent nothing" expectation takes
+  its baseline after the focusing tap.
+- The bare selector `tests/terminals/` also selects `backend-tests/terminals/`.
+
 ## Decisive premises and observations
 
 Observed in this preparation checkout at `77b044c81` on 2026-11-11, with
@@ -112,11 +139,11 @@ scratch edits reverted afterwards.
 
 No premise is left to a probe slice.
 
-## Ordered slices and proof ownership
+## Ordered slices
 
 ### 1. A swipe scrolls an application that scrolls its own output
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new frontend-tier spec at the phone touch viewport, with the terminal
 substitute supplying an application that takes over the screen, tracks the
 pointer, draws a window of numbered lines and redraws an earlier or later
@@ -132,6 +159,19 @@ the scrollback case. Update the Phone keyboard paragraph of
 terminal scrollback only.
 `npm run test:dashboard -- frontend-tests/<new application-scroll spec> tests/terminals/agent-terminal-touch.spec.ts tests/terminals/agent-terminal-touch-keys.spec.ts`
 and `npm run typecheck:dashboard`.
+Accepted: `dashboard/frontend-tests/agent-terminal-touch-application-scroll.spec.ts`
+proves the application case under the tracking Claude Code reports (`any`, SGR
+reports): five wheel reports per five-and-a-half-row stroke in the cell where
+the finger went down, nothing else sent, the draft row unchanged; its second
+test proves the alternate screen without wheel tracking sends nothing. Setup is
+`selfScrollingApplication` in `dashboard/tests/support/terminalSubstituteApplication.ts`,
+opened through `openFrontendTerminalByTouch`.
+The spec failed on the unchanged listener, and with `any` removed from the
+decision, with the decision widened to every tracking mode, or with the wheel
+placed away from the touch. `vt200` and `drag` share the decision's list
+without a page open of their own.
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run test:dashboard -- tests/terminals/ frontend-tests/ --reporter=list --workers=3`
+passed 148 tests on 2026-11-11, with `npm run typecheck:dashboard`.
 
 Behavior: A phone shows a session whose application has taken over the screen,
 tracks the pointer and has more conversation than fits → a one-finger swipe
@@ -264,3 +304,12 @@ loop, the three share one model (what the terminal holds, and what it reports
 about its application), and no slice prepares beyond the next. Slice 2's
 interim is named with its replacing slice. No remaining slice-specific concern
 was found. This plan grants no execution.
+
+
+## Story obligations
+
+### O1. Device long-press selection is outside automated proof
+Reported: slice 2 — "Chromium phone touch emulation performs no long-press selection, so automated proof selects a range programmatically and uses the platform's copy."
+Story clause: "The device's own selection works on that text: long-press, handles, magnifier and the system Copy."
+Disposition: excluded "The device gesture itself is confirmed once by a developer on a physical phone after delivery."
+Commitment: S1.7, S1.8, S1.9, X5.2, X5.9
