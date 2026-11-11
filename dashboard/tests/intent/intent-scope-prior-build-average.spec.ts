@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -154,14 +155,12 @@ test("each Done scope compares its own collected time through restart, accessibl
     await expect(samples.included).toHaveCount(5);
     await expect(samples.excluded).toContainText("Slow outlier");
     await expect(samples.selected).toContainText("Exact build");
-    const link = samples.evidence.getByRole("link", {
-      name: "Run 201 · attempt 1",
-    });
+    const link = attemptLink(samples.evidence, "Run 201 · attempt 1");
     await link.focus();
     await expect(link).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(
-      samples.evidence.getByRole("link", { name: "Run 202 · attempt 1" }),
+      attemptLink(samples.evidence, "Run 202 · attempt 1"),
     ).toBeFocused();
     await expect(link).toHaveAttribute("href", "https://ci.invalid/runs/201");
     await expectNoSidewaysScrollIn(page, history);

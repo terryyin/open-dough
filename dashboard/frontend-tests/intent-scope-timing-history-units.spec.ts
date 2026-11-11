@@ -1,3 +1,4 @@
+import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -165,12 +166,8 @@ test("one collected attempt has separate case and file histories with one common
   await expect(rows.nth(1).locator("strong")).toHaveCount(1);
   await expect(rows.nth(0).getByRole("link")).toHaveCount(1);
   await expect(rows.nth(1).getByRole("link")).toHaveCount(1);
-  const firstRun = rows
-    .nth(0)
-    .getByRole("link", { name: "Run 41 · attempt 1" });
-  const selectedRun = rows
-    .nth(1)
-    .getByRole("link", { name: "Run 42 · attempt 1" });
+  const firstRun = attemptLink(rows.nth(0), "Run 41 · attempt 1");
+  const selectedRun = attemptLink(rows.nth(1), "Run 42 · attempt 1");
   await expect(firstRun).toHaveAttribute("href", "https://ci.invalid/runs/41");
   await expect(selectedRun).toHaveAttribute(
     "href",

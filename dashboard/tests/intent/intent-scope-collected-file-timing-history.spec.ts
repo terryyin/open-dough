@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -180,13 +181,11 @@ test("a Done folder and file keep their collected history through Proof and Purp
       ],
     });
     const evidence = scopeHistoryReading(history).evidence;
-    const build = evidence.getByRole("link", { name: "Run 103 · attempt 1" });
+    const build = attemptLink(evidence, "Run 103 · attempt 1");
     await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/103");
     await scopeHistoryReading(history).disclosure.focus();
     await page.keyboard.press("Tab");
-    await expect(
-      evidence.getByRole("link", { name: "Run 101 · attempt 1" }),
-    ).toBeFocused();
+    await expect(attemptLink(evidence, "Run 101 · attempt 1")).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(build).toBeFocused();
     await expectNoSidewaysScrollIn(page, history);

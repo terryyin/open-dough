@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 // Project Intent's CI wall time history in CI status
 // (../../src/IntentCiHistory.tsx) while a landing's CI is pending, on a real
 // bare origin (../support/startOrigin.ts) whose dashboard collects the
@@ -149,9 +150,10 @@ test.describe("checking pending landings again", () => {
         firstPoint,
         pendingGap,
       ]);
-      await expect(
-        builds.getByRole("link", { name: "Run 42 · attempt 1" }),
-      ).toHaveAttribute("href", "https://ci.invalid/runs/42");
+      await expect(attemptLink(builds, "Run 42 · attempt 1")).toHaveAttribute(
+        "href",
+        "https://ci.invalid/runs/42",
+      );
       await expectNoSidewaysScrollIn(page, history);
       await untilPageReadsAnswered(page);
       expect(reads).toEqual({ judgment: 1, history: 1 });

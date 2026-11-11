@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -70,9 +71,10 @@ test("legacy-only collected evidence states its unknown unit without declaring a
   await expect(scopeHistoryReading(history).charts).toHaveCount(0);
   await expect(scopeHistoryUnit(history, "Test cases")).toHaveCount(0);
   await expect(scopeHistoryUnit(history, "Test files")).toHaveCount(0);
-  await expect(
-    row.getByRole("link", { name: "Run 42 · attempt 1" }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/42");
+  await expect(attemptLink(row, "Run 42 · attempt 1")).toHaveAttribute(
+    "href",
+    "https://ci.invalid/runs/42",
+  );
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",

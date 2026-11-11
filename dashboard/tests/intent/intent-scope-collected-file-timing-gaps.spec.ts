@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -159,9 +160,7 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
   await expect(files).toBeVisible();
   await expect(files.getByText("Selected gap", { exact: true })).toBeVisible();
   await expect(
-    scopeHistoryReading(history).evidence.getByRole("link", {
-      name: "Run 205 · attempt 1",
-    }),
+    attemptLink(scopeHistoryReading(history).evidence, "Run 205 · attempt 1"),
   ).toHaveAttribute("href", "https://ci.invalid/runs/205");
   expect(ciCalls()).toHaveLength(before);
 });

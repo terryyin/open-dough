@@ -21,7 +21,7 @@ import { expect, test } from "../dashboardTest.ts";
 
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { wordsBrokenApart } from "../wholeWords.ts";
-import { evidenceLabels } from "../ciEvidenceLabelsPage.ts";
+import { attemptLink, evidenceLabels } from "../ciEvidenceLabelsPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { summaryRegion } from "../intentScopeProofPage.ts";
 import {
@@ -106,7 +106,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
   const table = proofTable(proof);
   const box = proof.locator(".intent-proof-table");
   const again = panel.getByRole("button", { name: "Check again" });
-  const link = proof.getByRole("link", { name: "Run 41 · attempt 1" });
+  const link = attemptLink(proof, "Run 41 · attempt 1");
   // How far the table's box scrolls sideways, and whether the box lies within
   // the reading pane and the page does not scroll sideways.
   const fit = () =>

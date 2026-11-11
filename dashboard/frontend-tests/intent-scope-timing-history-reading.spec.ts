@@ -1,3 +1,4 @@
+import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -172,11 +173,9 @@ test("a failed local entry history read keeps the selected Done story and compar
   await expect(scopeHistoryReading(history).selectedLabels).toHaveText(
     "Selected",
   );
-  const build = evidence.getByRole("link", { name: "Run 42 · attempt 1" });
+  const build = attemptLink(evidence, "Run 42 · attempt 1");
   await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/42");
-  const adapter = evidence.getByRole("link", {
-    name: `Attempt ${adapterAttemptId}`,
-  });
+  const adapter = attemptLink(evidence, `Attempt ${adapterAttemptId}`);
   await expect(adapter).toHaveAttribute("href", adapterUrl);
   await scopeHistoryReading(history).disclosure.focus();
   await page.keyboard.press("Tab");

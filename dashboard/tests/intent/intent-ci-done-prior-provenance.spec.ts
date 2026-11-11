@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
 import {
@@ -97,7 +98,7 @@ for (const selection of ["equivalent", "later"] as const) {
     const selected = samples.selected;
     await expect(selected).toContainText(shortSha(measured));
     await expect(
-      selected.getByRole("link", { name: `Run ${runId} · attempt 1` }),
+      attemptLink(selected, `Run ${runId} · attempt 1`),
     ).toHaveAttribute("href", `https://ci.invalid/runs/${runId}`);
     if (selection === "equivalent") {
       await expect(selected).toContainText("reused equivalent");

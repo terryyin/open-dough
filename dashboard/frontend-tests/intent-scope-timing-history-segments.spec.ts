@@ -1,3 +1,4 @@
+import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -226,9 +227,10 @@ for (const variant of ["empty", "all gaps"] as const) {
         "Partial: part 2 of 2 missing · Selected landing",
       );
       await expect(evidence).not.toContainText("ms");
-      await expect(
-        evidence.getByRole("link", { name: "Run 43 · attempt 1" }),
-      ).toHaveAttribute("href", "https://ci.invalid/runs/43");
+      await expect(attemptLink(evidence, "Run 43 · attempt 1")).toHaveAttribute(
+        "href",
+        "https://ci.invalid/runs/43",
+      );
     }
     await expectComparisonScopeRows(
       summary,

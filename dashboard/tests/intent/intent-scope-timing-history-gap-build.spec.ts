@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -72,7 +73,7 @@ test("a final proof gap names its later build and keyboard link without counting
   await expect(row).toHaveText(
     `Nov 7 · Expired CI proof summary · Selected landing · Later trunk build, includes later changes ${shortSha(later)} · Run 42 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (later trunk build, includes later changes)`,
   );
-  const link = row.getByRole("link", { name: "Run 42 · attempt 1" });
+  const link = attemptLink(row, "Run 42 · attempt 1");
   await expect(link).toHaveAttribute("href", "https://ci.invalid/runs/42");
   await link.focus();
   await page.keyboard.press("Shift+Tab");

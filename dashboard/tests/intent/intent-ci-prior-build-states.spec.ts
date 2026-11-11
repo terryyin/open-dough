@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Boundary states consume raw retained supplier observations through the
 // authenticated reader; no fixture supplies a calculated average.
@@ -180,7 +181,8 @@ test("an invalid measured start keeps its original gap and readable receipt date
   const selected = priorBuildReferenceReading(history).selected;
   await expect(selected).toContainText("Nov 6");
   await expect(selected).toContainText("bounds are not recorded or invalid");
-  await expect(
-    selected.getByRole("link", { name: "Run 6 · attempt 1" }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/6");
+  await expect(attemptLink(selected, "Run 6 · attempt 1")).toHaveAttribute(
+    "href",
+    "https://ci.invalid/runs/6",
+  );
 });

@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import { storySummary } from "../intentModePage.ts";
 import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
@@ -112,9 +113,7 @@ test("Done wall time keeps the execution publication reference through restart, 
   );
   await history.locator("summary").focus();
   await page.keyboard.press("Tab");
-  await expect(
-    evidence.getByRole("link", { name: "Run 201 · attempt 1" }),
-  ).toBeFocused();
+  await expect(attemptLink(evidence, "Run 201 · attempt 1")).toBeFocused();
   await expectNoSidewaysScrollIn(page, history);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));

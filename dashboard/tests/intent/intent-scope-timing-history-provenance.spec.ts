@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -120,12 +121,14 @@ test("equivalent and later build evidence names actual measured dates and revisi
   await expect(
     scopeHistoryReading(history).rows.nth(1).locator("time"),
   ).toHaveAttribute("datetime", "2026-11-08T10:00:00Z");
-  await expect(
-    evidence.getByRole("link", { name: "Run 41 · attempt 1" }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/41");
-  await expect(
-    evidence.getByRole("link", { name: "Run 42 · attempt 1" }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/42");
+  await expect(attemptLink(evidence, "Run 41 · attempt 1")).toHaveAttribute(
+    "href",
+    "https://ci.invalid/runs/41",
+  );
+  await expect(attemptLink(evidence, "Run 42 · attempt 1")).toHaveAttribute(
+    "href",
+    "https://ci.invalid/runs/42",
+  );
   await expectNoSidewaysScrollIn(page, history);
 });
 
@@ -234,9 +237,7 @@ test("one measured attempt labels every represented landing's exact, reused or l
   expect(
     ((await rows.nth(0).textContent()) ?? "").match(/1\.2 s/g),
   ).toHaveLength(1);
-  await expect(
-    rows.nth(0).getByRole("link", { name: "Run 41 · attempt 1" }),
-  ).toHaveCount(1);
+  await expect(attemptLink(rows.nth(0), "Run 41 · attempt 1")).toHaveCount(1);
   await expect(rows.nth(1)).toContainText(
     `${shortSha(setup.completion)} (selected landing) (exact build)`,
   );

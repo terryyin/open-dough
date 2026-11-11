@@ -18,6 +18,7 @@ import { expectCiAnswer } from "../intentCiStatusPage.ts";
 
 import { shortSha } from "../../src/baseCiWording.ts";
 import {
+  attemptLink,
   evidenceLabels,
   expectEvidenceLabels,
 } from "../ciEvidenceLabelsPage.ts";
@@ -98,7 +99,7 @@ test("a collected landing's exact build is a point of CI wall time beside the tr
     `Nov 5 · 6 min 5 s · exact revision ${shortSha(revision)} · Run 41 · attempt 1`,
   ]);
   await page.keyboard.press("Tab");
-  const run = builds.getByRole("link", { name: "Run 41 · attempt 1" });
+  const run = attemptLink(builds, "Run 41 · attempt 1");
   await expect(run).toBeFocused();
   await expect(run).toHaveAttribute("href", "https://ci.invalid/runs/41");
   await expectNoSidewaysScrollIn(page, history);

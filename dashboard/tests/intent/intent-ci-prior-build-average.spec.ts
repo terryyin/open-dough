@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Settled retained producer observations and a collected selected attempt
 // traverse the normal authenticated history read, never a fixture average.
@@ -191,7 +192,7 @@ test("project history explains its five-build average, strict slow exclusion and
     `exact revision ${shortSha(excludedLanding.revision)}`,
   );
   await expect(
-    samples.evidence.getByRole("link", { name: "Run 106 · attempt 1" }),
+    attemptLink(samples.evidence, "Run 106 · attempt 1"),
   ).toHaveAttribute("href", "https://ci.invalid/runs/106");
   await expect(buildHistoryReading(history).referenceLine).toHaveCount(1);
   await expect(buildHistoryReading(history).referenceTitle).toHaveText(

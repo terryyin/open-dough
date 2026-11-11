@@ -130,7 +130,7 @@ owners without duplicating selection or confusing Inspect with Selected story.
 
 ### 9. Follow retained CI evidence from the Done card
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 9 and affected consumers. Preserve exact original/repeat/reference
 timings, attempt URLs/IDs, saved membership and no new CI acquisition.
 
@@ -220,3 +220,9 @@ Disposition: proved by slice 8: slice-8-evidence.md; compatible completed canoni
 Reported: slice 8 — "Coordinator and independent refactor found story-changes originally counts every region matching Selected story nonexactly; header.region exact:true narrows that one count. All other inspected migrated Selected-story roots were originally exact."
 Story clause: "The existing tab and tree helpers leave the story header, revision evidence, file selection, diff and scroll retention to individual specs. Share these across changed-tests, Done, project visit and source selection cases."
 Disposition: proved by slice 8: slice-8-evidence.md; original nonexact region cardinality restored as explicit accessibility contract, renewed complete story-changes journey passed within48-case strict independent refactor proof; native exact reads stay shared
+
+### G13. Shared attempt links still have selector siblings
+Reported: slice 9 — "Implementation trace found15 Intent specs/21 Run-label link lookups for HistoryRunAttempt and CI evidence attempt identity outside the four existing expectation callers; current proof receipts and identical receiver/name/options are mapped before editing. CI verdict URL-text anchors are a distinct actor."
+Independent refactor return: slice 9 — "Cross-tier AST sweep found5 further named Run/Attempt links in frontend reading/segments/units for the same HistoryRunAttempt emitter, including the opaque adapter identity. The initial remaining-reference sweep covered only integrated tests."
+Story clause: "Resolve the seven Intent findings below, including their same-sequence and selector siblings."
+Disposition: proved by slice 9: slice-9-evidence.md final cross-tier return; all26 native lookups across18 specs share the existing attempt owner, AST/inverse equivalence preserves receiver/name/options, current29-case24-file applicability includes whole frontend5 and opaque adapter identity, corrected1180-file sweep excludes only distinct actors/contracts

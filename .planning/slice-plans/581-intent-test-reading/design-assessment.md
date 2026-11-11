@@ -9,7 +9,7 @@ extra owner per fixture tier or artificial prerequisite is needed. Compare
 clarity/edit sites and helper cost in each slice; a locator-count reduction
 alone is not the promised improvement. No numeric timing limit was supplied.
 
-Current expected Intent helper owners are below 250 lines (`intentPerspectivePage`
+At preparation the Intent helper owners were below 250 lines (`intentPerspectivePage`
 241, `intentScopeProofPage` 221, `intentStoryPage` 208). Use their existing
 source-reading, table and story-view seams if extension approaches the limit;
 inspect actual proposed edits before implementation. No oversized code-owner

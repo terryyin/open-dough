@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 import {
   scopeHistory,
   scopeHistoryReading,
@@ -85,9 +86,10 @@ test("unverified local landing order explains the partial cohort while the selec
   );
   await expect(history).not.toContainText(shortSha(unknownRevision));
   await expect(scopeHistoryChart(history, "test cases")).toBeVisible();
-  await expect(
-    rows.getByRole("link", { name: "Run 42 · attempt 1" }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/42");
+  await expect(attemptLink(rows, "Run 42 · attempt 1")).toHaveAttribute(
+    "href",
+    "https://ci.invalid/runs/42",
+  );
   await expectComparisonScopeRows(
     summary,
     "dashboard/tests",
@@ -144,7 +146,7 @@ test("a pending scope gap links its known run without presenting a measured buil
   await expect(row).not.toContainText(
     /(?:\d[\d.]*\s*(?:ms|s|min)\b|(?:Exact|Measured|Reused|Later trunk) build)/,
   );
-  const link = row.getByRole("link", { name: "Run 51 · attempt 2" });
+  const link = attemptLink(row, "Run 51 · attempt 2");
   await expect(link).toHaveAttribute("href", "https://ci.invalid/runs/51");
   await scopeHistoryReading(history).disclosure.focus();
   await page.keyboard.press("Tab");
