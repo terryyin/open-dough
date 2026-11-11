@@ -138,8 +138,12 @@ test("a failed local entry history read keeps the selected Done story and compar
   try {
     await scopeHistoryReading(history).retry.click();
     await expect.poll(() => reads).toBe(2);
-    await expect(scopeHistoryReading(history).failure).toContainText(
-      "Local history unavailable",
+    await expect(history).toContainText(
+      "Reading collected test execution times…",
+    );
+    await expect(scopeHistoryReading(history).failure).toHaveCount(0);
+    await expect(history).toContainText(
+      `Selected landing ${shortSha(setup.completion)}`,
     );
     await expectComparisonScopeRows(
       summary,

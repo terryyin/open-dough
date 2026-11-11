@@ -138,3 +138,63 @@ projection max250; no unresolved gap. Handoff `/tmp/seed300-refactor5-current-ha
 Final freshness unchanged pinnedc6d2645; source-only reviewer input/promises unchanged
 by the two absorbed example-link corrections. Backlog adapter retained all incoming
 completed removals/new assignments and our existing claim; both histories preserved.
+
+## CI repair gate
+
+Published15633ccd run43012675687/1 job130495924390 dashboard8/13 has one complete
+failed-test inventory: frontend scope-history-reading afterRetry+reads2 expectsold
+alert but no alert remains. This is an owned defect, not disposed by local45 pass.
+Slice6 is quiescent with24code paths+plan officially saved in
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-RDVN4r/record.json`,
+OIDcc608f0e091cf3943d79991b452b45589f910114; previoussharedstashuntouched.
+Freshrepairagent ownsdiagnosis andwholeaffectedjourney proof before publication/restore.
+Localpower nowbattery100/lidopen; usemaintained-i guard+sleeploginspection ifstillbattery.
+
+### Diagnosis and deterministic regression
+
+`useIntentCiEndpointHistory.ts` clears `failed` when Retry starts its held read.
+The documented retained answer is the last matching successful reading; this
+scenario has no earlier successful history answer. Its comparison is independent.
+The original old-error assertion after reads2 therefore races the pending render.
+The repair observes the pending text before testing that old assertion: strict
+run47c484ed fails at the same absent-alert boundary, with response still held.
+Evidence: `/tmp/seed300-ci-43012675687-regression-proof.json` and matching trace.
+
+The scenario now observes pending history, no old error, selected landing and
+the complete unchanged comparison before releasing the response. Its initial
+failure, request counts, replacement dated rows, units, attempt URLs, keyboard
+focus and narrow layout remain independent caller assertions. Product code,
+setup, timeout, owner APIs and canonical readiness component remain unchanged.
+This bounded repair is already traced by `/root/refactor5_current`: its only code
+path and consumer are inside that accepted return, with no new representation,
+helper or dependency. Freshness is unchanged at pinned9df18c4; incoming release
+and preparation records affect no product/repair behavior or selected promises.
+
+### CI repair acceptance
+
+Fresh repair agent `/root/ci_repair_43012675687` returned quiescent. Root independently
+read the production controller/rendering, selected source, documented failure/retry
+contract, original and repaired scenario, targeted41-consumer trace and original
+strict receipts. Counting the request alone did not establish the pending render;
+the explicit pending observation now does. There is no persistent-error promise
+to weaken. All original independent successful-reading evidence remains.
+
+Deterministic regression run47c484ed-f03e-46e7-8175-1eb31fb2857a selected1 and failed
+at the intended absent-alert observation, terminal1. Fixed run797fc02f-cb27-42de-95ae-4ace576aef74
+selected46 cases across36 files,14 frontend/32 integrated; all passed with retry0,
+runner and strict passed, terminal0,419.490s. The selection is the current45 cohort
+plus `tests/intent/intent-ci-done-reference-lifecycle.spec.ts`, covering the other
+real retained-reference failure/restore/retry journey. Current success includes
+real-store corruption/restoration, held refresh, endpoint isolation and103ms oracle.
+`npm run typecheck:dashboard` terminal0. No production/setup/timeout change.
+
+Literal commands, setup and decisive observation locations are retained in
+`/tmp/seed300-ci-43012675687-handoff.md` and `-fixed-command.txt`; original evidence
+is `-fixed-proof.json`, `-regression-proof.json` and `-regression-trace.zip` under
+that same prefix. Both consumer traces completed with every row dispositioned;
+unchanged comparison-only callers have no changed helper or runtime contract.
+Battery/lid-open proof used `caffeinate -i`, one worker; recorded sleep-log window
+contains no Sleep/Wake entries. The longer run supports no performance claim.
+The bounded already-traced refactor disposition above applies; no new refactor or
+tests were run merely to repeat accepted evidence. G4 is proved. Final CI remains
+the coordinator's later completion gate; this local result does not claim it.

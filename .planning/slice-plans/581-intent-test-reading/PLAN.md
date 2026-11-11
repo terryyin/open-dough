@@ -197,8 +197,8 @@ See [design assessment](design-assessment.md) for the slice boundary review and
 - Plan reorganization: preserve executable slices here; preparation baseline and design
   assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
-Latest accepted revision: `4446ceef699107eee308c7f9545d8e10dd6b8874` on
-`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `a7ede26cd2b49c1ea251c98741bba62e0f8bb7b2`; observer reused.
+Latest accepted revision: `15633ccd2da9d27f07f323daa2f8d882ddcc1746` on
+`origin/codex/express-intent-test-reading-through-page-objects`, suffix base `4446ceef699107eee308c7f9545d8e10dd6b8874`; observer reused.
 
 Execution structure decisions are retained in [design assessment](design-assessment.md#execution-structure-decisions).
 
@@ -208,8 +208,8 @@ see [design evidence](design-assessment.md#slice5-cold-case-defect-and-canonical
 Reconciliation recovery: `/tmp/seed300-slice5-reconcile-c6-20261111` retains the
 exact owned overlay before history-preserving merge of pinnedc6d2645; publication held.
 
-Local unpublished integration `534ac4d5538a4270483b51109854b1373351353e` preserves
-parents4446 andc6d2645; last accepted execution target remains4446 pending slice5 delivery.
+Integration `534ac4d5538a4270483b51109854b1373351353e` preserves parents4446
+andc6d2645 and is published within accepted15633ccd on the execution target.
 
 ## Accepted slice evidence
 
@@ -238,3 +238,7 @@ Reported: slice 5 — "Accepted SEED310 at c6d2645 changes scope/context/referen
 Story clause: "Resolve the seven Intent findings below, including their same-sequence and selector siblings."
 Disposition: proved by slice 5: slice-5-current-evidence.md, current45-case strict pass with explicit caller facts, direct103ms position oracle, frontend held retry and real store recovery; retained matching faults
 Commitment: 30
+### G4. CI held-retry observation is unstable
+Reported: slice 5 — "CI43012675687/1 dashboard8/13 at15633ccd failed the frontend scope reading case: after Retry and reads2, the old error alert was absent; local45-case proof did not establish stability."
+Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
+Disposition: proved by slice 5: slice-5-current-evidence.md CI repair acceptance; deterministic pending-state regression failed at the original absent-alert boundary, then complete46-case strict pass with the held request, selected landing, unchanged comparison and replacement evidence; typecheck passed
