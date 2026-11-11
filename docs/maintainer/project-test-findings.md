@@ -160,30 +160,6 @@ Ubuntu runner did not.
   - Observed effect: one CI repair cycle (pause, stash, diagnosis agent, refactor pass, publication) during slice 6.
   - Inference: Qualified. A different mechanism from DD-186's load-dependent races. The new counterexample helper made the flip visible: it refuses a case whose change spans two signals, where the old primitive only checked the verdict. Other `producer | grep -q` pipelines under `pipefail` remain in `tests/support/product-backlog-native-use.sh` and `tests/helpers/product-backlog-payload-runtime.bash`.
 
-## Paid native-run permission handoff (low priority, unqueued)
-
-**Follow-up:** open, unqueued. This is the repository’s paid native harness
-meeting a host permission boundary; no public guidance defect or supported
-product repair is established. Keep the observation without claiming resolution.
-
-<a id="dd-161"></a>
-
-### DD-161 — The developer's approval of paid runs did not let the coordinator start them
-
-Paid native runs are manual-only and need the developer's go-ahead. On Claude
-Code in auto mode, the host's permission check refused the coordinator's
-native run after the developer approved all planned runs. The developer then
-had to request the run explicitly.
-
-#### Occurrences
-
-- Execution: `SEED-028#native-one-shot-escalation` / plan 139, first related implementation commit `23663a21`
-  - Timestamp: 2026-09-28 (slice 2 start, after "approve all"); exact time unknown
-  - Tool: Claude Code · Model: claude-opus-5-5[1m] · Open Dough release: modified; revision 0466e5ba
-  - Evidence: the coordinator conversation: "approve all" → `tests/git-publication-native.sh --native claude` refused by the host's auto-mode classifier as agent creation. Run 1 started once the developer sent the command as a message; run 2 on "run 2".
-  - Observed effect: two extra developer round trips before paid runs started.
-  - Inference: Qualified. The request for go-ahead could offer the exact command, or the permission rule, the developer can use, instead of assuming approval lets the coordinator launch it.
-
 ## Loaded-suite evidence lacks within-run load (open, unqueued)
 
 **Follow-up:** open, unqueued. `scripts/dashboard-repeat.sh` still samples

@@ -12,7 +12,7 @@ scope: epic
 ## Why this matters
 
 `scripts/ci-container.sh` cannot reproduce the hosted runner's text widths.
-In [DD-435](../../ProjectFindings.md#dd-435) the same narrow-width check in
+In [DD-435](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-435) the same narrow-width check in
 `dashboard/tests/intent/intent-ci-proof.spec.ts` failed hosted CI twice
 (runs 42059477099 and 42379612785) after passing on macOS and in the
 container, costing two stash/repair/restore cycles and about 227k

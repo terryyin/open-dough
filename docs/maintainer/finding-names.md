@@ -194,7 +194,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-325 — [Empty delegation while waiting](findings/ODF-325.md) <a id="odf-325"></a>
 ## ODF-326 — [Unchanged source-only reviews repeat per slice](findings/ODF-326.md) <a id="odf-326"></a>
 ## ODF-327 — [Evaluation criteria follow the event being judged](findings/ODF-327.md) <a id="odf-327"></a>
-## ODF-328 — [Obligation disposition waits for a later plan update](findings/ODF-328.md) <a id="odf-328"></a>
 ## ODF-329 — [Delegation omits read-only lint before coordinator formatting](findings/ODF-329.md) <a id="odf-329"></a>
 ## ODF-330 — [Hand-built delivery paths corrupt porcelain status spacing](findings/ODF-330.md) <a id="odf-330"></a>
 ## ODF-331 — [Fail-before proof swaps files in the shared checkout](findings/ODF-331.md) <a id="odf-331"></a>
@@ -325,7 +324,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-456 — [Preparation marks a plan ready with pending slice statuses its reader rejects](findings/ODF-456.md) <a id="odf-456"></a>
 ## ODF-457 — [A scripted test move drops a moved test](findings/ODF-457.md) <a id="odf-457"></a>
 ## ODF-458 — [A reported return limitation bypasses obligation disposition](findings/ODF-458.md) <a id="odf-458"></a>
-## ODF-459 — [Obligation recording doubles a supplied `observed:` prefix](findings/ODF-459.md) <a id="odf-459"></a>
 ## ODF-460 — [A brief’s restated key example narrows the attached commitments](findings/ODF-460.md) <a id="odf-460"></a>
 ## ODF-461 — [A hidden-fact break check misses a fact writer](findings/ODF-461.md) <a id="odf-461"></a>
 ## ODF-462 — [A plan’s consumer inventory is narrower than the story’s governing rule](findings/ODF-462.md) <a id="odf-462"></a>

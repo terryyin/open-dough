@@ -1,34 +1,15 @@
 # DearDough Process Findings
 
-Shared occurrence evidence and response history live in the linked
-[catalog](docs/maintainer/finding-names.md). [Project findings](ProjectFindings.md)
-retain local facets. The full source before this compaction is
-`cf1ea1debbd50eac9cfe73a2e6a6782597764fdf:DearDough.md`. Earlier source recovery is in that revision.
+The [shared finding catalog](docs/maintainer/finding-names.md) holds reconciled
+evidence, former codes and response history. This log retains Open Dough
+observations and context beyond those catalog records. See
+[ProjectFindings.md](ProjectFindings.md) for repository-owned findings.
 
 ## Retention
 
 - Highest allocated local number: 488. Removed numbers are never reused.
-- Recovery: `220026a4e1b8409ffa81f50cd8e3130945ff8472:DearDough.md` holds the full source before the 2026-11-10 compaction; its occurrences are retained at the linked findings, including rows removed earlier at `ecb5ddd89` and `f184ecd2b`. DD-462 and Doughnut's DD-443 were pruned as successful practice; DD-462 is cited at the scope watch.
-- Recovery: `c0e3574f02300414ddb4d3b5688ba7d5a4b72fdf:DearDough.md` holds the pre-integration SEED-285 review and its ODF-329 retention choice; its additional ODF-322 occurrence and DD-481 are retained below.
-- Recovery: `e155eb11b71a410f93793a889b3c713aa9691272:DearDough.md` preserves the ODF-074 SEED-286 analyzer-endpoint occurrence pruned during SEED-298 integration; current required-preview/CI repair evidence was retained over this already-corrected observation that caused no additional test run.
-- Recovery: `9befabc4239528f432fad85634a3fb24a76a4edf:DearDough.md` preserves three redundant ODF-396 trace occurrences (SEED-288 refresh, SEED-010 freshness, SEED-281 count-gaps) replaced by current published-failure and late-lint evidence plus this execution's aggregate trace recurrence; retained ODF-396 occurrences preserve its meaning.
-
-- Recovery: `53fd020780ae447e7ee00363e2ab49a9f055f2f0:DearDough.md` holds DD-483 before this SEED-278 ODF-154 occurrence retention prune.
-- Recovery: `a0357d569ac3bd2fc4d866d511fdf354963881bc:DearDough.md` preserves the catalog-only ODF-238/253/262/263 stubs removed to retain current ODF-329/396 recurrence evidence; their meaning/evidence remain in the maintained finding catalog.
-- Recovery: `536dcf13218bae15339ffbd1288464649940047e:DearDough.md` preserves DD-487, removed to retain the recurring DD-488 publication defect and ODF-264 context-loss evidence; DD-487 was a disclosed plan-local trial confound with no shipped defect.
-- Recovery: `296db77062d35455cf7b830aaeebb6671d396d1b:DearDough.md` preserves the redundant ODF-396 SEED-281 unit-gaps occurrence removed at final SEED-285 integration to retain current published-failure and native-proof maintenance evidence; newer occurrences retain the trace-noise finding.
-- Recovery: `c9c6c06453f04b8b6144a34a563fbda1327cc960:DearDough.md` preserves catalog-only ODF-355–360 stubs removed to retain SEED-305 delivery-gate and trace recurrence observations. Their complete meaning/evidence remains in docs/maintainer/findings/; current observations have higher information value than duplicated catalog pointers.
-- Recovery: `a06716541ff03aa73ecaec0e522773cd45fe8912:DearDough.md` preserves the SEED-304 branch tip before this integration; its temporary prune of DD-485/DD-486 was superseded by trunk's retained DD-485/DD-486 (including SEED-305's DD-486 recurrence) while SEED-304 ODF-333/ODF-427 occurrences remain below.
-- Recovery: `f4aaa098d0121964aee0c6418e501b649515f8e6:DearDough.md` preserves DD-485 removed after merge to keep the 1,000-line ceiling; DD-486 retained for SEED-305 recurrence.
+- Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
-
-## ODF-087 — Skipped preparation gates <a id="odf-087"></a>
-
-Former local code: DD-089. [Evidence and current response](docs/maintainer/findings/ODF-087.md).
-
-## ODF-059 — Interrupted agent handoffs <a id="odf-059"></a>
-
-Former local code: DD-057. [Meaning, evidence and response](docs/maintainer/findings/ODF-059.md).
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
 
@@ -43,94 +24,6 @@ Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: 
   - Evidence: Deliver receipt in terminal `818682.txt` for accepted `53fd020780ae447e7ee00363e2ab49a9f055f2f0` on `refs/heads/cursor/give-the-dashboard-a-dark-theme`: `observation.state: unobserved`, `pendingCi: unobserved`, reason `Cursor conversation identity is unavailable: CURSOR_CONVERSATION_ID is unset and no --session-json was supplied…`; deliver `--session-json` carried only `observerDirectory` `/tmp/dough-ci-501/watch-prFFAc`. Coordinator transcript `4df873ee-74e0-4b1a-bd17-30a37a4c6a18` started that observer before deliver.
   - Observed effect: Publication accepted; hosted CI coverage for the increment stayed unobserved/unidentified despite a started observer directory.
   - Inference: Post-release recurrence of missing Cursor conversation identity. Native verification of ODF-154 proved the identity path when `CURSOR_CONVERSATION_ID` is set; this coordinator Shell left it unset and did not pass `conversation_id` in `--session-json`. Distinct from a failed released deliver-path when the ID is present.
-
-## ODF-074 — Unverified planning premises <a id="odf-074"></a>
-
-Former local code: DD-450. Former local code: DD-470 (plan 533 only). Former local code: DD-121. Former local code: DD-206. Former local code: DD-238. Former local code: DD-271. Former local code: DD-285. Former local code: DD-307. Former local code: DD-400. Former local code: DD-393 (`6c354905e`), renumbered in merge `966aad8b1`. DD-400's facet: a decisive premise probe proved the capability, not the story's restriction it settled. [Meaning, evidence and response](docs/maintainer/findings/ODF-074.md).
-
-## ODF-110 — Incomplete readiness replays <a id="odf-110"></a>
-
-Former local code: DD-124. Former local code: DD-213. Former local code: DD-228. Former local code: DD-274. Former local code: DD-282. Former local code: DD-284. [Evidence and current response](docs/maintainer/findings/ODF-110.md).
-
-## ODF-157 — Identifier-only conceptual searches <a id="odf-157"></a>
-
-Former local code: DD-127. [Evidence and current response](docs/maintainer/findings/ODF-157.md).
-
-## ODF-158 — Disproportionate required reference reads <a id="odf-158"></a>
-
-Former local code: DD-128. [Evidence and current response](docs/maintainer/findings/ODF-158.md).
-
-## ODF-106 — Colliding plan numbers <a id="odf-106"></a>
-
-Former local code: DD-155. [Meaning, evidence and response](docs/maintainer/findings/ODF-106.md).
-
-## ODF-141 — Fixed refactor cost on small accepted slices <a id="odf-141"></a>
-
-Former local code: DD-192. [Meaning, evidence and response](docs/maintainer/findings/ODF-141.md).
-
-## ODF-204 — Interrupted delegated agent keeps running and publishes <a id="odf-204"></a>
-
-Former local code: DD-215. [Evidence and current response](docs/maintainer/findings/ODF-204.md).
-
-## ODF-205 — Execution starts on a red trunk unannounced <a id="odf-205"></a>
-
-Former local code: DD-217. [Evidence and current response](docs/maintainer/findings/ODF-205.md).
-
-## ODF-152 — File-size gate conflicts with approved intermediate scope <a id="odf-152"></a>
-
-Former local code: DD-219. Former local code: DD-478 (SEED-284 plan 552 only). [Evidence and current response](docs/maintainer/findings/ODF-152.md).
-
-## ODF-209 — Concurrent CI reproduction overloads slice proof <a id="odf-209"></a>
-
-Former local code: DD-221. [Meaning, evidence and response](docs/maintainer/findings/ODF-209.md).
-
-## ODF-210 — Removal proof omits an existing user capability <a id="odf-210"></a>
-
-Former local code: DD-234. [Evidence and current response](docs/maintainer/findings/ODF-210.md).
-
-## ODF-211 — Admission is ambiguous for an unlanded story correction <a id="odf-211"></a>
-
-Former local code: DD-237. [Evidence and current response](docs/maintainer/findings/ODF-211.md).
-
-## ODF-217 — Unverified refactor proof effects <a id="odf-217"></a>
-
-Former local code: DD-239. Former local code: DD-248. Former local code: DD-450 (private fixture branch only, `a8cc402fd`). [Evidence and current response](docs/maintainer/findings/ODF-217.md).
-
-## ODF-218 — Formatting invalidates a pre-format size check <a id="odf-218"></a>
-
-Former local code: DD-241. [Evidence and current response](docs/maintainer/findings/ODF-218.md).
-
-## ODF-219 — Background coordinator implements outside the local-slice condition <a id="odf-219"></a>
-
-Former local code: DD-245. [Evidence and current response](docs/maintainer/findings/ODF-219.md).
-
-## ODF-100 — Masked formatter failure <a id="odf-100"></a>
-
-Former local code: DD-251 (plans 264 and 271 only). [Meaning, evidence and response](docs/maintainer/findings/ODF-100.md).
-
-## ODF-097 — Publishing after a failed check <a id="odf-097"></a>
-
-Former local code: DD-251 (plan 273 only). [Evidence and current response](docs/maintainer/findings/ODF-097.md).
-
-## ODF-222 — Post-commit managed delivery stalls at an unknown stage <a id="odf-222"></a>
-
-Former local code: DD-253 (Cursor plan 273 only). [Evidence and current response](docs/maintainer/findings/ODF-222.md).
-
-## ODF-184 — Unbounded Git transport stalls managed delivery <a id="odf-184"></a>
-
-Former local code: DD-253 (Claude Code plan 274 only). [Evidence and current response](docs/maintainer/findings/ODF-184.md).
-
-## ODF-220 — Code-level planning findings become stale on trunk <a id="odf-220"></a>
-
-Former local code: DD-254. [Evidence and current response](docs/maintainer/findings/ODF-220.md).
-
-## ODF-221 — CI repair misses a sibling with the diagnosed cause <a id="odf-221"></a>
-
-Former local code: DD-255. [Evidence and current response](docs/maintainer/findings/ODF-221.md).
-
-## ODF-224 — Native replay changes the retained acceptance checkpoint <a id="odf-224"></a>
-
-Former local code: DD-258. [Evidence and current response](docs/maintainer/findings/ODF-224.md).
 
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
@@ -175,26 +68,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: an owned published failure required pause, independent repair/proof and restoration of in-flight slice 2. No installation boundary was widened.
   - Inference: shared builders' fixture-materialization consumers belong in the changed import contract's proof; full dashboard timing proof could not expose the absent dashboard tree.
 
-## ODF-225 — Repair stash invalidates a still-running proof <a id="odf-225"></a>
-
-Former local code: DD-260. [Evidence and current response](docs/maintainer/findings/ODF-225.md).
-
-## ODF-121 — Transient transport failure ends observation <a id="odf-121"></a>
-
-Former local code: DD-261. [Meaning, evidence and response](docs/maintainer/findings/ODF-121.md).
-
-## ODF-226 — Proof reporter override weakens the configured verdict <a id="odf-226"></a>
-
-Former local code: DD-262. [Meaning, evidence and response](docs/maintainer/findings/ODF-226.md).
-
-## ODF-227 — Repair delegation deletes the only regression proof <a id="odf-227"></a>
-
-Former local code: DD-263. [Evidence and current response](docs/maintainer/findings/ODF-227.md).
-
-## ODF-228 — Long proof starts without checking shared-host headroom <a id="odf-228"></a>
-
-Former local code: DD-264. [Evidence and current response](docs/maintainer/findings/ODF-228.md).
-
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
@@ -223,120 +96,6 @@ Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Coordinator transcript `f76bda0d-27fc-4051-8594-682e74b6d232`: slice-2 implementation Task interrupted twice while `trial/run-arm.sh` Claude arms kept running; developer continues at 2026-11-10T18:12:00+08:00 (A2 live; coordinator waited, then replacement Task for B arms) and 2026-11-10T18:30:00+08:00 (B1 done, B2 live; coordinator waited, summarized B2, wrote `trial/02-comparison-and-keep-decision.md`, delivered `f0e813bf1`). Checkout already held candidate skill edits matching `trial/skills-candidate/`; remote matched HEAD across both recovers.
   - Observed effect: two interrupted Cursor implementation returns; orphaned native arms continued to completion; one replacement writer for remaining B arms; coordinator finished the keep decision after B2; no dual-writer conflict, unexpected commit, or lost trial evidence.
   - Inference: Matches ODF-229 with a native-subprocess facet: interrupted Task return does not stop already-launched supervised host arms. Recovery waited on live `run-arm`/`claude` processes before replacement writers or acceptance. Distinct from ODF-204 (no unauthorized publish by the stalled Task) and ODF-059 (implementation Task, not a refactor handoff).
-
-## ODF-230 — Planned proof relies on a forbidden shared installation <a id="odf-230"></a>
-
-Former local code: DD-266. [Evidence and current response](docs/maintainer/findings/ODF-230.md).
-
-## ODF-231 — Setup gate misses the project’s exact runtime pin <a id="odf-231"></a>
-
-Former local code: DD-267. [Evidence and current response](docs/maintainer/findings/ODF-231.md).
-
-## ODF-187 — Planned observations cannot detect regressions <a id="odf-187"></a>
-
-Former local code: DD-268. [Evidence and current response](docs/maintainer/findings/ODF-187.md).
-
-## ODF-232 — Acceptance publishes an explicitly unobserved host fact <a id="odf-232"></a>
-
-Former local code: DD-270. [Evidence and current response](docs/maintainer/findings/ODF-232.md).
-
-## ODF-233 — A plan forbids the representation its promised behavior needs <a id="odf-233"></a>
-
-Former local code: DD-272. [Evidence and current response](docs/maintainer/findings/ODF-233.md).
-
-## ODF-234 — Journey acceptance omits the next state its own guidance promises <a id="odf-234"></a>
-
-Former local code: DD-273. [Evidence and current response](docs/maintainer/findings/ODF-234.md).
-
-## ODF-223 — A gap disposition substitutes reasoning for its actual guided path <a id="odf-223"></a>
-
-Former local code: DD-277. [Evidence and current response](docs/maintainer/findings/ODF-223.md).
-
-## ODF-235 — New candidate ownership leaves old failure cleanup unreviewed <a id="odf-235"></a>
-
-Former local code: DD-281. [Evidence and current response](docs/maintainer/findings/ODF-235.md).
-
-## ODF-236 — Refactoring removes a deliberate caller behavior difference <a id="odf-236"></a>
-
-Former local code: DD-286. [Evidence and current response](docs/maintainer/findings/ODF-236.md).
-
-## ODF-237 — Unattached launch planning assumes an incompatible capture contract <a id="odf-237"></a>
-
-Former local code: DD-289. [Evidence and current response](docs/maintainer/findings/ODF-237.md).
-
-<a id="dd-288"></a>
-
-## ODF-248 — Refactor reruns unchanged consumer proof <a id="odf-248"></a>
-
-Former local code: DD-292. [Evidence and current response](docs/maintainer/findings/ODF-248.md).
-
-## ODF-249 — Whole-suite proof runs before the refactor that invalidates it <a id="odf-249"></a>
-
-Former local code: DD-293. [Evidence and current response](docs/maintainer/findings/ODF-249.md).
-
-## ODF-250 — A plan's proof table omits an answer state its story scopes in <a id="odf-250"></a>
-
-Former local code: DD-294. [Evidence and current response](docs/maintainer/findings/ODF-250.md).
-
-## ODF-251 — An open Story Branch execution has no guided path to queue a correction it discovers <a id="odf-251"></a>
-
-Former local code: DD-298. [Evidence and current response](docs/maintainer/findings/ODF-251.md).
-
-## ODF-252 — A story recorded ready still needs developer choices and fixtures before its first slice <a id="odf-252"></a>
-
-Former local code: DD-299. [Evidence and current response](docs/maintainer/findings/ODF-252.md).
-
-## ODF-254 — Accepted proof let a test setup step perform an action the story requires of the product <a id="odf-254"></a>
-
-Former local code: DD-301. [Evidence and current response](docs/maintainer/findings/ODF-254.md).
-
-## ODF-255 — A slice's refactor widens a seam that a later slice of the same plan removes <a id="odf-255"></a>
-
-Former local code: DD-304. [Evidence and current response](docs/maintainer/findings/ODF-255.md).
-
-## ODF-256 — Managed delivery accepts a `--repo` that does not match the workspace's remote <a id="odf-256"></a>
-
-Former local code: DD-305. [Evidence and current response](docs/maintainer/findings/ODF-256.md).
-
-## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
-
-Former local code: DD-306. [Evidence and current response](docs/maintainer/findings/ODF-169.md).
-
-## ODF-139 — Reported defect dismissed without checking the story <a id="odf-139"></a>
-
-Former local code: DD-308. [Meaning, evidence and response](docs/maintainer/findings/ODF-139.md).
-
-## ODF-257 — Test runs leave detached product children after timed-out teardowns, and the developer found them first <a id="odf-257"></a>
-
-Former local code: DD-310. [Evidence and current response](docs/maintainer/findings/ODF-257.md).
-
-## ODF-258 — A re-plan decision flagged by the first slice reached the developer only with the last <a id="odf-258"></a>
-
-Former local code: DD-311. [Evidence and current response](docs/maintainer/findings/ODF-258.md).
-
-## ODF-259 — The CI observer's budget expires inside a long execution <a id="odf-259"></a>
-
-Former local code: DD-313. [Evidence and current response](docs/maintainer/findings/ODF-259.md).
-
-## ODF-260 — A nine-slice story ran about twenty hours without a split <a id="odf-260"></a>
-
-Former local code: DD-314. [Evidence and current response](docs/maintainer/findings/ODF-260.md).
-
-## ODF-261 — Focused test filter matches the execution checkout path <a id="odf-261"></a>
-
-Former local code: DD-315. [Evidence and current response](docs/maintainer/findings/ODF-261.md).
-
-## ODF-303 — Native JSON hid an existing source-only reviewer <a id="odf-303"></a>
-
-Former local code: DD-318. [Meaning, evidence and response](docs/maintainer/findings/ODF-303.md).
-
-## ODF-304 — Coordinator behavior edits after the refactor pass skipped independent review <a id="odf-304"></a>
-
-Former local code: DD-321. [Meaning, evidence and response](docs/maintainer/findings/ODF-304.md).
-
-## ODF-305 — A new cross-host action's focused proof missed the spec pinning the other hosts' entries <a id="odf-305"></a>
-
-Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/findings/ODF-305.md).
 
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 
@@ -371,14 +130,6 @@ Former local code: DD-322. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: excessive diagnostic output and truncated context required bounded follow-up retrieval; command handles and semantic proof results remained available.
   - Inference: recurrence of agent output/read scoping deviation under existing guidance, not a missing instruction. No total-token or elapsed-time saving was measured.
 
-## ODF-306 — A delegated native probe ended a pending consent prompt and recorded a refusal <a id="odf-306"></a>
-
-Former local code: DD-323. [Meaning, evidence and response](docs/maintainer/findings/ODF-306.md).
-
-## ODF-307 — Coordinator screen probes competed with the developer's live desktop <a id="odf-307"></a>
-
-Former local code: DD-324. [Meaning, evidence and response](docs/maintainer/findings/ODF-307.md).
-
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -408,30 +159,6 @@ Former local code: DD-325. The coordinator reduced a guarded delivery call to it
   - Evidence: Native session `01a1beb7-a487-7fd0-989e-e7d2ab99461d`, call `call_b85c30cb82d9477eb3b8bec9c4bd9415`: `text((await tools.exec_command(...yield_time_ms:1000)).output)` emitted only the parking summary while history-preserving integration still ran. Calls at 12:04:59Z and 12:05:32Z inspected PID 87564 and `/tmp/trace-proof-285-main-integration.json`.
   - Observed effect: Two bounded process/receipt inspections recovered accepted `8a9c7ed156bf73241cc394ee77551be76ea352ed` after its session handle was discarded; publication was not repeated.
   - Inference: Exact caller-output projection recurrence; this was not a demonstrated publisher/transport stall. Preserve the full result and follow its session to terminal evidence.
-
-## ODF-324 — Native checks keep asking the developer after attribution is established <a id="odf-324"></a>
-
-Former local code: DD-327. Former branch-local code: DD-325 for SEED-144#branded-alert-click-automation only. Native acceptance kept requesting interactive developer rounds after attribution was established, including a full replay for a message-only change, until the developer withdrew. [Evidence and current response](docs/maintainer/findings/ODF-324.md).
-
-## ODF-323 — A caller-written plan-status mutation survives a later delivery refusal <a id="odf-323"></a>
-
-Former local code: DD-328. Former branch-local code: DD-326 for SEED-144#branded-alert-click-automation only. A guarded delivery's caller-written status update stayed applied after a later preparation refusal; its unbounded retry advanced the next slice. Related DD-326 (a failed updater contained before publication) is retained there as counterevidence. [Evidence and current response](docs/maintainer/findings/ODF-323.md).
-
-## ODF-325 — Coordinator launched an empty agent while waiting on delegated work
-
-Former local code: DD-329. Former local code: DD-408. [Meaning, evidence and response](docs/maintainer/findings/ODF-325.md).
-
-## ODF-326 — A second source-only review repeated unchanged inputs
-
-Former local code: DD-331. [Meaning, evidence and response](docs/maintainer/findings/ODF-326.md).
-
-## ODF-327 — Preparation left an evaluation's criteria for execution while the evaluated run was imminent
-
-Former local code: DD-332. [Meaning, evidence and response](docs/maintainer/findings/ODF-327.md).
-
-## ODF-328 — A fresh delivery refused the obligation its own plan update would close
-
-Former local code: DD-333. [Meaning, evidence and response](docs/maintainer/findings/ODF-328.md).
 
 ## ODF-329 — Implementation returns failed the delivery formatter's lint
 
@@ -477,16 +204,6 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; first guarded fresh returned formatting failure for an unused callback parameter and forbidden non-null assertion in ci-history-reader-compatibility.spec.ts after green focused proof and independent refactor; coordinator corrected them and reran that spec.
   - Observed effect: One mechanical repair/proof/preparation loop preceded publication; formatter and hook ownership were honored. Earlier lint savings remain unmeasured.
 
-## ODF-330 — Hand-built preparation input dropped the plan from ownedPaths
-
-Former local code: DD-335. [Meaning, evidence and response](docs/maintainer/findings/ODF-330.md).
-
-<a id="dd-348--an-implementation-agent-met-a-file-line-limit-by-joining-wrapped-lines"></a>
-
-## ODF-361 — An implementation agent met a file line limit by joining wrapped lines
-
-Former local code: DD-348. [Meaning, evidence and response](docs/maintainer/findings/ODF-361.md).
-
 <a id="dd-349--post-change-refactor-compressed-planmd-story-obligations-under-the-file-size-gate"></a>
 
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
@@ -503,46 +220,6 @@ Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: the file-size pass triggered planning-record rearrangement and a transient structured-obligation refusal before delivery. All obligations and proof were preserved and the check passed after repair.
   - Inference: the generic line cap included a structured execution record; the malformed heading was the coordinator's editing error, not required by guidance. Distinguishing record preservation from code-size cleanup would avoid this pressure without weakening product refactoring.
 
-## ODF-377 — Source-only review launched without the full seed examples
-
-Former local code: DD-364. [Meaning, evidence and response](docs/maintainer/findings/ODF-377.md).
-
-## ODF-378 — Story-branch increment publish blocked by trunk-targeted open first-landing expectation
-
-Former local code: DD-366. [Meaning, evidence and response](docs/maintainer/findings/ODF-378.md).
-
-## ODF-379 — Delegated dashboard proof omitted its required sandbox wrapper
-
-Former local code: DD-367. [Meaning, evidence and response](docs/maintainer/findings/ODF-379.md).
-
-## ODF-380 — Bounded CI diagnostics omit earlier failed-test identities
-
-Former local code: DD-368. Former local code: DD-373. [Meaning, evidence and response](docs/maintainer/findings/ODF-380.md).
-
-## ODF-381 — Source-review put obligation IDs in the Slice column
-
-Former local code: DD-369. Former local code: DD-392. [Meaning, evidence and response](docs/maintainer/findings/ODF-381.md).
-
-## ODF-382 — First-pass helper-gone proof used address drift instead of a deleted wire helper
-
-Former local code: DD-372. [Meaning, evidence and response](docs/maintainer/findings/ODF-382.md).
-
-## ODF-383 — A deletion-only story amendment mid-execution forced a full source re-review and re-allocation
-
-Former local code: DD-375. [Meaning, evidence and response](docs/maintainer/findings/ODF-383.md).
-
-## ODF-384 — CI layout repair iterates successive assertions without one full-journey check
-
-Former local code: DD-377. [Meaning, evidence and response](docs/maintainer/findings/ODF-384.md).
-
-## ODF-142 — Abbreviated validated candidate stops delivery as candidate-mismatch
-
-Former local code: DD-385. [Evidence and current response](docs/maintainer/findings/ODF-142.md).
-
-## ODF-398 — Story Branch CI failure already repaired on trunk has no named path
-
-Former local code: DD-386. [Evidence and current response](docs/maintainer/findings/ODF-398.md).
-
 ## ODF-333 — Story Branch proof requires trunk before closure <a id="odf-333"></a>
 
 Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 (`6c354905e`), renumbered in merge `966aad8b1`. Two local facets enter this gate: closure commitments owned by completion or wrap-up but allocated to the last slice must be observed before its done transition (DD-387), and a Story Branch rollout slice released from trunk without a step landing the earlier slices (DD-401). [Meaning, evidence and response](docs/maintainer/findings/ODF-333.md).
@@ -558,14 +235,6 @@ Former local code: DD-387. Former local code: DD-401. Former local code: DD-394 
   - Inference: Plan Trunk Mode prose did not change the Take's story-branch mode or name a retained-landing checkpoint, so the trunk-before-completion gate recurred. Distinct from lifecycle-commitment allocation (DD-387 facet).
 
 
-## ODF-367 — Source-only review arrived after the first slice was delegated
-
-Former local code: DD-388. Former local code: DD-379 (`6085b6eed`), renumbered in merge `073e95d2d`. [Evidence and current response](docs/maintainer/findings/ODF-367.md).
-
-## ODF-399 — Post-change refactor left a production module empty before delivery
-
-Former local code: DD-389. [Evidence and current response](docs/maintainer/findings/ODF-399.md).
-
 ## ODF-337 — Fresh delivery ownedPaths cannot stage a deleted rename source
 
 Former local code: DD-391. [Evidence and current response](docs/maintainer/findings/ODF-337.md).
@@ -579,22 +248,6 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
   - Evidence: slice9 `fresh` returned `preparation-failed`, operation `staging`, `fatal: pathspec '.planning/agents/bas-chan.json' did not match any files`; `slice9-progress-delivery-repaired.log` and `slice9-merge-staging-classification.json` under `/tmp/seed286-execution-20261109/`; classifying195 working paths as ownedPaths and13 already staged merge deletions as stagedPaths published `76015682179bcf87353da6c1cbbc6da5b86e11ca`.
   - Observed effect: one staging refusal before commit/publication, then a preparation-input correction and retry; formatting reran, no tested source or deletion was lost.
   - Inference: Same already-absent-index/literal-add condition as ODF-337. This confirms that condition for merge-staged deletions, not that every unstaged deletion fails; the publication boundary contained the mistaken path classification.
-
-## ODF-400 — Foreign unpublished commits on an execution tip block story-branch publish
-
-Former local code: DD-398. [Evidence and current response](docs/maintainer/findings/ODF-400.md).
-
-## ODF-401 — Multi-done planning-only slices force temporary Status mutation for ordered delivery
-
-Former local code: DD-399. [Evidence and current response](docs/maintainer/findings/ODF-401.md).
-
-## ODF-402 — Stopping a CI observer mailbox can crash with an unhandled ENOENT
-
-Former local code: DD-402. Former local code: DD-395 (`6c354905e`), renumbered in merge `966aad8b1`. [Evidence and current response](docs/maintainer/findings/ODF-402.md).
-
-## ODF-403 — Absorbed mid-flight plan amendment plus execution evidence reports freshness conflict
-
-Former local code: DD-403. [Evidence and current response](docs/maintainer/findings/ODF-403.md).
 
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 
@@ -640,81 +293,6 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; /tmp/seed305-consumer-dispositions.md and /tmp/seed305-direct-consumer-dispositions.md; combined coordinator read reported 81,029 original tokens before output truncation, including PLAN.md/source-review.md and broad schema matches.
   - Observed effect: Targeted follow-up reads recovered actual response, hook and browser consumers; every affected consumer passed. No missed consumer is established; isolated trace cost is unmeasured.
 
-## ODF-404 — Concurrent Taken sibling rewrote the active story mid-execution
-
-Former local code: DD-405. [Evidence and current response](docs/maintainer/findings/ODF-404.md).
-
-## ODF-405 — Full local suite wall includes waiting for repository-wide admission
-
-Former local code: DD-406. [Evidence and current response](docs/maintainer/findings/ODF-405.md).
-
-**Responsibility (2026-11-03):** the shared facet stays here: measurement
-guidance names no repository admission or queue among wall-time distortions.
-This repository's gate and its missing note are the local facet, repaired at
-`ad8b1f3af` and kept once in [ProjectFindings.md](ProjectFindings.md#dd-406).
-
-## ODF-406 — A plan's local gate names the hook-owned lint that delivery forbids running
-
-Former local code: DD-407. [Evidence and current response](docs/maintainer/findings/ODF-406.md).
-
-## ODF-407 — An implementation return claimed a bound its own constants contradict
-
-Former local code: DD-409. [Evidence and current response](docs/maintainer/findings/ODF-407.md).
-
-## ODF-408 — An agent-operable evaluation slice was handed to the developer
-
-Former local code: DD-410. [Evidence and current response](docs/maintainer/findings/ODF-408.md).
-
-## ODF-409 — CI diagnostic reports an empty complete inventory for a cancelled job whose suite step failed
-
-Former local code: DD-411. [Evidence and current response](docs/maintainer/findings/ODF-409.md).
-
-**Responsibility (2026-11-03):** the inventory that omits a cancelled job with
-a failed step is shared (`ci-failures.mjs`) and stays here. The shard's
-deadline breach under slow runner setup is this repository's CI exposure,
-kept once as a DD-279 occurrence in
-[project test findings](docs/maintainer/project-test-findings.md#dd-279).
-
-DD-412 moved to [the project test findings](docs/maintainer/project-test-findings.md#dd-412).
-
-DD-420, DD-421, DD-428, DD-429 and DD-430 moved to [the project test findings](docs/maintainer/project-test-findings.md#dd-420).
-
-DD-432 (a container run took a live host run's local-suite admission) is recorded in [the project test findings](docs/maintainer/project-test-findings.md#dd-432).
-
-DD-433 (an artifact upload stall cancelled two passing dashboard shards at the job cap) is recorded in [the project test findings](docs/maintainer/project-test-findings.md#dd-433).
-
-## ODF-410 — An implementation agent handed back while its own background work kept running
-
-Former local code: DD-413. [Evidence and current response](docs/maintainer/findings/ODF-410.md).
-
-## ODF-420 — Acceptance observed a class commitment at text listing only its examples
-
-Former local code: DD-415. [Evidence and current response](docs/maintainer/findings/ODF-420.md).
-
-## ODF-421 — A real observation passed only because the producer happened to supply the promised order
-
-Former local code: DD-416. [Evidence and current response](docs/maintainer/findings/ODF-421.md).
-
-## ODF-422 — A subordinate project's publication went unobserved by the owning execution
-
-Former local code: DD-417. [Evidence and current response](docs/maintainer/findings/ODF-422.md).
-
-## ODF-423 — A push the remote refused for permission returned `needs-validation` without its reason
-
-Former local code: DD-418. [Evidence and current response](docs/maintainer/findings/ODF-423.md).
-
-## ODF-424 — Exclusion story-clause recording still needs hand-matched exact substrings
-
-Former local code: DD-422. [Evidence and current response](docs/maintainer/findings/ODF-424.md).
-
-## ODF-425 — A refactor renamed a helper while its verification was running
-
-Former local code: DD-423. [Evidence and current response](docs/maintainer/findings/ODF-425.md).
-
-## ODF-426 — Required fresh refactor blocked by host agent authentication failure
-
-Former local code: DD-424. [Evidence and current response](docs/maintainer/findings/ODF-426.md).
-
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
@@ -744,163 +322,21 @@ Former local code: DD-431. [Evidence and current response](docs/maintainer/findi
   - Observed effect: Two retargeting rounds in one execution; nothing stale was published because the coordinator rewrote the citations before each increment.
   - Inference: Same structural gap as prior ODF-428 rows — acceptance writes `observed:` paths before the required refactor pass, so proof-file splits invalidate them unless retargeted at delivery.
 
-## ODF-429 — An overlapping sibling story landed on trunk mid-execution and surfaced only at the final done-mark
-
-Former local code: DD-434. [Evidence and current response](docs/maintainer/findings/ODF-429.md).
-
-## ODF-430 — Story integration moved another active agent profile into done
-
-Former local code: DD-436. [Evidence and current response](docs/maintainer/findings/ODF-430.md).
-
-<a id="dd-437"></a><a id="dd-437--near-zero-execute-plan-boundary-row-headroom-forced-structural-packing-on-an-ordinary-guidance-story"></a>
-
-## ODF-446 — Near-zero Execute Plan boundary-row headroom forced structural packing on an ordinary guidance story
-
-Former local code: DD-437. [Evidence and current response](docs/maintainer/findings/ODF-446.md).
-
-<a id="dd-438"></a><a id="dd-438--source-review-commitment-ids-used-en-dash-ranges-the-recorder-refuses"></a>
-
-## ODF-447 — Source-review commitment Ids used en-dash ranges the recorder refuses
-
-Former local code: DD-438. [Evidence and current response](docs/maintainer/findings/ODF-447.md).
-
-<a id="dd-439"></a><a id="dd-439--prepared-plans-empty-story-obligations-prose-failed-the-execution-obligations-reader"></a>
-
-## ODF-292 — Prepared plan's empty Story obligations prose failed the execution obligations reader
-
-Former local code: DD-439. [Evidence and current response](docs/maintainer/findings/ODF-292.md).
-
-<a id="dd-440"></a><a id="dd-440--story-branch-coordinator-started-a-trunk-observer-that-managed-delivery-then-replaced"></a>
-
-## ODF-448 — Story Branch coordinator started a trunk observer that managed delivery then replaced
-
-Former local code: DD-440. [Evidence and current response](docs/maintainer/findings/ODF-448.md).
-
-<a id="dd-441"></a><a id="dd-441--acceptance-credited-a-surface-commitment-through-a-shared-endpoint-the-surface-never-showed"></a>
-
-## ODF-449 — Acceptance credited a surface commitment through a shared endpoint the surface never showed
-
-Former local code: DD-441. [Evidence and current response](docs/maintainer/findings/ODF-449.md).
-
 <a id="dd-442--a-shallow-historical-checkout-still-inherited-the-host-git-object-store"></a> DD-442 — A shallow historical checkout still inherited the host Git object store. [Project evidence](docs/maintainer/project-maintenance-findings.md#dd-442).
-
-<a id="dd-443"></a><a id="dd-443--a-shared-tracking-ref-update-interrupted-confirmation-after-a-successful-push"></a>
-
-## ODF-450 — A shared tracking-ref update interrupted confirmation after a successful push
-
-Former local code: DD-443. [Evidence and current response](docs/maintainer/findings/ODF-450.md).
-
-<a id="dd-444"></a><a id="dd-444--a-siblings-done-catalog-conflict-resolution-moved-an-active-executions-agent-profile-into-the-done-records"></a>
-
-## ODF-451 — A sibling's done-catalog conflict resolution moved an active execution's agent profile into the done records
-
-Former local code: DD-444. [Evidence and current response](docs/maintainer/findings/ODF-451.md).
 
 <a id="dd-445--timeout-headroom-judged-from-one-hosted-run-missed-run-to-run-variance"></a> DD-445 — Timeout headroom judged from one hosted run missed run-to-run variance. [Project evidence](docs/maintainer/project-test-findings.md#dd-445).
 
-<a id="dd-446"></a><a id="dd-446--report-clock-changes-replayed-already-proved-scratch-journeys"></a>
-
-## ODF-452 — Report-clock changes replayed already-proved scratch journeys
-
-Former local code: DD-446. [Evidence and current response](docs/maintainer/findings/ODF-452.md).
-
-<a id="dd-447"></a><a id="dd-447--a-refactor-pass-replaced-a-plan-named-repeated-proof-with-one-run"></a>
-
-## ODF-453 — A refactor pass replaced a plan-named repeated proof with one run
-
-Former local code: DD-447. [Evidence and current response](docs/maintainer/findings/ODF-453.md).
-
-<a id="dd-448"></a><a id="dd-448--the-coordinator-delegated-a-lookup-the-implementation-brief-already-required"></a>
-
-## ODF-454 — The coordinator delegated a lookup the implementation brief already required
-
-Former local code: DD-448. [Evidence and current response](docs/maintainer/findings/ODF-454.md).
-
-<a id="dd-449"></a><a id="dd-449--a-same-ref-cancelled-ci-run-reached-the-coordinator-as-unexplained-incomplete"></a>
-
-## ODF-455 — A same-ref cancelled CI run reached the coordinator as unexplained incomplete
-
-Former local code: DD-449. [Evidence and current response](docs/maintainer/findings/ODF-455.md).
-
 <a id="dd-450"></a><a id="dd-450--a-plans-identical-step-tree-proof-did-not-account-for-a-per-run-random-value"></a> [DD-450 moved to ODF-074](docs/maintainer/findings/ODF-074.md).
 
-<a id="dd-451"></a><a id="dd-451--the-coordinators-source-review-input-cut-the-storys-last-line"></a>
-
-## ODF-339 — The coordinator's source-review input cut the story's last line
-
-Former local code: DD-451. [Evidence and current response](docs/maintainer/findings/ODF-339.md).
-
 <a id="dd-452--a-shell-check-gained-a-browser-its-ci-job-did-not-install"></a> DD-452 — A shell check gained a browser its CI job did not install. [Project evidence](docs/maintainer/project-findings-history.md#dd-452).
-
-## ODF-456 — Ready plan used an unsupported slice status
-
-[Evidence and current response](docs/maintainer/findings/ODF-456.md).
-
-## ODF-457 — A refactor pass's scripted spec split dropped a moved test <a id="odf-457"></a>
-
-Former local code: DD-457. [Evidence and current response](docs/maintainer/findings/ODF-457.md).
-
-## ODF-458 — A reported limitation left without an obligation became a retrospective correction <a id="odf-458"></a>
-
-Former local code: DD-458. [Evidence and current response](docs/maintainer/findings/ODF-458.md).
 
 ## ODF-434 — Coordinator sends an unsubstituted placeholder to a delegated agent <a id="odf-434"></a>
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-434.md). This facet: the implementation brief, not the source-only reviewer.
 
-## ODF-459 — Obligations record doubled a supplied `observed:` prefix <a id="odf-459"></a>
-
-Former local code: DD-459. [Evidence and current response](docs/maintainer/findings/ODF-459.md).
-
-## ODF-460 — A coordinator's prose brief narrowed a key example the attached source review still carried <a id="odf-460"></a>
-
-Former local code: DD-460. [Evidence and current response](docs/maintainer/findings/ODF-460.md).
-
-## ODF-461 — A hidden-fact break check missed a helper that writes the fact <a id="odf-461"></a>
-
-Former local code: DD-461. [Evidence and current response](docs/maintainer/findings/ODF-461.md).
 <a id="dd-463"></a> DD-463 — A reverse import-closure selection silently dropped importers. [Project findings](ProjectFindings.md#dd-463).
 
-## ODF-470 — Sequential before and after timings could not judge a no-slowdown promise <a id="odf-470"></a>
-
-Former local code: DD-464. [Evidence and current response](docs/maintainer/findings/ODF-470.md).
 <a id="dd-465"></a> DD-465 — An empty focused path list ran the whole local suite. [Project findings](ProjectFindings.md#dd-465).
-
-## ODF-462 — A plan's consumer inventory came from a narrower search than the story's rule <a id="odf-462"></a>
-
-Former local code: DD-468. [Evidence and current response](docs/maintainer/findings/ODF-462.md).
-
-## ODF-463 — A trunk merge's proof selected changed specs, not consumers of the changed contract <a id="odf-463"></a>
-
-Former local code: DD-469. [Evidence and current response](docs/maintainer/findings/ODF-463.md).
-
-## ODF-464 — A baseline trace in hand already showed the request timing that made the planned lazy build neutral <a id="odf-464"></a>
-
-Former local code: DD-471. [Evidence and current response](docs/maintainer/findings/ODF-464.md).
-
-## ODF-465 — Final full suites ran before the named-sibling check, so a sibling landing forced a second whole run <a id="odf-465"></a>
-
-Former local code: DD-472. [Evidence and current response](docs/maintainer/findings/ODF-465.md).
-
-## ODF-338 — Concurrent slices invalidate proof in one checkout <a id="odf-338"></a>
-
-[Meaning, evidence and response](docs/maintainer/findings/ODF-338.md).
-
-## ODF-466 — A trunk merge interpolated a converted fixture into a string, and the record claimed lint passed with it <a id="odf-466"></a>
-
-Former local code: DD-474. [Evidence and current response](docs/maintainer/findings/ODF-466.md).
-
-## ODF-467 — A CI repair duplicated a fix another active execution had in progress <a id="odf-467"></a>
-
-Former local code: DD-475. [Evidence and current response](docs/maintainer/findings/ODF-467.md).
-
-## ODF-468 — Briefs required whole-suite runs longer than the host's foreground cap, gated on a load that rarely fell <a id="odf-468"></a>
-
-Former local code: DD-477. [Evidence and current response](docs/maintainer/findings/ODF-468.md).
-
-## ODF-469 — A last slice holding most whole-story commitments was accepted with narrower observations <a id="odf-469"></a>
-
-Former local code: DD-480. [Evidence and current response](docs/maintainer/findings/ODF-469.md).
 
 ## DD-481 — Freshness chooses a pre-Take merge base despite another base containing the accepted Take
 
@@ -930,42 +366,6 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `921ad3c98` PLAN.md has `## Slice`; published tip `8fa1b522` has `## Slices`. Coordinator transcript `058c51db-7e9f-4095-86f9-2783c98271b9` renamed the heading before the successful `story-obligations.mjs list --slice 1`. Reader regex: `^## +(?:Ordered slices|Slices) *$`. Sibling Taken plan 568 still has `## Slice` at line 112.
   - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
   - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.
-
-## DD-484 — New Node test files placed outside suite discovery
-
-Discriminating renderer tests were added under `scripts/`, which this project's Intent/CI discovery roots do not include, so the full suite would not have run them until acceptance relocated the file.
-
-### Occurrences
-
-- Execution: SEED-290#publish-frontend-test-proof (plan 567; first related implementation `85a494d276d277daeb205e9e7bfa0ea4a5a9c5c7`)
-  - Timestamp: unknown
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: Coordinator transcript `0f1a429c-95c5-42c1-90f3-34dcc99a4615` L54 after the replacement implementer's return and before refactor Task `4189beda-8fb9-4666-8cb9-d804d8e3a88c` (2026-11-10T15:07+08:00): `scripts/frontend-test-proof.test.mjs` was moved to `tests/support/frontend-test-proof.test.mjs` because renderer tests under `scripts/` are not in CI discovery. `.planning/open-dough.json` Intent locations cover `tests`, `dashboard/*/tests`, and `src/skills`, not top-level `scripts/*.test.mjs`.
-  - Observed effect: one acceptance-time relocation before publication; focused proof then passed; no hosted CI miss of that suite.
-  - Inference: Place new Node test files under a discovered roots lost.
-  - Inference: This project's selective formatter expects `npm run format` (or equivalent PATH including `node_modules/.bin`), not a bare `node scripts/lint.mjs --fix`.
-
-## DD-486 — Playwright-only focused proof missed TypeScript test errors
-
-Focused Playwright configuration selection passed; the commit hook's typecheck then refused `getByRole("textarea")` and possibly-undefined settings payload indexing.
-
-### Occurrences
-
-- Execution: SEED-295#inspect-project-configuration-in-dashboard (plan 570; first related implementation `65faeae3602e04fc924a7d86b21da5d2aa559720`)
-  - Timestamp: 2026-11-10T08:50:00Z
-  - Tool: Cursor
-  - Open Dough release: 0.3.94
-  - Evidence: `execution-increment-delivery.mjs fresh` returned `commit-failed` with TS2345 on `system-settings-client-configuration.spec.ts` (`"textarea"` role) and TS2532 on `system-settings.spec.ts`. Prior focused command `npx playwright test tests/configuration/system-settings-client-configuration.spec.ts tests/configuration/system-settings.spec.ts` had passed. Repairs then typechecked and the focused Playwright selection passed again before successful delivery.
-  - Observed effect: one commit refusal after green Playwright; repairs stayed local and were included in the accepted increment.
-  - Inference: When editing TypeScript test files, include `npm run typecheck:dashboard` (or the project's equivalent) in focused proof before guarded delivery, not only Playwright.
-
-- Execution: SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates (plan 581; first implementation `c9c6c06453f04b8b6144a34a563fbda1327cc960`)
-  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
-  - Tool: Codex
-  - Open Dough release: 0.3.94 (checkout-bound installed dough-update/VERSION at accepted Take cbed76e81)
-  - Evidence: launch cf7e0024-2e9e-4725-83d5-51fda295de55; guarded fresh commit hook returned TS2345: aPublishedSource.with({id}) lacked required label and repository, although the compatibility Playwright check passed. Supplying the actual fixture source facts and rerunning the spec preceded accepted publication.
-  - Observed effect: One commit refusal and another preparation pass; the typecheck gate contained the test-data typing defect without publishing it.
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 

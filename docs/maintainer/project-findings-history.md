@@ -11,7 +11,7 @@ and `11d48b956607e3485f5771c59509b111be3626b8:DearDough.md`.
 Moved DD-275 from DearDough.md into the active project record. DD-283 and
 DD-290 also belong to repository tooling, but their concrete failures are
 already repaired, so they enter only the resolution notes below. Returned
-DD-288 to [DearDough.md](../../DearDough.md#dd-288):
+DD-288 to the shared record now cataloged as [ODF-238](findings/ODF-238.md):
 its missing release prerequisite is a general planning error. Its existing
 SEED-066 native-observation story stays queued; no duplicate is added.
 
@@ -162,7 +162,7 @@ Resolved or mitigated entries removed from the active findings on 2026-10-09:
   preparation-gate problem.
 - **DD-205:** the recorded explicitly authorized detached batch completed
   27 native sessions without further babysitting. Retain its launch practice
-  in Git; DD-161 still records the separate host permission limitation.
+  in Git. The separate [host permission incident](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/docs/maintainer/project-test-findings.md#dd-161) remains recoverable in Git.
 
 **Classification cross-check:** These active findings require changes only
 to repository test configuration, helpers, local checks, or native-run setup.
