@@ -209,20 +209,20 @@ Reported: slice 12 — "Run 42949046330/1 failed all twelve dashboard jobs; inst
 Story clause: "Preserve every distinct behavioral promise at an observable boundary."
 Disposition: return
 
+### G13. Waiting read escapes during server shutdown
+Reported: slice 12 — "Run 42952620767/1 exposed one shutdown failure: a waiting seed-9 read reached GitHub while the server was closing."
+Story clause: "Keep exact counts where avoiding duplicate work is the promise."
+Disposition: return
+
 ## Plan concern assessment
 
 [Current assessment](design-and-proof.md#current-plan-assessment) and
-[owned CI repair](ci-repair-evidence.md); G4/G7/G12 stay open.
+[owned CI repair](ci-repair-evidence.md); G4/G7/G12/G13 stay open.
 
 ## Trunk measurement checkpoint
 
-After implementation and local/branch proof settle, request approval for
-Dough Land `--keep-worktree` before slice 13’s trunk-only timing/weight step.
-The plan’s execution authority does not silently grant that checkpoint.
-Use all twelve artifacts of a complete passing trunk run after work removal;
-refresh weights and measure redistribution separately. Final closure still
-uses Story Wrap Up. First trunk publication must receive the launch’s supplied
-landing context; later trunk publications omit it.
+The required retained-landing and trunk-only timing checkpoint is in
+[execution context](execution-context.md#trunk-measurement-checkpoint).
 
 ## Execution notes
 

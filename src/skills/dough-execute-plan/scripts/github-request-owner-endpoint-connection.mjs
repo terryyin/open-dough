@@ -1,12 +1,38 @@
 // Connections to this user's private GitHub request owner endpoint: whether
 // its socket answers, whether its owner admits this caller, and the host/login
-// scope its directory names. Wire encoding owns what is said over the socket.
+// scope its directory names, and starting an owner when none answers. Wire
+// encoding owns what is said over the socket.
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { existsSync, lstatSync } from "node:fs";
 import { connect } from "node:net";
 import { basename, dirname } from "node:path";
 import { OwnerUnavailable } from "./github-request-owner-failure.mjs";
 import { shownProcessSync } from "./process-table.mjs";
 import { protocol, receive, send } from "./github-request-owner-wire.mjs";
+
+const ownerEntry = fileURLToPath(
+  new URL("./github-request-owner.mjs", import.meta.url),
+);
+
+// A detached owner runs its installed sibling without this consumer's Node
+// options or output. The link retains connection/greeting and failure handling.
+/** @param {string} directory @param {number} backoffBaseMs */
+export function startOwnerProcess(directory, backoffBaseMs) {
+  const env = { ...process.env };
+  delete env.NODE_OPTIONS;
+  const owner = spawn(
+    process.execPath,
+    [ownerEntry, directory, String(backoffBaseMs)],
+    { cwd: directory, env, detached: true, stdio: "ignore" },
+  );
+  const started = { process: owner, failure: undefined };
+  owner.on("error", () => {
+    started.failure = new OwnerUnavailable("start-failed");
+  });
+  owner.unref();
+  return started;
+}
 
 // How long a greeting may take, for the owner awaiting it and for the
 // consumer awaiting its welcome, before either ends the connection.

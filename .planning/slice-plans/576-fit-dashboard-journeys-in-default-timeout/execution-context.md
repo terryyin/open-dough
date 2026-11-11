@@ -1,7 +1,7 @@
 # Execution identity and recovery
 
-- Last accepted revision on entry to this increment: `b7f58fde6403ac154e0c18660e55c36ac9873eea`
-  (preservation progress; hosted transport repair remains open); completed slice 2
+- Last accepted revision on entry to this increment: `fb94704947c341ff0944e43fec83e820c558a981`
+  (portable streams; one hosted shutdown defect remains open); completed slice 2
   was `791cce4676b283b2eb283bb5d0ea1f6c4032d17a`.
 
 - Established execution: Story Branch Mode; identity
@@ -31,3 +31,13 @@
 
 Accepted proof indices: [probe](execution-evidence.md), [source ingestion](source-ingestion-evidence.md),
 [closure](closure-evidence.md), [launch](launch-evidence.md), [cursor](cursor-evidence.md).
+
+## Trunk measurement checkpoint
+
+After implementation and local/branch proof settle, request approval for
+Dough Land `--keep-worktree` before slice 13’s trunk-only timing/weight step.
+The plan’s execution authority does not silently grant that checkpoint.
+Use all twelve artifacts of a complete passing trunk run after work removal;
+refresh weights and measure redistribution separately. Final closure still
+uses Story Wrap Up. First trunk publication must receive the launch’s supplied
+landing context; later trunk publications omit it.

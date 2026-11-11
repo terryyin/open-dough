@@ -49,3 +49,12 @@ new unitLines sorting serves homepage entries. Slice12 still uses the preserved
 single-figure/comparison path. No selected-slice hold; recheck actual incoming
 product effects when reconciling the landing. SEED-303 has no attributed landed
 product change at this pin and remains an active ownership boundary for13.
+
+At6d973c04f8fc22225d103aa55f2ea1c7072a5a1b, source remains unchanged.
+The0.3.95 installed update exposes main's accepted request-owner additions
+for narrow workflow-repeat actions, capability gating and no-resend behavior.
+Root inspected the OwnerLink/GitHubRequests diff: it does not add atomic
+shutdown cancellation, so it does not duplicate G13's queued-read repair.
+Reconcile that source overlap at retained landing, preserving the accepted
+action contract through any required link-module extraction. Current repair
+uses this branch's read behavior and does not introduce unrelated actions.

@@ -9,7 +9,7 @@ import { expect, test } from "../../tests/support/pageTest.ts";
 import { processAlive, readPid } from "../../tests/support/processGroup.ts";
 import { everyRepository, hangs } from "../../tests/support/fakeGitHub.ts";
 import { waitUntil } from "../../tests/support/waitUntil.ts";
-import { abandonedRequest } from "../../tests/support/rawHttp.ts";
+import { abandonedRequest, rawRequest } from "../../tests/support/rawHttp.ts";
 import { startInProcessAuthenticatedRead } from "../../tests/support/inProcessAuthenticatedRead.ts";
 
 const knownSourceId = "open-dough";
@@ -54,6 +54,16 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
         timeoutMs: 5_000,
       });
       expect(died).toBe(true);
+      const calls = github.calls.length;
+      const later = await rawRequest({
+        url: `${boundary.origin}/__authenticated-read?source=${knownSourceId}`,
+        headers: { Origin: boundary.origin },
+      });
+      expect(later.status).toBe(503);
+      expect(JSON.parse(later.body)).toEqual({
+        error: "This dashboard is closing.",
+      });
+      expect(github.calls).toHaveLength(calls);
     } finally {
       await boundary.close();
     }

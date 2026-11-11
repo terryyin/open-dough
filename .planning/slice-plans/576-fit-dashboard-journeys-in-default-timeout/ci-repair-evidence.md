@@ -50,3 +50,80 @@ returned clean, with no entry/OID. Retained record:
 `/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-xtV1Yv/record.json`.
 No slice13 implementation or heavy root verification is running. The existing
 `seed287-codex` observer `/tmp/dough-ci-501/watch-TTextR` remains the owner.
+
+## Portable streams published; one shutdown defect remains
+
+Repair `fb94704947c341ff0944e43fec83e820c558a981` was accepted with ordinary
+hooks and identical proof hash. Clean/no-OID stash record restored as resumed.
+Exact observer run42952620767/attempt1 is failure, with complete diagnostic:
+one failed job9/12 and one failed test, authenticated-read-turns.spec.ts:177.
+The queued seed-9 request reached GitHub during close, violating exact counts.
+All eleven other dashboard jobs, lint, three repository jobs and proof job
+passed. G13 owns causal shutdown repair; no bad CI revision is rerun.
+
+Fresh owner `ci_shutdown_turns_repair` investigates at fb947049. Full diagnostic:
+`/tmp/seed287-ci-failure-42952620767-1.json`; complete job log:
+`/tmp/seed287-ci-failure-42952620767-1-job9.json`. New clean/no-OID repair record:
+`/var/folders/65/16p4k5qj42qg7l46k2j0nhj40000gn/T/dough-ci-repair-stash-RNTXJ1/record.json`.
+Comparison shard8's current passed cases are retained separately in
+[hosted comparison evidence](comparison-hosted-evidence.md); whole CI remains
+failed and G4/G7/G12/G13 are not silently closed.
+
+Pre-edit controlled transport proof observes12 GitHub reads instead of8 when
+only queued-read cancel frames are delayed during close; active cancellations
+arrive normally. Root accepts one necessary size seam before implementation:
+extract unchanged owner-process startup from249-line OwnerLink, then close
+this consumer's existing link before individual controller aborts. Preserve
+wire protocol, shared owner/other consumers and incoming action no-resend
+semantics; this is no broader lifetime or ownership system. Exact paths and
+post-change proof remain due in the implementation return.
+Payload inspection selects the existing owner-endpoint-connection module for
+the unchanged startup function: it already owns acquisition/greeting and is
+declared by the installer. Root accepts that final seam instead of a new
+unlisted runtime file; leave the unrelated344-line installer untouched.
+Actual installed requests through both roots must verify the final location.
+
+## G13 repair accepted locally; complete CI remains due
+
+Current return: `/tmp/seed287-ci-shutdown-turns-20261111/return.md`.
+The controlled exact runtime probe changes12 escaped reads to the required8.
+Closed middleware refuses later requests503 before any GitHub call; the
+source only disconnects its existing socket and permits later legitimate
+boundary reuse. A peer's shared call survives and that peer takes a released
+turn. New maintenance tests retain those independent exact-count assertions.
+
+Eight source/test paths implement the boundary-to-owner disconnection and the
+approved unchanged startup extraction. No installer, managed-copy, protocol,
+timeout, FD3-client or canonical-comparison path change. Actual declared
+installation in both managed roots returns200 through each candidate reader,
+uses the installed owner's entry and retires it after disconnection.
+
+Eleven whole source files pass the maintained wrapper. Two disjoint whole
+HTTP selections pass strict22/22 each at retry0, including the original whole
+failing turns spec, timing, subprocess/stream cleanup, hook503, shared waiters,
+controlled wrappers and real dev/preview. Runners16.871909/6.209514s; shell
+elapsed not measured and no new pressure/performance claim. Source startup
+body/relative owner-entry target is unchanged; final installed proof1/1 and
+endpoint/privacy proof cover the final managed module location.
+
+All116 consumer rows preserve original fields and have dispositions:
+21 run,26 reused,69 excluded, zero gaps. Parent inspected actual production
+changes, source/test observations, strict records, installed results and
+cleanup. All commands terminal; dashboard PIDs/artifacts and private fixtures
+retired. Scratch transform-types and fixture-id setup failures are retained
+with corrected focused proof, not counted as passing commands.
+
+Node preview places the new test exactly once in existing share1/3:591 jobs,
+predicted628.7/628.6/628.6 summed seconds, not wall time. The first invocation
+stopped at the system Bash3.2 guard before listing; documented Homebrew PATH
+supplies Bash5 and the preview passes. No CI matrix/deadline/resource change.
+Independent refactor, ordinary hooks, publication and exact complete repaired
+CI remain root-owned. No obligation or slice is marked complete here.
+Independent `shutdown_atomic_refactor` returned `REFACTOR COMPLETE`, none,
+with all current proof and116 consumer dispositions compatible. No edits or
+extra tests; root retains formatted-size gate and ordinary hooks.
+Formatting then refused two unused underscore parameters in the new test.
+Root replaced only the two equivalent index generators with literal job IDs
+1–8, within the accepted refactor's path/trace, with no helper or behavior
+change. The focused new test file passes the maintained wrapper at terminal0;
+`/tmp/seed287-shutdown-format-repair-test-20261111.log` retains the command.
