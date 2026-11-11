@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-309#restore-safari-terminal-prompts",
+  "mode": "story-branch",
+  "branch": "codex/restore-safari-terminal-prompts",
+  "host": "codex",
+  "model": "GPT-6"
+}
