@@ -3,6 +3,7 @@
 **Identity:** SEED-302#make-remaining-test-domain-setup-express-intent
 
 **Source:** [Refined story](../../seeds/SEED-302-remaining-makeme-test-data.md#make-remaining-test-domain-setup-express-intent)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -128,7 +129,7 @@ timeout overrides. Hosted CI failures remain owned through final CI.
 
 ### 1. Unresolved creation has a MakeMe owner
 Type: Structure
-Status: planned
+Status: done
 Proof: Key example 1's creation shape. Add or extend a builder that returns the
 production `{ workspace, endpoint }` creation facts (and any request composition
 callers need). Run a focused creation or recovery consumer after one scratch
@@ -139,6 +140,15 @@ Internal change: Give unresolved creation one MakeMe construction path typed
 against `launchCreation.ts`, composed with existing request and host-session
 builders where needed.
 Enables: Slice 2 converts audited creation and launch-request call sites.
+
+Accepted evidence (pre-done): `makeMe.aCreationRecord` in
+`tests/support/launchCreationTestData.mjs`, wired on LaunchMakeMe. Scratch
+migrate: `dashboard/backend-tests/launches/agent-launch-creation-recovery.spec.ts`
+keeps `inspectionArgs` / shell-quoting at the call site.
+Focused: `npm run test:dashboard -- dashboard/backend-tests/launches/agent-launch-creation-recovery.spec.ts --workers=1 --reporter=line` → 4 passed.
+Also `npm run typecheck:dashboard` → pass. Refactor: none — already clean.
+Learning: unresolved creation is request + `{ workspace, endpoint }` + time, not
+`aHostSession` (session continuation).
 
 ### 2. Launch requests and creations express intent through MakeMe
 Type: Behavior
