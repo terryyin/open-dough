@@ -4,6 +4,11 @@ import { buildDateWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { ScopeHistoryEntry } from "./ciScopeHistory.ts";
+import {
+  scopeHistoryEndpointWords,
+  scopeHistoryReason,
+  type ScopeHistoryContext,
+} from "./intentScopeHistoryContext.ts";
 import { HistoryRunAttempt } from "./HistoryRunAttempt.tsx";
 
 export function scopeHistoryProvenance(entry: ScopeHistoryEntry): string {
@@ -22,8 +27,10 @@ export function scopeHistoryProvenance(entry: ScopeHistoryEntry): string {
 
 export function IntentScopeTimingHistoryEvidence({
   entry,
+  context,
 }: {
   readonly entry: ScopeHistoryEntry;
+  readonly context: ScopeHistoryContext;
 }) {
   const evidence = entry.build ?? entry.run;
   const readings = declaredUnits.flatMap((unit) =>
@@ -34,13 +41,15 @@ export function IntentScopeTimingHistoryEvidence({
       <time dateTime={entry.date}>{buildDateWords(entry.date)}</time>
       {" · "}
       {readings.length === 0 && entry.kind === "gap"
-        ? entry.reason
+        ? entry.reason === undefined
+          ? undefined
+          : scopeHistoryReason(context, entry.reason)
         : readings.map((reading, index) => (
             <span key={reading.unit}>
               {index > 0 && " · "}
               {reading.kind === "point"
                 ? `${executionTimeWords(reading.ms)} · ${unitName(reading.unit)} · entry ${reading.entry}`
-                : `${unitName(reading.unit)} · ${reading.reason}`}
+                : `${unitName(reading.unit)} · ${scopeHistoryReason(context, reading.reason)}`}
             </span>
           ))}
       {entry.legacyReason !== undefined &&
@@ -52,7 +61,9 @@ export function IntentScopeTimingHistoryEvidence({
             {entry.legacyReason}
           </>
         )}
-      {entry.selected && <strong> · Selected landing</strong>}
+      {entry.selected && (
+        <strong> · {scopeHistoryEndpointWords(context)}</strong>
+      )}
       {entry.build !== undefined && (
         <>
           {` · ${scopeHistoryProvenance(entry)} `}
@@ -65,7 +76,8 @@ export function IntentScopeTimingHistoryEvidence({
         <span key={`${landing.revision}#${landing.receivedAt}`}>
           {index > 0 && ", "}
           <code>{shortSha(landing.revision)}</code>
-          {landing.selected && " (selected landing)"}
+          {landing.selected &&
+            ` (${scopeHistoryEndpointWords(context).toLowerCase()})`}
           {landing.provenance === "exact" && " (exact build)"}
           {landing.provenance === "equivalent" && " (reused equivalent build)"}
           {landing.provenance === "later" &&

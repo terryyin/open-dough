@@ -7,6 +7,7 @@ import type { ComparisonMount } from "./comparisonMountTypes.ts";
 
 export function comparisonRenderFacts<
   Facts extends ComparisonMount & {
+    readonly identity: string;
     readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
   },
 >(

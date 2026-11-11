@@ -96,6 +96,7 @@ export async function expectCollectedHistoryRecovery({
   read,
   reopen,
   expectPreserved,
+  expectRecovered,
 }: {
   readonly home: string;
   readonly history: Locator;
@@ -105,6 +106,7 @@ export async function expectCollectedHistoryRecovery({
   }>;
   readonly reopen: () => Promise<void>;
   readonly expectPreserved: () => Promise<void>;
+  readonly expectRecovered: () => Promise<void>;
 }) {
   const historyFile = collectedHistoryFile(home);
   const retainedText = readFileSync(historyFile, "utf8");
@@ -125,9 +127,7 @@ export async function expectCollectedHistoryRecovery({
     writeFileSync(historyFile, retainedText, "utf8");
     await history.getByRole("button", { name: "Retry history" }).click();
     await expect(history.getByRole("alert")).toHaveCount(0);
-    await expect(history.getByRole("listitem")).toHaveCount(2);
-    await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
-    await expect(history).toContainText("0 ms");
+    await expectRecovered();
   } finally {
     writeFileSync(historyFile, retainedText, "utf8");
   }

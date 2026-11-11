@@ -2,23 +2,29 @@
 // The collection-to-Summary journey owns actual retained evidence; this
 // substitute fails only the local history read beside an existing comparison.
 
-import { expect, test } from "../support/preparationPage.ts";
-import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
-  openSummaryComparison,
-  selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
-import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
-import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
-import { shortSha } from "../../src/baseCiWording.ts";
+  expect,
+  test,
+  mountComparison,
+} from "../tests/support/comparisonMountPage.ts";
+import {
+  summaryScopeFacts,
+  serveComparison,
+} from "../tests/support/comparisonScopeFacts.ts";
+import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
+import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
+import { shortSha } from "../src/baseCiWording.ts";
 
 test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async ({
   page,
-  origin,
+  comparisonServer,
+  comparisonServices,
 }) => {
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const facts = summaryScopeFacts();
+  serveComparison(comparisonServices, facts, facts.entries);
+  const setup = { completion: facts.work.revision };
   const previous = "1".repeat(40);
   const adapterAttemptId = "opaque-attempt+#";
   const adapterUrl = "https://ci.invalid/adapter-proof";
@@ -103,8 +109,11 @@ test("a failed local entry history read keeps the selected Done story and compar
     },
   );
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  const summary = await openSummaryComparison(intent, "dashboard/tests");
+  await mountComparison(page, comparisonServer, {
+    ...facts,
+    doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
+  });
+  const summary = page.getByRole("region", { name: "Summary", exact: true });
   const history = summary.getByRole("region", {
     name: "Test execution time history",
     exact: true,

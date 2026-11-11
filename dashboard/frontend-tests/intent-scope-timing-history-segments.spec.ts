@@ -2,22 +2,28 @@
 // The collection-to-Summary journey owns actual retained evidence; this
 // substitute fails only the local history read beside an existing comparison.
 
-import { expect, test } from "../support/preparationPage.ts";
-import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
 import {
-  openSummaryComparison,
-  selectDoneStoryForSummaryComparison,
-} from "../support/selectDoneStoryForSummaryComparison.ts";
-import { expectComparisonScopeRows } from "../intentScopeProofPage.ts";
-import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+  expect,
+  test,
+  mountComparison,
+} from "../tests/support/comparisonMountPage.ts";
+import {
+  summaryScopeFacts,
+  serveComparison,
+} from "../tests/support/comparisonScopeFacts.ts";
+import { expectComparisonScopeRows } from "../tests/intentScopeProofPage.ts";
+import { entryComparisonRows } from "../tests/support/summaryComparisonExpectedRows.ts";
+import { makeMe } from "../../tests/support/makeMe.mjs";
+import { expectNoSidewaysScrollIn } from "../tests/pageLayout.ts";
 
 test("earlier supported owning-entry segments stay readable beside a selected proof gap and the line does not join incompatible segments", async ({
   page,
-  origin,
+  comparisonServer,
+  comparisonServices,
 }) => {
-  const setup = await publishSummaryComparisonStory(page, origin);
+  const facts = summaryScopeFacts();
+  serveComparison(comparisonServices, facts, facts.entries);
+  const setup = { completion: facts.work.revision };
   const older = "1".repeat(40);
   const changed = "2".repeat(40);
   const collected = makeMe.aCiScopeHistory
@@ -116,8 +122,11 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
     (route) => route.fulfill({ json: collected }),
   );
   await page.setViewportSize({ width: 390, height: 844 });
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  const summary = await openSummaryComparison(intent, "dashboard/tests");
+  await mountComparison(page, comparisonServer, {
+    ...facts,
+    doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
+  });
+  const summary = page.getByRole("region", { name: "Summary", exact: true });
   const history = summary.getByRole("region", {
     name: "Test execution time history",
     exact: true,
@@ -150,9 +159,12 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
 for (const variant of ["empty", "all gaps"] as const) {
   test(`${variant} scope history explains the absence of measurements without drawing an empty chart`, async ({
     page,
-    origin,
+    comparisonServer,
+    comparisonServices,
   }) => {
-    const setup = await publishSummaryComparisonStory(page, origin);
+    const facts = summaryScopeFacts();
+    serveComparison(comparisonServices, facts, facts.entries);
+    const setup = { completion: facts.work.revision };
     const collected = makeMe.aCiScopeHistory
       .with({
         path: "dashboard/tests",
@@ -197,8 +209,11 @@ for (const variant of ["empty", "all gaps"] as const) {
       /\/__authenticated-read\?.*intent=ci-history.*scope=/,
       (route) => route.fulfill({ json: collected }),
     );
-    const { intent } = await selectDoneStoryForSummaryComparison(page);
-    const summary = await openSummaryComparison(intent, "dashboard/tests");
+    await mountComparison(page, comparisonServer, {
+      ...facts,
+      doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
+    });
+    const summary = page.getByRole("region", { name: "Summary", exact: true });
     const history = summary.getByRole("region", {
       name: "Test execution time history",
       exact: true,
