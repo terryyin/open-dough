@@ -22,7 +22,10 @@ this slice under the failure policy.
 
 - Reviewed execution: commits `19442de20`, `7b26cc9d3` and `fb62a8266` on
   `claude/select-and-copy-text-in-the-dashboard-terminal-o`; the swipe decision
-  arrived in `19442de20`.
+  arrived in `19442de20`. The reviewed story and its plan are recoverable at
+  `ebaf16f6336d2d9111f95984b907a006b67f3c04`:
+  `.planning/seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile`
+  and `.planning/slice-plans/591-select-and-copy-terminal-text-on-mobile/PLAN.md`.
 - `dashboard/src/terminalTouchScroll.ts` decides by
   `wheelTracking = ["vt200", "drag", "any"]` against
   `terminal.modes.mouseTrackingMode`.

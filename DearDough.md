@@ -221,7 +221,7 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: slice1 guarded fresh formatting refused no-param-reassign on frontendServices.projects and require-await on an immediate rerun callback after passing browser/type proof and independent refactor. `2e8d46e0:.planning/slice-plans/581-show-trunk-test-scope-timing-history/slice-1-proof.md` retains the mechanical Object.assign/Promise.resolve repair and unchanged-proof rationale.
   - Observed effect: commit/publication were correctly withheld until the mechanical repair and preparation retry; authored-file lint feedback arrived at coordinator delivery. Earlier-check savings remain unmeasured.
 
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (plan 591; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
   - Timestamp: unknown (2026-11-11, minutes before publication of `19442de20`, whose hosted run started 20:58:54+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -405,7 +405,7 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `921ad3c98` PLAN.md has `## Slice`; published tip `8fa1b522` has `## Slices`. Coordinator transcript `058c51db-7e9f-4095-86f9-2783c98271b9` renamed the heading before the successful `story-obligations.mjs list --slice 1`. Reader regex: `^## +(?:Ordered slices|Slices) *$`. Sibling Taken plan 568 still has `## Slice` at line 112.
   - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
   - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (plan 591; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
   - Timestamp: unknown (2026-11-11, before the first implementation delegation, about 20:30+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -451,7 +451,7 @@ a manual records-only repair before its first slice commit.
 
 ### Occurrences
 
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (plan 591; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
   - Timestamp: unknown (2026-11-11, before the first implementation delegation, about 20:30+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -465,7 +465,7 @@ At slice acceptance the coordinator returned the proof for the state the story's
 
 ### Occurrences
 
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (plan 591; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
   - Timestamp: unknown (2026-11-11; acceptance about 20:50+08:00, Intent Coverage report 23:51+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -480,7 +480,7 @@ The plan's proof named the phone toolbar's measuring specs as preserved consumer
 
 ### Occurrences
 
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (plan 591; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
   - Timestamp: unknown (2026-11-11, slice 2 implementation between about 21:15 and 22:30+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -495,7 +495,7 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
 
 ### Occurrences
 
-- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (plan 591; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
   - Timestamp: unknown (2026-11-11; review returned about 20:25+08:00, observations recorded at each of three acceptances)
   - Tool: Claude Code
   - Model: claude-fable-5-2

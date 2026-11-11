@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-316_select-and-copy-terminal-text-on-mobile.json",
+      "identity": "SEED-316#select-and-copy-terminal-text-on-mobile",
+      "completedAt": "2026-11-11T15:56:56.288Z",
+      "blob": "43df6943db515e8798c56920ac08cf4f28c5de3d"
+    },
+    {
       "fileName": "SEED-311_speed-up-production-watcher-lifecycle-checks.json",
       "identity": "SEED-311#speed-up-production-watcher-lifecycle-checks",
       "completedAt": "2026-11-11T10:44:00.526Z",
@@ -1980,12 +1986,6 @@
       "identity": "SEED-063#background-ci-failure-delivery",
       "completedAt": "2026-10-12T23:55:32.494Z",
       "blob": "16955965e73026dcce9304d2f25c719856207877"
-    },
-    {
-      "fileName": "SEED-131_retain-strict-proof-selection.json",
-      "identity": "SEED-131#retain-strict-proof-selection",
-      "completedAt": "2026-10-12T12:34:18.135Z",
-      "blob": "b43735f2a0e56e3041771fda4a416f324ee44443"
     }
   ],
   "unreadable": []
