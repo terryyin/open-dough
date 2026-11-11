@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Apply shared page-object rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-page-object-rules-per-entry) — SEED-307#apply-shared-page-object-rules-per-entry ([plan](slice-plans/590-apply-shared-page-object-rules-per-entry/PLAN.md))
 - [Select and copy text in the Dashboard terminal on mobile](seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile) — SEED-316#select-and-copy-terminal-text-on-mobile ([plan](slice-plans/591-select-and-copy-terminal-text-on-mobile/PLAN.md))
 - [Upgrade all dependencies](seeds/SEED-317-upgrade-all-dependencies.md#upgrade-all-dependencies) — SEED-317#upgrade-all-dependencies
-- [Speed up touch review checks](seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) — SEED-312#speed-up-touch-review-checks ([plan](slice-plans/592-speed-up-touch-review-checks/PLAN.md))
 
 ## Backlog list
 
