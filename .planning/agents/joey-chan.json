@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "joey-chan",
+  "email": "joey-chan@example.org",
+  "identity": "SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs",
+  "mode": "story-branch",
+  "branch": "cursor/show-ci-time-without-runner-waits-for-matrix-job",
+  "host": "cursor",
+  "model": "auto"
+}

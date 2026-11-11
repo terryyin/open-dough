@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Run the slowest Dashboard checks together in under 30 seconds](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
 - [Keep CI wall time history readable across dashboard updates](seeds/SEED-305-ci-wall-time-history-across-dashboard-updates.md#keep-ci-wall-time-history-readable-across-dashboard-updates) — SEED-305#keep-ci-wall-time-history-readable-across-dashboard-updates ([plan](slice-plans/581-keep-ci-wall-time-history-readable-across-dashboard-updates/PLAN.md))
 - [Show one CI proof row per location](seeds/SEED-304-ci-proof-one-row-per-location.md#show-one-ci-proof-row-per-location) — SEED-304#show-one-ci-proof-row-per-location ([plan](slice-plans/582-show-one-ci-proof-row-per-location/PLAN.md))
+- [Show CI time without runner waits for matrix jobs](seeds/SEED-306-ci-time-without-runner-waits-for-matrix-jobs.md#show-ci-time-without-runner-waits-for-matrix-jobs) — SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs ([plan](slice-plans/583-show-ci-time-without-runner-waits-for-matrix-jobs/PLAN.md))
 
 ## Backlog list
 
-- [Show CI time without runner waits for matrix jobs](seeds/SEED-306-ci-time-without-runner-waits-for-matrix-jobs.md#show-ci-time-without-runner-waits-for-matrix-jobs) — SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs
 - [Make remaining test domain setup express intent](seeds/SEED-302-remaining-makeme-test-data.md#make-remaining-test-domain-setup-express-intent) — SEED-302#make-remaining-test-domain-setup-express-intent
 - [Express dashboard test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects
 - [Limit first-layer test cases to ten lines](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#limit-first-layer-test-cases-to-ten-lines) — SEED-301#limit-first-layer-test-cases-to-ten-lines
