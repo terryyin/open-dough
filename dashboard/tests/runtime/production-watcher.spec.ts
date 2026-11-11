@@ -8,9 +8,9 @@ import { expect, test } from "../support/pageTest.ts";
 import { readdir } from "node:fs/promises";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { processGroup, runnersFor } from "../support/cursorRunnerJourney.ts";
-import { dashboardCommand } from "../support/dashboardCommand.ts";
 import { expectOwnOriginReadsOnly } from "../support/localOriginReads.ts";
 import { processRunning } from "../support/processGroup.ts";
+import { waitForEmptyDirectory } from "../support/watcherEvents.ts";
 import {
   deploymentCheckout,
   expectProductionEnded,
@@ -21,7 +21,6 @@ import {
   type ProductionActivation,
 } from "../support/productionWatcher.ts";
 import {
-  occupyProductionPort,
   sourceMarker,
   ProductionWatcherMachine,
 } from "./productionWatcherMachine.ts";
@@ -160,34 +159,6 @@ test("stopping the watcher ends production and its checkouts and leaves developm
   expect(processRunning(cursorClientPid)).toBe(true);
 });
 
-test("an occupied production port is refused rather than moved", async ({
-  request,
-}) => {
-  const { fixture } = started();
-  const deployments = productionDeployments(fixture.home);
-  const occupied = await occupyProductionPort(served.url);
-  const productionPort = occupied.port;
-  try {
-    const refused = dashboardCommand(
-      fixture.development,
-      env,
-      "watch:dashboard",
-      ["--port", productionPort],
-    );
-    expect((await refused.exited).code).toBe(1);
-    expect(refused.output()).toContain(
-      `Port ${productionPort} is already in use`,
-    );
-    expect(refused.output()).not.toMatch(/Production dashboard \w+ at http:/);
-    expect(await (await request.get(served.url)).text()).toBe(
-      "UNOWNED LISTENER",
-    );
-    expect(await readdir(deployments)).toEqual([]);
-  } finally {
-    await occupied.close();
-  }
-});
-
 test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
   request,
 }) => {
@@ -225,7 +196,9 @@ test("a restart serves current main as its baseline with the same runner, and SI
   );
   follow.send({ input: "after-restart\r" });
   await waitForWatcherTerminal(follow, "WATCHER INPUT <after-restart>");
+  const retired = waitForEmptyDirectory(deployments);
   watcher.signal("SIGINT");
+  await retired;
   await watcher.exited;
   await watcher.stop();
   expect(watcher.output()).not.toContain("could not run");

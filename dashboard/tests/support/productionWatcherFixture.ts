@@ -92,6 +92,7 @@ export async function productionFailureFixture() {
       name,
       scripts: {
         "watch:dashboard": watchScript,
+        "dev:dashboard": `node ${vite} ${viteOptions}`,
         "build:dashboard": `node ${vite} build ${viteOptions}`,
         "preview:dashboard": `node ${vite} preview ${viteOptions}`,
       },

@@ -1,7 +1,6 @@
 // Owned machine resources for the public watcher's serial lifecycle journey.
 import type { Browser, Page } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
-import { createServer } from "node:http";
 import path from "node:path";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { openCursorTerminal } from "../support/cursorTerminal.ts";
@@ -144,25 +143,4 @@ export class ProductionWatcherMachine {
     await this.development?.stop();
     await this.fixture?.cleanup();
   }
-}
-
-export async function occupyProductionPort(url: string) {
-  const port = new URL(url).port;
-  const listener = createServer((req, res) => {
-    req.resume();
-    res.end("UNOWNED LISTENER");
-  });
-  await new Promise<void>((resolve) =>
-    listener.listen(Number(port), "127.0.0.1", resolve),
-  );
-  return {
-    port,
-    close: () =>
-      new Promise<void>((resolve, reject) =>
-        listener.close((error) => {
-          if (error) reject(error);
-          else resolve();
-        }),
-      ),
-  };
 }

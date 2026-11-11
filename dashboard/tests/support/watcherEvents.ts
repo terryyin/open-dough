@@ -1,4 +1,4 @@
-import { watch } from "node:fs";
+import { readdirSync, watch } from "node:fs";
 import type { dashboardCommand } from "./dashboardCommand.ts";
 
 type WatchCommand = ReturnType<typeof dashboardCommand>;
@@ -87,5 +87,27 @@ export function waitForWatcherFile<T>(
     return () => {
       observer.close();
     };
+  });
+}
+
+// A terminal signal can end npm before the watcher retires its checkouts.
+export function waitForEmptyDirectory(directory: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    function fail(error: unknown) {
+      changes.close();
+      reject(error instanceof Error ? error : new Error(String(error)));
+    }
+    function check() {
+      try {
+        if (readdirSync(directory).length !== 0) return;
+        changes.close();
+        resolve();
+      } catch (error) {
+        fail(error);
+      }
+    }
+    const changes = watch(directory, { persistent: false }, check);
+    changes.once("error", fail);
+    check();
   });
 }

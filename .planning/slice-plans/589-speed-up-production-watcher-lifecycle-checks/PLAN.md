@@ -78,7 +78,7 @@ on their observable transitions. Full-app fixture publishes only runtime inputs.
 
 ### 3. Move detailed lifecycle coverage to its production owner
 Type: Behavior
-Status: planned
+Status: done
 Proof: A bounded early experiment tests the archived preview owner through
 real Vite and process boundaries, then maps each proposed removal to surviving
 proof and an appropriate fault control. Verify the real CLI uses the same
@@ -96,12 +96,10 @@ comparison and retain the change only with the declared saving and coverage.
 - A separate 11.22-second recovery trial with two tiny outputs and real
   processes caught restoration to the failed candidate. It left CLI
   composition, origin recovery, signals and native acceptance to other proof.
-- The decisive no-mock composition question is bounded by the early
-  experiment in slice 3. Existing full CI cases use synthetic GitHub and
-  native host fixtures. Establish an ordinary-CI replacement using real
-  product boundaries before removing that evidence. If no equivalent proof
-  is feasible without live credentialed host services, surface the exact
-  gap for a decision before claiming coverage or landing.
+- The no-mock replacement was established before moving detailed cases.
+  The full dashboard uses actual local Git, a real Cursor runner and
+  terminal client, and pinned native Codex with an empty conversation.
+  Direct published-read tests retain ref, pinned-backlog and cache details.
 
 ## Accepted slice 1 proof
 
@@ -187,3 +185,56 @@ first attempt in 42.70 seconds on macOS with one worker under
 `caffeinate -s -i`. Dashboard typecheck, scoped formatting and lint, and
 `git diff --check` passed. This proof covers the pending attempt,
 live old preview, second-start refusal, and durable native settlement.
+
+## Accepted slice 3 proof
+
+The ordinary backend check builds two one-page Vite deployments and calls
+the preview owner used by the actual watcher. Both processes fail to
+start with distinct causes. The check observes both commits and causes,
+the closed URL and the ended original PID. A scratch mutation that
+restarted the candidate in place of the working commit failed on the
+missing working-preview cause and was reverted. The focused live recovery,
+refusal and preview selection passed 9/9 in 20.74 seconds.
+
+The retained CLI sequence still demonstrates real build failure, preview
+failure, working-commit restoration on the same URL with a new PID and
+successful retry of the same candidate. The CLI's common fatal exit is
+proved by killing the serving preview and observing its exit, URL and
+checkout retirement. A real independent development listener keeps
+serving and the shared launch record and config keep their original bytes.
+HUP and SIGINT await retirement events. Actual port refusal uses the tiny
+watcher and an independent listener.
+
+The full startup and update specs retain browser-visible pinned output
+beside dirty development, exact B-before-C replacement at the same URL,
+published read and launch boundaries, native drain and settlement, stable
+shared records, and live Cursor runner and terminal client across
+replacement and restart. The direct Git selection and provider-read
+checks continue in ordinary CI. The selector has 29 cases in place of 31
+because successive observations share journeys and the detailed dual
+failure and port refusal use cheaper real boundaries.
+
+Whole-command one-worker timing includes all setup and teardown. Both
+base and candidate ran on AC macOS with the same ordinary strict runner.
+The base passed 31/31 in 138.77 seconds. The repaired candidate's first
+run passed 29/29 with no retry in 82.43 seconds, saving 56.34 seconds
+(40.6%). The one-minute load at start was 5.94 on the base and 8.07 on
+the candidate. Native tool resolution and fixture teardown are included.
+The second repaired run passed 29/29 on the first attempt in 83.90 seconds
+(one-minute load 6.08). Across the two runs the saving is 54.87–56.34
+seconds (39.5–40.6%). The strict 11-case repair gate and the two whole
+runs give three consecutive passes of the changed native drain sequence.
+
+Playwright case durations locate the savings. These sums exclude the
+outer setup and reporting overhead included in the wall times above.
+
+| Behavior family | Baseline seconds | Repaired seconds |
+| --- | ---: | ---: |
+| Recovery, refusal and lower preview lifecycle | 51.46 | 21.89–22.28 |
+| Full startup, independent development and Cursor runner | 27.06 | 17.08–17.48 |
+| Full update and focused policy decisions | 36.24 | 27.97–28.70 |
+| Real Git update selection | 2.38 | 2.19–2.30 |
+
+The independent refactor review kept the shared production owner and
+event helpers as implemented. Its traced consumers preserve the ordinary
+CLI, single-preview and Git selection contracts.
