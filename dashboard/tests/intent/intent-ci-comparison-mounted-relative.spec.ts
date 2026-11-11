@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Relative marks and Show % use actual preference state and rendered geometry.
 import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -17,8 +18,7 @@ import {
 } from "../support/relativeTimingMarks.ts";
 import { rowNames } from "../support/expectSortedColumns.ts";
 
-const tableOf = (panel: Locator) =>
-  panel.getByRole("table", { name: "CI entry timing comparison" });
+const tableOf = (panel: Locator) => comparisonReading(panel).entryTable;
 const cell = (panel: Locator, entry: string, column: "Branch" | "Landed") =>
   tableOf(panel)
     .locator("tbody tr")
@@ -41,7 +41,7 @@ test("summary and entries share a centred fifty percent scale with faster left a
   await expect(cell(panel, "e/faster", "Landed")).toHaveText("−1 min");
   await expectMark(cell(panel, "e/faster", "Branch"), "faster", 0.5);
   await expectMark(cell(panel, "e/faster", "Landed"), "faster", 1);
-  const overall = panel.locator(".intent-ci-comparison-overall-wall");
+  const overall = comparisonReading(panel).overallWallTime;
   await expect(overall).toHaveText("+1 min");
   await expectMark(overall, "slower", 2 / 3);
 });
@@ -133,7 +133,7 @@ test("a one hundred fifty percent outlier widens every mark's shared scale", asy
   const selected = cell(panel, "e/outlier", "Landed")
     .or(cell(panel, "e/faster", "Landed"))
     .or(cell(panel, "e/slower", "Landed"))
-    .or(panel.locator(".intent-ci-comparison-overall-wall"));
+    .or(comparisonReading(panel).overallWallTime);
   const observed = await relativeFigures(selected);
   expect(observed.figures.map((figure) => figure.identity)).toEqual([
     { row: null, column: null, overallWall: true },

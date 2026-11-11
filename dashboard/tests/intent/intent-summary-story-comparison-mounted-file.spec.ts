@@ -1,10 +1,10 @@
+import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // File Proof rules use real scope owners; Purpose and tab return stay integrated.
 import { test, expect } from "../support/pageTest.ts";
 import { renderComparison } from "../support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
-  expectFileComparisonRow,
   modifiedFileRow,
   addedFileRow,
   renamedFileRow,

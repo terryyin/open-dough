@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Open a published Done story with historical sessions, finish its existing
 // comparison reads, then let the case count local history navigation.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -35,9 +36,9 @@ export async function openCollectedHistoryStory(page: Page, address = "/") {
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0, {
     timeout: readWaitLimitMs + 15_000,
   });
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
+  await expect(comparisonReading(panel).entryTable).toBeVisible({
+    timeout: readWaitLimitMs + 15_000,
+  });
   await chooseStoryTab(intent, "Changed tests");
   return { intent, panel, card };
 }

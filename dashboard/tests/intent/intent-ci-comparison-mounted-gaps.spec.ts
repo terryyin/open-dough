@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The real control stays usable through repeated unavailable Baseline answers.
 import {
   test,
@@ -29,7 +30,7 @@ test("each failed Baseline Check again holds the button disabled and retains the
     }),
   });
   const panel = await mountComparison(page, comparisonServer, facts);
-  const baseline = panel.locator(".intent-ci-comparison-identity").first();
+  const baseline = comparisonReading(panel).identities.first();
   const check = panel.getByRole("button", { name: "Check again", exact: true });
   await expect(baseline).toHaveText(reason);
   for (let round = 0; round < 2; round += 1) {

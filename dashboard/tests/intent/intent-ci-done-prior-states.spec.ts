@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Missing local selected evidence leaves the existing Done comparison readable.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../support/preparationPage.ts";
@@ -26,12 +27,8 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
   await expect(history).toContainText(
     "Difference unavailable: selected measurement unavailable",
   );
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   const before = github.calls.length;
   const selected = makeMe.aLandedCiHistory
     .measuredLanding({
@@ -74,8 +71,6 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
   await expect(history).toContainText("0 prior builds used");
   await expect(history).toContainText("Insufficient comparable history");
   await expect(history).not.toContainText("Prior-build average · 1 min 43 s");
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(github.calls).toHaveLength(before);
 });

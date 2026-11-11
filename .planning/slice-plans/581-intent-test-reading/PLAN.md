@@ -4,6 +4,8 @@
 
 **Source:** [Refined Intent story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects)
 
+**Source review:** [Independent source commitments](source-review.md)
+
 ## Goal and scope
 
 Make Intent test source readable as the user's action, changed observation and
@@ -50,46 +52,8 @@ this story introduces no new state authority or runtime architecture.
 
 ## Proof ownership and baseline
 
-Each slice owns its finding's disposition, sibling-call-site sweep, before/after
-example, implementation, cleanup and preserved regression proof in one loop.
-Record affected specs, shared owner, distinguishing independent assertions and
-literal verification command in this plan as execution learns them. An exact
-contract or measurement retained directly is a supported disposition, not an
-unresolved finding. Samples demonstrate readability; every affected caller
-still needs a disposition and sufficient proof.
-
-| Original finding / final promise | Owning slices and observable evidence |
-| --- | --- |
-| Comparison and Summary metrics/rows | 1: integrated/rendered rows, units, cardinality, order and unsupported comparisons with caller expectations |
-| Sorting and relative presentation | 2: actual live keyboard activation/sort transitions; independently configured static presentation |
-| CI status and Proof | 3: retained old answer, outstanding read and replacement, scope/gap/unit rows |
-| Timing history | 4: build samples/reference; 5: selected scope sample/reference, gaps and recovery |
-| Locations, source and recovery | 6: selected source/target line; 7: revision and failure/retention sequence |
-| Story/perspective changes | 8: chosen story/file/view and kept reading, narrow layout, focus and Files sidebar |
-| Retained CI follow-up | 9: Done entry, original/repeat/reference, links/keyboard and no new acquisition |
-| One control owner with worthwhile cost | Every slice: all affected callers use the suitable owner; compare edit sites, call-site meaning and helper cost against `7eab3d6ca` and the execution base |
-| Every distinct behavior and tier survives | Every slice: inspect assertions/setup and run changed specs plus transitive consumers; final Intent/frontend selection covers the aggregate change |
-
-The source audit at `7eab3d6ca` is historical. At preparation base
-`9779b93c12250fa7a6acafedcd661f7bbc468888`, the sampled helpers and fixtures
-retain the documented seams; 158 dashboard test/support files changed since
-the audit. Reconcile each current caller, rather than treating historical
-counts or unchanged representative specs as complete coverage.
-
-## Decisive premises
-
-| Premise and consuming operation | Observation in this checkout / result / remainder |
-| --- | --- |
-| Integrated and static cases can use the existing comparison reader | Preparation selection includes adapter, mounted legacy and mounted units; all 32 selected cases passed at `9779b93c1` on 2026-11-11. The reader takes caller rows, not production-derived expectations. |
-| Static and live sort proofs must retain distinct operations | `comparisonRendering.ts` inserts SSR markup without handlers; `comparisonMountPage.ts` mounts a live component. Selection includes mounted-sort and integrated Summary sort; all 32 selected cases passed at `9779b93c1` on 2026-11-11. Static `sort`/`showPercent` remain inputs. |
-| Shared recovery observations can cross frontend/integrated setup | Selection includes integrated read-recovery and frontend candidate recovery under their existing separate fixtures; all 32 selected cases passed at `9779b93c1` on 2026-11-11. |
-| Remaining reading examples reach real observable boundaries | Selection includes kept CI answer, wall/scope history, source browse, Purpose target line, story changes, reading place and retained follow-up; all 32 selected cases passed at `9779b93c1` on 2026-11-11. This establishes existing boundaries, not an unimplemented helper's benefit. |
-| The local proof route can start integrated servers | Initial run failed because this worktree lacked `node_modules`, though parent tooling ran static cases. `npm ci` installed the lockfile locally; native setup check passed (Chromium 153.0.8010.12), and the repaired 32-case selection passed. No failure was waived. |
-
-Before accepting any replacement proof, observe discrimination with one
-plausible scratch fault at its real boundary and restore it. Unimplemented API
-designs are proposals, not settled runtime facts. An unchanged existing proof
-keeps its boundary; changing it reopens its corresponding premise.
+See [proof strategy and settled premises](proof-strategy.md). Each slice owns
+its sibling sweep, before/after source comparison, independent facts and preserved proof.
 
 ## Focused commands
 
@@ -114,7 +78,7 @@ that is cheaper and sufficient. Existing proof is retained unless changed.
 
 ### 1. Read comparison and Summary figures through shared owners
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 1 plus affected consumers. Preserve complete table rows/cells,
 units/order and missing-comparison checks. Compare a rendered and integrated
 before/after example and selector edit sites.
@@ -203,57 +167,10 @@ Behavior: A developer follows a Done card's CI evidence → the scenario names
 each destination and expected reading → `ciFollowUpReadingPage.ts` owns the
 navigation/observations and takes expected facts instead of embedding run 71.
 
-## Current decisions and cumulative design
+## Design and retained evidence
 
-Nine slices each own one readable outcome and proof loop; timing history and
-source recovery are split where they have distinct boundaries. Each slice is
-useful and green if later work stops. No generic framework, speculative API,
-extra owner per fixture tier or artificial prerequisite is needed. Compare
-clarity/edit sites and helper cost in each slice; a locator-count reduction
-alone is not the promised improvement. No numeric timing limit was supplied.
-
-Current expected Intent helper owners are below 250 lines (`intentPerspectivePage`
-241, `intentScopeProofPage` 221, `intentStoryPage` 208). Use their existing
-source-reading, table and story-view seams if extension approaches the limit;
-inspect actual proposed edits before implementation. No oversized code-owner
-reorganization is currently required.
-
-## Plan concern assessment
-
-The evaluator is the developer reading these scenarios in Intent. Each
-Behavior slice changes that developer-visible source: named user actions and
-independent expectations replace repeated browser mechanics. Its proof loop
-combines a representative before/after reading and shared-control ownership
-comparison with preserved automated product observations; passing those
-product tests alone does not prove the source-reading improvement.
-
-| Boundary | Judgment and evidence |
-| --- | --- |
-| 1. Comparison/Summary figures | Retain: one table-reading outcome spans the same evidence in integrated and rendered setups; caller rows and all affected consumers give its proof. Sorting can remain unchanged. |
-| 2. Sort/presentation choices | Retain: operating live controls and configuring static presentation establish one presentation-choice outcome with distinct honest observations. It remains useful after row reading is settled. |
-| 3. CI status/Proof changing answers | Retain: retained answer, outstanding read and replacement form one causal reading outcome; separating the displayed facts from their transition would fragment its proof. |
-| 4. Build history/reference | Retain: selected build observations and their prior-build reference share one history-reading loop. |
-| 5. Scope history/recovery | Retain: scope identity, units and gap/provenance distinguish this reading loop from build history; recovery preserves that same selected reading. Similar SVG markup does not justify consolidation. |
-| 6. Exact source targets | Retain: choosing a location and reading its target form one source-navigation outcome. Failed/stale read recovery can remain unchanged. |
-| 7. Revision/read recovery | Retain: retaining and replacing an existing reading through a held or failed answer has its own causal boundary, across independent frontend/integrated fixtures. Reuse slice 6's suitable owner without making another owner for recovery. |
-| 8. Story/perspective reading place | Retain: chosen context and retained file/view/scroll/focus are observed through the navigation transition; narrow views and Files sidebar are conditions of that outcome. |
-| 9. Retained CI follow-up | Retain: the Done entry and original/repeat/reference destinations form one retained-evidence reading flow, with attempt membership and no new acquisition observed at their own boundaries. |
-
-The seven Intent findings have complete ownership: slices 1, 2, 3, 4/5,
-6/7, 8 and 9 respectively. A source-label comparison found all 26 original
-audit findings retained exactly once across the eight seed stories. No
-Consolidate, Split or Escalate finding remains at these boundaries. There are
-nine planned slices, no sizing exception and no further resplit recommendation.
-Consumer discovery may refine an actual slice when its concrete change reveals
-an independent outcome or credible sizing risk; it does not authorize a new
-framework or a source-scope change.
-
-The 32-case baseline settled the listed existing reading routes. A subsequent
-restored-reader sample timed out during initial published-work reading while
-another execution deliberately held the machine under pressure. Its normal
-local profile was restored after that owner's pressure workers joined; both
-sample cases then passed. No slice-specific concern remains from these
-observations. Boundary review grants no execution authority.
+See [design assessment](design-assessment.md) for the slice boundary review and
+[preparation evidence](preparation-evidence.md) for the retained baseline and scratch fault.
 
 ## Execution gates and learnings
 
@@ -275,48 +192,27 @@ observations. Boundary review grants no execution authority.
   The separate restored sample passed after its intended local host profile
   was restored. Recheck host headroom before another expensive attempt.
 
-## Retained preparation observations
 
-At `9779b93c1`, on 2026-11-11, the strict normal runner selected and passed 32
-cases across the 16 files below. Inspected setup/observations are those files
-and their existing comparison, history, source, recovery and follow-up owners.
-This covers existing boundaries, not the future helper design or its benefit.
-The literal command was:
+## Execution context
 
-```sh
-caffeinate -s -i env OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-preparation-proof.json npm run test:dashboard -- tests/intent/intent-ci-comparison-adapter.spec.ts tests/intent/intent-ci-comparison-mounted-legacy.spec.ts tests/intent/intent-ci-comparison-mounted-units.spec.ts tests/intent/intent-ci-comparison-mounted-sort.spec.ts tests/intent/intent-summary-ci-proof-sort.spec.ts tests/intent/intent-read-recovery.spec.ts frontend-tests/intent-candidates-read-recovery.spec.ts tests/intent/intent-ci-status-kept.spec.ts tests/intent/intent-ci-wall-time-history-order.spec.ts tests/intent/intent-scope-timing-history-reading.spec.ts tests/intent/intent-code-browse-sources.spec.ts tests/intent/intent-purpose-case.spec.ts tests/intent/intent-story-changes.spec.ts tests/intent/intent-reading-place.spec.ts tests/intent/intent-ci-follow-up.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts --workers=1
-```
+- Established Story Branch execution: `codex/express-intent-test-reading-through-page-objects`
+  in `/Users/terryyin/git/open-dough/.worktrees/express-intent-test-reading-through-page-objects`;
+  publisher `dashboard-territory.local-open-dough`, agent `stanly-chan`.
+- Start `8ad6544887fc2d0302bf208034b2b88bf39370b4`; accepted claim and first
+  published base `8299f4e64f49939e1d6120390ebd0b44a0532328`. Remote `origin`, trunk `main`.
+  Optional default checkout `/Users/terryyin/git/open-dough`; increments target the story branch.
+- Exact-checkout `npm ci` and `npm run typecheck:dashboard` passed. Check-only staged lint
+  and script-triggered typecheck hook; selective formatting is `npm run format`.
+- CI source GitHub Actions, verified `ci.yml` / `CI` (351271804). Observer coordinator
+  `seed300-stanly`, cell `g136:24`, session `77557`, PID `89606`, mailbox
+  `/tmp/dough-ci-501/watch-KYQ9Uh`, target the remote execution branch. Claim trunk CI unobserved.
+- No numeric slice target/limit supplied. Existing in-scope planning authority retained.
+- Local host: 16 logical CPUs, 48 GiB RAM, AC; initial load 32.71, memory 41% free.
+  One browser worker; implementation owner rechecks pressure before each expensive launch.
+  Other worktrees have active proof; do not modify their processes. Reconsider on contention/failure.
+- Plan reorganization: preserve executable slices here; preparation baseline and design
+  assessment moved to cohesive linked records to keep each maintained file under 250 lines.
 
-The host had 16 logical CPUs, 48 GiB RAM and AC power. Load was 4.87 before the
-32-case launch; concurrent work was visible, so the selection used one worker.
-The strict transcript's `selectedCount` and terminal attempts both equal 32,
-all passed with no retry (`/tmp/seed300-preparation-proof.json`, run
-`c5dc48a3-6b5f-4d89-851c-fbec144ca45c`). Reuse this result while its covered
-paths are unchanged; reconcile affected proof after a changed base.
+## Accepted slice evidence
 
-A scratch replacement of the shared entry-table selector with a missing table
-made both an integrated adapter case and a rendered legacy case fail at
-`expectProofTableRows`: empty actual table versus caller-supplied expected
-rows. This establishes that the shared reading path discriminates missing
-semantics in both setups. The exact helper bytes were restored, with no
-scratch product changes retained. The command was:
-
-```sh
-caffeinate -s -i npm run test:dashboard -- tests/intent/intent-ci-comparison-adapter.spec.ts tests/intent/intent-ci-comparison-mounted-legacy.spec.ts --grep 'done adapter|overall Counts and entry row' --workers=1
-```
-
-The restored rerun encountered a distinct 30-second integrated startup timeout
-before comparison selection, while the page still said Reading published work.
-No sleep occurred in its window. Host load was above 20 and SEED-287's explicit
-pressure run was active. Its controller subsequently recorded all 20 pressure
-workers joined at 08:09:36 UTC, with no remaining busy work. At the next launch,
-load was 12.85 on 16 logical CPUs and the memory-pressure query reported 45%
-free. This changed condition supplied the normal local profile for one bounded
-diagnostic replay; it was not an unchanged retry until green.
-
-Both restored cases passed with the same command and
-`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-reader-restored-normal-proof.json`.
-The helper's bytes matched Git throughout the restored runs. No assertion,
-timeout, production behavior or other owner's workload was changed. This
-settles the normal local reading route, not stability under arbitrary external
-pressure. Reuse the maintained headroom/sleep policy for future launches.
+- Slice 1: [comparison and Summary acceptance](slice-1-evidence.md).

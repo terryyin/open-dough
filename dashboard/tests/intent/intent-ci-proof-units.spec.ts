@@ -1,3 +1,4 @@
+import { fileProofTable } from "../intentFileProofPage.ts";
 // CI proof results in their units through Intent (../../src/IntentCiProof.tsx,
 // ../../src/IntentScopeProof.tsx, ../../src/IntentFileProof.tsx,
 // ../../src/ciProofUnits.ts): raw runner reports go through the collector's
@@ -139,8 +140,7 @@ async function expectFileProof(
 ) {
   await intentFile(intent, file).click();
   await fileReadingTab(intent, "Proof").click();
-  const body = proofRegion(intent)
-    .getByRole("table", { name: `CI proof of ${file}` })
+  const body = fileProofTable(proofRegion(intent), file)
     .locator("tbody")
     .getByRole("row");
   await expect(body).toHaveCount(rows.length);

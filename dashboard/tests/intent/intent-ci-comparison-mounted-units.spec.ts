@@ -1,3 +1,9 @@
+import { expectFileComparisonRows } from "../intentFileProofPage.ts";
+import {
+  expectNamedScopeRows,
+  expectNamedScopeFigures,
+} from "../intentScopeProofPage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 import { test, expect } from "../support/pageTest.ts";
 import {
   renderComparison,
@@ -10,32 +16,12 @@ import {
   aSpec,
   dashboardTests,
   entry,
-  expectNamedRows,
-  expectOwnFigures,
   folder,
 } from "../support/ciComparisonUnitsJourney.ts";
 import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
 import { summaryComparisonChanges } from "../support/intentSummaryStoryComparisonFixture.ts";
 import { intentFile } from "../support/intentStoryPage.ts";
-import type { Locator } from "@playwright/test";
-
-async function fileProofRows(
-  intent: Locator,
-  file: string,
-  rows: readonly (readonly string[])[],
-) {
-  const body = intent
-    .getByRole("table", { name: `CI proof of ${file}`, exact: true })
-    .locator("tbody tr");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, cells] of rows.entries()) {
-    await expect(body.nth(at).getByRole("rowheader")).toHaveText(
-      `${file} modified`,
-    );
-    await expect(body.nth(at).getByRole("cell")).toHaveText([...cells]);
-  }
-}
 
 // Five/six/seven test cases and one test file, arranged anew by every case.
 function casesAndFiles() {
@@ -58,7 +44,7 @@ test("Baseline's five test cases and one test file against seven test cases and 
     ...rendered,
     scope: undefined,
   });
-  const overall = panel.locator(".intent-ci-comparison-overall-counts");
+  const overall = comparisonReading(panel).overallCounts;
   await expect(overall).toHaveText(
     "5 → 7 test cases (+2); 1 test file (no change)",
   );
@@ -83,25 +69,25 @@ test("Baseline's five test cases and one test file against seven test cases and 
   const rendered = comparisonRenderFacts(facts, casesAndFiles());
   await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expectOwnFigures(summary, `CI proof of ${entry}: test cases`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${entry}: test cases`, [
     "5 → 6 test cases (+1) → 7 test cases (+2)",
     "40.0 s",
     "+5.0 s",
     "+10.0 s",
     parts,
   ]);
-  await expectOwnFigures(summary, `CI proof of ${entry}: test files`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${entry}: test files`, [
     filesUnchanged,
     "7.0 s",
     "+1.0 s",
     "0 ms",
     parts,
   ]);
-  await expectNamedRows(summary, entry, "folder/", [
+  await expectNamedScopeRows(summary, entry, "folder/", [
     ["", casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
     ["", filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
   ]);
-  await expectNamedRows(summary, entry, "root.spec.ts", [
+  await expectNamedScopeRows(summary, entry, "root.spec.ts", [
     ["", "2 test cases (no change)", "10.0 s", "0 ms", "0 ms"],
   ]);
 });
@@ -118,21 +104,21 @@ test("Baseline's five test cases and one test file against seven test cases and 
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
   await expect(summary.locator(".intent-summary-path")).toHaveText(folder);
-  await expectOwnFigures(summary, `CI proof of ${folder}: test cases`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${folder}: test cases`, [
     casesChange,
     "30.0 s",
     "+5.0 s",
     "+10.0 s",
     parts,
   ]);
-  await expectOwnFigures(summary, `CI proof of ${folder}: test files`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${folder}: test files`, [
     filesUnchanged,
     "7.0 s",
     "+1.0 s",
     "0 ms",
     parts,
   ]);
-  await expectNamedRows(summary, folder, "a.spec.ts", [
+  await expectNamedScopeRows(summary, folder, "a.spec.ts", [
     ["modified", casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
     ["modified", filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
   ]);
@@ -163,8 +149,8 @@ test("Baseline's five test cases and one test file against seven test cases and 
     ...rendered,
     scope: { ...facts.scope, selection: { path: aSpec, scope: "file" } },
   });
-  await fileProofRows(intent, aSpec, [
-    [casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
-    [filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
+  await expectFileComparisonRows(intent, aSpec, [
+    [`${aSpec} modified`, casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
+    [`${aSpec} modified`, filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
   ]);
 });

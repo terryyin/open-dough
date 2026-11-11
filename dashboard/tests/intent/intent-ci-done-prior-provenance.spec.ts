@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -105,18 +106,18 @@ for (const selection of ["equivalent", "later"] as const) {
         "Measured build is at or after the selected endpoint",
       );
       await expect(history).toContainText("+3 min 20 s (+200%)");
-      await expect(
-        panel.locator(".intent-ci-comparison-identity").nth(2),
-      ).toContainText("equivalent build");
+      await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+        "equivalent build",
+      );
     } else {
       await expect(selected).toContainText("later trunk build");
       await expect(history).toContainText(
         "Selected measurement uses a later trunk build and includes later changes",
       );
       await expect(history).toContainText("+2 min 20 s (+140%)");
-      await expect(
-        panel.locator(".intent-ci-comparison-identity").nth(2),
-      ).toContainText(`Cancelled at ${shortSha(endpoint)}`);
+      await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+        `Cancelled at ${shortSha(endpoint)}`,
+      );
     }
   });
 }

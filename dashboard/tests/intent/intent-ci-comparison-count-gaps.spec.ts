@@ -1,3 +1,5 @@
+import { fileProofTable } from "../intentFileProofPage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Count eligibility reaches overall Counts, entry rows, Summary, Proof and
 // tree accessible evidence. Detailed endpoint/unit variations are Node cases.
 import { expect, test } from "../support/preparationPage.ts";
@@ -60,16 +62,14 @@ test("partial case observations retain their gap in overall Counts and entry row
     landed: [countedEntry(5, 2)],
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const overall = panel.locator(".intent-ci-comparison-overall-counts");
+  const overall = comparisonReading(panel).overallCounts;
   await expect(overall).toContainText(
     "5 test cases (dashboard/tests: part 2 of 2 missing; count difference unavailable) → 7 test cases",
   );
   await expect(overall).toContainText("1 → 2 test files (+1)");
   await expect(overall).not.toContainText("(+2)");
   await expectCueState(overall, { count: "more-strong" });
-  const rows = panel
-    .getByRole("table", { name: "CI entry timing comparison" })
-    .locator("tbody tr");
+  const rows = comparisonReading(panel).entryTable.locator("tbody tr");
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(0).getByRole("cell").first()).toHaveText(
     "5 test cases (part 2 of 2 missing; count difference unavailable) → 6 test cases → 7 test cases",
@@ -143,10 +143,7 @@ test("ambiguous Baseline parts keep count claims out of Summary, file Proof and 
   await expectCueState(intentLocationHeader(intent, entry), { count: "none" });
   await file.click();
   await fileReadingTab(intent, "Proof").click();
-  const proof = proofRegion(intent).getByRole("table", {
-    name: `CI proof of ${aSpec}`,
-    exact: true,
-  });
+  const proof = fileProofTable(proofRegion(intent), aSpec);
   const caseRow = proof.locator("tbody tr").first();
   await expect(caseRow.getByRole("cell").first()).toHaveText(caseCounts);
   await expectCueState(caseRow, { count: "none", countReason: "partial" });

@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Endpoint-only gap words; imported by the mounted wording spec.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "./pageTest.ts";
@@ -33,18 +34,20 @@ for (const reason of [
       mixedEntryFacts(),
     );
     const panel = await renderComparison(page, comparisonRenderer, rendered);
-    await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+    await expect(comparisonReading(panel).wallTimes).toHaveText([
       "3 min",
       "3 min 20 s",
       "4 min",
     ]);
-    await expect(
-      panel.locator(".intent-ci-comparison-without-waits"),
-    ).toHaveText(["2 min", "2 min", `Unavailable. ${reason}`]);
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").last(),
-    ).toContainText("ccccccc");
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).timesWithoutWaits).toHaveText([
+      "2 min",
+      "2 min",
+      `Unavailable. ${reason}`,
+    ]);
+    await expect(comparisonReading(panel).identities.last()).toContainText(
+      "ccccccc",
+    );
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Landed",
     );
   });
@@ -66,23 +69,24 @@ test("running Landed retains Branch fallback and its added-entry words", async (
     mixedEntryFacts(),
   );
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
-  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+  await expect(comparisonReading(panel).wallTimes).toHaveText([
     "3 min",
     "3 min 20 s",
     "—",
   ]);
-  await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["2 min", "2 min", "Unavailable while the build is running."],
+  await expect(comparisonReading(panel).timesWithoutWaits).toHaveText([
+    "2 min",
+    "2 min",
+    "Unavailable while the build is running.",
+  ]);
+  await expect(comparisonReading(panel).identities.last()).toContainText(
+    "running",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").last(),
-  ).toContainText("running");
-  const added = panel
-    .getByRole("table", { name: "CI entry timing comparison" })
-    .locator("tbody tr")
+  const added = comparisonReading(panel)
+    .entryTable.locator("tbody tr")
     .filter({ hasText: "src/skills" });
   await expect(added.getByRole("cell")).toHaveText([
     "added → 3 test files",
@@ -112,7 +116,7 @@ test("unavailable Landed proof retains the Branch counts, time and exact adapter
       .please(),
   ]);
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
   await expectCiComparisonEntryRows(panel, [
@@ -155,7 +159,7 @@ for (const reason of [
       .please();
     const rendered = comparisonRenderFacts({ ...facts, answer }, undefined, []);
     const panel = await renderComparison(page, comparisonRenderer, rendered);
-    await expect(panel.locator(".intent-ci-comparison-identity")).toHaveText([
+    await expect(comparisonReading(panel).identities).toHaveText([
       reason,
       reason,
       reason,

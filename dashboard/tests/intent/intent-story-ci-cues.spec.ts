@@ -6,6 +6,7 @@
 // Folder rows stay uncued (deferred).
 
 import { expect, test } from "../support/preparationPage.ts";
+import { fileProofTable } from "../intentFileProofPage.ts";
 import { parts } from "../dashboardPage.ts";
 import {
   expandIntentGroup,
@@ -83,8 +84,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
     await file.click();
     await fileReadingTab(intent, "Proof").click();
     const proof = proofRegion(intent);
-    const proofRow = proof
-      .getByRole("table", { name: `CI proof of ${cuedFilePath}` })
+    const proofRow = fileProofTable(proof, cuedFilePath)
       .locator("tbody")
       .getByRole("row")
       .first();

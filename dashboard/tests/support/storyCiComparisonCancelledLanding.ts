@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Cancelled Story Branch landings on Intent's CI timing comparison (SEED-254):
 // later trunk builds' proofs, runs listings asked per later revision, and
 // Landed's identity, figures and unused reason.
@@ -69,8 +70,8 @@ export function runListingsAt(
 
 export function landedOf(panel: Locator) {
   return {
-    identity: panel.locator(".intent-ci-comparison-identity").nth(2),
-    wall: panel.locator(".intent-ci-comparison-wall").nth(2),
+    identity: comparisonReading(panel).identities.nth(2),
+    wall: comparisonReading(panel).wallTimes.nth(2),
   };
 }
 
@@ -84,10 +85,10 @@ export async function expectLandedUnusedBecause(
   const landed = landedOf(panel);
   await expect(landed.identity).toContainText(`${cancelled} ${why}`);
   await expect(landed.wall).toHaveText("—");
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-active-reason"),
-  ).toContainText(`Landed is not used: ${cancelled} ${why}`);
+  await expect(comparisonReading(panel).fallbackReason).toContainText(
+    `Landed is not used: ${cancelled} ${why}`,
+  );
 }

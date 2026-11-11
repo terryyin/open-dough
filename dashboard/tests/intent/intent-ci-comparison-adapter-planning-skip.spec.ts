@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // A Done adapter planning-only skip reuses the equivalent attempt's wall
 // time without a proof summary (SEED-288#reuse-adapter-equivalent-timing).
 // Parameterized discover-build comparison journeys stay in
@@ -70,18 +71,16 @@ test("a Done adapter planning-only skip shows Landed equivalent wall time withou
   });
 
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  const landedIdentity = comparisonReading(panel).identities.nth(2);
   await expect(landedIdentity).toContainText(shortSha(setup.trunkSide));
   await expect(landedIdentity).toContainText("equivalent build");
   await expectNoRunOrAttemptIds(landedIdentity);
   await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "5 min",
-  );
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("5 min");
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
-  await expect(panel.locator(".intent-ci-comparison-active-reason")).toHaveText(
+  await expect(comparisonReading(panel).fallbackReason).toHaveText(
     /Landed is not used: .+no CI proof summary/,
   );
   expect(

@@ -1,3 +1,9 @@
+import { expectFileComparisonRows } from "../intentFileProofPage.ts";
+import {
+  expectNamedScopeRows,
+  expectNamedScopeFigures,
+} from "../intentScopeProofPage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 import { test, expect } from "../support/pageTest.ts";
 import { renderComparison } from "../support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
@@ -6,29 +12,9 @@ import {
   aSpec,
   dashboardTests,
   entry,
-  expectNamedRows,
-  expectOwnFigures,
 } from "../support/ciComparisonUnitsJourney.ts";
 import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import { expectCiComparisonEntryRows } from "../support/expectCiComparisonEntryRows.ts";
-import type { Locator } from "@playwright/test";
-
-async function fileProofRows(
-  intent: Locator,
-  file: string,
-  rows: readonly (readonly string[])[],
-) {
-  const body = intent
-    .getByRole("table", { name: `CI proof of ${file}`, exact: true })
-    .locator("tbody tr");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, cells] of rows.entries()) {
-    await expect(body.nth(at).getByRole("rowheader")).toHaveText(
-      `${file} modified`,
-    );
-    await expect(body.nth(at).getByRole("cell")).toHaveText([...cells]);
-  }
-}
 
 // Legacy Baseline and Branch remain independent facts inside each case.
 function legacyAtBaselineAndBranch() {
@@ -56,7 +42,7 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
     ...rendered,
     scope: undefined,
   });
-  const overall = panel.locator(".intent-ci-comparison-overall-counts");
+  const overall = comparisonReading(panel).overallCounts;
   await expect(overall).toHaveText(
     "6 legacy test results → 7 test cases and 1 test file (legacy unit unknown)",
   );
@@ -77,14 +63,14 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
   const rendered = comparisonRenderFacts(facts, legacyAtBaselineAndBranch());
   await renderComparison(page, comparisonRenderer, rendered);
   const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expectOwnFigures(summary, `CI proof of ${entry}`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${entry}`, [
     entryCounts,
     "45.0 s",
     "52.0 s",
     "50.0 s (test cases); 7.0 s (test files)",
     `test cases: ${parts}; test files: ${parts}`,
   ]);
-  await expectNamedRows(summary, entry, "folder/", [
+  await expectNamedScopeRows(summary, entry, "folder/", [
     [
       "",
       folderCounts,
@@ -94,7 +80,7 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
     ],
   ]);
   // Equal totals in a changed unit are no "no change".
-  await expectNamedRows(summary, entry, "root.spec.ts", [
+  await expectNamedScopeRows(summary, entry, "root.spec.ts", [
     [
       "",
       "2 legacy test results → 2 legacy test results → 2 test cases (legacy unit unknown)",
@@ -116,8 +102,9 @@ test("with legacy results at Baseline and at Branch, spelled alike with differen
     scope: { ...facts.scope, selection: { path: aSpec, scope: "file" } },
   });
   const intent = page.locator("#root");
-  await fileProofRows(intent, aSpec, [
+  await expectFileComparisonRows(intent, aSpec, [
     [
+      `${aSpec} modified`,
       folderCounts,
       "35.0 s",
       "42.0 s",

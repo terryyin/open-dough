@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The real GitHub Actions missing-proof connection keeps timed equivalent
 // wall time separate from Branch's proof-backed entry comparison.
 import { expect, test } from "../support/preparationPage.ts";
@@ -13,24 +14,22 @@ test("Landed reuses equivalent wall time when that build published no proof, wal
 }) => {
   const setup = await publishSkippedLandingWithoutProof(page, origin);
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const landedIdentity = panel.locator(".intent-ci-comparison-identity").nth(2);
+  const landedIdentity = comparisonReading(panel).identities.nth(2);
   await expect(landedIdentity).toContainText(shortSha(setup.trunkSide));
   await expect(landedIdentity).toContainText("equivalent build");
   await expect(landedIdentity).not.toContainText("run 201");
   await expect(landedIdentity).not.toContainText("run 101");
   await expect(landedIdentity).not.toContainText(shortSha(setup.olderBaseline));
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "5 min",
-  );
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("5 min");
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
-  await expect(panel.locator(".intent-ci-comparison-active-reason")).toHaveText(
+  await expect(comparisonReading(panel).fallbackReason).toHaveText(
     /Landed is not used: .+published no CI proof summary/,
   );
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible({ timeout: readWaitLimitMs + 15_000 });
+  await expect(comparisonReading(panel).entryTable).toBeVisible({
+    timeout: readWaitLimitMs + 15_000,
+  });
   const missingProof = "This run published no CI proof summary.";
   await expectCiComparisonEntryRows(panel, [
     [

@@ -1,3 +1,5 @@
+import { fileProofTable } from "../intentFileProofPage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Assert Intent CI comparison cue state on overall summary lines, a Summary's
 // own figures and table rows (../../src/ciScopeComparisonCuePresentation.ts,
 // ../../src/IntentScopeFigures.tsx, ../../src/CiProofTable.tsx).
@@ -84,9 +86,7 @@ export async function expectEntryRowCues(
   panel: Locator,
   rows: readonly ExpectedCues[],
 ) {
-  const table = panel.getByRole("table", {
-    name: "CI entry timing comparison",
-  });
+  const table = comparisonReading(panel).entryTable;
   const body = table.locator("tbody").getByRole("row");
   if (rows.length > 0) await body.first().waitFor({ state: "attached" });
   await expect.poll(() => cueStates(body)).toMatchObject([...rows]);
@@ -110,7 +110,7 @@ export async function expectProofRowCues(
   path: string,
   cues: ExpectedCues,
 ) {
-  const table = proof.getByRole("table", { name: `CI proof of ${path}` });
+  const table = fileProofTable(proof, path);
   const row = table.locator("tbody").getByRole("row").first();
   await expectCueState(row, cues);
 }

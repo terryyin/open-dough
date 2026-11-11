@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // A selected done story's CI comparison (../../src/IntentPage.tsx) does
 // not wait for the Intent locations read: it is the story's default view
 // under its one header while that read is still held, and stays, without
@@ -77,9 +78,7 @@ test("a selected story's CI comparison shows under its one header while the Inte
   await expect(
     intent.getByRole("tabpanel", { name: "CI comparison" }),
   ).toContainText("Baseline compared with Landed");
-  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText(
-    comparedWalls,
-  );
+  await expect(comparisonReading(panel).wallTimes).toHaveText(comparedWalls);
   await expect.poll(() => locations.revisions).toContain(locations.completion);
 
   // Still held, Changed tests says so; once the locations settle, CI
@@ -96,9 +95,7 @@ test("a selected story's CI comparison shows under its one header while the Inte
     "Reading the story's historical Intent locations…",
   );
   await chooseStoryTab(intent, "CI comparison");
-  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText(
-    comparedWalls,
-  );
+  await expect(comparisonReading(panel).wallTimes).toHaveText(comparedWalls);
   expect(comparisonReads).toBe(readsBefore);
 });
 
@@ -120,12 +117,10 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
   await expect(retry).toBeVisible();
 
   await chooseStoryTab(intent, "CI comparison");
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
-  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText(
-    comparedWalls,
-  );
+  await expect(comparisonReading(panel).wallTimes).toHaveText(comparedWalls);
 
   // Retry reads the locations again, now answered.
   await chooseStoryTab(intent, "Changed tests");

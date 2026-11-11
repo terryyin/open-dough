@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Named builds, source cues and overall observed metrics use the production UI.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiTimeWithoutRunnerWaits } from "../../src/storyCiComparison.ts";
@@ -65,15 +66,15 @@ for (const unavailable of [false, true]) {
     await expect(panel).toContainText(
       "Observed builds; differences are not attributed to the story",
     );
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Landed",
     );
-    const counts = panel.locator(".intent-ci-comparison-overall-counts");
+    const counts = comparisonReading(panel).overallCounts;
     await expect(counts).toHaveText(
       "2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)",
     );
     await expectCueState(counts, { count: "more-strong" });
-    const timing = panel.locator(".intent-ci-comparison-overall-timing");
+    const timing = comparisonReading(panel).overallTiming;
     if (unavailable) await expect(timing).toHaveCount(0);
     else {
       await expect(timing).toHaveText("+17 s");
@@ -82,22 +83,18 @@ for (const unavailable of [false, true]) {
         durationReason: "below threshold",
       });
     }
-    await expect(
-      panel.locator(".intent-ci-comparison-overall-wall"),
-    ).toHaveText("+20 s");
+    await expect(comparisonReading(panel).overallWallTime).toHaveText("+20 s");
     await expect(panel.locator(".intent-ci-comparison-metrics dt")).toHaveText(
       unavailable
         ? ["Counts", "CI wall time"]
         : ["Counts", "CI time without runner waits", "CI wall time"],
     );
-    await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+    await expect(comparisonReading(panel).wallTimes).toHaveText([
       "4 min 59 s",
       "13 min 27 s",
       "5 min 19 s",
     ]);
-    await expect(
-      panel.locator(".intent-ci-comparison-without-waits"),
-    ).toHaveText([
+    await expect(comparisonReading(panel).timesWithoutWaits).toHaveText([
       "4 min 55 s",
       "4 min 47 s",
       unavailable
@@ -139,7 +136,7 @@ test("exact and ancestor source icons retain accessible and hover wording withou
     mixedEntryFacts(),
   );
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  const identities = panel.locator(".intent-ci-comparison-identity");
+  const identities = comparisonReading(panel).identities;
   const observed = await sourceIdentityFacts(identities);
   expect(observed).toHaveLength(3);
   expect(observed[0]?.text).toContain(
@@ -219,7 +216,7 @@ for (const [kind, explanation, visible] of [
       mixedEntryFacts(),
     );
     const panel = await renderComparison(page, comparisonRenderer, rendered);
-    const identity = panel.locator(".intent-ci-comparison-identity").first();
+    const identity = comparisonReading(panel).identities.first();
     if (visible) await expect(identity).toContainText(explanation);
     else await expect(identity).not.toContainText(explanation);
     await expectAncestorSourceCue(
@@ -228,8 +225,8 @@ for (const [kind, explanation, visible] of [
     );
     await expect(identity).toContainText("aaaaaaa");
     await expectNoRunOrAttemptIds(identity);
-    await expect(
-      panel.locator(".intent-ci-comparison-wall").first(),
-    ).toHaveText("3 min");
+    await expect(comparisonReading(panel).wallTimes.first()).toHaveText(
+      "3 min",
+    );
   });
 }

@@ -1,3 +1,7 @@
+import {
+  comparisonReading,
+  comparisonBuildReading,
+} from "../intentCiComparisonPage.ts";
 // A custom adapter answers CI attempts for the revisions a done story's
 // published history names. The real Intent read resolves the endpoints and
 // reads adapter discovery for builds, jobs for timing and proof for entries.
@@ -89,23 +93,15 @@ for (const [landing, publish, landedHasProof] of integrations) {
     for (const entry of expected) {
       const { attempt, revision, runBranch, selection } = entry;
       const subject = git(origin.project, "log", "-1", "--format=%s", revision);
-      const rowHeader = page.getByRole("rowheader", {
-        name: entry.role,
-        exact: true,
-      });
-      const row = panel.getByRole("row").filter({ has: rowHeader });
-      const identity = row.locator(".intent-ci-comparison-identity");
+      const build = comparisonBuildReading(panel, entry.role);
+      const identity = build.identity;
       await expect(identity).toContainText(shortSha(revision));
       await expect(identity).not.toContainText(subject);
       if (selection === "exact") await expectExactSourceCue(identity);
       else await expectAncestorSourceCue(identity);
       await expectNoRunOrAttemptIds(identity);
-      await expect(row.locator(".intent-ci-comparison-wall")).toHaveText(
-        entry.wall,
-      );
-      await expect(
-        row.locator(".intent-ci-comparison-without-waits"),
-      ).toHaveText(
+      await expect(build.wallTime).toHaveText(entry.wall);
+      await expect(build.timeWithoutWaits).toHaveText(
         entry.timing ??
           `Unavailable. The CI adapter listed another discovered attempt as attempt 2 at ${shortSha(branch)}.`,
       );
@@ -136,12 +132,10 @@ for (const [landing, publish, landedHasProof] of integrations) {
     );
     expect(adapter.discoverRequests()).toHaveLength(2);
     if (landedHasProof) {
-      await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+      await expect(comparisonReading(panel).activeComparison).toHaveText(
         "Baseline compared with Landed",
       );
-      const overallTiming = panel.locator(
-        ".intent-ci-comparison-overall-timing",
-      );
+      const overallTiming = comparisonReading(panel).overallTiming;
       await expect(overallTiming).toHaveText("−15 s");
       await expectCueState(overallTiming, { duration: "faster-light" });
       await expectCiComparisonEntryRows(panel, [
@@ -154,7 +148,7 @@ for (const [landing, publish, landedHasProof] of integrations) {
         ],
       ]);
     } else if (merged) {
-      await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+      await expect(comparisonReading(panel).activeComparison).toHaveText(
         "Baseline compared with Branch",
       );
       await expectCiComparisonEntryRows(panel, [
@@ -167,7 +161,7 @@ for (const [landing, publish, landedHasProof] of integrations) {
         ],
       ]);
     } else {
-      const gaps = panel.locator(".intent-ci-comparison-entries");
+      const gaps = comparisonReading(panel).entryEvidence;
       await expect(gaps).toContainText(
         "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2",
       );

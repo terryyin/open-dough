@@ -8,6 +8,8 @@
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
+import { expectProofTableRows } from "./proofTablePage.ts";
+export { expectProofTableRows } from "./proofTablePage.ts";
 import { proofColumns, type ProofRow } from "./intentCiProofPage.ts";
 
 export function summaryRegion(intent: Locator): Locator {
@@ -61,63 +63,6 @@ async function expectOwnFigures(
       ...columns.flatMap((text, at) => [
         { tag: "DT", role: null, text },
         { tag: "DD", role: null, text: figures[at] },
-      ]),
-    ]);
-}
-
-// One observation of a native proof table's semantic parts. Role locators
-// exclude hidden output; tags/scopes preserve column/row-header/cell identity.
-// Expected words remain the caller's independent columns and rows.
-// The parent marker retains container cardinality in the same readiness read.
-export async function expectProofTableRows(
-  table: Locator,
-  columns: readonly string[],
-  rows: readonly (readonly string[])[],
-) {
-  const body = table.locator("tbody");
-  const parts = table
-    .or(table.getByRole("columnheader"))
-    .or(body.getByRole("row"))
-    .or(body.getByRole("rowheader"))
-    .or(body.getByRole("cell"));
-  const expected = (
-    tag: string,
-    scope: string | null,
-    text: string | null,
-  ) => ({
-    tag,
-    scope,
-    role: null,
-    text,
-  });
-  await expect
-    .poll(() =>
-      parts.evaluateAll((nodes) =>
-        nodes.map((node, at) =>
-          at === 0
-            ? { parent: true }
-            : {
-                tag: node.tagName,
-                scope: node.getAttribute("scope"),
-                role: node.getAttribute("role"),
-                text:
-                  node.tagName === "TR"
-                    ? null
-                    : node.textContent
-                        .replace(/[\u200b\u00ad]/g, "")
-                        .trim()
-                        .replace(/\s+/g, " "),
-              },
-        ),
-      ),
-    )
-    .toEqual([
-      { parent: true },
-      ...columns.map((text) => expected("TH", "col", text)),
-      ...rows.flatMap(([scope, ...cells]) => [
-        expected("TR", null, null),
-        expected("TH", "row", scope ?? ""),
-        ...cells.map((text) => expected("TD", null, text)),
       ]),
     ]);
 }
@@ -218,4 +163,34 @@ export async function expectChildNames(
   await expect(
     summary.getByRole("table").getByRole("rowheader").getByRole("button"),
   ).toHaveText(names);
+}
+
+// The Summary rows of PATH's table named NAME read ROWS: Change then cells.
+export async function expectNamedScopeRows(
+  summary: Locator,
+  path: string,
+  name: string,
+  rows: readonly (readonly string[])[],
+) {
+  const named = scopeTable(summary, path)
+    .locator("tbody tr")
+    .filter({
+      has: summary.page().getByRole("rowheader", { name, exact: true }),
+    });
+  await expect(named).toHaveCount(rows.length);
+  for (const [at, cells] of rows.entries()) {
+    await expect(named.nth(at).getByRole("cell")).toHaveText([...cells]);
+  }
+}
+
+// The own figures group NAME (`CI proof of <path>: <unit>`) reads FIGURES,
+// Parts last.
+export async function expectNamedScopeFigures(
+  summary: Locator,
+  name: string,
+  figures: readonly string[],
+) {
+  await expect(
+    summary.getByRole("group", { name, exact: true }).getByRole("definition"),
+  ).toHaveText([...figures]);
 }

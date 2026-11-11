@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Relative timing changes in a selected story's CI comparison
 // (../../src/IntentCiTimeChange.tsx, ../../src/storyCiRelativeChange.ts):
 // each comparable change shows its signed words beside a mark whose zero sits
@@ -53,8 +54,7 @@ const entries = {
   ],
 };
 
-const entryTable = (panel: Locator) =>
-  panel.getByRole("table", { name: "CI entry timing comparison" });
+const entryTable = (panel: Locator) => comparisonReading(panel).entryTable;
 
 // The Branch (3) or Landed (4) cell of ENTRY's row.
 const cell = (panel: Locator, entry: string, column: "Branch" | "Landed") =>
@@ -64,8 +64,7 @@ const cell = (panel: Locator, entry: string, column: "Branch" | "Landed") =>
     .getByRole("cell")
     .nth(column === "Branch" ? 2 : 3);
 
-const wallChange = (panel: Locator) =>
-  panel.locator(".intent-ci-comparison-overall-wall");
+const wallChange = (panel: Locator) => comparisonReading(panel).overallWallTime;
 
 test("relative changes share one centred scale, without a mark for an added entry or a zero baseline, and Show % reveals every percentage together", async ({
   page,

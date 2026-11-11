@@ -1,3 +1,4 @@
+import { fileProofTable } from "../intentFileProofPage.ts";
 // Signed quantity and zero-baseline rendering over independent literal rows.
 import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -115,8 +116,7 @@ test("a measured zero Baseline file keeps its signed change without relative mar
     scope: { ...facts.scope, selection: { path, scope: "file" } },
   });
   const proof = page.getByRole("region", { name: "Proof", exact: true });
-  const cells = proof
-    .getByRole("table", { name: `CI proof of ${path}`, exact: true })
+  const cells = fileProofTable(proof, path)
     .locator("tbody tr")
     .getByRole("cell");
   await expect(cells.nth(1)).toHaveText("0 ms");

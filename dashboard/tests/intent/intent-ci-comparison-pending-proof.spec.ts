@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The real Check again control reaches the production read/memory after an
 // unanswered equivalent proof, replacing Branch fallback with Landed.
 import { expect, test } from "../support/preparationPage.ts";
@@ -25,34 +26,28 @@ test("Check again recovers an unanswered equivalent proof from Branch fallback t
     return answered ? undefined : noConnection;
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const landed = panel.locator(".intent-ci-comparison-identity").nth(2);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  const landed = comparisonReading(panel).identities.nth(2);
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
   await expect(landed).toContainText("could not be read");
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "—",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("—");
   expect(proofListings).toBe(1);
 
   answered = true;
   await checkComparisonAgain(page, panel);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
   await expect(landed).toContainText(shortSha(setup.trunkSide));
   await expect(landed).toContainText("equivalent build");
   await expect(landed).not.toContainText(shortSha(setup.olderBaseline));
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "5 min",
-  );
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("5 min");
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   expect(proofListings).toBe(2);
   const finalRequests = requests;
   await checkComparisonAgain(page, panel);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
   expect(requests).toBe(finalRequests);

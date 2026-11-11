@@ -1,3 +1,5 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
+import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // File-level Purpose and CI Proof (../../src/IntentFileProof.tsx).
 // Purpose shows a changed-file diff without comparison above it; Proof keeps
 // precise A/B/C times, count differences and change kinds, including a test
@@ -37,7 +39,6 @@ import {
 import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
-  expectFileComparisonRow,
   mergeEditedFileRow,
   modifiedFileRow,
   renamedFileRow,
@@ -128,9 +129,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         await expectStoryTab(intent, "CI comparison");
         await expect(storyTab(intent, "CI comparison")).toBeFocused();
         await expect(
-          intent
-            .getByRole("tabpanel", { name: "CI comparison" })
-            .getByRole("table", { name: "CI entry timing comparison" }),
+          comparisonReading(
+            intent.getByRole("tabpanel", { name: "CI comparison" }),
+          ).entryTable,
         ).toBeVisible();
         await expect(proof).toBeHidden();
         // Arrow keys move along the story's views.

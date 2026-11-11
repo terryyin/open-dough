@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Pending, absent protocol ownership, and real unavailable published history
 // stay distinct; no endpoint is invented from completion or the measured run.
 import type { Route } from "@playwright/test";
@@ -63,9 +64,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
     await expect(history).toContainText(
       "Reading the selected story’s published landing…",
     );
-    await expect(
-      panel.getByRole("table", { name: "CI entry timing comparison" }),
-    ).toBeVisible();
+    await expect(comparisonReading(panel).entryTable).toBeVisible();
     release?.();
     await expect(history).toContainText(
       "Published history does not identify this Done result’s represented landing. No prior-build reference can be established.",
@@ -97,9 +96,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
   await expect(history).toContainText(
     "No prior-build reference can be established",
   );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(historyRequests).toEqual([]);
   git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
   const failedReview = async (route: Route) => {
@@ -113,9 +110,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
   await expect(history).toContainText(
     "Published review read unavailable. No prior-build reference can be established",
   );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(historyRequests).toEqual([]);
   await page.unroute(pattern, failedReview);
   await intent
@@ -130,8 +125,6 @@ test("a Done reference waits for pending publication evidence, explains a settle
     "No prior-build reference can be established",
   );
   await expect(intent).toHaveAttribute("data-selected-story", setup.identity);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(historyRequests).toEqual([setup.completion]);
 });

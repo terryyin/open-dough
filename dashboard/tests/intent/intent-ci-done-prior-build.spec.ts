@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The published execution endpoint, actual selected collection and retained
 // raw ancestors flow through the normal authenticated history reader.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -82,9 +83,7 @@ test("Done wall time keeps the execution publication reference through restart, 
     page,
     reader.origin,
   );
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   const history = panel.getByRole("region", {
     name: "Done CI wall time reference",
     exact: true,
@@ -100,9 +99,7 @@ test("Done wall time keeps the execution publication reference through restart, 
     "Branch",
     "Landed",
   ]);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "2 min",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("2 min");
   await expect(history.getByRole("img")).toHaveCount(0);
   const evidence = history.getByRole("group", {
     name: "Prior-build reference evidence",
@@ -154,9 +151,7 @@ test("Done wall time keeps the execution publication reference through restart, 
       "The collected CI history could not be read",
     );
     await expect(history).toContainText("4 prior builds used");
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-      "2 min",
-    );
+    await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("2 min");
     await expect(
       intent
         .getByRole("region", { name: "Selected story", exact: true })
@@ -174,9 +169,7 @@ test("Done wall time keeps the execution publication reference through restart, 
   expect(ciCalls()).toHaveLength(before);
   await selectDoneStoryForCiComparison(page, reader.origin);
   await expect(history).toContainText("4 prior builds used");
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   const settled = ciCalls().length;
   await history
     .getByRole("button", { name: "Refresh history", exact: true })

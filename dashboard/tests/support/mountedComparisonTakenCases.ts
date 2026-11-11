@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Taken stories retain their actual live judgment and provisional endpoint words.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "./pageTest.ts";
@@ -122,13 +123,13 @@ for (const mode of ["story-branch", "trunk"] as const) {
         await expect(live).not.toContainText("Story A");
         await expect(live.locator(".intent-ci-state")).toContainText("bbbbbbb");
       }
-      await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+      await expect(comparisonReading(panel).activeComparison).toHaveText(
         `Baseline compared with ${mode === "trunk" ? "Provisional" : "Branch"}`,
       );
-      await expect(
-        panel.locator(".intent-ci-comparison-active-reason"),
-      ).toHaveText("Landed is not used: The story has not landed yet.");
-      const identities = panel.locator(".intent-ci-comparison-identity");
+      await expect(comparisonReading(panel).fallbackReason).toHaveText(
+        "Landed is not used: The story has not landed yet.",
+      );
+      const identities = comparisonReading(panel).identities;
       await expect(identities.first()).toContainText("aaaaaaa");
       const liveIdentity = identities.nth(mode === "trunk" ? 2 : 1);
       await expect(liveIdentity).toContainText("bbbbbbb");
@@ -144,7 +145,7 @@ for (const mode of ["story-branch", "trunk"] as const) {
       );
       if (mode === "trunk")
         await expect(identities.nth(1)).toContainText("not applicable");
-      await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText(
+      await expect(comparisonReading(panel).wallTimes).toHaveText(
         mode === "trunk"
           ? [
               adapter ? "Not recorded" : "4 min 59 s",
@@ -159,19 +160,15 @@ for (const mode of ["story-branch", "trunk"] as const) {
             ],
       );
       if (!adapter) {
-        await expect(
-          panel.locator(".intent-ci-comparison-without-waits"),
-        ).toHaveText(
+        await expect(comparisonReading(panel).timesWithoutWaits).toHaveText(
           mode === "trunk"
             ? ["4 min 55 s", "—", "4 min 47 s", "—"]
             : ["4 min 55 s", "4 min 47 s", "—"],
         );
-        await expect(
-          panel.locator(".intent-ci-comparison-overall-timing"),
-        ).toHaveText("−8 s");
-        await expect(
-          panel.locator(".intent-ci-comparison-overall-wall"),
-        ).toHaveText("+8 min 28 s");
+        await expect(comparisonReading(panel).overallTiming).toHaveText("−8 s");
+        await expect(comparisonReading(panel).overallWallTime).toHaveText(
+          "+8 min 28 s",
+        );
       }
     });
   }

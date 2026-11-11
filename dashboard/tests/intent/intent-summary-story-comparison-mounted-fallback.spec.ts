@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The actual scope owners share endpoint choice and fallback explanation.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "../support/pageTest.ts";
@@ -53,9 +54,9 @@ test("Taken Trunk Summary and file Proof name the same Provisional endpoint and 
       "Provisional bbbbbbb",
       "Landed Not landed yet",
     ]);
-    await expect(
-      region.locator(".intent-ci-comparison-active-reason"),
-    ).toContainText("has not landed yet");
+    await expect(comparisonReading(region).fallbackReason).toContainText(
+      "has not landed yet",
+    );
   }
 });
 
@@ -110,9 +111,9 @@ for (const landed of ["running", "no proof"] as const) {
           exact: true,
         }),
       ).toBeVisible();
-      await expect(
-        summary.locator(".intent-ci-comparison-active-reason"),
-      ).toHaveText(reason);
+      await expect(comparisonReading(summary).fallbackReason).toHaveText(
+        reason,
+      );
     }
     await renderComparison(page, comparisonRenderer, {
       ...rendered,
@@ -131,9 +132,7 @@ for (const landed of ["running", "no proof"] as const) {
         exact: true,
       }),
     ).toBeVisible();
-    await expect(
-      proof.locator(".intent-ci-comparison-active-reason"),
-    ).toHaveText(reason);
+    await expect(comparisonReading(proof).fallbackReason).toHaveText(reason);
     await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
       "+70 ms",
     );
