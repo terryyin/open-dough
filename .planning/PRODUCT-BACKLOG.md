@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Express Intent test reading through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects ([plan](slice-plans/581-intent-test-reading/PLAN.md))
 - [Apply shared MakeMe rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-makeme-rules-per-entry) — SEED-307#apply-shared-makeme-rules-per-entry ([plan](slice-plans/589-apply-shared-makeme-rules-per-entry/PLAN.md))
 - [Apply shared page-object rules per entry](seeds/SEED-307-shared-test-pattern-rules.md#apply-shared-page-object-rules-per-entry) — SEED-307#apply-shared-page-object-rules-per-entry ([plan](slice-plans/590-apply-shared-page-object-rules-per-entry/PLAN.md))
+- [Select and copy text in the Dashboard terminal on mobile](seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile) — SEED-316#select-and-copy-terminal-text-on-mobile ([plan](slice-plans/591-select-and-copy-terminal-text-on-mobile/PLAN.md))
 
 ## Backlog list
 
-- [Select and copy text in the Dashboard terminal on mobile](seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile) — SEED-316#select-and-copy-terminal-text-on-mobile
 - [Speed up touch review checks](seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) — SEED-312#speed-up-touch-review-checks
 - [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks
 - [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks
