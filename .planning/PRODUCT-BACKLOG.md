@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Show CI time without runner waits for matrix jobs](seeds/SEED-306-ci-time-without-runner-waits-for-matrix-jobs.md#show-ci-time-without-runner-waits-for-matrix-jobs) — SEED-306#show-ci-time-without-runner-waits-for-matrix-jobs
 - [Show one CI proof row per location](seeds/SEED-304-ci-proof-one-row-per-location.md#show-one-ci-proof-row-per-location) — SEED-304#show-one-ci-proof-row-per-location
 - [Make remaining test domain setup express intent](seeds/SEED-302-remaining-makeme-test-data.md#make-remaining-test-domain-setup-express-intent) — SEED-302#make-remaining-test-domain-setup-express-intent
 - [Express dashboard test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects
