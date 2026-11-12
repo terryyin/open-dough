@@ -1,5 +1,6 @@
 import { expect, test } from "../dashboardTest.ts";
 import { boardScroll, bottomOf, scrollYOf, wheelTo } from "../boardPage.ts";
+import { expectDocumentStill } from "../boardReading.ts";
 import {
   closeTerminal,
   terminalPanel,
@@ -130,6 +131,6 @@ for (const viewport of [
         await boardScroll(page).evaluate((region) => region.clientHeight),
       );
     }
-    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await expectDocumentStill(page);
   });
 }

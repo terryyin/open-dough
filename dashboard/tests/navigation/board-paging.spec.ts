@@ -22,7 +22,6 @@ import {
 } from "../accessibleBoard.ts";
 import { box } from "../pageLayout.ts";
 import {
-  bottomOf,
   columns,
   columnPagingControl,
   pagingRoom,
@@ -37,6 +36,10 @@ import {
   slidesOf,
   wheelTo,
 } from "../boardPage.ts";
+import {
+  expectAtBoardBottom,
+  expectPagingControlInSight,
+} from "../boardReading.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 // The dashboard, reading a Backlog longer than one screen and one Taken entry.
 async function openLargeBacklog(page: Page) {
@@ -95,9 +98,8 @@ test.describe("in a narrow window", () => {
     await page.setViewportSize({ width: 40 * rem, height: 800 });
     await openLargeBacklog(page);
     await expectView(page, ["Backlog"], ["Taken 1 entry"]);
-    const right = page.locator(".column-paging-control-right");
 
-    await right.focus();
+    await columnPagingControl(page, "Taken").focus();
     await page.keyboard.press("Enter");
     await expectView(
       page,
@@ -134,9 +136,7 @@ test.describe("in a narrow window", () => {
       expect(stuck).toBeLessThan(bannerBox.y + bannerBox.height + rem);
       await wheelTo(page, 1500);
       expect((await box(heading)).y).toBe(stuck);
-      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
-        ratio: 1,
-      });
+      await expectPagingControlInSight(page, "Recently done");
     });
 
     await test.step("the control moves the view where the developer reads, stopping at the shorter columns' bottom, and the left one moves it back", async () => {
@@ -149,12 +149,9 @@ test.describe("in a narrow window", () => {
       );
       // Taken and Recently done are shorter than the place read in Backlog:
       // the Board ends with them, and the position stops at their bottom.
-      const clamped = await scrollYOf(page);
-      expect(clamped).toBe(await bottomOf(page));
+      const clamped = await expectAtBoardBottom(page);
       expect(clamped).toBeLessThan(1500);
-      await expect(columnPagingControl(page, "Backlog")).toBeInViewport({
-        ratio: 1,
-      });
+      await expectPagingControlInSight(page, "Backlog");
       const takenHeading = parts(page).taken.getByRole("heading", {
         level: 2,
       });
@@ -168,9 +165,7 @@ test.describe("in a narrow window", () => {
       await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
       await wheelTo(page, 1500);
       expect((await box(heading)).y).toBe(stuck);
-      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
-        ratio: 1,
-      });
+      await expectPagingControlInSight(page, "Recently done");
     });
   });
 

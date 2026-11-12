@@ -2,6 +2,7 @@
 
 **Identity:** SEED-300#express-board-test-intent-through-page-objects
 **Source:** [Story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal, scope and evaluation
 
@@ -97,7 +98,7 @@ Host decision before launch: macOS on battery 65%, lid observed open, load
 work active. Use one worker under `caffeinate -i`; leave other owners' work alone.
 Reconsider power/load before larger cohorts; no timeout or assertion was relaxed.
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 Each Behavior includes its caller sweep, source comparison, implementation,
 focused proof and cleanup. C1–C8 below are initial proof cohorts, not file-based
@@ -105,7 +106,7 @@ scope limits. Extend them through the effect/consumer trace before delivery.
 
 ### 1. Read and page the Board without losing its usable room
 Type: Behavior
-Status: planned
+Status: done
 Proof: C1; retain expected column order, card share, scroll extent, reduced motion,
 kept position, and panel/sidebar/dialog conditions. Story example 1.
 
@@ -114,6 +115,25 @@ wheel and resize operations and their independent geometry outcomes. Extend the
 existing column/layout owners; browser probes remain measurements of the actual
 page. Safe stop: layout/column callers are readable and green without keyboard,
 reference or recovery migration.
+
+Accepted (2026-11-12): new `dashboard/tests/boardReading.ts` (76 lines:
+`wheelBy`, `pressScrollbarTrack`, `untilBoardRests`, `expectAtBoardBottom`,
+`expectDocumentStill`, `expectPagingControlInSight`), the intended home of
+slice 2's reading operations; C1 specs plus the covering-panel cases of
+`board-reading`/`board-session-reading` use it and existing owners
+(`expectCoveringFillsWindow`, `control`, `panelDivider`, `columnPagingControl`).
+`boardPage.ts`, `boardColumnNavigation.ts` and `pageLayout.ts` are unchanged.
+Proof: C1 19/19 passed (3.3 min, load 44→28); reached callers
+`board-reading.spec.ts board-session-reading.spec.ts --grep 'Session entry'`
+5/5; typecheck exit 0. Comparison: 28 inline mechanics sites removed (9
+document-scroll probes, 3 bottom comparisons, 5 paging-control sight checks, 2
+wheel-by computations, scrollbar press, rest poll, 3 covering assertions, 3 raw
+side-panel locators, 1 raw paging-control class); helper cost +76 lines, specs
+−14. Exact DOM/geometry/storage contracts stay direct (divider hit test,
+overflow, scrollHeight, scrollbar room, reduced-motion geometry, sticky heading,
+`localStorage` keys). The roster wheel is slice 5's; board-kept's local
+`chooseProject` slice 3's; board-height's Hide-detail press slice 4's.
+Remaining same-probe callers are O1 (slice 2) and O2 (slices 5–8).
 
 ### 2. Follow native keyboard and touch reading with preserved ownership
 Type: Behavior
@@ -269,3 +289,15 @@ timing in the test, not an app focus defect. Terry set the load profile
 profile is recorded in the premise rows; slice 2 owns applying and replaying it.
 No other slice-boundary/proof-ownership concern was identified in this review;
 this is neither completed execution nor authority to begin it.
+
+## Story obligations
+
+### O1. Board reading-key and touch probes still read the document and Board bottom inline
+Reported: slice 1 — "Same probes, not yet migrated, in slice 2 territory: board-reading L75 (key test), board-native-reading L58 (`scrollY`) and L50 (bottom), board-reading L46 (bottom poll), and `support/reviewTouchReading.ts` L113/L117 (Review touch)."
+Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
+Disposition: receiving slice 2
+
+### O2. Raw Board scroll-place reads outside the cohort duplicate the Board owner (slices 5–7 sweep their own files; slice 8 the rest)
+Reported: slice 1 — "Raw `.board-scroll` scroll-place reads outside the cohort that duplicate `scrollYOf` / `wheelTo`: `readingPlace.ts:46`, `terminals/agent-launch-ad-hoc-terminal.spec.ts` L49–80, `sessions/sessions-sidebar-navigation-cases.spec.ts` L245, `review/story-review-file-moves.spec.ts` L53, `stories/branch-progress-reading.spec.ts` L35–40 (slice 5), `stories/recently-done-progressive-refresh.spec.ts` L114–128 (slice 6), `observation/published-facts-reading.spec.ts` L52–59 and L152–160 (slice 7)."
+Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
+Disposition: receiving slice 8

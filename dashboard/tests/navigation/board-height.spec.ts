@@ -18,17 +18,18 @@ import { expectSettledPage, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { pressWhereShown } from "../pageLayout.ts";
 import {
-  bottomOf,
-  columnPagingControl,
   expectEndsWithShown,
   expectLongerThanTheBoard,
   expectView,
   extentOf,
   rem,
-  scrollYOf,
   showColumn,
   wheelTo,
 } from "../boardPage.ts";
+import {
+  expectAtBoardBottom,
+  expectPagingControlInSight,
+} from "../boardReading.ts";
 import { heldFactGroups, moreDoneTitle } from "../publishedFactsArrival.ts";
 import { revealAction } from "../recentlyDoneProgressivePage.ts";
 import {
@@ -135,11 +136,9 @@ test.describe("in a two-column Board", () => {
         ["Backlog", "Taken"],
         ["Recently done 40 entries"],
       );
-      expect(await scrollYOf(page)).toBe(await bottomOf(page));
+      await expectAtBoardBottom(page);
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
-      await expect(columnPagingControl(page, "Recently done")).toBeInViewport({
-        ratio: 1,
-      });
+      await expectPagingControlInSight(page, "Recently done");
     });
   });
 
