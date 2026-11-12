@@ -30,11 +30,11 @@ intent introduced or affected by a newly developed story.
 
 - [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects ([plan](slice-plans/584-board-test-intent/PLAN.md))
+- [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
 
 ## Backlog list
 
 - [Run and observe product-wide end-to-end tests](seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests) — SEED-334#run-and-observe-product-wide-end-to-end-tests
-- [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps
 - [Answer fake GitHub reads without a process per call](seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process) — SEED-332#answer-fake-gh-reads-in-process
 - [Spot completed stories that need review](seeds/SEED-333-spot-completed-stories-that-need-review.md#spot-completed-stories-that-need-review) — SEED-333#spot-completed-stories-that-need-review
 - [Read CI history at a glance in story comparison and test Proof](seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance) — SEED-331#read-ci-history-at-a-glance
