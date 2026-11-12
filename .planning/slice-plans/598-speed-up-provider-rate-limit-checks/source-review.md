@@ -13,10 +13,10 @@ Bracketed words carry a subject or verb over from the same source sentence.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | Dashboard maintainers verify provider-directed pacing quickly, without waiting out real deadlines. | slice 2 | |
-| G2.1 | Ordinary CI continues to catch the same request-admission ... regressions. | slice 2 | |
-| G2.2 | Ordinary CI continues to catch the same ... visible recovery regressions. | slice 2 | |
-| S1.0 | Keep the maintained promises of the rate-limit page case and the rate-limited case of the revision stream | slice 2 | |
+| G1 | Dashboard maintainers verify provider-directed pacing quickly, without waiting out real deadlines. | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| G2.1 | Ordinary CI continues to catch the same request-admission ... regressions. | slice 2 | observed: both cases keep their titles, files and ordinary selection; every earlier assertion kept, owner-refusal and stream-closed assertions added; each fails without its owner advance (PLAN.md discrimination notes) |
+| G2.2 | Ordinary CI continues to catch the same ... visible recovery regressions. | slice 2 | observed: both cases keep their titles, files and ordinary selection; every earlier assertion kept, owner-refusal and stream-closed assertions added; each fails without its owner advance (PLAN.md discrimination notes) |
+| S1.0 | Keep the maintained promises of the rate-limit page case and the rate-limited case of the revision stream | slice 2 | observed: both cases keep their titles, files and ordinary selection; every earlier assertion kept, owner-refusal and stream-closed assertions added; each fails without its owner advance (PLAN.md discrimination notes) |
 | S1.1 | a directed wait (`Retry-After`, or a reset time once nothing remains) keeps the last snapshot | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts expectSnapshotA in the reported, held and reset steps |
 | S1.2 | [a directed wait] names when checks resume | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'the rate-limited check is reported…': HTTP 429 notice, 2 seconds, resume time datetime |
 | S1.3 | [a directed wait] offers no Retry | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'the rate-limited check is reported…': no Retry text, Retry button count 0 |
@@ -25,10 +25,10 @@ Bracketed words carry a subject or verb over from the same source sentence.
 | S1.6 | [the check at that time] clears the failure | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'restored access, the check at the directed time reads B and clears the failure': expectAtDirectedTime, expectSettledPage B, expectWholeSnapshot revisionB, problem count 0 |
 | S1.7 | a reset later than the steady pace is followed instead of the pace | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'owner and page time at the directed time…': HTTP 403 reset 18 s, no check and no gh call across 17.75 s of page time past the 15 s pace |
 | S1.8 | the steady pace then returns | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'with GitHub's wait passed, checks resume at the steady pace': expectSteadyPace, one heads check, problem count 0 |
-| S1.9 | a limited stream closes | slice 2 | |
-| S1.10 | [a limited stream] stays closed until the directed time | slice 2 | |
-| S1.11 | [a limited stream] reopens with a full freshness bound | slice 2 | |
-| S2.1 | Pass each directed wait by advancing the time of the actual request owner instead of real time. | slice 2 | |
+| S1.9 | a limited stream closes | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: HTTP 429 notice, 'asks GitHub nothing until', streamOpens empty after the first second |
+| S1.10 | [a limited stream] stays closed until the directed time | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: checksAskedWhilePassing 0, streamOpens empty and no matching-refs call up to two seconds before T, no lost freshness |
+| S1.11 | [a limited stream] reopens with a full freshness bound | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: after owner.advanceOwnerClock and page time crossing T a stream opens; no lost freshness at 40 s, reported at 45 s plus a step; then settles at B |
+| S2.1 | Pass each directed wait by advancing the time of the actual request owner instead of real time. | slice 2 | observed: both cases advance owner.advanceOwnerClock for every directed wait; neither imports untilReported |
 | S2.2 | The owner stays the released admission policy (src/skills/dough-execute-plan/scripts/github-request-admission.mjs) | slice 1 | observed: dashboard/tests/support/listingReuseWithOwnerClock.ts startOwner spawns the released github-request-owner.mjs with the clock preload in its own process group; both exports use it; no src/skills diff; dashboard/tests/observation/auto-refresh-rate-limit.spec.ts asserts standingOwnerPid equals ownerPid |
 | S2.3 | run unchanged | slice 1 | observed: dashboard/tests/support/listingReuseWithOwnerClock.ts startOwner spawns the released github-request-owner.mjs with the clock preload in its own process group; both exports use it; no src/skills diff; dashboard/tests/observation/auto-refresh-rate-limit.spec.ts asserts standingOwnerPid equals ownerPid |
 | S2.4 | in its own process | slice 1 | observed: dashboard/tests/support/listingReuseWithOwnerClock.ts startOwner spawns the released github-request-owner.mjs with the clock preload in its own process group; both exports use it; no src/skills diff; dashboard/tests/observation/auto-refresh-rate-limit.spec.ts asserts standingOwnerPid equals ownerPid |
@@ -36,40 +36,40 @@ Bracketed words carry a subject or verb over from the same source sentence.
 | S2.6 | as the maintained owner clock fixture (dashboard/tests/support/listingReuseWithOwnerClock.ts) already does for listing cooldown | slice 1 | observed: dashboard/tests/support/listingReuseWithOwnerClock.ts startOwner spawns the released github-request-owner.mjs with the clock preload in its own process group; both exports use it; no src/skills diff; dashboard/tests/observation/auto-refresh-rate-limit.spec.ts asserts standingOwnerPid equals ownerPid |
 | S2.7 | Reuse or extend that fixture | slice 1 | observed: dashboard/tests/support/listingReuseWithOwnerClock.ts startOwner spawns the released github-request-owner.mjs with the clock preload in its own process group; both exports use it; no src/skills diff; dashboard/tests/observation/auto-refresh-rate-limit.spec.ts asserts standingOwnerPid equals ownerPid |
 | S2.8 | keep one owner-clock mechanism | slice 1 | observed: dashboard/tests/support/listingReuseWithOwnerClock.ts startOwner spawns the released github-request-owner.mjs with the clock preload in its own process group; both exports use it; no src/skills diff; dashboard/tests/observation/auto-refresh-rate-limit.spec.ts asserts standingOwnerPid equals ownerPid |
-| S3.1 | Released owner code ... do[es] not change | slice 2 | |
-| S3.2 | its runtime contract ... do[es] not change | slice 2 | |
-| S3.3 | release ... do[es] not change | slice 2 | |
-| S3.4 | installation do[es] not change | slice 2 | |
-| S3.5 | no clock setting is added to it | slice 2 | |
-| S3.6 | Default production time ... stay[s] as [it is] | slice 2 | |
-| S3.7 | routing ... stay[s] as [it is] | slice 2 | |
-| S3.8 | credentials ... stay as they are | slice 2 | |
-| S3.9 | process ownership stay[s] as [it is] | slice 2 | |
-| S3.10 | This settles the request-owner clock question retained from SEED-303 without new authority. | slice 2 | |
-| S4.1 | A controlled owner serves only the case that controls it | slice 2 | |
-| S4.2 | other cases keep the real clock | slice 2 | |
+| S3.1 | Released owner code ... do[es] not change | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.2 | its runtime contract ... do[es] not change | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.3 | release ... do[es] not change | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.4 | installation do[es] not change | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.5 | no clock setting is added to it | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.6 | Default production time ... stay[s] as [it is] | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.7 | routing ... stay[s] as [it is] | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.8 | credentials ... stay as they are | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.9 | process ownership stay[s] as [it is] | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S3.10 | This settles the request-owner clock question retained from SEED-303 without new authority. | slice 2 | observed: git diff 2ed4aa4fb -- src is empty; the clock is the test fixture's preload in dashboard/tests/support/listingReuseWithOwnerClock.ts |
+| S4.1 | A controlled owner serves only the case that controls it | slice 2 | observed: dashboard/tests/support/ownerClockTest.ts gives an owner per case that asks for it; the failed-stream-opens case in revision-stream-lost.spec.ts uses the plain test and passed |
+| S4.2 | other cases keep the real clock | slice 2 | observed: dashboard/tests/support/ownerClockTest.ts gives an owner per case that asks for it; the failed-stream-opens case in revision-stream-lost.spec.ts uses the plain test and passed |
 | S5.1 | Delete the page case's 45-second timeout allowance | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts has no test.setTimeout |
 | S5.2 | [Delete] both cases' real waits for a directed time — page case | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts has no untilReported and no directedWait import |
-| S5.3 | [Delete] both cases' real waits for a directed time — stream case | slice 2 | |
-| S6.1 | On keeping the saving, remove the `auto-refresh-rate-limit-real-waits` entry from the test optimization candidates (.planning/TEST-OPTIMIZATION-CANDIDATES.md). | slice 2 | |
-| S7.1 | Preserve ordinary CI selection | slice 2 | |
-| S7.2 | [Preserve] equivalent behavioral protection | slice 2 | |
-| S7.3 | Use shared MakeMe | slice 2 | |
-| S7.4 | [Use] existing external fixtures | slice 2 | |
-| S7.5 | No new internal mocks ... to obtain a saving | slice 2 | |
-| S7.6 | No ... wall-clock sleeps ... to obtain a saving | slice 2 | |
-| S7.7 | No ... retries ... to obtain a saving | slice 2 | |
-| S7.8 | No ... skips ... to obtain a saving | slice 2 | |
-| S7.9 | No ... timeout inflation ... to obtain a saving | slice 2 | |
-| S7.10 | No ... special runner modes to obtain a saving | slice 2 | |
-| S7.11 | Follow the failure policy (AGENTS.md#failing-and-flaky-tests). | slice 2 | |
-| X1.0 | Not undertaken here: the backend read-boundary cases that pass one- and two-second directed waits in real time | slice 2 | |
-| X1.1 | backoff | slice 2 | |
-| X1.2 | cooldown | slice 2 | |
-| X1.3 | resumption | slice 2 | |
-| X1.4 | shared failures | slice 2 | |
-| X1.5 | shared request owner | slice 2 | |
-| X2 | They may adopt the same fixture later. | slice 2 | |
+| S5.3 | [Delete] both cases' real waits for a directed time — stream case | slice 2 | observed: revision-stream-lost.spec.ts has no untilReported and no directedWait import |
+| S6.1 | On keeping the saving, remove the `auto-refresh-rate-limit-real-waits` entry from the test optimization candidates (.planning/TEST-OPTIMIZATION-CANDIDATES.md). | slice 2 | observed: .planning/TEST-OPTIMIZATION-CANDIDATES.md live section is None. |
+| S7.1 | Preserve ordinary CI selection | slice 2 | observed: both cases keep their titles, files and ordinary selection; every earlier assertion kept, owner-refusal and stream-closed assertions added; each fails without its owner advance (PLAN.md discrimination notes) |
+| S7.2 | [Preserve] equivalent behavioral protection | slice 2 | observed: both cases keep their titles, files and ordinary selection; every earlier assertion kept, owner-refusal and stream-closed assertions added; each fails without its owner advance (PLAN.md discrimination notes) |
+| S7.3 | Use shared MakeMe | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.4 | [Use] existing external fixtures | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.5 | No new internal mocks ... to obtain a saving | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.6 | No ... wall-clock sleeps ... to obtain a saving | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.7 | No ... retries ... to obtain a saving | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.8 | No ... skips ... to obtain a saving | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.9 | No ... timeout inflation ... to obtain a saving | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.10 | No ... special runner modes to obtain a saving | slice 2 | observed: diff 2ed4aa4fb..: only existing fixtures (fake GitHub, synthetic gh, owner clock preload) are used; no setTimeout, slow, retry, skip, sleep or new mock is added |
+| S7.11 | Follow the failure policy (AGENTS.md#failing-and-flaky-tests). | slice 2 | observed: PLAN.md Execution state records each failure with its diagnosis and owner |
+| X1.0 | Not undertaken here: the backend read-boundary cases that pass one- and two-second directed waits in real time | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
+| X1.1 | backoff | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
+| X1.2 | cooldown | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
+| X1.3 | resumption | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
+| X1.4 | shared failures | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
+| X1.5 | shared request owner | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
+| X2 | They may adopt the same fixture later. | slice 2 | observed: dashboard/tests/support/directedWait.ts untilReported and its backend callers are unchanged apart from the header comment |
 | E1.1 | GitHub answers a check with `Retry-After: 2`. | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'the rate-limited check is reported…': HTTP 429 notice, 2 seconds, resume time datetime |
 | E1.2 | The page reports the limit | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'the rate-limited check is reported…': HTTP 429 notice, 2 seconds, resume time datetime |
 | E1.3 | [The page reports] the resume time | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'the rate-limited check is reported…': HTTP 429 notice, 2 seconds, resume time datetime |
@@ -86,21 +86,21 @@ Bracketed words carry a subject or verb over from the same source sentence.
 | E2.6 | the failure clears | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'restored access, the check at the directed time reads B and clears the failure': expectAtDirectedTime, expectSettledPage B, expectWholeSnapshot revisionB, problem count 0 |
 | E3.1 | The following check comes one steady pace later | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'with GitHub's wait passed, checks resume at the steady pace': expectSteadyPace, one heads check, problem count 0 |
 | E3.2 | with no earlier upstream request | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'with GitHub's wait passed, checks resume at the steady pace': expectSteadyPace, one heads check, problem count 0 |
-| E4.1 | An open stream receives a limited answer directing six seconds. | slice 2 | |
-| E4.2 | The stream closes | slice 2 | |
-| E4.3 | nothing reopens ... before the directed time | slice 2 | |
-| E4.4 | nothing ... checks before the directed time | slice 2 | |
-| E4.5 | Owner and page time reach it: the stream reopens | slice 2 | |
-| E4.6 | lost freshness is reported only a full bound after that reopening | slice 2 | |
+| E4.1 | An open stream receives a limited answer directing six seconds. | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: HTTP 429 notice, 'asks GitHub nothing until', streamOpens empty after the first second |
+| E4.2 | The stream closes | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: HTTP 429 notice, 'asks GitHub nothing until', streamOpens empty after the first second |
+| E4.3 | nothing reopens ... before the directed time | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: checksAskedWhilePassing 0, streamOpens empty and no matching-refs call up to two seconds before T, no lost freshness |
+| E4.4 | nothing ... checks before the directed time | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: checksAskedWhilePassing 0, streamOpens empty and no matching-refs call up to two seconds before T, no lost freshness |
+| E4.5 | Owner and page time reach it: the stream reopens | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: after owner.advanceOwnerClock and page time crossing T a stream opens; no lost freshness at 40 s, reported at 45 s plus a step; then settles at B |
+| E4.6 | lost freshness is reported only a full bound after that reopening | slice 2 | observed: dashboard/tests/observation/revision-stream-lost.spec.ts rate-limited case: after owner.advanceOwnerClock and page time crossing T a stream opens; no lost freshness at 40 s, reported at 45 s plus a step; then settles at B |
 | E5.1 | Owner time held before the directed time while page time passes it: the owner refuses the read | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'owner time held before the directed time…': 502 with retryAfterSeconds 2, 'was not asked of GitHub', callsSince empty |
 | E5.2 | GitHub is asked nothing | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'owner time held before the directed time…': 502 with retryAfterSeconds 2, 'was not asked of GitHub', callsSince empty |
 | E5.3 | The admission under proof is the owner's, not the page's schedule. | slice 1 | observed: dashboard/tests/observation/auto-refresh-rate-limit.spec.ts step 'owner time held before the directed time…': 502 with retryAfterSeconds 2, 'was not asked of GitHub', callsSince empty |
-| M1 | the page case's time falls by at least 15 seconds | slice 2 | |
-| M2 | the stream case's [time falls] by at least 4 seconds | slice 2 | |
-| M3 | On the same ordinary one-worker selection of the two files | slice 2 | |
-| M4 | measured before on the execution base and after | slice 2 | |
-| M5 | with startup, fixtures and teardown paid | slice 2 | |
-| M6 | in repeated passing observations | slice 2 | |
-| M7 | Retained reference: the page case cost 20.450–21.624 local case seconds and 25.2–26.1 s in CI, about 20 s of it real waiting | slice 2 | |
-| M8 | [Retained reference:] the stream case 10.1 s in CI, 6 s of it a directed wait | slice 2 | |
-| M9 | Under machine load, judge the before and after relative to each other. | slice 2 | |
+| M1 | the page case's time falls by at least 15 seconds | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| M2 | the stream case's [time falls] by at least 4 seconds | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| M3 | On the same ordinary one-worker selection of the two files | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| M4 | measured before on the execution base and after | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| M5 | with startup, fixtures and teardown paid | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| M6 | in repeated passing observations | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |
+| M7 | Retained reference: the page case cost 20.450–21.624 local case seconds and 25.2–26.1 s in CI, about 20 s of it real waiting | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing; the retained figures stay a reference, not the baseline |
+| M8 | [Retained reference:] the stream case 10.1 s in CI, 6 s of it a directed wait | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing; the retained figures stay a reference, not the baseline |
+| M9 | Under machine load, judge the before and after relative to each other. | slice 2 | observed: PLAN.md Execution state, slice 2 run table: three base and three after runs interleaved, all passing |

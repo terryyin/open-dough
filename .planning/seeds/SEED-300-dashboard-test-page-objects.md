@@ -411,7 +411,7 @@ execution prerequisite on another story.
   [Published facts reading](../../dashboard/tests/observation/published-facts-reading.spec.ts#L40),
   [steady refresh](../../dashboard/tests/observation/steady-refresh-carry.spec.ts#L43),
   [automatic recovery](../../dashboard/tests/observation/auto-refresh-recovery.spec.ts#L68),
-  [rate limit](../../dashboard/tests/observation/auto-refresh-rate-limit.spec.ts#L92),
+  [rate limit](../../dashboard/tests/observation/auto-refresh-rate-limit.spec.ts#L107),
   [profile latency](../../dashboard/tests/observation/profile-addition-latency.spec.ts#L100),
   [transient credit](../../dashboard/tests/observation/transient-credit-recovery.spec.ts#L102).
 

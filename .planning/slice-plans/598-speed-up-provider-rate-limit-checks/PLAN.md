@@ -106,7 +106,7 @@ authority, and the decision returns to Terry.
 
 ### 2. Rate-limited stream case passes its wait on owner time, and the saving is confirmed
 Type: Behavior
-Status: planned
+Status: done
 Proof: The stream case observes its row above on a controlled owner with no
 `untilReported`; "no further listing during the wait" is still observed
 across the page-time passage before the directed time. Three consecutive
@@ -178,11 +178,35 @@ freshness bound from reopening and catch-up to B, and no real wait.
     exceeded the 30 s default; it does not use the owner-clock fixture and
     passed alone at 25.6–28.8 s. Its repair is this execution's under the
     failure policy and is delivered separately from the slices.
+- Slice 2 accepted proof, 2026-11-12, uncommitted candidate on `9b471af20`,
+  the Verification selection run strictly interleaved with the base checkout
+  (`2ed4aa4fb`), all six runs passing:
+
+  | Run | Page case | Stream case | Whole command | Load (1 min) at start |
+  | --- | --- | --- | --- | --- |
+  | base 1 | 26.1 s | 8.8 s | 49.70 s | 24.3 |
+  | after 1 | 4.4 s | 2.9 s | 13.32 s | 18.4 |
+  | base 2 | 26.9 s | 9.6 s | 47.56 s | 16.2 |
+  | after 2 | 4.3 s | 2.1 s | 16.72 s | 17.4 |
+  | base 3 | 26.1 s | 8.9 s | 43.03 s | 17.3 |
+  | after 3 | 4.5 s | 1.8 s | 15.39 s | 31.6 |
+
+  The page case is about 21.8 s faster and the stream case about 6.8 s
+  faster, so the candidate entry is removed. Discrimination: without
+  `owner.advanceOwnerClock` the stream case fails at
+  `expectSettledPage(page, titlesOfB)`, the owner still holding the read. The
+  other case of `revision-stream-lost.spec.ts` passed on the shared
+  real-clock owner. The slice 1 failure did not recur in these or two further
+  runs.
 - Learning: after a held-back answer the page's next check comes at the
   steady pace unless the page was seen again
   (`revisionCheckSchedule.ts`). The page case therefore holds owner time in
   the first wait, after the page was seen again, and proves the owner's
   refusal there before owner and page time reach the directed time together.
+
+- Learning: a plain-value file-level `test.use({ extraEnv })` replaces the
+  owner binding an extended `test` makes; a spec mixing owner-bound and plain
+  cases merges the incoming `extraEnv` in a function instead.
 
 ## Decisive premises
 

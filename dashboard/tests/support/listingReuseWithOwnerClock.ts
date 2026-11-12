@@ -145,7 +145,7 @@ async function startOwner(
 }
 
 // The clock-controlled owner alone, asking `github`: a page journey binds its
-// own dashboard to it through `wiring` (../observation/auto-refresh-rate-limit.spec.ts).
+// own dashboard to it through `wiring` (./ownerClockTest.ts).
 export async function requestOwnerWithClock(github: FakeGitHub) {
   return closable((folder, lifetime) => startOwner(folder, lifetime, github));
 }

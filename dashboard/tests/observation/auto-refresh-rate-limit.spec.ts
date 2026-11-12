@@ -11,13 +11,12 @@
 // page's clock is paused and advanced by the test. GitHub's wait is kept by
 // the request owner's clock alone (github-request-admission.mjs), so this
 // case's dashboard asks through an owner of its own, the released one started
-// with a time the test advances (../support/listingReuseWithOwnerClock.ts):
+// with a time the test advances (../support/ownerClockTest.ts):
 // each directed wait passes when the test moves owner and page time to it,
 // and a check the page's time reaches first is refused by the owner unasked.
 
-import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
 import type { Page } from "@playwright/test";
-import { expect, githubFor, test as base } from "../dashboardTest.ts";
+import { expect, githubFor } from "../dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
@@ -46,24 +45,7 @@ import {
   titlesOfA,
   titlesOfB,
 } from "../refreshJourney.ts";
-import { requestOwnerWithClock } from "../support/listingReuseWithOwnerClock.ts";
-
-// This case's dashboard asks GitHub through the owner whose time it advances.
-const test = base.extend<{
-  owner: Awaited<ReturnType<typeof requestOwnerWithClock>>;
-}>({
-  owner: async ({ github }, use) => {
-    const owner = await requestOwnerWithClock(github);
-    await use(owner);
-    await owner.close();
-  },
-  extraEnv: async ({ owner }, use) => {
-    await use(requestOwnerEnvironmentAt(owner.wiring.requestOwnerRoot));
-  },
-  pathPrefix: async ({ owner }, use) => {
-    await use(owner.wiring.pathPrefix);
-  },
-});
+import { test } from "../support/ownerClockTest.ts";
 
 // A check asked after `passed` more page time, `quiet` of it having passed
 // already, came at the directed time, within one step of it.
