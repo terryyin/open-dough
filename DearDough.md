@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 506. Removed numbers are never reused.
+- Highest allocated local number: 507. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -187,6 +187,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: dashboard launch `64396061-305e-4f4d-bc38-7f06de9b3f38`; coordinator first-delegation reference batch reported 11,733 original tokens with truncation; the complete consumer-trace read reported 60,774 original tokens with truncation, followed by bounded symbol/consumer and assertion reads. The trace is recoverable at the implementation revision above under `.planning/slice-plans/600-review-junit-tests-in-intent/consumer-trace.md`.
   - Observed effect: raw generated output and broad batches omitted passages and required targeted recovery; semantic proof and running-command ownership remained intact.
   - Inference: recurrence of an agent output-scoping deviation under existing retrieval guidance; isolated elapsed/token saving is unmeasured.
+
+- Execution: SEED-300#express-review-test-intent-through-page-objects (plan582; first implementation `14d6f4e9f47ee91fdedadc28856ce0b50c38f777`)
+  - Timestamp: unknown (2026-11-12 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take750e9e4f2; no execution-time release marker retained)
+  - Evidence: Dashboard launch39024964-857a-4f8a-9668-fb62a939fb7e: coordinator combined source/owner reads returned21,058original tokens with truncation; retrospective context batch returned17,041; a process-log match batch also truncated. The coordinator recovered selected story/owner and finding sections and parsed proof JSON fields before acceptance.
+  - Observed effect: Repeated bounded retrieval recovered omitted text; command/session handles and actual proof verdicts were retained.
+  - Inference: Matches the existing agent output-scoping deviation under targeted-retrieval guidance; no measured total-token/time saving or missing final observation is claimed.
 
 
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
@@ -597,6 +605,15 @@ integration. The installed mode guard agrees with the specific branch procedure.
   - Observed effect: two readers had to reconcile the generic wording against the mode-specific procedure and executable guard. They retained branch publication followed by history-preserving trunk integration, without changing the established mode or asking for new authority. No wrong-target push or integration failure is attributed to this discrepancy.
   - Inference: qualify the generic opening by its applicable mode and align it with the specific Story Branch sequence. This is a guidance-consistency proposal, distinct from ODF-333's trunk-before-execution-completion cycle; no guidance change is authorized by this review.
 
+- Execution: SEED-300#express-review-test-intent-through-page-objects (plan582; first implementation `14d6f4e9f47ee91fdedadc28856ce0b50c38f777`)
+  - Timestamp: unknown (2026-11-12 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take750e9e4f2; no execution-time release marker retained)
+  - Evidence: `6d0e0f14726045ecb548e737d22f89e87f765cdb:.agents/skills/dough-execute-plan/references/wrap-up-closure-publication.md`, generic opening versus Observe Story Branch integration; same revision story-wrap-up body limits before-cleanup trunk publication to Trunk Mode.
+  - Observed effect: The coordinator compared the contradictory paths and retained the explicit established Story Branch sequence: published closure tip, then history-preserving integration. No mode change or wrong-target publication was made at this review boundary.
+  - Inference: Same guidance-consistency issue, not new publication authority; align the generic opening with its mode-specific owner. No guidance edit is authorized by this review.
+
+
 ## DD-490 — Linking further commitments to an obligation leaves its Commitment field naming only the first
 
 `story-obligations.mjs record --commitment <id> --obligation <entry>` with entry fields writes the entry and its `Commitment:` line for that one id. Later `record --commitment <other> --obligation <entry>` calls set the review rows but leave the entry's `Commitment:` line unchanged, so the next `list` refuses `mismatched-commitment` until the line is edited by hand.
@@ -914,3 +931,20 @@ The plan proved that the `tests` Intent entry now selects MakeMe for runner-sche
   - Evidence: plan 603 "Selection matrix and local gates" chose existing fixture-based checks and scratch selector runs; Intent Coverage at `c1800ab36` reverted the `tests` entry and the four focused checks still passed; closure queued `SEED-329#guard-scheduled-test-makeme-selection` with plan 605. Its premise run shows the guard over `scripts/test-jobs.sh` costs about 154 ms.
   - Observed effect: a second planned work item for a check about as cheap as the scratch observation that proved the first.
   - Inference: the plan grouped a changed selection behavior with documentation links when it judged automated proof unnecessary. A change to a configuration that a shared mechanism reads may need its own maintained check of the repository's real configuration.
+
+## DD-507 — A resource hold became a quiet-window prerequisite without an established target
+
+After AC was restored, execution context required a quiet or coordinated CPU
+window before completing browser proof. The developer clarified that moderate
+CPU usage in a moderately busy context must work. Host observations did not
+establish an idle-machine acceptance condition.
+
+### Occurrences
+
+- Execution: SEED-300#express-review-test-intent-through-page-objects (plan582; first implementation `14d6f4e9f47ee91fdedadc28856ce0b50c38f777`)
+  - Timestamp: unknown (2026-11-12 execution; exact event time not retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted Take750e9e4f2; no execution-time release marker retained)
+  - Evidence: `67bb91d5415c72cdd7c1252c4fcb180c45dcb4c9:.planning/slice-plans/582-review-test-intent/execution-context.md`, Resource stop/AC restoration and Moderate busy-machine target; prior unfinished dashboard reports and developer clarification in launch39024964-857a-4f8a-9668-fb62a939fb7e. The final current cohorts passed under ordinary concurrent work after concrete cold-fixture and accepted lifecycle-supplier changes.
+  - Observed effect: Two resource-stop handoffs preceded clarification and resumed proof. The invalid quiet prerequisite was removed; wrap-up retains the supported moderate-busy expectation in tests/local-test-resources.md.
+  - Inference: Battery10% and recurring30unowned CPU burners justified investigating resource limits; they do not prove that ordinary moderate concurrency needs an idle window or explain every timeout. Keep host evidence separate from the supported target and diagnose concrete setup/observation costs. This is an agent judgment issue, not an evidenced requirement in the skill.

@@ -116,7 +116,7 @@ Execution proof: [slice 5](slice5-evidence.md), [handoff](slice5-handoff.md), [c
 
 ## Execution complete
 
-Product advice: no change. The shared test owners complete the selected outcome; retain the existing sibling-story priorities. Product/proof review is complete; selected process review is deferred until wrap-up's Intent Coverage report and dispositions.
+Product advice: no change. The shared test owners complete the selected outcome; retain the existing sibling-story priorities. Product/proof review is complete; selected process review completed in wrap-up after Intent Coverage and its disposition.
 
 ## Execution context
 
