@@ -4,7 +4,6 @@
 // keeps working, and reconciliation survives reload without another comparison.
 // See ../../src/startupReconciliation.ts and ../support/startOrigin.ts.
 
-import type { Locator } from "@playwright/test";
 import { attempts } from "../agentLaunchBoundary.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
@@ -38,15 +37,6 @@ const openSessionDescription = new RegExp(
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
 const waiting = "Waiting for published story state";
-
-// After one full expectProtected, later protection states only recheck that
-// Taken actions stay unavailable — source-link detail was already observed.
-async function expectActionsUnavailable(card: Locator) {
-  await expect(card.getByRole("button", { disabled: false })).toHaveCount(1);
-  await expect(
-    card.getByRole("button", { name: "Inspect story" }),
-  ).toBeDisabled();
-}
 
 test("a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works", async ({
   page,
@@ -113,7 +103,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(
     `The local GitHub CLI could not reach GitHub while reading whether ${unrelated} contains ${accepted}.`,
   );
-  await expectActionsUnavailable(story);
+  await expectProtected(story);
   restoreCompare();
   // Tip is still the unrelated revision; only a reload forces the compare
   // again once the failure answer is restored.
@@ -123,7 +113,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   );
   await expect(story).not.toContainText("could not reach GitHub");
   await expect(story).toContainText(waiting);
-  await expectActionsUnavailable(story);
+  await expectProtected(story);
 
   // The accepted revision moves the story to Taken; its actions wait for
   // every fact of the snapshot.
@@ -138,7 +128,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     takenStory.locator(".story-card-owner .owner-line"),
   ).toContainText("Claude Code");
   await expect(takenStory).toContainText(waiting);
-  await expectActionsUnavailable(takenStory);
+  await expectProtected(takenStory);
   releaseSeed();
   await expect(takenStory).not.toContainText(waiting);
   await expect(

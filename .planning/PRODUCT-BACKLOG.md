@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Make landed CI repeat checks pass under moderately high load](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load) — SEED-324#pass-landed-ci-repeat-checks-under-high-load ([plan](slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md))
-- [Strengthen pending Take protection assertions](seeds/SEED-327-strengthen-pending-take-protection-assertions.md#strengthen-pending-take-protection-assertions) — SEED-327#strengthen-pending-take-protection-assertions ([plan](slice-plans/601-strengthen-pending-take-protection-assertions/PLAN.md))
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects ([plan](slice-plans/582-review-test-intent/PLAN.md))
 
 ## Backlog list
