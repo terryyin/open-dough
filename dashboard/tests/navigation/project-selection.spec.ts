@@ -13,6 +13,7 @@ import {
   expectProjectChoice,
   openDirection,
   parts,
+  projectTab,
 } from "../dashboardPage.ts";
 import {
   commitAnswer,
@@ -65,14 +66,12 @@ test("project selection shows each project's own Board, and returning to a proje
   );
 
   await page.goto("/");
-  const { project, direction, readRevision } = parts(page);
+  const { direction, readRevision } = parts(page);
   const card = (title: string) =>
     page.getByRole("article", { name: title, exact: true });
 
   await test.step("Open Dough is the default selection, read once, and Doughnut is not requested", async () => {
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
     await expectMembership(page, titlesOfOpenDough);
     await openDirection(page);
     await expect(direction).toContainText(
@@ -87,7 +86,7 @@ test("project selection shows each project's own Board, and returning to a proje
   });
 
   await test.step("selecting Doughnut shows only Doughnut's Board; Open Dough is not read again", async () => {
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await projectTab(page, "Doughnut").check();
     await expectMembership(page, titlesOfDoughnut);
     await openDirection(page);
     await expect(direction).toContainText(
@@ -120,9 +119,7 @@ test("project selection shows each project's own Board, and returning to a proje
   });
 
   await test.step("returning to Open Dough shows its Board again, its ref asked again", async () => {
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await projectTab(page, "Open Dough").check();
     await expectMembership(page, titlesOfOpenDough);
     await openDirection(page);
     await expect(direction).toContainText(
@@ -184,9 +181,9 @@ test("project selection preserves empty Taken/Backlog groups and no-direction ha
 
   await page.goto("/");
   await expectMembership(page, titlesOfOpenDough);
-  const { project, backlog, taken, direction, readRevision } = parts(page);
+  const { backlog, taken, direction, readRevision } = parts(page);
 
-  await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+  await projectTab(page, "Doughnut").check();
 
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(taken).toContainText("0 entries");

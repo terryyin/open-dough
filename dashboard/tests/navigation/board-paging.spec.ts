@@ -20,12 +20,12 @@ import {
   queuedTitle,
   queuedTitles,
 } from "../accessibleBoard.ts";
+import { expectBelowBanner } from "../bannerReading.ts";
 import { box } from "../pageLayout.ts";
 import {
   columns,
   columnPagingControl,
   pagingRoom,
-  expectBelowBanner,
   expectStoryCardsKeepTheirShare,
   expectEndsWithShown,
   expectView,

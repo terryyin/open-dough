@@ -15,6 +15,7 @@ import {
 } from "../doughnutProject.ts";
 import { describedRevisions, publishedFile } from "../describedRevisions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { focusCanonicalRecord } from "../storyCardControls.ts";
 import {
   backlogPath,
   pathsRead,
@@ -231,8 +232,7 @@ test.describe("project read isolation", () => {
     const thirdCard = backlog.getByRole("article", {
       name: openDoughSharedTitleThird,
     });
-    await thirdCard.getByRole("button", { name: "Inspect story" }).click();
-    await thirdCard.getByRole("link", { name: /^Canonical record/ }).focus();
+    const record = await focusCanonicalRecord(thirdCard);
 
     await test.step("Doughnut's stale first-round read answers even later; the third Open Dough read still stands", async () => {
       releaseDoughnut();
@@ -240,9 +240,7 @@ test.describe("project read isolation", () => {
         taken: [],
         backlog: [openDoughSharedTitleThird],
       });
-      await expect(
-        thirdCard.getByRole("link", { name: /^Canonical record/ }),
-      ).toBeFocused();
+      await expect(record).toBeFocused();
     });
   });
 });

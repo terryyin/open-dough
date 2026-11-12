@@ -33,6 +33,16 @@ export async function inspectedDetail(card: Locator): Promise<Locator> {
   return detail;
 }
 
+// Puts the keyboard on the card's Canonical record link, in the detail opened
+// for it, and returns that link.
+export async function focusCanonicalRecord(card: Locator): Promise<Locator> {
+  const link = (await inspectedDetail(card)).getByRole("link", {
+    name: /^Canonical record/,
+  });
+  await link.focus();
+  return link;
+}
+
 // A card's launch group (its Starts) and its inspection group (Select story,
 // Inspect story, and Review changes when offered).
 export const launchGroup = (card: Locator) =>

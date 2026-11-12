@@ -14,6 +14,7 @@ import {
   expectMembership,
   openDirection,
   parts,
+  projectTab,
   rosterParts,
 } from "../dashboardPage.ts";
 import {
@@ -25,6 +26,7 @@ import {
   pygardonProject,
   terryTalksProject,
 } from "../projectKeyboardNavigationJourney.ts";
+import { settings as systemSettings } from "../support/systemSettingsPage.ts";
 
 test("unmodified Left and Right cycle catalog projects with wrap without selector focus", async ({
   page,
@@ -36,10 +38,7 @@ test("unmodified Left and Right cycle catalog projects with wrap without selecto
   });
 
   // A banner control keeps focus across the switch.
-  const settings = parts(page).banner.getByRole("button", {
-    name: "System settings",
-    exact: true,
-  });
+  const settings = systemSettings(page);
   await settings.focus();
   await expect(settings).toBeFocused();
 
@@ -84,34 +83,25 @@ test("focused project radio advances exactly once with wrap and keeps focus", as
 }) => {
   await publishCatalogProjects(page);
   await page.goto("/");
-  const { project } = parts(page);
 
   await test.step("Right from Open Dough selects Doughnut once and focuses it", async () => {
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .focus();
+    await projectTab(page, "Open Dough").focus();
     await page.keyboard.press("ArrowRight");
     await expectFocusedRadio(page, "Doughnut");
     await expectSelectedProject(page, doughnutProject);
   });
 
   await test.step("Right from Terry Talks wraps once to Open Dough", async () => {
-    await project
-      .getByRole("radio", { name: "Terry Talks", exact: true })
-      .check();
+    await projectTab(page, "Terry Talks").check();
     await expectSelectedProject(page, terryTalksProject);
-    await project
-      .getByRole("radio", { name: "Terry Talks", exact: true })
-      .focus();
+    await projectTab(page, "Terry Talks").focus();
     await page.keyboard.press("ArrowRight");
     await expectFocusedRadio(page, "Open Dough");
     await expectSelectedProject(page, openDoughProject);
   });
 
   await test.step("Left from Open Dough wraps once to Terry Talks", async () => {
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .focus();
+    await projectTab(page, "Open Dough").focus();
     await page.keyboard.press("ArrowLeft");
     await expectFocusedRadio(page, "Terry Talks");
     await expectSelectedProject(page, terryTalksProject);
@@ -128,10 +118,7 @@ test("keyboard project selection reuses history and roster view retention", asyn
     backlog: [queuedStory],
   });
 
-  const { banner, project } = parts(page);
-  await banner
-    .getByRole("button", { name: "System settings", exact: true })
-    .focus();
+  await systemSettings(page).focus();
   await page.keyboard.press("ArrowRight");
   expectRoute(page, { project: "doughnut", view: null });
   await expectMembership(page, { taken: [doughnutStory], backlog: [] });
@@ -148,9 +135,7 @@ test("keyboard project selection reuses history and roster view retention", asyn
   });
 
   await test.step("keyboard switch keeps roster view aligned with the selected project", async () => {
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await projectTab(page, "Open Dough").check();
     await expectMembership(page, {
       taken: [takenStory],
       backlog: [queuedStory],
@@ -171,9 +156,7 @@ test("keyboard project selection reuses history and roster view retention", asyn
         hasText: "Assignment unknown. Agent profiles could not be read.",
       }),
     ).toHaveCount(29);
-    await expect(
-      project.getByRole("radio", { name: "Doughnut", exact: true }),
-    ).toBeChecked();
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
     await expect(page.locator("body")).not.toContainText(takenStory);
   });
 });

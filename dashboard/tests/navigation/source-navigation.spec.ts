@@ -113,10 +113,8 @@ test("source navigation opens canonical and plan records at the inspected revisi
     const detail = story.getByRole("region", {
       name: "Detail for See the project's published work in a story dashboard",
     });
-    const dest = await followLeavingDashboard(
-      page,
-      detail.getByRole("link", { name: /^Canonical record / }),
-    );
+    const record = detail.getByRole("link", { name: /^Canonical record / });
+    const dest = await followLeavingDashboard(page, record, "Open Dough");
     expect(dest.origin).toBe("https://github.com");
     expect(dest.pathname).toBe(
       `${snapshotRoot}/.planning/seeds/SEED-021-observe-published-story-progress.md`,
@@ -165,7 +163,7 @@ test("source navigation keeps an external reference apart from files in this sna
   await expect(note).not.toContainText(revision.slice(0, 7));
 
   await test.step("following an external reference opens in a new tab while dashboard stays in place", async () => {
-    const dest = await followLeavingDashboard(page, canonical);
+    const dest = await followLeavingDashboard(page, canonical, "Open Dough");
     expect(dest.origin).toBe("https://status.example.com");
     expect(dest.pathname).toBe("/notes/2026-09");
     expect(dest.search).toBe("?view=full");

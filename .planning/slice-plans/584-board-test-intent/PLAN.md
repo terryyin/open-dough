@@ -179,7 +179,7 @@ About 16 mechanics sites removed; helper +50 lines, specs/support net −43.
 
 ### 3. Follow project, header and destination focus through shared controls
 Type: Behavior
-Status: planned
+Status: done
 Proof: C3; preserve compact/wide transitions, actual key order, perspective,
 selected project, sanitized/pinned links and arrival focus/scroll. Example 3.
 
@@ -187,6 +187,22 @@ Behavior: Given a current project and viewport, named project/frame/destination
 actions expose where the reader arrives and what stays selected. Reuse existing
 project/shortcut/source owners; independent exact-name/URL contracts stay
 explicit. Safe stop: these navigation callers stand alone with their assertions.
+
+Accepted (2026-11-12): `projectChoice.ts` adds `projectTab` and
+`pressProjectListKeys`. New `bannerReading.ts` adds `expectBannerRow`,
+`bannerStops` and `expectPinnedShortBanner`, and now holds `expectBelowBanner`,
+moved from `boardPage.ts`. `expectRoute` also reads `story`. Other additions:
+`expectCatalogStories`, `focusCanonicalRecord`, notification arrival/focus
+readers, and `followLeavingDashboard` taking the caller's project. Proof:
+- C3 35/35.
+- `board-kept` and `project-read-isolation` 7/7.
+- After refactor, notification, eligibility and keyboard-navigation 13/13.
+- Typecheck exit 0.
+
+About 85 mechanics sites removed (28 project-tab radios, 12 membership
+literals, 10 story-param reads and others). Helpers about +100 lines, specs
+−139. `source-navigation` keeps exact `target`/`rel` reads direct.
+Project-tab callers outside navigation are O4 (slice 8).
 
 ### 4. Inspect and follow references without hiding interruption
 Type: Behavior
@@ -359,3 +375,8 @@ Disposition: receiving slice 8
 Reported: slice 2 — "In profile, every remedied failure is at a body-to-Board handoff key (End from body; Meta+ArrowUp after blur): 3/80 remedied versus 0/80 unchanged on the same two specs."
 Story clause: "Necessary test/harness repair follows the project's failing/flaky-test policy."
 Disposition: receiving slice 9
+
+### O4. Raw project-tab radio locators remain outside navigation
+Reported: slice 3 — "Raw `project.getByRole("radio",{name,exact:true})` sites remain outside navigation: in this story's later territory: `stories/story-readiness`, `stories/direction-disclosure`, the `observation/*` project-read/transient/auto-refresh/shared-observer/read-failure specs, `storyReadinessRefresh.ts`, `doughnutJourney.ts`, `limitedReadingJourney.ts`, `publishedFactsIsolationJourney.ts`; in sibling families: `responsiveStart.ts` and `launches/responsive-session-recovery-restart`, which are launch-family and also omit `exact`."
+Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
+Disposition: receiving slice 8

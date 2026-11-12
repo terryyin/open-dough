@@ -3,7 +3,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { expectRoute, openDough } from "../agentRosterRecords.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, projectTab } from "../dashboardPage.ts";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { publishFiles } from "../publishedOrigin.ts";
@@ -13,6 +13,7 @@ import {
 } from "../storyReadinessFixture.ts";
 import { publishCatalogProjects } from "../projectKeyboardNavigationJourney.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { settings } from "../support/systemSettingsPage.ts";
 
 test("help modal, editing, other arrow controls, and prevented keys leave the project unchanged", async ({
   page,
@@ -35,14 +36,8 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
   await expect(
     page.getByRole("article", { name: plannedReady.title }),
   ).toBeVisible();
-  const { banner, project, preparationHelp } = parts(page);
-  const settings = banner.getByRole("button", {
-    name: "System settings",
-    exact: true,
-  });
-  await expect(
-    project.getByRole("radio", { name: "Open Dough", exact: true }),
-  ).toBeChecked();
+  const { preparationHelp } = parts(page);
+  await expect(projectTab(page, "Open Dough")).toBeChecked();
 
   await test.step("open help modal absorbs arrows; closing restores the shortcut", async () => {
     await preparationHelp.click();
@@ -50,21 +45,17 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
     await expect(dialog).toBeVisible();
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
-    expect(new URL(page.url()).searchParams.get("project")).toBeNull();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
+    expectRoute(page, { project: null });
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await expect(dialog).not.toBeVisible();
-    await settings.focus();
+    await settings(page).focus();
     await page.keyboard.press("ArrowRight");
-    await expect(
-      project.getByRole("radio", { name: "Doughnut", exact: true }),
-    ).toBeChecked();
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
     expectRoute(page, { project: "doughnut", view: null });
   });
 
-  await project.getByRole("radio", { name: "Open Dough", exact: true }).check();
+  await projectTab(page, "Open Dough").check();
 
   await test.step("editable targets and non-project arrow controls keep the selection", async () => {
     await page.evaluate(() => {
@@ -87,9 +78,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
     ]) {
       await page.locator(selector).focus();
       await page.keyboard.press("ArrowRight");
-      await expect(
-        project.getByRole("radio", { name: "Open Dough", exact: true }),
-      ).toBeChecked();
+      await expect(projectTab(page, "Open Dough")).toBeChecked();
     }
 
     await page.evaluate(() => {
@@ -98,7 +87,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
   });
 
   await test.step("already-prevented arrow events keep the selection", async () => {
-    await settings.focus();
+    await settings(page).focus();
     await page.evaluate(() => {
       const prevent = (event: KeyboardEvent) => {
         if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
@@ -114,9 +103,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
     });
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowLeft");
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
     await page.evaluate(() => {
       const prevent = (
         window as Window & {
@@ -133,10 +120,7 @@ test("help modal, editing, other arrow controls, and prevented keys leave the pr
 test("modified arrow keys do not cycle projects", async ({ page }) => {
   await publishCatalogProjects(page);
   await page.goto("/");
-  const { banner, project } = parts(page);
-  await banner
-    .getByRole("button", { name: "System settings", exact: true })
-    .focus();
+  await settings(page).focus();
 
   for (const key of [
     "Shift+ArrowRight",
@@ -146,13 +130,9 @@ test("modified arrow keys do not cycle projects", async ({ page }) => {
     "Shift+ArrowLeft",
   ]) {
     await page.keyboard.press(key);
-    await expect(
-      project.getByRole("radio", { name: "Open Dough", exact: true }),
-    ).toBeChecked();
+    await expect(projectTab(page, "Open Dough")).toBeChecked();
   }
 
   await page.keyboard.press("ArrowRight");
-  await expect(
-    project.getByRole("radio", { name: "Doughnut", exact: true }),
-  ).toBeChecked();
+  await expect(projectTab(page, "Doughnut")).toBeChecked();
 });

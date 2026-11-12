@@ -154,12 +154,6 @@ async function endOf(part: Locator) {
   );
 }
 
-// A part starts below the pinned banner, not under it.
-export async function expectBelowBanner(part: Locator) {
-  const banner = await box(parts(part.page()).banner);
-  expect((await box(part)).y).toBeGreaterThanOrEqual(banner.y + banner.height);
-}
-
 // Read to its end, the Board shows the end of the longest `shown` column, or
 // of its column paging controls' room where that is longer, followed by no more than
 // its ordinary framing.

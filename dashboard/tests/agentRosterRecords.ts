@@ -165,17 +165,14 @@ export async function publishRosterOrigins(page: Page) {
   await publishFiles(page, pygardon);
 }
 
+// The address names each given project, view and story; null means none.
 export function expectRoute(
   page: Page,
-  expected: { project?: string; view?: string | null },
+  expected: Partial<Record<"project" | "view" | "story", string | null>>,
 ) {
-  const url = new URL(page.url());
-  if (expected.project !== undefined) {
-    expect(url.searchParams.get("project")).toBe(expected.project);
-  }
-  if (expected.view !== undefined) {
-    expect(url.searchParams.get("view")).toBe(expected.view);
-  }
+  const params = new URL(page.url()).searchParams;
+  for (const [name, value] of Object.entries(expected))
+    expect(params.get(name), name).toBe(value);
 }
 
 export const backlogUnreadable =
