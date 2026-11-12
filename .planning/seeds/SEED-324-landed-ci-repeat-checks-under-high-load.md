@@ -298,3 +298,30 @@ Scratch specs were removed afterwards.
   observed: that card rendered in the page. Two scratch arrangements that
   published the committed origin before saving the request made no provider
   call in 19 s, and the cause was not found.
+
+<a id="close-landed-ci-repeat-check-gaps"></a>
+
+### Close the landed CI repeat checks' coverage gaps and tidy their support
+
+**Identity:** SEED-324#close-landed-ci-repeat-check-gaps
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"not-ready","reasons":["P1 unobserved: a preparation read held while another writer spends the landing in the ledger leaves the server sending no rerun request, and faults F12 and F25 each make it send","P2 unobserved: the proof collection keeps for the completion spec's facts equals keptScopeFileProof for the same facts","P3 unobserved since the SEED-330 merge: the whole Intent comparison passes the sideways-scroll check at 390 px","P4 unobserved: a queued repeat reads as progress on the phone card, and fault F27 fails it","P5 unobserved: a later start-origin revision naming the first as its parent throws Unknown parent on the current tree"],"basis":{"document":"8adb4469e77329d7889e39e148edfad226e05c95255068b560ce7923caf476af","plan":"2d13edf6f61b1b3dcf662d1aa1763ff89bfaea9f49af213d6fbbd04a75f3302c"}}
+```
+
+**Goal.** A maintainer who changes automatic CI follow-up, or the support
+the landed CI repeat checks share, gets a failing check for each regression
+those checks caught before
+[the high-load story](#pass-landed-ci-repeat-checks-under-high-load) moved
+them to kept state, and finds one owner for each support responsibility.
+
+**Scope.** Bounded retrospective correction of
+[Make landed CI repeat checks pass under moderately high load](#pass-landed-ci-repeat-checks-under-high-load).
+Its checks regain a dashboard check for a second dashboard's spend, a queued
+repeat read as progress, and sideways scroll across the whole comparison on a
+phone. A check ties the kept scope proof to what collection keeps. Rerun
+answering, provider layering, the automatic-repeat spec and start-origin
+preparation each get one owner. A later start-origin revision may name the
+first revision as its parent. No product behavior changes, and no new product
+promise. Every check still passes at load 30–50 within the default timeouts.
+Plan:
+[607-close-landed-ci-repeat-check-gaps](../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md).

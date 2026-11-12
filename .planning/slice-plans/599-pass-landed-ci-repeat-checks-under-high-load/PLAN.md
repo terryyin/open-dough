@@ -2557,6 +2557,155 @@ cases is larger (22.7–31.7 s against 5.0–10.6 s): the worker fixtures that
 prepare the three kept stories and the preview inputs. Under the same load
 that difference is smaller than what the cases save.
 
+##### Measured again after the SEED-330 merge
+
+Observed on 2026-11-13, 01:18–01:47 local, on `4e3c2235e` (the merge
+`937da2b35` of trunk `68bdc4f10` and the seed's retirement commit), working
+tree clean at the start, Node 24.21.0, AC power throughout (`pmset` read
+before every batch and inside every run script; battery 80%, AC attached),
+every timed command under `caffeinate -s -i`. The machine has 16 cores; its
+natural one-minute load was 5–9 for this window, so the profile runs used
+`yes` burners. Logs, proof records, traces and scratch scripts (`run.sh`,
+`one.sh`, `simpairs.sh`, `summ.py`, `casesum.py`, `fixtures.py`, `lines.py`,
+`fault-intent.py`, adapted from `slice10/`) are in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/measure-330/`; nothing scratch
+entered the repository. The measurements above stay as history: their base
+was `8aa440077` and their candidate the tree before the merge.
+
+**Base.** The worktree `base-330` at `68bdc4f10`, detached and unmodified;
+`node scripts/setup-native.mjs npm`, `browser` and `check` each completed
+(exit 0; Chromium 158.0.8127.18). Its selection, each file present on trunk:
+`landed-ci-automatic-repeat.spec.ts` (`:22`, `:96` in its loop of refused and
+uncertain, `:132`), `landed-ci-repeat-verdict.spec.ts:15`,
+`recently-done-ci-automatic-repeat.spec.ts:17`, `intent-ci-follow-up.spec.ts:27`
+and `intent-project-scope-timing-refresh.spec.ts` (`:56`, `:126`): 9 cases.
+The worktree was removed after the pairs (`git worktree remove --force`).
+The candidate's selection is the eight files: 13 cases (journey `:44`,
+refused `:115`, uncertain `:144`, saved outcomes `:177`, accepted request,
+verdict, warning `recently-done-ci-automatic-repeat.spec.ts:30`, reading,
+proof, return `:39` and `:66`, refresh `:52` and `:118`).
+
+**Faults F21–F24 on the merged tree** (`fault-intent.py`, one worker, the
+three Intent specs, `--reporter=list`, one fault at a time, the file's bytes
+restored after each). Trunk rewrote `ciFollowUpBoundary.ts`, so F21's
+inserted provider read now sits before `answerCiFollowUp`'s two-space
+`return reading;`; F22–F24's anchors were unchanged.
+
+| Fault | Edit | Failed case and expectation | Load before → after |
+| --- | --- | --- | --- |
+| F21 | the comparison read also asks the provider for the original's attempt | proof "no CI request from proof navigation" (`:68`); return `:39` "no CI request from refresh" (`:60`); return `:66` "no CI request from revisit" (`:87`); reading "no CI request from first render" (`:140`); 1.4–3.8 s each | 5.03 → 5.43 |
+| F22 | Summary's original proof reads the repeat's attempt | proof "the original's proof in Summary" (`:54`), 6.9 s; the other three passed | 5.43 → 6.19 |
+| F23 | a Development selection keeps the comparison's address | return `:66` "the selection leaves the comparison's address" (`:100`, received `SEED-A#a`), 8.1 s; the other three passed | 6.19 → 7.75 |
+| F24 | the repeat's run link leaves the Tab order | reading "Tab reaches the repeat's link" (`:125`), 7.7 s; the other three passed | 7.75 → 9.54 |
+
+None failed at the 30 s bound. `git diff --stat -- dashboard/server
+dashboard/src` was empty after each and at the end.
+
+**Key example 1.** `run.sh <label> <burners> 2`, the command of the Slice 10
+record, started only at a one-minute load of 30–50 and on AC power:
+
+| Label | Load before → after | Load source | Counted | Result |
+| --- | --- | --- | --- | --- |
+| `k1` | 31.14 → 48.14 | 22 burners | yes, failed the figure | 13 passed, 174.2 s; return `:66` 29.4 s, refresh `:52` 28.1 s, `:118` 30.9 s |
+| `k2` | 7.37 before burners; 25.10 after six minutes | 16 burners | no: never reached 30, no run started | — |
+| `k3` | 30.00 → 42.28 | 20 burners (`k2`'s decaying share beside them at the start) | yes, failed | 12 of 13, 142.8 s; refresh `:118` timed out at the 30 s bound (33.4 s) |
+
+Every burner was stopped at each run's end (`pgrep -x yes` empty). No two
+consecutive counted passes exist: key example 1 is not met on the merged
+candidate. Not repaired here; returned to the coordinator.
+
+| Case | `k1` | `k3` |
+| --- | --- | --- |
+| journey, first | 14.0 | 14.4 |
+| refused, first | 7.5 | 8.7 |
+| uncertain | 8.6 | 8.8 |
+| saved outcomes | 4.5 | 4.6 |
+| accepted request | 11.9 | 6.2 |
+| verdict | 5.7 | 4.0 |
+| proof, the worker's first page case | 20.2 | 10.7 |
+| return `:39`, the worker's first page case | 21.3 | 10.4 |
+| return `:66` | **29.4** | 20.5 |
+| reading | 22.5 | 16.8 |
+| refresh `:52` | **28.1** | 24.2 |
+| refresh `:118` | **30.9** | **33.4, timed out** |
+| warning | 17.1 | 20.4 (first in a new worker after the timeout) |
+
+Worker fixtures, outside the durations: `queuedClaudeBoundaryReady`
+10.0–10.3 s (`k1`) and 8.7–9.4 s (`k3`), `keptStory` 2.5–2.7 and 1.7–2.7 s,
+`queuedClaudePreviewReady` 1.0–9.4 and 2.4–5.7 s, `keptIntentStory` 4.3 and
+1.9–2.1 s, `keptSummaryComparisonStory` 15.9–16.1 and 12.8–12.9 s, against
+5.0–6.6 s in `e2`–`e5`. Trace spans with worker fixtures and teardown: at most
+46.8 s (`k1` `:118`; `:52` 44.3 s, proof 34.6 s) and 46.9 s (`k3` `:118`;
+`:52` 37.0 s). `traces-k1` lacks the warning's trace (the linker stopped at
+the run's end); `k3` has all 13.
+
+Trace attribution of the cases over 25 s (`lines.py`, steps of at least
+0.8 s):
+
+- `k1` return `:66`: Before Hooks 5.9 s (test-scoped `origin` 1.2,
+  `dashboard` 4.6), paging the phone Board at `:75`
+  (`boardColumnNavigation.ts`) 7.7 s, `:81` 2.8 s, `:86` 2.3 s, `:110`
+  3.6 s, After Hooks 2.1 s. In `e2`–`e5` the case took 11.1–15.0 s.
+- `k1` refresh `:52`: Before Hooks 22.5 s (`keptSummaryComparisonStory`
+  16.1, `origin` 1.9, `dashboard` 4.1), Board paging at `:58` 5.2 s, `:64`
+  (`intentModePage.ts:75`, the Intent open) 6.5 s, `:90` 1.8 s, `:93` 1.3 s.
+- `k1` refresh `:118`: Before Hooks 21.7 s (`keptSummaryComparisonStory`
+  15.9, `origin` 1.0, `dashboard` 4.7), Board paging at `:124` 5.1 s,
+  `untilPageReadsAnswered` at `:136` 7.0 s, `:138` 2.0 s, `:143` 1.2 s,
+  `:180` (`autoRefreshJourney.ts`) 2.2 s, `:181` 1.7 s.
+- `k3` refresh `:118`: Before Hooks 18.4 s (`keptSummaryComparisonStory`
+  12.9, `origin` 1.5, `dashboard` 4.0), Board paging at `:124` 4.0 s,
+  `untilPageReadsAnswered` at `:136` 7.6 s, `:138` 1.9 s, `:180` 3.0 s,
+  `:181` 1.8 s; the 30 s bound fell during `:199`'s Intent open
+  (`intentModePage.ts:75`), the case's last step, after every expectation
+  through `:198` had passed.
+
+**Key example 2.** One case calls `scenario.ingest` across the candidate's
+repeat specs (the journey, `landed-ci-automatic-repeat.spec.ts:78`). The
+base's four repeat specs on `68bdc4f10` still have five:
+`landed-ci-automatic-repeat.spec.ts:47` (`:22`), `:111` in its loop of two
+outcomes (`:96` twice), `recently-done-ci-automatic-repeat.spec.ts:34` and
+`intent-ci-follow-up.spec.ts:59`. The refresh spec calls none on either side.
+
+**Key example 8.** `simpairs.sh sim 6`: `one.sh base simN` (`base-330`, 9
+cases) and `one.sh cand simN` (the eight files, 13 cases) started at the
+same moment, one worker each, natural load, no burner, a proof record and
+`slice6/count-gh.mjs` preloaded in each run. "Case" is the sum of the proof
+record's case durations, "outside" the wall time less that sum.
+
+| Pair | Load at start | Base: wall, case, outside, end load | Candidate: wall, case, outside, end load | Fake `gh` calls, base / candidate |
+| --- | --- | --- | --- | --- |
+| `sim1` | 18.63 | 57.9 s, 51.5, 6.4, 13.52; passed 9 | 50.4 s, 41.5, 8.9, 14.90; passed 13 | 344 / 246 |
+| `sim2` | 13.52 | 39.7 s, 37.6, 2.1, 10.02; passed 9 | 38.5 s, 31.6, 6.9, 10.02; passed 13 | 339 / 249 |
+| `sim3` | 10.02 | 48.7 s, 46.6, 2.1, 8.78; passed 9 | 45.8 s, 37.6, 8.2, 8.78; passed 13 | 344 / 243 |
+| Median | | 48.7 s, 46.6, 2.1 | 45.8 s, 37.6, 8.2 | |
+
+The first three pairs passed on both sides. The candidate's median wall
+time is 0.940 of the base's (45.8 / 48.7), inside the 1.10 figure; each
+passing candidate run made fewer fake `gh` calls than each passing base run
+(243–249 against 339–344). The candidate's cases take less time in every
+pair and its outside-case time is larger (6.9–8.9 s against 2.1–6.4 s). These
+pairs ran at load 9–19, lower than the corrected candidate's pairs above
+(23–34).
+
+**Diff review against the new base.** `git diff 68bdc4f10...HEAD -- dashboard
+tests` adds no `test.setTimeout`, expectation `timeout:`, `test.slow`, sleep
+or `waitForTimeout`, retry, `skip`, `fixme`, `only` or runner mode
+(`describe.configure`, `repeatEach`); it removes the three
+`readWaitLimitMs + 15_000` expectation timeouts of `openCollectedHistoryStory`.
+In `agent-completion-quiet.spec.ts` the branch changes only the settle wait
+before the press; `test.setTimeout(60_000)` at `:47` is trunk's. No
+Playwright configuration, `.github` or script changed, and no
+`dashboard/longest-first*` file names the eight specs. `git diff --stat
+68bdc4f10...HEAD -- dashboard/server dashboard/src` is empty.
+
+Gaps: key example 1 has two counted failures (`k1` over the figure, `k3`
+timed out) and no counted pass on the merged candidate; no natural-load
+window of 30–50 occurred. Not established here is whether the slower page
+cases come from the merge or from the burner-only load on 16 cores (the
+earlier counted runs had other work beside fewer burners): the base was not
+run in the profile. Hosted CI is not observed.
+
 #### Slice 10 acceptance and refactor
 
 - Accepted with obligations G1 and G2 proved. The refactor pass gave the
@@ -2605,7 +2754,7 @@ recorded).
 ### G1. Page cases first in their worker reach the bound at load 27–49
 Reported: slice 4 — "With both cases first in their workers at load 27 → 49 the warning case took 28.2–29.7 s and failed once at the 30 s bound; Before Hooks took 25.8 s."
 Story clause: "every case passes each time; no case takes more than 25 s"
-Disposition: proved by slice 10: PLAN.md Slice 10 record, correction for G2, counted runs e2, e4 and e5 at natural load 31–50: 14 of 14 each, none over 18.1 s, trace spans with worker fixtures at most 24.1 s
+Disposition: return
 
 
 ### G2. The refresh cases wait with an expectation timeout of readWaitLimitMs + 15 s
