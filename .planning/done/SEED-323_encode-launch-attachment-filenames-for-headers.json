@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-323#encode-launch-attachment-filenames-for-headers",
+  "title": "Encode launch attachment filenames for headers",
+  "completedAt": "2026-11-12T02:08:22.692Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "## Dough Intent Coverage: SEED-323#encode-launch-attachment-filenames-for-headers\n\n**Outcome: Caught.** The maintained Headers-safety assertion detects omission of percent-encoding for a non-Latin-1 attachment filename.\n\nStory and checked revision: `.planning/seeds/SEED-323-launch-attachment-non-latin1-filenames.md#encode-launch-attachment-filenames-for-headers` at `a58fe69dc24481f4e57459bf08c441a0dffd09e0`. The selected promise is that a non-Latin-1 `File.name` yields a Headers-safe `x-launch-attachment-name` value that recovers for sanitize.\n\nFault: in `dashboard/src/launchAttachments.ts` `launchAttachmentNameHeaderValue`, replace `return encodeURIComponent(name)` with `return name`.\n\nMaintained proof: `dashboard/backend-tests/launches/launch-attachment-refusals.spec.ts`, test “a non-Latin-1 attachment filename is header-safe and recovers for sanitize”. Its `expect(() => new Headers(...)).not.toThrow()` failed under the fault with the ByteString/ISO-8859-1 TypeError.\n\n- Baseline: 3 passed.\n- Fault: 1 failed (named test), 2 passed.\n- Restored: 3 passed; scratch worktree removed.\n\n**Next proof action:** retain the maintained Headers-safety assertion in default proof.\n\n## Wrap-up disposition\n\nChecked revision: `a58fe69dc24481f4e57459bf08c441a0dffd09e0`. Caught omission of header encoding. No follow-up story. Retain the assertion.\n"
+  }
+}
