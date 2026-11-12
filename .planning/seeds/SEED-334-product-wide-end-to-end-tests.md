@@ -38,11 +38,14 @@ starts elsewhere.
 The [current suite](../../dashboard/tests/README.md#three-roots-integrated-journeys-frontend-only-and-boundary-tests)
 runs `dashboard/tests`, `dashboard/frontend-tests`, and `dashboard/backend-tests`
 together through `npm run test:dashboard`. Retire that command and the umbrella
-dashboard test grouping. `npm run test:e2e` selects the product journeys. Give
-the two dashboard-specific groups documented ways to run independently and
-keep all three groups covered in CI. Use **E2E Test** wherever the product-wide
-entry is presented by name. Decide source paths, command names for the focused
-groups, and how much runner setup to share during refinement.
+dashboard test grouping. `npm run test:e2e` starts a dedicated runner for the
+product journeys. Run dashboard frontend and backend tests outside that runner
+locally and in CI. Give the E2E runner its own setup, worker, and shard settings
+so maintainers can optimize it independently of both dashboard groups. Common
+fixtures and proof utilities can be reused. Give both dashboard groups
+documented ways to run independently and keep all three groups covered in CI.
+Use **E2E Test** wherever the product-wide entry is presented by name. Decide
+source paths and command names for the focused groups during refinement.
 
 Review the current inventory against these purposes and account for every
 maintained spec and the behavior it proves. Keep detailed variants in the
@@ -59,8 +62,10 @@ explicit proof of the released-skill workflow under the
 - Capture the current test inventory, CI shard membership, and proof entries
   before the migration. Check that the new commands select the intended
   groups, then execute representative cases. Carry forward behavior coverage
-  and review changes to discovery, shared setup, sharding, and timing inputs
-  against that baseline. A test listing proves selection only.
+  and review changes to discovery, setup, sharding, and timing inputs against
+  that baseline. Verify that changing E2E worker or shard settings leaves
+  dashboard test selection and execution settings intact. A test listing
+  proves selection only.
 - Update the [CI workflow](../../.github/workflows/ci.yml), shard allocation,
   and [proof publication](../../dashboard/tests/proof-record.md) together. In
   hosted CI on the migrated revision, verify that all three groups run and
