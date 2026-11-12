@@ -61,6 +61,30 @@ project configuration per environment on this machine: built production and
 live development. These are machine-local settings; the observed repository
 continues to own project state.
 
+## One CI repeat across providers
+
+The delivered landed-CI follow-up is GitHub Actions specific in four places:
+the decision skips adapter builds (`ciFollowUpDecision.ts`), collection stops
+at an adapter (`ciFollowUpCollection.ts`), the request and observation call
+GitHub directly (`ciFollowUpRequest.ts`, `ciFollowUpObservation.ts`,
+`ciFollowUpGithub.ts`), and the ledger's request has GitHub's numeric run,
+workflow and job shape (`ciFollowUpStore.ts`). Custom CI rebuilds
+([SEED-330](seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds))
+make this one flow with a provider seam, not a second follow-up.
+
+| Concept | Meaning | Owner |
+| --- | --- | --- |
+| **Repeat decision** | The 5% rule against the saved reference for any exact successful landed build, GitHub or adapter. | `ciFollowUpDecision.ts`, unchanged rule |
+| **Repeat provider** | Three provider operations: *prepare* verifies the original attempt and freezes its provider evidence, *submit* sends the one request and classifies the answer as accepted, refused or uncertain, *observe* reads the exact new attempt into the shared outcome. GitHub Actions and the `ciRebuild` command are its two implementations, chosen from the project's CI configuration. | GitHub: the existing GitHub modules behind the seam. Custom: a new adapter provider module using the shared command transport in `ci-command-adapter.mjs` and the existing `discover` and `proof` reads. |
+| **Follow-up flow** | Admission, allowance spend before submit, never resending, outcome kinds and wording, cards and the review reading. Provider-neutral. | `ciFollowUpCollection.ts`, `ciFollowUpAdmission.ts`, `ciFollowUpRetention.ts`, `ciFollowUpReading.ts` |
+| **Saved request** | The ledger's request keeps shared fields (original, reference, rule, submission, outcome) and a provider-tagged identity and evidence part. Existing GitHub requests read unchanged as the GitHub kind. | `ciFollowUpStore.ts` |
+
+Rules: the observer's `ciAdapter` contract stays read-only, and only the
+production dashboard calls *submit*. Verifying a full comparable repeat is the
+provider's judgment (GitHub's distinct jobs; an adapter's exact distinct
+attempt with complete proof) feeding one shared outcome. Retire this topic
+when the custom provider has landed and the code carries the seam.
+
 ## Agent launch as a requested assignment
 
 Starting agent work from the dashboard adds its first action, as proposed in
