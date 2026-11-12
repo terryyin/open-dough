@@ -241,3 +241,12 @@ Process review remains selected by `skipProcessRetrospective: false` and deferre
 ## Execution complete
 
 Product advice: no change — the configured Java source outcome is delivered and its focused proof is sufficient; no correction or queue change is supported. Process review remains selected and deferred into wrap-up after Intent Coverage.
+
+## Closure inputs
+
+- Execution-complete publication `267acb840eddca71fe6a185925ba9189bb60f451`; branch completion success via not-required basis `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`, shutdown confirmed, unread events 0. No lifecycle commitments remain outside slice proof.
+- Wrap-up coverage: Caught at implementation `4980feb6d`, limited to Java kind/include authenticated inventory/read. Three baseline cases pass; two kind cases fail with mapping removed and explicit sources still pass; independent HTTP witness shows empty unsupported inventory and file404; bytes restored, three restored cases pass, scratch worktree removed. Report and separate retain/no-follow-up disposition are outside cleanup at `/tmp/seed325-wrap-up-64396061/intent-coverage.md`; raw proof under `/tmp/dough-intent-coverage-SEED-325-mqSLyh/`.
+- Deferred process review completed from this conversation, implementation/refactor returns and coverage report/costs. DearDough records this execution under existing ODF-264, ODF-396 and DD-493; no new finding id, corrective implementation or backlog change. No unresolved process attention; product/proof advice remains unchanged.
+- Current product facts already live in dashboard guides and maintained source/tests. No test-optimization candidate or follow-up is held only in this plan. Cited North Star topic is retained: this small source-kind increment does not substantially realize its broader reading/observation/presentation direction.
+- Closure observer: coordinator seed325-aki, branch target unchanged, directory `/tmp/dough-ci-501/watch-UT54CB`, PID28846, session7223, yielded cellg42:74. Prior execution observer is ended.
+- Git management context `/Users/terryyin/git/open-dough/.git`; creation ref names SEED-325#review-junit-tests-in-intent. Final reporting executable and original landing context are outside this checkout under `/Users/terryyin/.open-dough/dashboard/reporting/64396061-305e-4f4d-bc38-7f06de9b3f38/`; use `/tmp` as surviving reporting working directory.
