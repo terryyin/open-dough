@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 503. Removed numbers are never reused.
+- Highest allocated local number: 504. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -856,3 +856,22 @@ During wrap-up, Intent Coverage left the restored run unverified after the probe
   - Evidence: the Intent Coverage report's two restored runs of `responsive-session-reconciliation.spec.ts:44` timed out at 32.1 s and 32.0 s (load about 21–26). The coordinator then ran three reruns (one timeout), set up a base worktree at `aa8ac5f89`, ran six alternating base/exec runs (base 15.0–29.8 s; exec 13.7–31.6 s, one timeout) and one traced run, and only then read trunk's backlog. Taken SEED-287#fit-dashboard-journeys-in-default-timeout (plan 576; agent chaifeng-chan) names `responsive-session-reconciliation` under local load 20–30. Earlier, the slice 1 return had reported this journey at 28.8 s of its 30 s budget (load 36) and blamed a parallel typecheck; acceptance did not look for an owner.
   - Observed effect: about ten focused runs and one scratch worktree setup, roughly 10 minutes. The result was the coordination boundary the failure policy already names: no repair, owner reported.
   - Inference: the base comparison was still needed for attribution. Searching the backlog for the spec name could have found the owner first and saved the profiling. This has happened once.
+
+## DD-504 — A plan's whole-suite gate named `npm test` for dashboard journeys it does not run
+
+The plan justified one whole local suite run by the dashboard specs that render
+the changed card, and named `npm test` for it. `npm test` runs only the node
+and Bash checks; the dashboard browser suite is `npm run test:dashboard`. The
+premise was not in the plan's decisive-premise table and was found only after
+the run.
+
+### Occurrences
+
+- Execution: SEED-328#mark-recently-done-stories-as-reviewed (plan 602; first implementation `ecfaacce1e615526aa804d633946c88309b6afaa`)
+  - Timestamp: 2026-11-12T08:55:56Z
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 602 "Consumer trace and local gates": "Run the whole local suite (`npm test`, Homebrew Bash first on `PATH`) once … 132 dashboard specs render Recently done cards"; `package.json` `"test": "exec bash scripts/test.sh"` and a separate `test:dashboard`; no `dashboard/test-results` entry from the 16:55–17:19+08:00 run. That run (battery, load up to 36) ended with one `workspace-publication.test.mjs` TIMEOUT reported after 1357.8 s, which passed alone in 118 s.
+  - Observed effect: about 23 minutes of a full node/Bash run on battery that observed none of the named dashboard journeys; the dashboard whole-suite verdict came only from branch CI's 13 shards, and the remaining battery forced wrap-up to stop before closure.
+  - Inference: observing the command's coverage when writing the gate (one look at `package.json`) would have named `test:dashboard` or deferred the gate to CI. This has happened once.

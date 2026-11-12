@@ -110,12 +110,16 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
     expect(await repositoryState(origin)).toEqual(repository);
   });
 
-  await test.step("after a reload A is still reviewed and B unreviewed", async () => {
+  await test.step("after a reload A is still reviewed; marking B then keeps both reviewed", async () => {
     await page.reload();
     await expectEntries(recent, titles);
     await expectReviewed(a, true);
     await expectReviewed(b, false);
     await expect(storyActions(a).getByRole("status")).toHaveText("");
+    await markAsReviewed(b).click();
+    await page.reload();
+    await expectReviewed(a, true);
+    await expectReviewed(b, true);
   });
 
   await test.step("after the dashboard restarts the same holds", async () => {
@@ -133,7 +137,7 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
       await page.reload();
       await expectEntries(recent, titles);
       await expectReviewed(a, true);
-      await expectReviewed(b, false);
+      await expectReviewed(b, true);
       await expectReviewed(c, false);
 
       // Unreview restores Mark as reviewed, with the keyboard on it, C
@@ -152,10 +156,13 @@ test("Mark as reviewed and Unreview keep each story's state on this machine, thr
       await expectSelected(c, true);
       await expectSelected(a, false);
       await expect(sidePanelContents(page)).toHaveCount(0);
-      expect(keptReviewStates(dashboard)).toEqual({ "open-dough": {} });
+      expect(
+        Object.keys(keptReviewStates(dashboard)?.["open-dough"] ?? {}),
+      ).toEqual([storyB.identity]);
 
       await page.reload();
       await expectReviewed(a, false);
+      await expectReviewed(b, true);
       expect(snapshotMark()).toBe(marked);
       expect(await repositoryState(origin)).toEqual(repository);
     } finally {

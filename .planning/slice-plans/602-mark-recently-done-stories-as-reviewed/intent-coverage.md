@@ -17,4 +17,12 @@ Checked revision: 2ca89f7721fe7381f27656e297cdd179ec5ee599 (2026-11-12, scratch 
 
 ## Wrap-up disposition
 
-Pending: routine test strengthening; to be queued as a separate bounded correction (or applied as decided by the developer) before Done publication. Wrap-up stopped before the before-cleanup commit because the machine was at 12% battery under load ~40.
+Checked revision 2ca89f772. Decision (developer, 2026-11-12): strengthen the
+story's own proof within wrap-up instead of queueing a correction. T1 in
+`dashboard/tests/stories/recently-done-review-state.spec.ts` now marks B while
+A is reviewed, reloads and expects both Reviewed, keeps B reviewed through the
+restart, and expects only B kept after A's Unreview. Evidence: the spec passed
+(3 passed, `--workers=2`); with the probe's fault reapplied to
+`changeReviewState` it failed at the new step ("after a reload A is still
+reviewed; marking B then keeps both reviewed", A shows no Reviewed); restored,
+the server file has no diff. No follow-up queued.
