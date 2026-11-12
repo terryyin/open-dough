@@ -867,7 +867,7 @@ the run.
 
 ### Occurrences
 
-- Execution: SEED-328#mark-recently-done-stories-as-reviewed (plan 602; first implementation `ecfaacce1e615526aa804d633946c88309b6afaa`)
+- Execution: SEED-328#mark-recently-done-stories-as-reviewed (spent plan 602 recoverable at before-cleanup `7e7fbd0e7f0a2d247a01699942209c003c60f6a3`; first implementation `ecfaacce1e615526aa804d633946c88309b6afaa`)
   - Timestamp: 2026-11-12T08:55:56Z
   - Tool: Claude Code
   - Model: claude-opus-5-5

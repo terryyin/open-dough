@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-328_mark-recently-done-stories-as-reviewed.json",
+      "identity": "SEED-328#mark-recently-done-stories-as-reviewed",
+      "completedAt": "2026-11-12T09:51:23.042Z",
+      "blob": "51051cdcfe5e8b44a8cb7bbef35836066ee16ff8"
+    },
+    {
       "fileName": "SEED-327_strengthen-pending-take-protection-assertions.json",
       "identity": "SEED-327#strengthen-pending-take-protection-assertions",
       "completedAt": "2026-11-12T07:16:24.376Z",
