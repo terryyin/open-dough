@@ -7,16 +7,20 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { expectQuietAdHocActionsRow } from "../launchStoryCardPage.ts";
 import { launchWaitMs } from "./launchWait.ts";
 
-// `entry` is the started session's entry, which may not be listed yet. The
-// page ends a startup's progress and presents its terminal together, so
-// with the progress gone the panel is there or will not come by itself.
+// `entry` is the started session's entry, which may not be listed yet, and
+// the page shows no other session's terminal. A terminal covering a narrow
+// page hides the Board, entry included, from every reader, so a presented
+// terminal stands for the start as well as the listed entry does: the entry
+// is asked for only to open a terminal the start did not present. The page
+// ends a startup's progress and presents its terminal together, so with the
+// progress gone the panel is there or will not come by itself.
 export async function startedSessionTerminal(
   page: Page,
   entry: Locator,
 ): Promise<Locator> {
-  await expect(entry).toHaveCount(1, { timeout: launchWaitMs });
-  await expectQuietAdHocActionsRow(page);
   const panel = page.getByRole("region", { name: "Terminal" });
+  await expect(panel.or(entry)).not.toHaveCount(0, { timeout: launchWaitMs });
+  await expectQuietAdHocActionsRow(page);
   if ((await panel.count()) === 0) {
     const open = entry.getByRole("button", {
       name: "Open terminal",

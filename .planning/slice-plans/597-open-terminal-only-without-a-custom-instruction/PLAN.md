@@ -112,6 +112,14 @@ and intermittently in `launches/agent-launch-start-session-touch.spec.ts:32`,
 which passed in the final run. These stay open under the failure policy until
 hosted CI of the story branch gives their verdict.
 
+CI repair: hosted CI of `43782e67d` failed only
+`launches/agent-launch-start-session-touch.spec.ts:32`, in the shared step's
+wait for the entry. A terminal covering a narrow page sets `aria-hidden` on
+the page column (`dashboard/src/PageFrame.tsx`), so role locators find no
+entry while it is shown; the step now takes a presented terminal or the listed
+entry as the start. Every other dashboard shard passed there, which is the
+hosted verdict for the load timeouts above.
+
 Learning for slice 2: with the rule applied in scratch, the remaining
 failures were the four promise journeys above plus
 `launches/agent-launch-ad-hoc-codex.spec.ts`'s instructed variant, whose
