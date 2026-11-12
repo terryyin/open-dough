@@ -2,6 +2,7 @@
 
 **Identity:** SEED-330#make-ci-follow-up-automatic
 **Source:** [Run dashboard CI follow-up by default for GitHub Actions projects](../../seeds/SEED-330-dashboard-ci-follow-up.md#make-ci-follow-up-automatic)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -78,7 +79,7 @@ justify none.
 ### 1. Follow-up runs for every new qualifying receipt with no setting
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the receipt journey, the ledger cases and the Recently done warning
 case above pass; the journey fails against the unchanged authority gate
 (observed in preparation, below); the guidance review holds.
@@ -194,3 +195,42 @@ delivered apart without a meaningless or broken Settings toggle, with one
 proof loop over the follow-up specs, ledger cases and guidance. No
 slice-specific concern remains. The SEED-324 overlap is handled by the
 coordination section, not by a dependency.
+
+## Execution record
+
+Story Branch Mode in `.worktrees/run-dashboard-ci-follow-up-by-default-for-github`
+on `claude/run-dashboard-ci-follow-up-by-default-for-github`; claim published
+at `d64125223089f3b207ba0e81618ee776d639f55b` (starting revision
+`1e41fcbf5884ffd78b02649851b777a63a20fe54`). SEED-324 had not landed at the
+slice 1 freshness check (trunk `d64125223`), so trunk's spec forms were edited.
+
+### Slice 1 accepted proof
+
+- `PATH="/opt/homebrew/bin:$PATH" bash scripts/test.sh tests/support/ci-follow-up-ledger.test.mjs tests/support/ci-follow-up-policy.test.mjs tests/support/ci-follow-up-reading.test.mjs`:
+  pass at load 34–35; the ledger file reran after refactoring at load ~53.
+  The upgrade case failed against the base authority gate in a scratch
+  worktree.
+- The focused Playwright command (receipt-boundary spec deleted): 14 passed;
+  `intent-ci-follow-up.spec.ts:27` timed out at `development.check()` at load
+  ~69 and passed alone at `--workers=2` (load 58→47). After refactoring,
+  `landed-ci-follow-up-reading` and `landed-ci-repeat-admission` passed at
+  `--workers=2` (load 45→38); the restored admission case passed with its file
+  at load 25–26.
+- System settings journeys named by the consumer trace
+  (`dashboard/tests/configuration/`, header, frame, launch voice, terminal
+  theme, system appearance and the backend configuration boundaries): 66
+  passed; `project-remove.spec.ts:180` and `system-settings-openai.spec.ts:18`
+  timed out at load ~38–41 and passed at `--workers=2` (load 32).
+- `npm run typecheck:dashboard` and `git diff --check`: pass.
+
+### Learnings
+
+- The plan's deletion list included the admission case "an unspent eligible
+  receipt disabled while original jobs are unavailable…", which was also the
+  only end-to-end observer of the "Original exact-attempt jobs are incomplete"
+  explanation. Source commitment 6c keeps rerun coverage from mixed tests, so
+  that observation was kept as a case without setting steps.
+- Load-time failures: the `intent-ci-follow-up.spec.ts:27` repair belongs to
+  the active SEED-324 execution, whose scope splits that case. No backlog story
+  owns the two System settings load timeouts; they are outside this story and
+  were handed to Terry.

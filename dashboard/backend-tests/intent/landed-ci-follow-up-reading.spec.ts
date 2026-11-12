@@ -3,8 +3,8 @@ import { writeFileSync } from "node:fs";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
+  followUpCards,
   followUpFile,
-  followUpSettings,
   prepareRepeatScenario,
   readFollowUpLedger,
 } from "../../tests/support/ciFollowUpScenario.ts";
@@ -49,13 +49,12 @@ test("a subsequent landing considers original 120 seconds once, excludes that ac
 }) => {
   const scenario = await prepareRepeatScenario(origin, github, 120);
   const server = await startServer();
-  await followUpSettings(server, true);
   await scenario.ingest(server);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   scenario.setRepeat({ seconds: 100 });
   await expect
-    .poll(() => followUpSettings(server))
-    .toMatchObject({ body: { cards: [{ kind: "recovered" }] } });
+    .poll(() => followUpCards(server))
+    .toMatchObject([{ kind: "recovered" }]);
   pull(origin.project);
   const next = await origin.publishRevision({
     message: "A newer publication for the same story",
@@ -106,7 +105,7 @@ test("a subsequent landing considers original 120 seconds once, excludes that ac
     });
   const history = JSON.stringify((await landedCiHistory(server)).body);
   expect(history).not.toContain("run/71/2");
-  const summary = (await followUpSettings(server)).body.cards;
+  const summary = await followUpCards(server);
   expect(summary).toHaveLength(1);
   expect(summary[0]).toMatchObject({
     revision: scenario.story.completion,
@@ -129,13 +128,12 @@ test("saved samples, exclusions and workflow survive window eviction and a newer
     [100, 100, 100, 100, 100, 116],
   );
   const server = await startServer();
-  await followUpSettings(server, true);
   await scenario.ingest(server);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   scenario.setRepeat({ seconds: 100 });
   await expect
-    .poll(() => followUpSettings(server))
-    .toMatchObject({ body: { cards: [{ kind: "recovered" }] } });
+    .poll(() => followUpCards(server))
+    .toMatchObject([{ kind: "recovered" }]);
   const before = await retained(
     server,
     scenario.identity,
@@ -184,7 +182,7 @@ test("saved samples, exclusions and workflow survive window eviction and a newer
     const calls = github.calls.filter(({ request }) =>
       request.kind.startsWith("actions-"),
     ).length;
-    expect((await followUpSettings(reader)).body.cards).toEqual([
+    expect(await followUpCards(reader)).toEqual([
       expect.objectContaining({
         revision: scenario.story.completion,
         averageMs: 100000,

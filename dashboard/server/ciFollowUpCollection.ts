@@ -12,11 +12,7 @@ import { keptLandingReferences } from "./landedCiHistoryStore.ts";
 import { repeatDecisionOf } from "./ciFollowUpDecision.ts";
 import { observeRepeat } from "./ciFollowUpObservation.ts";
 import { prepareCiRepeat } from "./ciFollowUpRequest.ts";
-import {
-  followUpKey,
-  hasRepeatAuthority,
-  readFollowUps,
-} from "./ciFollowUpStore.ts";
+import { followUpKey, readFollowUps } from "./ciFollowUpStore.ts";
 
 export async function collectCiFollowUps(
   source: PublishedSource,
@@ -27,7 +23,7 @@ export async function collectCiFollowUps(
   const ended = () => signal.aborted;
   const held = await readFollowUps();
   if (held.kind !== "document") return;
-  // Already spent requests stay observable after disablement and chart pruning.
+  // Already spent requests stay observable after chart pruning.
   for (const [key, landing] of Object.entries(held.document.landings)) {
     const request = landing.request;
     if (
@@ -47,7 +43,6 @@ export async function collectCiFollowUps(
         : { ...current, outcome },
     );
   }
-  if (!hasRepeatAuthority(held.document, source.id)) return;
   const configuration = ciConfiguration(projectFolder(source).path);
   if (configuration.adapter !== undefined) return;
   for (const landing of keptLandingReferences(history)) {

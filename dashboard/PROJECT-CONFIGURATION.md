@@ -17,10 +17,11 @@ The global banner keeps the project selector for visible projects and ends with
 the **System settings** gear at its far right, including when no project is
 visible or configured. Settings lists each configured name,
 repository, local path, and hidden state; **Add project** opens the existing dialog.
-[Automatic CI follow-up](../docs/dashboard-ci-follow-up.md) is a separate
-machine-local, default-off setting on each project row. Explicit enablement
-authorizes one full GitHub Actions repeat for qualifying new Done receipts
-on this production machine; disabling keeps existing evidence reviewable.
+[Automatic CI follow-up](../docs/dashboard-ci-follow-up.md) runs by default:
+the production dashboard that records a qualifying new Done receipt for a
+GitHub Actions project requests one full repeat. Development dashboards and
+projects with a custom CI adapter request none, and existing follow-up evidence
+stays reviewable.
 Each project entry also shows that project's local Client configuration file text
 from `<localPath>/.planning/open-dough.json` when readable, or explains absence or
 unreadability for that project alone, without edit or save controls and without

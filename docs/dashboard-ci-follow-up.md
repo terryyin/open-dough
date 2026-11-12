@@ -1,16 +1,16 @@
 # Automatic landed CI follow-up
 
-**System settings → Projects → Automatic CI follow-up** is off by default.
-Explicit enablement designates this production dashboard machine for that
-project. Keep the setting off on other machines: coordination across machines
-is outside this feature. Development dashboards have no action authority.
-GitHub Actions supports the full-workflow repeat; other providers keep their
-existing reading behavior and explain that automatic follow-up is unavailable.
+Automatic CI follow-up runs by default for every GitHub Actions project on the
+production dashboard. The machine whose dashboard records a landing receipt
+follows that landing up. Development dashboards request no rerun, because
+unreleased dashboard code must not act on real CI. Projects with a custom CI
+adapter keep their existing CI reading and get no rerun.
 
-Enablement applies only to newly recorded landing receipts. It does not run a
-historical batch. Disabling prevents new requests while existing requests and
-their evidence remain observable and reviewable. The machine retains settings,
-spent allowances and follow-up evidence in
+Follow-up starts from newly recorded landing receipts, and each receipt keeps
+the admission it was recorded with. A landing with no recorded receipt never
+runs, and there is no historical batch. Existing requests and their evidence
+remain observable and reviewable. The machine retains receipt admission, spent
+allowances and follow-up evidence in
 `~/.open-dough/dashboard/ci-follow-up.json`. Unreadable allowance evidence blocks
 new action and preserves its bytes; it never becomes an empty fresh allowance.
 
