@@ -34,10 +34,10 @@ intent introduced or affected by a newly developed story.
 - [Open the terminal only when no custom instruction is supplied](seeds/SEED-320-conditional-terminal-opening.md#open-terminal-only-without-a-custom-instruction) — SEED-320#open-terminal-only-without-a-custom-instruction ([plan](slice-plans/597-open-terminal-only-without-a-custom-instruction/PLAN.md))
 - [Remove unused Taken comparison navigation](seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation) — SEED-318#remove-unused-taken-comparison-navigation ([plan](slice-plans/596-remove-unused-taken-comparison-navigation/PLAN.md))
 - [Encode launch attachment filenames for headers](seeds/SEED-323-launch-attachment-non-latin1-filenames.md#encode-launch-attachment-filenames-for-headers) — SEED-323#encode-launch-attachment-filenames-for-headers
+- [Prove the phone swipe under button-event pointer tracking](seeds/SEED-316-mobile-terminal-text-selection.md#prove-swipe-under-button-event-tracking) — SEED-316#prove-swipe-under-button-event-tracking ([plan](slice-plans/596-prove-swipe-under-button-event-tracking/PLAN.md))
 
 ## Backlog list
 
-- [Prove the phone swipe under button-event pointer tracking](seeds/SEED-316-mobile-terminal-text-selection.md#prove-swipe-under-button-event-tracking) — SEED-316#prove-swipe-under-button-event-tracking
 - [Speed up provider rate-limit checks](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) — SEED-315#speed-up-provider-rate-limit-checks
 - [Speed up the remaining Dashboard checks](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects
