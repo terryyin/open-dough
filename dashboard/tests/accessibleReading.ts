@@ -1,6 +1,7 @@
 // Shared accessibility observations for Board and story-readiness journeys:
-// visible focus, polite live regions, contrast from computed styles, and
-// reduced-motion settling. Journeys supply their own fixtures and assertions.
+// visible focus and moving it by Tab, polite live regions, contrast from
+// computed styles, and reduced-motion settling. Journeys supply their own
+// fixtures and assertions.
 
 /// <reference lib="dom" />
 
@@ -38,6 +39,16 @@ export async function expectFocusedAndIndicated(page: Page, stop: Locator) {
   expect(indication.visible).toBe(true);
   expect(indication.style).not.toBe("none");
   expect(indication.width).toBeGreaterThanOrEqual(2);
+}
+
+// Moves the keyboard forward by Tab alone until `target` holds it.
+export async function tabTo(page: Page, target: Locator) {
+  for (let step = 0; step < 40; step += 1) {
+    if (await target.evaluate((element) => element === document.activeElement))
+      return;
+    await page.keyboard.press("Tab");
+  }
+  throw new Error("Tab never reached the target");
 }
 
 // Escape closes the dialog and returns the keyboard to the action that opened

@@ -1,5 +1,6 @@
 // Observe actual text inside the code pane and reach it with native movement.
 import type { Locator, Page } from "@playwright/test";
+import { expectDocumentStill } from "../boardReading.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
@@ -109,12 +110,10 @@ export async function readContextByTouch(review: Locator, workspace: string) {
 // Native scrolling keeps the Side panel and document stationary.
 export async function reachReviewControl(review: Locator, row: Locator) {
   const panel = await review.boundingBox();
-  const page = review.page();
-  const documentTop = await page.evaluate(() => scrollY);
-  expect(documentTop).toBe(0);
+  await expectDocumentStill(review.page());
   await row.scrollIntoViewIfNeeded();
   expect(await review.boundingBox()).toEqual(panel);
-  expect(await page.evaluate(() => scrollY)).toBe(documentTop);
+  await expectDocumentStill(review.page());
   const clipped = await row.evaluate((element) => {
     const at = element.getBoundingClientRect();
     const result = [];

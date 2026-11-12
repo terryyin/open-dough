@@ -1,6 +1,10 @@
 import { expect, test } from "../dashboardTest.ts";
-import { boardScroll, bottomOf, scrollYOf, wheelTo } from "../boardPage.ts";
-import { expectDocumentStill } from "../boardReading.ts";
+import { boardScroll, scrollYOf, wheelTo } from "../boardPage.ts";
+import {
+  expectAtBoardBottom,
+  expectDocumentStill,
+  readWithKey,
+} from "../boardReading.ts";
 import {
   closeTerminal,
   terminalPanel,
@@ -27,37 +31,22 @@ test("body reading keys use native Board scrolling while focused controls and mo
   await publishLargeBacklog(page);
   await page.goto("/");
   await expectSettledPage(page);
-  const readKey = (key: string) =>
-    Promise.all([
-      boardScroll(page).evaluate(
-        (element) =>
-          new Promise<void>((resolve) => {
-            element.addEventListener(
-              "scrollend",
-              () => {
-                resolve();
-              },
-              { once: true },
-            );
-          }),
-      ),
-      page.keyboard.press(key),
-    ]);
-  await readKey("End");
-  await expect.poll(() => scrollYOf(page)).toBe(await bottomOf(page));
+  // The body holds the keyboard: End hands it to the Board as it scrolls.
+  await readWithKey(page, "End");
+  await expectAtBoardBottom(page);
   await expect(parts(page).board).toBeFocused();
-  await readKey("Home");
+  await readWithKey(page, "Home");
   await expect.poll(() => scrollYOf(page)).toBe(0);
-  await readKey("PageDown");
+  await readWithKey(page, "PageDown");
   await expect.poll(() => scrollYOf(page)).toBeGreaterThan(0);
   const down = await scrollYOf(page);
-  await readKey("PageUp");
+  await readWithKey(page, "PageUp");
   await expect.poll(() => scrollYOf(page)).toBeLessThan(down);
   const control = parts(page)
     .backlog.getByRole("button", { name: "Inspect story" })
     .first();
   await control.focus();
-  await readKey("PageDown");
+  await readWithKey(page, "PageDown");
   await expect(control).toBeFocused();
   await wheelTo(page, 40);
   await parts(page).preparationHelp.click();
@@ -72,7 +61,7 @@ test("body reading keys use native Board scrolling while focused controls and mo
   await page.keyboard.press("Escape");
   await expect(parts(page).preparationHelp).toBeFocused();
   expect(await scrollYOf(page)).toBe(before);
-  expect(await page.evaluate(() => scrollY)).toBe(0);
+  await expectDocumentStill(page);
 });
 
 for (const viewport of [

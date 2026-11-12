@@ -27,7 +27,7 @@ slice's delegation still carries them as constraints.
 | G7 | (qualification) The single owner and single edit come "without concealing the causal sequence that makes the test useful." | slice 8 | |
 | S1 | (commitment) "Resolve all six allocated findings below." | slice 8 | |
 | S2 | (commitment) Also resolve "current same-control or same-sequence sibling callers" in the areas S2.1–S2.6. | slice 8 | |
-| S2.1 | (commitment) Area: Board columns and accessible reading. | slice 2 | |
+| S2.1 | (commitment) Area: Board columns and accessible reading. | slice 2 | observed: slice 2 with slice 1: Board column/reading callers migrated — board-scroll, board-paging, board-reading, board-native-reading, accessible-board-keyboard, accessible-board-touch (F1e); dispositions in PLAN slice 2 accepted note |
 | S2.2 | (commitment) Area: project/header/destination focus. | slice 3 | |
 | S2.3 | (commitment) Area: story inspection and references. | slice 4 | |
 | S2.4 | (commitment) Area: card evidence. | slice 5 | |
@@ -40,9 +40,9 @@ slice's delegation still carries them as constraints.
 | S4.2 | (commitment) Concrete entry order. | slice 6 | |
 | S4.3 | (commitment) Concrete key order. | slice 3 | |
 | S4.4 | (commitment) Viewport. | slice 1 | observed: slice 1: setViewportSize facts at call sites — board-scroll 1400×420/700×800 loop, board-paging 40rem/54rem, board-clamp 54/80/40rem, board-kept narrow/wide |
-| S4.5 | (commitment) Input modality. | slice 2 | |
+| S4.5 | (commitment) Input modality. | slice 2 | observed: slice 2: accessible-board-touch keeps tapWhereShown and rotation sizes at call site; board-reading/board-native-reading pass the literal key to readWithKey(page, "End"\|down\|up) |
 | S4.6 | (commitment) Selected story. | slice 4 | |
-| S4.7 | (commitment) Focus. | slice 2 | |
+| S4.7 | (commitment) Focus. | slice 2 | observed: slice 2: board-reading expect(parts(page).board).toBeFocused() after readWithKey("End"); expect(control).toBeFocused() after PageDown; accessible-board-keyboard tabTo(page, inspect) then expect(inspect).toBeFocused() |
 | S4.8 | (commitment) Retained reading place. | slice 7 | |
 | S4.9 | (commitment) Expected actor counts. | slice 5 | |
 | S4.10 | (commitment) Expected link counts. | slice 5 | |
@@ -94,10 +94,10 @@ slice's delegation still carries them as constraints.
 | K1a | (example) Journey: the reader wheels or pages to a named column, resizes, then returns. | slice 1 | observed: slice 1: board-clamp.spec.ts wheelTo(1500) → showColumn("Recently done") → showColumn("Backlog") → setViewportSize 80rem then 40rem → showColumn |
 | K1b | (example) Outcome: the test states the shown column order, usable card room, scroll extent and retained reading position. | slice 1 | observed: slice 1: board-clamp/board-paging expectView order, expectStoryCardsKeepTheirShare, expectAtBoardBottom (exact toBe bottomOf), expect(scrollYOf).toBe(kept); board-scroll scrollYOf toBe(position) after Maximize/Restore |
 | K1c | (example) Outcome: "shared Board operations own the browser mechanics." | slice 1 | observed: slice 1: C1 specs use boardReading.ts (wheelBy, pressScrollbarTrack, untilBoardRests, expectAtBoardBottom, expectDocumentStill, expectPagingControlInSight), boardColumnNavigation showColumn/columnPagingControl and sidePanelWidthPage control/panelDivider; no raw scroll/scrollbar/paging-control locators remain in C1 (grep) |
-| K2 | (example) Trigger: "A Board or one of its controls has keyboard/touch input." | slice 2 | |
-| K2a | (example) Journey: the reader uses the stated key or gesture, or opens/closes modal help. | slice 2 | |
-| K2b | (example) Outcome: "named reading operations preserve the actual input, expected focus and scroll result." | slice 2 | |
-| K2c | (example) Outcome: "native document comparison and modal key ownership remain independent proof." | slice 2 | |
+| K2 | (example) Trigger: "A Board or one of its controls has keyboard/touch input." | slice 2 | observed: slice 2: board-reading "body reading keys use native Board scrolling while focused controls and modal…"; board-native-reading "native modified reading keys…"; accessible-board-keyboard/touch |
+| K2a | (example) Journey: the reader uses the stated key or gesture, or opens/closes modal help. | slice 2 | observed: slice 2: board-reading End/Home/PageDown/PageUp, help open with End and Escape; board-native-reading Meta+ArrowDown/Up, help dialog, Meta+b; accessible-board-touch taps |
+| K2b | (example) Outcome: "named reading operations preserve the actual input, expected focus and scroll result." | slice 2 | observed: slice 2: boardReading.ts readWithKey + expectAtBoardBottom/scrollYOf polls and toBeFocused in board-reading and board-native-reading; in-profile repeat stability of handoff keys is O3 (slice 9) |
+| K2c | (example) Outcome: "native document comparison and modal key ownership remain independent proof." | slice 2 | observed: slice 2: board-native-reading ordinary-document comparator expect(scrollY).toBe(end/0) kept direct; modal ownership expect(close).toBeFocused() with unchanged scrollYOf, Escape and Meta+b checks in both specs |
 | K3 | (example) Trigger: a reader chooses a project through wide tabs or a compact title, changes perspective, or follows a notification/source destination. | slice 3 | |
 | K3a | (example) Outcome: "the test names the chosen project and destination, exact key order, sanitized URL and arrival focus." | slice 3 | |
 | K3b | (example) Outcome: "resize or a covering panel keeps the required reading place." | slice 3 | |
@@ -128,11 +128,11 @@ slice's delegation still carries them as constraints.
 | K8b | (example) Outcome: "per-finding comparison shows readable action/outcome, removed duplicate mechanics and justified helper cost." | slice 8 | |
 | K8c | (example) Outcome: "independent expected values and all distinct checks survive." | slice 8 | |
 | F1 | (commitment) Finding "Board columns and accessible reading": "Express reading or paging a named column ... through the Board." | slice 1 | observed: slice 1: board-paging.spec.ts columnPagingControl(page, "Taken").focus() + Enter → expectView; showColumn(page, column) in board-clamp; expectPagingControlInSight(page, "Backlog") |
-| F1a | (commitment) Express "reaching the next action" through the Board. | slice 2 | |
+| F1a | (commitment) Express "reaching the next action" through the Board. | slice 2 | observed: slice 2: accessible-board-keyboard tabTo(page, inspect) reaches the next action, expect(inspect).toBeFocused(); exact Tab/Shift+Tab walks stay explicit |
 | F1b | (commitment) Express "returning to a kept position through the Board." | slice 1 | observed: slice 1: board-clamp.spec.ts step "showing Backlog again keeps the position" showColumn("Backlog") then expect(scrollYOf).toBe(kept); board-scroll Maximize/Restore keeps position |
-| F1c | (commitment) "Preserve the expected order, viewport and input modality in each scenario." | slice 2 | |
-| F1d | (qualification) Audited problem: Board helpers own some layout and paging actions, while individual specs reconstruct keyboard walks, DOM scroll probes, responsive transitions and covering behavior. | slice 2 | |
-| F1e | (qualification) Audited callers: board-scroll.spec.ts#L62, board-paging.spec.ts#L95, board-reading.spec.ts#L53, accessible-board-keyboard.spec.ts#L84, accessible-board-touch.spec.ts#L77 (dashboard/tests/navigation). | slice 2 | |
+| F1c | (commitment) "Preserve the expected order, viewport and input modality in each scenario." | slice 2 | observed: slice 2: viewports, key names and touch taps stay at call sites in board-reading, board-native-reading, accessible-board-keyboard, accessible-board-touch (rotation sizes) |
+| F1d | (qualification) Audited problem: Board helpers own some layout and paging actions, while individual specs reconstruct keyboard walks, DOM scroll probes, responsive transitions and covering behavior. | slice 2 | observed: slice 2: keyboard walk (tabTo), key scroll waits (readWithKey), DOM scroll probes (expectDocumentStill/expectAtBoardBottom) and touch reading (expectReadWholeInCard) now owned; exact geometry contracts direct |
+| F1e | (qualification) Audited callers: board-scroll.spec.ts#L62, board-paging.spec.ts#L95, board-reading.spec.ts#L53, accessible-board-keyboard.spec.ts#L84, accessible-board-touch.spec.ts#L77 (dashboard/tests/navigation). | slice 2 | observed: slices 1–2: board-scroll, board-paging (slice 1), board-reading, accessible-board-keyboard, accessible-board-touch (slice 2) migrated; accessible-board-scroll kept at HEAD on evidence (40/40 vs 38/40) |
 | F2 | (commitment) Finding "Project choice, header and destination focus": "Extend the project choice and frame/navigation helpers for those actions": reaching controls, changing perspective/project, and reading focus or scroll after arrival. | slice 3 | |
 | F2a | (commitment) Keep the expected key order explicit. | slice 3 | |
 | F2b | (commitment) Keep the selected project explicit. | slice 3 | |
@@ -179,7 +179,7 @@ slice's delegation still carries them as constraints.
 | A9 | (commitment) Held-read tests still show "which action happens before the answer." | slice 8 | |
 | A9a | (commitment) Held-read tests still show "which user choice supersedes it." | slice 8 | |
 | A9b | (commitment) Held-read tests still show "what stays selected after release." | slice 8 | |
-| A10 | (commitment) "Touch and keyboard tests still identify the actual input and expected focus." | slice 2 | |
+| A10 | (commitment) "Touch and keyboard tests still identify the actual input and expected focus." | slice 2 | observed: slice 2: accessible-board-touch tapWhereShown at call site and expected texts; board-reading/native literal keys and toBeFocused expectations; accessible-board-keyboard expectFocusedAndIndicated |
 | A11 | (commitment) "Keep Git, HTTP, host and record evidence at the boundary it observes." | slice 8 | |
 | A11a | (commitment) Keep, with that evidence, "the assertions that distinguish outcomes." | slice 8 | |
 | A12 | (commitment) "Preserve each distinct behavior check." | slice 8 | |

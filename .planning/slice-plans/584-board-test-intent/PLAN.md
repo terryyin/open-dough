@@ -147,20 +147,35 @@ predates this story and lies outside its scope.
 
 ### 2. Follow native keyboard and touch reading with preserved ownership
 Type: Behavior
-Status: planned
-Proof: C2 plus reached C1 callers; retain exact keys/gestures, native-document
-comparison, expected focus, modal ownership and reading positions. Example 2.
+Status: done
+Proof: C2 plus reached C1, Review touch and responsive-session-access callers;
+retain exact keys/gestures, native-document comparison, expected focus, modal
+ownership and reading positions. Example 2.
 
 Behavior: Given body/Board/control focus, reading keys or touch move the intended
-region and modal controls keep their keys. First repair the load-sensitive key
-waits (listen for `scrollend` before pressing; press only after two drawn
-frames) in the decided load profile, preserving bottom/focus assertions and the
-ordinary-document comparator;
-replay the whole Home/End/PageDown/PageUp, focused-control, help open/close and
-modified-key journeys. Then share their reading mechanics without pre-focusing
-Board in a way that removes the body-to-Board promise, synthesizing a passing
-measurement, or loosening bounds. No rerun-until-green disposition is allowed.
-Safe stop: native/touch reading has current passing proof and independent inputs.
+region and modal controls keep their keys. Named reading operations own the key
+wait (`readWithKey`: listen for `scrollend` before the press, press after two
+drawn frames), Tab walks, touch reading and document/bottom probes. Board is
+never pre-focused in a way that removes the body-to-Board promise, and no
+measurement is synthesized or bound loosened. The in-profile repeat proof of
+body-to-Board handoff keys moves to slice 9 (O3).
+Safe stop: keyboard/touch callers use the shared operations and C2 passes.
+
+Accepted (2026-11-12): `boardReading.ts` adds `readWithKey` (Board or
+document region) and `expectReadWholeInCard`. `tabTo` moves from
+`responsiveAccess.ts` to `accessibleReading.ts`.
+- `board-reading` and `board-native-reading` drop their local scrollend races and adopt the O1 probes.
+- `accessible-board-keyboard` uses `tabTo`.
+- `accessible-board-touch` uses `expectReadWholeInCard` four times.
+- `reviewTouchReading.ts` uses `expectDocumentStill`.
+
+`accessible-board-scroll` stays at HEAD on evidence (slice 9). Proof:
+- C2 16/16 (load 41→37).
+- C1, Review touch and responsive-session-access 26/26.
+- In-profile `board-reading` key journey 40/40.
+- Typecheck exit 0.
+
+About 16 mechanics sites removed; helper +50 lines, specs/support net −43.
 
 ### 3. Follow project, header and destination focus through shared controls
 Type: Behavior
@@ -244,6 +259,24 @@ wrapping whole scenarios. Finish all six finding/caller comparisons, including
 justified direct-contract observations. Safe stop: every finding and reached
 caller has a completed disposition and the combined affected proof passes.
 
+### 9. Prove native reading keys under the decided load
+Type: Behavior
+Status: planned
+Proof: in-profile repeat proof (one worker, external load ≈28–36,
+`--repeat-each=40` or more) of `board-reading`, `board-native-reading` and
+`accessible-board-scroll` key journeys, with unchanged-form comparisons at
+the same load; C2 after any change. Owns O3.
+
+Behavior: Given body-to-Board handoff keys under the decided load, the reading
+journeys pass without retry, relaxed bound or timeout change. A bounded
+diagnosis (Terry, 2026-11-12) looks for a compositor-ready signal to wait on
+instead of animation frames, and compares a suite-wide Chromium key-scrolling
+setting (smooth or threaded scrolling off). Any suite-wide setting returns to
+Terry before it lands. Runs need ambient load at or below the profile; check
+`uptime` first.
+Safe stop: the key journeys pass in profile, or the diagnosis evidence and the
+remaining decision are recorded for Terry.
+
 ## Proof commands and execution gates
 
 For each Cn regex below, run `caffeinate -i npm run test:dashboard -- '<regex>' --workers=1`
@@ -300,14 +333,29 @@ profile is recorded in the premise rows; slice 2 owns applying and replaying it.
 No other slice-boundary/proof-ownership concern was identified in this review;
 this is neither completed execution nor authority to begin it.
 
+Slice 2 stopped on 2026-11-12. Under the decided load, the remedied
+`board-native-reading` failed 1/40 and `accessible-board-scroll` 2/40 at
+body-to-Board handoff keys, while `board-reading` passed 40/40. Each failure
+ended in `scrollend` with no movement. The unchanged forms show the same
+symptom, and above the profile so did the ordinary-document comparator.
+Terry chose (2026-11-12) to fund a bounded diagnosis and to let slices 3–8 go
+first. Slice 2 delivers the shared reading operations; slice 9 owns the
+in-profile key proof and the diagnosis (O3). Evidence:
+`/Users/terryyin/.claude/jobs/7c2dd325/tmp/slice2-*`.
+
 ## Story obligations
 
 ### O1. Board reading-key and touch probes still read the document and Board bottom inline
 Reported: slice 1 — "Same probes, not yet migrated, in slice 2 territory: board-reading L75 (key test), board-native-reading L58 (`scrollY`) and L50 (bottom), board-reading L46 (bottom poll), and `support/reviewTouchReading.ts` L113/L117 (Review touch)."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: board-reading/board-native-reading use expectAtBoardBottom, expectDocumentStill and scrollYOf; support/reviewTouchReading.ts reachReviewControl uses expectDocumentStill; native-document comparator L41/43 stays direct; C2 16/16 and Review touch 4/4 passed
 
 ### O2. Raw Board scroll-place reads outside the cohort duplicate the Board owner (slices 5–7 sweep their own files; slice 8 the rest)
 Reported: slice 1 — "Raw `.board-scroll` scroll-place reads outside the cohort that duplicate `scrollYOf` / `wheelTo`: `readingPlace.ts:46`, `terminals/agent-launch-ad-hoc-terminal.spec.ts` L49–80, `sessions/sessions-sidebar-navigation-cases.spec.ts` L245, `review/story-review-file-moves.spec.ts` L53, `stories/branch-progress-reading.spec.ts` L35–40 (slice 5), `stories/recently-done-progressive-refresh.spec.ts` L114–128 (slice 6), `observation/published-facts-reading.spec.ts` L52–59 and L152–160 (slice 7)."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
 Disposition: receiving slice 8
+
+### O3. Body-to-Board reading keys sometimes scroll nothing within the decided load profile
+Reported: slice 2 — "In profile, every remedied failure is at a body-to-Board handoff key (End from body; Meta+ArrowUp after blur): 3/80 remedied versus 0/80 unchanged on the same two specs."
+Story clause: "Necessary test/harness repair follows the project's failing/flaky-test policy."
+Disposition: receiving slice 9
