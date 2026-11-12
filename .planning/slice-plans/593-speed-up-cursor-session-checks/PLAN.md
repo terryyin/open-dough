@@ -110,7 +110,7 @@ Decisive premises. Status left for coordinator delivery.
 
 ### 2. Prove scope continuation and refusal with fewer full launches
 Type: Behavior
-Status: planned
+Status: done
 Proof: Focus the four scope-continuation cases plus any credited public
 runner/persisted-session checks. Before moving or thinning a case, observe that
 the chosen cheaper boundary fails for the same fault (scratch disable or
@@ -123,6 +123,11 @@ do not invent a parallel lifetime fixture.
 Behavior: Minimal real held scoped lifetime and public continuation boundaries
 still expose the scope and refusal faults → fewer repeated full launches keep
 the same discriminating protection.
+Progress: Four scope cases use `openHeldCursorExecutions` for held setup;
+Recover / Open terminal UI observations retained (refusal not moved to HTTP).
+Scratch discrimination settled scoped model vs Default no-model. Three
+consecutive focused passes exit 0 (`real` 42.80 / 51.31 / 24.08). Status left
+for coordinator delivery.
 
 ### 3. Keep revival lean and confirm the family saving
 Type: Behavior
@@ -209,7 +214,7 @@ protection → one ordinary command returns the stated faster feedback.
 | `heldCursorExecutions` is the revival precondition owner to reuse | Slices 2–3 helper choice | Read helper and its sole revival import at preparation HEAD | Settled: reuse that helper; no second lifetime fixture |
 | `cursor-runner-last-held` cannot replace revival UI/PTY proof | Slice 3 revival retention | Read `backend-tests/sessions/cursor-runner-last-held.spec.ts`; coverage-map row 40 replacement note | Settled negative: keep one revival journey |
 | Matched whole-command family cost on the execution base | Success measure and slice 3 comparison | Ordinary one-worker family selector under `caffeinate -s -i` | Settled — 2026-11-12 repair re-run on base `467ab91fe36ea484a1e94e55be49e9acde797ae3`: exit 0, `real 94.61`, file times 27.2+57.2=84.4 s; load before 20.00/35.53/43.59 after 35.91/35.90/42.81 on AC; no open-dough dashboard Playwright at launch. Prior failed attempt (`real 146.81`, timedOut) discarded as non-comparable. Slice 3 compares whole-command wall against `94.61` |
-| A cheaper public runner/persisted-session boundary discriminates each moved scope/refusal fault | Slice 2 approach and proof move | Scratch disable or equivalent discrimination in the same Playwright profile before thinning | Open — bounded by slice 2; failure stops the move and revises the plan |
+| A cheaper public runner/persisted-session boundary discriminates each moved scope/refusal fault | Slice 2 approach and proof move | Scratch disable or equivalent discrimination in the same Playwright profile before thinning | Settled for held-setup move — scratch without model fails scoped `recordedScope`; scratch Default with model fails `expectContinuationWithoutScope`. Refusal/cannot-load keep UI Recover+Open after same public held precondition; no HTTP thinning without further discrimination |
 
 ## Concern evidence
 

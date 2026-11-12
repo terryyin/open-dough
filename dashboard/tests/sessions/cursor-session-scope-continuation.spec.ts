@@ -3,11 +3,14 @@
 // with the recorded scope in CURSOR_CONFIG_DIR and no `--model` flag,
 // a missing or unreadable recorded scope refuses with an explanation
 // and spawns nothing, and a Default record's continuations carry no
-// scope exactly as before.
+// scope exactly as before. Held preconditions use the public launch
+// boundary (heldCursorExecutions); Recover and Open terminal keep the
+// discriminating UI observations.
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
-import { keptAttempts, settledOutcome } from "../acceptedAttempts.ts";
+import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { parts } from "../dashboardPage.ts";
+import { reloadUntilRead } from "../pageRequestNotes.ts";
 import {
   expectContinuationThroughScope,
   expectContinuationWithoutScope,
@@ -21,11 +24,9 @@ import {
   agentNotRunningLabel,
   endHeldClient,
   keptRecords,
-  startCursorExecution,
-  startScopedCursorExecution,
 } from "../support/cursorSessionRecovery.ts";
 import { expect, test } from "../support/cursorStart.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 
 test.use({ cursorSubmitPaintMs: 300 });
 
@@ -38,7 +39,9 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   origin,
   cursor,
 }) => {
-  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
+  await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+    { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+  ]);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   const scope = recordedScope(record);
@@ -100,20 +103,17 @@ test("cannot-load replacement for a scoped session keeps the scope and sends no 
   origin,
   cursor,
 }) => {
-  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
+  await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+    { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+  ]);
   const [before] = keptRecords(dashboard.home);
   if (before?.session.host !== "cursor") throw new Error("Missing Cursor.");
   const scope = recordedScope(before);
   const workspace = before.session.continuation.workspace;
   const sharedBefore = cursor.sharedConfig();
   const replacementId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
-  // First-input acceptance can paint before the enclosing launch settles.
-  // Stop only a confirmed launch, so recovery starts from a stopped session.
-  const [accepted] = keptAttempts(dashboard);
-  if (accepted === undefined) throw new Error("Missing accepted launch.");
-  expect(await settledOutcome(dashboard, accepted.id)).toMatchObject({
-    kind: "launched",
-  });
+  // Public held lifetime already settled first input and last-held; end
+  // only that confirmed client so recovery starts from a stopped session.
   await endHeldClient(page, cursor, dashboard.home);
   cursor.setAttachMode("cannot-load");
   cursor.queueCreateChatId(replacementId);
@@ -160,7 +160,9 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   origin,
   cursor,
 }) => {
-  await startScopedCursorExecution(page, origin, cursor, dashboard.home);
+  await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+    { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+  ]);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   const scope = recordedScope(record);
@@ -206,7 +208,9 @@ test("a Default session's recovery carries no scope, exactly as before", async (
   origin,
   cursor,
 }) => {
-  await startCursorExecution(page, origin, cursor, dashboard.home);
+  await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+    { story: storyA, sessionId: cursor.sessionId },
+  ]);
   const [record] = keptRecords(dashboard.home);
   if (record === undefined) throw new Error("Missing record.");
   await endHeldClient(page, cursor, dashboard.home);
