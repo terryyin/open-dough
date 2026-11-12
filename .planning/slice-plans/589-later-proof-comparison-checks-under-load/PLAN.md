@@ -194,6 +194,28 @@ cases' verdicts unchanged and the file's recorded time below 38 s.
   range is a defect under the failure policy.
 - The earlier slices' fault controls are not repeated here.
 
+Load observation (12 November 2026, `3befd9f85`, AC power under
+`caffeinate -s -i`, 30 CPU-bound helpers over external load, all stopped by
+recorded PID): awaiting story review.
+
+| Run | Load before → after | Result | equivalent recovers | equivalent provider wait | later provider wait |
+| --- | --- | --- | --- | --- | --- |
+| 1, counted | 36.75 → 38.30 | 3 passed | 14.5 s | 14.0 s | 8.1 s |
+| Diagnostic with a step reporter, not counted | 39.39 → 39.39 | 3 passed | 16.5 s | 17.1 s | 10.1 s |
+
+The verdicts are stable and inside the default timeout, but the slowest case
+body is not under 10 s, so the three-run count stopped at one (obligation
+G2). In the diagnostic run the first case on each worker spent 5.8–6.0 s in
+the `origin` fixture, and each test function took 9–11 s between its expect
+steps: the real-server requests and 20–33 `gh` process starts. Both
+"equivalent" cases are slower than the remaining "later" case. The remaining
+cost is the shared landing fixture and the synthetic `gh` start, which the
+story's scope limits exclude, so the story's key example "the slowest case
+body stays under 10 s" and those limits cannot both hold. Affected source:
+the story's Key examples (load example) and Scope limits; the decision is
+Terry's. Logs: the job's temporary `slice3` directory (`run-1.log`,
+`run-diagnostic.log`).
+
 ## Current decisions
 
 - Terry asked on 12 November 2026 for a different testing approach that is
@@ -232,3 +254,10 @@ Reported: slice 2 — "No maintained check shows a later-provenance point in the
 Story clause: "the public landed history shows the pending gap waiting for proof, then the measured point with `later` provenance once proof answers"
 Disposition: proved by slice 2: ci-comparison-finality-later-judgment.spec.ts asserts the recovered slot's later selection after the proof wait, and landed-ci-history-pending-sources.spec.ts asserts the public later point; the path between them, provenanceOf in landedCiMeasuredBuilds.ts, reads only the slot's selection, and scratch faults on the walk's selection and on that projection each fail one of the two. The story keeps real-server history inside the walk, where this gap waits for a later build
 Commitment: S2.3b
+
+
+### G2. Slowest case body exceeds 10 s at the promised load
+Reported: slice 3 — "Every case passed, but the slowest case took 14.5 s at one-minute load 36.8–38.3, against the promised under 10 s."
+Story clause: "the slowest case body stays under 10 s"
+Disposition: return
+Commitment: E4.2

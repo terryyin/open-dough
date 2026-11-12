@@ -58,7 +58,7 @@ Input: only the story section of `SEED-326#pass-later-proof-comparison-checks-un
 | E2 | The file runs → no case's recorded `gh` calls include a lookup per walked revision. | slice 2 | observed: same counts: no case makes a call per walked revision |
 | E3 | A later-provenance landing with a completion plus 30 following revisions and a malformed listing → the in-process judgment check → pending, waiting for proof of run 201 attempt 1, with no process start. | slice 1 | observed: dashboard/backend-tests/intent/ci-comparison-finality-later-judgment.spec.ts pending toEqual waitsFor proof run 201 attempt 1 |
 | E4.1 | Load average 30–50, two workers → run the file three times in a row → every case passes each time. | slice 3 | |
-| E4.2 | Load average 30–50, two workers → run the file three times in a row → the slowest case body stays under 10 s, a third of the 30 s default. | slice 3 | |
+| E4.2 | Load average 30–50, two workers → run the file three times in a row → the slowest case body stays under 10 s, a third of the 30 s default. |  | G2 |
 | E5.1 | The change is published → hosted CI passes the file's remaining cases and the rule checks with unchanged verdicts. | slice 3 | |
 | E5.2 | The change is published → the file's recorded time falls from about 38 s. | slice 3 | |
 | E6 | Fault control: the malformed listing is treated as an answered, final absence → the check owning "real malformed bytes reach pending" fails. | slice 2 | observed: ciProofArtifact.ts unreadable-listing without unansweredAs: equivalent malformed case fails its pending-gap poll |
