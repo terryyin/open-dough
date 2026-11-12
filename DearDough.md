@@ -736,6 +736,15 @@ asking what else the step's presence had detected.
   - Observed effect: one returned slice and a 329 s instrumented run to settle effects the plan could have listed; no consumer was affected.
   - Inference: the same omission for a fixture as for a journey step: the plan named the effect that motivated the removal, the server start, and not everything that start did.
 
+- Execution: SEED-330#make-ci-follow-up-automatic (plan 604; first implementation `5987387021227f7a89b1520917dcd3100564b0aa`)
+  - Timestamp: unknown (2026-11-12, about 19:00–20:05 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 604 slice 1 listed setting-dedicated cases for deletion. The post-change refactor pass found that the deleted admission case "an unspent eligible receipt disabled while original jobs are unavailable…" was the only end-to-end observer of the "Original exact-attempt jobs are incomplete" card; the coordinator restored it as a case without setting steps before delivery. Wrap-up Intent Coverage at `5987387` then confirmed that the deleted "development mode and unsupported providers…" case had been the only one reaching the custom-adapter collection path: dropping the adapter guard let an admitted GitHub receipt rerun after an adapter was configured, and no maintained spec failed.
+  - Observed effect: one restored case before delivery, a 29-minute Intent Coverage run whose finding was routed into the queued custom-trigger story's scope, and one development-guard scratch probe during the retrospective.
+  - Inference: same omission for deleted test cases: the plan classified each case by the observation that motivated deletion (the retired setting) and not by the other behavior it was the only one to observe.
+
 ## DD-496 — An intermittent local failure in a journey the slice changed was attributed to machine load, and hosted CI failed it on a deterministic cause
 
 A changed browser journey failed in some local runs at the 30 s test timeout while other, unchanged journeys timed out from fixture time under external load. Three agents classed it with them and the slice was published; the journey had its own defect.

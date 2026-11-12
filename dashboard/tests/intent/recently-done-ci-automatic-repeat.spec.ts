@@ -2,11 +2,10 @@
 import { expect, test } from "../support/preparationPage.ts";
 import { recheckingLandedCi } from "../support/landedCiHistory.ts";
 import {
-  followUpSettings,
+  followUpCards,
   prepareRepeatScenario,
 } from "../support/ciFollowUpScenario.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { settings, projectRow, back } from "../support/systemSettingsPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import {
   ciFollowUpCard,
@@ -15,7 +14,7 @@ import {
 
 test.use({ extraEnv: recheckingLandedCi });
 
-test("machine setting defaults off and a real collected full repeat gives a red textual Done warning and saved totals on a phone", async ({
+test("a new Done receipt's real collected full repeat gives a red textual Done warning and saved totals on a phone", async ({
   page,
   dashboard,
   origin,
@@ -32,32 +31,22 @@ test("machine setting defaults off and a real collected full repeat gives a red 
   scenario.serve();
   await page.clock.install();
   await page.goto(dashboard.baseURL);
-  await settings(page).click();
-  const project = projectRow(page, "Open Dough");
-  await expect(project).toContainText("Automatic CI follow-up: Off");
-  await project
-    .getByRole("button", {
-      name: "Enable automatic CI follow-up on this machine",
-    })
-    .click();
-  await expect(project).toContainText("Automatic CI follow-up: On");
-  await expect(project).toContainText(
-    "Provisional rule: repeat once at or above 5%",
-  );
   await scenario.ingest(dashboard);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   scenario.setRepeat({ status: "queued" });
   await expect
-    .poll(() => followUpSettings(dashboard))
-    .toMatchObject({ body: { cards: [{ kind: "progress" }] } });
-  await back(page).click();
+    .poll(() => followUpCards(dashboard))
+    .toMatchObject([{ kind: "progress" }]);
   await page.clock.runFor(15000);
   const card = ciFollowUpCard(page, "Story A");
   await expect(card).toContainText("CI rerun in progress");
+  await expect(card).toContainText(
+    "Provisional rule: repeat once at or above 5%",
+  );
   scenario.setRepeat({ seconds: 106 });
   await expect
-    .poll(() => followUpSettings(dashboard))
-    .toMatchObject({ body: { cards: [{ kind: "slow" }] } });
+    .poll(() => followUpCards(dashboard))
+    .toMatchObject([{ kind: "slow" }]);
   await page.clock.runFor(15000);
   await expect(card).toContainText("Possible CI slowdown");
   const warning = ciFollowUpWarning(card);

@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Make landed CI repeat checks pass under moderately high load](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load) — SEED-324#pass-landed-ci-repeat-checks-under-high-load ([plan](slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md))
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects ([plan](slice-plans/582-review-test-intent/PLAN.md))
 - [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
-- [Run dashboard CI follow-up by default for GitHub Actions projects](seeds/SEED-330-dashboard-ci-follow-up.md#make-ci-follow-up-automatic) — SEED-330#make-ci-follow-up-automatic ([plan](slice-plans/604-make-ci-follow-up-automatic/PLAN.md))
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects ([plan](slice-plans/584-board-test-intent/PLAN.md))
 
 ## Backlog list

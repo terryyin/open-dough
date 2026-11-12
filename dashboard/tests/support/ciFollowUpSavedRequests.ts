@@ -73,7 +73,6 @@ export function saveRepeatRequests(
     return { run: facts.run, entry, provider };
   });
   const ledger: FollowUpLedger = {
-    projects: {},
     landings: Object.fromEntries(
       held.map(({ entry }) => [followUpKey(entry.project, entry), entry]),
     ),
