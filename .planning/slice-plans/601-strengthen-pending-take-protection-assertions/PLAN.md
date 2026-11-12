@@ -78,6 +78,13 @@ the scratch fault failed the focused check at `responsiveStart.ts:142`
 definition is unchanged; `expectActionsUnavailable` had no code consumer
 outside this spec. Refactor pass: no edits.
 
+## Execution complete
+
+Product advice: no change. The pending Take check now observes the shared
+`expectProtected` in every post-stale state, the thin duplicate is gone, and
+no residue, regression, or follow-up product work was found. Process review
+is deferred into wrap-up after Intent Coverage.
+
 ## Consumer trace and local gates
 
 `expectActionsUnavailable` is declared and used only in this spec; nothing
