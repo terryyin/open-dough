@@ -6,6 +6,7 @@ import {
   launchAttachmentEmpty,
   launchAttachmentExtensionFor,
   launchAttachmentLimitBytes,
+  launchAttachmentNameFromHeader,
   launchAttachmentNameHeader,
   launchAttachmentTooLarge,
   launchAttachmentTypes,
@@ -55,5 +56,8 @@ export async function readImageAttachment(
   });
   const raw = req.headers[launchAttachmentNameHeader];
   const value = Array.isArray(raw) ? raw[0] : raw;
-  return { bytes, type, name: value?.trim() || "image.png" };
+  const name = value?.trim()
+    ? launchAttachmentNameFromHeader(value.trim())
+    : "image.png";
+  return { bytes, type, name };
 }
