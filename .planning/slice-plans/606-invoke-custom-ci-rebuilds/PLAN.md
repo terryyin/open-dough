@@ -195,12 +195,9 @@ All premises are settled. Pygardon's rebuild story owns its missing proof; fixtu
 
 ## Current decisions
 
-- `ciRebuild` is a separate declaration, so the observer's `ciAdapter`
-  contract stays read-only; it may name the same script.
-- Uncertain covers every unparsed outcome of a started trigger; nothing is
-  resent and an uncertain request attributes no attempt.
-- Proof completeness keeps Intent's existing rule; this story does not relax
-  it for providers.
+- Separate `ciRebuild` may name the adapter script; the observer remains read-only.
+- Every unparsed trigger outcome is uncertain; never resend or attribute an attempt.
+- Keep Intent's existing proof-completeness rule for every provider.
 - Story Branch Mode; no trunk-only step.
 
 ## Plan concern assessment
@@ -239,3 +236,9 @@ Reported: slice 2 — "Coordinator inspection found strict attemptId equality wh
 Story clause: "a different `attemptId` from the original"
 Disposition: receiving slice 3
 Commitment: C28
+
+### G4. Installed proof reader lacked extracted transport module
+Reported: slice 2 — "CI run43235536671 attempt1 failed four native evidence families; installed-use red then reproduced missing ci-command-attempt.mjs because the promoted payload declaration omitted it."
+Story clause: "The dashboard follows the accepted attempt through the existing `discover` and `proof` reads."
+Disposition: proved by slice 2: installed-ci-proof-fixture.bash real installed reader/wire assertions after fresh install and ordinary update in both roots, including unavailable release source; native-evidence-identity.sh four families pass
+Commitment: C26

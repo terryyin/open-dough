@@ -59,6 +59,7 @@ managed_files+=(
   dough-execute-plan/scripts/ci-background-state.mjs
   dough-execute-plan/scripts/ci-background-waiter.mjs
   dough-execute-plan/scripts/ci-command-adapter.mjs
+  dough-execute-plan/scripts/ci-command-attempt.mjs
   dough-execute-plan/scripts/ci-project-configuration.mjs
   dough-execute-plan/scripts/ci-command-attempts.mjs
   dough-execute-plan/scripts/ci-command-run.mjs
