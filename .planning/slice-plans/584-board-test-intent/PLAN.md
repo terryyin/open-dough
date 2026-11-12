@@ -318,7 +318,7 @@ observation and runtime folders passed 307/307.
 
 ### 7. Read arriving facts and retained cards through shared observations
 Type: Behavior
-Status: planned
+Status: done
 Proof: C7; retain held group identity, independent release/failure order,
 placeholder history, card text/box snapshots, pinned links, selected/inspected
 story, focus/viewport and the reader's later wheel move. Example 7, arrival/carry.
@@ -329,6 +329,31 @@ Extract snapshot/placeholder mechanics from `steady-refresh-carry.spec.ts` into
 focused reading support, composed with card owners from slice 5; callers retain
 old/new expected values and revision normalization under proof. Safe stop:
 arrival/carry finding dispositions are green without recovery changes.
+
+Accepted (2026-11-13): new `retainedFacts.ts` holds `shownCards`,
+`notePlaceholders` and `expectNoPlaceholderShown`, moved out of
+`steady-refresh-carry`. `storyCardFacts.ts` adds `badges`, `preparationFacts`
+and `storyPurpose`. The published-facts specs reuse `watchPageErrors`. Holds,
+release and failure order, clock steps, request logs, `pinnedAtB` and
+`unpinned` stay in the specs, and the scroll-away test now asserts the
+reader's place. Fault checks in `carriedFacts.ts`:
+- An early uncarried partial failed the placeholder record.
+- Uncarried preparation failed the card snapshot.
+
+Product files were restored byte-for-byte. Proof:
+- C7 26/26.
+- Consumers 9/9.
+- After refactor, 19/19.
+- Typecheck exit 0.
+
+About 62 mechanics sites removed; about +22 lines net. Migrated for earlier
+obligations:
+- O2: `published-facts-reading` L52–59 and L152–160, `readingPlace.ts`.
+- O4: isolation spec and journey.
+- O5 and O6: the C7 files.
+
+`untilBShownWhileHeld` stays duplicated in the carry and bound specs, as a
+named causal gate at each call site.
 
 ### 8. Read recovery and limits without concealing timing or source truth
 Type: Behavior
@@ -459,4 +484,9 @@ Disposition: receiving slice 8
 ### O6. Raw credit, badge and progress selectors remain outside slice 5's reach
 Reported: slice 5 — "Observation (slices 7/8): limited-reading-profile-history, profile-addition-latency, published-facts-reading/isolation, steady-refresh-inspection, transient-credit-recovery, unchanged-assignment-credit, reopened-project-reads, revision-stream, auto-refresh-branches, `limitRecoveryCredit.ts`, `publishedFactsIsolationAssertions.ts`. Other families: launches/agent-launch-story-card-noted-start, responsive-session-reconciliation, agent-launch-preparation-cursor, stories/recently-done-read-latency, recently-done-stories, nerds-cartoon-portrait, taken-admitted-investigation, intent/intent-story-coverage, `storyCardAttention.ts`."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
+Disposition: receiving slice 8
+
+### O7. A published-facts test delays a read by wall-clock time
+Reported: slice 7 — "`published-facts-isolation.spec.ts` L108–114 delays the profiles request with `setTimeout(resolve, 1_000)` in a route handler. AGENTS.md says never wait for wall-clock time."
+Story clause: "Use MakeMe for domain data and observable waits or controlled clocks."
 Disposition: receiving slice 8

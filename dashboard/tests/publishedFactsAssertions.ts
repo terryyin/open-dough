@@ -4,7 +4,7 @@
 
 import type { Locator } from "@playwright/test";
 import { canonicalRecord, inspectedDetail } from "./storyCardControls.ts";
-import { expectBadges } from "./storyCardFacts.ts";
+import { expectBadges, storyPurpose } from "./storyCardFacts.ts";
 import { credit } from "./agentCredit.ts";
 import { dependencyDisclosure } from "./storyReference.ts";
 import { expect } from "./dashboardTest.ts";
@@ -19,7 +19,7 @@ export async function expectCanonicalFacts(queuedCard: Locator) {
     absent: ["Ready for execution"],
   });
   const detail = await inspectedDetail(queuedCard);
-  await expect(detail.locator(".story-purpose")).toHaveText(purpose);
+  await expect(storyPurpose(detail)).toHaveText(purpose);
   await expect(detail).toContainText("Assessment: Ready");
   await expect(detail).not.toContainText("Ready for execution");
   await expect(detail).toContainText("1 of 2 slices recorded complete");

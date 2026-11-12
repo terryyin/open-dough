@@ -1,7 +1,8 @@
 // What a Story card states about its published story in the scan view: its
-// preparation, readiness and eligibility badges, and its slice progress as a
-// bar and count, or the gap that stops it. The scenario names every expected
-// label, count and segment; these readers only find them on the card.
+// purpose, its preparation, readiness and eligibility badges, and its slice
+// progress as a bar and count, or the gap that stops it. The scenario names
+// every expected label, count and segment; these readers only find them on the
+// card.
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -32,9 +33,18 @@ export async function expectBadges(
 // dependency", "Blocked by 2 dependencies"), for expecting none.
 export const blockedByAnyDependency = /^Blocked by \d+ dependenc/;
 
+// Every badge `scope` (a card or its preparation facts) shows.
+export const badges = (scope: Locator) => scope.locator(".badge");
+
 // Every badge label the card shows, in order, to compare with another read.
-export const badgeLabels = (card: Locator) =>
-  card.locator(".badge").allTextContents();
+export const badgeLabels = (card: Locator) => badges(card).allTextContents();
+
+// A card's preparation facts: its badges, or the gap that stands for them.
+export const preparationFacts = (card: Locator) =>
+  card.locator(".story-card-preparation");
+
+// The story's purpose as `scope` (a card or its detail) states it.
+export const storyPurpose = (scope: Locator) => scope.locator(".story-purpose");
 
 // A Taken card's slice progress: its bar and count, its source, its clock,
 // or the gap that stops them.
@@ -47,8 +57,8 @@ export const progressSource = (scope: Locator) =>
   scope.locator(".progress-source");
 
 // The slice progress bar within `scope`, by the count it is named for, such
-// as "1 of 3 slices recorded complete".
-export const sliceBar = (scope: Locator, count: string) =>
+// as "1 of 3 slices recorded complete", or any count matching a pattern.
+export const sliceBar = (scope: Locator, count: string | RegExp) =>
   scope.getByRole("img", { name: count });
 
 // Expects the bar named `count` to show one segment per slice, in order, each

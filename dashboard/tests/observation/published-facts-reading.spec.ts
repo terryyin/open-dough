@@ -4,8 +4,17 @@
 // an ordinary read gap, with natural reflow rather than fixed pixel offsets.
 
 import type { Locator, Page } from "@playwright/test";
-import { inspectedDetail } from "../storyCardControls.ts";
-import { expectView, rem, showColumn } from "../boardPage.ts";
+import { canonicalRecord, inspectedDetail } from "../storyCardControls.ts";
+import {
+  expectView,
+  rem,
+  scrollYOf,
+  showColumn,
+  wheelTo,
+} from "../boardPage.ts";
+import { credit } from "../agentCredit.ts";
+import { badge, sliceProgress } from "../storyCardFacts.ts";
+import { watchPageErrors } from "../pageErrors.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -48,20 +57,14 @@ async function openReadingPlace(page: Page) {
     await expect(doneCard).toHaveCount(0);
     await showColumn(page, "Recently done");
     await expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
-    const before = await page
-      .locator(".board-scroll")
-      .evaluate((region) => region.scrollTop);
+    const before = await scrollYOf(page);
     await trunkCard
       .getByRole("button", { name: "Inspect story" })
       .scrollIntoViewIfNeeded();
-    await expect
-      .poll(() =>
-        page.locator(".board-scroll").evaluate((region) => region.scrollTop),
-      )
-      .toBeGreaterThan(before);
+    await expect.poll(() => scrollYOf(page)).toBeGreaterThan(before);
   });
   const detail = await inspectedDetail(trunkCard);
-  const link = detail.getByRole("link", { name: /^Canonical record/ });
+  const link = canonicalRecord(detail);
   await link.scrollIntoViewIfNeeded();
   await link.focus();
   await expectReadingPlace(page, trunkCard, detail, link);
@@ -72,8 +75,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
   test(`arriving facts keep the scrolled inspection and focus, including done ${doneOutcome}`, async ({
     page,
   }) => {
-    const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
+    const errors = watchPageErrors(page);
     const {
       branchCard,
       trunkCard,
@@ -88,15 +90,11 @@ for (const doneOutcome of ["success", "failure"] as const) {
 
     await test.step("available assignments keep the chosen reading context while preparation and done remain held", async () => {
       release("profiles");
-      await expect(trunkCard.locator(".story-card-owner")).toContainText(
+      await expect(credit(trunkCard).owner).toContainText(
         "Yuma-chan · Fixture Committer · Claude Code",
       );
-      await expect(branchCard.locator(".story-card-owner")).toContainText(
-        "Akiho-chan",
-      );
-      await expect(queuedCard.locator(".story-card-preparing")).toContainText(
-        "Kirara-chan",
-      );
+      await expect(credit(branchCard).owner).toContainText("Akiho-chan");
+      await expect(credit(queuedCard).preparing).toContainText("Kirara-chan");
       await expect(trunkCard).toContainText("Reading preparation…");
       await expect(doneCard).toHaveCount(0);
       await expectReadingPlace(page, trunkCard, detail, link);
@@ -120,7 +118,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
 
     await test.step("preparation, dependent progress, and clocks enrich the open inspection without taking the reader back to the top", async () => {
       release("preparation");
-      await expect(trunkCard.locator(".story-card-progress")).toContainText(
+      await expect(sliceProgress(trunkCard)).toContainText(
         "1 of 2 slices recorded complete",
       );
       await expect(detail).toContainText("Approach: Slice planned");
@@ -145,21 +143,10 @@ for (const doneOutcome of ["success", "failure"] as const) {
 test("arriving facts respect a reader who scrolls away while the inspected link keeps keyboard focus", async ({
   page,
 }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  const errors = watchPageErrors(page);
   const { trunkCard, doneCard, release, link } = await openReadingPlace(page);
   // A real wheel movement returns to the top of the Board without changing focus.
-  await page.mouse.wheel(
-    0,
-    -(await page
-      .locator(".board-scroll")
-      .evaluate((region) => region.scrollTop)),
-  );
-  await expect
-    .poll(() =>
-      page.locator(".board-scroll").evaluate((region) => region.scrollTop),
-    )
-    .toBe(0);
+  await wheelTo(page, 0);
   await expect(link).toBeFocused();
   await expect(link).not.toBeInViewport();
   const overviewControl = page.getByRole("button", {
@@ -169,13 +156,9 @@ test("arriving facts respect a reader who scrolls away while the inspected link 
   for (const group of ["preparation", "profiles", "done"] as const) {
     release(group);
     if (group === "preparation") {
-      await expect(
-        trunkCard.getByText("Slice planned", { exact: true }),
-      ).toBeVisible();
+      await expect(badge(trunkCard, "Slice planned")).toBeVisible();
     } else if (group === "profiles") {
-      await expect(trunkCard.locator(".story-card-owner")).toContainText(
-        "Yuma-chan",
-      );
+      await expect(credit(trunkCard).owner).toContainText("Yuma-chan");
     } else {
       await expectDoneFacts(doneCard);
     }
@@ -183,6 +166,7 @@ test("arriving facts respect a reader who scrolls away while the inspected link 
     await expect(link).not.toBeInViewport();
     await expect(overviewControl).toBeInViewport({ ratio: 1 });
     await expectView(page, ["Taken", "Recently done"], ["Backlog 1 entry"]);
+    expect(await scrollYOf(page), "where the reader wheeled to").toBe(0);
   }
   expect(errors).toEqual([]);
 });
