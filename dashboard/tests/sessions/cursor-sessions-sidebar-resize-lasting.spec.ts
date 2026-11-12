@@ -7,11 +7,12 @@
 // resizing asks it nothing.
 import {
   expandCrowded,
-  expectDividerSays,
+  expectCollapsed,
+  expectCursorHeight,
   expectSplit,
   heightOf,
+  keyDivider,
   keyStep,
-  press,
   roomOf,
   valueOf,
   wide,
@@ -22,15 +23,16 @@ import {
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import {
   changesAsked,
   expectLastInReach,
   listFloor as floor,
-  runningCursorParts,
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { back, settings } from "../support/systemSettingsPage.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 test.use({ cursorScreen: "working" });
@@ -52,9 +54,8 @@ test("where the window is too short for both floors, the divider offers no range
   // What the sidebar's heading, header and padding take from its height.
   const taken = wide.height - room;
   const maximum = await valueOf(divider, "aria-valuemax");
-  await divider.focus();
-  await press(page, "ArrowUp", 40);
-  await press(page, "ArrowDown", 2);
+  await keyDivider(divider, "ArrowUp", 40);
+  await keyDivider(divider, "ArrowDown", 2);
   const chosen = maximum - 2 * keyStep;
   await expectSplit(shown, room, chosen);
 
@@ -62,8 +63,7 @@ test("where the window is too short for both floors, the divider offers no range
     const height = Math.ceil(taken + 2 * floor + 40);
     await page.setViewportSize({ width: wide.width, height });
     await expect(divider).toHaveAttribute("aria-valuemax", String(floor + 40));
-    await expectDividerSays(divider, floor + 40);
-    await expectSplit(shown, height - taken, floor + 40);
+    await expectCursorHeight(shown, height - taken, floor + 40);
   });
 
   await test.step("too little room for both floors: the divider offers no range, and both lists and the header stay in reach by scrolling", async () => {
@@ -93,8 +93,7 @@ test("where the window is too short for both floors, the divider offers no range
     await page.setViewportSize(wide);
     await expect(divider).toBeEnabled();
     await expect(divider).toHaveAttribute("aria-valuemax", String(maximum));
-    await expectDividerSays(divider, chosen);
-    await expectSplit(shown, room, chosen);
+    await expectCursorHeight(shown, room, chosen);
   });
 
   for (const [bound, key, height] of [
@@ -102,8 +101,7 @@ test("where the window is too short for both floors, the divider offers no range
     ["the bottom", "ArrowDown", floor],
   ] as const) {
     await test.step(`resized to ${bound}, a short, zoomed window keeps both lists and the header in reach without sideways scrolling, and more room recovers it`, async () => {
-      await divider.focus();
-      await press(page, key, 40);
+      await keyDivider(divider, key, 40);
       await expectSplit(shown, room, height);
       await page.setViewportSize({ width: 320, height: 256 });
       await expect(sidebar).toBeVisible();
@@ -143,27 +141,22 @@ test.describe("with two projects", () => {
     await publishOnePygardonStory(page);
     const asked = changesAsked(page);
     await showPage(page, origin);
-    const shown = runningCursorParts(page);
+    const shown = await openRunningList(page);
     const { sidebar, button, header, divider, body } = shown;
     const { backlog } = parts(page);
-    await button.click();
-    await header.click();
     await expect(body).toBeVisible();
     const room = await roomOf(shown);
-    await divider.focus();
-    await press(page, "ArrowUp", 3);
+    await keyDivider(divider, "ArrowUp", 3);
     const chosen = Math.round(room / 2) + 3 * keyStep;
     await expectSplit(shown, room, chosen);
     const expectChosen = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
-      await expectDividerSays(divider, chosen);
-      await expectSplit(shown, room, chosen);
+      await expectCursorHeight(shown, room, chosen);
     };
 
     await test.step("collapsing and expanding again restores it", async () => {
       await header.click();
-      await expect(body).toHaveCount(0);
-      await expect(divider).toHaveCount(0);
+      await expectCollapsed(shown);
       await header.click();
       await expectChosen();
     });
@@ -175,15 +168,11 @@ test.describe("with two projects", () => {
     });
 
     await test.step("System settings and back keeps it", async () => {
-      await page
-        .getByRole("button", { name: "System settings", exact: true })
-        .click();
+      await settings(page).click();
       await expect(
         page.getByRole("heading", { name: "System settings", exact: true }),
       ).toBeVisible();
-      await page
-        .getByRole("button", { name: "Back to dashboard", exact: true })
-        .click();
+      await back(page).click();
       await expect(backlog).toContainText("A Pygardon story");
       await expectChosen();
     });

@@ -3,9 +3,10 @@
 import {
   dragDivider,
   expectDividerSays,
+  expectScrollsOnItsOwn,
   heightOf,
+  keyDivider,
   keyStep,
-  press,
   valueOf,
   wide,
 } from "../cursorSessionsSidebarResizePage.ts";
@@ -68,13 +69,9 @@ test("both optional sections share one room: expand, resize, scroll, short windo
       await area.evaluate((element) => {
         element.scrollTo(0, 0);
       });
-    const bodyTop = await scrollTopOf(body);
-    const runningTop = await scrollTopOf(running.body);
-    await wheelToEnd(page, list);
-    await expectInside(openEntries.last(), list);
-    expect(await scrollTopOf(body)).toBe(bodyTop);
-    expect(await scrollTopOf(running.body)).toBe(runningTop);
+    await expectScrollsOnItsOwn(list, openEntries.last(), [body, running.body]);
     const listTop = await scrollTopOf(list);
+    const runningTop = await scrollTopOf(running.body);
     await wheelToEnd(page, body);
     // Reaching the end reveals the remaining older Dones below it; measure
     // the last one once it is shown and wheeled to.
@@ -92,8 +89,7 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     const before = await valueOf(divider, "aria-valuenow");
     await dragDivider(page, divider, 2000);
     await expectDividerSays(divider, floor);
-    await divider.focus();
-    await press(page, "ArrowUp", 3);
+    await keyDivider(divider, "ArrowUp", 3);
     await expectDividerSays(divider, floor + 3 * keyStep);
     expect(await heightOf(list)).toBeGreaterThanOrEqual(floor - 0.5);
     expect(before).toBeGreaterThan(0);

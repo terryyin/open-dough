@@ -14,6 +14,7 @@ import {
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { back, settings } from "../support/systemSettingsPage.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
 
 const wide = { width: 1440, height: 900 };
@@ -94,15 +95,11 @@ test.describe("with two projects", () => {
     });
 
     await test.step("System settings and back keeps it expanded", async () => {
-      await page
-        .getByRole("button", { name: "System settings", exact: true })
-        .click();
+      await settings(page).click();
       await expect(
         page.getByRole("heading", { name: "System settings", exact: true }),
       ).toBeVisible();
-      await page
-        .getByRole("button", { name: "Back to dashboard", exact: true })
-        .click();
+      await back(page).click();
       await expect(backlog).toContainText("A Pygardon story");
       await expanded();
     });

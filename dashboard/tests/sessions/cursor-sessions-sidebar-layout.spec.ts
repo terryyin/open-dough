@@ -9,27 +9,23 @@
 // sessions and runner answers are preconditions only.
 import type { Locator } from "@playwright/test";
 import {
+  expectCollapsed,
+  expectScrollsOnItsOwn,
+  showCrowded,
+} from "../cursorSessionsSidebarResizePage.ts";
+import {
   box,
   compactProjectSelectCut,
   expectEveryControlReachable,
-  expectInside,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
 import {
-  answerCrowd,
-  changesAsked,
   crowd,
   expectLastInReach,
-  holdSession,
-  keepCrowd,
   listFloor,
-  runningCursorParts,
-  scrollTopOf,
-  showPage,
-  wheelToEnd,
 } from "../runningCursorSessionsPage.ts";
 import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
-import { expect, keptRecord, test } from "../support/cursorStart.ts";
+import { expect, test } from "../support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
 
@@ -46,25 +42,17 @@ test("collapsed below the session list, expanded into two lists sharing the room
   origin,
   cursor,
 }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await holdSession(dashboard, cursor);
-  const held = keptRecord(dashboard.home);
-  keepCrowd(dashboard, held);
-  const asked = changesAsked(page);
-  await showPage(page, origin);
-  await answerCrowd(page, held);
-  const calls = cursor.calls().length;
-  const shown = runningCursorParts(page);
-  const { sidebar, button, entries, heading, region, header, list, body } =
-    shown;
-  const heldRows = shown.heldRows(/Open Dough/);
-  await button.click();
-  await expect(entries).toHaveCount(crowd + 1);
+  const { shown, heldRows, expectNothingChanged } = await showCrowded(
+    page,
+    dashboard,
+    origin,
+    cursor,
+  );
+  const { sidebar, entries, heading, region, header, list, body } = shown;
 
   let collapsedList = 0;
   await test.step("collapsed, the header lies below the session list, which fills the rest of the sidebar", async () => {
-    await expect(header).toHaveAttribute("aria-expanded", "false");
-    await expect(body).toHaveCount(0);
+    await expectCollapsed(shown);
     const [title, listed, section] = await Promise.all([
       box(heading),
       box(list),
@@ -112,25 +100,19 @@ test("collapsed below the session list, expanded into two lists sharing the room
   });
 
   await test.step("scrolling the Running Cursor sessions list reaches its last row and leaves the session list in place", async () => {
-    const listTop = await scrollTopOf(list);
     const listBox = await box(list);
     const firstEntry = await box(entries.first());
-    await wheelToEnd(page, body);
-    await expectInside(heldRows.last(), body);
+    await expectScrollsOnItsOwn(body, heldRows.last(), [list]);
     await expect(heldRows.last()).toBeInViewport();
-    expect(await scrollTopOf(list)).toBe(listTop);
     expect(await box(list)).toEqual(listBox);
     expect(await box(entries.first())).toEqual(firstEntry);
   });
 
   await test.step("scrolling the session list reaches its last entry and leaves the Running Cursor sessions list in place", async () => {
-    const bodyTop = await scrollTopOf(body);
     const bodyBox = await box(body);
     const lastRow = await box(heldRows.last());
-    await wheelToEnd(page, list);
-    await expectInside(entries.last(), list);
+    await expectScrollsOnItsOwn(list, entries.last(), [body]);
     await expect(entries.last()).toBeInViewport();
-    expect(await scrollTopOf(body)).toBe(bodyTop);
     expect(await box(body)).toEqual(bodyBox);
     expect(await box(heldRows.last())).toEqual(lastRow);
   });
@@ -138,8 +120,7 @@ test("collapsed below the session list, expanded into two lists sharing the room
   await test.step("collapsed with the keyboard, the session list takes the room back and the header keeps the keyboard", async () => {
     await header.focus();
     await page.keyboard.press("Space");
-    await expect(header).toHaveAttribute("aria-expanded", "false");
-    await expect(body).toHaveCount(0);
+    await expectCollapsed(shown);
     await expect(header).toBeFocused();
     expect((await box(list)).height).toBeCloseTo(collapsedList, 0);
   });
@@ -166,13 +147,11 @@ test("collapsed below the session list, expanded into two lists sharing the room
     await expect(header).toBeInViewport();
     await header.focus();
     await page.keyboard.press("Enter");
-    await expect(header).toHaveAttribute("aria-expanded", "false");
+    await expectCollapsed(shown);
     await expect(header).toBeFocused();
   });
 
   // Only reads: the disclosure, scrolling, and resizing the window asked
   // for no launch, attach, done mark, delete, or runner control.
-  expect(asked).toEqual([]);
-  expect(cursor.calls()).toHaveLength(calls);
-  expect(cursor.attaches()).toHaveLength(1);
+  expectNothingChanged();
 });

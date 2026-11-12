@@ -209,13 +209,21 @@ Reproduced by holding card-detail reads; fix 12/12, refactor proof 19/19 + 2/2.
 
 ### 5. Read Running Cursor resize and reachability through its owner
 Type: Behavior
-Status: planned
+Status: done
 Proof: `cursor-sessions-sidebar-{resize,resize-lasting,size-kept,size-unkept}`, including `cursorSessionsSidebarFormerHeightCases.ts` scenarios and retained three-list room/touch callers. Keep pointer/key/touch modality, numeric bounds, stored/retained height, focus, geometry and absence of launch/attach/Done/Delete/runner-control requests.
 
 Behavior: Given expanded overflowing lists, the developer reads named divider
 operations and expected geometry/focus through resize, collapse, restore and
 reload. Extend existing resize/list-layout owners; measurements remain
 independent. Safe stop: resizing changes no session and needs no report migration.
+
+Result (slice 5): `cursorSessionsSidebarResizePage.ts` owns `grab` → pointer
+`{moveTo, release, cancel}`, `expectCursorHeight`, `keyDivider`, `expectScrollsOnItsOwn`,
+`showCrowded`/`expandCrowded` (opening through `openRunningList`) and `heightOf`, typed by
+`RunningCursorParts`. Specs lost 10 raw mouse-coordinate, 8 focus+press, 22 paired
+divider/split and 13 scrollTop sites for a 68-line owner growth (specs −65 lines).
+Contract values stay literal; resize keyboard reach stays raw because focus is under
+proof. Proof 13/13 (`s5-proof.log`), refactor rerun 3/3.
 
 ### 6. Read retained selection and Final reports as distinct actions
 Type: Behavior
@@ -293,3 +301,8 @@ Disposition: proved by slice 1: dashboard/tests/sessions/recently-done-story-ses
 Reported: slice 2 — "expectCurrentEntry's exactly-one-current check could fail a future scenario where a Recently done row is also aria-current while expanded; no current scenario does that."
 Story clause: "shared sidebar operations express the destination and retained reading place"
 Disposition: proved by slice 2: dashboard/tests/sessionsSidebarPage.ts expectCurrentEntry asserts the named entry's aria-current and a single current row, which every current open-list caller expects (s2-proof-final.log 53/53); a later scenario needing two current rows would state that in its own assertion
+
+### G5. Cancelled-drag move starts from the divider centre
+Reported: slice 5 — "The cancel step's 150 px downward move after pointercancel now starts from the divider's centre rather than its top-left corner."
+Story clause: "shared controls expose the actual input and expected row/geometry/focus"
+Disposition: proved by slice 5: dashboard/tests/sessions/cursor-sessions-sidebar-resize.spec.ts "a cancelled drag ends" still grabs, cancels with pointerId 1, moves 150 px down and releases, asserting the split stays at start + 120 before and after release (13/13 s5-proof.log); the start point inside the divider does not change what a cancelled drag must ignore

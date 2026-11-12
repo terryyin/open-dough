@@ -14,7 +14,7 @@ import { chooseProject, parts } from "./dashboardPage.ts";
 import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { publishOnePygardonStory } from "./pygardonProject.ts";
-import { box } from "./pageLayout.ts";
+import { heightOf } from "./cursorSessionsSidebarResizePage.ts";
 import { openRunningList, runningCursorParts } from "./runningCursorList.ts";
 import {
   answerCrowd,
@@ -158,8 +158,6 @@ export async function showThreeProjectPage(page: Page, origin: StartOrigin) {
   await chooseProject(page, "Pygardon");
   await expect(parts(page).backlog).toContainText("A Pygardon story");
 }
-
-export const heightOf = async (area: Locator) => (await box(area)).height;
 
 export const roomOfThree = async (shown: {
   list: Locator;
