@@ -645,7 +645,7 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 598 holds 91 rows for a two-slice test-speed story, among them M7 and M8 (the Success measure's "Retained reference" figures), X2 ("They may adopt the same fixture later."), ten S3 rows for one "do not change" sentence and six S7 rows for one "No new … to obtain a saving" list. The coordinator recorded one `observed:` per row through about 90 `record` invocations in two batches.
   - Observed effect: every promise had an inspected location at acceptance. The reference-figure, permission and negated-means rows received cells that restate the diff's absence of a change or the plan's run table.
   - Inference: same cause as the first occurrence; cost qualified, no time measured.
-- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (plan 589; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (spent plan 589 recoverable at before-cleanup `4368ce5b9d63f1de43040488fd110fe81bd9eeb2`; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
   - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at three acceptances)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -765,7 +765,7 @@ The story's load example promised a slowest case body under 10 s at one-minute l
 
 ### Occurrences
 
-- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (plan 589; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (spent plan 589 recoverable at before-cleanup `4368ce5b9d63f1de43040488fd110fe81bd9eeb2`; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
   - Timestamp: 2026-11-12T14:19:27+08:00 (end of the diagnostic run)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -780,7 +780,7 @@ After the developer restated one key example, the required fresh source-only rev
 
 ### Occurrences
 
-- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (plan 589; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (spent plan 589 recoverable at before-cleanup `4368ce5b9d63f1de43040488fd110fe81bd9eeb2`; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
   - Timestamp: unknown (2026-11-12, between 14:25 and 14:45+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
