@@ -76,7 +76,7 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Published slice 2 `f31723244` linked delegation to new `test-entry-rules.md` before declaring that reference/runtime closure; CI run43010890708/1 test3/3 failed `tests/payload-declaration-links.sh`. Repair `e2806cc5e` added the complete closure and ran real install/update plus grouped/historical declaration readers. Recover proof at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/ci-repair-observations.md`.
   - Observed effect: one owned dependency-closure CI failure, paused next-slice work and an independent repair before resuming. The same run's watcher teardown budget defect had a separate accepted solution; it is not attributed to this omission.
   - Inference: linking promoted runtime prose makes its delivery inventory an immediate consumer; a later installation slice does not postpone that compatibility proof. Matches ODF-150's indirect-consumer omission; no new framework or duplicate finding is needed.
-- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (plan 597; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
   - Timestamp: unknown (2026-11-12, about 09:55–10:10+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -604,12 +604,12 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 591 holds 112 rows for a three-slice story, among them U1 ("Context: the developer is reading on a small screen…"), nine X5 rows restating the story's automated-proof limit and seven trigger rows (K1.0–K7.0). The coordinator recorded one `observed:` per row through about 110 `record` invocations in three batches and re-recorded three rows when a later slice renamed a test helper.
   - Observed effect: every promise had an inspected location at acceptance, and the U11 row exposed one promise with no automated assertion. The context, trigger and proof-method rows added cells whose text restates setup or the story's own limit.
   - Inference: the reviewer brief asks for "trigger/journey examples and exclusions" beside commitments without separating which need an observation; the cost here is qualified, as no time was measured.
-- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (plan 597; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
   - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at slice 2 acceptance)
   - Tool: Claude Code
   - Model: claude-fable-5-2
   - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
-  - Evidence: `source-review.md` beside plan 597 (recoverable at the before-cleanup commit) holds 44 rows for a two-slice story, among them 1.4 ("Reason for 1.3: a session started with nothing typed waits for the developer"), 3.3, 5.5 ("5.1 to 5.4 are existing behavior that is retained, not new behavior") and 9.3, which restate a reason or another row. The coordinator recorded 44 `observed:` cells in one batch; five (1.4, 5.5, 8.1, 8.2, 5.4) cite an unchanged product location because no assertion can observe a reason or an absence.
+  - Evidence: `source-review.md` beside plan 597 holds 44 rows for a two-slice story, among them 1.4 ("Reason for 1.3: a session started with nothing typed waits for the developer"), 3.3, 5.5 ("5.1 to 5.4 are existing behavior that is retained, not new behavior") and 9.3, which restate a reason or another row. The coordinator recorded 44 `observed:` cells in one batch; five (1.4, 5.5, 8.1, 8.2, 5.4) cite an unchanged product location because no assertion can observe a reason or an absence.
   - Observed effect: every promise had a location at acceptance; the reason and restatement rows added cells that repeat neighbouring rows.
 
 
@@ -656,7 +656,7 @@ A changed browser journey failed in some local runs at the 30 s test timeout whi
 
 ### Occurrences
 
-- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (plan 597; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
   - Timestamp: 2026-11-12T02:17:28Z (hosted CI run of the failing job; local runs 09:10–10:10+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
@@ -671,7 +671,7 @@ The plan settled "the page rule is one condition for Start session and Follow up
 
 ### Occurrences
 
-- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (plan 597; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
   - Timestamp: unknown (2026-11-12, slice 2 implementation, about 10:15–10:40+08:00)
   - Tool: Claude Code
   - Model: claude-fable-5-2
