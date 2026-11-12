@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "viktor-chan",
-  "email": "viktor-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-325#review-junit-tests-in-intent",
-  "host": "codex",
-  "model": "gpt-6.1-sol"
-}
