@@ -45,7 +45,7 @@ new plans, not an invented slice history.
 | --- | --- | --- | --- |
 | 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Story refined and existing plan realigned; queued |
 | 3 | [Express Terminal test intent through page objects](#express-terminal-test-intent-through-page-objects) | 1 | Story refined and existing plan realigned; queued |
-| 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Provisional plan; queued 2026-11-11 |
+| 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Story refined and existing plan realigned; queued |
 | 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 7 | [Express settings test intent through page objects](#express-settings-test-intent-through-page-objects) | 2 | Provisional plan; queued 2026-11-11 |
@@ -427,26 +427,90 @@ repair follows the project's failing/flaky-test policy.
 
 **Identity:** SEED-300#express-board-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and same-plan realignment; mapped slices are provisional."],"basis":{"document":"9636b8ec6a8c899c159f9c1efd63c658838b0547d26f856b4d28117aaf9d15d0","plan":"8b52dae222f87b52d42104c68fe3f4b9c3d9518b48e10690b23db2dddd668eea"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"not-ready","reasons":["Slice 2: native End reproducibly focuses Board but leaves scrollTop 0 instead of 5457 in the real integrated journey; the same-profile ordinary-document End comparison passes. Diagnose and repair the Board handoff, then pass the complete native/control/modal reading journey before reassessing readiness."],"basis":{"document":"e9b268d68c30ba3523cd5f3d3eafc62c55f499081346de375177fee88440e9d6","plan":"c3af40e34ed1a88473465879565b1e9184febf52f9e9031065d6efa274110788"}}
 ```
 
 #### Goal
 
-A developer can read Board navigation and changing published facts as user actions and independent outcomes, with shared controls and reading observations maintained once.
+A developer reading Board and published-read tests in Intent can follow the
+user's navigation, the published facts being read, and the independent result.
+Shared browser controls and repeated reading observations have one maintained
+owner, so changing a control requires one mechanics edit without concealing the
+causal sequence that makes the test useful.
 
 #### Scope
 
-Resolve all six Board/navigation/published-read findings and their sibling callers: column reading, project/header/destination focus, inspection/references, card evidence, Recently done stories, and published refresh/recovery. Keep pointer-down and pointer-up separately invocable, request holds/releases explicit, and expected order, focus, viewport, clocks, pinned revisions and retained positions legible.
+Resolve all six allocated findings below and current same-control or
+same-sequence sibling callers: Board columns and accessible reading;
+project/header/destination focus; story inspection and references; card evidence;
+Recently done ranges; and published facts, refresh and recovery. Reuse existing
+procedural/component owners, including their fluent callers where reached.
 
-**Plan:** [Mapped plan](../slice-plans/584-board-test-intent/PLAN.md)
+Keep concrete column/entry/key order, viewport, input modality, selected story,
+focus, retained reading place, expected actor/link/status/slice counts and
+malformed-record messages visible as scenario facts. Inspection and selection
+remain distinct. Pointer-down, held-answer release, intermediate focus and
+pointer-up stay separately invocable. Controlled clock steps, request logs,
+pinned revisions and Git/HTTP/host/record evidence stay at the boundary whose
+causal sequence they prove. Shared observations accept independent expectations;
+they do not obtain expected answers from production or from the fixture's result.
 
-#### Preparation hold
+Each finding receives an evidence-backed caller disposition and a representative
+before/after against the audit, reconciled to current source. The result worth
+keeping is clearer actions and outcomes plus fewer mechanics edit sites at a
+justified helper cost, with every distinct behavior check and existing test tier
+preserved. Exact accessibility/DOM/geometry contract observations may remain
+direct when their independent evidence requires it; merely moving locators is
+insufficient. Use MakeMe for domain data and observable waits or controlled clocks.
 
-Awaiting story refinement — not ready for slice-plan refinement or execution.
-The mapped plan is provisional input. Resume with `dough-story-refinement` on
-this identity, clarify its Goal, Scope and Key examples, then realign the same
-plan before slice-plan refinement and readiness assessment. This is not an
-execution prerequisite on another story.
+Scope limits: no new dashboard behavior, whole-suite speed or case-count
+promise, universal fluent conversion, new framework, or wholesale migration of
+Review, Terminal, session/report, launch, settings or Intent siblings. Include
+their reached shared-control callers, preserving their other workflow ownership.
+Necessary test/harness repair follows the project's failing/flaky-test policy.
+No new product rejection constraint or dependency on a sibling story is added.
+
+**Plan:** [Executable plan](../slice-plans/584-board-test-intent/PLAN.md)
+
+#### Key examples
+
+1. A long Board is shown in a wide, paged or covering-panel viewport → the
+   reader wheels or pages to a named column, resizes, then returns → the test
+   states the shown column order, usable card room, scroll extent and retained
+   reading position, while shared Board operations own the browser mechanics.
+2. A Board or one of its controls has keyboard/touch input → the reader uses
+   the stated key or gesture, or opens/closes modal help → named reading
+   operations preserve the actual input, expected focus and scroll result;
+   native document comparison and modal key ownership remain independent proof.
+3. A reader chooses a project through wide tabs or a compact title, changes
+   perspective, or follows a notification/source destination → the test names
+   the chosen project and destination, exact key order, sanitized URL and
+   arrival focus; resize or a covering panel keeps the required reading place.
+4. A Done reference is pending → the reader presses Inspect story, the held
+   answer arrives before pointer release → the destination does not take focus,
+   then pointer-up opens the chosen detail and focuses Hide detail. A later
+   reference, Tab move or explicit Show latest 10 choice retains its own
+   supersession outcome. Shared reference/card actions do not combine these beats.
+5. Preparation, dependencies, ownership or progress arrives, changes or cannot
+   be read → the scenario supplies the expected actor, order, status, links,
+   slice counts or malformed text → shared card/roster readers expose exactly
+   that evidence without confusing Inspect with Selected story or hiding gaps.
+6. Recently done initially shows ten of 35 mixed entries → the reader reveals
+   more, returns to the latest range, refreshes or follows a session/reference
+   beyond it → shared column actions expose the expected order/count/focus and
+   retained range; the scenario still names exactly which records answer, fail
+   or remain unread. Showing fewer entries and cancelling a pending jump remain
+   distinguishable outcomes.
+7. The reader has scrolled to an inspected pinned link while independent facts
+   or a new revision are held → the test releases or fails named answers and
+   advances its controlled clock → retained facts, focus and reading place stay
+   explicit before/after; only the answered facts change. A reader who wheels
+   away keeps that later choice. Recovery/rate-limit cases retain their request
+   counts, schedule, old/new revisions, notices and absence of placeholder churn.
+8. A maintainer changes a shared control → its affected procedural/fluent and
+   cross-family callers use one browser owner → per-finding comparison shows
+   readable action/outcome, removed duplicate mechanics and justified helper
+   cost, while independent expected values and all distinct checks survive.
 
 #### Audit findings owned by this story
 
