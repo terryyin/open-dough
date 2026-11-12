@@ -71,3 +71,15 @@ run as invalid for sleep and rerun under the guard. The
 to the rerun as written, and no test is excused. No sleep in the window
 excludes sleep; continue under the ordinary policy, for example by classifying
 external load.
+
+## Load while measuring
+
+A load figure counts runnable work, not contention. When a measurement names a
+one-minute load range, the load is the natural load other work puts on the
+machine. CPU burners started for the measurement inform but do not stand in
+for it: a `yes` burner started from a backgrounded agent shell runs at nice 5
+and took 6–14% of a CPU on this 16-core machine, so twenty of them lifted the
+load past 30 while the machine stayed about half idle. Foreground burners take
+about half a CPU each and do contend. Record with every loaded run the load
+before and after and whether it was natural or from burners, and at which
+priority burners ran (`ps -o pid,nice,%cpu,command -p <pid>`).

@@ -477,7 +477,15 @@ is Taken and covers the dashboard load failures.
   - Observed effect: One focused-run failure the change did not cause, plus an isolated rerun to classify it.
   - Inference: Its real working-tree installations take over a third of the timeout unloaded and most of it under load. Reusing one prepared installation across the successive preparations, or splitting them, would restore margin.
 
-**Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+- Execution: SEED-324#pass-landed-ci-repeat-checks-under-high-load (plan 599; first implementation `5fa058c0db92cd726fdc18c4b1c4c291451cf41f`)
+  - Timestamp: unknown (2026-11-12 slice 8 refactor run)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `095f2bff9`)
+  - Evidence: `start-origin-isolation.spec.ts:140` reached the 30 s bound at load 40 → 46 at two workers beside `:40`, and passed alone in 20.4 s at load 43 → 42; the change did not reach its path.
+  - Observed effect: one failure classified and routed to the developer.
+
+**Queued, not resolved:** SEED-287 has closed; covered now by [SEED-332#answer-fake-gh-reads-in-process](.planning/seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process).
 
 ## A consumer selection built on the native import-closure tool drops crashed files (open, unqueued)
 
@@ -547,3 +555,19 @@ separate checks. The [repository proof guide](tests/README.md#waits-fixtures-and
 documents the focused typecheck, and the commit hook caught both errors before
 publication. Retain the two occurrences as project evidence. No new story is
 queued.
+
+## DD-508 — CPU burners from a background shell raised the load without contention
+
+`yes` burners started from a backgrounded agent shell ran at nice 5 and took 6–14% of a CPU each, so runs counted "at load 30–50 under burners" did not measure contention.
+
+### Occurrences
+
+- Execution: SEED-324#pass-landed-ci-repeat-checks-under-high-load (plan 599; first implementation `5fa058c0db92cd726fdc18c4b1c4c291451cf41f`)
+  - Timestamp: unknown (2026-11-13 execution)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION` at Take `095f2bff9`)
+  - Evidence: plan 599 "Repair of G1 after the SEED-330 merge": 20 background burners lifted the load to 30–32 with the machine 57% idle and the slowest case at 8.8 s; 20 foreground burners at load 31 → 48 gave 28.1 s.
+  - Observed effect: earlier counted burner passes overstated the fit, and the gap surfaced only after the trunk merge.
+
+**Response:** [Load while measuring](tests/local-test-resources.md#load-while-measuring) records natural load as the measured condition and how to read a burner's priority.
