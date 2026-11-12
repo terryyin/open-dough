@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-316#prove-swipe-under-button-event-tracking",
+  "title": "Prove the phone swipe under button-event pointer tracking",
+  "completedAt": "2026-11-12T02:26:32.566Z",
+  "developer": "Terry Yin",
+  "agent": "ruuf-chan",
+  "host": "cursor",
+  "model": "auto"
+}
