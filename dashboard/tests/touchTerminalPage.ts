@@ -3,7 +3,10 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { box, tapWhereShown } from "./pageLayout.ts";
-import { terminalScreenParts } from "./terminalScreenPage.ts";
+import {
+  expectTerminalInputFocused,
+  terminalScreenParts,
+} from "./terminalScreenPage.ts";
 import { scrollByTouch } from "./touchGestures.ts";
 export {
   scrollByTouch,
@@ -103,7 +106,7 @@ export {
 // line or the composer, and xterm keeps its former rows until the next resize
 // observation refits it. Touch the screen once its rows lie within that box.
 export async function focusByTouch(panel: Locator) {
-  const { screen, input } = terminalScreenParts(panel);
+  const { screen } = terminalScreenParts(panel);
   await expect
     .poll(() =>
       screen.evaluate((element) => {
@@ -116,7 +119,7 @@ export async function focusByTouch(panel: Locator) {
     )
     .toBe(true);
   await tapWhereShown(screen);
-  await expect(input).toBeFocused();
+  await expectTerminalInputFocused(panel);
 }
 
 // Coarse-pointer accessory bar; absent on fine-pointer desktop chrome.
@@ -173,7 +176,7 @@ export async function expectMinTouchTarget(control: Locator) {
 // (Blink-style: toolbar pointerdown must not dismiss the soft keyboard).
 export async function tapTerminalKey(panel: Locator, name: string) {
   await tapWhereShown(terminalKey(panel, name));
-  await expect(terminalScreenParts(panel).input).toBeFocused();
+  await expectTerminalInputFocused(panel);
 }
 
 // Optional phone draft field + Insert; revealed by Compose on coarse chrome.

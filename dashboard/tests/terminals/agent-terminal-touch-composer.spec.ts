@@ -7,7 +7,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test as base } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  expectTerminalText,
+  insertTerminalText,
+  reconnectTerminal,
+  terminalPanel,
+  terminalStatus,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -84,9 +90,8 @@ test.describe("phone terminal composer Insert without submit", () => {
     const { sent } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(composerTitle));
     const panel = terminalPanel(page);
-    const { rows } = terminalScreenParts(panel);
     const draftText = "revise this longer phone instruction";
-    await expect(rows).toContainText(`attached ${native.shortId}`);
+    await expectTerminalText(panel, `attached ${native.shortId}`);
     await expect(composeToggle(panel)).toHaveCount(0);
     await expect(terminalComposerDraft(panel)).toHaveCount(0);
     await openTerminalComposer(panel);
@@ -103,13 +108,14 @@ test.describe("phone terminal composer Insert without submit", () => {
       expect(sent.join("").includes("\r")).toBe(false);
       expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
       await focusByTouch(panel);
-      await page.keyboard.type(" and typed");
+      // Soft-keyboard typing inserts without submitting; toolbar Enter alone submits.
+      await insertTerminalText(page, " and typed");
       await expect.poll(() => sent.join("")).toBe(`${draftText} and typed`);
     });
 
     await test.step("deliberate toolbar Enter submits the line", async () => {
       await tapTerminalKey(panel, "Enter");
-      await expect(rows).toContainText(`echo ${draftText} and typed`);
+      await expectTerminalText(panel, `echo ${draftText} and typed`);
       await expect
         .poll(() => dashboard.claudeAttaches()[0]?.lines)
         .toEqual([`${draftText} and typed`]);
@@ -123,7 +129,7 @@ test.describe("phone terminal composer Insert without submit", () => {
         const retained = "held until deliberate Insert after reconnect";
         await draft.fill(retained);
         await dashboard.close();
-        await expect(panel.getByRole("status")).toContainText(
+        await expect(terminalStatus(panel)).toContainText(
           "Disconnected from the session",
         );
         await expect(draft).toHaveValue(retained);
@@ -139,11 +145,13 @@ test.describe("phone terminal composer Insert without submit", () => {
           projectFolders: ["open-dough"],
           port,
         });
-        await panel.getByRole("button", { name: "Reconnect" }).click();
-        await expect(rows).toContainText(`attached ${native.shortId}`);
-        await expect(panel.getByRole("status")).toBeEmpty();
+        await page.clock.install();
+        await reconnectTerminal(panel);
+        await expectTerminalText(panel, `attached ${native.shortId}`);
+        await expect(terminalStatus(panel)).toBeEmpty();
         await expect(draft).toHaveValue(retained);
-        await page.waitForTimeout(150);
+        // Explicit advance: reconnect must not auto-send the retained draft.
+        await page.clock.runFor(150);
         expect(sent).toEqual(beforeFailedInsert);
         await tapWhereShown(insert);
         await expect(draft).toHaveValue("");

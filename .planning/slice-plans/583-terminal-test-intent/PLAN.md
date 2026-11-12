@@ -197,9 +197,18 @@ Command: `npm run test:dashboard -- tests/terminals/agent-terminal-keyboard.spec
 
 ### 3. Follow phone input, viewport changes and paused selection
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story example 3; exact gesture/key, draft, independent focus/geometry,
 reported native size, paused copied text and application input evidence.
+Accepted: Touch keys/fit/compose/select stay on existing focused owners sharing screen/input with
+`terminalScreenPage`; `.terminal-screen` paused host kept distinct from `.xterm-screen`; composer
+no-auto-replay uses `page.clock.runFor` (not wall sleep); Insert ≠ Enter preserved. Proof
+`/tmp/seed300-terminal-slice3-proof.json` 21/21 (~104s) + consumers `/tmp/seed300-terminal-slice3-consumers.json`
+8/8 (~52s) for `focusByTouch`/`tapTerminalKey`; typecheck passed. Refactor: `typeLine`/`terminalStatus`
+cohesion; `/tmp/seed300-terminal-slice3-refactor-proof.json` 6/6; `agent-terminal-touch.spec.ts` ≤250.
+Dispositions: proof-set + paste/ended/pending consumers of changed focus/key **run**; unchanged helper
+bodies **reused**; paste protocol and voice left for slices 4–5 **excluded**. Source-review slice-3
+ids observed.
 
 Behavior: A developer reads a phone interaction → sees the actual modality and chosen draft/viewport around shared
 operations → focus, fit and insertion without submission remain explicit; paused selection sends no unintended session
@@ -279,3 +288,7 @@ were a naming clash with the shared panel closer; prefer `closeTerminal(panel)` 
 Slice 2: `typeLine` must compose `insertTerminalText` + Enter/`pressTerminalKey`, never the reverse. Keep phone
 `tapWhereShown` vs desktop `click` outside prompt-choose helpers. Own prompts on the screen module; voice re-exports —
 do not import voice from `terminalScreenPage`.
+
+Slice 3: keep `.terminal-screen` (paused overlay host) separate from `terminalScreenParts().screen` (`.xterm-screen`).
+Composer no-auto-replay uses explicit `page.clock.runFor`, not wall-clock sleep. After Prettier one-import-per-line,
+trim headers so touch specs stay ≤250.

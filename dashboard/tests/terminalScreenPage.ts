@@ -55,6 +55,10 @@ export async function expectTerminalInputFocused(panel: Locator) {
   await expect(terminalScreenParts(panel).input).toBeFocused();
 }
 
+export async function expectTerminalInputNotFocused(panel: Locator) {
+  await expect(terminalScreenParts(panel).input).not.toBeFocused();
+}
+
 // Inserts characters without submitting. Never presses Enter.
 export async function insertTerminalText(page: Page, text: string) {
   await page.keyboard.type(text);

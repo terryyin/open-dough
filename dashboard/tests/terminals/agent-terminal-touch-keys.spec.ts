@@ -4,7 +4,13 @@
 // lives in ./agent-terminal-touch-composer.spec.ts.
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  expectTerminalInputFocused,
+  expectTerminalText,
+  expectNoTerminalText,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -62,8 +68,8 @@ test.describe("phone terminal key toolbar", () => {
     const { rows } = terminalScreenParts(panel);
     const toolbar = terminalKeyToolbar(panel);
     const primary = toolbar.locator(".terminal-key-toolbar-primary");
-    await expect(rows).toContainText("Choose a color");
-    await expect(rows).toContainText("› Red");
+    await expectTerminalText(panel, "Choose a color");
+    await expectTerminalText(panel, "› Red");
     await expect(toolbar).toBeVisible();
     for (const name of [
       "Esc",
@@ -99,7 +105,7 @@ test.describe("phone terminal key toolbar", () => {
       await tapTerminalKey(panel, "Left");
       await tapTerminalKey(panel, "Right");
       await expect.poll(() => sent.join("")).toBe("\t\u001b[D\u001b[C");
-      await expect(rows).toContainText("› Red");
+      await expectTerminalText(panel, "› Red");
     });
 
     await test.step("Esc cancels the open option menu without confirming", async () => {
@@ -109,9 +115,9 @@ test.describe("phone terminal key toolbar", () => {
         .toBe(0);
       await tapTerminalKey(panel, "Esc");
       await expect.poll(() => sent.join("")).toBe("\t\u001b[D\u001b[C\u001b");
-      await expect(rows).toContainText("cancelled");
-      await expect(rows).not.toContainText("Choose a color");
-      await expect(rows).not.toContainText("› Red");
+      await expectTerminalText(panel, "cancelled");
+      await expectNoTerminalText(panel, "Choose a color");
+      await expectNoTerminalText(panel, "› Red");
       expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
     });
 
@@ -120,8 +126,8 @@ test.describe("phone terminal key toolbar", () => {
       await expect(panel).toHaveCount(0);
       await tapWhereShown(sidebar.button);
       await tapWhereShown(sidebar.entry(title));
-      await expect(rows).toContainText("Choose a color");
-      await expect(rows).toContainText("› Red");
+      await expectTerminalText(panel, "Choose a color");
+      await expectTerminalText(panel, "› Red");
       expect(dashboard.claudeAttaches()).toHaveLength(2);
       expect(dashboard.claudeAttaches()[1]?.id).toBe(native.shortId);
     });
@@ -133,29 +139,29 @@ test.describe("phone terminal key toolbar", () => {
       // whole keys; a stroke brings Down in beside Up.
       await bringKeyIntoView(panel, "Down");
       await tapTerminalKey(panel, "Down");
-      await expect(rows).toContainText("› Blue");
-      await expect(rows).not.toContainText("› Red");
+      await expectTerminalText(panel, "› Blue");
+      await expectNoTerminalText(panel, "› Red");
       const afterDown = [...sent];
       expect(afterDown.join("")).toBe(`${beforeArrows.join("")}\u001b[B`);
       const viewport = panel.locator(".xterm-scrollable-element");
       const bottom = await rows.textContent();
       await scrollByTouch(page, viewport, 100);
       await expect.poll(() => rows.textContent()).not.toBe(bottom);
-      await expect(rows).toContainText(/menu history [0-9]+/);
+      await expectTerminalText(panel, /menu history [0-9]+/);
       expect(sent).toEqual(afterDown);
       await scrollByTouch(page, viewport, -400);
-      await expect(rows).toContainText("› Blue");
+      await expectTerminalText(panel, "› Blue");
       expect(sent).toEqual(afterDown);
       await tapTerminalKey(panel, "Up");
-      await expect(rows).toContainText("› Red");
+      await expectTerminalText(panel, "› Red");
       await expect
         .poll(() => sent.join(""))
         .toBe(`${afterDown.join("")}\u001b[A`);
       await tapTerminalKey(panel, "Down");
       await tapTerminalKey(panel, "Down");
-      await expect(rows).toContainText("› Green");
+      await expectTerminalText(panel, "› Green");
       await tapTerminalKey(panel, "Enter");
-      await expect(rows).toContainText("echo Green");
+      await expectTerminalText(panel, "echo Green");
       await expect
         .poll(() => dashboard.claudeAttaches()[1]?.lines)
         .toEqual(["Green"]);
@@ -213,9 +219,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
     const { sent } = noteTerminalTraffic(page);
     await sidebar.entry("Desktop terminal without phone keys").click();
     const panel = terminalPanel(page);
-    await expect(terminalScreenParts(panel).rows).toContainText(
-      `attached ${native.shortId}`,
-    );
+    await expectTerminalText(panel, `attached ${native.shortId}`);
     await expect(terminalKeyToolbar(panel)).toBeHidden();
     await expect(terminalKey(panel, "Paste")).toBeHidden();
     await expect(composeToggle(panel)).toBeHidden();
@@ -225,7 +229,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
     const text = "Desktop paste";
     const input = terminalScreenParts(panel).input;
-    await expect(input).toBeFocused();
+    await expectTerminalInputFocused(panel);
     // Supply the browser paste payload at xterm's input. The headless runner
     // can deliver an empty OS clipboard even after navigator.clipboard writes.
     await input.evaluate((element, value) => {
@@ -236,7 +240,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
       );
     }, text);
     await expect.poll(() => sent).toEqual([text]);
-    await expect(terminalScreenParts(panel).rows).toContainText(text);
+    await expectTerminalText(panel, text);
     expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
   });
 });
