@@ -83,6 +83,12 @@ passed once, case 24.1s/default 30/retry 0, one worker, AC, external load
 41-48. Independent refactor pass: none needed. Per-commitment observations are
 in the linked source review.
 
+## Execution complete
+
+Product advice: no change. The helper now holds only supported Done,
+Changed-tests, Summary and drill-down navigation; review of the aggregate
+result found no residue, drift or coverage change to act on.
+
 ## Gates and current decisions
 
 Local gate: dashboard typecheck and the focused journey above; on AC use
