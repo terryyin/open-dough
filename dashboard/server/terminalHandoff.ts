@@ -4,6 +4,8 @@
 // text, a story launch and a launch asked over HTTP do not. The follow-up
 // prompt keeps that process either way. The async launch keeps the flag
 // for the accept that started it.
+// No host declares a detached idle rule today, so a kept client is never
+// hung up as idle and the hold changes nothing a page can see.
 import { AsyncLocalStorage } from "node:async_hooks";
 
 const handoff = new AsyncLocalStorage<boolean>();
