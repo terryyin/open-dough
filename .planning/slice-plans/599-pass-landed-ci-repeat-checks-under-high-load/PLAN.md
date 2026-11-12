@@ -182,7 +182,7 @@ applies as written to every delegation and repair handoff.
 
 Commands, from the repository root, with Homebrew Bash first on `PATH`:
 
-- Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts tests/intent/intent-ci-follow-up-proof.spec.ts tests/intent/intent-ci-follow-up-return.spec.ts`,
+- Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts tests/intent/intent-ci-follow-up-proof.spec.ts tests/intent/intent-ci-follow-up-return.spec.ts`,
   plus any spec file a slice adds for a divided case, with `--workers=1` or
   `--workers=2` and `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<file>` for durations.
   A run that writes a proof record passes no `--reporter`: `--reporter=list`
@@ -971,6 +971,23 @@ Observed on 2026-11-12, Node 24.21.0. Logs:
   17 the base and this branch take the same 12–14 s. Its files are unchanged
   since `095f2bff9` and no story names it. Diagnosis follows this slice.
 
+#### Diagnosis of `intent-project-scope-timing-refresh.spec.ts`, after slice 5
+
+Three traced runs of the unedited spec alone at two workers (evidence in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/scope-timing/`): pass 23.0 s at
+load 18.2 → 22.8, pass 28.7 s at 12.9 → 26.0, fail 31.1 s at 16.0 → 32.6. No
+wait is stuck: 16–23.5 s goes to arrangement before the case's own first
+step (a collecting server, `publishSummaryComparisonStory`, collection of
+three proofs, a second cold reader, the Done comparison settling), and the
+7–9 s journey then has no room. Local trims save 3–4 s and leave no margin.
+The repair that gives margin starts the refresh case from kept history in
+one non-collecting server, in its own file, and its other case (28.7 s at
+load 33) needs the same or a shared published-story template used by about
+17 specs. That changes what those cases prove and is story-sized, outside
+this story's four specs: it goes to Terry with a recommendation at the
+execution handoff. The base worktree at the merged trunk revision is
+`/Users/terryyin/.claude/jobs/296b888d/tmp/base-merged` (`8aa440077`).
+
 ### 6. The fit under load and the saving are measured and kept
 Type: Behavior
 Status: planned
@@ -1001,6 +1018,153 @@ and the saving are observed with every preparation and teardown paid.
   case's `Before Hooks` step, SEED-287's active execution owns that repair:
   preserve its files, write no duplicate, and report that owner and the
   remaining gate as the coordination boundary.
+
+#### Slice 6 record
+
+Observed on 2026-11-12, 17:16–17:37 local, Node 24.21.0, candidate
+`109d87f44`, base worktree `base-merged` at `8aa440077`. Logs, proof records
+and traces: `/Users/terryyin/.claude/jobs/296b888d/tmp/slice6/`. The machine
+ran on battery (24% falling to 14%), so `caffeinate -s` was inert; the sleep
+log holds no sleep or wake since 2026-11-07. Not done: key examples 1 and 8
+both miss, and the measuring stopped there for the coordinator.
+
+- **Key example 1 misses.** Two counted two-worker runs, both in the profile,
+  both failed; there are no three consecutive passes. `scripts/dashboard-repeat.sh 1
+  <seven specs> --workers=2 --trace=on` with a proof record, started by
+  `slice6/profile.sh` once the load was inside 30–50. "First" is the first
+  case of the run in its worker; "first page" is the first page case of the
+  run in its worker, the one that asks for the run's app build.
+
+  | Case | Run 1, 24 burners, load 30.6 → 40.6 | Run 2, natural load, no burner, 35.9 → 44.2 |
+  | --- | --- | --- |
+  | Journey | 16.2 s, first, Before Hooks 7.7 s (`origin` 7.6) | timed out 33.3 s, first, Before Hooks 24.2 s (`origin` 23.9) |
+  | Refused | 16.0 s, first, Before Hooks 7.6 s (`origin` 7.6) | timed out 31.1 s, first, Before Hooks 23.7 s (`origin` 23.6) |
+  | Uncertain | 9.5 s | timed out 30.7 s at `:166`, Before Hooks 2.1 s, 15.5 s from there to its first wait |
+  | Saved-request outcomes | 2.7 s | 13.6 s |
+  | Accepted request | 12.6 s | 26.8 s, Before Hooks 2.0 s, 11.6 s from there to its first wait |
+  | Verdict | 6.4 s | 7.7 s |
+  | Intent proof | 31.2 s passed, first page, Before Hooks 15.2 s (`origin` 1.2, `dashboard` 13.6) | timed out 33.5 s in `expectOriginalProofNavigation` (`ciFollowUpReadingPage.ts:112`), first page, Before Hooks 16.3 s (`origin` 1.1, `dashboard` 14.2) |
+  | Intent return | timed out 31.5 s at "same after reload" (`:55`), first page, Before Hooks 15.0 s (`origin` 0.9, `dashboard` 13.6) | timed out 32.0 s at "same after reload", first page, Before Hooks 11.4 s (`origin` 0.9, `dashboard` 9.5) |
+  | Intent reading | 15.3 s, Before Hooks 3.4 s (`origin` 0.8, `dashboard` 2.4) | 18.5 s, Before Hooks 2.0 s |
+  | Settings | 6.6 s, Before Hooks 4.2 s | 4.2 s, Before Hooks 2.0 s |
+  | Warning | 10.1 s, Before Hooks 2.6 s | 20.0 s, Before Hooks 2.3 s |
+  | Result | 10 of 11, exit 1, 96 s | 6 of 11, exit 1, 169 s |
+
+  Run 1's burners were 16 from the script and 8 added when the load settled
+  at 28.5; other work held 11 before them. Run 2's load was other worktrees'
+  work alone (Playwright suites, `nix develop`, a JVM, another checkout's
+  burners). Slowest per position: first, 16.2 s under burners and over the
+  30 s bound under natural load; first page, 31.5 s and 33.5 s; any other
+  position, 15.3 s and 30.7 s. No uncounted profile run.
+- **Where the time is.**
+  - The run's first two cases pay `origin`: 7.6 s under burners, 23.6–23.9 s
+    under natural load, against 0.5–2.0 s for every later case, a worker
+    started after a timeout included. Under natural load that alone is the
+    journey's and the refused case's failure.
+  - The first page case in each worker waits in its `dashboard` fixture for
+    the run's app build (`sharedDashboardBuild`, asked for by the first
+    preview server): 13.6 s under burners, 9.5 and 14.2 s under natural
+    load, against 1.1–2.7 s later.
+  - That is not the whole excess. A settled-reading case that pays neither
+    took 15.3 and 18.5 s: 3.0–5 s of arrangement, then `goto`, the Board
+    paged to Recently done (3–4 s) and the card opened (1.7–2.7 s) before its
+    first observation. The return case had reached `:55` of 88 lines at the
+    bound in both runs. Under natural load the backend cases' arrangement and
+    server start took 11.6–15.5 s before their first wait.
+  - No wait rode a collection pass to its 5 s: the longest was "saved reply"
+    3.9 s (uncertain case, run 2) and "a whole pass" 1.9 s and 2.9 s; the
+    others 0.0–1.9 s (`slice6/polls.py` over the traces).
+- **Key example 2 holds.** One case calls `scenario.ingest` in the seven
+  specs (`landed-ci-automatic-repeat.spec.ts:75`); five do in the base's four
+  (`:49`, `:122` in a loop of two outcomes, the phone journey `:47`, the
+  Intent journey `:60`).
+- **Key example 8 misses.** Paired one-worker runs, base then candidate back
+  to back, `slice6/one.sh`, wall time of the whole command, every case
+  passing in all six:
+
+  | Pair | Base, 7 cases | Candidate, 11 cases |
+  | --- | --- | --- |
+  | 1 | 30.5 s, load 5.7 → 4.7 | 34.3 s, load 4.7 → 4.3 |
+  | 2 | 40.5 s, load 4.3 → 11.0 | 42.2 s, load 11.0 → 9.4 |
+  | 3 | 33.9 s, load 9.4 → 10.1 | 49.0 s, load 10.1 → 11.6 |
+  | Median | 33.9 s | 42.2 s |
+
+  The candidate's median is 1.24 of the base's; two-thirds would be 22.6 s.
+  In pair 1 the base's cases sum to 24.9 s (journey 4.6, refused 2.4,
+  uncertain 2.6, Intent journey 9.0, phone journey 4.3) and the candidate's
+  to 32.8 s: its five page cases take 19.8 s against the base's two at
+  13.3 s, its six backend cases 13.0 s against 11.6 s. At a load this low a
+  journey's provider calls cost little and each added case pays its own
+  arrangement. Not measured: pairs at a load of 30–50.
+- **Supporting count, not clean.** Fake `gh` calls counted by a scratch
+  preload (`slice6/count-gh.mjs`, every POST to a fake GitHub's root in a
+  worker), one one-worker run each: base 238, candidate 154. Other work
+  raised the load during them and both runs failed, so neither count is of a
+  passing run: base 5 of 7 in 116.7 s at load 10.5 → 40.7 (the Intent and
+  phone journeys at the bound), candidate 9 of 11 in 178.8 s at
+  40.7 → 38.2 (the return and reading cases at the bound; proof 19.2 s,
+  settings 17.7 s, warning 18.6 s).
+- **Diff review**, `git diff 8aa440077...HEAD -- dashboard tests`: no added
+  `test.setTimeout`, expectation `timeout:`, `test.slow`, sleep or
+  `waitForTimeout`, retry, skip, fixme, only or runner mode; nothing outside
+  `dashboard/backend-tests/intent`, `dashboard/tests/intent` and
+  `dashboard/tests/support` changed besides planning records;
+  `git diff --stat 8aa440077...HEAD -- dashboard/server dashboard/src` is
+  empty; no file under `dashboard/longest-first*` names any of the seven
+  specs. The verdict spec differs from `095f2bff9` by `await
+  saveRepeatRequests` and `rerunRuns` only, so F10 and F11 stand by the
+  "Faults F1–F11" premise row.
+- **Waits after a provider change**, each on the default 5 s expectation:
+  the journey awaits the held request's arrival, then polls the saved
+  request ("accepted saved after the reply"), then `aWholePass`, the
+  provider's answer to the second read of run 72; the refused and uncertain
+  cases poll the saved request ("saved reply", "repeat read") and the
+  refused case `aWholePass`; the saved-request and verdict cases poll each
+  saved outcome; the accepted-request case `aWholePass`, then the saved
+  request ("progress read", "repeat read"); the warning case the saved
+  request ("progress saved", "repeat saved"), then its page under the
+  controlled clock. The Intent cases change no provider fact;
+  `refreshCiFollowUp` awaits the dashboard's answer to the refresh's read.
+  Every one of these events arrives with a collection pass over kept state,
+  `aWholePass` with up to two; none polls a call count or a card.
+- **G1 is not met and is wider than reported.** At natural load 36 → 44 the
+  first case of the run in each worker spends 23.6–23.9 s in `origin`
+  alone, and under either kind of load the first page case in each worker
+  9.5–14.2 s waiting for the app build. Those shares are shared preparation
+  this story does not change. The page cases and, under natural load, the
+  backend cases also exceed their figures away from those positions, which
+  is theirs to repair: nothing was changed in this slice, because the repair
+  is no division of one case. It has to shorten what every kept-landing
+  case pays before its first observation.
+- For the coordinator: no tracked file changed but this plan; both base
+  worktrees stay; kept failure directories are under each worktree's ignored
+  `dashboard/test-results/`.
+
+## Stopped for the developer's decision, 2026-11-12
+
+Slice 6 is not done and stays `planned`. Slices 1–5 are delivered on the
+story branch only; nothing is on trunk. Key examples 1 and 8 miss as
+measured in the Slice 6 record, and the plan's rule for a miss is to record
+it and stop:
+
+- Key example 1: two counted two-worker runs in the profile failed (10 of 11
+  under burners, 6 of 11 under natural load). The run's first case in each
+  worker pays 7.6–23.9 s in the `origin` fixture and the first page case in
+  each worker 9.5–14.2 s waiting for the app build; apart from that, a case
+  pays 11–15 s of arrangement and server start before its first observation
+  under natural load.
+- Key example 8: at one worker the candidate's median is 42.2 s against the
+  merged-trunk base's 33.9 s, a ratio of 1.24 where two-thirds was the result
+  worth keeping. The base already holds SEED-287's faster journeys, and the
+  candidate has 11 cases, each paying its own arrangement, where the base
+  has 7.
+- G1 stays open with slice 6.
+
+The decision needed is the story's: whether its scope may take in the shared
+preparation it excludes (the `origin` fixture's first use, the app build's
+timing, and a kept published-story arrangement that every case pays for),
+whether its figures change, or whether the branch is not worth keeping under
+ADR 0010. No further measured run was started: the machine was on battery.
 
 ## Story obligations
 
