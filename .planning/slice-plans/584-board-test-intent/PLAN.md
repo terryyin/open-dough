@@ -355,6 +355,19 @@ obligations:
 `untilBShownWhileHeld` stays duplicated in the carry and bound specs, as a
 named causal gate at each call site.
 
+CI repair after slice 7 (run 43267639966/1, teardown ENOTEMPTY in
+`recently-done-sessions-select-supersede.spec.ts:47`): a cancelled synthetic
+`gh` was still exiting, and writing into the temp root, as it was removed.
+This applies trunk's 30f2ef263 byte-for-byte (a call stays recorded until its
+`gh` is gone). It also fixes fake-gh's auth hold, which watched its directory
+and could miss a release on macOS; it now watches the hold file. Before the
+fix, both reproduced (3/12 and 87/400). Proof after:
+- Failing spec ×10 20/20.
+- Hold ×30 under load 120/120.
+- Consumer cohort 330/330.
+- `dashboard/tests/sessions` 229/229.
+- github-request node tests pass.
+
 ### 8. Read recovery and limits without concealing timing or source truth
 Type: Behavior
 Status: planned
