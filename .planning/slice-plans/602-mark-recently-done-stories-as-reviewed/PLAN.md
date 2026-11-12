@@ -172,6 +172,16 @@ at load 36. `npm test` does not run the dashboard browser suite
 (`test:dashboard`); that whole suite was not run locally (battery at 22%) and
 is observed by branch CI's 13 dashboard shards.
 
+## Execution complete
+
+Product advice: no correction. The delivered state follows ADR 0008 and the
+story; E2E specs drove both slices. Next, in line with the direction to review
+newly developed stories, the deferred count or filter of unreviewed stories is
+the step that lets a developer work through everything still needing review.
+A low-impact race remains: a periodic read answered with the document from
+before a concurrent save can briefly show the old state until the next
+15-second read; recorded here as evidence, not corrected.
+
 ## Consumer trace and local gates
 
 The changed rendered output is the done story card's Story actions group,
