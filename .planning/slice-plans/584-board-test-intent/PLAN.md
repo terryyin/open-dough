@@ -68,7 +68,9 @@ These observations establish bounded premises, not completed implementation.
 | A card operation can expose press without swallowing release or focus proof. | P1 temporarily extracted scroll/box/move/down to `holdCardAction(Locator)` in `storyCardControls.ts`; the original pointer case passed, with release, intermediate expectations and up still explicit. | Execution sweeps every affected caller; this one case is no suite-wide claim. |
 | That case detects losing the causal press. | P2 omitted only `mouse.down` in the trial helper. The maintained `not.toBeFocused` failed: Done destination actually held focus. P3 restored the helper and passed. | Preserve this exact assertion strength and split input sequence. |
 | Project choice, card gaps, ranges and retained published reads reach real results here. | P4 selected seven actual integrated cases: compact resize, malformed dependencies, 35-entry reveal, published-fact arrival, unchanged carry and failed-check recovery passed; native Board reading failed. | Six passing cases do not establish all variants or excuse the seventh. |
-| Native End is a valid unchanged Board baseline. | **False.** P4 and an instrumented diagnostic both saw End focus Board but leave scrollTop 0 instead of 5457. Event log shows keydown, focusin, keyup and scrollend at 0, without scripted scrolling. A separate ordinary-document End comparison passed in the same fixture/profile. | Slice 2 owns diagnosis/repair and full native reading replay. No root cause or remedy has yet been demonstrated; this blocks readiness. |
+| Native End is a valid unchanged Board baseline. | **False.** P4 and an instrumented diagnostic both saw End focus Board but leave scrollTop 0 instead of 5457. Event log shows keydown, focusin, keyup and scrollend at 0, without scripted scrolling. A separate ordinary-document End comparison passed in the same fixture/profile. | Slice 2 owns repair and full native reading replay. Diagnosis, load profile and remedy are in the next two rows. |
+| Follow-up diagnosis of the End failure (default checkout at `3e104c841`, 2026-11-12). | Unchanged case passes idle (1 + 5 repeats, plus the full P4 seven-case command) and on green main CI. At external load 31–42 (`yes` ×12–16, 4–6 workers, 16–30 repeats) it fails 5/16 and 3/30. Two causes: (a) test race: `readKey` installs its `scrollend` listener concurrently with the press, so a quick scroll can end first and the step times out (3 of the 5). Listening before pressing removed every timeout. (b) Stale compositor state: event log shows PageDown reach 599, then PageUp emit `scrollend` with no movement, with Board already focused. Home and End fail the same way, so the body-to-Board focus handoff is not the cause. Native key scrolling acts on the last drawn scroll offset/extent, which lags the page under load. Waiting two animation frames before each press cut failures to 1/60 (End, first key) but did not remove them. Capture-phase key logging also masked the failure. | Decision below sets the load profile; slice 2 applies the remedy and replays every reached key caller. |
+| Load profile and remedy (Terry, 2026-11-12). | Terry decided the journey must survive moderate to somewhat high CPU load, not extreme load. Profile: one test worker plus external load up to about 2× this host's 16 cores (load ≈32, covering the 31 seen in P4). The remedy registers `scrollend` before the press and waits two animation frames before pressing. Under `yes` ×16 at `--workers=1 --repeat-each=40` (load ≈28–36) it passed 40/40; the unchanged case at the same load failed 6/40 (Home stuck at 5457; three `scrollend` timeouts). Extreme load (`yes` ×28, load ≈48; or 4–6 parallel browsers at ≈40) still fails about 1 in 40–60 and is out of scope. Trial code was restored byte-for-byte. | Slice 2 applies the remedy wherever reading keys wait on `scrollend` (including `board-native-reading.spec.ts`). It re-proves the complete journey in this profile with no relaxed bound, retry or timeout change. |
 | The named proof cohorts select real specs in this checkout. | P5 executes each C1–C8 regex through the real runner with `--list --reporter=json`; retain the resulting selection counts below. | Listing is route selection only, not behavioral proof. |
 
 Literal pointer command for P1/P2/P3 (one case each, no retry):
@@ -120,8 +122,10 @@ Proof: C2 plus reached C1 callers; retain exact keys/gestures, native-document
 comparison, expected focus, modal ownership and reading positions. Example 2.
 
 Behavior: Given body/Board/control focus, reading keys or touch move the intended
-region and modal controls keep their keys. First resolve the reproduced End
-failure, preserving its bottom/focus assertions and ordinary-document comparator;
+region and modal controls keep their keys. First repair the load-sensitive key
+waits (listen for `scrollend` before pressing; press only after two drawn
+frames) in the decided load profile, preserving bottom/focus assertions and the
+ordinary-document comparator;
 replay the whole Home/End/PageDown/PageUp, focused-control, help open/close and
 modified-key journeys. Then share their reading mechanics without pre-focusing
 Board in a way that removes the body-to-Board promise, synthesizing a passing
@@ -259,11 +263,9 @@ helper cost at each boundary; do not split by file or introduce deferred machine
 Slice-plan refinement was not needed: the rewritten boundaries have distinct
 observable outcomes and reuse the same existing component owners cumulatively.
 
-One blocking concern remains: slice 2's native End baseline reproducibly fails
-in this checkout, although the ordinary-document comparator passes. Its root
-cause and repair have not reached a passing complete Board-key journey. This is
-not a waived pre-existing failure, permitted infrastructure probe, or human-owned
-decision. Record **not-ready** until diagnosis/repair and full affected replay
-settle that premise, then reassess the current story and plan through the recorder.
+The former slice 2 blocker is settled. The End failure is load-sensitive key
+timing in the test, not an app focus defect. Terry set the load profile
+(moderate to somewhat high load, not extreme). The remedy observed in that
+profile is recorded in the premise rows; slice 2 owns applying and replaying it.
 No other slice-boundary/proof-ownership concern was identified in this review;
 this is neither completed execution nor authority to begin it.

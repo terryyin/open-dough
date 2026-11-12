@@ -427,7 +427,7 @@ repair follows the project's failing/flaky-test policy.
 
 **Identity:** SEED-300#express-board-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"not-ready","reasons":["Slice 2: native End reproducibly focuses Board but leaves scrollTop 0 instead of 5457 in the real integrated journey; the same-profile ordinary-document End comparison passes. Diagnose and repair the Board handoff, then pass the complete native/control/modal reading journey before reassessing readiness."],"basis":{"document":"e9b268d68c30ba3523cd5f3d3eafc62c55f499081346de375177fee88440e9d6","plan":"c3af40e34ed1a88473465879565b1e9184febf52f9e9031065d6efa274110788"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e9b268d68c30ba3523cd5f3d3eafc62c55f499081346de375177fee88440e9d6","plan":"86d6bf4a32b3211f138dac9f894714add84d55787bf9c094a9e9cf7d8ae560a0"}}
 ```
 
 #### Goal
