@@ -1,0 +1,29 @@
+FAIL: dashboard/tests/launches/responsive-session-reconciliation.spec.ts:54 › tests/launches/responsive-session-reconciliation.spec.ts › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works (failed)
+    Error: [2mexpect([22m[31mlocator[39m[2m).not.[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Story A', exact: true })
+    Expected substring: not [32m"Waiting for published story state"[39m
+    Received string: [31m"Story AYui-chan · Fixture Committer · Claude Code · model not recordedSlice plannedReading plan slices…[7mWaiting for published story state[27m: this execution start settled on this machine, and this story's actions return once origin shows its result.This story has an open session. Mark it done or delete its record to start another.WorkingMore session actionsOpen terminalSession detailsExecution started in Claude Code 11/12/2026, 12:40:52 PMLocal: launched from this dashboard on this machine.Session 6c7bfc09-9307-4638-b2a8-f8fd3d43e774Workspace ~/git/open-dough/.worktrees/story-aMark as doneSelect storyInspect storyReview changesCanonical record seeds/A.md#aFile in this snapshot, at revision 1c0c562.Slice plan slice-plans/A/PLAN.mdFile in this snapshot, at revision 1c0c562."[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "not toContainText" getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Story A', exact: true }) with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Story A', exact: true })[22m
+    [2m    2 × locator resolved to <article tabindex="-1" aria-label="Story A" aria-describedby="_r_h_" data-story-card="SEED-A#a" class="story-card story-card-starting">…</article>[22m
+    [2m      - unexpected value "Story AYui-chan · Claude Code · model not recordedSlice plannedReading plan slices…Waiting for published story state: this execution start settled on this machine, and this story's actions return once origin shows its result.This story has an open session. Mark it done or delete its record to start another.WorkingMore session actionsOpen terminalSession detailsExecution started in Claude Code 11/12/2026, 12:40:52 PMLocal: launched from this dashboard on this machine.Session 6c7bfc09-9307-4638-b2a8-f8fd3d43e774Workspace ~/git/open-dough/.worktrees/story-aMark as doneSelect storyInspect storyReview changesCanonical record seeds/A.md#aFile in this snapshot, at revision 1c0c562.Slice plan slice-plans/A/PLAN.mdFile in this snapshot, at revision 1c0c562."[22m
+    [2m    12 × locator resolved to <article tabindex="-1" aria-label="Story A" aria-describedby="_r_h_" data-story-card="SEED-A#a" class="story-card story-card-starting">…</article>[22m
+    [2m       - unexpected value "Story AYui-chan · Fixture Committer · Claude Code · model not recordedSlice plannedReading plan slices…Waiting for published story state: this execution start settled on this machine, and this story's actions return once origin shows its result.This story has an open session. Mark it done or delete its record to start another.WorkingMore session actionsOpen terminalSession detailsExecution started in Claude Code 11/12/2026, 12:40:52 PMLocal: launched from this dashboard on this machine.Session 6c7bfc09-9307-4638-b2a8-f8fd3d43e774Workspace ~/git/open-dough/.worktrees/story-aMark as doneSelect storyInspect storyReview changesCanonical record seeds/A.md#aFile in this snapshot, at revision 1c0c562.Slice plan slice-plans/A/PLAN.mdFile in this snapshot, at revision 1c0c562."[22m
+
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/launches/responsive-session-reconciliation.spec.ts:148:32
+    at dashboard/tests/launches/responsive-session-reconciliation.spec.ts:148
+      146 |     takenStory.locator(".story-card-owner .owner-line"),
+      147 |   ).toContainText("Claude Code");
+    > 148 |   await expect(takenStory).not.toContainText(waiting);
+          |                                ^
+      149 |   await expectActionsUnavailable(takenStory);
+      150 |   releaseSeed();
+      151 |   await expect(takenStory).not.toContainText(waiting);
+  error-context: dashboard/test-results/2026-11-12T04-40-42.581Z-99670/tests-launches-responsive--e92c7-ons-while-the-session-works-chromium/error-context.md
+  trace: dashboard/test-results/2026-11-12T04-40-42.581Z-99670/tests-launches-responsive--e92c7-ons-while-the-session-works-chromium/trace.zip
+
+Kept: dashboard/test-results/2026-11-12T04-40-42.581Z-99670

@@ -19,7 +19,7 @@
 | 3 | Shorter checks keep margin under the default 30-second test timeout when the host is busy. | slice 4 | |
 | 4 | The remaining selection is exactly these three maintained CI checks. | slice 4 | |
 | 4a.1 | Each Taken card shows its published agent profile, or says plainly that none is recorded or readable. | slice 2 | observed: taken-agent-profile.spec.ts: card profile/missing/unreadable assertions + focused proof |
-| 4a.2 | A Take's older snapshot arriving late and an unrelated revision keep it protected, and its fully read accepted revision returns the Taken actions. | slice 3 | |
+| 4a.2 | A Take's older snapshot arriving late and an unrelated revision keep it protected, and its fully read accepted revision returns the Taken actions. | slice 3 | observed: responsive-session-reconciliation.spec.ts pending journey + file grep 2/2 |
 | 4a.3 | Deployment installs, builds, and serves its pinned commit in isolation after main advances. | slice 4 | |
 | 5.1 | Correct Taken owner/detail remains observable. | slice 2 | observed: taken-agent-profile.spec.ts: owner/detail steps |
 | 5.2 | Mode remains observable. | slice 2 | observed: taken-agent-profile.spec.ts: mode in detail |
@@ -30,11 +30,11 @@
 | 5.7 | Meaningful widths remain observable. | slice 2 | observed: taken-agent-profile.spec.ts: desktop + narrow viewport marks |
 | 5.8 | Accessibility remains observable. | slice 2 | observed: taken-agent-profile.spec.ts: accessible owner/detail text |
 | 5.9 | These are observable with the smallest useful board. | slice 2 | observed: takenAgentProfileRecords.ts board + this check |
-| 6.1 | Pending Take actions stay protected through stale/unrelated reads. | slice 3 | |
-| 6.2 | Pending Take actions stay protected through partial accepted reads. | slice 3 | |
-| 6.3 | Comparison failure/recovery remains covered. | slice 3 | |
-| 6.4 | Final complete snapshot remains covered. | slice 3 | |
-| 6.5 | Persisted reconciliation across reload remains covered. | slice 3 | |
+| 6.1 | Pending Take actions stay protected through stale/unrelated reads. | slice 3 | observed: stale/unrelated protection + expectProtected/expectActionsUnavailable |
+| 6.2 | Pending Take actions stay protected through partial accepted reads. | slice 3 | observed: partial accepted (held seed) + expectActionsUnavailable |
+| 6.3 | Comparison failure/recovery remains covered. | slice 3 | observed: compare failure + reload recovery; compares list length 3 |
+| 6.4 | Final complete snapshot remains covered. | slice 3 | observed: final complete snapshot returns Taken actions |
+| 6.5 | Persisted reconciliation across reload remains covered. | slice 3 | observed: reloadUntilRead persistence without re-asking GitHub |
 | 7 | The already improved real pinned-deployment case is retained unchanged. | slice 4 | |
 | 8.1 | Main may advance after selection. | slice 4 | |
 | 8.2 | Isolated checkout/build/HTTP content remains correct. | slice 4 | |
@@ -42,9 +42,9 @@
 | 8.4 | Origin boundaries remain correct. | slice 4 | |
 | 8.5 | Process shutdown remains correct. | slice 4 | |
 | 9 | Pinned-deployment time counts in the selection elapsed total and is not a reduction target. | slice 4 | |
-| 10.1 | Reduce repeated inspections these checks themselves request. | slice 2 | observed: PLAN.md Removal table; counts 18→6 inspected |
-| 10.2 | Reduce repeated assertions these checks themselves request. | slice 2 | observed: PLAN.md Removal table; reduced mark/assertion repeats |
-| 10.3 | Reduce the preparation these checks themselves request. | slice 3 | |
+| 10.1 | Reduce repeated inspections these checks themselves request. | slice 2 | observed: proof/slice2-observations.md removal table; counts 18→6 inspected |
+| 10.2 | Reduce repeated assertions these checks themselves request. | slice 2 | observed: proof/slice2-observations.md removal table; reduced mark/assertion repeats |
+| 10.3 | Reduce the preparation these checks themselves request. | slice 3 | observed: proof/slice3-observations.md removal table; overlap Claude/publication; thin protection |
 | 10.4 | Each removal names the surviving proof of the same promise. | slice 4 | |
 | 11.1 | Use shared MakeMe. | slice 2 | observed: unchanged MakeMe via takenAgentProfileRecords |
 | 11.2 | Use existing external fixtures. | slice 2 | observed: unchanged publishFiles/external fixtures |
@@ -78,11 +78,11 @@
 | 22.1 | Small published board shows correct owner and detail. | slice 2 | observed: taken-agent-profile.spec.ts owner/detail on small board |
 | 22.2 | Absent and malformed profiles remain distinct. | slice 2 | observed: absent/malformed distinct steps |
 | 22.3 | Portrait/icon, viewport, and accessibility proof accompany that case. | slice 2 | observed: portrait/viewport/a11y assertions retained |
-| 23 | A mark already proved at one width for one card is not re-inspected for every card at every width unless the width changes what that card shows. | slice 2 | observed: PLAN.md Removal table unique desktop marks + one narrow recheck |
-| 24.1 | Pending Take stays protected through stale/unrelated snapshots. | slice 3 | |
-| 24.2 | Pending Take stays protected through partial accepted snapshots. | slice 3 | |
-| 24.3 | Actions return only after the fully accepted snapshot is read. | slice 3 | |
-| 24.4 | Persisted reconciliation survives reload. | slice 3 | |
+| 23 | A mark already proved at one width for one card is not re-inspected for every card at every width unless the width changes what that card shows. | slice 2 | observed: proof/slice2-observations.md unique desktop marks + one narrow recheck |
+| 24.1 | Pending Take stays protected through stale/unrelated snapshots. | slice 3 | observed: stale/unrelated snapshots keep actions unavailable |
+| 24.2 | Pending Take stays protected through partial accepted snapshots. | slice 3 | observed: partial accepted snapshots keep protection |
+| 24.3 | Actions return only after the fully accepted snapshot is read. | slice 3 | observed: actions after fully accepted snapshot enabled Inspect |
+| 24.4 | Persisted reconciliation survives reload. | slice 3 | observed: persisted reconciliation survives reload |
 | 25.1 | Real preview serves the selected revision after main advances. | slice 4 | |
 | 25.2 | Source/build isolation is preserved. | slice 4 | |
 | 25.3 | Assets are preserved. | slice 4 | |

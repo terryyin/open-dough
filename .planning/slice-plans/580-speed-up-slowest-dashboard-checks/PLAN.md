@@ -56,7 +56,7 @@ credited as proof.
 | --- | --- | --- |
 | Matched baseline with per-check and outside-check seconds and load-independent counts | 1 | Proof records, logs, loads and trace counts retained in this plan |
 | Taken owner/detail, mode, branch, tool/model, missing versus unreadable, portraits/icons, widths, accessibility | 2 | The Taken profile check and each named surviving proof (slice 2 removal table) |
-| Every removed inspection names the surviving proof of its promise | 2, 3 | Removal table in this plan; scratch fault makes the survivor fail (slice 2 table filled; slice 3 still owed) |
+| Every removed inspection names the surviving proof of its promise | 2, 3 | Removal tables in proof/slice2-observations.md and proof/slice3-observations.md; scratch faults make survivors fail |
 | Pending Take protection through stale/unrelated, partial, comparison failure/recovery, final snapshot, reload | 3 | The pending-Take check |
 | Pinned deployment unchanged | 4 | Its spec has no diff against the baseline revision and passes in every credited run |
 | Ordinary CI selection preserved; no mocks, sleeps, retries, skips, timeout inflation or runner mode | 2, 3, 4 | Diff review and discovery of the three titles through the unchanged command |
@@ -70,7 +70,7 @@ credited as proof.
 | The three checks pass at the baseline revision | Slice 1 baseline | Take/current `658d1fef`, default timeout, recorded load ~39–55 one-minute averages; evidence in [proof/](./proof/) | Run 1: pinned 35.45 s passed; pending and profile each hit the 30 s default timeout (load before ~39/43/47, after ~75/54/50). Runs 2–3: 3/3 passed (91.92 s / 78.72 s) under similar load. Attribution with `--timeout=300000 --trace=on --reporter=list`: 3/3 in 78.45 s | Loaded baseline only; default-timeout pass is flaky under this load. Quiet-host three-run check still owed |
 | The quiet-host baseline leaves the former 30-second promise reachable without changing run-wide startup or the pinned case | Slices 2–4 sizing | Slice 1 loaded cohort plus quiet stand-ins from the retained 45-case median (pending 9.033 s, profile 8.065 s, pinned 7.969 s, outside ~16.350 s) | Former 30 s stop fired (quiet budget 5.681 s < half browser 8.549 s). Terry authorized a different target: 45 s. Quiet stand-in sum ≈ 41.4 s, so 45 s is reachable while keeping startup and pinned unchanged | Closed: continue slices 2–4 under the 45 s measure; browser reductions still serve busy-host timeout margin |
 | The profile check's time is dominated by repeated inspection | Slice 2 | Slice 1 attribution `test.trace` (paired by `callId`) | 991 trace steps; 18 `inspected()` card inspections (8 in the 4×2 mark loop); 2 viewport passes; mark step 4.394 s; portrait step 1.958 s of ~14.0 s list duration | Settled in slice 2 removal table: after change 552 steps, 6 `inspected()`, 3 mark-step inspections, 2 viewport passes; survivors and scratch faults recorded |
-| The pending-Take check's preparation is a large share | Slice 3 | Slice 1 attribution `test.trace` | Before Hooks 9.104 s; `origin` fixture 3.753 s (own); first `dashboard` fixture 4.744 s of which ~4.109 s is first-use versus profile's later `dashboard` 0.635 s; 663 trace steps; 2 reloads; compares list length 3 | None for starting slice 3 |
+| The pending-Take check's preparation is a large share | Slice 3 | Slice 1 attribution `test.trace` | Before Hooks 9.104 s; `origin` fixture 3.753 s (own); first `dashboard` fixture 4.744 s of which ~4.109 s is first-use versus profile's later `dashboard` 0.635 s; 663 trace steps; 2 reloads; compares list length 3 | Slice 3 kept real origin/dashboard boundaries; cut repeated waits/inspections (663→635 steps; list 21.7→9.2 s). Reloads 2 and compares length 3 retained |
 
 ## Slice 1 baseline (loaded; quiet owed)
 
@@ -147,24 +147,14 @@ widths are each observed where they can differ, without repeating an identical
 inspection for every card at every width.
 
 #### Slice 2 observations and removal table (status remains planned)
-`taken-agent-profile.spec.ts` only (helpers unchanged). Counts 991→552 steps, 18→6 `inspected()`; focused/selection/neighbors 3/3 — [proof/slice2-observations.md](./proof/slice2-observations.md).
-
-| Removed / merged inspection | Promise | Surviving observation | Scratch fault (reverted) |
-| --- | --- | --- | --- |
-| 4×2 mark loop: re-`expectMark` + `inspected` for every card at 1280 and 360 | 23; 5.6/5.7/22.3 marks and widths | This check: unique desktop marks on trunk/branch/modelless (covers trunk.svg, story-branch.svg, claude.png, codex.png, cursor.png); narrow rechecks only `branchStory` host+mode clearance without a new `inspected` | Scratch A: narrow host `expectMark` expected `claude.png` instead of `codex.png` → `toHaveAttribute` failed on branch scan mark (`slice2-scratch-A.log`) |
-| `lastInRotation` full mark proof at both widths (Story Branch + Claude already proved) | 23; 5.6 | This check: desktop uniqueMarks prove those assets; malformed step `owner-mark` count 3 on `lastInRotation` after its earlier detail open | Scratch B: skip `inspected(lastInRotation)` → count stays below 3 → `toHaveCount(3)` failed (`slice2-scratch-B.log`) |
-| Trailing mark-step re-`inspected(trunkStory)` + detail text repeat | 5.1/5.2/10.1 | This check: trunk detail text in the first Trunk Mode step (detail left open) | Covered by Scratch C path for unique desktop marks; trunk mode/detail text remains in step 1 |
-| Mark-loop inclusion of repeated Trunk Mode / Claude Code on every width for every card | 10.1/10.2/23 | This check: one desktop proof per distinct mode/host asset via `uniqueMarks` | Scratch C: modelless host expected `codex.png` instead of `cursor.png` → `toHaveAttribute` failed (`slice2-scratch-C.log`) |
-| Malformed step re-`inspected` for each of four recorded cards before mark counts | 5.5/10.1 | This check: counts alone after details already open; `inspected(older)` retained for zero marks | Scratch B above (detail-closed lastInRotation fails the count survivor) |
-| Branch / modelless detail steps re-calling `inspected` | 5.3/5.4/10.1 | This check: `detail(title)` text after mark step already opened those cards | Same open-detail dependency as Scratch B; text asserts remain |
-| Preparing scan/marks (already deferred in comment) | Preparing ≠ Taken owner | `backlog-preparing.spec.ts` host mark + preparing scan; this check still asserts Preparing + Kirara portrait and no owner/mode | Neighbor run passed; preparing ownership unchanged |
-
-Consumer-trace: local helpers only (`detail`/`inspected`); shared helpers unchanged.
+`taken-agent-profile.spec.ts` only (helpers unchanged). Counts 991→552 steps,
+18→6 `inspected()`; focused/selection/neighbors 3/3. Removal table and scratch
+faults — [proof/slice2-observations.md](./proof/slice2-observations.md).
 
 ### 3. Keep pending Take protection with less preparation and repetition
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: The pending-Take check and its sibling in
 `responsive-session-reconciliation.spec.ts` pass through `--grep` of that file
@@ -177,6 +167,11 @@ against slice 1.
 Behavior: Real accepted-launch facts arrive in the necessary order → protection
 ends only after the complete accepted snapshot and survives reload → the same
 sequence costs less of the check's own preparation and fewer repeated waits.
+
+#### Slice 3 observations and removal table (status remains planned)
+`responsive-session-reconciliation.spec.ts` only (helpers/fixtures unchanged).
+Counts 663→635; `expectProtected` 5→1; reloads 2; compares length 3 —
+[proof/slice3-observations.md](./proof/slice3-observations.md).
 
 ### 4. Verify the remaining selection against the 45-second promise
 Type: Behavior
@@ -213,10 +208,9 @@ recorded ratio with the owed check named.
 
 ## Concern evidence
 
-Slice-plan refinement was not needed: the four slices each hold one outcome and
-one proof loop. The former 30 s reachability stop is resolved by Terry's 45 s
-target; slices 2–4 proceed under that measure. No other slice-specific concern
-was identified in this review.
+Slice-plan refinement was not needed: four slices, one outcome and proof loop
+each. Former 30 s stop resolved by Terry's 45 s target; no other slice-specific
+concern in this review.
 
 ## Local gates
 

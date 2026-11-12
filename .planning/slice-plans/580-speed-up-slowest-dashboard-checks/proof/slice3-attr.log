@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › dashboard/tests/launches/responsive-session-reconciliation.spec.ts:54:1 › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works (9.2s)
+
+  1 passed (13.2s)
+real 13.63
+user 9.56
+sys 4.10

@@ -1,0 +1,27 @@
+FAIL: dashboard/tests/launches/responsive-session-reconciliation.spec.ts:54 › tests/launches/responsive-session-reconciliation.spec.ts › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works (failed)
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator:  getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Backlog', exact: true }).getByRole('article', { name: 'Story A' }).getByRole('button', { name: 'Inspect story' })
+    Expected: enabled
+    Received: disabled
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeEnabled" getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Backlog', exact: true }).getByRole('article', { name: 'Story A' }).getByRole('button', { name: 'Inspect story' }) with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Backlog', exact: true }).getByRole('article', { name: 'Story A' }).getByRole('button', { name: 'Inspect story' })[22m
+    [2m    14 × locator resolved to <button type="button" aria-expanded="false" aria-describedby="_r_5_" aria-controls="story-detail-SEED-A-a" class="inspect-story frame-disclosure-button">…</button>[22m
+    [2m       - unexpected value "disabled"[22m
+
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/launches/responsive-session-reconciliation.spec.ts:112:70
+    at dashboard/tests/launches/responsive-session-reconciliation.spec.ts:112
+      110 |   );
+      111 |   await expect(story).toContainText(waiting);
+    > 112 |   await expect(story.getByRole("button", { name: "Inspect story" })).toBeEnabled();
+          |                                                                      ^
+      113 |   await expect(takenStory).toHaveCount(0);
+      114 |
+      115 |   // An unrelated revision is not the published Take; a comparison that
+  error-context: dashboard/test-results/2026-11-12T04-40-09.808Z-56556/tests-launches-responsive--e92c7-ons-while-the-session-works-chromium/error-context.md
+  trace: dashboard/test-results/2026-11-12T04-40-09.808Z-56556/tests-launches-responsive--e92c7-ons-while-the-session-works-chromium/trace.zip
+
+Kept: dashboard/test-results/2026-11-12T04-40-09.808Z-56556

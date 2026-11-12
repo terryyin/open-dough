@@ -1,0 +1,10 @@
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium] › dashboard/tests/launches/responsive-session-reconciliation.spec.ts:54:1 › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works (8.5s)
+  ✓  2 [chromium] › dashboard/tests/launches/responsive-session-reconciliation.spec.ts:193:1 › a refinement's announcement, read before its session settles, keeps the story protected until it does, then holds Starts for the open session while it works (3.3s)
+
+  2 passed (16.0s)
+real 16.48
+user 11.50
+sys 5.19

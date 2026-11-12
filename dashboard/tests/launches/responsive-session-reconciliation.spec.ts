@@ -9,17 +9,16 @@
 // published column and facts show as read. The session goes on working. Once
 // reconciled, a reload reconciles it again without asking GitHub.
 
+import type { Locator } from "@playwright/test";
 import { attempts } from "../agentLaunchBoundary.ts";
 import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
 } from "../autoRefreshJourney.ts";
-import {
-  reloadUntilRead,
-  untilPageRequestsAnswered,
-} from "../pageRequestNotes.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
+import { parts, storyCardSessions } from "../dashboardPage.ts";
+import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import { expect } from "../dashboardTest.ts";
 import {
@@ -43,6 +42,15 @@ test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
 const waiting = "Waiting for published story state";
 
+// After one full expectProtected, later protection states only recheck that
+// Taken actions stay unavailable — source-link detail was already observed.
+async function expectActionsUnavailable(card: Locator) {
+  await expect(card.getByRole("button", { disabled: false })).toHaveCount(1);
+  await expect(
+    card.getByRole("button", { name: "Inspect story" }),
+  ).toBeDisabled();
+}
+
 test("a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works", async ({
   page,
   dashboard,
@@ -52,7 +60,21 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await pausePageClock(page);
-  const { published, story, takenStory } = await openStories(page, origin);
+  // This journey never uses Story B; skip waiting for it after the board loads.
+  const published = await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: before,
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  await openUntilRead(page);
+  const { backlog, taken } = parts(page);
+  const story = backlog.getByRole("article", { name: "Story A" });
+  const takenStory = taken.getByRole("article", {
+    name: "Story A",
+    exact: true,
+  });
+  await expect(story).toBeVisible();
 
   await story.getByRole("button", { name: "Start execution" }).click();
   await page
@@ -63,11 +85,14 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
 
   // A check asked before the Take is published, and the fresh read the
   // start's settling asks, answer only after it settles, with the revision
-  // before it.
+  // before it. Release the held Claude with the push so launch settles while
+  // publication is observed, and release the held tip so the stale read can
+  // finish while the session appears — instead of waiting for each in turn.
   published.answerWith("main", commitAnswer(before));
   const releaseRef = published.hold("main");
   await passTimeUntilAsked(page);
   push.release();
+  dashboard.releaseHeldClaude();
   await expect
     .poll(async () => (await attempts(dashboard))[0]?.publication, {
       timeout: 30_000,
@@ -78,18 +103,11 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     kind: "published",
     revision: accepted,
   });
-  dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
-  await expect(story).toContainText(waiting);
-  await expectProtected(story);
-
-  // The held reads answer with the revision before the Take. Every read they
-  // lead to is answered before `main` moves, so none lands late.
   releaseRef();
+  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
   );
-  await untilPageRequestsAnswered(page);
   await expect(story).toContainText(waiting);
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);
@@ -103,15 +121,17 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(
     `The local GitHub CLI could not reach GitHub while reading whether ${unrelated} contains ${accepted}.`,
   );
-  await expectProtected(story);
+  await expectActionsUnavailable(story);
   restoreCompare();
+  // Tip is still the unrelated revision; only a reload forces the compare
+  // again once the failure answer is restored.
   await reloadUntilRead(page);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${unrelated.slice(0, 7)}`,
   );
   await expect(story).not.toContainText("could not reach GitHub");
   await expect(story).toContainText(waiting);
-  await expectProtected(story);
+  await expectActionsUnavailable(story);
 
   // The accepted revision moves the story to Taken; its actions wait for
   // every fact of the snapshot.
@@ -126,14 +146,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     takenStory.locator(".story-card-owner .owner-line"),
   ).toContainText("Claude Code");
   await expect(takenStory).toContainText(waiting);
-  await expectProtected(takenStory);
+  await expectActionsUnavailable(takenStory);
   releaseSeed();
   await expect(takenStory).not.toContainText(waiting);
-  await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
-    0,
-  );
-  await expect(takenStory.locator(".story-card-owner")).toBeVisible();
-  await expect(storyCardSessions(takenStory)).toHaveCount(1);
   await expect(
     takenStory.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
@@ -145,9 +160,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${descendant.slice(0, 7)}`,
   );
-  await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
-    0,
-  );
+  await expect(
+    takenStory.getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
   const compares = [
     `${accepted}...${before}`,
     `${accepted}...${unrelated}`,
@@ -166,9 +181,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     `Published work read at revision ${descendant.slice(0, 7)}`,
   );
   await expect(storyCardSessions(takenStory)).toHaveCount(1);
-  await expect(takenStory.getByRole("button", { disabled: true })).toHaveCount(
-    0,
-  );
+  await expect(
+    takenStory.getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
   await expect(takenStory).not.toContainText(waiting);
   await expect(recoveryOf(page)).toHaveCount(0);
   expect(published.compares).toEqual(compares);
