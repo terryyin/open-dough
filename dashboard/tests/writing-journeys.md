@@ -146,6 +146,18 @@ stalled addition read delays only its own profile's clock and human is
 `observation/profile-addition-latency.spec.ts`; the roster itself is
 `stories/agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
 
+## Terminal screen and modality owners
+
+Ordinary Terminal screen, identity, keyboard insert/typeLine and recovery live
+in `terminalScreenPage.ts`. `typeLine` types then Enter; `insertTerminalText`
+never submits. Fluent `terminalPages.ts` reuses that owner as a thin adapter.
+Touch keys/fit/compose, paused selection, paste and voice keep their own
+owners (`touchTerminalPage.ts`, `terminalSelectPage.ts`, `terminalPastePage.ts`,
+`support/terminalVoicePage.ts`) and must not import voice into the screen
+module. Prefer `.xterm-screen` via `terminalScreenParts` for the xterm surface;
+`.terminal-screen` is the paused overlay host. Caller facts (exact bytes,
+holds/releases, native attach, modality) stay at the call site.
+
 ## Fluent phases in the Side panel content journeys
 
 Three Side panel content journeys across two specs are written as phases over
