@@ -1,4 +1,0 @@
-=== slice4-B1 load-before 2026-11-12T04:54:05Z ===
-12:54  up 3 days,  5:51, 4 users, load averages: 10.54 9.07 9.27
-12:54  up 3 days,  5:51, 4 users, load averages: 10.54 9.07 9.27
-12:54  up 3 days,  5:51, 4 users, load averages: 10.54 9.07 9.27

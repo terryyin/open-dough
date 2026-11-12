@@ -97,7 +97,7 @@ wait. Under machine load, judge the before and after relative to each other.
 
 #### Provenance and evidence
 
-Extracted by Terry's instruction from [SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks),
+Extracted by Terry's instruction from SEED-303#speed-up-slowest-dashboard-checks,
 with the [slice mapping](../evidence/SEED-303-early-handoff/README.md).
 Use [comparable-baseline.md](../evidence/SEED-303-early-handoff/comparable-baseline.md) and
 [proof-context.md](../evidence/SEED-303-early-handoff/proof-context.md) as retained evidence, not a new baseline.

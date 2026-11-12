@@ -81,7 +81,7 @@ exercise.
 #### Provenance and evidence
 
 Extracted by Terry's instruction from
-[SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks),
+SEED-303#speed-up-slowest-dashboard-checks,
 with the [slice mapping](../evidence/SEED-303-early-handoff/README.md).
 Use [cursor-repair-evidence.md](../evidence/SEED-303-early-handoff/cursor-repair-evidence.md),
 [comparable-baseline.md](../evidence/SEED-303-early-handoff/comparable-baseline.md)

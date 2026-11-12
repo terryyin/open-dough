@@ -1,7 +1,0 @@
-samples=13
-first=(6.72, 7.11, 8.66)
-last=(16.69, 9.55, 9.44)
-one_min_min=6.66
-one_min_max=17.45
-quiet_gate=False
-decision=busy-alternating-ratio

@@ -1,9 +1,0 @@
-=== trace before 2026-11-12T03:40:11Z ===
-11:40  up 3 days,  4:37, 4 users, load averages: 42.07 49.01 49.51
-11:40  up 3 days,  4:37, 4 users, load averages: 39.24 48.17 49.21
-11:40  up 3 days,  4:37, 4 users, load averages: 35.81 47.13 48.83
-11:40  up 3 days,  4:37, 4 users, load averages: 37.99 47.25 48.85
-11:40  up 3 days,  4:37, 4 users, load averages: 38.58 47.08 48.77
-11:41  up 3 days,  4:37, 4 users, load averages: 35.37 46.11 48.41
-=== trace before end 2026-11-12T03:41:12Z ===
-11:41  up 3 days,  4:38, 4 users, load averages: 33.99 45.45 48.14

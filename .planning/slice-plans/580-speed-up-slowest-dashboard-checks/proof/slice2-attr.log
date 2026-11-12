@@ -1,9 +1,0 @@
-
-Running 1 test using 1 worker
-
-  ✓  1 [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable (8.5s)
-
-  1 passed (17.0s)
-real 17.83
-user 13.27
-sys 3.22

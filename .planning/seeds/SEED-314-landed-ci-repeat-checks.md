@@ -205,7 +205,7 @@ three observations of each and also counts journeys.
 
 #### Provenance and evidence
 
-Extracted by Terry's instruction from [SEED-303](SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks),
+Extracted by Terry's instruction from SEED-303#speed-up-slowest-dashboard-checks,
 with the [slice mapping](../evidence/SEED-303-early-handoff/README.md).
 Use [repeat-wait-evidence.md](../evidence/SEED-303-early-handoff/repeat-wait-evidence.md) and
 [comparable-baseline.md](../evidence/SEED-303-early-handoff/comparable-baseline.md) as retained evidence, not a new baseline.

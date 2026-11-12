@@ -1,4 +1,0 @@
-one_min_min=21.18
-one_min_max=25.62
-quiet_gate=False
-last=(21.89, 16.67, 12.57)

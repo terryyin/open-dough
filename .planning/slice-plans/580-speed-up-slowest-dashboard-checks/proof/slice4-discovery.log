@@ -1,8 +1,0 @@
-Listing tests:
-  [chromium] › backend-tests/runtime/production-deployment.spec.ts:61:1 › deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries
-  [chromium] › tests/launches/responsive-session-reconciliation.spec.ts:54:1 › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works
-  [chromium] › tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable
-Total: 3 tests in 3 files
-real 5.57
-user 2.96
-sys 0.64
