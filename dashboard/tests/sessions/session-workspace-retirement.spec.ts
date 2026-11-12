@@ -1,3 +1,5 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Outside-in review through the real store, HTTP/native boundary and browser.
 import { existsSync, readFileSync } from "node:fs";
 import { test, expect, stored } from "../support/codexLaunch.ts";
@@ -41,7 +43,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(
     entry.getByRole("button", { name: "Open terminal" }),
   ).toHaveCount(0);
-  const open = entry.getByRole("button", { name: "Read final report" });
+  const open = readFinalReportControl(entry, { exact: false });
   // The fixture's launch protects the story's card until a published read
   // after its outcome reconciles it.
   await expect(open).toBeEnabled();
@@ -72,9 +74,9 @@ test("card, Recently done and sidebar review the retained report with attention,
   const local = parts(page)
     .taken.locator(".session-entry")
     .filter({ hasText: native.threadId });
-  await local.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(local, { exact: false }).click();
   await expect(panel.locator(".final-report-text")).toHaveText(report);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(
     local.getByRole("button", { name: "Read final report" }),
   ).toBeFocused();
@@ -96,7 +98,7 @@ test("card, Recently done and sidebar review the retained report with attention,
   await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(sideOpen).toHaveAttribute("aria-current", "true");
   await expect(entry).toContainText("Ready for review");
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(sideOpen).toBeFocused();
   await reloadUntilRead(page);
   await expect(entry).toContainText("Ready for review");
@@ -147,7 +149,7 @@ test("changing or closing selection cancels a held report and never shows its te
   const second = entries.filter({
     has: page.locator('code:text-is("next-retained-session")'),
   });
-  await first.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(first, { exact: false }).click();
   await fetchedAnswer;
   const protocol = native;
   protocol.threadId = next.session.sessionId;
@@ -168,7 +170,7 @@ test("changing or closing selection cancels a held report and never shows its te
     status: { type: "notLoaded" },
     turns: [{ id: "next-turn", status: "completed" }],
   });
-  await second.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(second, { exact: false }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel.locator(".side-panel-names p")).toHaveText(
     "Refinement session",
@@ -182,7 +184,7 @@ test("changing or closing selection cancels a held report and never shows its te
     "Second conversation's own result",
   );
   await expect(panel).not.toContainText("a5df85d90a");
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(
     second.getByRole("button", { name: "Read final report" }),
   ).toBeFocused();

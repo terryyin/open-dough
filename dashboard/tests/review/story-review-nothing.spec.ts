@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
@@ -174,7 +175,7 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   ).toHaveCount(0);
 
   // A later opening reads the same gap.
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   expect(await reviewAfter(page, open)).toMatchObject({
     kind: "landing-unavailable",
     selectedRun: reference,

@@ -1,3 +1,4 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
@@ -170,7 +171,7 @@ test("installed attention report stays open, durable and readable through column
     );
     keepFinalReport(native, workspace, nativeReport);
     // The final report is Codex's own; the message stays on the entry.
-    await claimed.getByRole("button", { name: "Read final report" }).click();
+    await readFinalReportControl(claimed, { exact: false }).click();
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".final-report-text")).toHaveText(nativeReport);
     await expect(panel).not.toContainText("Reminder: inspect the migration");
@@ -211,7 +212,7 @@ test("installed attention report stays open, durable and readable through column
     await expect(heading).toHaveAttribute("aria-expanded", "false");
     await heading.click();
     await expect(messagePartOf(recent).text).toHaveText(text);
-    await recent.getByRole("button", { name: "Read final report" }).click();
+    await readFinalReportControl(recent, { exact: false }).click();
     await expect(panel.locator(".final-report-text")).toHaveText(nativeReport);
     expect(
       nativeSince(nativeBeforeDone, [...steering, "thread/resume"]),

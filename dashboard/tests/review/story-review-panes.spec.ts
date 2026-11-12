@@ -1,3 +1,4 @@
+import { maximizeSidePanel, restoreSidePanel } from "../sidePanelFrame.ts";
 // A large story's review, of Story A's worktree changing more files than the
 // file browser holds and files longer than the diff shows
 // (../support/storyReviewWorktree.ts). Beneath the review's fixed top the
@@ -10,15 +11,15 @@
 // the browser sits above the diff with a bounded share of the height, and
 // Hide files gives the diff the whole work area.
 
+import { reviewRefresh } from "../support/reviewControls.ts";
 import { treeFolder } from "../support/reviewTreeRows.ts";
 import { narrowWindow } from "../accessibleReading.ts";
-import {
-  box,
-  expectTopBarsShareHeight,
-  pressWhereShown,
-} from "../pageLayout.ts";
+import { box, expectTopBarsShareHeight } from "../pageLayout.ts";
 import { control, dragDivider, expectWidth } from "../sidePanelWidthPage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import {
   contextLine,
   reviewBody,
@@ -130,7 +131,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   };
 
   await test.step("Refresh keeps the browser's place, its collapsed folder, and the diff's place", async () => {
-    await control(review, "Refresh").click();
+    await reviewRefresh(review, { exact: true }).click();
     await expectReviewRead(review);
     await expect(reviewFeedback(review)).toHaveText(
       /^Review refreshed: 63 changed files against baseline [0-9a-f]{7}\.$/,
@@ -140,10 +141,10 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   });
 
   await test.step("Maximize and Restore keep the selection and both panes' places", async () => {
-    await pressWhereShown(control(review, "Maximize"));
+    await maximizeSidePanel(review);
     await expect(control(review, "Restore")).toBeVisible();
     await expectPanesKept();
-    await pressWhereShown(control(review, "Restore"));
+    await restoreSidePanel(review);
     await expect(control(review, "Maximize")).toBeVisible();
     await expectPanesKept();
   });

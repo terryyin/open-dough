@@ -1,3 +1,4 @@
+import { finalReportText, readReportUntilText } from "../finalReportPages.ts";
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
@@ -215,21 +216,10 @@ for (const closure of [
         await expect(recent.locator(".session-attention-message")).toHaveCount(
           0,
         );
-        // Quiet completion has no explicit text; the native final report remains independently readable.
         keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
-        const openReport = recent.getByRole("button", {
-          name: "Read final report",
-        });
-        const reportText = page
-          .getByRole("region", { name: "Final report" })
-          .locator(".final-report-text");
-        // Wait for the panel's report text as the open's observable; retry the
-        // control when a concurrent Board refresh drops a single click.
-        await expect(async () => {
-          if ((await reportText.count()) === 0) await openReport.click();
-          await expect(reportText).toHaveText("Done.");
-        }).toPass();
+        const reportText = finalReportText(page);
+        await readReportUntilText(recent, reportText, "Done.");
         expect(
           native.calls
             .slice(beforeRead)

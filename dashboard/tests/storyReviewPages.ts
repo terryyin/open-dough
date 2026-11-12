@@ -11,7 +11,7 @@ import {
   fileDiff,
 } from "./support/reviewTreeRows.ts";
 import { PageObject } from "./fluentPageObject.ts";
-import { control } from "./sidePanelWidthPage.ts";
+import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
@@ -129,7 +129,7 @@ export class StoryReview extends PageObject {
   close() {
     return this.cue(
       "Story review: Close",
-      () => control(this.#review, "Close").click(),
+      () => closeSidePanel(this.#review),
       this.sidePanel,
     );
   }

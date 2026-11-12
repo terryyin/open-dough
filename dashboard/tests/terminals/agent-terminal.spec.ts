@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A session launched from this dashboard opens in the page's one terminal,
 // on the committed origin from ../launchJourney.ts:
 // a card's session entry or a standalone Taken entry offers Open terminal, the page
@@ -188,7 +189,7 @@ test.describe("the terminal beside the page", () => {
       await showColumn(page, "Backlog");
       await openIn(cardEntries(notRefinedStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(panel).toHaveCount(0);
       // The card still lists the session, so its entry's Open terminal, not
       // another entry, has the keyboard.

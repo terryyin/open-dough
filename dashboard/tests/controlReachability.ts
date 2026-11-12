@@ -1,5 +1,6 @@
 // Browser observations for reachable controls; native scrolling and taps stay real.
 import { expect, type Locator } from "@playwright/test";
+import { box } from "./partArrangement.ts";
 
 // How the page names what a touch point holds when it is the control itself,
 // and where the page keeps what the last native touch landed on until read.
@@ -170,4 +171,12 @@ export async function expectEveryControlReachable(area: Locator) {
   expect(
     await area.evaluate(clipped, { within: "area", controls } as const),
   ).toEqual([]);
+}
+
+// Presses the control with the mouse where it shows. Locator.click() would
+// first scroll the window to bring a pinned control into view, which a
+// developer's click never does, moving the page a journey compares.
+export async function pressWhereShown(control: Locator) {
+  const { x, y, width, height } = await box(control);
+  await control.page().mouse.click(x + width / 2, y + height / 2);
 }

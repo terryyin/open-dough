@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Intent's comparison for a story with a review mark: Intent shows all
 // changes, including uncommitted ones, and its Review changes link opens
 // Review changes on that same comparison, with the files Intent counted and
@@ -38,9 +39,7 @@ async function expectIntentFiles(page: Page) {
 }
 
 const closeReview = async (page: Page) => {
-  await reviewRegion(page)
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await closeSidePanel(reviewRegion(page));
   await expect(reviewRegion(page)).toHaveCount(0);
 };
 

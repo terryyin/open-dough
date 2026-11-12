@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Sessions a replaced runner held: observation of a stale-proof runner
 // starts or replaces nothing, a third launch replaces it when recorded
 // build proof differs, and unfinished sessions that runner last held are
@@ -5,17 +6,20 @@
 // Recover click. Same-build helper-proof survival lives in
 // ./cursor-runner-helper-survival.spec.ts. Done / never-held / fail
 // controls live in ./cursor-runner-replacement-controls.spec.ts.
-import type { Page } from "@playwright/test";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   holdSession,
   openRunningList,
-  showPage,
+  showPageWithTaken,
 } from "../runningCursorSessionsPage.ts";
 import {
   expectContinuationThroughScope,
@@ -39,22 +43,12 @@ import {
 import { expect, test, workingCursorTest } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
-
-// The page also lists the held session as the project's local Taken entry.
-async function showHeldSessionPage(
-  page: Page,
-  origin: StartOrigin,
-): Promise<void> {
-  await showPage(page, origin);
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
-}
 
 workingCursorTest(
   "a stale-proof runner is read and joined for its held session, and observation starts or replaces nothing",
   async ({ page, dashboard, origin, cursor }) => {
     const pid = await holdSession(dashboard, cursor);
-    await showHeldSessionPage(page, origin);
+    await showPageWithTaken(page, origin);
     const runnerPid = readCursorRunnerAddress(dashboard.home)?.pid;
     expect(runnerPid).toBeGreaterThan(0);
     const calls = cursor.calls().length;
@@ -131,11 +125,11 @@ replacementTest(
     await expect(scopedEntry.getByText("First input accepted")).toBeVisible();
     await scopedEntry.getByRole("button", { name: "Session details" }).click();
     const panel = terminalPanel(page);
-    await scopedEntry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(scopedEntry, { exact: false }).click();
     await expect(terminalScreenParts(panel).rows).toContainText(
       "Add a follow-up",
     );
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(panel);
     await expect(panel).toHaveCount(0);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(stalePid);
     expect(agentCalls(cursor)).toEqual(callsBefore);
@@ -168,7 +162,7 @@ replacementTest(
       )
       .toBe(1);
     if ((await panel.count()) > 0) {
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeSidePanel(panel);
       await expect(panel).toHaveCount(0);
     }
     const replacement = readCursorRunnerAddress(dashboard.home);

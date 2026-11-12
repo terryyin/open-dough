@@ -9,8 +9,12 @@
 import { parts } from "./dashboardParts.ts";
 import { expectFrameIconControl } from "./frameIconControl.ts";
 import { PageObject } from "./fluentPageObject.ts";
-import { expectFills, pressWhereShown, type Room } from "./pageLayout.ts";
-import { control } from "./sidePanelWidthPage.ts";
+import { expectFills, type Room } from "./pageLayout.ts";
+import {
+  control,
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { sidePanelContents } from "./support/sidePanelContents.ts";
 
@@ -32,13 +36,13 @@ export class SidePanel extends PageObject {
   // Presses Maximize with the mouse where it shows.
   maximize() {
     return this.#frame("Maximize", () =>
-      pressWhereShown(this.#control("Maximize")),
+      maximizeSidePanel(sidePanelContents(this.page)),
     );
   }
 
   restore() {
     return this.#frame("Restore", () =>
-      pressWhereShown(this.#control("Restore")),
+      restoreSidePanel(sidePanelContents(this.page)),
     );
   }
 

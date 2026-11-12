@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A claimed Story Branch Mode launch's landed integration in the story review
 // (../../STORY-REVIEW-LANDED-RUNS.md): the real installed start, the installed
 // `history-preserving-publication.mjs integrate` and `worktree-retirement.mjs`
@@ -106,7 +107,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     review.getByRole("heading", { name: "Landed run", exact: true }),
   ).toBeVisible();
   await expect(review).toContainText(accepted);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
 
   // Wrap-up retires the worktree and both branches once trunk holds the work.
   retireLaunchWorkspace(start, origin, accepted, start.branch);

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { filesColumn } from "../intentModePage.ts";
 import { sourceRevision } from "../intentCodeBrowsePage.ts";
@@ -136,7 +137,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   expect(await reviewDiff(page, modified)).toBe(original);
   expect(await reviewDiff(page, renamed)).toBe(originalRename);
   const review = reviewRegion(page);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(
     storySummary(intent).getByRole("button", {
       name: /outside Intent locations/,

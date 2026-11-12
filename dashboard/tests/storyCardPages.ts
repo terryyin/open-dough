@@ -1,3 +1,5 @@
+import { readFinalReportControl } from "./finalReportPages.ts";
+import { openTerminalControl } from "./terminalScreenPage.ts";
 // The Board and its Story cards as fluent page objects for the Side panel
 // journeys (./sidePanelPages.ts): what a reader does on a card, which Side
 // panel content that opens, taken from the phase's page-object set, and how
@@ -91,9 +93,9 @@ export class StoryCard extends PageObject {
     return this.cue(
       `${this.#named}: Read final report`,
       () =>
-        storyCardSessions(this.#card)
-          .getByRole("button", { name: "Read final report" })
-          .click(),
+        readFinalReportControl(storyCardSessions(this.#card), {
+          exact: false,
+        }).click(),
       this.pages.finalReport,
     );
   }
@@ -103,9 +105,9 @@ export class StoryCard extends PageObject {
     return this.cue(
       `${this.#named}: Open terminal`,
       () =>
-        storyCardSessions(this.#card)
-          .getByRole("button", { name: "Open terminal" })
-          .click(),
+        openTerminalControl(storyCardSessions(this.#card), {
+          exact: false,
+        }).click(),
       this.pages.terminal,
     );
   }

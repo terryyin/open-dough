@@ -7,6 +7,7 @@
 
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import {
+  openTerminalControl,
   closeTerminal,
   terminalPanel,
   terminalScreenParts,
@@ -112,7 +113,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
 
   await test.step("Open terminal reopens it into the sidebar, and a reload keeps it there", async () => {
     await showColumn(page, "Recently done");
-    await recent.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(recent, { exact: false }).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(entries).toHaveCount(1);
     await expect(recent).toHaveCount(0);

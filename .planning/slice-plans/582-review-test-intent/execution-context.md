@@ -6,16 +6,16 @@ on `codex/express-review-and-side-panel-test-intent-throug`; starting revision
 `70021438b`, publisher `dashboard-territory.local-open-dough`, agent DavidKo-chan; remote/trunk `origin/main`.
 `npm ci` and `npm run typecheck:dashboard` passed against the current lockfile.
 No new numeric slice limit or replanning override was supplied; preserve planned authority.
-CI: GitHub Actions `ci.yml` (CI), `terryyin/open-dough` story branch; coordinator `seed300-review`, directory `/tmp/dough-ci-501/watch-7aTPQn`,
+Initial CI: GitHub Actions `ci.yml` (CI), `terryyin/open-dough` story branch; coordinator `seed300-review`, directory `/tmp/dough-ci-501/watch-7aTPQn`,
 pid72745, stream5814, yielded cell `g63:9`; claim trunk CI is unobserved.
 Host/power and proof decisions are retained in [slice evidence](slice-evidence.md).
 
 
-Latest accepted increment: `dec6294f22a582e7ec4801749a4e576b380af17a` on the remote story branch; suffix base `2d09261f65209cb7c6c719f170b5fe8f383ea7eb`.
-Pinned trunk at slice4 settlement: `04993551b93d144e1ec5378b9ffe75bcb85a754c`; no new product/test change since8aa.
+Latest accepted increment: `68638e11fed68a82e2fe1671b42ce7e6f3c5f49a` on the remote story branch; suffix base `dec6294f22a582e7ec4801749a4e576b380af17a`.
+Pinned trunk at slice4 acceptance: `d64125223089f3b207ba0e81618ee776d639f55b`, incorporated through mergebcfacd6be.
 Owned linked checkout was supplied by established start; no new claim/worktree was made.
 Optional default checkout: `/Users/terryyin/git/open-dough`; preserve its local work under maintained refresh rules.
-Current branch config is fixed for the observer; incoming trunk convention flags are reviewed for compatibility.
+Current branch config is fixed for the observer; trunk convention flags are incorporated and selected conventions applied.
 
 ## Resource stop and recovery
 
@@ -103,3 +103,38 @@ page objects for implicated dashboard spec paths; both conventions read.
 CI runtime canonicalizes to this checkout, ci.yml remains active. New stream:
 seed300-review-resume2, /tmp/dough-ci-501/watch-XtjPfZ,PID30977,session39103,
 yielded cellg128:23. Config is fixed for this observer's lifetime.
+
+Slice4 delivery accepted68638e11fe, originalcandidate=same, push target retained
+story branch, suffixbasedec6294f22, no reconciliation, existing observer reused.
+Guarded formatter/hook passed; two retained-record whitespace defects repaired
+before commit without source/proof change. Slice4done, G1–G4proved,57current
+cases strictpassed. Fresh /root/slice5 owns remaining source/proof; coordinator
+keeps records/delivery/CI. Worktree was clean at its delegation.
+
+## Slice5 trunk reconciliation
+
+Incoming3fc68398 contains accepted SEED329 shared guidance and SEED330 default
+CI-follow-up plus30f2ef263's gh process-lifetime repair. The selected plan's only
+amendment was the pilot document rename. Restoring the original location of our
+uncommitted PFE paragraph changed the bookkeeping overlap to a clean amendment;
+installed absorb applied the new link and freshness is unchanged. No promise
+or source-review allocation changed. Completed contracts are retained verbatim
+in delivered-slice-contracts.md; PLAN owns current statuses and obligations.
+
+The observer was stopped before incorporating configuration changes: resume2
+/tmp/dough-ci-501/watch-XtjPfZ, no unread events, pendingCi unobserved, PID30977
+absent and cellg128:23 finished. Every76WIP path was backed up and hashed in
+/tmp/seed300-review-582-pre-main-wip-backup.json. Only coordinator-owned PLAN was
+temporarily restored for the installed backlog merge; all other75paths kept
+identical hashes, then the amended PLAN was restored exactly.
+
+Merge76413cc9570987c1d48dda653e574672a8f4e7f5 accepted3fc68398, hook passed;
+lockfile unchanged. New AGENTS guidance delegates conventions to selected shared
+rules, which remain applied:60changed specs select both; helper consumers govern
+their rules. Later main8f09ccc2 changes only scheduled MakeMe guard/test/records,
+with no relevant product or test-harness behavior. Source freshness unchanged.
+
+Current owned CI stream:seed300-review-resume3,/tmp/dough-ci-501/watch-DNlqZ6,
+PID29100,session29232,cellg128:123. Same ci.yml selector/repository/target and
+checkout runtime; configuration fixed for this observer lifetime. Latest accepted
+story increment remains68638e11fe; merge is local and unpublished.

@@ -1,3 +1,8 @@
+import {
+  closeSidePanel,
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "../sidePanelFrame.ts";
 // The touch review journey that keeps its context: the chosen file and both
 // panes' reading places through rotation and panel controls, on story A's
 // comparison opened by touch (./storyReviewTouchJourney.ts), which also says
@@ -94,10 +99,10 @@ export async function keepReviewContextThroughTouch(
     expect(await pageFits(page)).toBe(true);
     if (viewport.width <= 800) await expectCovering(review);
     else {
-      await tapWhereShown(control(review, "Maximize"));
+      await maximizeSidePanel(review, "touch");
       await expect(control(review, "Restore")).toBeVisible();
       await expectKept(opened, chosen);
-      await tapWhereShown(control(review, "Restore"));
+      await restoreSidePanel(review, "touch");
       await expect(control(review, "Maximize")).toBeVisible();
       await expectKept(opened, chosen);
     }
@@ -173,7 +178,7 @@ async function keepReviewContextThroughPanelControls(
     portrait,
     changedFiles - 1,
   );
-  await tapWhereShown(control(review, "Close"));
+  await closeSidePanel(review, { using: "touch" });
   await expect(review).toHaveCount(0);
   await expect(action).toBeFocused();
   expect(await pageFits(page)).toBe(true);

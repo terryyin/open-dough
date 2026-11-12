@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { fileBrowser } from "../support/reviewContextLine.ts";
 import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion, comparisonChoice } from "../support/storyReviewMark.ts";
@@ -56,7 +57,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
   await expect(fileBrowser(review)).toBeVisible();
   advanceCompletedTrunk(origin);
   expect(await refreshReview(page, review)).toEqual(first);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   expect(await readReview(page, card)).toEqual(first);
   await listedFile(review, "Added [literal]*.txt", { exact: true }).click();
   await expect(

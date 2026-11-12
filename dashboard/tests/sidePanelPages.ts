@@ -24,7 +24,8 @@ import {
   dragDivider,
   expectDividerSays,
   expectWidth,
-  panelDivider,
+  focusDivider,
+  pressDividerKey,
 } from "./sidePanelWidthPage.ts";
 import { type CueSheet, phase } from "./support/cueSheet.ts";
 import { expect } from "./support/preparationPage.ts";
@@ -92,8 +93,8 @@ export class PanelDivider extends PageObject {
   // Presses `key` with the keyboard on the divider.
   press(key: string) {
     return this.cueHere(`Panel divider: press ${key}`, async () => {
-      await panelDivider(this.page).focus();
-      await this.page.keyboard.press(key);
+      await focusDivider(this.page);
+      await pressDividerKey(this.page, key);
     });
   }
 

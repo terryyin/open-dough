@@ -79,70 +79,26 @@ restores required proof for the following Behavior; each slice leaves working te
 ### 1. Restore complete review handoff proof within the default case budget
 Type: Structure
 Status: done
-Proof: Retain every assertion in both `side-panel-content-replacement` cases;
-repeat them twice under the default timeout, then typecheck and run affected
-Claude/native fixture consumers found by the consumer trace. P2 is the bounded
-candidate evidence, not a substitute for verification of the delivered diff.
-
-Change: Reuse/modularize the existing immutable preview preparation in the common
-worker pool for queued Codex readers. Keep private origins, native protocol,
-server lifecycle and all causal user work in their existing fixtures/cases.
-The whole run still accounts for the preparation. This repairs P0 and enables
-slice2's full fluent/procedural compatibility gate. Do not cherry-pick an entire
-stopped worktree or change its files/ownership; reuse only the justified seam.
-No active exact repair owner was established: SEED-287's retained evidence
-records a user-directed stop, and SEED-324 names different landed-CI checks.
+Original contract and proof: [delivered slice 1](delivered-slice-contracts.md#slice-1).
 
 ### 2. Read review entry and comparisons through shared controls
 Type: Behavior
 Status: done
-Proof: Entire affected review cohort plus procedural/fluent entry consumers;
-independent expected names, revisions, files/diffs and request evidence remain.
-
-Behavior: A developer reads branch/trunk/completed/one-shot and Intent-entry
-cases → follows named entry/comparison operations → the chosen story, baseline
-or run and expected comparison are explicit, with one Review changes owner.
-Retain exact accessible-name/glyph/Tab proof in `story-review-action.spec.ts`.
-Sweep current callers, not the historical count: include completed Intent and
-review-mode cases, `navigation/board-scroll`, `support/launchLandingReview` and
-helpers that open review indirectly. Disposition each affected caller.
-
-Starting gate: `caffeinate -s -i npm run test:dashboard -- /tests/review/ tests/intent/intent-story-review-return.spec.ts tests/intent/intent-done-review-modes.spec.ts tests/intent/intent-done-landed-review-mode.spec.ts tests/navigation/board-scroll.spec.ts tests/navigation/side-panel-content-replacement.spec.ts tests/navigation/side-panel-content-switching.spec.ts --workers=1`.
-Add transitive consumers identified by the delivered effect.
+Original contract and proof: [delivered slice 2](delivered-slice-contracts.md#slice-2).
 
 ### 3. Read tree, file and diff retention without local selector plumbing
 Type: Behavior
 Status: done
-Proof: Caller-supplied tree order, changed-file counts, selected row, diff text,
-line numbers, focus/scroll and independent accessibility/geometry checks remain.
-
-Behavior: A developer reads file/context/retention cases → follows shared tree,
-pane and reading operations → the source exposes what is selected and readable
-before and after pointer, keyboard or touch input. Keep pane-specific scrolling,
-context expansion and visible-line measurements distinct. Extend suitable
-owners; do not hide the user protocol in a single generic journey operation.
-
-Starting gate: `caffeinate -s -i npm run test:dashboard -- '/tests/review/story-review-(tree|panes|diff-context|touch|line-counts)' --workers=1`.
-Include consuming entry/comparison and one-shot-race cases when their owner changes.
+Original contract and proof: [delivered slice 3](delivered-slice-contracts.md#slice-3).
 
 ### 4. Keep freshness and held-answer causality visible
 Type: Behavior
 Status: done
-Proof: Refresh/commit/uncommitted-check cases preserve old/new snapshot and file
-facts, selected comparison/checks, request payload/counts and exact release order.
-
-Behavior: A review/file read is pending or the worktree changes → the reviewer
-chooses another run/file or refreshes → named operations reveal the retained or
-replacement answer while the scenario still controls every hold and release.
-`story-review-one-shot-choice-races.spec.ts` owns the cross-boundary old-answer
-rejection example, including divider, narrow layout, Hide/Show files and focus
-return; run it after changes to any owner it consumes, without duplicating it.
-
-Starting gate: `caffeinate -s -i npm run test:dashboard -- '/tests/review/story-review-(refresh|commit-refresh|uncommitted-check|commit-races|one-shot-choice-races)' --workers=1`.
+Original contract and proof: [delivered slice 4](delivered-slice-contracts.md#slice-4).
 
 ### 5. Express Panel divider and Board return through their owners
 Type: Behavior
-Status: planned
+Status: done
 Proof: Geometry/width persistence, actual drag/cancel/key/touch input, focus,
 Selected story, retained file/report/terminal, and attach/read counts stay visible.
 
@@ -156,7 +112,7 @@ silently; use existing Terminal primitives only where this panel journey needs t
 Starting gate: `caffeinate -s -i npm run test:dashboard -- 'tests/navigation/side-panel-width' tests/navigation/side-panel-content-replacement.spec.ts tests/navigation/side-panel-content-switching.spec.ts tests/sessions/final-report-touch-divider.spec.ts tests/terminals/agent-terminal-maximize.spec.ts tests/intent/intent-story-review-return.spec.ts --workers=1`.
 Trace shared layout/close effects through narrow/touch/frontend consumers too.
 
-Execution proof: [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md), [slice 3](slice3-evidence.md); [slice 4](slice4-evidence.md), with [prior failures](slice4-progress.md) and [AC resume](slice4-resume-evidence.md).
+Execution proof: [slice 5](slice5-evidence.md), [handoff](slice5-handoff.md), [cost](slice5-benefit-cost.md), [consumer trace](slice5-consumer-trace.md); [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md), [slice 3](slice3-evidence.md); [slice 4](slice4-evidence.md), with [prior failures](slice4-progress.md) and [AC resume](slice4-resume-evidence.md).
 
 ## Execution context
 
@@ -194,15 +150,8 @@ excluded with a reason. Extend the starting gates above; do not infer full calle
 coverage from a representative passing sample. Run the whole affected cohort
 when it is the bounded proof loop. Hosted CI failures remain owned under policy.
 
-No new blocker on a sibling story, trunk-only step, fixed timing limit or sizing
-band is invented. Current slices share the model: controls own mechanics,
-scenarios own protocol and expected facts; different fixture tiers retain their
-proof boundaries. No preparatory framework or future-only representation is needed.
-Slice-plan refinement was not needed after construction: the necessary harness
-Structure immediately enables entry, and the four Behavior boundaries retain
-separate observable outcomes and focused proof loops. No remaining slice-specific
-concern was identified beyond completing the explicitly owned repair and proof;
-readiness is assessed against the final premise results and current source.
+The original [construction rationale](preparation-evidence.md#plan-construction-rationale)
+is retained with the preparation premises; current gaps are owned below.
 
 ## Story obligations
 
@@ -225,3 +174,70 @@ Disposition: proved by slice 4: slice4-evidence.md records inspected real Take/p
 Reported: slice 4 — "Timeout began during third native scroll while remaining code reported later final-label cancellation; errorstack alone misleading."
 Story clause: "preserves the default timeout and complete journeys"
 Disposition: proved by slice 4: slice4-evidence.md records the complete native/rotation/file/Refresh/commits/check/focus continuation,4-case strict proof and failed/full trace comparison under supported moderate-busy conditions, without reducing observations or extending timeout.
+
+### G5. Preserve the held-choice divider's scope and matching
+Reported: slice 5 — "Coordinator WIP inspection found one-shot-choice-races' review-scoped partial-name divider replaced with shared exact matching and page-scoped focus."
+Story clause: "exact input and focus expectations"
+Disposition: proved by slice 5: slice5-evidence.md: inspected review-scoped partial divider/focus and explicit ArrowLeft/width+32; complete held-choice run/file/release/narrow/Refresh/Close continuation passed in current review66 and lifecycle11.
+
+### G6. Include shared frame actions across sibling test families
+Reported: slice 5 — "Initial consumer assessment proposed leaving raw Side panel Close actions in sibling families; coordinator confirmed actual same-control actions belong to this story, while dialogs and independent contract observations remain distinct."
+Story clause: "same-control or same-sequence sibling callers"
+Disposition: proved by slice 5: slice5-consumer-trace.md and slice5-evidence.md:61frame actions/48files plus procedural/fluent facades share action-only controls; actual dialog and independent-contract exclusions inspected; all84changed specs and transitive cohorts passed.
+
+### G7. Route the pane Refresh action through its semantic owner
+Reported: slice 5 — "Aggregate audit found story-review-panes using generic control(review,Refresh), bypassing the shared reviewRefresh owner despite the literal-selector check finding only one lookup."
+Story clause: "Shared review and divider controls have one browser owner"
+Disposition: proved by slice 5: slice5-evidence.md: pane Refresh now reviewRefresh(review,{exact:true}).click with original wait ownership; both complete pane scenarios passed in current review66 after inspected cold setup.
+
+### G8. Restore the warm conflicted-file baseline proof
+Reported: slice 5 — "story-review-since-trunk's conflicted-file case timed out at30s after private fixture, real Git and two snapshot reads; exact Close completed normally, and immutable inputs were warm."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 5: slice5-evidence.md and slice5-progress.md: inspected real integration/mark/reopen and flagged c.ts baseline diff; original complete conflicted-file shape passed in current lifecycle11 and full review66 after accepted lifecycle supplier reconciliation. Earlier failed broad verdict retained.
+
+### G9. Restore the retired Story Branch fixed-pair journey
+Reported: slice 5 — "The complete retired Story Branch journey timed out after warm setup and real refinement, claimed execution and integration; default-budget retirement/fixed-pair continuation remains unproved in this gate."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 5: slice5-evidence.md: inspected real refinement/claim/integration/retirement, fixed captured pair and later-trunk-revert Refresh; complete original journey passed in lifecycle11 and full review66 with unchanged budgets and boundary evidence.
+
+### G10. Restore cold pane proof before testing its Refresh owner
+Reported: slice 5 — "The fresh pane renewal timed out before Refresh after26.706s Before Hooks, including sequential cold origin10.623s, app9.403s and bundle1.355s preparation."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 5: slice5-evidence.md: existing queuedClaudePreviewTest prepares all3immutable worker inputs before private origin; real pane setup/actions remain; both full pane cases passed at default budget in current review66. Prior26.706s cold failure retained.
+
+### G11. Restore complete native frame-consumer proof
+Reported: slice 5 — "Native cohort timed out in two ad-hoc Codex retention/restart variants and the card's multi-session Preparing/reload journey; changed Close actions retain their original exact click and add no wait."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 5: slice5-evidence.md: original84case native cohort strictpassed84/84,retry0; all3ad-hoc Codex variants and all Preparing/reload continuations observed with original inputs/records/protocol. No native work, observations or timeout reduced.
+
+### G12. Preserve matching in migrated Terminal opening actions
+Reported: slice 5 — "Width-spec Open terminal and Terminal maximize's local opening used partial matching, but their new shared openTerminalControl call inherited exact:true."
+Story clause: "independent accessibility/geometry observations"
+Disposition: proved by slice 5: slice5-evidence.md: inspected old partial-name scope against explicit exact:false getter options; all width cases and full Terminal Maximize continuation retain native output/focus/geometry/attach expectations and passed.
+
+### G13. Complete actual shared Session-entry opening reach
+Reported: slice 5 — "Aggregate opening audit found additional raw Session-entry Open terminal actions in avatar, Cursor launch and Board paging consumers; only their shared opening action is included, with independent contract observations retained."
+Story clause: "Shared panel/control callers in those families are included"
+Disposition: proved by slice 5: slice5-consumer-trace.md and slice5-evidence.md:54additional Terminal getters/35paths plus8width sites retain exact scope/name/options;39remaining raw queries are independent expectations; full opening62/native84/continuation25 observations passed.
+
+### G14. Restore the normal frame starting gate
+Reported: slice 5 — "Normal14-case renewal reported12passes/2timeouts: Intent return's first cold input cost17.397s Before Hooks, and the first full fluent content-replacement journey also timed out."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 5: slice5-evidence.md: exact14required identities mapped to9review,2current report-entry and3current native passing whole observations;8review observations match manifest caller hashes, unchanged content-switching matches sameHEAD76413 bytes. Original failed14verdict retained; no invented runner pass.
+
+### G15. Settle the full held-choice diagnostic setup timeout
+Reported: slice 5 — "The full5-case warm GitTrace2 diagnostic timed out in its first G2journey before navigation or panel input,36.395s including teardown; the earlier normal complete case passed22.063s."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 5: slice5-evidence.md and slice5-progress.md: inspected unchanged complete held-choice fixture/protocol and accepted lifecycle supplier; current normal lifecycle11 and review66 prove full G2 through final focus without instrumentation or reduced inputs. Failed GitTrace2 setup verdict retained with context; no isolated causal claim.
+
+### G16. Share actual Read final report opening actions
+Reported: slice 5 — "Opening audit found raw Read final report actions in StoryCard, touch, Intent keyboard and retirement consumers; independent report availability/name observations remain distinct."
+Story clause: "Express Side panel opening/closing"
+Disposition: proved by slice 5: slice5-consumer-trace.md and slice5-evidence.md:25actual report actions/13paths and indirect conditional row/showReport consumers use pure named access;7independent expectations remain. Complete report6/native84/opening62/continuation25 proof passed; quiet loop/native includeTurns/receipt facts preserved.
+
+
+### G17. Complete the reached progressive-reset divider sequence
+Reported: slice 5 — "Independent refactor found recently-done-progressive-reset still using panelDivider(page).focus and two raw ArrowLeft presses instead of the shared divider operations."
+Story clause: "keyboard resizing"
+Disposition: proved by slice 5: slice5-refactor.md: inspected exact page-scoped focus then two ArrowLeft keys through shared operations, with original complete range/native/read-count/reload/late-answer continuations; renewed whole spec2/2 strictpassed,retry0,18.234s; all4trace matches dispositioned and other99source hashes unchanged.
+Commitment: 44

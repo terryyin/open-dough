@@ -1,3 +1,4 @@
+import { closeSidePanel, control } from "../sidePanelFrame.ts";
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import { observeMicrophone, seedVoiceKey } from "../support/voicePage.ts";
@@ -147,7 +148,7 @@ test.describe("phone terminal microphone", () => {
       name: "Mark as done",
       exact: true,
     });
-    const close = panel.getByRole("button", { name: "Close", exact: true });
+    const close = control(panel, "Close");
     expect((await box(prompts)).x).toBeLessThan((await box(done)).x);
     await focusByTouch(panel);
     await insertTerminalText(page, "Review ");
@@ -180,7 +181,7 @@ test.describe("phone terminal microphone", () => {
       expect(bounds.width).toBeGreaterThanOrEqual(44);
       expect(bounds.height).toBeGreaterThanOrEqual(44);
     }
-    await tapWhereShown(close);
+    await closeSidePanel(panel, { using: "touch" });
     await expect(panel).toHaveCount(0);
   });
 });

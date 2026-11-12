@@ -1,4 +1,5 @@
 // Older actual review/file responses cannot answer a later retained choice.
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { fileBrowser } from "../support/reviewContextLine.ts";
 import { changedFilesList } from "../support/reviewTreeRows.ts";
 import {
@@ -15,7 +16,13 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../../src/storyReviewContract.ts";
-import { expectCovering } from "../sidePanelWidthPage.ts";
+import {
+  expectCovering,
+  focusDivider,
+  panelDivider,
+  pressDividerKey,
+  resizeUntilArranged,
+} from "../sidePanelWidthPage.ts";
 
 // Prepare immutable installed Codex and preview inputs before the case's
 // private origin and its real native launches begin.
@@ -95,17 +102,17 @@ test("delayed run and file responses leave the later run selected through narrow
     heldFile.release();
     await heldFile.delivery;
   }
-  const divider = review.getByRole("separator", { name: "Panel divider" });
+  const divider = panelDivider(review, { exact: false });
   await expect(divider).toBeVisible();
   const width = Number(await divider.getAttribute("aria-valuenow"));
-  await divider.focus();
-  await page.keyboard.press("ArrowLeft");
+  await focusDivider(review, { exact: false });
+  await pressDividerKey(page, "ArrowLeft");
   await expect(divider).toHaveAttribute("aria-valuenow", String(width + 32));
   await expect(select).toHaveValue(first.key);
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",
   ]);
-  await page.setViewportSize({ width: 420, height: 900 });
+  await resizeUntilArranged(review, { width: 420, height: 900 });
   await expect(select).toHaveValue(first.key);
   await expectCovering(review);
   const files = changedFilesList(review, "1 changed file", { exact: true });
@@ -125,6 +132,6 @@ test("delayed run and file responses leave the later run selected through narrow
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",
   ]);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(card)).toBeFocused();
 });

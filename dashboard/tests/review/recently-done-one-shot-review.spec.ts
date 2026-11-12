@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Actual queued closure, installed publication/reporting and workspace retirement
 // feed Recently done's shared historical review, including its unread details.
 import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
@@ -114,7 +115,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
   await expect(
     review.getByRole("heading", { name: "Story A", exact: true }),
   ).toBeVisible();
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(card)).toBeFocused();
   // The deleted source cannot supply the review or done title.
   expect(
@@ -175,12 +176,12 @@ test("an unfinished attention session outside its done card still supplies revie
   await expect(
     review.getByRole("heading", { name: queuedIdentity, exact: true }),
   ).toBeVisible();
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(unread)).toBeFocused();
   release();
   await expect(unread).toContainText("This done story could not be read.");
   await readReview(page, unread);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(unread)).toBeFocused();
   restore();
   await recent.getByRole("button", { name: "Retry done stories" }).click();
@@ -192,7 +193,7 @@ test("an unfinished attention session outside its done card still supplies revie
   await expect(
     review.getByRole("heading", { name: "Story A", exact: true }),
   ).toBeVisible();
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(card)).toBeFocused();
   const saved = stored(dashboard.home).find(
     (each) => each.request.reporting?.reference === receipt.reference,

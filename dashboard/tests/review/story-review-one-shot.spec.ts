@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Captured-through-CLI evidence survives actual retirement and changing trunk.
 import {
   changedFilesList,
@@ -102,7 +103,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   expect(await refreshReview(page, review)).toEqual(answer);
   await expect(fileDiff(review, "Modified text.txt")).toContainText("+extra");
   expect(repositoryObservation(origin.project)).toEqual(afterTrunk);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(card)).toBeFocused();
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();

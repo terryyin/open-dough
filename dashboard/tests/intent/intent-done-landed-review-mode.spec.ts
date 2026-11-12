@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A captured run chosen by Done Intent cannot remain the ordinary Review's
 // selection when its readable workspace is requested in the same open panel.
 import {
@@ -140,6 +141,6 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     held.release();
     await held.delivery;
   }
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(ordinary).toBeFocused();
 });

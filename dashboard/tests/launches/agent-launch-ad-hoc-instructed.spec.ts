@@ -1,3 +1,4 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
 // Start session with typed text presents nothing once its session starts, on
 // the committed origin of ./agent-launch-story-card.spec.ts
 // (../launchJourney.ts): a final report open in the Side panel stays, no
@@ -55,10 +56,12 @@ test("an instructed Start session leaves the open final report in the Side panel
   ]);
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
-  await parts(page)
-    .recentlyDone.getByRole("article", { name: new RegExp(retiredTitle) })
-    .getByRole("button", { name: "Read final report" })
-    .click();
+  await readFinalReportControl(
+    parts(page).recentlyDone.getByRole("article", {
+      name: new RegExp(retiredTitle),
+    }),
+    { exact: false },
+  ).click();
   const finalReport = page.getByRole("region", { name: "Final report" });
   const panel = terminalPanel(page);
   await expect(finalReport).toContainText(report);

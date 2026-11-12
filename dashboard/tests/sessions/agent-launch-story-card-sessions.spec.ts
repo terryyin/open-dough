@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A story's card lists the sessions launched on it that have not been marked
 // done, in every column origin shows it, on a committed origin the production
 // commands publish (../launchJourney.ts): a launch lists its session beside
@@ -193,7 +194,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       expect(dashboard.claudeAttaches()).toHaveLength(attaches);
       await show(columnsJourney.completed, { reload: false });
       await expect(local).toContainText("Shown in terminal");
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(local).toBeFocused();
       await page.reload();
       await expectMembership(page, completed);

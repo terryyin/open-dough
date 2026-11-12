@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The page's terminal shows the terminal theme chosen in System settings
 // (../configuration/system-settings-terminal-theme.spec.ts covers choosing and keeping it).
 // With no saved choice it shows today's white on black. A choice made in
@@ -14,7 +15,11 @@ import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   computedPalettes,
   themeChoice,
@@ -58,7 +63,7 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   const entry = parts(page).taken.locator(".session-entry");
-  const openTerminal = entry.getByRole("button", { name: "Open terminal" });
+  const openTerminal = openTerminalControl(entry, { exact: false });
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
@@ -82,7 +87,7 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   await expect(panel.locator(".terminal-status")).toBeEmpty();
   expect(dashboard.claudeAttaches()).toHaveLength(attaches);
 
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(panel).toHaveCount(0);
   await openTerminal.click();
   await expect(rows).toContainText("attached");

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Recently done sessions in the Sessions sidebar: collapsed by default,
 // completion-ordered across configured projects, completion ages, newest 20,
 // and opening through each row's Open control in PageFrame. Room sharing,
@@ -154,7 +155,7 @@ test("finds and opens the newest completed sessions across projects from a colla
       name: standaloneSessionName("Ad hoc", newestTitle),
     });
     await expect(local).toBeVisible();
-    await panel.getByRole("button", { name: "Close" }).click();
+    await closeSidePanel(panel, { using: "mouse", exact: false });
     await expect(panel).toHaveCount(0);
   });
 

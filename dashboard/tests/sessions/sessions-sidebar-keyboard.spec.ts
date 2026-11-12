@@ -8,7 +8,11 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -97,7 +101,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
       await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
       const session = await sessionNamedBy(entry);
-      await entry.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalControl(entry, { exact: false }).click();
       const attach = () =>
         dashboard
           .claudeAttaches()

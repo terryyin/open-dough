@@ -11,11 +11,15 @@ import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { watchPageErrors } from "../pageErrors.ts";
-import { pressWhereShown } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
-  control,
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
+  focusDivider,
+  pressDividerKey,
   dragDivider,
   expectCovering,
   expectDividerSays,
@@ -27,6 +31,7 @@ import {
   usableMinimum,
   wideWindow,
 } from "../sidePanelWidthPage.ts";
+import { maximizeSidePanel, restoreSidePanel } from "../sidePanelFrame.ts";
 import { expect, test } from "../support/preparationPage.ts";
 
 const widthKey = "open-dough.sidePanel.width";
@@ -35,9 +40,9 @@ const storyA = (page: Page) =>
   parts(page).backlog.getByRole("article", { name: "Story A" });
 
 async function openTerminal(page: Page) {
-  await storyCardSessions(storyA(page))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalControl(storyCardSessions(storyA(page)), {
+    exact: false,
+  }).click();
   const terminal = terminalPanel(page);
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   return terminal;
@@ -127,9 +132,9 @@ test("reloaded in less room the panel fits it, and neither that nor Maximize rep
     expect(fitted).toBeLessThan(chosen);
     await expectWidth(review, fitted);
     await expectDividerSays(page, fitted);
-    await pressWhereShown(control(review, "Maximize"));
+    await maximizeSidePanel(review);
     await expect(panelDivider(page)).toHaveCount(0);
-    await pressWhereShown(control(review, "Restore"));
+    await restoreSidePanel(review);
     await expectWidth(review, fitted);
     expect(await keptWidth(page)).toBe(String(chosen));
   });
@@ -147,7 +152,7 @@ test("reloaded in less room the panel fits it, and neither that nor Maximize rep
     await page.setViewportSize(wideWindow);
     const review = reviewRegion(page);
     await expectWidth(review, chosen);
-    await pressWhereShown(control(review, "Maximize"));
+    await maximizeSidePanel(review);
     await expect(panelDivider(page)).toHaveCount(0);
     await page.reload();
     const reopened = await openTerminal(page);
@@ -182,8 +187,8 @@ test("an unusable kept width starts at half the room, leaving the other preferen
   }
   const terminal = terminalPanel(page);
   const start = await split(page, terminal);
-  await panelDivider(page).focus();
-  await page.keyboard.press("ArrowLeft");
+  await focusDivider(page);
+  await pressDividerKey(page, "ArrowLeft");
   const chosen = start.sidePanel + keyStep;
   await expectWidth(terminal, Math.round(chosen));
   await page.reload();

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
 import { fileBrowser } from "../support/reviewContextLine.ts";
@@ -110,6 +111,6 @@ test("switching the open review between live workspace and Done Intent waits for
     heldLive.release();
     await heldLive.delivery;
   }
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(ordinary).toBeFocused();
 });

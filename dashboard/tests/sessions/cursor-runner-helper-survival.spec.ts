@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A same-build runner whose helper proof alone drifted keeps its held
 // sessions running when another Cursor session starts. Stale-build
 // observation and replacement recovery live in
@@ -80,7 +81,7 @@ workingCursorTest(
 
     const panel = terminalPanel(page);
     if ((await panel.count()) > 0) {
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeSidePanel(panel);
       await expect(panel).toHaveCount(0);
     }
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(

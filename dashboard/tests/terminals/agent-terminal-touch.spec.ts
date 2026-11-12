@@ -1,3 +1,4 @@
+import { closeSidePanel, control as frameControl } from "../sidePanelFrame.ts";
 // Ordinary page/xterm/WebSocket/PTY touch path; native stand-in supplies replies.
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
@@ -76,8 +77,7 @@ test.describe(`${name} terminal input`, () => {
     await tapWhereShown(opener);
     const panel = terminalPanel(page);
     const { rows } = terminalScreenParts(panel);
-    const control = (label: string) =>
-      panel.getByRole("button", { name: label, exact: true });
+    const control = (label: string) => frameControl(panel, label);
     const attaches = () => dashboard.claudeAttaches();
     const assertIdentity = async (count = 1) => {
       await expect(panel.locator(".side-panel-names p")).toHaveText(
@@ -217,7 +217,7 @@ test.describe(`${name} terminal input`, () => {
     });
 
     await test.step("Close detaches only; Board scroll returns; reopening targets that same native session", async () => {
-      await tapWhereShown(control("Close"));
+      await closeSidePanel(panel, { using: "touch" });
       await expect(panel).toHaveCount(0);
       await expect(sidebar.button).toBeFocused();
       await expect(banner).toBeVisible();

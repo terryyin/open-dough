@@ -1,3 +1,4 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
 // Report observation preserves done intent; only deliberate marking changes it.
 import { existsSync } from "node:fs";
 import { test, expect, stored } from "../support/codexLaunch.ts";
@@ -37,7 +38,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   await expect(entry).toContainText("Ready for review");
   const protocol = native;
   protocol.readError = true;
-  await entry.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(entry, { exact: false }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(
     panel.getByRole("button", { name: "Retry report" }),
@@ -72,7 +73,7 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   await expect(recent).toContainText("Done");
-  await recent.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(recent, { exact: false }).click();
   await expect(panel.locator(".final-report-text")).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
   expect(

@@ -1,3 +1,4 @@
+import { sessionEntryAccessControl } from "./sessionEntryAccess.ts";
 // The Sessions sidebar's Recently done sessions section and the shared
 // three-list room its journeys observe with the open list and Running Cursor
 // sessions. Seeds use the real machine store; destinations reuse PageFrame.
@@ -55,9 +56,10 @@ export function recentlyDoneParts(page: Page) {
     // control, named by the access it opens and described by the title.
     entry: (title: string) => region.getByRole("button", { name: title }),
     open: (title: string) =>
-      entries
-        .filter({ has: page.getByRole("button", { name: title }) })
-        .getByRole("button", { name: /^(Open terminal|Read final report)$/ }),
+      sessionEntryAccessControl(
+        entries.filter({ has: page.getByRole("button", { name: title }) }),
+        { name: /^(Open terminal|Read final report)$/, exact: false },
+      ),
     divider: sidebar.getByRole("separator", {
       name: "Recently done sessions divider",
       exact: true,

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Every retained run is a keyboard choice beside the marked live workspace.
 import { changedFilesList } from "../support/reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
@@ -133,6 +134,6 @@ test("keyboard choices show each retained captured or legacy run beside the live
   ).toBeVisible();
   expect(keptStoryAMark(dashboard)).toEqual(mark);
   expect(reviewedRefs(origin.project)).toBe(refs);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(reviewChanges(card)).toBeFocused();
 });

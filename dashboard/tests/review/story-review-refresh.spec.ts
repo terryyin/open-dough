@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review stays the snapshot taken when it opened, of Story A's
 // worktree (../support/storyReviewWorktree.ts), while the worktree moves on:
@@ -145,7 +146,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   });
 
   await test.step("an edit made while the review is closed is in the snapshot the reopened review reads", async () => {
-    await review.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(review);
     await expect(review).toHaveCount(0);
     await expect(action).toBeFocused();
     writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");

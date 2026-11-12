@@ -21,7 +21,11 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { agentDoneEndpoint } from "../../src/doneMark.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   storyCardSessionName,
   storyCardSessionOf,
@@ -92,7 +96,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(listed).toHaveAccessibleName(
       storyCardSessionName("Execution"),
     );
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(listed, { exact: false }).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expectSelected(card(readyStory), true);
     const [session] = dashboard.claudeListing();
@@ -156,9 +160,9 @@ test.describe("marking a session done from its terminal", () => {
     const status = panel.getByRole("status");
     await settled();
     await launch(readyStory, "Execution");
-    await storyCardSessions(card(readyStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalControl(storyCardSessions(card(readyStory)), {
+      exact: false,
+    }).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");
@@ -196,17 +200,19 @@ test.describe("marking a session done from its terminal", () => {
     await settled();
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
-    await storyCardSessionOf(card(readyStory), "Execution")
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalControl(
+      storyCardSessionOf(card(readyStory), "Execution"),
+      { exact: false },
+    ).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const release = await holdDoneRequests(page);
     await sendDoneMarkAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
 
-    await storyCardSessionOf(card(notRefinedStory), "Refinement")
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalControl(
+      storyCardSessionOf(card(notRefinedStory), "Refinement"),
+      { exact: false },
+    ).click();
     await expect(panel).toContainText("Refinement session");
     const typing = terminalScreenParts(panel).input;
     await expect(typing).toBeFocused();

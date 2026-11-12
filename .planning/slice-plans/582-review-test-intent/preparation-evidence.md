@@ -34,3 +34,17 @@ then32 at P2 collection. Chose one worker and AC `caffeinate -s -i`, sequenced
 owned browser checks and left unrelated processes alone. No sleep/wake event
 was found in the failed run's window. Reassess current load, memory and competing
 work before broad execution proof; these samples establish no universal threshold.
+
+## Plan construction rationale
+
+At preparation, no new blocker on a sibling story, trunk-only step, fixed timing
+limit or sizing band was invented. The slices share the model: controls own
+mechanics, scenarios own protocol and expected facts; different fixture tiers
+retain their proof boundaries. No preparatory framework or future-only
+representation is needed. Slice-plan refinement was not needed after
+construction: the necessary harness Structure immediately enables entry, and
+the four Behavior boundaries retain separate observable outcomes and focused
+proof loops. No remaining slice-specific concern was identified at preparation
+beyond completing the explicitly owned repair and proof; readiness was assessed
+against the final premise results and selected source. Execution discoveries
+remain in the active plan's Story obligations.

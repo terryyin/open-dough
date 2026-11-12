@@ -16,7 +16,10 @@ import { standaloneSessionName } from "../dashboardPage.ts";
 import { rem, scrollYOf, showColumn } from "../boardPage.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
-import { terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   recordsAsked,
   revealAction,
@@ -78,10 +81,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   await expect(revealAction(recent)).toHaveText("Show 10 of 24 older entries");
   await expect(showLatest(recent)).toHaveCount(0);
 
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalControl(view.taken(destination), { exact: false }).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await showColumn(page, "Recently done");
 

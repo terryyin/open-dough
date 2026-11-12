@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { filesColumn, intentModeViews } from "../intentModePage.ts";
@@ -221,7 +222,7 @@ test("Intent highlights a selected Taken story's test changes over the published
   await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
     const { development, intentChoice } = parts(page);
     const review = reviewRegion(page);
-    await review.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(review);
     await expect(review).toHaveCount(0);
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(storyTitle(intent)).toHaveText("Story A");

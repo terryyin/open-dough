@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Mark reviewed marks Story A's shown snapshot (../support/storyReviewWorktree.ts)
 // with a time; later work stays unmarked. Its ref survives Git housekeeping and
 // restart, when reopening compares with it; worktree index/status stay unchanged.
@@ -145,7 +146,7 @@ test("opening, closing, refreshing, and replacing a review marks nothing", async
 
   await openStoryReview(page, cardA);
   await unmarked();
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   await expect(review).toHaveCount(0);
   await openStoryReview(page, cardA);
   await unmarked();

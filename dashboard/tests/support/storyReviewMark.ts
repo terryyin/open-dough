@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Story A's review as its marking tests (../review/story-review-mark.spec.ts,
 // ../../backend-tests/review/story-review-mark-admission.spec.ts,
 // ../review/story-review-since.spec.ts, ../story-review-comparison*.spec.ts) drive
@@ -81,9 +82,7 @@ export const changedPaths = (files: TakenStoryReview["files"] | undefined) =>
 // Closes the review and opens it again from the card, answering the fresh
 // snapshot it shows.
 export async function reopenStoryReview(page: Page, card: Locator) {
-  await reviewRegion(page)
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await closeSidePanel(reviewRegion(page));
   await expect(reviewRegion(page)).toHaveCount(0);
   return openStoryReview(page, card);
 }

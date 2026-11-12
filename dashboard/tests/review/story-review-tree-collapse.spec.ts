@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review folders collapse and expand by pointer and keyboard, of
 // Story A's worktree changing nested files (../support/storyReviewWorktree.ts):
@@ -148,7 +149,7 @@ test("a story's review folders collapse and expand", async ({
   });
 
   await test.step("a reopened review shows every folder expanded", async () => {
-    await review.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(review);
     await expect(review).toHaveCount(0);
     await reviewChanges(card).click();
     const reopened = changedFilesList(review, "7 changed files");

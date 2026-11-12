@@ -1,3 +1,7 @@
+import {
+  control as frameControl,
+  maximizeSidePanel,
+} from "../sidePanelFrame.ts";
 // Command+Shift+Escape closes the terminal page-wide, from inside the
 // terminal and maximized too, as its Close control does: the panel hides, the
 // session keeps running and is not marked done, the keyboard returns to the
@@ -12,6 +16,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  openTerminalControl,
   closeTerminal,
   expectTerminalText,
   focusTerminalInput,
@@ -36,7 +41,6 @@ import {
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { pressWhereShown } from "../pageLayout.ts";
 import { tooltipOf } from "../frameIconControl.ts";
 import { watchCommandShortcut } from "../pageShortcutsPage.ts";
 import { processRunning } from "../support/processGroup.ts";
@@ -71,8 +75,7 @@ test.describe("Command+Shift+Escape and the terminal", () => {
     const { banner } = parts(page);
     const panel = terminalPanel(page);
     const { input } = terminalScreenParts(panel);
-    const control = (name: string) =>
-      panel.getByRole("button", { name, exact: true });
+    const control = (name: string) => frameControl(panel, name);
     const keyboardInTerminal = () =>
       panel.evaluate((element) => element.contains(document.activeElement));
     await expectMembership(page, queued);
@@ -80,7 +83,7 @@ test.describe("Command+Shift+Escape and the terminal", () => {
     await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
     const session = await sessionNamedBy(entry);
-    const opener = entry.getByRole("button", { name: "Open terminal" });
+    const opener = openTerminalControl(entry, { exact: false });
     const attaches = () =>
       dashboard
         .claudeAttaches()
@@ -136,7 +139,7 @@ test.describe("Command+Shift+Escape and the terminal", () => {
     });
 
     await test.step("maximized with the keyboard in the terminal, Command+Shift+Escape closes the panel as Close does and returns the keyboard to its opener", async () => {
-      await pressWhereShown(control("Maximize"));
+      await maximizeSidePanel(panel);
       await expect(control("Restore")).toBeVisible();
       await expect(banner).toBeHidden();
       await focusTerminalInput(panel);

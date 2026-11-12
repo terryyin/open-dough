@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Exact touch actions on real submitted reports and dashboard records.
 
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
@@ -107,9 +108,7 @@ test.describe(`${name} session management`, () => {
         .claudeAttaches()
         .filter(({ id }) => id === intended.sessionId.slice(0, 8)),
     ).toHaveLength(1);
-    await tapWhereShown(
-      panel.getByRole("button", { name: "Close", exact: true }),
-    );
+    await closeSidePanel(panel, { using: "touch" });
     await expect(panel).toHaveCount(0);
 
     const cardB = parts(page).taken.getByRole("article", {

@@ -34,81 +34,15 @@ export const scrollsOnItsOwn = [
   ".story-review-code",
 ];
 
-export const panelDivider = (within: Page | Locator) =>
-  within.getByRole("separator", { name: "Panel divider", exact: true });
-
-// Resizes the window and waits for the page to arrange the panel for it:
-// covering the page column in a window up to 800px wide (side-panel.css),
-// beside the page with its resize divider otherwise. The page arranges on the
-// frame after the resize, so a measurement taken, or a finger placed, before
-// that frame would take the previous arrangement's places in the new window.
-export async function resizeUntilArranged(
-  panel: Locator,
-  view: { readonly width: number; readonly height: number },
-) {
-  await panel.page().setViewportSize(view);
-  const divider = panelDivider(panel);
-  if (view.width > 800) await expect(divider).toBeVisible();
-  else await expect(divider).toHaveCount(0);
-}
-
-// Whether the open panel covers the page column (no usable split).
-export async function expectCovering(panel: Locator) {
-  await expect
-    .poll(() =>
-      panel.evaluate(
-        (element) =>
-          element.parentElement?.classList.contains("page-covering") === true &&
-          element.parentElement.classList.contains("page-maximized"),
-      ),
-    )
-    .toBe(true);
-  await expect(control(panel, "Maximize")).toHaveCount(0);
-  await expect(control(panel, "Restore")).toHaveCount(0);
-  await expect(panelDivider(panel)).toHaveCount(0);
-}
-
-// Narrow-window covering: the panel fills the viewport and hides banner/Board.
-export async function expectCoveringFillsWindow(
-  panel: Locator,
-  pageParts: { readonly banner: Locator; readonly board: Locator },
-) {
-  await expectCovering(panel);
-  const viewport = await panel.page().evaluate(() => ({
-    width: document.documentElement.clientWidth,
-    height: window.innerHeight,
-  }));
-  const shown = await box(panel);
-  expect(shown.width).toBeCloseTo(viewport.width, 0);
-  expect(shown.height).toBeCloseTo(viewport.height, 0);
-  await expect(pageParts.banner).toBeHidden();
-  await expect(pageParts.board).toBeHidden();
-}
-
-// Tab and tap stay on the covering panel; the Board is not reachable behind it.
-export async function expectBoardUnreachableBehindCovering(
-  panel: Locator,
-  board: Locator,
-) {
-  await control(panel, "Close").focus();
-  await panel.page().keyboard.press("Tab");
-  await expect(board).toBeHidden();
-  expect(
-    await panel.page().evaluate(() => {
-      const active = document.activeElement;
-      return active !== null && active.closest(".side-panel") !== null;
-    }),
-  ).toBe(true);
-  expect(
-    await panel.page().evaluate(() => {
-      const target = document.elementFromPoint(
-        window.innerWidth / 2,
-        window.innerHeight * 0.75,
-      );
-      return target?.closest(".side-panel") !== null;
-    }),
-  ).toBe(true);
-}
+export { panelDivider } from "./sidePanelFrame.ts";
+import { panelDivider } from "./sidePanelFrame.ts";
+export {
+  control,
+  expectBoardUnreachableBehindCovering,
+  expectCovering,
+  expectCoveringFillsWindow,
+  resizeUntilArranged,
+} from "./sidePanelFrame.ts";
 
 // The page column and the panel, side by side, as shown.
 export async function split(page: Page, panel: Locator) {
@@ -140,6 +74,46 @@ export async function dragDivider(page: Page, by: number) {
   await page.mouse.move(from.x + by, from.y, { steps: 8 });
   await page.mouse.up();
   return { x: from.x + by, y: from.y };
+}
+
+// Cancels a held mouse drag, then moves by the caller's distance. The caller
+// observes the cancelled width before releasing the mouse button.
+export async function cancelDividerDrag(
+  page: Page,
+  { pointerId, by, steps }: { pointerId: number; by: number; steps: number },
+) {
+  const divider = panelDivider(page);
+  const { x, y, width, height } = await box(divider);
+  await page.mouse.move(x + width / 2, y + height / 2);
+  await page.mouse.down();
+  await divider.dispatchEvent("pointercancel", { pointerId });
+  await page.mouse.move(x + by, y + height / 2, { steps });
+}
+
+export async function focusDivider(
+  within: Page | Locator,
+  options: { exact?: boolean } = {},
+) {
+  await panelDivider(within, options).focus();
+}
+
+// Uses the keyboard where the scenario left it. No implicit focus transfer:
+// the caller can prove Tab reached the divider before resizing it.
+export async function pressDividerKey(page: Page, key: string, count = 1) {
+  for (let press = 0; press < count; press += 1) await page.keyboard.press(key);
+}
+
+// Whether a caller-chosen fraction of the divider's width is reachable.
+export function dividerHitTarget(divider: Locator, fraction: number) {
+  return divider.evaluate((element, fraction) => {
+    const rect = element.getBoundingClientRect();
+    return element.contains(
+      document.elementFromPoint(
+        rect.x + rect.width * fraction,
+        rect.y + rect.height / 2,
+      ),
+    );
+  }, fraction);
 }
 
 // The terminal's latest size as the session printed it.
@@ -215,10 +189,6 @@ export async function storyAWithSession(
     },
   };
 }
-
-// A panel's own header control.
-export const control = (panel: Locator, name: string) =>
-  panel.getByRole("button", { name, exact: true });
 
 // Every review read the page asks from now on: its snapshots and its files'
 // diffs.

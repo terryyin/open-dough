@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The page's Close leaves a working Cursor turn running. Reopening the
 // terminal shows that same turn still working. Session switch closes the
 // same socket; this page has one Cursor session, so Close is the control
@@ -12,7 +13,10 @@ import { expect, workingCursorTest as test } from "../support/cursorStart.ts";
 import { waitUntil } from "../support/waitUntil.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
-import { terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 
 const instruction = "keep this turn running";
 
@@ -51,7 +55,7 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   const panel = await startedSessionTerminal(page, recent);
   await expect(parts(page).adHocStarted).toHaveCount(0);
   const record = keptRecord(dashboard.home);
-  const open = recent.getByRole("button", { name: "Open terminal" });
+  const open = openTerminalControl(recent, { exact: false });
   const { rows } = terminalScreenParts(panel);
   // The started session's terminal opens beside the page, which then shows
   // one column.
@@ -66,7 +70,7 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   const pid = cursor.attaches()[0]?.pid ?? 0;
   expect(processRunning(pid)).toBe(true);
 
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(panel).toHaveCount(0);
   const ended = await waitUntil(
     () => !processRunning(pid) || cursor.signals(pid).includes("SIGHUP"),

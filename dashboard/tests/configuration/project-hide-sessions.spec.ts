@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { filesColumn } from "../intentModePage.ts";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -124,7 +125,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await expectCompactProjectSelect(page, "Pygardon", visibleWithoutDoughnut);
   await page.setViewportSize({ width: 1600, height: 720 });
 
-  await terminal.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(terminal);
   await expect(terminal).toHaveCount(0);
 
   await page.getByRole("radio", { name: "Intent", exact: true }).check();
