@@ -31,7 +31,7 @@ import {
 } from "../intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
-test("Intent lists a sources location's Bash .test and Node .test.mjs files in one tree, opens each with its hint's styling, and reads unhinted or ungrammared files as plain text", async ({
+test("Intent lists sources locations' Bash, Node and Java files, opens each with its hint's styling, and reads unhinted or ungrammared files as plain text", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -48,7 +48,8 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
         .at("checks")
         .withSources(
           { include: ["**/*.check"] },
-          { include: ["**/*Test.java"], syntax: "java" },
+          { include: ["**/*Examples.java"], syntax: "java" },
+          { include: ["**/*.unknown"], syntax: "unfamiliar-language" },
         )
         .please(),
       makeMe.anIntentLocation
@@ -66,7 +67,9 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
     "scripts/ci/ci-proof-fixtures.mjs": "export const fixtures = [];\n",
     "checks/a.check": plainCheck,
     "checks/notes.md": "# Notes\n",
-    "checks/FooTest.java": 'class FooTest { String s = "java"; }\n',
+    "checks/CalculatorExamples.java":
+      'class CalculatorExamples { String s = "java"; }\n',
+    "checks/a.unknown": 'class Example { String s = "unknown"; }\n',
     "e2e/README.md": "# None\n",
   });
 
@@ -124,12 +127,23 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
     );
   });
 
+  await test.step("explicit Java syntax styles an unfamiliar test name", async () => {
+    await expandIntentGroup(intent, "checks");
+    await sourceFile(intent, "checks/CalculatorExamples.java").click();
+    const java = fileSource(intent, "checks/CalculatorExamples.java");
+    await expect(sourceLineText(java)).toHaveText([
+      'class CalculatorExamples { String s = "java"; }',
+      "",
+    ]);
+    await expectKeywordAndStringColours(java, /^class$/, /^"java"$/);
+  });
+
   await test.step("a file with no hint, or a hint with no grammar, stays listed and reads as plain text", async () => {
     await expandIntentGroup(intent, "checks");
     await expect(sourceFile(intent, "checks/notes.md")).toHaveCount(0);
     for (const [path, text] of [
       ["checks/a.check", plainCheck],
-      ["checks/FooTest.java", 'class FooTest { String s = "java"; }\n'],
+      ["checks/a.unknown", 'class Example { String s = "unknown"; }\n'],
     ] as const) {
       await sourceFile(intent, path).click();
       const source = fileSource(intent, path);

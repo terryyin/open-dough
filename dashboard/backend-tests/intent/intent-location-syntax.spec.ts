@@ -38,13 +38,11 @@ test("the first matching entry in declaration order gives a file its hint", () =
 });
 
 test("a hint with no grammar, or no hint, selects the file as plain text", () => {
-  const java = makeMe.anIntentLocation
-    .at("backend/src/test/java")
-    .withSources({ include: ["**/*Test.java"], syntax: "java" })
+  const unknown = makeMe.anIntentLocation
+    .at("checks")
+    .withSources({ include: ["**/*.check"], syntax: "unfamiliar-language" })
     .please();
-  expect(languageOf("backend/src/test/java/a/FooTest.java", java)).toBe(
-    undefined,
-  );
+  expect(languageOf("checks/a.check", unknown)).toBe(undefined);
   const checks = makeMe.anIntentLocation
     .at("checks")
     .withSources({ include: ["**/*.check"] })
@@ -59,6 +57,7 @@ test("each kind name is a hint, with .tsx still highlighted as TSX", () => {
       { include: ["**/*.feature"], syntax: "gherkin" },
       { include: ["**/*.ts", "**/*.tsx"], syntax: "typescript" },
       { include: ["**/*.js"], syntax: "javascript" },
+      { include: ["**/*.java"], syntax: "java" },
       { include: ["**/*.py"], syntax: "python" },
       { include: ["**/*.bats"], syntax: "shell" },
     )
@@ -67,6 +66,7 @@ test("each kind name is a hint, with .tsx still highlighted as TSX", () => {
   expect(languageOf("t/a.ts", mixed)).toBe("typescript");
   expect(languageOf("t/a.tsx", mixed)).toBe("tsx");
   expect(languageOf("t/a.js", mixed)).toBe("javascript");
+  expect(languageOf("t/Examples.java", mixed)).toBe("java");
   expect(languageOf("t/a.py", mixed)).toBe("python");
   expect(languageOf("t/a.bats", mixed)).toBe("shell");
 });

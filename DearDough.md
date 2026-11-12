@@ -179,6 +179,16 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: excessive generated output and repeated retrieval under existing disposable-research guidance; command handles and proof remained intact.
   - Inference: agent output-scoping deviation, not missing instructions; no isolated elapsed/token saving measured.
 
+- Execution: SEED-325#review-junit-tests-in-intent (plan 600; first implementation `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`)
+  - Timestamp: unknown (2026-11-12 execution; exact read/trace-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: 0.3.97 (checkout-bound installed guidance at accepted claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`)
+  - Evidence: dashboard launch `64396061-305e-4f4d-bc38-7f06de9b3f38`; coordinator first-delegation reference batch reported 11,733 original tokens with truncation; the complete consumer-trace read reported 60,774 original tokens with truncation, followed by bounded symbol/consumer and assertion reads. The trace is recoverable at the implementation revision above under `.planning/slice-plans/600-review-junit-tests-in-intent/consumer-trace.md`.
+  - Observed effect: raw generated output and broad batches omitted passages and required targeted recovery; semantic proof and running-command ownership remained intact.
+  - Inference: recurrence of an agent output-scoping deviation under existing retrieval guidance; isolated elapsed/token saving is unmeasured.
+
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -423,6 +433,16 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: independent review found16 real Dashboard Git receivers excluded in the primary table but already covered by the95-receiver supplement, plus3 independent-Node rows needing consistent exclusion. All19 overlaps were normalized across artifacts before publication, with no source edit, runtime rerun or missed proof established. Bounded coordinator reads avoided the historical truncation symptom; isolated trace/normalization effort was not measured.
   - Inference: matches ODF-396's broad planning/generic-term noise; parallel effect records also needed manual consistency work. Narrow record/data matches away from executable effects and check shared path/effect dispositions together, while retaining real indirect consumers.
 
+- Execution: SEED-325#review-junit-tests-in-intent (plan 600; first implementation `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`)
+  - Timestamp: unknown (2026-11-12 execution; exact read/trace-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: 0.3.97 (checkout-bound installed guidance at accepted claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`)
+  - Evidence: `4980feb6d:.planning/slice-plans/600-review-junit-tests-in-intent/consumer-trace.md` has 832 lines and 23 direct consumers marked run, alongside generic PLAN.md/source-review.md/README.md terms and many historical/unchanged-install exclusions. The trace also led to a real regenerated standalone runtime and legacy MakeMe payload check.
+  - Observed effect: many lexical-only dispositions surrounded useful selector/grammar consumers; acceptance needed bounded follow-up reads. All reached behavior had passing proof; no missed consumer was established.
+  - Inference: same planning-basename expansion; separate record-reference discovery from product-effect tracing without weakening indirect proof. No counterfactual cost reduction was measured.
+
+
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
@@ -645,6 +665,16 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 598 holds 91 rows for a two-slice test-speed story, among them M7 and M8 (the Success measure's "Retained reference" figures), X2 ("They may adopt the same fixture later."), ten S3 rows for one "do not change" sentence and six S7 rows for one "No new … to obtain a saving" list. The coordinator recorded one `observed:` per row through about 90 `record` invocations in two batches.
   - Observed effect: every promise had an inspected location at acceptance. The reference-figure, permission and negated-means rows received cells that restate the diff's absence of a change or the plan's run table.
   - Inference: same cause as the first occurrence; cost qualified, no time measured.
+
+- Execution: SEED-325#review-junit-tests-in-intent (plan 600; first implementation `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`)
+  - Timestamp: unknown (2026-11-12 execution; exact read/trace-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: 0.3.97 (checkout-bound installed guidance at accepted claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`)
+  - Evidence: `4980feb6d:.planning/slice-plans/600-review-junit-tests-in-intent/source-review.md` retains 76 C/Q/J/X rows for one slice, including eight deferred-capability exclusions and separate no-fixed-Maven/no-fixed-Gradle qualifications. Coordinator accepted them through 76 sequential `record` operations; multiple rows cite the same inspected production diff or journey.
+  - Observed effect: every source promise had an inspected location; qualification and exclusion rows also required observation cells restating existing selection or absence of deferred implementation. No missed source promise was found.
+  - Inference: recurrence of the source-review extraction/observation-granularity issue; no isolated cost or benefit of a different grain was measured.
+
 
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 

@@ -49,6 +49,9 @@ export const exclusiveSettings = makeMe.intentSettings
       .ofKind("gherkin")
       .please(),
     makeMe.anIntentLocation.at("empty_features").ofKind("gherkin").please(),
-    makeMe.anIntentLocation.at("frontend/src").ofKind("java").please(),
+    makeMe.anIntentLocation
+      .at("frontend/src")
+      .ofKind("unfamiliar-language")
+      .please(),
   )
   .please();

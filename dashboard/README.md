@@ -56,7 +56,7 @@ region. The Open Dough mark is the **Sessions** toggle; the project selector
 names the selected project, with **Development** and **Intent** beside it.
 Development (first-visit default) shows the Board; Intent reads Purpose from
 configured test-source locations in `.planning/open-dough.json` (`gherkin`,
-`typescript`, `javascript`, `python`, or `shell`, optional `include`), or says
+`typescript`, `javascript`, `java`, `python`, or `shell`, optional `include`), or says
 none are configured, without claiming tests or Proof are absent. Its
 **Project Intent** shows the trunk's **CI status** with nothing selected and
 **Optimization Candidates**; a selected story's views show **CI status** of

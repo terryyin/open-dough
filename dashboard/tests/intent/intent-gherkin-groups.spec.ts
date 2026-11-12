@@ -125,7 +125,9 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
     await expect(intent).not.toContainText(
       "No gherkin files are published at empty_features for this revision.",
     );
-    await expect(intent).toContainText("Kind java is not yet supported.");
+    await expect(intent).toContainText(
+      "Kind unfamiliar-language is not yet supported.",
+    );
   });
 
   await test.step("nested folder toggle opens or closes without collapsing the Intent group", async () => {
