@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Guard scheduled-test MakeMe selection](seeds/SEED-329-use-shared-test-guidance.md#guard-scheduled-test-makeme-selection) — SEED-329#guard-scheduled-test-makeme-selection
 - [Run dashboard CI follow-up by default for GitHub Actions projects](seeds/SEED-330-dashboard-ci-follow-up.md#make-ci-follow-up-automatic) — SEED-330#make-ci-follow-up-automatic
 - [Run dashboard CI follow-up through a custom CI rebuild trigger](seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds) — SEED-330#invoke-custom-ci-rebuilds
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
