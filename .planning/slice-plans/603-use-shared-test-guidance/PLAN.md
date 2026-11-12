@@ -189,3 +189,13 @@ restored byte-for-byte before preparation record writes. No test source changed.
 - Slice-plan refinement was not needed: one bounded Behavior slice, one
   configuration-and-guidance proof loop, with no remaining slice-specific
   concern identified.
+
+## Execution complete
+
+Product advice: no correction. The scheduled-test selection gap was found only
+by preparation's manual enumeration, and no maintained check ties
+`tests/node-test-files` globs or `tests/*.sh` to a MakeMe-enabled Intent entry.
+Consider a small check that every runner-scheduled source selects MakeMe, so a
+new glob cannot fall outside selection unnoticed. The dashboard READMEs'
+"Use MakeMe for domain data" pointers remain accurate under current
+configuration. Process review is deferred to wrap-up's Intent Coverage report.
