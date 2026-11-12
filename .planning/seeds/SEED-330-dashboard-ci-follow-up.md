@@ -152,7 +152,10 @@ and timing comparison when the project supplies a compatible rebuild trigger.
 - Invoke the configured entry point from the production dashboard's existing
   follow-up flow. Apply the same timing rule, one-request allowance, and result
   review. A custom provider without a trigger continues to supply its existing
-  CI readings. GitHub Actions continues through its built-in trigger.
+  CI readings and requests no rerun, including for an admitted GitHub Actions
+  receipt retained from before its adapter was configured; maintained proof
+  observes that collection pass end without a rerun request. GitHub Actions
+  continues through its built-in trigger.
 - Use Pygardon as the first integration. Agree the contract with its CI server
   story and verify that a qualifying successful landing can produce a fresh
   full attempt on the same revision and a reviewable timing result.

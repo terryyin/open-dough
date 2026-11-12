@@ -2,7 +2,9 @@
 
 Automatic CI follow-up runs by default for every GitHub Actions project on the
 production dashboard. The machine whose dashboard records a landing receipt
-follows that landing up. Development dashboards request no rerun, because
+follows that landing up. Another machine never holds that receipt, so it cannot
+request a duplicate rerun, and dashboards on one machine share the ledger's
+lock. Development dashboards request no rerun, because
 unreleased dashboard code must not act on real CI. Projects with a custom CI
 adapter keep their existing CI reading and get no rerun.
 
