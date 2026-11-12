@@ -24,7 +24,7 @@ This seed now holds its correction.
 
 **Identity:** SEED-324#close-landed-ci-repeat-check-gaps
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"not-ready","reasons":["P1 partly unobserved: F25 failing the held-read case is observed (Intent Coverage at 7bd9f5ccf); F12 failing it is not","P2 unobserved: the proof collection keeps for the completion spec's facts equals keptScopeFileProof for the same facts","P3 unobserved since the SEED-330 merge: the whole Intent comparison passes the sideways-scroll check at 390 px","P4 unobserved: a queued repeat reads as progress on the phone card, and fault F27 fails it","P5 unobserved: a later start-origin revision naming the first as its parent throws Unknown parent on the current tree"],"basis":{"document":"007244e02020e570ef2c7014f0aba87410d36277bf3a47ad7f5fd691f751d4c0","plan":"4d14101eae7e973a67775e8486bc1dda3c3631a639e352f12e7b786a12f26b8c"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"364c3d901a98166fcbea1edb5cd4a1012e9a545b4c345741f5fe5839defe2b35","plan":"31d0b555fd8cb1c41fade2ce0653e67c212974be31dd8c9becf5f0093faa020e"}}
 ```
 
 **Goal.** A maintainer who changes automatic CI follow-up, or the support
@@ -44,3 +44,21 @@ first revision as its parent. No product behavior changes, and no new product
 promise. Every check still passes at load 30–50 within the default timeouts.
 Plan:
 [607-close-landed-ci-repeat-check-gaps](../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md).
+
+**Key examples.**
+
+- A collecting dashboard has passed its ledger pre-check and is preparing run
+  71. Another dashboard's writer saves an accepted request for that landing
+  before preparation finishes. Collection sends no rerun and retains that
+  request; bypassing either the ledger guard or collection's answer check
+  must fail the dashboard check.
+- On a 390 px phone, a settled comparison includes both attempts and their
+  reference. A published-landing line that scrolls inside itself must fail
+  the comparison check even when the three existing part checks pass.
+- An accepted request's repeat is queued. Its phone card reads "CI rerun in
+  progress" before the same journey reads the finished repeat's warning.
+- Collection keeps run 63's case and file evidence, including a zero-duration
+  file. The support builder's proof for the same facts equals that kept proof.
+- A repository description's later revision names its first revision as a
+  parent. Starting its origin preserves that declared ancestry. Moving the
+  support owners preserves the existing receipt journey and stage checks.

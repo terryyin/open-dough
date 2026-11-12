@@ -136,9 +136,6 @@ Excluded, with reasons:
 - F1 fails by the 30 s case bound rather than at a labelled expectation.
   This was a recorded plan 599 decision ("F1 still fails by the 30 s bound,
   as on main"), and the journey still catches it.
-- Trunk's `readReportUntilText` retry and `test.setTimeout(60_000)` in
-  `agent-completion-quiet.spec.ts` belong to their owning story. The
-  developer receives them separately.
 - Product code under `dashboard/server` and `dashboard/src` does not change.
   Faults are scratch edits, reverted before any commit.
 - The cases and assertions of the admission, reconciliation, follow-up
@@ -166,8 +163,8 @@ Excluded, with reasons:
 
 - **Second dashboard (finding 3): use kept state, not a second server in
   the journey.** One collecting server keeps an unspent eligible receipt and
-  is held at a preparation read of run 71, after its pre-check. Meanwhile
-  the test writes that landing's accepted request into the ledger, through
+  is held at its first `actions-current-run` read of run 71, after its
+  pre-check. Meanwhile the test writes that landing's accepted request into the ledger, through
   the machine-document lock a second dashboard's writer holds. Releasing the
   read must produce no rerun request. This is deterministic and needs one
   server. The reviewer's option of a second `startServer()` beside the
@@ -189,9 +186,9 @@ Excluded, with reasons:
   `landed-ci-repeat-verdict.spec.ts`, beside the verdict case of the same
   stage. `ciFollowUpSavedRequests.ts` exports one `waitingRequest`, and
   `aWholePass` reads that request's run instead of a parameter.
-- **Kept scope proof (finding 8).** Collection's kept proof is the truth. If
-  `keptScopeFileProof` differs from it, the builder changes to match, and
-  the refresh and prior-build specs keep their figures.
+- **Kept scope proof (finding 8).** Collection's kept proof is the truth.
+  P2 confirms `keptScopeFileProof` matches it, so slice 6 adds the missing
+  equality check without changing either representation.
 - **Start origins (findings 6 and 7).** The fix seeds the parent map with the
   first revision's name → the project checkout's `HEAD`. A run-wide
   description has exactly one revision (`runWideKeys` matches
@@ -199,6 +196,37 @@ Excluded, with reasons:
   process holds move to their own module, and `preparedStartOrigin` keeps
   its answers.
 - Story Branch Mode. No slice acts from trunk.
+
+## Existing solutions and architectural fit
+
+PFE review at `2a607e93b` keeps the existing owners:
+
+- `ciFollowUpRepeatRun.ts` already answers a run and its rerun request;
+  `ciFollowUpSavedRequests.ts` already counts actual provider calls. Slice 4
+  removes the scenario's competing answer/count path and keeps one fallback
+  composition through `serveRepeatRuns`. Reuse `holding` / `holdingAnswer`
+  from `heldGitHubAnswer.ts` for held replies rather than adding another
+  general hold mechanism.
+- `keepFollowUpEntries` already writes through the machine-document lock.
+  Slice 5 uses it for the second writer and holds `actions-current-run` for
+  run 71, the observed preparation boundary. The ledger node test remains
+  the owner of two-process serialization.
+- `scopeHistoryProofs.ts` owns both native summary production and the kept
+  proof representation. P2 confirms they agree; slice 6 adds the missing
+  comparison without changing the builder.
+- `repository-revision-commit.mjs` already resolves declared parents. Slice
+  7 supplies its missing first-commit map entry. Slice 8 moves only the
+  process-held origins; run-wide preparation and installation retain their
+  existing owners. This is a module move, not a new cache lifecycle.
+
+This follows Accepted [ADR 0002, whole-product cohesion and one representation](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus)
+and [ADR 0008, project and machine-local state boundaries](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+The existing `.planning/NORTH-STAR.md` direction needs no new topic.
+Expected implementation edits are currently below 250 lines: automatic-repeat
+spec 240, start-origin preparation 248, repeat-run support 202, scenario 159,
+saved requests 130, initialization 94, completion spec 151 and verdict spec 86.
+Slices 3 and 8 reorganize the two near-limit files along the identified stages
+and origin lifetimes; additions still obey the file-size check.
 
 ## Outside-in proof ownership
 
@@ -222,26 +250,56 @@ F14 as plan 599 defines them):
 | F4 | A 104 s repeat stays slow | `slow` always true in `observeRepeat` |
 | F8 | A refusal is saved as accepted | A refused reply is treated as accepted in `collectCiFollowUps` |
 | F9 | A later passing repeat clears an uncertain acceptance | Drop the `submission.kind !== "accepted"` return after measurement |
-| F12 | Two dashboards both spend | `spendRepeat` returns true without the ledger's guard |
+| F12 | Two dashboards both spend | Remove `admitted.request !== undefined` from `spendRepeat`'s locked guard, allowing it to save and return true for an already-spent entry |
 | F14 | The request is sent before the intent is saved | `spendRepeat` moves after the provider's submit |
 | F25 | Collection sends although another writer spent first | `ciFollowUpCollection.ts:90` ignores `spendRepeat`'s answer (calls it, then continues to submit) |
-| F26 | A comparison line outside the attempts and evidence scrolls sideways | `white-space: nowrap; overflow-x: auto` on the comparison's published-landing line (the executor picks the nearest single product edit with this effect and records it) |
+| F26 | A comparison line outside the attempts and evidence scrolls sideways | In `IntentCiFollowUp.tsx`, add `style={{ whiteSpace: "nowrap", overflowX: "auto" }}` to the `<p>` holding "Published Done landing" |
 | F27 | A queued repeat is not read as progress | `"queued"` removed from the progress statuses at `ciFollowUpObservation.ts:86` |
 | F28 | The kept scope proof drifts from collection | `keptScopeFileProof` omits its file-unit evidence (a test-support scratch edit) |
 
 ## Decisive premises
 
-Planning ran no observations. The coordinator settles each open premise with
-the named observation before recording `ready`. Otherwise these premises are
-the `not-ready` reasons.
+Preparation observed these premises on 2026-11-13 at `2a607e93b` in this
+story's owned workspace, on the local AC macOS machine under `caffeinate -s -i`.
+All probes used one worker, the default case and expectation bounds, locked
+dependencies installed by `npm ci --no-audit --no-fund`, and natural competing
+work (other worktrees' dashboard checks and other projects' tests). There were
+no burners. Initial load was 43.04; `vm_stat` showed 48,585 free pages.
+One worker bounded the extra workload. No probe changes are retained.
 
 | Premise | Consuming slice | Settling observation | State |
 | --- | --- | --- | --- |
-| P1. A collecting boundary server that keeps an unspent eligible receipt reaches a preparation read of run 71 after its ledger pre-check. A ledger write made while that read is held makes `spendRepeat` answer false, and F12 and F25 each make it send | 5 | Scratch case in the execution workspace: `keepRepeatLanding(…, { stage: "eligible receipt", run: 71, seconds: 120, averageSeconds: 100, beside: [waiting] })`, an answerer that holds `actions-attempt-jobs` for run 71 (or the first preparation read the server makes, as recorded), `startServer()`, wait for the held read, `keepFollowUpEntries` with that entry's accepted request, release, `aWholePass`, then `rerunRuns(github)`; run with `--workers=1 --reporter=list`, then with F12 and with F25 | Settled for F25, open for F12. Intent Coverage at `7bd9f5ccf` on 2026-11-13, one worker, load 1.9–4.1, scratch spec in a scratch worktree: the server's first `gh` call for run 71 is `actions-current-run` inside `provider.prepare`, after the pre-check; holding it, writing the entry's accepted request through `keepFollowUpEntries`, releasing, `aWholePass(github, 72, callsAtRelease)` then `rerunRuns(github)`: `[]` before and after; with F25 (`ciFollowUpCollection.ts:90` ignores `spendRepeat`'s answer) it fails at "rerun requests" with `[71]`. The four maintained follow-up specs and the ledger node test pass under F25. F12 not probed |
-| P2. For the completion spec's facts (`runId: 63`, three files including `["folder/zero.spec.ts", 0, 0]`), the kept proof equals `keptScopeFileProof({ revision, runId: 63 }, files)` | 6 | Scratch expectation in `landed-ci-scope-proof-completion.spec.ts`, one worker | Open. If they differ, slice 6 also changes the builder, and the refresh and prior-build specs must keep their figures. That changes sizing, not approach |
-| P3. The current comparison at 390 px passes `expectNoSidewaysScrollIn(page, comparison)`, and F26 fails only that expectation | 1 | Add the expectation, run the spec, then F26 | Partly settled. Plan 599's slice 1 premise row saw no sideways scroll at 390 px at `7cf81190b`, but product paths have moved since (SEED-330 merge), so that is a proxy |
-| P4. A repeat at `status: "queued"` reads "CI rerun in progress" on the phone card, and F27 fails it | 2 | Change the status, run the spec, then F27 | Open. Code read only (`ciFollowUpObservation.ts:86`) |
-| P5. A description from `makeMe.aRepository`, whose later revision names the first revision as a parent, throws `Unknown parent` through `startOrigin` in a dashboard run (the shared path) today | 7 | The slice's new case on the current tree, `--workers=1 --reporter=list` | Open. This is the symptom to reproduce before the fix |
+| P1. Another writer's spend during preparation suppresses collection's request, and F12 and F25 each break that observation | 5 | Scratch eligible-receipt case: arrange the same Story A landing as accepted and retain its ledger entries, reset it to eligible beside run 72, hold the first `actions-current-run` for 71, start the boundary server, await the held read, write the accepted entries through `keepFollowUpEntries`, release, then `aWholePass(github, 72, callsAtRelease)` and `rerunRuns(github)` | Settled: baseline passes (5.0 s), sends `[]`, retains accepted submission. Each fault fails "rerun requests" with `[71]`: F12 at natural load 39.62 → 38.67; F25 at 37.31 → 35.38. This refreshes the earlier F25-only observation at `7bd9f5ccf` |
+| P2. The completion spec's kept proof equals `keptScopeFileProof` for the same facts, including the zero-duration file; F28 breaks equality | 6 | Add direct equality between `retainedHistory(home)?.builds["run/63/1"]?.proof` and `keptScopeFileProof({ revision, runId: 63 }, [["folder/a.spec.ts", 300, 30], ["folder/zero.spec.ts", 0, 0], ["root.spec.ts", 200, 20]])` | Settled: baseline passes (7.3 s). The builder already returns the complete `{ kind: "summary", summary }` proof. F28 (default units only `case`) fails that equality with the missing file evidence; natural load 49.96 → 47.00. No builder correction is needed |
+| P3. The current 390 px comparison fits, and F26 fails the whole-comparison check while its three part checks pass | 1 | Add `expectNoSidewaysScrollIn(page, comparison)` after the three `expectWholeOnPhone` calls; run unchanged product, then F26 | Settled: baseline passes (11.2 s). F26 passes the three part checks, then fails the new expectation at "scrolls sideways inside" with `["P"]`; natural load 34.39 → 48.25 |
+| P4. A queued repeat reads progress on the phone; F27 breaks it | 2 | Change the phone case's `setRepeat` status to `queued`; run unchanged product, then F27 | Settled: baseline passes its progress card and later 106 s warning (12.3 s). F27 fails "progress saved": expected `progress`, received `unverified`; natural load 47.35 → 50.80 |
+| P5. A later revision naming the first as parent reproduces `Unknown parent` through shared `startOrigin` | 7 | New scratch parents case uses `makeMe.aRepository.withRevision("base").withRevision("child", { parents: ["base"], files: { "child.txt": "child\n" } }).please()`, then `startOrigin(description)` | Settled: the case fails with `Unknown parent base for child` from `declaredParents` through `initializeStartOrigin`, before its ancestry assertion. This is the defect slice 7 repairs, not a passing remedy claim |
+
+Literal probe commands from the workspace root, in an environment with Homebrew
+Bash first on `PATH` and `NO_COLOR`, `FORCE_COLOR`, and
+`GIT_ALTERNATE_OBJECT_DIRECTORIES` unset:
+
+```sh
+caffeinate -s -i npm run --silent test:dashboard -- tests/intent/intent-ci-follow-up.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-scope-proof-completion.spec.ts backend-tests/intent/landed-ci-repeat-eligible-receipt.spec.ts --workers=1 --reporter=list
+caffeinate -s -i npm run --silent test:dashboard -- backend-tests/intent/landed-ci-scope-proof-completion.spec.ts backend-tests/intent/landed-ci-repeat-eligible-receipt.spec.ts --workers=1 --reporter=list
+caffeinate -s -i npm run --silent test:dashboard -- backend-tests/intent/landed-ci-repeat-eligible-receipt.spec.ts --workers=1 --reporter=list
+caffeinate -s -i npm run --silent test:dashboard -- tests/intent/intent-ci-follow-up.spec.ts --workers=1 --reporter=list
+caffeinate -s -i npm run --silent test:dashboard -- tests/intent/recently-done-ci-automatic-repeat.spec.ts --workers=1 --reporter=list
+caffeinate -s -i npm run --silent test:dashboard -- backend-tests/intent/landed-ci-scope-proof-completion.spec.ts --workers=1 --reporter=list
+caffeinate -s -i npm run --silent test:dashboard -- tests/intent/intent-ci-follow-up.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-scope-proof-completion.spec.ts backend-tests/launches/start-origin-parents.spec.ts --workers=1 --reporter=list
+```
+
+The first command observed P3/P4 passing; its P2 probe initially double-wrapped
+the builder's proof. Correcting that scratch expectation gave the second
+command's two passes (P1/P2). The third command was run separately under F12
+and F25; the next three under F26, F27 and F28 respectively. The last command
+reproduced P5; its other cases initially could not build because this new
+worktree lacked local dependencies, resolved by `npm ci` before the later runs.
+Each fault was applied alone and reverted before the next. The differing
+natural load does not invalidate these value/layout discrimination results:
+baseline checks reached their promised observations, and each fault failed
+at its specific changed value or geometry, without a case timeout. These are
+premise observations, not the final two-worker load-profile acceptance run.
 
 ## Verification
 
@@ -274,10 +332,19 @@ From an agent shell, prefix direct runs with
   `landed-ci-adapter-repeat-comparability.spec.ts`,
   `landed-ci-follow-up-reading.spec.ts`, `landed-ci-repeat-admission.spec.ts`,
   `landed-ci-repeat-reconciliation.spec.ts` and
-  `tests/intent/intent-ci-follow-up-custom.spec.ts`, at `--workers=2`. Before
-  committing a support move, apply one scratch `throw` at the top of each
-  moved or removed export, run these, and confirm that only these files fail.
-  Revert the throw.
+  `tests/intent/intent-ci-follow-up-custom.spec.ts`, at `--workers=2`.
+- **Consumer trace for support moves:** before accepting slices 3, 4 and 8,
+  run the installed `dough-execute-plan/scripts/consumer-trace.mjs` with
+  `--checkout <this execution workspace> --base HEAD`, adding the retired
+  export names and changed effects as `--term`. Follow helper and fixture
+  callers to their observing journeys. Give every consumer a `run`,
+  `reused`, or reasoned `excluded` disposition. The named selections are
+  the starting proof, not an assertion that no other consumer exists.
+  In particular, `pageTest.ts` brings origin preparation to other browser
+  journeys: the private-origin module move preserves its contract and
+  lifetime, with isolation and demand checks observing that shared boundary.
+  Run any consumer whose distinct behavior the move reaches and those
+  checks do not cover; do not infer absence from a filtered test run.
 - **Ledger node tests:** `bash scripts/test.sh
   tests/support/ci-follow-up-ledger.test.mjs`.
 - **Fault controls:** one scratch edit, the named case with `--workers=1
@@ -286,14 +353,16 @@ From an agent shell, prefix direct runs with
   less.
 - **Load profile, once after the last slice:** one counted two-worker run of
   the selection through `bash scripts/dashboard-repeat.sh 1 <selection
-  specs>`, started only while the one-minute load is 30–50. Add `--load`
-  when the natural load is below 30. Every case passes and none takes more
+  specs>`, started only while the natural one-minute load is 30–50. Under
+  [load while measuring](../../../tests/local-test-resources.md#load-while-measuring),
+  `--load` burners provide diagnostic evidence and cannot stand in for that
+  natural-load observation. Every case passes and none takes more
   than 25 s, read from `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<file>`; that run
   passes no `--reporter`. A run whose load before or after lies outside
   30–50 is recorded and not counted.
 - Typecheck and lint through the ordinary commit hooks. No whole local
-  suite: every changed file's consumers are named above. Hosted CI runs the
-  whole suite on each published revision, and its failures stay the
+  suite is prescribed: use the focused selections and consumer trace above.
+  Hosted CI runs the whole suite on each published revision, and its failures stay the
   executor's.
 
 ## Ordered slices
@@ -346,8 +415,9 @@ names the stage its cases start from. No file over 250 lines.
 Type: Structure
 Status: planned
 Proof: the selection and the follow-up support consumers pass three
-consecutive times at two workers, each case with its base result. A scratch
-`throw` in `repeatCalls`' former readers finds no remaining consumer. The
+consecutive times at two workers, each case with its base result. The
+consumer trace accounts for every former `repeatCalls` reader and fallback
+caller; searches find no remaining retired export or call form. The
 journey calls no `scenario.serve()`. F2 fails the journey and the refused
 case with `[71, 71]`, F14 fails the journey at "intent saved before the
 request is sent" through the moved hold, and F8 fails the refused case.
@@ -356,7 +426,8 @@ Correction (finding 4), enabling slice 5:
 
 - `providerRepeatRun` answers its run's rerun request with its reply status.
   It also holds any named request of its run until released: the rerun for
-  the journey, and a preparation read for slice 5.
+  the journey, and a preparation read for slice 5. Compose the existing
+  held-answer mechanism, keeping the held event and release visible to tests.
 - `prepareRepeatScenario` answers through it and drops its own
   `actions-workflow-rerun` branch and `repeatCalls`.
 - Every consumer reads `rerunRuns(github)`. This includes the
@@ -377,10 +448,12 @@ Coverage row C5 then has a dashboard owner beside the node test.
 
 Behavior: the machine keeps Story A's unspent eligible receipt (run 71,
 120 s against 100 s) beside the waiting request. A collecting dashboard is
-held at a preparation read of run 71. The test writes that landing's
-accepted request into the ledger, standing in for another dashboard's spend,
+held at its first `actions-current-run` preparation read of run 71. The test
+writes that landing's accepted request into the ledger, standing in for another dashboard's spend,
 and then releases the read. After a whole pass, the provider has received
-no rerun request, and the saved request is the one the other writer saved.
+no rerun request, and the request retains the other writer's original,
+frozen reference and accepted submission. Later observation may update its
+outcome normally.
 
 ### 6. The kept scope proof is what collection keeps
 Type: Structure
@@ -388,11 +461,10 @@ Status: planned
 Proof: `backend-tests/intent/landed-ci-scope-proof-completion.spec.ts`
 passes three consecutive times at two workers with an added expectation.
 For the same run and files, the kept proof equals `keptScopeFileProof({
-revision, runId: 63 }, files)`. F28 fails it at that expectation (P2). If
-the builder changes, `intent-project-scope-timing-refresh.spec.ts`,
-`intent-scope-prior-build-states.spec.ts` and
-`intent-scope-prior-build-average.spec.ts` also pass three consecutive times
-with unchanged figures.
+revision, runId: 63 }, files)`. Compare the complete proof directly, without
+wrapping it again in `{ kind: "summary", summary }`. F28 fails it at that
+expectation (P2). The observed builder already agrees; its refresh and
+prior-build consumers therefore need no builder-change verification.
 
 Correction (finding 8): the builder the refresh fixture and the prior-build
 history keep is tied to the product's own kept form, under the story's
@@ -405,8 +477,8 @@ Proof: a new case in a new `backend-tests/launches/start-origin-parents.spec.ts`
 starts an origin through `startOrigin` from a `makeMe.aRepository`
 description. Its later revision names the first revision as a parent. The
 case expects that revision's parent in the origin's `main` to be the first
-commit. On the current tree it fails with `Unknown parent` (P5). After the
-fix it passes three consecutive times. `start-origin-isolation.spec.ts`,
+commit. Preparation reproduced `Unknown parent` on the current tree (P5).
+After the fix it passes three consecutive times. `start-origin-isolation.spec.ts`,
 `start-origin-demand.spec.ts` and the refresh spec (whose kept summary
 comparison story declares parents) pass.
 
@@ -424,9 +496,10 @@ new parents case, and the kept-story consumers
 (`landed-ci-repeat-eligible-receipt.spec.ts`,
 `landed-ci-repeat-accepted-request.spec.ts`,
 `recently-done-ci-automatic-repeat.spec.ts`) pass three consecutive times at
-two workers. A scratch `throw` in each moved export finds no consumer
-outside those files, `keptPublishedStory.ts`, `pageTest.ts` and
-`startOriginPreparation.ts`. Then the load-profile run of
+two workers. The consumer trace follows the moved exports through
+`keptPublishedStory.ts`, `pageTest.ts`, `startOriginPreparation.ts` and
+`startOriginInitialization.ts`, with the dispositions required by Verification.
+Then the load-profile run of
 [Verification](#verification) is counted.
 
 Correction (finding 6): `privatelyPrepared`, `privateDirectories` and their
@@ -438,18 +511,23 @@ answers. `keptPublishedStory.ts`, `pageTest.ts` and
 
 ## Plan concern assessment
 
-Slice-plan refinement was not needed. Each slice has one proof loop and one
-finding. Slice 4 is placed immediately before slice 5, the Behavior it
-enables. No later slice depends on an earlier slice's unsettled premise,
-except slice 5 on P1.
+Slice-plan refinement ran on 2026-11-13. All eight boundaries are retained:
+1 and 2 each restore one discriminating observation; 3 owns stage filing;
+4 establishes one provider-answer path immediately before 5 uses it to
+observe a second writer's spend; 6 ties the kept representation to collection;
+7 repairs the reproduced ancestry defect; 8 separates origin lifetimes.
+Each Structure slice directly owns an evidenced retrospective correction,
+with unchanged external behavior owned by its named proof. No numeric
+slice target or hard limit is supplied, and no sizing exception is needed.
 
-Remaining concerns:
+The refinement replaces the unsupported claim that a filtered scratch-failure
+run proves there are no other consumers with effect tracing and explicit
+consumer dispositions. It also removes slice 6's now-disproved builder-drift
+contingency. The cumulative design keeps one run answerer, one actual-call
+count, one fallback composition and one owner per origin lifetime; it adds no
+per-scenario production rules or speculative framework.
 
-- **Slice 5, P1:** the approach depends on holding a preparation read after
-  the pre-check. If P1 is false, slice 5 stops and returns to the
-  coordinator. It does not fall back to a timing-dependent two-server check.
-- **Slice 6, P2:** if the builder differs from collection, the slice also
-  changes the builder. The refresh and prior-build specs must then keep
-  their figures, which widens the slice's consumers.
-- **Slices 1, 2 and 7, P3–P5:** each is settled by the slice's first run.
-  Until observed, these premises are the `not-ready` reasons.
+No remaining slice-specific concern was identified in this review. P1–P5
+are settled above. All slices remain planned: the probes are preparation
+evidence, not delivered checks or implementation. Execution retains the
+required loaded selection and the project's failing/flaky-test policy.
