@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
 - [Express Intent test reading through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-dashboard-test-intent-through-page-objects) — SEED-300#express-dashboard-test-intent-through-page-objects ([plan](slice-plans/581-intent-test-reading/PLAN.md))
-- [Speed up touch review checks](seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) — SEED-312#speed-up-touch-review-checks ([plan](slice-plans/592-speed-up-touch-review-checks/PLAN.md))
 - [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks ([plan](slice-plans/593-speed-up-cursor-session-checks/PLAN.md))
 - [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks ([plan](slice-plans/595-speed-up-landed-ci-repeat-checks/PLAN.md))
 

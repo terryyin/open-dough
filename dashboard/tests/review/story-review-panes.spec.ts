@@ -27,7 +27,7 @@ import {
   scrollTopOf,
 } from "../support/reviewPanes.ts";
 import { expectReviewRead } from "../support/reviewRead.ts";
-import { longA, longB } from "../support/storyReviewWorktree.ts";
+import { longA, longB } from "../support/largeReviewFiles.ts";
 
 test("a large review's browser and diff fill the panel and each scrolls on its own", async ({
   page,
