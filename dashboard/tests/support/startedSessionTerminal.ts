@@ -5,17 +5,12 @@
 // presentation itself does not use this.
 import { expect, type Locator, type Page } from "@playwright/test";
 import { expectQuietAdHocActionsRow } from "../launchStoryCardPage.ts";
+import { openTerminalFromEntry, terminalPanel } from "../terminalScreenPage.ts";
 import { launchWaitMs } from "./launchWait.ts";
 
 // Opens the terminal of the session `entry` lists, as a developer would.
 export async function openEntryTerminal(entry: Locator) {
-  const open = entry.getByRole("button", {
-    name: "Open terminal",
-    exact: true,
-  });
-  // Keyboard focus first reveals a Board column the Side panel pages out.
-  await open.focus();
-  await open.click();
+  await openTerminalFromEntry(entry);
 }
 
 // `entry` is the started session's entry, which may not be listed yet, and
@@ -29,7 +24,7 @@ export async function startedSessionTerminal(
   page: Page,
   entry: Locator,
 ): Promise<Locator> {
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expect(panel.or(entry)).not.toHaveCount(0, { timeout: launchWaitMs });
   await expectQuietAdHocActionsRow(page);
   if ((await panel.count()) === 0) await openEntryTerminal(entry);

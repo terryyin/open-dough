@@ -5,11 +5,12 @@
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type {
   FollowUpLedger,
+  GithubRepeatRequest,
   RepeatRequest,
 } from "../../server/ciFollowUpStore.ts";
 
-// "eligible receipt": measured, admitted while this machine has follow-up
-// enabled, its allowance unspent. "accepted request": that allowance spent on
+// "eligible receipt": measured, admitted by this machine when it recorded the
+// receipt, its allowance unspent. "accepted request": that allowance spent on
 // a rerun request the provider accepted, with no later attempt observed yet.
 // "settled request": that request settled as recovered by a full repeat that
 // passed within the rule's range of the saved average.
@@ -61,7 +62,10 @@ function recoveredBy(
 // at "settled request", with the `repeat` build that settled it.
 export function heldAt(
   stage: RepeatStage,
-  measured: Pick<RepeatRequest, "original" | "reference" | "workflowId"> & {
+  measured: Pick<
+    GithubRepeatRequest,
+    "original" | "reference" | "workflowId"
+  > & {
     readonly job: { readonly databaseId: number; readonly name: string };
     readonly repeat?: RepeatRequest["original"];
   },
@@ -77,6 +81,7 @@ export function heldAt(
     throw new Error("A request's original names its run and bounds.");
   const request = makeMe.aCiRepeatRequest
     .with({
+      provider: "github",
       repository: "terryyin/open-dough",
       workflow: "ci.yml",
       workflowId,

@@ -1,4 +1,4 @@
-// Local read projection shared by settings and Recently done.
+// Local read projection for Recently done cards.
 import { z } from "zod";
 export const ciFollowUpEndpoint = "/__project-configuration/ci-follow-up";
 const cardSchema = z.object({
@@ -12,10 +12,6 @@ const cardSchema = z.object({
   explanation: z.string(),
 });
 export const ciFollowUpAnswerSchema = z.object({
-  enabled: z.boolean(),
-  machine: z.string(),
-  available: z.boolean(),
-  explanation: z.string(),
   cards: z.array(cardSchema),
 });
 export type CiFollowUpAnswer = z.infer<typeof ciFollowUpAnswerSchema>;

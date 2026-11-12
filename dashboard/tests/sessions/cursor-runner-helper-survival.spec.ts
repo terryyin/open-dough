@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A same-build runner whose helper proof alone drifted keeps its held
 // sessions running when another Cursor session starts. Stale-build
 // observation and replacement recovery live in
@@ -15,6 +16,7 @@ import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 import { expect, workingCursorTest } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { processRunning } from "../support/processGroup.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 
 const helperGoneSecondId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
 const helperGoneThirdId = "b2c3d4e5-f6a7-489a-bcde-f01234567890";
@@ -77,9 +79,9 @@ workingCursorTest(
       )
       .toBe(1);
 
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     if ((await panel.count()) > 0) {
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeSidePanel(panel);
       await expect(panel).toHaveCount(0);
     }
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(

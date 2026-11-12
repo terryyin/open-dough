@@ -8,6 +8,7 @@ import { storyCardSessions, parts, sessionNamedBy } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import { inspectByKeyboard, marksOf } from "../responsiveAccess.ts";
 import { startExecution } from "../responsiveRecovery.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   openStories,
   startupUnavailable as unavailable,
@@ -47,7 +48,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
     story.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled({ timeout: 30_000 });
   await expect(otherHide).toBeFocused();
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(entry, { exact: false }).click();
   await expect(entry).toContainText("Shown in terminal");
 
   idleBetweenSteps(dashboard, await sessionNamedBy(entry));
@@ -64,7 +65,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
   );
   expect(marks.edge).toBe("dashed");
   // The terminal closed with Mark as done; no current-session mark on a new start.
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expect(panel).toHaveCount(0);
   // Recently done lists the done session outside the frame.
   await expect(

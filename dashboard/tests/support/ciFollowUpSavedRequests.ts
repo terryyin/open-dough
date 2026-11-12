@@ -11,7 +11,7 @@ import type { RepeatRequest } from "../../server/ciFollowUpStore.ts";
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { keepRepeats, type KeptRepeat } from "./ciFollowUpKeptLanding.ts";
 import { providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
-import { followUpSettings, readFollowUpLedger } from "./ciFollowUpScenario.ts";
+import { readFollowUpLedger } from "./ciFollowUpScenario.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import { passedBetween } from "./landedCiTrunk.ts";
@@ -99,10 +99,6 @@ export function savedRepeatComparison(
     averageMs: request?.reference.averageMs,
   };
 }
-
-// The cards the server reads now for Open Dough's published completions.
-export const repeatCards = async (server: DashboardServer) =>
-  (await followUpSettings(server)).body.cards;
 
 // The runs the provider was asked to rerun, in the order it was asked.
 export const rerunRuns = (github: FakeGitHub) =>

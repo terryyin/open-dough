@@ -8,6 +8,11 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  closeTerminal,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   expectMembership,
   expectProjectChoice,
   parts,
@@ -22,7 +27,6 @@ import {
 } from "../launchJourney.ts";
 import { expectRoute } from "../agentRosterRecords.ts";
 import { launched } from "../agentTerminalBoundary.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { publishCatalogProjects } from "../projectKeyboardNavigationJourney.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
@@ -59,8 +63,8 @@ test.describe("with the three catalog projects' sessions", () => {
     );
     const { button, entries, entry } = sessionsSidebarParts(page);
     const { development, intent, intentChoice, backlog } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     await expectMembership(page, openDoughStories);
     await intentChoice.click();
     await expect(intent).toBeVisible();
@@ -97,7 +101,7 @@ test.describe("with the three catalog projects' sessions", () => {
     });
 
     await test.step("Intent and back keep the terminal shown and attached once, with what was typed", async () => {
-      await panel.locator(".xterm-helper-textarea").focus();
+      await terminalScreenParts(panel).input.focus();
       await page.keyboard.type("before intent");
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo before intent");
@@ -107,7 +111,7 @@ test.describe("with the three catalog projects' sessions", () => {
       );
       await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
       await expect(rows).toContainText("echo before intent");
-      await panel.locator(".xterm-helper-textarea").focus();
+      await terminalScreenParts(panel).input.focus();
       await page.keyboard.type("during intent");
       await page.keyboard.press("Enter");
       await expect(rows).toContainText("echo during intent");
@@ -167,14 +171,14 @@ test.describe("with a session to open", () => {
     await development.click();
     await expect(parts(page).intent).toHaveCount(0);
 
-    const panel = page.getByRole("region", { name: "Terminal", exact: true });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const { button, entry } = sessionsSidebarParts(page);
     await button.click();
     await entry(story.title).click();
     await expectCovering(panel);
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
-    await panel.locator(".xterm-helper-textarea").focus();
+    await terminalScreenParts(panel).input.focus();
     await page.keyboard.type("while covering");
     await page.keyboard.press("Enter");
     await expect(rows).toContainText("echo while covering");
@@ -205,7 +209,7 @@ test.describe("with a session to open", () => {
     });
 
     await test.step("Close shows Open Dough's Intent, as the address names, on the session's story it keeps selected", async () => {
-      await closeSidePanel(panel);
+      await closeTerminal(panel);
       const { intent } = parts(page);
       await expect(intentChoice).toBeChecked();
       await expectProjectChoice(page, "Open Dough");

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Opening a Sessions sidebar Session entry goes to its story and its session: the
 // page shows the session's project's stories, from the agent roster too, as
 // one history entry; the terminal opens the session as Open terminal does,
@@ -11,6 +12,7 @@
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectProjectChoice,
   expectMembership,
@@ -61,7 +63,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
     const { roster } = rosterParts(page);
     const { backlog } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const shownMark = page.getByText("Shown in terminal", { exact: true });
     const pygardonStoryCard = backlog.getByRole("article", {
       name: pygardonStory.title,
@@ -83,7 +85,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect
         .poll(() => attachesOf(dashboard, sessions.pygardon).length)
         .toBe(1);
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         `attached ${sessions.pygardon.slice(0, 8)}`,
       );
       expect(await keyboardInside(page, "Terminal")).toBe(true);
@@ -160,7 +162,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     });
 
     await test.step("closing the terminal clears both marks, keeps the story selected, and returns the keyboard to the entry", async () => {
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(panel).toHaveCount(0);
       await expect(shownMark).toHaveCount(0);
       await expect(page.locator(".in-side-panel")).toHaveCount(0);

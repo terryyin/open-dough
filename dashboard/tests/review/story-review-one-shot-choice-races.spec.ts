@@ -1,5 +1,14 @@
 // Older actual review/file responses cannot answer a later retained choice.
-import { test, expect } from "../support/codexStart.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
+import { fileBrowser } from "../support/reviewContextLine.ts";
+import { changedFilesList } from "../support/reviewTreeRows.ts";
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
+import { test as base, expect } from "../support/codexStart.ts";
 import { reviewChoices } from "../support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "../support/oneShotReview.ts";
 import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
@@ -7,7 +16,25 @@ import {
   storyReviewEndpoint,
   storyReviewFileEndpoint,
 } from "../../src/storyReviewContract.ts";
-import { expectCovering } from "../sidePanelWidthPage.ts";
+import {
+  expectCovering,
+  focusDivider,
+  panelDivider,
+  pressDividerKey,
+  resizeUntilArranged,
+} from "../sidePanelWidthPage.ts";
+
+// Prepare immutable installed Codex and preview inputs before the case's
+// private origin and its real native launches begin.
+const test = base.extend({
+  originRepository: async (
+    { queuedCodexPreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedCodexPreviewReady);
+    await use(originRepository);
+  },
+});
 
 test("delayed run and file responses leave the later run selected through narrow layout and panel controls", async ({
   page,
@@ -22,9 +49,9 @@ test("delayed run and file responses leave the later run selected through narrow
     codexProtocol,
   );
   const { card } = await openCapturedReview(page, origin);
-  const review = page.getByRole("region", { name: "Story review" });
-  const radio = review.getByRole("radio", { name: "Landed runs" });
-  const select = review.getByRole("listbox", { name: "Landed run" });
+  const review = reviewRegion(page);
+  const radio = comparisonChoice(review, "Landed runs");
+  const select = landedRunChoice(review);
   const heldRun = await holdNextReviewResponse(
     page,
     dashboard.origin,
@@ -75,28 +102,25 @@ test("delayed run and file responses leave the later run selected through narrow
     heldFile.release();
     await heldFile.delivery;
   }
-  const divider = review.getByRole("separator", { name: "Panel divider" });
+  const divider = panelDivider(review, { exact: false });
   await expect(divider).toBeVisible();
   const width = Number(await divider.getAttribute("aria-valuenow"));
-  await divider.focus();
-  await page.keyboard.press("ArrowLeft");
+  await focusDivider(review, { exact: false });
+  await pressDividerKey(page, "ArrowLeft");
   await expect(divider).toHaveAttribute("aria-valuenow", String(width + 32));
   await expect(select).toHaveValue(first.key);
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",
   ]);
-  await page.setViewportSize({ width: 420, height: 900 });
+  await resizeUntilArranged(review, { width: 420, height: 900 });
   await expect(select).toHaveValue(first.key);
   await expectCovering(review);
-  const files = review.getByRole("list", {
-    name: "1 changed file",
-    exact: true,
-  });
+  const files = changedFilesList(review, "1 changed file", { exact: true });
   await review.getByRole("button", { name: "Hide files" }).click();
   await expect(files).toBeHidden();
   await review.getByRole("button", { name: "Show files" }).click();
   await expect(files).toBeVisible();
-  const browser = await review.locator(".story-review-files").boundingBox();
+  const browser = await fileBrowser(review).boundingBox();
   const diff = await review.locator(".story-review-diff").boundingBox();
   expect(browser).not.toBeNull();
   expect(diff).not.toBeNull();
@@ -108,8 +132,6 @@ test("delayed run and file responses leave the later run selected through narrow
   await expect(review.locator(".story-review-added")).toHaveText([
     "+first.txt",
   ]);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await closeSidePanel(review);
+  await expect(reviewChanges(card)).toBeFocused();
 });

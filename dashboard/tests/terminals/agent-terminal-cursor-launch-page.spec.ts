@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // An instructed Cursor session takes its instruction with no terminal joined.
 // Its entry's Open terminal then joins that same client: the page shows its
 // output and accepts typing. There is no launch-wait notice and no second
@@ -8,6 +9,11 @@
 // nothing typed before the page first read the machine's sessions, and so
 // before it knew which hosts have a terminal here, still opens its terminal.
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   terminalHandoffAttach,
   terminalHandoffHeader,
@@ -56,8 +62,8 @@ test("an instructed Cursor start takes its instruction with no terminal joined, 
   // The startup ended and Cursor took the instruction; no terminal joined.
   const recent = await startedSession(page);
   await expect(recent).toContainText("First input accepted");
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   await expect(panel).toHaveCount(0);
   expect(terminalSockets).toEqual([]);
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
@@ -67,20 +73,20 @@ test("an instructed Cursor start takes its instruction with no terminal joined, 
   expect(cursor.attaches()[0]?.args).not.toContain(instruction);
   await expect.poll(() => cursor.input(pid)).toContain(instruction);
 
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(recent, { exact: false }).click();
   await expect(rows).toContainText("ctrl+c to stop");
   await expect(rows).toContainText("Add a follow-up");
   await expect(rows).not.toContainText(notice);
   expect(terminalSockets).toHaveLength(1);
-  await panel.locator(".xterm-screen").click();
+  await terminalScreenParts(panel).screen.click();
   await page.keyboard.type("later");
   await expect.poll(() => cursor.input(pid)).toContain("later");
   expect(cursor.attaches()).toHaveLength(1);
 
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(panel).toHaveCount(0);
   expect(processRunning(pid)).toBe(true);
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(recent, { exact: false }).click();
   await expect(rows).toContainText("ctrl+c to stop");
   expect(cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(pid);
@@ -129,9 +135,9 @@ test("a Cursor start with nothing typed and an attached image presents the termi
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
   // The start presents the terminal with the keyboard: no entry is opened.
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
-  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused({
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
+  await expect(terminalScreenParts(panel).input).toBeFocused({
     timeout: launchWaitMs,
   });
   await expect(rows).toContainText("ctrl+c to stop");
@@ -201,7 +207,7 @@ test("a session started with nothing typed before the page first read the machin
   release();
 
   await startedSession(page);
-  await expect(
-    page.getByRole("region", { name: "Terminal" }).locator(".xterm-rows"),
-  ).toContainText("ctrl+c to stop");
+  await expect(terminalScreenParts(terminalPanel(page)).rows).toContainText(
+    "ctrl+c to stop",
+  );
 });

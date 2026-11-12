@@ -1,9 +1,8 @@
 // The prior landings a machine keeps measured before a landing whose repeat a
 // case observes (./ciFollowUpKeptLanding.ts): each recorded for a story's
 // execution in the launch records, measured by its own passed build with that
-// build's CI proof in the landed CI history, and, having been recorded before
-// the machine enabled follow-up, held by the follow-up ledger with no
-// eligibility. They stand at revisions no repository holds, where the
+// build's CI proof in the landed CI history; the follow-up ledger holds none
+// of their receipts. They stand at revisions no repository holds, where the
 // history's kept trunk order alone places them, or, for a receipt the product
 // itself orders on trunk, at the landings a case published and recorded there.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -105,19 +104,6 @@ export function keptPriors(
     },
     // Their launch records.
     records: priors.map(({ landing }) => landedRecord(landing)),
-    // Their ledger entries: a receipt that predates enabling never gains
-    // eligibility.
-    ledgerEntries: priors.map(({ landing }) =>
-      makeMe.aCiFollowUpEntry
-        .with({
-          project: "open-dough",
-          revision: landing.revision,
-          target,
-          receipts: [landing.receipt],
-          eligible: false,
-        })
-        .please(),
-    ),
     // The reference a request freezes for the landing at `endpoint` whose
     // build `selected` started at `date` and took `ms`, compared with them:
     // the average of those it uses, and the selected build's difference from

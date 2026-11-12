@@ -1,10 +1,10 @@
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
+import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import {
   expectWhollyInView,
@@ -34,11 +34,11 @@ for (const height of [800, 900, 1600]) {
     await sidebar.button.click();
     await sidebar.entry(pygardonStory.title).click();
     await expect(sidebar.sidebar).toBeHidden();
-    const panel = page.getByRole("region", { name: "Terminal", exact: true });
+    const panel = terminalPanel(page);
     await expect(panel.locator("textarea")).toBeFocused();
     await expectCovering(panel);
     // Covering hides the Board; Close first, then read the revealed card.
-    await closeSidePanel(panel);
+    await closeTerminal(panel);
     const card = parts(page).backlog.getByRole("article", {
       name: pygardonStory.title,
       exact: true,

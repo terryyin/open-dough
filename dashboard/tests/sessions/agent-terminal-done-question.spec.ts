@@ -9,6 +9,11 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   chooseProject,
   storyCardSessions,
   expectMembership,
@@ -55,13 +60,13 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(notRefinedStory, "Execution");
-    await storyCardSessions(card(notRefinedStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached ");
+    await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
+      exact: false,
+    }).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached ");
     await chooseProject(page, "Doughnut");
     await expectMembership(page, {
       taken: [],
@@ -88,7 +93,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
@@ -96,8 +101,8 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     dashboard.claudeSessionBecomes(sessionId, "done-live");
     await reloadUntilRead(page);
     await expect(sessionStateOf(listed)).toHaveText("Ready for review");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(listed, { exact: false }).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
 
     dashboard.claudeSessionBecomes(sessionId, "working");
     await setPageVisibility(page, "hidden");

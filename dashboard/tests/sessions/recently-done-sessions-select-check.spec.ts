@@ -12,6 +12,7 @@ import { parts } from "../dashboardPage.ts";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   adHoc,
   choiceStatus,
@@ -99,7 +100,7 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
 
   await test.step("its Open still opens the session's terminal", async () => {
     await shown.open(linked.title).click();
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     await expect(terminal.getByRole("heading")).toHaveText(linked.title);
     await expect(development).toBeChecked();
     await expect.poll(() => dashboard.claudeAttaches()).toHaveLength(1);

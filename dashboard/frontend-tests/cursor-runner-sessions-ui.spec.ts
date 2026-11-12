@@ -5,6 +5,7 @@
 // journey says.
 
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import { terminalPanel } from "../tests/terminalScreenPage.ts";
 import {
   pausePageClock,
   setPageVisibility,
@@ -93,7 +94,7 @@ test("slow Cursor sessions answers still publish under at most one owned read, a
     await openFrontendTakenBacklog(page);
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     const demand = trackCursorSessionsDemand(page);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     const firstRead = reads.nextArrival();
     const { sidebar, region, header } = await openRunningList(page);
     await firstRead;
@@ -175,7 +176,7 @@ test("while expanded, the list says it is reading, then follows each later read:
   try {
     await openFrontendTakenBacklog(page);
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     const firstRead = reads.nextArrival();
     const { sidebar, region } = await openRunningList(page);
     await firstRead;

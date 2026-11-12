@@ -3,6 +3,7 @@
 // Real boundaries, fake Claude, paused time. Order alone:
 // ./sessions-sidebar-order.spec.ts.
 import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -220,7 +221,7 @@ test.describe("the Sessions sidebar", () => {
     });
 
     await test.step("wide, the sidebar is a column left of the page and the terminal right of it; narrow, it lies over the page", async () => {
-      const panel = page.getByRole("region", { name: "Terminal" });
+      const panel = terminalPanel(page);
       await showColumn(page, "Backlog");
       await entry(doughnutSharedTitle).click();
       await expect(panel).toBeVisible();

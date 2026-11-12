@@ -7,6 +7,11 @@ import { startSessionField } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
 import { expect, test, keptRecord } from "../support/cursorStart.ts";
 import { heldOnWorkspaceTrust } from "../support/keptCursorTurn.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 
 // Start's wait ends once the runner holds the client on the trust prompt.
 test.use({ cursorScreen: "trust-unframed", launchWaitEnd: true });
@@ -53,15 +58,15 @@ test("Start and Startup recovery name workspace trust, and answering in the sess
   const pid = cursor.attaches()[0]?.pid ?? 0;
   expect(cursor.input(pid)).toBe("");
 
-  await entry.getByRole("button", { name: "Open terminal" }).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  await openTerminalControl(entry, { exact: false }).click();
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText(
     "Workspace Trust Required",
   );
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  await expect(terminalScreenParts(panel).rows).toContainText(
     "[a] Trust this workspace",
   );
-  await panel.locator(".xterm-screen").click();
+  await terminalScreenParts(panel).screen.click();
   await page.keyboard.type("a");
   await expect
     .poll(() => keptRecord(dashboard.home).firstInput)

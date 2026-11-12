@@ -1,5 +1,7 @@
+import { reviewRefresh } from "./reviewControls.ts";
 // The review the server answers for any launch's story, read as the page
 // receives it.
+import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
@@ -17,8 +19,8 @@ export async function reviewAfter(page: Page, control: Locator) {
 
 // The review a card's "Review changes" opens.
 export const readReview = (page: Page, card: Locator) =>
-  reviewAfter(page, card.getByRole("button", { name: "Review changes" }));
+  reviewAfter(page, reviewChanges(card));
 
 // The review an open review's Refresh reads again.
 export const refreshReview = (page: Page, review: Locator) =>
-  reviewAfter(page, review.getByRole("button", { name: "Refresh" }));
+  reviewAfter(page, reviewRefresh(review));

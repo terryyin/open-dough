@@ -4,10 +4,20 @@ import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import { markedWorktree, sixth } from "../support/storyReviewTrunk.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  listedFile,
+  fileLineCounts,
+  fileDiff,
+} from "../support/reviewTreeRows.ts";
 
 test("a file renamed before and after conflicted integration stays flagged with its original old path and diff", async ({
   page,
@@ -40,7 +50,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
     "story changes c",
   ]);
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -48,17 +58,14 @@ test("a file renamed before and after conflicted integration stays flagged with 
   await expect(
     review.getByRole("heading", { name: "Changes in 4 commits" }),
   ).toBeVisible();
-  const files = review.getByRole("list", {
-    name: "1 changed file",
-    exact: true,
-  });
+  const files = changedFilesList(review, "1 changed file", { exact: true });
   await expectTreeRows(files, ["src", "  e.ts includes trunk's changes"]);
   const name = "Renamed src/c.ts → src/e.ts, includes trunk's changes";
-  await files.getByRole("button", { name, exact: true }).click();
-  await expect(files.locator(".story-review-line-counts")).toHaveText("+1 −1", {
+  await listedFile(files, name, { exact: true }).click();
+  await expect(fileLineCounts(files)).toHaveText("+1 −1", {
     useInnerText: true,
   });
-  await expect(review.getByRole("region", { name, exact: true })).toBeVisible();
+  await expect(fileDiff(review, name, { exact: true })).toBeVisible();
   await expect(review.locator(".story-review-removed")).toHaveText(["-c 5"]);
   await expect(review.locator(".story-review-added")).toHaveText([
     "+c story and trunk",

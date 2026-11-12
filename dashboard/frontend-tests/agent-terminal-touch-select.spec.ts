@@ -23,6 +23,12 @@ import {
 import { box, tapWhereShown } from "../tests/pageLayout.ts";
 import { expectStillHolds } from "../tests/sidePanelWidthPage.ts";
 import {
+  expectNoTerminalText,
+  expectTerminalInputNotFocused,
+  expectTerminalText,
+  terminalStatus,
+} from "../tests/terminalScreenPage.ts";
+import {
   expectLive,
   expectPaused,
   expectPausedShowsDrawnRowsInPlace,
@@ -57,14 +63,13 @@ test.describe("phone Select", () => {
     const program = directedApplication(
       "attached select01\r\nfirst output\r\n",
     );
-    const { panel, rows, input, sent, sizes } =
-      await openFrontendTerminalByTouch(
-        page,
-        frontendServices,
-        session("Phone select session"),
-        { application: program.application },
-      );
-    await expect(rows).toContainText("first output");
+    const { panel, input, sent, sizes } = await openFrontendTerminalByTouch(
+      page,
+      frontendServices,
+      session("Phone select session"),
+      { application: program.application },
+    );
+    await expectTerminalText(panel, "first output");
     // One size per attachment and per resize the page asked for.
     const sized = sizes.length;
     // No soft keyboard is up: the terminal's input is not focused.
@@ -74,18 +79,18 @@ test.describe("phone Select", () => {
 
     await tapWhereShown(selectKey(panel));
     await expectPaused(panel);
-    await expect(input).not.toBeFocused();
+    await expectTerminalInputNotFocused(panel);
     await expectPausedShowsDrawnRowsInPlace(panel);
     const paused = await pausedLines(panel);
     expect(paused.slice(0, 2)).toEqual(["attached select01", "first output"]);
 
     program.print("printed while paused\r\n");
-    await expect(rows).toContainText("printed while paused");
+    await expectTerminalText(panel, "printed while paused");
     expect(await pausedLines(panel)).toEqual(paused);
     await expectPausedOverScreen(panel);
     // The paused text announces nothing, and a touch on it neither leaves the
     // pause nor reaches the terminal beneath.
-    await expect(panel.getByRole("status")).toBeEmpty();
+    await expect(terminalStatus(panel)).toBeEmpty();
     expect(
       await pausedText(panel).evaluate(
         (text) =>
@@ -94,19 +99,19 @@ test.describe("phone Select", () => {
     ).toBe(false);
     await tapWhereShown(pausedText(panel));
     await expectPaused(panel);
-    await expect(input).not.toBeFocused();
+    await expectTerminalInputNotFocused(panel);
 
     await tapWhereShown(selectKey(panel));
     await expectLive(panel);
-    await expect(rows).toContainText("printed while paused");
-    await expect(input).not.toBeFocused();
+    await expectTerminalText(panel, "printed while paused");
+    await expectTerminalInputNotFocused(panel);
 
     // Typing reaches the session as before, the first thing it is sent, on
     // the attachment the page opened and never resized.
     await focusByTouch(panel);
     await input.press("!");
     await expect.poll(() => sent).toEqual(["!"]);
-    await expect(rows).toContainText("!");
+    await expectTerminalText(panel, "!");
     expect(sizes).toHaveLength(sized);
   });
 
@@ -118,20 +123,20 @@ test.describe("phone Select", () => {
       const program = directedApplication(
         "attached select01\r\nlast words\r\nbefore it went\r\n",
       );
-      const { panel, rows } = await openFrontendTerminalByTouch(
+      const { panel } = await openFrontendTerminalByTouch(
         page,
         frontendServices,
         session(`Phone select ${ending} session`),
         { application: program.application },
       );
-      await expect(rows).toContainText("before it went");
+      await expectTerminalText(panel, "before it went");
       if (ending === "ended") program.end();
       else program.disconnect();
       const [says, action] =
         ending === "ended"
           ? ["The terminal ended", "Open again"]
           : ["Disconnected from the session", "Reconnect"];
-      await expect(panel.getByRole("status")).toContainText(says);
+      await expect(terminalStatus(panel)).toContainText(says);
       // Touching the screen waits for it to fit beneath the status line.
       await focusByTouch(panel);
 
@@ -145,7 +150,7 @@ test.describe("phone Select", () => {
 
       await tapTerminalKey(panel, "Select");
       await expectLive(panel);
-      await expect(rows).toContainText("before it went");
+      await expectTerminalText(panel, "before it went");
       await expect(
         panel.getByRole("button", { name: action, exact: true }),
       ).toBeVisible();
@@ -174,7 +179,7 @@ test.describe("fine-pointer desktop", () => {
         ),
       },
     );
-    await expect(rows).toContainText(conversationLine(lines));
+    await expectTerminalText(panel, conversationLine(lines));
 
     await expect(terminalKeyToolbar(panel)).toBeHidden();
     await expect(selectKey(panel)).toBeHidden();
@@ -195,7 +200,7 @@ test.describe("fine-pointer desktop", () => {
     await expect(selection).not.toHaveCount(0);
 
     // The wheel moves the terminal's scrollback.
-    await expect(rows).not.toContainText(conversationLine(1));
+    await expectNoTerminalText(panel, conversationLine(1));
     await expectStillHolds(panel, conversationLine(1));
     expect(sent).toEqual([]);
   });

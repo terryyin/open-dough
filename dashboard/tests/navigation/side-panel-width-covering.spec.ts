@@ -6,17 +6,22 @@
 // the same side. The split beside the page, on the wide side, is
 // ./side-panel-width.spec.ts.
 
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import {
   narrowWindow,
   expectFocusedAndIndicated,
 } from "../accessibleReading.ts";
 import { parts, storyCardSessions } from "../dashboardPage.ts";
 import {
+  closeTerminal,
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   box,
-  closeSidePanel,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
-  pressWhereShown,
 } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import {
@@ -30,7 +35,13 @@ import {
   storyAWithSession,
   usableMinimum,
   wideWindow,
+  resizeUntilArranged,
 } from "../sidePanelWidthPage.ts";
+import {
+  closeSidePanel,
+  maximizeSidePanel,
+  restoreSidePanel,
+} from "../sidePanelFrame.ts";
 import { expect, test } from "../support/preparationPage.ts";
 
 test("at a narrow window the panel covers the page with no Maximize, and a wide window recovers the chosen width and Maximize choice", async ({
@@ -45,10 +56,8 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
   );
   const { banner, board } = parts(page);
 
-  await storyCardSessions(card)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await openTerminalControl(storyCardSessions(card), { exact: false }).click();
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   const room = await split(page, terminal);
   const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
   await dragDivider(page, -2000);
@@ -59,13 +68,11 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     [
       review,
       async () => {
-        await card.getByRole("button", { name: "Review changes" }).click();
-        await review
-          .getByRole("button", { name: "Modified unstaged.txt" })
-          .click();
-        await expect(
-          review.getByRole("region", { name: "Modified unstaged.txt" }),
-        ).toContainText("+more wide");
+        await reviewChanges(card).click();
+        await listedFile(review, "Modified unstaged.txt").click();
+        await expect(fileDiff(review, "Modified unstaged.txt")).toContainText(
+          "+more wide",
+        );
       },
     ],
   ] as const) {
@@ -74,7 +81,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await expectWidth(panel, chosen);
     await expect(control(panel, "Maximize")).toBeVisible();
 
-    await page.setViewportSize(narrowWindow);
+    await resizeUntilArranged(panel, narrowWindow);
     await expectCoveringFillsWindow(panel, { banner, board });
     await expectNoSidewaysScrollAndWholeText(page, [
       ...scrollsOnItsOwn,
@@ -97,7 +104,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await page.keyboard.press("Tab");
     await expectFocusedAndIndicated(page, close);
 
-    await page.setViewportSize(wideWindow);
+    await resizeUntilArranged(panel, wideWindow);
     await expectWidth(panel, chosen);
     await expect(divider).toBeVisible();
     await expect(control(panel, "Maximize")).toBeVisible();
@@ -106,14 +113,14 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
 
   await test.step("Maximize before narrowing stays maximized with Restore after widening", async () => {
     await page.setViewportSize(wideWindow);
-    await pressWhereShown(control(review, "Close"));
+    await closeSidePanel(review, { using: "pointer" });
     await expect(review).toHaveCount(0);
-    await storyCardSessions(card)
-      .getByRole("button", { name: "Open terminal" })
-      .click();
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(storyCardSessions(card), {
+      exact: false,
+    }).click();
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectWidth(terminal, chosen);
-    await pressWhereShown(control(terminal, "Maximize"));
+    await maximizeSidePanel(terminal);
     await expect(control(terminal, "Restore")).toBeVisible();
     await page.setViewportSize(narrowWindow);
     await expectCovering(terminal);
@@ -121,7 +128,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await expect(control(terminal, "Restore")).toBeVisible();
     await expect(control(terminal, "Maximize")).toHaveCount(0);
     await expect(banner).toBeHidden();
-    await pressWhereShown(control(terminal, "Restore"));
+    await restoreSidePanel(terminal);
     await expectWidth(terminal, chosen);
     await expect(control(terminal, "Maximize")).toBeVisible();
     await expect(banner).toBeVisible();
@@ -137,10 +144,8 @@ test("beside the open sidebar with too little room, the panel covers the page co
   const sidebar = sessionsSidebarParts(page);
   const { banner } = parts(page);
 
-  await storyCardSessions(card)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await openTerminalControl(storyCardSessions(card), { exact: false }).click();
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await sidebar.button.click();
   await expect(sidebar.sidebar).toBeVisible();
   // 880 − 288px sidebar = 592px < two 320px minimums.
@@ -156,6 +161,6 @@ test("beside the open sidebar with too little room, the panel covers the page co
   expect(panelBox.width).toBeCloseTo(room.width - side.x - side.width, 0);
   expect(panelBox.height).toBeCloseTo(room.height, 0);
   await expect(banner).toBeHidden();
-  await closeSidePanel(terminal);
+  await closeTerminal(terminal);
   await expect(banner).toBeVisible();
 });

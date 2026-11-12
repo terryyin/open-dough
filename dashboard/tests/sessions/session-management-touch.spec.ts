@@ -1,5 +1,8 @@
-import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Exact touch actions on real submitted reports and dashboard records.
+
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import {
@@ -23,7 +26,6 @@ import { launchedStory, shortIdOf } from "../support/reportedLaunch.ts";
 import { otherQueuedIdentity, queuedIdentity } from "../support/startOrigin.ts";
 import { publishOrigin, test } from "../support/startOriginTest.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
-
 test.use({
   projectFolders: ["open-dough"],
   launchTimeoutMs: 30_000,
@@ -71,13 +73,13 @@ test.describe(`${name} session management`, () => {
     // Coarse Session details: sessions-sidebar-touch
     await sidebar.entry("Story B").scrollIntoViewIfNeeded();
     await tapWhereShown(sidebar.entry("Story B"));
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
     await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
     // Scroll stacked panels before reading: xterm pauses offscreen rendering.
     // Header taps never scroll a control into view.
     await panel.scrollIntoViewIfNeeded();
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       `attached ${intended.sessionId.slice(0, 8)}`,
     );
     await tapWhereShown(
@@ -106,9 +108,7 @@ test.describe(`${name} session management`, () => {
         .claudeAttaches()
         .filter(({ id }) => id === intended.sessionId.slice(0, 8)),
     ).toHaveLength(1);
-    await tapWhereShown(
-      panel.getByRole("button", { name: "Close", exact: true }),
-    );
+    await closeSidePanel(panel, { using: "touch" });
     await expect(panel).toHaveCount(0);
 
     const cardB = parts(page).taken.getByRole("article", {

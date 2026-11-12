@@ -1,6 +1,14 @@
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import {
+  closeTerminal,
+  expectTerminalInputFocused,
+  expectTerminalText,
+  focusTerminalInput,
+  insertTerminalText,
+  pressTerminalKey,
+} from "../terminalScreenPage.ts";
+import {
   observeMicrophone,
   seedVoiceKey,
   stoppedTracks,
@@ -10,10 +18,14 @@ import {
 } from "../support/voicePage.ts";
 import {
   beginTerminalClip,
-  openTerminalVoice,
-  stopTerminalClip,
   chooseTerminalDictation,
   expectTerminalDictationAvailable,
+  expectVoiceStatusEmpty,
+  expectVoiceStatusText,
+  openTerminalVoice,
+  stopTerminalClip,
+  voiceAlert,
+  voiceSettingsControl,
 } from "../support/terminalVoicePage.ts";
 import { noteTerminalTraffic } from "../touchTerminalPage.ts";
 import { briefDoneRenameWait } from "../support/markDone.ts";
@@ -37,21 +49,15 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
     launchJourney,
   );
   await chooseTerminalDictation(panel);
-  await expect(panel.getByRole("alert")).toContainText(
-    "Configure an OpenAI API key",
-  );
-  await expect(
-    panel.getByRole("button", { name: "Open OpenAI settings" }),
-  ).toBeVisible();
+  await expect(voiceAlert(panel)).toContainText("Configure an OpenAI API key");
+  await expect(voiceSettingsControl(panel)).toBeVisible();
   seedVoiceKey(dashboard.home);
   await page.evaluate(() => {
     navigator.mediaDevices.getUserMedia = () =>
       Promise.reject(new DOMException("private", "NotAllowedError"));
   });
   await chooseTerminalDictation(panel);
-  await expect(panel.getByRole("alert")).toHaveText(
-    instructionProblems.permission,
-  );
+  await expect(voiceAlert(panel)).toHaveText(instructionProblems.permission);
   await page.evaluate(() => {
     Object.defineProperty(window, "MediaRecorder", {
       value: undefined,
@@ -59,38 +65,36 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
     });
   });
   await chooseTerminalDictation(panel);
-  await expect(panel.getByRole("alert")).toHaveText(
-    instructionProblems.unavailable,
-  );
+  await expect(voiceAlert(panel)).toHaveText(instructionProblems.unavailable);
   // Reload restores the actual recording API after the unsupported/refusal variants.
   await page.reload();
   await open();
-  await expect(panel.locator(".xterm-rows")).toContainText("Claude Code");
+  await expectTerminalText(panel, "Claude Code");
   provider.setText("\u0003\n\u001b[2J");
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
-  await expect(panel.getByRole("alert")).toHaveText(instructionProblems.empty);
+  await expect(voiceAlert(panel)).toHaveText(instructionProblems.empty);
   provider.reply(500, JSON.stringify({ error: "private-provider-diagnostic" }));
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
-  await expect(panel.getByRole("alert")).toContainText(
+  await expect(voiceAlert(panel)).toContainText(
     "Transcription could not finish",
   );
   await expectTerminalDictationAvailable(panel, true);
-  await panel.locator(".xterm-helper-textarea").focus();
-  await page.keyboard.type("typed ");
+  await focusTerminalInput(panel);
+  await insertTerminalText(page, "typed ");
   expect(sent).not.toContain("\u0003\n\u001b[2J");
   expect(provider.calls).toHaveLength(2);
   provider.setText("retry");
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
-  await expect(panel.getByRole("status")).toBeEmpty();
-  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+  await expectVoiceStatusEmpty(panel);
+  await expectTerminalInputFocused(panel);
   // Native resize notices can appear between typed text and the transcript.
   // The submitted line below observes their exact combination.
-  await expect(panel.locator(".xterm-rows")).toContainText("typed");
-  await expect(panel.locator(".xterm-rows")).toContainText("retry");
-  await page.keyboard.press("Enter");
+  await expectTerminalText(panel, "typed");
+  await expectTerminalText(panel, "retry");
+  await pressTerminalKey(page, "Enter");
   await expect
     .poll(() => dashboard.claudeAttaches().at(-1)?.lines)
     .toEqual(["typed retry"]);
@@ -113,21 +117,19 @@ test("Close releases capture and a late permission grant cannot record into a re
     launchJourney,
   );
   await beginTerminalClip(page, panel);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeTerminal(panel);
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   await open();
   const permission = await holdMicrophonePermission(page);
   await chooseTerminalDictation(panel);
   await permission.requested();
-  await expect(panel.getByRole("status")).toHaveText(
-    "Waiting for microphone permission…",
-  );
+  await expectVoiceStatusText(panel, "Waiting for microphone permission…");
   await expectTerminalDictationAvailable(panel, false);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeTerminal(panel);
   await open();
   await permission.grant();
   await expect.poll(() => stoppedTracks(page)).toBe(true);
-  await expect(panel.getByRole("status")).toBeEmpty();
+  await expectVoiceStatusEmpty(panel);
   expect(provider.calls).toHaveLength(0);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
 });
@@ -149,11 +151,11 @@ test("switching sessions aborts held transcription and a completed late response
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
   await expect.poll(() => provider.calls.length).toBe(1);
-  await expect(panel.getByRole("status")).toHaveText("Transcribing…");
+  await expectVoiceStatusText(panel, "Transcribing…");
   await open("Voice session B");
   await expect.poll(provider.disconnected).toBe(1);
   provider.release();
-  await expect(panel.getByRole("status")).toBeEmpty();
+  await expectVoiceStatusEmpty(panel);
   await open();
   const delivery = await holdCompletedVoiceResponse(page);
   await beginTerminalClip(page, panel);
@@ -161,9 +163,9 @@ test("switching sessions aborts held transcription and a completed late response
   await delivery.ready();
   await open("Voice session B");
   await delivery.release();
-  await expect(panel.getByRole("status")).toBeEmpty();
+  await expectVoiceStatusEmpty(panel);
   await open();
-  await expect(panel.getByRole("status")).toBeEmpty();
+  await expectVoiceStatusEmpty(panel);
   expect(sent).toEqual([]);
   expect(
     dashboard.claudeAttaches().every((attach) => attach.lines.length === 0),

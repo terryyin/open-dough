@@ -14,14 +14,11 @@
 // published (./ciFollowUpSavedRequests.ts) state theirs to it. A dashboard
 // may already run on the machine, as a page's does: the provider answers
 // before the ledger names its runs, and the ledger is kept as that
-// dashboard's own writers keep it (./machineDocument.ts).
-import { hostname } from "node:os";
+// dashboard's own writers keep it (`keepFollowUpEntries`,
+// ./ciFollowUpScenario.ts).
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
-import {
-  followUpKey,
-  type FollowUpLedger,
-} from "../../server/ciFollowUpStore.ts";
+import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
 import {
   keptAttempt,
@@ -31,7 +28,7 @@ import {
   type providerRepeatRun,
 } from "./ciFollowUpRepeatRun.ts";
 import { heldAt, type AtStage } from "./ciFollowUpRepeatStage.ts";
-import { followUpFile } from "./ciFollowUpScenario.ts";
+import { keepFollowUpEntries } from "./ciFollowUpScenario.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import {
   keptPriors,
@@ -42,7 +39,6 @@ import {
 import { keptStoryCompletion } from "./keptPublishedStory.ts";
 import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
-import { keepMachineDocument } from "./machineDocument.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 
@@ -56,43 +52,24 @@ export type KeptRepeat = {
   readonly provider: ReturnType<typeof providerRepeatRun>;
 };
 
-// `kept` held by the origin's machine in that order, after the entries of
-// `earlier` receipts, with follow-up as the machine set it for Open Dough,
-// when it did; and the provider serving each kept landing's run, with
-// `otherwise` for the repository's other answers: the provider's facts for
-// one of those runs.
+// `kept` held by the origin's machine in that order, and the provider serving
+// each kept landing's run, with `otherwise` for the repository's other
+// answers: the provider's facts for one of those runs.
 export async function keepRepeats(
   origin: StartOrigin,
   github: FakeGitHub,
   kept: readonly KeptRepeat[],
-  machine: {
-    readonly followUp?: "enabled";
-    readonly earlier?: readonly LedgerEntry[];
-  } = {},
   otherwise?: OtherAnswers,
 ) {
-  const entries = [
-    ...(machine.earlier ?? []),
-    ...kept.map(({ entry }) => entry),
-  ];
-  const ledger: FollowUpLedger = {
-    projects:
-      machine.followUp === undefined
-        ? {}
-        : { "open-dough": { enabled: true, authority: hostname() } },
-    landings: Object.fromEntries(
-      entries.map((entry) => [followUpKey(entry.project, entry), entry]),
-    ),
-  };
   serveRepeatRuns(
     github,
     origin,
     kept.map(({ provider }) => provider),
     otherwise,
   );
-  await keepMachineDocument(
-    followUpFile({ home: machineHome(origin.machine) }),
-    ledger,
+  await keepFollowUpEntries(
+    { home: machineHome(origin.machine) },
+    kept.map(({ entry }) => entry),
   );
   return (run: number) => {
     const found = kept.find((each) => each.run === run);
@@ -118,9 +95,8 @@ export type RepeatLandingFacts = {
 // The landing of Story A, published as completed on the trunk the origin
 // started from (./keptPublishedStory.ts), as the machine keeps it at the
 // stage `facts` state: recorded for the story's execution and measured as
-// they state, every build with its CI proof;
-// follow-up enabled on this machine after the prior landings and before the
-// story's receipt. `beside` are other landings the machine keeps, and
+// they state, every build with its CI proof; the story's receipt admitted by
+// this machine, which recorded it. `beside` are other landings the machine keeps, and
 // `otherwise` the repository's answers beside the provider's. Answers the
 // provider's facts by run, and the story's completion.
 export async function keepRepeatLanding(
@@ -219,7 +195,6 @@ export async function keepRepeatLanding(
       origin,
       github,
       [{ run, entry, provider }, ...beside],
-      { followUp: "enabled", earlier: priors.ledgerEntries },
       facts.otherwise,
     ),
   };

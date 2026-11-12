@@ -1,17 +1,17 @@
 # Test data architecture
 
-MakeMe owns domain data that tests arrange across all five test entries. Use
-one test-only JavaScript ESM entry point at `tests/support/makeMe.mjs`, exporting
-`makeMe`. Playwright TypeScript specs and `node:test` JavaScript tests import it
-directly. A shell check that arranges domain data invokes a small Node
-helper that calls MakeMe and writes it in the product's existing format.
+Every Intent test entry in `.planning/open-dough.json` selects the shared
+MakeMe convention, which the installed [`dough-makeme`](../.agents/skills/dough-makeme/SKILL.md)
+skill owns. This guide gives the project's construction boundary and builders.
 
-Use the Donut-style syntax `makeMe.aThing.please()`. Each `aThing` or `anThing`
-access starts a fresh builder. Named methods express the facts that distinguish
-the case, and `.please()` returns the finished product value. Use deterministic
-defaults for incidental facts. Pass times and identities explicitly when they
-drive the case. Compose builders to keep related values consistent and give
-each test its own mutable data.
+Use one test-only JavaScript ESM entry point at `tests/support/makeMe.mjs`,
+exporting `makeMe`. Playwright TypeScript specs and `node:test` JavaScript tests
+import it directly. A shell check that arranges domain data invokes a small Node
+helper, such as `tests/support/release-source.mjs`, that calls MakeMe and writes
+it in the product's existing format. The helper and the builders it reaches
+follow the convention the shell check selects, though their own paths match no
+entry. A test reaches a builder as `makeMe.aThing` or `makeMe.anThing`, and
+`.please()` returns the finished product value.
 
 Type builders against the production type, schema, or encoder input with
 `@ts-check` and JSDoc imports. Builder modules import no dashboard module at
@@ -24,7 +24,7 @@ Return the canonical shape directly to every caller. Preserve actual storage
 and response distinctions, such as a persisted `LaunchRecord` and a live
 `LaunchWithState`. Use existing production encoding at file and transport
 boundaries. Keep servers, Git, installation, clocks, and teardown in the test
-harness.
+harness; its fixtures delegate domain construction to these builders.
 [ADR 0002, Direct domain mapping](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution)
 · [ADR 0008, Durable project state and local operational state](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
 
@@ -39,19 +39,6 @@ const profile = makeMe.anAgentProfile
   .please();
 const profileText = renderAgentProfile(profile);
 ```
-
-Use MakeMe for valid domain setup even when the expected outcome is a refusal,
-such as a request for another story. Keep the exact bytes, legacy shape, or
-deliberate invalidity that a test depends on visible at the call site. Build
-any surrounding valid state with MakeMe. Keep captured evidence, test actions,
-and independently written expectations separate from builders.
-[ADR 0005, Cross-tool validation](../docs/adrs/0005-cross-tool-validation-accepted.md#2-keep-deterministic-checks-in-ci)
-
-Move existing domain constructors into the shared library or have fixtures
-delegate their domain construction to it. Reject hand-built domain setup,
-suite-specific models or builders, and defaults that hide facts the test
-depends on when reviewing test changes. Preserve each test's proof boundary
-and assertions during conversion.
 
 [CI test data](ci-test-data.md) covers proof evidence, observed runs and jobs,
 adapter attempts, queue entries and stored revision coverage.

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A session launched from this dashboard opens in the page's one terminal,
 // on the committed origin from ../launchJourney.ts:
 // a card's session entry or a standalone Taken entry offers Open terminal, the page
@@ -15,6 +16,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import {
+  expectTerminalIdentity,
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -78,15 +85,14 @@ test.describe("the terminal beside the page", () => {
       columnsJourney,
     );
     const { taken, backlog } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const cardEntries = (title: string) => storyCardSessions(card(title));
     const entry = (title: string) =>
       taken.getByRole("article", {
         name: standaloneSessionName("Execution", title),
       });
-    const openIn = (place: Locator) =>
-      place.getByRole("button", { name: "Open terminal" });
+    const openIn = (place: Locator) => openTerminalControl(place);
     const attachesEnded = (sessionId: string) =>
       dashboard
         .claudeAttaches()
@@ -122,9 +128,7 @@ test.describe("the terminal beside the page", () => {
 
     await test.step("a card's session entry opens its session to the right of the page, and an answer typed there reaches it", async () => {
       await openIn(cardEntries(notRefinedStory)).click();
-      await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-        notRefinedStory,
-      );
+      await expectTerminalIdentity(panel, notRefinedStory);
       await expect(panel.locator(".side-panel-names p")).toHaveText(
         "Execution session",
       );
@@ -169,9 +173,7 @@ test.describe("the terminal beside the page", () => {
       await showColumn(page, "Backlog");
       await openIn(cardEntries(readyStory)).click();
       await expect(panel).toHaveCount(1);
-      await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-        readyStory,
-      );
+      await expectTerminalIdentity(panel, readyStory);
       await expect(panel.locator(".side-panel-names p")).toHaveText(
         "Execution session",
       );
@@ -187,7 +189,7 @@ test.describe("the terminal beside the page", () => {
       await showColumn(page, "Backlog");
       await openIn(cardEntries(notRefinedStory)).click();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(panel).toHaveCount(0);
       // The card still lists the session, so its entry's Open terminal, not
       // another entry, has the keyboard.
@@ -206,9 +208,7 @@ test.describe("the terminal beside the page", () => {
       });
       await showColumn(page, "Taken");
       await openIn(entry(notRefinedStory)).click();
-      await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-        notRefinedStory,
-      );
+      await expectTerminalIdentity(panel, notRefinedStory);
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       await page.keyboard.type("carry on");
       await page.keyboard.press("Enter");

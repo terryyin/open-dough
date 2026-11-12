@@ -1,4 +1,3 @@
-import { CiFollowUpSetting } from "./CiFollowUpViews.tsx";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { FeedbackMaintenanceSettings } from "./FeedbackMaintenanceSettings.tsx";
@@ -133,7 +132,6 @@ export function SystemSettings({
                         inspection={projectFacts?.clientConfiguration}
                       />
                     </dl>
-                    <CiFollowUpSetting project={source.id} />
                   </div>
                   <div className="settings-project-actions">
                     <ProjectVisibility

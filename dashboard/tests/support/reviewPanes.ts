@@ -2,6 +2,7 @@
 // its panes: the file browser and the selected file's diff, each measured by
 // where it is scrolled and whether its content overflows it.
 
+import { changedFilesList, fileDiff, listedFile } from "./reviewTreeRows.ts";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { box } from "../pageLayout.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -12,6 +13,19 @@ import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import { largeWorktree, wideLine } from "./storyReviewWorktree.ts";
+
+// The selected diff's independently scrollable code and rendered lines.
+export const codePane = (diff: Locator) => diff.locator(".story-review-code");
+
+export const diffLines = (
+  scope: Locator,
+  options: { hasText?: string | RegExp } = {},
+) => scope.locator("li.story-review-line", options);
+
+export const diffHeading = (
+  diff: Locator,
+  options: { level?: number; name?: string | RegExp; exact?: boolean } = {},
+) => diff.getByRole("heading", options);
 
 export const scrollTopOf = (pane: Locator) =>
   pane.evaluate((element) => element.scrollTop);
@@ -75,13 +89,11 @@ export async function openLargeReview(
   // The keyboard lands in the review's named content.
   await expect(reviewBody(review)).toBeFocused();
   const browser = fileBrowser(review);
-  await expect(
-    browser.getByRole("list", { name: "63 changed files" }),
-  ).toBeVisible();
-  const diffOf = (name: string) => review.getByRole("region", { name });
-  const codeOf = (name: string) => diffOf(name).locator(".story-review-code");
+  await expect(changedFilesList(browser, "63 changed files")).toBeVisible();
+  const diffOf = (name: string) => fileDiff(review, name);
+  const codeOf = (name: string) => codePane(diffOf(name));
   const select = async (name: string) => {
-    await browser.getByRole("button", { name }).click();
+    await listedFile(browser, name).click();
     await expect(codeOf(name)).toBeVisible();
   };
   await scrollPane(browser, 100_000);

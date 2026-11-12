@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A story's card lists the sessions launched on it that have not been marked
 // done, in every column origin shows it, on a committed origin the production
 // commands publish (../launchJourney.ts): a launch lists its session beside
@@ -18,9 +19,7 @@
 // The page's own dashboard server launches the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
-import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -28,7 +27,6 @@ import {
   sessionStateOf,
 } from "../dashboardPage.ts";
 import { expectSessionEntrySetOff } from "../pageColours.ts";
-import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -37,16 +35,21 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import {
-  launchEachQueuedStory,
-  openQueuedStoryCards,
+  expectStartsBlocked,
+  launchOnEachQueuedCard,
+  openSessionDescription,
   queuedStories as queued,
-  storyCardSessionListing,
 } from "../storyCardSessionListing.ts";
 import {
   briefDoneRenameWait,
   idleBetweenSteps,
   markDoneAnyway,
 } from "../support/markDone.ts";
+import {
+  expectTerminalText,
+  openTerminalControl,
+  terminalPanel,
+} from "../terminalScreenPage.ts";
 
 test.use({
   projectFolders: ["open-dough"],
@@ -61,48 +64,13 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
   test.afterAll(() =>
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
-  // Launches on each queued card (../storyCardSessionListing.ts); each
-  // session is listed on its own card. Origin later takes the ready story.
-  const launchOnEachQueuedCard = async (
-    page: Page,
-    dashboard: DashboardServer,
-  ) => {
-    const opened = await openQueuedStoryCards(page, dashboard, columnsJourney);
-    const listing = storyCardSessionListing(
-      page,
-      opened.card,
-      opened.launch,
-      queued,
-    );
-    await launchEachQueuedStory(listing.launchListed);
-    return { ...opened, ...listing };
-  };
-
-  const openSessionDescription = new RegExp(
-    openSessionStartReason.replace(/[.]/g, "\\."),
-  );
-  // Read together: checking a Start action changes nothing on the page.
-  const expectStartsBlocked = (
-    action: Awaited<ReturnType<typeof launchOnEachQueuedCard>>["action"],
-    titles: readonly string[],
-  ) =>
-    Promise.all(
-      titles.flatMap((title) =>
-        (["Execution", "Refinement"] as const).flatMap((workflow) => [
-          expect(action(title, workflow)).toBeDisabled(),
-          expect(action(title, workflow)).toHaveAccessibleDescription(
-            openSessionDescription,
-          ),
-        ]),
-      ),
-    );
 
   test("a card lists each unclosed session beside its Start actions through Preparing, each reloaded", async ({
     page,
     dashboard,
   }) => {
     const { action, settled, show, card, expectListed } =
-      await launchOnEachQueuedCard(page, dashboard);
+      await launchOnEachQueuedCard(page, dashboard, columnsJourney);
     const { recentlyDone } = parts(page);
     const launches = () => dashboard.claudeLaunchCalls();
 
@@ -154,7 +122,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     dashboard,
   }) => {
     const { action, settled, show, expectListed } =
-      await launchOnEachQueuedCard(page, dashboard);
+      await launchOnEachQueuedCard(page, dashboard, columnsJourney);
     const { taken } = parts(page);
     const launches = () => dashboard.claudeLaunchCalls();
     await show(columnsJourney.taken);
@@ -182,7 +150,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     dashboard,
   }) => {
     const { settled, show, card, listed, expectListed } =
-      await launchOnEachQueuedCard(page, dashboard);
+      await launchOnEachQueuedCard(page, dashboard, columnsJourney);
     const { taken, recentlyDone } = parts(page);
     const launches = () => dashboard.claudeLaunchCalls();
     // Origin takes the ready story first; it leaves Backlog for Taken.
@@ -196,11 +164,11 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       const key = listed.get(notRefinedStory)?.[0]?.key;
       const native = listed.get(notRefinedStory)?.[0]?.session;
       if (!key || !native) throw new Error("No completed story session");
-      await storyCardSessions(card(notRefinedStory))
-        .getByRole("button", { name: "Open terminal" })
-        .click();
-      const panel = page.getByRole("region", { name: "Terminal" });
-      await expect(panel.locator(".xterm-rows")).toContainText("attached");
+      await openTerminalControl(
+        storyCardSessions(card(notRefinedStory)),
+      ).click();
+      const panel = terminalPanel(page);
+      await expectTerminalText(panel, "attached");
       const attaches = dashboard.claudeAttaches().length;
       await show(columnsJourney.completed, { reload: false });
       const completed = { taken: [readyStory], backlog: [takenStory] };
@@ -226,7 +194,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       expect(dashboard.claudeAttaches()).toHaveLength(attaches);
       await show(columnsJourney.completed, { reload: false });
       await expect(local).toContainText("Shown in terminal");
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(local).toBeFocused();
       await page.reload();
       await expectMembership(page, completed);

@@ -20,9 +20,8 @@ export function repeatDecisionOf(history: ProjectHistory, receipt: string) {
   if (
     original === undefined ||
     original.revision !== landing?.revision ||
-    original.adapterAttempt !== undefined ||
-    original.runId === undefined ||
-    original.runAttempt === undefined
+    (original.adapterAttempt === undefined &&
+      (original.runId === undefined || original.runAttempt === undefined))
   )
     return undefined;
   const ms = wallTimeReadingOf(original).ms;

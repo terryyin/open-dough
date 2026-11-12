@@ -1,4 +1,3 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // Deleting the record of the session the page's one terminal shows
 // (../terminals/agent-terminal.spec.ts), on the committed story-columns origin
 // (../launchJourney.ts): while the listing cannot be read the session is State
@@ -12,6 +11,12 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // page's own dashboard server drives the synthetic `claude`
 // (./fixtures/fake-claude); the real one is never reached.
 
+import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessionOf,
@@ -50,7 +55,7 @@ test.describe("deleting the record of the session the terminal shows", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
@@ -63,8 +68,8 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await page.reload();
     await settled();
     await expect(sessionStateOf(entry)).toContainText("State unknown");
-    await entry.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(entry, { exact: false }).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(page.getByText("Shown in terminal")).not.toHaveCount(0);
     await expectSelected(card(readyStory), true);
 

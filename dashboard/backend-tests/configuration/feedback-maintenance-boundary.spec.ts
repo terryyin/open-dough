@@ -5,9 +5,14 @@
 // and the wrong content type; none changes the saved setting or starts a
 // session. The page's journey, including a malformed saved file, is
 // ../../tests/configuration/system-settings-feedback-maintenance.spec.ts.
+// The server keeps the development project environment, where the feedback
+// maintenance check (../../server/feedbackMaintenanceCheck.ts) reads nothing,
+// so the authorization this spec saves never arms its GitHub read and every
+// `gh` call left would be the endpoints' own.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../tests/support/pageTest.ts";
+import { developmentBoundary } from "../../tests/support/dashboardServer.ts";
 import { systemSettingsMachine } from "../../tests/support/systemSettingsMachine.ts";
 import { rawRequest } from "../../tests/support/rawHttp.ts";
 
@@ -18,7 +23,7 @@ test.beforeEach(() => {
 test.afterEach(async () => fixture.close());
 
 test("feedback maintenance endpoints refuse foreign, malformed and unknown requests without changing the saved setting", async () => {
-  const server = await fixture.start("boundary");
+  const server = await fixture.start(developmentBoundary);
   const endpoint = `${server.baseURL}/__feedback-maintenance`;
   const file = path.join(
     fixture.home,

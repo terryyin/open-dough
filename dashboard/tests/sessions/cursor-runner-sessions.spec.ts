@@ -5,6 +5,7 @@
 // Bounded slow-answer demand and synthetic feedback UI live in
 // dashboard/frontend-tests/cursor-runner-sessions-ui.spec.ts.
 import { parts } from "../dashboardPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   holdSession,
   instruction,
@@ -50,7 +51,7 @@ for (const { screen, label, terminal } of held) {
   }) => {
     const pid = await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     await expect(shownTerminal).toHaveCount(0);
     const { sidebar, region } = await openRunningList(page);
     await expect(shownTerminal).toHaveCount(0);
@@ -69,7 +70,9 @@ for (const { screen, label, terminal } of held) {
     expect(cursor.attaches()).toHaveLength(1);
 
     await row.click();
-    await expect(shownTerminal.locator(".xterm-rows")).toContainText(terminal);
+    await expect(terminalScreenParts(shownTerminal).rows).toContainText(
+      terminal,
+    );
     expect(cursor.attaches()).toHaveLength(1);
     expect(cursor.attaches()[0]?.pid).toBe(pid);
     expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
@@ -84,7 +87,7 @@ followUp(
     // becomes, and the runner keeps holding that screen.
     const pid = await holdSession(dashboard, cursor);
     await showPageWithTaken(page, origin);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     await expect(shownTerminal).toHaveCount(0);
     const { region } = await openRunningList(page);
     const row = region.getByRole("button", { name: /Open Dough/ });
@@ -110,7 +113,7 @@ refused(
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     await stopCursorRunner(dashboard.home);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     const { region } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is not running.");
     await expect(region.getByRole("listitem")).toHaveCount(0);
@@ -132,7 +135,7 @@ refused(
     await stopCursorRunner(dashboard.home);
     const release = await occupyRunner(dashboard.home);
     try {
-      const shownTerminal = page.getByRole("region", { name: "Terminal" });
+      const shownTerminal = terminalPanel(page);
       const { region } = await openRunningList(page);
       await expect(region).toContainText(
         "The Cursor runner cannot be reached.",

@@ -22,6 +22,11 @@ import { expectTerminalPreviewFits } from "../terminalPortraitPreview.ts";
 import { box } from "../pageLayout.ts";
 import { takenIdentity, takenStory } from "../agentRosterRecords.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   keepLaunchRecords,
   keptLaunchStore,
   launchStoreFile,
@@ -51,10 +56,10 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     (route) => route.fulfill({ status: 404 }),
   );
   await openTakenBacklog(page, launchJourney);
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const names = panel.locator(".side-panel-names");
-  const heading = panel.getByRole("heading", { level: 2 });
+  const heading = terminalScreenParts(panel).heading;
   const sessionRow = names.locator("p");
   const portrait = panel.locator(".agent-portrait");
   const entry = parts(page).taken.locator(".session-entry");
@@ -89,7 +94,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
       .poll(() => recordsOf(dashboard, "open-dough"))
       .toEqual([expect.objectContaining(record)]);
     await page.reload();
-    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(entry, { exact: false }).click();
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
   };
 

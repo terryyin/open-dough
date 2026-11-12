@@ -1,8 +1,7 @@
-// What a phone reads of automatic CI follow-up with no receipt journey: the
-// machine's setting in Settings, and in Recently done the card of a landing
-// the machine keeps with an accepted rerun request
-// (../support/ciFollowUpPageLanding.ts), as the page's collecting dashboard
-// saves what the provider's repeat becomes.
+// What a phone reads of automatic CI follow-up with no receipt journey: in
+// Recently done, the card of a landing the machine keeps with an accepted
+// rerun request (../support/ciFollowUpPageLanding.ts), as the page's
+// collecting dashboard saves what the provider's repeat becomes.
 import {
   expect,
   queuedClaudePreviewTest as test,
@@ -14,7 +13,6 @@ import {
   rerunRuns,
   savedRepeatRequest,
 } from "../support/ciFollowUpSavedRequests.ts";
-import { settings, projectRow } from "../support/systemSettingsPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import {
   ciFollowUpWarning,
@@ -29,31 +27,8 @@ test.use({
 // The case whose origin starts from the kept published story.
 const keptStoryTest = test.extend(startingFromKeptStory);
 
-test("automatic CI follow-up is off on a machine until its user enables it in Settings, then on with the provisional rule", async ({
-  page,
-  dashboard,
-}) => {
-  await page.goto(dashboard.baseURL);
-  await settings(page).click();
-  const project = projectRow(page, "Open Dough");
-  await expect(project, "off until enabled").toContainText(
-    "Automatic CI follow-up: Off",
-  );
-  await project
-    .getByRole("button", {
-      name: "Enable automatic CI follow-up on this machine",
-    })
-    .click();
-  await expect(project, "on once enabled").toContainText(
-    "Automatic CI follow-up: On",
-  );
-  await expect(project, "provisional rule").toContainText(
-    "Provisional rule: repeat once at or above 5%",
-  );
-});
-
 keptStoryTest(
-  "a kept accepted request reads its repeat in progress, then at 106 seconds a red textual Done warning with the 105 second original and 100 second average on a phone",
+  "a kept accepted request reads its repeat in progress under the provisional rule, then at 106 seconds a red textual Done warning with the 105 second original and 100 second average on a phone",
   async ({ page, dashboard, origin, github }) => {
     // Story A, published as completed, whose run 71 first passed in 105 s
     // against five prior builds of 100 s each, its rerun request accepted; the
@@ -72,6 +47,9 @@ keptStoryTest(
     await page.goto(dashboard.baseURL);
     const card = await shownCiFollowUpCard(page, "Story A");
     await expect(card, "progress card").toContainText("CI rerun in progress");
+    await expect(card, "provisional rule").toContainText(
+      "Provisional rule: repeat once at or above 5%",
+    );
     kept.provider(71).setRepeat({ seconds: 106 });
     // The pass that reads the finished repeat settles the request.
     await expect.poll(() => saved()?.settled, "repeat saved").toBe(true);

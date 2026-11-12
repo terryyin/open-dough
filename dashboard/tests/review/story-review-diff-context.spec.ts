@@ -4,8 +4,12 @@
 // without whole-gap/whole-file shortcuts, keeping markers, numbers, scroll
 // place, and a readable printed diff when the text read fails until Retry.
 
+import { listedFile } from "../support/reviewTreeRows.ts";
+import { diffLines, codePane, scrollTopOf } from "../support/reviewPanes.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
+  contextExpansion,
+  diffHunk,
   expandFirstHunk,
   expandFirstHunkPrinted,
   expandSecondHunk,
@@ -38,9 +42,10 @@ test.describe("diff context expansion", () => {
       afterGap,
       hunkLines,
     } = await openExpandDiff(page, card);
-    await expect(
-      review.getByRole("button", { name: fileName }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(listedFile(review, fileName)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
 
     // First paint keeps Git's default printed hunks (no raised -U).
     await expect(hunkLines(expandFirstHunk)).toHaveText(expandFirstHunkPrinted);
@@ -48,24 +53,12 @@ test.describe("diff context expansion", () => {
       "-line 127",
       "+changed one-twenty-seven",
     ]);
-    await expect(
-      beforeGap.getByRole("button", { name: /preceding/ }),
-    ).toBeVisible();
-    await expect(
-      beforeGap.getByRole("button", { name: /following/ }),
-    ).toHaveCount(0);
-    await expect(
-      afterGap.getByRole("button", { name: /following/ }),
-    ).toBeVisible();
-    await expect(
-      afterGap.getByRole("button", { name: /preceding/ }),
-    ).toHaveCount(0);
-    await expect(
-      betweenGap.getByRole("button", { name: /preceding/ }),
-    ).toBeVisible();
-    await expect(
-      betweenGap.getByRole("button", { name: /following/ }),
-    ).toBeVisible();
+    await expect(contextExpansion(beforeGap, /preceding/)).toBeVisible();
+    await expect(contextExpansion(beforeGap, /following/)).toHaveCount(0);
+    await expect(contextExpansion(afterGap, /following/)).toBeVisible();
+    await expect(contextExpansion(afterGap, /preceding/)).toHaveCount(0);
+    await expect(contextExpansion(betweenGap, /preceding/)).toBeVisible();
+    await expect(contextExpansion(betweenGap, /following/)).toBeVisible();
     await expect(
       diff.getByRole("button", {
         name: /entire|whole|all remaining|whole file/i,
@@ -73,10 +66,8 @@ test.describe("diff context expansion", () => {
     ).toHaveCount(0);
 
     await test.step("upward before the first hunk reveals up to 20 preceding lines", async () => {
-      await beforeGap
-        .getByRole("button", { name: /Show 20 preceding/ })
-        .click();
-      const shown = beforeGap.locator("li.story-review-line");
+      await contextExpansion(beforeGap, /Show 20 preceding/).click();
+      const shown = diffLines(beforeGap);
       await expect(shown).toHaveCount(20);
       expect(await shown.first().textContent()).toBe(" line 31");
       expect(await shown.last().textContent()).toBe(" line 50");
@@ -86,37 +77,27 @@ test.describe("diff context expansion", () => {
     });
 
     await test.step("down after earlier and up before later close the inter-hunk gap without duplicates", async () => {
-      await betweenGap
-        .getByRole("button", { name: /Show 20 following/ })
-        .press("Enter");
-      await expect(
-        betweenGap.locator("li.story-review-line", { hasText: " line 58" }),
-      ).toHaveCount(1);
-      await expect(
-        betweenGap.locator("li.story-review-line", { hasText: " line 77" }),
-      ).toHaveCount(1);
-      await betweenGap.getByRole("button", { name: /Show 20 preceding/ }).tap();
-      await expect(
-        betweenGap.locator("li.story-review-line", { hasText: " line 104" }),
-      ).toHaveCount(1);
-      await expect(
-        betweenGap.locator("li.story-review-line", { hasText: " line 123" }),
-      ).toHaveCount(1);
-      const texts = await betweenGap
-        .locator("li.story-review-line")
-        .allTextContents();
+      await contextExpansion(betweenGap, /Show 20 following/).press("Enter");
+      await expect(diffLines(betweenGap, { hasText: " line 58" })).toHaveCount(
+        1,
+      );
+      await expect(diffLines(betweenGap, { hasText: " line 77" })).toHaveCount(
+        1,
+      );
+      await contextExpansion(betweenGap, /Show 20 preceding/).tap();
+      await expect(diffLines(betweenGap, { hasText: " line 104" })).toHaveCount(
+        1,
+      );
+      await expect(diffLines(betweenGap, { hasText: " line 123" })).toHaveCount(
+        1,
+      );
+      const texts = await diffLines(betweenGap).allTextContents();
       expect(texts).toEqual([...new Set(texts)]);
       expect(texts).toHaveLength(40);
-      await betweenGap
-        .getByRole("button", { name: /Show 20 following/ })
-        .click();
-      await betweenGap
-        .getByRole("button", { name: /Show 6 following/ })
-        .click();
+      await contextExpansion(betweenGap, /Show 20 following/).click();
+      await contextExpansion(betweenGap, /Show 6 following/).click();
       await expect(betweenGap.getByRole("button")).toHaveCount(0);
-      const closed = await betweenGap
-        .locator("li.story-review-line")
-        .allTextContents();
+      const closed = await diffLines(betweenGap).allTextContents();
       expect(closed).toHaveLength(66);
       expect(closed).toEqual([...new Set(closed)]);
       expect(closed[0]).toBe(" line 58");
@@ -124,18 +105,16 @@ test.describe("diff context expansion", () => {
     });
 
     await test.step("downward after the final hunk reveals following lines and stops at EOF", async () => {
-      await afterGap.getByRole("button", { name: /Show 20 following/ }).click();
-      await expect(
-        afterGap.locator("li.story-review-line", { hasText: " line 131" }),
-      ).toHaveCount(1);
-      await expect(
-        afterGap.locator("li.story-review-line", { hasText: " line 150" }),
-      ).toHaveCount(1);
-      await afterGap.getByRole("button", { name: /Show 10 following/ }).click();
+      await contextExpansion(afterGap, /Show 20 following/).click();
+      await expect(diffLines(afterGap, { hasText: " line 131" })).toHaveCount(
+        1,
+      );
+      await expect(diffLines(afterGap, { hasText: " line 150" })).toHaveCount(
+        1,
+      );
+      await contextExpansion(afterGap, /Show 10 following/).click();
       await expect(afterGap.getByRole("button")).toHaveCount(0);
-      const trailing = await afterGap
-        .locator("li.story-review-line")
-        .allTextContents();
+      const trailing = await diffLines(afterGap).allTextContents();
       expect(trailing.at(-1)).toBe(" line 160");
       expect(trailing).toHaveLength(30);
     });
@@ -163,11 +142,9 @@ test.describe("diff context expansion", () => {
     await test.step("upward expansion above a mid-viewport hunk keeps that hunk in view", async () => {
       await page.keyboard.press("Meta+Shift+Escape");
       const again = await openExpandDiff(page, card);
-      const code = again.diff.locator(".story-review-code");
-      const hunk = again.diff.getByRole("list", { name: expandFirstHunk });
-      const expandUp = again.beforeGap.getByRole("button", {
-        name: /Show 20 preceding/,
-      });
+      const code = codePane(again.diff);
+      const hunk = diffHunk(again.diff, expandFirstHunk);
+      const expandUp = contextExpansion(again.beforeGap, /Show 20 preceding/);
       await hunk.evaluate((el) => {
         const scroller = el.closest(".story-review-code");
         if (!(scroller instanceof HTMLElement)) return;
@@ -180,7 +157,7 @@ test.describe("diff context expansion", () => {
       // Control already in view: a normal click would scrollIntoView (≈ button
       // height) before expand and make the place look lost for the wrong reason.
       await expect(expandUp).toBeInViewport();
-      const focused = hunk.locator("li.story-review-line", {
+      const focused = diffLines(hunk, {
         hasText: "+changed fifty-four",
       });
       const beforeTop = await focused.evaluate(
@@ -191,7 +168,7 @@ test.describe("diff context expansion", () => {
         (el) => el.getBoundingClientRect().top,
       );
       expect(Math.abs(afterTop - beforeTop)).toBeLessThan(4);
-      expect(await code.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+      expect(await scrollTopOf(code)).toBeGreaterThan(0);
     });
 
     await test.step("a failed context read leaves the printed diff and offers retry", async () => {
@@ -219,11 +196,11 @@ test.describe("diff context expansion", () => {
       const alert = failed.diff.getByRole("alert");
       await expect(alert).toContainText("Additional context could not be read");
       await expect(
-        failed.diff.getByRole("button", { name: /preceding|following/ }),
+        contextExpansion(failed.diff, /preceding|following/),
       ).toHaveCount(0);
       await alert.getByRole("button", { name: "Retry" }).click();
       await expect(
-        failed.betweenGap.getByRole("button", { name: /following/ }),
+        contextExpansion(failed.betweenGap, /following/),
       ).toBeVisible();
       await page.unroute(`**${storyReviewFileTextEndpoint}?*`);
     });

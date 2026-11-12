@@ -11,6 +11,7 @@ import {
   openStoryReview,
   reopenStoryReview,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { markStoryReview } from "../support/storyReviewTrunk.ts";
 import {
@@ -20,7 +21,11 @@ import {
   writeAt,
 } from "../support/storyReviewWorktree.ts";
 import { showCommits } from "../support/reviewRead.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 
 test("Uncommitted changes alone reads staged, unstaged and untracked files; through the oldest commit it equals All changes", async ({
   page,
@@ -39,7 +44,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
   });
   expect(snapshot.uncommitted).not.toHaveProperty("revision");
   expect(snapshot.uncommitted).not.toHaveProperty("committedAt");
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -49,29 +54,20 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
   await expect(
     review.getByRole("heading", { name: "Uncommitted changes", exact: true }),
   ).toBeVisible();
-  const files = review.getByRole("list", {
-    name: "3 changed files",
-    exact: true,
-  });
+  const files = changedFilesList(review, "3 changed files", { exact: true });
   await expectTreeRows(files, [
     "fresh",
     "  new.txt",
     "staged.txt",
     "unstaged.txt",
   ]);
-  await files
-    .getByRole("button", { name: "Modified staged.txt", exact: true })
-    .click();
+  await listedFile(files, "Modified staged.txt", { exact: true }).click();
   await expect(review.locator(".story-review-added")).toHaveText(["+more"]);
-  await files
-    .getByRole("button", { name: "Modified unstaged.txt", exact: true })
-    .click();
+  await listedFile(files, "Modified unstaged.txt", { exact: true }).click();
   await expect(review.locator(".story-review-removed")).toHaveText([
     "-unstaged 5",
   ]);
-  await files
-    .getByRole("button", { name: "Added fresh/new.txt", exact: true })
-    .click();
+  await listedFile(files, "Added fresh/new.txt", { exact: true }).click();
   await expect(review.locator(".story-review-added")).toHaveText([
     "+untracked",
   ]);
@@ -94,7 +90,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
     "to Uncommitted changes.",
   );
   await expect(
-    review.getByRole("list", { name: "7 changed files", exact: true }),
+    changedFilesList(review, "7 changed files", { exact: true }),
   ).toBeVisible();
   expect(observed(workspace)).toEqual(before);
 });
@@ -117,9 +113,10 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
       .getByRole("button"),
   ).toHaveText("Uncommitted changes");
   await expect(
-    review
-      .getByRole("list", { name: "1 changed file", exact: true })
-      .getByRole("button", { name: "Added only.txt" }),
+    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+      "button",
+      { name: "Added only.txt" },
+    ),
   ).toBeVisible();
   await expect(review.locator(".story-review-added")).toHaveText([
     "+only uncommitted",
@@ -138,10 +135,8 @@ test("a marked review opens on Since the review and marking from Commits marks t
   );
   writeAt(story.workspace, "src/b.ts", "uncommitted b\n");
   const snapshot = await reopenStoryReview(page, card);
-  await expect(
-    review.getByRole("radio", { name: "Since the review" }),
-  ).toBeChecked();
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   // Choose a committed item alone, excluding the new uncommitted file from
   // the displayed range; marking must nevertheless keep the full snapshot.
   const rows = review
@@ -153,9 +148,10 @@ test("a marked review opens on Since the review and marking from Commits marks t
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
   await expect(
-    review
-      .getByRole("list", { name: "1 changed file", exact: true })
-      .getByRole("button", { name: "Modified src/c.ts" }),
+    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+      "button",
+      { name: "Modified src/c.ts" },
+    ),
   ).toBeVisible();
   await markReviewed(review);
   expect(keptStoryAMark(dashboard)).toMatchObject({
@@ -164,8 +160,6 @@ test("a marked review opens on Since the review and marking from Commits marks t
   });
   const again = await reopenStoryReview(page, card);
   expect(again.since?.files).toEqual([]);
-  await expect(
-    review.getByRole("radio", { name: "Since the review" }),
-  ).toBeChecked();
+  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
   await expect(review).toContainText("Nothing changed since the review.");
 });

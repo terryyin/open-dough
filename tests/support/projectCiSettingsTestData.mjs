@@ -9,7 +9,7 @@
  * the observer runs in the project folder; an empty array means no adapter.
  * Other keys the configuration reader tolerates stay explicit when stated.
  * @typedef {{
- *   ciAdapter: readonly string[],
+ *   ciAdapter?: readonly string[],
  *   [key: string]: unknown,
  * }} ProjectCiSettings
  */
@@ -21,12 +21,17 @@
 
 export class ProjectCiSettingsBuilder {
   /** @param {ProjectCiSettingsFacts} facts */
-  with({ ciAdapter, ...rest }) {
+  with({ ciAdapter, ciRebuild, ...rest }) {
     return {
       /** @returns {ProjectCiSettings} */
       please: () => ({
         ...rest,
-        ciAdapter: [...ciAdapter],
+        ...(ciAdapter === undefined ? {} : { ciAdapter: [...ciAdapter] }),
+        ...(ciRebuild === undefined
+          ? {}
+          : {
+              ciRebuild: Array.isArray(ciRebuild) ? [...ciRebuild] : ciRebuild,
+            }),
       }),
     };
   }

@@ -170,6 +170,8 @@ export async function expectPaused(panel: Locator) {
 }
 
 // Select reads as off and the live terminal is what the screen's box shows.
+// `.terminal-screen` is the host chrome the paused overlay covers; distinct
+// from shared `terminalScreenParts().screen` (`.xterm-screen`).
 export async function expectLive(panel: Locator) {
   await expect(selectKey(panel)).toHaveAttribute("aria-pressed", "false");
   await expect(pausedText(panel)).toHaveCount(0);

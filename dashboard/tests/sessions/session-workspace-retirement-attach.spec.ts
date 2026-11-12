@@ -10,6 +10,7 @@ import {
 import type { APIResponse } from "@playwright/test";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -67,7 +68,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
         : parts(page)
             .recentlyDone.getByRole("article")
             .filter({ hasText: native.threadId });
-    const open = entry.getByRole("button", { name: "Open terminal" });
+    const open = openTerminalControl(entry, { exact: false });
     await expect(open).toBeVisible();
     await expect(entry).toContainText(
       doneAt === undefined ? "Ready for review" : "Done",
@@ -98,9 +99,7 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
         : "saved workspace is missing",
     );
     await expect(panel.locator(".final-report-body")).toBeFocused();
-    await expect(
-      page.getByRole("region", { name: "Terminal", exact: true }),
-    ).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(
       page.getByText("The session could not be attached", { exact: true }),
     ).toHaveCount(0);

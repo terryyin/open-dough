@@ -1,3 +1,4 @@
+import { maximizeSidePanel } from "../sidePanelFrame.ts";
 // Pending and late Mark as done from the page's terminal
 // (./agent-terminal-done.spec.ts): Maximize and Close stay usable while the
 // Done answer is held; releasing still closes the panel; a wait-bound or
@@ -11,6 +12,11 @@ import { markDoneUnresolved } from "../../src/pageSessions.ts";
 import { markDoneWaitMs } from "../../src/sessionRecordRequests.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   readyStory,
@@ -50,12 +56,12 @@ test.describe("pending Mark as done from the terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(listed, { exact: false }).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
     const release = await holdDoneRequests(page);
@@ -64,7 +70,7 @@ test.describe("pending Mark as done from the terminal", () => {
     await expect(marking).toBeVisible();
     await expect(headerMarkAsDone(panel)).toBeDisabled();
 
-    await panel.getByRole("button", { name: "Maximize" }).click();
+    await maximizeSidePanel(panel, "click", { exact: false });
     await expect(panel.getByRole("button", { name: "Restore" })).toBeVisible();
     await expect(
       panel.getByRole("button", { name: "Close", exact: true }),
@@ -87,12 +93,12 @@ test.describe("pending Mark as done from the terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(listed, { exact: false }).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
     const { release, held } = await holdDoneRequestRoute(page);
@@ -141,13 +147,13 @@ test.describe("pending Mark as done from the terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
-    await storyCardSessions(card(readyStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await openTerminalControl(storyCardSessions(card(readyStory)), {
+      exact: false,
+    }).click();
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await page.route(`**${agentDoneEndpoint}`, (route) =>
       route.abort("failed"),
     );

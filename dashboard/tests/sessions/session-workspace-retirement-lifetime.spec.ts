@@ -3,6 +3,11 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/codexLaunch.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   publishStoryColumnsJourney,
   notRefinedStory,
   type StoryColumnsJourney,
@@ -50,11 +55,11 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
-  const panel = page.getByRole("region", { name: "Terminal", exact: true });
-  const rows = panel.locator(".xterm-rows");
+  await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
+    exact: false,
+  }).click();
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   await expect(rows).toContainText("original retained history");
   await page.keyboard.press("Control+z");
   await expect(panel.getByRole("status")).toContainText("The terminal ended");

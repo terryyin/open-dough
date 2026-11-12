@@ -16,14 +16,13 @@ import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts
 import {
   aWholePass,
   heldRequest,
-  repeatCards,
   rerunRuns,
   saveRepeatRequests,
   savedRepeatComparison,
   savedRepeatRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
 import {
-  followUpSettings,
+  followUpCards,
   prepareRepeatScenario,
 } from "../../tests/support/ciFollowUpScenario.ts";
 import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
@@ -55,13 +54,11 @@ test("a Done receipt at exactly 105 seconds against five kept 100 second prior b
     scenario.prior.map((run) => run.headSha),
     100,
   );
-  // The waiting request, kept before follow-up is enabled, and the scenario's
-  // provider served again over the one that answers its run.
+  // The waiting request, and the scenario's provider served again over the
+  // one that answers its run.
   await saveRepeatRequests(origin, github, [waiting]);
   scenario.serve();
   const server = await startServer();
-  expect((await followUpSettings(server)).body.enabled, "off").toBe(false);
-  expect((await followUpSettings(server, true)).status).toBe(200);
   let release!: () => void;
   const reply = new Promise<void>((resolve) => {
     release = resolve;
@@ -93,7 +90,7 @@ test("a Done receipt at exactly 105 seconds against five kept 100 second prior b
   const replied = github.calls.length;
   await aWholePass(github, waiting.run, replied);
   expect(rerunRuns(github), "rerun requests").toEqual([71]);
-  expect(await repeatCards(server), "accepted request's card").toMatchObject([
+  expect(await followUpCards(server), "accepted request's card").toMatchObject([
     {
       kind: "unverified",
       explanation: "No later attempt of the original run has been observed",
@@ -136,11 +133,11 @@ keptStoryTest(
       explanation: expect.stringContaining("refused"),
       ...beside120And100,
     };
-    expect(await repeatCards(server), "refused card").toMatchObject([refused]);
+    expect(await followUpCards(server), "refused card").toMatchObject([
+      refused,
+    ]);
     await aWholePass(github, waiting.run, replied);
     expect(rerunRuns(github), "rerun requests").toEqual([71]);
-    await followUpSettings(server, false);
-    expect(await repeatCards(server), "follow-up off").toMatchObject([refused]);
   },
 );
 
@@ -170,14 +167,10 @@ keptStoryTest(
       repeatMs: 104000,
       ...beside120And100,
     };
-    expect(await repeatCards(server), "stays unverified").toMatchObject([
+    expect(await followUpCards(server), "stays unverified").toMatchObject([
       unverified,
     ]);
     expect(rerunRuns(github), "rerun requests").toEqual([71]);
-    await followUpSettings(server, false);
-    expect(await repeatCards(server), "follow-up off").toMatchObject([
-      unverified,
-    ]);
   },
 );
 

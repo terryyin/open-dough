@@ -48,12 +48,10 @@ const callRecordName = /^call\.\d+\.\d+\.json$/;
 // Pids of `gh` calls still recorded under this installation's owner endpoint.
 // The synthetic `gh` pid file is not included: another live dashboard can
 // share one request owner whose `gh` wrote that file while serving both.
-// An owner withdraws a call's record as it signals that `gh`, not when the
-// process is gone: read these before stopping the owner's last consumer and
-// give them to `endFakeGh`, which then waits for a `gh` that is still exiting.
-export function recordedGhCallPids({
-  requestOwnerRoot: root,
-}: FakeGhPaths): number[] {
+// An owner keeps a call's record until that `gh` is gone, an ended one still
+// exiting included (github-request-calls.mjs), so these name every `gh` an
+// owner still runs or left running.
+function recordedGhCallPids({ requestOwnerRoot: root }: FakeGhPaths): number[] {
   const pids = new Set<number>();
   if (!existsSync(root)) return [...pids];
   for (const entry of readdirSync(root, { withFileTypes: true })) {
@@ -77,19 +75,14 @@ export function recordedGhCallPids({
 }
 
 // Ends every request owner started at this installation's endpoint, waits
-// until its process is gone, ends any `gh` that owner left recorded here or
-// that `callPidsBeforeStop` names, and removes the endpoint. An owner that
-// ends after its two-second bound can leave held `gh` processes running
+// until its process is gone, ends any `gh` that owner left recorded here, and
+// removes the endpoint. An owner ends once each `gh` it ran is gone; one that
+// ends at its two-second bound instead can leave held `gh` processes running
 // outside the dashboard server's process group; end those orphans before the
 // fixture removes their temp root. Do not kill a pid-file `gh` that still
 // belongs to a shared owner another live dashboard needs.
-export async function endFakeGh(
-  gh: FakeGhPaths,
-  callPidsBeforeStop: readonly number[] = [],
-): Promise<void> {
-  const leftover = [
-    ...new Set([...callPidsBeforeStop, ...recordedGhCallPids(gh)]),
-  ];
+export async function endFakeGh(gh: FakeGhPaths): Promise<void> {
+  const leftover = recordedGhCallPids(gh);
   await endRequestOwners(gh.requestOwnerRoot);
   await endRunningProcesses(leftover);
   ownerEndsAtExit.get(gh.requestOwnerRoot)?.();

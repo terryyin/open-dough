@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Intent's comparison for a story with a review mark: Intent shows all
 // changes, including uncommitted ones, and its Review changes link opens
 // Review changes on that same comparison, with the files Intent counted and
@@ -6,6 +7,8 @@
 // the changes since the review. The unmarked journey:
 // ./intent-story-changes.spec.ts.
 
+import { listedFile } from "../support/reviewTreeRows.ts";
+import { fileBrowser } from "../support/reviewContextLine.ts";
 import type { Page } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
@@ -27,20 +30,16 @@ import {
 
 // Review changes lists every file Intent counted, the outside ones too.
 async function expectIntentFiles(page: Page) {
-  const files = reviewRegion(page).locator(".story-review-files");
+  const files = fileBrowser(reviewRegion(page));
   for (const name of [
     ...Object.values(changed),
     "Modified dashboard/src/App.tsx",
   ])
-    await expect(
-      files.getByRole("button", { name, exact: true }),
-    ).toBeVisible();
+    await expect(listedFile(files, name, { exact: true })).toBeVisible();
 }
 
 const closeReview = async (page: Page) => {
-  await reviewRegion(page)
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await closeSidePanel(reviewRegion(page));
   await expect(reviewRegion(page)).toHaveCount(0);
 };
 

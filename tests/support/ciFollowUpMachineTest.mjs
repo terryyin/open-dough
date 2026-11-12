@@ -1,7 +1,7 @@
 // Technical process boundary for the real machine ledger, isolated from HOME.
 import { fork } from "node:child_process";
 import { once } from "node:events";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 export function repeatMachine(t) {
@@ -11,6 +11,11 @@ export function repeatMachine(t) {
     home,
     file: path.join(home, ".open-dough/dashboard/ci-follow-up.json"),
   };
+}
+// The machine's follow-up ledger as exactly these bytes, before any process.
+export function holdLedgerBytes(machine, bytes) {
+  mkdirSync(path.dirname(machine.file), { recursive: true });
+  writeFileSync(machine.file, bytes);
 }
 export function ledgerProcess(home, input) {
   const child = fork(

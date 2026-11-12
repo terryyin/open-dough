@@ -1,4 +1,4 @@
-import { finalReportText } from "../finalReportPages.ts";
+import { finalReportText, readReportUntilText } from "../finalReportPages.ts";
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
@@ -41,6 +41,10 @@ for (const closure of [
     origin,
     codexProtocol: native,
   }) => {
+    // Story Branch Wrap Up runs real retirement, a write-fault retry, and a
+    // duplicate report under the same default timeout as Land; CI workers and
+    // parallel local load push that path over 30s before the final report open.
+    if (closure === "Story Branch Wrap Up") test.setTimeout(60_000);
     if (native === undefined) throw new Error("Missing native fixture");
     const nativeSession = native;
     // The native calls of `methods` made since call `from`.
@@ -212,13 +216,10 @@ for (const closure of [
         await expect(recent.locator(".session-attention-message")).toHaveCount(
           0,
         );
-        // Quiet completion has no explicit text; the native final report remains independently readable.
         keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
-        // The launch's Startup recovery leaves after the read; a press before then can lose its release.
-        await expect(parts(page).startupRecovery).toHaveCount(0);
-        await recent.getByRole("button", { name: "Read final report" }).click();
-        await expect(finalReportText(page)).toHaveText("Done.");
+        await expect(parts(page).startupRecovery).toHaveCount(0); // Startup recovery leaves after the read; a press before then can lose its release.
+        await readReportUntilText(recent, finalReportText(page), "Done.");
         expect(
           native.calls
             .slice(beforeRead)

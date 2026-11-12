@@ -1,7 +1,13 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The accepted Compact card hierarchy, through the real synthetic-host launch:
 // status and main access stay visible, routine facts and lifecycle controls
 // disclose independently, and keyboard/narrow reading keeps both reachable.
 import { expect, test } from "../dashboardTest.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   parts,
   sessionNamedBy,
@@ -80,17 +86,11 @@ test.describe(() => {
     await expect(details).toHaveAttribute("aria-expanded", "false");
     await expect(details).toBeFocused();
 
-    const open = entry.getByRole("button", {
-      name: "Open terminal",
-      exact: true,
-    });
+    const open = openTerminalControl(entry, { exact: true });
     await open.click();
-    const terminal = page.getByRole("region", {
-      name: "Terminal",
-      exact: true,
-    });
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-    await terminal.getByRole("button", { name: "Close", exact: true }).click();
+    const terminal = terminalPanel(page);
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
+    await closeSidePanel(terminal);
     await expect(open).toBeFocused();
 
     const actions = entry.getByRole("button", {
@@ -163,10 +163,7 @@ workingCursorTest(
   "a working Cursor entry keeps its resume command selectable and reports copied, refused and unavailable clipboard access truthfully",
   async ({ page, origin }) => {
     const entry = await openTakenCursorSession(page, origin, "auto");
-    await page
-      .getByRole("region", { name: "Terminal" })
-      .getByRole("button", { name: "Close", exact: true })
-      .click();
+    await closeSidePanel(terminalPanel(page));
     await expect(sessionStateOf(entry)).toHaveText("Working");
     await expect(entry.getByText("Cursor", { exact: true })).toBeVisible();
     await expect(

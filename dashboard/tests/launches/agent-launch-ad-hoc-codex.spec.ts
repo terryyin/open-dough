@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Actual Start session, browser focus/navigation and shared done/reopen owners.
 // Native protocol and ordinary CLI replies are substitutes, never record writers.
 import { realpathSync } from "node:fs";
@@ -7,6 +8,10 @@ import { openTakenBacklog, startSessionField } from "../launchStoryCardPage.ts";
 import { chooseProject, expectProjectChoice } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -65,10 +70,10 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     const recent = page.locator(".board .session-entry");
     const panel = await startedSessionTerminal(page, recent);
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       "GPT-6.1-Sol default",
     );
-    await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+    await expect(terminalScreenParts(panel).input).toBeFocused();
     await expect(recent).toHaveCount(1);
     const saved = stored(dashboard.home)[0];
     if (saved?.session.host !== "codex")
@@ -149,7 +154,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       "--no-alt-screen",
       native.threadId,
     ]);
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(panel);
     // Close returns the keyboard to what opened the terminal: the start
     // itself with nothing typed, the entry's Open terminal otherwise.
     await expect(
@@ -188,7 +193,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await sidebar.entry(label).click();
       await expectProjectChoice(page, "Open Dough");
       await expect(recent.getByText("Shown in terminal")).toBeVisible();
-      await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+      await expect(terminalScreenParts(panel).input).toBeFocused();
       await expect(sidebar.entry(label)).toHaveAttribute(
         "aria-current",
         "true",
@@ -204,8 +209,8 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await reloadUntilRead(page);
       await expect(recent.locator(".session-state")).toHaveText("Done");
       await showColumn(page, "Recently done");
-      await recent.getByRole("button", { name: "Open terminal" }).click();
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await openTerminalControl(recent, { exact: false }).click();
+      await expect(terminalScreenParts(panel).rows).toContainText(
         "GPT-6.1-Sol default",
       );
       await expect
@@ -227,7 +232,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       expect(
         native.calls.filter((call) => call.method === "turn/interrupt"),
       ).toEqual([]);
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeSidePanel(panel);
       for (const attach of codexAttaches(native)) {
         await expectCodexHungUp(native, attach.pid);
       }

@@ -91,7 +91,9 @@ export function usePageSidePanel({
   };
   const openTerminal = useCallback<OpenTerminal>(
     (request) => {
-      selectStoryOf(request);
+      // Panel first: story selection can refresh the Board while a Startup
+      // recovery item settles; keeping the panel commit ahead of that keeps
+      // the open the developer asked for.
       setSidePanel((current) =>
         current?.kind === "terminal" &&
         sessionKey(current.request.record.session) ===
@@ -99,13 +101,14 @@ export function usePageSidePanel({
           ? current
           : { kind: "terminal", request },
       );
+      selectStoryOf(request);
     },
     [selectStoryOf],
   );
   const openFinalReport = useCallback<OpenFinalReport>(
     (request) => {
-      selectStoryOf(request);
       setSidePanel({ kind: "final-report", request });
+      selectStoryOf(request);
     },
     [selectStoryOf],
   );
@@ -114,12 +117,12 @@ export function usePageSidePanel({
   // keyboard; any other opening reads a fresh one.
   const openStoryReview = useCallback<OpenStoryReview>(
     (request) => {
-      selectStoryOf(request);
       setSidePanel((current) =>
         current?.kind === "story-review" && sameStory(current.request, request)
           ? { ...current, request }
           : { kind: "story-review", request },
       );
+      selectStoryOf(request);
     },
     [selectStoryOf],
   );
@@ -204,7 +207,8 @@ export function usePageSidePanel({
         openTerminal(request);
     },
     openSession: (request) => {
-      const access = sessionAccess(request.record, hostOperations);
+      const access =
+        request.access ?? sessionAccess(request.record, hostOperations);
       if (access === "terminal")
         openedByDeveloper.current.add(sessionKey(request.record.session));
       if (access !== undefined)

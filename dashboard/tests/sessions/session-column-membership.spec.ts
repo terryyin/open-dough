@@ -1,9 +1,11 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   localEntries,
   publishMembership,
@@ -150,7 +152,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await publishMembership(page);
   await page.goto("/");
   await startAdHocAndClose(page, "Open Dough", "inspect local work");
-  const terminal = page.getByRole("region", { name: "Terminal" });
+  const terminal = terminalPanel(page);
   const active = localEntries(page);
   await expect(active).toHaveCount(1);
   const native = await sessionNamedBy(active);
@@ -185,7 +187,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await showColumn(page, "Recently done");
   const beforeReopen = dashboard.claudeAttaches().length;
   dashboard.claudeSessionBecomes(native, "forgotten");
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(recent, { exact: false }).click();
   await expect(terminal.getByRole("status")).toContainText(
     "Disconnected from the session",
   );
@@ -193,7 +195,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   expect(dashboard.claudeAttaches()).toHaveLength(beforeReopen);
   await expect(recent).toHaveCount(1);
   await expect(active).toHaveCount(0);
-  await terminal.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(terminal, { using: "mouse", exact: false });
   await expect(
     recent.getByRole("button", { name: "Open terminal" }),
   ).toBeFocused();

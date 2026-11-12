@@ -14,6 +14,7 @@ import type { HostOperations } from "../../src/sessionCapabilities.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { sessionActions } from "./sessionEntryDisclosure.ts";
 import { startedSessionTerminal } from "./startedSessionTerminal.ts";
+import { expectTerminalText } from "../terminalScreenPage.ts";
 
 export const instruction = "inspect this session";
 
@@ -114,7 +115,7 @@ export async function openTakenCursorSession(
   // join arriving after a later hangup or runner stop would attach a new
   // client instead.
   const terminal = await startedSessionTerminal(page, recent);
-  await expect(terminal.locator(".xterm-rows")).toContainText(/\S/u);
+  await expectTerminalText(terminal, /\S/u);
   return recent;
 }
 

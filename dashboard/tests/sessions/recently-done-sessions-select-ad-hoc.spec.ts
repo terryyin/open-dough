@@ -22,6 +22,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { git } from "../support/storyReviewWorktree.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 
@@ -158,7 +159,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     );
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".final-report-text")).toHaveText(reportMessage);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(shown.entry(reportTitle)).toHaveAttribute(
       "aria-current",
       "true",

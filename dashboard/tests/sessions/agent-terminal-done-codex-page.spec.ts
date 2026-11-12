@@ -4,6 +4,11 @@ import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   publishStoryColumnsJourney,
   notRefinedIdentity,
   notRefinedStory,
@@ -58,15 +63,15 @@ for (const attached of [false, true]) {
     const recent = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: native.threadId });
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await expect(listed.locator(".session-state")).toHaveText(
       attached
         ? "Needs input: Codex is waiting for your input"
         : "Ready for review",
     );
     if (attached) {
-      await listed.getByRole("button", { name: "Open terminal" }).click();
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await openTerminalControl(listed, { exact: false }).click();
+      await expect(terminalScreenParts(panel).rows).toContainText(
         "original retained history",
       );
       const question = await expectAsked(panel, waitingForInput);
@@ -88,14 +93,14 @@ for (const attached of [false, true]) {
     await expect(recent.locator(".session-state")).toHaveText("Done");
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     codexTerminalMode(native, "fail");
-    await recent.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(recent, { exact: false }).click();
     await expect(panel.getByRole("status")).toContainText(
       "The session could not be attached",
     );
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     codexTerminalMode(native, "ready");
     await panel.getByRole("button", { name: "Reconnect" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       "original retained history",
     );
     await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
@@ -156,9 +161,9 @@ test("native interrupt refusal remains Working with retained local intent and di
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await listed.getByRole("button", { name: "Open terminal" }).click();
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  const panel = terminalPanel(page);
+  await openTerminalControl(listed, { exact: false }).click();
+  await expect(terminalScreenParts(panel).rows).toContainText(
     "original retained history",
   );
   await markDoneAnyway(panel);
@@ -176,11 +181,13 @@ test("native interrupt refusal remains Working with retained local intent and di
   await expect(recent.locator(".session-state")).toHaveText("Working");
   await expect(recent).toContainText(problem ?? "missing diagnostic");
   codexTerminalMode(native, "review");
-  await recent.getByRole("button", { name: "Open terminal" }).click();
-  await expect(panel.locator(".xterm-rows")).toContainText("Hooks need review");
+  await openTerminalControl(recent, { exact: false }).click();
+  await expect(terminalScreenParts(panel).rows).toContainText(
+    "Hooks need review",
+  );
   expect(stored(dashboard.home)[0]?.doneProblem).toBe(problem);
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-  await panel.locator(".xterm-screen").click();
+  await terminalScreenParts(panel).screen.click();
   await page.keyboard.press("Escape");
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();

@@ -9,10 +9,10 @@ import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts"
 import {
   aWholePass,
   heldRequest,
-  repeatCards,
   rerunRuns,
   savedRepeatRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
+import { followUpCards } from "../../tests/support/ciFollowUpScenario.ts";
 import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
 import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import {
@@ -54,7 +54,7 @@ test("a kept accepted request asks for no rerun, reads its repeat in progress, t
   await expect
     .poll(() => savedRepeatRequest(server, 71)?.outcome.kind, "progress read")
     .toBe("progress");
-  expect(await repeatCards(server), "progress card").toMatchObject([
+  expect(await followUpCards(server), "progress card").toMatchObject([
     { kind: "progress", explanation: "CI rerun in progress" },
   ]);
   kept.provider(71).setRepeat({ seconds: 106 });
@@ -62,7 +62,7 @@ test("a kept accepted request asks for no rerun, reads its repeat in progress, t
   await expect
     .poll(() => savedRepeatRequest(server, 71)?.outcome.settled, "repeat read")
     .toBe(true);
-  expect(await repeatCards(server), "slow card").toMatchObject([
+  expect(await followUpCards(server), "slow card").toMatchObject([
     {
       kind: "slow",
       explanation: "Possible CI slowdown",

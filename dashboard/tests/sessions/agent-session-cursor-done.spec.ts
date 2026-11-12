@@ -1,4 +1,3 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // Mark as done on a Cursor session is a local dashboard acknowledgement
 // only (slice 3): at the real page/server boundary with the fake Cursor
 // runner, marking an active unreported working session moves it to
@@ -7,6 +6,13 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // observed still held/working shows that native state as it is and
 // still offers Stop, which then works. The report-backed path is
 // covered by ./agent-completion-cursor.spec.ts.
+
+import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import {
+  closeTerminal,
+  expectTerminalText,
+  terminalPanel,
+} from "../terminalScreenPage.ts";
 import type { Page } from "@playwright/test";
 import {
   expectNormalizedReading,
@@ -22,21 +28,16 @@ import {
   markLocallyDone,
   markLocallyDoneFromSidePanel,
 } from "../support/cursorLocalDone.ts";
-
 const localDoneWording =
   "Done is a dashboard-local name only; marking it done did not stop the native session.";
 
-async function closeTerminal(page: Page): Promise<void> {
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(panel).toHaveCount(0);
-}
+const closeOpenTerminal = (page: Page) => closeTerminal(terminalPanel(page));
 
 workingCursorTest(
   "Mark as done on an active unreported working Cursor session moves it to Recently done with local-only wording, sets only the local mark, and does not stop the session",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    await closeTerminal(page);
+    await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
@@ -70,8 +71,8 @@ workingCursorTest(
   "Mark as done from the open terminal moves an active Cursor session to Recently done with local-only wording, sets only the local mark, and does not stop the session",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    await expect(panel.locator(".xterm-rows")).toContainText(/\S/u);
+    const panel = terminalPanel(page);
+    await expectTerminalText(panel, /\S/u);
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
@@ -100,7 +101,7 @@ workingCursorTest(
   "a locally done Cursor session later observed still held/working shows Working and offers Stop, and Stop then works",
   async ({ page, dashboard, origin, cursor }) => {
     const entry = await openTakenCursorSession(page, origin);
-    await closeTerminal(page);
+    await closeOpenTerminal(page);
     await expectNormalizedReading(entry, "Working", false);
     const client = cursor.attaches()[0];
     expect(client).toBeDefined();
