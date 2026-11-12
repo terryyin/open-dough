@@ -113,7 +113,8 @@ test("a complete, successful attempt at the requested revision is read: the tabl
     rowsOf(text),
     /\n 1 3\.0 75\.0% 1 3\.00 tests\/a\.sh\n 2 1\.0 25\.0% 1 1\.00 tests\/b\.sh\n/,
   );
-  assert.doesNotMatch(text, /e2e/);
+  // The undeclared entry and its file; a revision's hex may spell "e2e".
+  assert.doesNotMatch(text, /e2e\/x\.feature|\n\s+e2e\s/);
   assert.deepEqual(github.asked, [
     "repos/owner/repo/actions/workflows/ci.yml",
     "repos/owner/repo/actions/workflows/7001/runs?event=push&per_page=100&page=1",
