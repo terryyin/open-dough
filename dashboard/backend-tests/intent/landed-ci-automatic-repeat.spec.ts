@@ -12,6 +12,7 @@ import {
 } from "../../tests/support/landedCiHistoryTest.ts";
 import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts";
 import { keepRecordedPriorsMeasured } from "../../tests/support/ciFollowUpKeptPriors.ts";
+import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
 import {
   aWholePass,
   heldRequest,
@@ -28,6 +29,8 @@ import {
 import { postLanding } from "../../tests/support/startSessionLandingCapture.ts";
 
 test.use({ serverMode: "boundary" });
+// The cases whose origin starts from the kept published story.
+const keptStoryTest = test.extend(startingFromKeptStory);
 
 // Another landing's accepted request whose repeat the provider has not
 // started. No story published that landing and the history keeps no build of
@@ -112,64 +115,71 @@ const eligible = {
 } as const;
 const beside120And100 = { originalMs: 120000, averageMs: 100000 };
 
-test("a kept eligible receipt whose rerun request the provider refuses reads refused beside its original and average, and no later pass asks again", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const kept = await keepRepeatLanding(origin, github, {
-    ...eligible,
-    beside: [heldRequest(waiting)],
-  });
-  kept.provider(71).replyToRerun(403);
-  const server = await startServer();
-  await expect
-    .poll(() => savedRepeatRequest(server, 71)?.submission.kind, "saved reply")
-    .toBe("refused");
-  const replied = github.calls.length;
-  const refused = {
-    kind: "unverified",
-    explanation: expect.stringContaining("refused"),
-    ...beside120And100,
-  };
-  expect(await repeatCards(server), "refused card").toMatchObject([refused]);
-  await aWholePass(github, waiting.run, replied);
-  expect(rerunRuns(github), "rerun requests").toEqual([71]);
-  await followUpSettings(server, false);
-  expect(await repeatCards(server), "follow-up off").toMatchObject([refused]);
-});
+keptStoryTest(
+  "a kept eligible receipt whose rerun request the provider refuses reads refused beside its original and average, and no later pass asks again",
+  async ({ origin, github, startServer }) => {
+    const kept = await keepRepeatLanding(origin, github, {
+      ...eligible,
+      beside: [heldRequest(waiting)],
+    });
+    kept.provider(71).replyToRerun(403);
+    const server = await startServer();
+    await expect
+      .poll(
+        () => savedRepeatRequest(server, 71)?.submission.kind,
+        "saved reply",
+      )
+      .toBe("refused");
+    const replied = github.calls.length;
+    const refused = {
+      kind: "unverified",
+      explanation: expect.stringContaining("refused"),
+      ...beside120And100,
+    };
+    expect(await repeatCards(server), "refused card").toMatchObject([refused]);
+    await aWholePass(github, waiting.run, replied);
+    expect(rerunRuns(github), "rerun requests").toEqual([71]);
+    await followUpSettings(server, false);
+    expect(await repeatCards(server), "follow-up off").toMatchObject([refused]);
+  },
+);
 
-test("a kept eligible receipt whose rerun request gets no definitive reply stays unverified and shows the later 104 second passing repeat", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const kept = await keepRepeatLanding(origin, github, eligible);
-  kept.provider(71).replyToRerun(503);
-  const server = await startServer();
-  await expect
-    .poll(() => savedRepeatRequest(server, 71)?.submission.kind, "saved reply")
-    .toBe("uncertain");
-  kept.provider(71).setRepeat({ seconds: 104 });
-  // The repeat is read after the reply; its measurement settles the request.
-  await expect
-    .poll(() => savedRepeatRequest(server, 71)?.outcome.settled, "repeat read")
-    .toBe(true);
-  const unverified = {
-    kind: "unverified",
-    explanation: expect.stringContaining("uncertain"),
-    repeatMs: 104000,
-    ...beside120And100,
-  };
-  expect(await repeatCards(server), "stays unverified").toMatchObject([
-    unverified,
-  ]);
-  expect(rerunRuns(github), "rerun requests").toEqual([71]);
-  await followUpSettings(server, false);
-  expect(await repeatCards(server), "follow-up off").toMatchObject([
-    unverified,
-  ]);
-});
+keptStoryTest(
+  "a kept eligible receipt whose rerun request gets no definitive reply stays unverified and shows the later 104 second passing repeat",
+  async ({ origin, github, startServer }) => {
+    const kept = await keepRepeatLanding(origin, github, eligible);
+    kept.provider(71).replyToRerun(503);
+    const server = await startServer();
+    await expect
+      .poll(
+        () => savedRepeatRequest(server, 71)?.submission.kind,
+        "saved reply",
+      )
+      .toBe("uncertain");
+    kept.provider(71).setRepeat({ seconds: 104 });
+    // The repeat is read after the reply; its measurement settles the request.
+    await expect
+      .poll(
+        () => savedRepeatRequest(server, 71)?.outcome.settled,
+        "repeat read",
+      )
+      .toBe(true);
+    const unverified = {
+      kind: "unverified",
+      explanation: expect.stringContaining("uncertain"),
+      repeatMs: 104000,
+      ...beside120And100,
+    };
+    expect(await repeatCards(server), "stays unverified").toMatchObject([
+      unverified,
+    ]);
+    expect(rerunRuns(github), "rerun requests").toEqual([71]);
+    await followUpSettings(server, false);
+    expect(await repeatCards(server), "follow-up off").toMatchObject([
+      unverified,
+    ]);
+  },
+);
 
 test("saved accepted requests read the outcome their provider repeat decides beside the original and average", async ({
   origin,

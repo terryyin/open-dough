@@ -1625,7 +1625,7 @@ suite were not run locally.
 
 ### 8. Kept landings start from a kept published story
 Type: Behavior
-Status: planned
+Status: done
 Proof: The seven repeat specs pass three consecutive times at two workers.
 A kept-landing case reaches its first wait at least a third sooner than
 slice 6 recorded for it (3.7 s at one worker, load 39–50), position and load
@@ -1647,6 +1647,260 @@ and kept, and the case pays for its own landing and server only.
   ages, so nothing is kept between runs.
 - What only a real completion shows stays with the journey and with
   `completedPublishedStory`'s own checks.
+
+#### Slice 8 record
+
+Observed on 2026-11-12, 18:41–20:10 local, on `e5ba5af6f` with this slice's
+uncommitted change, Node 24.21.0, AC power throughout. Logs, traces and the
+scratch scripts (`run.sh`, `pair2.sh`, `firstwait.py`, `fixtures.py`,
+`steps.py`, `fault.py`, `importers.py`) are in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice8/`; nothing scratch entered
+the repository. Not committed, not published. Other worktrees' suites, a
+virtual machine and another project's tests loaded the machine throughout:
+the natural one-minute load moved between 15 and 85 within minutes.
+
+**Design.** `dashboard/tests/support/keptPublishedStory.ts` (145 lines) is
+the kept story's owner, beside `completedPublishedStory.ts`, which is
+unchanged with its 84 specs:
+
+- The story is slice 6's declared history: `queuedReadyRepository()`,
+  `takeRevision` (Yui, Trunk Mode, publisher `another-publisher`), her
+  implementation, and her completion, which removes the agent profile,
+  leaves Story B queued and adds `makeMe.aDoneRecord`. A second trunk,
+  `"intent"`, puts Intent's settings and sources before the Take, where
+  `publishIntentTrunk` put them: `intentStoryWorktree.ts` now exports that
+  commit as `intentTrunkRevision` and `publishIntentTrunk` writes the same
+  files and message from it.
+- Preparation is the worker's. `pageTest.ts` declares two more worker
+  fixtures, `keptStory` and `keptIntentStory`; each calls
+  `prepareKeptStory(trunk)` once and answers the description it prepared.
+  `prepareKeptStory` declares the story completed now, starts one origin from
+  that description through `startOrigin` (the run's queued origin with the
+  later revisions committed and pushed, the existing path) and keeps a copy
+  of its bare origin with `keepStartedOrigin` in `startOriginPreparation.ts`,
+  in the per-process map private preparations already use.
+  `preparedStartOrigin` looks there first, so the `origin` fixture of a case
+  given that description as `originRepository` copies an origin that already
+  holds every revision and pushes nothing. No second cache and no second
+  preparation path. Slice 6's own form, a private materialization of the
+  whole description, was tried first: it cost a worker 7.5–12.9 s per trunk
+  with two workers at load 22 → 38, because it writes and commits the
+  installed skills again. Starting from the run's queued origin costs
+  1.3–4.9 s (table below).
+- Opt-in is the `queued…Test` form: `startingFromKeptStory` and
+  `startingFromKeptIntentStory` are `originRepository` fixtures a test extends
+  itself with; each first resolves the test's own `originRepository`, which
+  waits on `queuedClaudeBoundaryReady` or `queuedClaudePreviewReady`. The
+  refused, uncertain and warning cases are declared with a
+  `keptStoryTest = test.extend(startingFromKeptStory)` beside their file's
+  `test`; the accepted-request spec's `test` is extended; the three Intent
+  follow-up specs get theirs from `ciFollowUpSettledReading.ts`.
+- `keepRepeatLanding` reads the completion with `keptStoryCompletion(origin)`
+  (the revision that added Story A's done record on `main`) and no longer
+  calls `completedPublishedStory`; an origin that holds no kept story stops
+  with a message naming the opt-in. `keepSettledRepeat` no longer calls
+  `publishIntentTrunk`. The journey still publishes and completes its story
+  through `prepareRepeatScenario`; `saveRepeatRequests` is unchanged.
+- The server start of each case is not removed by this slice.
+
+Changed files and line counts: `keptPublishedStory.ts` 145 (new),
+`startOriginPreparation.ts` 249, `pageTest.ts` 207,
+`ciFollowUpKeptLanding.ts` 226, `ciFollowUpSettledReading.ts` 49,
+`ciFollowUpPageLanding.ts` 37 (comment), `intentStoryWorktree.ts` 112,
+`landed-ci-automatic-repeat.spec.ts` 247,
+`landed-ci-repeat-accepted-request.spec.ts` 78,
+`recently-done-ci-automatic-repeat.spec.ts` 96, and
+`dashboard/tests/fixture-origins.md`. The three cases declared with
+`keptStoryTest` are reindented by Prettier, which keeps the hugged form for
+`test(` only; their statements and expectations are the same
+(`git diff -w`). No product code, timeout, sleep, retry or skip.
+
+**The paired first wait.** `pair2.sh` started the base (a detached worktree
+of `e5ba5af6f` at `slice8/before`, set up with `setup-native.mjs npm`,
+`browser`, `check`) and the candidate at the same moment, so both saw the
+same load, each
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts --workers=1 --trace=on --reporter=list`.
+A round started only at a one-minute load of 39–50. Back-to-back runs were
+tried first and dropped: the load moved from 38 to 60 inside one run.
+Seconds from the trace, from the case's start to its first wait, to that
+wait's answer, and to the case's end, worker fixtures taken out
+(`firstwait.py`). The accepted-request case is the fifth of five in its
+worker on both sides, the case slice 6 traced; the candidate's kept story was
+prepared by the refused case's worker fixture (2.2, 1.7 and 4.8 s).
+
+| Round | Load start → end | Case | Base: first wait / answer / case | Candidate | First wait sooner by |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 48.0 → 40.7, natural | accepted request | 2.3 / 3.2 / 5.7 | 1.2 / 3.0 / 4.9 | 48% |
+| 1 | | refused | 4.5 / 6.4 / 9.3 | 1.5 / 3.4 / 5.9 | 67% |
+| 1 | | uncertain | 2.7 / 3.6 / 5.7 | 1.1 / 1.9 / 3.9 | 59% |
+| 2 | 40.7 → 32.1, natural, ended below the window | accepted request | 2.6 / 4.5 / 9.3 | 1.7 / 3.6 / 8.2 | 35% |
+| 2 | | refused | 4.1 / 5.9 / 9.7 | 1.9 / 3.8 / 7.6 | 54% |
+| 2 | | uncertain | 4.6 / 6.4 / 12.0 | 2.4 / 4.3 / 7.8 | 48% |
+| 3 | 41.5 → 53.9, 30 burners, ended above the window | accepted request | 11.7 / 12.6 / 21.2 | 7.2 / 8.0 / 15.8 | 38% |
+| 3 | | refused | 13.0 / 14.9 / 24.8 | 9.1 / 12.0 / 19.7 | 30% |
+| 3 | | uncertain | 9.8 / 11.6 / 19.0 | 6.5 / 9.3 / 16.2 | 34% |
+
+The accepted-request case reached its first wait 35–48% sooner in the three
+rounds; the refused case 30% sooner in the round that ended above the
+window, under a third. Against slice 6's 3.7 s for the same case and
+position at load 39–50: 1.2 and 1.7 s in the two rounds inside or below
+that load, 7.2 s in the round that left it at 53.9. What remains before the
+first wait is the `origin` copy (0.3–1.5 s) and the server start.
+
+**Runs of the seven specs at two workers**, each
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE=<file> npm run --silent test:dashboard -- <the seven specs> --workers=2 --trace=on --reporter=list`,
+natural load, no burner:
+
+| Label | Load before → after | Result |
+| --- | --- | --- |
+| `second` | 31.7 → 34.0 | 11 passed, 44 s |
+| `pass1` | 47.3 → 35.8 | 11 passed, 152 s |
+| `pass2` | 34.6 → 28.5 | 11 passed, 92 s |
+| `pass3` | 28.5 → 27.4 | 11 passed, 78 s |
+
+Four consecutive passes; between `second` and `pass2` only a comment in
+`keptPublishedStory.ts` changed. Reported durations, seconds:
+
+| Case | `second` | `pass1` | `pass2` | `pass3` |
+| --- | --- | --- | --- | --- |
+| journey | 7.5 | 18.1 | 10.6 | 13.2 |
+| refused | 5.7 | 13.5 | 7.7 | 9.2 |
+| uncertain | 5.5 | 17.1 | 11.2 | 7.3 |
+| saved outcomes | 2.5 | 7.1 | 5.1 | 2.7 |
+| accepted request | 5.0 | 16.2 | 10.0 | 7.8 |
+| verdict | 2.3 | 8.4 | 6.4 | 5.1 |
+| proof | 6.4 | 22.2 | 20.8 | 10.9 |
+| return | 10.0 | 31.8 | 25.6 | 16.9 |
+| reading | 5.5 | 18.0 | 8.7 | 12.2 |
+| settings | 2.4 | 6.3 | 3.6 | 4.8 |
+| warning | 5.3 | 16.3 | 6.9 | 11.6 |
+
+Worker fixtures, seconds, each outside its case's reported duration:
+
+| Run | `queuedClaudeBoundaryReady` | `keptStory` | `queuedClaudePreviewReady` | `keptIntentStory` |
+| --- | --- | --- | --- | --- |
+| `second` | 3.6, 3.6 | 1.3, 1.5 | 2.3, 0.4 | 1.3, 1.3 |
+| `pass1` | 12.0, 12.1 | 3.0, 3.4 | 10.6, 8.0 | 3.7, 3.9 |
+| `pass2` | 5.5, 5.5 | 2.3, 2.7 | 8.9, 8.2 | 4.9, 4.9 |
+| `pass3` | 3.8, 3.8 | 2.4, 1.9 | 5.5, 3.6 | 2.2, 2.1 |
+
+Toward slice 10's verdict: the return case passed above 25 s twice, 31.8 s
+in `pass1` and 25.6 s in `pass2`. Its trace in `pass1`: `origin` 0.8 s,
+`dashboard` 2.2 s, the Board paged to Recently done and the card about 8 s,
+then five readings of the comparison of 1.7–3.5 s each and 3.2 s of
+teardown; in `pass2` `origin` 1.6 s, `dashboard` 2.9 s, the Board about 8 s.
+None of it is the story's publication. One more two-worker pair, base and
+candidate at once under 24 burners, drove the load from 32.2 to 120–125:
+the same four page cases (proof, return, reading, warning) reached the 30 s
+bound on both sides. It is outside the profile and counted for neither.
+
+**Fault controls.** `fault.py <name>`: one scratch edit, the owning specs at
+one worker with `--reporter=list`, the file's bytes restored, then
+`git diff --stat -- dashboard/server dashboard/src`, empty after each and at
+the end. Edits are those of slices 2–5. Each failed at the labelled
+expectation, none at the 30 s bound:
+
+| Fault | Edit | Case, expectation, received | Load |
+| --- | --- | --- | --- |
+| F2 | Both `admitted.request !== undefined` guards dropped | Refused, "rerun requests": `[71, 71, 71]` for `[71]`; accepted request, "no second request": `[71, 71]` for `[]`; the journey, "rerun requests" | 37.7 → 31.4 |
+| F8 | A refused reply saved as `accepted` | Refused, "saved reply": `accepted` for `refused` | 31.4 → 26.0 |
+| F9 | The `submission.kind !== "accepted"` return never taken | Uncertain, "stays unverified": `recovered`, "CI timing returned to range" | 26.0 → 28.2 |
+| F18 | Turning off deletes entries that hold a request | Refused and uncertain, "follow-up off": no card | 28.2 → 23.9 |
+| F3 | `slow` always false in `observeRepeat` | Accepted request, "slow card": `recovered`; warning, "slow card": "CI timing returned to range" | 23.9 → 23.8 |
+| F16 | The in-progress branch answers `unverified` | Accepted request, "progress read", and warning, "progress saved": `unverified` for `progress` | 23.8 → 24.4 |
+| F17 | `withOriginalFollowUpSamples` takes `request.outcome.repeat` first | Accepted request, "original kept": `run/71/2`, 106000 for `run/71/1`, 105000 | 24.4 → 22.6 |
+| F15 | `completedFollowUps` selects no landing that holds a request | The journey, "accepted request's card"; refused, "refused card"; uncertain, "stays unverified"; accepted request, "progress card": no card each | 22.6 → 24.5 |
+| F19 | `card.kind === "slow"` never matches before the caution | Warning, "caution": the warning reads no caution | 20.3 → 19.0 |
+| F19, the colour | The card's class names `unverified` for a slow card | Warning, "red warning": `rgb(29, 29, 27)` | 19.0 → 15.6 |
+| Wide warning | `.ci-follow-up-slow` gains `min-width: 480px` | Warning, "warning whole on the phone": 544.6 for at most 390.5 | 15.6 → 19.1 |
+| F20 | `reference: { ...request.reference, evidence: [] }` | Reading, "evidence rows": 0 for 7; return, "evidence rows on first render": 0 for 6 | 19.1 → 27.7 |
+| F21 | The reading route awaits `exactRepeatRun` before it answers | Reading, "no CI request from first render"; proof, "no CI request from proof navigation"; return, "no CI request from refresh" | 28.3 → 31.5 |
+| F22 | `scopeEvidenceOf` takes `reading.repeat ?? reading.original` | Proof, "the original's proof in Summary": no link to attempt 1 | 31.5 → 36.4 |
+| F23 | `FollowUpSelection` no longer navigates away on another selection | Return, "the selection leaves the comparison's address": `SEED-A#a` | 36.4 → 31.1 |
+| F24 | `tabIndex` −1 on the repeat attempt's link | Reading, "Tab reaches the repeat's link": inactive | 31.1 → 29.2 |
+
+Under F2 the uncertain case passed, as in slice 2, where F2 is read on the
+refused owner. Six of the sixteen ran above load 27 at their start or end;
+each still failed at its expectation.
+
+**Kept state the product refuses (key example 7).** One scratch edit of
+`keepRepeatLanding`, the story's entry with `eligible: "yes"`: the refused
+and uncertain cases fail at "saved reply" with no request saved
+(`undefined` for `refused` and for `uncertain`), load 24.5 → 20.3. Reverted.
+
+**Consumers.** `consumer-trace.mjs --checkout "$PWD" --base e5ba5af6f --term
+keepStartedOrigin --term preparedStartOrigin --term intentTrunkRevision
+--term publishIntentTrunk --term keepRepeatLanding --term keepSettledRepeat
+--term keepRepeatLandingForPage --term startingFromKeptStory --term
+keptStoryCompletion`, no scratch file in the tree (output kept as
+`consumer-trace.md` beside the logs), by group:
+
+| Consumers | Disposition |
+| --- | --- |
+| The three backend repeat specs, `recently-done-ci-automatic-repeat.spec.ts`, the three Intent follow-up specs (through `ciFollowUpSettledReading.ts` and `ciFollowUpPageLanding.ts`): every importer of `ciFollowUpKeptLanding.ts` and `keptPublishedStory.ts` | run: the four passes and every fault above |
+| `start-origin-demand.spec.ts`, `dashboard-artifact-demand.spec.ts`, `start-origin-isolation.spec.ts` (preparation, the explicit override, private preparation), `story-reference-navigation.spec.ts` (a description whose later revisions each case still pushes), and one taker of each other worker fixture: `intent-project-scope-timing-refresh.spec.ts`, `tests/launches/agent-launch-preparation-codex.spec.ts`, `intent-summary-story-comparison-sort.spec.ts`, `backend-tests/launches/agent-launch-preparation-codex-retry.spec.ts` | run: `consumersA`, two workers, load 25.2 → 37.2, 24 passed and 2 at the 30 s bound, running side by side: the refresh case `:126`, this story's known loaded failure (slice 9), and the sort case `:72` at `openSummary`'s click. Those two specs again, two workers: candidate 3 passed, load 31.5 → 34.0, sort 20.9 s; base 2 passed with refresh `:126` at the bound, 34.0 → 35.4, sort 21.1 s. The sort case takes `dashboardPreviewReady` and no origin; its trace is the same on both sides (`comparisonRepository` 4.5 and 3.7 s, the journey 15 s) |
+| The 12 specs that call `publishIntentTrunk` themselves | run, base and candidate at the same moment, one worker each. Ten specs, 18 cases, load 28.7 → 47.9: the same result case by case, 17 passed and `intent-story-changes-landed-run.spec.ts:75` at the bound on both (32.2 and 31.9 s). Four specs, load 46.1 → 31.1 (two of the twelve, `intent-done-default-answer-selection` again and `intent-done-landed-review-mode`): 3 passed and `intent-done-default-answer-selection.spec.ts:42` at the bound on both (33.4 and 32.0 s) |
+| The other specs that import `intentStoryWorktree.ts`, 80 in all with the ten above (77 through `intentStoryPage.ts`, the rest through `retainedIntentCompletion.ts`, `retainedIntentLanding.ts`, `intentCompletedStory.ts` and `intentSummaryStoryComparisonShared.ts`) | excluded: the module's other exports are unchanged, and `publishIntentTrunk` publishes the same tree and message from the base's module and the candidate's (`neutral/check.mjs`: tree `267db82e7a6e1fec8abfab8df21fc25f68a8a692`, "intent locations and tests", clean checkout, both). Partly run on the candidate, two workers, while the natural load passed the profile: the first 21 of them 30 passed and 8 at the bound, load 39.9 → 70.0; the next run stopped at 3 passed and 8 at the bound, load 39.5 → 48; a first attempt of all stopped at load 85. Not counted |
+| Every other importer of `pageTest.ts` and `startOriginPreparation.ts` (every dashboard spec reaches them), `startOrigin.ts`, `startOriginInitialization.ts`, `startOriginTakes.ts`, `globalSetup.ts`, the `artifact-demand` fixtures | excluded: they take neither added worker fixture, which is set up only for a test that names it and is declared for every pool alike; `preparedStartOrigin` answers as before for a description no worker kept; the run artifact list is unchanged. Hosted CI runs them |
+| `originRepository` matches (`preparationPage.ts`, `landedCiHistoryTest.ts`, `codexStart.ts`, `cursorStart.ts`, `startOriginTest.ts`, `storedReviewChoices.ts`, the specs that set it with `test.use`, the `dough-test-optimization` scripts' own `originRepository`) | excluded: the fixture's contract is unchanged; the new fixtures wrap it as `queuedClaudePreviewTest` does |
+| `completedPublishedStory.ts` and its importers, matched by the import `ciFollowUpKeptLanding.ts` dropped; `ciFollowUpScenario.ts`, `ciFollowUpSavedRequests.ts`, `ciFollowUpKeptPriors.ts`, `ciFollowUpRepeatRun.ts`, `ciFollowUpRepeatStage.ts`, which name `ciFollowUpKeptLanding.ts` | excluded: unchanged files; `keepRepeats` and the exported types are as they were |
+| Matches of `claimant`, `repeatMs`, `averageSeconds`, `keptStory` (`keptStoryAMark`) in product code, skills and other support | excluded: other symbols of the same spelling |
+| `dashboard/tests/fixture-origins.md` | changed: it now says a worker may keep a started origin |
+| `eslint.config.mjs`, `processGroup.ts`, `voiceRecovery.ts`, the READMEs, `docs/maintainer/`, `ProjectFindings.md`, `.planning/` records, evidence and seeds | excluded: they name a changed file by path or in prose; nothing they state changed |
+
+`npm run --silent typecheck:dashboard`, `npx eslint` and
+`npx prettier --check` on the ten changed source files and
+`fixture-origins.md`: exit 0 each.
+
+Source-review commitments. S8.3, "and the published story and server each
+case arranges, through a kept published-story arrangement that cases
+share": used for the published story only, as above; every case still
+starts its own server. S8.4, "Every spec that uses a changed fixture keeps
+its cases and assertions and gives the result it gave before": the diff
+changes no expectation in the seven specs and no file of any other spec;
+the seven pass as before, each fault above still fails its owner at the
+same expectation, and the consumer runs are in the table.
+
+Gaps: hosted CI on a published revision is not observed (nothing is
+committed). The first wait is a third sooner for the traced case in every
+round, and under a third (30%) for the refused case in the one round that
+ended above load 50. No run of the seven specs stayed inside load 30–50
+under burners: the natural load supplied the profile and left it without
+notice. Six fault runs started or ended above load 27. Of the 80 specs that
+import `intentStoryWorktree.ts`, 12 have a counted paired run; the rest
+rest on the equal tree and the uncounted partial runs. Cases outside this
+story reached the 30 s bound at natural load 37–70 on base and candidate
+alike (`intent-summary-story-comparison-sort.spec.ts:72`,
+`intent-story-changes-landed-run.spec.ts:75`,
+`intent-done-default-answer-selection.spec.ts:42`, and the sixteen in the
+uncounted partial runs); this slice changes none of them and repairs none.
+The kept story's implementation is one declared file of its own, not the
+two files `writeCompletedStoryImplementation` writes: no kept-landing case
+reads it, and sharing them would edit `completedStoryInput.ts` under
+`completedPublishedStory.ts`'s 84 specs.
+
+#### Slice 8 acceptance and refactor
+
+- The implementing agent stopped on a usage limit after writing the record
+  above; nothing was committed or pushed. Its logs back every claim, and on
+  the actual files the seven specs passed 11 of 11 at two workers (load
+  19.5 → 14.3), with typecheck, eslint and prettier clean. Accepted.
+- The refactor pass removed a lookup in `startOriginPreparation.ts` that the
+  slice made unreachable (now 248 lines; its seam if it grows: the origins
+  one process holds, about 75 lines), wrote the kept story's claimant once,
+  and reflowed comments. Private preparation, demand and isolation specs and
+  the accepted-request case passed, except
+  `start-origin-isolation.spec.ts:140` at the 30 s bound at load 40 → 46
+  beside `:40`; alone it passed in 20.4 s at load 43 → 42. That is DD-479,
+  recorded before this story; SEED-287, which covered it, has closed.
+- Loaded failures outside this story's named specs, on trunk and this branch
+  alike, go to the developer at the handoff: `start-origin-isolation:140`,
+  `intent-summary-story-comparison-sort:72`,
+  `intent-story-changes-landed-run:75` and
+  `intent-done-default-answer-selection:42`, at load 37–70.
+- For slice 10: the return case took 31.8 s at load 47 → 36, in the profile;
+  its time is the Board paged to Recently done (about 8 s) and five readings
+  of the comparison, not preparation.
 
 ### 9. The project scope timing refresh cases start from kept history
 Type: Behavior

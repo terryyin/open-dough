@@ -9,6 +9,10 @@ once per requested layout, Claude or Codex/Cursor, from current working-tree
 skills (`support/startOriginPreparation.ts`). A description sharing their
 first revision starts from that origin, its checkout pushing the later ones;
 another is materialized privately on that installation, once per process.
+A worker may also keep the origin one start of a description left
+(`keepStartedOrigin`), as it does for the kept published story
+(`support/keptPublishedStory.ts`); later starts of that description in the
+worker are copies of it and push nothing.
 Tests clone private copies with independent objects, refs, config, indexes and
 HOME. Nested configurations can inherit the outer runner's artifacts. Without
 an owner, a start prepares only its layout and removes that preparation after

@@ -13,8 +13,8 @@ import type { FakeGitHub } from "./fakeGitHub.ts";
 import { originMain } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
-// The page's reads of the repository following the origin's `main` as it
-// stands, then Story A published as completed there with its landing kept as
+// The page's reads of the repository following the origin's `main`, which
+// holds Story A published as completed, then the story's landing kept as
 // `facts` state. Answers the provider's facts by run, and the story's
 // completion.
 export async function keepRepeatLandingForPage(

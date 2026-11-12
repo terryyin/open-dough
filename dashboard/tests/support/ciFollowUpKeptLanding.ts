@@ -6,14 +6,15 @@
 // provider's facts for each landing's run (./ciFollowUpRepeatRun.ts). A case
 // starts real collection and reading from the stage it states.
 //
-// `keepRepeatLanding` keeps Story A's landing, published as completed, after
-// five measured prior builds (./ciFollowUpKeptPriors.ts), at the stage the
-// case states (./ciFollowUpRepeatStage.ts). `keepRepeats` keeps
-// any landings' ledger entries and serves their runs; saved requests for
-// landings no story published (./ciFollowUpSavedRequests.ts) state theirs to
-// it. A dashboard may already run on the machine, as a page's does: the
-// provider answers before the ledger names its runs, and the ledger is kept
-// as that dashboard's own writers keep it (./machineDocument.ts).
+// `keepRepeatLanding` keeps the landing of Story A, which the origin already
+// holds published as completed (./keptPublishedStory.ts), after five measured
+// prior builds (./ciFollowUpKeptPriors.ts), at the stage the case states
+// (./ciFollowUpRepeatStage.ts). `keepRepeats` keeps any landings' ledger
+// entries and serves their runs; saved requests for landings no story
+// published (./ciFollowUpSavedRequests.ts) state theirs to it. A dashboard
+// may already run on the machine, as a page's does: the provider answers
+// before the ledger names its runs, and the ledger is kept as that
+// dashboard's own writers keep it (./machineDocument.ts).
 import { hostname } from "node:os";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
@@ -22,7 +23,6 @@ import {
   type FollowUpLedger,
 } from "../../server/ciFollowUpStore.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
-import { completedPublishedStory } from "./completedPublishedStory.ts";
 import {
   keptAttempt,
   serveRepeatRuns,
@@ -39,6 +39,7 @@ import {
   landingsNoRepositoryHolds,
   type ExcludedPrior,
 } from "./ciFollowUpKeptPriors.ts";
+import { keptStoryCompletion } from "./keptPublishedStory.ts";
 import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
 import { keepMachineDocument } from "./machineDocument.ts";
@@ -114,9 +115,10 @@ export type RepeatLandingFacts = {
   readonly proof?: readonly CiProofEntry[];
 };
 
-// Story A published as completed on the origin's trunk, and its landing as
-// the machine keeps it at the stage `facts` state: recorded for the story's
-// execution and measured as they state, every build with its CI proof;
+// The landing of Story A, published as completed on the trunk the origin
+// started from (./keptPublishedStory.ts), as the machine keeps it at the
+// stage `facts` state: recorded for the story's execution and measured as
+// they state, every build with its CI proof;
 // follow-up enabled on this machine after the prior landings and before the
 // story's receipt. `beside` are other landings the machine keeps, and
 // `otherwise` the repository's answers beside the provider's. Answers the
@@ -133,15 +135,7 @@ export async function keepRepeatLanding(
   const { run, seconds, averageSeconds, excludedPrior, beside = [] } = facts;
   const home = machineHome(origin.machine);
   const target = "refs/heads/main";
-  const story = await completedPublishedStory(
-    origin,
-    "trunk",
-    undefined,
-    undefined,
-    undefined,
-    { interleaved: false, retainWorkspace: true },
-  );
-  const completion = story.completion;
+  const completion = await keptStoryCompletion(origin);
   const capture = makeMe.aLaunchLanding
     .capturedFrom({
       repository: commonGitDir(origin.project),

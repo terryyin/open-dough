@@ -33,6 +33,7 @@ import type { ComparisonRenderer } from "./comparisonRendering.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
+import type { StartRepository } from "./startOriginPreparation.ts";
 
 export { expect } from "@playwright/test";
 
@@ -75,6 +76,8 @@ export const test = base.extend<
     queuedClaudeBoundaryReady: undefined;
     queuedCodexPreviewReady: undefined;
     publishedApplicationSourceReady: undefined;
+    keptStory: StartRepository;
+    keptIntentStory: StartRepository;
   }
 >({
   // Reading-only previews need the app and boundaries, with no installed origin.
@@ -141,6 +144,26 @@ export const test = base.extend<
         ]);
       await requestRunArtifact(startOriginArtifactKey("codex", "queued"));
       await use(undefined);
+    },
+    { scope: "worker" },
+  ],
+  // Story A published as completed and kept (./keptPublishedStory.ts), on the
+  // queued trunk and on Intent's: the worker that takes one prepares it
+  // before its first such case and answers the description those cases'
+  // origins start from, so none publishes the story in its own time.
+  keptStory: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
+      await use(await prepareKeptStory("queued"));
+    },
+    { scope: "worker" },
+  ],
+  keptIntentStory: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
+      await use(await prepareKeptStory("intent"));
     },
     { scope: "worker" },
   ],

@@ -1,6 +1,8 @@
 // What a production dashboard reads after an accepted rerun request for a
-// published completion, with no receipt journey: the machine keeps the
-// landing with that request (../../tests/support/ciFollowUpKeptLanding.ts),
+// published completion, with no receipt journey: the origin starts from the
+// kept published story (../../tests/support/keptPublishedStory.ts), the
+// machine keeps the landing with that request
+// (../../tests/support/ciFollowUpKeptLanding.ts),
 // a fresh server collects, and each read follows what collection saved of
 // the provider's repeat.
 import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts";
@@ -11,12 +13,14 @@ import {
   rerunRuns,
   savedRepeatRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
+import { startingFromKeptStory } from "../../tests/support/keptPublishedStory.ts";
 import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
 import {
   expect,
-  queuedClaudeBoundaryTest as test,
+  queuedClaudeBoundaryTest,
 } from "../../tests/support/landedCiHistoryTest.ts";
 
+const test = queuedClaudeBoundaryTest.extend(startingFromKeptStory);
 test.use({ serverMode: "boundary" });
 
 test("a kept accepted request asks for no rerun, reads its repeat in progress, then a possible slowdown at 106 seconds beside the 105 second original and 100 second average, and keeps the original in history", async ({
