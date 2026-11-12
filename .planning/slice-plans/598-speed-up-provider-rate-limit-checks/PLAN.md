@@ -198,6 +198,21 @@ freshness bound from reopening and catch-up to B, and no real wait.
   other case of `revision-stream-lost.spec.ts` passed on the shared
   real-clock owner. The slice 1 failure did not recur in these or two further
   runs.
+- Owned repair of `intent-ci-comparison-pending-proof.spec.ts:31`, 2026-11-12,
+  after slice 2 (`c90a4d62d`). Measured share of the "later" case at load 45
+  (body 15.5 s): the product's sequential later-build walk and its about 100
+  fake `gh` starts about 10 s, the shared landing fixture about 2.2 s, the 29
+  later commits and their push about 2.7 s. Repair kept:
+  `pendingLandedComparison.ts` makes the 29 commits through the existing
+  `commitTrunkChanges` batch (29 commits: 837–1235 ms as a loop, 155–275 ms
+  as one import, paired in one process); the fixture origin's first-parent
+  history is byte-identical with SHAs normalised, and the file passed three
+  consecutive runs. The gain is 1–2 s, below end-to-end noise (the same case
+  ran 4.4–17.7 s across loads 20–43). Remaining defect: under host load near
+  70 the case can still approach the 30 s default; what is left is the
+  product walk's one `gh` start per revision, the Node start cost of the fake
+  `gh`, and the shared landing fixture, each a product, design or suite-wide
+  decision returned to Terry.
 - Learning: after a held-back answer the page's next check comes at the
   steady pace unless the page was seen again
   (`revisionCheckSchedule.ts`). The page case therefore holds owner time in
