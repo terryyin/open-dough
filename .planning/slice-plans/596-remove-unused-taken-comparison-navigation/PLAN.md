@@ -4,6 +4,8 @@
 
 **Source:** [Minimal correction story](../../seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation)
 
+**Source review:** [source-only commitments](source-review.md)
+
 ## Goal and bounded correction input
 
 Remove one dormant test journey and the imports used only by it from
@@ -47,11 +49,11 @@ North Star change or human-owned product decision is needed.
 | Used operations retain behavior after removal | Current candidate scratch removed only the unused export/imports; typecheck and complete unchanged Sort journey passed, case17.039s/default30/retry0. Both story loops and all sort/drill assertions ran. Exact original SHA256ab7969422158b9adbdc084cd730d950f514e4395d9544b24122fd63ec71c2f69 was restored in finally. |
 | Focused route is available | The exact Summary sort/drill/story-selection case has retained strict passing proof in slice8/refactor8 under this checkout and default budgets. It exercises the three used comparison helpers and their real Git/HTTP inputs. |
 
-## Ordered slice
+## Ordered slices
 
 ### 1. Retire the dormant Taken comparison route
 Type: Structure
-Status: planned
+Status: done
 
 Internal change: recheck all literal, namespace and computed callers; remove only
 selectTakenStoryForSummaryComparison and its three now-unused imports. Preserve
@@ -73,6 +75,13 @@ The named case independently observes signed Landed order, folder rows, missing
 columns/tree order and restored story sort. Setup uses its shared MakeMe-backed
 publication fixture; no outcome is supplied in setup. Keep native actions and
 expected rows/focus visible. Do not add a test of the unused export.
+
+Accepted proof (execution, 2026-11-12): caller recheck found no literal,
+namespace or computed import; the deletion-only diff leaves every retained
+export unchanged. `npm run typecheck:dashboard` exit 0; the Sort journey above
+passed once, case 24.1s/default 30/retry 0, one worker, AC, external load
+41-48. Independent refactor pass: none needed. Per-commitment observations are
+in the linked source review.
 
 ## Gates and current decisions
 

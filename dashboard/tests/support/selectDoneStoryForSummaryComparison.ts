@@ -5,10 +5,7 @@ import { comparisonReading } from "../intentCiComparisonPage.ts";
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./preparationPage.ts";
-import { parts } from "../dashboardPage.ts";
-import { showColumn } from "../boardPage.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
-import { expectSelected } from "../storyCardSelection.ts";
 import { intentLocationName } from "../intentPerspectivePage.ts";
 import {
   childName,
@@ -63,31 +60,6 @@ export async function drillComparisonChild(
   await childName(summary, name).click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(path);
   await expectComparisonScopeRows(summary, path, rows);
-}
-
-export async function selectTakenStoryForSummaryComparison(
-  page: Page,
-  title = "Story A",
-) {
-  await page.goto("/");
-  await showColumn(page, "Taken");
-  const { taken, intentChoice, intent } = parts(page);
-  const card = taken.getByRole("article", { name: title, exact: true });
-  await card.getByRole("heading", { level: 3 }).click();
-  await expectSelected(card, true);
-  await intentChoice.click();
-  await expect(intent).toBeVisible();
-  const panel = intent.getByRole("region", {
-    name: "CI timing comparison",
-    exact: true,
-  });
-  await untilPageReadsAnswered(page);
-  await expect(panel).toBeVisible();
-  await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
-  await expect(panel.locator(".intent-ci-comparison")).toBeVisible();
-  await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changed tests");
-  return { intent, panel, card };
 }
 
 export { intentLocationName, summaryRegion };
