@@ -321,3 +321,11 @@ ordinary pointer path. Voice reuses screen status/prompts/reconnect outward; do 
 CI repair (quiet Story Branch Wrap Up): under shard load, Read final report could click without opening when access was
 re-derived and Board refresh raced the panel. Pass the control's resolved access, commit the Side panel before story
 selection, wait for `.final-report-text` with a retried open, and give that closure 60s.
+
+## Execution complete
+
+Product advice:
+- Assimilate the lasting test-side pattern: one shared screen/input owner; modality protocols stay separate; `insertTerminalText` ≠ Enter; `.terminal-screen` ≠ `.xterm-screen`; do not import voice into `terminalScreenPage`.
+- No backlog reorder: Board and later SEED-300 siblings already follow Terminal in the approved family order; Review remains a parallel Taken peer.
+- No new product-story recommendation from this migration alone.
+- Owned CI repair `694c8dceb` settled the quiet Story Branch Wrap Up Final-report open flake under shard load; carry that open-path lesson with the Terminal owners.
