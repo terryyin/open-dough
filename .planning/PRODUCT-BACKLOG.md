@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Mark Recently done stories as reviewed](seeds/SEED-328-review-recently-done-stories.md#mark-recently-done-stories-as-reviewed) — SEED-328#mark-recently-done-stories-as-reviewed ([plan](slice-plans/602-mark-recently-done-stories-as-reviewed/PLAN.md))
 - [Express Terminal test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects) — SEED-300#express-terminal-test-intent-through-page-objects ([plan](slice-plans/583-terminal-test-intent/PLAN.md))
 - [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
+- [Use shared MakeMe and page-object guidance](seeds/SEED-329-use-shared-test-guidance.md#use-shared-test-guidance) — SEED-329#use-shared-test-guidance ([plan](slice-plans/603-use-shared-test-guidance/PLAN.md))
 
 ## Backlog list
 
-- [Use shared MakeMe and page-object guidance](seeds/SEED-329-use-shared-test-guidance.md#use-shared-test-guidance) — SEED-329#use-shared-test-guidance
 - [Run dashboard CI follow-up by default for GitHub Actions projects](seeds/SEED-330-dashboard-ci-follow-up.md#make-ci-follow-up-automatic) — SEED-330#make-ci-follow-up-automatic
 - [Run dashboard CI follow-up through a custom CI rebuild trigger](seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds) — SEED-330#invoke-custom-ci-rebuilds
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
