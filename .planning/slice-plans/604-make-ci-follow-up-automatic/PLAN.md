@@ -137,6 +137,18 @@ npm run typecheck:dashboard
 git diff --check
 ```
 
+## Execution complete
+
+Product advice: no change to priorities. The sibling story
+[Run dashboard CI follow-up through a custom CI rebuild trigger](../../seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds),
+now in preparation, should observe that a custom provider without a trigger
+requests no rerun: this story removed the only maintained case reaching the
+adapter guard in `collectCiFollowUps`. The development-dashboard promise keeps
+maintained proof in `landed-ci-history-lifecycle.spec.ts` (a development
+server asks CI nothing). `project-remove.spec.ts:180` and
+`system-settings-openai.spec.ts:18` time out at load ~38–41 with no owning
+story; they need a repair owner under the failing and flaky test policy.
+
 ## Verification and local gates
 
 The focused checks above cover the changed surfaces. No whole local suite is
