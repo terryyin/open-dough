@@ -31,7 +31,7 @@ name in the header keeps the failure for every non-Latin-1 filename.
 
 **Identity:** SEED-323#encode-launch-attachment-filenames-for-headers
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"5cdf97eb829438e0dab9f29a05d18fd2004ef5ba29dcd2e1683f77c603c3c3f9"}}
 ```
 
 **Goal:** Resolve the reported Start session failure so an attached image
