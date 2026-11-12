@@ -323,6 +323,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: large planning/generic lexical tables required many exclusions beside useful real-consumer tracing. Wrap-up later found and repaired two active SEED-300 audit links still pointing to the moved integrated reading/units specs; all affected browser consumers were observed, and no missing runtime proof was established.
   - Inference: recurrence of planning-basename/generic-term noise; isolate record inputs from product effects while retaining semantic/enclosing consumer terms. No total cost reduction was measured.
 
+- Execution: SEED-300#express-dashboard-test-intent-through-page-objects (plan581; first implementation `71d39d5965906dd4dcd28d4d3cd0c1ffcb0a4385`)
+  - Timestamp: unknown (2026-11-12 G15 acceptance; exact classification event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (checkout-bound installed guidance at G15 base3ef6; managed guidance unchanged through816db466)
+  - Evidence: `28c1118c5:.planning/slice-plans/581-intent-test-reading/final-gate-evidence.md`; `/tmp/seed300-g15-selected-git-20261112/combined-consumer-trace.md`, `git-command-source-equivalence.json` and `consumer-evidence-normalization.json`. The final1078-row trace has31run/57reused/990excluded; generic PLAN.md and case-insensitive PATH/data-path matches supplied many lexical-only rows.
+  - Observed effect: independent review found16 real Dashboard Git receivers excluded in the primary table but already covered by the95-receiver supplement, plus3 independent-Node rows needing consistent exclusion. All19 overlaps were normalized across artifacts before publication, with no source edit, runtime rerun or missed proof established. Bounded coordinator reads avoided the historical truncation symptom; isolated trace/normalization effort was not measured.
+  - Inference: matches ODF-396's broad planning/generic-term noise; parallel effect records also needed manual consistency work. Narrow record/data matches away from executable effects and check shared path/effect dispositions together, while retaining real indirect consumers.
+
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).

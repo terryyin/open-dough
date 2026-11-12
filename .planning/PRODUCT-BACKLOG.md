@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Remove unused Taken comparison navigation](seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation) — SEED-318#remove-unused-taken-comparison-navigation
 - [Select and copy text in the Dashboard terminal on mobile](seeds/SEED-316-mobile-terminal-text-selection.md#select-and-copy-terminal-text-on-mobile) — SEED-316#select-and-copy-terminal-text-on-mobile
 - [Speed up touch review checks](seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) — SEED-312#speed-up-touch-review-checks
 - [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks
