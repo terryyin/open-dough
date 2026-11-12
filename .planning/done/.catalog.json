@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-313_speed-up-cursor-session-checks.json",
+      "identity": "SEED-313#speed-up-cursor-session-checks",
+      "completedAt": "2026-11-12T05:13:15.189Z",
+      "blob": "24e7273f1455608efaff095ad4e176a33b65d907"
+    },
+    {
       "fileName": "SEED-315_speed-up-provider-rate-limit-checks.json",
       "identity": "SEED-315#speed-up-provider-rate-limit-checks",
       "completedAt": "2026-11-12T04:33:59.622Z",
