@@ -1,3 +1,4 @@
+import { finalReportText } from "../finalReportPages.ts";
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
@@ -214,12 +215,10 @@ for (const closure of [
         // Quiet completion has no explicit text; the native final report remains independently readable.
         keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
+        // The launch's Startup recovery leaves after the read; a press before then can lose its release.
+        await expect(parts(page).startupRecovery).toHaveCount(0);
         await recent.getByRole("button", { name: "Read final report" }).click();
-        await expect(
-          page
-            .getByRole("region", { name: "Final report" })
-            .locator(".final-report-text"),
-        ).toHaveText("Done.");
+        await expect(finalReportText(page)).toHaveText("Done.");
         expect(
           native.calls
             .slice(beforeRead)

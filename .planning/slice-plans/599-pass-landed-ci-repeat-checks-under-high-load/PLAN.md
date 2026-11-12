@@ -2566,6 +2566,19 @@ that difference is smaller than what the cases save.
   the split and kept proofs had made untrue. No expectation changed; the
   proof, return and refresh specs passed 5 of 5 at load 27.5.
 
+#### CI repair of run 43258029149, after slice 10
+
+Hosted CI failed on `681a187da` in `dashboard/tests/sessions/agent-completion-quiet.spec.ts:37`
+(Story Branch Wrap Up): the "Startup recovery" region leaves the page header
+while "Read final report" is pressed, the layout shifts and the release lands
+elsewhere, so no click reaches the button. The same assertion failed the same
+way on other branches. The repair waits for that region to leave before the
+press (`parts(page).startupRecovery`, now the one locator `recoveryOf` uses);
+a press held across the region's removal failed as in CI before the wait and
+passed after it; the spec passed 3 in a row and 9 of 9 at load 26 → 45.
+Trunk landed a different fix for the same race (`694c8dceb`: a retried open
+and a 60 s case timeout) after this branch's base.
+
 ## Story obligations
 
 ### G1. Page cases first in their worker reach the bound at load 27–49

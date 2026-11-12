@@ -4,6 +4,7 @@ import { makeMe } from "../../tests/support/makeMe.mjs";
 // `launchJourney`).
 import type { Page } from "@playwright/test";
 import { attempts } from "./agentLaunchBoundary.ts";
+import { parts } from "./dashboardParts.ts";
 import { expect, test } from "./dashboardTest.ts";
 import { openTakenBacklog } from "./launchStoryCardPage.ts";
 import { readyStory, type LaunchJourney } from "./launchJourney.ts";
@@ -15,8 +16,7 @@ export const subject = `${readyStory} (${identityB})`;
 export const storyRequest = makeMe.aLaunchRequest
   .executing({ identity: identityB, title: readyStory })
   .please();
-export const recoveryOf = (page: Page) =>
-  page.getByRole("region", { name: "Startup recovery" });
+export const recoveryOf = (page: Page) => parts(page).startupRecovery;
 
 export function useUncertainLaunch() {
   test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 3_000 });

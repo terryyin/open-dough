@@ -5,10 +5,19 @@
 
 import { PageObject } from "./fluentPageObject.ts";
 import { expect } from "./support/preparationPage.ts";
+import type { Page } from "@playwright/test";
+
+function finalReportPanel(page: Page) {
+  return page.getByRole("region", { name: "Final report" });
+}
+
+// The report text the panel shows once its read answers with one.
+export const finalReportText = (page: Page) =>
+  finalReportPanel(page).locator(".final-report-text");
 
 export class FinalReport extends PageObject {
   get #report() {
-    return this.page.getByRole("region", { name: "Final report" });
+    return finalReportPanel(this.page);
   }
 
   expectText(text: string) {

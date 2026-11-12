@@ -38,6 +38,12 @@ export function parts(page: Page) {
       name: "Recently done",
       exact: true,
     }),
+    // Startups the page still reconciles with published story state; it
+    // leaves once none does, moving what the Board shows below it.
+    startupRecovery: page.getByRole("region", {
+      name: "Startup recovery",
+      exact: true,
+    }),
     problem: page.getByRole("alert"),
     // The read status is always on the page, so that a change of its text is
     // spoken; it says what the latest read is doing or what it read.
