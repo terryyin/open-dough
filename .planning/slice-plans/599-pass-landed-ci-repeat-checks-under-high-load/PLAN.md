@@ -14,6 +14,9 @@ and 5 s expectations:
 - [landed-ci-repeat-verdict.spec.ts](../../../dashboard/backend-tests/intent/landed-ci-repeat-verdict.spec.ts)
 - [recently-done-ci-automatic-repeat.spec.ts](../../../dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts)
 - [intent-ci-follow-up.spec.ts](../../../dashboard/tests/intent/intent-ci-follow-up.spec.ts)
+  with [intent-ci-follow-up-proof.spec.ts](../../../dashboard/tests/intent/intent-ci-follow-up-proof.spec.ts)
+  and [intent-ci-follow-up-return.spec.ts](../../../dashboard/tests/intent/intent-ci-follow-up-return.spec.ts),
+  the files its cases divide into (slice 5)
 
 One case keeps the real receipt-to-request journey. Every other case starts
 from the state that journey leaves on a machine. No case takes more than 15 s,
@@ -179,7 +182,7 @@ applies as written to every delegation and repair handoff.
 
 Commands, from the repository root, with Homebrew Bash first on `PATH`:
 
-- Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts`,
+- Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts tests/intent/intent-ci-follow-up-proof.spec.ts tests/intent/intent-ci-follow-up-return.spec.ts`,
   plus any spec file a slice adds for a divided case, with `--workers=1` or
   `--workers=2` and `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<file>` for durations.
   A run that writes a proof record passes no `--reporter`: `--reporter=list`
@@ -769,7 +772,7 @@ Observed on 2026-11-12, Node 24.21.0. Logs:
 
 ### 5. The Intent reading starts from a settled request
 Type: Behavior
-Status: planned
+Status: done
 Proof: The Intent follow-up cases pass three consecutive times; none calls
 `scenario.ingest` or starts a collecting server. F20, F21, F22, F23 and F24
 each fail the case the coverage map names. Every case counts Actions calls
@@ -793,6 +796,180 @@ the card on a phone →
   navigation boundary.
 - When the spec would pass 250 lines, the cases divide into files by the
   three groups above.
+
+#### Slice 5 record
+
+Observed on 2026-11-12, Node 24.21.0. Logs:
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice5/`.
+
+- **The division.** Three cases in three files, each one page journey from
+  the same arrangement, on a 390 × 844 viewport from the start:
+  `intent-ci-follow-up.spec.ts` (143 lines) the reading (C18, C22, first
+  render of C19); `intent-ci-follow-up-proof.spec.ts` (65) the proof
+  navigation (C20); `intent-ci-follow-up-return.spec.ts` (88) refresh,
+  reload, revisit and the Development selection (C19, C21). One file would
+  have passed 250 lines. None calls `scenario.ingest`, sets
+  `recheckingLandedCi` or starts a collecting server; across the selection
+  one case calls `scenario.ingest`
+  (`landed-ci-automatic-repeat.spec.ts:75`). No shard weight or CI
+  configuration names the spec.
+- **The arrangement.** `keepSettledRepeat(page, origin, github, facts)` in
+  `dashboard/tests/support/ciFollowUpSettledReading.ts`: Intent's trunk, the
+  committed origin following `main`, then `keepRepeatLanding(...,
+  { stage: "settled request", otherwise: "as served before" })`. The module's
+  `test` replaces the `dashboard` fixture with
+  `startLandedCiReader({ github }, origin, "preview")`, whose parameter is
+  narrowed to the provider and an optional build. Each case states run 71,
+  120 s, the 100 s repeat and the 100 s average; the reading case states the
+  excluded prior (`{ seconds: 116, reason: "Slow outlier: more than 15% above
+  the median" }`) and the proof case the proof entry it reads
+  (`makeMe.aCiProofEntry.at("dashboard/tests").counting(2092, "case")`).
+- **The stage.** `"settled request"` is the third `RepeatStage`: `heldAt`
+  saves the request as recovered by the repeat build, with what collection
+  observed of attempt 2. `keptAttempt` (`ciFollowUpRepeatRun.ts`) is the
+  build a machine keeps of an attempt as the provider has it, used for the
+  original and the repeat. `keptPriors` takes an excluded last prior, and
+  `referenceFor` now freezes the excluded row, the count and dates of the
+  builds used, and `difference` in the product's words (`timeChangeOf`,
+  `executionTimeDifferenceWords`), for every stage. The machine keeps the
+  history, launch records and follow-up enabled as at the other stages; the
+  reader reads the same with them (slice 1 saw it with the ledger alone).
+- **On a phone.** `shownCiFollowUpCard` pages the Board to Recently done
+  before the card is used, here and in the warning case. `toBeInViewport({
+  ratio: 1 })` failed on the repeat attempt at ratio 0.9987: scrolled to, its
+  bottom lay 0.4 px below the window (y 539.30 + 305.11 against 844), with
+  its sides inside. `expectWholeOnPhone` therefore expects the part shown
+  and both its sides inside the window, then no sideways scroll; the warning
+  case uses it too and keeps its card check. `refreshCiFollowUp` waits for
+  the dashboard's answer to the read the refresh sends: without it F21 showed
+  one request at "no CI request from refresh", the refresh's own read not yet
+  sent.
+- **Same comparison.** The return case reads the comparison's whole text at
+  first render and expects exactly that text after refresh, reload and
+  revisit.
+- **Three consecutive passes**, the three specs, two workers, load
+  10.6 → 10.2, 10.2 → 12.9, 12.9 → 11.0; 3 of 3 each. Proof 6.6, 12.5 and
+  7.8 s and return 10.3, 14.5 and 7.8 s, each first in its worker; reading
+  6.6, 6.8 and 3.7 s, second in a worker.
+- **In the profile**, one pass under 32 burners, two workers, traced, load
+  30.8 → 35.9: proof 13.3 s and return 17.3 s, each first in its worker with
+  7.2–7.3 s of Before Hooks (`origin` 3.1 s, `dashboard` 3.9–4.0 s); reading
+  8.3 s second in a worker (Before Hooks 1.2 s). Under 16 burners, load
+  25.9 → 25.3: 9.8, 13.7 and 6.8 s.
+- **The reader fixture first in a worker.** Four workers, every spec first
+  in its worker, traced, load 14.4 → 13.0: the reader cases and the
+  collecting settings case each `origin` 2.3 s, `dashboard` 2.0 s, Before
+  Hooks 4.4–4.5 s. The reader fixture's preparation does not differ from the
+  collecting fixture's.
+- **Faults**, one worker, the three specs, each reverted before the next;
+  `git diff --stat -- dashboard/server dashboard/src` empty afterwards. None
+  failed at the case bound. Logs `fault-<name>.log`.
+
+  | Fault | Scratch edit | Fails | Load |
+  | --- | --- | --- | --- |
+  | F20 | `reference: { ...request.reference, evidence: [] }` in `retainedFollowUpOf` | The reading case, "evidence rows": 0 for 7; the return case, "evidence rows on first render": 0 for 6 | 10.8 → 8.5 |
+  | F21 | The reading route awaits `exactRepeatRun` for the original before it answers (`ciFollowUpBoundary.ts`) | The reading case, "no CI request from first render": `["actions-run-attempt"]`; the proof case, "no CI request from proof navigation"; the return case, "no CI request from refresh": two requests | 10.5 → 12.8 |
+  | F22 | `scopeEvidenceOf` takes `reading.repeat ?? reading.original` (`IntentScopeEvidence.tsx`) | The proof case, "the original's proof in Summary": no link to attempt 1 | 12.8 → 10.3 |
+  | F23 | `FollowUpSelection` no longer navigates away on another selection (`ciFollowUpNavigation.tsx`) | The return case, "the selection leaves the comparison's address": `SEED-A#a` | 8.9 → 9.5 |
+  | F24 | `tabIndex={run.runAttempt === 2 ? -1 : undefined}` on `HistoryRunAttempt`'s link | The reading case, "Tab reaches the repeat's link": inactive | 9.5 → 9.6 |
+  | Wide comparison | `.ci-follow-up section { min-width: 480px; }` | The reading case, "original whole on the phone": right side 480 for at most 390.5 | 9.6 → 9.5 |
+  | Wide warning (slice 4's) | `.ci-follow-up-slow` gains `min-width: 480px` | The warning case, "warning whole on the phone": right side 544.6 | 9.5 → 11.8 |
+
+  F21 and F24 as named have no line to change: the reading route reads no
+  provider, and the attempt link has no `tabindex`. The edits above are the
+  nearest that produce the regression. `expectOriginalProofNavigation`'s
+  expectations now carry labels; none changed.
+  F2 again, because every stage's kept reference and original build changed
+  form (one worker, load 12.1 → 10.5): the journey and the refused case,
+  "rerun requests", and the accepted-request case, "no second request":
+  `[71, 71]` for `[]`.
+- **The base's assertions** (`git show 095f2bff9:dashboard/tests/intent/intent-ci-follow-up.spec.ts`).
+  The rerun request after ingestion (`:62`) and the recovered card collection
+  saves (`:64`–`:77`): the journey (C2) and the saved-request case's
+  recovered outcome (C14). Follow-up turned off before the reader (`:78`):
+  the eligible-receipt cases (C13). The card, both attempts with revision,
+  workflow, start, wall time, difference and completeness, the rule, "5 prior
+  builds used", the seven rows with Included, Selected, Excluded, the reason,
+  `run/6/1` and `run/71/1`, both exact links, the tab order through every
+  evidence link, no sideways scroll (`:98`–`:153`): the reading case. The
+  proof navigation (`:155`–`:164`): the proof case. Refresh, reload, revisit
+  and "2 min" on return (`:166`–`:175`), the Development selection and
+  project Intent (`:179`–`:196`): the return case. The Actions counts
+  (`:154`, `:165`, `:170`, `:176`) and no second rerun (`:177`): each case's
+  count, which holds every Actions kind, the rerun request among them. One
+  promise changes owner outside these cases: that the reference the product
+  freezes at a real admission excludes the 116 s prior. The kept reference
+  states it here; `landed-ci-follow-up-reading.spec.ts` "saved samples,
+  exclusions and workflow survive window eviction…" (a real ingestion of
+  `[100, 100, 100, 100, 100, 116]`) and
+  `tests/support/ci-prior-build-reference.test.mjs` "one exact upper filter
+  includes 115, excludes 116…" own it, unchanged. The return case counts
+  through the revisit; after the Development selection normal Intent reads
+  as it does elsewhere, and the base counted none there either.
+- **Consumers.** The 40 specs that import the kept landing, the repeat
+  scenario, the saved requests, the provider's run, the reading page object
+  or the reader (`slice5/consumer-specs.txt`), two workers, load
+  10.8 → 26.7: 61 of 62 in 5.1 min. Failed:
+  `intent-project-scope-timing-refresh.spec.ts:126`, at the 30 s bound in
+  `passTimeUntilChecked`, its other case passing in 30.4 s. That spec, its
+  fixture and `autoRefreshJourney.ts` are unchanged since `095f2bff9` and
+  reach this slice only through `startLandedCiReader`'s parameter type.
+  Rerun alone, two workers: both cases failed at the bound at load
+  22.9 → 28.5 (30.7 s each) and passed at 28.5 → 25.7 (25.8 and 27.0 s); at
+  load 18.0 → 16.9 the base worktree took 12.9 and 13.3 s and this checkout,
+  next, 12.1 and 14.5 s. Open: these two cases reach the bound at a load of
+  23–28 on the base as here; no active execution owning them was found, and
+  the spec is outside this story's four.
+- **Consumer trace**, `--base 95bda2675` with the changed and new exports as
+  terms (`slice5/consumer-trace.md`). Run: the three Intent follow-up specs,
+  `recently-done-ci-automatic-repeat.spec.ts`,
+  `landed-ci-automatic-repeat.spec.ts`,
+  `landed-ci-repeat-accepted-request.spec.ts`,
+  `landed-ci-repeat-verdict.spec.ts`, and the 30 specs that reach
+  `startLandedCiReader` or `restartAsLandedCiReader`, directly or through
+  `landedCiHistory.ts`, `projectScopeHistoryFixture.ts` and
+  `scopeHistoryCollectedOrder.ts`. Reused, run in the 40:
+  `ciFollowUpScenario.ts` and `ciFollowUpSavedRequests.ts` (unchanged) with
+  the admission, reconciliation and receipt boundary specs that import them. Excluded, the effect does not reach them: files
+  that match only a module this slice's specs import or stopped importing
+  (`boardPage.ts`, `storyCardSelection.ts`, `intentModePage.ts`,
+  `intentStoryWorktree.ts`, `intentStoryPage.ts`, `priorBuildReferencePage.ts`),
+  all unchanged; files that match a field name the product already has
+  (`runBranch`, `timingBasis`, `proofPending`, `sampleCount`, `medianMs`,
+  `workflowId`, `averageMs`, `originalMs`, `repeatMs`, `realHistory`) or a
+  literal of their own; the MakeMe builders and node tests under
+  `tests/support` and `src/skills`, unchanged and not importing the changed
+  modules; documents, planning records and evidence that name a spec's path
+  or the product's words.
+- For slice 6: the selection is seven spec files, the Verification line's
+  six and `landed-ci-repeat-accepted-request.spec.ts`.
+  The return case is the longest of the three, 17.3 s first in its worker in
+  the profile with 7.3 s of preparation; its Development selection begins at
+  a viewport change, the navigation boundary to divide at should it exceed
+  15 s away from first in a worker.
+
+#### Slice 5 acceptance and refactor
+
+- Accepted. The refactor pass gave "a kept landing beneath a page" one home,
+  `keepRepeatLandingForPage` in `ciFollowUpPageLanding.ts` (37 lines), used
+  by `keepSettledRepeat` (`ciFollowUpSettledReading.ts`, now 50 lines) and
+  the warning case; no case states `otherwise`. `repeatSeconds` belongs to
+  the settled stage (`AtStage`). Expectations are unchanged and the kept
+  ledger, history and provider content are the same, so the fault results of
+  the Slice 5 record stand. The six specs that keep a landing passed 10 of 10
+  three consecutive times at two workers, load 22.5 → 28.0 from other work:
+  proof 15.6–23.1 s, return 17.3–24.8 s, reading 10.7–18.6 s, warning
+  9.6–17.3 s.
+- C18's outlier: that the reference the product freezes at a real admission
+  excludes the 116 s prior stays with `landed-ci-follow-up-reading.spec.ts`
+  "saved samples, exclusions and workflow survive window eviction…" and
+  `tests/support/ci-prior-build-reference.test.mjs`, unchanged; the reading
+  case owns that the kept exclusion and its reason are read.
+- Open defect outside the selection, kept by this execution:
+  `tests/intent/intent-project-scope-timing-refresh.spec.ts` reached the
+  30 s bound at load 23–28 in the consumer run (61 of 62) and alone; at load
+  17 the base and this branch take the same 12–14 s. Its files are unchanged
+  since `095f2bff9` and no story names it. Diagnosis follows this slice.
 
 ### 6. The fit under load and the saving are measured and kept
 Type: Behavior

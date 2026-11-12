@@ -7,6 +7,7 @@
 // (./ciFollowUpKeptLanding.ts) the run of its landed revision.
 import { apiJob } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { KeptBuild } from "../../server/landedCiObservation.ts";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import { providerVerdict } from "./ciFollowUpProviderVerdict.ts";
@@ -127,6 +128,29 @@ export function providerRepeatRun(
       return { [id]: proof };
     },
   };
+}
+
+// The build a machine keeps of `attempt`, a passed attempt of a run on `main`
+// as the provider has it, with the CI `proof` kept of it.
+export function keptAttempt(attempt: CiRunAnswer, proof: KeptBuild["proof"]) {
+  const { id, startedAt, completedAt } = attempt;
+  if (id === undefined || startedAt === undefined || completedAt === undefined)
+    throw new Error("A kept attempt names its run and bounds.");
+  return makeMe.aKeptBuild
+    .with({
+      revision: attempt.headSha,
+      state: "pass",
+      ...(attempt.url === undefined ? {} : { runUrl: attempt.url }),
+      runId: id,
+      runAttempt: attempt.attempt ?? 1,
+      runBranch: "main",
+      startedAt,
+      completedAt,
+      timingBasis: "attempt-start",
+      proof,
+      proofPending: false,
+    })
+    .please();
 }
 
 // The run that measured a story's landing at `revision` on `main`: workflow

@@ -1,23 +1,21 @@
 // What a phone reads of automatic CI follow-up with no receipt journey: the
 // machine's setting in Settings, and in Recently done the card of a landing
 // the machine keeps with an accepted rerun request
-// (../support/ciFollowUpKeptLanding.ts), as the page's collecting dashboard
+// (../support/ciFollowUpPageLanding.ts), as the page's collecting dashboard
 // saves what the provider's repeat becomes.
 import { expect, test } from "../support/preparationPage.ts";
 import { recheckingLandedCi } from "../support/landedCiHistory.ts";
-import { keepRepeatLanding } from "../support/ciFollowUpKeptLanding.ts";
+import { keepRepeatLandingForPage } from "../support/ciFollowUpPageLanding.ts";
 import {
   rerunRuns,
   savedRepeatRequest,
 } from "../support/ciFollowUpSavedRequests.ts";
-import { originMain } from "../support/sessionDialog.ts";
-import { showColumn } from "../boardPage.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { settings, projectRow } from "../support/systemSettingsPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import {
-  ciFollowUpCard,
   ciFollowUpWarning,
+  expectWholeOnPhone,
+  shownCiFollowUpCard,
 } from "../support/ciFollowUpReadingPage.ts";
 
 test.use({
@@ -54,32 +52,22 @@ test("a kept accepted request reads its repeat in progress, then at 106 seconds 
   origin,
   github,
 }) => {
-  // The page's own reads of the repository follow the origin's `main`.
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: await originMain(origin),
-    repository: "terryyin/open-dough",
-    follows: true,
-    realHistory: true,
-  });
   // Story A, published as completed, whose run 71 first passed in 105 s
   // against five prior builds of 100 s each, its rerun request accepted; the
-  // provider answers for that run over the page's repository.
-  const kept = await keepRepeatLanding(origin, github, {
+  // provider answers for that run over the page's own reads of the
+  // repository.
+  const kept = await keepRepeatLandingForPage(page, origin, github, {
     stage: "accepted request",
     run: 71,
     seconds: 105,
     averageSeconds: 100,
-    otherwise: "as served before",
   });
   const saved = () => savedRepeatRequest(dashboard, 71)?.outcome;
   kept.provider(71).setRepeat({ status: "in_progress" });
   await expect.poll(() => saved()?.kind, "progress saved").toBe("progress");
   await page.clock.install();
   await page.goto(dashboard.baseURL);
-  // A phone shows one Board column at a time.
-  await showColumn(page, "Recently done");
-  const card = ciFollowUpCard(page, "Story A");
+  const card = await shownCiFollowUpCard(page, "Story A");
   await expect(card, "progress card").toContainText("CI rerun in progress");
   kept.provider(71).setRepeat({ seconds: 106 });
   // The pass that reads the finished repeat settles the request.
@@ -98,10 +86,7 @@ test("a kept accepted request reads its repeat in progress, then at 106 seconds 
     "does not prove a regression or its cause",
   );
   await expect(card, "Done").toContainText("Done");
-  await warning.scrollIntoViewIfNeeded();
-  await expect(warning, "warning whole on the phone").toBeInViewport({
-    ratio: 1,
-  });
+  await expectWholeOnPhone(warning, "warning");
   await expectNoSidewaysScrollIn(page, card);
   expect(rerunRuns(github), "no rerun request").toEqual([]);
 });

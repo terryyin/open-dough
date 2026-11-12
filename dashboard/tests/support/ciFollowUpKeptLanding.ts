@@ -16,6 +16,7 @@
 // as that dashboard's own writers keep it (./machineDocument.ts).
 import { hostname } from "node:os";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { CiProofEntry } from "../../src/ciProof.ts";
 import {
   followUpKey,
   type FollowUpLedger,
@@ -23,18 +24,20 @@ import {
 import { machineHome } from "../machineLaunchRecords.ts";
 import { completedPublishedStory } from "./completedPublishedStory.ts";
 import {
+  keptAttempt,
   serveRepeatRuns,
   storyLandingRun,
   type OtherAnswers,
   type providerRepeatRun,
 } from "./ciFollowUpRepeatRun.ts";
-import { heldAt, type RepeatStage } from "./ciFollowUpRepeatStage.ts";
+import { heldAt, type AtStage } from "./ciFollowUpRepeatStage.ts";
 import { followUpFile } from "./ciFollowUpScenario.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import {
   keptPriors,
   keptProofOf,
   landingsNoRepositoryHolds,
+  type ExcludedPrior,
 } from "./ciFollowUpKeptPriors.ts";
 import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
@@ -98,27 +101,36 @@ export async function keepRepeats(
   };
 }
 
+// What a case states of Story A's landing: measured by `run`, whose first
+// attempt passed in `seconds`, after five prior landings whose builds each
+// passed in `averageSeconds`. `excludedPrior` is a sixth prior landing, the
+// latest, whose build the frozen reference excludes. `proof` are the entries
+// the CI proof of each of the run's attempts counts, where a case reads them.
+export type RepeatLandingFacts = {
+  readonly run: number;
+  readonly seconds: number;
+  readonly averageSeconds: number;
+  readonly excludedPrior?: ExcludedPrior;
+  readonly proof?: readonly CiProofEntry[];
+};
+
 // Story A published as completed on the origin's trunk, and its landing as
-// the machine keeps it at `stage`: recorded for the story's execution,
-// measured by `run`, whose first attempt passed in `seconds`, after five prior
-// landings whose builds each passed in `averageSeconds`, every build with its
-// CI proof; follow-up enabled on this machine after those five and before the
+// the machine keeps it at the stage `facts` state: recorded for the story's
+// execution and measured as they state, every build with its CI proof;
+// follow-up enabled on this machine after the prior landings and before the
 // story's receipt. `beside` are other landings the machine keeps, and
 // `otherwise` the repository's answers beside the provider's. Answers the
-// provider's facts by run.
+// provider's facts by run, and the story's completion.
 export async function keepRepeatLanding(
   origin: StartOrigin,
   github: FakeGitHub,
-  facts: {
-    readonly stage: RepeatStage;
-    readonly run: number;
-    readonly seconds: number;
-    readonly averageSeconds: number;
-    readonly beside?: readonly KeptRepeat[];
-    readonly otherwise?: OtherAnswers;
-  },
+  facts: RepeatLandingFacts &
+    AtStage & {
+      readonly beside?: readonly KeptRepeat[];
+      readonly otherwise?: OtherAnswers;
+    },
 ) {
-  const { stage, run, seconds, averageSeconds, beside = [] } = facts;
+  const { run, seconds, averageSeconds, excludedPrior, beside = [] } = facts;
   const home = machineHome(origin.machine);
   const target = "refs/heads/main";
   const story = await completedPublishedStory(
@@ -147,34 +159,31 @@ export async function keepRepeatLanding(
     .receivedAt(new Date().toISOString())
     .please();
   const priors = keptPriors(
-    landingsNoRepositoryHolds(5),
+    landingsNoRepositoryHolds(excludedPrior === undefined ? 5 : 6),
     averageSeconds,
     target,
+    excludedPrior,
   );
   const provider = storyLandingRun(completion, run, seconds);
   const key = `run/${String(run)}/1`;
-  const { startedAt, completedAt, workflowId } = provider.original;
-  if (
-    startedAt === undefined ||
-    completedAt === undefined ||
-    workflowId === undefined
-  )
-    throw new Error("A story landing's run names its workflow and bounds.");
-  const original = makeMe.aKeptBuild
-    .with({
-      revision: completion,
-      state: "pass",
-      runUrl: provider.original.url,
-      runId: run,
-      runAttempt: 1,
-      runBranch: "main",
-      startedAt,
-      completedAt,
-      timingBasis: "attempt-start",
-      proof: keptProofOf(completion, run),
-      proofPending: false,
-    })
-    .please();
+  const { workflowId } = provider.original;
+  if (workflowId === undefined)
+    throw new Error("A story landing's run names its workflow.");
+  // The build the machine keeps of an attempt as the provider has it.
+  const kept = (attempt: typeof provider.original) =>
+    keptAttempt(
+      attempt,
+      keptProofOf(
+        { revision: completion, runId: run, runAttempt: attempt.attempt ?? 1 },
+        facts.proof,
+      ),
+    );
+  const original = kept(provider.original);
+  let repeat: typeof original | undefined;
+  if (facts.stage === "settled request") {
+    provider.setRepeat({ seconds: facts.repeatSeconds });
+    repeat = kept(provider.latest());
+  }
   const history = priors
     .measuredIn(makeMe.aLandedCiHistory)
     .recording(capture, key, original)
@@ -197,24 +206,25 @@ export async function keepRepeatLanding(
       receipts: [capture.receipt],
       eligible: true,
       capture,
-      ...heldAt(stage, {
+      ...heldAt(facts.stage, {
         original,
         workflowId,
         reference: priors.referenceFor(completion, {
           key,
-          date: startedAt,
+          date: original.startedAt,
           ms: seconds * 1000,
         }),
         job: provider.job,
+        ...(repeat === undefined ? {} : { repeat }),
       }),
     })
     .please();
-  const kept = [{ run, entry, provider }, ...beside];
   return {
+    completion,
     provider: await keepRepeats(
       origin,
       github,
-      kept,
+      [{ run, entry, provider }, ...beside],
       { followUp: "enabled", earlier: priors.ledgerEntries },
       facts.otherwise,
     ),

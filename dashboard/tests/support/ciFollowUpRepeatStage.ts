@@ -11,23 +11,63 @@ import type {
 // "eligible receipt": measured, admitted while this machine has follow-up
 // enabled, its allowance unspent. "accepted request": that allowance spent on
 // a rerun request the provider accepted, with no later attempt observed yet.
-export type RepeatStage = "eligible receipt" | "accepted request";
+// "settled request": that request settled as recovered by a full repeat that
+// passed within the rule's range of the saved average.
+export type RepeatStage =
+  "eligible receipt" | "accepted request" | "settled request";
+
+// The stage a case states for a landing, and with "settled request" how long
+// the full repeat that settled it took.
+export type AtStage =
+  | { readonly stage: Exclude<RepeatStage, "settled request"> }
+  | { readonly stage: "settled request"; readonly repeatSeconds: number };
 
 // The explanation collection saves with an accepted reply.
 const accepted = "Full repeat accepted; no later CI attempt has been observed";
 
+// What collection saves of a request once `repeat`, the build it keeps of the
+// repeat attempt, settles it as recovered.
+function recoveredBy(
+  repeat: RepeatRequest["original"] | undefined,
+  workflowId: number,
+): RepeatRequest["outcome"] {
+  if (repeat?.runId === undefined || repeat.runAttempt === undefined)
+    throw new Error("A settled request names its repeat's run and attempt.");
+  const { runId, runAttempt, revision, runUrl, startedAt, completedAt } =
+    repeat;
+  return {
+    settled: true,
+    kind: "recovered",
+    explanation: "CI timing returned to range",
+    observed: {
+      runId,
+      runAttempt,
+      revision,
+      workflowId,
+      status: "completed",
+      conclusion: "success",
+      ...(runUrl === undefined ? {} : { runUrl }),
+      ...(startedAt === undefined ? {} : { startedAt }),
+      ...(completedAt === undefined ? {} : { completedAt }),
+    },
+    repeat,
+  };
+}
+
 // What the ledger entry of a landing at `stage` holds: from "accepted
 // request" on, the request as collection saved it once the provider replied,
 // naming the `original` build that measured the landing, its workflow, that
-// build's one `job`, and the `reference` frozen when the request was sent.
+// build's one `job`, and the `reference` frozen when the request was sent;
+// at "settled request", with the `repeat` build that settled it.
 export function heldAt(
   stage: RepeatStage,
   measured: Pick<RepeatRequest, "original" | "reference" | "workflowId"> & {
     readonly job: { readonly databaseId: number; readonly name: string };
+    readonly repeat?: RepeatRequest["original"];
   },
 ): Pick<FollowUpLedger["landings"][string], "request"> {
   if (stage === "eligible receipt") return {};
-  const { original, reference, workflowId, job } = measured;
+  const { original, reference, workflowId, job, repeat } = measured;
   const { runId, startedAt, completedAt } = original;
   if (
     runId === undefined ||
@@ -55,7 +95,10 @@ export function heldAt(
       ],
       requestedAt: new Date().toISOString(),
       submission: { kind: "accepted", explanation: accepted },
-      outcome: { kind: "unverified", explanation: accepted },
+      outcome:
+        stage === "settled request"
+          ? recoveredBy(repeat, workflowId)
+          : { kind: "unverified", explanation: accepted },
     })
     .please();
   return { request };

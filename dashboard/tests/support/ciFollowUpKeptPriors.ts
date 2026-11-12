@@ -7,7 +7,10 @@
 // history's kept trunk order alone places them, or, for a receipt the product
 // itself orders on trunk, at the landings a case published and recorded there.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import type { CiProofEntry } from "../../src/ciProof.ts";
+import { executionTimeDifferenceWords } from "../../src/ciProofTimeWords.ts";
 import type { PriorBuildReference } from "../../src/ciPriorBuildReference.ts";
+import { timeChangeOf } from "../../src/storyCiRelativeChange.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
 import {
   answeredLanding,
@@ -22,12 +25,30 @@ import type { StartOrigin } from "./startOrigin.ts";
 // A landing as the machine's launch records hold it.
 type RecordedLanding = Parameters<typeof landedRecord>[0];
 
-// The CI proof the history keeps of the build of `revision` by `runId`.
-export const keptProofOf = (revision: string, runId: number) =>
+// The CI proof a machine keeps of the build of `revision` by `runId`, at its
+// first attempt unless the attempt is stated: one passed test case at `tests`
+// unless a case states the entries it reads.
+export const keptProofOf = (
+  run: {
+    readonly revision: string;
+    readonly runId: number;
+    readonly runAttempt?: number;
+  },
+  entries: readonly CiProofEntry[] = [
+    makeMe.aCiProofEntry.at("tests").counting(1).please(),
+  ],
+) =>
   makeMe.aCiProof
-    .forRun({ revision, runId })
-    .entries([makeMe.aCiProofEntry.at("tests").counting(1).please()])
+    .forRun(run)
+    .entries([...entries])
     .please();
+
+// A prior build the frozen reference excludes: how long it took and the
+// reason the reference names.
+export type ExcludedPrior = {
+  readonly seconds: number;
+  readonly reason: string;
+};
 
 // `count` landings at revisions no repository holds, oldest first, recorded
 // one a minute up to two minutes ago.
@@ -40,19 +61,25 @@ export const landingsNoRepositoryHolds = (count: number): RecordedLanding[] =>
   }));
 
 // `landings` onto `target` as prior landings, oldest first, each measured by
-// run 1, 2, … whose first attempt passed in `seconds`.
+// run 1, 2, … whose first attempt passed in `seconds`; with `excluded`, the
+// last of them passed in its seconds instead and a frozen reference excludes
+// it.
 export function keptPriors(
   landings: readonly RecordedLanding[],
   seconds: number,
   target: string,
+  excluded?: ExcludedPrior,
 ) {
   const priors = landings.map((landing, index) => {
-    const built = passedFrom(
-      `2026-11-10T0${String(index)}:00:00.000Z`,
-      seconds * 1000,
-    );
-    return { id: index + 1, landing, built };
+    const outside =
+      index === landings.length - 1 && excluded !== undefined
+        ? excluded
+        : undefined;
+    const ms = (outside?.seconds ?? seconds) * 1000;
+    const built = passedFrom(`2026-11-10T0${String(index)}:00:00.000Z`, ms);
+    return { id: index + 1, landing, built, ms, outside };
   });
+  const used = priors.filter(({ outside }) => outside === undefined);
   return {
     // Their revisions, in trunk order.
     revisions: priors.map(({ landing }) => landing.revision),
@@ -70,7 +97,10 @@ export function keptPriors(
             startedAt: built.startedAt,
             completedAt: built.completedAt,
           })
-          .proofFor(`run/${String(id)}/1`, keptProofOf(landing.revision, id));
+          .proofFor(
+            `run/${String(id)}/1`,
+            keptProofOf({ revision: landing.revision, runId: id }),
+          );
       return measured;
     },
     // Their launch records.
@@ -89,28 +119,38 @@ export function keptPriors(
         .please(),
     ),
     // The reference a request freezes for the landing at `endpoint` whose
-    // build `selected` started at `date` and took `ms`, compared with them.
+    // build `selected` started at `date` and took `ms`, compared with them:
+    // the average of those it uses, and the selected build's difference from
+    // it in the product's words.
     referenceFor(
       endpoint: string,
       selected: { readonly key: string; readonly date: string; ms: number },
     ): PriorBuildReference {
-      const dates = priors.map(({ built }) => built.startedAt);
+      const dates = used.map(({ built }) => built.startedAt);
+      const averageMs = seconds * 1000;
       return {
         endpoint,
         selected,
         evidence: [
-          ...priors.map(({ id, built }) => ({
+          ...priors.map(({ id, built, ms, outside }) => ({
             key: `run/${String(id)}/1`,
             date: built.startedAt,
-            ms: seconds * 1000,
-            status: "included" as const,
+            ms,
+            ...(outside === undefined
+              ? { status: "included" as const }
+              : { status: "excluded" as const, reason: outside.reason }),
           })),
           { ...selected, status: "selected" },
         ],
-        sampleCount: priors.length,
-        medianMs: seconds * 1000,
-        averageMs: seconds * 1000,
+        sampleCount: used.length,
+        medianMs: averageMs,
+        averageMs,
         ...(dates.length === 0 ? {} : { from: dates[0], to: dates.at(-1) }),
+        difference: timeChangeOf(
+          averageMs,
+          selected.ms,
+          executionTimeDifferenceWords,
+        ),
       };
     },
   };

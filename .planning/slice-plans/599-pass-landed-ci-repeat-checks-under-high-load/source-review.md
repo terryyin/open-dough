@@ -21,7 +21,7 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | G4 | and wide margin | slice 6 | |
 | G5 | Each check gets there by doing much less | slice 6 | |
 | G6 | one case keeps the real receipt-to-request journey | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…" is the only case calling scenario.ingest in the two backend specs |
-| G7 | every other case starts from the state that journey leaves on a machine | slice 5 | |
+| G7 | every other case starts from the state that journey leaves on a machine | slice 5 | observed: grep: one scenario.ingest across the seven selection specs, in landed-ci-automatic-repeat.spec.ts; every other case keeps a landing or saved requests |
 | S1 | A one-minute load average of 30–50 before and after a run | slice 6 | |
 | S2 | on two workers | slice 6 | |
 | S3 | Across the four named specs, at most one case takes a real receipt through ingestion, collection and admission to the provider's rerun request | slice 6 | |
@@ -30,12 +30,12 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | S4.2 | the intent is saved before the request is sent | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "intent saved before the request is sent"; F14 fails it |
 | S4.3 | the accepted request is saved after the reply | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "accepted saved after the reply"; F8b fails it |
 | S4.4 | the request the product wrote is read as a card | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "accepted request's card" read from the request the product wrote; F15 fails it |
-| S5 | The other cases arrange what a machine already keeps | slice 5 | |
+| S5 | The other cases arrange what a machine already keeps | slice 5 | observed: ciFollowUpKeptLanding.ts keepRepeatLanding at its three stages and saveRepeatRequests arrange ledger, history and launch records for every non-journey case |
 | S5.1 | its follow-up ledger | slice 2 | observed: dashboard/tests/support/ciFollowUpKeptLanding.ts keepRepeats writes the ledger from makeMe.aCiFollowUpEntry; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "saved reply" |
 | S5.2 | landed CI history | slice 2 | observed: ciFollowUpKeptPriors.ts keptPriors().measuredIn(makeMe.aLandedCiHistory) with makeMe.aKeptBuild; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts cards read averageMs 100000 and originalMs 120000 from it |
 | S5.3 | launch records | slice 2 | observed: ciFollowUpKeptLanding.ts keeps the landing's and priors' launch records through makeMe.aLaunchRecord, landedRecord and keepMoreLaunchRecords |
 | S5.4 | and where a card is read the story's real published completion | slice 2 | observed: ciFollowUpKeptLanding.ts keepRepeatLanding uses completedPublishedStory; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts exact one-card arrays |
-| S6 | then run real collection and reading in a real server | slice 5 | |
+| S6 | then run real collection and reading in a real server | slice 5 | observed: the backend cases start a collecting server (startServer) and the Intent cases a preview reader (ciFollowUpSettledReading.ts); no product seam |
 | S7 | the provider's refused and uncertain replies, from an unspent eligible receipt the machine keeps, through the real rerun request | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | S7.1 | the provider's refused replies are covered | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | S7.2 | the provider's uncertain replies are covered | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
@@ -53,21 +53,21 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | S9.1 | the machine setting | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts "automatic CI follow-up is off on a machine until its user enables it in Settings…": "off until enabled", "on once enabled", "provisional rule"; F13 fails it |
 | S9.2 | the red Done warning with its totals on a phone | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts "a kept accepted request reads its repeat in progress, then at 106 seconds a red textual Done warning…" at 390 px: "red warning", totals, "Done" |
 | S9.3 | both from a saved request for a published completion | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case: keepRepeatLanding stage accepted request for the published completion; the settings row reads the machine setting and needs no request |
-| S10 | the Intent reading of both attempts and their frozen reference | slice 5 | |
-| S10.1 | the Intent reading of both attempts | slice 5 | |
-| S10.2 | and their frozen reference | slice 5 | |
-| S10.3 | from a settled request and kept history | slice 5 | |
-| S10.4 | in a server that collects nothing | slice 5 | |
-| S10.5 | divided so that no single case carries the first render, the proof navigation, the reload, the revisit and the Development selection together | slice 5 | |
-| S10.5.1 | first render stays covered | slice 5 | |
-| S10.5.2 | proof navigation stays covered | slice 5 | |
-| S10.5.3 | reload stays covered | slice 5 | |
-| S10.5.4 | revisit stays covered | slice 5 | |
-| S10.5.5 | Development selection stays covered | slice 5 | |
-| S11 | Every promise the seven current cases protect keeps an owner among maintained checks | slice 5 | |
+| S10 | the Intent reading of both attempts and their frozen reference | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): per-attempt revision, workflow, start, wall time, difference and completeness |
+| S10.1 | the Intent reading of both attempts | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): per-attempt revision, workflow, start, wall time, difference and completeness |
+| S10.2 | and their frozen reference | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): "prior builds used", "evidence rows" 7, "the outlier excluded", "the outlier's reason"; F20 fails it |
+| S10.3 | from a settled request and kept history | slice 5 | observed: ciFollowUpRepeatStage.ts stage "settled request" with history, launch records and ledger kept by keepRepeatLanding |
+| S10.4 | in a server that collects nothing | slice 5 | observed: dashboard/tests/support/ciFollowUpSettledReading.ts: the dashboard fixture is startLandedCiReader(…, "preview"); no collecting server |
+| S10.5 | divided so that no single case carries the first render, the proof navigation, the reload, the revisit and the Development selection together | slice 5 | observed: three cases in three files: reading (first render), proof (proof navigation), return (reload, revisit, Development selection) |
+| S10.5.1 | first render stays covered | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): first render |
+| S10.5.2 | proof navigation stays covered | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up-proof.spec.ts: "the original's proof in Summary"; F22 fails it |
+| S10.5.3 | reload stays covered | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up-return.spec.ts: refresh and reload show the same comparison text |
+| S10.5.4 | revisit stays covered | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up-return.spec.ts: revisit shows the same comparison text |
+| S10.5.5 | Development selection stays covered | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up-return.spec.ts: "the selection leaves the comparison's address" and the card reopens the comparison; F23 fails it |
+| S11 | Every promise the seven current cases protect keeps an owner among maintained checks | slice 5 | observed: PLAN.md Slice 5 record, base-assertion walk, and coverage map C1–C22: every promise has an owner |
 | S12 | The plan holds a coverage map of those promises | slice 1 | observed: PLAN.md "Coverage map": 22 rows C1–C22, unchanged by slice 1 |
 | S13 | and one deliberate product fault per promise | slice 1 | observed: PLAN.md "Verification" fault table F1–F24; every coverage row names its fault |
-| S14 | An observation leaves a journey only after its fault fails the check that takes it over | slice 5 | |
+| S14 | An observation leaves a journey only after its fault fails the check that takes it over | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
 | S15 | SEED-314's faults F1–F11 keep an owner | slice 6 | |
 | S15.1 | F1 keeps an owner | slice 3 | observed: PLAN.md Slice 3 record: F1 fails the journey by the 30 s bound |
 | S15.2 | F2 keeps an owner | slice 2 | observed: PLAN.md Slice 2 record: F2 fails the refused case at "rerun requests" ([71, 71, 71, 71]) |
@@ -80,7 +80,7 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | S15.9 | F9 keeps an owner | slice 2 | observed: PLAN.md Slice 2 record: F9 fails the uncertain case at its card (recovered for unverified) |
 | S15.10 | F10 keeps an owner | slice 6 | |
 | S15.11 | F11 keeps an owner | slice 6 | |
-| S16 | Kept state is arranged through shared MakeMe builders | slice 5 | |
+| S16 | Kept state is arranged through shared MakeMe builders | slice 5 | observed: ciFollowUpKeptLanding.ts, ciFollowUpKeptPriors.ts, ciFollowUpRepeatStage.ts, ciFollowUpSavedRequests.ts: makeMe builders only |
 | S17 | builders are typed by the product's own ledger, history and record types | slice 2 | observed: ciFollowUpKeptLanding.ts and ciFollowUpKeptPriors.ts: builders typed by the product's types, no casts; typecheck:dashboard clean |
 | S17.1 | typed by the product's ledger type | slice 2 | observed: dashboard/tests/support/ciFollowUpKeptLanding.ts keepRepeats writes the ledger from makeMe.aCiFollowUpEntry; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "saved reply" |
 | S17.2 | typed by the product's history type | slice 2 | observed: ciFollowUpKeptPriors.ts keptPriors().measuredIn(makeMe.aLandedCiHistory) with makeMe.aKeptBuild; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts cards read averageMs 100000 and originalMs 120000 from it |
@@ -135,16 +135,16 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | E4.5 | "does not prove a regression or its cause" | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "caution"; F19 fails it |
 | E4.6 | without sideways scroll | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "warning whole on the phone" (toBeInViewport ratio 1) and expectNoSidewaysScrollIn; a 480 px warning fails it |
 | E4.7 | No receipt was ingested | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts: no scenario.ingest in the spec; warning case "no rerun request" [] |
-| E5 | The reading without acquiring CI: settled recovered request, 120 s then 100 s, frozen reference of five prior builds used and one 116 s outlier excluded, non-collecting dashboard, phone | slice 5 | |
-| E5.1 | both attempts are read | slice 5 | |
-| E5.2 | their links are read | slice 5 | |
-| E5.3 | the reference evidence is read | slice 5 | |
-| E5.4 | the provider receives no CI request from first render | slice 5 | |
-| E5.5 | the provider receives no CI request from reload | slice 5 | |
-| E5.6 | the provider receives no CI request from revisit | slice 5 | |
-| E6 | Each promise still has a check that catches it: one deliberate product fault per promise in the coverage map → the named check runs | slice 5 | |
-| E6.1 | it fails | slice 5 | |
-| E6.2 | at an expectation that names the promise | slice 5 | |
+| E5 | The reading without acquiring CI: settled recovered request, 120 s then 100 s, frozen reference of five prior builds used and one 116 s outlier excluded, non-collecting dashboard, phone | slice 5 | observed: ciFollowUpSettledReading.ts keepSettledRepeat with run 71, 120 s, repeat 100 s, average 100 s, excludedPrior 116 s; viewport 390 px |
+| E5.1 | both attempts are read | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): per-attempt revision, workflow, start, wall time, difference and completeness |
+| E5.2 | their links are read | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): "original's exact link", "repeat's exact link" |
+| E5.3 | the reference evidence is read | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): "prior builds used", "evidence rows" 7, "the outlier excluded", "the outlier's reason"; F20 fails it |
+| E5.4 | the provider receives no CI request from first render | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): "no CI request from first render"; F21 fails it |
+| E5.5 | the provider receives no CI request from reload | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up-return.spec.ts: "no CI request from refresh" and "from reload"; F21 fails it |
+| E5.6 | the provider receives no CI request from revisit | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up-return.spec.ts: "no CI request from revisit" |
+| E6 | Each promise still has a check that catches it: one deliberate product fault per promise in the coverage map → the named check runs | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
+| E6.1 | it fails | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
+| E6.2 | at an expectation that names the promise | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
 | E7 | A saved request that breaks the product's schema → its case runs → the case fails | slice 2 | observed: PLAN.md Slice 2 record: a kept entry with eligible "yes", and a held request with workflowId "7", fail their cases at "saved reply" |
 | E8 | Much faster: base and candidate run the four specs on one worker back to back under the same load, three passing observations each | slice 6 | |
 | E8.1 | the candidate's median wall time is at most two-thirds of the base's | slice 6 | |
