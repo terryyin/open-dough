@@ -123,3 +123,74 @@ test("ordinary observed-attempt links share exact GitHub identity and preserve o
     undefined,
   );
 });
+
+for (const retained of ["repeat", "observed"]) {
+  test(`custom ${retained} keeps listed original and repeat links and leaves absent links absent`, () => {
+    const facts = repeatLedgerFacts();
+    for (const listed of [true, false]) {
+      const original = makeMe.aKeptBuild
+        .with({
+          revision: facts.landing.revision,
+          state: "pass",
+          adapterAttempt: { runId: "pipeline/original", attemptId: "original" },
+          ...(listed ? { runUrl: "https://ci.invalid/original" } : {}),
+        })
+        .please();
+      const repeat = makeMe.aKeptBuild
+        .with({
+          revision: facts.landing.revision,
+          state: "pass",
+          adapterAttempt: { runId: "pipeline/repeat", attemptId: "repeat" },
+          ...(listed ? { runUrl: "https://ci.invalid/repeat" } : {}),
+        })
+        .please();
+      const request = makeMe.aCiRepeatRequest
+        .with({
+          provider: "adapter",
+          repository: "example/project",
+          branch: "main",
+          check: "all-checks",
+          context: "push",
+          original,
+          reference: facts.request.reference,
+          rule: facts.request.rule,
+          requestedAt: facts.request.requestedAt,
+          submission: { kind: "accepted" },
+          outcome: {
+            kind: "unverified",
+            explanation: "Timing is unverified",
+            [retained]: repeat,
+          },
+        })
+        .please();
+      const reading = retainedFollowUpOf(
+        makeMe.aCiFollowUpEntry
+          .with({
+            project: "project",
+            identity: "SEED-X#story",
+            revision: facts.landing.revision,
+            at: "2026-11-10T00:02:30Z",
+            target: "refs/heads/main",
+            eligible: true,
+            receipts: [facts.landing.receipt],
+            request,
+          })
+          .please(),
+      );
+      assert.equal(ciFollowUpReadingSchema.safeParse(reading).success, true);
+      assert.equal(
+        reading.original.runUrl,
+        listed ? "https://ci.invalid/original" : undefined,
+      );
+      assert.equal(
+        reading.repeat.runUrl,
+        listed ? "https://ci.invalid/repeat" : undefined,
+      );
+      assert.deepEqual(reading.repeat.adapterAttempt, {
+        runId: "pipeline/repeat",
+        attemptId: "repeat",
+      });
+      assert.equal(reading.workflow, undefined);
+    }
+  });
+}

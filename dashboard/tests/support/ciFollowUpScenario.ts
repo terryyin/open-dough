@@ -3,6 +3,8 @@ import { prepareRepeatPriors } from "./ciFollowUpPriors.ts";
 import { json, providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
 import type { CiFollowUpAnswer } from "../../src/ciFollowUp.ts";
 import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
+import { followUpKey } from "../../server/ciFollowUpStore.ts";
+import { keepMachineDocument } from "./machineDocument.ts";
 import path from "node:path";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -23,6 +25,19 @@ export const followUpFile = (server: Pick<DashboardServer, "home">) =>
   path.join(server.home, ".open-dough/dashboard/ci-follow-up.json");
 export const readFollowUpLedger = (server: Pick<DashboardServer, "home">) =>
   JSON.parse(readFileSync(followUpFile(server), "utf8")) as FollowUpLedger;
+
+// Settled evidence is a reading precondition; collection behavior stays in
+// the receipt journeys. Use the same atomic machine-document boundary.
+export async function keepFollowUpEntries(
+  server: Pick<DashboardServer, "home">,
+  entries: readonly FollowUpLedger["landings"][string][],
+) {
+  await keepMachineDocument(followUpFile(server), {
+    landings: Object.fromEntries(
+      entries.map((entry) => [followUpKey(entry.project, entry), entry]),
+    ),
+  });
+}
 // The Recently done cards this dashboard reads for the project's follow-ups.
 export async function followUpCards(server: DashboardServer) {
   const response = await rawRequest({

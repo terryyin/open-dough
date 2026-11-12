@@ -71,6 +71,9 @@ assert_upgraded_execution_payload() {
     manual="${canonical_root}/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
     grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
+    grep -Fq '(custom-ci-rebuild.md)' "${manual}"
+    cmp "${newer}/src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md" \
+      "${canonical_root}/manuals/custom-ci-rebuild.md"
     assert_installed_publication_modules "${target}/${root}"
   done
   assert_managed_host_hooks "${target}" "${newer}"

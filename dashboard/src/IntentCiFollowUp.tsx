@@ -46,11 +46,21 @@ function Attempt({
             Revision <code>{attempt.revision}</code>
           </p>
           <p>
-            Workflow{" "}
-            {attempt.workflowId === reading.workflowId
-              ? reading.workflow
-              : "unverified"}{" "}
-            · ID {attempt.workflowId}
+            {attempt.adapterAttempt === undefined ? (
+              <>
+                Workflow{" "}
+                {attempt.workflowId === reading.workflowId
+                  ? reading.workflow
+                  : "unverified"}{" "}
+                · ID {attempt.workflowId}
+              </>
+            ) : (
+              <>
+                Check {attempt.check ?? "unavailable"} · Context{" "}
+                {attempt.context ?? "unavailable"} · Run{" "}
+                {attempt.adapterAttempt.runId}
+              </>
+            )}
             <HistoryRunAttempt run={attempt} />
           </p>
           {attempt.runUrl === undefined && (

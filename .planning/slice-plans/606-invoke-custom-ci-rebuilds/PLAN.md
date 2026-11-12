@@ -59,7 +59,7 @@ PFE findings:
 | A qualifying custom landing with `ciRebuild` sends one `rebuild` naming the original attempt, shows progress, then slow at 106 s or returned to range at 98 s (1) | 2 | New `dashboard/backend-tests/intent/landed-ci-adapter-repeat.spec.ts` through real receipt ingestion with the adapter project fixture |
 | A custom project with only `ciAdapter` gets no request and keeps its readings (5) | 2 | Same spec: the adapter-only case records no `rebuild` request while its landed history still collects |
 | Refused, uncertain (timeout, nonzero exit, bad answer) and non-comparable results show their unverified explanations and are never resent (2, 3, 4) | 3 | Cases in `landed-ci-adapter-repeat-{rejections,comparability}.spec.ts`; each asserts one `rebuild` request across later collections and a restart |
-| The review shows both custom attempts' identity, check, bounds, wall time, proof completeness and link against the saved reference (1) | 4 | `dashboard/tests/intent/intent-ci-follow-up.spec.ts` adapter case through the review route |
+| The review shows both custom attempts' identity, check, bounds, wall time, proof completeness and link against the saved reference (1) | 4 | `dashboard/tests/intent/intent-ci-follow-up-custom.spec.ts` custom cases through the review route |
 | The contract and guidance describe the trigger (scope) | 4 | `custom-ci-rebuild.md`, `custom-ci.md`, `docs/dashboard-ci-follow-up.md`, `dashboard/PROJECT-CONFIGURATION.md` reviewed against shipped behavior |
 
 ## Ordered slices
@@ -147,8 +147,8 @@ Keep accepted journeys in their current spec. Submission outcomes and accepted-a
 ### 4. Review custom attempts and document the trigger
 
 Type: Behavior
-Status: planned
-Proof: adapter case in `intent-ci-follow-up.spec.ts`; guidance review.
+Status: done
+Proof: custom cases in `intent-ci-follow-up-custom.spec.ts`; guidance review.
 
 Behavior: a settled custom repeat → **Review original, repeat and saved
 reference** shows each attempt's `runId`/`attemptId`, check, revision, bounds,
@@ -200,15 +200,11 @@ All premises are settled. Pygardon's rebuild story owns its missing proof; fixtu
 - Separate `ciRebuild` may name the adapter script; the observer remains read-only.
 - Every unparsed trigger outcome is uncertain; never resend or attribute an attempt.
 - Keep Intent's existing proof-completeness rule for every provider.
-- Story Branch Mode; no trunk-only step.
-
-## Plan concern assessment
-
-Four bounded proof loops remain appropriate: seam preservation, accepted path, rejection paths, review/contract. No slice-specific concern; prerequisite satisfied above.
+- Story Branch Mode; no trunk-only step. The four planned proof loops needed no refinement; the prerequisite is settled.
 
 ## Execution context
 
-Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `b51be060e2efde855d8cdb27d51bee0d7cd6667b`; retained publication suffix base `b2899a8f5b97b91f0d60d06890d5f068741c3931`. Readiness remains **Changed since readiness review**; no renewed review.
+Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `148eea4b194e7dc37496e5d27ba539685c27fef2`; retained publication suffix base `d73d92f9b31e3ed6c8823f8005f87c2dc26ac68d`. Readiness remains **Changed since readiness review**; no renewed review.
 
 Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
 
@@ -216,17 +212,15 @@ CI observer: Codex cell `g165:11`, session `92679`, coordinator `ruuf-chan`, PID
 
 Local expensive proof: AC, awake, initial load 37.01; slice-1 launch 17.88/~14 GiB inactive memory, one worker under `caffeinate -s -i`. Other owners include SEED-324 repeat checks and page-object worktrees; leave their resources untouched. Command owners recheck load/memory before expensive work, reconsider on failure/contention, and follow to terminal result. No whole local suite required.
 
-Slices 1–3 acceptance, literal proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
+Slices 1–4 acceptance, literal proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
 
 ## Story obligations
 
 ### G1. Custom review still labels its check as a workflow
 Reported: slice 2 — "The read model carries adapter evidence, but the frontend still labels Workflow; provider-neutral review remains for slice 4."
 Story clause: "The review shows each attempt's run and attempt identity, check, revision, bounds, wall time, proof completeness and provider link when one was listed."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: intent-ci-follow-up-custom.spec.ts both106/98 review outcomes show check/context/run+attempt identity,sha,bounds,walltime,proof and signed reference deltas with no Workflow/GitHub wording
 Commitment: C44
-
-
 ### G2. Observe omitted original proof declaration rejection
 Reported: slice 2 — "Product requires original declared proof identities as a subset, but the negative case omitting one original declared entry remains for slice 3."
 Story clause: "proof as complete as the original's."
@@ -242,3 +236,9 @@ Reported: slice 2 — "CI run43235536671 attempt1 failed four native evidence fa
 Story clause: "The dashboard follows the accepted attempt through the existing `discover` and `proof` reads."
 Disposition: proved by slice 2: installed-ci-proof-fixture.bash real installed reader/wire assertions after fresh install and ordinary update in both roots, including unavailable release source; native-evidence-identity.sh four families pass
 Commitment: C26
+
+### G5. Preserve custom provider links in follow-up review
+Reported: slice 4 — "Slice4 inspection found ciFollowUpReading applies exactAttemptUrl to custom attempts, dropping listed provider URLs; use the existing provider-neutral URL reader for custom branches."
+Story clause: "The review shows each attempt's run and attempt identity, check, revision, bounds, wall time, proof completeness and provider link when one was listed."
+Disposition: proved by slice 4: intent-ci-follow-up-custom.spec.ts exact original/repeat providerhref assertions; ci-follow-up-reading.test.mjs completed/observed shapes preserve listed URLs and keep absent links absent via observedAttemptUrl
+Commitment: Q07

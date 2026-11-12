@@ -3,12 +3,27 @@ import type {
   CiFollowUpAttempt,
   CiFollowUpReading,
 } from "../src/ciFollowUpReading.ts";
-import { exactAttemptUrl } from "../src/ciRunAttemptUrl.ts";
+import type { BaseCiRunIdentity } from "../src/baseCiConfirmation.ts";
+import { exactAttemptUrl, observedAttemptUrl } from "../src/ciRunAttemptUrl.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import { wallTimeReadingOf } from "./ciWallTimeReference.ts";
 import type { RepeatRequest } from "./ciFollowUpStore.ts";
 import type { SelectedLanding } from "./completedCiFollowUps.ts";
 import type { KeptBuild } from "./landedCiObservation.ts";
+
+function attemptUrlOf(
+  request: RepeatRequest,
+  build: BaseCiRunIdentity & { readonly runUrl?: string | undefined },
+): string | undefined {
+  return request.provider === "adapter"
+    ? observedAttemptUrl(build)
+    : exactAttemptUrl(
+        request.repository,
+        build.runId,
+        build.runAttempt,
+        build.runUrl,
+      );
+}
 
 function attemptOf(
   request: RepeatRequest,
@@ -16,12 +31,7 @@ function attemptOf(
 ): CiFollowUpAttempt {
   const reading = wallTimeReadingOf(build);
   const ms = historyWallTimeMs(build.startedAt, build.completedAt);
-  const runUrl = exactAttemptUrl(
-    request.repository,
-    build.runId,
-    build.runAttempt,
-    build.runUrl,
-  );
+  const runUrl = attemptUrlOf(request, build);
   return {
     revision: build.revision,
     ...(request.provider === "github"
@@ -56,12 +66,7 @@ function repeatOf(request: RepeatRequest): CiFollowUpAttempt | undefined {
   const observed = request.outcome.observed;
   if (observed === undefined) return undefined;
   const ms = historyWallTimeMs(observed.startedAt, observed.completedAt);
-  const runUrl = exactAttemptUrl(
-    request.repository,
-    observed.runId,
-    observed.runAttempt,
-    observed.runUrl,
-  );
+  const runUrl = attemptUrlOf(request, observed);
   return {
     revision: observed.revision,
     ...(observed.workflowId === undefined
