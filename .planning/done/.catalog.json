@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-313_speed-up-cursor-session-checks.json",
+      "identity": "SEED-313#speed-up-cursor-session-checks",
+      "completedAt": "2026-11-12T05:13:15.189Z",
+      "blob": "24e7273f1455608efaff095ad4e176a33b65d907"
+    },
+    {
       "fileName": "SEED-307_apply-shared-makeme-rules-per-entry.json",
       "identity": "SEED-307#apply-shared-makeme-rules-per-entry",
       "completedAt": "2026-11-11T13:38:25.650Z",
@@ -1974,18 +1980,6 @@
       "identity": "SEED-134#one-hour-mobile-dashboard-observation",
       "completedAt": "2026-10-13T05:19:28.255Z",
       "blob": "815f097bad734488a2aa5427098feec248f39ea3"
-    },
-    {
-      "fileName": "SEED-133_operate-dashboard-from-mobile-browser.json",
-      "identity": "SEED-133#operate-dashboard-from-mobile-browser",
-      "completedAt": "2026-10-13T01:14:57.021Z",
-      "blob": "3fbd57a55cade5cf294e2d063ee4bf98a2d65be4"
-    },
-    {
-      "fileName": "SEED-063_background-ci-failure-delivery.json",
-      "identity": "SEED-063#background-ci-failure-delivery",
-      "completedAt": "2026-10-12T23:55:32.494Z",
-      "blob": "16955965e73026dcce9304d2f25c719856207877"
     }
   ],
   "unreadable": []
