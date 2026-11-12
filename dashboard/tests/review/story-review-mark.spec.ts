@@ -5,6 +5,7 @@
 // story's mark/ref. Mark requests naming paths, malformed objects, or missing
 // objects are in ../../backend-tests/review/story-review-mark-admission.spec.ts.
 
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { parts } from "../dashboardPage.ts";
@@ -53,9 +54,7 @@ test("Mark reviewed marks the snapshot shown, which outlives Git's housekeeping,
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "7 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "7 changed files")).toBeVisible();
   await expect(review.locator("time")).toHaveCount(0);
 
   // The agent writes after the snapshot; nothing refreshes it.
@@ -181,9 +180,7 @@ test("marking again replaces the story's one mark and its ref", async ({
   const second = await refreshed;
   expect(second.tree).not.toBe(first.tree);
   // The refreshed review compares with the first mark.
-  await expect(
-    review.getByRole("list", { name: "1 changed file" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "1 changed file")).toBeVisible();
   await expect(review).toContainText("From the snapshot marked reviewed");
 
   await markReviewed(review);

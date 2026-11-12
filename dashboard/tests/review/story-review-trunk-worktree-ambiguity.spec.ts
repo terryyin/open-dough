@@ -37,7 +37,7 @@ import {
   reviewBody,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows, changedFilesList } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
@@ -94,7 +94,7 @@ async function expectStoryWorktreeReviewedAlone(
   await expect(contextValues(review)).toHaveAccessibleName(
     contextWords({ branch, baseline: claim, workspace: shown("trunk-a") }),
   );
-  await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+  await expectTreeRows(changedFilesList(review, "1 changed file"), [
     "slice.txt",
   ]);
 }

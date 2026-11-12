@@ -1,4 +1,5 @@
 // Observe actual text inside the code pane and reach it with native movement.
+import { listedFile, fileDiff, changedFilesList } from "./reviewTreeRows.ts";
 import type { Locator, Page } from "@playwright/test";
 import { tapWhereShown } from "../pageLayout.ts";
 import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
@@ -154,12 +155,12 @@ export async function reachReviewControl(review: Locator, row: Locator) {
 
 export async function selectAddedFileByTouch(review: Locator, file: string) {
   const browser = fileBrowser(review);
-  const row = browser.getByRole("button", { name: `Added ${file}` });
+  const row = listedFile(browser, `Added ${file}`);
   // A long file list is ordinary independently scrolling content.
   await reachReviewControl(review, row);
   await tapWhereShown(row);
   await expect(row).toHaveAttribute("aria-pressed", "true");
-  return review.getByRole("region", { name: `Added ${file}` });
+  return fileDiff(review, `Added ${file}`);
 }
 
 // The first long file has short lines above its one wide line.
@@ -211,9 +212,7 @@ export async function chooseLargeChangesCommitByTouch(
   });
   await expect(commit).toHaveAttribute("aria-pressed", "true");
   await expect(
-    browser.getByRole("list", {
-      name: `${String(changedFiles)} changed files`,
-    }),
+    changedFilesList(browser, `${String(changedFiles)} changed files`),
   ).toBeVisible();
 }
 
@@ -237,9 +236,7 @@ export async function leaveUncommittedOutByTouchLabel(
   await tapWhereShown(label);
   await expect(uncommitted).not.toBeChecked();
   await expect(
-    browser.getByRole("list", {
-      name: `${String(committedFiles)} changed files`,
-    }),
+    changedFilesList(browser, `${String(committedFiles)} changed files`),
   ).toBeVisible();
   await resizeUntilArranged(review, portrait);
   await expect(uncommitted).not.toBeChecked();

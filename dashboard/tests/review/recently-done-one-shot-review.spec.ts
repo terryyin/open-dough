@@ -1,5 +1,6 @@
 // Actual queued closure, installed publication/reporting and workspace retirement
 // feed Recently done's shared historical review, including its unread details.
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
@@ -66,10 +67,10 @@ async function inspectDelivered(
     ["pending.txt", "+pending default-checkout work"],
     ["result.txt", "+queued execution result"],
   ]) {
-    await review.getByRole("button", { name: `Added ${file}` }).click();
-    await expect(
-      review.getByRole("region", { name: `Added ${file}` }),
-    ).toContainText(content ?? "");
+    await listedFile(review, `Added ${file}`).click();
+    await expect(fileDiff(review, `Added ${file}`)).toContainText(
+      content ?? "",
+    );
   }
   return review;
 }

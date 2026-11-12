@@ -18,7 +18,7 @@ import {
   writeAt,
 } from "../support/storyReviewWorktree.ts";
 import { expectReviewRead, showCommits } from "../support/reviewRead.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows, changedFilesList } from "../support/reviewTreeRows.ts";
 import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
 import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
 
@@ -53,9 +53,10 @@ test("the first Commits default uses the current snapshot, then new commits and 
     await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
     await expect(rows.first()).toContainText("second story commit");
     await expect(
-      review
-        .getByRole("list", { name: "1 changed file", exact: true })
-        .getByRole("button", { name: "Added second.txt" }),
+      changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+        "button",
+        { name: "Added second.txt" },
+      ),
     ).toBeVisible();
     expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
     writeAt(workspace, "third.txt", "third\n");
@@ -131,7 +132,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
   await expect(
-    review.getByRole("list", { name: "3 changed files", exact: true }),
+    changedFilesList(review, "3 changed files", { exact: true }),
   ).toBeVisible();
   writeAt(workspace, "later.txt", "later virtual point\n");
   await expect(review.locator(".story-review-diff [role=status]")).toBeEmpty();
@@ -148,7 +149,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
     await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
     await expectTreeRows(
-      review.getByRole("list", { name: "4 changed files", exact: true }),
+      changedFilesList(review, "4 changed files", { exact: true }),
       ["fresh", "  new.txt", "later.txt", "staged.txt", "unstaged.txt"],
     );
     await expect(review.getByRole("status")).toHaveCount(2);
@@ -196,6 +197,6 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     review.getByRole("heading", { name: "Changes in 1 commit" }),
   ).toBeVisible();
   await expect(
-    review.getByRole("list", { name: "4 changed files", exact: true }),
+    changedFilesList(review, "4 changed files", { exact: true }),
   ).not.toContainText("again.txt");
 });

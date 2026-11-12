@@ -11,6 +11,7 @@
 // names no workspace offers no review at all, which the launch boundary also
 // refuses.
 
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
@@ -192,7 +193,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReview(page, card);
-  const files = review.getByRole("list", { name: "7 changed files" });
+  const files = changedFilesList(review, "7 changed files");
   await expect(files).toBeVisible();
   const refresh = review.getByRole("button", { name: "Refresh" });
 

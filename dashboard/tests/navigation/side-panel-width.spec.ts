@@ -4,6 +4,7 @@
 // and Maximize/Restore reuse that width. Insufficient room covers the page.
 // Geometry observes the rendered page; only the synthetic Claude is reached.
 
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
@@ -157,8 +158,8 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await reviewChanges(card).click();
     await expect(terminal).toHaveCount(0);
     await expectWidth(review, chosen);
-    await review.getByRole("button", { name: "Modified unstaged.txt" }).click();
-    const diff = review.getByRole("region", { name: "Modified unstaged.txt" });
+    await listedFile(review, "Modified unstaged.txt").click();
+    const diff = fileDiff(review, "Modified unstaged.txt");
     await expect(diff).toContainText("+more wide");
     const readsBefore = reviewReads.length;
     expect(readsBefore).toBeGreaterThan(0);
@@ -167,9 +168,10 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
     await divider.focus();
     await page.keyboard.press("ArrowLeft");
     await expectWidth(review, chosen - 160 + keyStep);
-    await expect(
-      review.getByRole("button", { name: "Modified unstaged.txt" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(listedFile(review, "Modified unstaged.txt")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await expect(diff).toContainText("+more wide");
     await pressWhereShown(control(review, "Maximize"));
     await expect(divider).toHaveCount(0);

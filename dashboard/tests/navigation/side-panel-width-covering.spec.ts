@@ -6,6 +6,7 @@
 // the same side. The split beside the page, on the wide side, is
 // ./side-panel-width.spec.ts.
 
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import {
   narrowWindow,
@@ -61,12 +62,10 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
       review,
       async () => {
         await reviewChanges(card).click();
-        await review
-          .getByRole("button", { name: "Modified unstaged.txt" })
-          .click();
-        await expect(
-          review.getByRole("region", { name: "Modified unstaged.txt" }),
-        ).toContainText("+more wide");
+        await listedFile(review, "Modified unstaged.txt").click();
+        await expect(fileDiff(review, "Modified unstaged.txt")).toContainText(
+          "+more wide",
+        );
       },
     ],
   ] as const) {

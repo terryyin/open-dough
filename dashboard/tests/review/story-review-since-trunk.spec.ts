@@ -17,7 +17,13 @@
 
 import { expect, test } from "../support/preparationPage.ts";
 import { olderGit } from "../support/storyReviewOlderGit.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  fileLineCounts,
+  listedFile,
+  fileDiff,
+} from "../support/reviewTreeRows.ts";
 import {
   expectSinceTheReview,
   keptStoryAMark,
@@ -63,7 +69,7 @@ for (const printing of [false, true]) {
     );
 
     // (a, d) Only the story's files: not trunk's, nor the landed slice.
-    const files = review.getByRole("list", { name: "2 changed files" });
+    const files = changedFilesList(review, "2 changed files");
     await expectTreeRows(files, [
       "src",
       "  b.ts",
@@ -82,13 +88,12 @@ for (const printing of [false, true]) {
     // (b) The inseparable file is flagged, and diffed and counted from the
     // marked snapshot.
     const flagged = "Modified src/c.ts, includes trunk's changes";
-    await expect(
-      files
-        .getByRole("button", { name: flagged })
-        .locator(".story-review-line-counts"),
-    ).toHaveText("+1 −1", { useInnerText: true });
-    await files.getByRole("button", { name: flagged }).press("Enter");
-    const cDiff = review.getByRole("region", { name: flagged });
+    await expect(fileLineCounts(listedFile(files, flagged))).toHaveText(
+      "+1 −1",
+      { useInnerText: true },
+    );
+    await listedFile(files, flagged).press("Enter");
+    const cDiff = fileDiff(review, flagged);
     await expect(cDiff.locator(".story-review-removed")).toHaveText([
       "-c story",
     ]);
@@ -97,10 +102,8 @@ for (const printing of [false, true]) {
     ]);
 
     // (c) The separated file's diff holds only the story's edit.
-    await files
-      .getByRole("button", { name: "Modified src/b.ts" })
-      .press("Enter");
-    const bDiff = review.getByRole("region", { name: "Modified src/b.ts" });
+    await listedFile(files, "Modified src/b.ts").press("Enter");
+    const bDiff = fileDiff(review, "Modified src/b.ts");
     await expect(bDiff.locator(".story-review-removed")).toHaveText(["-b 5"]);
     await expect(bDiff.locator(".story-review-added")).toHaveText(["+b five"]);
   });
@@ -127,12 +130,12 @@ test("a conflicted file the story kept as marked is flagged and diffed from the 
   ).toEqual([{ file: "src/c.ts", includesTrunkFrom: since.baseline }]);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).not.toContainText("Nothing changed since the review");
-  const files = review.getByRole("list", { name: "1 changed file" });
+  const files = changedFilesList(review, "1 changed file");
   await expectTreeRows(files, ["src", "  c.ts includes trunk's changes"]);
 
   const flagged = "Modified src/c.ts, includes trunk's changes";
-  await files.getByRole("button", { name: flagged }).press("Enter");
-  const cDiff = review.getByRole("region", { name: flagged });
+  await listedFile(files, flagged).press("Enter");
+  const cDiff = fileDiff(review, flagged);
   await expect(cDiff.locator(".story-review-removed")).toHaveText(["-c trunk"]);
   await expect(cDiff.locator(".story-review-added")).toHaveText(["+c story"]);
 });
@@ -179,7 +182,7 @@ test("a marked story whose baseline is unchanged does not say trunk was integrat
   expect(since.since?.from).toBe(marked.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
   await expect(review).not.toContainText("Trunk was integrated");
-  await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+  await expectTreeRows(changedFilesList(review, "1 changed file"), [
     "src",
     "  b.ts",
   ]);
@@ -204,10 +207,11 @@ olderGit(
       "src/b.ts",
       "src/c.ts",
     ]);
-    await expectTreeRows(
-      review.getByRole("list", { name: "2 changed files" }),
-      ["src", "  b.ts", "  c.ts"],
-    );
+    await expectTreeRows(changedFilesList(review, "2 changed files"), [
+      "src",
+      "  b.ts",
+      "  c.ts",
+    ]);
     await expect(review).toContainText(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
@@ -225,7 +229,7 @@ olderGit(
     expect(since.markUncomparable).toBeUndefined();
     expect(since.since?.from).toBe(all.tree);
     await expectSinceTheReview(review, keptStoryAMark(dashboard));
-    await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
+    await expectTreeRows(changedFilesList(review, "1 changed file"), [
       "src",
       "  b.ts",
     ]);

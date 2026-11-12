@@ -14,6 +14,7 @@
 // The done card's Review changes selects it too, and toggling its selection
 // clears it while the review stays open.
 
+import { fileBrowser } from "../support/reviewContextLine.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator } from "@playwright/test";
@@ -180,7 +181,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await development.click();
     await press(selectStory(card));
     await expectSelected(card, false);
-    await expect(review.locator(".story-review-files")).toBeVisible();
+    await expect(fileBrowser(review)).toBeVisible();
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(scoped).toHaveCount(0);

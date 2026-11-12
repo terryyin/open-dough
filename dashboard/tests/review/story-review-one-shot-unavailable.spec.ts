@@ -1,4 +1,5 @@
 // Honest empty and unavailable captured comparisons never substitute current trunk.
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -61,9 +62,7 @@ test("missing captured objects or the saved common repository expose an unavaila
   const repository = retireReviewRun(run, origin, receipt.revision);
   await openCapturedReview(page, origin);
   const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "1 changed file" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "1 changed file")).toBeVisible();
   const refresh = () => refreshReview(page, review);
   const object = path.join(
     repository,

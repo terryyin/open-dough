@@ -1,3 +1,5 @@
+import { fileBrowser } from "../support/reviewContextLine.ts";
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion, comparisonChoice } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -42,27 +44,23 @@ test("a CLI-completed story without a local launch opens fixed published changes
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  await review
-    .getByRole("button", { name: "Modified shared.txt", exact: true })
-    .click();
-  const diff = review.getByRole("region", { name: "Modified shared.txt" });
+  await listedFile(review, "Modified shared.txt", { exact: true }).click();
+  const diff = fileDiff(review, "Modified shared.txt");
   await expect(diff.locator(".story-review-added")).toHaveText([
     "+story first",
   ]);
   await expect(diff.locator(".story-review-removed")).toHaveText(["-line 0"]);
   await review.getByRole("button", { name: "Hide files", exact: true }).click();
-  await expect(review.locator(".story-review-files")).toBeHidden();
+  await expect(fileBrowser(review)).toBeHidden();
   await review.getByRole("button", { name: "Show files", exact: true }).click();
-  await expect(review.locator(".story-review-files")).toBeVisible();
+  await expect(fileBrowser(review)).toBeVisible();
   advanceCompletedTrunk(origin);
   expect(await refreshReview(page, review)).toEqual(first);
   await review.getByRole("button", { name: "Close", exact: true }).click();
   expect(await readReview(page, card)).toEqual(first);
-  await review
-    .getByRole("button", { name: "Added [literal]*.txt", exact: true })
-    .click();
+  await listedFile(review, "Added [literal]*.txt", { exact: true }).click();
   await expect(
-    review.getByRole("region", { name: "Added [literal]*.txt", exact: true }),
+    fileDiff(review, "Added [literal]*.txt", { exact: true }),
   ).toContainText("+delivered on another machine");
   await expect(review).not.toContainText("later.txt");
   // A later retained capture cannot replace the published comparison when
@@ -94,6 +92,6 @@ test("a CLI-completed story without a local launch opens fixed published changes
     comparisonChoice(review, "Published completion", { exact: true }),
   ).toBeChecked();
   await expect(
-    review.getByRole("button", { name: "Added [literal]*.txt", exact: true }),
+    listedFile(review, "Added [literal]*.txt", { exact: true }),
   ).toBeVisible();
 });

@@ -144,7 +144,7 @@ Add transitive consumers identified by the delivered effect.
 
 ### 3. Read tree, file and diff retention without local selector plumbing
 Type: Behavior
-Status: planned
+Status: done
 Proof: Caller-supplied tree order, changed-file counts, selected row, diff text,
 line numbers, focus/scroll and independent accessibility/geometry checks remain.
 
@@ -188,7 +188,7 @@ silently; use existing Terminal primitives only where this panel journey needs t
 Starting gate: `caffeinate -s -i npm run test:dashboard -- 'tests/navigation/side-panel-width' tests/navigation/side-panel-content-replacement.spec.ts tests/navigation/side-panel-content-switching.spec.ts tests/sessions/final-report-touch-divider.spec.ts tests/terminals/agent-terminal-maximize.spec.ts tests/intent/intent-story-review-return.spec.ts --workers=1`.
 Trace shared layout/close effects through narrow/touch/frontend consumers too.
 
-Execution proof: [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md).
+Execution proof: [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md), [slice 3](slice3-evidence.md).
 
 ## Execution context
 
@@ -208,7 +208,7 @@ Source example1 → slice2; example2 → slice3; example3 → slice4 (with its s
 race gate after slice5); example4 → slice5. Example5 and shared acceptance are
 owned per finding by slices2–5: each records its caller disposition, assertion
 preservation and before/after benefit/cost before delivery. Slice1 restores the
-whole handoff proof used by those mappings. Slice statuses below are authoritative.
+whole handoff proof used by those mappings. The Ordered slices statuses are authoritative.
 
 Use MakeMe for domain data, stating driving facts at the call site. Keep exact
 inputs/actions and independent expectations outside the builder. No sleeps,

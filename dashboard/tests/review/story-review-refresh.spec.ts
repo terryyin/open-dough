@@ -11,6 +11,7 @@
 // Once the selected file is reverted in the worktree, Refresh selects the
 // first file.
 
+import { diffLines } from "../support/reviewPanes.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { writeFileSync } from "node:fs";
@@ -24,7 +25,12 @@ import {
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
 import { expectReviewRead } from "../support/reviewRead.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  fileDiff,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { git, storyWorktree } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
@@ -50,17 +56,17 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     "story.txt",
     "unstaged.txt",
   ];
-  const opened = review.getByRole("list", { name: "7 changed files" });
+  const opened = changedFilesList(review, "7 changed files");
   await expectTreeRows(opened, listed);
   const select = (name: string) =>
-    review.getByRole("button", { name, exact: true }).press("Enter");
-  const diff = review.getByRole("region", { name: "Modified unstaged.txt" });
-  const codeLines = () => diff.locator("li.story-review-line");
-  const diffLines = () => codeLines().allTextContents();
+    listedFile(review, name, { exact: true }).press("Enter");
+  const diff = fileDiff(review, "Modified unstaged.txt");
+  const codeLines = () => diffLines(diff);
+  const printedLines = () => codeLines().allTextContents();
   const edit = "+edited after the review opened";
   await select("Modified unstaged.txt");
   await expect(codeLines()).toHaveCount(12);
-  const openedLines = await diffLines();
+  const openedLines = await printedLines();
   expect(openedLines).toContain("-unstaged 5");
 
   // The worktree moves on: the open file gets a further committed edit, and
@@ -73,18 +79,18 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
 
   await test.step("the list and the open diff stay as the review took them", async () => {
     await expectTreeRows(opened, listed);
-    expect(await diffLines()).toEqual(openedLines);
+    expect(await printedLines()).toEqual(openedLines);
   });
 
   await test.step("selecting another file and reopening the first shows the same diff", async () => {
     await select("Modified staged.txt");
-    await expect(
-      review.getByRole("region", { name: "Modified staged.txt" }),
-    ).toContainText("+more");
+    await expect(fileDiff(review, "Modified staged.txt")).toContainText(
+      "+more",
+    );
     await select("Modified unstaged.txt");
     await expect(codeLines()).toHaveCount(12);
-    expect(await diffLines()).toEqual(openedLines);
-    expect(await diffLines()).not.toContain(edit);
+    expect(await printedLines()).toEqual(openedLines);
+    expect(await printedLines()).not.toContain(edit);
     await expectTreeRows(opened, listed);
   });
 
@@ -92,7 +98,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     const refresh = review.getByRole("button", { name: "Refresh" });
     await refresh.focus();
     await refresh.press("Enter");
-    const refreshed = review.getByRole("list", { name: "8 changed files" });
+    const refreshed = changedFilesList(review, "8 changed files");
     await expectTreeRows(refreshed, [
       "fresh",
       "  new.txt",
@@ -110,10 +116,10 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     );
     // The open file stays selected, its diff read from the new snapshot.
     await expect(
-      refreshed.getByRole("button", { name: "Modified unstaged.txt" }),
+      listedFile(refreshed, "Modified unstaged.txt"),
     ).toHaveAttribute("aria-pressed", "true");
     await expect(diff.getByText(edit, { exact: true })).toBeVisible();
-    expect(await diffLines()).toEqual(
+    expect(await printedLines()).toEqual(
       expect.arrayContaining(["-unstaged 5", edit]),
     );
     await expect(refresh).toBeFocused();
@@ -144,21 +150,21 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");
     await action.click();
     await expectReviewRead(review);
-    const reopened = review.getByRole("list", { name: "9 changed files" });
-    await expect(
-      reopened.getByRole("button", { name: "Added while-closed.txt" }),
-    ).toBeVisible();
+    const reopened = changedFilesList(review, "9 changed files");
+    await expect(listedFile(reopened, "Added while-closed.txt")).toBeVisible();
     // A fresh opening: the first file selected, not the one selected before
     // Close, and no refresh announced.
-    await expect(
-      reopened.getByRole("button", { name: "Added fresh/new.txt" }),
-    ).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      reopened.getByRole("button", { name: "Modified unstaged.txt" }),
-    ).toHaveAttribute("aria-pressed", "false");
-    await expect(
-      review.getByRole("region", { name: "Added fresh/new.txt" }),
-    ).toContainText("+untracked");
+    await expect(listedFile(reopened, "Added fresh/new.txt")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(listedFile(reopened, "Modified unstaged.txt")).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await expect(fileDiff(review, "Added fresh/new.txt")).toContainText(
+      "+untracked",
+    );
     await expect(reviewFeedback(review)).toHaveText("");
   });
 
@@ -168,15 +174,14 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     git(workspace, "checkout", merged, "--", "unstaged.txt");
     await review.getByRole("button", { name: "Refresh" }).press("Enter");
     await expectReviewRead(review);
-    const refreshed = review.getByRole("list", { name: "8 changed files" });
-    await expect(
-      refreshed.getByRole("button", { name: "Added fresh/new.txt" }),
-    ).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      refreshed.getByRole("button", { name: "Modified unstaged.txt" }),
-    ).toHaveCount(0);
-    await expect(
-      review.getByRole("region", { name: "Added fresh/new.txt" }),
-    ).toContainText("+untracked");
+    const refreshed = changedFilesList(review, "8 changed files");
+    await expect(listedFile(refreshed, "Added fresh/new.txt")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(listedFile(refreshed, "Modified unstaged.txt")).toHaveCount(0);
+    await expect(fileDiff(review, "Added fresh/new.txt")).toContainText(
+      "+untracked",
+    );
   });
 });

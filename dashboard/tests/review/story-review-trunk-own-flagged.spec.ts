@@ -15,7 +15,13 @@ import {
   contextValues,
   contextWords,
 } from "../support/reviewContextLine.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  fileDiff,
+  changedFilesList,
+  fileLineCounts,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   nextSnapshot,
@@ -109,7 +115,7 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
   await review.getByRole("button", { name: "Refresh" }).click();
   const later = await refreshed;
   const expectFlaggedDiff = async () => {
-    const diff = review.getByRole("region", { name: flagged });
+    const diff = fileDiff(review, flagged);
     await expect(diff.locator(".story-review-removed")).toHaveText(["-c 3"]);
     await expect(diff.locator(".story-review-added")).toHaveText(["+c trunk"]);
     // Neither the story's own line nor Git's conflict markers.
@@ -120,23 +126,20 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
   await test.step("the file is flagged, counted and diffed from trunk before the story changed it", async () => {
     expect(later.published).toEqual({ trunk, commits: 2 });
     expect(flags(later.files)).toEqual(allFlaggedFrom(beforeStory));
-    const files = review.getByRole("list", { name: "4 changed files" });
+    const files = changedFilesList(review, "4 changed files");
     await expectTreeRows(files, allRows);
-    await expect(
-      files
-        .getByRole("button", { name: flagged })
-        .locator(".story-review-line-counts"),
-    ).toHaveText("+1 −1", { useInnerText: true });
-    await files.getByRole("button", { name: flagged }).press("Enter");
+    await expect(fileLineCounts(listedFile(files, flagged))).toHaveText(
+      "+1 −1",
+      { useInnerText: true },
+    );
+    await listedFile(files, flagged).press("Enter");
     await expectFlaggedDiff();
   });
 
   await test.step("the other files stay as before", async () => {
-    const files = review.getByRole("list", { name: "4 changed files" });
-    await files
-      .getByRole("button", { name: "Modified src/a.ts" })
-      .press("Enter");
-    const diff = review.getByRole("region", { name: "Modified src/a.ts" });
+    const files = changedFilesList(review, "4 changed files");
+    await listedFile(files, "Modified src/a.ts").press("Enter");
+    const diff = fileDiff(review, "Modified src/a.ts");
     await expect(diff.locator(".story-review-removed")).toHaveText(["-a 0"]);
     await expect(diff.locator(".story-review-added")).toHaveText(["+a one"]);
   });
@@ -148,14 +151,14 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
       { file: "src/c.ts", includesTrunkFrom: beforeStory },
     ]);
     await uncommittedCheck(review).uncheck();
-    const files = review.getByRole("list", { name: "3 changed files" });
+    const files = changedFilesList(review, "3 changed files");
     await expectTreeRows(files, [
       "src",
       "  a.ts",
       "  c.ts includes trunk's changes",
       "d.md",
     ]);
-    await files.getByRole("button", { name: flagged }).press("Enter");
+    await listedFile(files, flagged).press("Enter");
     await expectFlaggedDiff();
   });
 });
@@ -179,15 +182,13 @@ test("a flagged file two story commits changed is diffed from trunk before the o
 
   expect(snapshot.published).toEqual({ trunk, commits: 3 });
   expect(flags(snapshot.files)).toEqual(allFlaggedFrom(beforeStory));
-  const files = review.getByRole("list", { name: "4 changed files" });
+  const files = changedFilesList(review, "4 changed files");
   await expectTreeRows(files, allRows);
-  await expect(
-    files
-      .getByRole("button", { name: flagged })
-      .locator(".story-review-line-counts"),
-  ).toHaveText("+2 −2", { useInnerText: true });
-  await files.getByRole("button", { name: flagged }).press("Enter");
-  const diff = review.getByRole("region", { name: flagged });
+  await expect(fileLineCounts(listedFile(files, flagged))).toHaveText("+2 −2", {
+    useInnerText: true,
+  });
+  await listedFile(files, flagged).press("Enter");
+  const diff = fileDiff(review, flagged);
   // The older story change beside the line trunk rewrote.
   await expect(diff.locator(".story-review-removed")).toHaveText([
     "-c 3",

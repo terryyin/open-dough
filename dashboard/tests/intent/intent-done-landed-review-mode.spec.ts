@@ -23,7 +23,7 @@ import {
   reviewDiff,
 } from "../support/intentStoryPage.ts";
 import { retainedIntentLanding } from "../support/retainedIntentLanding.ts";
-import { reviewFeedback } from "../support/reviewContextLine.ts";
+import { reviewFeedback, fileBrowser } from "../support/reviewContextLine.ts";
 import { selectDoneStoryInIntent } from "../support/selectDoneStoryInIntent.ts";
 import { commitAll, git, lines } from "../support/storyReviewWorktree.ts";
 
@@ -127,7 +127,7 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     await expect(
       review.getByRole("heading", { name: "Landed run", exact: true }),
     ).toHaveCount(0);
-    await expect(review.locator(".story-review-files")).toHaveCount(0);
+    await expect(fileBrowser(review)).toHaveCount(0);
     held.release();
     await held.delivery;
     const live = await reviewDiff(page, modified);

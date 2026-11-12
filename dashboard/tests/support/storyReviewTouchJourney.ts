@@ -4,6 +4,7 @@
 // ownership stays with story-review-uncommitted-check.spec.ts. The phone owns
 // what no arrangement changes, so each case title describes the phone's
 // journey; any other viewport repeats only what its own arrangement changes.
+import { changedFilesList, treeFolder } from "./reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -22,6 +23,7 @@ import {
   pageFits,
   scrollLeftOf,
   scrollTopOf,
+  codePane,
 } from "./reviewPanes.ts";
 import { expectReviewRead } from "./reviewRead.ts";
 import {
@@ -83,9 +85,7 @@ export async function openReviewByTouch(
   await expectReviewRead(review);
   const browser = fileBrowser(review);
   await expect(
-    browser.getByRole("list", {
-      name: `${String(changedFiles)} changed files`,
-    }),
+    changedFilesList(browser, `${String(changedFiles)} changed files`),
   ).toBeVisible();
   const all = comparisonLabel(review, "All changes");
   return { action, review, browser, all, changedFiles };
@@ -117,9 +117,9 @@ async function chooseCommitThenAllChangesByTouch({
 // controls, the context shown in full and back, the folder closed and opened,
 // and the large-changes commit followed by All changes.
 async function observeSharedControlsByTouch(opened: TouchReview) {
-  const { review, browser, all } = opened;
+  const { review, all } = opened;
   const commits = comparisonLabel(review, "Commits");
-  const folder = browser.getByRole("button", { name: /^many\b/ });
+  const folder = treeFolder(review, /^many\b/);
   const label = uncommittedLabel(review);
   for (const target of [contextValues(review), all, commits, folder, label]) {
     expect(
@@ -150,7 +150,7 @@ export async function chooseComparisonAndReadByTouch(
   const { review, browser } = opened;
   if (ownsSharedObservations(page)) await observeSharedControlsByTouch(opened);
   const diff = await selectAddedFileByTouch(review, longA);
-  const code = diff.locator(".story-review-code");
+  const code = codePane(diff);
   await expect(code).toContainText("+first 0");
   await expect(code).toContainText(`+${wideLine}`);
   expect((await box(code)).height).toBeGreaterThanOrEqual(44);

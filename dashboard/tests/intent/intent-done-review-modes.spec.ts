@@ -1,5 +1,6 @@
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
+import { fileBrowser } from "../support/reviewContextLine.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -70,7 +71,7 @@ test("switching the open review between live workspace and Done Intent waits for
     await expect(review.getByRole("status")).toHaveText(
       "Reading the story's changes…",
     );
-    await expect(review.locator(".story-review-files")).toHaveCount(0);
+    await expect(fileBrowser(review)).toHaveCount(0);
     await expect(review).not.toContainText("retained live local test");
     heldHistorical.release();
     await heldHistorical.delivery;
@@ -98,7 +99,7 @@ test("switching the open review between live workspace and Done Intent waits for
     await expect(review.getByRole("status")).toHaveText(
       "Reading the story's changes…",
     );
-    await expect(review.locator(".story-review-files")).toHaveCount(0);
+    await expect(fileBrowser(review)).toHaveCount(0);
     await expect(review).not.toContainText("completed historical test");
     heldLive.release();
     await heldLive.delivery;

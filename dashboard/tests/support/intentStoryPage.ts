@@ -1,3 +1,6 @@
+import { fileBrowser } from "./reviewContextLine.ts";
+import { listedFile, fileDiff } from "./reviewTreeRows.ts";
+import { codePane } from "./reviewPanes.ts";
 import { reviewRegion } from "./storyReviewMark.ts";
 import {
   filesColumn,
@@ -177,15 +180,13 @@ export const locationGroup = (intent: Locator, locationPath: string) =>
 export const background = (row: Locator) =>
   row.evaluate((element) => getComputedStyle(element).backgroundColor);
 
-const diffCode = (scope: Locator) => scope.locator(".story-review-code");
-
 // Read the already selected diff without selecting a file or changing its place.
 export function intentDiffReading(intent: Locator) {
   const purpose = purposeRegion(intent);
   return {
     container: intent.locator(".intent-story-diff"),
     name: purpose.locator(".intent-story-diff-name"),
-    code: diffCode(purpose),
+    code: codePane(purpose),
   };
 }
 
@@ -209,12 +210,9 @@ export async function intentDiff(intent: Locator, name: string) {
 // changed files outside its locations.
 export async function reviewDiff(page: Page, name: string) {
   const review = reviewRegion(page);
-  await review
-    .locator(".story-review-files")
-    .getByRole("button", { name, exact: true })
-    .click();
-  const diff = review.getByRole("region", { name });
-  const code = diffCode(diff);
+  await listedFile(fileBrowser(review), name, { exact: true }).click();
+  const diff = fileDiff(review, name);
+  const code = codePane(diff);
   await expectDiffReady(code);
   return code.innerText();
 }
@@ -226,6 +224,6 @@ export async function openReviewFromIntent(page: Page, intent: Locator) {
   await expect(storyTitle(intent)).toBeVisible();
   const review = reviewRegion(page);
   await expectReviewRead(review);
-  await expect(review.locator(".story-review-files")).toBeVisible();
+  await expect(fileBrowser(review)).toBeVisible();
   return review;
 }

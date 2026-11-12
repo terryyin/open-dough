@@ -6,6 +6,7 @@
 // repository keep of a story's review mark. Story A's twelve-file worktree is
 // the one the since-the-review tests mark and change.
 
+import { changedFilesList } from "./reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -241,8 +242,6 @@ export async function markedThenChanged(
   editLater(workspace, 9);
   writeFileSync(path.join(workspace, storyFile(13)), "added later\n");
   await reopenStoryReview(page, card);
-  await expect(
-    review.getByRole("list", { name: "3 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "3 changed files")).toBeVisible();
   return { workspace, card, review };
 }

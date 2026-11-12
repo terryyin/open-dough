@@ -4,6 +4,7 @@
 // against a real bare origin produce the launch record the review reads
 // (../support/storyBranchLandedReview.ts). Only the native Codex transport and
 // GitHub's answers are substituted.
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
@@ -169,15 +170,11 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  await expect(
-    review.getByRole("button", { name: /trunk-only\.txt/ }),
-  ).toHaveCount(0);
+  await expect(listedFile(review, /trunk-only\.txt/)).toHaveCount(0);
   // The file both changed shows the story's change against trunk's at the
   // base: trunk's own line is no change.
-  await review
-    .getByRole("button", { name: "Modified shared.txt", exact: true })
-    .click();
-  const diff = review.getByRole("region", { name: "Modified shared.txt" });
+  await listedFile(review, "Modified shared.txt", { exact: true }).click();
+  const diff = fileDiff(review, "Modified shared.txt");
   await expect(diff.locator(".story-review-added")).toHaveText([
     "+the story's line",
   ]);
@@ -204,9 +201,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     `Review refreshed: ${files.length} changed files in the captured landed comparison.`,
   );
   await expect(review).toContainText(`From ${trunkTip} to ${accepted}.`);
-  await expect(
-    review.getByRole("button", { name: "Added later.txt" }),
-  ).toHaveCount(0);
+  await expect(listedFile(review, "Added later.txt")).toHaveCount(0);
   expect(published.revision).toBe(accepted);
   expect((await claimedRecord(dashboard)).landing).toEqual(record.landing);
 });

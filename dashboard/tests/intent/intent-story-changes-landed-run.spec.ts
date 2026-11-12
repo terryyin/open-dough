@@ -8,6 +8,8 @@
 // it, and returns the review to it from another landed run chosen there.
 // The marked journey without runs: ./intent-story-changes-marked.spec.ts.
 
+import { fileBrowser } from "../support/reviewContextLine.ts";
+import { listedFile } from "../support/reviewTreeRows.ts";
 import { rmSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
@@ -152,8 +154,7 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
     await expect(run).toHaveValue(shown.key);
     await expect(review).toContainText(shown.receipt.revision);
     await expect(
-      review.locator(".story-review-files").getByRole("button", {
-        name: `Added ${shown.name}.txt`,
+      listedFile(fileBrowser(review), `Added ${shown.name}.txt`, {
         exact: true,
       }),
     ).toBeVisible();

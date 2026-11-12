@@ -1,4 +1,6 @@
 // Older actual review/file responses cannot answer a later retained choice.
+import { fileBrowser } from "../support/reviewContextLine.ts";
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import {
   reviewRegion,
   comparisonChoice,
@@ -94,15 +96,12 @@ test("delayed run and file responses leave the later run selected through narrow
   await page.setViewportSize({ width: 420, height: 900 });
   await expect(select).toHaveValue(first.key);
   await expectCovering(review);
-  const files = review.getByRole("list", {
-    name: "1 changed file",
-    exact: true,
-  });
+  const files = changedFilesList(review, "1 changed file", { exact: true });
   await review.getByRole("button", { name: "Hide files" }).click();
   await expect(files).toBeHidden();
   await review.getByRole("button", { name: "Show files" }).click();
   await expect(files).toBeVisible();
-  const browser = await review.locator(".story-review-files").boundingBox();
+  const browser = await fileBrowser(review).boundingBox();
   const diff = await review.locator(".story-review-diff").boundingBox();
   expect(browser).not.toBeNull();
   expect(diff).not.toBeNull();

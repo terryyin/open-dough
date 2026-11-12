@@ -10,6 +10,7 @@
 // the browser sits above the diff with a bounded share of the height, and
 // Hide files gives the diff the whole work area.
 
+import { treeFolder } from "../support/reviewTreeRows.ts";
 import { narrowWindow } from "../accessibleReading.ts";
 import {
   box,
@@ -26,9 +27,11 @@ import {
 import {
   boxes,
   openLargeReview,
+  pageFits,
   overflows,
   scrollPane,
   scrollTopOf,
+  diffHeading,
 } from "../support/reviewPanes.ts";
 import { expectReviewRead } from "../support/reviewRead.ts";
 import { longA, longB } from "../support/largeReviewFiles.ts";
@@ -48,8 +51,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   const header = review.locator(".side-panel-header");
   const nameA = `Added ${longA}`;
   const nameB = `Added ${longB}`;
-  const headingOf = (name: string) =>
-    diffOf(name).getByRole("heading", { name });
+  const headingOf = (name: string) => diffHeading(diffOf(name), { name });
   // What stays in place while either pane scrolls.
   const fixed = [header, top, contextLine(review), headingOf(nameA)];
 
@@ -78,13 +80,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   await test.step("long names and long code lines scroll sideways in their own pane, never the page", async () => {
     expect((await overflows(browser)).sideways).toBe(true);
     expect((await overflows(codeOf(nameA))).sideways).toBe(true);
-    expect(
-      await page.evaluate(
-        () =>
-          document.documentElement.scrollWidth <=
-          document.documentElement.clientWidth,
-      ),
-    ).toBe(true);
+    expect(await pageFits(page)).toBe(true);
   });
 
   await test.step("scrolling the browser leaves the diff, the top, and the diff's heading", async () => {
@@ -118,7 +114,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   });
 
   // Both panes scrolled partway, one folder collapsed.
-  const more = browser.getByRole("button", { name: /^more\b/ });
+  const more = treeFolder(review, /^more\b/);
   await more.click();
   await expect(more).toHaveAttribute("aria-expanded", "false");
   const browserAt = await scrollPane(browser, 120);

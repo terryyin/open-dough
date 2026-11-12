@@ -1,3 +1,4 @@
+import { listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { filesColumn, intentModeViews } from "../intentModePage.ts";
 // Example 1 and 3: a Taken story whose worktree changes the tests Intent
@@ -202,10 +203,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     expect(inIntent).toContain("more");
     const review = await openReviewFromIntent(page, intent);
     await expect(
-      review.getByRole("button", {
-        name: "Modified dashboard/src/App.tsx",
-        exact: true,
-      }),
+      listedFile(review, "Modified dashboard/src/App.tsx", { exact: true }),
     ).toBeVisible();
     expect(await reviewDiff(page, changed.modified)).toBe(inIntent);
     expect(await intentDiff(intent, changed.added)).toBe(

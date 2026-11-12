@@ -1,6 +1,7 @@
 // Review changes for a completed story whose integration merge resolved a
 // conflict, made its own edits and restored a trunk file that `merge-tree`
 // directory-rename heuristics moved (SEED-253 key example 1).
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
 import { reviewRegion } from "../support/storyReviewMark.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
@@ -37,18 +38,18 @@ test("a completed story's integration edits open with their diffs beside its mix
   await expect(review).toContainText("Published completion");
   await expect(review).not.toContainText("other.json");
   const shared = "Modified shared.txt, includes trunk's changes";
-  await review.getByRole("button", { name: shared, exact: true }).click();
-  await expect(
-    review.getByRole("region", { name: shared, exact: true }),
-  ).toContainText("+resolved story and trunk");
+  await listedFile(review, shared, { exact: true }).click();
+  await expect(fileDiff(review, shared, { exact: true })).toContainText(
+    "+resolved story and trunk",
+  );
   const edit = "Added merge-resolution.txt";
-  await review.getByRole("button", { name: edit, exact: true }).click();
-  await expect(
-    review.getByRole("region", { name: edit, exact: true }),
-  ).toContainText("+integration edit");
+  await listedFile(review, edit, { exact: true }).click();
+  await expect(fileDiff(review, edit, { exact: true })).toContainText(
+    "+integration edit",
+  );
   const renamed = "Renamed checks/before.test.mjs → checks/after.test.mjs";
-  await review.getByRole("button", { name: renamed, exact: true }).click();
-  await expect(
-    review.getByRole("region", { name: renamed, exact: true }),
-  ).toContainText("+renamed");
+  await listedFile(review, renamed, { exact: true }).click();
+  await expect(fileDiff(review, renamed, { exact: true })).toContainText(
+    "+renamed",
+  );
 });

@@ -20,6 +20,8 @@ import {
   expectFileSelected,
   expectTreeRows,
   fileRow,
+  changedFilesList,
+  fileDiff,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
@@ -64,7 +66,7 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const list = (files: number) =>
-    review.getByRole("list", { name: `${String(files)} changed files` });
+    changedFilesList(review, `${String(files)} changed files`);
   await check(review).uncheck();
   await expectTreeRows(list(4), committedFiles);
 
@@ -124,7 +126,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   const since = review.getByRole("heading", {
     name: "Changes since the review",
   });
-  const committed = review.getByRole("list", { name: "4 changed files" });
+  const committed = changedFilesList(review, "4 changed files");
 
   // Marked, then changed: Refresh shows the changes since the review.
   await markReviewed(review);
@@ -166,7 +168,7 @@ test("with the check off the file moves stay within the committed files and a bi
   const card = await openBacklog(page, origin);
   const shown = await openStoryReview(page, card);
   const review = reviewRegion(page);
-  const binary = review.getByRole("region", { name: "Modified image.png" });
+  const binary = fileDiff(review, "Modified image.png");
   const noDiff = "This file has no textual diff: Git reads it as binary.";
   await fileRow(review, "Modified image.png").press("Enter");
   await expect(binary).toContainText(noDiff);
@@ -207,7 +209,5 @@ test("with the check off the file moves stay within the committed files and a bi
   await reopenStoryReview(page, card);
   await expect(check(review)).toBeChecked();
   await expect(review.getByText(leftOut)).toHaveCount(0);
-  await expect(
-    review.getByRole("list", { name: "7 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "7 changed files")).toBeVisible();
 });

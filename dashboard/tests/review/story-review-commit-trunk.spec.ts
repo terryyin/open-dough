@@ -10,7 +10,12 @@ import {
 } from "../support/storyReviewMark.ts";
 import { integrateTrunk, markedWorktree } from "../support/storyReviewTrunk.ts";
 import { showCommits } from "../support/reviewRead.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  fileLineCounts,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 import { commitAll, writeAt } from "../support/storyReviewWorktree.ts";
 import { sixth } from "../support/storyReviewTrunk.ts";
 
@@ -38,8 +43,7 @@ for (const conflicted of [false, true]) {
       "Trunk was integrated within the range",
     );
     if (conflicted) {
-      const mergeFiles = review.getByRole("list", {
-        name: "1 changed file",
+      const mergeFiles = changedFilesList(review, "1 changed file", {
         exact: true,
       });
       await expectTreeRows(mergeFiles, [
@@ -54,39 +58,32 @@ for (const conflicted of [false, true]) {
       await expect(review.locator(".story-review-added")).toHaveText([
         "+c story and trunk",
       ]);
-      await expect(mergeFiles.locator(".story-review-line-counts")).toHaveText(
-        "+1 −1",
-        { useInnerText: true },
-      );
+      await expect(fileLineCounts(mergeFiles)).toHaveText("+1 −1", {
+        useInnerText: true,
+      });
     } else {
       await expect(review).toContainText("The chosen commits changed nothing.");
-      await expect(
-        review.getByRole("list", { name: /changed file/ }),
-      ).toHaveCount(0);
+      await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
     }
 
     await chooseCommit(review, rows.last());
     await expect(
       review.getByRole("heading", { name: "Changes in 2 commits" }),
     ).toBeVisible();
-    const files = review.getByRole("list", {
-      name: "1 changed file",
-      exact: true,
-    });
+    const files = changedFilesList(review, "1 changed file", { exact: true });
     await expectTreeRows(files, [
       "src",
       conflicted ? "  c.ts includes trunk's changes" : "  c.ts",
     ]);
     const name = `Modified src/c.ts${conflicted ? ", includes trunk's changes" : ""}`;
-    await files.getByRole("button", { name, exact: true }).click();
+    await listedFile(files, name, { exact: true }).click();
     await expect(review.locator(".story-review-removed")).toHaveText(["-c 5"]);
     await expect(review.locator(".story-review-added")).toHaveText([
       conflicted ? "+c story and trunk" : "+c story",
     ]);
-    await expect(files.locator(".story-review-line-counts")).toHaveText(
-      "+1 −1",
-      { useInnerText: true },
-    );
+    await expect(fileLineCounts(files)).toHaveText("+1 −1", {
+      useInnerText: true,
+    });
     await expect(review).not.toContainText("landed.txt");
     await expect(files).not.toContainText("README.md");
     await expect(files).not.toContainText("a.ts");
@@ -111,21 +108,17 @@ test("an integration resolved back to the oldest parent stays flagged and is dif
   await expect(
     review.getByRole("heading", { name: "Changes in 2 commits" }),
   ).toBeVisible();
-  const files = review.getByRole("list", {
-    name: "1 changed file",
-    exact: true,
-  });
+  const files = changedFilesList(review, "1 changed file", { exact: true });
   await expectTreeRows(files, ["src", "  c.ts includes trunk's changes"]);
-  await files
-    .getByRole("button", {
-      name: "Modified src/c.ts, includes trunk's changes",
-    })
-    .click();
+  await listedFile(
+    files,
+    "Modified src/c.ts, includes trunk's changes",
+  ).click();
   await expect(review.locator(".story-review-removed")).toHaveText([
     "-c trunk",
   ]);
   await expect(review.locator(".story-review-added")).toHaveText(["+c 5"]);
-  await expect(files.locator(".story-review-line-counts")).toHaveText("+1 −1", {
+  await expect(fileLineCounts(files)).toHaveText("+1 −1", {
     useInnerText: true,
   });
 });
@@ -157,14 +150,9 @@ test("a clean integration of disjoint changes in one file shows only the story e
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
-  const files = review.getByRole("list", {
-    name: "1 changed file",
-    exact: true,
-  });
+  const files = changedFilesList(review, "1 changed file", { exact: true });
   await expectTreeRows(files, ["src", "  a.ts"]);
-  await files
-    .getByRole("button", { name: "Modified src/a.ts", exact: true })
-    .click();
+  await listedFile(files, "Modified src/a.ts", { exact: true }).click();
   await expect(review.locator(".story-review-removed")).toHaveText(["-a 0"]);
   await expect(review.locator(".story-review-added")).toHaveText(["+a story"]);
   await expect(review).not.toContainText("includes trunk's changes");

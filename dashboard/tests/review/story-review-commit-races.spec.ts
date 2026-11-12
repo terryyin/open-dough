@@ -1,5 +1,6 @@
 // A range read owns the chosen points; delivering an earlier real answer
 // after a newer range has settled cannot change its heading, files or diff.
+import { changedFilesList, listedFile } from "../support/reviewTreeRows.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../../src/storyReviewContract.ts";
@@ -46,17 +47,12 @@ test("an earlier pending range cannot answer the later chosen range", async ({
     const heading = review.getByRole("heading", {
       name: "Changes in 1 commit",
     });
-    const files = review.getByRole("list", {
-      name: "1 changed file",
-      exact: true,
-    });
+    const files = changedFilesList(review, "1 changed file", { exact: true });
     await expect(heading).toBeVisible();
     await expect(review.locator(".story-review-since")).toContainText(
       "story file to",
     );
-    await files
-      .getByRole("button", { name: "Added story.txt", exact: true })
-      .click();
+    await listedFile(files, "Added story.txt", { exact: true }).click();
     await expect(review.locator(".story-review-added")).toHaveText(["+story"]);
     held.release();
     await held.delivery;
@@ -75,7 +71,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
       "story file to",
     );
     await expect(
-      files.getByRole("button", { name: "Added story.txt", exact: true }),
+      listedFile(files, "Added story.txt", { exact: true }),
     ).toBeVisible();
     await expect(review.locator(".story-review-added")).toHaveText(["+story"]);
     await expect(review).not.toContainText(

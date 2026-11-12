@@ -1,4 +1,5 @@
 // Every retained run is a keyboard choice beside the marked live workspace.
+import { changedFilesList } from "../support/reviewTreeRows.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { reviewChoices, addLiveEdit } from "../support/oneShotReviewChoices.ts";
@@ -54,9 +55,10 @@ test("keyboard choices show each retained captured or legacy run beside the live
     await expect(select).toHaveValue(run.key);
     await expect(review.getByRole("radio", { checked: true })).toHaveCount(1);
     await expect(
-      review
-        .getByRole("list", { name: "1 changed file", exact: true })
-        .getByRole("button", { name: `Added ${run.name}.txt`, exact: true }),
+      changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+        "button",
+        { name: `Added ${run.name}.txt`, exact: true },
+      ),
     ).toBeVisible();
     await expect(review.locator(".story-review-added")).toHaveText([
       `+${run.name}.txt`,
@@ -97,9 +99,10 @@ test("keyboard choices show each retained captured or legacy run beside the live
   await page.keyboard.press("Space");
   await expect(review.getByRole("listbox")).toHaveCount(0);
   await expect(
-    review
-      .getByRole("list", { name: "1 changed file", exact: true })
-      .getByRole("button", { name: "Added after-mark.txt", exact: true }),
+    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+      "button",
+      { name: "Added after-mark.txt", exact: true },
+    ),
   ).toBeVisible();
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),

@@ -12,7 +12,12 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  listedFile,
+  fileDiff,
+} from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   editLater,
@@ -39,9 +44,7 @@ test("a marked story's review lists only the files changed since the review, eac
   const card = await openBacklog(page, origin);
   const marked = await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "12 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "12 changed files")).toBeVisible();
   await markReviewed(review);
 
   editLater(workspace, 2);
@@ -51,15 +54,11 @@ test("a marked story's review lists only the files changed since the review, eac
   expect(since.since?.from).toBe(marked.tree);
   expect(since.files).toHaveLength(13);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  const files = review.getByRole("list", { name: "3 changed files" });
+  const files = changedFilesList(review, "3 changed files");
   await expectTreeRows(files, [storyFile(2), storyFile(9), storyFile(13)]);
 
-  await files
-    .getByRole("button", { name: `Modified ${storyFile(2)}` })
-    .press("Enter");
-  const diff = review.getByRole("region", {
-    name: `Modified ${storyFile(2)}`,
-  });
+  await listedFile(files, `Modified ${storyFile(2)}`).press("Enter");
+  const diff = fileDiff(review, `Modified ${storyFile(2)}`);
   await expect(diff.locator(".story-review-added")).toHaveText(["+f2 five"]);
   await expect(diff.locator(".story-review-removed")).toHaveText(["-f2 5"]);
 });
@@ -74,16 +73,14 @@ test("a file written after the snapshot and before the mark is listed since the 
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await expect(
-    review.getByRole("list", { name: "12 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "12 changed files")).toBeVisible();
 
   // The agent writes after the snapshot; the developer marks it unrefreshed.
   writeFileSync(path.join(workspace, "after-snapshot.txt"), "later\n");
   await markReviewed(review);
   await reopenStoryReview(page, card);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  const files = review.getByRole("list", { name: "1 changed file" });
+  const files = changedFilesList(review, "1 changed file");
   await expectTreeRows(files, ["after-snapshot.txt"]);
 });
 
@@ -101,9 +98,7 @@ test("marking while the changes since the review are shown marks the whole snaps
 
   editLater(workspace, 3);
   const first = await reopenStoryReview(page, card);
-  await expect(
-    review.getByRole("list", { name: "1 changed file" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "1 changed file")).toBeVisible();
   await markReviewed(review);
   expect(keptStoryAMark(dashboard)).toMatchObject({
     tree: first.tree,
@@ -115,7 +110,7 @@ test("marking while the changes since the review are shown marks the whole snaps
   const second = await reopenStoryReview(page, card);
   expect(second.since?.from).toBe(first.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  const files = review.getByRole("list", { name: "1 changed file" });
+  const files = changedFilesList(review, "1 changed file");
   await expectTreeRows(files, [storyFile(4)]);
 });
 
@@ -139,9 +134,7 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
   await expect(review).toContainText(
     "but it can no longer be read, so the earlier review cannot be compared: all changes are shown.",
   );
-  await expect(
-    review.getByRole("list", { name: "12 changed files" }),
-  ).toBeVisible();
+  await expect(changedFilesList(review, "12 changed files")).toBeVisible();
   await expect(
     comparisonChoice(review, "Commits", { exact: true }),
   ).toBeVisible();
@@ -154,6 +147,6 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
   const again = await reopenStoryReview(page, card);
   expect(again.since?.from).toBe(gone.tree);
   await expectSinceTheReview(review, keptStoryAMark(dashboard));
-  const files = review.getByRole("list", { name: "1 changed file" });
+  const files = changedFilesList(review, "1 changed file");
   await expectTreeRows(files, [storyFile(5)]);
 });

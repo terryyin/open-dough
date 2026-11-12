@@ -2,6 +2,7 @@
 // panes' reading places through rotation and panel controls, on story A's
 // comparison opened by touch (./storyReviewTouchJourney.ts), which also says
 // which viewport owns what no arrangement changes.
+import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { comparisonChoice } from "./storyReviewMark.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
@@ -16,7 +17,7 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import { longA, longB } from "./largeReviewFiles.ts";
 import { expect } from "./preparationPage.ts";
 import { reviewFeedback } from "./reviewContextLine.ts";
-import { pageFits, scrollTopOf } from "./reviewPanes.ts";
+import { pageFits, scrollTopOf, codePane, diffHeading } from "./reviewPanes.ts";
 import { expectReviewRead } from "./reviewRead.ts";
 import {
   chooseLargeChangesCommitByTouch,
@@ -68,7 +69,7 @@ export async function keepReviewContextThroughTouch(
   const opened = await openReviewByTouch(page, dashboard, origin);
   const { review, browser } = opened;
   const diff = await selectAddedFileByTouch(review, longA);
-  const code = diff.locator(".story-review-code");
+  const code = codePane(diff);
   await expect(code).toContainText("+first 0");
   await scrollByTouch(page, code, -300, "vertical", undefined, code);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
@@ -76,7 +77,7 @@ export async function keepReviewContextThroughTouch(
   await scrollByTouch(page, browser, 100, "vertical", undefined, browser);
   await expect.poll(() => scrollTopOf(browser)).toBeLessThan(browserBefore);
   const chosen = {
-    selected: browser.getByRole("button", { name: `Added ${longA}` }),
+    selected: listedFile(browser, `Added ${longA}`),
     code,
     codeAt: await scrollTopOf(code),
     browserAt: await scrollTopOf(browser),
@@ -130,9 +131,9 @@ async function keepReviewContextThroughPanelControls(
   await tapWhereShown(control(review, "Show files"));
   await expectKept(opened, chosen);
   await tapWhereShown(control(review, "Next file"));
-  const next = review.getByRole("region", { name: `Added ${longB}` });
-  await expect(next.locator(".story-review-code")).toContainText("+second 0");
-  expect(await scrollTopOf(next.locator(".story-review-code"))).toBe(0);
+  const next = fileDiff(review, `Added ${longB}`);
+  await expect(codePane(next)).toContainText("+second 0");
+  expect(await scrollTopOf(codePane(next))).toBe(0);
   await tapWhereShown(control(review, "Refresh"));
   await expectReviewRead(review);
   await expect(reviewFeedback(review)).toHaveText(
@@ -140,9 +141,10 @@ async function keepReviewContextThroughPanelControls(
       `^Review refreshed: ${String(changedFiles)} changed files against baseline [0-9a-f]{7}\\.$`,
     ),
   );
-  await expect(
-    browser.getByRole("button", { name: `Added ${longB}` }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(listedFile(browser, `Added ${longB}`)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   // Explicit Commits on the range that holds every changed file, chosen here
   // where it is read; with files hidden its reading place survives rotation.
   await chooseLargeChangesCommitByTouch(review, browser, changedFiles);
@@ -151,7 +153,7 @@ async function keepReviewContextThroughPanelControls(
   );
   await selectAddedFileByTouch(review, longB);
   await tapWhereShown(control(review, "Hide files"));
-  const nextCode = next.locator(".story-review-code");
+  const nextCode = codePane(next);
   await scrollByTouch(page, nextCode, -180, "vertical", undefined, nextCode);
   await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
   const nextAt = await scrollTopOf(nextCode);
@@ -159,7 +161,7 @@ async function keepReviewContextThroughPanelControls(
   await expect(
     comparisonChoice(review, "Commits", { exact: true }),
   ).toBeChecked();
-  await expect(next.getByRole("heading")).toHaveText(`Added ${longB}`);
+  await expect(diffHeading(next)).toHaveText(`Added ${longB}`);
   expect(await scrollTopOf(nextCode)).toBe(nextAt);
   expect((await box(nextCode)).height).toBeGreaterThanOrEqual(44);
   expect(await pageFits(page)).toBe(true);

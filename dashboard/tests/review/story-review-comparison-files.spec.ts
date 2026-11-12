@@ -9,6 +9,7 @@ import { expect, test } from "../support/preparationPage.ts";
 import {
   expectFileSelected,
   expectLineCounts,
+  fileDiff,
 } from "../support/reviewTreeRows.ts";
 import {
   markedThenChanged,
@@ -36,9 +37,7 @@ test("each comparison opens on its first file, counts its own lines, and moves t
   await expectCounts(`Added ${thirteen}`, "+1 −0");
   await next.click();
   await expectSelected(`Modified ${nine}`);
-  await expect(
-    review.getByRole("region", { name: `Modified ${nine}` }),
-  ).toContainText("+f9 five");
+  await expect(fileDiff(review, `Modified ${nine}`)).toContainText("+f9 five");
   await next.click();
   await expectSelected(`Added ${thirteen}`);
   await expect(next).toHaveAttribute("aria-disabled", "true");
