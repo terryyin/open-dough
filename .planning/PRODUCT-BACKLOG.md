@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
 - [Make later-proof Intent comparison checks fast and stable under moderately high load](seeds/SEED-326-later-proof-comparison-checks-under-load.md#pass-later-proof-comparison-checks-under-load) — SEED-326#pass-later-proof-comparison-checks-under-load ([plan](slice-plans/589-later-proof-comparison-checks-under-load/PLAN.md))
-- [Review JUnit tests in Intent](seeds/SEED-325-junit-tests-in-intent.md#review-junit-tests-in-intent) — SEED-325#review-junit-tests-in-intent ([plan](slice-plans/600-review-junit-tests-in-intent/PLAN.md))
 
 ## Backlog list
 
