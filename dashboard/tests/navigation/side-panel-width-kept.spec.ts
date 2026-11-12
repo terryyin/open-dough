@@ -6,6 +6,8 @@
 // page's lifetime. Each test's browser context keeps its own storage; the real
 // `claude` is never reached.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { watchPageErrors } from "../pageErrors.ts";
@@ -41,8 +43,8 @@ async function openTerminal(page: Page) {
 }
 
 async function openStoryReview(page: Page) {
-  await storyA(page).getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  await reviewChanges(storyA(page)).click();
+  const review = reviewRegion(page);
   await expect(review).toBeVisible();
   return review;
 }
@@ -142,7 +144,7 @@ test("reloaded in less room the panel fits it, and neither that nor Maximize rep
 
   await test.step("a wide window recovers the chosen width, also after reloading while maximized", async () => {
     await page.setViewportSize(wideWindow);
-    const review = page.getByRole("region", { name: "Story review" });
+    const review = reviewRegion(page);
     await expectWidth(review, chosen);
     await pressWhereShown(control(review, "Maximize"));
     await expect(panelDivider(page)).toHaveCount(0);

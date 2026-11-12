@@ -105,10 +105,8 @@ work before broad execution proof; these samples establish no universal threshol
 
 ## Ordered slices
 
-All slices include their implementation, focused proof and cleanup. The first
-Structure enables the immediately following Behavior and restores required proof;
-the remaining slices each deliver one readable scenario family. Each completed
-slice leaves working tests and useful intent even if later work stops.
+Each slice includes implementation, focused proof and cleanup. The first Structure
+restores required proof for the following Behavior; each slice leaves working tests.
 
 ### 1. Restore complete review handoff proof within the default case budget
 Type: Structure
@@ -129,7 +127,7 @@ records a user-directed stop, and SEED-324 names different landed-CI checks.
 
 ### 2. Read review entry and comparisons through shared controls
 Type: Behavior
-Status: planned
+Status: done
 Proof: Entire affected review cohort plus procedural/fluent entry consumers;
 independent expected names, revisions, files/diffs and request evidence remain.
 
@@ -190,23 +188,19 @@ silently; use existing Terminal primitives only where this panel journey needs t
 Starting gate: `caffeinate -s -i npm run test:dashboard -- 'tests/navigation/side-panel-width' tests/navigation/side-panel-content-replacement.spec.ts tests/navigation/side-panel-content-switching.spec.ts tests/sessions/final-report-touch-divider.spec.ts tests/terminals/agent-terminal-maximize.spec.ts tests/intent/intent-story-review-return.spec.ts --workers=1`.
 Trace shared layout/close effects through narrow/touch/frontend consumers too.
 
-Execution proof and accepted boundaries: [slice evidence](slice-evidence.md).
+Execution proof: [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md).
 
 ## Execution context
 
 Story Branch Mode resumes the established Take `750e9e4f2` in the owned checkout
 `/Users/terryyin/git/open-dough/.worktrees/express-review-and-side-panel-test-intent-throug`
 on `codex/express-review-and-side-panel-test-intent-throug`; starting revision
-`70021438b`, publisher `dashboard-territory.local-open-dough`, agent DavidKo-chan.
-Authorized remote/trunk: `origin/main`; increments publish to the story branch.
+`70021438b`, publisher `dashboard-territory.local-open-dough`, agent DavidKo-chan; remote/trunk `origin/main`.
 `npm ci` and `npm run typecheck:dashboard` passed against the current lockfile.
 No new numeric slice limit or replanning override was supplied; preserve planned authority.
-CI: GitHub Actions `ci.yml` (CI), repository `terryyin/open-dough`, story branch.
-Observer: coordinator `seed300-review`, directory `/tmp/dough-ci-501/watch-7aTPQn`,
+CI: GitHub Actions `ci.yml` (CI), `terryyin/open-dough` story branch; coordinator `seed300-review`, directory `/tmp/dough-ci-501/watch-7aTPQn`,
 pid72745, stream5814, yielded cell `g63:9`; claim trunk CI is unobserved.
-On 2026-11-12 the machine was awake, lid open, battery84%, load4.28/6.71/10.80.
-Use one worker under `caffeinate -i`, inspect sleep logs after long runs, and
-reconsider power/load before expensive proof. No other owned heavy proof is running.
+Host/power and proof decisions are retained in [slice evidence](slice-evidence.md).
 
 ## Verification, current decisions and concern review
 
@@ -247,3 +241,10 @@ Structure immediately enables entry, and the four Behavior boundaries retain
 separate observable outcomes and focused proof loops. No remaining slice-specific
 concern was identified beyond completing the explicitly owned repair and proof;
 readiness is assessed against the final premise results and current source.
+
+## Story obligations
+
+### G1. Preserve exact review region matching
+Reported: slice 2 — "Coordinator inspection found board-scroll exact:true review-region lookup replaced by the partial-match reviewRegion helper."
+Story clause: "independent accessibility/geometry observations"
+Disposition: proved by slice 2: storyReviewMark.ts31–35 retains the caller exact option; board-scroll.spec.ts46 supplies exact:true; final 14-case proof passed, including both board viewports.

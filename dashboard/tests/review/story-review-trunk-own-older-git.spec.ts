@@ -26,6 +26,7 @@ import {
   openStoryReview,
   refreshReview,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { gitRestates, olderGit } from "../support/storyReviewOlderGit.ts";
 import {
@@ -147,9 +148,7 @@ olderGit(
     await expect(review).toContainText(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
-    await expect(
-      review.getByRole("radio", { name: "Since the review" }),
-    ).toHaveCount(0);
+    await expect(comparisonChoice(review, "Since the review")).toHaveCount(0);
     await expect(reviewFeedback(review)).toContainText(
       keptIn("1 published commit"),
     );

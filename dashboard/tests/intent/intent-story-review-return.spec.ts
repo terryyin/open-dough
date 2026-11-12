@@ -5,6 +5,7 @@
 // the review (../../src/keyboardReturn.ts). The header's count:
 // ./intent-story-changes.spec.ts.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   fileReadingTab,
@@ -32,7 +33,7 @@ import {
 async function reviewByKeyboard(page: Page, intent: Locator) {
   await outsideCount(intent).focus();
   await page.keyboard.press("Enter");
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expectReviewRead(review);
   await expect(review.locator(".story-review-files")).toBeVisible();
   await review.getByRole("button", { name: "Close", exact: true }).focus();

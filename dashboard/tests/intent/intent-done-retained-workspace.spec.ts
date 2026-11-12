@@ -1,3 +1,4 @@
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { filesColumn } from "../intentModePage.ts";
 import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can
@@ -134,7 +135,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   await openReviewFromIntent(page, intent);
   expect(await reviewDiff(page, modified)).toBe(original);
   expect(await reviewDiff(page, renamed)).toBe(originalRename);
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await review.getByRole("button", { name: "Close", exact: true }).click();
   await expect(
     storySummary(intent).getByRole("button", {

@@ -6,7 +6,11 @@
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { reviewFeedback } from "./reviewContextLine.ts";
-import { openStoryReview, reviewRegion } from "./storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "./storyReviewMark.ts";
 
 const reading =
   /Reading the story's changes…|Refreshing the review…|Reading the chosen commits' changes…/;
@@ -29,7 +33,7 @@ export async function openReview(page: Page, card: Locator) {
 
 // Shows the review's Commits, once it has read the chosen commits' changes.
 export async function showCommits(review: Locator) {
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   await expectReviewRead(review);
 }
 

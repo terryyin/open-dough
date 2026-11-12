@@ -2,6 +2,7 @@
 // panes' reading places through rotation and panel controls, on story A's
 // comparison opened by touch (./storyReviewTouchJourney.ts), which also says
 // which viewport owns what no arrangement changes.
+import { comparisonChoice } from "./storyReviewMark.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -41,13 +42,11 @@ type ChosenFile = {
 // Rotation, Maximize and Restore, and Hide files and Show files each keep the
 // chosen file, All changes and both panes' reading places.
 async function expectKept(
-  { browser, comparison }: TouchReview,
+  { browser, review }: TouchReview,
   { selected, code, codeAt, browserAt }: ChosenFile,
 ) {
   await expect(selected).toHaveAttribute("aria-pressed", "true");
-  await expect(
-    comparison.getByRole("radio", { name: "All changes" }),
-  ).toBeChecked();
+  await expect(comparisonChoice(review, "All changes")).toBeChecked();
   expect(await scrollTopOf(code)).toBe(codeAt);
   expect(await scrollTopOf(browser)).toBe(browserAt);
 }
@@ -124,7 +123,7 @@ async function keepReviewContextThroughPanelControls(
   portrait: Viewport,
   landscape: Viewport,
 ) {
-  const { action, review, browser, comparison, changedFiles } = opened;
+  const { action, review, browser, changedFiles } = opened;
   await tapWhereShown(control(review, "Hide files"));
   await expect(browser).toBeHidden();
   expect(await scrollTopOf(chosen.code)).toBe(chosen.codeAt);
@@ -158,7 +157,7 @@ async function keepReviewContextThroughPanelControls(
   const nextAt = await scrollTopOf(nextCode);
   await resizeUntilArranged(review, landscape);
   await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toBeChecked();
   await expect(next.getByRole("heading")).toHaveText(`Added ${longB}`);
   expect(await scrollTopOf(nextCode)).toBe(nextAt);

@@ -14,6 +14,8 @@
 // The done card's Review changes selects it too, and toggling its selection
 // clears it while the review stays open.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
@@ -147,7 +149,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     expect(inIntent.get(changed.modified)).toContain("completed");
     expect(inIntent.get(changed.added)).toContain("added");
     await openReviewFromIntent(page, intent);
-    const review = page.getByRole("region", { name: "Story review" });
+    const review = reviewRegion(page);
     await expect(review).toContainText("Published completion");
     // Its three test files and the six Intent counts outside the locations.
     await expect(review.locator(".story-review-files [data-kind]")).toHaveCount(
@@ -158,7 +160,7 @@ test("Intent overlays a completed story's published history comparison, naming i
   });
 
   await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
-    const review = page.getByRole("region", { name: "Story review" });
+    const review = reviewRegion(page);
     const { development, intentChoice } = parts(page);
     // Beside the review the Board shows one column; the keyboard reaches the
     // done card's controls where a pointer would land on the review. Select
@@ -170,7 +172,7 @@ test("Intent overlays a completed story's published history comparison, naming i
     await development.click();
     await press(selectStory(card));
     await expectSelected(card, false);
-    await press(card.getByRole("button", { name: "Review changes" }));
+    await press(reviewChanges(card));
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");

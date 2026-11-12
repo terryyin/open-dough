@@ -6,6 +6,7 @@
 // the same side. The split beside the page, on the wide side, is
 // ./side-panel-width.spec.ts.
 
+import { reviewChanges } from "../storyCardControls.ts";
 import {
   narrowWindow,
   expectFocusedAndIndicated,
@@ -59,7 +60,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     [
       review,
       async () => {
-        await card.getByRole("button", { name: "Review changes" }).click();
+        await reviewChanges(card).click();
         await review
           .getByRole("button", { name: "Modified unstaged.txt" })
           .click();

@@ -8,6 +8,7 @@ import {
   nextSnapshot,
   openStoryReview,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import {
   commitAll,
@@ -89,8 +90,8 @@ test("the first Commits default uses the current snapshot, then new commits and 
   );
   await expect(rows.nth(2)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.last()).toHaveAttribute("aria-pressed", "true");
-  await review.getByRole("radio", { name: "All changes", exact: true }).check();
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "All changes", { exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   await expect(
     review.getByRole("heading", { name: "Changes in 2 commits" }),
   ).toBeVisible();

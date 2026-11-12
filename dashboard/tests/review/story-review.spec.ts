@@ -9,6 +9,8 @@
 // ../../backend-tests/review/story-review-refusal.spec.ts. Directional omitted-context expansion is in
 // ./story-review-diff-context.spec.ts.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { parts } from "../dashboardPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -50,9 +52,9 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     );
 
   const card = await openBacklog(page, origin);
-  const action = card.getByRole("button", { name: "Review changes" });
+  const action = reviewChanges(card);
   await action.click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   // The panel names the story it reviews, beside the dashboard, and holds
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");

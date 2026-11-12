@@ -1,3 +1,5 @@
+import { reviewChanges } from "../storyCardControls.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { appendFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
@@ -40,11 +42,8 @@ for (const viewport of [
     git(origin.project, "push", "--quiet", "origin", "main");
     const card = await openBacklog(page, origin);
     await expectSettledPage(page);
-    await card.getByRole("button", { name: "Review changes" }).click();
-    const panel = page.getByRole("region", {
-      name: "Story review",
-      exact: true,
-    });
+    await reviewChanges(card).click();
+    const panel = reviewRegion(page, { exact: true });
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       "Story A",
     );

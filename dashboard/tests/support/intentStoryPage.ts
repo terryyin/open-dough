@@ -1,3 +1,4 @@
+import { reviewRegion } from "./storyReviewMark.ts";
 import {
   filesColumn,
   storySummary,
@@ -207,7 +208,7 @@ export async function intentDiff(intent: Locator, name: string) {
 // The same file's diff in Review changes, opened from Intent's count of
 // changed files outside its locations.
 export async function reviewDiff(page: Page, name: string) {
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await review
     .locator(".story-review-files")
     .getByRole("button", { name, exact: true })
@@ -223,7 +224,8 @@ export async function reviewDiff(page: Page, name: string) {
 export async function openReviewFromIntent(page: Page, intent: Locator) {
   await outsideCount(intent).click();
   await expect(storyTitle(intent)).toBeVisible();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expectReviewRead(review);
   await expect(review.locator(".story-review-files")).toBeVisible();
+  return review;
 }

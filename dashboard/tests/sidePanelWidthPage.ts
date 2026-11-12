@@ -3,6 +3,7 @@
 // synthetic `claude` (./fixtures/fake-claude), which prints its terminal size
 // whenever that changes.
 
+import { reviewRegion } from "./support/storyReviewMark.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   storyReviewEndpoint,
@@ -203,7 +204,7 @@ export async function storyAWithSession(
     card,
     session,
     terminal: page.getByRole("region", { name: "Terminal" }),
-    review: page.getByRole("region", { name: "Story review" }),
+    review: reviewRegion(page),
     divider: panelDivider(page),
     // The session's attachments so far.
     attaches: () => {

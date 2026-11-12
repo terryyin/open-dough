@@ -5,6 +5,8 @@
 // keeps folders collapsed and shows new ones expanded; reopening the review
 // shows every folder expanded.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
@@ -26,8 +28,8 @@ test("a story's review folders collapse and expand", async ({
   const { workspace } = nestedWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  await reviewChanges(card).click();
+  const review = reviewRegion(page);
   const files = review.getByRole("list", { name: "6 changed files" });
   await expect(files).toBeVisible({ timeout: storyReviewWaitMs });
 
@@ -151,7 +153,7 @@ test("a story's review folders collapse and expand", async ({
   await test.step("a reopened review shows every folder expanded", async () => {
     await review.getByRole("button", { name: "Close", exact: true }).click();
     await expect(review).toHaveCount(0);
-    await card.getByRole("button", { name: "Review changes" }).click();
+    await reviewChanges(card).click();
     const reopened = review.getByRole("list", { name: "7 changed files" });
     await expectTreeRows(reopened, [
       ...nestedTreeRows.slice(0, -1),

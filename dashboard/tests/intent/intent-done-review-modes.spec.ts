@@ -1,5 +1,7 @@
 // Actual held review answers cannot lend the other comparison mode's snapshot
 // or selected run to Done Intent or to the ordinary Done-card Review.
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { parts } from "../dashboardPage.ts";
@@ -53,7 +55,7 @@ test("switching the open review between live workspace and Done Intent waits for
     "retained live local test",
   );
   await parts(page).intentChoice.click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   const heldHistorical = await holdNextReviewResponse(
     page,
     dashboard.origin,
@@ -79,7 +81,7 @@ test("switching the open review between live workspace and Done Intent waits for
   }
   await parts(page).development.click();
   await showColumn(page, "Recently done");
-  const ordinary = card.getByRole("button", { name: "Review changes" });
+  const ordinary = reviewChanges(card);
   // Focus reveals its column using the remounted Board's current width.
   await ordinary.focus();
   await expect(ordinary).toBeInViewport();

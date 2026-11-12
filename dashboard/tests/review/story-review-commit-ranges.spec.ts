@@ -4,7 +4,11 @@ import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import { olderGit } from "../support/storyReviewOlderGit.ts";
 import { observed, storyWorktree } from "../support/storyReviewWorktree.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
@@ -19,7 +23,7 @@ test("two ends select three commits in either direction, reset to one, and survi
   keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -70,11 +74,11 @@ test("two ends select three commits in either direction, reset to one, and survi
     "new.txt",
     "story.txt",
   ]);
-  await review.getByRole("radio", { name: "All changes", exact: true }).check();
+  await comparisonChoice(review, "All changes", { exact: true }).check();
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toHaveCount(0);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
@@ -94,7 +98,7 @@ olderGit(
     keepLaunchRecord(dashboard, workspace);
     await openStoryReview(page, await openBacklog(page, origin));
     const review = reviewRegion(page);
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");

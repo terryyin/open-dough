@@ -1,3 +1,5 @@
+import { reviewRegion, comparisonChoice } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
@@ -28,16 +30,14 @@ test("a CLI-completed story without a local launch opens fixed published changes
     exact: true,
   });
   await expect(card.locator(".session-entry")).toHaveCount(0);
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeVisible();
+  await expect(reviewChanges(card)).toBeVisible();
   const first = await readReview(page, card);
   expect(first.kind).toBe("published");
   if (first.kind !== "published") throw new Error("No published review");
   expect(first.completion).toBe(completion);
   expect(first.files.map((file) => file.path)).toContain("[literal]*.txt");
   expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expect(review).toContainText("Published completion");
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
@@ -81,17 +81,17 @@ test("a CLI-completed story without a local launch opens fixed published changes
     files: first.files,
   });
   await expect(
-    review.getByRole("radio", { name: "Published completion", exact: true }),
+    comparisonChoice(review, "Published completion", { exact: true }),
   ).toBeChecked();
-  await review.getByRole("radio", { name: "Landed runs", exact: true }).check();
+  await comparisonChoice(review, "Landed runs", { exact: true }).check();
   await expect(review).toContainText(
     "captured landing repository is missing or unreadable",
   );
-  await review
-    .getByRole("radio", { name: "Published completion", exact: true })
-    .check();
+  await comparisonChoice(review, "Published completion", {
+    exact: true,
+  }).check();
   await expect(
-    review.getByRole("radio", { name: "Published completion", exact: true }),
+    comparisonChoice(review, "Published completion", { exact: true }),
   ).toBeChecked();
   await expect(
     review.getByRole("button", { name: "Added [literal]*.txt", exact: true }),

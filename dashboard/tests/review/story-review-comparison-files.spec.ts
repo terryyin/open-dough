@@ -11,9 +11,9 @@ import {
   expectLineCounts,
 } from "../support/reviewTreeRows.ts";
 import {
-  comparison,
   markedThenChanged,
   storyFile,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 
 test("each comparison opens on its first file, counts its own lines, and moves through its own files", async ({
@@ -44,7 +44,7 @@ test("each comparison opens on its first file, counts its own lines, and moves t
   await expect(next).toHaveAttribute("aria-disabled", "true");
 
   // All changes keeps the file both list, and counts from the baseline.
-  await comparison(review).getByRole("radio", { name: "All changes" }).check();
+  await comparisonChoice(review, "All changes").check();
   await expectSelected(`Added ${thirteen}`);
   await expectCounts(`Added ${two}`, "+12 −0");
   await expect(next).toHaveAttribute("aria-disabled", "true");
@@ -52,8 +52,6 @@ test("each comparison opens on its first file, counts its own lines, and moves t
   await expectSelected(`Added ${storyFile(12)}`);
 
   // A file the changes since the review do not list gives way to their first.
-  await comparison(review)
-    .getByRole("radio", { name: "Since the review" })
-    .check();
+  await comparisonChoice(review, "Since the review").check();
   await expectSelected(`Modified ${two}`);
 });

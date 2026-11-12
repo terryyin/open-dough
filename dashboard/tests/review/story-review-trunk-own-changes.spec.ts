@@ -24,6 +24,7 @@ import {
   reopenStoryReview,
   reviewRegion,
   uncommittedCheck,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import {
   commitUnpublished,
@@ -110,7 +111,7 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
       ["src", "  a.ts", "  g.ts", "d.md", "notes.md"],
     );
 
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     const commits = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
@@ -118,9 +119,7 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
     await expect(commits.first()).toHaveText("Uncommitted changes");
     await expect(commits.nth(1)).toContainText("u1");
 
-    await review
-      .getByRole("radio", { name: "All changes", exact: true })
-      .check();
+    await comparisonChoice(review, "All changes", { exact: true }).check();
     await uncommittedCheck(review).uncheck();
     await expectTreeRows(
       review.getByRole("list", { name: "3 changed files" }),

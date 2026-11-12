@@ -5,7 +5,11 @@ import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { storyReviewRangeEndpoint } from "../../src/storyReviewContract.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import { storyWorktree } from "../support/storyReviewWorktree.ts";
 import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
 
@@ -24,7 +28,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
     storyReviewRangeEndpoint,
   );
   try {
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     const response = await held.ready;
     expect(await response.json()).toMatchObject({
       kind: "comparison",

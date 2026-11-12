@@ -25,6 +25,7 @@ import {
   rewriteStoryAMark,
   storyFile,
   twelveFileWorktree,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 
@@ -142,11 +143,9 @@ test("a mark whose tree the repository does not hold is said, all changes are sh
     review.getByRole("list", { name: "12 changed files" }),
   ).toBeVisible();
   await expect(
-    review.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toBeVisible();
-  await expect(
-    review.getByRole("radio", { name: "Since the review" }),
-  ).toHaveCount(0);
+  await expect(comparisonChoice(review, "Since the review")).toHaveCount(0);
   await expect(review).not.toContainText("since the review");
 
   await markReviewed(review);

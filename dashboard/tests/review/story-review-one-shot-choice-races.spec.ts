@@ -1,4 +1,10 @@
 // Older actual review/file responses cannot answer a later retained choice.
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { test, expect } from "../support/codexStart.ts";
 import { reviewChoices } from "../support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "../support/oneShotReview.ts";
@@ -22,9 +28,9 @@ test("delayed run and file responses leave the later run selected through narrow
     codexProtocol,
   );
   const { card } = await openCapturedReview(page, origin);
-  const review = page.getByRole("region", { name: "Story review" });
-  const radio = review.getByRole("radio", { name: "Landed runs" });
-  const select = review.getByRole("listbox", { name: "Landed run" });
+  const review = reviewRegion(page);
+  const radio = comparisonChoice(review, "Landed runs");
+  const select = landedRunChoice(review);
   const heldRun = await holdNextReviewResponse(
     page,
     dashboard.origin,
@@ -109,7 +115,5 @@ test("delayed run and file responses leave the later run selected through narrow
     "+first.txt",
   ]);
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(reviewChanges(card)).toBeFocused();
 });

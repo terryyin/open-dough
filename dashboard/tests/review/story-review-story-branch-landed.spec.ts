@@ -4,6 +4,11 @@
 // against a real bare origin produce the launch record the review reads
 // (../support/storyBranchLandedReview.ts). Only the native Codex transport and
 // GitHub's answers are substituted.
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
 import { test, expect } from "../support/codexStart.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -53,7 +58,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     name: "Story A",
     exact: true,
   });
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
 
   // While the integrated workspace remains, the review opens on it and the
   // Comparison switch lists the integration and the earlier one-shot run.
@@ -84,16 +89,13 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   expect(Date.parse(record.launchedAt)).toBeGreaterThan(
     Date.parse(refinement.record.launchedAt),
   );
-  const landedRuns = review.getByRole("radio", {
-    name: "Landed runs",
-    exact: true,
-  });
+  const landedRuns = comparisonChoice(review, "Landed runs", { exact: true });
   await expect(landedRuns).not.toBeChecked();
   await expect(review.getByRole("heading", { name: "Landed run" })).toHaveCount(
     0,
   );
   await landedRuns.check();
-  const select = review.getByRole("listbox", { name: "Landed run" });
+  const select = landedRunChoice(review);
   await expect(select).toHaveValue(reporting.reference);
   await expect(select.getByRole("option")).toHaveText([
     `Execution — ${await browserLocaleString(page, record.launchedAt)} — ${accepted.slice(0, 8)}`,
@@ -148,7 +150,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     review.getByRole("heading", { name: "Landed run", exact: true }),
   ).toBeVisible();
   await expect(
-    review.getByRole("radio", { name: "Landed runs", exact: true }),
+    comparisonChoice(review, "Landed runs", { exact: true }),
   ).toBeChecked();
   await expect(review.getByRole("radio")).toHaveCount(1);
   const context = review.locator("div").filter({

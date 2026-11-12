@@ -3,7 +3,11 @@ import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import { integrateTrunk, markedWorktree } from "../support/storyReviewTrunk.ts";
 import { showCommits } from "../support/reviewRead.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
@@ -99,7 +103,7 @@ test("an integration resolved back to the oldest parent stays flagged and is dif
   keepLaunchRecord(dashboard, story.workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -145,7 +149,7 @@ test("a clean integration of disjoint changes in one file shows only the story e
   keepLaunchRecord(dashboard, story.workspace);
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");

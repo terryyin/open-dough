@@ -4,7 +4,11 @@ import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import { markedWorktree, sixth } from "../support/storyReviewTrunk.ts";
 import { commitAll, git, writeAt } from "../support/storyReviewWorktree.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
@@ -40,7 +44,7 @@ test("a file renamed before and after conflicted integration stays flagged with 
     "story changes c",
   ]);
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");

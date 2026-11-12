@@ -11,6 +11,8 @@
 // Once the selected file is reverted in the worktree, Refresh selects the
 // first file.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/preparationPage.ts";
@@ -35,9 +37,9 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   const { workspace, merged } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const action = card.getByRole("button", { name: "Review changes" });
+  const action = reviewChanges(card);
   await action.click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   const listed = [
     "fresh",
     "  new.txt",

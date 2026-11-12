@@ -6,7 +6,12 @@ import { scrollByTouch } from "../touchGestures.ts";
 import { expect } from "./preparationPage.ts";
 import { contextValues, fileBrowser } from "./reviewContextLine.ts";
 import { chooseCommit } from "./storyReviewCommitChoice.ts";
-import { uncommittedCheck, uncommittedLabel } from "./storyReviewMark.ts";
+import {
+  uncommittedCheck,
+  uncommittedLabel,
+  comparisonChoice,
+  comparisonLabel,
+} from "./storyReviewMark.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
 // Adjacent React text nodes carry the marker and the file's original text.
@@ -181,12 +186,11 @@ export async function visibleShortCodeLine(code: Locator) {
 
 // Tap the Commits comparison and confirm it is the chosen one.
 async function chooseCommitsByTouch(review: Locator) {
-  const comparison = review.getByRole("radiogroup", { name: "Comparison" });
-  const commits = comparison.locator("label", { hasText: "Commits" });
+  const commits = comparisonLabel(review, "Commits");
   await reachReviewControl(review, commits);
   await tapWhereShown(commits);
   await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toBeChecked();
 }
 
@@ -220,9 +224,7 @@ export async function leaveUncommittedOutByTouchLabel(
   portrait: { width: number; height: number },
   committedFiles: number,
 ) {
-  const all = review
-    .getByRole("radiogroup", { name: "Comparison" })
-    .locator("label", { hasText: "All changes" });
+  const all = comparisonLabel(review, "All changes");
   const uncommitted = uncommittedCheck(review);
   const label = uncommittedLabel(review);
   await tapWhereShown(

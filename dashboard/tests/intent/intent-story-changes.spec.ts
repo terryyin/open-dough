@@ -1,3 +1,4 @@
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { filesColumn, intentModeViews } from "../intentModePage.ts";
 // Example 1 and 3: a Taken story whose worktree changes the tests Intent
 // publishes (../support/intentStoryWorktree.ts) is selected by its card's empty
@@ -199,8 +200,7 @@ test("Intent highlights a selected Taken story's test changes over the published
   await test.step("a changed file's Purpose is Review changes' diff", async () => {
     const inIntent = await intentDiff(intent, changed.modified);
     expect(inIntent).toContain("more");
-    await openReviewFromIntent(page, intent);
-    const review = page.getByRole("region", { name: "Story review" });
+    const review = await openReviewFromIntent(page, intent);
     await expect(
       review.getByRole("button", {
         name: "Modified dashboard/src/App.tsx",
@@ -222,7 +222,7 @@ test("Intent highlights a selected Taken story's test changes over the published
 
   await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
     const { development, intentChoice } = parts(page);
-    const review = page.getByRole("region", { name: "Story review" });
+    const review = reviewRegion(page);
     await review.getByRole("button", { name: "Close", exact: true }).click();
     await expect(review).toHaveCount(0);
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");

@@ -6,6 +6,7 @@
 // the page object the reader is then at (./fluentPageObject.ts); the phase
 // runs the cues.
 
+import { reviewChanges } from "./storyCardControls.ts";
 import type { Locator } from "@playwright/test";
 import { parts, storyCardSessions } from "./dashboardParts.ts";
 import { PageObject } from "./fluentPageObject.ts";
@@ -44,7 +45,7 @@ export class StoryCard extends PageObject {
 
   // The card's one Review changes action.
   get #reviewChanges() {
-    return this.#card.getByRole("button", { name: "Review changes" });
+    return reviewChanges(this.#card);
   }
 
   get #shownInTerminal() {

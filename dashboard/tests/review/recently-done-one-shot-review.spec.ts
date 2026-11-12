@@ -1,5 +1,7 @@
 // Actual queued closure, installed publication/reporting and workspace retirement
 // feed Recently done's shared historical review, including its unread details.
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { completedExecution } from "../support/oneShotExecutionReview.ts";
@@ -52,7 +54,7 @@ async function inspectDelivered(
       }),
     ]),
   );
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expect(review).toContainText("Execution launched");
   await expect(review).toContainText(receipt.base);
   await expect(review).toContainText(receipt.revision);
@@ -112,9 +114,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
     review.getByRole("heading", { name: "Story A", exact: true }),
   ).toBeVisible();
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(reviewChanges(card)).toBeFocused();
   // The deleted source cannot supply the review or done title.
   expect(
     published.requests.filter(
@@ -175,16 +175,12 @@ test("an unfinished attention session outside its done card still supplies revie
     review.getByRole("heading", { name: queuedIdentity, exact: true }),
   ).toBeVisible();
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    unread.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(reviewChanges(unread)).toBeFocused();
   release();
   await expect(unread).toContainText("This done story could not be read.");
   await readReview(page, unread);
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    unread.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(reviewChanges(unread)).toBeFocused();
   restore();
   await recent.getByRole("button", { name: "Retry done stories" }).click();
   const card = recent.getByRole("article", { name: "Story A", exact: true });
@@ -196,9 +192,7 @@ test("an unfinished attention session outside its done card still supplies revie
     review.getByRole("heading", { name: "Story A", exact: true }),
   ).toBeVisible();
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(reviewChanges(card)).toBeFocused();
   const saved = stored(dashboard.home).find(
     (each) => each.request.reporting?.reference === receipt.reference,
   );

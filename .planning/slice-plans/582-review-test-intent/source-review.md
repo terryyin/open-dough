@@ -22,14 +22,14 @@ or a requirement to use every alternative in every spec.
 | 8 | Call-site clarity: Weigh whether scenarios make actions and outcomes clearer. | slice 5 |  |
 | 9 | Mechanics edit sites: Weigh whether shared controls and repeated sequences require fewer maintenance edits. | slice 5 |  |
 | 10 | Helper cost: Weigh additional helper code alongside the gain; the source does not require every metric to improve independently. | slice 5 |  |
-| 11 | Review changes ownership: Procedural and fluent callers use one maintained owner for the shared Review changes control. | slice 2 |  |
+| 11 | Review changes ownership: Procedural and fluent callers use one maintained owner for the shared Review changes control. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
 | 12 | Other shared selectors: An affected shared control, such as Terminal’s input locator, has one maintained selector owner for its callers. | slice 5 |  |
-| 13 | Branch review: Express branch review entry and comparison through shared controls, retaining the chosen story and expected comparison facts. | slice 2 |  |
-| 14 | Trunk review: Express trunk review entry and comparison through shared controls; a trunk-commit journey retains its revision expectations. | slice 2 |  |
-| 15 | Completed review: Express completed review entry and comparison through shared controls. | slice 2 |  |
-| 16 | One-shot review: Express one-shot review entry and comparison through shared controls, retaining the selected choice. | slice 2 |  |
-| 17 | Intent entry: Include review entry from Intent where the findings reach those handoffs. | slice 2 |  |
-| 18 | Snapshot waits: Keep snapshot waits with the operation that needs them. | slice 2 |  |
+| 13 | Branch review: Express branch review entry and comparison through shared controls, retaining the chosen story and expected comparison facts. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
+| 14 | Trunk review: Express trunk review entry and comparison through shared controls; a trunk-commit journey retains its revision expectations. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
+| 15 | Completed review: Express completed review entry and comparison through shared controls. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
+| 16 | One-shot review: Express one-shot review entry and comparison through shared controls, retaining the selected choice. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
+| 17 | Intent entry: Include review entry from Intent where the findings reach those handoffs. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
+| 18 | Snapshot waits: Keep snapshot waits with the operation that needs them. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
 | 19 | File-tree choice: Shared tree operations own repeated browser mechanics while the scenario names the selected file. | slice 3 |  |
 | 20 | Diff reading: Shared pane/diff operations express reading a comparison while the scenario exposes its expected result. | slice 3 |  |
 | 21 | Context reading: Express diff/context changes through suitable existing review owners; exact expected lines remain apparent. | slice 3 |  |
@@ -65,8 +65,8 @@ or a requirement to use every alternative in every spec.
 | 51 | Chosen geometry: Chosen widths and bounds remain legible where they explain the outcome. | slice 5 |  |
 | 52 | Measured geometry: Before/after measurements remain legible where they distinguish outcomes. | slice 5 |  |
 | 53 | Terminal mechanics: Affected shared panel sequences include repeated xterm access where the findings reach Terminal journeys. | slice 5 |  |
-| 54 | Exact-name independence: A test of an exact name retains its own independent expected value; an action-contract case can still state its accessible name. | slice 2 |  |
-| 55 | Accessibility independence: A test of an accessibility contract retains its independent expectation, including relevant keyboard order. | slice 2 |  |
+| 54 | Exact-name independence: A test of an exact name retains its own independent expected value; an action-contract case can still state its accessible name. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
+| 55 | Accessibility independence: A test of an accessibility contract retains its independent expectation, including relevant keyboard order. | slice 2 | observed: slice2-evidence.md: shared Review changes/comparison owners; 216-case cohort and 14-case correction proof; independent action glyph/name/Tab, branch/trunk/completed/one-shot/Intent facts and held-answer waits retained |
 | 56 | Geometry independence: A DOM-measurement test retains its independent expected observation. | slice 5 |  |
 | 57 | No self-derived expectation: A helper does not derive an expected fact from the production value it observes. | slice 5 |  |
 | 58 | Request evidence: Relevant request counts remain visible, including observations distinguishing intended reads from unintended reads. | slice 5 |  |

@@ -2,6 +2,8 @@
 // is the baseline, so its file drops out and only the story's later commit
 // and uncommitted edit remain to review.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { contextValues, contextWords } from "../support/reviewContextLine.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
@@ -17,8 +19,8 @@ test("a landed slice leaves the review and the unlanded changes remain", async (
   const { workspace, landed } = landedWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  await reviewChanges(card).click();
+  const review = reviewRegion(page);
   const files = review.getByRole("list", { name: "2 changed files" });
   await expectTreeRows(files, ["edited.txt", "later.txt"]);
   await expect(contextValues(review)).toHaveAccessibleName(

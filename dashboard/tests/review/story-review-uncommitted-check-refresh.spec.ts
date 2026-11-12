@@ -24,7 +24,7 @@ import {
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
-  comparison,
+  comparisonChoice,
   markReviewed,
   nextSnapshot,
   openStoryReview,
@@ -120,7 +120,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
   const choose = (name: string) =>
-    comparison(review).getByRole("radio", { name, exact: true }).check();
+    comparisonChoice(review, name, { exact: true }).check();
   const since = review.getByRole("heading", {
     name: "Changes since the review",
   });

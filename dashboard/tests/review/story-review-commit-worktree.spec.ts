@@ -11,6 +11,7 @@ import {
   openStoryReview,
   reopenStoryReview,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { markStoryReview } from "../support/storyReviewTrunk.ts";
 import {
@@ -39,7 +40,7 @@ test("Uncommitted changes alone reads staged, unstaged and untracked files; thro
   });
   expect(snapshot.uncommitted).not.toHaveProperty("revision");
   expect(snapshot.uncommitted).not.toHaveProperty("committedAt");
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -138,10 +139,8 @@ test("a marked review opens on Since the review and marking from Commits marks t
   );
   writeAt(story.workspace, "src/b.ts", "uncommitted b\n");
   const snapshot = await reopenStoryReview(page, card);
-  await expect(
-    review.getByRole("radio", { name: "Since the review" }),
-  ).toBeChecked();
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   // Choose a committed item alone, excluding the new uncommitted file from
   // the displayed range; marking must nevertheless keep the full snapshot.
   const rows = review
@@ -164,8 +163,6 @@ test("a marked review opens on Since the review and marking from Commits marks t
   });
   const again = await reopenStoryReview(page, card);
   expect(again.since?.files).toEqual([]);
-  await expect(
-    review.getByRole("radio", { name: "Since the review" }),
-  ).toBeChecked();
+  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
   await expect(review).toContainText("Nothing changed since the review.");
 });

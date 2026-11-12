@@ -23,6 +23,7 @@ import {
   keptStoryAMark,
   markReviewed,
   reopenStoryReview,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import {
   integrateTrunk,
@@ -211,11 +212,9 @@ olderGit(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
     await expect(
-      review.getByRole("radio", { name: "Commits", exact: true }),
+      comparisonChoice(review, "Commits", { exact: true }),
     ).toBeVisible();
-    await expect(
-      review.getByRole("radio", { name: "Since the review" }),
-    ).toHaveCount(0);
+    await expect(comparisonChoice(review, "Since the review")).toHaveCount(0);
     await expect(review).not.toContainText("since the review");
 
     // (b) Marked again, the unchanged baseline needs no restating.

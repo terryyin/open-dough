@@ -4,6 +4,7 @@
 // and Maximize/Restore reuse that width. Insufficient room covers the page.
 // Geometry observes the rendered page; only the synthetic Claude is reached.
 
+import { reviewChanges } from "../storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
 import {
@@ -153,7 +154,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   });
 
   await test.step("a review takes the same width, and resizing keeps its snapshot and selected file without another read", async () => {
-    await card.getByRole("button", { name: "Review changes" }).click();
+    await reviewChanges(card).click();
     await expect(terminal).toHaveCount(0);
     await expectWidth(review, chosen);
     await review.getByRole("button", { name: "Modified unstaged.txt" }).click();

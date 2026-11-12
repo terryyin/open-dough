@@ -10,6 +10,7 @@
 // layout is read once the cards' preparation and the machine's sessions are
 // read, since each reading changes a card's height.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import type { Page } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -17,6 +18,7 @@ import {
   expectActionGlyph,
   inspectionGroup,
   launchGroup,
+  reviewChanges,
 } from "../storyCardControls.ts";
 import {
   expectFocusedAndIndicated,
@@ -50,10 +52,8 @@ test("the inspection group sits below the launch group, wraps in reading order, 
   const { workspace } = unchangedWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const action = inspectionGroup(card).getByRole("button", {
-    name: "Review changes",
-  });
-  const review = page.getByRole("region", { name: "Story review" });
+  const action = reviewChanges(inspectionGroup(card));
+  const review = reviewRegion(page);
   const starts = storyCardLaunchActions.map((name) =>
     launchGroup(card).getByRole("button", { name }),
   );

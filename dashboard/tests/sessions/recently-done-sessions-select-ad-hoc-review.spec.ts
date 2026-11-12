@@ -3,6 +3,7 @@
 // (../../src/recentlyDoneSelection.ts) without rewriting Ad hoc. Reuses the
 // real completion publish path (../support/adHocCompletedAssociation.ts) and
 // Intent review helpers (../support/intentStoryPage.ts).
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
@@ -97,7 +98,7 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
     expect(published).not.toBe(linked.completion);
 
     await openReviewFromIntent(page, intent);
-    const review = page.getByRole("region", { name: "Story review" });
+    const review = reviewRegion(page);
     await expect(
       review.getByRole("button", {
         name: `Added ${vendorPath}`,

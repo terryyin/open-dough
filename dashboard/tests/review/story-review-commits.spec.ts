@@ -7,7 +7,11 @@ import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { showCommits } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import {
   git,
   observed,
@@ -53,7 +57,7 @@ test("Commits lists the first-parent line below Uncommitted changes and shows a 
     "story file",
     "rename with a small edit",
   ]);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -122,7 +126,7 @@ test("a clean merge selected alone changed nothing by itself", async ({
   const card = await openBacklog(page, origin);
   await openStoryReview(page, card);
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -161,7 +165,7 @@ test("no commits and no uncommitted changes offers no Commits", async ({
     "No changes: the worktree matches baseline",
   );
   await expect(
-    review.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toHaveCount(0);
 });
 

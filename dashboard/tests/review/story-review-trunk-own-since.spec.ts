@@ -17,7 +17,6 @@ import { queuedIdentity, type StartOrigin } from "../support/startOrigin.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   changedPaths,
-  comparison,
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
@@ -25,6 +24,7 @@ import {
   refreshReview,
   reviewedRefs,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import {
   commitUnpublished,
@@ -61,9 +61,7 @@ async function markedStory(
 
 // The changes since the review list the later story commit's file alone.
 async function expectLaterStoryFileAlone(review: Locator) {
-  await expect(
-    comparison(review).getByRole("radio", { name: "Since the review" }),
-  ).toBeChecked();
+  await expect(comparisonChoice(review, "Since the review")).toBeChecked();
   const files = review.getByRole("list", { name: "1 changed file" });
   await expectTreeRows(files, ["src", "  e.ts"]);
 }
@@ -122,9 +120,7 @@ test("a Trunk Mode story's mark is kept with its baseline tree, and a story comm
       "src/e.ts",
       "src/g.ts",
     ]);
-    await comparison(review)
-      .getByRole("radio", { name: "All changes" })
-      .check();
+    await comparisonChoice(review, "All changes").check();
     await expectTreeRows(
       review.getByRole("list", { name: "5 changed files" }),
       ["src", "  a.ts", "  e.ts", "  g.ts", "d.md", "notes.md"],
@@ -137,9 +133,7 @@ test("a Trunk Mode story's mark is kept with its baseline tree, and a story comm
     const kept = await refreshReview(review);
     expect(kept.markUncomparable).toBeUndefined();
     expect(changedPaths(kept.since?.files)).toEqual(["src/e.ts"]);
-    await comparison(review)
-      .getByRole("radio", { name: "Since the review" })
-      .check();
+    await comparisonChoice(review, "Since the review").check();
     await expectSinceTheReview(review, mark);
     await expectLaterStoryFileAlone(review);
   });

@@ -1,5 +1,11 @@
 // A captured run chosen by Done Intent cannot remain the ordinary Review's
 // selection when its readable workspace is requested in the same open panel.
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import {
@@ -95,17 +101,15 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
   });
   await chooseStoryTab(intent, "Changed tests");
   await openReviewFromIntent(page, intent);
-  const review = page.getByRole("region", { name: "Story review" });
-  await expect(review.getByRole("listbox", { name: "Landed run" })).toHaveValue(
-    story.reporting.reference,
-  );
+  const review = reviewRegion(page);
+  await expect(landedRunChoice(review)).toHaveValue(story.reporting.reference);
 
   // Restore ordinary workspace ancestry while keeping the captured panel open.
   git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
   // Keep the captured panel open while its ordinary card asks for live Review.
   await parts(page).development.click();
   await showColumn(page, "Recently done");
-  const ordinary = card.getByRole("button", { name: "Review changes" });
+  const ordinary = reviewChanges(card);
   const held = await holdNextReviewResponse(
     page,
     dashboard.origin,
@@ -119,9 +123,7 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     await expect(reviewFeedback(review)).toHaveText(
       "Reading the story's changes…",
     );
-    await expect(
-      review.getByRole("listbox", { name: "Landed run" }),
-    ).toHaveCount(0);
+    await expect(landedRunChoice(review)).toHaveCount(0);
     await expect(
       review.getByRole("heading", { name: "Landed run", exact: true }),
     ).toHaveCount(0);
@@ -131,11 +133,9 @@ test("ordinary Done Review resets Intent's captured run while the same panel sta
     const live = await reviewDiff(page, modified);
     expect(live).toContain("+local edit after captured landing");
     await expect(
-      review.getByRole("radio", { name: "All changes", exact: true }),
+      comparisonChoice(review, "All changes", { exact: true }),
     ).toBeChecked();
-    await expect(
-      review.getByRole("listbox", { name: "Landed run" }),
-    ).toHaveCount(0);
+    await expect(landedRunChoice(review)).toHaveCount(0);
   } finally {
     held.release();
     await held.delivery;

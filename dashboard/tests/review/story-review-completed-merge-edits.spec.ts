@@ -1,6 +1,7 @@
 // Review changes for a completed story whose integration merge resolved a
 // conflict, made its own edits and restored a trunk file that `merge-tree`
 // directory-rename heuristics moved (SEED-253 key example 1).
+import { reviewRegion } from "../support/storyReviewMark.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
@@ -32,7 +33,7 @@ test("a completed story's integration edits open with their diffs beside its mix
     kind: "published",
     completion,
   });
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expect(review).toContainText("Published completion");
   await expect(review).not.toContainText("other.json");
   const shared = "Modified shared.txt, includes trunk's changes";

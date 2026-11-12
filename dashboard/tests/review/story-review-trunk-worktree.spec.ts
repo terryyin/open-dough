@@ -11,6 +11,7 @@
 // changes and no commit. Mark reviewed marks that worktree's snapshot, and
 // after Refresh a later edit is what Since the review lists.
 
+import { reviewChanges } from "../storyCardControls.ts";
 import { existsSync, writeFileSync } from "node:fs";
 import { launchStoreFile } from "../support/launchStore.ts";
 import path from "node:path";
@@ -21,13 +22,13 @@ import { contextValues, contextWords } from "../support/reviewContextLine.ts";
 import { expectTreeRows } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
-  comparison,
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
   nextSnapshot,
   openStoryReview,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { commitAll, git } from "../support/storyReviewWorktree.ts";
 
@@ -48,9 +49,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
 
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeVisible();
+  await expect(reviewChanges(card)).toBeVisible();
   const opened = await openStoryReview(page, card);
   const review = reviewRegion(page);
   const commits = review
@@ -73,15 +72,13 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
       review.getByRole("list", { name: "2 changed files" }),
       ["notes.md", "slice.txt"],
     );
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     await expect(commits).toHaveCount(2);
     await expect(commits.first()).toHaveText("Uncommitted changes");
     await expect(commits.nth(1)).toContainText(
       `${opened.commits[0]?.shortRevision} first slice`,
     );
-    await review
-      .getByRole("radio", { name: "All changes", exact: true })
-      .check();
+    await comparisonChoice(review, "All changes", { exact: true }).check();
   });
 
   await test.step("once the commit is published, Refresh still lists its file as the story's own and Commits offers Uncommitted changes with no commit", async () => {
@@ -100,11 +97,9 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
       review.getByRole("list", { name: "2 changed files" }),
       ["notes.md", "slice.txt"],
     );
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     await expect(commits).toHaveText(["Uncommitted changes"]);
-    await review
-      .getByRole("radio", { name: "All changes", exact: true })
-      .check();
+    await comparisonChoice(review, "All changes", { exact: true }).check();
   });
 
   await test.step("Mark reviewed marks the worktree's snapshot, and after Refresh a later edit is what Since the review lists", async () => {
@@ -119,9 +114,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
     await review.getByRole("button", { name: "Refresh" }).click();
     const since = await refreshed;
     expect(since.since?.files.map((file) => file.path)).toEqual(["a.ts"]);
-    await comparison(review)
-      .getByRole("radio", { name: "Since the review" })
-      .check();
+    await comparisonChoice(review, "Since the review").check();
     await expectSinceTheReview(review, keptStoryAMark(dashboard));
     await expectTreeRows(review.getByRole("list", { name: "1 changed file" }), [
       "a.ts",

@@ -1,4 +1,6 @@
 // Captured-through-CLI evidence survives actual retirement and changing trunk.
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/codexStart.ts";
 import {
@@ -55,7 +57,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
     },
     { kind: "modified", path: "text.txt", lines: { added: 2, removed: 1 } },
   ]);
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await expect(
     review.getByRole("heading", { name: "Landed run" }),
   ).toBeVisible();
@@ -106,9 +108,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   ).toContainText("+extra");
   expect(repositoryObservation(origin.project)).toEqual(afterTrunk);
   await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await expect(reviewChanges(card)).toBeFocused();
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({

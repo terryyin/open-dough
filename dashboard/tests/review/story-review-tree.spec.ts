@@ -10,6 +10,8 @@
 // folders that come first.
 // Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
 
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
@@ -30,8 +32,8 @@ test("a story's changed files show by name under their folders", async ({
   const { workspace } = nestedWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  await reviewChanges(card).click();
+  const review = reviewRegion(page);
   const files = review.getByRole("list", { name: "6 changed files" });
   await expect(files).toBeVisible({ timeout: storyReviewWaitMs });
 

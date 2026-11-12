@@ -6,6 +6,7 @@
 // repository keep of a story's review mark. Story A's twelve-file worktree is
 // the one the since-the-review tests mark and change.
 
+import { reviewChanges } from "../storyCardControls.ts";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Locator, Page } from "@playwright/test";
@@ -27,17 +28,34 @@ import {
   lines,
 } from "./storyReviewWorktree.ts";
 
-export const reviewRegion = (page: Page) =>
-  page.getByRole("region", { name: "Story review" });
+export const reviewRegion = (
+  page: Page,
+  { exact = false }: { exact?: boolean } = {},
+) => page.getByRole("region", { name: "Story review", exact });
 
 // A marked story's comparison switch.
 export const comparison = (review: Locator) =>
   review.getByRole("radiogroup", { name: "Comparison" });
 
+// One comparison choice, without pressing it or waiting for a read.
+export const comparisonChoice = (
+  review: Locator,
+  name: string,
+  { exact = false }: { exact?: boolean } = {},
+) => comparison(review).getByRole("radio", { name, exact });
+
+// A comparison's label is its touch target.
+export const comparisonLabel = (review: Locator, name: string) =>
+  comparison(review).locator("label", { hasText: name });
+
+// The retained run chooser, whose keyboard protocol belongs to the scenario.
+export const landedRunChoice = (review: Locator) =>
+  review.getByRole("listbox", { name: "Landed run" });
+
 // The comparison switch says the one comparison shown.
 export async function expectShown(review: Locator, shown: string) {
   const choices = comparison(review);
-  await expect(choices.getByRole("radio", { name: shown })).toBeChecked();
+  await expect(comparisonChoice(review, shown)).toBeChecked();
   await expect(choices.getByRole("radio", { checked: true })).toHaveCount(1);
 }
 
@@ -71,7 +89,7 @@ export async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
 export async function openStoryReview(page: Page, card: Locator) {
   await expect(card).not.toContainText(/Reading [^…]*…/);
   const snapshot = nextSnapshot(page);
-  await card.getByRole("button", { name: "Review changes" }).click();
+  await reviewChanges(card).click();
   return snapshot;
 }
 

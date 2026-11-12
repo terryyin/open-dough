@@ -1,4 +1,9 @@
 // Retained integration: real stored records -> Refresh -> immutable diff display.
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
@@ -23,9 +28,9 @@ async function chooseLandedRun(
   name?: string,
 ) {
   await openCapturedReview(page, origin);
-  const review = page.getByRole("region", { name: "Story review" });
-  await review.getByRole("radio", { name: "Landed runs" }).check();
-  const select = review.getByRole("listbox", { name: "Landed run" });
+  const review = reviewRegion(page);
+  await comparisonChoice(review, "Landed runs").check();
+  const select = landedRunChoice(review);
   await select.selectOption(key);
   if (name !== undefined)
     await expect(added(review)).toHaveText([`+${name}.txt`]);

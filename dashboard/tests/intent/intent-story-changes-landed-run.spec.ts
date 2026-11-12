@@ -33,10 +33,11 @@ import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import { storyALaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
-  comparison,
   expectShown,
   reviewRegion,
   uncommittedCheck,
+  comparisonChoice,
+  landedRunChoice,
 } from "../support/storyReviewMark.ts";
 
 test.use({ preparationHost: "codex" });
@@ -90,12 +91,8 @@ test("Intent's Review changes link returns a review showing a chosen landed run 
   await test.step("Review changes, opened from Intent, is switched to the landed run", async () => {
     await openReviewFromIntent(page, intent);
     await expectShown(review, "All changes");
-    await comparison(review)
-      .getByRole("radio", { name: "Landed runs", exact: true })
-      .check();
-    await expect(
-      review.getByRole("listbox", { name: "Landed run" }),
-    ).toHaveValue(landed.key);
+    await comparisonChoice(review, "Landed runs", { exact: true }).check();
+    await expect(landedRunChoice(review)).toHaveValue(landed.key);
     await expect(landedRunHeading(review)).toBeVisible();
     await expect(review).toContainText(landed.receipt.revision);
   });
@@ -143,7 +140,7 @@ test("a review whose workspace is gone shows its own landed run, which Intent sh
     .click();
   await intentChoice.click();
   const review = reviewRegion(page);
-  const run = review.getByRole("listbox", { name: "Landed run" });
+  const run = landedRunChoice(review);
   // The answer falls back to the newest landed run.
   const own = second;
   const other = first;
