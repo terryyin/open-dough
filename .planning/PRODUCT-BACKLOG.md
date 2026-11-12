@@ -37,7 +37,6 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Restore touch scrolling in the Claude Code terminal on iPhone and iPad](seeds/SEED-318-claude-code-mobile-terminal-scrolling.md#restore-claude-code-touch-scrolling-on-iphone-and-ipad) — SEED-318#restore-claude-code-touch-scrolling-on-iphone-and-ipad
 - [Prove the phone swipe under button-event pointer tracking](seeds/SEED-316-mobile-terminal-text-selection.md#prove-swipe-under-button-event-tracking) — SEED-316#prove-swipe-under-button-event-tracking
 - [Speed up provider rate-limit checks](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) — SEED-315#speed-up-provider-rate-limit-checks
 - [Speed up the remaining Dashboard checks](seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) — SEED-303#speed-up-slowest-dashboard-checks ([plan](slice-plans/580-speed-up-slowest-dashboard-checks/PLAN.md))
