@@ -1,19 +1,28 @@
 import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { test } from "../storyDependencyFixture.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import { recordsAsked, settle } from "../recentlyDoneProgressivePage.ts";
 import { noConnection } from "../originAnswers.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
+import { storyCard } from "../storyCardControls.ts";
 import {
-  doneEntries,
+  dependencySummary,
+  doneDestination,
+  followReference,
+  openDependencies,
+  referenceNotice,
+  retryReference,
+} from "../storyReference.ts";
+import {
   donePathsThrough,
+  doneTitlesThrough,
   farDone,
   expiredDone,
   unlisted,
   publishDoneReferences,
+  serveDoneReferences,
 } from "../storyReferenceDone.ts";
 
 test.use({ hasTouch: true });
@@ -22,34 +31,19 @@ test("expired and unlisted references remain unavailable without fabricated bloc
   page,
   origin,
 }) => {
-  const revision = await publishDoneReferences(origin);
-  await publishCommittedOrigin(page, {
-    repoDir: origin.project,
-    revision,
-    repository: "terryyin/open-dough",
-  });
+  await serveDoneReferences(page, origin);
   await openUntilRead(page);
   const { backlog, recentlyDone: recent } = parts(page);
-  await expectEntries(
-    recent,
-    doneEntries.slice(0, 10).map(({ title }) => title),
-  );
-  const consumer = backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
+  await expectEntries(recent, doneTitlesThrough(10));
+  const consumer = storyCard(backlog, "Story A");
+  await openDependencies(consumer);
   const before = githubFor(page).calls.length;
   for (const entry of [expiredDone, unlisted]) {
-    await consumer
-      .getByRole("link", { name: entry.identity, exact: true })
-      .click();
-    await expect(page.locator(".story-reference-notice")).toContainText(
+    await followReference(consumer, entry.identity);
+    await expect(referenceNotice(page)).toContainText(
       `${entry.identity} is unavailable in Open Dough's dashboard`,
     );
-    await expect(
-      recent.locator(`[data-done-story="${entry.identity}"]`),
-    ).toHaveCount(0);
+    await expect(doneDestination(recent, entry.identity)).toHaveCount(0);
   }
   await settle(page);
   expect(githubFor(page).calls.slice(before)).toEqual([]);
@@ -66,30 +60,18 @@ test("Done catalog loading and failure stay distinct from absence and story retr
   page,
   origin,
 }) => {
-  const revision = await publishDoneReferences(origin);
-  const published = await publishCommittedOrigin(page, {
-    repoDir: origin.project,
-    revision,
-    repository: "terryyin/open-dough",
-  });
+  const published = await serveDoneReferences(page, origin);
   const catalog = ".planning/done/.catalog.json";
   const release = published.hold(catalog);
   const restore = published.answerWith(catalog, noConnection);
   await pausePageClockAt(page, new Date());
   await page.goto("/");
   const { backlog, recentlyDone: recent } = parts(page);
-  const consumer = backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await expect(consumer.locator(".story-dependencies summary")).toBeVisible();
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer
-    .getByRole("link", { name: farDone.identity, exact: true })
-    .click();
-  const notice = page.getByRole("status", {
-    name: "Story reference navigation",
-  });
+  const consumer = storyCard(backlog, "Story A");
+  await expect(dependencySummary(consumer)).toBeVisible();
+  await openDependencies(consumer);
+  await followReference(consumer, farDone.identity);
+  const notice = referenceNotice(page);
   await expect(notice).toContainText(
     `Reading Open Dough to find ${farDone.identity}`,
   );
@@ -102,7 +84,7 @@ test("Done catalog loading and failure stay distinct from absence and story retr
   await expect(notice).not.toContainText("unavailable");
   await expect(recent).toContainText("Done stories could not be read.");
   restore();
-  await notice.getByRole("button", { name: "Retry story reference" }).click();
+  await retryReference(page);
   // The existing published-observation owner retains its announced recovery
   // wait; story navigation neither resets nor bypasses that read policy.
   const recovery = page.getByRole("alert").filter({
@@ -114,10 +96,7 @@ test("Done catalog loading and failure stay distinct from absence and story retr
     (await recovery.locator("time").getAttribute("datetime")) ?? "",
   );
   await page.clock.fastForward(when - (await page.evaluate(() => Date.now())));
-  const destination = recent.getByRole("article", {
-    name: farDone.title,
-    exact: true,
-  });
+  const destination = storyCard(recent, farDone.title);
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
   await expect(notice).toBeEmpty();
@@ -131,13 +110,8 @@ for (const observation of ["unavailable", "failed"] as const) {
     page,
     origin,
   }) => {
-    const revision = await publishDoneReferences(origin, {
+    const published = await serveDoneReferences(page, origin, {
       omitDestination: observation === "unavailable",
-    });
-    const published = await publishCommittedOrigin(page, {
-      repoDir: origin.project,
-      revision,
-      repository: "terryyin/open-dough",
       follows: true,
     });
     const restore =
@@ -147,17 +121,10 @@ for (const observation of ["unavailable", "failed"] as const) {
     await pausePageClockAt(page, new Date());
     await openUntilRead(page);
     const { backlog, recentlyDone: recent } = parts(page);
-    const consumer = backlog.getByRole("article", {
-      name: "Story A",
-      exact: true,
-    });
-    await consumer.locator(".story-dependencies summary").click();
-    await consumer
-      .getByRole("link", { name: farDone.identity, exact: true })
-      .click();
-    const notice = page.getByRole("status", {
-      name: "Story reference navigation",
-    });
+    const consumer = storyCard(backlog, "Story A");
+    await openDependencies(consumer);
+    await followReference(consumer, farDone.identity);
+    const notice = referenceNotice(page);
     await expect(notice).toContainText(
       observation === "failed"
         ? "Could not read Open Dough"
@@ -189,9 +156,7 @@ for (const observation of ["unavailable", "failed"] as const) {
     }
     await expect(recent.locator(".column-count")).toHaveText("35 entries");
     await expect(recent.locator(":scope > ol > li > article")).toHaveCount(10);
-    await expect(
-      recent.locator(`[data-done-story="${farDone.identity}"]`),
-    ).toHaveCount(0);
+    await expect(doneDestination(recent, farDone.identity)).toHaveCount(0);
     await expect(
       consumer.getByRole("region", { name: "Detail for Story A" }),
     ).toBeVisible();

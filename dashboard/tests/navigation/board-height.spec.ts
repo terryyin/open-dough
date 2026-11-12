@@ -12,11 +12,10 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../tests/support/published-seed.mjs";
-import { inspectedDetail } from "../storyCardControls.ts";
+import { hideDetail, inspectedDetail } from "../storyCardControls.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
 import { publishFiles } from "../publishedOrigin.ts";
-import { pressWhereShown } from "../pageLayout.ts";
 import {
   expectEndsWithShown,
   expectLongerThanTheBoard,
@@ -114,13 +113,8 @@ test.describe("in a two-column Board", () => {
     });
 
     await test.step("closing it shortens the Board again", async () => {
-      const hide = card.getByRole("button", { name: "Hide detail" });
       await wheelTo(page, 0);
-      await hide.scrollIntoViewIfNeeded();
-      await pressWhereShown(hide);
-      await expect(
-        card.getByRole("button", { name: "Inspect story" }),
-      ).toBeVisible();
+      await hideDetail(card);
       await expect.poll(() => extentOf(page)).toBe(before);
       await expectEndsWithShown(page, ["Backlog", "Taken"]);
     });

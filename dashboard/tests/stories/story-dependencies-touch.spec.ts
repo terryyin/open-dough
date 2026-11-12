@@ -9,6 +9,8 @@ import {
   tapWhereShown,
 } from "../pageLayout.ts";
 import { reason, condition, decision } from "../storyDependencyFixture.ts";
+import { dependencyList, dependencySummary } from "../storyReference.ts";
+import { storyCard } from "../storyCardControls.ts";
 
 // Story A waits on Story B and needs a decision about Story C, and is not
 // ready for an unrelated reason.
@@ -38,10 +40,7 @@ test("touch inspection reads dependency, readiness and Start limitations without
     repository: "terryyin/open-dough",
   });
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const execution = card.getByRole("button", { name: "Start execution" });
   await expect(execution).toBeDisabled();
   await expect(
@@ -50,10 +49,10 @@ test("touch inspection reads dependency, readiness and Start limitations without
   await expect(card.locator(".dependency-start-reason")).toContainText(
     "2 blocking dependencies",
   );
-  const summary = card.locator(".story-dependencies summary");
+  const summary = dependencySummary(card);
   await summary.scrollIntoViewIfNeeded();
   await tapWhereShown(summary);
-  const dependencies = card.getByRole("list", { name: "Story dependencies" });
+  const dependencies = dependencyList(card);
   for (const explanation of [reason, condition, decision]) {
     const text = dependencies.getByText(explanation, { exact: false }).first();
     await text.scrollIntoViewIfNeeded();

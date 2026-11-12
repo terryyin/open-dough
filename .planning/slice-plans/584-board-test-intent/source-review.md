@@ -29,7 +29,7 @@ slice's delegation still carries them as constraints.
 | S2 | (commitment) Also resolve "current same-control or same-sequence sibling callers" in the areas S2.1–S2.6. | slice 8 | |
 | S2.1 | (commitment) Area: Board columns and accessible reading. | slice 2 | observed: slice 2 with slice 1: Board column/reading callers migrated — board-scroll, board-paging, board-reading, board-native-reading, accessible-board-keyboard, accessible-board-touch (F1e); dispositions in PLAN slice 2 accepted note |
 | S2.2 | (commitment) Area: project/header/destination focus. | slice 3 | observed: slice 3: all 10 C3 specs plus board-kept chooseProject and project-read-isolation focusCanonicalRecord use projectChoice/bannerReading/notificationStoryJourney/storyCardControls owners; remaining non-navigation project-tab sites are O4 |
-| S2.3 | (commitment) Area: story inspection and references. | slice 4 | |
+| S2.3 | (commitment) Area: story inspection and references. | slice 4 | observed: slice 4: all 10 C4 specs, fluent storyCardPages StoryCard, board-height, story-card-inspection, story-dependencies(-touch), agent-launch-start-dependencies, storyDependencyAccessible and publishedFactsAssertions use storyReference.ts/storyCardControls/storyCardSelection owners; remaining same-control callers are O5 |
 | S2.4 | (commitment) Area: card evidence. | slice 5 | |
 | S2.5 | (commitment) Area: Recently done ranges. | slice 6 | |
 | S2.6 | (commitment) Area: published facts, refresh and recovery. | slice 8 | |
@@ -41,7 +41,7 @@ slice's delegation still carries them as constraints.
 | S4.3 | (commitment) Concrete key order. | slice 3 | observed: slice 3: dashboard-header-compact pressProjectListKeys(page, ["ArrowDown","ArrowDown","Escape"]) and [...,"Enter"]; Right/Left loops in project-keyboard-navigation; modified-arrow list in eligibility; Shift+Tab walk in dashboard-header |
 | S4.4 | (commitment) Viewport. | slice 1 | observed: slice 1: setViewportSize facts at call sites — board-scroll 1400×420/700×800 loop, board-paging 40rem/54rem, board-clamp 54/80/40rem, board-kept narrow/wide |
 | S4.5 | (commitment) Input modality. | slice 2 | observed: slice 2: accessible-board-touch keeps tapWhereShown and rotation sizes at call site; board-reading/board-native-reading pass the literal key to readWithKey(page, "End"\|down\|up) |
-| S4.6 | (commitment) Selected story. | slice 4 | |
+| S4.6 | (commitment) Selected story. | slice 4 | observed: slice 4: expectSelected(card) facts stay at call sites in story-card-selection, story-card-inspection, story-reference-navigation and story-destination-repeat-cue |
 | S4.7 | (commitment) Focus. | slice 2 | observed: slice 2: board-reading expect(parts(page).board).toBeFocused() after readWithKey("End"); expect(control).toBeFocused() after PageDown; accessible-board-keyboard tabTo(page, inspect) then expect(inspect).toBeFocused() |
 | S4.8 | (commitment) Retained reading place. | slice 7 | |
 | S4.9 | (commitment) Expected actor counts. | slice 5 | |
@@ -49,12 +49,12 @@ slice's delegation still carries them as constraints.
 | S4.11 | (commitment) Expected status counts. | slice 5 | |
 | S4.12 | (commitment) Expected slice counts. | slice 5 | |
 | S4.13 | (commitment) Malformed-record messages. | slice 5 | |
-| S5 | (commitment) "Inspection and selection remain distinct." | slice 4 | |
-| S6 | (commitment) Actions S6.1–S6.4 "stay separately invocable." | slice 4 | |
-| S6.1 | (commitment) Pointer-down. | slice 4 | |
-| S6.2 | (commitment) Held-answer release. | slice 4 | |
-| S6.3 | (commitment) Intermediate focus. | slice 4 | |
-| S6.4 | (commitment) Pointer-up. | slice 4 | |
+| S5 | (commitment) "Inspection and selection remain distinct." | slice 4 | observed: slice 4: expectSelected and expectInspected remain separate call-site assertions (story-card-selection emptyArea click → expectSelected; Inspect story → expectInspected) |
+| S6 | (commitment) Actions S6.1–S6.4 "stay separately invocable." | slice 4 | observed: slice 4: story-reference-done-cancellation "pointer down stops…": pointerDownOn(ownAction); release(); focus assertions; page.mouse.up() each a separate line |
+| S6.1 | (commitment) Pointer-down. | slice 4 | observed: slice 4: storyCardControls.ts pointerDownOn(action) presses down and leaves it down; P2-style fault (mouse.down removed) failed expect(destination).not.toBeFocused() at spec L80; restored byte-for-byte (sha a5d02d12…) |
+| S6.2 | (commitment) Held-answer release. | slice 4 | observed: slice 4: done-cancellation scenario calls release() returned by published.hold(farDone.path) between pointerDownOn and mouse.up |
+| S6.3 | (commitment) Intermediate focus. | slice 4 | observed: slice 4: done-cancellation expect(destination).not.toBeFocused(); expect(ownAction).toBeFocused() before mouse.up |
+| S6.4 | (commitment) Pointer-up. | slice 4 | observed: slice 4: done-cancellation await page.mouse.up() in the scenario, then "Detail for Story A" visible and Hide detail focused |
 | S7 | (commitment) Evidence S7.1–S7.7 stays "at the boundary whose causal sequence they prove." | slice 8 | |
 | S7.1 | (commitment) Controlled clock steps. | slice 8 | |
 | S7.2 | (commitment) Request logs. | slice 8 | |
@@ -101,12 +101,12 @@ slice's delegation still carries them as constraints.
 | K3 | (example) Trigger: a reader chooses a project through wide tabs or a compact title, changes perspective, or follows a notification/source destination. | slice 3 | observed: slice 3: dashboard-header (wide tabs projectTab), dashboard-header-compact (compact title keys), project-keyboard-navigation (perspective/project keys), notification-story-navigation and source-navigation destinations |
 | K3a | (example) Outcome: "the test names the chosen project and destination, exact key order, sanitized URL and arrival focus." | slice 3 | observed: slice 3: notification-story-navigation expectArrivedAt(notifiedCard) + expectRoute(page,{story: notifiedIdentity}) / {story: null} + expectRoute(page,{project:"retired-project"}); source-navigation explicit origin/path/hash/search and target/rel; compact key arrays |
 | K3b | (example) Outcome: "resize or a covering panel keeps the required reading place." | slice 3 | observed: slice 3: dashboard-header-compact "resizing keeps Doughnut" expectProjectChoice + projectTab checked at 1280 then expectCompactProjectSelect at portrait; development-intent-frame-sessions covering expectCovering/expectAddress; development-intent-frame expectPinnedShortBanner/expectBelowBanner |
-| K4 | (example) Trigger: "A Done reference is pending." | slice 4 | |
-| K4a | (example) Journey: the reader presses Inspect story, and "the held answer arrives before pointer release." | slice 4 | |
-| K4b | (example) Outcome: "the destination does not take focus." | slice 4 | |
-| K4c | (example) Outcome: "pointer-up opens the chosen detail and focuses Hide detail." | slice 4 | |
-| K4d | (example) Outcome: "A later reference, Tab move or explicit Show latest 10 choice retains its own supersession outcome." | slice 4 | |
-| K4e | (example) Outcome: "Shared reference/card actions do not combine these beats." | slice 4 | |
+| K4 | (example) Trigger: "A Done reference is pending." | slice 4 | observed: slice 4: story-reference-done-cancellation serveDoneReferences + published.hold(farDone.path) + followHeldFarReference (pending Done destination) |
+| K4a | (example) Journey: the reader presses Inspect story, and "the held answer arrives before pointer release." | slice 4 | observed: slice 4: done-cancellation "pointer down stops…" pointerDownOn(Inspect story) then release() before page.mouse.up() |
+| K4b | (example) Outcome: "the destination does not take focus." | slice 4 | observed: slice 4: done-cancellation expect(destination).not.toBeFocused() after release |
+| K4c | (example) Outcome: "pointer-up opens the chosen detail and focuses Hide detail." | slice 4 | observed: slice 4: done-cancellation after page.mouse.up(): "Detail for Story A" region visible and Hide detail toBeFocused |
+| K4d | (example) Outcome: "A later reference, Tab move or explicit Show latest 10 choice retains its own supersession outcome." | slice 4 | observed: slice 4: done-cancellation "later move or latest-ten choice…" (later reference, explicit Show latest 10) and "Tab away…" each assert their own supersession outcome |
+| K4e | (example) Outcome: "Shared reference/card actions do not combine these beats." | slice 4 | observed: slice 4: storyReference.ts owners each do one beat (openDependencies, followReference, retryReference); hold/release/down/up/later choice stay separate scenario calls |
 | K5 | (example) Trigger: "Preparation, dependencies, ownership or progress arrives, changes or cannot be read." | slice 5 | |
 | K5a | (example) Journey: "the scenario supplies the expected actor, order, status, links, slice counts or malformed text." | slice 5 | |
 | K5b | (example) Outcome: "shared card/roster readers expose exactly that evidence." | slice 5 | |
@@ -140,10 +140,10 @@ slice's delegation still carries them as constraints.
 | F2d | (commitment) Keep sanitized-link expectations explicit. | slice 3 | observed: slice 3: source-navigation specs keep every origin, pathname, hash and search, target/rel attributes and hostile-scheme text explicit |
 | F2e | (qualification) Audited problem: the project keyboard, compact/wide header, development frame, notification and source navigation cases duplicate these actions. | slice 3 | observed: slice 3: removed 28 radio locators, 12 membership literals, 10 story-param reads, banner middles/boxes and other duplicated sequences (PLAN slice 3 accepted note) |
 | F2f | (qualification) Audited callers: dashboard-header.spec.ts#L137, dashboard-header-compact.spec.ts#L91, project-keyboard-navigation-eligibility.spec.ts#L59, notification-story-navigation.spec.ts#L107, source-navigation.spec.ts#L130 (dashboard/tests/navigation). | slice 3 | observed: slice 3: dashboard-header L137 expectBannerRow/bannerStops/expectPinnedShortBanner; compact L91 pressProjectListKeys/expectCatalogStories; eligibility L59 projectTab/settings/expectRoute; notification L107 expectRoute{project,story}/expectNoCardFocused; source L130 kept direct (exact target/rel DOM contract) with followLeavingDashboard caller project |
-| F3 | (commitment) Finding "Story inspection and references": "Give the story card and Board a shared reference flow." | slice 4 | |
-| F3a | (commitment) Provide "separate actions for pointer-down and release so a held read can answer between them." | slice 4 | |
-| F3b | (qualification) Audited problem: selection, dependency and reference suites re-find the same card, dependency disclosure, destination and notice. The Done cancellation spec repeats the first half of the pending jump three times and computes pointer/focus operations inline. | slice 4 | |
-| F3c | (qualification) Audited callers: story-card-selection.spec.ts#L118, story-card-dependency-selection.spec.ts#L51, story-reference-navigation.spec.ts#L69, story-reference-done-cancellation.spec.ts#L35, story-reference-done-recovery.spec.ts#L40 (dashboard/tests/navigation). | slice 4 | |
+| F3 | (commitment) Finding "Story inspection and references": "Give the story card and Board a shared reference flow." | slice 4 | observed: slice 4: storyReference.ts shared reference flow used by card specs, Board Done references and fluent StoryCard |
+| F3a | (commitment) Provide "separate actions for pointer-down and release so a held read can answer between them." | slice 4 | observed: slice 4: storyCardControls.ts pointerDownOn separate from page.mouse.up(); held release() answers between them |
+| F3b | (qualification) Audited problem: selection, dependency and reference suites re-find the same card, dependency disclosure, destination and notice. The Done cancellation spec repeats the first half of the pending jump three times and computes pointer/focus operations inline. | slice 4 | observed: slice 4: card re-finds → storyCard (48→9), disclosure summary 26→0, notice 12→0, Done pending jump shared as spec-local followHeldFarReference with serveDoneReferences; inline pointer box computation → pointerDownOn |
+| F3c | (qualification) Audited callers: story-card-selection.spec.ts#L118, story-card-dependency-selection.spec.ts#L51, story-reference-navigation.spec.ts#L69, story-reference-done-cancellation.spec.ts#L35, story-reference-done-recovery.spec.ts#L40 (dashboard/tests/navigation). | slice 4 | observed: slice 4: story-card-selection L118 emptyArea/hideDetail/storyCard; dependency-selection L51 openDependencies; reference-navigation L69 followReference/storyReference/canonicalRecord; done-cancellation L35 followHeldFarReference + pointerDownOn; done-recovery L40 referenceNotice/retryReference |
 | F4 | (commitment) Finding "Story card evidence": "Extend the existing card/roster helpers to read the visible evidence." | slice 5 | |
 | F4a | (commitment) Keep expected ordering explicit. | slice 5 | |
 | F4b | (commitment) Keep the actor explicit. | slice 5 | |

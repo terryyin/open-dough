@@ -6,6 +6,11 @@
 
 import { expect, type Locator } from "@playwright/test";
 import { expectReadableContrast } from "./accessibleReading.ts";
+import { box } from "./partArrangement.ts";
+
+// A Story card in `region` (the Board or one of its columns), by its title.
+export const storyCard = (region: Locator, title: string) =>
+  region.getByRole("article", { name: title, exact: true });
 
 // The launch actions every Backlog card offers, in the order it offers them.
 export const storyCardLaunchActions = ["Start execution", "Start refinement"];
@@ -33,14 +38,34 @@ export async function inspectedDetail(card: Locator): Promise<Locator> {
   return detail;
 }
 
+// Closes a card's open detail; the card then offers Inspect story again.
+export async function hideDetail(card: Locator) {
+  await card.getByRole("button", { name: "Hide detail" }).click();
+  await expect(
+    card.getByRole("button", { name: "Inspect story" }),
+  ).toBeVisible();
+}
+
+// The Canonical record link to a story's published source, within `scope`.
+export const canonicalRecord = (scope: Locator) =>
+  scope.getByRole("link", { name: /^Canonical record/ });
+
 // Puts the keyboard on the card's Canonical record link, in the detail opened
 // for it, and returns that link.
 export async function focusCanonicalRecord(card: Locator): Promise<Locator> {
-  const link = (await inspectedDetail(card)).getByRole("link", {
-    name: /^Canonical record/,
-  });
+  const link = canonicalRecord(await inspectedDetail(card));
   await link.focus();
   return link;
+}
+
+// Puts the pointer down on a card action where it shows, and leaves it down.
+// What happens before the caller lifts it with `page.mouse.up()`, such as a
+// held answer arriving or focus moving, stays the caller's to observe.
+export async function pointerDownOn(action: Locator) {
+  await action.scrollIntoViewIfNeeded();
+  const { x, y, width, height } = await box(action);
+  await action.page().mouse.move(x + width / 2, y + height / 2);
+  await action.page().mouse.down();
 }
 
 // A card's launch group (its Starts) and its inspection group (Select story,

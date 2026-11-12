@@ -206,7 +206,7 @@ Project-tab callers outside navigation are O4 (slice 8).
 
 ### 4. Inspect and follow references without hiding interruption
 Type: Behavior
-Status: planned
+Status: done
 Proof: C4, including all three Done-cancellation cases and selection/dependency,
 identity, scroll-completion, failure/retry and repeated-destination cues. Example 4.
 
@@ -215,6 +215,25 @@ release and expected destination/focus. Share card/reference controls with
 procedural/fluent consumers while retaining separate down/up, Tab, Inspect and
 Show latest 10 actions. Keep selected versus inspected state distinct. P1–P3
 support this seam. Safe stop: navigation and every interrupted continuation pass.
+
+Accepted (2026-11-12): new `storyReference.ts` holds the Dependencies
+disclosure, list and reference, `followReference`, the notice and Retry, and
+the pending Done destination. `storyCardControls.ts` adds `storyCard`,
+`hideDetail`, `canonicalRecord` and `pointerDownOn`. `storyCardSelection.ts`
+adds `emptyArea`. `storyReferenceDone.ts` adds `serveDoneReferences` and
+`doneTitlesThrough`. The fluent `StoryCard` composes the same controls.
+Done-cancellation shares the pending jump as `followHeldFarReference`, while
+hold, release, pointer-down, focus checks and pointer-up stay separate lines.
+A P2-style fault (no `mouse.down`) failed `not.toBeFocused`, and the file was
+restored byte-for-byte. Proof:
+- C4 22/22.
+- Reached consumers 27/27.
+- After refactor, 6/6.
+- Typecheck exit 0.
+
+About 180 mechanics sites removed; helpers +110 lines, callers about −205.
+Remaining same-control callers are O5 (slice 8). Done column mechanics belong
+to slice 6.
 
 ### 5. Read card and roster facts with independent expected evidence
 Type: Behavior
@@ -378,5 +397,10 @@ Disposition: receiving slice 9
 
 ### O4. Raw project-tab radio locators remain outside navigation
 Reported: slice 3 — "Raw `project.getByRole("radio",{name,exact:true})` sites remain outside navigation: in this story's later territory: `stories/story-readiness`, `stories/direction-disclosure`, the `observation/*` project-read/transient/auto-refresh/shared-observer/read-failure specs, `storyReadinessRefresh.ts`, `doughnutJourney.ts`, `limitedReadingJourney.ts`, `publishedFactsIsolationJourney.ts`; in sibling families: `responsiveStart.ts` and `launches/responsive-session-recovery-restart`, which are launch-family and also omit `exact`."
+Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
+Disposition: receiving slice 8
+
+### O5. Card, Canonical record and empty-area controls still have raw callers outside slice 4's reach
+Reported: slice 4 — "Raw `/^Canonical record/` link locators remain in about 20 other files (doughnutJourney, storyReadiness*, queuedPlanNavigation, responsiveStart, publishedFactsAssertions/IsolationAssertions, accessible-board-keyboard, source-navigation, project-selection, branch-progress-reading, story-dependencies-touch, observation/*). Left for slice 8. Card-by-title `getByRole("article",…)` remains suite-wide (about 180 sites). Empty-area heading clicks remain in the Intent family."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
 Disposition: receiving slice 8

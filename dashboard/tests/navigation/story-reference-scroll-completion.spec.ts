@@ -1,13 +1,14 @@
 import { expect } from "../dashboardTest.ts";
 import { test } from "../storyDependencyFixture.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { followReference, openDependencies } from "../storyReference.ts";
 import {
-  doneEntries,
+  doneTitlesThrough,
   farDone,
-  publishDoneReferences,
+  serveDoneReferences,
 } from "../storyReferenceDone.ts";
 
 test.use({ hasTouch: true });
@@ -23,23 +24,12 @@ test("a late native scroll completion cannot strand a pending referenced story o
   page,
   origin,
 }) => {
-  const revision = await publishDoneReferences(origin);
-  await publishCommittedOrigin(page, {
-    repoDir: origin.project,
-    revision,
-    repository: "terryyin/open-dough",
-  });
+  await serveDoneReferences(page, origin);
   await openUntilRead(page);
   const { backlog, recentlyDone: recent } = parts(page);
-  await expectEntries(
-    recent,
-    doneEntries.slice(0, 10).map(({ title }) => title),
-  );
-  const consumer = backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
+  await expectEntries(recent, doneTitlesThrough(10));
+  const consumer = storyCard(backlog, "Story A");
+  await openDependencies(consumer);
   // Complete a native scroll at its source only after the reveal has made
   // real progress and while its focused destination is still out of view.
   // Observing and completing in one browser event keeps that starting state.
@@ -67,13 +57,8 @@ test("a late native scroll completion cannot strand a pending referenced story o
     };
     board.addEventListener("scroll", finish);
   }, farDone.identity);
-  await consumer
-    .getByRole("link", { name: farDone.identity, exact: true })
-    .click();
-  const destination = recent.getByRole("article", {
-    name: farDone.title,
-    exact: true,
-  });
+  await followReference(consumer, farDone.identity);
+  const destination = storyCard(recent, farDone.title);
   await expect(destination).toBeFocused();
   const completion = () =>
     page.evaluate(

@@ -30,11 +30,13 @@ import {
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
 import {
+  emptyArea,
   expectInspected,
   expectSelected,
   selectStory,
   storyDetail,
 } from "../storyCardSelection.ts";
+import { hideDetail, storyCard } from "../storyCardControls.ts";
 
 test("Select story and empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,
@@ -69,14 +71,8 @@ test("Select story and empty-area clicks toggle the selected story on active and
     intentChoice,
     intent,
   } = parts(page);
-  const active = backlog.getByRole("article", {
-    name: queuedTitle,
-    exact: true,
-  });
-  const done = recent.getByRole("article", {
-    name: executed.title,
-    exact: true,
-  });
+  const active = storyCard(backlog, queuedTitle);
+  const done = storyCard(recent, executed.title);
   await expectEntries(recent, [
     adHocEntry,
     executed.title,
@@ -86,13 +82,13 @@ test("Select story and empty-area clicks toggle the selected story on active and
   const detail = active.getByRole("region", {
     name: `Detail for ${queuedTitle}`,
   });
-  const heading = active.getByRole("heading", { level: 3 });
+  const activeEmptyArea = emptyArea(active);
 
   await test.step("empty-area click selects and clears an active card without opening detail", async () => {
-    await heading.click();
+    await activeEmptyArea.click();
     await expectSelected(active, true);
     await expectInspected(active, false);
-    await heading.click();
+    await activeEmptyArea.click();
     await expectSelected(active, false);
     await expectInspected(active, false);
   });
@@ -103,13 +99,13 @@ test("Select story and empty-area clicks toggle the selected story on active and
     await expectSelected(active, false);
     await detail.click();
     await expectSelected(active, false);
-    await heading.click();
+    await activeEmptyArea.click();
     await expectSelected(active, true);
     await expectInspected(active, true);
-    await heading.click();
+    await activeEmptyArea.click();
     await expectSelected(active, false);
     await expectInspected(active, true);
-    await active.getByRole("button", { name: "Hide detail" }).click();
+    await hideDetail(active);
     await expectInspected(active, false);
     await expectSelected(active, false);
   });
@@ -125,7 +121,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
   });
 
   await test.step("disabled Start does not change selection", async () => {
-    await heading.click();
+    await activeEmptyArea.click();
     await expectSelected(active, true);
     // Disabled Start must not select via event fall-through.
     const start = active.getByRole("button", { name: "Start execution" });
@@ -154,7 +150,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
   });
 
   await test.step("a Recently done card takes the one selection without opening detail; its session entry does not toggle", async () => {
-    await done.locator(":scope > h3").click();
+    await emptyArea(done).click();
     await expectSelected(done, true);
     await expectSelected(active, false);
     await expectInspected(active, false);
@@ -199,7 +195,7 @@ test("Select story and empty-area clicks toggle the selected story on active and
     await expect(intent.getByText("Selected story only")).toHaveCount(0);
     await development.click();
     await expectSelected(done, true);
-    await done.locator(":scope > h3").click();
+    await emptyArea(done).click();
     await expectSelected(done, false);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");

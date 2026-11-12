@@ -18,6 +18,13 @@ import { test, twoDependencies } from "../storyDependencyFixture.ts";
 import { startOrigin } from "../support/startOrigin.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock } from "../autoRefreshJourney.ts";
+import { storyCard } from "../storyCardControls.ts";
+import {
+  followReference,
+  openDependencies,
+  referenceNotice,
+  retryReference,
+} from "../storyReference.ts";
 
 // Story A waits on Story B and needs a decision about Story C, whose seed is
 // published while it is not yet queued.
@@ -47,20 +54,15 @@ test("missing, reading and failed reference destinations stay distinct and retry
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  const knownNotice = page.getByRole("status", {
-    name: "Story reference navigation",
-  });
-  await expect(knownNotice).toBeEmpty();
-  await knownNotice.evaluate((element) => {
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  // The same live region announces each outcome: it is marked while empty.
+  const notice = referenceNotice(page);
+  await expect(notice).toBeEmpty();
+  await notice.evaluate((element) => {
     element.setAttribute("data-known", "true");
   });
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer.getByRole("link", { name: "SEED-C#c", exact: true }).click();
-  const notice = page.locator(".story-reference-notice");
+  await openDependencies(consumer);
+  await followReference(consumer, "SEED-C#c");
   await expect(notice).toHaveAttribute("data-known", "true");
   await expect(notice).toContainText(
     "SEED-C#c is unavailable in Open Dough's dashboard",
@@ -74,22 +76,17 @@ test("missing, reading and failed reference destinations stay distinct and retry
     ".planning/PRODUCT-BACKLOG.md",
     notFoundAnswer(),
   );
-  await notice.getByRole("button", { name: "Retry story reference" }).click();
+  await retryReference(page);
   await expect(notice).toContainText("Reading Open Dough to find SEED-C#c");
-  await expect(
-    parts(page).backlog.getByRole("article", { name: "Story C", exact: true }),
-  ).toHaveCount(0);
+  const destination = storyCard(parts(page).backlog, "Story C");
+  await expect(destination).toHaveCount(0);
   release();
   await expect(notice).toContainText(
     "Could not read Open Dough to find SEED-C#c",
   );
   await expect(notice).not.toContainText("unavailable");
   restore();
-  await notice.getByRole("button", { name: "Retry story reference" }).click();
-  const destination = parts(page).backlog.getByRole("article", {
-    name: "Story C",
-    exact: true,
-  });
+  await retryReference(page);
   await expect(
     destination.getByRole("region", { name: "Detail for Story C" }),
   ).toBeVisible();
@@ -124,17 +121,14 @@ test("leaving during a pending reference prevents the delayed read from moving f
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer.getByRole("link", { name: "SEED-C#c", exact: true }).click();
-  const notice = page.locator(".story-reference-notice");
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  await openDependencies(consumer);
+  await followReference(consumer, "SEED-C#c");
+  const notice = referenceNotice(page);
   await expect(notice).toContainText("unavailable");
   await origin.publishRevision(queueStoryC);
   const release = published.hold(".planning/PRODUCT-BACKLOG.md");
-  await notice.getByRole("button", { name: "Retry story reference" }).click();
+  await retryReference(page);
   await expect(notice).toContainText("Reading Open Dough");
   await chooseProject(page, "Pygardon");
   await expectProjectChoice(page, "Pygardon");
@@ -160,27 +154,21 @@ test("choosing another inspection during a pending reference keeps that choice w
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const consumer = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await consumer.locator(".story-dependencies summary").click();
-  await consumer.getByRole("link", { name: "SEED-C#c", exact: true }).click();
-  const notice = page.locator(".story-reference-notice");
+  const consumer = storyCard(parts(page).backlog, "Story A");
+  await openDependencies(consumer);
+  await followReference(consumer, "SEED-C#c");
+  const notice = referenceNotice(page);
   await expect(notice).toContainText("unavailable");
   await origin.publishRevision(queueStoryC);
   const release = published.hold(".planning/PRODUCT-BACKLOG.md");
-  await notice.getByRole("button", { name: "Retry story reference" }).click();
+  await retryReference(page);
   await expect(notice).toContainText("Reading Open Dough");
   await consumer.getByRole("button", { name: "Inspect story" }).click();
   await expect(
     consumer.getByRole("region", { name: "Detail for Story A" }),
   ).toBeVisible();
   release();
-  const destination = parts(page).backlog.getByRole("article", {
-    name: "Story C",
-    exact: true,
-  });
+  const destination = storyCard(parts(page).backlog, "Story C");
   await expect(destination).toBeVisible();
   await expect(
     destination.getByRole("region", { name: "Detail for Story C" }),

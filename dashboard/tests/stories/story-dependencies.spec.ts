@@ -19,6 +19,12 @@ import {
 } from "../pageRequestNotes.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
+import {
+  dependencyDisclosure,
+  dependencyList,
+  dependencySummary,
+} from "../storyReference.ts";
+import { hideDetail, storyCard } from "../storyCardControls.ts";
 
 // The accessible disclosure check taps the dependencies summary. Story A
 // waits on Story B and needs a decision about Story C, and is not ready for
@@ -50,12 +56,9 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   });
   await pausePageClock(page);
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const execution = card.getByRole("button", { name: "Start execution" });
-  const summary = card.locator(".story-dependencies summary");
+  const summary = dependencySummary(card);
   await expect(summary).toHaveText("Dependencies · 2 blocking");
   await expect(execution).toBeDisabled();
   await expect(execution).toHaveAccessibleDescription(
@@ -68,7 +71,7 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(
     card.getByRole("region", { name: "Detail for Story A" }),
   ).toBeVisible();
-  await card.getByRole("button", { name: "Hide detail" }).click();
+  await hideDetail(card);
   await expect(card).toBeFocused();
   await expect(card.getByText("Slice planned", { exact: true })).toBeVisible();
   await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
@@ -95,16 +98,13 @@ test("published consumer dependencies disclose blockers accessibly and preserve 
   await expect(
     card.getByRole("button", { name: "Start refinement" }),
   ).toBeFocused();
-  const supplierCard = parts(page).backlog.getByRole("article", {
-    name: "Story B",
-    exact: true,
-  });
-  await expect(supplierCard.locator(".story-dependencies")).toHaveCount(0);
+  const supplierCard = storyCard(parts(page).backlog, "Story B");
+  await expect(dependencyDisclosure(supplierCard)).toHaveCount(0);
   await expect(
     supplierCard.getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();
 
-  const list = card.getByRole("list", { name: "Story dependencies" });
+  const list = dependencyList(card);
   await expectDependencyAccessibly(page, card, revision);
 
   recordDependency(origin, {

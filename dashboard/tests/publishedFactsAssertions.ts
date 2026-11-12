@@ -4,6 +4,7 @@
 
 import type { Locator } from "@playwright/test";
 import { inspectedDetail } from "./storyCardControls.ts";
+import { dependencyDisclosure } from "./storyReference.ts";
 import { expect } from "./dashboardTest.ts";
 import { preparer, preparingPath, purpose } from "./publishedFactsArrival.ts";
 import { executed } from "./recentlyDoneRecords.ts";
@@ -35,7 +36,7 @@ export async function expectCanonicalFacts(queuedCard: Locator) {
     "href",
     `https://github.com/${repository}/blob/${revision}/${preparingPath}#preparing`,
   );
-  const dependencies = queuedCard.locator(".story-dependencies");
+  const dependencies = dependencyDisclosure(queuedCard);
   await dependencies
     .getByText("Dependencies · 1 blocking", { exact: true })
     .click();
