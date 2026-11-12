@@ -1,6 +1,14 @@
 // Full product admission and outcome loop, through real receipt ingestion.
 // Receipt acceptance precedes collection; observe the actual rerun POST.
+// What provider facts decide after an accepted request is read from saved
+// accepted requests, which real collection observes with no journey.
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  rerunRequests,
+  saveRepeatRequests,
+  savedRepeatComparison,
+  savedRepeatRequest,
+} from "../../tests/support/ciFollowUpSavedRequests.ts";
 import {
   followUpSettings,
   prepareRepeatScenario,
@@ -92,10 +100,6 @@ test("new Done receipt at exactly105 seconds gets one full POST after sufficient
 });
 
 for (const [outcome, expected] of [
-  ["recovered", "CI timing returned to range"],
-  ["failed", "failed"],
-  ["cancelled", "cancelled"],
-  ["partial", "Full comparable repeat is unverified"],
   ["refused", "refused"],
   ["uncertain", "uncertain"],
 ] as const) {
@@ -118,11 +122,6 @@ for (const [outcome, expected] of [
     await scenario.ingest(server);
     await submitted;
     expect(scenario.repeatCalls).toEqual([71]);
-    if (outcome === "recovered") scenario.setRepeat({ seconds: 104 });
-    if (outcome === "failed") scenario.setRepeat({ conclusion: "failure" });
-    if (outcome === "cancelled")
-      scenario.setRepeat({ conclusion: "cancelled" });
-    if (outcome === "partial") scenario.setRepeat({ full: false });
     if (outcome === "uncertain") scenario.setRepeat({ seconds: 104 });
     await expect
       .poll(
@@ -139,7 +138,7 @@ for (const [outcome, expected] of [
     expect(card).toMatchObject({
       originalMs: 120000,
       averageMs: 100000,
-      kind: outcome === "recovered" ? "recovered" : "unverified",
+      kind: "unverified",
     });
     expect(scenario.repeatCalls).toEqual([71]);
     await followUpSettings(server, false);
@@ -148,3 +147,68 @@ for (const [outcome, expected] of [
     );
   });
 }
+
+test("saved accepted requests read the outcome their provider repeat decides beside the original and average", async ({
+  origin,
+  github,
+  startServer,
+}) => {
+  const accepted = {
+    seconds: 120,
+    averageSeconds: 100,
+    submission: { kind: "accepted" },
+  } as const;
+  const unverified = (naming: string) => ({
+    kind: "unverified",
+    explanation: expect.stringContaining(naming),
+  });
+  const repeats = [
+    {
+      run: 71,
+      repeat: { seconds: 104 },
+      reads: "recovered",
+      outcome: {
+        kind: "recovered",
+        explanation: "CI timing returned to range",
+      },
+    },
+    {
+      run: 72,
+      repeat: { conclusion: "failure" },
+      reads: "failed",
+      outcome: unverified("failed"),
+    },
+    {
+      run: 73,
+      repeat: { conclusion: "cancelled" },
+      reads: "cancelled",
+      outcome: unverified("cancelled"),
+    },
+    {
+      run: 74,
+      repeat: { full: false },
+      reads: "partial proof",
+      outcome: unverified("Full comparable repeat is unverified"),
+    },
+  ] as const;
+  const provider = saveRepeatRequests(
+    origin,
+    github,
+    repeats.map(({ run }) => ({ run, ...accepted })),
+  );
+  for (const { run, repeat } of repeats) provider(run).setRepeat(repeat);
+  const server = await startServer();
+  // One expectation per outcome, in the order the ledger holds the requests.
+  for (const { run, reads, outcome } of repeats)
+    await expect
+      .poll(() => savedRepeatRequest(server, run)?.outcome, reads)
+      .toMatchObject(outcome);
+  for (const { run } of repeats)
+    expect(savedRepeatComparison(server, run)).toEqual({
+      run,
+      attempt: 1,
+      originalMs: 120000,
+      averageMs: 100000,
+    });
+  expect(rerunRequests(github)).toEqual([]);
+});

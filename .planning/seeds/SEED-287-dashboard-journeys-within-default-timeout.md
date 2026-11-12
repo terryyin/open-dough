@@ -141,7 +141,7 @@ verdicts without stretching deadlines.
   receipt for Taken work does not authorize a Done follow-up" and
   `landed-ci-history-no-proof-recovery.spec.ts:36`. The automatic-repeat and
   verdict specs belong to
-  [SEED-314](SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks).
+  [SEED-314](https://github.com/terryyin/open-dough/blob/4eb1f6a74f42111c185be8521dbbd6d36f411d5f/.planning/seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks).
 - Use MakeMe for domain data. Synchronize on observable events or a controlled
   clock. Refresh existing shard weights from all 12 artifacts of a complete
   passing trunk run after removing work; measure any shard redistribution
