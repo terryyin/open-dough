@@ -863,7 +863,7 @@ Moving a guide section, as the plan allowed, broke an anchor that an 874-line mu
 
 ### Occurrences
 
-- Execution: SEED-329#use-shared-test-guidance (spent plan 603 recoverable at this wrap-up's before-cleanup commit; first implementation `c1800ab36079b671a574b0ed3d18cd517b742695`)
+- Execution: SEED-329#use-shared-test-guidance (spent plan 603 recoverable at before-cleanup `b7f0a0308ef615307f7865023f534575fec5fe2f`; first implementation `c1800ab36079b671a574b0ed3d18cd517b742695`)
   - Timestamp: 2026-11-12T10:12:46Z (dashboard attention receipt for the stop)
   - Tool: Claude Code
   - Model: claude-opus-5-5
@@ -878,7 +878,7 @@ The plan proved that the `tests` Intent entry now selects MakeMe for runner-sche
 
 ### Occurrences
 
-- Execution: SEED-329#use-shared-test-guidance (spent plan 603 recoverable at this wrap-up's before-cleanup commit; first implementation `c1800ab36079b671a574b0ed3d18cd517b742695`)
+- Execution: SEED-329#use-shared-test-guidance (spent plan 603 recoverable at before-cleanup `b7f0a0308ef615307f7865023f534575fec5fe2f`; first implementation `c1800ab36079b671a574b0ed3d18cd517b742695`)
   - Timestamp: 2026-11-12T10:30:32Z (Intent Coverage report end clock)
   - Tool: Claude Code
   - Model: claude-opus-5-5

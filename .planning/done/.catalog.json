@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-329_use-shared-test-guidance.json",
+      "identity": "SEED-329#use-shared-test-guidance",
+      "completedAt": "2026-11-12T10:35:01.135Z",
+      "blob": "8ec60b598ac0bc1483726abf7d6a0dea78aed1ec"
+    },
+    {
       "fileName": "SEED-327_strengthen-pending-take-protection-assertions.json",
       "identity": "SEED-327#strengthen-pending-take-protection-assertions",
       "completedAt": "2026-11-12T07:16:24.376Z",
