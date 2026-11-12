@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Jane-chan",
+  "email": "jane-chan@example.org",
+  "identity": "SEED-324#pass-landed-ci-repeat-checks-under-high-load",
+  "mode": "story-branch",
+  "branch": "claude/make-landed-ci-repeat-checks-pass-under-moderate",
+  "host": "claude",
+  "model": "fable"
+}
