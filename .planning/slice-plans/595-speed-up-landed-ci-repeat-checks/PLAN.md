@@ -570,7 +570,7 @@ journeys.
 
 ### 5. The saving and the fit under load are measured and kept
 Type: Behavior
-Status: planned
+Status: done
 Proof: Alternating base and candidate runs of the one-worker family command
 under the same load, three passing observations each, with proof records. The
 candidate's median whole-command wall time is at most 75% of the base's. At
@@ -592,6 +592,148 @@ observations and stop for the coordinator's decision on keeping the smaller
 gain or continuing. A candidate case that exceeds 30 s or misses a 5 s
 observation in the load profile is a failing test under the policy above,
 repaired before this slice is done.
+
+#### Measured comparison, 2026-11-12
+
+Base `629548d2c` in `/Users/terryyin/.claude/jobs/7b8897aa/tmp/base-595`;
+candidate `165d803c`, clean. Records, logs and proof records under
+`/Users/terryyin/.claude/jobs/7b8897aa/tmp/slice5/`, one command at a time,
+10:28–11:22, while other sessions' suites held the one-minute load at 33–74.
+
+One worker, each side from its own root, base then candidate back to back
+(`pair.sh <n>`):
+
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<label>.proof.json npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts --workers=1`
+
+| Side | Label | Load before → after | Wall s | Passed | Failures |
+| --- | --- | --- | ---: | --- | --- |
+| base | `base-w1-1` | 42.3 → 33.0 | 233 | 10 of 12 | verdict `:26` twice |
+| candidate | `cand-w1-1` | 33.0 → 37.5 | 92 | 5 of 5 | |
+| base | `base-w1-2` | 43.4 → 46.6 | 219 | 9 of 12 | verdict `:26` three times |
+| candidate | `cand-w1-2` | 46.6 → 43.8 | 84 | 5 of 5 | |
+| base | `base-w1-3` | 43.8 → 34.3 | 307 | 5 of 12 | verdict `:26` five times; lifecycle at the 30 s bound (`:90`); recovered and refused `:131` |
+| candidate | `cand-w1-3` | 35.7 → 33.3 | 100 | 4 of 5 | lifecycle at the 30 s bound (`:78`) |
+| base | `base-w1-4` | 40.6 → 38.5 | 249 | 6 of 12 | verdict `:26` five times; lifecycle at the bound (`:70`) |
+| candidate | `cand-w1-4` | 36.6 → 58.0 | 122 | 3 of 5 | lifecycle at the bound (`:70`); refused at the bound (`:145`) |
+| base | `base-w1-5` | 58.0 → 46.3 | 308 | 5 of 12 | verdict `:26` five times; lifecycle and failed at the bound; recovered `:131` |
+| candidate | `cand-w1-5` | 46.3 → 37.3 | 77 | 5 of 5 | |
+| base | `base-w1-6` | 56.8 → 51.1 | 236 | 7 of 12 | verdict `:26` five times |
+| candidate | `cand-w1-6` | 55.7 → 49.1 | 126 | 3 of 5 | lifecycle at the bound (`:70`); uncertain at the bound |
+| base | `base-w1-7` | 50.0 → 58.1 | 319 | 4 of 12 | verdict `:26` five times; lifecycle, refused (`:146`) and uncertain at the bound; recovered `:131` |
+| candidate | `cand-w1-7` | 58.1 → 37.2 | 97 | 4 of 5 | lifecycle at the bound (`:98`) |
+| base | `base-w1-8` | 37.2 → 46.5 | 255 | 7 of 12 | verdict `:26` five times |
+| candidate | `cand-w1-8` | 46.5 → 74.4 | 142 | 2 of 5 | lifecycle at the bound (`:70`); refused and uncertain `:130` |
+
+Each pair shares a load window to within 10 points at the handover; the load
+moved up to 28 points inside a run.
+
+Verdict against the 75% bound: unmet as declared. The candidate gave three
+passing observations, 92, 84 and 77 s, median 84 s. The base gave none in
+eight runs at load 33–58: every run missed the verdict spec's 5 s count poll
+at `:26`, so the declared comparison has no base median. Indications only:
+the eight base runs took 219–319 s, median 252 s, and the candidate's eight
+77–142 s, median 98.5 s; the candidate took 25–56% of its paired base run in
+every pair; the one passing base run on record, slice 1's 215 s at load
+39.9 → 33.7, puts the candidate median at 39%. Next condition: base and
+candidate pairs at a one-minute load where the base passes, which it did at
+12–23 in slice 2 and once at 39.9 → 33.7; or the coordinator's decision on
+the comparison.
+
+Receipt-ingesting cases on the candidate: three of five, the lifecycle,
+refused and uncertain journeys (`prepareRepeatScenario` and
+`scenario.ingest`); the two saved-request cases ingest none. Twelve of twelve
+on the base.
+
+Two workers, candidate, the same command with `--workers=2`:
+
+| Label | Method | Load before → after | Wall s | Passed | Slowest case | Counted |
+| --- | --- | --- | ---: | --- | --- | --- |
+| `cand-w2-1` | natural load | 73.4 → 63.3 | 78 | 2 of 5 | lifecycle 31.4 s, at the bound; refused at the bound; uncertain `:130` | No: load outside 20–30 |
+
+The fit under load is unobserved: no counted run. The load stayed at 33–74
+for the whole window, above the profile, and burners only raise it. Next
+condition: three consecutive two-worker candidate runs whose load before and
+after lies in 20–30.
+
+Candidate case durations over the eight one-worker runs at load 33–74:
+lifecycle 21.4–31.1 s, passing in three at 21.4–30.0 s; refused 15.8–31.0 s;
+uncertain 20.5–30.8 s; saved requests in the automatic-repeat spec
+3.7–9.5 s; saved requests in the verdict spec 4.8–12.2 s. Both saved-request
+cases passed in all nine candidate runs.
+
+Where the lifecycle journey's time goes, one traced run alone at load
+52.0 → 65.3, passing in 27.8 s (`cand-lifecycle-traced-1.trace.zip`):
+first-in-worker origin 5.8 s; prior builds, published story and first server
+5.0 s; second server and receipt 1.9 s; receipt to the rerun request 4.3 s;
+progress card on the second server 3.0 s; slow card 3.1 s; closing both
+servers, restart and card read 3.0 s; teardown 1.4 s. Every part is an
+admission, a collection pass the journey waits for, or SEED-287's origin
+preparation.
+
+Diff review, `git diff 629548d2c..165d803c -- dashboard tests`: eight files,
+two of them new support modules (`ciFollowUpRepeatRun.ts`,
+`ciFollowUpSavedRequests.ts`). No added line holds `setTimeout`, `timeout`,
+`test.slow`, a sleep, a retry, `skip`, `fixme`, `only`, a mock, or a worker
+or mode setting; `test.use({ serverMode: "boundary" })` in the verdict spec
+is the base's own line. `git diff --stat 629548d2c..165d803c -- dashboard/server dashboard/src`
+is empty. Both family specs are modified in place; no spec is added, renamed
+or deleted. No list under `dashboard/longest-first*` names either spec. The
+Playwright configuration, `package.json` and the workflows are unchanged, so
+the maintained selection holds what it held.
+
+Hosted CI on `165d803c`, run 43141514350: failure. Job `dashboard (9/13)`
+failed `landed-ci-repeat-reconciliation.spec.ts:78` at `:147`: the 5 s poll
+for `averageMs: 300000` after the case rewrites the kept history read
+`100000`. The spec is the same on base and candidate, and slice 4's change to
+`ciFollowUpScenario.ts` removes one unused member. Runs on `9ee2e451` and
+`ad78d864` succeeded. Diagnosis and repair are open under the
+[failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests).
+
+Those three gates were open at 11:22 and settled by 11:58, once the load
+fell (`gates.sh`, same directory):
+
+Hosted CI repair. Trunk's `ecaf8385e` keeps a test's landed CI history under
+the machine write lock, the repair of exactly this lost rewrite. The branch
+merged trunk `658d1fef8` as `e68e37496`; on the merged state
+`typecheck:dashboard` is clean and the reconciliation, pending-order, kept
+history and family specs passed at one worker at load 39.4 → 33.8
+(`merged-focused`). Hosted CI on `e68e37496` succeeded.
+
+Fit under load, two workers, the merged candidate `e68e37496`, natural load
+and no burners, three consecutive attempts, all counted:
+
+| Label | Load before → after | Wall s | Passed | Slowest case |
+| --- | --- | ---: | --- | ---: |
+| `w2-gate-1` | 26.4 → 24.4 | 12 | 5 of 5 | 5.9 s |
+| `w2-gate-2` | 24.4 → 25.6 | 19 | 5 of 5 | 9.5 s |
+| `w2-gate-3` | 25.6 → 25.4 | 23 | 5 of 5 | 14.3 s |
+
+One-worker pairs continued, base `629548d2c` then the pre-merge candidate
+`165d803c` in its own worktree (`cand-595`), so both sides keep the base's
+dependencies:
+
+| Side | Label | Load before → after | Wall s | Passed | Failures |
+| --- | --- | --- | ---: | --- | --- |
+| base | `base-w1-g1` | 25.4 → 32.6 | 173 | 9 of 12 | verdict `:26` three times |
+| candidate | `cand-w1-g1` | 32.6 → 45.1 | 102 | 4 of 5 | lifecycle at the 30 s bound, 30.5 s |
+| base | `base-w1-g2` | 24.8 → 19.2 | 131 | 12 of 12 | |
+| candidate | `cand-w1-g2` | 19.2 → 24.3 | 35 | 5 of 5 | |
+| base | `base-w1-g3` | 24.3 → 17.4 | 110 | 12 of 12 | |
+| candidate | `cand-w1-g3` | 17.4 → 24.0 | 38 | 5 of 5 | |
+| base | `base-w1-g4` | 24.0 → 18.4 | 111 | 12 of 12 | |
+| candidate | `cand-w1-g4` | 18.4 → 19.2 | 35 | 5 of 5 | |
+
+Verdict against the 75% bound: met. In the three pairs where both sides
+passed, at load 17–25, the base took 131, 110 and 111 s, median 111 s, and
+the candidate 35, 38 and 35 s, median 35 s: 32% of the base. Over every
+passing observation on record the candidate's median is 57.5 s (six runs:
+92, 84, 77, 35, 38, 35) against the base's 111 s, 52%.
+
+Outside the profile the three journeys still reach the 30 s bound: at a
+one-minute load above about 33 the lifecycle journey did in six of nine
+candidate runs here, as it does on the base. Their time is admission,
+collection passes the journey waits for, and first-in-worker origin
+preparation.
 
 ## Story obligations
 
