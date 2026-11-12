@@ -114,6 +114,10 @@ Trace shared layout/close effects through narrow/touch/frontend consumers too.
 
 Execution proof: [slice 5](slice5-evidence.md), [handoff](slice5-handoff.md), [cost](slice5-benefit-cost.md), [consumer trace](slice5-consumer-trace.md); [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md), [slice 3](slice3-evidence.md); [slice 4](slice4-evidence.md), with [prior failures](slice4-progress.md) and [AC resume](slice4-resume-evidence.md).
 
+## Execution complete
+
+Product advice: no change. The shared test owners complete the selected outcome; retain the existing sibling-story priorities. Product/proof review is complete; selected process review is deferred until wrap-up's Intent Coverage report and dispositions.
+
 ## Execution context
 
 [Workspace, publication and observer identity](execution-context.md).
