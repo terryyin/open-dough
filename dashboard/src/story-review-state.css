@@ -3,6 +3,9 @@
    actions; its touch height follows `.start-launch-button`'s. */
 
 .story-review-state {
+  /* Holds its spoken status, so a hidden Recently done clips it with the
+     column and it lengthens nothing outside the card. */
+  position: relative;
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
@@ -16,4 +19,10 @@
 .story-review-state .story-review-state-undo {
   color: var(--quiet);
   border-color: var(--line);
+}
+
+/* The status lies outside the row of words and actions, adding no gap to it;
+   silent, it has no size. */
+.story-review-state-said {
+  position: absolute;
 }

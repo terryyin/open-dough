@@ -84,8 +84,11 @@ export function StoryReviewStateAction({
           Mark as reviewed
         </button>
       )}
-      <p role="status" className="visually-hidden">
-        {said}
+      {/* The status stays rendered while silent, so assistive technology
+          speaks the change of its text; silent, it takes no room. What it
+          says of a change made is spoken, not shown. */}
+      <p role="status" className="story-review-state-said">
+        {said !== "" && <span className="visually-hidden">{said}</span>}
       </p>
     </div>
   );

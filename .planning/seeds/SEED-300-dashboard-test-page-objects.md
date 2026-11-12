@@ -446,7 +446,7 @@ execution prerequisite on another story.
   which requests answer, visible entry order, and the distinction between
   showing fewer stories and abandoning a pending destination.
   [Progressive loading](../../dashboard/tests/stories/recently-done-progressive-loading.spec.ts#L81),
-  [retained state](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L111),
+  [retained state](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L113),
   [refresh](../../dashboard/tests/stories/recently-done-progressive-refresh.spec.ts#L113),
   [read latency](../../dashboard/tests/stories/recently-done-read-latency.spec.ts#L38).
 

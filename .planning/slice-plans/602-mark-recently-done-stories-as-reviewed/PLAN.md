@@ -135,6 +135,15 @@ unreadable document is moved aside to `.unreadable` by the next save; a
 failed-read record answer fails the whole first read batch, so failed and held
 records need separate tests.
 
+CI repair (run 43183230979 on `ecfaacce1`): the always-rendered, empty
+visually-hidden status paragraph failed the layout "read whole" check
+(`accessible-board-touch`, `published-facts-reading`) and, absolutely
+positioned with no positioned ancestor, escaped the hidden column's clipping
+and lengthened the Board (`board-height`). The status is now positioned inside
+the action and holds a visually-hidden span only when it speaks. A
+scroll-timing flake in `recently-done-progressive-state.spec.ts` was fixed by
+waiting for `scrollend` (`watchBoardScroll`).
+
 ### 2. Say when the review state could not be saved
 Type: Behavior
 Status: planned
