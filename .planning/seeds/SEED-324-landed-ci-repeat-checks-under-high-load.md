@@ -110,6 +110,20 @@ journey leaves on a machine.
   `prepareRepeatScenario` too. Each of their cases gives the result the base
   gives it in the same load window.
 
+- **Shared preparation, amended by Terry on 2026-11-12.** After the measured
+  run missed key examples 1 and 8, Terry widened this story. It may change
+  what a case pays before its own first step: the `origin` fixture's first
+  use in a worker, when the run's app build is produced, and the published
+  story and server each case arranges, through a kept published-story
+  arrangement that cases share. Every spec that uses a changed fixture keeps
+  its cases and assertions and gives the result it gave before.
+- **The project scope timing refresh spec, amended by Terry on 2026-11-12.**
+  `dashboard/tests/intent/intent-project-scope-timing-refresh.spec.ts` joins
+  the named specs: its two cases pass in the same profile with the same
+  figures. Each observation that leaves real collection for kept history
+  keeps an owner among maintained checks, shown by a deliberate product
+  fault.
+
 Required restrictions and reasons: keep the default case timeout and the
 default expectation timeout; no timeout overrides, `test.slow()`, sleeps,
 retries or skips to absorb load, under
@@ -121,13 +135,11 @@ until it is stable locally and in CI.
 Scope limits:
 
 - No product behavior changes. The checks change, with their support modules.
-- SEED-287#fit-dashboard-journeys-in-default-timeout owns the five admission
-  cases and the preparation a case pays when it runs first in its worker
-  (start origin and the shared app build), and is in execution. Its branch
-  adds `collectPriors` to `prepareRepeatScenario` and changes the return of
-  `prepareRepeatPriors`; this story's edits to those two modules merge with
-  that. This story counts first-in-worker preparation in every case's time
-  and does not change it.
+- SEED-287#fit-dashboard-journeys-in-default-timeout owned the five admission
+  cases and first-in-worker preparation at load 20–30; it landed on
+  2026-11-12 and trunk holds its work. This story counts first-in-worker
+  preparation in every case's time and, since the amendment above, may
+  change it.
 - SEED-319#hold-landed-ci-follow-up-observations-under-load owns the
   reconciliation, follow-up reading and receipt boundary observations.
 - The cost of one fake `gh` call (a Node process per call) stays as it is.
@@ -170,9 +182,12 @@ Scope limits:
    an expectation that names the promise.
 7. **Kept state the product would refuse.** A saved request that breaks the
    product's schema → its case runs → the case fails.
-8. **Much faster.** The base and the candidate run the four specs on one
+8. **Much faster.** The base and the candidate run the named specs on one
    worker back to back under the same load, three passing observations each
    → the candidate's median wall time is at most two-thirds of the base's.
+   Since the 2026-11-12 amendment the base is trunk as merged into the story
+   branch, which holds SEED-287's faster journeys, and the named specs
+   include the project scope timing refresh spec.
 9. **Hosted CI.** The same spec paths pass in hosted CI on the published
    revision, with no added timeout, sleep, retry, skip or runner mode.
 
