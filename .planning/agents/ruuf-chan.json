@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "ruuf-chan",
+  "email": "ruuf-chan@example.org",
+  "identity": "SEED-330#invoke-custom-ci-rebuilds",
+  "mode": "story-branch",
+  "branch": "codex/run-dashboard-ci-follow-up-through-a-custom-ci-r",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}
