@@ -89,6 +89,12 @@ wall-clock time, use `test.slow()`, or broaden timeout overrides.
 The [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
 applies as written and accompanies every delegation and repair handoff.
 
+## Execution complete
+
+Product advice: no change. The real-repository guard catches the demonstrated
+regression; retain the existing reusable selection checks. No correction or
+product follow-up is needed. Process recurrence is recorded under ODF-264.
+
 ## Decisive premises and observations
 
 Observed on 2026-11-12 in the SEED-329 execution workspace at
@@ -132,3 +138,11 @@ Observed on 2026-11-12 in the SEED-329 execution workspace at
 - Consumer trace: `/tmp/seed329-guard-proof-d0933767/consumer-trace-base.md` and `consumer-trace-focused.md`. The real runner registry is exercised; unrelated scratch-project glob fixtures and historical records do not consume this added real-repository check.
 - Coordinator inspected the actual test, discovery/selector boundaries, scratch inputs and failure logs, matched the independent source review's journeys, and recorded each commitment's observation in the linked review. Source freshness on `origin/main` at `3fc68398c74d644d2f1c45f667bb5184229b7243` is unchanged. No named sibling coordination applies.
 - Independent refactor `/root/refactor_guard`: `none — already clean`, no edits or additional tests, `## REFACTOR COMPLETE`. Final sorted path membership assertion was inspected; no ordering promise is imposed. Accepted proof boundaries remain unchanged.
+
+## Retrospective
+
+- Attributable implementation is published `7ea0f13015410c406a75a78c7ccae46329f2ccf6`, suffix base `3fc68398c74d644d2f1c45f667bb5184229b7243`, on `origin/codex/guard-scheduled-test-makeme-selection`; publication accepted and observer reused. Claim is startup provenance; preceding commits are unrelated work. Branch CI remains pending during review.
+- Product/proof review complete: aggregate change meets the original correction and independent commitments. Existing fixture selection checks continue to own reusable matching behavior; this one fast check adds the previously missing real-repository boundary without duplicating discovery or selection. No refactor residue, architecture conflict, unowned proof gap or correction plan was found. ADR 0002's reuse/cohesion and ADR 0010's evidenced improvement support the demonstrated legacy-revert detection versus the prior passing fixture checks. Near-future intent protection direction remains aligned.
+- Product advice: no change. Retain the guard and existing fixture checks; no new product work or priority change is supported.
+- Process review enabled by `skipProcessRetrospective: false` and completed from this conversation/tool history. Added this execution's occurrence to existing ODF-264 in `DearDough.md` for truncated broad reference batches and targeted rereads; 924 physical lines, no retention needed. No guidance changes or new follow-up execution were authorized.
+- This is a bounded correction, so wrap-up's automatic Intent Coverage selection does not apply; process review is not deferred.

@@ -189,6 +189,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Inference: recurrence of an agent output-scoping deviation under existing retrieval guidance; isolated elapsed/token saving is unmeasured.
 
 
+- Execution: SEED-329#guard-scheduled-test-makeme-selection (plan 605; implementation `7ea0f13015410c406a75a78c7ccae46329f2ccf6`)
+  - Timestamp: unknown (2026-11-12 execution; exact read-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: unknown (checkout-bound installed guidance at accepted claim `3fc68398c`)
+  - Evidence: launch `d0933767-a8de-46d9-a9c2-9589c6cf4313`; initial delegation/context batches reported 14,543 and 13,044 original tokens with truncation; coordinator retrieved the missing source-review, execution-decisions, delegation and test-selection passages separately before delegation.
+  - Observed effect: broad combined output omitted required passages and required targeted rereads; implementation and terminal proof were retained. Inference: recurrence of agent read-batching deviation under existing boundary/retrieval guidance, not missing instructions; isolated time/token saving is unmeasured.
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
