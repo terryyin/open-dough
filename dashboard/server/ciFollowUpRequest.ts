@@ -51,6 +51,7 @@ export async function prepareCiRepeat(
   if (jobs === undefined || signal.aborted)
     return "Original exact-attempt jobs are incomplete or carried forward; a full comparable repeat cannot be established";
   const request: RepeatRequest = {
+    provider: "github",
     ...requestIdentity,
     repository: source.repository,
     workflow,

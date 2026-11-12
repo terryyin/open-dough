@@ -3,6 +3,8 @@
 **Identity:** SEED-330#invoke-custom-ci-rebuilds
 **Source:** [Run dashboard CI follow-up through a custom CI rebuild trigger](../../seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and scope
 
 A custom CI project that declares `ciRebuild` gets the production
@@ -82,7 +84,7 @@ PFE findings:
 ### 1. One repeat flow with a GitHub Actions provider
 
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged follow-up behavior through the existing specs and ledger
 tests listed below; a ledger case reads a saved request in today's GitHub shape.
 
@@ -230,3 +232,16 @@ Slice-plan refinement was not needed: four slices each own one proof loop
 (seam preserving behavior, accepted path, rejection paths, review and
 contract). No slice-specific concern remains. Plan 604's landing is recorded
 as this story's prerequisite, not as a concern.
+
+
+## Execution context
+
+Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Previous published base/candidate: claim SHA. Readiness remains **Changed since readiness review**; no renewed review.
+
+Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
+
+CI observer: Codex cell `g165:11`, session `92679`, coordinator `ruuf-chan`, PID `31050`, directory `/tmp/dough-ci-501/watch-hUTID2`; repository `terryyin/open-dough`, target story branch, GitHub Actions `ci.yml` verified active (351271804, CI). Runtime: this checkout's installed `.agents/skills/dough-execute-plan`. Trunk claim `pendingCi: unobserved`.
+
+Local expensive proof: AC, awake, initial load 37.01; slice-1 launch 17.88/~14 GiB inactive memory, one worker under `caffeinate -s -i`. Other owners include SEED-324 repeat checks and page-object worktrees; leave their resources untouched. Command owners recheck load/memory before expensive work, reconsider on failure/contention, and follow to terminal result. No whole local suite required.
+
+Slice 1 acceptance, literal passing proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.

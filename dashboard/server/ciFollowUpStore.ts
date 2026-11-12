@@ -25,14 +25,11 @@ const jobSchema = z.object({
   completed_at: z.string(),
   status: z.string(),
 });
-export const repeatRequestSchema = z.object({
+const sharedRepeatRequestSchema = z.object({
   repository: z.string(),
-  workflow: z.string(),
-  workflowId: z.number(),
   original: keptBuildSchema,
   reference: priorBuildReferenceSchema,
   rule: followUpRuleSchema,
-  originalJobs: z.array(jobSchema).min(1),
   requestedAt: z.string(),
   submission: z.object({
     kind: z.enum(["intent", "accepted", "refused", "uncertain"]),
@@ -58,6 +55,15 @@ export const repeatRequestSchema = z.object({
     repeat: keptBuildSchema.optional(),
   }),
 });
+// Untagged requests were saved before providers were explicit; their evidence
+// has always named a GitHub workflow and remains a spent GitHub request.
+export const githubRepeatRequestSchema = sharedRepeatRequestSchema.extend({
+  provider: z.literal("github").default("github"),
+  workflow: z.string(),
+  workflowId: z.number(),
+  originalJobs: z.array(jobSchema).min(1),
+});
+export const repeatRequestSchema = githubRepeatRequestSchema;
 export type RepeatRequest = z.infer<typeof repeatRequestSchema>;
 export type RepeatJob = z.infer<typeof jobSchema>;
 const landingSchema = z.object({

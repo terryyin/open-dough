@@ -15,6 +15,23 @@ const inputs = repeatLedgerFacts;
 const spends = async (home, facts) =>
   (await ledgerAction(home, { ...facts, action: "spend" })).answer;
 
+test("a saved untagged GitHub request remains spent and readable after upgrade", async (t) => {
+  const machine = repeatMachine(t),
+    facts = inputs();
+  await ledgerAction(machine.home, { ...facts, action: "register" });
+  await ledgerAction(machine.home, { ...facts, action: "spend" });
+  const legacy = JSON.parse(readFileSync(machine.file, "utf8"));
+  const key = followUpKey(facts.project, facts.landing);
+  delete legacy.landings[key].request.provider;
+  holdLedgerBytes(machine, JSON.stringify(legacy));
+  const read = await ledgerAction(machine.home, { action: "read" });
+  assert.deepEqual(read.answer.document.landings[key].request, {
+    ...facts.request,
+    provider: "github",
+  });
+  assert.equal(await spends(machine.home, facts), false);
+});
+
 test("after an upgrade each earlier receipt keeps its recorded admission and a newly recorded receipt is spent once", async (t) => {
   const machine = repeatMachine(t),
     unadmitted = inputs({ revision: "a".repeat(40) }),

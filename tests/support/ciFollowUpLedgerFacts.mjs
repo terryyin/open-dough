@@ -41,6 +41,7 @@ export function repeatLedgerFacts({
   const original = history.builds[`run/${String(run)}/1`];
   const request = makeMe.aCiRepeatRequest
     .with({
+      provider: "github",
       repository,
       workflow: "ci.yml",
       workflowId: 7,
