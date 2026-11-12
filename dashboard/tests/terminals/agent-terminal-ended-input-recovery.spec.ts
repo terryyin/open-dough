@@ -3,7 +3,14 @@
 // transcript is then offered once by Insert transcript.
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  expectTerminalText,
+  openAgainControl,
+  pressTerminalKey,
+  terminalPanel,
+  terminalScreenParts,
+  terminalStatus,
+} from "../terminalScreenPage.ts";
 import {
   holdCompletedVoiceResponse,
   observeMicrophone,
@@ -63,12 +70,12 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
   await tapWhereShown(sidebar.entry(title));
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
-  const status = panel.getByRole("status");
+  const status = terminalStatus(panel);
   const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
   const insert = panel.getByRole("button", { name: "Insert transcript" });
-  const openAgain = panel.getByRole("button", { name: "Open again" });
-  await expect(rows).toContainText(`attached ${native.shortId}`);
-  await expect(rows).toContainText("Claude Code");
+  const openAgain = openAgainControl(panel);
+  await expectTerminalText(panel, `attached ${native.shortId}`);
+  await expectTerminalText(panel, "Claude Code");
 
   await test.step("a transcript completing after the terminal ended stays unsent with feedback naming Open again", async () => {
     const delivery = await holdCompletedVoiceResponse(page);
@@ -76,7 +83,7 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
     await stopTerminalClip(page, panel);
     await delivery.ready();
     await focusByTouch(panel);
-    await page.keyboard.press("Control+z");
+    await pressTerminalKey(page, "Control+z");
     await expect(status).toContainText("The terminal ended");
     await expect(openAgain).toBeVisible();
     expect(dashboard.claudeAttaches()[0]?.endedBy).toBe("Ctrl+Z");
@@ -102,7 +109,7 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
   await test.step("Open again reattaches without sending, and Insert transcript then offers the transcript once", async () => {
     await tapWhereShown(openAgain);
     await expect.poll(() => dashboard.claudeAttaches().length).toBe(2);
-    await expect(rows).toContainText("Claude Code");
+    await expectTerminalText(panel, "Claude Code");
     await expect(openAgain).toHaveCount(0);
     await expect(retained).toHaveValue(transcript);
     await tapWhereShown(insert);

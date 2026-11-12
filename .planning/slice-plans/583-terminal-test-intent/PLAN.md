@@ -169,9 +169,21 @@ reached by the actual diff.
 
 ### 2. Follow exact keyboard input and deliberate recovery
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story example 2; exact bytes, focus, refusal status, native lines,
 attachment identity and no-auto-replay assertions remain independent.
+Accepted: `terminalScreenPage` owns focus/input, `insertTerminalText` (never Enter), `pressTerminalKey`,
+`typeLine` (composes insert+Enter), Open again/Reconnect, and Prompts open/choose; fluent `typeLine` and
+voice prompts re-export reuse it; phone `tapWhereShown` vs desktop click stay at call sites. Proof
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-terminal-slice2-proof.json caffeinate -i npm run test:dashboard --
+tests/terminals/agent-terminal-keyboard.spec.ts tests/terminals/session-terminal-prompts.spec.ts
+tests/terminals/agent-terminal-pending-readiness-input.spec.ts tests/terminals/agent-terminal-ended-input-recovery.spec.ts
+tests/terminals/agent-terminal-cursor-trust-page.spec.ts frontend-tests/terminal-prompts-recovery.spec.ts
+tests/terminals/agent-terminal-codex-page.spec.ts tests/navigation/side-panel-content-switching.spec.ts --workers=1`
+→ 13/13 expected (~68s); typecheck passed. Refactor replacement: prompts+codex+side-panel focused reruns green
+(`/tmp/seed300-terminal-slice2-refactor-proof.json`, side-panel sole-spec after load timeout). Consumers: slice-2
+specs + codex + fluent typeLine **run**; voice prompt re-exports **reused**; remaining lifetime/touch/voice
+inline recovery left for later slices **excluded**. Source-review slice-2 ids observed.
 
 Behavior: A developer reads a key/prompt/trust/ended-input case → follows named input and recovery choices around the
 actual keys and held releases → the source shows what reaches the session and what requires another deliberate choice.
@@ -263,3 +275,7 @@ circular module dependency. Multi-line shared-owner imports tip files over 250 �
 Side-panel Story review headings are not Terminal screen parts; do not route them through `terminalScreenParts`.
 Retain `expectNoTerminalText` for slice 2 negative text observations. Local page-level `closeTerminal(page)` helpers
 were a naming clash with the shared panel closer; prefer `closeTerminal(panel)` / renamed page wrappers.
+
+Slice 2: `typeLine` must compose `insertTerminalText` + Enter/`pressTerminalKey`, never the reverse. Keep phone
+`tapWhereShown` vs desktop `click` outside prompt-choose helpers. Own prompts on the screen module; voice re-exports —
+do not import voice from `terminalScreenPage`.

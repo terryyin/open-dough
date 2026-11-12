@@ -10,10 +10,15 @@ import {
 import {
   expectTerminalIdentity,
   expectTerminalText,
+  openTerminalPrompts,
   terminalPanel,
+  terminalPromptsControl,
+  terminalStatus,
 } from "../terminalScreenPage.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stoppedTracks } from "./voicePage.ts";
+
+export { openTerminalPrompts };
 
 // Safari buttons do not take pointer focus. Model that native default after
 // the page handles mousedown, while respecting cancellation of that default.
@@ -56,11 +61,6 @@ export async function openTerminalVoice(
   return { panel, open, first, second };
 }
 
-export async function openTerminalPrompts(panel: Locator) {
-  await panel.getByRole("button", { name: "Prompts", exact: true }).click();
-  return panel.getByRole("menu", { name: "Prompts", exact: true });
-}
-
 export async function chooseTerminalDictation(panel: Locator) {
   const menu = await openTerminalPrompts(panel);
   await menu
@@ -90,10 +90,8 @@ export async function beginTerminalClip(page: Page, panel: Locator) {
         .voiceObservation.bytes,
   );
   await chooseTerminalDictation(panel);
-  await expect(
-    panel.getByRole("button", { name: "Prompts", exact: true }),
-  ).toHaveCount(0);
-  await expect(panel.getByRole("status")).toHaveText(
+  await expect(terminalPromptsControl(panel)).toHaveCount(0);
+  await expect(terminalStatus(panel)).toHaveText(
     "Recording… Stop recording when you are finished.",
   );
   await page.waitForFunction(
@@ -109,7 +107,5 @@ export async function stopTerminalClip(page: Page, panel: Locator) {
     .getByRole("button", { name: "Stop recording", exact: true })
     .click();
   await expect.poll(() => stoppedTracks(page)).toBe(true);
-  await expect(
-    panel.getByRole("button", { name: "Prompts", exact: true }),
-  ).toBeVisible();
+  await expect(terminalPromptsControl(panel)).toBeVisible();
 }

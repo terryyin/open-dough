@@ -4,9 +4,17 @@ import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { chooseProject, storyCardSessions, parts } from "../dashboardPage.ts";
 import {
+  closeTerminal,
+  expectNoTerminalText,
   expectTerminalIdentity,
+  expectTerminalText,
+  openTerminalAgain,
+  pressTerminalKey,
+  reconnectTerminal,
   terminalPanel,
   terminalScreenParts,
+  terminalStatus,
+  typeLine,
 } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -69,25 +77,24 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   const panel = terminalPanel(page);
-  const { rows } = terminalScreenParts(panel);
+  const { screen } = terminalScreenParts(panel);
   codexTerminalMode(native, "review");
   await recent.getByRole("button", { name: "Open terminal" }).click();
-  await expect(rows).toContainText("Hooks need review");
+  await expectTerminalText(panel, "Hooks need review");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
   await expect(panel.getByRole("button", { name: "Mark as done" })).toHaveCount(
     1,
   );
-  await terminalScreenParts(panel).screen.click();
-  await page.keyboard.press("Escape");
-  await expect(rows).toContainText("GPT-6.1-Sol default");
-  await expect(rows).not.toContainText("context left");
+  await screen.click();
+  await pressTerminalKey(page, "Escape");
+  await expectTerminalText(panel, "GPT-6.1-Sol default");
+  await expectNoTerminalText(panel, "context left");
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(1);
-  await page.keyboard.type("answer here");
-  await page.keyboard.press("Enter");
-  await expect(rows).toContainText("echo answer here");
+  await typeLine(page, "answer here");
+  await expectTerminalText(panel, "echo answer here");
   await page.setViewportSize({ width: 1100, height: 700 });
-  await expect(rows).toContainText("resized");
+  await expectTerminalText(panel, "resized");
   expect(
     native.calls.filter((call) => call.method === "thread/start"),
   ).toHaveLength(1);
@@ -99,7 +106,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expectTerminalIdentity(panel, notRefinedStory);
   expect(codexAttaches(native)).toHaveLength(1);
   await chooseProject(page, "Open Dough");
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeTerminal(panel);
   await expect(panel).toHaveCount(0);
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[0]?.pid ?? 0))
@@ -108,7 +115,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(rows).toContainText("original retained history");
+  await expectTerminalText(panel, "original retained history");
   await page.reload();
   await expect(panel).toHaveCount(0);
   await expect
@@ -117,14 +124,13 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await storyCardSessions(card(notRefinedStory))
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(rows).toContainText("original retained history");
+  await expectTerminalText(panel, "original retained history");
   const port = Number(new URL(dashboard.baseURL).port);
   let restarted: DashboardServer | undefined;
   try {
     await dashboard.close();
-    await expect(panel.getByRole("status")).toContainText(
-      "Disconnected from the session",
-    );
+    const status = terminalStatus(panel);
+    await expect(status).toContainText("Disconnected from the session");
     await expect
       .poll(() => codexEnded(native, codexAttaches(native)[2]?.pid ?? 0))
       .toBe("SIGHUP");
@@ -137,13 +143,13 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
       codexProtocol: native,
       projectFolders: ["open-dough"],
     });
-    await panel.getByRole("button", { name: "Reconnect" }).click();
-    await expect(rows).toContainText("original retained history");
-    await expect(panel.getByRole("status")).toBeEmpty();
-    await page.keyboard.press("Control+z");
-    await expect(panel.getByRole("status")).toContainText("The terminal ended");
-    await panel.getByRole("button", { name: "Open again" }).click();
-    await expect(rows).toContainText("original retained history");
+    await reconnectTerminal(panel);
+    await expectTerminalText(panel, "original retained history");
+    await expect(status).toBeEmpty();
+    await pressTerminalKey(page, "Control+z");
+    await expect(status).toContainText("The terminal ended");
+    await openTerminalAgain(panel);
+    await expectTerminalText(panel, "original retained history");
     expect(
       codexAttaches(native).every(
         (attach) => attach.args.at(-1) === native.threadId,
@@ -190,17 +196,11 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
     .getByRole("button", { name: "Open terminal" })
     .click();
   const panel = terminalPanel(page);
-  await expect(terminalScreenParts(panel).rows).toContainText(
-    "retained startup draft",
-  );
-  await expect(terminalScreenParts(panel).rows).not.toContainText(
-    "Ask Codex to do anything",
-  );
-  await expect(terminalScreenParts(panel).rows).not.toContainText(
-    "context left",
-  );
+  await expectTerminalText(panel, "retained startup draft");
+  await expectNoTerminalText(panel, "Ask Codex to do anything");
+  await expectNoTerminalText(panel, "context left");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
   await terminalScreenParts(panel).screen.click();
-  await page.keyboard.press("Escape");
+  await pressTerminalKey(page, "Escape");
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
 });

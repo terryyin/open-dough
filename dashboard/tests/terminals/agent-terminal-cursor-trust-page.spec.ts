@@ -4,7 +4,14 @@ import { showColumn } from "../boardPage.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expect, test } from "../support/cursorStart.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  closeTerminal,
+  expectTerminalText,
+  insertTerminalText,
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   heldOnWorkspaceTrust,
   instructedCursorRequest,
@@ -57,17 +64,15 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
     });
   });
   await page.goto("/");
-  const open = page
-    .locator(".session-entry")
-    .getByRole("button", { name: "Open terminal" });
+  const open = openTerminalControl(page.locator(".session-entry"));
   await showColumn(page, "Taken");
   await open.click();
   const panel = terminalPanel(page);
-  const { rows } = terminalScreenParts(panel);
+  const { rows, screen } = terminalScreenParts(panel);
   const prompt = rows
     .locator("span")
     .filter({ hasText: "Workspace Trust Required" });
-  await expect(rows).toContainText("[a] Trust this workspace");
+  await expectTerminalText(panel, "[a] Trust this workspace");
   await expect(prompt).toHaveClass(/xterm-bold/);
   await expect(prompt).toHaveClass(/xterm-fg-11/);
   await expect(prompt).toHaveCSS("color", "rgb(252, 233, 79)");
@@ -83,18 +88,18 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
   expect(cursor.input(pid)).toBe("");
   expect(keptCursor(dashboard.home).firstInput?.state).toBe("uncertain");
 
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeTerminal(panel);
   await expect(panel).toHaveCount(0);
   await page.setViewportSize({ width: 1100, height: 800 });
   await showColumn(page, "Taken");
   await open.click();
-  await expect(rows).toContainText("[q] Quit");
+  await expectTerminalText(panel, "[q] Quit");
   await expect(prompt).toHaveClass(/xterm-bold/);
   await expect(rows.locator(".xterm-cursor")).toHaveCount(0);
   await expect.poll(() => replays).toHaveLength(2);
   expect(cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(pid);
-  await terminalScreenParts(panel).screen.click();
-  await page.keyboard.type("q");
+  await screen.click();
+  await insertTerminalText(page, "q");
   await expect.poll(() => cursor.input(pid)).toBe("q");
 });

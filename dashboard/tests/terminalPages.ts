@@ -9,7 +9,11 @@
 import { PageObject } from "./fluentPageObject.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect } from "./support/preparationPage.ts";
-import { expectTerminalText, terminalPanel } from "./terminalScreenPage.ts";
+import {
+  expectTerminalText,
+  terminalPanel,
+  typeLine as typeTerminalLine,
+} from "./terminalScreenPage.ts";
 
 export class Terminal extends PageObject {
   get #terminal() {
@@ -31,10 +35,9 @@ export class Terminal extends PageObject {
 
   // Types a line on the keyboard the Terminal holds, then Enter.
   typeLine(line: string) {
-    return this.cueHere(`Terminal: type "${line}" and Enter`, async () => {
-      await this.page.keyboard.type(line);
-      await this.page.keyboard.press("Enter");
-    });
+    return this.cueHere(`Terminal: type "${line}" and Enter`, () =>
+      typeTerminalLine(this.page, line),
+    );
   }
 }
 

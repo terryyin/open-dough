@@ -7,13 +7,16 @@ import {
 } from "../tests/support/frontendApp.ts";
 import { putFrontendMachine } from "../tests/support/frontendServiceState.ts";
 import { installAttachedTerminalSubstitute } from "../tests/support/frontendServiceSubstitutes.ts";
-import { openTerminalPrompts } from "../tests/support/terminalVoicePage.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
+  chooseTerminalPrompt,
+  expectTerminalInputFocused,
+  expectTerminalText,
+  reconnectTerminal,
   terminalPanel,
-  terminalScreenParts,
+  terminalStatus,
 } from "../tests/terminalScreenPage.ts";
 
 for (const unavailable of ["connecting", "refused"] as const) {
@@ -82,14 +85,12 @@ for (const unavailable of ["connecting", "refused"] as const) {
     await sidebar.button.click();
     await sidebar.entry(title).click();
     const panel = terminalPanel(page);
-    const status = panel.getByRole("status");
+    const status = terminalStatus(panel);
     if (unavailable === "refused")
       await expect(status).toContainText(
         "The session refused this attachment.",
       );
-    const menu = await openTerminalPrompts(panel);
-    await menu.getByRole("menuitem", { name: "OK", exact: true }).click();
-    await expect(menu).toHaveCount(0);
+    await chooseTerminalPrompt(panel, "OK");
     await expect(status).toContainText(
       unavailable === "connecting"
         ? "The terminal is still connecting. Open Prompts again once it connects."
@@ -97,17 +98,11 @@ for (const unavailable of ["connecting", "refused"] as const) {
     );
     expect(sent).toEqual([]);
     if (unavailable === "connecting") open();
-    else
-      await panel
-        .getByRole("button", { name: "Reconnect", exact: true })
-        .click();
-    await expect(terminalScreenParts(panel).rows).toContainText("Claude Code");
-    const recovered = await openTerminalPrompts(panel);
-    await recovered
-      .getByRole("menuitem", { name: "as recommended", exact: true })
-      .click();
+    else await reconnectTerminal(panel);
+    await expectTerminalText(panel, "Claude Code");
+    await chooseTerminalPrompt(panel, "as recommended");
     await expect.poll(() => sent).toEqual(["as recommended"]);
     await expect(status).toBeEmpty();
-    await expect(terminalScreenParts(panel).input).toBeFocused();
+    await expectTerminalInputFocused(panel);
   });
 }

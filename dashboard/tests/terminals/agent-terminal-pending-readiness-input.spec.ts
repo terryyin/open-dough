@@ -4,7 +4,12 @@
 import { test as voiceTest, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import { observeMicrophone, seedVoiceKey } from "../support/voicePage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  expectNoTerminalText,
+  expectTerminalText,
+  terminalPanel,
+  terminalStatus,
+} from "../terminalScreenPage.ts";
 import {
   beginTerminalClip,
   stopTerminalClip,
@@ -94,10 +99,9 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
   await shown.header.tap();
   await tapWhereShown(shown.open(notRefinedStory));
   const panel = terminalPanel(page);
-  const { rows } = terminalScreenParts(panel);
-  const status = panel.getByRole("status");
-  await expect(rows).toContainText("retained startup draft");
-  await expect(rows).not.toContainText("context left");
+  const status = terminalStatus(panel);
+  await expectTerminalText(panel, "retained startup draft");
+  await expectNoTerminalText(panel, "context left");
   expect(doneMark()).toBeDefined();
 
   await test.step("a completed transcript is offered once, not retained or submitted", async () => {
