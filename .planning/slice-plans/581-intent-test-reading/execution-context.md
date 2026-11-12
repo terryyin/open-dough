@@ -97,3 +97,13 @@ unused-helper scratch passes17.039s/default/retry0 and restores exact source.
 Follow-up SEED-318#remove-unused-taken-comparison-navigation/plan596 is ready;
 published full identities/navigation remain stable despite concurrent numeric
 prefix reuse by unrelated mobile work. No backlog change yet. G15 is proved.
+
+Final implementation accepted28c1118c5dcb5e675da5039392a825aa1d15f70f on the
+execution branch, suffix base3ef6abf4, no reconciliations. All nine slices done,
+16 obligations/100 source commitments pass completion check. Source unchanged
+atb68d51e5de40426b43a5765af932cd8414a0e010; no new accepted named-sibling behavior
+since fd164. Outcome/product/proof review is settled; selected process review
+remains deferred until Wrap Up has Intent Coverage and dispositions. Product
+advice is the single ready unused-helper correction. Execution-complete record
+delivery is records-only; no source proof is invalidated. Exact applicable CI
+for its final accepted revision remains the normal completion operation's gate.

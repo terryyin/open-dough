@@ -140,6 +140,10 @@ Behavior: A developer follows a Done card's CI evidence → the scenario names
 each destination and expected reading → `ciFollowUpReadingPage.ts` owns the
 navigation/observations and takes expected facts instead of embedding run 71.
 
+## Execution complete
+
+Product advice: queue bounded cleanup [SEED-318#remove-unused-taken-comparison-navigation](../../seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation) first with its [ready plan](../596-remove-unused-taken-comparison-navigation/PLAN.md); remove only the dormant Taken comparison route. No other product change advised.
+
 ## Design and retained evidence
 
 See [design assessment](design-assessment.md) for the slice boundary review and

@@ -137,9 +137,9 @@ No backlog membership was changed. Process remains selected and deferred until
 Wrap Up receives its automatic Intent Coverage report and dispositions.
 
 The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies as
-written. G15 remains open; no execution-complete record or closure is claimed.
-The active plan, follow-up draft, worktree and live branch observer are retained
-for receipt of the already-owned repair and renewed affected validation.
+written. The earlier handoff retained G15, the plan, follow-up and observer.
+Resumed proof below settles G15; exact current CI and later closure are distinct
+remaining gates rather than an all-green aggregate claim.
 
 ## Resumed G15 component assessment
 
