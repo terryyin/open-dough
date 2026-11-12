@@ -167,6 +167,9 @@ for (const closure of [
           .filter({ hasText: native.threadId });
         await expect(recent).toContainText("Done");
         await expect(recent).toContainText("Native session is still working");
+        // The settled start reconciles once the page's snapshot is fully read;
+        // its Startup recovery leaves then, moving the entry under a press.
+        await expect(parts(page).startupRecovery).toHaveCount(0);
         if (closure === "Trunk Wrap Up") {
           await expect(recent).toContainText("Native rename refused.");
           expect(stored(dashboard.home)[0]?.doneProblem).toContain(
@@ -221,13 +224,9 @@ for (const closure of [
             .locator(".final-report-text"),
         ).toHaveText("Done.");
         expect(
-          native.calls
-            .slice(beforeRead)
-            .some(
-              (call) =>
-                call.method === "thread/read" &&
-                call.params["includeTurns"] === true,
-            ),
+          callsSince(beforeRead, "thread/read").some(
+            (call) => call.params["includeTurns"] === true,
+          ),
         ).toBe(true);
         expect(stored(dashboard.home)[0]?.doneAt).toBe(receipt.receivedAt);
         await reloadUntilRead(page);
@@ -242,9 +241,7 @@ for (const closure of [
         });
         expect(stored(dashboard.home)[0]?.landing).toBeDefined();
         expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
-        expect(
-          native.calls.filter((call) => call.method === "thread/name/set"),
-        ).toEqual([]);
+        expect(callsSince(0, "thread/name/set")).toEqual([]);
       },
     );
   });

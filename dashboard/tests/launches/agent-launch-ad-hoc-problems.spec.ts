@@ -115,9 +115,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
       "claude agents",
     );
     // Startup recovery shows the same answer, as formed.
-    await expect(
-      page.getByRole("region", { name: "Startup recovery" }),
-    ).toContainText(
+    await expect(parts(page).startupRecovery).toContainText(
       "Its last answer: Claude Code did not answer in time, so the session may or may not have started. Check claude agents for it.",
     );
     await expect(button).toBeEnabled();

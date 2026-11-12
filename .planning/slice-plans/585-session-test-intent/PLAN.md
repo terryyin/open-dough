@@ -201,6 +201,12 @@ entry raw sites were removed for about 20 new behavior lines. Held reads stay ar
 answered in scenarios. Proof 37/37 over 21 specs (`s4-proof.log`) plus 5/5 retained
 consumers. Slice 5 inherits the resize page's own open sequence.
 
+CI repair (run 43229686512 on e7f81af): `agent-completion-quiet` "Land retires real
+accepted work…" pressed Read final report while Startup recovery was still reconciling;
+the panel left between mouse-down and up. The spec now waits for
+`parts(page).startupRecovery` to leave before pressing; the panel lookup has one owner.
+Reproduced by holding card-detail reads; fix 12/12, refactor proof 19/19 + 2/2.
+
 ### 5. Read Running Cursor resize and reachability through its owner
 Type: Behavior
 Status: planned

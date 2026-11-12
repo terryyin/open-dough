@@ -204,7 +204,7 @@ test("unreadable kept attempts are said on the page and refuse starts, leaving t
   expect(malformed.status).toBe(400);
 
   await page.goto("/");
-  const recovery = page.getByRole("region", { name: "Startup recovery" });
+  const recovery = parts(page).startupRecovery;
   await expect(recovery).toContainText(
     "This machine's launch evidence (~/.open-dough/dashboard/launch-attempts.json) could not be read",
   );

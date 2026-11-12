@@ -33,6 +33,9 @@ export function parts(page: Page) {
     preparationHelp: page.getByRole("button", {
       name: "Preparation badge legend",
     }),
+    // Settled starts still waiting to reconcile with published state, shown
+    // above the board until they do.
+    startupRecovery: page.getByRole("region", { name: "Startup recovery" }),
     // The selected project's sessions launched from this dashboard.
     recentlyDone: page.getByRole("region", {
       name: "Recently done",
