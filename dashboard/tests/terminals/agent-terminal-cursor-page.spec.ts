@@ -11,6 +11,7 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expect, workingCursorTest as test } from "../support/cursorStart.ts";
 import { waitUntil } from "../support/waitUntil.ts";
 import { processRunning } from "../support/processGroup.ts";
+import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
 
 const instruction = "keep this turn running";
 
@@ -43,12 +44,10 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  // The start presents its session's terminal once it has launched; Close
-  // before then would see that presentation open the panel again.
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel).toHaveCount(1, { timeout: 20_000 });
   const recent = parts(page).taken.locator(".session-entry");
-  await expect(recent).toHaveCount(1);
+  // Close while the startup still goes on could see the start present the
+  // session's terminal again.
+  const panel = await startedSessionTerminal(page, recent);
   await expect(parts(page).adHocStarted).toHaveCount(0);
   const record = keptRecord(dashboard.home);
   const open = recent.getByRole("button", { name: "Open terminal" });

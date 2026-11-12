@@ -2,6 +2,7 @@
 
 **Identity:** SEED-320#open-terminal-only-without-a-custom-instruction
 **Source:** [Story](../../seeds/SEED-320-conditional-terminal-opening.md#open-terminal-only-without-a-custom-instruction)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -71,7 +72,7 @@ passed, 40 failed in 12.3 minutes. Both edits were reverted afterwards.
 
 ### 1. Journeys that need a started session's terminal open it themselves
 Type: Structure
-Status: planned
+Status: done
 Proof: Each journey listed in the premises that uses the terminal of an
 instructed ad hoc start as its setup, not as its promise, reaches that
 terminal through one shared step in test support that opens it from the
@@ -92,6 +93,32 @@ is the automatic opening
 `launches/agent-launch-ad-hoc-resolved.spec.ts`) stay as they are for slice 2.
 Read each listed failure's assertion before changing it: where a journey
 needs no instruction, starting it blank is the smaller change.
+
+Outcome: the shared step is `startedSessionTerminal`
+(`dashboard/tests/support/startedSessionTerminal.ts`);
+`startAdHocAndClose` and `takenAdHocSession` moved to
+`dashboard/tests/support/startedAdHocSession.ts`. The held touch journey of
+`agent-launch-start-session-answer-touch.spec.ts` starts blank. Proof on the
+unchanged product after the refactor pass: the 22 specs that reach the changed
+support (61 tests, two workers, external load 27–33) gave 59 passed.
+`sessions/agent-session-cursor-stop-several.spec.ts:23` and
+`sessions/cursor-runner-replacement-controls.spec.ts:32` failed by the 30 s
+test timeout, again at one worker, and again at one worker with
+`cursorSessionReading.ts` at its base content, so the cause is not this
+slice. Earlier runs at load 31–46 timed out the same way in
+`launches/responsive-session-access.spec.ts:44` (untouched file, a story
+launch; the `origin` and `dashboard` fixtures took 21–23 s before the body)
+and intermittently in `launches/agent-launch-start-session-touch.spec.ts:32`,
+which passed in the final run. These stay open under the failure policy until
+hosted CI of the story branch gives their verdict.
+
+Learning for slice 2: with the rule applied in scratch, the remaining
+failures were the four promise journeys above plus
+`launches/agent-launch-ad-hoc-codex.spec.ts`'s instructed variant, whose
+`await expect(start).toBeFocused()` after Close holds only when the start
+presented the terminal; opened from the entry, Close returns the keyboard to
+the entry's **Open terminal**. Every Cursor journey passed under the rule
+through the shared step, joining the kept client.
 
 ### 2. An instructed start keeps the current view; a blank one opens the terminal
 Type: Behavior

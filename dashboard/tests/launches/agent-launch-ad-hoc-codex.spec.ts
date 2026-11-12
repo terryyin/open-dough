@@ -19,6 +19,7 @@ import {
 } from "../support/dashboardServer.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -62,8 +63,8 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     );
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
-    const panel = page.getByRole("region", { name: "Terminal" });
     const recent = page.locator(".board .session-entry");
+    const panel = await startedSessionTerminal(page, recent);
     await expect(panel.locator(".xterm-rows")).toContainText(
       "GPT-6.1-Sol default",
     );
