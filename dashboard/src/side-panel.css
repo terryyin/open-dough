@@ -61,6 +61,12 @@
   grid-column: -3 / -1;
 }
 
+/* Clear the Panel divider's inside grab strip so terminal and review content
+   are not under it while the strip stays inside the panel. */
+.page-split:not(.page-covering):not(.page-maximized) > .side-panel {
+  padding-inline-start: 0.8rem;
+}
+
 .side-panel {
   --side-panel-height: 100dvh;
 
