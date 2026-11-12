@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 495. Removed numbers are never reused.
+- Highest allocated local number: 497. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -620,6 +620,15 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Observed effect: every promise had an inspected location at acceptance, and the U11 row exposed one promise with no automated assertion. The context, trigger and proof-method rows added cells whose text restates setup or the story's own limit.
   - Inference: the reviewer brief asks for "trigger/journey examples and exclusions" beside commitments without separating which need an observation; the cost here is qualified, as no time was measured.
 
+- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
+  - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at two acceptances)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 598 holds 91 rows for a two-slice test-speed story, among them M7 and M8 (the Success measure's "Retained reference" figures), X2 ("They may adopt the same fixture later."), ten S3 rows for one "do not change" sentence and six S7 rows for one "No new … to obtain a saving" list. The coordinator recorded one `observed:` per row through about 90 `record` invocations in two batches.
+  - Observed effect: every promise had an inspected location at acceptance. The reference-figure, permission and negated-means rows received cells that restate the diff's absence of a change or the plan's run table.
+  - Inference: same cause as the first occurrence; cost qualified, no time measured.
+
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 
 Former branch-local code: DD-490 in `03dff46c0`; renumbered during integration to preserve the unrelated finding already published on trunk.
@@ -656,3 +665,33 @@ asking what else the step's presence had detected.
   - Evidence: plan 592's premise row found that skipping the context journey's early commit choice fails the later Commits beat, so slice 4 moved the choice there and dropped the return to All changes. Neither the plan nor the first slice 4 return named an owner for "the chosen range survives leaving Commits", which the removed sequence had detected. At acceptance the coordinator returned the slice; fault FR failed the removed step on `d7622bc2b`, no touch case afterwards, and two desktop checks (`story-review-commit-ranges.spec.ts:80`, `story-review-commit-refresh.spec.ts:96`) found by running the review family (183 cases, 1,227 s at load 34–49).
   - Observed effect: one returned slice and a family run to find an owner the plan could have named; the same run surfaced five load-only failures in untouched review specs, recorded in `ProjectFindings.md` under DD-476.
   - Inference: the story's surviving-proof rule was applied to removed assertions and cases, not to behavior a removed step proved incidentally. Planning a removal could list each fault the step fails today, not only the assertion that motivated keeping part of it.
+
+## DD-496 — A coordinator's timing loop filtered runner output, so the one failed run left no evidence
+
+To compare a changed test selection with its base under host load, the coordinator ran both in one shell loop and kept only the lines matching pass marks, totals and `real`. One run of the changed selection failed, and nothing recorded which case failed or why.
+
+### Occurrences
+
+- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
+  - Timestamp: unknown (2026-11-12, during slice 1 acceptance)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: coordinator conversation, interleaved base/after loop piping `npm run test:dashboard` through `grep -E "✓|✘|passed|failed|^real"`; "after 2" printed `auto (31.4s)`, `a rate (22.8s)`, `1 failed`, `1 passed (1.9m)`, `real 116.78` at load 55. Eleven further runs with full logs and two under added load all passed; the plan's Execution state records the failure as explained, not observed.
+  - Observed effect: about 20 minutes of repeat and added-load runs produced no reproduction, and the slice was accepted with a supported but unobserved explanation (a 30 s default timeout during a load spike). Later delegations were told to keep one full log per run.
+  - Inference: a filtered measurement loop is a proof run like any other; the failure policy's diagnosis needs the output the filter discarded. Generality is unmeasured.
+
+## DD-497 — An unrelated neighbor's load-induced timeout took a repair whose gain is below noise
+
+A neighbor run at one worker on a saturated host timed out a case that does not use the changed fixture. The failure policy made its repair the executor's; the measured diagnosis put most of the cost in product behavior the executor may not change.
+
+### Occurrences
+
+- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
+  - Timestamp: unknown (2026-11-12; neighbor run in slice 1, repair delegated after slice 2)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 return, `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…" at 30.4 s, load about 70; repair return with phase timings (walk and `gh` starts about 10 s of 15.5 s at load 45) and `449a0b919889ea357dca764eb73075b7485fdf31`; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` entry `later-comparison-walk-gh-starts`.
+  - Observed effect: one implementation delegation of about 13 minutes and one refactor pass delivered a 1–2 s saving that end-to-end runs cannot show (the same case ran 4.4–17.7 s across loads 20–43). The remaining margin needs a product or suite-wide decision and is kept as a live candidate.
+  - Inference: the diagnosis was necessary to learn where the time goes; whether a test-only repair should follow when the diagnosis names product cost is a judgment the policy leaves to the executor. One occurrence.
