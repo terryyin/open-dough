@@ -216,6 +216,11 @@ the story's Key examples (load example) and Scope limits; the decision is
 Terry's. Logs: the job's temporary `slice3` directory (`run-1.log`,
 `run-diagnostic.log`).
 
+Hosted CI (12 November 2026): run 43166540689 attempt 1 at `3befd9f85`
+succeeded on the story branch. Its `dashboard-times` record the pending-proof
+file at 12.9 s (38.4 s in `dashboard/longest-first-additions`), the judgment
+check at 0.0 s and the six finality cases at 0.1 s.
+
 ## Current decisions
 
 - Terry asked on 12 November 2026 for a different testing approach that is
