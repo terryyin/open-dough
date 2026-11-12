@@ -2,6 +2,7 @@
 
 **Identity:** SEED-315#speed-up-provider-rate-limit-checks
 **Source:** [Story](../../seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -76,7 +77,7 @@ handoff.
 
 ### 1. Rate-limit page case passes directed waits on owner time
 Type: Behavior
-Status: planned
+Status: done
 Proof: Early probe first, before any edit: run the selection on the execution
 base and record both cases' durations as the matched baseline. Then the page
 case, on a dashboard whose request owner was started with the controlled
@@ -139,6 +140,50 @@ freshness bound from reopening and catch-up to B, and no real wait.
   `waitSeconds`, so advancing owner time alone releases reads.
 - Retained SEED-303 timings are a lead, not the matched baseline.
 
+## Execution state
+
+- Mode: Story Branch; workspace `.worktrees/speed-up-provider-rate-limit-checks`,
+  branch `claude/speed-up-provider-rate-limit-checks`, remote `origin`, target
+  `main`. Claim `2ed4aa4fb` accepted on `main`; starting revision `75f37ffcf`.
+- Matched baseline on `2ed4aa4fb`, 2026-11-12, AC power, the Verification
+  selection, both runs passing:
+
+  | Run | Page case | Stream case | Whole command | Load (1 min) at start |
+  | --- | --- | --- | --- | --- |
+  | 1 | 33.9 s | 11.5 s | 99.87 s | 37.0 |
+  | 2 | 28.6 s | 12.1 s | 58.91 s | 55.5 |
+
+  The host carried unrelated load of 37–55 throughout, so judge the after
+  runs relative to these and under comparable load.
+
+- Slice 1 accepted proof, 2026-11-12, uncommitted candidate on `2ed4aa4fb`:
+  - Interleaved with a temporary checkout of the base, same selection, page
+    case: base 30.5 / 33.3 / 38.1 s (loads 38, 33, 66) against after 9.4 s
+    and 24.9 s (loads 31, 49). Fourteen further passing after runs at loads
+    35–65 gave 9.5–18.4 s, median 11.9 s. Against the five base runs
+    (28.6–38.1 s, median 33.3 s) the page case is about 20 s faster; the
+    stream case is unchanged until slice 2.
+  - Discrimination: with `owner.advanceOwnerClock(2_000)` removed, the check
+    at the directed time is answered 502 held back and
+    `expect(headsChecks(callsSince(page, from))).toHaveLength(1)` receives 0.
+  - One interleaved after run failed (one of the two cases, 31.4 s and
+    22.8 s, whole command 116.78 s at load 55 rising); its output was not
+    kept. Sixteen other runs of the same candidate passed, and two runs with
+    the base observation suite added as load passed at 19.9 s and 25.3 s.
+    The durations scale with host load, so a 30 s default timeout during a
+    load spike is the supported explanation, not an observed one. Slice 2's
+    three consecutive runs and ordinary CI still own the verdict.
+  - Neighbors at one worker, load 30 rising to 70: 10 passed, 1 failed.
+    `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…"
+    exceeded the 30 s default; it does not use the owner-clock fixture and
+    passed alone at 25.6–28.8 s. Its repair is this execution's under the
+    failure policy and is delivered separately from the slices.
+- Learning: after a held-back answer the page's next check comes at the
+  steady pace unless the page was seen again
+  (`revisionCheckSchedule.ts`). The page case therefore holds owner time in
+  the first wait, after the page was seen again, and proves the owner's
+  refusal there before owner and page time reach the directed time together.
+
 ## Decisive premises
 
 | Premise | Consuming operation | Form / profile observed | Result |
@@ -146,9 +191,9 @@ freshness bound from reopening and catch-up to B, and no real wait.
 | The released owner, started with the fixture's controlled `Date`, answers limited, holds back with the directed seconds, and admits the read once its time is advanced, behind a real dashboard server | Slices 1–2 approach | `authenticated-read-shared-listing-failures.spec.ts` lines 140–157 at `27c155211`, in the same Playwright dashboard profile; ordinary CI run 43138054742 succeeded on `537cc5832`, its first parent | Settled |
 | The wait is held only by the owner, not by the dashboard server | Advancing owner time releases the page's check | Read `dashboard/server` at `27c155211`: `readFailureMessage.ts` and `authenticatedRead.ts` only pass on `waitSeconds`/`retryAfterSeconds`; `heldBack` exists only in `github-request-admission.mjs` and its callers | Settled |
 | A started owner does not inherit a preload through the dashboard | Fixture must start the owner itself | `github-request-owner-link.mjs` `#started` deletes `NODE_OPTIONS` at `27c155211` | Settled |
-| A page case can bind its dashboard to a private owner endpoint | Slice 1 fixture wiring | `owner-replacement-recovery.spec.ts` overrides `extraEnv` with `privateRequestOwner().env` at `27c155211`; covered by the same CI run | Settled for a private owner; its combination with a pre-started controlled owner is open — bounded by slice 1's probe |
-| Matched durations of both cases on the execution base | Success measure | The selection command above | Open — bounded by slice 1's early probe |
-| The whole page journey (listing reuse, diagnostics, visibility reads) runs on an owner whose `Date` is fixed between advances | Slice 1 sizing | Not run in preparation: this worktree has no installed dependencies | Open — bounded by slice 1's probe, with its stop |
+| A page case can bind its dashboard to a private owner endpoint | Slice 1 fixture wiring | `owner-replacement-recovery.spec.ts` overrides `extraEnv` with `privateRequestOwner().env` at `27c155211`; covered by the same CI run | Settled — slice 1's page case runs on it and asserts the started owner still stands |
+| Matched durations of both cases on the execution base | Success measure | The selection command above, twice on `2ed4aa4fb` | Settled — see Execution state |
+| The whole page journey (listing reuse, diagnostics, visibility reads) runs on an owner whose `Date` is fixed between advances | Slice 1 sizing | Slice 1's page case, every step | Settled |
 
 ## Concern evidence
 
