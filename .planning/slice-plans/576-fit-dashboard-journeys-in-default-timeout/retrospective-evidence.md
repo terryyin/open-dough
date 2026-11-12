@@ -96,3 +96,21 @@ missing earlier-agent details or treat a token/cost hypothesis as observed.
 
 Outcome/proof review is complete with G3's applicable composition CI observed. On an owned CI repair, revisit only conclusions whose implementation/proof
 changes. No unresolved product recommendation or scope decision remains.
+
+## Completed deferred process review
+
+Intent Coverage returned Caught for the initiating-page retained Codex host
+assertion, with independent HTTP/DOM mismatch and restored pass. Its faulted
+run did not reach fresh-page assertions; no broader mutation claim or actual
+delivered defect follows. Combined report/disposition is stored by completion.
+
+Available conversation/tool records and controller receipts support two compact
+process observations: ODF337 recurred at the already-staged deletion manifest,
+and DD500 records the raw Git backlog-entry deviation. DearDough.md now has774
+physical lines under its explicit1000-line recording ceiling, with no pruning.
+The published backlog exactly matches the maintained three-way reconciler and
+its343-record catalog is canonical; future integration uses the adapter. No
+product correction or new backlog work is warranted by these process records.
+Older history not independently exposed is not reconstructed, and no token or
+agent-effort saving is claimed. Product/proof and deferred process reviews are
+settled with no unresolved recommendation.

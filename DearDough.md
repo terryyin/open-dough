@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 499. Removed numbers are never reused.
+- Highest allocated local number: 500. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -337,6 +337,13 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
   - Open Dough release: unknown (checkout-bound installed guidance at accepted Take `4f52bca1`; no release marker retained in startup context)
   - Evidence: after a staged-whitespace stop, fresh retry returned staging failure for already-staged deleted source dashboard/tests/intent/intent-scope-timing-history-reading.spec.ts (three frontend moves). Classifying those old sources as stagedPaths and existing/new files as ownedPaths accepted `2e8d46e0`; `/tmp/seed310-slice1-preparation.json` and `e37801b5:.planning/slice-plans/581-show-trunk-test-scope-timing-history/execution-context.md` retain recovery context.
   - Observed effect: one staging refusal and input-classification retry before publication, with no lost deletion/source/proof. Inference: same already-absent-index condition as the existing finding, not every unstaged deletion.
+
+- Execution: SEED-287#fit-dashboard-journeys-in-default-timeout
+  - Timestamp: unknown (2026-11-12 operation; exact staging-event time not separately retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound managed guidance inherited with maincaf48c6)
+  - Evidence: `/tmp/seed287-completion-progress-delivery-20261112.json` returned staging128 for already-removed `.planning/agents/bastiaan-chan.json`; the corrected preparation retains18 deleted paths in stagedPaths and361 existing paths in ownedPaths, publishing `694e6d9192e388e1a702d151854b2e85486871fa`.
+  - Observed effect: one pre-commit refusal and a manifest-only retry; formatter reran, no deletion or accepted65-attempt proof was lost. Same literal-add/already-absent-index condition as ODF-337, not evidence that unstaged deletions generally fail.
 
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 
@@ -751,3 +758,17 @@ A neighbor run at one worker on a saturated host timed out a case that does not 
   - Evidence: slice 1 return, `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…" at 30.4 s, load about 70; repair return with phase timings (walk and `gh` starts about 10 s of 15.5 s at load 45) and `449a0b919889ea357dca764eb73075b7485fdf31`; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` entry `later-comparison-walk-gh-starts`.
   - Observed effect: one implementation delegation of about 13 minutes and one refactor pass delivered a 1–2 s saving that end-to-end runs cannot show (the same case ran 4.4–17.7 s across loads 20–43). The remaining margin needs a product or suite-wide decision and is kept as a live candidate.
   - Inference: the diagnosis was necessary to learn where the time goes; whether a test-only repair should follow when the diagnosis names product cost is a judgment the policy leaves to the executor. One occurrence.
+
+## DD-500 — Named-sibling reconciliation entered Git before the backlog adapter
+
+The coordinator ran a raw no-commit merge that combined the product backlog and done records, although the installed backlog guidance requires its Git adapter from the start. A later semantic check can establish the resulting bytes but cannot retroactively supply the skipped pre-commit gate. The existing adapter guidance is explicit; no defect in its reconciliation algorithm is evidenced here.
+
+### Occurrences
+
+- Execution: SEED-287#fit-dashboard-journeys-in-default-timeout
+  - Timestamp: unknown (2026-11-12 reconciliation; exact invocation time not retained separately)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound managed guidance inherited with maincaf48c6)
+  - Evidence: coordinator tool history used `git merge --no-commit --no-ff caf48c6fa41b6a45dcdad4eac35cda9a858b2047`; published composition `694e6d91` has parents08d2903c/caf48c6. Post-publication shared `mergeBacklogs(fd164,08d,caf)` produced exactly its backlog (15 entries,13 compatible transitions), `/tmp/seed287-published-backlog-merge-20261112/validation.json`; real catalog-done verified343 records already canonical.
+  - Observed effect: the adapter was not the invocation path, despite a clean backlog result; no lost membership, priority, record or catalog is observed. Later integration uses the installed history-preserving publisher/backlog adapter.
+  - Inference: the coordinator reached backlog-specific guidance after reconciliation, rather than at that Git boundary. Apply the existing adapter entry point before future combining operations; this one occurrence does not establish a general guidance or tooling defect.
