@@ -221,9 +221,16 @@ Command: `npm run test:dashboard -- 'tests/terminals/agent-terminal-touch(-keys|
 
 ### 4. Follow a clipboard choice through refusal and retry
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story example 4; payload/clipboard/provider faults, HTTP body/status,
 sent bytes, draft and native output stay caller facts at their original tiers.
+Accepted: `terminalPastePage` names pasteKey and clipboard seed/revoke helpers (payloads as args, not MakeMe);
+`terminalStatus`/reconnectControl shared; release→retry order stays call-site stepwise; frontend 413/held
+substitutes remain frontend. Proof `/tmp/seed300-terminal-slice4-proof.json` 9/9 (~62s) including paste specs +
+pending/ended/select consumers; typecheck passed. Refactor: select consumer seeds via `copyClipboardText`;
+`/tmp/seed300-terminal-slice4-refactor-proof.json` 1/1. Dispositions: paste set + consumers **run**; shared
+status/reconnect/touch helpers **reused**; instruction-field paste and voice **excluded**. Source-review
+slice-4 ids observed.
 
 Behavior: A developer follows Paste while connecting, attached or refused → reads named clipboard/Terminal operations
 around the explicit payload and release/retry → the source distinguishes insertion, refusal and a new choice. Reuse
@@ -292,3 +299,7 @@ do not import voice from `terminalScreenPage`.
 Slice 3: keep `.terminal-screen` (paused overlay host) separate from `terminalScreenParts().screen` (`.xterm-screen`).
 Composer no-auto-replay uses explicit `page.clock.runFor`, not wall-clock sleep. After Prettier one-import-per-line,
 trim headers so touch specs stay ≤250.
+
+Slice 4: keep Paste activation as `tapTerminalKey` vs `tapWhereShown(pasteKey)` when focus-as-was is under proof.
+Phone reconnect uses `tapWhereShown(reconnectControl(panel))`, not click-only `reconnectTerminal`. Clipboard helpers
+take payloads as arguments; do not fold release/retry into one helper.

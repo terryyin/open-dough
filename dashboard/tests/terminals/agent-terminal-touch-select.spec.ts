@@ -7,7 +7,12 @@
 // ../../frontend-tests/agent-terminal-touch-select*.spec.ts.
 import { expect } from "../dashboardTest.ts";
 import { box, expectOnOneLine, tapWhereShown } from "../pageLayout.ts";
-import { phonePasteJourney, test } from "../terminalPastePage.ts";
+import {
+  copyClipboardText,
+  pasteKey,
+  phonePasteJourney,
+  test,
+} from "../terminalPastePage.ts";
 import {
   expectTerminalInputNotFocused,
   expectTerminalText,
@@ -45,7 +50,7 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
     dashboard,
   );
   const select = selectKey(panel);
-  const paste = terminalKey(panel, "Paste");
+  const paste = pasteKey(panel);
   const attach = () => dashboard.claudeAttaches()[0];
 
   await test.step("Select is one tap away, beside Paste", async () => {
@@ -67,7 +72,7 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
   await focusByTouch(panel);
   await typeLine(page, path);
   await expectTerminalText(panel, `echo ${path}`);
-  await page.evaluate(() => navigator.clipboard.writeText("copied earlier"));
+  await copyClipboardText(page, "copied earlier");
   const typed = sent.length;
   const sizesBefore = [...sizes];
   const look = () =>

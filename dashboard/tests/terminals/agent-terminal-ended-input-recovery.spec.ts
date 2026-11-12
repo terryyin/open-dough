@@ -28,6 +28,7 @@ import {
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { tapWhereShown } from "../pageLayout.ts";
+import { copyClipboardText } from "../terminalPastePage.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 import {
   focusByTouch,
@@ -96,9 +97,7 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
   });
 
   await test.step("Paste and Insert transcript on the ended terminal send nothing, and Paste names Open again", async () => {
-    await page.evaluate(() =>
-      navigator.clipboard.writeText("not for the ended terminal"),
-    );
+    await copyClipboardText(page, "not for the ended terminal");
     await tapTerminalKey(panel, "Paste");
     await expect(status).toContainText("Tap Open again, then tap Paste again.");
     await tapWhereShown(insert);

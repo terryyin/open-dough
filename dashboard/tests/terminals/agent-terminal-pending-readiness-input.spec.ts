@@ -34,6 +34,7 @@ import { keepLaunchStore } from "../support/launchStore.ts";
 import { retainedDoneAt } from "../machineLaunchRecords.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+import { copyClipboardText, copyClipboardPng } from "../terminalPastePage.ts";
 import {
   focusByTouch,
   insertDraftButton,
@@ -85,9 +86,6 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
     const pid = codexAttaches(native).at(-1)?.pid;
     return pid === undefined ? [] : codexLines(native, pid);
   };
-  const copyText = (text: string) =>
-    page.evaluate((value) => navigator.clipboard.writeText(value), text);
-
   // The reopened native process leaves its synchronized redraw open, so the
   // page never reports a completed frame and readiness stays pending.
   codexTerminalMode(native, "partial");
@@ -118,23 +116,14 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
 
   await test.step("toolbar Paste offers clipboard text once with no reconnect feedback", async () => {
     await focusByTouch(panel);
-    await copyText(" Then paste this.");
+    await copyClipboardText(page, " Then paste this.");
     await tapTerminalKey(panel, "Paste");
     await expect.poll(() => sent.slice(1)).toEqual([" Then paste this."]);
     await expect(status).toBeEmpty();
   });
 
   await test.step("toolbar Paste offers a clipboard image's stored path once", async () => {
-    await page.evaluate(async (image) => {
-      const data = Uint8Array.from(atob(image), (character) =>
-        character.charCodeAt(0),
-      );
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          "image/png": new Blob([data], { type: "image/png" }),
-        }),
-      ]);
-    }, pngA.toString("base64"));
+    await copyClipboardPng(page, pngA.toString("base64"));
     await tapTerminalKey(panel, "Paste");
     await expect(status).toHaveText(/^Image pasted as .+pasted\.png\.$/);
     await expect.poll(() => sent.length).toBe(3);
