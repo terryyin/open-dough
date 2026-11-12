@@ -7,6 +7,7 @@ import { openTakenBacklog, startSessionField } from "../launchStoryCardPage.ts";
 import { chooseProject, expectProjectChoice } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -65,10 +66,10 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
     const recent = page.locator(".board .session-entry");
     const panel = await startedSessionTerminal(page, recent);
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       "GPT-6.1-Sol default",
     );
-    await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+    await expect(terminalScreenParts(panel).input).toBeFocused();
     await expect(recent).toHaveCount(1);
     const saved = stored(dashboard.home)[0];
     if (saved?.session.host !== "codex")
@@ -188,7 +189,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await sidebar.entry(label).click();
       await expectProjectChoice(page, "Open Dough");
       await expect(recent.getByText("Shown in terminal")).toBeVisible();
-      await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+      await expect(terminalScreenParts(panel).input).toBeFocused();
       await expect(sidebar.entry(label)).toHaveAttribute(
         "aria-current",
         "true",
@@ -205,7 +206,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await expect(recent.locator(".session-state")).toHaveText("Done");
       await showColumn(page, "Recently done");
       await recent.getByRole("button", { name: "Open terminal" }).click();
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         "GPT-6.1-Sol default",
       );
       await expect

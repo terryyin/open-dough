@@ -27,6 +27,11 @@ import {
   selectedPlace,
 } from "../tests/terminalPausedScrollPage.ts";
 import {
+  expectTerminalInputNotFocused,
+  expectTerminalText,
+  pressTerminalKey,
+} from "../tests/terminalScreenPage.ts";
+import {
   expectLive,
   expectPaused,
   expectPausedOverScreen,
@@ -62,14 +67,14 @@ test("Select opens the paused text where the terminal was swiped to, a finger sc
   frontendServices,
 }) => {
   const program = directedApplication(`${heldOpening}\r\n`);
-  const { panel, rows, screen, input, sent, sizes } =
+  const { panel, rows, screen, sent, sizes } =
     await openFrontendTerminalByTouch(
       page,
       frontendServices,
       session("Phone select scrollback session"),
       { application: program.application },
     );
-  await expect(rows).toContainText(heldOpening);
+  await expectTerminalText(panel, heldOpening);
   await focusByTouch(panel);
   const size = reportedSize(sizes);
   const sized = sizes.length;
@@ -131,7 +136,7 @@ test("Select opens the paused text where the terminal was swiped to, a finger sc
     // A finger on the paused text takes focus from the terminal, so the
     // platform's copy is not a key the terminal takes.
     await tapWhereShown(pausedText(panel));
-    await expect(input).not.toBeFocused();
+    await expectTerminalInputNotFocused(panel);
     await page.evaluate(() => navigator.clipboard.writeText("copied earlier"));
     const copies = async (from: string, to: string, over: number) => {
       const range = held.lines
@@ -142,7 +147,7 @@ test("Select opens the paused text where the terminal was swiped to, a finger sc
         .join("\n");
       expect(await selectPausedRange(panel, from, to)).toBe(range);
       expect((await selectedPlace(panel)).rows).toBe(over);
-      await page.keyboard.press("ControlOrMeta+c");
+      await pressTerminalKey(page, "ControlOrMeta+c");
       await expect
         .poll(() => page.evaluate(() => navigator.clipboard.readText()))
         .toBe(range);

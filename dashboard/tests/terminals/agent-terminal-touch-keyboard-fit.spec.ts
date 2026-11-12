@@ -6,6 +6,12 @@
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import {
+  expectTerminalInputFocused,
+  expectTerminalInputNotFocused,
+  expectTerminalText,
+  terminalPanel,
+} from "../terminalScreenPage.ts";
+import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
@@ -60,11 +66,10 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
     await tapWhereShown(sidebar.button);
     const { sizes } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
     const close = panel.getByRole("button", { name: "Close" });
     const hide = hideKeyboardControl(panel);
-    await expect(rows).toContainText(`attached ${native.shortId}`);
+    await expectTerminalText(panel, `attached ${native.shortId}`);
     await expect(terminalKeyToolbar(panel)).toBeVisible();
     await expect(hide).toHaveCount(0);
     await expectFittedInput(panel, sizes);
@@ -82,9 +87,7 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
 
     await test.step("simulated soft keyboard fits the panel; controls stay reachable; draft and attachment survive", async () => {
       await focusByTouch(panel);
-      await expect(
-        panel.locator("textarea.xterm-helper-textarea"),
-      ).toBeFocused();
+      await expectTerminalInputFocused(panel);
       await simulateSoftKeyboardViewport(page, 320);
       await expectCovering(panel);
       await expectFittedInput(panel, sizes);
@@ -108,13 +111,9 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
 
     await test.step("hide-keyboard blurs focused input without reconnect", async () => {
       await focusByTouch(panel);
-      await expect(
-        panel.locator("textarea.xterm-helper-textarea"),
-      ).toBeFocused();
+      await expectTerminalInputFocused(panel);
       await tapWhereShown(hideKeyboardControl(panel));
-      await expect(
-        panel.locator("textarea.xterm-helper-textarea"),
-      ).not.toBeFocused();
+      await expectTerminalInputNotFocused(panel);
       await expect(draft).toHaveValue(held);
       expect(dashboard.claudeAttaches()).toHaveLength(1);
       await clearSoftKeyboardViewport(page);
@@ -194,10 +193,8 @@ test.describe("desktop terminal without soft-keyboard fit chrome", () => {
     const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
     await sidebar.entry("Desktop terminal without keyboard fit").click();
-    const panel = page.getByRole("region", { name: "Terminal" });
-    await expect(panel.locator(".xterm-rows")).toContainText(
-      `attached ${native.shortId}`,
-    );
+    const panel = terminalPanel(page);
+    await expectTerminalText(panel, `attached ${native.shortId}`);
     await expect(terminalKeyToolbar(panel)).toBeHidden();
     await expect(hideKeyboardControl(panel)).toBeHidden();
     expect(

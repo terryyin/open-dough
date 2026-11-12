@@ -7,6 +7,7 @@
 // never reached.
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessionOf,
@@ -54,7 +55,7 @@ test.describe("the Sessions sidebar as left", () => {
     );
     const { sidebar, button } = sessionsSidebarParts(page);
     const { taken } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const expectOpen = async () => {
       await expect(sidebar).toBeVisible();
       await expect(button).toHaveAttribute("aria-expanded", "true");

@@ -5,6 +5,7 @@ import { launchStoreFile } from "../support/launchStore.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { parts } from "../dashboardPage.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   reloadUntilRead,
   untilPublishedWorkRead,
@@ -108,8 +109,7 @@ test("a vanished explicit model is explained; deliberate default and former dyna
         : undefined,
     )
     .toBe("not-requested");
-  await page
-    .getByRole("region", { name: "Terminal" })
+  await terminalPanel(page)
     .getByRole("button", { name: "Close", exact: true })
     .click();
   expect(stored(dashboard.home)[0]?.request).not.toHaveProperty("model");

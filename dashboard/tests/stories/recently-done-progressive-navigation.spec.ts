@@ -16,6 +16,7 @@ import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   recordsAsked,
   revealAction,
@@ -93,7 +94,7 @@ test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27
       .getByRole("button", { name: "Open terminal" })
       .click();
     const terminal = terminalOf(page);
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expect(view.taken(destination)).toHaveCount(1);
     await view.markedDone(destination, terminal);
     await expect(terminal).toHaveCount(0);
@@ -114,7 +115,7 @@ test("Mark as done in its terminal closes the panel and lands on entry 27 once e
     .taken(destination)
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await view.markedDone(destination, terminal);
   await expect(terminal).toHaveCount(0);
   await expectThroughDestinationPending(
@@ -143,7 +144,7 @@ test("marking the session done in its covering terminal, with Recently done page
     .taken(destination)
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await expect(view.recent).not.toBeInViewport();
   await view.markedDone(destination, terminal);
   await expect(terminal).toHaveCount(0);

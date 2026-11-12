@@ -4,6 +4,7 @@ import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   localEntries,
   publishMembership,
@@ -150,7 +151,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   await publishMembership(page);
   await page.goto("/");
   await startAdHocAndClose(page, "Open Dough", "inspect local work");
-  const terminal = page.getByRole("region", { name: "Terminal" });
+  const terminal = terminalPanel(page);
   const active = localEntries(page);
   await expect(active).toHaveCount(1);
   const native = await sessionNamedBy(active);

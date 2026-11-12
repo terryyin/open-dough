@@ -1,4 +1,3 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // Ad hoc sessions occupy Taken without a story card. Sidebar selection opens
 // their project/terminal; Done moves them to Recently done and reopen survives reload.
 // Blocked sessions count as needing attention; deletion under an unread native
@@ -6,6 +5,12 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // Related journeys: ../launches/agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
 // ./agent-terminal-done.spec.ts, ./agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
+import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import {
+  closeTerminal,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import {
@@ -31,13 +36,11 @@ import {
   sessionsSidebarParts,
 } from "../sessionsSidebarPage.ts";
 import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 import {
   takenAdHocSession,
   startAdHocAndClose,
 } from "../support/startedAdHocSession.ts";
-
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
 const openDoughStories = {
@@ -55,7 +58,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   await openTakenBacklog(page, launchJourney);
   const text = "why is the CI slow on main?";
   const { button, entries, entry } = sessionsSidebarParts(page);
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   const active = takenAdHocSession(page, text);
   const recent = parts(page).recentlyDone.getByRole("article", {
     name: `Ad hoc session for ${text}`,
@@ -76,7 +79,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
     await entry(text).click();
     await expectProjectChoice(page, "Open Dough");
     await expectMembership(page, openDoughStories);
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(panel).rows).toContainText(
       `attached ${sessionId.slice(0, 8)}`,
     );
     // Asked to be brought into view, smoothly. Whether it then stays in view
@@ -110,7 +113,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   await test.step("Open terminal reopens it into the sidebar, and a reload keeps it there", async () => {
     await showColumn(page, "Recently done");
     await recent.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(entries).toHaveCount(1);
     await expect(recent).toHaveCount(0);
     await expect(sessionStateOf(active)).not.toHaveText("Done");
@@ -224,9 +227,9 @@ test("with Open Dough already shown, its Sessions sidebar Session entry brings i
   await button.click();
   await expect(local).not.toBeInViewport();
   await entry(text).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expectCovering(panel);
-  await expect(panel.getByRole("heading", { level: 2 })).toContainText(text);
-  await closeSidePanel(panel); // covering hides Board marks; then check reveal
+  await expect(terminalScreenParts(panel).heading).toContainText(text);
+  await closeTerminal(panel); // covering hides Board marks; then check reveal
   await expect(local).toBeInViewport();
 });

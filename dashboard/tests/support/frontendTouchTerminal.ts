@@ -13,6 +13,7 @@ import {
 import { installAttachedTerminalSubstitute } from "./frontendServiceSubstitutes.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
@@ -48,14 +49,12 @@ async function openFrontendTerminal(
   await expect(sidebar.sidebar).toBeVisible();
   await expect(sidebar.entries).toHaveCount(1);
   await press(sidebar.entry(record.request.title));
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expect(panel).toBeVisible();
   return {
     ...traffic,
     panel,
-    rows: panel.locator(".xterm-rows"),
-    screen: panel.locator(".xterm-screen"),
-    input: panel.locator("textarea.xterm-helper-textarea"),
+    ...terminalScreenParts(panel),
   };
 }
 

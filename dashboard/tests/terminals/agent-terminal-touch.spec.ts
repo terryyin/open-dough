@@ -1,10 +1,18 @@
-// Touch, editing and fitting use the ordinary page/xterm/WebSocket/PTY path.
-// The native stand-in supplies a composer, edited input and harmless replies.
+// Ordinary page/xterm/WebSocket/PTY touch path; native stand-in supplies replies.
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expectRowRestsShowing, scrollYOf } from "../boardPage.ts";
+import {
+  expectNoTerminalText,
+  expectTerminalText,
+  insertTerminalText,
+  pressTerminalKey,
+  terminalPanel,
+  terminalScreenParts,
+  typeLine,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -66,8 +74,8 @@ test.describe(`${name} terminal input`, () => {
     const opener = sidebar.entry(title);
     const { sent, sizes } = noteTerminalTraffic(page);
     await tapWhereShown(opener);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const control = (label: string) =>
       panel.getByRole("button", { name: label, exact: true });
     const attaches = () => dashboard.claudeAttaches();
@@ -82,8 +90,8 @@ test.describe(`${name} terminal input`, () => {
       expect(dashboard.claudeLaunchCalls()).toHaveLength(4);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     };
-    await expect(rows).toContainText(`attached ${native.shortId}`);
-    await expect(rows).toContainText("Claude Code");
+    await expectTerminalText(panel, `attached ${native.shortId}`);
+    await expectTerminalText(panel, "Claude Code");
     await expectCoveringFillsWindow(panel, { banner, board });
     // Reveal may move the Board; Close must return that same place (E3),
     // read once Taken, holding the session's card, rests in view.
@@ -125,9 +133,9 @@ test.describe(`${name} terminal input`, () => {
     }
     await expectFittedInput(panel, sizes);
     await focusByTouch(panel);
-    await page.keyboard.type("carry onX");
-    await page.keyboard.press("Backspace");
-    await page.keyboard.type(" please");
+    await insertTerminalText(page, "carry onX");
+    await pressTerminalKey(page, "Backspace");
+    await insertTerminalText(page, " please");
 
     await test.step("a moderately reduced height keeps fitted input", async () => {
       await page.setViewportSize({ width: portrait.width, height: 400 });
@@ -143,12 +151,12 @@ test.describe(`${name} terminal input`, () => {
       await expectCovering(panel);
       await expectFittedInput(panel, sizes);
       await focusByTouch(panel);
-      await page.keyboard.press("Enter");
+      await pressTerminalKey(page, "Enter");
       await expect
         .poll(() => attaches()[0]?.lines)
         .toEqual(["carry on please"]);
       expect(sent.join("")).toBe("carry onX\u007f please\r");
-      await expect(rows).toContainText("echo carry on please");
+      await expectTerminalText(panel, "echo carry on please");
       if (name === "phone") {
         await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
         await expect(heading).toHaveAccessibleName(title);
@@ -168,10 +176,9 @@ test.describe(`${name} terminal input`, () => {
     await test.step("touch scroll reads earlier PTY output and returns to the input without hiding the controls", async () => {
       await focusByTouch(panel);
       for (let line = 0; line < 12; line += 1) {
-        await page.keyboard.type(`output ${line}`);
-        await page.keyboard.press("Enter");
+        await typeLine(page, `output ${line}`);
       }
-      await expect(rows).toContainText("echo output 11");
+      await expectTerminalText(panel, "echo output 11");
       await expect
         .poll(() => attaches()[0]?.lines.slice(-12))
         .toEqual(Array.from(Array(12).keys(), (line) => `output ${line}`));
@@ -181,17 +188,16 @@ test.describe(`${name} terminal input`, () => {
       const linesBeforeScroll = attaches()[0]?.lines;
       await scrollByTouch(page, viewport, 100);
       await expect.poll(() => rows.textContent()).not.toBe(bottom);
-      await expect(rows).toContainText(/echo output [0-9]/);
-      await expect(rows).not.toContainText("echo output 11");
+      await expectTerminalText(panel, /echo output [0-9]/);
+      await expectNoTerminalText(panel, "echo output 11");
       await scrollByTouch(page, viewport, -300);
-      await expect(rows).toContainText("echo output 11");
+      await expectTerminalText(panel, "echo output 11");
       expect(sent).toEqual(inputBeforeScroll);
       expect(attaches()[0]?.lines).toEqual(linesBeforeScroll);
       await assertIdentity();
       await focusByTouch(panel);
-      await page.keyboard.type("after scrolling");
-      await page.keyboard.press("Enter");
-      await expect(rows).toContainText("echo after scrolling");
+      await typeLine(page, "after scrolling");
+      await expectTerminalText(panel, "echo after scrolling");
       await assertIdentity();
     });
 
@@ -204,9 +210,8 @@ test.describe(`${name} terminal input`, () => {
         await expect(control("Close")).toBeVisible();
         await expectFittedInput(panel, sizes);
         await focusByTouch(panel);
-        await page.keyboard.type(`follow up ${view.width}`);
-        await page.keyboard.press("Enter");
-        await expect(rows).toContainText(`echo follow up ${view.width}`);
+        await typeLine(page, `follow up ${view.width}`);
+        await expectTerminalText(panel, `echo follow up ${view.width}`);
         await assertIdentity();
       }
     });
@@ -232,13 +237,12 @@ test.describe(`${name} terminal input`, () => {
       expect(record).not.toHaveProperty("doneAt");
       await tapWhereShown(sidebar.button);
       await tapWhereShown(opener);
-      await expect(rows).toContainText(`attached ${native.shortId}`);
+      await expectTerminalText(panel, `attached ${native.shortId}`);
       await expectCovering(panel);
       await expectFittedInput(panel, sizes);
       await focusByTouch(panel);
-      await page.keyboard.type("same session reopened");
-      await page.keyboard.press("Enter");
-      await expect(rows).toContainText("echo same session reopened");
+      await typeLine(page, "same session reopened");
+      await expectTerminalText(panel, "echo same session reopened");
       await assertIdentity(2);
       expect(attaches()[1]?.lines).toEqual(["same session reopened"]);
     });

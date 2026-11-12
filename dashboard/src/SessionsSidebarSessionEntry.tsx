@@ -157,7 +157,7 @@ export function SessionsSidebarSessionEntry({
           groupClassName="sessions-sidebar-session-entry-access-group"
           aria-describedby={titleId}
           onClick={(event) => {
-            onOpen({ record, control: event.currentTarget });
+            onOpen({ record, control: event.currentTarget, access });
           }}
         />
       )}

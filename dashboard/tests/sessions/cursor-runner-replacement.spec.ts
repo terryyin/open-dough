@@ -11,6 +11,7 @@ import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.t
 import { parts } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   holdSession,
   openRunningList,
@@ -59,7 +60,7 @@ workingCursorTest(
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     makeRecordedRunnerProofStale(dashboard.home);
-    const shownTerminal = page.getByRole("region", { name: "Terminal" });
+    const shownTerminal = terminalPanel(page);
     const { region } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is running.");
     const row = region.getByRole("button", { name: /Open Dough/ });
@@ -70,7 +71,7 @@ workingCursorTest(
     expect(cursor.attaches()).toHaveLength(attaches);
 
     await row.click();
-    await expect(shownTerminal.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(shownTerminal).rows).toContainText(
       "ctrl+c to stop",
     );
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(runnerPid);
@@ -119,7 +120,7 @@ replacementTest(
     await expect(
       running.region.getByRole("button", { name: /Open Dough/ }),
     ).toHaveCount(2);
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await running.button.click();
     await expect(running.sidebar).toBeHidden();
     const entries = parts(page).taken.locator(".session-entry");
@@ -129,9 +130,11 @@ replacementTest(
     await scopedEntry.getByRole("button", { name: "Session details" }).click();
     await expect(scopedEntry.getByText("First input accepted")).toBeVisible();
     await scopedEntry.getByRole("button", { name: "Session details" }).click();
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await scopedEntry.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("Add a follow-up");
+    await expect(terminalScreenParts(panel).rows).toContainText(
+      "Add a follow-up",
+    );
     await panel.getByRole("button", { name: "Close", exact: true }).click();
     await expect(panel).toHaveCount(0);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(stalePid);

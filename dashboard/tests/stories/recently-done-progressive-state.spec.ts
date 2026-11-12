@@ -16,6 +16,7 @@ import { standaloneSessionName } from "../dashboardPage.ts";
 import { rem, scrollYOf, showColumn } from "../boardPage.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   recordsAsked,
   revealAction,
@@ -81,7 +82,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
     .taken(destination)
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await showColumn(page, "Recently done");
 
   await test.step("two reveals ask for entries 11 to 30, holding one record, and Show latest 10 is offered beside the heading", async () => {
@@ -105,7 +106,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
     await expect(revealAction(recent)).toHaveText(
       "Show 10 of 24 older entries",
     );
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expect(view.taken(destination)).toHaveCount(1);
     expect(recordsAsked(github)).toHaveLength(asked);
   });
@@ -119,7 +120,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
     await expect(recent).toBeFocused();
     expect(await scrollYOf(page)).toBe(scrolled);
     expect(recordsAsked(github)).toHaveLength(asked);
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   });
 
   await test.step("a fresh reveal shows twenty, reusing what was read", async () => {

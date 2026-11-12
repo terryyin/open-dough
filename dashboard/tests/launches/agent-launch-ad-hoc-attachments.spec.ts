@@ -22,6 +22,7 @@ import {
   pngB,
   writePickedImages,
 } from "../support/launchAttachmentFixtures.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -115,11 +116,7 @@ test("Start session with no text and one image sends the list alone, labels by t
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(dialog).toBeHidden();
   // Images are input but not typed text: the terminal opens.
-  await expect(
-    page
-      .getByRole("region", { name: "Terminal" })
-      .locator(".xterm-helper-textarea"),
-  ).toBeFocused();
+  await expect(terminalScreenParts(terminalPanel(page)).input).toBeFocused();
 
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();

@@ -5,6 +5,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
+import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   startSession,
   startSessionDialog,
@@ -13,7 +14,6 @@ import {
 import { parts } from "../dashboardPage.ts";
 import {
   box,
-  closeSidePanel,
   expectEveryControlReachable,
   expectInside,
   expectNoSidewaysScrollIn,
@@ -181,9 +181,9 @@ test.describe("390×844 touch, held", () => {
     );
 
     dashboard.releaseHeldClaude();
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     await expect(terminal).toBeVisible({ timeout: 30_000 });
-    await closeSidePanel(terminal);
+    await closeTerminal(terminal);
     await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(progress).toHaveCount(0);

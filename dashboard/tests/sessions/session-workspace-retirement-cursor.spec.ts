@@ -5,6 +5,7 @@ import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   storyCardAttentionOf,
   storyCardSessions,
@@ -65,9 +66,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
     "Mark as done acknowledges this session; it does not complete the story.",
   );
   await expect(panel).toContainText(workspace);
-  await expect(
-    page.getByRole("region", { name: "Terminal", exact: true }),
-  ).toHaveCount(0);
+  await expect(terminalPanel(page)).toHaveCount(0);
   // Reading is passive: it changes no read or done mark in the saved record.
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
   await panel.getByRole("button", { name: "Close", exact: true }).click();
@@ -91,9 +90,7 @@ test("retired Cursor workspace opens retained report without opening terminal an
   await expect(recent).toContainText("Done");
   await recent.getByRole("button", { name: "Read final report" }).click();
   await expect(panel.locator(".final-report-text")).toHaveText(report);
-  await expect(
-    page.getByRole("region", { name: "Terminal", exact: true }),
-  ).toHaveCount(0);
+  await expect(terminalPanel(page)).toHaveCount(0);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
 });
 
@@ -123,9 +120,7 @@ test("missing Cursor workspace with quiet empty completion keeps report and dire
   );
   await expect(panel).not.toContainText(productClosureEvidencePresent);
   await expect(panel.locator(".final-report-text")).toHaveCount(0);
-  await expect(
-    page.getByRole("region", { name: "Terminal", exact: true }),
-  ).toHaveCount(0);
+  await expect(terminalPanel(page)).toHaveCount(0);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });
 
@@ -163,8 +158,6 @@ test("missing Cursor workspace without completion states product closure, unavai
     "No retained final report is available.",
   );
   await expect(panel.locator(".final-report-text")).toHaveCount(0);
-  await expect(
-    page.getByRole("region", { name: "Terminal", exact: true }),
-  ).toHaveCount(0);
+  await expect(terminalPanel(page)).toHaveCount(0);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });

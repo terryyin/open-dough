@@ -44,7 +44,7 @@ export function LaunchSession({
         className="frame-button frame-button-primary"
         aria-describedby={described}
         onClick={(event) => {
-          openSession({ record, control: event.currentTarget });
+          openSession({ record, control: event.currentTarget, access });
         }}
       >
         <Icon icon={sessionAccessControl[access].icon} />

@@ -13,6 +13,7 @@ import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   entryName,
   revision as revisionA,
@@ -103,7 +104,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
       .taken.getByRole("article", { name: entryName(entryAt(destination)) })
       .getByRole("button", { name: "Open terminal" })
       .click();
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectEntries(recent, twenty);
     await panelDivider(page).focus();
     await page.keyboard.press("ArrowLeft");

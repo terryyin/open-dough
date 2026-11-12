@@ -44,7 +44,6 @@ new plans, not an invented slice history.
 | Order | Receiving story | Findings | Preparation / scheduling |
 | --- | --- | --- | --- |
 | 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Story refined and existing plan realigned; queued |
-| 3 | [Express Terminal test intent through page objects](#express-terminal-test-intent-through-page-objects) | 1 | Story refined and existing plan realigned; queued |
 | 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Story refined and existing plan realigned; queued |
 | 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
@@ -317,109 +316,6 @@ default timeout and complete journeys.
   [kept width](../../dashboard/tests/navigation/side-panel-width-kept.spec.ts#L34),
   [Final report divider](../../dashboard/tests/sessions/final-report-touch-divider.spec.ts#L48),
   [Terminal maximize](../../dashboard/tests/terminals/agent-terminal-maximize.spec.ts#L165).
-
-<a id="express-terminal-test-intent-through-page-objects"></a>
-
-### Express Terminal test intent through page objects
-
-**Identity:** SEED-300#express-terminal-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/583-terminal-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"905bbc6a9a0c895526f2add17ec8fd7a3e2ba4b1ee9288cf161f4e3e822b692e","plan":"68ce3ccab41e56fd0dd8322ec309464e3c3d32d94802cd6a2a13330cbec114e7"}}
-```
-
-#### Goal
-
-A developer reading Terminal tests in Intent can follow which session opens,
-what the user enters or receives, and how input recovers. Shared Terminal
-screen and input controls have one browser owner, so a control change needs
-one mechanics edit while each scenario keeps the evidence that distinguishes
-its outcome.
-
-#### Scope
-
-Resolve the Terminal input/output finding and its current same-control or
-same-sequence siblings across integrated and frontend tests, including launch,
-session, navigation, configuration and story-reading callers. The 63 audited
-direct-selector specs at `7eab3d6ca` are a historical starting set, not a
-completion count. Reconcile moved mechanics and newly added callers.
-
-- Share screen/output, input/draft/focus and Terminal identity observations,
-  composing the existing session-entry and Side panel controls for opening,
-  closing and recovery. Procedural and fluent callers use the same control
-  owner without requiring a suite-wide fluent conversion.
-- Express keyboard input, trust and prompt choices, connecting/refused/ended
-  input and deliberate recovery through named actions and observations.
-- Express touch keys, soft-keyboard fit, composition, selection/copy, paste
-  and voice through the existing focused owners. Selection/copy is a current
-  same-control sibling; preserve its paused-screen and application-mode proof.
-
-Required preservation constraints prevent helpers from hiding regressions:
-literal commands, draft and output expectations, input modality, focus and
-session identity stay visible where they explain the case. Keep held answers,
-provider events, clock advances and release/retry order explicit. Preserve
-native attach/PTY lines, WebSocket frames, request counts and kept records at
-their independent observing boundaries. Direct accessibility, rendition and
-geometry observations remain independent when that interface is the contract.
-Helpers receive caller facts and never infer expected values from production
-state or silently complete a held read. Domain data stays with MakeMe and each
-test keeps its existing tier.
-
-Scope limits: no dashboard behavior change, new browser-test framework,
-universal fluent conversion, fewer-case or faster-suite claim, or wholesale
-migration of the sibling launch, session/report, Board, review, settings or
-measurement workflows. Their Terminal-control callers are included; unrelated
-workflow mechanics stay with their own stories. Necessary proof-harness
-repair follows the project's failing/flaky-test policy.
-
-**Plan:** [Executable plan](../slice-plans/583-terminal-test-intent/PLAN.md)
-
-#### Key examples
-
-1. A procedural host/reconnect case and a fluent Side panel journey open a
-   session → each reads output through the shared Terminal owner → the source
-   names the chosen session and expected text, while native attach counts,
-   retained records and later reconnect identity remain independently checked.
-2. A Terminal is connecting, refused, on a trust prompt or ended → the user
-   makes the case's explicit input or recovery choice → the test still shows
-   which exact bytes reached which session, what was withheld, and which
-   deliberate choice makes input available again. Recovery never hides a
-   queued input replay or an extra native session.
-3. A phone user types with Terminal keys or composes a draft while the soft
-   keyboard changes the available room → the test names the actual key,
-   gesture, viewport and draft → focus and fitting remain observable, Insert
-   sends the draft once without Enter, and deliberate Enter alone submits.
-   A paused selection case still distinguishes copied text from application
-   input and scrolling.
-4. A clipboard payload is available while attachment readiness is held, or
-   the server refuses an image → the user chooses Paste and then explicitly
-   retries when ready → the source retains the payload, refusal and release
-   order; draft, sent bytes and native output prove insertion or refusal.
-   Frontend substitutes remain frontend proof rather than claiming PTY proof.
-5. Voice transcription is held while the user types or changes sessions →
-   recording, provider release and the chosen follow-up remain separate →
-   expected transcript, retained draft, cancellation and final submitted line
-   are visible in the case, with provider and native evidence independent.
-6. A developer reviews the migration → every historical finding/current
-   caller has an evidence-backed disposition → representative scenarios read
-   in user terms, shared controls have one mechanics owner, and clarity/edit
-   savings justify the added helper cost without losing distinct checks.
-
-#### Audit findings owned by this story
-
-- **Terminal input and output.** Direct xterm rows or helper-textarea selectors
-  occur in 63 browser specs, across Terminal, launch, session, navigation,
-  configuration and frontend tests. Share reading output, sending commands,
-  checking the current draft and terminal identity, and opening or closing
-  the panel. Use the existing Terminal, touch and paste helpers to cover
-  prompts, trust, ended-input recovery, keyboard, soft keyboard, compose,
-  paste, and voice. Keep actual input, output, and native attach/PTY evidence
-  as test facts.
-  [Keyboard](../../dashboard/tests/terminals/agent-terminal-keyboard.spec.ts#L103),
-  [touch keys](../../dashboard/tests/terminals/agent-terminal-touch-keys.spec.ts#L59),
-  [keyboard fit](../../dashboard/tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts#L85),
-  [voice](../../dashboard/tests/terminals/session-terminal-voice.spec.ts#L32),
-  [frontend paste](../../dashboard/frontend-tests/agent-terminal-touch-paste-image.spec.ts#L66),
-  [frontend prompts](../../dashboard/frontend-tests/terminal-prompts-recovery.spec.ts#L100).
 
 <a id="express-board-test-intent-through-page-objects"></a>
 

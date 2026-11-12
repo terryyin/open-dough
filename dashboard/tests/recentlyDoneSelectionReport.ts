@@ -8,6 +8,7 @@ import { parts } from "./dashboardPage.ts";
 import { report } from "./recentlyDoneSelectionJourney.ts";
 import type { recentlyDoneParts } from "./recentlyDoneSessionsSidebarPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import { terminalPanel } from "./terminalScreenPage.ts";
 
 // Opens the reported session's final report through its row's Open.
 export async function showReport(
@@ -43,7 +44,7 @@ export async function expectDevelopmentKept(
     await expect(panel.locator(".final-report-text")).toHaveText(
       report.message,
     );
-    await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
   }
   expect(dashboard.claudeAttaches()).toEqual([]);
 }

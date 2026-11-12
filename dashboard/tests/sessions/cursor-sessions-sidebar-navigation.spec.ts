@@ -6,6 +6,7 @@
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
 import { chooseProject, parts } from "../dashboardPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   changesAsked,
   holdSession,
@@ -35,7 +36,7 @@ for (const { name, size } of [
     await showPage(page, origin);
     const { sidebar, button, entries, header, region, list } =
       runningCursorParts(page);
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     await button.click();
     await header.click();
     const row = region.getByRole("button", { name: /Open Dough/ });
@@ -49,7 +50,7 @@ for (const { name, size } of [
     expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
 
     await row.click();
-    await expect(terminal.locator(".xterm-rows")).toContainText(
+    await expect(terminalScreenParts(terminal).rows).toContainText(
       "ctrl+c to stop",
     );
     expect(
