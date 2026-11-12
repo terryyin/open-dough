@@ -15,6 +15,7 @@ import {
   startSessionField,
 } from "../launchStoryCardPage.ts";
 import { parts, sessionNamedBy } from "../dashboardPage.ts";
+import { scrollYOf, wheelTo } from "../boardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
 
@@ -46,15 +47,11 @@ test("starting with nothing typed opens the session in the terminal with the key
   // whatever the fonts make its length, so a kept position is the page's
   // own and not one the window forces.
   await page.setViewportSize({ width: 1280, height: 480 });
-  await page.locator(".board-scroll").evaluate((region) => {
-    region.scrollTo(0, 40);
-  });
+  await wheelTo(page, 40);
   await button.click();
   await expect(dialog).toBeVisible();
   // Where the page is once the dialog is open; the launch does not move it.
-  const scroll = await page
-    .locator(".board-scroll")
-    .evaluate((region) => region.scrollTop);
+  const scroll = await scrollYOf(page);
   expect(scroll).toBeGreaterThan(0);
   await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Start" }).click();
@@ -76,9 +73,7 @@ test("starting with nothing typed opens the session in the terminal with the key
 
   await expect(parts(page).adHocStarted).toHaveCount(0);
   await expect(entry).toContainText("Shown in terminal");
-  expect(
-    await page.locator(".board-scroll").evaluate((region) => region.scrollTop),
-  ).toBe(scroll);
+  expect(await scrollYOf(page)).toBe(scroll);
   const { button: sessions, entries } = sessionsSidebarParts(page);
   await sessions.click();
   await expect(entries.first().getByRole("button")).toHaveAttribute(

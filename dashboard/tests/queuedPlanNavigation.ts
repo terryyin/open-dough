@@ -14,6 +14,7 @@ import {
   focusCanonicalRecord,
   hideDetail,
   inspectedDetail,
+  slicePlanLink,
   storyCard,
 } from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
@@ -38,7 +39,7 @@ export async function expectQueuedPlanStoryCardAndDetail(
   await expect(card.getByRole("link")).toHaveCount(0);
   const reads = readCount();
   const detail = await inspectedDetail(card);
-  const plan = detail.getByRole("link", { name: /^Slice plan / });
+  const plan = slicePlanLink(detail);
   await expect(plan).toHaveCount(1);
   await expect(plan).toHaveAttribute(
     "href",
@@ -74,7 +75,7 @@ export async function expectPlanKeyboardDestination(
   const card = storyCard(backlog, plannedBlocked.title);
   await focusCanonicalRecord(card);
   await page.keyboard.press("Tab");
-  await expect(card.getByRole("link", { name: /^Slice plan / })).toBeFocused();
+  await expect(slicePlanLink(card)).toBeFocused();
   const [popup] = await Promise.all([
     page.waitForEvent("popup"),
     page.keyboard.press("Enter"),
@@ -93,7 +94,7 @@ export async function expectAgreeingFragment(
   revision: string,
 ) {
   const card = storyCard(taken, plannedReady.title);
-  const plan = card.getByRole("link", { name: /^Slice plan / });
+  const plan = slicePlanLink(card);
   await inspectedDetail(card);
   await expect(plan).toHaveCount(1);
   await expect(plan).toHaveAttribute(

@@ -9,6 +9,7 @@ import {
 } from "../recentlyDoneProgressivePage.ts";
 import { noConnection } from "../originAnswers.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
+import { passTimeToRecovery } from "../transientRecoveryPage.ts";
 import { storyCard } from "../storyCardControls.ts";
 import {
   dependencySummary,
@@ -90,15 +91,10 @@ test("Done catalog loading and failure stay distinct from absence and story retr
   await retryReference(page);
   // The existing published-observation owner retains its announced recovery
   // wait; story navigation neither resets nor bypasses that read policy.
-  const recovery = page.getByRole("alert").filter({
-    has: page.getByRole("heading", {
-      name: "Reading unanswered detail again",
-    }),
-  });
-  const when = Date.parse(
-    (await recovery.locator("time").getAttribute("datetime")) ?? "",
+  await expect(parts(page).problem).toContainText(
+    "Reading unanswered detail again",
   );
-  await page.clock.fastForward(when - (await page.evaluate(() => Date.now())));
+  await passTimeToRecovery(page);
   const destination = storyCard(recent, farDone.title);
   await expect(destination).toBeFocused();
   await expect(destination).toBeInViewport({ ratio: 0.5 });
@@ -139,17 +135,10 @@ for (const observation of ["unavailable", "failed"] as const) {
     await expect(notice).toBeEmpty();
     if (observation === "failed") {
       restore();
-      const recovery = page.getByRole("alert").filter({
-        has: page.getByRole("heading", {
-          name: "Reading unanswered detail again",
-        }),
-      });
-      const when = Date.parse(
-        (await recovery.locator("time").getAttribute("datetime")) ?? "",
+      await expect(parts(page).problem).toContainText(
+        "Reading unanswered detail again",
       );
-      await page.clock.fastForward(
-        when - (await page.evaluate(() => Date.now())),
-      );
+      await passTimeToRecovery(page);
     } else {
       const healed = await publishDoneReferences(origin);
       await passTimeUntilChecked(page);

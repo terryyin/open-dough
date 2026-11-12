@@ -6,9 +6,11 @@
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { loadedWidth } from "./agentPortrait.ts";
+import { inspectedDetail } from "./storyCardControls.ts";
 
-// The credit parts within `holder`: a card, a detail, a roster member, or one
-// of their credit parts, such as a card's owner or scan line.
+// The credit parts within `holder`: a card, a detail, a roster member, a
+// session's terminal panel, or one of their credit parts, such as a card's
+// owner or scan line.
 export function credit(holder: Locator) {
   return {
     // A Taken card's owner, or the gap that stands in its place.
@@ -31,10 +33,21 @@ export function credit(holder: Locator) {
     // "Human developer: …", or why that human is unknown.
     human: holder.locator(".owner-human"),
     humanName: holder.locator(".owner-human-name"),
+    // The scan view's short warning that the human is unknown; why is said
+    // only in the detail.
+    humanGap: holder.locator(".owner-human-gap"),
+    // The detail's branch context: trunk, or the story branch worked on.
+    branch: holder.locator(".owner-branch"),
     // An assignment the published records leave unknown or conflicting.
     gap: holder.locator(".assignment-gap"),
     avatar: holder.locator(".human-avatar"),
   };
+}
+
+// The human a card's detail credits, or says is unknown or still being read,
+// once its detail is open.
+export async function detailHuman(card: Locator): Promise<Locator> {
+  return credit(await inspectedDetail(card)).human;
 }
 
 // The credited human beside an agent: their avatar or initials, and name.

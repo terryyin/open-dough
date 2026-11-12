@@ -23,7 +23,7 @@ import { filesColumn, intentModeViews } from "../intentModePage.ts";
 
 import { parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -229,7 +229,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(storyTitle(intent)).toHaveText("Story A");
     await development.click();
     await expectSelected(card, true);
-    await card.getByRole("heading", { level: 3 }).click();
+    await emptyArea(card).click();
     await expectSelected(card, false);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");

@@ -32,6 +32,7 @@ import {
   canonicalRecord,
   hideDetail,
   inspectedDetail,
+  slicePlanLink,
   storyCard,
 } from "./storyCardControls.ts";
 import { badge, expectBadges } from "./storyCardFacts.ts";
@@ -89,9 +90,7 @@ export async function expectNewSnapshotPreservesOrAnnouncesIdentity(
 
   // The plan link is in the story's detail, which stays open across snapshots.
   const blockedCard = storyCard(backlog, plannedBlocked.title);
-  const queuedPlan = (await inspectedDetail(blockedCard)).getByRole("link", {
-    name: /^Slice plan /,
-  });
+  const queuedPlan = slicePlanLink(await inspectedDetail(blockedCard));
   // Finish the opening snapshot's detail asks before the paused clock advances
   // into a check; otherwise a wait-bound interruption arms recovery.
   await untilPageRequestsAnswered(page);
@@ -167,7 +166,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await showColumn(page, "Backlog");
   const blockedDetail = await inspectedDetail(blockedCard);
   await expect(detail).toBeVisible();
-  const queuedPlan = blockedDetail.getByRole("link", { name: /^Slice plan / });
+  const queuedPlan = slicePlanLink(blockedDetail);
   await queuedPlan.scrollIntoViewIfNeeded();
   await canonicalRecord(blockedDetail).focus();
   await page.keyboard.press("Tab");

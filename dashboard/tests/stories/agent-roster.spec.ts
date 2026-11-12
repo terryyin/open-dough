@@ -54,8 +54,8 @@ test("a card's agent portrait opens the project's agent roster, and Back returns
     await expect(taken).toBeHidden();
     expectRoute(page, { project: "open-dough", view: "roster" });
     await expect(members.getByRole("heading")).toHaveText(everyAgent);
-    await expect(members.locator(".agent-portrait")).toHaveCount(29);
-    for (const portrait of await members.locator(".agent-portrait").all()) {
+    await expect(credit(members).portrait).toHaveCount(29);
+    for (const portrait of await credit(members).portrait.all()) {
       await expect(portrait).toBeVisible();
     }
     await expect(roster.locator('[aria-current="true"]')).toHaveCount(1);

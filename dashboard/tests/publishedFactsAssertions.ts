@@ -3,7 +3,11 @@
 // evidence; raw published records remain in publishedFactsArrival.ts.
 
 import type { Locator } from "@playwright/test";
-import { canonicalRecord, inspectedDetail } from "./storyCardControls.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+  slicePlanLink,
+} from "./storyCardControls.ts";
 import { expectBadges, storyPurpose } from "./storyCardFacts.ts";
 import { credit } from "./agentCredit.ts";
 import { dependencyDisclosure } from "./storyReference.ts";
@@ -23,9 +27,7 @@ export async function expectCanonicalFacts(queuedCard: Locator) {
   await expect(detail).toContainText("Assessment: Ready");
   await expect(detail).not.toContainText("Ready for execution");
   await expect(detail).toContainText("1 of 2 slices recorded complete");
-  await expect(
-    detail.getByRole("link", { name: /^Slice plan/ }),
-  ).toHaveAttribute(
+  await expect(slicePlanLink(detail)).toHaveAttribute(
     "href",
     `https://github.com/${repository}/blob/${revision}/${planPath("preparing")}`,
   );

@@ -46,6 +46,8 @@ import {
   titlesOfB,
 } from "../refreshJourney.ts";
 import { test } from "../support/ownerClockTest.ts";
+import { expectEarlierSnapshotKept } from "../transientRecoveryPage.ts";
+import { failedAt, limitSaid, noticedResumeTime } from "../limitNotice.ts";
 
 // A check asked after `passed` more page time, `quiet` of it having passed
 // already, came at the directed time, within one step of it.
@@ -86,10 +88,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   );
   const expectSnapshotA = async () => {
     await expectMembership(page, titlesOfA);
-    await expect(problem.locator("time").nth(1)).toHaveAttribute(
-      "datetime",
-      retrievedA,
-    );
+    await expectEarlierSnapshotKept(page, retrievedA);
   };
 
   await test.step("the rate-limited check is reported with the time GitHub asked checks to wait until", async () => {
@@ -99,19 +98,10 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     await expect(problem).toContainText(
       "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
     );
-    await expect(problem).toContainText(
-      "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
-    );
+    await expect(problem).toContainText(limitSaid);
     await expect(problem).not.toContainText("Retry");
     await expect(page.getByRole("button", { name: "Retry" })).toHaveCount(0);
-    const failedAt = await problem
-      .locator("time")
-      .nth(0)
-      .getAttribute("datetime");
-    await expect(problem.locator("time").nth(2)).toHaveAttribute(
-      "datetime",
-      new Date(Date.parse(failedAt ?? "") + 2_000).toISOString(),
-    );
+    expect(await noticedResumeTime(page)).toBe((await failedAt(page)) + 2_000);
     // Failed rate-limited check: status names no revision; the problem keeps
     // the earlier retrieval time and Board membership proves A.
     await expectSnapshotA();

@@ -29,6 +29,7 @@ import {
 } from "../support/launchStore.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { credit } from "../agentCredit.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -57,7 +58,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   const names = panel.locator(".side-panel-names");
   const heading = terminalScreenParts(panel).heading;
   const sessionRow = names.locator("p");
-  const portrait = panel.locator(".agent-portrait");
+  const portrait = credit(panel).portrait;
   const entry = parts(page).taken.locator(".session-entry");
 
   await page

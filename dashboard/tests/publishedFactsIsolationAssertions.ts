@@ -9,7 +9,11 @@ import {
   parts,
   rosterParts,
 } from "./dashboardPage.ts";
-import { canonicalRecord, focusCanonicalRecord } from "./storyCardControls.ts";
+import {
+  canonicalRecord,
+  focusCanonicalRecord,
+  slicePlanLink,
+} from "./storyCardControls.ts";
 import { credit } from "./agentCredit.ts";
 import { sliceProgress, storyPurpose } from "./storyCardFacts.ts";
 import {
@@ -110,9 +114,7 @@ export async function expectCurrentFacts(
     await expect(sliceProgress(taken)).toContainText(
       "1 of 2 slices recorded complete",
     );
-    await expect(
-      taken.getByRole("link", { name: /^Slice plan/ }),
-    ).toHaveAttribute(
+    await expect(slicePlanLink(taken)).toHaveAttribute(
       "href",
       `https://github.com/${repository}/blob/${carriedFrom.revision}/${planPath}`,
     );
@@ -123,18 +125,14 @@ export async function expectCurrentFacts(
     await expect(taken).toContainText("Reading purpose…");
     await expect(storyPurpose(taken)).toHaveCount(0);
     await expect(sliceProgress(taken)).toContainText("Reading plan slices…");
-    await expect(taken.getByRole("link", { name: /^Slice plan/ })).toHaveCount(
-      0,
-    );
+    await expect(slicePlanLink(taken)).toHaveCount(0);
   } else {
     await expect(storyPurpose(taken)).toHaveText(facts.purpose);
     await expect(taken).not.toContainText("Reading preparation…");
     await expect(sliceProgress(taken)).toContainText(
       `${facts.label === "A" ? 1 : 0} of 2 slices recorded complete`,
     );
-    await expect(
-      taken.getByRole("link", { name: /^Slice plan/ }),
-    ).toHaveAttribute(
+    await expect(slicePlanLink(taken)).toHaveAttribute(
       "href",
       `https://github.com/${repository}/blob/${facts.revision}/${planPath}`,
     );

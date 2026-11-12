@@ -26,7 +26,11 @@ import {
   unrefined,
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
-import { inspectedDetail, storyCard } from "./storyCardControls.ts";
+import {
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectChangedQueuedAssociations(
@@ -36,7 +40,7 @@ export async function expectChangedQueuedAssociations(
 ) {
   const { backlog, readRevision } = parts(page);
   const card = storyCard(backlog, plannedBlocked.title);
-  const plan = card.getByRole("link", { name: /^Slice plan / });
+  const plan = slicePlanLink(card);
   const publish = async (paths: string[], message: string) => {
     const revision = commitPaths(
       repo.directory,

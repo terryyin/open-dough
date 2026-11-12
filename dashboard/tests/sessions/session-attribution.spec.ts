@@ -178,7 +178,7 @@ test("a retained session keeps its allocation credit after release and a later p
   await expect(
     original.getByRole("button", { name: "Open terminal" }),
   ).toBeVisible();
-  await expect(card.locator(".preparing-activity")).toHaveCount(0);
+  await expect(credit(card).activity).toHaveCount(0);
   await sessionDetails(legacySession);
   await expect(legacySession).toContainText(unknown);
   await sessionDetails(missing);

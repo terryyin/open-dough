@@ -17,7 +17,7 @@ import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
 import { intentGroupToggle, revisionNotice } from "../intentPerspectivePage.ts";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
   folderToggle,
@@ -146,7 +146,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
       "false",
     );
     await development.click();
-    await card.getByRole("heading", { level: 3 }).click();
+    await emptyArea(card).click();
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");

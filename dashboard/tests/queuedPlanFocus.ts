@@ -14,7 +14,11 @@ import {
   seedRelative,
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
-import { inspectedDetail, storyCard } from "./storyCardControls.ts";
+import {
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectQueuedPlanFocusDuringEnrichment(
@@ -25,9 +29,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   const { backlog } = parts(page);
   const card = storyCard(backlog, plannedBlocked.title);
   // The plan link is in the story's detail, which stays open across snapshots.
-  const plan = (await inspectedDetail(card)).getByRole("link", {
-    name: /^Slice plan /,
-  });
+  const plan = slicePlanLink(await inspectedDetail(card));
   await expect(plan).toBeVisible();
   // Settle enrichment before advancing the paused clock: a still-pending
   // detail ask would hit the wait bound and arm recovery that blocks checks.

@@ -97,7 +97,7 @@ test("a queued card shows Preparing and its developer from published assignments
     await expect(preparingC.agent).toHaveText(preparers.refining);
     await expect(preparingB.agent).toHaveText(preparers.reconsidering);
     // The developer's portrait is decorative beside the name.
-    const portrait = preparingC.agent.locator(".agent-portrait");
+    const portrait = credit(preparingC.agent).portrait;
     await expect(portrait).toBeVisible();
     await expect(portrait).toHaveAttribute("aria-hidden", "true");
     // The scan view reads the credited human, tool, and model after

@@ -9,7 +9,12 @@ import { planHref } from "./queuedPlanNavigation.ts";
 import type { CommittedOrigin } from "./committedOrigin.ts";
 import { shortRevision, expectSettledPage, parts } from "./dashboardPage.ts";
 import { notFoundAnswer } from "./originAnswers.ts";
-import { hideDetail, inspectedDetail, storyCard } from "./storyCardControls.ts";
+import {
+  hideDetail,
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
 import { commitPaths, writePlanning } from "./storyReadinessCli.ts";
 import {
@@ -66,9 +71,10 @@ export async function expectChangedReviewAfterContentChange(
       "Changed since readiness review",
     );
     if (card === blockedCard) {
-      await expect(
-        detail.getByRole("link", { name: /^Slice plan / }),
-      ).toHaveAttribute("href", planHref("terryyin/open-dough", nextRevision));
+      await expect(slicePlanLink(detail)).toHaveAttribute(
+        "href",
+        planHref("terryyin/open-dough", nextRevision),
+      );
     }
     await hideDetail(card);
     await expect(card).toBeFocused();
@@ -103,9 +109,7 @@ export async function expectPlanAssociationConflict(
   const detail = await inspectedDetail(readyCard);
   await expect(detail.getByText("Assessment:")).toContainText("disagree");
   await expect(detail.getByText("Assessment:")).toContainText(planBlockedPath);
-  await expect(
-    readyCard.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveCount(0);
+  await expect(slicePlanLink(readyCard)).toHaveCount(0);
   await expect(
     detail.getByRole("link", { name: /^Disputed backlog plan / }),
   ).toHaveCount(1);
@@ -160,9 +164,10 @@ export async function expectFailedPlanKeepsSupportedFacts(
   const detail = await inspectedDetail(blockedCard);
   await expect(detail).toContainText("Approach: Slice planned");
   await expect(detail).toContainText("associated plan could not be read");
-  await expect(
-    detail.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveAttribute("href", planHref("terryyin/open-dough", next));
+  await expect(slicePlanLink(detail)).toHaveAttribute(
+    "href",
+    planHref("terryyin/open-dough", next),
+  );
   await expect(detail.getByText("recorded complete")).toHaveCount(0);
 
   const { taken } = parts(page);

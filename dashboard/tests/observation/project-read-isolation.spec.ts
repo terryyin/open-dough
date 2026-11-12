@@ -15,7 +15,8 @@ import {
 } from "../doughnutProject.ts";
 import { describedRevisions, publishedFile } from "../describedRevisions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { focusCanonicalRecord } from "../storyCardControls.ts";
+import { focusCanonicalRecord, storyCard } from "../storyCardControls.ts";
+import { projectTab } from "../projectChoice.ts";
 import {
   backlogPath,
   pathsRead,
@@ -96,7 +97,7 @@ test.describe("project read isolation", () => {
     const { project, backlog, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await projectTab(page, "Doughnut").check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
 
     await test.step("the selector is never blocked while Doughnut's read is outstanding", async () => {
@@ -120,14 +121,9 @@ test.describe("project read isolation", () => {
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
     });
 
-    const secondCard = backlog.getByRole("article", {
-      name: openDoughSharedTitleSecond,
-    });
-    await secondCard.getByRole("button", { name: "Inspect story" }).click();
-    const secondLink = secondCard.getByRole("link", {
-      name: /^Canonical record/,
-    });
-    await secondLink.focus();
+    const secondLink = await focusCanonicalRecord(
+      storyCard(backlog, openDoughSharedTitleSecond),
+    );
     await expect(secondLink).toBeFocused();
 
     await test.step("Doughnut's held read answers late with success, after Open Dough is already shown", async () => {
@@ -139,9 +135,7 @@ test.describe("project read isolation", () => {
       await expect(readRevision).toContainText(
         shortRevision(revisionOpenDoughSecond),
       );
-      await expect(
-        project.getByRole("radio", { name: "Open Dough", exact: true }),
-      ).toBeChecked();
+      await expect(projectTab(page, "Open Dough")).toBeChecked();
       expect(doughnut.requests).toHaveLength(1);
     });
 
@@ -155,17 +149,15 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { project, readRevision } = parts(page);
+    const { readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await projectTab(page, "Doughnut").check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
     doughnut.answerWith("main", rateLimitedAnswer());
 
     pushOpenDough(openDough, "second");
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await projectTab(page, "Open Dough").check();
     await expectMembership(page, {
       taken: [],
       backlog: [openDoughSharedTitleSecond],
@@ -189,10 +181,10 @@ test.describe("project read isolation", () => {
     page,
   }) => {
     const { openDough, doughnut } = await openBothOrigins(page);
-    const { project, backlog, readRevision } = parts(page);
+    const { backlog, readRevision } = parts(page);
 
     const releaseDoughnut = doughnut.hold("main");
-    await project.getByRole("radio", { name: "Doughnut", exact: true }).check();
+    await projectTab(page, "Doughnut").check();
     await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
 
     // Returning to Open Dough while Doughnut's read is still outstanding.
@@ -201,9 +193,7 @@ test.describe("project read isolation", () => {
     // proves for the sequential case), so a cached replay of the first
     // snapshot would show the wrong title.
     pushOpenDough(openDough, "third");
-    await project
-      .getByRole("radio", { name: "Open Dough", exact: true })
-      .check();
+    await projectTab(page, "Open Dough").check();
 
     await test.step("the third, fresh Open Dough read is shown -- not the first snapshot, and not Doughnut's", async () => {
       await expectMembership(page, {

@@ -370,7 +370,7 @@ fix, both reproduced (3/12 and 87/400). Proof after:
 
 ### 8. Read recovery and limits without concealing timing or source truth
 Type: Behavior
-Status: planned
+Status: done
 Proof: C8 plus consumers outside observation reached by changed recovery/card
 owners. Retain controlled schedules, request logs/counts, failed/retained/fresh
 revisions, profile/credit source, notices, retry, placeholder and focus evidence.
@@ -382,6 +382,30 @@ explicit clock and answer steps. Extend focused recovery/card owners rather than
 wrapping whole scenarios. Finish all six finding/caller comparisons, including
 justified direct-contract observations. Safe stop: every finding and reached
 caller has a completed disposition and the combined affected proof passes.
+
+Accepted (2026-11-13). Recovery:
+- `transientRecoveryPage.ts` holds `recoversAt`, `passTimeToRecovery` and `expectEarlierSnapshotKept`, all through `limitNotice.ts` `timeSaid`.
+- `agentCredit.ts` adds `humanGap`, `branch` and `detailHuman`.
+- `storyCardControls.ts` adds `slicePlanLink`.
+- `limitRecoveryCredit.ts` is shared by limit and transient credit recovery.
+- `selectSettledDoughnut` inspects and focuses before awaiting reads.
+
+O7's 1 s delay became a route hold released on observed preparation and
+focus. The O2/O4/O5/O6 sweep reached the named launch, session, review,
+terminal, Intent, stories and observation sites; the remaining raw sites have
+direct dispositions in the obligations. Fault checks, with product files
+restored byte-for-byte:
+- O7 fault (no wait for independent reads): 3/3 failures.
+- Snapshot-time fault: 3/3 failures at `expectEarlierSnapshotKept`.
+
+Proof:
+- C8 27/27.
+- Combined C1–C8, changed specs and reached consumers 306/306 (load ~4).
+- After refactor, 36/36.
+- Typecheck exit 0.
+
+Recovery share: about 126 mechanics sites removed across 29 files. Helpers
+about +55 lines; the slice is about −80 lines.
 
 ### 9. Prove native reading keys under the decided load
 Type: Behavior
@@ -477,7 +501,7 @@ Disposition: proved by slice 2: board-reading/board-native-reading use expectAtB
 ### O2. Raw Board scroll-place reads outside the cohort duplicate the Board owner (slices 5–7 sweep their own files; slice 8 the rest)
 Reported: slice 1 — "Raw `.board-scroll` scroll-place reads outside the cohort that duplicate `scrollYOf` / `wheelTo`: `readingPlace.ts:46`, `terminals/agent-launch-ad-hoc-terminal.spec.ts` L49–80, `sessions/sessions-sidebar-navigation-cases.spec.ts` L245, `review/story-review-file-moves.spec.ts` L53, `stories/branch-progress-reading.spec.ts` L35–40 (slice 5), `stories/recently-done-progressive-refresh.spec.ts` L114–128 (slice 6), `observation/published-facts-reading.spec.ts` L52–59 and L152–160 (slice 7)."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
-Disposition: receiving slice 8
+Disposition: proved by slice 8: published-facts-reading, readingPlace, branch-progress-reading and recently-done-progressive-refresh (slices 5–7), agent-launch-ad-hoc-terminal, sessions-sidebar-navigation-cases and story-review-file-moves (slice 8) use scrollYOf/wheelTo; remaining raw reads are in-evaluate geometry probes; combined 306/306
 
 ### O3. Body-to-Board reading keys sometimes scroll nothing within the decided load profile
 Reported: slice 2 — "In profile, every remedied failure is at a body-to-Board handoff key (End from body; Meta+ArrowUp after blur): 3/80 remedied versus 0/80 unchanged on the same two specs."
@@ -487,19 +511,19 @@ Disposition: receiving slice 9
 ### O4. Raw project-tab radio locators remain outside navigation
 Reported: slice 3 — "Raw `project.getByRole("radio",{name,exact:true})` sites remain outside navigation: in this story's later territory: `stories/story-readiness`, `stories/direction-disclosure`, the `observation/*` project-read/transient/auto-refresh/shared-observer/read-failure specs, `storyReadinessRefresh.ts`, `doughnutJourney.ts`, `limitedReadingJourney.ts`, `publishedFactsIsolationJourney.ts`; in sibling families: `responsiveStart.ts` and `launches/responsive-session-recovery-restart`, which are launch-family and also omit `exact`."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
-Disposition: receiving slice 8
+Disposition: proved by slice 8: every named project-tab site uses projectTab/chooseProject; checked radio-state reads and configuration/settings families stay direct; combined 306/306
 
 ### O5. Card, Canonical record and empty-area controls still have raw callers outside slice 4's reach
 Reported: slice 4 — "Raw `/^Canonical record/` link locators remain in about 20 other files (doughnutJourney, storyReadiness*, queuedPlanNavigation, responsiveStart, publishedFactsAssertions/IsolationAssertions, accessible-board-keyboard, source-navigation, project-selection, branch-progress-reading, story-dependencies-touch, observation/*). Left for slice 8. Card-by-title `getByRole("article",…)` remains suite-wide (about 180 sites). Empty-area heading clicks remain in the Intent family."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
-Disposition: receiving slice 8
+Disposition: proved by slice 8: no raw Canonical record or Slice plan locator outside storyCardControls; emptyArea in Intent sites except two existing single owners; card role-and-name lookups in sibling families excluded from wholesale migration; combined 306/306
 
 ### O6. Raw credit, badge and progress selectors remain outside slice 5's reach
 Reported: slice 5 — "Observation (slices 7/8): limited-reading-profile-history, profile-addition-latency, published-facts-reading/isolation, steady-refresh-inspection, transient-credit-recovery, unchanged-assignment-credit, reopened-project-reads, revision-stream, auto-refresh-branches, `limitRecoveryCredit.ts`, `publishedFactsIsolationAssertions.ts`. Other families: launches/agent-launch-story-card-noted-start, responsive-session-reconciliation, agent-launch-preparation-cursor, stories/recently-done-read-latency, recently-done-stories, nerds-cartoon-portrait, taken-admitted-investigation, intent/intent-story-coverage, `storyCardAttention.ts`."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
-Disposition: receiving slice 8
+Disposition: proved by slice 8: named credit/badge/progress sites use agentCredit/storyCardFacts, except intent-story-coverage, which now reads its own "Done stories could not be read." problem text (it only shared the CSS class); storyCardAttention and agentPortrait keep one-turn/self-owned selectors; combined 306/306
 
 ### O7. A published-facts test delays a read by wall-clock time
 Reported: slice 7 — "`published-facts-isolation.spec.ts` L108–114 delays the profiles request with `setTimeout(resolve, 1_000)` in a route handler. AGENTS.md says never wait for wall-clock time."
 Story clause: "Use MakeMe for domain data and observable waits or controlled clocks."
-Disposition: receiving slice 8
+Disposition: proved by slice 8: published-facts-isolation releases a route hold after observed preparation and canonical-link focus; fault (no wait for independent reads) failed 3/3; spec 6/6

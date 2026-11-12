@@ -39,6 +39,7 @@ import {
   trunk,
   twoOwners,
 } from "../branchProgressRecords.ts";
+import { credit } from "../agentCredit.ts";
 
 async function openedAtOpening(page: Page) {
   await pausePageClockAt(page, opened);
@@ -189,7 +190,7 @@ test("Taken cards show progress from where each story is published, or the gap t
       `From branch story/example at ${branchHead.slice(0, 7)}; not in trunk.`,
     );
     // The exact branch of the assignment is detail too, still never trunk.
-    await expect(detail.locator(".owner-branch")).toHaveText(
+    await expect(credit(detail).branch).toHaveText(
       "Branch context: story/example (story branch work; not on trunk)",
     );
   });

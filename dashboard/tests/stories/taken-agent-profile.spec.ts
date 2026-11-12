@@ -97,7 +97,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   });
 
   await test.step("hovering a portrait shows it larger from where it stands", async () => {
-    const portrait = card(trunkStory).locator(".agent-portrait");
+    const portrait = credit(card(trunkStory)).portrait;
     const resting = await portrait.boundingBox();
     expect(resting).not.toBeNull();
     if (resting === null) return;
@@ -189,7 +189,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
   await test.step("a Taken entry without a profile shows that its owner is not recorded", async () => {
     await expect(card(older)).toContainText("Owner not recorded");
     await expect(card(older)).not.toContainText("-chan");
-    await expect(card(older).locator(".agent-portrait")).toHaveCount(0);
+    await expect(credit(card(older)).portrait).toHaveCount(0);
     await expect(card(older).locator("img")).toHaveCount(0);
   });
 
@@ -203,7 +203,7 @@ test("each Taken card shows its published agent profile, or says plainly that no
       await expect(
         taken.getByRole("article").filter({ hasText: agent }),
       ).toHaveCount(0);
-    await expect(taken.locator(".agent-portrait")).toHaveCount(4);
+    await expect(credit(taken).portrait).toHaveCount(4);
     // Scan-line host marks plus mode/host marks in already-open details;
     // lastInRotation reuses assets proved above; no-profile entry has none.
     await expect(credit(credit(taken).owner).marks).toHaveCount(4);

@@ -37,7 +37,8 @@ import {
 } from "../projectSelectionProjects.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expectSelected } from "../storyCardSelection.ts";
+import { emptyArea, expectSelected } from "../storyCardSelection.ts";
+import { canonicalRecord, inspectedDetail } from "../storyCardControls.ts";
 
 test("project selection shows each project's own Board, and returning to a project asks its ref again", async ({
   page,
@@ -81,7 +82,7 @@ test("project selection shows each project's own Board, and returning to a proje
     await expect(readRevision).toContainText(shortRevision(revisionOpenDough));
     expect(openDoughRequests).toHaveLength(2);
     expect(doughnutRequests).toHaveLength(0);
-    await card(openDoughSharedTitle).getByRole("heading").click();
+    await emptyArea(card(openDoughSharedTitle)).click();
     await expectSelected(card(openDoughSharedTitle), true);
   });
 
@@ -103,16 +104,13 @@ test("project selection shows each project's own Board, and returning to a proje
   });
 
   await test.step("the shared story identity is Doughnut's own entry, linked into Doughnut's snapshot", async () => {
-    const sharedCard = page.getByRole("article", {
-      name: doughnutSharedTitle,
-    });
-    await sharedCard.getByRole("heading").click();
+    const sharedCard = card(doughnutSharedTitle);
+    await emptyArea(sharedCard).click();
     await expectSelected(sharedCard, true);
     // Its identity and source links are read in its detail.
-    await sharedCard.getByRole("button", { name: "Inspect story" }).click();
+    const detail = await inspectedDetail(sharedCard);
     await expect(sharedCard).toContainText(sharedStoryIdentity);
-    const link = sharedCard.getByRole("link", { name: /^Canonical record/ });
-    await expect(link).toHaveAttribute(
+    await expect(canonicalRecord(detail)).toHaveAttribute(
       "href",
       `https://github.com/${doughnutRepository}/blob/${revisionDoughnut}/.planning/seeds/SEED-777-shared.md#shared-story`,
     );
@@ -141,12 +139,8 @@ test("project selection shows each project's own Board, and returning to a proje
   });
 
   await test.step("the shared story identity is again Open Dough's own entry, linked into Open Dough's snapshot", async () => {
-    const sharedCard = page.getByRole("article", {
-      name: openDoughSharedTitle,
-    });
-    await sharedCard.getByRole("button", { name: "Inspect story" }).click();
-    const link = sharedCard.getByRole("link", { name: /^Canonical record/ });
-    await expect(link).toHaveAttribute(
+    const detail = await inspectedDetail(card(openDoughSharedTitle));
+    await expect(canonicalRecord(detail)).toHaveAttribute(
       "href",
       `https://github.com/${openDoughRepository}/blob/${revisionOpenDough}/.planning/seeds/SEED-777-shared.md#shared-story`,
     );

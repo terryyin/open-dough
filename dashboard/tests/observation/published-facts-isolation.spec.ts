@@ -8,6 +8,7 @@ import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import {
   doughnutRepository,
   doughnutSharedGoal,
+  doughnutSharedTitle,
   revisionDoughnut,
 } from "../doughnutProject.ts";
 import { selectSettledDoughnut } from "../doughnutJourney.ts";
@@ -38,6 +39,8 @@ import {
 import { credit } from "../agentCredit.ts";
 import { projectTab } from "../projectChoice.ts";
 import { watchPageErrors } from "../pageErrors.ts";
+import { canonicalRecord, storyCard } from "../storyCardControls.ts";
+import { preparationFacts } from "../storyCardFacts.ts";
 
 const factsA = factsAt(revisionA, "A");
 const factsB = factsAt(revisionB, "B");
@@ -103,12 +106,19 @@ test("the settled alternate project finishes its independent reads before a retu
     if (url.searchParams.get("agents") === "profiles") profilesRead = true;
     if (url.searchParams.get("done") === "catalog") doneRead = true;
   });
-  // Independent profile work can start later than preparation. Delay only
-  // its local request dispatch; the real preview and gh still do the read.
+  // Independent profile work can finish after everything else the reader
+  // sees. Hold only its local request dispatch until Doughnut's card shows
+  // its preparation and the reader's keyboard is on its canonical link; the
+  // real preview and gh still do the read.
   await page.route(
     /__authenticated-read\?source=doughnut&.*agents=profiles$/,
     async (route) => {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1_000));
+      const card = storyCard(parts(page).backlog, doughnutSharedTitle);
+      await expect(preparationFacts(card)).toBeVisible();
+      await expect(preparationFacts(card)).not.toHaveText(
+        "Reading preparation…",
+      );
+      await expect(canonicalRecord(card)).toBeFocused();
       await route.continue();
     },
   );

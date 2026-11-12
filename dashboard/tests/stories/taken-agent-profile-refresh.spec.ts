@@ -63,7 +63,7 @@ test("a project without agent profiles still loads, and a reload shows a profile
   await test.step("with no profile directory at the revision, the owner is not recorded and nothing fails", async () => {
     await expect(readRevision).toContainText(shortRevision(A.revision));
     await expect(card).toContainText("Owner not recorded");
-    await expect(card.locator(".agent-portrait")).toHaveCount(0);
+    await expect(credit(card).portrait).toHaveCount(0);
     await expect(card.locator("img")).toHaveCount(0);
     await expect(problem).toHaveCount(0);
   });

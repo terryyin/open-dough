@@ -10,6 +10,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, githubFor, test } from "../dashboardTest.ts";
+import { projectTab } from "../projectChoice.ts";
 import { shortRevision, expectMembership, parts } from "../dashboardPage.ts";
 import {
   callsSince,
@@ -53,16 +54,14 @@ test.describe("project read isolation of automatic checks", () => {
     page: Page,
     shown: { link: Locator; retrievedAt: string | null },
   ) {
-    const { project, readRevision } = parts(page);
+    const { readRevision } = parts(page);
     await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
     await expect(readRevision).toContainText(shortRevision(revisionDoughnut));
     await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",
       shown.retrievedAt ?? "",
     );
-    await expect(
-      project.getByRole("radio", { name: "Doughnut", exact: true }),
-    ).toBeChecked();
+    await expect(projectTab(page, "Doughnut")).toBeChecked();
     await expect(page.getByRole("alert")).toHaveCount(0);
     await expect(page.locator("body")).not.toContainText("as published at");
     await expect(page.locator("body")).not.toContainText(dashboardStory);

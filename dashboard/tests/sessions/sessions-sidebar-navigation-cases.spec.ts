@@ -36,6 +36,7 @@ import {
 } from "../sessionNavigationJourney.ts";
 import { pygardonStory } from "../pygardonProject.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
+import { scrollYOf } from "../boardPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
 
@@ -240,10 +241,6 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     ).toBeVisible();
     await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
     expect(await revealsOf(page)).toEqual([]);
-    expect(
-      await page
-        .locator(".board-scroll")
-        .evaluate((region) => region.scrollTop),
-    ).toBe(0);
+    expect(await scrollYOf(page)).toBe(0);
   });
 });

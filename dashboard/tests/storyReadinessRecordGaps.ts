@@ -6,6 +6,7 @@ import { externalPlan, legacy, malformed } from "./storyReadinessFixture.ts";
 import {
   canonicalRecord,
   inspectedDetail,
+  slicePlanLink,
   storyCard,
 } from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
@@ -27,9 +28,7 @@ export async function expectMalformedExternalAndLegacy(
     name: "Pinned source links",
   });
   await expect(canonicalRecord(malformedSources)).toHaveCount(1);
-  await expect(
-    malformedSources.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveCount(0);
+  await expect(slicePlanLink(malformedSources)).toHaveCount(0);
   const legacyCard = storyCard(backlog, legacy.title);
   await expectBadges(legacyCard, { shown: ["Not recorded"] });
 
@@ -38,16 +37,15 @@ export async function expectMalformedExternalAndLegacy(
     name: "Pinned source links",
   });
   await expect(canonicalRecord(legacySources)).toHaveCount(1);
-  await expect(
-    legacySources.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveCount(0);
+  await expect(slicePlanLink(legacySources)).toHaveCount(0);
   const externalCard = storyCard(backlog, externalPlan.title);
   await expectBadges(externalCard, { shown: ["Refined"] });
   const detail = await inspectedDetail(externalCard);
   await expect(detail.getByText("External reference")).toBeVisible();
-  await expect(
-    detail.getByRole("link", { name: /Slice plan/ }),
-  ).toHaveAttribute("href", /example\.com\/plans\/external-only/);
+  await expect(slicePlanLink(detail)).toHaveAttribute(
+    "href",
+    /example\.com\/plans\/external-only/,
+  );
 
   const doughnutPaths = contentPathsRead(doughnutOrigin);
   expect(doughnutPaths.some((path) => path.includes("example.com"))).toBe(

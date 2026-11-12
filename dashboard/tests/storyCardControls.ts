@@ -50,6 +50,10 @@ export async function hideDetail(card: Locator) {
 export const canonicalRecord = (scope: Locator) =>
   scope.getByRole("link", { name: /^Canonical record/ });
 
+// The Slice plan link to a story's published plan, within `scope`.
+export const slicePlanLink = (scope: Locator) =>
+  scope.getByRole("link", { name: /^Slice plan / });
+
 // Puts the keyboard on the card's Canonical record link, in the detail opened
 // for it, and returns that link.
 export async function focusCanonicalRecord(card: Locator): Promise<Locator> {

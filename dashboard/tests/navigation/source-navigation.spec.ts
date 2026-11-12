@@ -11,6 +11,7 @@ import {
   revision,
   snapshotRoot,
 } from "../sourceNavigationJourney.ts";
+import { canonicalRecord, slicePlanLink } from "../storyCardControls.ts";
 
 test("source navigation opens canonical and plan records at the inspected revision", async ({
   page,
@@ -23,9 +24,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
 
   await test.step("a story's seed link and its plan link", async () => {
     const sources = await inspectedSources(story);
-    const storyRecord = sources.getByRole("link", {
-      name: /^Canonical record /,
-    });
+    const storyRecord = canonicalRecord(sources);
     await expect(storyRecord).toContainText(
       "seeds/SEED-021-observe-published-story-progress.md#see-published-work",
     );
@@ -36,9 +35,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
     );
     expect(canonical.hash).toBe("#see-published-work");
 
-    const plan = await destination(
-      sources.getByRole("link", { name: /^Slice plan / }),
-    );
+    const plan = await destination(slicePlanLink(sources));
     expect(plan.origin).toBe("https://github.com");
     expect(plan.pathname).toBe(
       `${snapshotRoot}/.planning/slice-plans/061-published-story-dashboard/PLAN.md`,
@@ -113,7 +110,7 @@ test("source navigation opens canonical and plan records at the inspected revisi
     const detail = story.getByRole("region", {
       name: "Detail for See the project's published work in a story dashboard",
     });
-    const record = detail.getByRole("link", { name: /^Canonical record / });
+    const record = canonicalRecord(detail);
     const dest = await followLeavingDashboard(page, record, "Open Dough");
     expect(dest.origin).toBe("https://github.com");
     expect(dest.pathname).toBe(
@@ -146,14 +143,15 @@ test("source navigation keeps an external reference apart from files in this sna
     card(board, "Read the hosting provider's note"),
   );
 
-  const canonical = note.getByRole("link", { name: /^Canonical record / });
+  const canonical = canonicalRecord(note);
   await expect(canonical).toHaveAttribute(
     "href",
     "https://status.example.com/notes/2026-09?view=full#api",
   );
-  await expect(
-    note.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveAttribute("href", "http://plans.example.org/note-7");
+  await expect(slicePlanLink(note)).toHaveAttribute(
+    "href",
+    "http://plans.example.org/note-7",
+  );
   await expect(
     note.getByText(
       "External reference. It is not a file in this snapshot and is not tied to the inspected revision.",

@@ -28,7 +28,11 @@ import {
   unrefined,
 } from "./storyReadinessFixture.ts";
 import { reloadUntilRead } from "./pageRequestNotes.ts";
-import { inspectedDetail, storyCard } from "./storyCardControls.ts";
+import {
+  inspectedDetail,
+  slicePlanLink,
+  storyCard,
+} from "./storyCardControls.ts";
 import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectFailedCheckKeepsPriorRevision(
@@ -60,9 +64,10 @@ export async function expectFailedCheckKeepsPriorRevision(
   ).toBeVisible();
 
   await inspectedDetail(blockedCard);
-  await expect(
-    blockedCard.getByRole("link", { name: /^Slice plan / }),
-  ).toHaveAttribute("href", planHref("terryyin/open-dough", retainedRevision));
+  await expect(slicePlanLink(blockedCard)).toHaveAttribute(
+    "href",
+    planHref("terryyin/open-dough", retainedRevision),
+  );
 
   restore();
   const afterFail = origin.requests.length;
