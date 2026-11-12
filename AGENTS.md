@@ -100,11 +100,15 @@ Open Dough skills and rules must work in Codex, Cursor, and Claude Code.
 
 ## Test automation
 
-- Arrange domain data in every automated test through the shared MakeMe API
-  (`makeMe.aThing.please()`). Reuse, extend, or add the shared builder for the
-  canonical product shape. State the facts that drive the case at the call site.
-  Keep actions, independent expectations, and inputs whose exact form is under
-  test outside the builder. See [test data architecture](tests/README.md#test-data-architecture).
+- Before authoring or changing a test, resolve its source path through the
+  installed [`dough-makeme`](.agents/skills/dough-makeme/SKILL.md) skill and,
+  for browser tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md).
+  The matching `intent.locations` entry in `.planning/open-dough.json` selects
+  each shared convention. A builder, Node helper, fixture or page object
+  follows the conventions selected for the tests that consume it, whatever its
+  own path. [Test data architecture](tests/README.md#test-data-architecture)
+  and [journey writing](dashboard/tests/writing-journeys.md#page-objects) give
+  this project's builders, harness boundaries and pilot context.
 - Never sleep or wait for wall-clock time to pass. Wait for an observable event
   or advance a controlled clock.
 - Never use `test.slow()`.

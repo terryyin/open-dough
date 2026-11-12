@@ -182,7 +182,7 @@ North Star direction needs no addition for this test-side change.
   action and expected outcome in domain terms, with repeated locators and
   interaction sequences owned by shared helpers. Prefer existing procedural
   helpers and component owners. The
-  [fluent pilot](../../dashboard/tests/writing-journeys.md#what-the-pilot-earned)
+  [fluent pilot](../../dashboard/tests/fluent-side-panel-pilot.md#what-the-pilot-earned)
   supplies evidence for shared controls and recurring handoffs. Adopt fluent
   phases where those benefits justify the extra code.
 - A shared control edit, such as the Story card's Review changes action or
