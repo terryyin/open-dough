@@ -30,7 +30,7 @@ slice's delegation still carries them as constraints.
 | S2.1 | (commitment) Area: Board columns and accessible reading. | slice 2 | observed: slice 2 with slice 1: Board column/reading callers migrated — board-scroll, board-paging, board-reading, board-native-reading, accessible-board-keyboard, accessible-board-touch (F1e); dispositions in PLAN slice 2 accepted note |
 | S2.2 | (commitment) Area: project/header/destination focus. | slice 3 | observed: slice 3: all 10 C3 specs plus board-kept chooseProject and project-read-isolation focusCanonicalRecord use projectChoice/bannerReading/notificationStoryJourney/storyCardControls owners; remaining non-navigation project-tab sites are O4 |
 | S2.3 | (commitment) Area: story inspection and references. | slice 4 | observed: slice 4: all 10 C4 specs, fluent storyCardPages StoryCard, board-height, story-card-inspection, story-dependencies(-touch), agent-launch-start-dependencies, storyDependencyAccessible and publishedFactsAssertions use storyReference.ts/storyCardControls/storyCardSelection owners; remaining same-control callers are O5 |
-| S2.4 | (commitment) Area: card evidence. | slice 5 | |
+| S2.4 | (commitment) Area: card evidence. | slice 5 | observed: slice 5: six audited callers, C5 siblings, readiness/queued-plan support, publishedFactsAssertions, start-eligibility and session-attribution use agentCredit.ts/storyCardFacts.ts; remaining credit/badge callers are O6 |
 | S2.5 | (commitment) Area: Recently done ranges. | slice 6 | |
 | S2.6 | (commitment) Area: published facts, refresh and recovery. | slice 8 | |
 | S3 | (commitment) "Reuse existing procedural/component owners." | slice 8 | |
@@ -44,11 +44,11 @@ slice's delegation still carries them as constraints.
 | S4.6 | (commitment) Selected story. | slice 4 | observed: slice 4: expectSelected(card) facts stay at call sites in story-card-selection, story-card-inspection, story-reference-navigation and story-destination-repeat-cue |
 | S4.7 | (commitment) Focus. | slice 2 | observed: slice 2: board-reading expect(parts(page).board).toBeFocused() after readWithKey("End"); expect(control).toBeFocused() after PageDown; accessible-board-keyboard tabTo(page, inspect) then expect(inspect).toBeFocused() |
 | S4.8 | (commitment) Retained reading place. | slice 7 | |
-| S4.9 | (commitment) Expected actor counts. | slice 5 | |
-| S4.10 | (commitment) Expected link counts. | slice 5 | |
-| S4.11 | (commitment) Expected status counts. | slice 5 | |
-| S4.12 | (commitment) Expected slice counts. | slice 5 | |
-| S4.13 | (commitment) Malformed-record messages. | slice 5 | |
+| S4.9 | (commitment) Expected actor counts. | slice 5 | observed: slice 5: backlog-preparing "two preparation assignments…" expect(credit(card(storyA)).agent).toHaveText([first, second]); agent-roster-avatar expectHumanAvatar(member("Akiho-chan"), credited, {width, revision}) |
+| S4.10 | (commitment) Expected link counts. | slice 5 | observed: slice 5: storyReadinessRecordGaps canonicalRecord(malformedSources) toHaveCount(1) and Slice plan count 0; queuedPlanNavigation exact canonicalRecord(detail) href |
+| S4.11 | (commitment) Expected status counts. | slice 5 | observed: slice 5: story-dependencies expectBadges(card,{shown:[…,"Blocked by 2 dependencies"], absent:["Ready for execution"]}) then "Blocked by 1 dependency" |
+| S4.12 | (commitment) Expected slice counts. | slice 5 | observed: slice 5: taken-slice-progress expectSliceBar(card(counted), "1 of 3 slices recorded complete", ["done","planned","planned"]) then "2 of 3…" ["done","done","planned"] |
+| S4.13 | (commitment) Malformed-record messages. | slice 5 | observed: slice 5: story-dependencies-malformed literal toContainText("Dependency facts unavailable: …not valid JSON."); taken-slice-progress expectNoSliceCount(card(unreadable), "Plan slices uninterpretable:"); roster gap texts literal |
 | S5 | (commitment) "Inspection and selection remain distinct." | slice 4 | observed: slice 4: expectSelected and expectInspected remain separate call-site assertions (story-card-selection emptyArea click → expectSelected; Inspect story → expectInspected) |
 | S6 | (commitment) Actions S6.1–S6.4 "stay separately invocable." | slice 4 | observed: slice 4: story-reference-done-cancellation "pointer down stops…": pointerDownOn(ownAction); release(); focus assertions; page.mouse.up() each a separate line |
 | S6.1 | (commitment) Pointer-down. | slice 4 | observed: slice 4: storyCardControls.ts pointerDownOn(action) presses down and leaves it down; P2-style fault (mouse.down removed) failed expect(destination).not.toBeFocused() at spec L80; restored byte-for-byte (sha a5d02d12…) |
@@ -60,7 +60,7 @@ slice's delegation still carries them as constraints.
 | S7.2 | (commitment) Request logs. | slice 8 | |
 | S7.3 | (commitment) Pinned revisions. | slice 7 | |
 | S7.4 | (commitment) Git evidence. | slice 8 | |
-| S7.5 | (commitment) HTTP evidence. | slice 5 | |
+| S7.5 | (commitment) HTTP evidence. | slice 5 | observed: slice 5: request counts, contentPathsRead, avatar reads(...), origin.requests and gh budget assertions stay in the specs, outside agentCredit.ts/storyCardFacts.ts |
 | S7.6 | (commitment) Host evidence. | slice 8 | |
 | S7.7 | (commitment) Record evidence. | slice 6 | |
 | S8 | (commitment) "Shared observations accept independent expectations." | slice 8 | |
@@ -107,11 +107,11 @@ slice's delegation still carries them as constraints.
 | K4c | (example) Outcome: "pointer-up opens the chosen detail and focuses Hide detail." | slice 4 | observed: slice 4: done-cancellation after page.mouse.up(): "Detail for Story A" region visible and Hide detail toBeFocused |
 | K4d | (example) Outcome: "A later reference, Tab move or explicit Show latest 10 choice retains its own supersession outcome." | slice 4 | observed: slice 4: done-cancellation "later move or latest-ten choice…" (later reference, explicit Show latest 10) and "Tab away…" each assert their own supersession outcome |
 | K4e | (example) Outcome: "Shared reference/card actions do not combine these beats." | slice 4 | observed: slice 4: storyReference.ts owners each do one beat (openDependencies, followReference, retryReference); hold/release/down/up/later choice stay separate scenario calls |
-| K5 | (example) Trigger: "Preparation, dependencies, ownership or progress arrives, changes or cannot be read." | slice 5 | |
-| K5a | (example) Journey: "the scenario supplies the expected actor, order, status, links, slice counts or malformed text." | slice 5 | |
-| K5b | (example) Outcome: "shared card/roster readers expose exactly that evidence." | slice 5 | |
-| K5c | (example) Outcome: the readers do this "without confusing Inspect with Selected story." | slice 5 | |
-| K5d | (example) Outcome: the readers do this without "hiding gaps." | slice 5 | |
+| K5 | (example) Trigger: "Preparation, dependencies, ownership or progress arrives, changes or cannot be read." | slice 5 | observed: slice 5: backlog-preparing (preparation arrives/changes), story-dependencies(-malformed) (dependencies/cannot be read), agent-roster(-avatar)/taken-agent-profile (ownership), taken-slice-progress/branch-progress-reading (progress) |
+| K5a | (example) Journey: "the scenario supplies the expected actor, order, status, links, slice counts or malformed text." | slice 5 | observed: slice 5: expected actors, orders, statuses, links, slice counts and malformed texts passed as literals at C5 call sites (see S4.9–S4.13 observations) |
+| K5b | (example) Outcome: "shared card/roster readers expose exactly that evidence." | slice 5 | observed: slice 5: credit(holder) parts, expectBadges/badgeLabels, expectSliceBar/expectNoSliceCount, expectHumanAvatar/Initials read exactly the caller-supplied evidence; C5 26/26 |
+| K5c | (example) Outcome: the readers do this "without confusing Inspect with Selected story." | slice 5 | observed: slice 5: owners read only Inspect/inspectedDetail; storyReadinessScan keeps its separate selectStory check |
+| K5d | (example) Outcome: the readers do this without "hiding gaps." | slice 5 | observed: slice 5: expectNoSliceCount(gap text, no bar, nothing recorded complete) in taken-slice-progress; credit(...).gap reads the assignment gap explicitly; roster gap texts literal |
 | K6 | (example) Trigger: "Recently done initially shows ten of 35 mixed entries." | slice 6 | |
 | K6a | (example) Journey: the reader "reveals more, returns to the latest range, refreshes or follows a session/reference beyond it." | slice 6 | |
 | K6b | (example) Outcome: "shared column actions expose the expected order/count/focus and retained range." | slice 6 | |
@@ -144,15 +144,15 @@ slice's delegation still carries them as constraints.
 | F3a | (commitment) Provide "separate actions for pointer-down and release so a held read can answer between them." | slice 4 | observed: slice 4: storyCardControls.ts pointerDownOn separate from page.mouse.up(); held release() answers between them |
 | F3b | (qualification) Audited problem: selection, dependency and reference suites re-find the same card, dependency disclosure, destination and notice. The Done cancellation spec repeats the first half of the pending jump three times and computes pointer/focus operations inline. | slice 4 | observed: slice 4: card re-finds → storyCard (48→9), disclosure summary 26→0, notice 12→0, Done pending jump shared as spec-local followHeldFarReference with serveDoneReferences; inline pointer box computation → pointerDownOn |
 | F3c | (qualification) Audited callers: story-card-selection.spec.ts#L118, story-card-dependency-selection.spec.ts#L51, story-reference-navigation.spec.ts#L69, story-reference-done-cancellation.spec.ts#L35, story-reference-done-recovery.spec.ts#L40 (dashboard/tests/navigation). | slice 4 | observed: slice 4: story-card-selection L118 emptyArea/hideDetail/storyCard; dependency-selection L51 openDependencies; reference-navigation L69 followReference/storyReference/canonicalRecord; done-cancellation L35 followHeldFarReference + pointerDownOn; done-recovery L40 referenceNotice/retryReference |
-| F4 | (commitment) Finding "Story card evidence": "Extend the existing card/roster helpers to read the visible evidence." | slice 5 | |
-| F4a | (commitment) Keep expected ordering explicit. | slice 5 | |
-| F4b | (commitment) Keep the actor explicit. | slice 5 | |
-| F4c | (commitment) Keep links explicit. | slice 5 | |
-| F4d | (commitment) Keep statuses explicit. | slice 5 | |
-| F4e | (commitment) Keep slice counts explicit. | slice 5 | |
-| F4f | (commitment) Keep malformed-record messages explicit. | slice 5 | |
-| F4g | (qualification) Audited problem: preparation, dependencies, readiness, ownership, roster and branch progress tests repeat card subregions, badge classes, avatar and owner lookups, and expansion controls. | slice 5 | |
-| F4h | (qualification) Audited callers: backlog-preparing.spec.ts#L55, story-readiness.spec.ts#L77, story-dependencies.spec.ts#L57, agent-roster-avatar.spec.ts#L44, taken-slice-progress.spec.ts#L125, branch-progress-reading.spec.ts#L35 (dashboard/tests/stories). | slice 5 | |
+| F4 | (commitment) Finding "Story card evidence": "Extend the existing card/roster helpers to read the visible evidence." | slice 5 | observed: slice 5: new agentCredit.ts and storyCardFacts.ts extend card/roster readers; reuse storyCard, inspectedDetail, hideDetail, canonicalRecord |
+| F4a | (commitment) Keep expected ordering explicit. | slice 5 | observed: slice 5: backlog-preparing priority order and badgeLabels before/after; expectSliceBar ordered segment statuses |
+| F4b | (commitment) Keep the actor explicit. | slice 5 | observed: slice 5: credit(...).agent toHaveText([first, second]) in backlog-preparing; expectHumanAvatar(member, credited) in agent-roster-avatar |
+| F4c | (commitment) Keep links explicit. | slice 5 | observed: slice 5: canonicalRecord counts/hrefs in storyReadinessRecordGaps and queuedPlanNavigation |
+| F4d | (commitment) Keep statuses explicit. | slice 5 | observed: slice 5: expectBadges shown/absent label lists in story-readiness and story-dependencies |
+| F4e | (commitment) Keep slice counts explicit. | slice 5 | observed: slice 5: expectSliceBar(card, "2 of 3 slices recorded complete", ["done","done","planned"]) in taken-slice-progress |
+| F4f | (commitment) Keep malformed-record messages explicit. | slice 5 | observed: slice 5: story-dependencies-malformed literal message; expectNoSliceCount(card, "Plan slices uninterpretable:") |
+| F4g | (qualification) Audited problem: preparation, dependencies, readiness, ownership, roster and branch progress tests repeat card subregions, badge classes, avatar and owner lookups, and expansion controls. | slice 5 | observed: slice 5: badge text/classes 91→6, credit classes 60→2, article lookups 49→2, Inspect clicks 32→3, detail regions 26→4, progress classes 20→1 in changed files |
+| F4h | (qualification) Audited callers: backlog-preparing.spec.ts#L55, story-readiness.spec.ts#L77, story-dependencies.spec.ts#L57, agent-roster-avatar.spec.ts#L44, taken-slice-progress.spec.ts#L125, branch-progress-reading.spec.ts#L35 (dashboard/tests/stories). | slice 5 | observed: slice 5: backlog-preparing L55 storyCard/badgeLabels/credit; story-readiness L77 expectBadges/chooseProject; story-dependencies L57 inspectedDetail/expectBadges; agent-roster-avatar L44 expectHumanAvatar; taken-slice-progress L125 expectSliceBar; branch-progress-reading L35 scrollYOf/canonicalRecord |
 | F5 | (commitment) Finding "Recently done stories": share the column count, latest-range controls, wheel/scroll and collapse focus Board operations "with reference and retained session cases." | slice 6 | |
 | F5a | (commitment) Keep "which requests answer." | slice 6 | |
 | F5b | (commitment) Keep the "visible entry order." | slice 6 | |

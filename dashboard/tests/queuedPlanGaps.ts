@@ -26,6 +26,8 @@ import {
   unrefined,
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
+import { inspectedDetail, storyCard } from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectChangedQueuedAssociations(
   page: Page,
@@ -33,7 +35,7 @@ export async function expectChangedQueuedAssociations(
   origin: CommittedOrigin,
 ) {
   const { backlog, readRevision } = parts(page);
-  const card = backlog.getByRole("article", { name: plannedBlocked.title });
+  const card = storyCard(backlog, plannedBlocked.title);
   const plan = card.getByRole("link", { name: /^Slice plan / });
   const publish = async (paths: string[], message: string) => {
     const revision = commitPaths(
@@ -58,11 +60,11 @@ export async function expectChangedQueuedAssociations(
     taken: [plannedReady.title],
     backlog: [unrefined.title, plannedBlocked.title],
   });
-  await expect(card.getByText("Not ready", { exact: true })).toBeVisible();
+  await expectBadges(card, { shown: ["Not ready"] });
   // Source links are in the story's detail, which stays open across the
   // snapshots below.
   await expect(card.getByRole("link")).toHaveCount(0);
-  await card.getByRole("button", { name: "Inspect story" }).click();
+  await inspectedDetail(card);
   await expect(plan).toHaveAttribute(
     "href",
     planHref("terryyin/open-dough", repo.revision),
@@ -135,9 +137,7 @@ export async function expectChangedQueuedAssociations(
     [seedRelative, "PRODUCT-BACKLOG.md"],
     "Publish planless versus backlog plan disagreement",
   );
-  await expect(
-    card.getByText("Plan association conflict", { exact: true }),
-  ).toBeVisible();
+  await expectBadges(card, { shown: ["Plan association conflict"] });
   await expect(plan).toHaveCount(0);
   await expect(
     card.getByRole("link", { name: /^Disputed backlog plan / }),
@@ -161,7 +161,7 @@ export async function expectChangedQueuedAssociations(
     ["PRODUCT-BACKLOG.md"],
     "Remove legacy backlog association from planless story",
   );
-  await expect(card.getByText("Planless", { exact: true })).toBeVisible();
+  await expectBadges(card, { shown: ["Planless"] });
   await expect(plan).toHaveCount(0);
   await expect(card).toContainText(
     "No associated plan is recorded for this story",

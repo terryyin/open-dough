@@ -237,7 +237,7 @@ to slice 6.
 
 ### 5. Read card and roster facts with independent expected evidence
 Type: Behavior
-Status: planned
+Status: done
 Proof: C5 plus reached launch eligibility, session attribution, published-fact
 and branch-refresh consumers. Expected actor, ordering, badge/state, links,
 slice counts, malformed text, avatar source and request counts remain explicit.
@@ -248,6 +248,27 @@ card/roster observations explain available facts and gaps. Reuse scoped readines
 and portrait readers, extracting repeated credit/progress mechanics where needed.
 Keep raw invalid bytes, history/HTTP evidence and MakeMe setup outside browser
 owners. Safe stop: all card-evidence finding/caller dispositions are supported.
+
+Accepted (2026-11-12): new `agentCredit.ts` holds the credit parts of a
+card, detail or roster member, plus `expectHumanAvatar` and
+`expectHumanInitials`. New `storyCardFacts.ts` holds badges (including
+`blockedByAnyDependency`), `expectSliceBar` and `expectNoSliceCount`.
+Readiness, queued-plan and published-facts support, the 17 C5 specs,
+`start-eligibility` and `session-attribution` use them. Expected actors,
+orders, statuses, links, slice counts and malformed texts stay at the call
+sites. Sites migrated for earlier obligations:
+- O2: `branch-progress-reading`.
+- O4: `story-readiness`, `direction-disclosure`, `storyReadinessRefresh`.
+- O5: readiness, queued-plan and published-facts support.
+
+Proof:
+- C5 26/26.
+- Consumers 20/20.
+- After refactor, 4/4.
+- Typecheck exit 0.
+
+About 290 mechanics sites removed; helpers +157 lines, whole change about
+−100 lines. Remaining callers are O6 (slices 7–8).
 
 ### 6. Reveal and retain Recently done ranges through one column owner
 Type: Behavior
@@ -402,5 +423,10 @@ Disposition: receiving slice 8
 
 ### O5. Card, Canonical record and empty-area controls still have raw callers outside slice 4's reach
 Reported: slice 4 — "Raw `/^Canonical record/` link locators remain in about 20 other files (doughnutJourney, storyReadiness*, queuedPlanNavigation, responsiveStart, publishedFactsAssertions/IsolationAssertions, accessible-board-keyboard, source-navigation, project-selection, branch-progress-reading, story-dependencies-touch, observation/*). Left for slice 8. Card-by-title `getByRole("article",…)` remains suite-wide (about 180 sites). Empty-area heading clicks remain in the Intent family."
+Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
+Disposition: receiving slice 8
+
+### O6. Raw credit, badge and progress selectors remain outside slice 5's reach
+Reported: slice 5 — "Observation (slices 7/8): limited-reading-profile-history, profile-addition-latency, published-facts-reading/isolation, steady-refresh-inspection, transient-credit-recovery, unchanged-assignment-credit, reopened-project-reads, revision-stream, auto-refresh-branches, `limitRecoveryCredit.ts`, `publishedFactsIsolationAssertions.ts`. Other families: launches/agent-launch-story-card-noted-start, responsive-session-reconciliation, agent-launch-preparation-cursor, stories/recently-done-read-latency, recently-done-stories, nerds-cartoon-portrait, taken-admitted-investigation, intent/intent-story-coverage, `storyCardAttention.ts`."
 Story clause: "Shared browser controls and repeated reading observations have one maintained owner"
 Disposition: receiving slice 8

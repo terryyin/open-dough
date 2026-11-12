@@ -3,59 +3,47 @@
 import { expect, type Locator } from "@playwright/test";
 import { contentPathsRead, type CommittedOrigin } from "./committedOrigin.ts";
 import { externalPlan, legacy, malformed } from "./storyReadinessFixture.ts";
+import {
+  canonicalRecord,
+  inspectedDetail,
+  storyCard,
+} from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectMalformedExternalAndLegacy(
   backlog: Locator,
   doughnutOrigin: CommittedOrigin,
 ) {
-  const malformedCard = backlog.getByRole("article", {
-    name: malformed.title,
+  const malformedCard = storyCard(backlog, malformed.title);
+  await expectBadges(malformedCard, {
+    absent: ["Not refined", "Not recorded"],
   });
-  await expect(
-    malformedCard.getByText("Not refined", { exact: true }),
-  ).toHaveCount(0);
-  await expect(
-    malformedCard.getByText("Not recorded", { exact: true }),
-  ).toHaveCount(0);
   await expect(malformedCard.locator(".preparation-problem")).toContainText(
     "not valid JSON",
   );
 
-  await malformedCard.getByRole("button", { name: "Inspect story" }).click();
+  await inspectedDetail(malformedCard);
   const malformedSources = malformedCard.getByRole("list", {
     name: "Pinned source links",
   });
-  await expect(
-    malformedSources.getByRole("link", { name: /^Canonical record / }),
-  ).toHaveCount(1);
+  await expect(canonicalRecord(malformedSources)).toHaveCount(1);
   await expect(
     malformedSources.getByRole("link", { name: /^Slice plan / }),
   ).toHaveCount(0);
-  const legacyCard = backlog.getByRole("article", { name: legacy.title });
-  await expect(
-    legacyCard.getByText("Not recorded", { exact: true }),
-  ).toBeVisible();
+  const legacyCard = storyCard(backlog, legacy.title);
+  await expectBadges(legacyCard, { shown: ["Not recorded"] });
 
-  await legacyCard.getByRole("button", { name: "Inspect story" }).click();
+  await inspectedDetail(legacyCard);
   const legacySources = legacyCard.getByRole("list", {
     name: "Pinned source links",
   });
-  await expect(
-    legacySources.getByRole("link", { name: /^Canonical record / }),
-  ).toHaveCount(1);
+  await expect(canonicalRecord(legacySources)).toHaveCount(1);
   await expect(
     legacySources.getByRole("link", { name: /^Slice plan / }),
   ).toHaveCount(0);
-  const externalCard = backlog.getByRole("article", {
-    name: externalPlan.title,
-  });
-  await expect(
-    externalCard.getByText("Refined", { exact: true }),
-  ).toBeVisible();
-  await externalCard.getByRole("button", { name: "Inspect story" }).click();
-  const detail = externalCard.getByRole("region", {
-    name: `Detail for ${externalPlan.title}`,
-  });
+  const externalCard = storyCard(backlog, externalPlan.title);
+  await expectBadges(externalCard, { shown: ["Refined"] });
+  const detail = await inspectedDetail(externalCard);
   await expect(detail.getByText("External reference")).toBeVisible();
   await expect(
     detail.getByRole("link", { name: /Slice plan/ }),

@@ -4,6 +4,8 @@ import { shortRevision, parts } from "../dashboardPage.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 import { consumer, test, twoDependencies } from "../storyDependencyFixture.ts";
+import { storyCard } from "../storyCardControls.ts";
+import { expectBadges } from "../storyCardFacts.ts";
 
 test("malformed and unreadable dependency facts block execution without blocking refinement", async ({
   page,
@@ -31,10 +33,7 @@ test("malformed and unreadable dependency facts block execution without blocking
   });
   const releaseCanonical = published.hold(".planning/seeds/A.md");
   await openUntilRead(page);
-  const card = parts(page).backlog.getByRole("article", {
-    name: consumer.title,
-    exact: true,
-  });
+  const card = storyCard(parts(page).backlog, consumer.title);
   const execution = card.getByRole("button", { name: "Start execution" });
   await expect(execution).toBeDisabled();
   await expect(execution).toHaveAccessibleDescription(
@@ -48,8 +47,10 @@ test("malformed and unreadable dependency facts block execution without blocking
     "Dependency facts unavailable: Story dependencies: present dependency block is not valid JSON.",
   );
   // The recorded Ready assessment cannot look eligible behind the gap.
-  await expect(card.getByText("Slice planned", { exact: true })).toBeVisible();
-  await expect(card.locator(".badge-ready")).toHaveCount(0);
+  await expectBadges(card, {
+    shown: ["Slice planned"],
+    absent: ["Ready for execution"],
+  });
   await expect(execution).toBeDisabled();
   await expect(execution).toHaveAccessibleDescription(
     /dependency facts could not be read/,

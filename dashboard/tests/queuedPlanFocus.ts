@@ -14,6 +14,8 @@ import {
   seedRelative,
   type ReadinessRepo,
 } from "./storyReadinessFixture.ts";
+import { inspectedDetail, storyCard } from "./storyCardControls.ts";
+import { expectBadges } from "./storyCardFacts.ts";
 
 export async function expectQueuedPlanFocusDuringEnrichment(
   page: Page,
@@ -21,12 +23,11 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   origin: CommittedOrigin,
 ) {
   const { backlog } = parts(page);
-  const card = backlog.getByRole("article", { name: plannedBlocked.title });
+  const card = storyCard(backlog, plannedBlocked.title);
   // The plan link is in the story's detail, which stays open across snapshots.
-  await card.getByRole("button", { name: "Inspect story" }).click();
-  const plan = card
-    .getByRole("region", { name: `Detail for ${plannedBlocked.title}` })
-    .getByRole("link", { name: /^Slice plan / });
+  const plan = (await inspectedDetail(card)).getByRole("link", {
+    name: /^Slice plan /,
+  });
   await expect(plan).toBeVisible();
   // Settle enrichment before advancing the paused clock: a still-pending
   // detail ask would hit the wait bound and arm recovery that blocks checks.
@@ -68,7 +69,7 @@ export async function expectQueuedPlanFocusDuringEnrichment(
   origin.advanceTo(revision);
   await plan.focus();
   await passTimeUntilCheckedAfterSettled(page);
-  await expect(card.getByText("Planless", { exact: true })).toBeVisible();
+  await expectBadges(card, { shown: ["Planless"] });
   await expect(plan).toHaveCount(0);
   await expect(card).toBeFocused();
 }
