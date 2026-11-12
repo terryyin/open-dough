@@ -317,3 +317,7 @@ Slice 5: keep phone stop/insert as `tapWhereShown(stopRecordingControl|insertTra
 into `stopTerminalClip`/`insertRetainedTranscript`. Keyboard Dictate stays call-site; `beginTerminalClip` is the
 ordinary pointer path. Voice reuses screen status/prompts/reconnect outward; do not import voice from
 `terminalScreenPage`.
+
+CI repair (quiet Story Branch Wrap Up): under shard load, Read final report could click without opening when access was
+re-derived and Board refresh raced the panel. Pass the control's resolved access, commit the Side panel before story
+selection, wait for `.final-report-text` with a retried open, and give that closure 60s.

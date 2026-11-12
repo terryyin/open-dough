@@ -32,6 +32,10 @@ export type SessionRequest<Record extends LaunchRecord = LaunchRecord> = {
   // Whether an opened terminal takes the keyboard; it does unless set false,
   // as when a launch's session opens after the developer moved on.
   readonly takesKeyboard?: boolean;
+  // Access the control already offered. When set, opening uses it instead of
+  // deriving again, so a concurrent host-operations or workspace-state read
+  // cannot no-op a click aimed at that control.
+  readonly access?: SessionAccess;
 };
 
 // One of the page's operations on a session, answering with `Answer`.
