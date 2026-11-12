@@ -1,3 +1,9 @@
+import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  scopeHistoryUnit,
+} from "../tests/intentScopeHistoryPage.ts";
 // Supplemental receiving/presentation proof. Actual collection and retained
 // unit projection belong to the integrated collector-to-Summary journey.
 import { makeMe } from "../../tests/support/makeMe.mjs";
@@ -111,51 +117,36 @@ test("one collected attempt has separate case and file histories with one common
     doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
+  const history = scopeHistory(summary);
 
   // Count attempts once across facets; neither unit is selected or summed.
-  await expect(history.locator(".intent-ci-history-extent")).toHaveText(
+  await expect(scopeHistoryReading(history).extent).toHaveText(
     "2 measured builds · Nov 4–Nov 5",
   );
   await expect(history.getByRole("combobox")).toHaveCount(0);
   await expect(history.getByRole("radio")).toHaveCount(0);
-  const cases = history.getByRole("region", {
-    name: "Test cases",
-    exact: true,
-  });
-  const files = history.getByRole("region", {
-    name: "Test files",
-    exact: true,
-  });
+  const cases = scopeHistoryUnit(history, "Test cases");
+  const files = scopeHistoryUnit(history, "Test files");
   await expect(
     cases.getByRole("heading", { name: "Test cases", exact: true }),
   ).toBeVisible();
   await expect(
     files.getByRole("heading", { name: "Test files", exact: true }),
   ).toBeVisible();
-  await expect(history.getByRole("img")).toHaveCount(2);
+  await expect(scopeHistoryReading(history).charts).toHaveCount(2);
   await expect(
     cases.getByRole("img", { name: /test cases.*build date/i }),
   ).toBeVisible();
   await expect(
     files.getByRole("img", { name: /test files.*build date/i }),
   ).toBeVisible();
-  await expect(cases.locator(".intent-ci-history-point")).toHaveCount(2);
-  await expect(files.locator(".intent-ci-history-point")).toHaveCount(1);
-  await expect(cases.locator(".intent-ci-history-selected")).toHaveText(
-    "Selected",
-  );
-  await expect(
-    files.locator("svg").getByText("Selected gap", { exact: true }),
-  ).toBeVisible();
-  await expect(files.locator(".intent-ci-history-selected")).toHaveCount(0);
+  await expect(scopeHistoryReading(cases).points).toHaveCount(2);
+  await expect(scopeHistoryReading(files).points).toHaveCount(1);
+  await expect(scopeHistoryReading(cases).selected).toHaveText("Selected");
+  await expect(scopeHistoryReading(files).selectedGap).toBeVisible();
+  await expect(scopeHistoryReading(files).selected).toHaveCount(0);
 
-  const rows = history
-    .getByRole("list", { name: "Test execution history evidence" })
-    .getByRole("listitem");
+  const rows = scopeHistoryReading(history).rows;
   await expect(rows).toHaveCount(2);
   await expect(rows.nth(0)).toContainText("test cases");
   await expect(rows.nth(0)).toContainText("100 ms");
@@ -175,18 +166,14 @@ test("one collected attempt has separate case and file histories with one common
   await expect(rows.nth(1).locator("strong")).toHaveCount(1);
   await expect(rows.nth(0).getByRole("link")).toHaveCount(1);
   await expect(rows.nth(1).getByRole("link")).toHaveCount(1);
-  const firstRun = rows
-    .nth(0)
-    .getByRole("link", { name: "Run 41 · attempt 1" });
-  const selectedRun = rows
-    .nth(1)
-    .getByRole("link", { name: "Run 42 · attempt 1" });
+  const firstRun = attemptLink(rows.nth(0), "Run 41 · attempt 1");
+  const selectedRun = attemptLink(rows.nth(1), "Run 42 · attempt 1");
   await expect(firstRun).toHaveAttribute("href", "https://ci.invalid/runs/41");
   await expect(selectedRun).toHaveAttribute(
     "href",
     "https://ci.invalid/runs/42",
   );
-  await history.locator("summary").focus();
+  await scopeHistoryReading(history).disclosure.focus();
   await page.keyboard.press("Tab");
   await expect(firstRun).toBeFocused();
   await page.keyboard.press("Tab");

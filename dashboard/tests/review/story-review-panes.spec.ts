@@ -11,7 +11,11 @@
 // Hide files gives the diff the whole work area.
 
 import { narrowWindow } from "../accessibleReading.ts";
-import { box, pressWhereShown } from "../pageLayout.ts";
+import {
+  box,
+  expectTopBarsShareHeight,
+  pressWhereShown,
+} from "../pageLayout.ts";
 import { control, dragDivider, expectWidth } from "../sidePanelWidthPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -65,6 +69,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
       expect(pane.y + pane.height).toBeGreaterThan(panel.y + panel.height - 20);
     }
     expect(bodyBox.y + bodyBox.height).toBeCloseTo(panel.y + panel.height, 0);
+    await expectTopBarsShareHeight(page, 2);
     expect((await overflows(body)).down).toBe(false);
     expect((await overflows(browser)).down).toBe(true);
     expect((await overflows(codeOf(nameA))).down).toBe(true);

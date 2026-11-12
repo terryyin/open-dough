@@ -22,7 +22,7 @@ import {
   revealsOf,
 } from "../sessionNavigationJourney.ts";
 import { expectEndsWithShown, expectView, showColumn } from "../boardPage.ts";
-import { box } from "../pageLayout.ts";
+import { box, expectTopBarsShareHeight } from "../pageLayout.ts";
 import { scrollsOnItsOwn } from "../sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
@@ -62,6 +62,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       const revealed = (await revealsOf(page)).length;
       await entry(readyStory).click();
       await expect(panel.getByRole("heading")).toHaveText(readyStory);
+      await expectTopBarsShareHeight(page, 3);
       // The sidebar's entries and panel header title truncate by design
       // (./SidePanelTitle.tsx); read whole by tooltip / disclosure.
       await expectView(

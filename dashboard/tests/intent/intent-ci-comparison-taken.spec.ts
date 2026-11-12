@@ -1,3 +1,5 @@
+import { ciStatusReading } from "../intentCiStatusPage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Taken-story provisional CI timing comparison
 // (../../src/IntentCiComparison.tsx, ../../server/intentCiComparisonRead.ts): a
 // Taken Story Branch story keeps its live CI status and adds a provisional
@@ -38,7 +40,7 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
   await expect(status.locator(".intent-ci-story")).toHaveText("Story branch.");
   await expect(status).not.toContainText(setup.title);
   await expect(storyTitle(parts(page).intent)).toHaveText(setup.title);
-  await expect(status.locator(".intent-ci-state")).toContainText(
+  await expect(ciStatusReading(status).state).toContainText(
     shortSha(setup.branchTip),
   );
 
@@ -46,37 +48,37 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     /^Baseline compared with /,
     "CI entry timing comparison",
   ]);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
-  await expect(panel.locator(".intent-ci-comparison-active-reason")).toHaveText(
+  await expect(comparisonReading(panel).fallbackReason).toHaveText(
     `Landed is not used: ${notLandedYetWords}`,
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(0),
-  ).toContainText(shortSha(setup.baseline));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText(shortSha(setup.branchTip));
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(1),
-  ).toContainText("provisional");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toHaveText(notLandedYetWords);
-  await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+  await expect(comparisonReading(panel).identities.nth(0)).toContainText(
+    shortSha(setup.baseline),
+  );
+  await expect(comparisonReading(panel).identities.nth(1)).toContainText(
+    shortSha(setup.branchTip),
+  );
+  await expect(comparisonReading(panel).identities.nth(1)).toContainText(
+    "provisional",
+  );
+  await expect(comparisonReading(panel).identities.nth(2)).toHaveText(
+    notLandedYetWords,
+  );
+  await expect(comparisonReading(panel).wallTimes).toHaveText([
     "4 min 59 s",
     "13 min 27 s",
     "—",
   ]);
-  await expect(panel.locator(".intent-ci-comparison-without-waits")).toHaveText(
-    ["4 min 55 s", "4 min 47 s", "—"],
-  );
+  await expect(comparisonReading(panel).timesWithoutWaits).toHaveText([
+    "4 min 55 s",
+    "4 min 47 s",
+    "—",
+  ]);
   // The provisional comparison's summary shows one signed change each.
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-timing"),
-  ).toHaveText("−8 s");
-  await expect(panel.locator(".intent-ci-comparison-overall-wall")).toHaveText(
+  await expect(comparisonReading(panel).overallTiming).toHaveText("−8 s");
+  await expect(comparisonReading(panel).overallWallTime).toHaveText(
     "+8 min 28 s",
   );
   expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
@@ -107,24 +109,26 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
     });
     setup.serveJobs({ "103/2": observedRerunJobs });
     await passTimeUntilCheckedAfterSettled(page);
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(1),
-    ).toContainText(shortSha(nextTip));
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(1),
-    ).toContainText("provisional");
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+    await expect(comparisonReading(panel).identities.nth(1)).toContainText(
+      shortSha(nextTip),
+    );
+    await expect(comparisonReading(panel).identities.nth(1)).toContainText(
+      "provisional",
+    );
+    await expect(comparisonReading(panel).wallTimes.nth(1)).toHaveText(
       "5 min 19 s",
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-without-waits"),
-    ).toHaveText(["4 min 55 s", "5 min 12 s", "—"]);
+    await expect(comparisonReading(panel).timesWithoutWaits).toHaveText([
+      "4 min 55 s",
+      "5 min 12 s",
+      "—",
+    ]);
     expect(listedAttemptJobPages(githubFor(page).calls)).toEqual([
       "101/1/1",
       "102/1/1",
       "103/2/1",
     ]);
-    await expect(status.locator(".intent-ci-state")).toContainText(
+    await expect(ciStatusReading(status).state).toContainText(
       shortSha(nextTip),
     );
   });

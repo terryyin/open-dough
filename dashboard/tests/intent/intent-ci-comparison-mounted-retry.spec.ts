@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Real providers, authenticated readers and Check again, with prepared service answers.
 import {
   test,
@@ -29,7 +30,7 @@ test("Check again disables while a failed whole comparison is read again and rec
     status: 503,
     json: { error: "Comparison temporarily unavailable" },
   });
-  await expect(panel.locator(".intent-ci-gap")).toHaveText(
+  await expect(comparisonReading(panel).gap).toHaveText(
     "Comparison temporarily unavailable",
   );
   await expect(check).toBeEnabled();
@@ -37,10 +38,10 @@ test("Check again disables while a failed whole comparison is read again and rec
   await expect(check).toBeDisabled();
   await expect.poll(() => comparisonServices.comparisons).toBe(2);
   retry.resolve({ json: facts.answer });
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
-  await expect(panel.locator(".intent-ci-comparison-identity")).toContainText([
+  await expect(comparisonReading(panel).identities).toContainText([
     "aaaaaaa",
     "bbbbbbb",
     "ccccccc",
@@ -72,14 +73,14 @@ test("Check again retries an unavailable whole answer and replaces its explanati
     }),
   });
   const panel = await mountComparison(page, comparisonServer, facts);
-  await expect(panel.locator(".intent-ci-gap")).toHaveText(
+  await expect(comparisonReading(panel).gap).toHaveText(
     unavailable.explanation,
   );
   await panel.getByRole("button", { name: "Check again", exact: true }).click();
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
-  await expect(panel.locator(".intent-ci-gap")).toHaveCount(0);
+  await expect(comparisonReading(panel).gap).toHaveCount(0);
   await expect.poll(() => comparisonServices.proofs).toBe(3);
   expect(comparisonServices.comparisons).toBe(2);
 });
@@ -117,24 +118,24 @@ test("Check again reads all endpoint proofs afresh and replaces Branch fallback 
     },
   });
   const panel = await mountComparison(page, comparisonServer, facts);
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Branch",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("2 → 3 test cases (+1)");
+  await expect(comparisonReading(panel).overallCounts).toHaveText(
+    "2 → 3 test cases (+1)",
+  );
   await expect.poll(() => comparisonServices.proofs).toBe(3);
   const check = panel.getByRole("button", { name: "Check again", exact: true });
   await check.click();
   await expect(check).toBeDisabled();
   await expect.poll(() => comparisonServices.comparisons).toBe(2);
   retry.resolve({ json: facts.answer });
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("2 → 4 test cases (+2)");
+  await expect(comparisonReading(panel).overallCounts).toHaveText(
+    "2 → 4 test cases (+2)",
+  );
   await expect(check).toBeEnabled();
   await expect.poll(() => comparisonServices.proofs).toBe(6);
   expect(landedReads).toBe(2);

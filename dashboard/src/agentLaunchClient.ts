@@ -93,8 +93,9 @@ function noTrustedAnswer(
 
 export function requestAgentAcceptance(
   request: AgentLaunchRequest,
-  // Start session opens the terminal for this launch. The server then keeps
-  // that Cursor client until the socket joins.
+  // The page will open the terminal for this launch, as Start session does
+  // for a start with nothing typed. The server then keeps that Cursor client
+  // until the socket joins.
   attachTerminal = false,
 ): Promise<AcceptanceAnswer> {
   return askAcceptance(

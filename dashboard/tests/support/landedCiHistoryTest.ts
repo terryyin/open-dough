@@ -28,6 +28,15 @@ type ServerFacts = {
 export const test = base.extend<{
   startServer: (facts?: ServerFacts) => Promise<DashboardServer>;
 }>({
+  // These specs open no page, and Playwright resolves `baseURL` for every
+  // test, so the page fixture's `baseURL` (../dashboardTest.ts) would start
+  // its `dashboard` server in each case. With no page address here, a case
+  // runs only the servers it starts and the `dashboard` it asks for by name.
+  // Playwright's fixture API requires the empty destructuring pattern.
+  // eslint-disable-next-line no-empty-pattern
+  baseURL: async ({}, use) => {
+    await use(undefined);
+  },
   startServer: async ({ origin, github }, use) => {
     const started: DashboardServer[] = [];
     await use(async ({ github: answering = github, ...facts } = {}) => {

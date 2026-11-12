@@ -65,13 +65,15 @@ landing checkpoint. Prior branch9739dd6e's17-job success and90 named pressure
 cases remain historical compatible proof; no merged-candidate success is yet
 claimed. Slice13 remains planned and all existing open G obligations remain.
 
-## Required remaining proof
+## Current remaining proof after authorized reduction
 
-Behavior: The newly routed admission cases and prior slices' retained proof are green with margin → delete the named temporary `test.setTimeout` allowances → local comparable suite and hosted slowest shard remain within previous elapsed times with refreshed weights.
-
-The five landed-CI repeat-admission cases pass three consecutive two-worker load20–30 runs with their five-second observations and assertions retained; inspect the weaker-attribution history recovery sibling. Remove remaining named case-local allowances, including trunk’s watcher restart allowance, only after their cases fit with margin. Comparable local dashboard suite elapsed and the slowest hosted shard stay within previous elapsed times (keep summed durations separate). Refresh shard weights from all 12 artifacts of a complete passing trunk run after removing work; measure redistribution separately. Default case and shard deadlines unchanged.
-
-[Normal integration failures and selected environment correction](normal-integration-evidence.md)
-remain owned by G20; this is not merged-candidate acceptance.
+The historical amendment and its original required full comparison/weight work
+above remain recoverable. The current canonical completion amendment and
+[completion verification](completion-verification.md) supersede those future
+operations. Whole admission5 passes three composed runs/default2/default5;
+current named default margins and behavior-preserving integration proof settle
+G1/G18/G19/G23. G2/G11 are owner-changed; G3 requires complete composition CI.
+Keep shard weights and deadlines, all assertions/distinct promises and failure
+ownership. No local whole-suite price or whole-suite speedup claim follows.
 
 The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies as written.

@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Select a Recently done Story A and choose Changed tests. Source journeys
 // proceed while CI reads in parallel; comparison journeys first wait for
 // their CI timing proofs before opening an entry or folder Summary.
@@ -39,9 +40,7 @@ export async function selectDoneStoryForSummaryComparison(
   await untilPageReadsAnswered(page);
   await expect(panel).toBeVisible();
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
   await chooseStoryTab(intent, "Changed tests");
   return selected;

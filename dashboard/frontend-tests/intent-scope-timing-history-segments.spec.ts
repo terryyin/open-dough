@@ -1,3 +1,8 @@
+import { attemptLink } from "../tests/ciEvidenceLabelsPage.ts";
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../tests/intentScopeHistoryPage.ts";
 // Supplemental UI recovery proof for the locally collected scope history.
 // The collection-to-Summary journey owns actual retained evidence; this
 // substitute fails only the local history read beside an existing comparison.
@@ -127,14 +132,9 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
     doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
   });
   const summary = page.getByRole("region", { name: "Summary", exact: true });
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
+  const history = scopeHistory(summary);
   await expect(history).toContainText("2 measured builds · Nov 4–Nov 5");
-  const rows = history
-    .getByRole("list", { name: "Test execution history evidence" })
-    .getByRole("listitem");
+  const rows = scopeHistoryReading(history).rows;
   await expect(rows.nth(0)).toContainText("1.2 s · test cases");
   await expect(rows.nth(1)).toContainText(
     "2.4 s · test cases · entry dashboard",
@@ -143,16 +143,12 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
     "CI proof summary expired · Selected landing",
   );
   await expect(rows.nth(2)).not.toContainText("ms");
-  await expect(
-    history.locator("svg").getByText("Selected gap", { exact: true }),
-  ).toBeVisible();
-  await expect(history.locator(".intent-ci-history-line")).toHaveAttribute(
+  await expect(scopeHistoryReading(history).selectedGap).toBeVisible();
+  await expect(scopeHistoryReading(history).line).toHaveAttribute(
     "d",
     /^M[^M]+ M/,
   );
-  await expect(history.locator("circle.intent-ci-history-point")).toHaveCount(
-    2,
-  );
+  await expect(scopeHistoryReading(history).unselectedPoints).toHaveCount(2);
   await expectNoSidewaysScrollIn(page, history);
 });
 
@@ -214,31 +210,27 @@ for (const variant of ["empty", "all gaps"] as const) {
       doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
     });
     const summary = page.getByRole("region", { name: "Summary", exact: true });
-    const history = summary.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
+    const history = scopeHistory(summary);
     await expect(history).toContainText("0 measured builds");
     await expect(history).toContainText(
       "No complete test execution times are available for this scope.",
     );
-    await expect(history.getByRole("img")).toHaveCount(0);
+    await expect(scopeHistoryReading(history).charts).toHaveCount(0);
     if (variant === "empty") {
       await expect(history).toContainText(
         "No dashboard-recorded landing history has been collected.",
       );
       await expect(history.getByRole("list")).toHaveCount(0);
     } else {
-      const evidence = history.getByRole("list", {
-        name: "Test execution history evidence",
-      });
-      await expect(evidence.getByRole("listitem")).toContainText(
+      const evidence = scopeHistoryReading(history).evidence;
+      await expect(scopeHistoryReading(history).rows).toContainText(
         "Partial: part 2 of 2 missing · Selected landing",
       );
       await expect(evidence).not.toContainText("ms");
-      await expect(
-        evidence.getByRole("link", { name: "Run 43 · attempt 1" }),
-      ).toHaveAttribute("href", "https://ci.invalid/runs/43");
+      await expect(attemptLink(evidence, "Run 43 · attempt 1")).toHaveAttribute(
+        "href",
+        "https://ci.invalid/runs/43",
+      );
     }
     await expectComparisonScopeRows(
       summary,

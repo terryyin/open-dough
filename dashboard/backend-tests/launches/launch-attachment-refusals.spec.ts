@@ -4,6 +4,9 @@
 import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   launchAttachmentLimitBytes,
+  launchAttachmentNameFromHeader,
+  launchAttachmentNameHeader,
+  launchAttachmentNameHeaderValue,
   launchAttachmentRefusalFor,
   launchAttachmentTooLarge,
   launchAttachmentTooMany,
@@ -11,6 +14,20 @@ import {
   partitionLaunchAttachments,
 } from "../../src/launchAttachments.ts";
 import { pngA } from "../../tests/support/launchAttachmentFixtures.ts";
+
+// Start session put File.name in x-launch-attachment-name; non-Latin-1 names
+// threw in fetch Headers before anything launched.
+test("a non-Latin-1 attachment filename is header-safe and recovers for sanitize", () => {
+  const name = "截图.png";
+  const headerValue = launchAttachmentNameHeaderValue(name);
+  expect(() => {
+    new Headers({ [launchAttachmentNameHeader]: headerValue });
+  }).not.toThrow();
+  expect(launchAttachmentNameFromHeader(headerValue)).toBe(name);
+  expect(() => {
+    new Headers({ [launchAttachmentNameHeader]: name });
+  }).toThrow(/ISO-8859-1|ByteString|255/);
+});
 
 test("launchAttachmentRefusalFor names type, size and count with the shared messages", () => {
   expect(

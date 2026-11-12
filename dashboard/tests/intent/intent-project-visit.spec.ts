@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Project Intent visits (../../src/IntentPerspective.tsx, ../../src/IntentPage.tsx)
 // keep the selected story and each context's file, Proof/Purpose and scroll.
 // Project tests read published text and trunk CI; returning restores the
@@ -18,12 +19,13 @@ import {
   intentModeTab,
   openProjectIntent,
   returnToStory,
+  filesColumn,
+  intentPageFrame,
 } from "../intentModePage.ts";
 import {
   fileReadingTab,
   intentReadingScroll,
   proofRegion,
-  purposeRegion,
   scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -31,6 +33,7 @@ import {
   expectStoryTab,
   intentFile,
   selectTakenStoryInIntent,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import {
   changed,
@@ -64,13 +67,14 @@ test("a candidate's test the story changes reads as published in Project Intent,
 
   await test.step("the story's scrolled Purpose returns after a visit that shows trunk CI", async () => {
     await intentFile(intent, deepSpec).click();
-    await expect(
-      purposeRegion(intent).locator(".story-review-code"),
-    ).toHaveAttribute("aria-busy", "false");
+    await expect(intentDiffReading(intent).code).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
     const offset = await scrollIntentReadingHalfway(intent);
     await openProjectIntent(intent);
     await expect(intent).toHaveAttribute("data-selected-story", selected ?? "");
-    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+    await expect(intentPageFrame(intent)).toHaveAttribute(
       "data-intent-context",
       "project",
     );
@@ -79,7 +83,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
     ).toBeVisible();
     await expectIntentModeChosen(intent, "CI status");
     await expect(ciPanel(intent)).toContainText("CI status of main");
-    await expect(intent.locator(".intent-locations")).toBeVisible();
+    await expect(filesColumn(intent)).toBeVisible();
     await returnToStory(intent);
     await expectStoryTab(intent, "Changed tests");
     await expect(intentFile(intent, deepSpec)).toHaveAttribute(
@@ -90,9 +94,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
   });
 
   await intentFile(intent, changed.modified).click();
-  await expect(
-    purposeRegion(intent).locator(".intent-story-diff-name"),
-  ).toHaveText(changed.modified);
+  await expect(intentDiffReading(intent).name).toHaveText(changed.modified);
   await fileReadingTab(intent, "Proof").click();
   const storyCiLink = proofRegion(intent).getByRole("button", {
     name: "View story CI comparison",
@@ -108,23 +110,20 @@ test("a candidate's test the story changes reads as published in Project Intent,
   const readsBefore = await record.getAttribute("data-candidates-reads");
 
   await test.step("the candidate's test reads as published, not as the story's diff", async () => {
-    await entry
-      .getByRole("button", { name: candidatePath, exact: true })
-      .click();
+    await sourceFile(entry, candidatePath).click();
     await expectIntentModeChosen(intent, "CI status");
     await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
       "aria-selected",
       "true",
     );
-    const source = intent.getByLabel(`${candidatePath} source`);
+    const source = fileSource(intent, candidatePath);
     await expect(source).toContainText("a 11");
     await expect(source).not.toContainText("more");
-    await expect(intent.locator(".intent-story-diff")).toHaveCount(0);
-    await expect(
-      intent
-        .locator(".intent-locations")
-        .getByRole("button", { name: candidatePath, exact: true }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(intentDiffReading(intent).container).toHaveCount(0);
+    await expect(intentFile(intent, candidatePath)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await fileReadingTab(intent, "Proof").click();
     await expect(proofRegion(intent)).toBeVisible();
     await expect(
@@ -154,9 +153,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
     );
     await expect(storyCiLink).toBeVisible();
     await fileReadingTab(intent, "Purpose").click();
-    await expect(
-      purposeRegion(intent).locator(".intent-story-diff-name"),
-    ).toHaveText(changed.modified);
+    await expect(intentDiffReading(intent).name).toHaveText(changed.modified);
   });
 
   await test.step("Project Intent keeps its own file, and CI status by keyboard returns home", async () => {
@@ -165,11 +162,10 @@ test("a candidate's test the story changes reads as published in Project Intent,
     const ciTab = intentModeTab(intent, "CI status");
     await intentModeTab(intent, "Optimization Candidates").press("ArrowLeft");
     await expect(ciTab).toBeFocused();
-    await expect(
-      intent
-        .locator(".intent-locations")
-        .getByRole("button", { name: candidatePath, exact: true }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(intentFile(intent, candidatePath)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     await expect(proofRegion(intent)).toBeVisible();
     await ciTab.press("Enter");
     await expect(ciPanel(intent)).toContainText("CI status of main");

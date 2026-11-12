@@ -86,12 +86,12 @@ Status: done
 Proof: [Accepted observations](completed-slice-details.md#slice-12).
 Behavior: [Original accepted flow](completed-slice-details.md#slice-12).
 
-### 13. Named allowances removed; suite and shard margins hold
+### 13. Named default margins and bounded completion proof hold
 Type: Behavior
 Status: planned
-Proof: [Required gates](amended-source-evidence.md#required-remaining-proof); [current scoped136/118 proof](current-load-evidence.md).
+Proof: [Authorized completion](completion-verification.md); [current scoped136/118 proof](current-load-evidence.md); [Codex renewal](codex-current-load-evidence.md).
 
-Behavior: [Admission, default-fit and elapsed progression](amended-source-evidence.md#required-remaining-proof).
+Behavior: renew changed integration boundaries, retain matched default-budget proof, and require complete composition CI; final trunk CI belongs to closure.
 
 ## Current decisions
 
@@ -102,12 +102,12 @@ Behavior: [Admission, default-fit and elapsed progression](amended-source-eviden
 ### G1. Required pressure proof
 Reported: slice 1 — "Focused measurements were below the requested load 20–30; that pressure margin is not established."
 Story clause: "under local load 20–30 on 2 workers"
-Disposition: receiving slice 13
+Disposition: proved by slice 13: completion-verification.md#observed-partial-proof; all65 composed attempts/default30, scoped659 default5 checks plus matched retained named/watcher/closure proof and current-natural-load amendment
 
 ### G2. Comparable local suite comparison remains due
 Reported: slice 1 — "No completed comparable local baseline was found; the unchanged full-suite baseline is still running."
 Story clause: "the comparable local dashboard suite and the slowest hosted shard stay within their previous elapsed times"
-Disposition: receiving slice 13
+Disposition: owner changed "No further full-local rerun or comparable whole-suite timing campaign is required for completion."
 
 ### G3. Hosted margin and shard comparison
 Reported: slice 1 — "Only retained baseline CI is available; no implementation speedup or hosted margin has been proved."
@@ -153,8 +153,7 @@ Disposition: proved by slice 6: touch-evidence.md accepted worker-input implemen
 ### G11. Current trunk has thirteen complete timing parts
 Reported: slice 11 — "Incoming c73b4d00d applies Terry-approved thirteen dashboard shards while this source still names twelve timing artifacts."
 Story clause: "Refresh existing shard weights from all 12 artifacts"
-Disposition: receiving slice 13
-Commitment: C105, C106
+Disposition: owner changed "Keep current shard weights; no trunk reweighting or redistribution experiment is required for completion."
 
 ### G12. Published transport loses streams under dash
 Reported: slice 12 — "Run 42949046330/1 failed all twelve dashboard jobs; installed-client contract tests received empty stdout and stderr with the expected exit codes."
@@ -190,20 +189,18 @@ Disposition: proved by slice 13: final-validation-evidence.md actual settlement 
 ### G18. Scoped browser observations still use longer budgets
 Reported: slice 13 — "The passing pressure46 retains 12 browser observations configured30s and five configured60s; cursorSessionRecovery.ts:118 actually took8.021655s, exceeding the promised five-second observation."
 Story clause: "their 5 s observations"
-Disposition: return
-Commitment: C004, C207
+Disposition: proved by slice 13: completion-verification.md#observed-partial-proof and final-observation-evidence.md; causal operation settlement precedes scoped browser default5, actual659 maximum1546.883ms/error0; unchanged non-named guards are explicitly regression-only
 
 ### G19. Human-routed CI admission observations remain due
 Reported: slice 13 — "Human amendment44f3e0186 routes two unchanged-main five-second admission misses, asks three loaded passes of all five admission cases, and names two weaker-attribution sibling observations. The execution branch did not yet contain the accepted repeat-admission feature."
 Story clause: "At local load 20–30 on 2 workers the five cases of `landed-ci-repeat-admission.spec.ts` pass in three consecutive runs with their 5 s observations."
-Disposition: return
+Disposition: proved by slice 13: completion-verification.md#observed-partial-proof; composed whole-five admission passes three consecutive times/default2/default5/assertions kept, current weaker-history pass and matched actual lock proof, accepted SEED314 setup preserved
 
 
 ### G20. Reconciled normal integration misses three default budgets
 Reported: slice 13 — "Integration45 ended33passes/3timeouts/9serial skips: updates beforeAll, pinned preview and Cursor replacement-controls. Unprotected focused proof overlapped a full run at load45–65; no exception is granted."
 Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget and their 5 s observations"
 Disposition: proved by slice 13: native-git-setup-evidence.md current real whole45 plus final controlledpinned4; watcher first-in-worker and Cursor controls retain default30 margin, pinned full stage/preview/required cleanup24732ms leaves5268ms at load23.578–24.168; all original assertions and real actions remain
-Commitment: C017, C019
 
 ### G21. Held watcher update exhausts its default case budget
 Reported: slice 13 — "Current selected-Git watcher45 failed at production-watcher-updates.spec.ts:59 after30099ms under valid load22.229–25.605; eight later serial cases skipped. Real B build reached accepted-start drain at about25.6s. No exception or passing whole-family claim is granted."
@@ -218,8 +215,7 @@ Disposition: proved by slice 13: native-git-setup-evidence.md; final wholepinned
 ### G23. Human-routed review-family margins need current proof
 Reported: slice 13 — "Human amendmentf8bfb7c0a explicitly names the SEED312 review-family routes immediately before the prepared touch renewal; no new SUT had launched."
 Story clause: "the SEED-312 review-family cases"
-Disposition: return
-Commitment: C024, C025, C027, C028, C029, C030, C031, C134, C135, C136, C137, C138
+Disposition: proved by slice 13: current-load-evidence.md plus completion-verification.md#observed-partial-proof; whole eight review-route cases retained and actual touch4 layout/readiness renewed; final composition CI remains G3
 
 ### G24. Current natural-load Codex retained retry exceeds the case budget
 Reported: slice 13 — "Full f228 failed agent-launch-start-codex.spec.ts:33 at35104ms: its30s case expired during retained retry, expected launching but actual preparing."
@@ -230,12 +226,12 @@ Disposition: proved by slice 13: [bounded Codex correction](codex-current-load-e
 
 [Current assessment and remaining gates](design-and-proof.md#current-plan-assessment).
 
-## Trunk measurement checkpoint
+## Completion verification
 
-[Required retained-landing and trunk timing checkpoint](execution-context.md#trunk-measurement-checkpoint).
+[Human-authorized reduction and targeted integration proof](completion-verification.md).
 
 ## Execution notes
 
-Full local gate: awake/on AC with `caffeinate -s -i` per the
+Local integration proof: awake/on AC with `caffeinate -s -i` per the
 [maintained sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos).
 [Execution context and focused gates](execution-context.md#execution-notes) retain the complete notes.

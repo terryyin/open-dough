@@ -1,7 +1,9 @@
 // Meeting a rate limit GitHub directs a wait for, which holds back every
 // later read of the server that met it (github-request-admission.mjs).
-// A case directs a short wait to see reading resume, and never waits out a
-// long one.
+// A case directs a short wait and passes it in real time (`untilReported`) to
+// see reading resume, and never waits out a long one. The rate-limit page
+// case and the rate-limited stream case pass their longer directed waits on
+// the request owner's time instead (./ownerClockTest.ts).
 
 import {
   developmentBoundary,

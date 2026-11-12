@@ -11,6 +11,7 @@
 // selected story's view row: ./intent-story-views-narrow.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
+import { box } from "../partArrangement.ts";
 import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { chooseProject, parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
@@ -23,11 +24,14 @@ import {
   openProjectIntent,
   returnToStory,
   storyViewBar,
+  filesScroll,
+  scrollFilesHalfway,
+  intentBrowser,
 } from "../intentModePage.ts";
 import {
   fileReadingTab,
   proofRegion,
-  purposeRegion,
+  intentReadingPane,
 } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -39,6 +43,8 @@ import {
   storyOnly,
   storySummary,
   storyTitle,
+  storyViews,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import {
   changeWithDeepSpec,
@@ -48,19 +54,10 @@ import {
 import { openBacklog } from "../support/sessionDialog.ts";
 import type { StartOrigin } from "../support/startOrigin.ts";
 
-const column = (intent: Locator) => intent.locator(".intent-locations");
-const readingPane = (intent: Locator) => intent.locator(".intent-reading");
-
-async function box(element: Locator) {
-  const found = await element.boundingBox();
-  if (found === null) throw new Error("Not laid out.");
-  return found;
-}
-
 // The reading pane spans the browser's whole width, and its whole height.
 async function expectReadingFillsBrowser(intent: Locator) {
-  const browser = await box(intent.locator(".intent-browser"));
-  const pane = await box(readingPane(intent));
+  const browser = await box(intentBrowser(intent));
+  const pane = await box(intentReadingPane(intent));
   expect(Math.abs(pane.width - browser.width)).toBeLessThanOrEqual(1);
   expect(Math.abs(pane.x - browser.x)).toBeLessThanOrEqual(1);
   expect(Math.abs(pane.y + pane.height - (browser.y + browser.height)))
@@ -69,24 +66,6 @@ async function expectReadingFillsBrowser(intent: Locator) {
   expect(pane.y - browser.y).toBeLessThanOrEqual(1);
   return pane;
 }
-
-// Scrolls the tree partway, as the developer would, and returns the offset.
-const scrollTree = (intent: Locator) =>
-  column(intent).evaluate(
-    (element) =>
-      new Promise<number>((resolve) => {
-        element.addEventListener(
-          "scroll",
-          () => {
-            resolve(element.scrollTop);
-          },
-          { once: true },
-        );
-        element.scrollTo({
-          top: Math.floor((element.scrollHeight - element.clientHeight) / 2),
-        });
-      }),
-  );
 
 // Intent with its locations published and no story selected.
 async function openIntentWithoutStory(page: Page, origin: StartOrigin) {
@@ -109,23 +88,20 @@ test("Hide files gives the reading pane the width under the story's header; afte
     origin,
     changeWithDeepSpec,
   );
-  const purpose = purposeRegion(intent);
   await storyOnly(intent).check();
   await intentFile(intent, deepSpec).click();
-  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deepSpec);
+  await expect(intentDiffReading(intent).name).toHaveText(deepSpec);
   const proofTab = fileReadingTab(intent, "Proof");
   await proofTab.click();
   await expect(proofRegion(intent)).toBeVisible();
-  const offset = await scrollTree(intent);
+  const offset = await scrollFilesHalfway(intent);
   expect(offset).toBeGreaterThan(20);
-  const before = await box(readingPane(intent));
+  const before = await box(intentReadingPane(intent));
 
   // The toggle ends the story's view row, after the tabs.
   const bar = storyViewBar(intent);
   const toggleBox = await box(filesToggle(intent));
-  const tabsBox = await box(
-    intent.getByRole("tablist", { name: "Selected story views" }),
-  );
+  const tabsBox = await box(storyViews(intent));
   const barBox = await box(bar);
   expect(toggleBox.x).toBeGreaterThan(tabsBox.x + tabsBox.width);
   expect(
@@ -145,7 +121,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
   for (const view of ["Intent coverage", "CI comparison"] as const) {
     await chooseStoryTab(intent, view);
     await expect(filesToggle(intent)).toHaveCount(0);
-    await expect(readingPane(intent)).toBeHidden();
+    await expect(intentReadingPane(intent)).toBeHidden();
     await chooseStoryTab(intent, "Changed tests");
     await expectFilesShown(intent, false);
     await expect(proofRegion(intent)).toBeVisible();
@@ -160,9 +136,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
   );
   for (const name of ["boundary", "deep"])
     await expect(folderToggle(intent, name, true)).toBeVisible();
-  await expect
-    .poll(() => column(intent).evaluate((element) => element.scrollTop))
-    .toBe(offset);
+  await expect.poll(() => filesScroll(intent)).toBe(offset);
   await expect(proofTab).toHaveAttribute("aria-selected", "true");
 });
 
@@ -233,8 +207,8 @@ test("narrow, the hidden column gives the reading pane the height under the stri
 }) => {
   await page.setViewportSize({ width: 640, height: 720 });
   const intent = await openIntentWithoutStory(page, origin);
-  const browser = await box(intent.locator(".intent-browser"));
-  const before = await box(readingPane(intent));
+  const browser = await box(intentBrowser(intent));
+  const before = await box(intentReadingPane(intent));
   expect(before.height).toBeLessThan(browser.height - 40);
 
   await filesToggle(intent).click();

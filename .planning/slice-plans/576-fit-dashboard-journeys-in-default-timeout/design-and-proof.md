@@ -202,26 +202,21 @@ remaining proof; return before another variant if this one fails.
 
 ## Current plan assessment
 
-Slices1–12 are delivered;13 stays planned. Accepted7305433 incorporates4a and
-passes exact18-job/13-shard CI43098913374/1 plus the strict complete local2651
-selection under actual22.19–26.86. Current115 focused attempts/105 unique retain
-default30/default5, including three consecutive whole-five admission passes.
-Candidate730 has proof; incoming312 reopens touch G1/hosted G3. Other gates retain their
-accepted repaired observations. New15ee human routes reopen G23; fresh178-item
-source-only review is historical. Terry now authorizes current-load proof; fresh
-214 commitments allocated/112 to13. Same27 uses no synthetic load/default30/5. See [local proof/comparison](current-baseline-evidence.md#complete-local-candidate),
-[hosted proof](hosted-evidence.md#current-published-candidate) and
-[native/setup proof](native-git-setup-evidence.md).
+Slices1–12 are delivered. Slice13 has matched retained proof and the current
+65-attempt/45-case integration renewal; G1/G18/G19/G23 are settled from those
+scoped observations. Full composition CI remains G3 before its done transition.
+Current source-only review has197 commitments, with landing/target-CI lifecycle
+rows carried into closure. [Completion verification](completion-verification.md)
+owns the current decision and exact evidence.
 
-G2 remains open: historical failed/different-context4845.851s is no current
-threshold. The fixed reconstructed4a BEFORE became overloaded even with synthetic
-work off and was stopped with partial evidence/costs preserved; no comparable
-complete BEFORE price or whole-suite speedup is claimed. Reconsider expensive
-proof only after changed host conditions. Named312 reconciliation holds delivery.
-G11 still requires all13 complete
-passing TRUNK parts, weights and separately observed redistribution after the
-explicit retained-Land checkpoint. No trunk landing or execution-complete record.
-The earlier internal whole7 shell target remains refuted; no whole7 saving claim.
+Terry delegates the remaining verification choice and directs completion. G2 and
+G11 now record the source's authorized changed promises: no additional full-local
+rerun or comparable whole-suite timing campaign, unchanged shard weights and no
+redistribution experiment. Keep every failed/censored measurement and its costs;
+no current comparable local price or whole-suite speedup is claimed. The matched
+watcher median20.493137s saving remains separately supported. Default case and
+shard deadlines, behavioral coverage, failure duties, full composition CI and
+final trunk CI stay required. No retained-Land timing checkpoint remains.
 
 ## Source goal and scope
 
@@ -231,8 +226,9 @@ journeys finish with margin inside the default 30 s and their 5 s observations;
 temporary allowances for touch review, production-deployment,
 agent-completion-recovery, watcher policy-repair, and retired closure are
 removed only after each case fits. The watcher family is at least 10 s faster
-in median elapsed time including moved work; the comparable local dashboard
-suite and the slowest hosted shard stay within previous elapsed times. Every
+in median elapsed time including moved work; the slowest hosted shard stays
+within its previous elapsed time. The authorized completion amendment removes
+further full-local price and shard-refresh work. Every
 distinct behavioral promise stays at an observable boundary; surviving proof is
 established before deleting a test, step, or assertion.
 

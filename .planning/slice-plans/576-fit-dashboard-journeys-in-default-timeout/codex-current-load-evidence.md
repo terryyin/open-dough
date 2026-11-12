@@ -44,8 +44,9 @@ cleanup receipts: `/tmp/seed287-g24-repair-20261112/bounded/run{1,2,3}/`.
 
 These are actual lower-load passes under Terry's current-natural-load amendment,
 not a renewed39–50-load result, a comparable speedup or a completed full gate.
-The original censored full result and unfinished suite-price/trunk obligations
-remain. The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies.
+The original censored full result remains. The later authorized completion
+judgment in [completion verification](completion-verification.md) supersedes the
+additional suite-price/trunk campaign and renews both cases under current load. The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies.
 
 Source freshness before acceptance is unchanged atf5d69cd7. Reached Codex callers,
 clock/check/retry/origin helpers have no incoming main change; the known added

@@ -1,3 +1,4 @@
+import { ciStatusReading, activateIntentHome } from "../intentCiStatusPage.ts";
 // A selected Intent entry's Summary when Intent's CI judgment is previously
 // retrieved, not newly verified (../../src/IntentScopeEvidence.tsx,
 // ../../src/IntentCiJudgedBranch.tsx, ../intentSummaryCiProofFixtures.ts): after
@@ -8,7 +9,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { httpErrorAnswer } from "../originAnswers.ts";
-import { activateIntentHome } from "../intentCiStatusPage.ts";
+
 import { expectProofRows, proofOf } from "../intentCiProofPage.ts";
 import {
   evidenceLabel,
@@ -41,7 +42,7 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
     ],
     ["tests", "2 passed test files", "3.0 s"],
   ]);
-  await expect(home.getByRole("status")).toContainText("Checked at");
+  await expect(ciStatusReading(home).freshness).toContainText("Checked at");
   const freshSummary = await openSummary(intent, "tests");
   await expectEvidenceLabels(evidenceLabels(freshSummary), ancestorEvidence);
   await expect(freshSummary.getByRole("alert")).toHaveCount(0);
@@ -55,9 +56,10 @@ test("a Summary qualifies a previously retrieved judgment and its failed refresh
   await home.getByRole("button", { name: "Check again" }).click();
   await expect(home.getByRole("alert")).toContainText("503");
   await expect(home.getByRole("button", { name: "Check again" })).toBeEnabled();
-  const kept = (await home.getByRole("status").textContent()) ?? "";
+  const kept = (await ciStatusReading(home).freshness.textContent()) ?? "";
   expect(kept).toMatch(/^Previously retrieved at .+\.$/);
-  const keptAt = await home.locator("time").getAttribute("datetime");
+  const keptAt =
+    await ciStatusReading(home).checkedTime.getAttribute("datetime");
   const failure = (await home.getByRole("alert").textContent()) ?? "";
 
   const summary = await openSummary(intent, "tests");

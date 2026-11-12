@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Project refresh preserves a real Done story's selected historical Purpose
 // file and reading place, including its preceding cycle through all Done tabs.
 
@@ -8,6 +9,7 @@ import {
   openProjectIntent,
   projectIntentLink,
   returnToStory,
+  filesColumn,
 } from "../intentModePage.ts";
 import {
   browserRevision,
@@ -15,7 +17,6 @@ import {
   expandIntentFolders,
   fileReadingTab,
   intentReadingScroll,
-  purposeRegion,
   revisionNotice,
   scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
@@ -28,7 +29,9 @@ import { expect, test } from "../support/preparationPage.ts";
 import {
   chooseStoryTab,
   intentFile,
-  storySummary,
+  storyHeaderReading,
+  intentDiffReading,
+  readIntentDiff,
 } from "../support/intentStoryPage.ts";
 import { lines } from "../support/storyReviewWorktree.ts";
 
@@ -61,10 +64,10 @@ test("project refresh returns the same Done historical Purpose file and reading 
   await firstRequested;
   expect(locations).toEqual([completion]);
   await chooseStoryTab(intent, "Changed tests");
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
   expect(locations).toEqual([completion]);
   await openProjectIntent(intent);
-  await expect(intent.locator(".intent-locations")).toBeVisible();
+  await expect(filesColumn(intent)).toBeVisible();
   expect(locations).toEqual([completion, published]);
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   await returnToStory(intent);
@@ -73,14 +76,13 @@ test("project refresh returns the same Done historical Purpose file and reading 
   await expandIntentFolders(intent, "dashboard/tests");
   const selected = `Added ${longFile}`;
   await intentFile(intent, selected).click();
-  await expect(
-    purposeRegion(intent).locator(".story-review-code"),
-  ).toHaveAttribute("aria-busy", "false");
+  await expect(intentDiffReading(intent).code).toHaveAttribute(
+    "aria-busy",
+    "false",
+  );
   const offset = await scrollIntentReadingHalfway(intent);
-  const originalDiff = await purposeRegion(intent)
-    .locator(".story-review-code")
-    .innerText();
-  const revisions = storySummary(intent).locator(".intent-story-revisions");
+  const originalDiff = await readIntentDiff(intent);
+  const revisions = storyHeaderReading(intent).revisions;
   const endpoints = await revisions.innerText();
   expect(endpoints).toContain(completion.slice(0, 7));
   const later = makeMe.aRepository
@@ -101,9 +103,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
   await openProjectIntent(intent);
   await expect(revisionNotice(intent)).toBeVisible();
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest", exact: true })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   await expect(revisionNotice(intent)).toHaveCount(0);
   await expect(browserRevision(intent)).toContainText(
     laterRevision.slice(0, 7),
@@ -122,8 +122,6 @@ test("project refresh returns the same Done historical Purpose file and reading 
     "true",
   );
   await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
-  expect(
-    await purposeRegion(intent).locator(".story-review-code").innerText(),
-  ).toBe(originalDiff);
+  expect(await readIntentDiff(intent)).toBe(originalDiff);
   await expect(revisions).toHaveText(endpoints);
 });

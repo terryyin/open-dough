@@ -1,3 +1,6 @@
+import { timeMarks } from "../support/relativeTimingMarks.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
+import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // File-level Purpose and CI Proof (../../src/IntentFileProof.tsx).
 // Purpose shows a changed-file diff without comparison above it; Proof keeps
 // precise A/B/C times, count differences and change kinds, including a test
@@ -33,11 +36,11 @@ import {
   expectStoryTab,
   intentFile,
   storyTab,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
-  expectFileComparisonRow,
   mergeEditedFileRow,
   modifiedFileRow,
   renamedFileRow,
@@ -80,12 +83,10 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     const proofTab = fileReadingTab(intent, "Proof");
 
     await expect(purposeTab).toHaveAttribute("aria-selected", "true");
-    await expect(purpose.locator(".intent-story-diff-name")).toHaveText(
+    await expect(intentDiffReading(intent).name).toHaveText(
       summaryComparisonChanges.modified,
     );
-    await expect(purpose.locator(".story-review-code")).toContainText(
-      "changed",
-    );
+    await expect(intentDiffReading(intent).code).toContainText("changed");
     await expect(purpose.getByRole("table")).toHaveCount(0);
     await expectNoComparisonFraming(purpose);
     await expect(
@@ -128,9 +129,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         await expectStoryTab(intent, "CI comparison");
         await expect(storyTab(intent, "CI comparison")).toBeFocused();
         await expect(
-          intent
-            .getByRole("tabpanel", { name: "CI comparison" })
-            .getByRole("table", { name: "CI entry timing comparison" }),
+          comparisonReading(
+            intent.getByRole("tabpanel", { name: "CI comparison" }),
+          ).entryTable,
         ).toBeVisible();
         await expect(proof).toBeHidden();
         // Arrow keys move along the story's views.
@@ -164,9 +165,9 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         });
       }
       await fileReadingTab(intent, "Purpose").click();
-      await expect(
-        purposeRegion(intent).locator(".intent-story-diff-name"),
-      ).toHaveText(summaryComparisonChanges.added);
+      await expect(intentDiffReading(intent).name).toHaveText(
+        summaryComparisonChanges.added,
+      );
     });
 
     if (variant === undefined)
@@ -189,9 +190,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
             durationReason: "units not comparable",
           },
         );
-        await expect(renamedProof.locator(".intent-ci-time-mark")).toHaveCount(
-          0,
-        );
+        await expect(timeMarks(renamedProof)).toHaveCount(0);
         await fileReadingTab(intent, "Purpose").click();
       });
 
@@ -200,14 +199,13 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
         const editedRead = nextDiff("dashboard/tests/folder/nested/c.spec.ts");
         await intentFile(intent, summaryComparisonChanges.mergeEdited).click();
         await editedRead;
-        const edited = purposeRegion(intent);
-        await expect(edited.locator(".intent-story-diff-name")).toHaveText(
+        await expect(intentDiffReading(intent).name).toHaveText(
           summaryComparisonChanges.mergeEdited,
         );
-        await expect(edited.locator(".story-review-code")).toContainText(
+        await expect(intentDiffReading(intent).code).toContainText(
           "merge edit",
         );
-        await expect(edited.locator(".story-review-code")).not.toContainText(
+        await expect(intentDiffReading(intent).code).not.toContainText(
           "changed",
         );
         await fileReadingTab(intent, "Proof").click();

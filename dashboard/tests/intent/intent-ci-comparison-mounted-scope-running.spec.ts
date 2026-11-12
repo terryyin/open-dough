@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Real child navigation retains one provider for a running Landed fallback.
 // The fast request rule lives in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -57,9 +58,9 @@ for (const landed of variants) {
           exact: true,
         }),
       ).toBeVisible();
-      await expect(
-        summary.locator(".intent-ci-comparison-active-reason"),
-      ).toHaveText(reason);
+      await expect(comparisonReading(summary).fallbackReason).toHaveText(
+        reason,
+      );
     }
     await childName(summary, "c.spec.ts").click();
     const proof = page.getByRole("region", { name: "Proof", exact: true });
@@ -69,9 +70,7 @@ for (const landed of variants) {
         exact: true,
       }),
     ).toBeVisible();
-    await expect(
-      proof.locator(".intent-ci-comparison-active-reason"),
-    ).toHaveText(reason);
+    await expect(comparisonReading(proof).fallbackReason).toHaveText(reason);
     await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
       "+70 ms",
     );

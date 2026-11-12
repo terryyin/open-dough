@@ -2,8 +2,9 @@
 // machine's sessions overview stops carrying its attempt
 // (../../src/launchAttemptSelection.ts). The page that asked for it then reads
 // how it settled from the sessions history (../../src/askedLaunches.ts,
-// ../../src/retainedHistory.ts) and presents its session as before: the terminal
-// opens with the keyboard and Start session is offered again.
+// ../../src/retainedHistory.ts) and presents its session as before: started
+// with nothing typed, the terminal opens with the keyboard and Start session
+// is offered again.
 
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import {
@@ -41,10 +42,9 @@ test("a launched ad hoc start leaves the overview and its page presents the sess
   await openTakenBacklog(page, launchJourney);
   expect(historyReads).toEqual([]);
 
-  const text = "summarize the open pull requests";
   const dialog = startSessionDialog(page, "Open Dough");
   await startSession(page, "Open Dough").click();
-  await startSessionField(dialog).fill(text);
+  await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Start" }).click();
 
   const panel = page.getByRole("region", { name: "Terminal" });

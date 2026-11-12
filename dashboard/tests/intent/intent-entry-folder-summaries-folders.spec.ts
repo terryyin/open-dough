@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent folder toggle/name selection, keyboard operation, and toggle reader
 // preservation (../../src/StoryReviewFileTree.tsx, ../../src/IntentBrowser.tsx).
 // Location toggle/name: ./intent-entry-folder-summaries.spec.ts.
@@ -51,12 +52,8 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
         intent.getByRole("button", { name: `Expand ${folder}` }),
       ).toBeVisible();
     }
-    await expect(
-      intent.getByRole("button", { name: stooqPath, exact: true }),
-    ).toBeHidden();
-    await expect(
-      intent.getByRole("button", { name: topFeaturePath, exact: true }),
-    ).toBeVisible();
+    await expect(sourceFile(intent, stooqPath)).toBeHidden();
+    await expect(sourceFile(intent, topFeaturePath)).toBeVisible();
     await expandIntentFolders(intent, featuresPath);
   });
 
@@ -150,9 +147,7 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
       intent.getByRole("button", { name: "Collapse reports" }),
     ).toHaveAttribute("aria-expanded", "true");
 
-    await intent
-      .getByRole("button", { name: topFeaturePath, exact: true })
-      .click();
+    await sourceFile(intent, topFeaturePath).click();
     await expect(purposeRegion(intent)).toContainText("Feature: Disk space");
     const jobsName = intentFolderName(intent, "jobs");
     await jobsName.press("Enter");
@@ -172,16 +167,17 @@ test("Intent folder toggle/name, keyboard, and location toggle preserve the read
 
   await test.step("file Purpose; E10 toggle opens another location without changing reader; E11 closed original name selects summary", async () => {
     await expandIntentGroup(intent, featuresPath);
-    await intent.getByRole("button", { name: stooqPath, exact: true }).click();
-    const source = intent.getByLabel(`${stooqPath} source`);
+    await sourceFile(intent, stooqPath).click();
+    const source = fileSource(intent, stooqPath);
     await expect(source).toContainText("Feature: Stooq refresh");
     await expect(intentFolderName(intent, "jobs")).toHaveAttribute(
       "aria-pressed",
       "false",
     );
-    await expect(
-      intent.getByRole("button", { name: stooqPath, exact: true }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(sourceFile(intent, stooqPath)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
 
     // E10: open a different location by toggle; Purpose stays on the file.
     await intentGroupToggle(intent, packagedPath).click();

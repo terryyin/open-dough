@@ -75,16 +75,20 @@ export async function expectLabelInFull(
   await expectInFull(evidenceLabel(region, name), full);
 }
 
+// The named attempt link; exact matching stays a caller's observation choice.
+export const attemptLink = (
+  region: Locator,
+  attempt: string,
+  options: { readonly exact?: boolean } = {},
+) => region.getByRole("link", { name: attempt, ...options });
+
 // The attempt label ATTEMPT within REGION links to URL.
 export async function expectAttemptLinked(
   region: Locator,
   attempt: string,
   url: string,
 ) {
-  await expect(region.getByRole("link", { name: attempt })).toHaveAttribute(
-    "href",
-    url,
-  );
+  await expect(attemptLink(region, attempt)).toHaveAttribute("href", url);
 }
 
 async function expectLabelNames(

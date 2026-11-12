@@ -13,6 +13,7 @@ import { agentLaunchEndpoint } from "../../src/launchRequest.ts";
 import type { HostOperations } from "../../src/sessionCapabilities.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { sessionActions } from "./sessionEntryDisclosure.ts";
+import { startedSessionTerminal } from "./startedSessionTerminal.ts";
 
 export const instruction = "inspect this session";
 
@@ -109,12 +110,11 @@ export async function openTakenCursorSession(
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const recent = parts(page).taken.locator(".session-entry");
   await expect(recent).toHaveCount(1);
-  // The start presents the session's terminal. Its socket joins the held
-  // client once that terminal shows the screen. A join arriving after a later
-  // hangup or runner stop would attach a new client instead.
-  await expect(
-    page.getByRole("region", { name: "Terminal" }).locator(".xterm-rows"),
-  ).toContainText(/\S/u);
+  // The session's terminal joins the held client once it shows the screen. A
+  // join arriving after a later hangup or runner stop would attach a new
+  // client instead.
+  const terminal = await startedSessionTerminal(page, recent);
+  await expect(terminal.locator(".xterm-rows")).toContainText(/\S/u);
   return recent;
 }
 

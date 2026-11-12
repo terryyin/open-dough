@@ -50,13 +50,11 @@ Accepted proof indices: [probe](execution-evidence.md), [source ingestion](sourc
 
 ## Trunk measurement checkpoint
 
-After implementation and local/branch proof settle, request approval for
-Dough Land `--keep-worktree` before slice 13’s trunk-only timing/weight step.
-The plan’s execution authority does not silently grant that checkpoint.
-Use all thirteen current artifacts of a complete passing trunk run after work removal;
-refresh weights and measure redistribution separately. Final closure still
-uses Story Wrap Up. First trunk publication must receive the launch’s supplied
-landing context; later trunk publications omit it.
+Superseded by Terry's delegated completion-verification judgment: no retained
+landing for a timing/weight experiment is required. Keep existing shard weights.
+Story Wrap Up owns final integration, target CI and retirement. First trunk
+publication still receives the launch's supplied landing context; later trunk
+publications omit it. [Current decision](completion-verification.md).
 
 Slice13's current evidence and incoming-work settlement are in
 [final validation](final-validation-evidence.md) and
@@ -87,15 +85,16 @@ into these existing context/design owners; source, slices and obligations are un
 
 ## Execution notes
 
-The selected story specifically requires the full local gate on AC; the
-following retained battery option applies to focused checks.
+The current completion amendment selects focused local integration proof and
+complete hosted CI. Local proof uses awake AC under the maintained sleep guard.
 
 [Execution identity, accepted revision, setup, and CI observer](execution-context.md)
 
 - No numeric slice target or hard limit is supplied; judge boundedness by one
   proof loop and the Behavior/Structure gate above.
 - Local gates: focused selections named in each slice's proof, then the
-  existing local and hosted dashboard gates for slice 13; ordinary commit hooks.
+  complete hosted dashboard gate for slice13; no additional full-local rerun.
+  Ordinary commit hooks remain required.
   For long runs start fully awake: on AC use `caffeinate -s -i`; on battery
   plug in or keep the lid open under `caffeinate -i` and inspect sleep logs
   per [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
@@ -202,3 +201,13 @@ Observer `/tmp/dough-ci-501/watch-vAEIPA`, PID3366/session4163/Codex cellg23:10,
 coordinator `seed287-codex`, has nativeREADY/finite8h coverage for this branch.
 Never poll that session/cell; managed delivery uses this exact observer owner.
 No execution-complete, retrospective, Done, landing or retirement is claimed.
+
+## Authorized completion after scope judgment
+
+Terry delegates the full-versus-partial proof choice and directs completion.
+[Completion verification](completion-verification.md) supersedes the earlier
+full-local price and retained-Land/trunk-reweight campaign. Final target CI stays
+required. Source-only review is freshly197 items; matched proof stays retained.
+Resumed native observer: `/tmp/dough-ci-501/watch-eFcr0B`, PID14299/session41837,
+Codex cellg41:4, coordinator `seed287-codex`, complete native identity/finite8h.
+Never wait/poll that session/cell. Earlier vAEIPA is stopped/PIDgone.

@@ -124,15 +124,10 @@ for (const viewport of [
     const divider = await box(
       page.getByRole("separator", { name: "Panel divider", exact: true }),
     );
-    expect(initial.region.x + initial.region.width).toBeLessThan(
-      initial.panel.x,
-    );
     expect(
-      initial.panel.x - initial.region.x - initial.region.width,
-    ).toBeLessThan(16);
-    expect(initial.region.x + initial.region.width).toBeLessThanOrEqual(
-      divider.x + divider.width / 2,
-    );
+      initial.region.x + initial.region.width,
+      "the Board region meets the panel without a gap",
+    ).toBe(initial.panel.x);
     expect(initial.region.x + initial.region.width).toBeLessThanOrEqual(
       divider.x,
     );
@@ -179,11 +174,18 @@ test("the agent roster scrolls below its stationary banner without scrolling the
   expect(await page.evaluate(() => scrollY)).toBe(0);
 });
 
-test("native Board scrollbar width owns the Column boundary and keeps a saved position", async ({
+test("a classic Board scrollbar's width owns the Column boundary and keeps a saved position", async ({
   page,
 }, testInfo) => {
   await page.setViewportSize({ width: 1152, height: 800 });
   await page.addInitScript(() => {
+    // A classic track, as on hosts without overlay scrollbars, whatever
+    // this host's own scrollbar style.
+    document.addEventListener("DOMContentLoaded", () => {
+      const track = document.createElement("style");
+      track.textContent = ".board-scroll::-webkit-scrollbar { width: 15px; }";
+      document.head.append(track);
+    });
     if (localStorage.getItem("open-dough.board.position") === null)
       localStorage.setItem("open-dough.board.position", "1");
   });

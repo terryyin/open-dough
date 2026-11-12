@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 495. Removed numbers are never reused.
+- Highest allocated local number: 499. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -76,6 +76,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Published slice 2 `f31723244` linked delegation to new `test-entry-rules.md` before declaring that reference/runtime closure; CI run43010890708/1 test3/3 failed `tests/payload-declaration-links.sh`. Repair `e2806cc5e` added the complete closure and ran real install/update plus grouped/historical declaration readers. Recover proof at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/ci-repair-observations.md`.
   - Observed effect: one owned dependency-closure CI failure, paused next-slice work and an independent repair before resuming. The same run's watcher teardown budget defect had a separate accepted solution; it is not attributed to this omission.
   - Inference: linking promoted runtime prose makes its delivery inventory an immediate consumer; a later installation slice does not postpone that compatibility proof. Matches ODF-150's indirect-consumer omission; no new framework or duplicate finding is needed.
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: unknown (2026-11-12, about 09:55–10:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 changed `dashboard/tests/support/cursorSessionReading.ts` `openTakenCursorSession`. The implementation return listed its consumers as the Cursor session specs of the plan's premises table and ran those; the refactor agent's trace found `support/cursorSessionRecovery.ts` also calls it, reaching nine more specs (`cursor-session-recovery-wait`, `-restart`, `-replacement`, `cursor-runner-replacement`, `-controls`, `cursor-runner-helper-survival`, `cursor-session-scope-continuation`, `-noninterference`, `cursor-session-alerts`). The coordinator computed the transitive importers (22 specs) and ran them before publishing `43782e67d`.
+  - Observed effect: one extra 7-minute local run before publication; no failure reached CI from this cause.
+  - Inference: the implementer selected proof from the plan's list of failing specs, not from importers of the support module it changed; the consumer-trace output was dominated by plan-file matches.
+
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -120,6 +129,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator conversation: 19 `dough-execute-plan/references` files totalling 2,836 lines were read at their boundary rows for one planned slice whose product change was 64 lines in three files. The three delegated agents (source review, implementation, refactor) reported 42,579, 103,651 and 90,439 tokens. Paths read and not taken: CI failure repair and stash, rejected push, rebase conflict, interrupted publication, oversized slice and live-action proof.
   - Observed effect: no truncation, rework or error; each boundary read arrived as its own tool result as the ODF-264 response prescribes. Context was spent on procedures the managed start, delivery and completion commands carried out.
   - Inference: qualified. The coordinator read `execution-decisions.md`, `trunk-publication.md`, `story-obligations.md` and `ci-monitor.md` whole where a boundary row named one section, so part of the volume was its own choice. Cost only; this run shows no harm to quality.
+- Execution: SEED-318#remove-unused-taken-comparison-navigation (plan 596; first implementation `d368840eedcab86a7090228751d27afaa4789bcb`)
+  - Timestamp: unknown (2026-11-12, between Take `d9320ac4e` and the execution-complete record, about 09:20 to 09:50 +08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout at Take `d9320ac4e`)
+  - Evidence: coordinator conversation: 15 `dough-execute-plan/references` files, about 2,150 lines, were read at their boundary rows for one planned Structure slice whose product change deleted 28 lines in one test-support file. The three delegated agents (source review, implementation, refactor) reported 41,375, 68,672 and 53,704 tokens; the source review returned 19 commitment ids, each recorded with its own `observed:` cell. Paths read and not taken: CI failure repair, rejected push, rebase conflict, interrupted publication, oversized slice, live-action proof and one-shot starts.
+  - Observed effect: no truncation, rework or error; the refactor pass returned no change. The preparation scratch had already run the same deletion with the same typecheck and journey.
+  - Inference: qualified. `execution-decisions.md`, `story-obligations.md`, `trunk-publication.md` and `deliver-the-change.md` were again read whole where a row named a section. Cost only; the fixed procedure does not shrink with the change, so the ratio is at its widest on a deletion-only correction.
 
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 
@@ -398,6 +415,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: four traces of a test-helper change were mostly planning-record rows that each needed an exclusion; no missed consumer is established.
   - Inference: recurrence of planning-basename noise in installed 0.3.96; the uncommitted plan and source review enter the trace's derived terms. Isolated cost is unmeasured.
 
+- Execution: SEED-300#express-dashboard-test-intent-through-page-objects (plan581; first implementation `71d39d5965906dd4dcd28d4d3cd0c1ffcb0a4385`)
+  - Timestamp: unknown (2026-11-12 G15 acceptance; exact classification event time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.95 (checkout-bound installed guidance at G15 base3ef6; managed guidance unchanged through816db466)
+  - Evidence: `28c1118c5:.planning/slice-plans/581-intent-test-reading/final-gate-evidence.md`; `/tmp/seed300-g15-selected-git-20261112/combined-consumer-trace.md`, `git-command-source-equivalence.json` and `consumer-evidence-normalization.json`. The final1078-row trace has31run/57reused/990excluded; generic PLAN.md and case-insensitive PATH/data-path matches supplied many lexical-only rows.
+  - Observed effect: independent review found16 real Dashboard Git receivers excluded in the primary table but already covered by the95-receiver supplement, plus3 independent-Node rows needing consistent exclusion. All19 overlaps were normalized across artifacts before publication, with no source edit, runtime rerun or missed proof established. Bounded coordinator reads avoided the historical truncation symptom; isolated trace/normalization effort was not measured.
+  - Inference: matches ODF-396's broad planning/generic-term noise; parallel effect records also needed manual consistency work. Narrow record/data matches away from executable effects and check shared path/effect dispositions together, while retaining real indirect consumers.
+
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
@@ -488,6 +513,14 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `19e0e454a` PLAN.md has `## Ordered slices and proof ownership`; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `19442de20` has `## Ordered slices`. Plans 589 and 590 at that base carry the same longer heading (`589-…/PLAN.md:92`, `590-…/PLAN.md:87`). The seed's recorded assessment was `ready`.
   - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
   - Inference: same reader contract as the singular-heading occurrence, reached through a descriptive suffix instead; matching rests on that shared contract.
+- Execution: SEED-318#remove-unused-taken-comparison-navigation (plan 596; first implementation `d368840eedcab86a7090228751d27afaa4789bcb`)
+  - Timestamp: unknown (2026-11-12, before the first implementation delegation, about 09:37 +08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout at Take `d9320ac4e`)
+  - Evidence: Take `d9320ac4e` PLAN.md has `## Ordered slice` for its single slice; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `d368840ee` has `## Ordered slices`. The seed's recorded assessment was `ready`.
+  - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
+  - Inference: third near-miss form of the same heading; a one-slice plan invites the singular, and readiness still does not run the reader execution uses.
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
@@ -595,6 +628,23 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 591 holds 112 rows for a three-slice story, among them U1 ("Context: the developer is reading on a small screen…"), nine X5 rows restating the story's automated-proof limit and seven trigger rows (K1.0–K7.0). The coordinator recorded one `observed:` per row through about 110 `record` invocations in three batches and re-recorded three rows when a later slice renamed a test helper.
   - Observed effect: every promise had an inspected location at acceptance, and the U11 row exposed one promise with no automated assertion. The context, trigger and proof-method rows added cells whose text restates setup or the story's own limit.
   - Inference: the reviewer brief asks for "trigger/journey examples and exclusions" beside commitments without separating which need an observation; the cost here is qualified, as no time was measured.
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at slice 2 acceptance)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 597 holds 44 rows for a two-slice story, among them 1.4 ("Reason for 1.3: a session started with nothing typed waits for the developer"), 3.3, 5.5 ("5.1 to 5.4 are existing behavior that is retained, not new behavior") and 9.3, which restate a reason or another row. The coordinator recorded 44 `observed:` cells in one batch; five (1.4, 5.5, 8.1, 8.2, 5.4) cite an unchanged product location because no assertion can observe a reason or an absence.
+  - Observed effect: every promise had a location at acceptance; the reason and restatement rows added cells that repeat neighbouring rows.
+
+
+- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
+  - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at two acceptances)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 598 holds 91 rows for a two-slice test-speed story, among them M7 and M8 (the Success measure's "Retained reference" figures), X2 ("They may adopt the same fixture later."), ten S3 rows for one "do not change" sentence and six S7 rows for one "No new … to obtain a saving" list. The coordinator recorded one `observed:` per row through about 90 `record` invocations in two batches.
+  - Observed effect: every promise had an inspected location at acceptance. The reference-figure, permission and negated-means rows received cells that restate the diff's absence of a change or the plan's run table.
+  - Inference: same cause as the first occurrence; cost qualified, no time measured.
 
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 
@@ -632,3 +682,72 @@ asking what else the step's presence had detected.
   - Evidence: plan 592's premise row found that skipping the context journey's early commit choice fails the later Commits beat, so slice 4 moved the choice there and dropped the return to All changes. Neither the plan nor the first slice 4 return named an owner for "the chosen range survives leaving Commits", which the removed sequence had detected. At acceptance the coordinator returned the slice; fault FR failed the removed step on `d7622bc2b`, no touch case afterwards, and two desktop checks (`story-review-commit-ranges.spec.ts:80`, `story-review-commit-refresh.spec.ts:96`) found by running the review family (183 cases, 1,227 s at load 34–49).
   - Observed effect: one returned slice and a family run to find an owner the plan could have named; the same run surfaced five load-only failures in untouched review specs, recorded in `ProjectFindings.md` under DD-476.
   - Inference: the story's surviving-proof rule was applied to removed assertions and cases, not to behavior a removed step proved incidentally. Planning a removal could list each fault the step fails today, not only the assertion that motivated keeping part of it.
+
+- Execution: SEED-314#speed-up-landed-ci-repeat-checks (plan 595; first implementation `ad78d86495a1e808da9d40fb164b66e4d883b402`)
+  - Timestamp: unknown (execution 2026-11-11 23:35 to 2026-11-12 01:30 +08:00 for the slice concerned)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 595's existing-solution finding for slice 2 said the page fixture's implicit dashboard server "collects nothing", from the fixture's default environment. Removing that implicit start also removed a second collector from `landed-ci-scope-pending-order.spec.ts`, which set the collection option for it, and the fixture's `serveOriginBaseCi` answerer from 53 cases. The implementer reported both after the proof runs; the coordinator returned the slice for a reach observation (59 cases instrumented, no call reached a default answer, one control spec showing the instrument fires), and the refactor pass removed the orphaned option.
+  - Observed effect: one returned slice and a 329 s instrumented run to settle effects the plan could have listed; no consumer was affected.
+  - Inference: the same omission for a fixture as for a journey step: the plan named the effect that motivated the removal, the server start, and not everything that start did.
+
+## DD-496 — An intermittent local failure in a journey the slice changed was attributed to machine load, and hosted CI failed it on a deterministic cause
+
+A changed browser journey failed in some local runs at the 30 s test timeout while other, unchanged journeys timed out from fixture time under external load. Three agents classed it with them and the slice was published; the journey had its own defect.
+
+### Occurrences
+
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: 2026-11-12T02:17:28Z (hosted CI run of the failing job; local runs 09:10–10:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1's shared step `startedSessionTerminal` first waited for the session's Taken entry. `launches/agent-launch-start-session-touch.spec.ts:32` then failed locally in 2 of 4 implementer runs and both refactor-agent runs, each at that wait, under load averages 31–46; its trace showed fixtures taking 22–23 s. The plan Outcome, the refactor return and the coordinator's acceptance recorded it as load beside `responsive-session-access.spec.ts:44`. Hosted CI run 43139863774 failed only that journey at the same line. Cause: a terminal covering a narrow page sets `aria-hidden` on the page column (`dashboard/src/PageFrame.tsx`), so the role locator finds no entry while the terminal is shown; the wait passed only when the entry rendered first. Repair `b6f325ffb`.
+  - Observed effect: one owned CI failure, a stash and restore of slice 2's uncommitted work, and one repair commit.
+  - Inference: the failure's line was inside code the slice added, unlike the unchanged journeys that timed out in fixtures or polls; that difference was visible in the first failing log and was not used to separate it. The base-content comparison the coordinator ran for two other specs was not run for this one.
+
+## DD-497 — A plan premise that two entry points share a component stood in for observing the second entry point's keyboard outcome
+
+The plan settled "the page rule is one condition for Start session and Follow up alike" by noting that Follow up renders the same component, and promised the keyboard return for both. The second entry point sits inside a list with its own focus rescue.
+
+### Occurrences
+
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: unknown (2026-11-12, slice 2 implementation, about 10:15–10:40+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 597's premises table: "The scratch condition typechecked and changed the outcome. `dashboard/src/FollowUp.tsx` renders the same `StartSession`." Its planning scratch run asserted no keyboard position after an instructed Follow up. In slice 2 the implementer's new assertion found the keyboard on the source entry: Recently done's held-entry rescue (`dashboard/src/recentlyDoneFocus.ts`, a layout effect) ran before the launcher's return (`dashboard/src/launchDialogLauncher.ts`, then an effect). The implementer stopped that path; the coordinator kept the story's example and the fix landed in `708ce1ab4`.
+  - Observed effect: one implementer stop and resume, and a focus-timing change to every launch dialog that the plan had not sized.
+  - Inference: shared rendering settles what is requested, not what surrounds the component; the keyboard promise depended on the surroundings.
+
+## DD-498 — A coordinator's timing loop filtered runner output, so the one failed run left no evidence
+
+To compare a changed test selection with its base under host load, the coordinator ran both in one shell loop and kept only the lines matching pass marks, totals and `real`. One run of the changed selection failed, and nothing recorded which case failed or why.
+
+### Occurrences
+
+- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
+  - Timestamp: unknown (2026-11-12, during slice 1 acceptance)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: coordinator conversation, interleaved base/after loop piping `npm run test:dashboard` through `grep -E "✓|✘|passed|failed|^real"`; "after 2" printed `auto (31.4s)`, `a rate (22.8s)`, `1 failed`, `1 passed (1.9m)`, `real 116.78` at load 55. Eleven further runs with full logs and two under added load all passed; the plan's Execution state records the failure as explained, not observed.
+  - Observed effect: about 20 minutes of repeat and added-load runs produced no reproduction, and the slice was accepted with a supported but unobserved explanation (a 30 s default timeout during a load spike). Later delegations were told to keep one full log per run.
+  - Inference: a filtered measurement loop is a proof run like any other; the failure policy's diagnosis needs the output the filter discarded. Generality is unmeasured.
+
+## DD-499 — An unrelated neighbor's load-induced timeout took a repair whose gain is below noise
+
+A neighbor run at one worker on a saturated host timed out a case that does not use the changed fixture. The failure policy made its repair the executor's; the measured diagnosis put most of the cost in product behavior the executor may not change.
+
+### Occurrences
+
+- Execution: SEED-315#speed-up-provider-rate-limit-checks (plan 598; first implementation `9b471af203402da781472742b50c0bce1929689b`)
+  - Timestamp: unknown (2026-11-12; neighbor run in slice 1, repair delegated after slice 2)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 return, `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…" at 30.4 s, load about 70; repair return with phase timings (walk and `gh` starts about 10 s of 15.5 s at load 45) and `449a0b919889ea357dca764eb73075b7485fdf31`; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` entry `later-comparison-walk-gh-starts`.
+  - Observed effect: one implementation delegation of about 13 minutes and one refactor pass delivered a 1–2 s saving that end-to-end runs cannot show (the same case ran 4.4–17.7 s across loads 20–43). The remaining margin needs a product or suite-wide decision and is kept as a live candidate.
+  - Inference: the diagnosis was necessary to learn where the time goes; whether a test-only repair should follow when the diagnosis names product cost is a judgment the policy leaves to the executor. One occurrence.

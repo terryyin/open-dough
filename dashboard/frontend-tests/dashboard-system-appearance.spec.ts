@@ -1,3 +1,9 @@
+import {
+  fileSource,
+  sourceLineNumbers,
+  sourceLineText,
+  sourceFile,
+} from "../tests/intentCodeBrowsePage.ts";
 // System colour-scheme appearance for the dashboard frame and Intent source:
 // dark Board/card/badge, Sessions, Side panel chrome, dialog, settings, focus,
 // and recovery text stay readable; highlighted and plain source follow the
@@ -158,32 +164,26 @@ test("the dashboard frame and Intent source follow the system appearance togethe
     await expect(intent).toBeVisible();
     await expandIntentGroup(intent, "dashboard/tests");
     await expandIntentFolders(intent, "dashboard/tests");
-    await intent
-      .getByRole("button", { name: highlightedPath, exact: true })
-      .click();
-    const source = intent.getByLabel(`${highlightedPath} source`);
+    await sourceFile(intent, highlightedPath).click();
+    const source = fileSource(intent, highlightedPath);
     await expect(source).toContainText('export const message = "hello";');
     const exportToken = sourceToken(source, /^export$/);
     await expect(exportToken).toBeVisible();
     await expectReadableContrast(exportToken);
-    await expectReadableContrast(source.locator(".source-line-number").first());
+    await expectReadableContrast(sourceLineNumbers(source).first());
     const darkExport = await colourOf(exportToken);
 
     await expandIntentGroup(intent, "dashboard/checks");
     await expandIntentFolders(intent, "dashboard/checks");
-    await intent.getByRole("button", { name: /notes\.check/ }).click();
-    const plain = intent.getByLabel(/notes\.check source/);
-    await expect(plain.locator(".source-line-text")).toHaveText(
-      plainSource.split("\n"),
-    );
-    await expect(plain.locator(".source-line-text span")).toHaveCount(0);
-    await expectReadableContrast(plain.locator(".source-line-text").first());
+    await sourceFile(intent, plainPath).click();
+    const plain = fileSource(intent, plainPath);
+    await expect(sourceLineText(plain)).toHaveText(plainSource.split("\n"));
+    await expect(sourceLineText(plain).locator("span")).toHaveCount(0);
+    await expectReadableContrast(sourceLineText(plain).first());
 
     await expandIntentGroup(intent, "dashboard/tests");
     await expandIntentFolders(intent, "dashboard/tests");
-    await intent
-      .getByRole("button", { name: highlightedPath, exact: true })
-      .click();
+    await sourceFile(intent, highlightedPath).click();
     await expect(exportToken).toBeVisible();
 
     // Open Sessions (side panel) while Intent keeps the selected file, then

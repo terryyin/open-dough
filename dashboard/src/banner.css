@@ -1,6 +1,7 @@
 /* The pinned banner: always one row. Sessions (Open Dough's mark as its
    visual), the icon-only perspective choices, the project choices, and
-   System settings at the far end. Every control is one control height, and
+   System settings at the far end. Its height is the frame's top bars'
+   (./styles.css). Every control is one control height, and
    the icon controls share one look (./icon-control.css). The flexible track
    holds the project choices at its end: the tabs while they fit on that one
    line, otherwise the compact title select filling it (./ProjectSelect.tsx). */
@@ -9,12 +10,11 @@
   z-index: 5;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) var(--control-size);
-  grid-template-rows: minmax(var(--control-size), auto);
+  grid-template-rows: minmax(var(--top-bar-row), auto);
   align-items: center;
   gap: var(--space-1) var(--space-2);
-  padding: var(--space-2) var(--page-gutter);
+  padding-inline: var(--page-gutter);
   background: var(--raised-surface);
-  border-bottom: 1px solid var(--line);
   box-shadow: var(--shadow-1);
 }
 

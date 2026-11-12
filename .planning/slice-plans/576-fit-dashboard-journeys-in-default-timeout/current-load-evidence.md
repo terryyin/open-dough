@@ -92,12 +92,14 @@ remain accepted for their observed boundaries. The active story/plan/worktree
 are preserved; no execution-complete, Done, landing or retirement is claimed.
 CI observerp9a2sG stopped with unread0; acceptedCI remains independently retained.
 
-## Resumed bounded correction
+## Resumed correction and completion judgment
 
-The later `resume` instruction reopened only the bounded Codex repair while the
-reduced-scope choice remains pending. [Codex evidence](codex-current-load-evidence.md)
-retains the failed first experiment, causal correction and three consecutive
-whole-two-file passes. Actual natural load fell to6.771–15.779; no43-load pass or
-load-normalized saving is claimed. The original censored full result remains.
-Full-local comparison and the retained-Land/trunk-weight checkpoint remain open;
-no further full or baseline run was launched, and slice13 remains planned.
+The first resume completed the bounded Codex repair while the scope choice was
+pending. [Codex evidence](codex-current-load-evidence.md) retains its two failed
+attempts and three lower-natural-load whole-two-file passes; no43-load pass or
+normalized saving is claimed. The original censored full result remains.
+Terry then delegated the full-versus-partial decision and directed completion.
+[Current completion](completion-verification.md) selects targeted integration
+renewal plus complete composition/final-trunk CI, with no further full-local
+price or trunk-weight campaign. Its65 attempts include renewed Codex/touch and
+responsive/admission proof at actual natural load4.996–36.471. Slice13 awaits G3.

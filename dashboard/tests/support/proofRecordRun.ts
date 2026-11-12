@@ -166,8 +166,15 @@ export async function waitForProofState(
         try {
           record = readProof(run.recordPath);
         } catch (error) {
-          if ((error as NodeJS.ErrnoException).code !== "ENOENT")
-            return failed(error);
+          // ENOENT, or a partial write that is not JSON yet, means keep polling.
+          const code = (error as NodeJS.ErrnoException).code;
+          const incomplete =
+            error instanceof SyntaxError ||
+            (error instanceof Error &&
+              /Unexpected end of JSON input|Unexpected token/.test(
+                error.message,
+              ));
+          if (code !== "ENOENT" && !incomplete) return failed(error);
         }
         try {
           if (record !== undefined && reached(record)) return true;

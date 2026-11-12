@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Example 2 and 4: "Selected story only" over a selected story's overlay
 // (../support/intentStoryWorktree.ts). Off at first; on, only the in-scope
 // changed files and their folders remain, expanded; off again, the whole
@@ -15,11 +16,7 @@
 
 import type { Locator } from "@playwright/test";
 import { parts } from "../dashboardPage.ts";
-import {
-  intentGroupToggle,
-  purposeRegion,
-  revisionNotice,
-} from "../intentPerspectivePage.ts";
+import { intentGroupToggle, revisionNotice } from "../intentPerspectivePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -33,7 +30,8 @@ import {
   selectTakenStoryInIntent,
   storyHeaderDetail,
   storyOnly,
-  storySummary,
+  storyHeaderReading,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import {
   changed,
@@ -100,8 +98,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await test.step("visiting Intent coverage and returning keeps the selected file, its reading, the open folders, and the choice", async () => {
     const file = intentFile(intent, changed.modified);
     await file.click();
-    const purpose = purposeRegion(intent);
-    const diffName = purpose.locator(".intent-story-diff-name");
+    const diffName = intentDiffReading(intent).name;
     await expect(diffName).toHaveText(changed.modified);
     const expectKept = async () => {
       await expect(file).toHaveAttribute("aria-pressed", "true");
@@ -140,7 +137,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-B#b");
     await expectStoryTab(intent, "CI comparison");
     await chooseStoryTab(intent, "Changed tests");
-    await expect(storySummary(intent).getByRole("status")).toHaveText(
+    await expect(storyHeaderReading(intent).status).toHaveText(
       "No comparison is available.",
     );
     await expect(toggle).toHaveCount(0);
@@ -173,9 +170,8 @@ test("a story that changed only product code says Selected story only has no tes
     changeProductOnly,
   );
   const none = intent.locator(".intent-story-none");
-  await expect(
-    (await storyHeaderDetail(intent)).locator(".intent-story-revisions"),
-  ).toBeVisible();
+  await storyHeaderDetail(intent);
+  await expect(storyHeaderReading(intent).revisions).toBeVisible();
   const toggle = storyOnly(intent);
   await expect(toggle).not.toBeChecked();
   await expectOutsideCount(intent, 1);
@@ -233,7 +229,7 @@ test("Selected story only stays on through a new trunk revision and refreshing P
 
   await openProjectIntent(intent);
   await expect(notice).toHaveCount(1);
-  await notice.getByRole("button", { name: "Show latest" }).click();
+  await showLatestRevision(notice).click();
   await expect(notice).toHaveCount(0);
   await returnToStory(intent);
   await expectStoryTab(intent, "Changed tests");

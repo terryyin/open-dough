@@ -1,3 +1,4 @@
+import { expectCiAnswer, judged } from "../intentCiStatusPage.ts";
 // A version 1 CI proof summary, from before units, read through GitHub's
 // artifact or a ciAdapter, stays readable in Intent as legacy test results,
 // never as test cases or test files (SEED-281 example 38;
@@ -5,7 +6,7 @@
 // ../../../src/skills/dough-test-optimization/scripts/ci-proof-legacy-results.test.mjs,
 // ../../../tests/support/dashboard-ci-proof-units-read.test.mjs.
 
-import { expect, test } from "../dashboardTest.ts";
+import { test } from "../dashboardTest.ts";
 import {
   adapterProject,
   openAdapterProof,
@@ -20,7 +21,7 @@ import {
   run,
 } from "../intentCiProofPage.ts";
 import { login, repository } from "../intentCiStoryRecords.ts";
-import { judged } from "../intentCiStatusPage.ts";
+
 import { runArtifactsAnswer } from "../support/ciProofArtifacts.ts";
 import { summaryTextZipAnswer } from "../support/ciProofCollected.ts";
 
@@ -60,6 +61,6 @@ test("a version 1 summary a ciAdapter answers stays readable as legacy test resu
     },
   });
   const { panel, proof } = await openAdapterProof(page);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(verdict);
+  await expectCiAnswer(panel, verdict);
   await expectProofRows(proof, legacyRows);
 });

@@ -23,6 +23,8 @@
 import { shortSha } from "../../src/baseCiWording.ts";
 import { wallTimeMs, wholeSecondWords } from "../../src/ciProofTimeWords.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
   chartOf,
   chooseProjectCiStatus,
   evidenceByKeyboard,
@@ -146,17 +148,17 @@ test("an execution's exact build and the refinements reusing it are one point na
   const history = historyOf(panel);
 
   // Three builds measured: R1, R2, R3 and R4 add none of their own.
-  await expect(history.getByRole("heading")).toHaveText(
+  await expect(buildHistoryReading(history).heading).toHaveText(
     "CI wall time history 3 measured builds · Nov 5",
   );
   const sha = shortSha;
-  await expect(builds.getByRole("listitem")).toHaveText([
+  await expect(buildEvidenceRows(builds)).toHaveText([
     `Nov 5 · ${comparisonWallTimeWords(a1Run)} · exact revision ${sha(e.revision)} (SEED-9#e) · reused equivalent ${sha(e.revision)} for ${sha(r1.revision)} (SEED-9#r1) and ${sha(r2.revision)} (SEED-9#r2) · Run 41 · attempt 1`,
     `Nov 5 · ${comparisonWallTimeWords(c3Run)} · reused equivalent ${sha(c3)} for ${sha(r3.revision)} (SEED-9#r3) · Run 43 · attempt 1`,
     `Nov 5 · ${comparisonWallTimeWords(xRun)} · reused equivalent ${sha(x)} for ${sha(r4.revision)} (SEED-9#r4) · Run 47 · attempt 1`,
   ]);
   // Latest measured build callout (newest point).
-  await expect(history.getByRole("definition")).toHaveText(
+  await expect(buildHistoryReading(history).latest).toHaveText(
     comparisonWallTimeWords(xRun),
   );
   // Trunk builds no landing resolves to are not shown.
@@ -167,7 +169,7 @@ test("an execution's exact build and the refinements reusing it are one point na
   await expect(history).toContainText("Insufficient comparable history");
   await expect(history).toContainText(`Selected landing ${sha(r4.revision)}`);
   await expect(history).toContainText("CI proof unavailable: none");
-  await expect(history.locator(".intent-ci-history-reference")).toHaveCount(0);
+  await expect(buildHistoryReading(history).reference).toHaveCount(0);
   await expect(history).not.toContainText("Possible CI slowdown");
   await expectLinksByKeyboard(page, builds, [41, 43, 47].map(runLink));
   const chart = await chartOf(history);

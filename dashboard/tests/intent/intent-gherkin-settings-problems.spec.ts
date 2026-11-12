@@ -1,3 +1,4 @@
+import { readFailure, readRetry } from "../intentReadRecoveryPage.ts";
 // Unreadable and malformed Intent settings stay distinct from not-configured,
 // and a failed Intent locations read names its cause
 // (../../src/IntentPerspective.tsx). Companion to ./intent-gherkin-unusable.spec.ts
@@ -90,14 +91,14 @@ test("an Intent locations read that fails names its cause, and Retry reads it ag
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
 
-  const problem = intent.getByRole("alert");
+  const problem = readFailure(intent);
   await expect(problem).toHaveText(
     `Intent locations for Doughnut could not be read: The local authenticated read could not be reached while reading .planning/open-dough.json at ${published.revision}. Retry`,
   );
 
   unreachable = false;
-  await problem.getByRole("button", { name: "Retry" }).click();
-  await expect(intent.getByRole("alert")).toHaveCount(0);
+  await readRetry(problem).click();
+  await expect(readFailure(intent)).toHaveCount(0);
   await expect(intent).toContainText(
     "No intent locations are configured for Doughnut.",
   );

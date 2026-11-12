@@ -227,3 +227,21 @@ export async function closeSidePanel(panel: Locator) {
   await expect(panel).toHaveCount(0);
   await expect(page.getByText("Reading preparation…")).toHaveCount(0);
 }
+
+// The frame's top bars laid out on the page — the banner, the open Sessions
+// sidebar's title row, and the side panel's header — begin and end on the
+// same lines, so each has the same height.
+export async function expectTopBarsShareHeight(page: Page, bars: number) {
+  const edges = () =>
+    page
+      .locator(".banner, .sessions-sidebar-title-row, .side-panel-header")
+      .evaluateAll((elements) =>
+        elements
+          .map((element) => element.getBoundingClientRect())
+          .filter(({ height }) => height > 0)
+          .map(({ top, bottom }) => `${top} to ${bottom}`),
+      );
+  await expect.poll(async () => (await edges()).length).toBe(bars);
+  const shown = await edges();
+  expect(new Set(shown).size, `top bars at ${shown.join(", ")}`).toBe(1);
+}

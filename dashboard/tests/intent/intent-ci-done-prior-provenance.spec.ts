@@ -1,3 +1,6 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -89,34 +92,32 @@ for (const selection of ["equivalent", "later"] as const) {
     await expect(history).toContainText("5 prior builds used");
     expect(representedRequests).toContain(endpoint);
     expect(representedRequests).not.toContain(setup.completion);
-    const evidence = history.getByRole("group", {
-      name: "Prior-build reference evidence",
-    });
-    await expect(evidence.getByText(/◆ Selected/)).toHaveCount(1);
-    await expect(evidence.getByText(/✓ Included/)).toHaveCount(5);
-    const selected = evidence.getByText(/◆ Selected/);
+    const samples = priorBuildReferenceReading(history);
+    await expect(samples.selected).toHaveCount(1);
+    await expect(samples.included).toHaveCount(5);
+    const selected = samples.selected;
     await expect(selected).toContainText(shortSha(measured));
     await expect(
-      selected.getByRole("link", { name: `Run ${runId} · attempt 1` }),
+      attemptLink(selected, `Run ${runId} · attempt 1`),
     ).toHaveAttribute("href", `https://ci.invalid/runs/${runId}`);
     if (selection === "equivalent") {
       await expect(selected).toContainText("reused equivalent");
-      await expect(evidence.getByText(/× Excluded/)).toContainText(
+      await expect(samples.excluded).toContainText(
         "Measured build is at or after the selected endpoint",
       );
       await expect(history).toContainText("+3 min 20 s (+200%)");
-      await expect(
-        panel.locator(".intent-ci-comparison-identity").nth(2),
-      ).toContainText("equivalent build");
+      await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+        "equivalent build",
+      );
     } else {
       await expect(selected).toContainText("later trunk build");
       await expect(history).toContainText(
         "Selected measurement uses a later trunk build and includes later changes",
       );
       await expect(history).toContainText("+2 min 20 s (+140%)");
-      await expect(
-        panel.locator(".intent-ci-comparison-identity").nth(2),
-      ).toContainText(`Cancelled at ${shortSha(endpoint)}`);
+      await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+        `Cancelled at ${shortSha(endpoint)}`,
+      );
     }
   });
 }

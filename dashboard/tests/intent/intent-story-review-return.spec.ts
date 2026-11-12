@@ -10,7 +10,6 @@ import {
   fileReadingTab,
   intentReadingScroll,
   proofRegion,
-  purposeRegion,
   scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -22,6 +21,7 @@ import {
   outsideCount,
   selectTakenStoryInIntent,
   storyTitle,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import {
   changeWithDeepSpec,
@@ -67,9 +67,10 @@ test("closing Review changes opened by keyboard from the header keeps the story'
   await expectOutsideCount(intent, 2);
 
   await test.step("Purpose keeps its reading position", async () => {
-    await expect(
-      purposeRegion(intent).locator(".story-review-code"),
-    ).toHaveAttribute("aria-busy", "false");
+    await expect(intentDiffReading(intent).code).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
     const offset = await scrollIntentReadingHalfway(intent);
     await reviewByKeyboard(page, intent);
     await expectStoryReadingKept(intent);

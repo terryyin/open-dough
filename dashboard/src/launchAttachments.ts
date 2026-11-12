@@ -5,6 +5,21 @@
 
 export const launchAttachmentEndpoint = "/__agent-launch/attachments";
 export const launchAttachmentNameHeader = "x-launch-attachment-name";
+
+// Browser fetch Headers only accept ISO-8859-1 values. Carry the display name
+// percent-encoded on the wire; the server recovers it before sanitize.
+export function launchAttachmentNameHeaderValue(name: string): string {
+  return encodeURIComponent(name);
+}
+
+export function launchAttachmentNameFromHeader(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export const launchAttachmentLimitBytes = 10 * 1024 * 1024;
 export const launchAttachmentMaxCount = 5;
 export const launchAttachmentTypes = [

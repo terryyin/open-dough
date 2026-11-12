@@ -23,6 +23,9 @@ identity when it had one, its original request, its final report or that none
 was submitted or is retained, and the revision its work landed at when that
 was recorded. The context states only what the records hold; a Done mark is
 not evidence that work landed. The field stays empty for the new request.
+The context is not typed text: a follow-up with nothing typed opens the new
+session's terminal once it starts, and one with typed text presents nothing
+and returns the keyboard to Follow up ([startup](AGENT-LAUNCH-STARTUP.md)).
 A card's sessions lack their landing until the sessions history is read, so
 opening its Follow up asks for that read (`src/FollowUp.tsx`).
 

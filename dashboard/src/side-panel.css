@@ -20,7 +20,6 @@
 }
 
 .page-split {
-  --panel-divider-room: 0.4rem;
   --side-panel-track: var(--side-panel-width, minmax(0, 1fr));
 
   grid-template-columns: minmax(0, 1fr) var(--side-panel-track);
@@ -39,19 +38,6 @@
   display: flex;
   flex-direction: column;
   container: page / inline-size;
-}
-
-/* Keep each region scrollbar left of the Panel divider's hit area. */
-.page-split:not(.page-covering):not(.page-maximized)
-  > .page-column
-  > .board-scroll,
-.page-split:not(.page-covering):not(.page-maximized)
-  > .page-column
-  > .roster-scroll,
-.page-split:not(.page-covering):not(.page-maximized)
-  > .page-column
-  > .intent-scroll {
-  margin-inline-end: var(--panel-divider-room);
 }
 
 /* Maximized, the panel spans the page's column and its own, and the page
@@ -75,6 +61,12 @@
   grid-column: -3 / -1;
 }
 
+/* Clear the Panel divider's inside grab strip so terminal and review content
+   are not under it while the strip stays inside the panel. */
+.page-split:not(.page-covering):not(.page-maximized) > .side-panel {
+  padding-inline-start: 0.8rem;
+}
+
 .side-panel {
   --side-panel-height: 100dvh;
 
@@ -88,21 +80,24 @@
   background: var(--raised-surface);
 }
 
-/* The Panel divider (./PanelDivider.tsx): a strip across the
+/* The Panel divider (./PanelDivider.tsx): a strip along the inside of the
    panel's left border, wide enough to grab, with its grip
-   (./resize-divider.css) at its middle. */
+   (./resize-divider.css) on the border. The strip stays inside the panel,
+   so the page column's region reaches the border: its scrollbar stays
+   clear of the strip, and the Board's right column paging control meets the
+   panel without a gap. */
 .panel-divider {
   top: 0;
   bottom: 0;
-  left: calc(-1 * var(--panel-divider-room));
+  left: 0;
   z-index: 2;
-  width: calc(2 * var(--panel-divider-room));
+  width: 0.8rem;
   cursor: col-resize;
 }
 
 .panel-divider::after {
   top: 50%;
-  left: calc(50% - 2px);
+  left: -2px;
   width: 4px;
   height: 2.5rem;
   transform: translateY(-50%);
@@ -110,29 +105,40 @@
 
 /* The panel's header: the shown session's or story's title and identity on
    the left, and the frame's icon controls (./icon-control.css) on the right:
-   the content's own operations, then the panel's (./SidePanelControls.tsx). */
+   the content's own operations, then the panel's (./SidePanelControls.tsx).
+   Its height is the frame's top bars' (./styles.css): the title and identity
+   lines together, and the controls, each sit centered in the bar's one row
+   (`--row-slack` is the room the two lines leave in it), and stay at its top
+   when an expanded title wraps. */
 .side-panel-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  --title-line: calc(1.35 * var(--text-md));
+  --identity-line: calc(1.45 * var(--text-xs));
+  --row-slack: calc(
+    (var(--top-bar-row) - var(--title-line) - var(--identity-line)) / 2
+  );
+
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--line);
+  padding-inline: var(--space-3);
 }
 
 .side-panel-names {
   min-width: 0;
+  padding-block: var(--row-slack);
 }
 
 .side-panel-names h2 {
   font-size: var(--text-md);
   font-weight: var(--weight-strong);
-  line-height: 1.35;
+  line-height: var(--title-line);
 }
 
 /* Truncating title with disclosure (`./SidePanelTitle.tsx`): one ellipsis
    line by default; activating the toggle wraps the full title. Touch gets
-   a control-sized activation surface so the title remains tappable. */
+   the bar's whole row as its activation surface, so the title remains
+   tappable without a taller header. */
 .side-panel-title-toggle {
   display: block;
   box-sizing: border-box;
@@ -161,27 +167,31 @@
 }
 
 @media (any-pointer: coarse) {
-  /* Grow the tap surface inside the header flow. A negative margin pulled the
-     control outside an overflow clip and failed touch reachability; lengthening
-     the title line by the control size keeps both tap size and an unclipped hit. */
+  /* The tap surface reaches over the names' padding and identity line, by
+     padding its own margins give back, so the lines stay where they are and
+     the surface stays inside the names, where nothing clips it. */
   .side-panel-title-toggle {
-    display: flex;
-    align-items: center;
-    min-height: var(--control-size);
+    --below-title: calc(var(--row-slack) + var(--identity-line));
+
+    padding-block: var(--row-slack) var(--below-title);
+    margin-block: calc(-1 * var(--row-slack)) calc(-1 * var(--below-title));
   }
 
-  .side-panel-title-expanded .side-panel-title-toggle {
-    align-items: flex-start;
+  .side-panel-names p {
+    pointer-events: none;
   }
 }
 
 .side-panel-names p {
   font-size: var(--text-xs);
+  line-height: var(--identity-line);
   color: var(--quiet);
 }
 
+/* An identity's own font keeps to the identity line's height. */
 .side-panel-names code {
   font-size: inherit;
+  line-height: 1;
 }
 
 .side-panel-actions {
@@ -189,6 +199,7 @@
   flex-shrink: 0;
   align-items: center;
   gap: var(--space-1);
+  min-height: var(--top-bar-row);
 }
 
 /* Covering: no usable split — full-width page column behind the panel (via

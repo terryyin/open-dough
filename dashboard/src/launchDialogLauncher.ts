@@ -9,8 +9,11 @@
 // button takes the keyboard back only if it still rests there
 // (`keyboardRestsOn`) and nothing else still holds the button unavailable
 // (an open session: Mark as done / Delete place the keyboard themselves).
+// The keyboard is placed as the change is committed, before anything
+// around the action sees the status gone and takes the keyboard for itself
+// (Recently done's entry, `./recentlyDoneFocus.ts`).
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 
 export function useLaunchDialogLauncher(
@@ -33,7 +36,7 @@ export function useLaunchDialogLauncher(
   const returnsFocus = useRef<
     "at-once" | "handoff" | "after-startup" | undefined
   >(undefined);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (open || returnsFocus.current === undefined) return;
     const target = handoff();
     const blocked = starting || heldUnavailable;

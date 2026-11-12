@@ -1,3 +1,8 @@
+import { expectFileComparisonRows } from "../intentFileProofPage.ts";
+import {
+  expectNamedScopeRows,
+  expectNamedScopeFigures,
+} from "../intentScopeProofPage.ts";
 // The actual mixed-unit tree → folder → file callbacks.
 import {
   test,
@@ -11,8 +16,6 @@ import {
 import { childName } from "../intentScopeProofPage.ts";
 import {
   dashboardTests,
-  expectNamedRows,
-  expectOwnFigures,
   entry,
   folder,
   aSpec,
@@ -55,27 +58,27 @@ test("mixed-unit tree and Summary callbacks keep both units through folder and f
     `${entry}, typescript, **/*.spec.ts, 5 → 6 test cases (+1) → 7 test cases (+2), +10.0 s; ${files}, 0 ms`,
   );
   const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expectNamedRows(summary, entry, "folder/", [
+  await expectNamedScopeRows(summary, entry, "folder/", [
     ["", cases, "30.0 s", "+5.0 s", "+10.0 s"],
     ["", files, "7.0 s", "+1.0 s", "0 ms"],
   ]);
   await childName(summary, "folder/").first().click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(folder);
-  await expectOwnFigures(summary, `CI proof of ${folder}: test cases`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${folder}: test cases`, [
     cases,
     "30.0 s",
     "+5.0 s",
     "+10.0 s",
     "1 of 1 part present",
   ]);
-  await expectOwnFigures(summary, `CI proof of ${folder}: test files`, [
+  await expectNamedScopeFigures(summary, `CI proof of ${folder}: test files`, [
     files,
     "7.0 s",
     "+1.0 s",
     "0 ms",
     "1 of 1 part present",
   ]);
-  await expectNamedRows(summary, folder, "a.spec.ts", [
+  await expectNamedScopeRows(summary, folder, "a.spec.ts", [
     ["modified", cases, "30.0 s", "+5.0 s", "+10.0 s"],
     ["modified", files, "7.0 s", "+1.0 s", "0 ms"],
   ]);
@@ -83,19 +86,10 @@ test("mixed-unit tree and Summary callbacks keep both units through folder and f
     .getByRole("button", { name: "a.spec.ts", exact: true })
     .first()
     .click();
-  const rows = page
-    .getByRole("table", { name: `CI proof of ${aSpec}`, exact: true })
-    .locator("tbody tr");
-  await expect(rows).toHaveCount(2);
-  for (const [at, cells] of [
-    [cases, "30.0 s", "+5.0 s", "+10.0 s"],
-    [files, "7.0 s", "+1.0 s", "0 ms"],
-  ].entries()) {
-    await expect(rows.nth(at).getByRole("rowheader")).toHaveText(
-      `${aSpec} modified`,
-    );
-    await expect(rows.nth(at).getByRole("cell")).toHaveText(cells);
-  }
+  await expectFileComparisonRows(intent, aSpec, [
+    [`${aSpec} modified`, cases, "30.0 s", "+5.0 s", "+10.0 s"],
+    [`${aSpec} modified`, files, "7.0 s", "+1.0 s", "0 ms"],
+  ]);
   expect(comparisonServices.comparisons).toBe(1);
   expect(comparisonServices.proofs).toBe(3);
 });

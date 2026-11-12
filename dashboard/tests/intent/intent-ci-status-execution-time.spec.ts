@@ -1,3 +1,4 @@
+import { ciStatusReading, judged, runUrl } from "../intentCiStatusPage.ts";
 // Test execution time beside each CI proof entry on Intent's homepage
 // (../../src/IntentCiProof.tsx, ../../src/ciProofWording.ts,
 // ../../src/ciProofTimeWords.ts): complete durations show test execution time
@@ -19,7 +20,7 @@ import {
   proofTable,
   run,
 } from "../intentCiProofPage.ts";
-import { judged, runUrl } from "../intentCiStatusPage.ts";
+
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   proofSummaryForEntries,
@@ -131,7 +132,7 @@ test("complete entry durations include entries with empty shards and stay distin
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   const { panel, proof } = await openWithSummary(page, timedSummary());
-  await expect(panel.locator(".intent-ci-state")).toContainText("Passed");
+  await expect(ciStatusReading(panel).state).toContainText("Passed");
   await expect(labelWords(evidenceLabel(proof, wallTime))).toHaveText(wallTime);
   await expectProofRows(proof, [
     ["tests", "5 passed test files", "4 min"],

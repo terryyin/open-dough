@@ -1,5 +1,5 @@
 /* A divider that resizes an area (./ResizeDivider.tsx): a strip its caller places
-   across the area's border, wide enough to grab, with a grip at its middle
+   at the area's border, wide enough to grab, with a grip its caller places
    that takes the accent while pointed at or holding the keyboard. Where it
    offers no range, it has no grip and takes no pointer. */
 .resize-divider {

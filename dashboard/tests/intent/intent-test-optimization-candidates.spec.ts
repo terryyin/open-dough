@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent reads the published Test Optimization Candidates record at the
 // observed revision (../../src/IntentCandidatesRecord.tsx) on its own
 // Optimization Candidates tab (../../src/IntentPage.tsx): entering Intent
@@ -20,6 +21,7 @@ import {
   chooseOptimizationCandidates,
   expectCandidatesRevision,
   intentModeTab,
+  filesColumn,
 } from "../intentModePage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
@@ -48,7 +50,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
   const record = candidatesRecord(intent);
   const intentTab = intentModeTab(intent, "CI status");
   const candidatesTab = intentModeTab(intent, "Optimization Candidates");
-  const locations = intent.locator(".intent-locations");
+  const locations = filesColumn(intent);
 
   await test.step("entering Intent selects the Intent tab: locations and CI homepage, no locations-column candidates control", async () => {
     await expect(
@@ -155,14 +157,12 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(record).toBeHidden();
     await expandIntentGroup(intent, "dashboard/tests");
-    await intent
-      .getByRole("button", {
-        name: "dashboard/tests/intent-gherkin-browse.spec.ts",
-        exact: true,
-      })
-      .click();
+    await sourceFile(
+      intent,
+      "dashboard/tests/intent-gherkin-browse.spec.ts",
+    ).click();
     await expect(
-      intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
+      fileSource(intent, "dashboard/tests/intent-gherkin-browse.spec.ts"),
     ).toContainText('test("browses"');
 
     await intentTab.focus();
@@ -177,7 +177,7 @@ test("Intent opens on its Intent tab; Optimization Candidates shows Pending and 
     await expect(intentTab).toBeFocused();
     await expect(intentTab).toHaveAttribute("aria-selected", "true");
     await expect(
-      intent.getByLabel("dashboard/tests/intent-gherkin-browse.spec.ts source"),
+      fileSource(intent, "dashboard/tests/intent-gherkin-browse.spec.ts"),
     ).toBeVisible();
   });
 

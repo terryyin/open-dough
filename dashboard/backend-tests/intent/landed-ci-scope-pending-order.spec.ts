@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { DashboardServer } from "../../tests/support/dashboardServer.ts";
 import {
-  collectingLandedCi,
   keepLandedCiHistory,
   restartAsLandedCiReader,
 } from "../../tests/support/landedCiHistory.ts";
@@ -30,7 +29,7 @@ import { publishedLanding } from "../../tests/support/landedCiTrunk.ts";
 import { commonGitDir } from "../../tests/support/launchLanding.ts";
 import { keepLaunchRecords } from "../../tests/support/launchStore.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({ serverMode: "boundary" });
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));

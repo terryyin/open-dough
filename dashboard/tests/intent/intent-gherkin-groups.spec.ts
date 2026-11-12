@@ -1,3 +1,5 @@
+import { storySummary } from "../intentModePage.ts";
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent location groups expand exclusively
 // (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
 // all-closed reachable, Purpose survives toggle collapse, empty/unsupported
@@ -56,14 +58,10 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
     await expect(intentGroupToggle(intent, "frontend/src")).toBeVisible();
     await expectIntentGroupsCollapsed(intent);
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/packaged/features/packaged.feature",
-      }),
+      sourceFile(intent, "e2e_test/packaged/features/packaged.feature"),
     ).toHaveCount(0);
   });
 
@@ -71,25 +69,17 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
     await expandIntentGroup(intent, "e2e_test/features");
     await expandIntentFolders(intent, "e2e_test/features");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toBeVisible();
     await expandIntentGroup(intent, "e2e_test/packaged/features");
     await expect(
       intentGroupToggle(intent, "e2e_test/features"),
     ).toHaveAttribute("aria-expanded", "false");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/packaged/features/packaged.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/packaged/features/packaged.feature"),
     ).toBeVisible();
     await collapseIntentGroup(intent, "e2e_test/packaged/features");
     await expectIntentGroupsCollapsed(intent);
@@ -97,29 +87,25 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
 
   await test.step("select file, collapse its group: Purpose keeps it; re-expand restores the selected row", async () => {
     await expandIntentGroup(intent, "e2e_test/features");
-    const feature = intent.getByRole("button", {
-      name: "e2e_test/features/recall/recall_note.feature",
-      exact: true,
-    });
+    const feature = sourceFile(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
+    );
     await feature.click();
-    const source = intent.getByLabel(
-      "e2e_test/features/recall/recall_note.feature source",
+    const source = fileSource(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
     );
     await expect(source).toContainText("Feature: Recall a note");
     await expect(feature).toHaveAttribute("aria-pressed", "true");
     await collapseIntentGroup(intent, "e2e_test/features");
     await expect(source).toContainText("Feature: Recall a note");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
     await expandIntentGroup(intent, "e2e_test/features");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -154,34 +140,27 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
       intentGroupToggle(intent, "e2e_test/features"),
     ).toHaveAttribute("aria-expanded", "true");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
     await intent.getByRole("button", { name: "Expand recall" }).click();
     await expect(
       intent.getByRole("button", { name: "Collapse recall" }),
     ).toHaveAttribute("aria-expanded", "true");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toBeVisible();
   });
 
   await test.step("with no story selected, full-width bold headers stand apart from rows; selection fills one header, expansion shows only in the toggle", async () => {
-    await expect(
-      intent.getByRole("region", { name: "Selected story", exact: true }),
-    ).toHaveCount(0);
+    await expect(storySummary(intent)).toHaveCount(0);
     const expandedPath = "e2e_test/features";
     const selectedPath = "e2e_test/packaged/features";
     const transparent = "rgba(0, 0, 0, 0)";
     const folderRow = intent.locator(".story-review-folder-row").first();
-    const fileRow = intent.getByRole("button", {
-      name: "e2e_test/features/recall/recall_note.feature",
-      exact: true,
-    });
+    const fileRow = sourceFile(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
+    );
     await intentLocationName(intent, selectedPath).click();
     await expect(intentLocationName(intent, selectedPath)).toHaveAttribute(
       "aria-pressed",

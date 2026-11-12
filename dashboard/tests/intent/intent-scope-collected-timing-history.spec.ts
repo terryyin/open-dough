@@ -1,3 +1,13 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  expectScopeHistoryEvidence,
+} from "../intentScopeHistoryPage.ts";
+import { readFileSync, writeFileSync } from "node:fs";
+import { historyFile } from "../support/collectedScopeHistory.ts";
+import { expectComparisonUnitFigures } from "../intentScopeProofPage.ts";
+import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 // A real collector-to-Summary journey. Published CLI history supplies the Done
 // endpoint. Historical landing/Done inputs are arranged through MakeMe; an
 // additional real landing submission nudges collection with Intent closed.
@@ -10,7 +20,10 @@ import {
   resultToLand,
 } from "../support/landedCiHistory.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
 import { land } from "../support/startSessionLandingContext.ts";
 import { intentFile, storyTitle } from "../support/intentStoryPage.ts";
@@ -20,11 +33,7 @@ import {
   serveCollectedScopeRuns,
 } from "../support/scopeHistoryCollection.ts";
 import { observeRetainedScopeOrder } from "../support/scopeHistoryCollectedOrder.ts";
-import {
-  expectCollectedEntryHistory,
-  expectCollectedHistoryRecovery,
-  openCollectedHistoryStory,
-} from "../support/scopeHistoryCollectedPage.ts";
+import { openCollectedHistoryStory } from "../support/scopeHistoryCollectedPage.ts";
 
 test.use({ extraEnv: collectingLandedCi });
 
@@ -154,56 +163,43 @@ test("a Done entry shows collector-acquired test timing through its middle landi
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const beforeHistory = ciCalls().length;
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  await expectCollectedEntryHistory(page, history, {
-    selected: setup.completion,
-    excluded: newest.revision,
+  const history = scopeHistory(summary);
+  await expectScopeHistoryEvidence(history, {
+    selected: `Selected landing ${shortSha(setup.completion)}`,
+    absent: [shortSha(newest.revision), "Run 104"],
+    chartUnits: ["test cases", "test files"],
+    selectedMarks: ["Selected", "Selected"],
     extent: "2 measured builds · Nov 5–Nov 6",
     rows: [
       `Nov 5 · 1.2 s · test cases · entry dashboard/tests · 80 ms · test files · entry dashboard/tests · Exact build ${shortSha(setup.baseline)} · Run 101 · attempt 1 · Represents ${shortSha(setup.baseline)} (exact build)`,
       `Nov 6 · 0 ms · test cases · entry dashboard/tests · 900 ms · test files · entry dashboard/tests · Selected landing · Exact build ${shortSha(setup.completion)} · Run 103 · attempt 1 · Represents ${shortSha(setup.completion)} (selected landing) (exact build)`,
     ],
   });
-  const comparisonGroups = [
-    {
-      unit: "test cases",
-      values: [
-        "1 test case (no change)",
-        "1.2 s",
-        "+1.8 s",
-        "−1.2 s",
-        "1 of 1 part present",
-      ],
-    },
-    {
-      unit: "test files",
-      values: [
-        "1 test file (no change)",
-        "80 ms",
-        "+220 ms",
-        "+820 ms",
-        "1 of 1 part present",
-      ],
-    },
-  ];
+  const evidence = scopeHistoryReading(history).evidence;
+  const build = attemptLink(evidence, "Run 103 · attempt 1");
+  await expect(build).toHaveAttribute("href", "https://ci.invalid/runs/103");
+  await scopeHistoryReading(history).disclosure.focus();
+  await page.keyboard.press("Tab");
+  await expect(attemptLink(evidence, "Run 101 · attempt 1")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(build).toBeFocused();
+  await expectNoSidewaysScrollIn(page, history);
+  const entry = "dashboard/tests";
   const expectComparison = async () => {
-    for (const { unit, values } of comparisonGroups) {
-      const figures = summary.getByRole("group", {
-        name: `CI proof of dashboard/tests: ${unit}`,
-        exact: true,
-      });
-      await expect(figures.getByRole("term")).toHaveText([
-        "Counts",
-        "Baseline",
-        "Branch",
-        "Landed",
-        "Parts",
-      ]);
-      await expect(figures.getByRole("definition")).toHaveText(values);
-    }
+    await expectComparisonUnitFigures(summary, entry, "test cases", [
+      "1 test case (no change)",
+      "1.2 s",
+      "+1.8 s",
+      "−1.2 s",
+      "1 of 1 part present",
+    ]);
+    await expectComparisonUnitFigures(summary, entry, "test files", [
+      "1 test file (no change)",
+      "80 ms",
+      "+220 ms",
+      "+820 ms",
+      "1 of 1 part present",
+    ]);
   };
   await expectComparison();
   expect(ciCalls()).toHaveLength(beforeHistory);
@@ -213,29 +209,40 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   await intentFile(intent, "dashboard/tests/root.spec.ts").click();
   await expect(purposeRegion(intent)).toBeVisible();
   await intentLocationName(intent, "dashboard/tests").click();
-  await expect(history.getByRole("listitem")).toHaveCount(2);
+  await expect(scopeHistoryReading(history).rows).toHaveCount(2);
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expectComparison();
   expect(ciCalls()).toHaveLength(beforeHistory);
 
-  await expectCollectedHistoryRecovery({
-    home: dashboard.home,
-    history,
-    read,
-    reopen: async () => {
-      await intentFile(intent, "dashboard/tests/root.spec.ts").click();
-      await expect(purposeRegion(intent)).toBeVisible();
-      await intentLocationName(intent, "dashboard/tests").click();
-    },
-    expectPreserved: async () => {
-      await expect(storyTitle(intent)).toHaveText("Story A");
-      await expectComparison();
-    },
-    expectRecovered: async () => {
-      await expect(history.getByRole("listitem")).toHaveCount(2);
-      await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
-      await expect(history).toContainText("0 ms");
-    },
-  });
+  // The real store fault, failed HTTP read, kept comparison and retry order are explicit.
+  const file = historyFile(dashboard.home);
+  const retained = readFileSync(file, "utf8");
+  try {
+    writeFileSync(file, "{broken collected history", "utf8");
+    const failed = await read();
+    expect(failed.status).toBe(502);
+    expect(failed.body).toMatchObject({
+      error:
+        "The collected CI history could not be read. Retry the local history read.",
+    });
+    await intentFile(intent, "dashboard/tests/root.spec.ts").click();
+    await expect(purposeRegion(intent)).toBeVisible();
+    await intentLocationName(intent, "dashboard/tests").click();
+    const shown = scopeHistoryReading(history);
+    await expect(shown.failure).toContainText(
+      "The collected CI history could not be read.",
+    );
+    await expect(shown.failure).not.toContainText("gh auth");
+    await expect(storyTitle(intent)).toHaveText("Story A");
+    await expectComparison();
+    writeFileSync(file, retained, "utf8");
+    await shown.retry.click();
+    await expect(shown.failure).toHaveCount(0);
+    await expect(shown.rows).toHaveCount(2);
+    await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
+    await expect(history).toContainText("0 ms");
+  } finally {
+    writeFileSync(file, retained, "utf8");
+  }
   expect(ciCalls()).toHaveLength(beforeHistory);
 });

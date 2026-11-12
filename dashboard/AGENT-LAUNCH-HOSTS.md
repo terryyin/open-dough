@@ -35,10 +35,12 @@ the existing timeout wording. Other wait expiries say Cursor did not show it too
 the session remains kept, and how to continue from the recorded resume. The expiry does not invent or revoke
 first-input state, and it does not kill the client. Acceptance of a later ready screen is still recorded after
 Start returns. A Cursor that settles before the bound returns `launched` as before. Opening the terminal joins
-that client and shows its output. There is no launch-wait notice and no second `cursor-agent`. A blank ad hoc
-start still creates the session, submits nothing, and starts the client when opened. Attach is supplied: a later
-open with no client already kept runs the stored command. The text `Add a follow-up` or `Plan, search, build
-anything` admits it even when the terminal cursor is hidden. That attach result declares keep, so a detached
+that client and shows its output. There is no launch-wait notice and no second `cursor-agent`. An ad hoc
+start with nothing typed opens that terminal and holds the client's idle rule until its socket joins; with
+typed text Cursor takes the instruction with no terminal joined. A blank ad hoc start still creates the
+session, submits nothing, and starts the client when opened. Attach is supplied: a later open with no
+client already kept runs the stored command. The text `Add a follow-up` or `Plan, search, build anything`
+admits it even when the terminal cursor is hidden. That attach result declares keep, so a detached
 terminal leaves the client running and a later open joins the same process instead of starting another. The
 follow-up prompt — `→ Add a follow-up` or `→ Plan, search, build anything` — keeps that process after the launch
 instruction has been entered, as does a working, waiting, or unrecognized screen. Stop is not supplied, so Mark

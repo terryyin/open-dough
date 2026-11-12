@@ -17,8 +17,9 @@ import {
 } from "./landedCiTrunk.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { publishUnbuiltStoryLanding } from "./storyCiComparisonSkippedLandingFixture.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
+import { commitTrunkChanges } from "./trunkCommitBatch.ts";
 
 export async function pendingLandedComparison(
   origin: StartOrigin,
@@ -29,14 +30,16 @@ export async function pendingLandedComparison(
     origin,
     kind === "equivalent" ? "planning" : "code",
   );
-  for (let index = 0; index < laterRevisionsAfterCompletion; index += 1) {
-    writeAt(
-      origin.project,
-      `.planning/after-${String(index)}.md`,
-      "later planning\n",
-    );
-    commitAll(origin.project, "advance beyond the later-build walk");
-  }
+  // Each later revision is a real planning-only commit; they share one Git
+  // import (./trunkCommitBatch.ts) rather than a commit process apiece.
+  commitTrunkChanges(
+    origin.project,
+    [...Array(laterRevisionsAfterCompletion).keys()].map((index) => ({
+      message: "advance beyond the later-build walk",
+      file: `.planning/after-${String(index)}.md`,
+      content: "later planning\n",
+    })),
+  );
   if (laterRevisionsAfterCompletion > 0) push(origin.project);
   const runAt = (revision: string, id: number) =>
     trunkRun(revision, id, passedFrom("2026-11-05T13:00:00Z", 300_000));

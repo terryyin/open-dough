@@ -1,3 +1,4 @@
+import { filesColumn, intentModeViews } from "../intentModePage.ts";
 // Example 1 and 3: a Taken story whose worktree changes the tests Intent
 // publishes (../support/intentStoryWorktree.ts) is selected by its card's empty
 // area, and one persistent header, led by the way to Project Intent, names it
@@ -40,8 +41,10 @@ import {
   selectTakenStoryInIntent,
   storyHeaderDetail,
   storyOnly,
-  storySummary,
   storyTitle,
+  storyHeaderReading,
+  storyViews,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import { kindStyles, nameStyle } from "../support/changeKindStyle.ts";
 import { changed } from "../support/intentStoryWorktree.ts";
@@ -63,31 +66,25 @@ test("Intent highlights a selected Taken story's test changes over the published
     page,
     origin,
   );
-  const scoped = storySummary(intent);
+  const header = storyHeaderReading(intent);
+  const column = filesColumn(intent);
 
   await test.step("the story's view sits under the banner, one persistent header, led by the way to Project Intent, heading its views", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(intent.locator(":scope > *").first()).toHaveClass(
       "intent-page-frame",
     );
-    await expect(
-      intent.getByRole("tablist", { name: "Project Intent views" }),
-    ).toHaveCount(0);
-    await expect(scoped.locator(".intent-story-crumb")).toHaveText(
-      "Project Intent / Selected story",
-    );
-    await expect(
-      scoped.locator(":scope > *").first().getByRole("button"),
-    ).toHaveAccessibleName("Project Intent");
+    await expect(intentModeViews(intent)).toHaveCount(0);
+    await expect(header.crumb).toHaveText("Project Intent / Selected story");
+    await expect(header.leadingControl).toHaveAccessibleName("Project Intent");
     await expect(
       intent.getByRole("region", { name: "Selected story" }),
     ).toHaveCount(1);
     await expect(storyTitle(intent)).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
-    await expect(
-      intent.getByRole("tablist", { name: "Selected story views" }),
-    ).toHaveText("CI comparisonChanged testsIntent coverage");
-    const column = intent.locator(".intent-locations");
+    await expect(storyViews(intent)).toHaveText(
+      "CI comparisonChanged testsIntent coverage",
+    );
     await expect(
       column.locator(":scope > :not(.visually-hidden)").first(),
     ).toHaveClass("intent-story-scope");
@@ -95,9 +92,9 @@ test("Intent highlights a selected Taken story's test changes over the published
   });
 
   await test.step("the header names the story and the revisions its comparison runs between, with nothing to collapse", async () => {
-    const detail = await storyHeaderDetail(intent);
-    await expect(detail.locator(".record-identity")).toHaveText("SEED-A#a");
-    const revisions = detail.locator(".intent-story-revisions");
+    await storyHeaderDetail(intent);
+    await expect(header.identity).toHaveText("SEED-A#a");
+    const revisions = header.revisions;
     await expect(revisions).toContainText(
       `Compared ${shortRevision(baseline)} with worktree `,
     );
@@ -179,7 +176,7 @@ test("Intent highlights a selected Taken story's test changes over the published
       expect(look.labelWeight).toBeGreaterThanOrEqual(600);
       changedHeader = look;
     }
-    const header = intentLocationHeader(intent, "dashboard/tests");
+    const locationHeader = intentLocationHeader(intent, "dashboard/tests");
     await intentLocationName(intent, "dashboard/tests").click();
     await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
       "aria-pressed",
@@ -189,7 +186,7 @@ test("Intent highlights a selected Taken story's test changes over the published
       "aria-expanded",
       "true",
     );
-    const selected = await locationHeaderLook(header);
+    const selected = await locationHeaderLook(locationHeader);
     expect(selected.background).not.toBe(changedHeader.background);
     expect(selected.background).not.toBe(marked);
     expect(selected).toMatchObject({
@@ -220,7 +217,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentFile(intent, "dashboard/tests/boundary/kept.spec.ts").click();
     const purpose = purposeRegion(intent);
     await expect(purpose).toContainText("kept 11");
-    await expect(purpose.locator(".story-review-code")).toHaveCount(0);
+    await expect(intentDiffReading(intent).code).toHaveCount(0);
   });
 
   await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
@@ -236,7 +233,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expectSelected(card, false);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expect(scoped).toHaveCount(0);
+    await expect(header.region).toHaveCount(0);
     await expect(outsideCount(intent)).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
@@ -247,9 +244,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     expect(unchanged.background).toBe(changedHeader.background);
     // Intent now shows Project Intent, whose reading never borrowed the
     // story's file (../src/pageIntentReading.tsx): its CI status homepage.
-    await expect(
-      intent.locator('.intent-locations [aria-pressed="true"]'),
-    ).toHaveCount(0);
+    await expect(column.locator('[aria-pressed="true"]')).toHaveCount(0);
     await expect(ciPanel(intent)).toContainText("CI status of main");
   });
 });

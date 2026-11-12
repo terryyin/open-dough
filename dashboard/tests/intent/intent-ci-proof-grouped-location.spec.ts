@@ -1,3 +1,10 @@
+import {
+  ciProofReading,
+  artifactId,
+  expectProofRows,
+  openFailedRun,
+  run,
+} from "../intentCiProofPage.ts";
 // One CI status Proof row per declared location with every result type's own
 // counts, times, and genuine gaps labeled in that row (../../src/IntentCiProof.tsx,
 // ../../src/ciProofEntryCells.ts). Decisive published-summary facts — shard
@@ -7,12 +14,7 @@
 
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
-import {
-  artifactId,
-  expectProofRows,
-  openFailedRun,
-  run,
-} from "../intentCiProofPage.ts";
+
 import {
   proofSummaryForEntries,
   runArtifactsAnswer,
@@ -127,9 +129,9 @@ test("one location row keeps each result type's shard totals, empty reports, fil
       ["test cases: 800 ms", "test files: 12 ms"],
     ],
   ]);
-  const fileGap = proof
-    .locator(".intent-ci-proof-unit-line")
-    .filter({ hasText: "Part 2 missing" });
+  const fileGap = ciProofReading(proof).unitLines.filter({
+    hasText: "Part 2 missing",
+  });
   await expect(fileGap).toHaveAttribute(
     "title",
     "Partial: part 2 of 2 missing",

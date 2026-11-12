@@ -1,3 +1,8 @@
+import {
+  fileSource,
+  sourceLineText,
+  sourceFile,
+} from "../intentCodeBrowsePage.ts";
 // Intent code browse for locations declared by source entries with syntax
 // hints (../../src/IntentPerspective.tsx): Doughnut's `scripts` holding Bash
 // `.test` and Node `.test.mjs` files in one tree, and files with no hint or
@@ -69,8 +74,6 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expectIntentGroupsCollapsed(intent);
-  const file = (path: string) =>
-    intent.getByRole("button", { name: path, exact: true });
 
   await test.step("the header names the location's patterns with no kind", async () => {
     const heading = intentLocationName(intent, "scripts");
@@ -91,21 +94,23 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
       intent.getByLabel("**/*.test, **/*.test.mjs files under scripts"),
     ).toBeVisible();
     await expandIntentFolders(intent, "scripts");
-    await expect(file(shellTest)).toBeVisible();
-    await expect(file(nodeTestPath)).toBeVisible();
-    await expect(file("scripts/ci/ci-proof-fixtures.mjs")).toHaveCount(0);
+    await expect(sourceFile(intent, shellTest)).toBeVisible();
+    await expect(sourceFile(intent, nodeTestPath)).toBeVisible();
+    await expect(
+      sourceFile(intent, "scripts/ci/ci-proof-fixtures.mjs"),
+    ).toHaveCount(0);
   });
 
   await test.step("each opens at its path with its hint's styling", async () => {
-    await file(shellTest).click();
-    const shellSource = intent.getByLabel(`${shellTest} source`);
-    await expect(shellSource.locator(".source-line-text")).toHaveText(
+    await sourceFile(intent, shellTest).click();
+    const shellSource = fileSource(intent, shellTest);
+    await expect(sourceLineText(shellSource)).toHaveText(
       shellCheck.split("\n"),
     );
     await expectKeywordAndStringColours(shellSource, /^echo$/, /^ok$/);
 
-    await file(nodeTestPath).click();
-    const nodeSource = intent.getByLabel(`${nodeTestPath} source`);
+    await sourceFile(intent, nodeTestPath).click();
+    const nodeSource = fileSource(intent, nodeTestPath);
     await expect(nodeSource).toContainText("assert.equal(1, 1)");
     await expectKeywordAndStringColours(
       nodeSource,
@@ -121,18 +126,16 @@ test("Intent lists a sources location's Bash .test and Node .test.mjs files in o
 
   await test.step("a file with no hint, or a hint with no grammar, stays listed and reads as plain text", async () => {
     await expandIntentGroup(intent, "checks");
-    await expect(file("checks/notes.md")).toHaveCount(0);
+    await expect(sourceFile(intent, "checks/notes.md")).toHaveCount(0);
     for (const [path, text] of [
       ["checks/a.check", plainCheck],
       ["checks/FooTest.java", 'class FooTest { String s = "java"; }\n'],
     ] as const) {
-      await file(path).click();
-      const source = intent.getByLabel(`${path} source`);
-      await expect(source.locator(".source-line-text")).toHaveText(
-        text.split("\n"),
-      );
+      await sourceFile(intent, path).click();
+      const source = fileSource(intent, path);
+      await expect(sourceLineText(source)).toHaveText(text.split("\n"));
       // The grammars already loaded would colour these at once; none does.
-      await expect(source.locator(".source-line-text span")).toHaveCount(0);
+      await expect(sourceLineText(source).locator("span")).toHaveCount(0);
     }
   });
 

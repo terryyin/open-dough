@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Native entry header callbacks absent from static rendering.
 import {
   test,
@@ -19,9 +20,7 @@ test("entry header bindings route Baseline, Counts, Branch and Landed with nativ
   const facts = wallComparedFacts();
   serveComparison(comparisonServices, facts, mixedEntryFacts());
   const panel = await mountComparison(page, comparisonServer, facts);
-  const table = panel.getByRole("table", {
-    name: "CI entry timing comparison",
-  });
+  const table = comparisonReading(panel).entryTable;
   const baseline = sortButton(table, "Baseline");
   await baseline.click();
   await expectSortedBy(table, "Baseline", "ascending", [

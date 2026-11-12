@@ -1,3 +1,4 @@
+import { fileSource } from "../intentCodeBrowsePage.ts";
 // A selected Intent entry's or folder's Summary when CI's evidence is
 // missing, partial or absent (../../src/IntentScopeProof.tsx,
 // ../../src/ciScopeProof.ts, ../intentSummaryCiProofFixtures.ts): a missing
@@ -127,7 +128,7 @@ test("an entry-only summary keeps entry totals and labels the child breakdown un
     ["root.sh", "no file breakdown", "no file breakdown"],
   ]);
   await childName(summary, "root.sh").click();
-  await expect(intent.getByLabel("tests/root.sh source")).toBeVisible();
+  await expect(fileSource(intent, "tests/root.sh")).toBeVisible();
 });
 
 test("a run without a CI proof summary keeps the Summary's children for drilling down and says why, as the homepage does", async ({

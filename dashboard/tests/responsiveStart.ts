@@ -97,9 +97,9 @@ export function countAcceptanceRequests(page: Page) {
   return () => sent;
 }
 
-// Opens the stories as GitHub publishes the origin, following its pushes:
-// Story A in the Backlog (`story`) and once Taken (`takenStory`), and Story B.
-export async function openStories(page: Page, origin: StartOrigin) {
+// Opens Story A as GitHub publishes the origin, following its pushes, in
+// the Backlog (`story`) and once Taken (`takenStory`).
+export async function openStory(page: Page, origin: StartOrigin) {
   const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
@@ -114,10 +114,16 @@ export async function openStories(page: Page, origin: StartOrigin) {
     name: "Story A",
     exact: true,
   });
-  const other = backlog.getByRole("article", { name: "Story B" });
   await expect(story).toBeVisible();
+  return { published, story, takenStory };
+}
+
+// Journeys using both stories also wait for Story B.
+export async function openStories(page: Page, origin: StartOrigin) {
+  const opened = await openStory(page, origin);
+  const other = parts(page).backlog.getByRole("article", { name: "Story B" });
   await expect(other).toBeVisible();
-  return { published, story, takenStory, other };
+  return { ...opened, other };
 }
 
 // A submitted dialog: Starting…, nothing to press or change, Escape ignored.

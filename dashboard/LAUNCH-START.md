@@ -132,7 +132,9 @@ the Backlog card.
 
 Start session shares story starts' Attach images (picker or paste into the
 instruction field), including the same type, size and count refusals; see
-[Agent launch](AGENT-LAUNCH.md).
+[Agent launch](AGENT-LAUNCH.md). Once started, a session with nothing typed
+opens in the page's terminal; one with typed text presents nothing and is
+opened from its entry ([startup](AGENT-LAUNCH-STARTUP.md)).
 The project row's Start session offers the same Session group with two
 choices and no Tracking: Workspace (Isolated workspace or Default main) and
 After checks (Wait for review or Automatically land), in the story dialogs'

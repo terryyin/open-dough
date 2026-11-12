@@ -218,11 +218,15 @@
 }
 
 /* Focus returned to a card stays below the Column heading where the window
-   is tall enough to keep that heading in sight. */
+   is tall enough to keep that heading in sight. Done cards and Board session
+   entries use the same clearance: they are revealed without the .story-card
+   class, and the sticky heading would cover their top without it. */
 @media (min-height: 30rem) {
   .story-card,
   .story-card a,
-  .story-card button {
+  .story-card button,
+  .done-story,
+  .session-entry {
     scroll-margin-top: 5rem;
   }
 }

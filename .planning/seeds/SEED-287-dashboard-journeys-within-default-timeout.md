@@ -11,21 +11,10 @@ scope: story
 
 ## Why this matters
 
-Plan502 removed allowances from cases costing at most15s in hosted CI, but
-remaining journeys approach the30s case and5s observation budgets. Hosted run
-42557657479 had a shard1.48× slower overall (files up to2.5×). On2026-11-09,
-local load13–36 caused the phone reading journey to fail5of8 repeats; a later
-load17–23 gate missed the eight cases named below. Their sixteen tests passed
-at one worker. Cold first-worker preparation cost10.7–26.4s, and each fake gh
-call cost57–94ms at load21–24. Terry's temporary touch allowance is to be removed.
-
-SEED284 moved the touch-reading, pinned-deployment and hosted-margin candidates
-here; evidence remains at144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md.
-Its two-worker load24–27 run also exceeded30s in watcher beforeAll and both
-completed-review variants. DD-473/DD-476/DD-479 route the same margin problem.
-The [original diagnostic inventory](../slice-plans/576-fit-dashboard-journeys-in-default-timeout/design-and-proof.md#original-ci-evidence-from-the-seed)
-and Git7305433's original Why retain their exact observations and source links.
-SEED286 owns the separate Intent CI comparison family.
+Plan502 removed allowances from cases costing at most15s in hosted CI; remaining journeys approach30s/5s. Hosted42557657479 was1.48× slower overall (files2.5×).
+On2026-11-09 load13–36 caused5of8 phone failures; a load17–23 gate missed the eight cases below. All sixteen passed at one worker. Cold preparation cost10.7–26.4s; fake gh57–94ms at load21–24. Remove Terry's temporary touch allowance.
+SEED284 transferred touch-reading, pinned-deployment and hosted-margin candidates; evidence is144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md. Its two-worker load24–27 also exceeded30s in watcher beforeAll and both completed-review variants. DD-473/DD-476/DD-479 route the same pressure.
+The [original diagnostic inventory](../slice-plans/576-fit-dashboard-journeys-in-default-timeout/design-and-proof.md#original-ci-evidence-from-the-seed) and Git7305433's original Why retain exact observations and links. SEED286 owns the separate Intent CI comparison family.
 
 <a id="fit-dashboard-journeys-in-default-timeout"></a>
 
@@ -243,3 +232,16 @@ another experiment.
 - Cut the touch review journey's gesture cost while preserving its reading
   proof. It used 31 phone strokes and 186 touch commands, with 20 strokes
   reading a 3,000 px line to its end and back.
+
+#### Authorized completion verification
+
+On2026-11-12 Terry delegates judgment on skipping or partly replacing the costly
+full rerun, including requiring it if necessary, and directs completion of this story.
+No further full-local rerun or comparable whole-suite timing campaign is required for completion.
+Keep current shard weights; no trunk reweighting or redistribution experiment is required for completion.
+These chosen reductions supersede the earlier full-local price/non-regression
+and artifact-refresh completion requirements; no completed comparable local
+price or whole-suite speedup is claimed. Retain matched focused proof, renew
+changed integration boundaries, and require complete hosted CI for the delivered
+composition and final trunk. Keep behavioral coverage, default budgets, three
+consecutive passes for changed synchronization, and the failure policy intact.

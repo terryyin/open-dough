@@ -1,3 +1,5 @@
+import { filesColumn } from "../intentModePage.ts";
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // A Done story's historical source comes from its landing, even after trunk
 // changes tests and removes settings. Unrecoverable history never borrows the
 // current tree; an available saved coverage report remains independently useful.
@@ -21,6 +23,7 @@ import {
   storyOnly,
   storySummary,
   storyTitle,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 import { lines } from "../support/storyReviewWorktree.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -81,7 +84,7 @@ test("a Done story keeps landing locations, inventory and unchanged source after
     "rewritten after landing",
   );
   await expect(
-    purposeRegion(intent).locator(".intent-source-meta"),
+    sourceRevision(intent, "dashboard/tests/boundary/kept.spec.ts"),
   ).toContainText(`at revision ${completion.slice(0, 7)}`);
   expect(await intentDiff(intent, changed.modified)).toContain("completed");
   expect(await intentDiff(intent, changed.added)).toContain("added");
@@ -115,13 +118,13 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
     `${unrecoverable} The story's historical test source is unavailable.`,
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
+  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
   await expect(storyOnly(intent)).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(outsideCount(intent)).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await chooseStoryTab(intent, "Changed tests");
-  await expect(intent.locator(".intent-locations")).toHaveCount(0);
+  await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText(

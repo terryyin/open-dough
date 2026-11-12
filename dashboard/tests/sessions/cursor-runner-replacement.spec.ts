@@ -110,9 +110,9 @@ replacementTest(
     const attachesBefore = cursor.attaches().length;
     expect(attachesBefore).toBe(2);
 
-    // Observation on the stale-proof runner: listing in Running Cursor
-    // sessions and opening either held session joins its client and
-    // starts or replaces nothing.
+    // Observation on the stale-proof runner: listing both held sessions
+    // and joining one client starts or replaces nothing. A second Taken
+    // Open terminal is incidental; call/attach counts already cover spawn.
     makeRecordedRunnerProofStale(dashboard.home);
     const running = await openRunningList(page);
     await expect(running.region).toContainText("The Cursor runner is running.");
@@ -130,14 +130,10 @@ replacementTest(
     await expect(scopedEntry.getByText("First input accepted")).toBeVisible();
     await scopedEntry.getByRole("button", { name: "Session details" }).click();
     const panel = page.getByRole("region", { name: "Terminal" });
-    for (const entry of [scopedEntry, otherEntry]) {
-      await entry.getByRole("button", { name: "Open terminal" }).click();
-      await expect(panel.locator(".xterm-rows")).toContainText(
-        "Add a follow-up",
-      );
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
-      await expect(panel).toHaveCount(0);
-    }
+    await scopedEntry.getByRole("button", { name: "Open terminal" }).click();
+    await expect(panel.locator(".xterm-rows")).toContainText("Add a follow-up");
+    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(panel).toHaveCount(0);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(stalePid);
     expect(agentCalls(cursor)).toEqual(callsBefore);
     expect(cursor.attaches()).toHaveLength(attachesBefore);

@@ -1,5 +1,5 @@
-// A confirmed ad hoc launch opens its session in the page's terminal at once,
-// on the committed origin of ../launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
+// A confirmed ad hoc launch with nothing typed opens its session in the page's
+// terminal at once, on the committed origin of ../launches/agent-launch-story-card.spec.ts (../launchJourney.ts):
 // the keyboard is in the terminal, its toolbar names the label, "Ad hoc
 // session" and the session id, what is typed reaches the session, the project
 // actions row stays quiet (no success log), the session's entry and Sessions
@@ -19,10 +19,11 @@ import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-// Accepted cost: one real ad hoc launch, the only full proof that its session
-// opens in the terminal at once with the keyboard in it. Its arguments are
-// proved in ../../backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
-test("starting with text opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
+// Accepted cost: one real ad hoc launch, the only full proof that a session
+// started with nothing typed opens in the terminal at once with the keyboard
+// in it. Its arguments are proved in
+// ../../backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
+test("starting with nothing typed opens the session in the terminal with the keyboard in it, and Close returns the keyboard to Start session", async ({
   page,
   dashboard,
   launchJourney,
@@ -54,7 +55,7 @@ test("starting with text opens the session in the terminal with the keyboard in 
     .locator(".board-scroll")
     .evaluate((region) => region.scrollTop);
   expect(scroll).toBeGreaterThan(0);
-  await startSessionField(dialog).fill("why is the CI slow on main?");
+  await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Start" }).click();
 
   const entry = taken.locator(".session-entry");

@@ -1,3 +1,4 @@
+import { showLatestRevision, readRetry } from "../intentReadRecoveryPage.ts";
 // An unreadable latest settings answer keeps the accepted Project Intent
 // source and Retry; successful retry moves the browser to that revision.
 
@@ -48,7 +49,7 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
     await route.fallback();
   });
   const notice = revisionNotice(intent);
-  await notice.getByRole("button", { name: "Show latest" }).click();
+  await showLatestRevision(notice).click();
   await expect(notice).toContainText(
     `New revision available — showing ${shortRevision(pygardon.revision)}`,
   );
@@ -64,7 +65,7 @@ test("an unreadable settings answer at the latest revision keeps the shown readi
   );
 
   unreadable = false;
-  await notice.getByRole("button", { name: "Retry" }).click();
+  await readRetry(notice).click();
   await expect(source).toContainText("Scenario: Purge a job");
   await expect(revisionNotice(intent)).toHaveCount(0);
   await expect(browserRevision(intent)).toContainText(shortRevision(c));

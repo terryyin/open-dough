@@ -90,7 +90,7 @@ test("attaching two images, removing Image 1, then Start sends the remaining cop
   expect(record?.request).not.toHaveProperty("attachmentClaims");
 });
 
-test("Start session with no text and one image sends the list alone and labels by time", async ({
+test("Start session with no text and one image sends the list alone, labels by time and opens the terminal", async ({
   page,
   dashboard,
   launchJourney,
@@ -114,6 +114,12 @@ test("Start session with no text and one image sends the list alone and labels b
 
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(dialog).toBeHidden();
+  // Images are input but not typed text: the terminal opens.
+  await expect(
+    page
+      .getByRole("region", { name: "Terminal" })
+      .locator(".xterm-helper-textarea"),
+  ).toBeFocused();
 
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();

@@ -1,3 +1,16 @@
+## 0.3.97 - 2026-11-12
+
+- Add opt-in MakeMe and browser page-object guidance per Intent test entry. Execute Plan passes the selected conventions to test authors, and Post Change Refactor applies them to implicated changed tests. Each convention is selected independently using the same file membership as Intent.
+- Story Wrap Up uses worker completion notifications when available and bounds its remaining wait for an enabled Intent Coverage check. Closure still waits for the report and its dispositions.
+- In the dashboard, mobile users can pause terminal output to select and copy text. Sessions started with a custom instruction leave the terminal closed. The Board keeps revealed Done cards clear of its sticky header, and launch attachment filenames are encoded for HTTP headers.
+- Speed up dashboard checks for retained CI, provider rate limits, touch review, and Cursor sessions. Retained landed CI comparisons recover provider verdicts from saved accepted requests.
+
+The Promoted payload adds 17 files and revises five. The installer groups its execution payload declaration and reads historical tagged declarations as data for ordinary updates. The repository's lint and formatting exclusions now cover the generated bundles in both installed roots.
+
+The self-installation baseline, 20 focused checks, and generated-bundle lint checks passed locally. [Hosted trunk CI passed at `c21aef4ca`](https://github.com/terryyin/open-dough/actions/runs/43160244798). The subsequent candidate changes are planning records and the bundle exclusions.
+
+Fresh Cursor acceptance covered ordinary update followed by authoring with both conventions, plus separate MakeMe and page-object refactoring probes with opted-out cases. The authoring test caught an intentionally wrong expected title. Under ADR 0005, the release reuses SEED-307's accepted Codex and Claude Code behavior and existing host discovery and hook evidence. The Intent Coverage wait uses the existing completion mechanism and the recorded same-story comparison.
+
 ## 0.3.96 - 2026-11-11
 
 - Dough Test Optimization consults seven ranked approaches before proposing an experiment or writing a plan, and uses them when assessing recorded candidates. Choose and combine approaches for the measured bottleneck, seek better options where the project warrants them, and verify that the original behavior remains covered.

@@ -8,6 +8,10 @@ import {
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { settings, projectRow, back } from "../support/systemSettingsPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
+import {
+  ciFollowUpCard,
+  ciFollowUpWarning,
+} from "../support/ciFollowUpReadingPage.ts";
 
 test.use({ extraEnv: recheckingLandedCi });
 
@@ -48,7 +52,7 @@ test("machine setting defaults off and a real collected full repeat gives a red 
     .toMatchObject({ body: { cards: [{ kind: "progress" }] } });
   await back(page).click();
   await page.clock.runFor(15000);
-  const card = page.getByRole("article", { name: "Story A", exact: true });
+  const card = ciFollowUpCard(page, "Story A");
   await expect(card).toContainText("CI rerun in progress");
   scenario.setRepeat({ seconds: 106 });
   await expect
@@ -56,7 +60,7 @@ test("machine setting defaults off and a real collected full repeat gives a red 
     .toMatchObject({ body: { cards: [{ kind: "slow" }] } });
   await page.clock.runFor(15000);
   await expect(card).toContainText("Possible CI slowdown");
-  const warning = card.getByLabel("CI timing follow-up");
+  const warning = ciFollowUpWarning(card);
   await expect(warning).toHaveCSS("color", "rgb(220, 38, 38)");
   await expect(warning).toContainText("Original 1 min 45 s");
   await expect(warning).toContainText("Repeat 1 min 46 s");

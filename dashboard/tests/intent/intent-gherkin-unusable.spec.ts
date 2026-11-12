@@ -1,3 +1,5 @@
+import { readFailure, readRetry } from "../intentReadRecoveryPage.ts";
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent distinguishes unusable locations and failed reads
 // (../../src/IntentPerspective.tsx): empty or missing paths, pattern misses,
 // unsupported kinds, failed reads with retry, and settings problems, while
@@ -99,14 +101,14 @@ test("Intent names empty, missing, and unsupported locations while others browse
     );
     await expandIntentGroup(intent, "e2e_test/features");
     await expandIntentFolders(intent, "e2e_test/features");
-    const usable = intent.getByRole("button", {
-      name: "e2e_test/features/usable/usable.feature",
-      exact: true,
-    });
+    const usable = sourceFile(
+      intent,
+      "e2e_test/features/usable/usable.feature",
+    );
     await expect(usable).toBeVisible();
     await usable.click();
     await expect(
-      intent.getByLabel("e2e_test/features/usable/usable.feature source"),
+      fileSource(intent, "e2e_test/features/usable/usable.feature"),
     ).toContainText("Feature: Usable");
   });
 
@@ -120,10 +122,7 @@ test("Intent names empty, missing, and unsupported locations while others browse
     );
     await expandIntentGroup(intent, "e2e_test/features");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/usable/usable.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/features/usable/usable.feature"),
     ).toBeVisible();
   });
 
@@ -132,13 +131,10 @@ test("Intent names empty, missing, and unsupported locations while others browse
     await expect(intent).toContainText("Kind java is not yet supported.");
     await expandIntentGroup(intent, "e2e_test/features");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/usable/usable.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/features/usable/usable.feature"),
     ).toBeVisible();
     await expect(
-      intent.getByLabel("e2e_test/features/usable/usable.feature source"),
+      fileSource(intent, "e2e_test/features/usable/usable.feature"),
     ).toContainText("Feature: Usable");
   });
 
@@ -170,30 +166,22 @@ test("Intent names empty, missing, and unsupported locations while others browse
     await expectIntentGroupsCollapsed(intent);
     await expandIntentGroup(intent, "e2e_test/features");
     await expandIntentFolders(intent, "e2e_test/features");
-    await intent
-      .getByRole("button", {
-        name: "e2e_test/features/usable/usable.feature",
-        exact: true,
-      })
-      .click();
-    const alert = intent.getByRole("alert");
+    await sourceFile(intent, "e2e_test/features/usable/usable.feature").click();
+    const alert = readFailure(intent);
     await expect(alert).toContainText(
       "e2e_test/features/usable/usable.feature could not be read.",
     );
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/usable/usable.feature",
-        exact: true,
-      }),
+      sourceFile(intent, "e2e_test/features/usable/usable.feature"),
     ).toBeVisible();
     await expandIntentGroup(intent, "no_such_dir");
     await expect(intent).toContainText(
       "No gherkin files are published at no_such_dir for this revision.",
     );
     await expandIntentGroup(intent, "e2e_test/features");
-    await alert.getByRole("button", { name: "Retry" }).click();
+    await readRetry(alert).click();
     await expect(
-      intent.getByLabel("e2e_test/features/usable/usable.feature source"),
+      fileSource(intent, "e2e_test/features/usable/usable.feature"),
     ).toContainText("Feature: Usable");
     await page.unroute(`**${authenticatedReadEndpoint}?*`);
   });

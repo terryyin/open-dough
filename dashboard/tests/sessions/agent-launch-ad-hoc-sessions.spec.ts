@@ -6,14 +6,8 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // Related journeys: ../launches/agent-launch-ad-hoc.spec.ts, ./sessions-sidebar-navigation-cases.spec.ts,
 // ./agent-terminal-done.spec.ts, ./agent-launch-recent-delete.spec.ts (./fixtures/fake-claude).
 
-import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import {
-  openTakenBacklog,
-  startSession,
-  startSessionDialog,
-  startSessionField,
-} from "../launchStoryCardPage.ts";
+import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
@@ -39,6 +33,10 @@ import {
 import { idleBetweenSteps, markDoneAnyway } from "../support/markDone.ts";
 import { closeSidePanel } from "../pageLayout.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
+import {
+  takenAdHocSession,
+  startAdHocAndClose,
+} from "../support/startedAdHocSession.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -46,24 +44,6 @@ const openDoughStories = {
   taken: [takenStory],
   backlog: [readyStory, notRefinedStory],
 };
-
-// Starts an ad hoc session on the selected project and closes the terminal
-// it opens at once.
-async function startAndClose(page: Page, project: string, text: string) {
-  const dialog = startSessionDialog(page, project);
-  await startSession(page, project).click();
-  await startSessionField(dialog).fill(text);
-  await dialog.getByRole("button", { name: "Start" }).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel).toHaveCount(1);
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  await closeSidePanel(panel);
-}
-
-const localOf = (page: Page, text: string) =>
-  parts(page).taken.getByRole("article", {
-    name: `Ad hoc session for ${text}`,
-  });
 
 test("its Sessions sidebar Session entry opens Open Dough's stories, the terminal and its Taken entry; Mark as done takes it out of the sidebar and Open terminal puts it back, through a reload", async ({
   page,
@@ -76,12 +56,12 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
   const text = "why is the CI slow on main?";
   const { button, entries, entry } = sessionsSidebarParts(page);
   const panel = page.getByRole("region", { name: "Terminal" });
-  const active = localOf(page, text);
+  const active = takenAdHocSession(page, text);
   const recent = parts(page).recentlyDone.getByRole("article", {
     name: `Ad hoc session for ${text}`,
   });
 
-  await startAndClose(page, "Open Dough", text);
+  await startAdHocAndClose(page, "Open Dough", text);
   await expect(active).toHaveCount(1);
   await expect(recent).toHaveCount(0);
   const sessionId = await sessionNamedBy(active);
@@ -92,6 +72,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
     await button.click();
     await expect(entries).toHaveCount(1);
     await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
+    const revealed = (await revealsOf(page)).length;
     await entry(text).click();
     await expectProjectChoice(page, "Open Dough");
     await expectMembership(page, openDoughStories);
@@ -103,8 +84,13 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
     // same-project test below.
     await expect
       .poll(async () => (await revealsOf(page)).length)
-      .toBeGreaterThan(0);
-    await expectRevealsSince(page, 0, `Ad hoc session for ${text}`, "smooth");
+      .toBeGreaterThan(revealed);
+    await expectRevealsSince(
+      page,
+      revealed,
+      `Ad hoc session for ${text}`,
+      "smooth",
+    );
     await expect(active.getByText("Shown in terminal")).toBeVisible();
     await expect(entry(text)).toHaveAttribute("aria-current", "true");
   });
@@ -149,9 +135,9 @@ test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and t
   await openTakenBacklog(page, launchJourney);
   const text = "what is blocking us?";
   const { button, entries, badge } = sessionsSidebarParts(page);
-  const local = localOf(page, text);
+  const local = takenAdHocSession(page, text);
 
-  await startAndClose(page, "Open Dough", text);
+  await startAdHocAndClose(page, "Open Dough", text);
   const sessionId = await sessionNamedBy(local);
   await expectSessionShown(local, "Working", false);
   dashboard.claudeSessionBecomes(sessionId, "blocked", "input needed");
@@ -178,12 +164,12 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
   const { entries, button } = sessionsSidebarParts(page);
-  const older = localOf(page, "the older question");
-  const newer = localOf(page, "the newer question");
+  const older = takenAdHocSession(page, "the older question");
+  const newer = takenAdHocSession(page, "the newer question");
 
-  await startAndClose(page, "Open Dough", "the older question");
+  await startAdHocAndClose(page, "Open Dough", "the older question");
   await expect(older).toHaveCount(1);
-  await startAndClose(page, "Open Dough", "the newer question");
+  await startAdHocAndClose(page, "Open Dough", "the newer question");
   await expect(newer).toHaveCount(1);
   dashboard.claudeListingFails(true);
   await page.reload();
@@ -227,14 +213,14 @@ test("with Open Dough already shown, its Sessions sidebar Session entry brings i
   launchJourney,
 }) => {
   dashboard.claudeScenario("launched");
-  // Beside the open sidebar, the local Taken entry starts outside this viewport.
-  await page.setViewportSize({ width: 700, height: 600 });
   await openTakenBacklog(page, launchJourney);
   const text = "where is this entry?";
   const { button, entry } = sessionsSidebarParts(page);
-  const local = localOf(page, text);
+  const local = takenAdHocSession(page, text);
 
-  await startAndClose(page, "Open Dough", text);
+  await startAdHocAndClose(page, "Open Dough", text);
+  // Beside the open sidebar, the local Taken entry starts outside this viewport.
+  await page.setViewportSize({ width: 700, height: 600 });
   await button.click();
   await expect(local).not.toBeInViewport();
   await entry(text).click();
