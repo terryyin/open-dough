@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks ([plan](slice-plans/595-speed-up-landed-ci-repeat-checks/PLAN.md))
 - [Keep sidebar-selected board cards fully visible below the fixed header](seeds/SEED-322-sidebar-selected-board-card-scroll-offset.md#keep-sidebar-selected-board-cards-visible-below-fixed-header) — SEED-322#keep-sidebar-selected-board-cards-visible-below-fixed-header
 - [Open the terminal only when no custom instruction is supplied](seeds/SEED-320-conditional-terminal-opening.md#open-terminal-only-without-a-custom-instruction) — SEED-320#open-terminal-only-without-a-custom-instruction ([plan](slice-plans/597-open-terminal-only-without-a-custom-instruction/PLAN.md))
+- [Remove unused Taken comparison navigation](seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation) — SEED-318#remove-unused-taken-comparison-navigation ([plan](slice-plans/596-remove-unused-taken-comparison-navigation/PLAN.md))
 
 ## Backlog list
 
-- [Remove unused Taken comparison navigation](seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation) — SEED-318#remove-unused-taken-comparison-navigation
 - [Restore touch scrolling in the Claude Code terminal on iPhone and iPad](seeds/SEED-318-claude-code-mobile-terminal-scrolling.md#restore-claude-code-touch-scrolling-on-iphone-and-ipad) — SEED-318#restore-claude-code-touch-scrolling-on-iphone-and-ipad
 - [Prove the phone swipe under button-event pointer tracking](seeds/SEED-316-mobile-terminal-text-selection.md#prove-swipe-under-button-event-tracking) — SEED-316#prove-swipe-under-button-event-tracking
 - [Speed up provider rate-limit checks](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) — SEED-315#speed-up-provider-rate-limit-checks
