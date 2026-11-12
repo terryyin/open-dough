@@ -1,6 +1,5 @@
-// Machine authority, receipt admission and spent allowances share one lock.
-// Never prune this ledger with the bounded chart history or recover it empty.
-import { hostname } from "node:os";
+// Receipt admission and spent allowances share one lock. Never prune this
+// ledger with the bounded chart history or recover it empty.
 import { z } from "zod";
 import { priorBuildReferenceSchema } from "../src/ciPriorBuildReference.ts";
 import { followUpRuleSchema } from "../src/ciFollowUpRule.ts";
@@ -79,17 +78,13 @@ const landingSchema = z.object({
   request: repeatRequestSchema.optional(),
 });
 const schema = z.object({
-  projects: z.record(
-    z.string(),
-    z.object({ enabled: z.boolean(), authority: z.string() }),
-  ),
   landings: z.record(z.string(), landingSchema),
 });
 export type FollowUpLedger = z.infer<typeof schema>;
 export const followUpStore = (): MachineJsonStore<FollowUpLedger> => ({
   file: machineDashboardPath("ci-follow-up.json"),
   schema,
-  empty: { projects: {}, landings: {} },
+  empty: { landings: {} },
   unreadable: "preserve" as const,
   durable: true,
 });
@@ -102,11 +97,3 @@ export const readFollowUps = (): Promise<StoreRead<FollowUpLedger>> =>
 export const changeFollowUps = (
   change: (ledger: FollowUpLedger) => FollowUpLedger | typeof leaveMachineJson,
 ) => replaceMachineJson(followUpStore(), change);
-
-export function hasRepeatAuthority(
-  ledger: FollowUpLedger,
-  project: string,
-): boolean {
-  const setting = ledger.projects[project];
-  return setting?.enabled === true && setting.authority === hostname();
-}

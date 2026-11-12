@@ -26,7 +26,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { installFakeClaude, type FakeClaudeControls } from "./fakeClaude.ts";
 import { requestOwnerEnvironmentAt } from "../../../src/skills/dough-execute-plan/scripts/github-request-owner-test-fixtures.mjs";
-import { fakeGhEnv, installFakeGh, recordedGhCallPids } from "./fakeGh.ts";
+import { fakeGhEnv, installFakeGh } from "./fakeGh.ts";
 import { readPid } from "./processGroup.ts";
 import {
   everyRepository,
@@ -238,9 +238,8 @@ export async function startDashboardServer(
     ...time.controls,
     ...claude.controls,
     async close() {
-      const ghCallPids = recordedGhCallPids(gh);
       await server.stop();
-      await closeOwned(ghCallPids);
+      await closeOwned();
     },
   };
 }

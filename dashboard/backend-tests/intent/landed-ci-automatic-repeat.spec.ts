@@ -10,7 +10,7 @@ import {
   savedRepeatRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
 import {
-  followUpSettings,
+  followUpCards,
   prepareRepeatScenario,
   readFollowUpLedger,
 } from "../../tests/support/ciFollowUpScenario.ts";
@@ -26,8 +26,6 @@ test("new Done receipt at exactly105 seconds gets one full POST after sufficient
 }) => {
   const scenario = await prepareRepeatScenario(origin, github);
   const first = await startServer();
-  expect((await followUpSettings(first)).body.enabled).toBe(false);
-  expect((await followUpSettings(first, true)).status).toBe(200);
   let release!: () => void;
   const reply = new Promise<void>((resolve) => {
     release = resolve;
@@ -66,28 +64,20 @@ test("new Done receipt at exactly105 seconds gets one full POST after sufficient
     .toBe("accepted");
   scenario.setRepeat({ status: "in_progress" });
   await expect
-    .poll(() => followUpSettings(second))
-    .toMatchObject({
-      body: {
-        cards: [{ kind: "progress", explanation: "CI rerun in progress" }],
-      },
-    });
+    .poll(() => followUpCards(second))
+    .toMatchObject([{ kind: "progress", explanation: "CI rerun in progress" }]);
   scenario.setRepeat({ seconds: 106 });
   await expect
-    .poll(() => followUpSettings(first))
-    .toMatchObject({
-      body: {
-        cards: [
-          {
-            kind: "slow",
-            explanation: "Possible CI slowdown",
-            originalMs: 105000,
-            repeatMs: 106000,
-            averageMs: 100000,
-          },
-        ],
+    .poll(() => followUpCards(first))
+    .toMatchObject([
+      {
+        kind: "slow",
+        explanation: "Possible CI slowdown",
+        originalMs: 105000,
+        repeatMs: 106000,
+        averageMs: 100000,
       },
-    });
+    ]);
   expect(scenario.repeatCalls).toEqual([71]);
   expect(await landedCiHistory(first)).toMatchObject({
     body: { reference: { selected: { key: "run/71/1", ms: 105000 } } },
@@ -95,7 +85,7 @@ test("new Done receipt at exactly105 seconds gets one full POST after sufficient
   await first.close();
   await second.close();
   const restarted = await startServer();
-  expect((await followUpSettings(restarted)).body.cards[0]?.kind).toBe("slow");
+  expect((await followUpCards(restarted))[0]?.kind).toBe("slow");
   expect(scenario.repeatCalls).toEqual([71]);
 });
 
@@ -118,33 +108,24 @@ for (const [outcome, expected] of [
     if (outcome === "refused") scenario.refuse(403);
     if (outcome === "uncertain") scenario.refuse(503);
     const server = await startServer();
-    await followUpSettings(server, true);
     await scenario.ingest(server);
     await submitted;
     expect(scenario.repeatCalls).toEqual([71]);
     if (outcome === "uncertain") scenario.setRepeat({ seconds: 104 });
     await expect
-      .poll(
-        async () => (await followUpSettings(server)).body.cards[0]?.explanation,
-      )
+      .poll(async () => (await followUpCards(server))[0]?.explanation)
       .toContain(expected);
     if (outcome === "uncertain")
       await expect
-        .poll(() => followUpSettings(server))
-        .toMatchObject({
-          body: { cards: [{ repeatMs: 104000, kind: "unverified" }] },
-        });
-    const card = (await followUpSettings(server)).body.cards[0];
+        .poll(() => followUpCards(server))
+        .toMatchObject([{ repeatMs: 104000, kind: "unverified" }]);
+    const card = (await followUpCards(server))[0];
     expect(card).toMatchObject({
       originalMs: 120000,
       averageMs: 100000,
       kind: "unverified",
     });
     expect(scenario.repeatCalls).toEqual([71]);
-    await followUpSettings(server, false);
-    expect((await followUpSettings(server)).body.cards[0]?.originalMs).toBe(
-      120000,
-    );
   });
 }
 

@@ -29,7 +29,7 @@ Locator counts alone and passing examples do not establish improved readability.
 ## Architecture and existing solutions
 
 PFE inspected shared controls, procedural helpers, fluent phases, fixture tiers,
-consumer specs and [the pilot](../../../dashboard/tests/writing-journeys.md#what-the-pilot-earned).
+consumer specs and [the pilot](../../../dashboard/tests/fluent-side-panel-pilot.md#what-the-pilot-earned).
 Use `storyCardControls.ts` for the shared Review changes control, reached by
 `StoryCard` and procedural opening helpers. Keep `openStoryReview`'s card-settling
 and response handling distinct from locating/pressing the control: held-read

@@ -1,53 +1,58 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync, writeFileSync } from "node:fs";
-import { hostname } from "node:os";
+import { readFileSync } from "node:fs";
+import { followUpKey } from "../../dashboard/server/ciFollowUpStore.ts";
 import { repeatLedgerFacts } from "./ciFollowUpLedgerFacts.mjs";
 import { makeMe } from "./makeMe.mjs";
 import {
+  holdLedgerBytes,
   repeatMachine,
   ledgerAction,
   ledgerProcess,
 } from "./ciFollowUpMachineTest.mjs";
 
 const inputs = repeatLedgerFacts;
-const setting = (enabled, prior = []) => ({
-  action: "setting",
-  project: "project",
-  enabled,
-  prior,
-});
+const spends = async (home, facts) =>
+  (await ledgerAction(home, { ...facts, action: "spend" })).answer;
 
-test("default off, pre-enable receipts and disable/re-enable never renew eligibility", async (t) => {
+test("after an upgrade each earlier receipt keeps its recorded admission and a newly recorded receipt is spent once", async (t) => {
   const machine = repeatMachine(t),
-    facts = inputs();
-  await ledgerAction(machine.home, { ...facts, action: "register" });
-  await ledgerAction(machine.home, setting(true, [facts.landing]));
-  assert.equal(
-    (await ledgerAction(machine.home, { ...facts, action: "spend" })).answer,
-    false,
+    unadmitted = inputs({ revision: "a".repeat(40) }),
+    admitted = inputs({ revision: "d".repeat(40) }),
+    fresh = inputs({ revision: "c".repeat(40) }),
+    unrecorded = inputs({ revision: "e".repeat(40) });
+  const earlier = (facts, eligible) => [
+    followUpKey(facts.project, facts.landing),
+    makeMe.aCiFollowUpEntry
+      .with({
+        project: facts.project,
+        revision: facts.landing.revision,
+        target: facts.landing.target,
+        receipts: [facts.landing.receipt],
+        eligible,
+      })
+      .please(),
+  ];
+  holdLedgerBytes(
+    machine,
+    JSON.stringify({
+      landings: Object.fromEntries([
+        earlier(unadmitted, false),
+        earlier(admitted, true),
+      ]),
+    }),
   );
-  const read = await ledgerAction(machine.home, { action: "read" });
-  assert.equal(read.answer.document.projects.project.authority, hostname());
-  // An alias prepared after enable still belongs to the old landing.
-  const alias = {
-    ...facts,
-    landing: {
-      ...facts.landing,
-      receipt: "00000000-0000-4000-8000-000000000001",
-    },
-  };
-  await ledgerAction(machine.home, { ...alias, action: "register" });
-  assert.equal(
-    (await ledgerAction(machine.home, { ...alias, action: "spend" })).answer,
-    false,
-  );
+  await ledgerAction(machine.home, { ...fresh, action: "register" });
+  assert.equal(await spends(machine.home, unadmitted), false);
+  assert.equal(await spends(machine.home, admitted), true);
+  assert.equal(await spends(machine.home, fresh), true);
+  assert.equal(await spends(machine.home, fresh), false);
+  assert.equal(await spends(machine.home, unrecorded), false);
 });
 
 test("two independent processes serialize spend; restart, duplicate aliases and workflow changes share one cap", async (t) => {
   const machine = repeatMachine(t),
     facts = inputs();
-  await ledgerAction(machine.home, setting(true));
   await ledgerAction(machine.home, { ...facts, action: "register" });
   const answers = await Promise.all(
     [1, 2].map(() => ledgerAction(machine.home, { ...facts, action: "spend" })),
@@ -56,8 +61,6 @@ test("two independent processes serialize spend; restart, duplicate aliases and 
     false,
     true,
   ]);
-  await ledgerAction(machine.home, setting(false));
-  await ledgerAction(machine.home, setting(true));
   const alias = {
     ...facts,
     landing: {
@@ -83,7 +86,6 @@ test("two independent processes serialize spend; restart, duplicate aliases and 
 test("interruption after durable spend and before submission never resends", async (t) => {
   const machine = repeatMachine(t),
     facts = inputs();
-  await ledgerAction(machine.home, setting(true));
   await ledgerAction(machine.home, { ...facts, action: "register" });
   const interrupted = ledgerProcess(machine.home, {
     ...facts,
@@ -103,53 +105,15 @@ test("interruption after durable spend and before submission never resends", asy
   );
 });
 
-test("disable between candidate read and atomic spend stops admission; another designated machine cannot spend", async (t) => {
+test("unreadable allowance bytes survive observer updates and spends plus restart without reset", async (t) => {
   const machine = repeatMachine(t),
     facts = inputs();
-  await ledgerAction(machine.home, setting(true));
-  await ledgerAction(machine.home, { ...facts, action: "register" });
-  await ledgerAction(machine.home, { action: "read" });
-  await ledgerAction(machine.home, setting(false));
-  assert.equal(
-    (await ledgerAction(machine.home, { ...facts, action: "spend" })).answer,
-    false,
-  );
-  await ledgerAction(machine.home, setting(true));
-  assert.equal(
-    (await ledgerAction(machine.home, { ...facts, action: "spend" })).answer,
-    false,
-  );
-  const fresh = {
-    ...facts,
-    landing: makeMe.aLaunchLanding
-      .comparing({ base: "a".repeat(40), revision: "c".repeat(40) })
-      .please(),
-  };
-  await ledgerAction(machine.home, { ...fresh, action: "register" });
-  const raw = JSON.parse(readFileSync(machine.file, "utf8"));
-  raw.projects.project = {
-    enabled: true,
-    authority: "other-production-machine",
-  };
-  writeFileSync(machine.file, JSON.stringify(raw));
-  assert.equal(
-    (await ledgerAction(machine.home, { ...fresh, action: "spend" })).answer,
-    false,
-  );
-});
-
-test("unreadable allowance/settings bytes survive observer and setting updates plus restart without reset", async (t) => {
-  const machine = repeatMachine(t),
-    facts = inputs();
-  await ledgerAction(machine.home, setting(true));
   await ledgerAction(machine.home, { ...facts, action: "register" });
   await ledgerAction(machine.home, { ...facts, action: "spend" });
   const corrupt = '{"spent":';
-  writeFileSync(machine.file, corrupt);
+  holdLedgerBytes(machine, corrupt);
   for (const action of [
     { ...facts, action: "update" },
-    setting(false),
-    setting(true),
     { ...facts, action: "spend" },
   ]) {
     assert.equal((await ledgerAction(machine.home, action)).ok, false);
@@ -164,7 +128,6 @@ test("unreadable allowance/settings bytes survive observer and setting updates p
 test("history eviction and faster workflow representation restore the original once without another baseline sample", async (t) => {
   const machine = repeatMachine(t),
     facts = inputs();
-  await ledgerAction(machine.home, setting(true));
   await ledgerAction(machine.home, { ...facts, action: "register" });
   await ledgerAction(machine.home, { ...facts, action: "spend" });
   const rebuilt = makeMe.aLandedCiHistory
@@ -202,7 +165,6 @@ test("history eviction and faster workflow representation restore the original o
 test("unreadable follow-up evidence blocks a rebuilt later attempt from replacing an original sample", async (t) => {
   const machine = repeatMachine(t),
     facts = inputs();
-  await ledgerAction(machine.home, setting(true));
   const repeat = makeMe.aKeptBuild
     .with({
       ...facts.request.original,
@@ -211,7 +173,7 @@ test("unreadable follow-up evidence blocks a rebuilt later attempt from replacin
     })
     .please();
   const resolution = makeMe.aLandedCiResolution.measuring(repeat).please();
-  writeFileSync(machine.file, "{unreadable");
+  holdLedgerBytes(machine, "{unreadable");
   const answer = await ledgerAction(machine.home, {
     ...facts,
     action: "resolution",
@@ -232,7 +194,6 @@ test("unreadable follow-up evidence blocks a rebuilt later attempt from replacin
 test("an already retained exact original at attempt2 remains readable when the follow-up ledger is unreadable", async (t) => {
   const machine = repeatMachine(t),
     facts = inputs();
-  await ledgerAction(machine.home, setting(true));
   const original = makeMe.aKeptBuild
     .with({ ...facts.request.original, runAttempt: 2 })
     .please();
@@ -243,7 +204,7 @@ test("an already retained exact original at attempt2 remains readable when the f
     resolution,
     order: [facts.landing.revision],
   });
-  writeFileSync(machine.file, "{unreadable");
+  holdLedgerBytes(machine, "{unreadable");
   const retained = await ledgerAction(machine.home, {
     ...facts,
     action: "history",

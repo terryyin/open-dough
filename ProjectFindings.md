@@ -446,6 +446,15 @@ selects no new implementation story.
   - Observed effect: about four hours of delegated proof runs that could not settle their gate, against about 36 minutes of runs that did.
   - Inference: a gate that names a load profile is cheapest when its command waits for the profile; runs taken outside it only attribute failures to the base. The last two specs are named by neither SEED-287 nor SEED-319.
 
+- Execution: SEED-330#make-ci-follow-up-automatic (plan 604; first implementation `5987387021227f7a89b1520917dcd3100564b0aa`)
+  - Timestamp: unknown (2026-11-12, about 19:00–19:30 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: focused runs, not a whole suite. The System settings journeys named by the consumer trace: `tests/configuration/project-remove.spec.ts:180` (heading wait after reload) and `tests/configuration/system-settings-openai.spec.ts:18` ("Status unavailable") timed out at 30 s at load 38–41 and passed at `--workers=2` at load 32; both run with no project rows, so the slice's removed row never rendered there. `intent-ci-follow-up.spec.ts:27` timed out at load ~69 and passed alone; its split belongs to SEED-324. Intent Coverage runs saw the follow-up admission and automatic-repeat cases time out at load 41–85 and pass at 33–44.
+  - Observed effect: two classification reruns; the two Settings cases have no owning story since SEED-287 closed.
+  - Inference: qualified match to this finding's dashboard load facet; the Settings pair is named by no active story.
+
 **Response:** The per-job deadline and bounded process cleanup landed in
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)

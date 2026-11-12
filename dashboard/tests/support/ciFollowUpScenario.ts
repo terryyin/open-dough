@@ -23,21 +23,13 @@ export const followUpFile = (server: Pick<DashboardServer, "home">) =>
   path.join(server.home, ".open-dough/dashboard/ci-follow-up.json");
 export const readFollowUpLedger = (server: Pick<DashboardServer, "home">) =>
   JSON.parse(readFileSync(followUpFile(server), "utf8")) as FollowUpLedger;
-export async function followUpSettings(
-  server: DashboardServer,
-  enabled?: boolean,
-) {
+// The Recently done cards this dashboard reads for the project's follow-ups.
+export async function followUpCards(server: DashboardServer) {
   const response = await rawRequest({
     url: `${server.origin}/__project-configuration/ci-follow-up?id=open-dough`,
-    headers: { Origin: server.origin, "Content-Type": "application/json" },
-    ...(enabled === undefined
-      ? {}
-      : { method: "POST", body: JSON.stringify({ enabled }) }),
+    headers: { Origin: server.origin },
   });
-  return {
-    status: response.status,
-    body: JSON.parse(response.body) as CiFollowUpAnswer,
-  };
+  return (JSON.parse(response.body) as CiFollowUpAnswer).cards;
 }
 
 export async function prepareRepeatScenario(
@@ -112,10 +104,7 @@ export async function prepareRepeatScenario(
     holdSubmission(until: () => Promise<void>) {
       hold = until;
     },
-    async ingest(
-      server: DashboardServer,
-      { prepareOnly = false, identity = queuedIdentity } = {},
-    ) {
+    async ingest(server: DashboardServer, { identity = queuedIdentity } = {}) {
       const reference = "11111111-0000-4000-8000-000000000071";
       const reporting = {
         origin: server.origin,
@@ -156,7 +145,6 @@ export async function prepareRepeatScenario(
         .please();
       const prepared = await postLanding(server, submission);
       expect(prepared.status, prepared.body).toBe(200);
-      if (prepareOnly) return submission;
       const accepted = await postLanding(server, submission, false);
       expect(accepted.status, accepted.body).toBe(200);
       return submission;

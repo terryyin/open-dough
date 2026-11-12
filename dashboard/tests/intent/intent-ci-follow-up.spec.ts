@@ -4,7 +4,7 @@ import { selectStory } from "../storyCardSelection.ts";
 // Real collection first, then a fresh reader process and the card-to-Intent route.
 import { expect, test } from "../support/preparationPage.ts";
 import {
-  followUpSettings,
+  followUpCards,
   prepareRepeatScenario,
 } from "../support/ciFollowUpScenario.ts";
 import {
@@ -56,26 +56,20 @@ test("the completed card opens both collected attempts and their frozen referenc
     notifySubmission?.();
     return Promise.resolve();
   });
-  await followUpSettings(dashboard, true);
   await scenario.ingest(dashboard);
   await submissionReached;
   expect(scenario.repeatCalls).toHaveLength(1);
   scenario.setRepeat({ seconds: 100 });
   await expect
-    .poll(() => followUpSettings(dashboard))
-    .toMatchObject({
-      body: {
-        cards: [
-          {
-            kind: "recovered",
-            originalMs: 120000,
-            repeatMs: 100000,
-            averageMs: 100000,
-          },
-        ],
+    .poll(() => followUpCards(dashboard))
+    .toMatchObject([
+      {
+        kind: "recovered",
+        originalMs: 120000,
+        repeatMs: 100000,
+        averageMs: 100000,
       },
-    });
-  await followUpSettings(dashboard, false);
+    ]);
   const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
   try {
     const ciCalls = () =>
