@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects ([plan](slice-plans/582-review-test-intent/PLAN.md))
 - [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects ([plan](slice-plans/584-board-test-intent/PLAN.md))
-- [Guard scheduled-test MakeMe selection](seeds/SEED-329-use-shared-test-guidance.md#guard-scheduled-test-makeme-selection) — SEED-329#guard-scheduled-test-makeme-selection ([plan](slice-plans/605-guard-scheduled-test-makeme-selection/PLAN.md))
 
 ## Backlog list
 

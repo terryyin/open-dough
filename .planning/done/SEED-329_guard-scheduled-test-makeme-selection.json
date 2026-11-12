@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-329#guard-scheduled-test-makeme-selection",
+  "title": "Guard scheduled-test MakeMe selection",
+  "completedAt": "2026-11-12T12:58:56.844Z",
+  "developer": "Terry Yin",
+  "agent": "joey-chan",
+  "host": "codex",
+  "model": "gpt-6.1-sol"
+}

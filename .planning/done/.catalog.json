@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-329_guard-scheduled-test-makeme-selection.json",
+      "identity": "SEED-329#guard-scheduled-test-makeme-selection",
+      "completedAt": "2026-11-12T12:58:56.844Z",
+      "blob": "d74a2b17d20a3ef21a58d4d5dfc498e217613e0b"
+    },
+    {
       "fileName": "SEED-330_make-ci-follow-up-automatic.json",
       "identity": "SEED-330#make-ci-follow-up-automatic",
       "completedAt": "2026-11-12T12:08:38.549Z",
