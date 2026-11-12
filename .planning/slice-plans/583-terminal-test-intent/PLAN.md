@@ -3,131 +3,240 @@
 **Identity:** SEED-300#express-terminal-test-intent-through-page-objects
 **Source:** [Story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects)
 
-This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
+## Goal and scope
 
-## Goal and provisional scope
+A developer reading Terminal tests in Intent follows the chosen session, exact input/output and deliberate recovery
+while shared screen/input controls have one browser owner. Resolve the story's Terminal finding and current siblings
+across integrated, frontend and cross-feature callers, preserving every distinct behavior check and test tier. This
+realigns the existing receiving plan; no original slices, implementation or completed proof are invented.
 
-A developer can follow the session, input, output and recovery a Terminal case
-proves while shared screen/input mechanics have one maintained owner. Receive
-the original **Terminal input and output** finding, including all 63 audited
-browser-spec callers and any same-sequence siblings across Terminal, launch,
-session, navigation, configuration and frontend tests. Keep each test in its
-current tier; sharing a control does not merge its independent proofs.
+Include keyboard, trust/prompts, connecting/refused/ended input, touch keys, soft-keyboard fitting, composition,
+selection/copy, paste and voice. Keep caller facts, actual input modality/focus, holds/releases, provider events,
+clocks, WebSocket/HTTP observations, native attach/PTY evidence and records explicit. A browser read never substitutes
+for native evidence. Direct accessibility, rendition and measurement assertions keep their independent expectations.
 
-The source audit was at `7eab3d6ca`; current inspection was at `9779b93c1`.
-No original executable plan existed: these are receiving findings and
-provisional proof loops, not mapped original slices. Story refinement must
-confirm examples and the complete current caller inventory before execution.
+Exclude dashboard behavior changes, a new framework, universal fluent adoption, fewer-case/speed claims and unrelated
+sibling-workflow mechanics. No sibling story is a blocking prerequisite; reuse whatever owners exist when executing.
 
-Preserve exact command bytes, output, draft text, focus, session identity,
-prompt/trust/ended-input distinctions, native attach/PTY evidence and transport
-observations. The Launch story owns its dialog attachments; this story owns
-Terminal screen/input controls wherever their callers live.
+## Architecture and reuse decisions
 
-## Architecture and existing owners
+Use [ADR 0001 — Ubiquitous language](../../../docs/adrs/0001-ubiquitous-language-accepted.md) and [ADR 0008 — Project
+dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
+Terminal is a session's Side panel content; session entry, Selected story and panel frame retain their owners. Closing
+preserves the Selected story. [ADR 0002 — Software development lifecycle
+principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md) supports one representation
+per conceptual solution and PFE. [ADR 0010 — Definition of
+improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md) requires readable scenarios and fewer
+mechanics edit sites worth their helper cost. Index/in-file Accepted statuses agree; no supersession/conflict or
+exception was found. The existing [North Star](../../NORTH-STAR.md), especially “Agent launch as a requested
+assignment,” keeps host/session/transport ownership; this test-side change needs no new topic or architecture decision.
 
-Reuse `dashboard/tests/terminalPages.ts`, `terminalPastePage.ts`,
-`touchTerminalPage.ts`, `touchTerminalSoftKeyboardPage.ts`, and
-`support/terminalVoicePage.ts`, with existing Terminal boundary/transport
-fixtures retaining their own evidence. Reading screen text is different from
-observing the native host receive bytes. Keep those observations independent.
+PFE at `8aa440077`: `terminalPages.ts` is a fluent cue adapter, unsuitable as a frontend fixture dependency. Expose its
+screen/input mechanics as a focused procedural component owner shared with the fluent adapter. Extend suitable existing
+owners rather than another universal Terminal journey. In `dashboard/tests/`, retain `touchTerminalPage.ts`
+(touch/fitting/compose), `touchTerminalSoftKeyboardPage.ts` (viewport stand-in), `terminalPastePage.ts` (phone setup),
+`terminalSelectPage.ts` (paused selection), and `support/terminalVoicePage.ts` (voice/prompts).
+`support/frontendTouchTerminal.ts` keeps frontend setup; `agentTerminalBoundary.ts`, host fixtures and traffic observers
+keep transport/native evidence. Reuse existing session-entry and Side panel operations; do not duplicate their selectors
+or change their policy.
 
-[ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-distinguishes Session entry, Terminal content and Side panel frame; preserve
-their ownership and selection semantics. Under
-[ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md),
-compare reader clarity, shared-selector edit sites and helper maintenance cost
-with the audit baseline. A fluent conversion is a candidate only where its
-shared-control or handoff gain pays for the added code.
+Cumulative design: one scoped screen/input solution supports all modalities; touch, paste, selection and voice retain
+distinct domain protocols. Slices migrate and name these protocols, not introduce parallel screen owners. `typeLine`
+means typing then Enter; insertion, keypress, fill, paste, dictation and reconnect remain distinct operations when that
+distinction is under proof. An output wait does not implicitly release a held transport or submit input.
 
-No inspected expected helper owner exceeds 250 lines. Current owners already
-separate Terminal screen, paste, touch, soft keyboard and voice responsibilities.
-Do not replace those seams with one large universal Terminal journey helper.
+## Current caller inventory and disposition ownership
 
-## Provisional slices and proof ownership
+Inventory observed on 2026-11-12 at `8aa440077`. Reproduce the literal starting set with `rg -l
+'xterm-rows|xterm-helper-textarea' dashboard/tests dashboard/frontend-tests --glob '*.spec.ts'`. It finds **65** current
+specs. The historical query `git grep -l -E 'xterm-rows|xterm-helper-textarea' 7eab3d6ca -- dashboard/tests
+dashboard/frontend-tests` filtered to `.spec.ts` reproduces **63**; do not use a glob that omits top-level frontend
+specs. Four additions are ad-hoc attachments/instructed/follow-up launch and touch selection. Frontend paste-image and
+session-column-membership moved direct mechanics into helpers; both remain consumers, not omissions.
 
-Selections below illustrate each proof loop; refinement must locate every
-affected caller, including the 63 audited specs, and add transitive consumers.
-Every slice retains original assertions and records its caller disposition,
-representative source comparison and shared-selector ownership evidence.
+| Current direct-selector directory | Specs to disposition |
+| --- | --- |
+| `dashboard/frontend-tests/` | `terminal-prompts-recovery.spec.ts` |
+| `dashboard/tests/configuration/` | `system-settings.spec.ts` |
+| `dashboard/tests/launches/` | `agent-launch-ad-hoc-attachments.spec.ts`, `agent-launch-ad-hoc-codex.spec.ts`, `agent-launch-ad-hoc-instructed.spec.ts`, `agent-launch-ad-hoc-resolved.spec.ts`, `agent-launch-codex.spec.ts`, `agent-launch-follow-up-session.spec.ts`, `agent-launch-model-entries.spec.ts`, `cursor-startup-trust.spec.ts` |
+| `dashboard/tests/navigation/` | `board-paging-side-panel.spec.ts`, `board-reading.spec.ts`, `development-intent-frame-sessions.spec.ts`, `frame-sessions-look.spec.ts`, `side-panel-width-covering.spec.ts`, `side-panel-width-kept.spec.ts`, `side-panel-width.spec.ts` |
+| `dashboard/tests/sessions/` | `agent-launch-ad-hoc-sessions.spec.ts`, `agent-launch-done-question-follows.spec.ts`, `agent-launch-story-card-sessions.spec.ts`, `agent-session-cursor-done.spec.ts`, `agent-terminal-delete.spec.ts`, `agent-terminal-done-codex-page.spec.ts`, `agent-terminal-done-pending.spec.ts`, `agent-terminal-done-question.spec.ts`, `agent-terminal-done-reopen.spec.ts`, `agent-terminal-done-report.spec.ts`, `agent-terminal-done.spec.ts`, `compact-session-entry.spec.ts`, `cursor-runner-replacement.spec.ts`, `cursor-runner-sessions.spec.ts`, `cursor-session-scope-continuation.spec.ts`, `cursor-sessions-sidebar-navigation.spec.ts`, `recently-done-sessions-sidebar-reopen.spec.ts`, `session-management-touch.spec.ts`, `session-workspace-retirement-lifetime.spec.ts`, `sessions-sidebar-keyboard.spec.ts`, `sessions-sidebar-navigation.spec.ts`, `sessions-sidebar-touch.spec.ts` |
+| `dashboard/tests/stories/` | `recently-done-progressive-navigation.spec.ts`, `recently-done-progressive-reset.spec.ts`, `recently-done-progressive-state.spec.ts` |
+| `dashboard/tests/terminals/` | `agent-launch-ad-hoc-terminal.spec.ts`, `agent-terminal-avatar.spec.ts`, `agent-terminal-codex-page.spec.ts`, `agent-terminal-cursor-launch-page.spec.ts`, `agent-terminal-cursor-page.spec.ts`, `agent-terminal-cursor-trust-page.spec.ts`, `agent-terminal-ended-input-recovery.spec.ts`, `agent-terminal-keyboard.spec.ts`, `agent-terminal-lifetime.spec.ts`, `agent-terminal-maximize.spec.ts`, `agent-terminal-pending-readiness-input.spec.ts`, `agent-terminal-theme.spec.ts`, `agent-terminal-touch-composer.spec.ts`, `agent-terminal-touch-keyboard-fit.spec.ts`, `agent-terminal-touch-keys.spec.ts`, `agent-terminal-touch-paste.spec.ts`, `agent-terminal-touch-select.spec.ts`, `agent-terminal-touch.spec.ts`, `agent-terminal.spec.ts`, `session-terminal-prompts.spec.ts`, `session-terminal-voice-lifecycle.spec.ts`, `session-terminal-voice-recovery.spec.ts`, `session-terminal-voice.spec.ts` |
 
-### 1. Name Terminal screen and session identity observations
+Slice 1 owns common output/identity mechanics in every row, including support owners and fluent callers. Slices 2–5 own
+the remaining modality-specific protocols, as named below. A caller migrated in slice 1 remains in the later slice's
+proof when that slice changes an operation it uses. Exact rendition, accessibility and measurement contracts may retain
+low-level observations; record why each remaining direct use owns that contract rather than blanket allowing a file or
+imposing zero selectors as the acceptance metric.
+
+Ten non-spec owners also contain these literals: `sidePanelWidthPage.ts`, `support/adHocTerminalStartup.ts`,
+`support/cursorSessionReading.ts`, `support/frontendTouchTerminal.ts`, `support/startedAdHocSession.ts`,
+`support/terminalVoicePage.ts`, `terminalPages.ts`, `terminalPastePage.ts`, `terminalSelectPage.ts`,
+`touchTerminalPage.ts`. Their static import closure adds 89 specs outside the 65, a conservative discovery set rather
+than proof that every imported utility executes Terminal mechanics. Follow the changed export to its actual use: e.g.
+`openTakenCursorSession`, `openWhileStarting`, `startAdHocAndClose`, `openFrontendTerminalByTouch/Mouse`,
+`phonePasteJourney`, `expectPausedShowsDrawnRowsInPlace`, `openTerminalVoice`, `sidePanelPages`, and `expectStillHolds`.
+Helpers' unrelated exports do not justify exclusion of callers that do use the changed operation.
+
+Concrete outside-set consumers include both fluent side-panel-content specs, session-column-membership,
+agent-session-cursor/stop, cursor-session-recovery and recovery-stops, integrated paste-image, and frontend paste-image,
+application-scroll and all four touch-select specs. Search `.xterm-screen`, generic panel `textarea`, Terminal
+region/heading and shared-operation names as well as the two literal selectors; trace whole-panel observations and
+setup. At each slice record every affected consumer as `run`, `reused` with matching evidence, or `excluded` with the
+reason the changed effect cannot reach it, using the installed [consumer
+trace](../../../.agents/skills/dough-execute-plan/scripts/consumer-trace.mjs). Keep dispositions/evidence in this plan;
+no new inventory framework or policy.
+
+## Observed premises and proof route
+
+All observations ran in this owned checkout at `8aa440077` with only the selected preparation draft plus the stated
+disposable scratch edits. Native setup followed `tests/native-setup.md`: Node 24.21.0, locked npm dependencies installed
+locally, Chromium 158.0.8127.18 check passed. No copied dependencies.
+
+| Premise / consuming operation | Form, result and remaining limits |
+| --- | --- |
+| Frontend, integrated native and fluent fixtures can exercise the planned boundaries here | P0 below completed 10/10 cases, strict passed, 60.2 s, 2026-11-12 07:40–07:41 UTC. It reaches actual input/recovery, held trust rendition, compose insertion and native line, held voice release and panel replacement, not merely runner selection. These are synthetic host/PTY fixtures, not a claim of fresh live host acceptance. |
+| Scoped screen/input mechanics can serve the different fixture tiers without hiding case facts | P1 below applied one 14-line procedural screen-parts/text-observation owner to fluent Terminal, frontend prompt and touch setup, and integrated voice setup. All 8 cases passed (32.0 s), and `npm run typecheck:dashboard` passed. Original transport holds, sent arrays, provider and native assertions stayed at their existing boundaries. This tests the common seam; full caller migration and final helper cost remain execution work. |
+| Prompt recovery proof discriminates a missing literal insertion after readiness recovers | P2 below suppressed only `insert("as recommended")` in production `TerminalPrompts.tsx`, with the shared scratch owner still used. Both connecting and refused cases failed at the independent `sent == ["as recommended"]` assertion (actual `[]`), 16.1 s. Thus the helper does not self-certify delivery. P3 restores and passes the unchanged proof. |
+
+P0: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-terminal-baseline.json caffeinate -i npm run test:dashboard -- frontend-tests/terminal-prompts-recovery.spec.ts frontend-tests/agent-terminal-touch-paste-image.spec.ts tests/terminals/agent-terminal-cursor-trust-page.spec.ts tests/terminals/agent-terminal-touch-composer.spec.ts tests/terminals/session-terminal-voice.spec.ts tests/navigation/side-panel-content-switching.spec.ts --workers=1`.
+
+P1: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-terminal-shared-screen.json caffeinate -i npm run test:dashboard -- frontend-tests/terminal-prompts-recovery.spec.ts frontend-tests/agent-terminal-touch-paste-image.spec.ts tests/terminals/session-terminal-voice.spec.ts tests/navigation/side-panel-content-switching.spec.ts --workers=1`.
+
+P2: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-terminal-input-fault.json caffeinate -i npm run test:dashboard -- frontend-tests/terminal-prompts-recovery.spec.ts --workers=1` with the stated fault.
+
+P3: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-terminal-restored.json caffeinate -i npm run test:dashboard -- frontend-tests/terminal-prompts-recovery.spec.ts --workers=1` after reverting every scratch edit: 2/2 cases strict passed, 6.6 s, finished 2026-11-12 07:43:56 UTC.
+
+Pre-launch host decision: this Mac had 16 logical CPUs, 48 GiB RAM, 61% memory free, load 3.67/5.52/8.25 and no
+competing test runner observed. It was fully awake on battery at 77%; bounded selections used one worker under
+`caffeinate -i`, with sleep-log inspection afterwards. No sleep/wake event overlapped the observations. Reconsider
+concurrency on changed load, power or failed proof. These observations settle the common seam and discrimination
+premises; they do not claim all 65 callers or all recovery variants have passed a migration.
+
+## Ordered slices and outside-in proof
+
+All types are Behavior: the evaluated outcome is how a developer can read and maintain the proof, with unchanged product
+behavior. Each slice includes its helper changes, caller migration, focused regression proof and cleanup. Source review
+compares the before/after scenario at `8aa440077` and the historical finding at `7eab3d6ca`; record clarity, control
+edit sites and added helper cost. Partial migration is safe: untouched callers remain until their named slice;
+completion requires one shared mechanics owner across the final affected set.
+
+### 1. Read one session's Terminal through shared controls
 Type: Behavior
 Status: planned
-Proof: One shared owner reads screen output and Terminal identity and composes
-existing panel entry/close controls. Exact output and session IDs stay in cases;
-native attachments and kept records stay outside screen readers. Illustrative:
-`npm run test:dashboard -- 'tests/terminals/agent-terminal-(codex-page|cursor-page|cursor-launch-page)' 'tests/navigation/side-panel-content-switching.spec.ts'`.
+Proof: Story examples 1 and 6; source comparison and original output, identity,
+attach-count, record and reattachment assertions in affected callers.
 
-Behavior: A developer reads a Terminal opening or replacement case → follows
-named screen/session observations → the source identifies the expected session
-and text, and unchanged browser plus native identity checks pass.
+Behavior: A developer follows an opening, replacement or reconnect case → reads named Terminal output/identity
+operations → the expected session and text stay visible and native/record evidence still distinguishes detach from
+session end. Expose the shared procedural seam and reuse it from fluent Terminal and support owners; migrate ordinary
+screen/identity uses across the inventory, leaving low-level contract observations explicit. Preserve width-history and
+trust rendition assertions. Include Codex, Cursor and Claude lifecycle specs, the two fluent content specs and
+cross-feature callers reached by changed owners. Run those complete affected specs, not only an accessor unit test.
 
-### 2. Express keyboard, prompt and ended-input recovery scenarios
+The expected edited `sessions/agent-launch-story-card-sessions.spec.ts` is 272 lines. Cohesive reorganization in this
+slice: move its shared queued-session arrangement/listing and blocked-Start observation into the existing
+`storyCardSessionListing.ts` (121 lines), leaving each published Preparing, Taken and no-list/Recently-done journey,
+origin transitions and independent expected membership/attach facts visible. Keep both modules at most 250 lines, retain
+the helper API for other callers and run this complete spec plus actual consumers of the changed listing contract. Other
+expected control owners are 35–234 lines; reassess any newly oversized expected edit by the same rule.
+
+Baseline command for this boundary: `npm run test:dashboard --
+tests/terminals/agent-terminal-codex-page.spec.ts tests/terminals/agent-terminal-cursor-page.spec.ts
+tests/terminals/agent-terminal-cursor-launch-page.spec.ts tests/terminals/agent-terminal.spec.ts
+tests/terminals/agent-terminal-lifetime.spec.ts tests/navigation/side-panel-content-switching.spec.ts
+tests/navigation/side-panel-content-replacement.spec.ts
+tests/sessions/agent-launch-story-card-sessions.spec.ts --workers=1`. Add the remaining inventory consumers
+reached by the actual diff.
+
+### 2. Follow exact keyboard input and deliberate recovery
 Type: Behavior
 Status: planned
-Proof: Shared input/draft/focus operations serve keyboard, trust/prompt and
-ended-input callers without hiding key sequences, WebSocket frames or PTY
-lines. Illustrative: `npm run test:dashboard -- 'tests/terminals/agent-terminal-keyboard.spec.ts' 'tests/terminals/agent-terminal-cursor-trust-page.spec.ts' 'frontend-tests/terminal-prompts-recovery.spec.ts'`.
+Proof: Story example 2; exact bytes, focus, refusal status, native lines,
+attachment identity and no-auto-replay assertions remain independent.
 
-Behavior: A developer reads a keyboard or recovery case → follows named
-Terminal actions around the explicit input sequence → the source states which
-input reaches which session and recovery state, with original evidence passing.
+Behavior: A developer reads a key/prompt/trust/ended-input case → follows named input and recovery choices around the
+actual keys and held releases → the source shows what reaches the session and what requires another deliberate choice.
+Cover `agent-terminal-keyboard`, `session-terminal-prompts`, `agent-terminal-pending-readiness-input`,
+`agent-terminal-ended-input-recovery`, `agent-terminal-cursor-trust-page` and frontend `terminal-prompts-recovery`, plus
+actual users of any shared input/recovery operation. Preserve compound shortcut steps, intermediate focus and trust
+rendition/replay dimensions. Run all these complete specs and those consumers; an insertion method must never imply
+Enter.
 
-### 3. Express touch, composition and soft-keyboard interactions
+Command: `npm run test:dashboard -- tests/terminals/agent-terminal-keyboard.spec.ts tests/terminals/session-terminal-prompts.spec.ts tests/terminals/agent-terminal-pending-readiness-input.spec.ts tests/terminals/agent-terminal-ended-input-recovery.spec.ts tests/terminals/agent-terminal-cursor-trust-page.spec.ts frontend-tests/terminal-prompts-recovery.spec.ts --workers=1`, plus traced consumers.
+
+### 3. Follow phone input, viewport changes and paused selection
 Type: Behavior
 Status: planned
-Proof: Reuse touch and soft-keyboard owners for Terminal draft and reachability;
-retain gesture, viewport, focus and keyboard-fit expectations. Illustrative:
-`npm run test:dashboard -- 'tests/terminals/agent-terminal-touch'` plus all
-discovered compose and soft-keyboard callers.
+Proof: Story example 3; exact gesture/key, draft, independent focus/geometry,
+reported native size, paused copied text and application input evidence.
 
-Behavior: A developer reads a touch/composition case → follows the named
-Terminal interaction while seeing the actual modality → the source explains
-the retained draft and reachable controls, and the same input/layout checks pass.
+Behavior: A developer reads a phone interaction → sees the actual modality and chosen draft/viewport around shared
+operations → focus, fit and insertion without submission remain explicit; paused selection sends no unintended session
+input. Use touch/soft-keyboard/selection owners for integrated touch, keys, composer, keyboard-fit and select specs, and
+frontend application-scroll and touch-select, select-fit, select-held, select-screens specs. Preserve dimensions,
+controlled viewport events and the selection observer's independent drawn-row comparison. Run every complete affected
+touch/selection spec in both tiers, including cross-feature touch callers when their shared action changes.
 
-### 4. Express paste through the existing Terminal paste owner
+Command: `npm run test:dashboard -- 'tests/terminals/agent-terminal-touch(-keys|-composer|-keyboard-fit|-select)?\.spec\.ts' 'frontend-tests/agent-terminal-touch-(application-scroll|select.*)\.spec\.ts' --workers=1`, plus traced consumers.
+
+### 4. Follow a clipboard choice through refusal and retry
 Type: Behavior
 Status: planned
-Proof: Migrate repeated screen/input plumbing in paste callers; keep exact
-payload, clipboard/provider faults, sent bytes and draft expectations explicit.
-Illustrative: `npm run test:dashboard -- 'frontend-tests/agent-terminal-touch-paste-image.spec.ts' 'tests/terminals/.*paste'`.
+Proof: Story example 4; payload/clipboard/provider faults, HTTP body/status,
+sent bytes, draft and native output stay caller facts at their original tiers.
 
-Behavior: A developer reads a Terminal paste case → follows a shared paste
-operation with the case's explicit payload → the source states what is inserted
-or refused, and the independent draft/transport evidence still distinguishes it.
+Behavior: A developer follows Paste while connecting, attached or refused → reads named clipboard/Terminal operations
+around the explicit payload and release/retry → the source distinguishes insertion, refusal and a new choice. Reuse
+phone paste/touch/frontend owners; run both integrated terminal touch-paste and touch-paste-image specs and frontend
+touch-paste-image, plus actual consumers of changed paste controls. Do not move clipboard bytes into MakeMe or turn a
+frontend attachment substitute into a native-attach assertion.
 
-### 5. Express Terminal voice input and recovery
+Command: `npm run test:dashboard -- tests/terminals/agent-terminal-touch-paste.spec.ts tests/terminals/agent-terminal-touch-paste-image.spec.ts frontend-tests/agent-terminal-touch-paste-image.spec.ts --workers=1`, plus traced consumers.
+
+### 5. Follow voice input without hiding its lifecycle
 Type: Behavior
 Status: planned
-Proof: Extend the existing Terminal voice owner with common control/draft
-observations; retain recording, cancellation, provider answers and expected
-transcript or command as case facts. Illustrative:
-`npm run test:dashboard -- 'tests/terminals/.*voice'`.
+Proof: Story example 5 and final example 6; provider calls/releases, track stop,
+retained transcript, session isolation and exact native submitted line.
 
-Behavior: A developer reads a Terminal voice case → follows named recording and
-editing operations around explicit provider events → the source states the
-resulting input or recovery, and original voice/draft/native checks pass.
+Behavior: A developer follows recording, provider answer and a later user choice → reads focused voice/input operations
+between explicit events → the case still proves safe insertion/retry, cancellation and no transcript entering a
+different or reopened session. Extend the existing voice owner and run all three `session-terminal-voice*.spec.ts` files
+and changed prompt/input consumers. Finish the inventory dispositions and evaluate the aggregate shared-owner gain
+against helper cost; retain every distinct behavior check and required gate.
 
-## Refinement and verification still required
+Command: `npm run test:dashboard -- 'tests/terminals/session-terminal-voice.*\.spec\.ts' --workers=1`, plus traced consumers.
 
-Resume with `dough-story-refinement`, realign this same plan, then perform
-slice-plan refinement and record the assessment. This provisional plan grants
-neither readiness nor execution.
+## Verification, delivery and remaining concerns
 
-Refinement must reconcile all audited and current sibling callers, inspect
-shared-control compatibility across frontend/integrated tiers, and confirm
-which focused commands consume each changed helper. Run changed specs plus
-transitive consumers and `npm run typecheck:dashboard` for shared TypeScript
-changes. A full local suite needs an actual shared fixture/consumer reason or
-another project requirement; CI configuration alone does not impose it.
+Local gates: run changed specs and transitive behavioral consumers after edits; run `npm run typecheck:dashboard` for
+shared TypeScript changes (also a commit hook), with post-change refactoring before each slice commit. Use the installed
+Execute Plan delivery/retrospective/wrap-up procedures only once execution is authorized. A full local dashboard suite
+is warranted if a changed ubiquitous fixture makes its consumer boundary the full suite; hosted CI configuration alone
+does not impose every CI check as a local gate.
 
-Use shared MakeMe for domain data while keeping driving facts, exact inputs and
-independent expectations at the call site. Preserve tiers, causal waits,
-controlled clocks, held responses, HTTP/Git/record and native/PTY evidence.
-Follow the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-as written in every delegation and repair handoff. Keep default timeouts;
-no wall-clock sleeps or `test.slow()`.
-For long macOS runs start fully awake: on AC use `caffeinate -s -i`; on battery
-plug in or keep the lid open under `caffeinate -i` and inspect sleep logs under
-[machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+Carry the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests) as written, by this link, into
+every delegation and repair handoff. A failure on base is attribution, not exemption; preserve another active owner's
+exact repair and report that coordination boundary. Use MakeMe for domain data; exact input, malformed wire contracts
+and independent expectations stay outside builders. No sleeps, `test.slow()` or widened suite/hook timeouts.
+
+Long-run macOS local gate: start fully awake; on AC use `caffeinate -s -i`. On battery plug in, or keep the lid open
+under `caffeinate -i` and inspect the sleep log afterwards, per [machine sleep on
+macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos). Record resources/concurrency before expensive
+runs and reconsider on contention. The shared test-entry selector currently resolves both flags false for the inspected
+sources; this story and AGENTS.md still own its page-object outcome and MakeMe requirement. Recheck entry selection for
+newly implicated sources.
+
+Slice-plan refinement was not needed: each slice has one protocol-reading outcome/proof loop, and all use the observed
+shared component seam. There is no project numeric slice limit to invent. The broad slice-1 caller sweep is bounded by a
+single screen/identity contract, with explicit transitive-consumer proof; if actual execution reveals independent
+outcomes or an unbounded proof loop, realign this plan under the normal sizing rule before continuing. No remaining
+slice-specific blocking concern or human decision was identified. Final caller migration and improvement evidence are
+slice obligations, not completed work.
+
+## Learnings
+
+Preparation settled the shared seam across fixture tiers and demonstrated that independent sent-byte evidence detects a
+lost prompt insertion. All scratch source/test changes were reverted before recording preparation or committing.
