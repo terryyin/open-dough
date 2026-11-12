@@ -32,13 +32,13 @@ intent introduced or affected by a newly developed story.
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects ([plan](slice-plans/582-review-test-intent/PLAN.md))
 - [Mark Recently done stories as reviewed](seeds/SEED-328-review-recently-done-stories.md#mark-recently-done-stories-as-reviewed) — SEED-328#mark-recently-done-stories-as-reviewed ([plan](slice-plans/602-mark-recently-done-stories-as-reviewed/PLAN.md))
 - [Express Terminal test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects) — SEED-300#express-terminal-test-intent-through-page-objects ([plan](slice-plans/583-terminal-test-intent/PLAN.md))
+- [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
 
 ## Backlog list
 
 - [Use shared MakeMe and page-object guidance](seeds/SEED-329-use-shared-test-guidance.md#use-shared-test-guidance) — SEED-329#use-shared-test-guidance
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects
-- [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects
 - [Express launch dialog and startup test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-launch-test-intent-through-page-objects) — SEED-300#express-launch-test-intent-through-page-objects
 - [Express settings test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-settings-test-intent-through-page-objects) — SEED-300#express-settings-test-intent-through-page-objects
 - [Express browser measurement test intent through shared setup](seeds/SEED-300-dashboard-test-page-objects.md#express-browser-measurement-test-intent) — SEED-300#express-browser-measurement-test-intent
