@@ -3,6 +3,8 @@
 **Identity:** SEED-300#express-review-test-intent-through-page-objects
 **Source:** [Story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects)
 
+**Source review:** [Source-only commitments](source-review.md)
+
 ## Goal, scope and evaluation
 
 A developer follows review entry, comparison, file/diff reading, freshness and
@@ -101,7 +103,7 @@ owned browser checks and left unrelated processes alone. No sleep/wake event
 was found in the failed run's window. Reassess current load, memory and competing
 work before broad execution proof; these samples establish no universal threshold.
 
-## Outside-in proof ownership and ordered slices
+## Ordered slices
 
 All slices include their implementation, focused proof and cleanup. The first
 Structure enables the immediately following Behavior and restores required proof;
@@ -110,7 +112,7 @@ slice leaves working tests and useful intent even if later work stops.
 
 ### 1. Restore complete review handoff proof within the default case budget
 Type: Structure
-Status: planned
+Status: done
 Proof: Retain every assertion in both `side-panel-content-replacement` cases;
 repeat them twice under the default timeout, then typecheck and run affected
 Claude/native fixture consumers found by the consumer trace. P2 is the bounded
@@ -188,13 +190,31 @@ silently; use existing Terminal primitives only where this panel journey needs t
 Starting gate: `caffeinate -s -i npm run test:dashboard -- 'tests/navigation/side-panel-width' tests/navigation/side-panel-content-replacement.spec.ts tests/navigation/side-panel-content-switching.spec.ts tests/sessions/final-report-touch-divider.spec.ts tests/terminals/agent-terminal-maximize.spec.ts tests/intent/intent-story-review-return.spec.ts --workers=1`.
 Trace shared layout/close effects through narrow/touch/frontend consumers too.
 
+Execution proof and accepted boundaries: [slice evidence](slice-evidence.md).
+
+## Execution context
+
+Story Branch Mode resumes the established Take `750e9e4f2` in the owned checkout
+`/Users/terryyin/git/open-dough/.worktrees/express-review-and-side-panel-test-intent-throug`
+on `codex/express-review-and-side-panel-test-intent-throug`; starting revision
+`70021438b`, publisher `dashboard-territory.local-open-dough`, agent DavidKo-chan.
+Authorized remote/trunk: `origin/main`; increments publish to the story branch.
+`npm ci` and `npm run typecheck:dashboard` passed against the current lockfile.
+No new numeric slice limit or replanning override was supplied; preserve planned authority.
+CI: GitHub Actions `ci.yml` (CI), repository `terryyin/open-dough`, story branch.
+Observer: coordinator `seed300-review`, directory `/tmp/dough-ci-501/watch-7aTPQn`,
+pid72745, stream5814, yielded cell `g63:9`; claim trunk CI is unobserved.
+On 2026-11-12 the machine was awake, lid open, battery84%, load4.28/6.71/10.80.
+Use one worker under `caffeinate -i`, inspect sleep logs after long runs, and
+reconsider power/load before expensive proof. No other owned heavy proof is running.
+
 ## Verification, current decisions and concern review
 
 Source example1 → slice2; example2 → slice3; example3 → slice4 (with its shared
 race gate after slice5); example4 → slice5. Example5 and shared acceptance are
 owned per finding by slices2–5: each records its caller disposition, assertion
 preservation and before/after benefit/cost before delivery. Slice1 restores the
-whole handoff proof used by those mappings. All slices remain planned.
+whole handoff proof used by those mappings. Slice statuses below are authoritative.
 
 Use MakeMe for domain data, stating driving facts at the call site. Keep exact
 inputs/actions and independent expectations outside the builder. No sleeps,

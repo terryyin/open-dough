@@ -4,14 +4,14 @@
 // keeps it. Real worktrees and kept records supply the inputs; the panel
 // divider shares terminal/review resizing behavior.
 
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { keyStep } from "../sidePanelWidthPage.ts";
 import { sidePanelPages } from "../sidePanelPages.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import type { FakeCodex } from "../support/fakeCodexTypes.ts";
 import { holdReviewOf } from "../support/holdReviewResponse.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { queuedCodexPreviewTest as test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
