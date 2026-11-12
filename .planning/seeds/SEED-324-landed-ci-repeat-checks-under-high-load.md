@@ -152,9 +152,11 @@ Scope limits:
 
 1. **The profile passes with margin.** Other work holds the one-minute load
    at 30–50 → the four named specs run on two workers three times in a row →
-   every case passes each time; no case takes more than 15 s, or 25 s when it
-   runs first in its worker. A run whose load before or after lies outside
-   the profile is recorded and not counted.
+   every case passes each time; no case takes more than 25 s. A run whose
+   load before or after lies outside the profile is recorded and not counted.
+   Amended by Terry on 2026-11-12, after the probe showed 15 s out of reach:
+   the figure was 15 s, or 25 s for a case first in its worker, and the named
+   specs include the project scope timing refresh spec.
 2. **One journey.** The four specs → count the cases that ingest a receipt →
    one, where the base has five.
 3. **A provider reply without a journey.** A machine keeps five measured
@@ -182,12 +184,15 @@ Scope limits:
    an expectation that names the promise.
 7. **Kept state the product would refuse.** A saved request that breaks the
    product's schema → its case runs → the case fails.
-8. **Much faster.** The base and the candidate run the named specs on one
-   worker back to back under the same load, three passing observations each
-   → the candidate's median wall time is at most two-thirds of the base's.
-   Since the 2026-11-12 amendment the base is trunk as merged into the story
-   branch, which holds SEED-287's faster journeys, and the named specs
-   include the project scope timing refresh spec.
+8. **Much less work, at no cost in time.** The base and the candidate run
+   the named specs on one worker back to back under the same load, three
+   passing observations each → the candidate's median wall time is no more
+   than 10% above the base's, and over one passing run the candidate makes
+   fewer provider calls than the base. The base is trunk as merged into the
+   story branch, which holds SEED-287's faster journeys, and the named specs
+   include the project scope timing refresh spec. Amended by Terry on
+   2026-11-12, after the probe showed two-thirds out of reach against that
+   base: the figure was a median at most two-thirds of the base's.
 9. **Hosted CI.** The same spec paths pass in hosted CI on the published
    revision, with no added timeout, sleep, retry, skip or runner mode.
 

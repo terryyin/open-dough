@@ -4,6 +4,7 @@ Launch: a fresh general-purpose reviewer without conversation inheritance, 2026-
 Input: one file holding the story's Goal, Scope (with required restrictions and scope limits) and Key examples from
 [the seed](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load), verbatim after the amendment, plus the four spec paths that "the checks named above" names. No plan, product, proof or slice scope.
 Instruction: read only that file, change nothing; return numbered individual commitments.
+Key examples 1 and 8 were amended again by Terry on 2026-11-12 (after slice 6); a second fresh reviewer read the amended text and returned their rows E1.1–E1.8 and E8.1–E8.7, which replace the earlier ones. The sentences reporting the former figures are history, not commitments.
 
 Explicit exclusions returned: no product behavior changes; no timeout override, `test.slow()`, sleep, retry, skip or runner mode; SEED-287 landed and trunk holds its work; SEED-319 owns the reconciliation, follow-up reading and receipt boundary observations; the cost of one fake `gh` call stays; the node suite's follow-up tests stay; runs outside the profile are recorded and not counted.
 
@@ -67,10 +68,14 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 | L5 | This story lowers the number of calls a case waits for. | slice 10 |  |
 | L6 | The repository node suite's follow-up policy, reading and ledger tests stay as they are | slice 3 | observed: PLAN.md coverage row C5: the node ledger test is credited for the second dashboard only, after F12 failed it; the file is unchanged |
 | L7 | and are credited only where the coverage map names the promise they already own | slice 3 | observed: PLAN.md coverage row C5: the node ledger test is credited for the second dashboard only, after F12 failed it; the file is unchanged |
-| E1.1 | Other work holds the one-minute load at 30–50 → the four named specs run on two workers three times in a row → every case passes each time | slice 10 |  |
-| E1.2 | no case takes more than 15 s | slice 10 |  |
-| E1.3 | or 25 s when it runs first in its worker | slice 10 |  |
-| E1.4 | A run whose load before or after lies outside the profile is recorded and not counted. | slice 10 |  |
+| E1.1 | Amended 2026-11-12: Other work holds the one-minute load at 30–50 | slice 10 | |
+| E1.2 | Amended 2026-11-12: the four named specs run on two workers | slice 10 | |
+| E1.3 | Amended 2026-11-12: three times in a row | slice 10 | |
+| E1.4 | Amended 2026-11-12: every case passes each time | slice 10 | |
+| E1.5 | Amended 2026-11-12: no case takes more than 25 s | slice 10 | |
+| E1.6 | Amended 2026-11-12: A run whose load before or after lies outside the profile is recorded | slice 10 | |
+| E1.7 | Amended 2026-11-12: A run whose load before or after lies outside the profile is not counted | slice 10 | |
+| E1.8 | Amended 2026-11-12: the named specs include the project scope timing refresh spec | slice 10 | |
 | E2.1 | The four specs → count the cases that ingest a receipt → one, where the base has five. | slice 10 |  |
 | E3.1 | 403 → a production dashboard starts there → the provider receives exactly one rerun request for run 71 | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | E3.2 | and the card reads refused beside the 120 s original and the 100 s average | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
@@ -84,8 +89,12 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 | E5.2 | and the provider receives no CI request from first render, reload or revisit | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): "no CI request from first render"; F21 fails it |
 | E6.1 | One deliberate product fault per promise in the coverage map → the named check runs → it fails at an expectation that names the promise. | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
 | E7.1 | A saved request that breaks the product's schema → its case runs → the case fails. | slice 2 | observed: PLAN.md Slice 2 record: a kept entry with eligible "yes", and a held request with workflowId "7", fail their cases at "saved reply" |
-| E8.1 | The base and the candidate run the named specs on one worker back to back under the same load, three passing observations each → the candidate's median wall time is at most two-thirds of the base's. | slice 10 |  |
-| E8.2 | Amended 2026-11-12: Since the 2026-11-12 amendment the base is trunk as merged into the story branch, which holds SEED-287's faster journeys | slice 10 |  |
-| E8.3 | Amended 2026-11-12: and the named specs include the project scope timing refresh spec | slice 10 |  |
+| E8.1 | Amended 2026-11-12: The base and the candidate run the named specs on one worker | slice 10 | |
+| E8.2 | Amended 2026-11-12: back to back under the same load | slice 10 | |
+| E8.3 | Amended 2026-11-12: three passing observations each | slice 10 | |
+| E8.4 | Amended 2026-11-12: the candidate's median wall time is no more than 10% above the base's | slice 10 | |
+| E8.5 | Amended 2026-11-12: over one passing run the candidate makes fewer provider calls than the base | slice 10 | |
+| E8.6 | Amended 2026-11-12: The base is trunk as merged into the story branch, which holds SEED-287's faster journeys | slice 10 | |
+| E8.7 | Amended 2026-11-12: the named specs include the project scope timing refresh spec | slice 10 | |
 | E9.1 | The same spec paths pass in hosted CI on the published revision | slice 10 |  |
 | E9.2 | with no added timeout, sleep, retry, skip or runner mode | slice 10 |  |

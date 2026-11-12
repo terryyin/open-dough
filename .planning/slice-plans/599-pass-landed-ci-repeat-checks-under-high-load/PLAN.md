@@ -1482,30 +1482,36 @@ global setup, which would fail the two on-demand artifact specs; slice 8's
 ### 7. A worker's first case starts from prepared origin and app build
 Type: Behavior
 Status: planned
-Proof: With slice 6's settled forms in place, three consecutive two-worker
-runs of the selection at load 30–50: the first case in each worker spends no
-more than a later case does in `origin`, and the first page case no more in
-`dashboard`, each within 3 s. Every spec that uses a changed fixture, named
-by the consumer trace, keeps its cases and assertions; the dashboard suite's
-families that use them give their previous results locally at two workers,
-and hosted CI passes on the published revision with no longer total. The
-consumer-trace record gives every located consumer a disposition.
+Proof: The named specs' first case in each worker spends no more in `origin`
+than a later case does, and the first page case no more in `dashboard`, each
+within 3 s, in two traced two-worker runs at load 30–50 or under burners;
+the preparation is the worker's, outside any case's time. The three specs of
+`start-origin-demand`, `dashboard-artifact-demand` and every other consumer
+the trace names keep their cases and assertions and pass; the named specs
+pass three consecutive times at two workers. The consumer-trace record gives
+every located consumer a disposition. Hosted CI passes on the published
+revision.
 
-Behavior: A two-worker run starts under load → its first backend case and
-its first page case start → neither waits for preparation another case
-would not pay.
+Behavior: A two-worker run of the named specs starts under load → each
+worker's first backend case and first page case start → neither waits in its
+own time for the queued origin, the server bundle or the app build.
 
-- Change the shared fixture at its owner (the `origin` fixture's first use,
-  the build's producer); no case-local workaround and no second fixture.
-- The whole dashboard suite consumes these fixtures: run the families the
-  trace names before publishing, once, under the sleep guard.
+- Owner: the worker fixtures SEED-287 added in `dashboard/tests/pageTest.ts`
+  (`queuedClaudePreviewReady` and its siblings; 19 spec files opt in). The
+  named specs opt in; `landedCiHistoryTest.ts`'s backend cases get the
+  boundary variant (origin and server bundle, no app build) from the same
+  owner. No awaited global setup: slice 6 found it fails the two on-demand
+  artifact specs and builds the app for backend-only selections.
+- A file already over 250 lines is not edited without its reorganization
+  settled first; return it.
 
 ### 8. Kept landings start from a kept published story
 Type: Behavior
 Status: planned
 Proof: The seven repeat specs pass three consecutive times at two workers.
-A kept-landing case reaches its first observation in at most half the time
-slice 6 recorded for it at the same load. The journey still publishes and
+A kept-landing case reaches its first wait at least a third sooner than
+slice 6 recorded for it (3.7 s at one worker, load 39–50), position and load
+matched in a paired traced run. The journey still publishes and
 completes its story for real. Faults F2, F8, F9, F15, F18, F3, F16, F17,
 F19 and F20–F24 each still fail their owner, rerun for every case whose
 arrangement path changed.
@@ -1515,7 +1521,12 @@ completion → a case starts → the published story it reads was published once
 and kept, and the case pays for its own landing and server only.
 
 - The kept story has one owner beside `completedPublishedStory`, used by
-  `keepRepeatLanding`; no second arrangement of a landing.
+  `keepRepeatLanding`; no second arrangement of a landing. Slice 6's working
+  form: a declared completed history (`queuedReadyRepository`, the take, the
+  implementation and the completion with `makeMe.aDoneRecord`) prepared once
+  per worker and copied per case by the `origin` fixture. A copied finished
+  checkout breaks on its remote and retained worktree, and `completedAt`
+  ages, so nothing is kept between runs.
 - What only a real completion shows stays with the journey and with
   `completedPublishedStory`'s own checks.
 
@@ -1550,13 +1561,12 @@ Status: planned
 Proof: Three consecutive counted two-worker runs of the selection (the seven
 repeat specs and the refresh spec with any file it divided into) at a
 one-minute load of 30–50 pass, at least one under natural load when the
-machine offers it; from their proof records and traces no case exceeds 15 s,
-or 25 s when first in its worker. One case calls `scenario.ingest` across the
+machine offers it; from their proof records no case exceeds 25 s. One case calls `scenario.ingest` across the
 repeat specs, against five on the base. Paired one-worker runs of the base
 (`8aa440077`, its four repeat specs and the refresh spec) and the candidate,
-three passing observations each: the candidate's median wall time is at most
-two-thirds of the base's. Supporting count: fake `gh` calls summed over one
-passing one-worker run on each side. The diff adds no `test.setTimeout`,
+three passing observations each: the candidate's median wall time is no more
+than 10% above the base's, and fake `gh` calls summed over one passing
+one-worker run are fewer on the candidate than on the base. The diff adds no `test.setTimeout`,
 expectation timeout, `test.slow`, sleep, retry, skip or runner mode, and no
 shard weight names the specs. Hosted CI passes on the published revision.
 
@@ -1578,7 +1588,7 @@ and the saving are observed with every preparation and teardown paid.
 
 ### G1. Page cases first in their worker reach the bound at load 27–49
 Reported: slice 4 — "With both cases first in their workers at load 27 → 49 the warning case took 28.2–29.7 s and failed once at the 30 s bound; Before Hooks took 25.8 s."
-Story clause: "every case passes each time; no case takes more than 15 s, or 25 s when it runs first in its worker"
+Story clause: "every case passes each time; no case takes more than 25 s"
 Disposition: receiving slice 10
 
 ## Current decisions
@@ -1590,6 +1600,12 @@ Disposition: receiving slice 10
   `intent-project-scope-timing-refresh.spec.ts` joins the named specs. The
   seed carries the amendment; slices 6–10 replace the former slice 6. No
   measured run starts on battery.
+- **Amended by Terry on 2026-11-12, after slice 6's projection.** Key example
+  1 is every case passing three consecutive two-worker runs at load 30–50
+  with none over 25 s; key example 8 is a one-worker median no more than 10%
+  above merged trunk with fewer provider calls. Slices 7–10 carry these
+  figures; the earlier 15 s and two-thirds figures in this plan's records
+  are history.
 
 - One model, a kept landing at a stage, serves every non-journey case. No
   per-case fixture.
