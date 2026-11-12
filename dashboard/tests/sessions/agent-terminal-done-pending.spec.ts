@@ -11,6 +11,7 @@ import { markDoneUnresolved } from "../../src/pageSessions.ts";
 import { markDoneWaitMs } from "../../src/sessionRecordRequests.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   readyStory,
@@ -50,12 +51,12 @@ test.describe("pending Mark as done from the terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
     await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
     const release = await holdDoneRequests(page);
@@ -87,12 +88,12 @@ test.describe("pending Mark as done from the terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
     await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
     const { release, held } = await holdDoneRequestRoute(page);
@@ -141,13 +142,13 @@ test.describe("pending Mark as done from the terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
     await storyCardSessions(card(readyStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await page.route(`**${agentDoneEndpoint}`, (route) =>
       route.abort("failed"),
     );

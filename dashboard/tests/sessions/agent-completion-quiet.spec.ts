@@ -40,6 +40,10 @@ for (const closure of [
     origin,
     codexProtocol: native,
   }) => {
+    // Story Branch Wrap Up runs real retirement, a write-fault retry, and a
+    // duplicate report under the same default timeout as Land; CI workers and
+    // parallel local load push that path over 30s before the final report open.
+    if (closure === "Story Branch Wrap Up") test.setTimeout(60_000);
     if (native === undefined) throw new Error("Missing native fixture");
     const nativeSession = native;
     // The native calls of `methods` made since call `from`.
@@ -214,12 +218,18 @@ for (const closure of [
         // Quiet completion has no explicit text; the native final report remains independently readable.
         keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
-        await recent.getByRole("button", { name: "Read final report" }).click();
-        await expect(
-          page
-            .getByRole("region", { name: "Final report" })
-            .locator(".final-report-text"),
-        ).toHaveText("Done.");
+        const openReport = recent.getByRole("button", {
+          name: "Read final report",
+        });
+        const reportText = page
+          .getByRole("region", { name: "Final report" })
+          .locator(".final-report-text");
+        // Wait for the panel's report text as the open's observable; retry the
+        // control when a concurrent Board refresh drops a single click.
+        await expect(async () => {
+          if ((await reportText.count()) === 0) await openReport.click();
+          await expect(reportText).toHaveText("Done.");
+        }).toPass();
         expect(
           native.calls
             .slice(beforeRead)

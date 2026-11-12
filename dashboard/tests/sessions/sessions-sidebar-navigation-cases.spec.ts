@@ -3,6 +3,7 @@
 // reveals at once, and stale picks never scroll. Only synthetic Claude runs.
 
 import { expect, test } from "../dashboardTest.ts";
+import { closeTerminal, terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectMembership,
@@ -34,7 +35,6 @@ import {
   revealsOf,
 } from "../sessionNavigationJourney.ts";
 import { pygardonStory } from "../pygardonProject.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut", "pygardon"] });
@@ -59,7 +59,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     );
     const { sidebar, button, entry } = sessionsSidebarParts(page);
     const { taken, backlog } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await button.click();
 
     await test.step("the story on no card opens its session and reveals and marks its Taken entry", async () => {
@@ -136,7 +136,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     await show(columnsJourney.completed);
     const { button, entry } = sessionsSidebarParts(page);
     const { recentlyDone, board } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const sessionName = standaloneSessionName("Refinement", notRefinedStory);
     const local = parts(page).taken.getByRole("article", { name: sessionName });
     await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
@@ -178,7 +178,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       columnsJourney,
     );
     const { sidebar, button, entry } = sessionsSidebarParts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await page.emulateMedia({ reducedMotion: "reduce" });
     // Narrow covering: Close restores the full Board before Board assertions.
     await page.setViewportSize({ width: 700, height: 900 });
@@ -197,7 +197,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     await expectRevealsSince(page, 0, pygardonStory.title, "auto");
     // Covering hides the Board; Close, then the restored full Board shows the
     // card (wholly — it fits once the half-height stack is gone).
-    await closeSidePanel(panel);
+    await closeTerminal(panel);
     await expect(button).toHaveAttribute("aria-expanded", "false");
     await expect(button).toBeFocused();
     await expectWhollyInView(page, pygardonStory.title);
@@ -216,7 +216,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     );
     const { sidebar, button, entry } = sessionsSidebarParts(page);
     const { backlog } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const showProject = (name: string) => chooseProject(page, name);
     await button.click();
 

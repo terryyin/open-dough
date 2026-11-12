@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "darren-chan",
+  "email": "darren-chan@example.org",
+  "identity": "SEED-330#make-ci-follow-up-automatic",
+  "mode": "story-branch",
+  "branch": "claude/run-dashboard-ci-follow-up-by-default-for-github",
+  "host": "claude",
+  "model": "opus"
+}

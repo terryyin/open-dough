@@ -13,6 +13,7 @@ import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { watchPageErrors } from "../pageErrors.ts";
 import { pressWhereShown } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   control,
   dragDivider,
@@ -37,8 +38,8 @@ async function openTerminal(page: Page) {
   await storyCardSessions(storyA(page))
     .getByRole("button", { name: "Open terminal" })
     .click();
-  const terminal = page.getByRole("region", { name: "Terminal" });
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  const terminal = terminalPanel(page);
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   return terminal;
 }
 
@@ -179,7 +180,7 @@ test("an unusable kept width starts at half the room, leaving the other preferen
       await expectHalfTheRoom(page, await openTerminal(page));
     });
   }
-  const terminal = page.getByRole("region", { name: "Terminal" });
+  const terminal = terminalPanel(page);
   const start = await split(page, terminal);
   await panelDivider(page).focus();
   await page.keyboard.press("ArrowLeft");

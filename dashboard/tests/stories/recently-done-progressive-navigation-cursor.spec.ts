@@ -14,6 +14,7 @@
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { launch } from "../agentLaunchBoundary.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
@@ -160,7 +161,7 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     await test.step("with the row hidden, closing its terminal returns the keyboard to the entry", async () => {
       await button.click();
       await expect(row).toHaveCount(0);
-      const terminal = page.getByRole("region", { name: "Terminal" });
+      const terminal = terminalPanel(page);
       await terminal.getByRole("button", { name: "Close" }).click();
       await expect(terminal).toHaveCount(0);
       await expect(entry).toBeFocused();

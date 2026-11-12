@@ -1,7 +1,10 @@
 # Dashboard review marks
 
 Review marks extend the [story review](AGENT-LAUNCH-REVIEW.md), using the
-comparison and panes that review already shows.
+comparison and panes that review already shows. A review mark records one
+workspace snapshot for later comparison; it is not a done story card's
+**Mark as reviewed** review state ([Story cards](STORY-CARDS.md)), and neither
+sets, clears or reads the other.
 
 **Mark reviewed** marks the snapshot the review shows: its tree and the
 baseline it was compared with, never a newer state of the workspace, so what

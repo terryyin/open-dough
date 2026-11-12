@@ -2,16 +2,19 @@
 // (./stories/recently-done-progressive-loading.spec.ts) open the page over a
 // published list (./recentlyDoneProgressive.ts) and observe it: which done
 // records' reads reached the fake GitHub, the reveal action, and where the
-// shown entries stand, and the open terminal. Nothing here decides what the page shows or reads.
+// shown entries stand and when the Board's scrolling rests, and the open
+// terminal. Nothing here decides what the page shows or reads.
 
 import type { Locator, Page } from "@playwright/test";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
+import { boardScroll, scrollYOf } from "./boardPage.ts";
 import { githubFor } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
 import { shownEntries } from "./recentlyDoneColumn.ts";
 import { queuedTitle } from "./recentlyDoneRecords.ts";
 import { publishes, type FakeGitHub } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
+import { terminalPanel } from "./terminalScreenPage.ts";
 import {
   doneDirectory,
   keepProgressiveSessions,
@@ -88,8 +91,7 @@ export async function opened(
 }
 
 // The side panel's open terminal.
-export const terminalOf = (page: Page) =>
-  page.getByRole("region", { name: "Terminal" });
+export const terminalOf = (page: Page) => terminalPanel(page);
 
 export const revealAction = (recent: Locator) =>
   recent.getByRole("button", { name: /older entr(y|ies)$|^Reading done/ });
@@ -103,9 +105,7 @@ export const standing = async (page: Page, recent: Locator, count: number) => {
   }
   return {
     tops,
-    scrolled: await page
-      .locator(".board-scroll")
-      .evaluate((region) => region.scrollTop),
+    scrolled: await scrollYOf(page),
   };
 };
 
@@ -117,3 +117,36 @@ export const settle = (page: Page) =>
         requestAnimationFrame(() => setTimeout(resolve, 500));
       }),
   );
+
+// Watches the Board's scrolling from before a movement: the returned wait
+// ends once a scroll the movement started has ended (`scrollend`), such as
+// Show latest 10's smooth move to the heading, or two frames after it is
+// asked when nothing scrolled. A place read sooner can be a move short.
+export async function watchBoardScroll(page: Page) {
+  const watch = await boardScroll(page).evaluateHandle((region) => {
+    let moved = false;
+    region.addEventListener(
+      "scroll",
+      () => {
+        moved = true;
+      },
+      { once: true },
+    );
+    const ended = new Promise<void>((resolve) => {
+      region.addEventListener(
+        "scrollend",
+        () => {
+          resolve();
+        },
+        { once: true },
+      );
+    });
+    return { moved: () => moved, ended };
+  });
+  return () =>
+    watch.evaluate(async ({ moved, ended }) => {
+      for (let frame = 0; frame < 2; frame += 1)
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      if (moved()) await ended;
+    });
+}

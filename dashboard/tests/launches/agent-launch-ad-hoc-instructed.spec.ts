@@ -11,6 +11,7 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, sessionNamedBy, sessionStateOf } from "../dashboardPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
@@ -59,7 +60,7 @@ test("an instructed Start session leaves the open final report in the Side panel
     .getByRole("button", { name: "Read final report" })
     .click();
   const finalReport = page.getByRole("region", { name: "Final report" });
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expect(finalReport).toContainText(report);
   const terminalSockets = watchTerminalSockets(page);
 
@@ -84,7 +85,7 @@ test("an instructed Start session leaves the open final report in the Side panel
 
   const sessionId = await sessionNamedBy(entry);
   await openEntryTerminal(entry);
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  await expect(terminalScreenParts(panel).rows).toContainText(
     `attached ${sessionId.slice(0, 8)}`,
   );
   await expect(finalReport).toHaveCount(0);

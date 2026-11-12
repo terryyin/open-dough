@@ -8,6 +8,7 @@ import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";
 import { askGapMs } from "../../src/cursorRunnerSessions.ts";
 import { passPageMsAnswered, pausePageClock } from "../autoRefreshJourney.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   heldSessionsAnswer,
   holdSession,
@@ -36,7 +37,7 @@ quiet(
       await pausePageClock(page);
       await showPageWithTaken(page, origin);
       const demand = trackCursorSessionsDemand(page);
-      const shownTerminal = page.getByRole("region", { name: "Terminal" });
+      const shownTerminal = terminalPanel(page);
       const { sidebar, region, header } = await openRunningList(page);
       const row = region.getByRole("button", { name: /Open Dough/ });
       await expect(region).toContainText("The Cursor runner is running.");

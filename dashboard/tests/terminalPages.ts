@@ -9,15 +9,15 @@
 import { PageObject } from "./fluentPageObject.ts";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect } from "./support/preparationPage.ts";
+import {
+  expectTerminalText,
+  terminalPanel,
+  typeLine as typeTerminalLine,
+} from "./terminalScreenPage.ts";
 
 export class Terminal extends PageObject {
   get #terminal() {
-    return this.page.getByRole("region", { name: "Terminal", exact: true });
-  }
-
-  // What the session's screen shows.
-  get #rows() {
-    return this.#terminal.locator(".xterm-rows");
+    return terminalPanel(this.page);
   }
 
   expectShown() {
@@ -29,16 +29,15 @@ export class Terminal extends PageObject {
   // The session's screen shows this text.
   expectText(text: string) {
     return this.cueHere(`Terminal: shows "${text}"`, () =>
-      expect(this.#rows).toContainText(text),
+      expectTerminalText(this.#terminal, text),
     );
   }
 
   // Types a line on the keyboard the Terminal holds, then Enter.
   typeLine(line: string) {
-    return this.cueHere(`Terminal: type "${line}" and Enter`, async () => {
-      await this.page.keyboard.type(line);
-      await this.page.keyboard.press("Enter");
-    });
+    return this.cueHere(`Terminal: type "${line}" and Enter`, () =>
+      typeTerminalLine(this.page, line),
+    );
   }
 }
 

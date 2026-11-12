@@ -14,6 +14,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   parts,
   sessionStateOf,
@@ -184,9 +185,7 @@ test("a Done session that still opens its terminal offers no Follow up until its
 
   await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
   // The context is not typed text: the terminal opens with the keyboard.
-  await expect(
-    sidePanelContents(page).locator(".xterm-helper-textarea"),
-  ).toBeFocused({
+  await expect(terminalScreenParts(terminalPanel(page)).input).toBeFocused({
     timeout: launchWaitMs,
   });
   await expect(sidePanelContents(page)).toHaveAccessibleName("Terminal");

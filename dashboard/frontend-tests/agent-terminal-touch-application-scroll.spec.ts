@@ -16,6 +16,10 @@ import {
   selfScrollingApplication,
   wheelReport,
 } from "../tests/support/terminalSubstituteApplication.ts";
+import {
+  expectNoTerminalText,
+  expectTerminalText,
+} from "../tests/terminalScreenPage.ts";
 import { focusByTouch, scrollByTouch } from "../tests/touchTerminalPage.ts";
 import { phoneLaunchTouchViewport } from "../tests/touchLaunchPage.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
@@ -46,11 +50,12 @@ test("a swipe scrolls an application that scrolls its own output, at the touched
         .please(),
       { application: selfScrollingApplication({ lines, shown }) },
     );
-  await expect(rows).toContainText(conversationLine(lines));
-  await expect(rows).toContainText(conversationLine(latest));
-  await expect(rows).not.toContainText(conversationLine(latest - 1));
+  await expectTerminalText(panel, conversationLine(lines));
+  await expectTerminalText(panel, conversationLine(latest));
+  await expectNoTerminalText(panel, conversationLine(latest - 1));
   const draftRow = rows.locator("> div").nth(shown);
   await focusByTouch(panel);
+  // Draft stays in the application composer; swipe must not submit it.
   await input.pressSequentially("draft");
   await expect(draftRow).toHaveText("> draft");
 
@@ -117,13 +122,13 @@ test("a swipe scrolls an application that scrolls its own output, at the touched
   };
 
   await scrollByTouch(page, screen, travel);
-  await expect(rows).toContainText(conversationLine(latest - steps));
-  await expect(rows).not.toContainText(conversationLine(lines));
+  await expectTerminalText(panel, conversationLine(latest - steps));
+  await expectNoTerminalText(panel, conversationLine(lines));
   await expectWheelAtTouch(0, "64");
 
   await scrollByTouch(page, screen, -travel);
-  await expect(rows).toContainText(conversationLine(lines));
-  await expect(rows).not.toContainText(conversationLine(latest - 1));
+  await expectTerminalText(panel, conversationLine(lines));
+  await expectNoTerminalText(panel, conversationLine(latest - 1));
   await expectWheelAtTouch(1, "65");
 
   await expect(draftRow).toHaveText("> draft");
@@ -139,7 +144,7 @@ test("a swipe sends nothing to an application that took over the screen without 
 }) => {
   // The alternate screen with pointer tracking of button presses only: a
   // wheel given to xterm here would reach the session as arrow keys.
-  const { rows, screen, input, sent } = await openFrontendTerminalByTouch(
+  const { panel, screen, input, sent } = await openFrontendTerminalByTouch(
     page,
     frontendServices,
     launch()
@@ -152,7 +157,7 @@ test("a swipe sends nothing to an application that took over the screen without 
       },
     },
   );
-  await expect(rows).toContainText("full screen application");
+  await expectTerminalText(panel, "full screen application");
   await scrollByTouch(page, screen, 100);
   await scrollByTouch(page, screen, -100);
   await input.press("x");
@@ -171,7 +176,7 @@ for (const tracking of ["?1000h", "?1002h"] as const) {
     const shown = 10;
     const latest = lines - shown + 1;
     const steps = 5;
-    const { rows, screen, input, sent, sizes } =
+    const { panel, screen, input, sent, sizes } =
       await openFrontendTerminalByTouch(
         page,
         frontendServices,
@@ -188,8 +193,8 @@ for (const tracking of ["?1000h", "?1002h"] as const) {
           application: selfScrollingApplication({ lines, shown, tracking }),
         },
       );
-    await expect(rows).toContainText(conversationLine(lines));
-    await expect(rows).toContainText(conversationLine(latest));
+    await expectTerminalText(panel, conversationLine(lines));
+    await expectTerminalText(panel, conversationLine(latest));
     const travel = await travelOverRows(
       screen,
       reportedSize(sizes).rows,
@@ -202,8 +207,8 @@ for (const tracking of ["?1000h", "?1002h"] as const) {
       const [, button] = wheelReport.exec(report) ?? [];
       expect(button, `wheel report, not ${JSON.stringify(report)}`).toBe("64");
     }
-    await expect(rows).toContainText(conversationLine(latest - steps));
-    await expect(rows).not.toContainText(conversationLine(lines));
+    await expectTerminalText(panel, conversationLine(latest - steps));
+    await expectNoTerminalText(panel, conversationLine(lines));
     await input.press("!");
     expect(sent.slice(before + steps)).toEqual(["!"]);
   });

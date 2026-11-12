@@ -6,12 +6,15 @@ import {
   startDashboardServer,
   type DashboardServer,
   type DashboardServerMode,
+  type developmentBoundary,
 } from "./dashboardServer.ts";
 
 // Real dev, preview and boundary servers sharing one machine HOME, for System
 // settings journeys and their boundary specs. Only outbound provider egress is
 // replaced; configuration and files remain real. `temporaryPermissions`
 // records the mode of each temporary OpenAI credential file as it is written.
+// A server starts in its mode's project environment unless `start` is given
+// `developmentBoundary`.
 export function systemSettingsMachine() {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-system-settings-"));
   const egressFile = path.join(machine, "provider-egress");
@@ -56,9 +59,12 @@ globalThis.fetch = async (input, options) => {
         .filter(Boolean)
         .map(Number),
     egress: () => readFileSync(egressFile, "utf8"),
-    async start(mode: DashboardServerMode, port?: number) {
+    async start(
+      launch: DashboardServerMode | typeof developmentBoundary,
+      port?: number,
+    ) {
       const server = await startDashboardServer({
-        mode,
+        ...(typeof launch === "string" ? { mode: launch } : launch),
         machine,
         port,
         configureDevelopmentProjects: false,

@@ -1,5 +1,7 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
+
+import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import path from "node:path";
 import {
   startDashboardServer,
@@ -169,13 +171,11 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   // Both hosts share the opaque ID; the open Codex session is the Sessions sidebar Session entry.
   await sidebar.entries.first().getByRole("button").click();
   await expect(page.locator(".side-panel")).toHaveCount(1);
-  await expect(page.locator(".xterm-rows")).toContainText(
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText(
     "original retained history",
   );
-  await page
-    .getByRole("region", { name: "Terminal" })
-    .getByRole("button", { name: "Close", exact: true })
-    .click();
+  await panel.getByRole("button", { name: "Close", exact: true }).click();
   const before = dashboard.claudeCalls().length;
   expect(
     (

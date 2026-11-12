@@ -21,6 +21,7 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { agentDoneEndpoint } from "../../src/doneMark.ts";
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   storyCardSessionName,
   storyCardSessionOf,
@@ -76,7 +77,7 @@ test.describe("marking a session done from its terminal", () => {
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
@@ -92,11 +93,11 @@ test.describe("marking a session done from its terminal", () => {
       storyCardSessionName("Execution"),
     );
     await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expectSelected(card(readyStory), true);
     const [session] = dashboard.claudeListing();
     const doneName = `done-${String(session?.["name"])}`;
-    const rows = panel.locator(".xterm-rows");
+    const { rows } = terminalScreenParts(panel);
     for (const answer of ["Keep open", "Escape"] as const) {
       const question = await expectAsked(panel, stillWorking);
       await expect(rows).toBeVisible();
@@ -151,14 +152,14 @@ test.describe("marking a session done from its terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const status = panel.getByRole("status");
     await settled();
     await launch(readyStory, "Execution");
     await storyCardSessions(card(readyStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");
     renameSync(folder, `${folder}.moved`);
@@ -175,7 +176,7 @@ test.describe("marking a session done from its terminal", () => {
     expect(dashboard.claudeStopCalls()).toEqual([]);
 
     // The attached CLI ending on its own still shows as a problem.
-    await panel.locator(".xterm-helper-textarea").focus();
+    await terminalScreenParts(panel).input.focus();
     await page.keyboard.press("Control+z");
     const ended = status.getByText("The terminal ended");
     await expect(ended).toBeVisible();
@@ -191,14 +192,14 @@ test.describe("marking a session done from its terminal", () => {
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(readyStory, "Execution");
     await launch(notRefinedStory, "Refinement");
     await storyCardSessionOf(card(readyStory), "Execution")
       .getByRole("button", { name: "Open terminal" })
       .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const release = await holdDoneRequests(page);
     await sendDoneMarkAnyway(panel);
     await expect(panel.getByRole("status")).toHaveText("Marking as done…");
@@ -207,7 +208,7 @@ test.describe("marking a session done from its terminal", () => {
       .getByRole("button", { name: "Open terminal" })
       .click();
     await expect(panel).toContainText("Refinement session");
-    const typing = panel.locator(".xterm-helper-textarea");
+    const typing = terminalScreenParts(panel).input;
     await expect(typing).toBeFocused();
     const doneAnswered = page.waitForResponse((response) =>
       response.url().endsWith(agentDoneEndpoint),

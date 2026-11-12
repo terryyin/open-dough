@@ -19,6 +19,10 @@ import { box } from "../tests/pageLayout.ts";
 import { resizeUntilArranged } from "../tests/sidePanelWidthPage.ts";
 import { pausedHidden } from "../tests/terminalPausedScrollPage.ts";
 import {
+  expectNoTerminalText,
+  expectTerminalText,
+} from "../tests/terminalScreenPage.ts";
+import {
   expectLive,
   expectPaused,
   expectPausedOverScreen,
@@ -56,22 +60,22 @@ test("after an application scrolled itself, Select pauses that earlier screen, a
   const lines = 60;
   const shown = 10;
   const latest = lines - shown + 1;
-  const { panel, rows, screen, input, sent, sizes } =
+  const { panel, screen, input, sent, sizes } =
     await openFrontendTerminalByTouch(
       page,
       frontendServices,
       session("Phone select scrolled session"),
       { application: selfScrollingApplication({ lines, shown }) },
     );
-  await expect(rows).toContainText(conversationLine(lines));
+  await expectTerminalText(panel, conversationLine(lines));
   await focusByTouch(panel);
   // Five and a half rows of finger travel show a screen five lines earlier.
   const steps = 5;
   const travel = await travelOverRows(screen, reportedSize(sizes).rows, steps);
   await scrollByTouch(page, screen, travel);
   const earliest = latest - steps;
-  await expect(rows).toContainText(conversationLine(earliest));
-  await expect(rows).not.toContainText(conversationLine(lines));
+  await expectTerminalText(panel, conversationLine(earliest));
+  await expectNoTerminalText(panel, conversationLine(lines));
   const swiped = sent.length;
 
   await tapTerminalKey(panel, "Select");
@@ -102,8 +106,8 @@ test("after an application scrolled itself, Select pauses that earlier screen, a
   await scrollByTouch(page, pausedText(panel), travel);
   await tapTerminalKey(panel, "Select");
   await expectLive(panel);
-  await expect(rows).toContainText(conversationLine(earliest));
-  await expect(rows).not.toContainText(conversationLine(earliest - 1));
+  await expectTerminalText(panel, conversationLine(earliest));
+  await expectNoTerminalText(panel, conversationLine(earliest - 1));
   await input.press("!");
   await expect.poll(() => sent.slice(swiped)).toEqual(["!"]);
 });
@@ -112,12 +116,12 @@ test("the paused text keeps to the visible area above a soft keyboard, where a f
   page,
   frontendServices,
 }) => {
-  const { panel, rows, sent } = await openFrontendTerminalByTouch(
+  const { panel, sent } = await openFrontendTerminalByTouch(
     page,
     frontendServices,
     session("Phone select fit session"),
   );
-  await expect(rows).toContainText("Claude Code");
+  await expectTerminalText(panel, "Claude Code");
   await focusByTouch(panel);
   await tapTerminalKey(panel, "Select");
   await expectPaused(panel);
@@ -155,6 +159,6 @@ test("the paused text keeps to the visible area above a soft keyboard, where a f
 
   await tapTerminalKey(panel, "Select");
   await expectLive(panel);
-  await expect(rows).toContainText("Claude Code");
+  await expectTerminalText(panel, "Claude Code");
   expect(sent).toEqual([]);
 });

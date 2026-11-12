@@ -10,6 +10,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { markDone } from "../agentLaunchBoundary.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -49,7 +50,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     const entry = recent.getByRole("article", {
       name: standaloneSessionName("Execution", readyStory),
@@ -90,7 +91,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     // Opening its terminal again reopens it, without waiting for the next
     // read of the records.
     await entry.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(listed).toHaveCount(1);
     await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
@@ -107,7 +108,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     // Reload closed the attachment. With a terminal open again, this mark
     // types the rename into it rather than opening another.
     await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
     const opened = dashboard.claudeAttaches().length;
     // Attached, it runs again.
     idleBetweenSteps(dashboard, session);

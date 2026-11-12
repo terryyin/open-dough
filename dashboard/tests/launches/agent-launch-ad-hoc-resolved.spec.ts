@@ -7,6 +7,7 @@
 // is offered again.
 
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   sessionsAudienceParameter,
   sessionsHistoryAudience,
@@ -47,8 +48,8 @@ test("a launched ad hoc start leaves the overview and its page presents the sess
   await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Start" }).click();
 
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).input).toBeFocused();
   await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
   await expect(startSession(page, "Open Dough")).toBeEnabled();
 

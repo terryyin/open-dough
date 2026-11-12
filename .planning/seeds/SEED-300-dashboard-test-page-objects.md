@@ -44,8 +44,7 @@ new plans, not an invented slice history.
 | Order | Receiving story | Findings | Preparation / scheduling |
 | --- | --- | --- | --- |
 | 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Story refined and existing plan realigned; queued |
-| 3 | [Express Terminal test intent through page objects](#express-terminal-test-intent-through-page-objects) | 1 | Provisional plan; selected for queue |
-| 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Provisional plan; queued 2026-11-11 |
+| 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Story refined and existing plan realigned; queued |
 | 5 | [Express session discovery and report test intent through page objects](#express-session-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 6 | [Express launch dialog and startup test intent through page objects](#express-launch-test-intent-through-page-objects) | 3 | Provisional plan; queued 2026-11-11 |
 | 7 | [Express settings test intent through page objects](#express-settings-test-intent-through-page-objects) | 2 | Provisional plan; queued 2026-11-11 |
@@ -318,76 +317,96 @@ default timeout and complete journeys.
   [Final report divider](../../dashboard/tests/sessions/final-report-touch-divider.spec.ts#L48),
   [Terminal maximize](../../dashboard/tests/terminals/agent-terminal-maximize.spec.ts#L165).
 
-<a id="express-terminal-test-intent-through-page-objects"></a>
-
-### Express Terminal test intent through page objects
-
-**Identity:** SEED-300#express-terminal-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/583-terminal-test-intent/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and same-plan realignment; mapped slices are provisional."],"basis":{"document":"654a3f1f2cee282cb479e1779c90b9bb82b04e36df3f2e85e7c82b70bf7d1585","plan":"704c536514caae5de537934e94302a336ccac3aaa1376248f83ea39d72ee1748"}}
-```
-
-#### Goal
-
-A developer can follow Terminal input, output and recovery in each scenario while maintaining one browser owner for the shared screen and input controls.
-
-#### Scope
-
-Resolve the Terminal finding across all affected integrated/frontend and cross-feature callers, including the audited 63 direct-selector specs as a historical starting set. Cover keyboard, touch/soft keyboard, compose, paste, voice, trust/prompts and ended-input recovery. Keep literal input/output, terminal/session identity, native attach, WebSocket and PTY evidence at their observing boundaries.
-
-**Plan:** [Mapped plan](../slice-plans/583-terminal-test-intent/PLAN.md)
-
-#### Preparation hold
-
-Awaiting story refinement — not ready for slice-plan refinement or execution.
-The mapped plan is provisional input. Resume with `dough-story-refinement` on
-this identity, clarify its Goal, Scope and Key examples, then realign the same
-plan before slice-plan refinement and readiness assessment. This is not an
-execution prerequisite on another story.
-
-#### Audit findings owned by this story
-
-- **Terminal input and output.** Direct xterm rows or helper-textarea selectors
-  occur in 63 browser specs, across Terminal, launch, session, navigation,
-  configuration and frontend tests. Share reading output, sending commands,
-  checking the current draft and terminal identity, and opening or closing
-  the panel. Use the existing Terminal, touch and paste helpers to cover
-  prompts, trust, ended-input recovery, keyboard, soft keyboard, compose,
-  paste, and voice. Keep actual input, output, and native attach/PTY evidence
-  as test facts.
-  [Keyboard](../../dashboard/tests/terminals/agent-terminal-keyboard.spec.ts#L103),
-  [touch keys](../../dashboard/tests/terminals/agent-terminal-touch-keys.spec.ts#L59),
-  [keyboard fit](../../dashboard/tests/terminals/agent-terminal-touch-keyboard-fit.spec.ts#L85),
-  [voice](../../dashboard/tests/terminals/session-terminal-voice.spec.ts#L32),
-  [frontend paste](../../dashboard/frontend-tests/agent-terminal-touch-paste-image.spec.ts#L66),
-  [frontend prompts](../../dashboard/frontend-tests/terminal-prompts-recovery.spec.ts#L100).
-
 <a id="express-board-test-intent-through-page-objects"></a>
 
 ### Express Board and published-read test intent through page objects
 
 **Identity:** SEED-300#express-board-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and same-plan realignment; mapped slices are provisional."],"basis":{"document":"9636b8ec6a8c899c159f9c1efd63c658838b0547d26f856b4d28117aaf9d15d0","plan":"8b52dae222f87b52d42104c68fe3f4b9c3d9518b48e10690b23db2dddd668eea"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"209f91a50aa25a8f55a6d5af7aac2ad3e550e7b82f0c497eb65a7e700a309cd2","plan":"86d6bf4a32b3211f138dac9f894714add84d55787bf9c094a9e9cf7d8ae560a0"}}
 ```
 
 #### Goal
 
-A developer can read Board navigation and changing published facts as user actions and independent outcomes, with shared controls and reading observations maintained once.
+A developer reading Board and published-read tests in Intent can follow the
+user's navigation, the published facts being read, and the independent result.
+Shared browser controls and repeated reading observations have one maintained
+owner, so changing a control requires one mechanics edit without concealing the
+causal sequence that makes the test useful.
 
 #### Scope
 
-Resolve all six Board/navigation/published-read findings and their sibling callers: column reading, project/header/destination focus, inspection/references, card evidence, Recently done stories, and published refresh/recovery. Keep pointer-down and pointer-up separately invocable, request holds/releases explicit, and expected order, focus, viewport, clocks, pinned revisions and retained positions legible.
+Resolve all six allocated findings below and current same-control or
+same-sequence sibling callers: Board columns and accessible reading;
+project/header/destination focus; story inspection and references; card evidence;
+Recently done ranges; and published facts, refresh and recovery. Reuse existing
+procedural/component owners, including their fluent callers where reached.
 
-**Plan:** [Mapped plan](../slice-plans/584-board-test-intent/PLAN.md)
+Keep concrete column/entry/key order, viewport, input modality, selected story,
+focus, retained reading place, expected actor/link/status/slice counts and
+malformed-record messages visible as scenario facts. Inspection and selection
+remain distinct. Pointer-down, held-answer release, intermediate focus and
+pointer-up stay separately invocable. Controlled clock steps, request logs,
+pinned revisions and Git/HTTP/host/record evidence stay at the boundary whose
+causal sequence they prove. Shared observations accept independent expectations;
+they do not obtain expected answers from production or from the fixture's result.
 
-#### Preparation hold
+Each finding receives an evidence-backed caller disposition and a representative
+before/after against the audit, reconciled to current source. The result worth
+keeping is clearer actions and outcomes plus fewer mechanics edit sites at a
+justified helper cost, with every distinct behavior check and existing test tier
+preserved. Exact accessibility/DOM/geometry contract observations may remain
+direct when their independent evidence requires it; merely moving locators is
+insufficient. Use MakeMe for domain data and observable waits or controlled clocks.
 
-Awaiting story refinement — not ready for slice-plan refinement or execution.
-The mapped plan is provisional input. Resume with `dough-story-refinement` on
-this identity, clarify its Goal, Scope and Key examples, then realign the same
-plan before slice-plan refinement and readiness assessment. This is not an
-execution prerequisite on another story.
+Scope limits: no new dashboard behavior, whole-suite speed or case-count
+promise, universal fluent conversion, new framework, or wholesale migration of
+Review, Terminal, session/report, launch, settings or Intent siblings. Include
+their reached shared-control callers, preserving their other workflow ownership.
+Necessary test/harness repair follows the project's failing/flaky-test policy.
+No new product rejection constraint or dependency on a sibling story is added.
+
+**Plan:** [Executable plan](../slice-plans/584-board-test-intent/PLAN.md)
+
+#### Key examples
+
+1. A long Board is shown in a wide, paged or covering-panel viewport → the
+   reader wheels or pages to a named column, resizes, then returns → the test
+   states the shown column order, usable card room, scroll extent and retained
+   reading position, while shared Board operations own the browser mechanics.
+2. A Board or one of its controls has keyboard/touch input → the reader uses
+   the stated key or gesture, or opens/closes modal help → named reading
+   operations preserve the actual input, expected focus and scroll result;
+   native document comparison and modal key ownership remain independent proof.
+3. A reader chooses a project through wide tabs or a compact title, changes
+   perspective, or follows a notification/source destination → the test names
+   the chosen project and destination, exact key order, sanitized URL and
+   arrival focus; resize or a covering panel keeps the required reading place.
+4. A Done reference is pending → the reader presses Inspect story, the held
+   answer arrives before pointer release → the destination does not take focus,
+   then pointer-up opens the chosen detail and focuses Hide detail. A later
+   reference, Tab move or explicit Show latest 10 choice retains its own
+   supersession outcome. Shared reference/card actions do not combine these beats.
+5. Preparation, dependencies, ownership or progress arrives, changes or cannot
+   be read → the scenario supplies the expected actor, order, status, links,
+   slice counts or malformed text → shared card/roster readers expose exactly
+   that evidence without confusing Inspect with Selected story or hiding gaps.
+6. Recently done initially shows ten of 35 mixed entries → the reader reveals
+   more, returns to the latest range, refreshes or follows a session/reference
+   beyond it → shared column actions expose the expected order/count/focus and
+   retained range; the scenario still names exactly which records answer, fail
+   or remain unread. Showing fewer entries and cancelling a pending jump remain
+   distinguishable outcomes.
+7. The reader has scrolled to an inspected pinned link while independent facts
+   or a new revision are held → the test releases or fails named answers and
+   advances its controlled clock → retained facts, focus and reading place stay
+   explicit before/after; only the answered facts change. A reader who wheels
+   away keeps that later choice. Recovery/rate-limit cases retain their request
+   counts, schedule, old/new revisions, notices and absence of placeholder churn.
+8. A maintainer changes a shared control → its affected procedural/fluent and
+   cross-family callers use one browser owner → per-finding comparison shows
+   readable action/outcome, removed duplicate mechanics and justified helper
+   cost, while independent expected values and all distinct checks survive.
 
 #### Audit findings owned by this story
 
@@ -446,7 +465,7 @@ execution prerequisite on another story.
   which requests answer, visible entry order, and the distinction between
   showing fewer stories and abandoning a pending destination.
   [Progressive loading](../../dashboard/tests/stories/recently-done-progressive-loading.spec.ts#L81),
-  [retained state](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L111),
+  [retained state](../../dashboard/tests/stories/recently-done-progressive-state.spec.ts#L113),
   [refresh](../../dashboard/tests/stories/recently-done-progressive-refresh.spec.ts#L113),
   [read latency](../../dashboard/tests/stories/recently-done-read-latency.spec.ts#L38).
 
@@ -470,26 +489,85 @@ execution prerequisite on another story.
 
 **Identity:** SEED-300#express-session-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/585-session-test-intent/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and same-plan realignment; mapped slices are provisional."],"basis":{"document":"b99940224770c06e559d6ef014fedbc7518ad99d7ebc82807396c0e50e54fb4a","plan":"0176a2d534b3a6311e870baa8bbad0048a1f756fb96ffa0c5d86148a50eaed28"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/585-session-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"92ca878355e8a8dc660f27a09cb7ab9ef4811eda45acde8bf1053fe56b04ea16","plan":"9834ff6f6c5c4a607c09f63018b08029ef5d3150487d2e0dde0543d527aad931"}}
 ```
 
 #### Goal
 
-A developer can follow session membership, discovery and report reading across the Board and sidebars while shared session controls have one browser owner.
+A developer reading session tests in Intent can follow which session is
+found, selected, acted on or read across the Board and Sessions sidebar.
+Shared session controls and observations have one browser owner, reducing
+mechanics edit sites while each scenario still explains the behavior it proves.
 
 #### Scope
 
-Resolve session rows/actions/membership, Sessions sidebar/Running Cursor, and Final report/retained-session/retirement findings plus sibling callers. Preserve selecting versus opening a report, independent readings of one session in different surfaces, expected host figures, exact report/session facts, keyboard/focus and retired-workspace evidence. Frontend setup remains independent of integrated servers.
+Resolve the three audit findings below and current same-control or
+same-sequence sibling callers:
 
-**Plan:** [Mapped plan](../slice-plans/585-session-test-intent/PLAN.md)
+- Express Session entry disclosure, state/attention, open, Done/Delete,
+  confirmation/cancellation and column placement through shared session owners.
+  Keep independent observations of the same session in a Story card, Column
+  and Sessions sidebar when their agreement is the promise.
+- Express open and Recently done sidebar navigation, keyboard focus, paging,
+  retained scroll and host figures through suitable shared observations.
+  Counts, CPU/disk values and accessible words remain caller facts; controlled
+  reads and clocks still explain when a reading changes.
+- Express Running Cursor discovery, selection, reachability and resizing
+  through shared browser controls. Frontend synthetic answers remain separate
+  from integrated runner setup and native attachment evidence.
+- Express retained-session selection separately from opening its Terminal or
+  Final report. Share report identity, title, exact text and read/open/close
+  mechanics while preserving passive access after workspace retirement,
+  attention/read state, completion receipts and independent filesystem,
+  request and native-session observations.
 
-#### Preparation hold
+Required preservation constraints prevent abstractions from concealing a
+regression: keep session identity, expected state/badges and placement, report
+text, exact key/touch/pointer input and focus expectations, held answers and
+release order, and native/HTTP/Git/record evidence explicit where they
+separate outcomes. Domain setup stays with MakeMe. Browser observations must
+not manufacture expected facts from the production value being checked or
+complete a held read as an incidental wait. Accessibility and geometry contract
+checks retain their independent expectations.
 
-Awaiting story refinement — not ready for slice-plan refinement or execution.
-The mapped plan is provisional input. Resume with `dough-story-refinement` on
-this identity, clarify its Goal, Scope and Key examples, then realign the same
-plan before slice-plan refinement and readiness assessment. This is not an
-execution prerequisite on another story.
+Scope limits: no dashboard behavior change, test-speed promise, fewer-case
+promise, universal fluent conversion or new page-object framework. Unrelated
+Terminal, launch, Board, review and settings workflows remain with their
+stories; shared session/report controls in those callers are included. Reuse
+existing owners without making those stories execution prerequisites. Necessary
+proof-harness repair follows the project's failing/flaky-test policy.
+
+**Plan:** [Executable plan](../slice-plans/585-session-test-intent/PLAN.md)
+
+#### Key examples
+
+1. A compact entry hides technical details and lifecycle actions independently
+   → the user discloses, opens, confirms or cancels an action → named session
+   operations expose those steps while the case still specifies its native
+   session, state, focus and resulting membership in each relevant surface.
+2. Open and Recently done lists contain more sessions than fit → the user walks
+   them by keyboard, pages older entries or changes view and returns → shared
+   sidebar operations express the destination and retained reading place;
+   exact keys, expected order/count and no-unintended-action evidence stay in
+   the scenario.
+3. Frontend synthetic and integrated host-status cases read the same figures
+   → a controlled host/session read changes or is unavailable → one browser
+   observation checks the caller's count, text, accessible name and title;
+   fixtures keep their tiers and the case still explains read timing.
+4. A Running Cursor list has a held native client, or a frontend held answer
+   → the user expands, chooses, collapses or resizes the list → shared controls
+   expose the actual input and expected row/geometry/focus, while native
+   attachment and frontend request ownership remain separately observed.
+5. A retained row is linked to a completed story, or is standalone → the user
+   selects it, then separately opens its report → selection preserves the
+   required perspective, Selected story and existing Side panel; opening shows
+   the chosen session's exact report. A retired workspace remains passively
+   readable without resuming or attaching a conversation.
+6. A maintainer reviews the migration → each finding and affected sibling has
+   an evidence-backed disposition and representative before/after → user
+   actions and expected outcomes are clearer, shared mechanics have fewer
+   edit sites, and that gain justifies the added helper cost. Every distinct
+   behavior check and existing test tier remains represented.
 
 #### Audit findings owned by this story
 

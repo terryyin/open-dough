@@ -14,6 +14,7 @@ import { setPageVisibility } from "../autoRefreshJourney.ts";
 import { storyCardSessions, parts, sessionStateOf } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   doneQuestion,
   expectAsked,
@@ -129,12 +130,12 @@ test("in the terminal, the open question follows the session's reading and goes 
     origin,
   );
   await entry.getByRole("button", { name: "Open terminal" }).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText("attached");
   const before = dashboard.claudeStopCalls().length;
 
   await questionFollowsReadings(page, dashboard, sessionId, entry, panel);
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
+  await expect(terminalScreenParts(panel).rows).toContainText("attached");
   expect(dashboard.claudeStopCalls()).toHaveLength(before);
 
   await markDone(panel);

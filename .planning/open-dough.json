@@ -11,29 +11,36 @@
       {
         "path": "dashboard/tests",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"]
+        "include": ["**/*.spec.ts"],
+        "makeMe": true,
+        "pageObjects": true
       },
       {
         "path": "dashboard/frontend-tests",
         "label": "Dashboard Frontend Test",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"]
+        "include": ["**/*.spec.ts"],
+        "makeMe": true,
+        "pageObjects": true
       },
       {
         "path": "dashboard/backend-tests",
         "label": "Dashboard Backend Test",
         "kind": "typescript",
-        "include": ["**/*.spec.ts"]
+        "include": ["**/*.spec.ts"],
+        "makeMe": true
       },
       {
         "path": "tests",
         "kind": "shell",
-        "include": ["*.sh"]
+        "include": ["*.sh"],
+        "makeMe": true
       },
       {
         "path": "src/skills",
         "kind": "javascript",
-        "include": ["**/*.test.mjs"]
+        "include": ["**/*.test.mjs"],
+        "makeMe": true
       }
     ]
   }

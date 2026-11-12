@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "d.kanai-chan",
+  "email": "d.kanai-chan@example.org",
+  "identity": "SEED-329#use-shared-test-guidance",
+  "mode": "story-branch",
+  "branch": "claude/use-shared-makeme-and-page-object-guidance",
+  "host": "claude",
+  "model": "opus"
+}

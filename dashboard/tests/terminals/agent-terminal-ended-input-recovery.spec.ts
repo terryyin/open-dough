@@ -4,12 +4,24 @@
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import {
+  expectTerminalText,
+  openAgainControl,
+  pressTerminalKey,
+  terminalPanel,
+  terminalScreenParts,
+  terminalStatus,
+} from "../terminalScreenPage.ts";
+import {
   holdCompletedVoiceResponse,
   observeMicrophone,
   seedVoiceKey,
 } from "../support/voicePage.ts";
 import {
   beginTerminalClip,
+  expectNoUnsentTranscript,
+  expectUnsentTranscript,
+  expectVoiceStatus,
+  insertTranscriptControl,
   stopTerminalClip,
 } from "../support/terminalVoicePage.ts";
 import { launched } from "../agentTerminalBoundary.ts";
@@ -20,6 +32,7 @@ import {
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { tapWhereShown } from "../pageLayout.ts";
+import { copyClipboardText } from "../terminalPastePage.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 import {
   focusByTouch,
@@ -60,14 +73,13 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
   await tapWhereShown(sidebar.button);
   const { sent } = noteTerminalTraffic(page);
   await tapWhereShown(sidebar.entry(title));
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
-  const status = panel.getByRole("status");
-  const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
-  const insert = panel.getByRole("button", { name: "Insert transcript" });
-  const openAgain = panel.getByRole("button", { name: "Open again" });
-  await expect(rows).toContainText(`attached ${native.shortId}`);
-  await expect(rows).toContainText("Claude Code");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
+  const status = terminalStatus(panel);
+  const insert = insertTranscriptControl(panel);
+  const openAgain = openAgainControl(panel);
+  await expectTerminalText(panel, `attached ${native.shortId}`);
+  await expectTerminalText(panel, "Claude Code");
 
   await test.step("a transcript completing after the terminal ended stays unsent with feedback naming Open again", async () => {
     const delivery = await holdCompletedVoiceResponse(page);
@@ -75,37 +87,36 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
     await stopTerminalClip(page, panel);
     await delivery.ready();
     await focusByTouch(panel);
-    await page.keyboard.press("Control+z");
+    await pressTerminalKey(page, "Control+z");
     await expect(status).toContainText("The terminal ended");
     await expect(openAgain).toBeVisible();
     expect(dashboard.claudeAttaches()[0]?.endedBy).toBe("Ctrl+Z");
     await delivery.release();
-    await expect(retained).toHaveValue(transcript);
-    await expect(status).toContainText(
+    await expectUnsentTranscript(panel, transcript);
+    await expectVoiceStatus(
+      panel,
       "The transcript was not inserted. Open again, then insert it here or discard it.",
     );
     expect(sent).toEqual(["\u001a"]);
   });
 
   await test.step("Paste and Insert transcript on the ended terminal send nothing, and Paste names Open again", async () => {
-    await page.evaluate(() =>
-      navigator.clipboard.writeText("not for the ended terminal"),
-    );
+    await copyClipboardText(page, "not for the ended terminal");
     await tapTerminalKey(panel, "Paste");
     await expect(status).toContainText("Tap Open again, then tap Paste again.");
     await tapWhereShown(insert);
-    await expect(retained).toHaveValue(transcript);
+    await expectUnsentTranscript(panel, transcript);
     expect(sent).toEqual(["\u001a"]);
   });
 
   await test.step("Open again reattaches without sending, and Insert transcript then offers the transcript once", async () => {
     await tapWhereShown(openAgain);
     await expect.poll(() => dashboard.claudeAttaches().length).toBe(2);
-    await expect(rows).toContainText("Claude Code");
+    await expectTerminalText(panel, "Claude Code");
     await expect(openAgain).toHaveCount(0);
-    await expect(retained).toHaveValue(transcript);
+    await expectUnsentTranscript(panel, transcript);
     await tapWhereShown(insert);
-    await expect(retained).toHaveCount(0);
+    await expectNoUnsentTranscript(panel);
     // The transcript is the first input after the ending keystroke, so
     // reopening sent nothing before it.
     await expect.poll(() => sent).toEqual(["\u001a", transcript]);

@@ -13,9 +13,9 @@ import {
   expectFocusedAndIndicated,
 } from "../accessibleReading.ts";
 import { parts, storyCardSessions } from "../dashboardPage.ts";
+import { closeTerminal, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   box,
-  closeSidePanel,
   expectEveryControlReachable,
   expectNoSidewaysScrollAndWholeText,
   pressWhereShown,
@@ -50,7 +50,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
   await storyCardSessions(card)
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   const room = await split(page, terminal);
   const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
   await dragDivider(page, -2000);
@@ -111,7 +111,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await storyCardSessions(card)
       .getByRole("button", { name: "Open terminal" })
       .click();
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expectWidth(terminal, chosen);
     await pressWhereShown(control(terminal, "Maximize"));
     await expect(control(terminal, "Restore")).toBeVisible();
@@ -140,7 +140,7 @@ test("beside the open sidebar with too little room, the panel covers the page co
   await storyCardSessions(card)
     .getByRole("button", { name: "Open terminal" })
     .click();
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await sidebar.button.click();
   await expect(sidebar.sidebar).toBeVisible();
   // 880 − 288px sidebar = 592px < two 320px minimums.
@@ -156,6 +156,6 @@ test("beside the open sidebar with too little room, the panel covers the page co
   expect(panelBox.width).toBeCloseTo(room.width - side.x - side.width, 0);
   expect(panelBox.height).toBeCloseTo(room.height, 0);
   await expect(banner).toBeHidden();
-  await closeSidePanel(terminal);
+  await closeTerminal(terminal);
   await expect(banner).toBeVisible();
 });

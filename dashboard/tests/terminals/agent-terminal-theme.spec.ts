@@ -14,6 +14,7 @@ import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   computedPalettes,
   themeChoice,
@@ -24,7 +25,7 @@ test.use({ projectFolders: ["open-dough"] });
 
 async function expectTheme(panel: Locator, label: ComputedPalette) {
   const { background, foreground } = computedPalettes[label];
-  await expect(panel.locator(".xterm-rows")).toHaveCSS("color", foreground);
+  await expect(terminalScreenParts(panel).rows).toHaveCSS("color", foreground);
   for (const surface of [
     ".xterm-scrollable-element",
     ".xterm-viewport",
@@ -54,8 +55,8 @@ test("the page's terminal shows the theme chosen in System settings, live withou
 }) => {
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
-  const panel = page.getByRole("region", { name: "Terminal", exact: true });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const entry = parts(page).taken.locator(".session-entry");
   const openTerminal = entry.getByRole("button", { name: "Open terminal" });
 

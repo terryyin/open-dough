@@ -9,6 +9,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectReadableContrast,
   narrowWindow,
@@ -63,7 +64,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     await page.setViewportSize(narrowWindow);
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const control = (name: string) =>
       panel.getByRole("button", { name, exact: true });
     await settled();
@@ -93,7 +94,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     await test.step("the terminal header's words and icon controls read clearly and keep their names", async () => {
       await entry(work.title).click();
       // Covering hides the Board; do not wait on Board settlement here.
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         `attached ${sessionId.slice(0, 8)}`,
       );
       await expectReadableContrast(
@@ -115,7 +116,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
           .poll(async () => {
             const [screen, rows] = await Promise.all([
               box(panel.locator(terminalScreen)),
-              box(panel.locator(".xterm-screen")),
+              box(terminalScreenParts(panel).screen),
             ]);
             return rows.x + rows.width <= screen.x + screen.width + 0.5;
           })
