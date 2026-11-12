@@ -7,8 +7,10 @@
 ## Provenance
 
 Execution retrospective of
-[Make landed CI repeat checks pass under moderately high load](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load)
-(SEED-324#pass-landed-ci-repeat-checks-under-high-load, plan 599). Manifest:
+Make landed CI repeat checks pass under moderately high load
+(SEED-324#pass-landed-ci-repeat-checks-under-high-load, plan 599; story and plan
+recoverable at `854a1ae30:.planning/seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md`
+and `854a1ae30:.planning/slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md`). Manifest:
 story-branch commits `095f2bff9..4e3c2235e` on the first parent of
 `claude/make-landed-ci-repeat-checks-pass-under-moderate`, including trunk
 merges `fb3c669d6` and `937da2b35` (SEED-330's no-setting product) and CI
