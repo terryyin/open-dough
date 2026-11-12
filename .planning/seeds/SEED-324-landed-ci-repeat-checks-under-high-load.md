@@ -124,6 +124,15 @@ journey leaves on a machine.
   keeps an owner among maintained checks, shown by a deliberate product
   fault.
 
+- **The machine setting, retired by SEED-330 on 2026-11-12.**
+  SEED-330#make-ci-follow-up-automatic, co-authored by Terry, removed the
+  per-project follow-up setting, its Settings row and its write path: every
+  new qualifying receipt is followed up. The machine setting named above, and
+  the observations that follow-up starts off, that the Settings row turns it
+  on, and that turning it off keeps the saved original readable, have no
+  product left and leave this story's checks. The provisional rule is read on
+  the card instead.
+
 Required restrictions and reasons: keep the default case timeout and the
 default expectation timeout; no timeout overrides, `test.slow()`, sleeps,
 retries or skips to absorb load, under

@@ -110,7 +110,7 @@ after this plan. "Fault" names the control in [Verification](#verification).
 
 | # | Promise | Owner on the base | Owner after | Fault |
 | --- | --- | --- | --- | --- |
-| C1 | Follow-up is off until the machine enables it | Lifecycle journey; phone journey (settings row) | The journey (settings read); the phone settings case | F13 |
+| C1 | Follow-up is off until the machine enables it | Lifecycle journey; phone journey (settings row) | Retired by SEED-330 (`598738702`): the setting is removed | F13 |
 | C2 | A Done receipt at exactly 105 s against five 100 s builds gets one rerun request for run 71 | Lifecycle journey | The journey | F1 |
 | C3 | The intent is saved before the request is sent | Lifecycle journey (held submission) | The journey | F14 |
 | C4 | The accepted request is saved after the reply | Lifecycle journey | The journey | F8b |
@@ -122,10 +122,10 @@ after this plan. "Fault" names the control in [Verification](#verification).
 | C10 | A fresh server reads the same card and sends nothing | Lifecycle journey (restart) | Every kept-state case starts a fresh server; accepted-request case counts requests | F2 |
 | C11 | A refused reply is saved as refused, with the original and average, and no second request | Refused journey | Eligible-receipt case, 403 | F2, F8 |
 | C12 | An uncertain reply stays unverified after a 104 s passing repeat and shows it | Uncertain journey | Eligible-receipt case, 503 | F9 |
-| C13 | Turning follow-up off keeps the saved original readable | Refused and uncertain journeys | Eligible-receipt cases | F18 |
+| C13 | Turning follow-up off keeps the saved original readable | Refused and uncertain journeys | Retired by SEED-330 (`598738702`): the setting is removed | F18 |
 | C14 | Recovered, failed, cancelled, partial proof | Saved-request case | Unchanged | F4, F5, F6b, F7 |
 | C15 | Absent and unknown conclusions | Verdict saved-request case | Unchanged | F10, F11 |
-| C16 | The settings row turns follow-up on and names the provisional rule | Phone journey | Phone settings case | F13 |
+| C16 | The settings row turns follow-up on and names the provisional rule | Phone journey | Retired by SEED-330 (`598738702`); the provisional rule is read on the warning card | F13 |
 | C17 | The slow card is a red textual Done warning with its three totals and its caution, without sideways scroll on a phone | Phone journey | Phone warning case | F19 |
 | C18 | The card opens both attempts, their links, timings and completeness, the saved rule and the reference evidence with the outlier excluded | Intent journey | Intent reading case | F20 |
 | C19 | First render, refresh, reload and revisit acquire no CI | Intent journey | Intent reading cases | F21 |
@@ -2579,6 +2579,27 @@ passed after it; the spec passed 3 in a row and 9 of 9 at load 26 → 45.
 Trunk landed a different fix for the same race (`694c8dceb`: a retried open
 and a 60 s case timeout) after this branch's base.
 
+#### Trunk merged after the CI repair (SEED-330's no-setting product)
+
+Trunk at `68bdc4f10` is merged as `937da2b35`. SEED-330 removed the
+follow-up setting, its machine designation and the Settings row: every new
+qualifying receipt is followed up, the ledger has only `landings`, and cards
+are read with `followUpCards`. The kept-landing owner now writes through
+trunk's `keepFollowUpEntries`, keeps no `projects` entry and no
+eligible-false prior entries (the product writes none), and types requests as
+`GithubRepeatRequest`. The Settings case, the journey's "off" read and the
+refused and uncertain cases' "follow-up off" reads are removed (C1, C13, C16;
+faults F13, F18 retired with them); the warning case reads the provisional
+rule on the card. The test origin configures no CI adapter, so the GitHub
+rerun path stays the one observed. In `agent-completion-quiet.spec.ts`
+trunk's retried open and 60 s case timeout stay with their owner, with this
+branch's settle wait before the press. On the merged tree: the selection
+passed three consecutive times at two workers (load 15–20); trunk's seven
+follow-up specs passed 41 of 41; the ledger node tests passed; faults F1, F14,
+F8b, F2, F8, F9, F3, F16, F17, F15, F19, the card's provisional rule, F20 and
+the schema refusal each failed their owner (F1 at the 30 s bound, as
+recorded).
+
 ## Story obligations
 
 ### G1. Page cases first in their worker reach the bound at load 27–49
@@ -2592,6 +2613,11 @@ Reported: slice 10 — "openCollectedHistoryStory, which the refresh fixture use
 Story clause: "the default 5 s expectations"
 Disposition: proved by slice 10: PLAN.md Slice 10 record, correction for G2: openCollectedHistoryStory waits on untilPageReadsAnswered with default expectations; the refresh fixture opens through openDoneStoryIntent; no timeout override in the selection's path
 Commitment: G3
+### G3. The machine setting has no product left (first reported at the trunk merge after slice 10)
+Reported: slice 10 — "SEED-330 removed the per-project follow-up setting, its Settings row and its write path; the Settings case and the follow-up off reads are removed."
+Story clause: "the machine setting and the red Done warning with its totals on a phone"
+Disposition: owner changed "SEED-330#make-ci-follow-up-automatic, co-authored by Terry, removed the per-project follow-up setting, its Settings row and its write path"
+
 ## Current decisions
 
 - **Amended by Terry on 2026-11-12, after the first measured run missed key
