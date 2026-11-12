@@ -735,6 +735,20 @@ candidate runs here, as it does on the base. Their time is admission,
 collection passes the journey waits for, and first-in-worker origin
 preparation.
 
+## Execution complete
+
+Product advice: no change to this story's outcome. Two checks that share the
+family's scenario miss their bounds under load on base and candidate alike and
+are named by no story: `dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts:14`
+polls the rerun count for 5 s after the receipt (`:44`), the wait this story
+replaced in its own specs with the request's arrival, and
+`dashboard/tests/intent/intent-ci-follow-up.spec.ts:19` takes 22–23 s at load
+20–25 and reaches the 30 s bound above about 33. Recommend adding both to
+SEED-319's scope when it is refined. The three remaining journeys fit the
+default 30 s at load 20–30 and still reach it above about 33, where
+first-in-worker origin preparation (SEED-287) and the waits for collection
+passes hold their time.
+
 ## Story obligations
 
 ### G1. No case shows a card for an absent or unknown conclusion
