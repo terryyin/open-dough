@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-330_invoke-custom-ci-rebuilds.json",
+      "identity": "SEED-330#invoke-custom-ci-rebuilds",
+      "completedAt": "2026-11-12T16:07:10.780Z",
+      "blob": "fc02310c374cf56db3f74d7664356a0c5b59a744"
+    },
+    {
       "fileName": "SEED-329_guard-scheduled-test-makeme-selection.json",
       "identity": "SEED-329#guard-scheduled-test-makeme-selection",
       "completedAt": "2026-11-12T12:58:56.844Z",
