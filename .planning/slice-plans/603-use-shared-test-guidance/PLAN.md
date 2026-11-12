@@ -2,6 +2,7 @@
 
 **Identity:** SEED-329#use-shared-test-guidance
 **Source:** [Use shared MakeMe and page-object guidance](../../seeds/SEED-329-use-shared-test-guidance.md#use-shared-test-guidance)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -78,7 +79,7 @@ page-object refactoring. Guidance routing grants no wider fluent adoption.
 ### 1. Resolve shared conventions for maintained tests through their Intent entries
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the selection matrix, full scheduled-source enumeration and syntax
 observations match the table above; the representative guidance walks retain
 the project's local knowledge; the focused checks below pass.
@@ -99,6 +100,18 @@ the project construction boundary and retained pilot context.
 - One cohesive proof loop covers configuration and guidance: deliver them
   together so the blanket rule never disappears with the known selection gap
   still open. No preparatory Structure or independent second outcome is needed.
+
+Accepted proof (2026-11-12): the installed selector matrix matched every row
+below; all 618 scheduled sources (533 Node, 85 shell) selected MakeMe with page
+objects off; `sourceEntryOfRepositoryPath` gave `tests/install.sh` the shell
+hint and both Node examples the javascript hint under location `tests`; the
+four focused checks, `git diff --check` and lint passed. Per-commitment
+observations are in [source-review.md](source-review.md). The journey guide
+was at 250 lines, so its pilot section moved verbatim (heading level only)
+into `dashboard/tests/fluent-side-panel-pilot.md`; incoming anchors in
+SEED-300, SEED-301 and plan 582 were retargeted. Terry approved a file-size
+exception covering only that one link change in the 874-line SEED-300 seed;
+its reorganization stays with SEED-300's own refinement.
 
 ## Selection matrix and local gates
 
