@@ -788,7 +788,7 @@ During wrap-up, Intent Coverage left the restored run unverified after the probe
 
 ### Occurrences
 
-- Execution: SEED-327#strengthen-pending-take-protection-assertions (plan 601; first implementation `93b411f88ab2d58021fda29e2a1d980d8f362c17`)
+- Execution: SEED-327#strengthen-pending-take-protection-assertions (spent plan 601 recoverable at before-cleanup `d59553452a5ac800fec0acd60481cf37d0470098`; first implementation `93b411f88ab2d58021fda29e2a1d980d8f362c17`)
   - Timestamp: 2026-11-12T07:06:00Z (approximate; local reruns started 15:06+08:00)
   - Tool: Claude Code
   - Model: claude-opus-5-5
