@@ -240,3 +240,10 @@ Reported: slice 4 — "Quiet three consecutive below 45s still owed after busy-r
 Story clause: "The quiet-host three-run check then remains owed to the first quiet opportunity and is reported as such, not claimed."
 Disposition: excluded "The quiet-host three-run check then remains owed to the first quiet opportunity and is reported as such, not claimed."
 Commitment: 14.1, 14.2, 14.3, 26
+
+## Execution complete
+
+Product advice: Keep Q1 quiet three-run owed (do not claim absolute under-45s).
+Assimilate 45s target, busy-ratio form, removal-table survivors. No queue
+reorder; SEED-311–315 stay separate. Wrap-up: Intent Coverage on thin
+expectActionsUnavailable / mark uniqueness; process review deferred there.
