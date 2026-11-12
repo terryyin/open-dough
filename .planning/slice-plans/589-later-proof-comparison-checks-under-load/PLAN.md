@@ -4,6 +4,8 @@
 
 **Source:** [Story](../../seeds/SEED-326-later-proof-comparison-checks-under-load.md#pass-later-proof-comparison-checks-under-load)
 
+**Source review:** [source review](source-review.md)
+
 ## Goal and scope
 
 Maintainers get a fast passing verdict from the "later" pending-proof checks
@@ -83,7 +85,7 @@ focused command above, one-minute load 4–7. Scratch edits were reverted.
 
 ### 1. Own the later past-the-walk proof wait in process
 Type: Behavior
-Status: planned
+Status: done
 Proof: A new case beside `ci-comparison-finality-unanswered.spec.ts`, built
 from `representedFinalityFacts("later", 30)` and `finalityArtifacts`, reads
 the landed slot through `lookupResultBuild` and judges it with
@@ -99,6 +101,20 @@ revisions and a malformed artifact listing for run 201 → the collection
 judgment runs → pending, waiting for proof of run 201 attempt 1; once the
 listing answers, the same judgment is the build at the represented revision
 with `later` selection. No server, Git repository or process starts.
+
+Accepted proof (12 November 2026): `ci-comparison-finality-later-judgment.spec.ts`
+passes in 5 ms beside the six unchanged finality cases; typecheck passes.
+Reverted scratch faults, each failing its pending assertion:
+
+| Fault | New case receives | Six finality cases |
+| --- | --- | --- |
+| `stillAwaited` ignores `proofUnanswered` | final `none` | all fail |
+| The walk drops its `unavailable` build | `none`, no later build within 30 revisions | three "later" fail |
+| The walk's end reported as `head` at the bound | pending `later-build`, no run | all pass: only the new case catches it |
+| `stillAwaited` drops pending after the landing hour | final `none` | all fail |
+
+No fault was run against the recovered `later` build half; slice 2's map
+names `landed-ci-history-pending-sources.spec.ts` for the real-server point.
 
 ### 2. Retire history past the walk from the real-server cases
 Type: Behavior
