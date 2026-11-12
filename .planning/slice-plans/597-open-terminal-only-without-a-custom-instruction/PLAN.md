@@ -190,6 +190,21 @@ one passed. No journey substitutes a host without a Dashboard terminal; that
 guard in `dashboard/src/pageSidePanel.ts` is unchanged. Hosted CI of the story
 branch is the verdict for the four.
 
+## Execution complete
+
+Product advice: no change to the queue. Two observations for later work on
+these paths, neither a defect of this story:
+
+- The Cursor terminal handoff (`attachTerminal`, `dashboard/server/terminalHandoff.ts`,
+  the hold in `dashboard/server/launchInstruction.ts`) has no page-visible
+  effect today: no host declares a detached idle rule, so a kept client is
+  never hung up whether or not the hold is asked for. The next story that
+  touches the handoff can decide between a host that declares the rule and
+  removing the hold.
+- `dashboard/AGENT-LAUNCH-HOSTS.md` is at the 250-line check with three older
+  lines well past its wrap width (12, 19, 78); its next edit needs a cohesive
+  reorganization first.
+
 ## Story obligations
 
 ### G1. No journey observes a Cursor start that sends a prompt and still opens the terminal
