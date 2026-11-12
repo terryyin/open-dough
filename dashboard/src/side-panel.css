@@ -20,7 +20,6 @@
 }
 
 .page-split {
-  --panel-divider-room: 0.4rem;
   --side-panel-track: var(--side-panel-width, minmax(0, 1fr));
 
   grid-template-columns: minmax(0, 1fr) var(--side-panel-track);
@@ -39,19 +38,6 @@
   display: flex;
   flex-direction: column;
   container: page / inline-size;
-}
-
-/* Keep each region scrollbar left of the Panel divider's hit area. */
-.page-split:not(.page-covering):not(.page-maximized)
-  > .page-column
-  > .board-scroll,
-.page-split:not(.page-covering):not(.page-maximized)
-  > .page-column
-  > .roster-scroll,
-.page-split:not(.page-covering):not(.page-maximized)
-  > .page-column
-  > .intent-scroll {
-  margin-inline-end: var(--panel-divider-room);
 }
 
 /* Maximized, the panel spans the page's column and its own, and the page
@@ -88,21 +74,24 @@
   background: var(--raised-surface);
 }
 
-/* The Panel divider (./PanelDivider.tsx): a strip across the
+/* The Panel divider (./PanelDivider.tsx): a strip along the inside of the
    panel's left border, wide enough to grab, with its grip
-   (./resize-divider.css) at its middle. */
+   (./resize-divider.css) on the border. The strip stays inside the panel,
+   so the page column's region reaches the border: its scrollbar stays
+   clear of the strip, and the Board's right column paging control meets the
+   panel without a gap. */
 .panel-divider {
   top: 0;
   bottom: 0;
-  left: calc(-1 * var(--panel-divider-room));
+  left: 0;
   z-index: 2;
-  width: calc(2 * var(--panel-divider-room));
+  width: 0.8rem;
   cursor: col-resize;
 }
 
 .panel-divider::after {
   top: 50%;
-  left: calc(50% - 2px);
+  left: -2px;
   width: 4px;
   height: 2.5rem;
   transform: translateY(-50%);
