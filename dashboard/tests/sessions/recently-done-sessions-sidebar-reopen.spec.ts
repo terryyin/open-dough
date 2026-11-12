@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Cursor reopen from Recently done sessions: held attach keeps membership;
 // successful attach clears the Done row; narrow overlay returns focus.
 import { launch } from "../agentLaunchBoundary.ts";
@@ -125,7 +126,7 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await reopened;
   // Covering hides the banner Sessions control while the panel is open; Close
   // first, then reopen the overlay to observe Done cleared into the open list.
-  await panel.getByRole("button", { name: "Close" }).click();
+  await closeSidePanel(panel, { using: "mouse", exact: false });
   await expect(panel).toHaveCount(0);
   await expect(shown.button).toBeFocused();
   await shown.button.click();

@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A journey that lands on a done entry beyond Recently done's shown entries
 // extends the list exactly through that entry, reading only the records of
 // the stories before it; the entry shows in its place at once, and the
@@ -16,7 +17,10 @@ import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
-import { terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   recordsAsked,
   revealAction,
@@ -52,7 +56,7 @@ test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27
     await entry("Ad hoc work 27").click();
     await expect(terminalOf(page)).toHaveCount(1);
     await expect(view.taken(destination)).toBeInViewport();
-    await terminalOf(page).getByRole("button", { name: "Close" }).click();
+    await closeSidePanel(terminalOf(page), { using: "mouse", exact: false });
     await expect(terminalOf(page)).toHaveCount(0);
     await button.click();
     await expect
@@ -89,10 +93,7 @@ test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27
     await revealAction(recent).click();
     await expectEntries(recent, names(35));
     const asked = recordsAsked(github).length;
-    await view
-      .done(destination)
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalControl(view.done(destination), { exact: false }).click();
     const terminal = terminalOf(page);
     await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await expect(view.taken(destination)).toHaveCount(1);
@@ -111,10 +112,7 @@ test("Mark as done in its terminal closes the panel and lands on entry 27 once e
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const view = await openedWithHeldStory(page, dashboard);
   const terminal = terminalOf(page);
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalControl(view.taken(destination), { exact: false }).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await view.markedDone(destination, terminal);
   await expect(terminal).toHaveCount(0);
@@ -140,10 +138,7 @@ test("marking the session done in its covering terminal, with Recently done page
   const view = await openedWithHeldStory(page, dashboard);
   const terminal = terminalOf(page);
   await showColumn(page, "Taken");
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalControl(view.taken(destination), { exact: false }).click();
   await expect(terminalScreenParts(terminal).rows).toContainText("attached");
   await expect(view.recent).not.toBeInViewport();
   await view.markedDone(destination, terminal);

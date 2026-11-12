@@ -1,3 +1,4 @@
+import { control as frameControl } from "../sidePanelFrame.ts";
 // The Sessions sidebar and the terminal's header in the frame's look:
 // the open sidebar's Sessions button, its entries' words, and the header's
 // title, session row, and icon controls read clearly and keep their names,
@@ -65,8 +66,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
     const { settled } = await openStoryColumnsJourney(page, columnsJourney);
     const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
     const panel = terminalPanel(page);
-    const control = (name: string) =>
-      panel.getByRole("button", { name, exact: true });
+    const control = (name: string) => frameControl(panel, name);
     await settled();
     await expectClosedToggleCounts(page, 1, 1);
     await expectClosedToggleCountsFit(page);

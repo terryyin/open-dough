@@ -146,6 +146,30 @@ stalled addition read delays only its own profile's clock and human is
 `observation/profile-addition-latency.spec.ts`; the roster itself is
 `stories/agent-roster.spec.ts`, whose locators live in `dashboardPage.ts`.
 
+## Review and Side panel owners
+
+`storyCardControls.ts` owns Review changes. `support/reviewControls.ts` owns
+the review region, comparison/run choices, uncommitted check and Refresh
+controls without waiting for their answers. Reading operations in
+`support/reviewRead.ts` and `support/storyReviewMark.ts` keep the waits they
+need; a journey holding an answer can press the same control separately.
+Tree, diff and context readers accept the scenario's independent expected facts.
+
+`sidePanelFrame.ts` shares Close, Maximize/Restore and covering operations with
+procedural and fluent callers. Preserve each caller's locator click,
+shown-position mouse, touch or keyboard input. Its Close is action-only;
+`pageLayout.closeSidePanel` additionally waits for the panel and preparation
+reading to disappear before a Board continuation.
+
+`sidePanelWidthPage.ts` owns drag/cancellation, explicit divider focus and
+keyboard resizing. Supply the key/count and chosen geometry at the call site;
+pressing divider keys never transfers focus implicitly. Keep a cancelled-drag
+observation before mouse release when that order distinguishes the outcome.
+`sessionEntryAccess.ts` supplies pure Terminal/report access getters through the
+named `terminalScreenPage.ts` and `finalReportPages.ts` facades. They add no
+focus, input or answer wait. Independent name, accessibility and geometry
+contract observations retain their own expected values.
+
 ## Terminal screen and modality owners
 
 Ordinary Terminal screen, identity, keyboard insert/typeLine and recovery live

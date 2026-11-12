@@ -1,3 +1,4 @@
+import { openTerminalControl } from "../terminalScreenPage.ts";
 // Cursor lists native model choices after Default, validates the prompted run,
 // and preserves the configured model. The fixture records native argv; sibling
 // launch journeys prove that Default sends no --model.
@@ -104,7 +105,7 @@ test("execution on a Cursor-listed model sends it on the prompted run only, scop
   });
   expectChosenModelScope(record, dashboard.home, cursor, client, sharedBefore);
   await stayedUp(cursor, client.pid, 500);
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(entry, { exact: false }).click();
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(client.pid);
   expect(cursor.attaches()[0]?.args).toEqual([

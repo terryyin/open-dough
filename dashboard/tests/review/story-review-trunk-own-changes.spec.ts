@@ -17,13 +17,19 @@ import {
   contextValues,
   contextWords,
 } from "../support/reviewContextLine.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  listedFile,
+  fileDiff,
+} from "../support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   openStoryReview,
   reopenStoryReview,
   reviewRegion,
   uncommittedCheck,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import {
   commitUnpublished,
@@ -58,13 +64,11 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
     ]);
     expect(snapshot.published).toEqual({ trunk, commits: 2 });
     expect(snapshot.baseline).not.toBe(trunk);
-    const files = review.getByRole("list", { name: "3 changed files" });
+    const files = changedFilesList(review, "3 changed files");
     await expectTreeRows(files, ["src", "  a.ts", "d.md", "notes.md"]);
     // The file trunk also changed shows the story's line alone.
-    await files
-      .getByRole("button", { name: "Modified src/a.ts" })
-      .press("Enter");
-    const diff = review.getByRole("region", { name: "Modified src/a.ts" });
+    await listedFile(files, "Modified src/a.ts").press("Enter");
+    const diff = fileDiff(review, "Modified src/a.ts");
     await expect(diff.locator(".story-review-removed")).toHaveText(["-a 0"]);
     await expect(diff.locator(".story-review-added")).toHaveText(["+a one"]);
   });
@@ -105,12 +109,15 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
       "src/g.ts",
     ]);
     expect(later.commits.map(({ subject }) => subject)).toEqual(["u1"]);
-    await expectTreeRows(
-      review.getByRole("list", { name: "4 changed files" }),
-      ["src", "  a.ts", "  g.ts", "d.md", "notes.md"],
-    );
+    await expectTreeRows(changedFilesList(review, "4 changed files"), [
+      "src",
+      "  a.ts",
+      "  g.ts",
+      "d.md",
+      "notes.md",
+    ]);
 
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     const commits = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
@@ -118,14 +125,14 @@ test("all changes lists a Trunk Mode story's published changes beside its unpubl
     await expect(commits.first()).toHaveText("Uncommitted changes");
     await expect(commits.nth(1)).toContainText("u1");
 
-    await review
-      .getByRole("radio", { name: "All changes", exact: true })
-      .check();
+    await comparisonChoice(review, "All changes", { exact: true }).check();
     await uncommittedCheck(review).uncheck();
-    await expectTreeRows(
-      review.getByRole("list", { name: "3 changed files" }),
-      ["src", "  a.ts", "  g.ts", "d.md"],
-    );
+    await expectTreeRows(changedFilesList(review, "3 changed files"), [
+      "src",
+      "  a.ts",
+      "  g.ts",
+      "d.md",
+    ]);
   });
 });
 

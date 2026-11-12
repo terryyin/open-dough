@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Actual Start session, browser focus/navigation and shared done/reopen owners.
 // Native protocol and ordinary CLI replies are substitutes, never record writers.
 import { realpathSync } from "node:fs";
@@ -7,7 +8,10 @@ import { openTakenBacklog, startSessionField } from "../launchStoryCardPage.ts";
 import { chooseProject, expectProjectChoice } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   codexAttaches,
   codexEnded,
@@ -150,7 +154,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       "--no-alt-screen",
       native.threadId,
     ]);
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(panel);
     // Close returns the keyboard to what opened the terminal: the start
     // itself with nothing typed, the entry's Open terminal otherwise.
     await expect(
@@ -205,7 +209,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       await reloadUntilRead(page);
       await expect(recent.locator(".session-state")).toHaveText("Done");
       await showColumn(page, "Recently done");
-      await recent.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalControl(recent, { exact: false }).click();
       await expect(terminalScreenParts(panel).rows).toContainText(
         "GPT-6.1-Sol default",
       );
@@ -228,7 +232,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       expect(
         native.calls.filter((call) => call.method === "turn/interrupt"),
       ).toEqual([]);
-      await panel.getByRole("button", { name: "Close", exact: true }).click();
+      await closeSidePanel(panel);
       for (const attach of codexAttaches(native)) {
         await expectCodexHungUp(native, attach.pid);
       }

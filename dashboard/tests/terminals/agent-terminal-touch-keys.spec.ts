@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Phone key toolbar and scroll-versus-navigate on the ordinary
 // page/xterm/WebSocket/PTY path. Desktop fine-pointer chrome stays without
 // the toolbar or composer; swipe still scrolls history only. Composer Insert
@@ -122,7 +123,7 @@ test.describe("phone terminal key toolbar", () => {
     });
 
     await test.step("reopen the same session for menu confirm after Esc cancel", async () => {
-      await tapWhereShown(panel.getByRole("button", { name: "Close" }));
+      await closeSidePanel(panel, { using: "touch", exact: false });
       await expect(panel).toHaveCount(0);
       await tapWhereShown(sidebar.button);
       await tapWhereShown(sidebar.entry(title));

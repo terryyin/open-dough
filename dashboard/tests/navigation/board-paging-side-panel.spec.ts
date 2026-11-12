@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The Board's own width decides how many Board Columns show, so the side
 // panel opening and closing pages them as a window would: beside it a 54rem
 // Board shows two columns and a column paging control naming the hidden one, a move
@@ -7,7 +8,11 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -80,13 +85,13 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("the side panel closes: all three show and both controls go", async () => {
-      await terminal.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(terminal, { using: "mouse", exact: false });
       await expect(terminal).toHaveCount(0);
       await expectShown(columns, []);
     });
 
     await test.step("the side panel reopens: Taken and Recently done show again", async () => {
-      await taken.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalControl(taken, { exact: false }).click();
       await expect(terminalScreenParts(terminal).rows).toContainText(
         "attached",
       );

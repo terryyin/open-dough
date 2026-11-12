@@ -9,6 +9,9 @@
 // ../../backend-tests/review/story-review-refusal.spec.ts. Directional omitted-context expansion is in
 // ./story-review-diff-context.spec.ts.
 
+import { diffLines, codePane } from "../support/reviewPanes.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { parts } from "../dashboardPage.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -19,7 +22,12 @@ import {
   reviewBody,
 } from "../support/reviewContextLine.ts";
 import { shownLineNumbers } from "../support/reviewLineNumbers.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  fileDiff,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import {
@@ -50,15 +58,15 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     );
 
   const card = await openBacklog(page, origin);
-  const action = card.getByRole("button", { name: "Review changes" });
+  const action = reviewChanges(card);
   await action.click();
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   // The panel names the story it reviews, beside the dashboard, and holds
   // the keyboard in its named content.
   await expect(review.getByRole("heading", { level: 2 })).toHaveText("Story A");
   await expect(review).toContainText(`Story review ${queuedIdentity}`);
   await expect(reviewBody(review)).toBeFocused();
-  const files = review.getByRole("list", { name: "7 changed files" });
+  const files = changedFilesList(review, "7 changed files");
   await expectTreeRows(files, [
     "fresh",
     "  new.txt",
@@ -89,11 +97,9 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   // folder that comes first, its diff shown.
   await expect(fileControls.first()).toHaveAttribute("aria-pressed", "true");
   await expect(files.locator('button[aria-pressed="true"]')).toHaveCount(1);
-  await expect(
-    review
-      .getByRole("region", { name: "Added fresh/new.txt" })
-      .locator("li.story-review-line"),
-  ).toHaveText(["+untracked"]);
+  await expect(diffLines(fileDiff(review, "Added fresh/new.txt"))).toHaveText([
+    "+untracked",
+  ]);
   // The context line reads every value in full, the read-only explanation
   // is the review's description, never a visible line.
   await expect(contextValues(review)).toHaveAccessibleName(
@@ -116,9 +122,9 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   expect(await pageFitsWidth()).toBe(true);
 
   // A file's diff: its hunks' lines, each marked +, -, or a space.
-  const diffOf = (name: string) => review.getByRole("region", { name });
+  const diffOf = (name: string) => fileDiff(review, name);
   const linesOf = (diff: ReturnType<typeof diffOf>, hunk: string) =>
-    diff.getByRole("list", { name: hunk }).locator("li.story-review-line");
+    diffLines(diff.getByRole("list", { name: hunk }));
   // Each line exactly, its leading marker and spacing included.
   const expectLines = async (
     diff: ReturnType<typeof diffOf>,
@@ -129,14 +135,14 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     await expect(shown).toHaveCount(expected.length);
     expect(await shown.allTextContents()).toEqual(expected);
   };
-  const select = (name: string) =>
-    files.getByRole("button", { name }).press("Enter");
+  const select = (name: string) => listedFile(files, name).press("Enter");
 
   await test.step("a modified file's diff marks its added and removed lines", async () => {
     await select("Modified unstaged.txt");
-    await expect(
-      files.getByRole("button", { name: "Modified unstaged.txt" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    await expect(listedFile(files, "Modified unstaged.txt")).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     const diff = diffOf("Modified unstaged.txt");
     await expectLines(diff, "@@ -3,10 +3,11 @@", [
       " unstaged 2",
@@ -153,7 +159,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
       `+${wideLine}`,
     ]);
     // The wide line scrolls within the diff, never the page.
-    const code = diff.locator(".story-review-code");
+    const code = codePane(diff);
     expect(
       await code.evaluate((region) => region.scrollWidth > region.clientWidth),
     ).toBe(true);
@@ -197,9 +203,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     // Each line's old and new numbers sit beside it, outside its text, and
     // assistive technology reads the code alone.
     const hunk = diff.getByRole("list", { name: "@@ -10,3 +10,4 @@" });
-    expect(
-      await shownLineNumbers(hunk.locator("li.story-review-line")),
-    ).toEqual([
+    expect(await shownLineNumbers(diffLines(hunk))).toEqual([
       ["10", "10"],
       ["11", "11"],
       ["12", "12"],

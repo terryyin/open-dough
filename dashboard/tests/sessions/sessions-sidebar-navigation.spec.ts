@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Opening a Sessions sidebar Session entry goes to its story and its session: the
 // page shows the session's project's stories, from the agent roster too, as
 // one history entry; the terminal opens the session as Open terminal does,
@@ -161,7 +162,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     });
 
     await test.step("closing the terminal clears both marks, keeps the story selected, and returns the keyboard to the entry", async () => {
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(panel).toHaveCount(0);
       await expect(shownMark).toHaveCount(0);
       await expect(page.locator(".in-side-panel")).toHaveCount(0);

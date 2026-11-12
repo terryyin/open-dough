@@ -1,3 +1,4 @@
+import { closeSidePanel, control } from "../sidePanelFrame.ts";
 // Retained unfinished reports use the real page/store/native boundary. The
 // vendor fixture supplies history only; coordinates and finger strokes prove access.
 import { existsSync } from "node:fs";
@@ -134,9 +135,9 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         reportText,
         "<script>window.reportExecuted=true</script>",
       );
-      const close = panel.getByRole("button", { name: "Close", exact: true });
+      const close = control(panel, "Close");
       await readReportByTouch(panel, close);
-      await tapWhereShown(close);
+      await closeSidePanel(panel, { using: "touch" });
       await expect(panel).toHaveCount(0);
       await expect(open).toBeFocused();
       expect(state()).toEqual(initial);

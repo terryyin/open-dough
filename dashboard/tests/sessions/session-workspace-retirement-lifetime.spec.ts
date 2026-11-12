@@ -2,7 +2,11 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/codexLaunch.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -51,9 +55,9 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
+    exact: false,
+  }).click();
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   await expect(rows).toContainText("original retained history");

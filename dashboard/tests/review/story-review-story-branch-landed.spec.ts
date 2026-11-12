@@ -1,9 +1,16 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // A claimed Story Branch Mode launch's landed integration in the story review
 // (../../STORY-REVIEW-LANDED-RUNS.md): the real installed start, the installed
 // `history-preserving-publication.mjs integrate` and `worktree-retirement.mjs`
 // against a real bare origin produce the launch record the review reads
 // (../support/storyBranchLandedReview.ts). Only the native Codex transport and
 // GitHub's answers are substituted.
+import { fileDiff, listedFile } from "../support/reviewTreeRows.ts";
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
 import { test, expect } from "../support/codexStart.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
@@ -53,7 +60,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     name: "Story A",
     exact: true,
   });
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
 
   // While the integrated workspace remains, the review opens on it and the
   // Comparison switch lists the integration and the earlier one-shot run.
@@ -84,16 +91,13 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   expect(Date.parse(record.launchedAt)).toBeGreaterThan(
     Date.parse(refinement.record.launchedAt),
   );
-  const landedRuns = review.getByRole("radio", {
-    name: "Landed runs",
-    exact: true,
-  });
+  const landedRuns = comparisonChoice(review, "Landed runs", { exact: true });
   await expect(landedRuns).not.toBeChecked();
   await expect(review.getByRole("heading", { name: "Landed run" })).toHaveCount(
     0,
   );
   await landedRuns.check();
-  const select = review.getByRole("listbox", { name: "Landed run" });
+  const select = landedRunChoice(review);
   await expect(select).toHaveValue(reporting.reference);
   await expect(select.getByRole("option")).toHaveText([
     `Execution — ${await browserLocaleString(page, record.launchedAt)} — ${accepted.slice(0, 8)}`,
@@ -103,7 +107,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     review.getByRole("heading", { name: "Landed run", exact: true }),
   ).toBeVisible();
   await expect(review).toContainText(accepted);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
 
   // Wrap-up retires the worktree and both branches once trunk holds the work.
   retireLaunchWorkspace(start, origin, accepted, start.branch);
@@ -148,7 +152,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     review.getByRole("heading", { name: "Landed run", exact: true }),
   ).toBeVisible();
   await expect(
-    review.getByRole("radio", { name: "Landed runs", exact: true }),
+    comparisonChoice(review, "Landed runs", { exact: true }),
   ).toBeChecked();
   await expect(review.getByRole("radio")).toHaveCount(1);
   const context = review.locator("div").filter({
@@ -167,15 +171,11 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  await expect(
-    review.getByRole("button", { name: /trunk-only\.txt/ }),
-  ).toHaveCount(0);
+  await expect(listedFile(review, /trunk-only\.txt/)).toHaveCount(0);
   // The file both changed shows the story's change against trunk's at the
   // base: trunk's own line is no change.
-  await review
-    .getByRole("button", { name: "Modified shared.txt", exact: true })
-    .click();
-  const diff = review.getByRole("region", { name: "Modified shared.txt" });
+  await listedFile(review, "Modified shared.txt", { exact: true }).click();
+  const diff = fileDiff(review, "Modified shared.txt");
   await expect(diff.locator(".story-review-added")).toHaveText([
     "+the story's line",
   ]);
@@ -202,9 +202,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     `Review refreshed: ${files.length} changed files in the captured landed comparison.`,
   );
   await expect(review).toContainText(`From ${trunkTip} to ${accepted}.`);
-  await expect(
-    review.getByRole("button", { name: "Added later.txt" }),
-  ).toHaveCount(0);
+  await expect(listedFile(review, "Added later.txt")).toHaveCount(0);
   expect(published.revision).toBe(accepted);
   expect((await claimedRecord(dashboard)).landing).toEqual(record.landing);
 });

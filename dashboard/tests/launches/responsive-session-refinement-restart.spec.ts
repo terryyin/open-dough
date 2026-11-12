@@ -8,7 +8,7 @@ import { storyCardSessions, parts, sessionNamedBy } from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import { inspectByKeyboard, marksOf } from "../responsiveAccess.ts";
 import { startExecution } from "../responsiveRecovery.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   openStories,
   startupUnavailable as unavailable,
@@ -48,7 +48,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
     story.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled({ timeout: 30_000 });
   await expect(otherHide).toBeFocused();
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(entry, { exact: false }).click();
   await expect(entry).toContainText("Shown in terminal");
 
   idleBetweenSteps(dashboard, await sessionNamedBy(entry));

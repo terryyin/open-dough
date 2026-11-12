@@ -4,10 +4,18 @@ import { expect, test } from "../support/preparationPage.ts";
 import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
-import { openStoryReview, reviewRegion } from "../support/storyReviewMark.ts";
+import {
+  openStoryReview,
+  reviewRegion,
+  comparisonChoice,
+} from "../support/storyReviewMark.ts";
 import { olderGit } from "../support/storyReviewOlderGit.ts";
 import { observed, storyWorktree } from "../support/storyReviewWorktree.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import {
+  expectTreeRows,
+  changedFilesList,
+  listedFile,
+} from "../support/reviewTreeRows.ts";
 
 test("two ends select three commits in either direction, reset to one, and survive switching comparisons", async ({
   page,
@@ -19,7 +27,7 @@ test("two ends select three commits in either direction, reset to one, and survi
   keepLaunchRecord(dashboard, workspace);
   const snapshot = await openStoryReview(page, await openBacklog(page, origin));
   const review = reviewRegion(page);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -36,19 +44,14 @@ test("two ends select three commits in either direction, reset to one, and survi
     await expect(rows.nth(at)).toHaveAttribute("aria-pressed", "true");
   }
   await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
-  const files = review.getByRole("list", {
-    name: "4 changed files",
-    exact: true,
-  });
+  const files = changedFilesList(review, "4 changed files", { exact: true });
   await expectTreeRows(files, [
     "gone.txt",
     "image.png",
     "new.txt",
     "story.txt",
   ]);
-  await files
-    .getByRole("button", { name: "Renamed old.txt → new.txt", exact: true })
-    .click();
+  await listedFile(files, "Renamed old.txt → new.txt", { exact: true }).click();
   await expect(review.locator(".story-review-added")).toHaveText(["+renamed"]);
   await expect(review).not.toContainText(
     "Trunk was integrated within the range",
@@ -70,11 +73,11 @@ test("two ends select three commits in either direction, reset to one, and survi
     "new.txt",
     "story.txt",
   ]);
-  await review.getByRole("radio", { name: "All changes", exact: true }).check();
+  await comparisonChoice(review, "All changes", { exact: true }).check();
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toHaveCount(0);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   await expect(
     review.getByRole("heading", { name: "Changes in 3 commits" }),
   ).toBeVisible();
@@ -94,7 +97,7 @@ olderGit(
     keepLaunchRecord(dashboard, workspace);
     await openStoryReview(page, await openBacklog(page, origin));
     const review = reviewRegion(page);
-    await review.getByRole("radio", { name: "Commits", exact: true }).check();
+    await comparisonChoice(review, "Commits", { exact: true }).check();
     const rows = review
       .getByRole("list", { name: "Story commits", exact: true })
       .getByRole("button");
@@ -107,18 +110,13 @@ olderGit(
     await expect(review.getByRole("status")).toContainText(
       "This machine's Git cannot leave out trunk's changes integrated within the chosen commits, so this range cannot be compared across them.",
     );
-    await expect(
-      review.getByRole("list", { name: /changed file/ }),
-    ).toHaveCount(0);
+    await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
     await chooseCommit(review, rows.last());
     await chooseCommit(review, rows.nth(2));
     await expect(
       review.getByRole("heading", { name: "Changes in 3 commits" }),
     ).toBeVisible();
-    const files = review.getByRole("list", {
-      name: "4 changed files",
-      exact: true,
-    });
+    const files = changedFilesList(review, "4 changed files", { exact: true });
     await expectTreeRows(files, [
       "gone.txt",
       "image.png",

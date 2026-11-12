@@ -1,3 +1,5 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review folders collapse and expand by pointer and keyboard, of
 // Story A's worktree changing nested files (../support/storyReviewWorktree.ts):
 // collapsed, a folder hides its rows and tells how many changed files it
@@ -5,6 +7,9 @@
 // keeps folders collapsed and shows new ones expanded; reopening the review
 // shows every folder expanded.
 
+import { diffHeading } from "../support/reviewPanes.ts";
+import { reviewRegion } from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
@@ -13,6 +18,9 @@ import {
   expectTreeRows,
   nestedTreeRows,
   treeFolder,
+  changedFilesList,
+  listedFile,
+  fileDiff,
 } from "../support/reviewTreeRows.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { nestedWorktree } from "../support/storyReviewWorktree.ts";
@@ -26,9 +34,9 @@ test("a story's review folders collapse and expand", async ({
   const { workspace } = nestedWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
-  const files = review.getByRole("list", { name: "6 changed files" });
+  await reviewChanges(card).click();
+  const review = reviewRegion(page);
+  const files = changedFilesList(review, "6 changed files");
   await expect(files).toBeVisible({ timeout: storyReviewWaitMs });
 
   await test.step("a collapsed folder hides its rows and tells its count, and expanding restores them as they were", async () => {
@@ -59,9 +67,7 @@ test("a story's review folders collapse and expand", async ({
     await expect(count.locator(".visually-hidden")).toHaveText(
       " changed files",
     );
-    await expect(
-      files.getByRole("button", { name: "Added dashboard/src/a.tsx" }),
-    ).toBeHidden();
+    await expect(listedFile(files, "Added dashboard/src/a.tsx")).toBeHidden();
     await expect(review.getByRole("heading", { level: 3 }).first()).toHaveText(
       "6 changed files",
     );
@@ -93,28 +99,22 @@ test("a story's review folders collapse and expand", async ({
   });
 
   await test.step("collapsing the folder holding the selected file keeps its diff", async () => {
-    await files
-      .getByRole("button", { name: "Modified dashboard/src/b.ts" })
-      .click();
-    const diff = review.getByRole("region", {
-      name: "Modified dashboard/src/b.ts",
-    });
+    await listedFile(files, "Modified dashboard/src/b.ts").click();
+    const diff = fileDiff(review, "Modified dashboard/src/b.ts");
     await expect(diff.getByText("+more", { exact: true })).toBeVisible();
     await treeFolder(review, "src").click();
     await expect(treeFolder(review, "src 2 changed files")).toHaveAttribute(
       "aria-expanded",
       "false",
     );
-    await expect(
-      files.getByRole("button", { name: "Modified dashboard/src/b.ts" }),
-    ).toBeHidden();
-    await expect(diff.getByRole("heading", { level: 3 })).toHaveText(
+    await expect(listedFile(files, "Modified dashboard/src/b.ts")).toBeHidden();
+    await expect(diffHeading(diff, { level: 3 })).toHaveText(
       "Modified dashboard/src/b.ts",
     );
     await expect(diff.getByText("+more", { exact: true })).toBeVisible();
     await treeFolder(review, "src 2 changed files").click();
     await expect(
-      files.getByRole("button", { name: "Modified dashboard/src/b.ts" }),
+      listedFile(files, "Modified dashboard/src/b.ts"),
     ).toHaveAttribute("aria-pressed", "true");
   });
 
@@ -122,8 +122,8 @@ test("a story's review folders collapse and expand", async ({
     await treeFolder(review, "server").click();
     mkdirSync(path.join(workspace, "scripts"));
     writeFileSync(path.join(workspace, "scripts", "x.mjs"), "x\n");
-    await review.getByRole("button", { name: "Refresh" }).click();
-    const refreshed = review.getByRole("list", { name: "7 changed files" });
+    await reviewRefresh(review).click();
+    const refreshed = changedFilesList(review, "7 changed files");
     await expectTreeRows(refreshed, [
       "dashboard",
       "  server 1 changed file",
@@ -149,10 +149,10 @@ test("a story's review folders collapse and expand", async ({
   });
 
   await test.step("a reopened review shows every folder expanded", async () => {
-    await review.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(review);
     await expect(review).toHaveCount(0);
-    await card.getByRole("button", { name: "Review changes" }).click();
-    const reopened = review.getByRole("list", { name: "7 changed files" });
+    await reviewChanges(card).click();
+    const reopened = changedFilesList(review, "7 changed files");
     await expectTreeRows(reopened, [
       ...nestedTreeRows.slice(0, -1),
       "scripts",

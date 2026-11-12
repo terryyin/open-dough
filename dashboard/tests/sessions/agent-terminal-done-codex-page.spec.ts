@@ -3,7 +3,11 @@
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedIdentity,
@@ -66,7 +70,7 @@ for (const attached of [false, true]) {
         : "Ready for review",
     );
     if (attached) {
-      await listed.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalControl(listed, { exact: false }).click();
       await expect(terminalScreenParts(panel).rows).toContainText(
         "original retained history",
       );
@@ -89,7 +93,7 @@ for (const attached of [false, true]) {
     await expect(recent.locator(".session-state")).toHaveText("Done");
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     codexTerminalMode(native, "fail");
-    await recent.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(recent, { exact: false }).click();
     await expect(panel.getByRole("status")).toContainText(
       "The session could not be attached",
     );
@@ -158,7 +162,7 @@ test("native interrupt refusal remains Working with retained local intent and di
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   const panel = terminalPanel(page);
-  await listed.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(listed, { exact: false }).click();
   await expect(terminalScreenParts(panel).rows).toContainText(
     "original retained history",
   );
@@ -177,7 +181,7 @@ test("native interrupt refusal remains Working with retained local intent and di
   await expect(recent.locator(".session-state")).toHaveText("Working");
   await expect(recent).toContainText(problem ?? "missing diagnostic");
   codexTerminalMode(native, "review");
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalControl(recent, { exact: false }).click();
   await expect(terminalScreenParts(panel).rows).toContainText(
     "Hooks need review",
   );

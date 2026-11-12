@@ -1,3 +1,5 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
@@ -11,6 +13,13 @@
 // names no workspace offers no review at all, which the launch boundary also
 // refuses.
 
+import { changedFilesList } from "../support/reviewTreeRows.ts";
+import {
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
+} from "../support/storyReviewMark.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
@@ -80,12 +89,12 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   const fetchedTrunk = () => git(origin.project, "rev-parse", "origin/main");
   expect(fetchedTrunk()).toBe(merged);
   const card = await openBacklog(page, origin);
-  await card.getByRole("button", { name: "Review changes" }).click();
-  const review = page.getByRole("region", { name: "Story review" });
+  await reviewChanges(card).click();
+  const review = reviewRegion(page);
   const status = reviewFeedback(review);
   await expect(status).toHaveText(gapExplanation);
   await expect(
-    review.getByRole("radio", { name: "Landed runs", exact: true }),
+    comparisonChoice(review, "Landed runs", { exact: true }),
   ).toBeChecked();
   await expect(review.getByRole("radio")).toHaveCount(1);
   // The explanation is the fixed top's; the body beneath it shows nothing,
@@ -98,7 +107,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   await expect(contextLine(review)).toHaveCount(0);
   await expect(review.getByRole("list")).toHaveCount(0);
   await expect(review.getByRole("region")).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Refresh" })).toBeVisible();
+  await expect(reviewRefresh(review)).toBeVisible();
   await expect(
     review.getByRole("button", { name: "Close", exact: true }),
   ).toBeVisible();
@@ -123,23 +132,18 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
     .please();
   keepLaunchRecords(dashboard, [record]);
   const card = await openBacklog(page, origin);
-  const open = card.getByRole("button", { name: "Review changes" });
-  const review = page.getByRole("region", { name: "Story review" });
+  const open = reviewChanges(card);
+  const review = reviewRegion(page);
   const live = await reviewAfter(page, open);
   expect(live.kind).toBe("snapshot");
   expect(live.runs).toBeUndefined();
   await expect(review.getByRole("list")).not.toHaveCount(0);
-  await expect(review.getByRole("radio", { name: "Landed runs" })).toHaveCount(
-    0,
-  );
+  await expect(comparisonChoice(review, "Landed runs")).toHaveCount(0);
 
   // The worktree is removed with nothing captured for the launch.
   rmSync(workspace, { recursive: true, force: true });
   git(origin.project, "worktree", "prune");
-  const gap = await reviewAfter(
-    page,
-    review.getByRole("button", { name: "Refresh" }),
-  );
+  const gap = await reviewAfter(page, reviewRefresh(review));
   expect(gap).toMatchObject({
     kind: "landing-unavailable",
     selectedRun: reference,
@@ -157,11 +161,11 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   expect(gap.runs?.[0]?.comparison).toBeUndefined();
   await expect(reviewFeedback(review)).toHaveText(gapExplanation);
   await expect(
-    review.getByRole("radio", { name: "Landed runs", exact: true }),
+    comparisonChoice(review, "Landed runs", { exact: true }),
   ).toBeChecked();
-  await expect(
-    review.getByRole("listbox", { name: "Landed run" }).getByRole("option"),
-  ).toHaveText([/^Execution — .+ — No captured comparison$/]);
+  await expect(landedRunChoice(review).getByRole("option")).toHaveText([
+    /^Execution — .+ — No captured comparison$/,
+  ]);
   await expect(review).toContainText("Execution launched");
   await expect(review).toContainText("target origin/main");
   await expect(reviewBody(review)).toBeEmpty();
@@ -171,7 +175,7 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   ).toHaveCount(0);
 
   // A later opening reads the same gap.
-  await review.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(review);
   expect(await reviewAfter(page, open)).toMatchObject({
     kind: "landing-unavailable",
     selectedRun: reference,
@@ -188,9 +192,9 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const review = await openReview(page, card);
-  const files = review.getByRole("list", { name: "7 changed files" });
+  const files = changedFilesList(review, "7 changed files");
   await expect(files).toBeVisible();
-  const refresh = review.getByRole("button", { name: "Refresh" });
+  const refresh = reviewRefresh(review);
 
   // The story's remote points at nothing reachable.
   const reachable = git(workspace, "config", "--get", "remote.origin.url");
@@ -224,9 +228,7 @@ test("a story whose kept launch record names no workspace offers no review", asy
   keepLaunchRecords(dashboard, [storyALaunch().please()]);
   const card = await openBacklog(page, origin);
   await expect(storyCardSessions(card)).toHaveCount(1);
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toHaveCount(0);
+  await expect(reviewChanges(card)).toHaveCount(0);
   const search = new URLSearchParams({
     source: "open-dough",
     identity: queuedIdentity,

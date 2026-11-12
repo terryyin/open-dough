@@ -8,7 +8,11 @@
 // `claude` (./fixtures/fake-claude).
 
 import { expect, test } from "../dashboardTest.ts";
-import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
+import {
+  openTerminalControl,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessions,
@@ -59,9 +63,9 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     const panel = terminalPanel(page);
     await settled();
     await launch(notRefinedStory, "Execution");
-    await storyCardSessions(card(notRefinedStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalControl(storyCardSessions(card(notRefinedStory)), {
+      exact: false,
+    }).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached ");
     await chooseProject(page, "Doughnut");
     await expectMembership(page, {
@@ -97,7 +101,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     dashboard.claudeSessionBecomes(sessionId, "done-live");
     await reloadUntilRead(page);
     await expect(sessionStateOf(listed)).toHaveText("Ready for review");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(listed, { exact: false }).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
 
     dashboard.claudeSessionBecomes(sessionId, "working");

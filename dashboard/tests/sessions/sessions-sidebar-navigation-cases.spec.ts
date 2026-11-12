@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Sessions sidebar selection reveals the actual card or Taken entry; unavailable
 // sessions open no terminal. Narrow selection closes the overlay, reduced motion
 // reveals at once, and stale picks never scroll. Only synthetic Claude runs.
@@ -83,7 +84,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       for (const title of [takenStory, readyStory, notRefinedStory]) {
         await expect(card(title)).toHaveCSS("outline-style", "none");
       }
-      await panel.getByRole("button", { name: "Close" }).click();
+      await closeSidePanel(panel, { using: "mouse", exact: false });
       await expect(panel).toHaveCount(0);
     });
 

@@ -1,9 +1,11 @@
+import { readFinalReportControl } from "../finalReportPages.ts";
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Recorded Claude workspace retirement uses the shared passive final report.
 import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
-import { terminalPanel } from "../terminalScreenPage.ts";
+import { openTerminalControl, terminalPanel } from "../terminalScreenPage.ts";
 import {
   storyCardAttentionOf,
   storyCardSessions,
@@ -70,7 +72,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   );
   await sidebar.button.click();
   await expect(entry).toContainText("saved workspace is missing");
-  await entry.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(entry, { exact: false }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel.locator(".final-report-text")).toHaveText(report);
   await expect(panel).toContainText(
@@ -79,7 +81,7 @@ test("retired Claude preparation opens retained report after refresh without wak
   await expect(panel).toContainText(workspace);
   expect(dashboard.claudeAttaches()).toEqual([]);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await entry.getByRole("button", { name: "Mark as read" }).click();
   await expect
     .poll(() => stored(dashboard.home)[0]?.reportRead)
@@ -93,7 +95,7 @@ test("retired Claude preparation opens retained report after refresh without wak
     "ready",
   );
   await sidebar.button.click();
-  await entry.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(entry, { exact: false }).click();
   await markDone(panel);
   await expect(panel).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;
@@ -110,7 +112,7 @@ test("retired Claude preparation opens retained report after refresh without wak
     card(notRefinedStory).getByRole("button", { name: "Start execution" }),
   ).toBeEnabled();
   await expect(storyCardSessions(card(notRefinedStory))).toHaveCount(0);
-  await recent.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReportControl(recent, { exact: false }).click();
   await expect(panel.locator(".final-report-text")).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
 });
@@ -150,7 +152,7 @@ for (const context of ["preparation", "start"] as const) {
     const entry = parts(page)
       .recentlyDone.getByRole("article")
       .filter({ hasText: record.session.sessionId });
-    const open = entry.getByRole("button", { name: "Open terminal" });
+    const open = openTerminalControl(entry, { exact: false });
     await expect(open).toBeVisible();
     rmSync(workspace, { recursive: true });
     await open.click();
@@ -163,7 +165,7 @@ for (const context of ["preparation", "start"] as const) {
     expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(
       baseline,
     );
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(panel);
     await expect(open).toBeFocused();
   });
 }
@@ -177,9 +179,9 @@ test("missing Claude workspace with quiet empty completion keeps report and dire
   const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Read final report" })
-    .click();
+  await readFinalReportControl(storyCardSessions(card(notRefinedStory)), {
+    exact: false,
+  }).click();
   const panel = page.getByRole("region", { name: "Final report" });
   await expect(panel).toContainText(
     "Quiet completion was recorded with no attention message.",
@@ -209,7 +211,7 @@ for (const context of ["existing", "legacy"] as const) {
     const { card, settled } = await openStoryColumnsJourney(page, journey);
     await settled();
     const entry = storyCardSessions(card(notRefinedStory));
-    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalControl(entry, { exact: false }).click();
     const panel = terminalPanel(page);
     await expect(panel).toBeVisible();
     await expect

@@ -1,3 +1,4 @@
+import { control } from "../sidePanelFrame.ts";
 // Soft-keyboard and orientation fit for the Side panel terminal on the
 // ordinary page/xterm/WebSocket/PTY path. Simulated visualViewport / reduced
 // height / rotate keep toolbar, composer actions, and Close reachable; the
@@ -67,7 +68,7 @@ test.describe("phone terminal soft-keyboard and orientation fit", () => {
     const { sizes } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
     const panel = terminalPanel(page);
-    const close = panel.getByRole("button", { name: "Close" });
+    const close = control(panel, "Close", { exact: false });
     const hide = hideKeyboardControl(panel);
     await expectTerminalText(panel, `attached ${native.shortId}`);
     await expect(terminalKeyToolbar(panel)).toBeVisible();

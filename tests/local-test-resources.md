@@ -20,6 +20,12 @@ starting values for a shared development machine. Override them explicitly with
 full suite. CI keeps its existing CPU-derived concurrency and takes no admission.
 These bounds control peak concurrency; no elapsed-time improvement is claimed.
 
+Focused journeys must also work within their existing case budgets under
+moderate CPU usage in a moderately busy development context. An idle machine
+or quiet testing window is not a prerequisite. Diagnose setup and observation
+cost when that supported context exposes a failure, retaining the complete
+journey and the project's failing/flaky-test policy.
+
 Admission lives in the common Git directory as the private
 `refs/dough/local-test-suite` ref, outside branches and ordinary pushes. Nested
 suite fixtures that still use an in-checkout test directory reuse a live

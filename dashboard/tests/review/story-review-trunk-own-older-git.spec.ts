@@ -17,7 +17,7 @@ import {
   contextWords,
   reviewFeedback,
 } from "../support/reviewContextLine.ts";
-import { expectTreeRows } from "../support/reviewTreeRows.ts";
+import { expectTreeRows, changedFilesList } from "../support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   changedPaths,
@@ -26,6 +26,7 @@ import {
   openStoryReview,
   refreshReview,
   reviewRegion,
+  comparisonChoice,
 } from "../support/storyReviewMark.ts";
 import { gitRestates, olderGit } from "../support/storyReviewOlderGit.ts";
 import {
@@ -76,10 +77,11 @@ olderGit(
         expect(snapshot.baseline).toBe(trunk);
         // Not `src/a.ts` or `d.md`, which the story published.
         expect(changedPaths(snapshot.files)).toEqual(["notes.md", "src/g.ts"]);
-        await expectTreeRows(
-          review.getByRole("list", { name: "2 changed files" }),
-          ["src", "  g.ts", "notes.md"],
-        );
+        await expectTreeRows(changedFilesList(review, "2 changed files"), [
+          "src",
+          "  g.ts",
+          "notes.md",
+        ]);
         expect(snapshot.commits.map(({ subject }) => subject)).toEqual(["u1"]);
       },
     );
@@ -140,16 +142,15 @@ olderGit(
     expect(kept.since).toBeUndefined();
     expect(kept.markUncomparable).toBe("not-restated");
     expect(changedPaths(kept.files)).toEqual(["notes.md", "src/g.ts"]);
-    await expectTreeRows(
-      review.getByRole("list", { name: "2 changed files" }),
-      ["src", "  g.ts", "notes.md"],
-    );
+    await expectTreeRows(changedFilesList(review, "2 changed files"), [
+      "src",
+      "  g.ts",
+      "notes.md",
+    ]);
     await expect(review).toContainText(
       "but this machine's Git cannot leave out trunk's changes integrated since, so the earlier review cannot be compared across them: all changes are shown.",
     );
-    await expect(
-      review.getByRole("radio", { name: "Since the review" }),
-    ).toHaveCount(0);
+    await expect(comparisonChoice(review, "Since the review")).toHaveCount(0);
     await expect(reviewFeedback(review)).toContainText(
       keptIn("1 published commit"),
     );

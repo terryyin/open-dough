@@ -1,4 +1,7 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // Every retained run is a keyboard choice beside the marked live workspace.
+import { changedFilesList } from "../support/reviewTreeRows.ts";
+import { reviewChanges } from "../storyCardControls.ts";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { reviewChoices, addLiveEdit } from "../support/oneShotReviewChoices.ts";
 import { refreshAndRead } from "../support/reviewRead.ts";
@@ -8,6 +11,9 @@ import {
   markReviewed,
   keptStoryAMark,
   reviewedRefs,
+  reviewRegion,
+  comparisonChoice,
+  landedRunChoice,
 } from "../support/storyReviewMark.ts";
 
 test("keyboard choices show each retained captured or legacy run beside the live marked comparison without changing its mark", async ({
@@ -25,7 +31,7 @@ test("keyboard choices show each retained captured or legacy run beside the live
     choices.first.key,
     choices.legacy.key,
   ]);
-  const review = page.getByRole("region", { name: "Story review" });
+  const review = reviewRegion(page);
   await markReviewed(review);
   const mark = keptStoryAMark(dashboard);
   const refs = reviewedRefs(origin.project);
@@ -35,15 +41,12 @@ test("keyboard choices show each retained captured or legacy run beside the live
     "Review refreshed: 1 changed file since the review",
   );
   await expect(
-    review.getByRole("radio", { name: "Since the review", exact: true }),
+    comparisonChoice(review, "Since the review", { exact: true }),
   ).toBeChecked();
-  const radio = review.getByRole("radio", {
-    name: "Landed runs",
-    exact: true,
-  });
+  const radio = comparisonChoice(review, "Landed runs", { exact: true });
   await radio.focus();
   await page.keyboard.press("Space");
-  const select = review.getByRole("listbox", { name: "Landed run" });
+  const select = landedRunChoice(review);
   await expect(select).toHaveValue(choices.second.key);
   for (const [index, run] of [choices.second, choices.first].entries()) {
     await select.focus();
@@ -53,9 +56,10 @@ test("keyboard choices show each retained captured or legacy run beside the live
     await expect(select).toHaveValue(run.key);
     await expect(review.getByRole("radio", { checked: true })).toHaveCount(1);
     await expect(
-      review
-        .getByRole("list", { name: "1 changed file", exact: true })
-        .getByRole("button", { name: `Added ${run.name}.txt`, exact: true }),
+      changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+        "button",
+        { name: `Added ${run.name}.txt`, exact: true },
+      ),
     ).toBeVisible();
     await expect(review.locator(".story-review-added")).toHaveText([
       `+${run.name}.txt`,
@@ -92,20 +96,19 @@ test("keyboard choices show each retained captured or legacy run beside the live
   ).toBeUndefined();
   expect(keptStoryAMark(dashboard)).toEqual(mark);
   expect(reviewedRefs(origin.project)).toBe(refs);
-  await review
-    .getByRole("radio", { name: "Since the review", exact: true })
-    .focus();
+  await comparisonChoice(review, "Since the review", { exact: true }).focus();
   await page.keyboard.press("Space");
   await expect(review.getByRole("listbox")).toHaveCount(0);
   await expect(
-    review
-      .getByRole("list", { name: "1 changed file", exact: true })
-      .getByRole("button", { name: "Added after-mark.txt", exact: true }),
+    changedFilesList(review, "1 changed file", { exact: true }).getByRole(
+      "button",
+      { name: "Added after-mark.txt", exact: true },
+    ),
   ).toBeVisible();
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toBeVisible();
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   const commits = review.getByRole("list", {
     name: "Story commits",
     exact: true,
@@ -122,7 +125,7 @@ test("keyboard choices show each retained captured or legacy run beside the live
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  await review.getByRole("radio", { name: "Commits", exact: true }).check();
+  await comparisonChoice(review, "Commits", { exact: true }).check();
   await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(rows.nth(0)).toHaveAttribute("aria-pressed", "false");
   await expect(review.locator(".story-review-added")).toHaveText(["+live.txt"]);
@@ -131,8 +134,6 @@ test("keyboard choices show each retained captured or legacy run beside the live
   ).toBeVisible();
   expect(keptStoryAMark(dashboard)).toEqual(mark);
   expect(reviewedRefs(origin.project)).toBe(refs);
-  await review.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    card.getByRole("button", { name: "Review changes" }),
-  ).toBeFocused();
+  await closeSidePanel(review);
+  await expect(reviewChanges(card)).toBeFocused();
 });

@@ -1,4 +1,5 @@
 // Observe actual text inside the code pane and reach it with native movement.
+import { listedFile, fileDiff, changedFilesList } from "./reviewTreeRows.ts";
 import type { Locator, Page } from "@playwright/test";
 import { tapWhereShown } from "../pageLayout.ts";
 import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
@@ -6,7 +7,12 @@ import { scrollByTouch } from "../touchGestures.ts";
 import { expect } from "./preparationPage.ts";
 import { contextValues, fileBrowser } from "./reviewContextLine.ts";
 import { chooseCommit } from "./storyReviewCommitChoice.ts";
-import { uncommittedCheck, uncommittedLabel } from "./storyReviewMark.ts";
+import {
+  uncommittedCheck,
+  uncommittedLabel,
+  comparisonChoice,
+  comparisonLabel,
+} from "./storyReviewMark.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
 // Adjacent React text nodes carry the marker and the file's original text.
@@ -149,12 +155,12 @@ export async function reachReviewControl(review: Locator, row: Locator) {
 
 export async function selectAddedFileByTouch(review: Locator, file: string) {
   const browser = fileBrowser(review);
-  const row = browser.getByRole("button", { name: `Added ${file}` });
+  const row = listedFile(browser, `Added ${file}`);
   // A long file list is ordinary independently scrolling content.
   await reachReviewControl(review, row);
   await tapWhereShown(row);
   await expect(row).toHaveAttribute("aria-pressed", "true");
-  return review.getByRole("region", { name: `Added ${file}` });
+  return fileDiff(review, `Added ${file}`);
 }
 
 // The first long file has short lines above its one wide line.
@@ -181,12 +187,11 @@ export async function visibleShortCodeLine(code: Locator) {
 
 // Tap the Commits comparison and confirm it is the chosen one.
 async function chooseCommitsByTouch(review: Locator) {
-  const comparison = review.getByRole("radiogroup", { name: "Comparison" });
-  const commits = comparison.locator("label", { hasText: "Commits" });
+  const commits = comparisonLabel(review, "Commits");
   await reachReviewControl(review, commits);
   await tapWhereShown(commits);
   await expect(
-    comparison.getByRole("radio", { name: "Commits", exact: true }),
+    comparisonChoice(review, "Commits", { exact: true }),
   ).toBeChecked();
 }
 
@@ -207,9 +212,7 @@ export async function chooseLargeChangesCommitByTouch(
   });
   await expect(commit).toHaveAttribute("aria-pressed", "true");
   await expect(
-    browser.getByRole("list", {
-      name: `${String(changedFiles)} changed files`,
-    }),
+    changedFilesList(browser, `${String(changedFiles)} changed files`),
   ).toBeVisible();
 }
 
@@ -220,9 +223,7 @@ export async function leaveUncommittedOutByTouchLabel(
   portrait: { width: number; height: number },
   committedFiles: number,
 ) {
-  const all = review
-    .getByRole("radiogroup", { name: "Comparison" })
-    .locator("label", { hasText: "All changes" });
+  const all = comparisonLabel(review, "All changes");
   const uncommitted = uncommittedCheck(review);
   const label = uncommittedLabel(review);
   await tapWhereShown(
@@ -235,9 +236,7 @@ export async function leaveUncommittedOutByTouchLabel(
   await tapWhereShown(label);
   await expect(uncommitted).not.toBeChecked();
   await expect(
-    browser.getByRole("list", {
-      name: `${String(committedFiles)} changed files`,
-    }),
+    changedFilesList(browser, `${String(committedFiles)} changed files`),
   ).toBeVisible();
   await resizeUntilArranged(review, portrait);
   await expect(uncommitted).not.toBeChecked();

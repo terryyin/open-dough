@@ -1,3 +1,4 @@
+import { closeSidePanel } from "../sidePanelFrame.ts";
 // The real shared host choice, native input, mixed history and continuation journey.
 
 import { sessionActions } from "../support/sessionEntryDisclosure.ts";
@@ -175,7 +176,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(terminalScreenParts(panel).rows).toContainText(
     "original retained history",
   );
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   const before = dashboard.claudeCalls().length;
   expect(
     (
