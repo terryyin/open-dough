@@ -656,3 +656,12 @@ asking what else the step's presence had detected.
   - Evidence: plan 592's premise row found that skipping the context journey's early commit choice fails the later Commits beat, so slice 4 moved the choice there and dropped the return to All changes. Neither the plan nor the first slice 4 return named an owner for "the chosen range survives leaving Commits", which the removed sequence had detected. At acceptance the coordinator returned the slice; fault FR failed the removed step on `d7622bc2b`, no touch case afterwards, and two desktop checks (`story-review-commit-ranges.spec.ts:80`, `story-review-commit-refresh.spec.ts:96`) found by running the review family (183 cases, 1,227 s at load 34–49).
   - Observed effect: one returned slice and a family run to find an owner the plan could have named; the same run surfaced five load-only failures in untouched review specs, recorded in `ProjectFindings.md` under DD-476.
   - Inference: the story's surviving-proof rule was applied to removed assertions and cases, not to behavior a removed step proved incidentally. Planning a removal could list each fault the step fails today, not only the assertion that motivated keeping part of it.
+
+- Execution: SEED-314#speed-up-landed-ci-repeat-checks (plan 595; first implementation `ad78d86495a1e808da9d40fb164b66e4d883b402`)
+  - Timestamp: unknown (execution 2026-11-11 23:35 to 2026-11-12 01:30 +08:00 for the slice concerned)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 595's existing-solution finding for slice 2 said the page fixture's implicit dashboard server "collects nothing", from the fixture's default environment. Removing that implicit start also removed a second collector from `landed-ci-scope-pending-order.spec.ts`, which set the collection option for it, and the fixture's `serveOriginBaseCi` answerer from 53 cases. The implementer reported both after the proof runs; the coordinator returned the slice for a reach observation (59 cases instrumented, no call reached a default answer, one control spec showing the instrument fires), and the refactor pass removed the orphaned option.
+  - Observed effect: one returned slice and a 329 s instrumented run to settle effects the plan could have listed; no consumer was affected.
+  - Inference: the same omission for a fixture as for a journey step: the plan named the effect that motivated the removal, the server start, and not everything that start did.

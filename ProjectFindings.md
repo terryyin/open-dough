@@ -437,6 +437,15 @@ selects no new implementation story.
   - Observed effect: base and candidate attribution runs, and a two-worker comparison in which each side needed five attempts for three passes.
   - Inference: the same load-only class at one worker, above the 20–30 load that SEED-287 promises. Four of the five cases are not named in SEED-287's story.
 
+- Execution: SEED-314#speed-up-landed-ci-repeat-checks (plan 595; first implementation `ad78d86495a1e808da9d40fb164b66e4d883b402`)
+  - Timestamp: unknown (between 2026-11-11 23:35 and 2026-11-12 11:58 +08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: Plan 595's slices required three consecutive passes of a twelve-case family, base and candidate comparisons, and two-worker runs at load 20–30, while other worktrees held the one-minute load at 26–74. Slice 2's implementer made nine family runs and two 27-file comparisons in 1 h 44 min without three passes; slice 4's made seven family runs for one pass; slice 5's made eight base and candidate pairs in which the base passed none. Each gate then passed at the first attempt in a window at load 12–27: slice 2 in 7 minutes, slice 4 in 3, and slice 5's three two-worker runs and three passing pairs in 26 minutes under a script that read `uptime` and started each run only inside the profile. Besides the family's own cases, the reconciliation, follow-up reading, receipt boundary and admission specs, `tests/intent/intent-ci-follow-up.spec.ts:19` and `tests/intent/recently-done-ci-automatic-repeat.spec.ts:14` failed on base and candidate alike above load 33.
+  - Observed effect: about four hours of delegated proof runs that could not settle their gate, against about 36 minutes of runs that did.
+  - Inference: a gate that names a load profile is cheapest when its command waits for the profile; runs taken outside it only attribute failures to the base. The last two specs are named by neither SEED-287 nor SEED-319.
+
 **Response:** The per-job deadline and bounded process cleanup landed in
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
