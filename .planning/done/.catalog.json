@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-318_remove-unused-taken-comparison-navigation.json",
+      "identity": "SEED-318#remove-unused-taken-comparison-navigation",
+      "completedAt": "2026-11-12T01:54:08.981Z",
+      "blob": "000e16a0b9b7256d29c7946351fa455f8e10fec4"
+    },
+    {
       "fileName": "SEED-322_keep-sidebar-selected-board-cards-visible-below-fixed-header.json",
       "identity": "SEED-322#keep-sidebar-selected-board-cards-visible-below-fixed-header",
       "completedAt": "2026-11-12T01:50:59.437Z",

@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks ([plan](slice-plans/593-speed-up-cursor-session-checks/PLAN.md))
 - [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks ([plan](slice-plans/595-speed-up-landed-ci-repeat-checks/PLAN.md))
 - [Open the terminal only when no custom instruction is supplied](seeds/SEED-320-conditional-terminal-opening.md#open-terminal-only-without-a-custom-instruction) — SEED-320#open-terminal-only-without-a-custom-instruction ([plan](slice-plans/597-open-terminal-only-without-a-custom-instruction/PLAN.md))
-- [Remove unused Taken comparison navigation](seeds/SEED-318-remove-unused-taken-comparison-navigation.md#remove-unused-taken-comparison-navigation) — SEED-318#remove-unused-taken-comparison-navigation ([plan](slice-plans/596-remove-unused-taken-comparison-navigation/PLAN.md))
 - [Encode launch attachment filenames for headers](seeds/SEED-323-launch-attachment-non-latin1-filenames.md#encode-launch-attachment-filenames-for-headers) — SEED-323#encode-launch-attachment-filenames-for-headers
 - [Prove the phone swipe under button-event pointer tracking](seeds/SEED-316-mobile-terminal-text-selection.md#prove-swipe-under-button-event-tracking) — SEED-316#prove-swipe-under-button-event-tracking ([plan](slice-plans/596-prove-swipe-under-button-event-tracking/PLAN.md))
 

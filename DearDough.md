@@ -120,6 +120,14 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: coordinator conversation: 19 `dough-execute-plan/references` files totalling 2,836 lines were read at their boundary rows for one planned slice whose product change was 64 lines in three files. The three delegated agents (source review, implementation, refactor) reported 42,579, 103,651 and 90,439 tokens. Paths read and not taken: CI failure repair and stash, rejected push, rebase conflict, interrupted publication, oversized slice and live-action proof.
   - Observed effect: no truncation, rework or error; each boundary read arrived as its own tool result as the ODF-264 response prescribes. Context was spent on procedures the managed start, delivery and completion commands carried out.
   - Inference: qualified. The coordinator read `execution-decisions.md`, `trunk-publication.md`, `story-obligations.md` and `ci-monitor.md` whole where a boundary row named one section, so part of the volume was its own choice. Cost only; this run shows no harm to quality.
+- Execution: SEED-318#remove-unused-taken-comparison-navigation (plan 596; first implementation `d368840eedcab86a7090228751d27afaa4789bcb`)
+  - Timestamp: unknown (2026-11-12, between Take `d9320ac4e` and the execution-complete record, about 09:20 to 09:50 +08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout at Take `d9320ac4e`)
+  - Evidence: coordinator conversation: 15 `dough-execute-plan/references` files, about 2,150 lines, were read at their boundary rows for one planned Structure slice whose product change deleted 28 lines in one test-support file. The three delegated agents (source review, implementation, refactor) reported 41,375, 68,672 and 53,704 tokens; the source review returned 19 commitment ids, each recorded with its own `observed:` cell. Paths read and not taken: CI failure repair, rejected push, rebase conflict, interrupted publication, oversized slice, live-action proof and one-shot starts.
+  - Observed effect: no truncation, rework or error; the refactor pass returned no change. The preparation scratch had already run the same deletion with the same typecheck and journey.
+  - Inference: qualified. `execution-decisions.md`, `story-obligations.md`, `trunk-publication.md` and `deliver-the-change.md` were again read whole where a row named a section. Cost only; the fixed procedure does not shrink with the change, so the ratio is at its widest on a deletion-only correction.
 
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 
@@ -496,6 +504,14 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `19e0e454a` PLAN.md has `## Ordered slices and proof ownership`; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `19442de20` has `## Ordered slices`. Plans 589 and 590 at that base carry the same longer heading (`589-…/PLAN.md:92`, `590-…/PLAN.md:87`). The seed's recorded assessment was `ready`.
   - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
   - Inference: same reader contract as the singular-heading occurrence, reached through a descriptive suffix instead; matching rests on that shared contract.
+- Execution: SEED-318#remove-unused-taken-comparison-navigation (plan 596; first implementation `d368840eedcab86a7090228751d27afaa4789bcb`)
+  - Timestamp: unknown (2026-11-12, before the first implementation delegation, about 09:37 +08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout at Take `d9320ac4e`)
+  - Evidence: Take `d9320ac4e` PLAN.md has `## Ordered slice` for its single slice; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `d368840ee` has `## Ordered slices`. The seed's recorded assessment was `ready`.
+  - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
+  - Inference: third near-miss form of the same heading; a one-slice plan invites the singular, and readiness still does not run the reader execution uses.
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
