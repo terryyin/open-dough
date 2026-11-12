@@ -13,22 +13,33 @@ import {
 
 export { isCheck, noteRequestsInEveryPage } from "./pageRequestNoting.ts";
 
+type UnansweredNote = Exclude<
+  keyof RequestsNoted,
+  "revisionChecksAskedAt" | "requestsSettled"
+>;
+
+// Runs in the page: gives it its message turns, and says how many of its
+// requests had been answered before them (`RequestsNoted`).
+async function turnsInPage(): Promise<number | undefined> {
+  const settled = (window as RequestsNoted & typeof window).requestsSettled;
+  for (let turn = 0; turn < 3; turn += 1) {
+    await new Promise<void>((done) => {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = () => {
+        done();
+      };
+      channel.port2.postMessage(undefined);
+    });
+  }
+  return settled;
+}
+
 // Gives the page its message turns: the page's own work runs on them, and
 // the paused page clock does not hold them back, so a few of them let it act
 // on what just happened -- commit a change, or send the request a step or an
 // answer led to.
 export async function givePageItsTurns(page: Page): Promise<void> {
-  await page.evaluate(async () => {
-    for (let turn = 0; turn < 3; turn += 1) {
-      await new Promise<void>((done) => {
-        const channel = new MessageChannel();
-        channel.port1.onmessage = () => {
-          done();
-        };
-        channel.port2.postMessage(undefined);
-      });
-    }
-  });
+  await page.evaluate(turnsInPage);
 }
 
 // Waits, with page time standing still, until the page has sent every
@@ -124,20 +135,28 @@ export async function reloadUntilRead(page: Page): Promise<void> {
   await untilPublishedWorkRead(page);
 }
 
+// Gives the page its turns until, after them, it holds no request of
+// `unansweredNote` unanswered and none of its requests was answered since they began: an
+// answer read while they ran, or just after them, gets turns of its own.
 async function untilNotedAnswered(
   page: Page,
-  unansweredNote: Exclude<keyof RequestsNoted, "revisionChecksAskedAt">,
+  unansweredNote: UnansweredNote,
 ): Promise<void> {
   for (;;) {
-    await givePageItsTurns(page);
-    const waited = await page.evaluate(async (note) => {
-      const unanswered = [
-        ...((window as RequestsNoted & typeof window)[note] ?? []),
-      ];
-      await Promise.all(unanswered);
-      return unanswered.length > 0;
-    }, unansweredNote);
-    if (!waited) {
+    const settledBefore = await page.evaluate(turnsInPage);
+    const answered = await page.evaluate(
+      async ({ note, settled }) => {
+        const noted = window as RequestsNoted & typeof window;
+        const unanswered = [...(noted[note] ?? [])];
+        if (unanswered.length === 0 && noted.requestsSettled === settled) {
+          return true;
+        }
+        await Promise.all(unanswered);
+        return false;
+      },
+      { note: unansweredNote, settled: settledBefore },
+    );
+    if (answered) {
       return;
     }
   }

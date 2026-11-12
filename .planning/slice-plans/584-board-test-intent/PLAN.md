@@ -135,6 +135,16 @@ overflow, scrollHeight, scrollbar room, reduced-motion geometry, sticky heading,
 `chooseProject` slice 3's; board-height's Hide-detail press slice 4's.
 Remaining same-probe callers are O1 (slice 2) and O2 (slices 5–8).
 
+CI repair after slice 1 (run 43215764018/1, `intent-project-visit-ci.spec.ts:35`
+received no branch-judgment calls): `untilNotedAnswered` gave the page its turns
+and looked for unanswered reads in separate evaluates, so an answer landing
+between them got no turns. The page now counts settled requests
+(`requestsSettled`, change waits aside) and the wait loops while any settled
+since its turns began. A held-read reproduction failed 3/3 at the old wait and
+passed at the new; all 77 direct callers passed (165 tests). Locally, a cold
+first test can still exceed 30 s in test-scoped fixture startup under load; it
+predates this story and lies outside its scope.
+
 ### 2. Follow native keyboard and touch reading with preserved ownership
 Type: Behavior
 Status: planned
