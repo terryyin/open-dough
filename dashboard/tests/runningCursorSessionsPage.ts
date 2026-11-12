@@ -1,21 +1,24 @@
-// The Sessions sidebar's Running Cursor sessions section, and the setup its
-// specs share: one session the Cursor runner holds, launched as the page
-// would, and the page showing the published Open Dough project. The held
-// client and the cursor-agent are the fixture ./support/cursorStart.ts uses.
+// The setup Running Cursor sessions specs share: one session the Cursor runner
+// holds, launched as the page would, and the page showing the published Open
+// Dough project. The held client and the cursor-agent are the fixture
+// ./support/cursorStart.ts uses. The section's parts are
+// ./runningCursorList.ts's, re-exported here for setup-holding callers; its
+// opening and collapsing come from there directly.
 import type { Locator, Page, Request } from "@playwright/test";
 import { cursorRunnerSessionsEndpoint } from "../src/cursorRunnerSessions.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { launch } from "./agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { parts } from "./dashboardPage.ts";
+import { parts, sessionEntriesIn } from "./dashboardPage.ts";
 import { box, expectInside } from "./pageLayout.ts";
-import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
 import { expect, test as cursorTest } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { installFakeCursor, type FakeCursor } from "./support/fakeCursor.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { keepLaunchRecords } from "./support/launchStore.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+
+export { runningCursorParts } from "./runningCursorList.ts";
 
 export const instruction = "hold this session";
 
@@ -44,7 +47,7 @@ export async function showPageWithTaken(
   origin: StartOrigin,
 ): Promise<void> {
   await showPage(page, origin);
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
 }
 
 // The runner's own held-sessions answer, used as a route precondition.
@@ -92,37 +95,6 @@ export async function showPage(page: Page, origin: StartOrigin): Promise<void> {
   await expect(
     page.getByRole("button", { name: "Start session in Open Dough" }),
   ).toBeVisible();
-}
-
-export function runningCursorParts(page: Page) {
-  const { sidebar, button, entries } = sessionsSidebarParts(page);
-  const region = sidebar.getByRole("region", {
-    name: "Running Cursor sessions",
-  });
-  return {
-    sidebar,
-    button,
-    entries,
-    heading: sidebar.getByRole("heading", { level: 2, name: "Sessions" }),
-    region,
-    header: region.getByRole("button", { name: "Running Cursor sessions" }),
-    // The two areas that scroll on their own.
-    list: sidebar.locator(".sessions-sidebar-sessions"),
-    body: region.locator(".running-cursor-body"),
-    // The divider between them, while expanded.
-    divider: sidebar.getByRole("separator", {
-      name: "Running Cursor sessions divider",
-      exact: true,
-    }),
-  };
-}
-
-// Opens the sidebar and expands Running Cursor sessions.
-export async function openRunningList(page: Page) {
-  const shown = runningCursorParts(page);
-  await shown.button.click();
-  await shown.header.click();
-  return shown;
 }
 
 // Requests other than reads: a launch, an attach, a done mark, a delete, or

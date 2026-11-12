@@ -37,11 +37,11 @@ items. Ids below are the reviewer's, with kind omitted.
 | 5.6 | Express host figures through suitable shared observations | slice 3 | observed: dashboard/tests/sessionsSidebarFigures.ts sessionsSidebarFigures/expectFigure used by dashboard/tests/sessions/sessions-sidebar-host-status.spec.ts and dashboard/frontend-tests/sessions-sidebar-host-status.spec.ts; 6/6 passed slice3-host-status.log |
 | 5.7 | Counts, CPU/disk values and accessible words remain caller facts | slice 3 | observed: expectFigure calls pass literal values at call sites: frontend ('61%','CPU 61%'), ('1.2 TB','1.2 TB free'), ('—','Free disk unavailable'); integrated (active,1,'1 active session'), (waiting,3,'3 sessions need attention'); passed slice3-host-status.log |
 | 5.8 | Controlled reads and clocks still explain when a reading changes | slice 3 | observed: integrated spec keeps passOnePace, pausePageClockAt, page.clock.runFor, noteHostReads counts and setPageVisibility inline; frontend keeps putFrontendHostStatus + passOnePace transitions; passed slice3-host-status.log |
-| 6.1 | Express Running Cursor discovery through shared browser controls | slice 4 | |
-| 6.2 | Express Running Cursor selection through shared browser controls | slice 4 | |
+| 6.1 | Express Running Cursor discovery through shared browser controls | slice 4 | observed: dashboard/tests/runningCursorList.ts openRunningList/heldRows/listed used by cursor-runner-sessions (row contains Ad hoc and label, runner sentence; refused cases listed count 0) and cursor-sessions-sidebar-navigation (expansion kept across project change, settings, close; collapsed after reload); 37/37 s4-proof.log |
+| 6.2 | Express Running Cursor selection through shared browser controls | slice 4 | observed: cursor-runner-sessions.spec.ts and cursor-sessions-sidebar-navigation.spec.ts keep explicit row.click() then assert terminal text, terminal focus, narrow/wide sidebar outcome, attachment pid equals held pid and client calls [['create-chat']]; 37/37 s4-proof.log |
 | 6.3 | Express Running Cursor reachability through shared browser controls | slice 5 | |
 | 6.4 | Express Running Cursor resizing through shared browser controls | slice 5 | |
-| 6.5 | Frontend synthetic answers remain separate from integrated runner setup and native attachment evidence | slice 4 | |
+| 6.5 | Frontend synthetic answers remain separate from integrated runner setup and native attachment evidence | slice 4 | observed: frontend-tests/cursor-runner-sessions-ui.spec.ts imports only browser-only runningCursorList.ts; holdSession, withRunningCursor, heldSessionsAnswer and native call/attach evidence stay in runningCursorSessionsPage.ts and integrated specs; 37/37 s4-proof.log |
 | 7 | Express retained-session selection separately from opening its Terminal or Final report | slice 6 | |
 | 7.1 | Share report identity | slice 6 | |
 | 7.2 | Share report title | slice 6 | |
@@ -55,11 +55,11 @@ items. Ids below are the reviewer's, with kind omitted.
 | 8.2 | Keep expected state/badges and placement explicit where they separate outcomes | slice 1 | observed: literal state words, column counts ('2 entries') and expectMembership unchanged at call sites in session-column-membership and agent-launch-story-card-session-states; passed s1-proof2.log |
 | 8.3 | Keep report text explicit where it separates outcomes | slice 6 | |
 | 8.4 | Keep exact key/touch/pointer input and focus expectations explicit where they separate outcomes | slice 2 | observed: page.keyboard.press and tapWhereShown inputs and toBeFocused expectations remain at call sites in sessions-sidebar-keyboard, -navigation, -navigation-cases, -touch and recently-done-sessions-sidebar-reopen; passed s2-proof-final.log |
-| 8.5 | Keep held answers and release order explicit where they separate outcomes | slice 4 | |
+| 8.5 | Keep held answers and release order explicit where they separate outcomes | slice 4 | observed: frontend-tests/cursor-runner-sessions-ui.spec.ts arms reads.nextArrival() before openRunningList and keeps each reads.answer and finally reads.releaseAll explicit; quiet-rate keeps held reads and passPageMsAnswered inline; s4-proof.log |
 | 8.6 | Keep native/HTTP/Git/record evidence explicit where it separates outcomes | slice 6 | |
 | 9 | Domain setup stays with MakeMe | slice 6 | |
 | 10 | Browser observations must not manufacture expected facts from the production value being checked | slice 3 | observed: sessionsSidebarFigures.ts imports only @playwright/test and sessionsSidebarPage.ts and derives no expected value; the integrated real-host case's cpuShown/freeDiskShown transport comparison stays in its spec; passed slice3-host-status.log |
-| 11 | Browser observations must not complete a held read as an incidental wait | slice 4 | |
+| 11 | Browser observations must not complete a held read as an incidental wait | slice 4 | observed: openRunningList waits only on sidebar/header state and collapseRunningList on content leaving; neither waits on a runner read (runningCursorList.ts); held reads answered by scenarios; s4-proof.log |
 | 12 | Accessibility and geometry contract checks retain their independent expectations | slice 5 | |
 | 13.1 | No dashboard behavior change | slice 6 | |
 | 13.2 | No test-speed promise | slice 6 | |
@@ -84,7 +84,7 @@ items. Ids below are the reviewer's, with kind omitted.
 | F1.3 | Affected: compact entry, story-card session rows, Delete, column membership, unread reports, Cursor recovery specs | slice 1 | observed: compact-session-entry, agent-launch-story-card-sessions, agent-launch-story-card-delete, session-column-membership, session-unread-report and cursor-session-recovery-stops migrated; passed s1-proof2.log |
 | F2 | Sessions sidebar and Running Cursor: share the keyboard-walk, selection, paging, scroll-retention and resize observations and actions (currently built from locators, coordinates and raw focus checks) | slice 5 | |
 | F2.1 | Share the expectFigure that the frontend and integrated host-status specs each define | slice 3 | observed: the two local expectFigure definitions are replaced by dashboard/tests/sessionsSidebarFigures.ts expectFigure, imported by both host-status specs |
-| F2.2 | Share the opening of the Running Cursor list (duplicated in the frontend spec) | slice 4 | |
+| F2.2 | Share the opening of the Running Cursor list (duplicated in the frontend spec) | slice 4 | observed: frontend spec's 15-line local openRunningList deleted; both tiers use runningCursorList.ts openRunningList; 37/37 s4-proof.log |
 | F2.3 | ...without coupling frontend fixtures to integrated servers | slice 3 | observed: frontend-tests/sessions-sidebar-host-status.spec.ts imports figures from browser-only sessionsSidebarFigures.ts; its only support import is the unreadSessions route stub; no integrated server or fake host is started; passed slice3-host-status.log |
 | F2.4 | Affected: sidebar keyboard, kept scroll, Recently done paging, Cursor resize, integrated and frontend host status, frontend Running Cursor specs | slice 5 | |
 | F3 | Final report, retained sessions, workspace retirement: expose report text, panel title, session ID and read/open/close mechanics through the report and session pages | slice 6 | |
@@ -100,9 +100,9 @@ items. Ids below are the reviewer's, with kind omitted.
 | A5 | A shared control edit has one maintained selector owner for the affected callers | slice 6 | |
 | A6 | A test of the exact name, accessibility contract or DOM measurement retains its independent expected value | slice 5 | |
 | A7 | Use the audited source as the comparison baseline; weigh call-site clarity, edit sites and helper cost under the definition of improvement (ADR 0010) | slice 6 | |
-| A8.1 | Held-read tests still show which action happens before the answer | slice 4 | |
-| A8.2 | ...which user choice supersedes it | slice 4 | |
-| A8.3 | ...and what stays selected after release | slice 4 | |
+| A8.1 | Held-read tests still show which action happens before the answer | slice 4 | observed: frontend slow-answer case: opening armed before the first answer and outstanding() = 1 asserted before reads.answer; s4-proof.log |
+| A8.2 | ...which user choice supersedes it | slice 4 | observed: frontend case names the superseding choices: hiding the page keeps asked at 2, collapseRunningList leaves outstanding() 0 and asked 3; s4-proof.log |
+| A8.3 | ...and what stays selected after release | slice 4 | observed: frontend case asserts the saved session's exact-name sidebar entry stays visible and no Terminal opens after release; s4-proof.log |
 | A9 | Touch and keyboard tests still identify the actual input and expected focus | slice 2 | observed: sessions-sidebar-touch and recently-done-sessions-sidebar-touch still tap through tapWhereShown with focus expectations inline; passed s2-proof-final.log |
 | A10 | Keep Git, HTTP, host and record evidence at the boundary it observes, along with the assertions that distinguish outcomes | slice 6 | |
 | A11.1 | Preserve each distinct behavior check | slice 6 | |

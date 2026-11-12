@@ -6,7 +6,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { makeRecordedRunnerProofStale } from "../support/cursorRunnerRecordedAddress.ts";
@@ -127,7 +127,7 @@ replacementTest(
       .toBe(scopedAttachesBeforeReplace + 1);
 
     await reloadUntilRead(page);
-    const entries = parts(page).taken.locator(".session-entry");
+    const entries = sessionEntriesIn(parts(page).taken);
     const revived = entries.filter({ hasText: cursor.sessionId });
     const neverHeld = entries.filter({ hasText: secondSessionId });
     const failed = entries.filter({ hasText: failSessionId });
@@ -144,7 +144,7 @@ replacementTest(
       1,
     );
     await expect(
-      parts(page).recentlyDone.locator(".session-entry").filter({
+      sessionEntriesIn(parts(page).recentlyDone).filter({
         hasText: doneSessionId,
       }),
     ).toHaveCount(1);

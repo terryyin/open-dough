@@ -54,9 +54,10 @@ test("collapsed below the session list, expanded into two lists sharing the room
   await showPage(page, origin);
   await answerCrowd(page, held);
   const calls = cursor.calls().length;
+  const shown = runningCursorParts(page);
   const { sidebar, button, entries, heading, region, header, list, body } =
-    runningCursorParts(page);
-  const heldRows = region.getByRole("button", { name: /Open Dough/ });
+    shown;
+  const heldRows = shown.heldRows(/Open Dough/);
   await button.click();
   await expect(entries).toHaveCount(crowd + 1);
 

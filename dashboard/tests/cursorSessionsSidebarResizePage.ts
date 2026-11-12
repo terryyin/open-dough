@@ -108,7 +108,7 @@ export async function expandCrowded(
   await answerCrowd(page, held);
   const calls = cursor.calls().length;
   const shown = runningCursorParts(page);
-  const heldRows = shown.region.getByRole("button", { name: /Open Dough/ });
+  const heldRows = shown.heldRows(/Open Dough/);
   await shown.button.click();
   await expect(shown.entries).toHaveCount(crowd + 1);
   await shown.header.click();

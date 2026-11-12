@@ -35,7 +35,7 @@ import {
   recordReveals,
   revealsOf,
 } from "../sessionNavigationJourney.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
 
@@ -117,15 +117,8 @@ test("choosing a Running Cursor sessions row from Pygardon reveals its done entr
     await chooseProject(page, "Pygardon");
     await expect(backlog).toContainText("A Pygardon story");
 
-    const { sidebar, button } = sessionsSidebarParts(page);
-    await button.click();
-    const region = sidebar.getByRole("region", {
-      name: "Running Cursor sessions",
-    });
-    await region
-      .getByRole("button", { name: "Running Cursor sessions" })
-      .click();
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const { button, heldRows } = await openRunningList(page);
+    const row = heldRows(/Open Dough/);
     await expect(row).toContainText("Ad hoc");
     const before = (await revealsOf(page)).length;
     await row.click();

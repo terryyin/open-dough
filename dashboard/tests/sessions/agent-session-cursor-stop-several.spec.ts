@@ -4,7 +4,7 @@
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 import type { Page } from "@playwright/test";
 import { parts, sessionEntriesIn } from "../dashboardPage.ts";
-import { openRunningList } from "../runningCursorSessionsPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import {
   launchSecondHeldSession,
   startScopedCursorExecution,
@@ -49,10 +49,8 @@ workingCursorTest(
     const otherPid = otherAttach?.pid ?? 0;
     expect(processRunning(otherPid)).toBe(true);
 
-    const runningBefore = await openRunningList(page);
-    await expect(
-      runningBefore.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(2);
+    const heldRows = (await openRunningList(page)).heldRows(/Open Dough/);
+    await expect(heldRows).toHaveCount(2);
 
     await (await sessionAction(scopedEntry, "Stop")).click();
     await expect(scopedEntry).toContainText("Session stopped.");
@@ -62,9 +60,7 @@ workingCursorTest(
     expect(processRunning(otherPid)).toBe(true);
     expect(cursor.signals(otherPid)).not.toContain("SIGHUP");
 
-    await expect(
-      runningBefore.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(1);
+    await expect(heldRows).toHaveCount(1);
     await expect(otherEntry).toContainText("Working");
     expect(processRunning(otherPid)).toBe(true);
   },

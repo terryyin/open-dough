@@ -15,13 +15,13 @@ import { publishMovingOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "./describedRevisions.ts";
 import { publishOnePygardonStory } from "./pygardonProject.ts";
 import { box } from "./pageLayout.ts";
+import { openRunningList, runningCursorParts } from "./runningCursorList.ts";
 import {
   answerCrowd,
   changesAsked,
   crowd,
   holdSession,
   keepCrowd,
-  runningCursorParts,
   showPage,
 } from "./runningCursorSessionsPage.ts";
 import {
@@ -203,11 +203,9 @@ export async function expandThreeCrowded(
   await answerCrowd(page, held);
   const calls = cursor.calls().length;
   const shown = recentlyDoneParts(page);
-  const heldRows = shown.running.region.getByRole("button", {
-    name: /Open Dough/,
-  });
+  const heldRows = shown.running.heldRows(/Open Dough/);
   await showRecentlyDone(page);
-  await shown.running.header.click();
+  await openRunningList(page);
   await expect(shown.openEntries).toHaveCount(crowd + 1);
   await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
   await expect(heldRows).toHaveCount(crowd);

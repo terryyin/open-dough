@@ -8,7 +8,7 @@ import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { cursorRunnerSpawnHelper } from "../../server/hosts/cursor/runnerSpawnHelper.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
-import { openRunningList } from "../runningCursorSessionsPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import { makeRecordedHelperProofMissing } from "../support/cursorRunnerRecordedAddress.ts";
 import { keptRecords } from "../support/cursorSessionRecovery.ts";
 import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
@@ -44,9 +44,7 @@ workingCursorTest(
 
     const running = await openRunningList(page);
     await expect(running.region).toContainText("The Cursor runner is running.");
-    await expect(
-      running.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(2);
+    await expect(running.heldRows(/Open Dough/)).toHaveCount(2);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(
       runnerBefore?.pid,
     );
@@ -89,9 +87,7 @@ workingCursorTest(
     expect(cursor.attaches()).toHaveLength(3);
     // Sidebar stayed open from the earlier Running Cursor sessions read;
     // wait for the new session to join the two held rows there.
-    await expect(
-      running.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(3);
+    await expect(running.heldRows(/Open Dough/)).toHaveCount(3);
     for (const pid of heldPids) expect(processRunning(pid)).toBe(true);
   },
 );

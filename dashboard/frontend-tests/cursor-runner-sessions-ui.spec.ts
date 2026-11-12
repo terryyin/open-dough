@@ -23,13 +23,16 @@ import {
   putFrontendMachine,
   type FrontendServiceState,
 } from "../tests/support/frontendServiceState.ts";
-import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
+import {
+  collapseRunningList,
+  openRunningList,
+} from "../tests/runningCursorList.ts";
 import {
   countCursorSessionsAsks,
   holdCursorSessionsReads,
   trackCursorSessionsDemand,
 } from "../tests/support/cursorSessionsDemand.ts";
-import { parts } from "../tests/dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../tests/dashboardPage.ts";
 
 const instruction = "hold this session";
 const slowerThanAskGapMs = askGapMs + 200;
@@ -66,21 +69,6 @@ function holdCursorSession(frontendServices: FrontendServiceState) {
   );
 }
 
-async function openRunningList(
-  page: Parameters<typeof sessionsSidebarParts>[0],
-) {
-  const { sidebar, button } = sessionsSidebarParts(page);
-  const region = sidebar.getByRole("region", {
-    name: "Running Cursor sessions",
-  });
-  const header = region.getByRole("button", {
-    name: "Running Cursor sessions",
-  });
-  await button.click();
-  await header.click();
-  return { sidebar, region, header };
-}
-
 test("slow Cursor sessions answers still publish under at most one owned read, and collapse or a hidden page ends or pauses that demand", async ({
   page,
   frontendServices,
@@ -91,11 +79,12 @@ test("slow Cursor sessions answers still publish under at most one owned read, a
   const reads = await holdCursorSessionsReads(page);
   try {
     await openFrontendTakenBacklog(page);
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     const demand = trackCursorSessionsDemand(page);
     const shownTerminal = page.getByRole("region", { name: "Terminal" });
     const firstRead = reads.nextArrival();
-    const { sidebar, region, header } = await openRunningList(page);
+    const running = await openRunningList(page);
+    const { sidebar, region } = running;
     await firstRead;
 
     // The first answer is slower than the ask gap: page time passes while
@@ -106,7 +95,7 @@ test("slow Cursor sessions answers still publish under at most one owned read, a
     await expect.poll(() => demand.outstanding()).toBe(1);
     reads.answer(heldSessions);
     await expect(region).toContainText("The Cursor runner is running.");
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const row = running.heldRows(/Open Dough/);
     await expect(row).toContainText("working");
     await untilPageRequestsAnswered(page);
     expect(demand.peak()).toBe(1);
@@ -139,8 +128,7 @@ test("slow Cursor sessions answers still publish under at most one owned read, a
     expect(demand.peak()).toBe(1);
 
     // Collapsed, the list ends its demand: the armed next ask never starts.
-    await header.click();
-    await expect(region.locator(".running-cursor-body")).toHaveCount(0);
+    await collapseRunningList(running);
     expect(demand.outstanding()).toBe(0);
     await page.clock.runFor(slowerThanAskGapMs * 3);
     expect(await asked()).toBe(3);
@@ -174,21 +162,21 @@ test("while expanded, the list says it is reading, then follows each later read:
   };
   try {
     await openFrontendTakenBacklog(page);
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     const shownTerminal = page.getByRole("region", { name: "Terminal" });
     const firstRead = reads.nextArrival();
-    const { sidebar, region } = await openRunningList(page);
+    const { sidebar, region, listed, heldRows } = await openRunningList(page);
     await firstRead;
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const row = heldRows(/Open Dough/);
     await expect(region).toContainText("Reading the Cursor runner…");
-    await expect(region.getByRole("listitem")).toHaveCount(0);
+    await expect(listed).toHaveCount(0);
     reads.answer(heldSessions);
     await expect(region).toContainText("The Cursor runner is running.");
     await expect(row).toContainText("working");
 
     await answerNextRead(unreachable);
     await expect(region).toContainText("The Cursor runner cannot be reached.");
-    await expect(region.getByRole("listitem")).toHaveCount(0);
+    await expect(listed).toHaveCount(0);
     await expect(
       sidebar.getByRole("button", { name: instruction, exact: true }),
     ).toBeVisible();
@@ -198,7 +186,7 @@ test("while expanded, the list says it is reading, then follows each later read:
     await expect(row).toContainText("working");
 
     await answerNextRead(noHeldSessions);
-    await expect(region.getByRole("listitem")).toHaveCount(0);
+    await expect(listed).toHaveCount(0);
     await expect(region).toContainText("The Cursor runner is running.");
     await expect(region).not.toContainText("cannot be reached");
     expect(await asked()).toBe(4);

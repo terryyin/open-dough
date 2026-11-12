@@ -184,7 +184,7 @@ site literal. Proof 6/6 (`slice3-host-status.log`), refactor rerun 4/4.
 
 ### 4. Follow Running Cursor discovery and selection
 Type: Behavior
-Status: planned
+Status: done
 Proof: `cursor-sessions-sidebar-{navigation,layout}`, `cursor-runner-sessions*`, and `frontend-tests/cursor-runner-sessions-ui.spec.ts`, extended to extracted-control consumers. Retain held answers, request ownership/peak, ask-gap clocks, runner states, chosen UUID/client, terminal destination and native calls/attachment evidence.
 
 Behavior: Given a native held client or synthetic held answer, the developer
@@ -192,6 +192,14 @@ follows shared list expansion/discovery/selection while the case still explains
 demand, collapse/visibility and the chosen session's destination. Separate browser
 controls from native setup, preserving exports. Safe stop: frontend starts no
 runner and integrated native evidence stays explicit.
+
+Result (slice 4): new browser-only `runningCursorList.ts` owns `runningCursorParts`
+(plus `listed`, `heldRows`), idempotent `openRunningList` and `collapseRunningList`;
+`runningCursorSessionsPage.ts` re-exports `runningCursorParts` and keeps native setup. The frontend
+copy of the opening, 19 held-row, 6 list-item, 6 opening, 2 collapse and 11 Session
+entry raw sites were removed for about 20 new behavior lines. Held reads stay armed and
+answered in scenarios. Proof 37/37 over 21 specs (`s4-proof.log`) plus 5/5 retained
+consumers. Slice 5 inherits the resize page's own open sequence.
 
 ### 5. Read Running Cursor resize and reachability through its owner
 Type: Behavior

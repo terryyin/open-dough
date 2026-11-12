@@ -6,11 +6,11 @@
 // the sidebar, but a reload starts collapsed. The section's layout is
 // ./cursor-sessions-sidebar-layout.spec.ts's.
 import { chooseProject, parts } from "../dashboardPage.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import {
   changesAsked,
   holdSession,
   instruction,
-  runningCursorParts,
   showPage,
 } from "../runningCursorSessionsPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
@@ -33,12 +33,10 @@ for (const { name, size } of [
     await page.setViewportSize(size);
     const pid = await holdSession(dashboard, cursor);
     await showPage(page, origin);
-    const { sidebar, button, entries, header, region, list } =
-      runningCursorParts(page);
     const terminal = page.getByRole("region", { name: "Terminal" });
-    await button.click();
-    await header.click();
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const { sidebar, entries, header, list, heldRows } =
+      await openRunningList(page);
+    const row = heldRows(/Open Dough/);
     await expect(row).toContainText("working");
     // The saved session stays the session list's one entry beside its row.
     await expect(entries).toHaveCount(1);
@@ -81,14 +79,12 @@ test.describe("with two projects", () => {
     await publishOnePygardonStory(page);
     const asked = changesAsked(page);
     await showPage(page, origin);
-    const { sidebar, button, header, body } = runningCursorParts(page);
+    const { sidebar, button, header, body } = await openRunningList(page);
     const { backlog } = parts(page);
     const expanded = async () => {
       await expect(header).toHaveAttribute("aria-expanded", "true");
       await expect(body).toBeVisible();
     };
-    await button.click();
-    await header.click();
     await expanded();
 
     await test.step("choosing another project keeps it expanded", async () => {

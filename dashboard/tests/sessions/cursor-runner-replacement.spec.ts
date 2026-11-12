@@ -5,16 +5,15 @@
 // Recover click. Same-build helper-proof survival lives in
 // ./cursor-runner-helper-survival.spec.ts. Done / never-held / fail
 // controls live in ./cursor-runner-replacement-controls.spec.ts.
-import type { Page } from "@playwright/test";
 import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-import { parts } from "../dashboardPage.ts";
+import { openTerminalOf, parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { openRunningList } from "../runningCursorList.ts";
 import {
   holdSession,
-  openRunningList,
-  showPage,
+  showPageWithTaken,
 } from "../runningCursorSessionsPage.ts";
 import {
   expectContinuationThroughScope,
@@ -38,31 +37,25 @@ import {
 import { expect, test, workingCursorTest } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
-import type { StartOrigin } from "../support/startOrigin.ts";
-
-// The page also lists the held session as the project's local Taken entry.
-async function showHeldSessionPage(
-  page: Page,
-  origin: StartOrigin,
-): Promise<void> {
-  await showPage(page, origin);
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
-}
+import {
+  closeSessionDetails,
+  sessionDetails,
+} from "../support/sessionEntryDisclosure.ts";
 
 workingCursorTest(
   "a stale-proof runner is read and joined for its held session, and observation starts or replaces nothing",
   async ({ page, dashboard, origin, cursor }) => {
     const pid = await holdSession(dashboard, cursor);
-    await showHeldSessionPage(page, origin);
+    await showPageWithTaken(page, origin);
     const runnerPid = readCursorRunnerAddress(dashboard.home)?.pid;
     expect(runnerPid).toBeGreaterThan(0);
     const calls = cursor.calls().length;
     const attaches = cursor.attaches().length;
     makeRecordedRunnerProofStale(dashboard.home);
     const shownTerminal = page.getByRole("region", { name: "Terminal" });
-    const { region } = await openRunningList(page);
+    const { region, heldRows } = await openRunningList(page);
     await expect(region).toContainText("The Cursor runner is running.");
-    const row = region.getByRole("button", { name: /Open Dough/ });
+    const row = heldRows(/Open Dough/);
     await expect(row).toContainText("working");
     await expect(shownTerminal).toHaveCount(0);
     expect(readCursorRunnerAddress(dashboard.home)?.pid).toBe(runnerPid);
@@ -116,21 +109,19 @@ replacementTest(
     makeRecordedRunnerProofStale(dashboard.home);
     const running = await openRunningList(page);
     await expect(running.region).toContainText("The Cursor runner is running.");
-    await expect(
-      running.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(2);
+    await expect(running.heldRows(/Open Dough/)).toHaveCount(2);
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
     await running.button.click();
     await expect(running.sidebar).toBeHidden();
-    const entries = parts(page).taken.locator(".session-entry");
+    const entries = sessionEntriesIn(parts(page).taken);
     await expect(entries).toHaveCount(2);
     const scopedEntry = entries.filter({ hasText: cursor.sessionId });
     const otherEntry = entries.filter({ hasText: secondSessionId });
-    await scopedEntry.getByRole("button", { name: "Session details" }).click();
+    await sessionDetails(scopedEntry);
     await expect(scopedEntry.getByText("First input accepted")).toBeVisible();
-    await scopedEntry.getByRole("button", { name: "Session details" }).click();
+    await closeSessionDetails(scopedEntry);
     const panel = page.getByRole("region", { name: "Terminal" });
-    await scopedEntry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(scopedEntry).click();
     await expect(panel.locator(".xterm-rows")).toContainText("Add a follow-up");
     await panel.getByRole("button", { name: "Close", exact: true }).click();
     await expect(panel).toHaveCount(0);
@@ -236,8 +227,6 @@ replacementTest(
     await expect(runningAgain.region).toContainText(
       "The Cursor runner is running.",
     );
-    await expect(
-      runningAgain.region.getByRole("button", { name: /Open Dough/ }),
-    ).toHaveCount(3);
+    await expect(runningAgain.heldRows(/Open Dough/)).toHaveCount(3);
   },
 );
