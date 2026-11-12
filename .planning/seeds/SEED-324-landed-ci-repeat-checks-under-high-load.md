@@ -166,6 +166,10 @@ Scope limits:
    Amended by Terry on 2026-11-12, after the probe showed 15 s out of reach:
    the figure was 15 s, or 25 s for a case first in its worker, and the named
    specs include the project scope timing refresh spec.
+   Decided by Terry on 2026-11-13: the load is the natural load other work
+   puts on the machine. Runs whose load comes from CPU burners started for
+   the measurement inform but do not count; the fake `gh` call's cost under
+   CPU-bound contention is a separate story.
 2. **One journey.** The four specs → count the cases that ingest a receipt →
    one, where the base has five.
 3. **A provider reply without a journey.** A machine keeps five measured

@@ -2836,12 +2836,45 @@ fake `gh` call out of scope. The decision needed: which load counts for key
 example 1, or whether the fake `gh` call cost or the refresh case's return to
 the Done landing comes into scope. Hosted CI passed on `4e3c2235e`.
 
+#### Terry's decision, 2026-11-13
+
+Key example 1 is read against the natural load other work puts on the
+machine; burner runs inform but do not count. Obligation G1 closes on the
+natural-load counted runs e2, e4 and e5, and the a1/a2 pairs show the merge
+changed no step's time. A separate story takes the fake `gh` call's cost
+under CPU-bound contention. The retrospective's correction, plan 607, is
+queued first.
+
+## Execution complete
+
+Product advice:
+
+- Queue the retrospective's correction first:
+  [SEED-324#close-landed-ci-repeat-check-gaps](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
+  (plan 607; not ready until its five premises are observed).
+- Add a story that makes the fake `gh` cheaper under CPU-bound contention
+  (in-process answers instead of a Node process per call), as Terry decided
+  on 2026-11-13. Every dashboard check pays it: under foreground burners the
+  refresh cases spent most of their time in the Done comparison read's 21
+  calls. The loaded failures outside this story's checks, on trunk and this
+  branch alike, are its first evidence: `start-origin-isolation.spec.ts:140`
+  (DD-479), `intent-summary-story-comparison-sort.spec.ts:72`,
+  `intent-story-changes-landed-run.spec.ts:75`,
+  `intent-done-default-answer-selection.spec.ts:42` and the five
+  scope-history specs at load about 30.
+- SEED-319#hold-landed-ci-follow-up-observations-under-load can start its
+  cases from the kept-landing stages (`keepRepeatLanding`) and the stories a
+  worker keeps (`keptPublishedStory.ts`) instead of real journeys.
+- `agent-completion-quiet.spec.ts` keeps trunk's retried open and 60 s case
+  timeout beside this branch's wait for the Startup recovery region; with the
+  cause removed, their owner can drop both.
+
 ## Story obligations
 
 ### G1. Page cases first in their worker reach the bound at load 27–49
 Reported: slice 4 — "With both cases first in their workers at load 27 → 49 the warning case took 28.2–29.7 s and failed once at the 30 s bound; Before Hooks took 25.8 s."
 Story clause: "every case passes each time; no case takes more than 25 s"
-Disposition: return
+Disposition: proved by slice 10: PLAN.md Slice 10 record, correction for G2, counted natural-load runs e2, e4 and e5 at 31–50: 14 of 14 each, slowest 18.1 s; Repair of G1 after the SEED-330 merge: per-step times on the merged and pre-merge revisions match under the same load (a1, a2); burner runs do not count, as Terry decided on 2026-11-13
 
 
 ### G2. The refresh cases wait with an expectation timeout of readWaitLimitMs + 15 s
