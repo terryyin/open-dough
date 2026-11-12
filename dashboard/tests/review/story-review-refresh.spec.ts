@@ -1,3 +1,4 @@
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review stays the snapshot taken when it opened, of Story A's
 // worktree (../support/storyReviewWorktree.ts), while the worktree moves on:
 // a further commit to the open file and a new file change neither the file
@@ -95,7 +96,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   });
 
   await test.step("Refresh lists the new file and shows the edit, keeps focus, and announces it", async () => {
-    const refresh = review.getByRole("button", { name: "Refresh" });
+    const refresh = reviewRefresh(review);
     await refresh.focus();
     await refresh.press("Enter");
     const refreshed = changedFilesList(review, "8 changed files");
@@ -172,7 +173,7 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     await select("Modified unstaged.txt");
     await expect(diff.getByText(edit, { exact: true })).toBeVisible();
     git(workspace, "checkout", merged, "--", "unstaged.txt");
-    await review.getByRole("button", { name: "Refresh" }).press("Enter");
+    await reviewRefresh(review).press("Enter");
     await expectReviewRead(review);
     const refreshed = changedFilesList(review, "8 changed files");
     await expect(listedFile(refreshed, "Added fresh/new.txt")).toHaveAttribute(

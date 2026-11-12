@@ -20,7 +20,7 @@ import {
   keptStoryAMark,
   markedThenChanged,
   markReviewed,
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reopenStoryReview,
   reviewRegion,
@@ -81,9 +81,8 @@ test("Refresh keeps all changes shown, of a new snapshot", async ({
   await comparisonChoice(review, "All changes").check();
   writeFileSync(path.join(workspace, "meanwhile.txt"), "meanwhile\n");
 
-  const refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh" }).click();
-  expect((await refreshed).files).toHaveLength(14);
+  const refreshed = await refreshReview(review);
+  expect(refreshed.files).toHaveLength(14);
   await expectShown(review, "All changes");
   await expect(changedFilesList(review, "14 changed files")).toBeVisible();
   await expect(review.getByRole("status").first()).toHaveText(

@@ -1,3 +1,4 @@
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review folders collapse and expand by pointer and keyboard, of
 // Story A's worktree changing nested files (../support/storyReviewWorktree.ts):
 // collapsed, a folder hides its rows and tells how many changed files it
@@ -120,7 +121,7 @@ test("a story's review folders collapse and expand", async ({
     await treeFolder(review, "server").click();
     mkdirSync(path.join(workspace, "scripts"));
     writeFileSync(path.join(workspace, "scripts", "x.mjs"), "x\n");
-    await review.getByRole("button", { name: "Refresh" }).click();
+    await reviewRefresh(review).click();
     const refreshed = changedFilesList(review, "7 changed files");
     await expectTreeRows(refreshed, [
       "dashboard",

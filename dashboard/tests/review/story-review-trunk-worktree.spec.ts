@@ -25,7 +25,7 @@ import {
   expectSinceTheReview,
   keptStoryAMark,
   markReviewed,
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reviewRegion,
   comparisonChoice,
@@ -83,9 +83,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
 
   await test.step("once the commit is published, Refresh still lists its file as the story's own and Commits offers Uncommitted changes with no commit", async () => {
     git(workspace, "push", "--quiet", "origin", "HEAD:main");
-    const refreshed = nextSnapshot(page);
-    await review.getByRole("button", { name: "Refresh" }).click();
-    const published = await refreshed;
+    const published = await refreshReview(review);
     expect(published.published).toEqual({
       trunk: published.head,
       commits: 1,
@@ -110,9 +108,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
     await markReviewed(review);
     expect((await marked).status()).toBe(200);
     writeFileSync(path.join(workspace, "a.ts"), "export const a = 1;\n");
-    const refreshed = nextSnapshot(page);
-    await review.getByRole("button", { name: "Refresh" }).click();
-    const since = await refreshed;
+    const since = await refreshReview(review);
     expect(since.since?.files.map((file) => file.path)).toEqual(["a.ts"]);
     await comparisonChoice(review, "Since the review").check();
     await expectSinceTheReview(review, keptStoryAMark(dashboard));

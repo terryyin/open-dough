@@ -26,7 +26,7 @@ import {
   keptReviewMarks,
   keptStoryAMark,
   markReviewed,
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reviewedRefs,
   reviewRegion,
@@ -175,9 +175,7 @@ test("marking again replaces the story's one mark and its ref", async ({
   await markReviewed(review);
 
   writeFileSync(path.join(workspace, "later.txt"), "later\n");
-  const refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh" }).click();
-  const second = await refreshed;
+  const second = await refreshReview(review);
   expect(second.tree).not.toBe(first.tree);
   // The refreshed review compares with the first mark.
   await expect(changedFilesList(review, "1 changed file")).toBeVisible();

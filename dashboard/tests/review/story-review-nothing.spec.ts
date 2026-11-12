@@ -1,3 +1,4 @@
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A story's review explains when there is nothing to review, beneath its
 // fixed top and without the file browser or diff: a worktree straight off
 // trunk shows its context line and no changes against the named baseline,
@@ -105,7 +106,7 @@ test("a removed worktree with no captured landing explains the gap, and no Git r
   await expect(contextLine(review)).toHaveCount(0);
   await expect(review.getByRole("list")).toHaveCount(0);
   await expect(review.getByRole("region")).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Refresh" })).toBeVisible();
+  await expect(reviewRefresh(review)).toBeVisible();
   await expect(
     review.getByRole("button", { name: "Close", exact: true }),
   ).toBeVisible();
@@ -141,10 +142,7 @@ test("a launch with its worktree is no landed run, and once Refresh finds the wo
   // The worktree is removed with nothing captured for the launch.
   rmSync(workspace, { recursive: true, force: true });
   git(origin.project, "worktree", "prune");
-  const gap = await reviewAfter(
-    page,
-    review.getByRole("button", { name: "Refresh" }),
-  );
+  const gap = await reviewAfter(page, reviewRefresh(review));
   expect(gap).toMatchObject({
     kind: "landing-unavailable",
     selectedRun: reference,
@@ -195,7 +193,7 @@ test("a trunk that cannot be fetched names its remote and target and shows no li
   const review = await openReview(page, card);
   const files = changedFilesList(review, "7 changed files");
   await expect(files).toBeVisible();
-  const refresh = review.getByRole("button", { name: "Refresh" });
+  const refresh = reviewRefresh(review);
 
   // The story's remote points at nothing reachable.
   const reachable = git(workspace, "config", "--get", "remote.origin.url");

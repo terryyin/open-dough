@@ -7,7 +7,7 @@ import {
   landedRunChoice,
 } from "../support/storyReviewMark.ts";
 import { reviewChanges } from "../storyCardControls.ts";
-import { test, expect } from "../support/codexStart.ts";
+import { test as base, expect } from "../support/codexStart.ts";
 import { reviewChoices } from "../support/oneShotReviewChoices.ts";
 import { openCapturedReview } from "../support/oneShotReview.ts";
 import { holdNextReviewResponse } from "../support/holdReviewResponse.ts";
@@ -16,6 +16,18 @@ import {
   storyReviewFileEndpoint,
 } from "../../src/storyReviewContract.ts";
 import { expectCovering } from "../sidePanelWidthPage.ts";
+
+// Prepare immutable installed Codex and preview inputs before the case's
+// private origin and its real native launches begin.
+const test = base.extend({
+  originRepository: async (
+    { queuedCodexPreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedCodexPreviewReady);
+    await use(originRepository);
+  },
+});
 
 test("delayed run and file responses leave the later run selected through narrow layout and panel controls", async ({
   page,

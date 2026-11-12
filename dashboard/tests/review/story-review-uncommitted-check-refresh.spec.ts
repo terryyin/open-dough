@@ -12,7 +12,6 @@
 
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Locator, Page } from "@playwright/test";
 import { storyReviewFileEndpoint } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { reviewFeedback } from "../support/reviewContextLine.ts";
@@ -28,7 +27,7 @@ import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
   comparisonChoice,
   markReviewed,
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reopenStoryReview,
   reviewRegion,
@@ -43,13 +42,6 @@ import {
 } from "../support/storyReviewWorktree.ts";
 
 const committedFiles = ["gone.txt", "image.png", "new.txt", "story.txt"];
-
-// Refresh, answering the snapshot the review then shows.
-async function refresh(page: Page, review: Locator) {
-  const snapshot = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  return snapshot;
-}
 
 const refreshed = (files: number) =>
   new RegExp(
@@ -73,7 +65,7 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
   // The agent commits the staged file and keeps editing another.
   git(workspace, "commit", "--quiet", "-m", "staged edit");
   writeFileSync(path.join(workspace, "unstaged.txt"), "on\n", { flag: "a" });
-  const partly = await refresh(page, review);
+  const partly = await refreshReview(review, { exact: true });
   expect(partly.files).toHaveLength(7);
   await expectTreeRows(list(5), [
     "gone.txt",
@@ -88,7 +80,8 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
 
   // The agent commits everything: no check, the whole snapshot.
   commitAll(workspace, "the rest");
-  expect((await refresh(page, review)).committed).toBeUndefined();
+  const committed = await refreshReview(review, { exact: true });
+  expect(committed.committed).toBeUndefined();
   await expectTreeRows(list(7), [
     "fresh",
     "  new.txt",
@@ -105,7 +98,8 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
 
   // Uncommitted work again: the check is back, on.
   writeAt(workspace, "again.txt", "again\n");
-  expect((await refresh(page, review)).committed?.files).toHaveLength(7);
+  const again = await refreshReview(review, { exact: true });
+  expect(again.committed?.files).toHaveLength(7);
   await expect(list(8)).toBeVisible();
   await expect(check(review)).toBeChecked();
   await expect(review.getByText(leftOut)).toHaveCount(0);
@@ -131,7 +125,7 @@ test("Since the review and Commits offer no check, and All changes finds it as i
   // Marked, then changed: Refresh shows the changes since the review.
   await markReviewed(review);
   writeAt(workspace, "later.txt", "later\n");
-  await refresh(page, review);
+  await refreshReview(review, { exact: true });
   await expect(since).toBeVisible();
   await expect(review.getByRole("checkbox")).toHaveCount(0);
 

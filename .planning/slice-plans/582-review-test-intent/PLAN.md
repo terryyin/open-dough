@@ -66,42 +66,10 @@ Keep control, geometry, observation and fixture responsibilities cohesive;
 extract their actual shared seam when extending a near-limit file rather than
 append orchestration or mechanically cut it. Migrated specs should shrink.
 
-## Decisive premises and preparation observations
+## Preparation evidence
 
-All observations used this owned checkout at `47b348b3a` on 2026-11-12, Node24,
-macOS, Chromium integration fixtures and the commands below. Dependencies were
-installed here with `npm ci` after the first attempt exposed missing local
-`node_modules`; that initial attempt never reached the journeys. No lockfile changed.
-
-| Premise / consuming operation | Observation and result | Limit / consequence |
-| --- | --- | --- |
-| Procedural comparison and fluent held entry can share a control locator without inheriting each other's wait protocol. | Scratch extraction into `storyCardControls` was called by `openStoryReview` and `StoryCard`; P1 passed both selected cases in 21.915 s. The fluent case deliberately ended after held-entry replacement and late-answer assertions. | Compatibility only for those entry consumers; it did not cover Final report or every caller. All four edited files restored byte-for-byte before recording. |
-| The complete Codex review/report handoff needs a cold-setup correction before its default-timeout proof is usable. | P0: width-kept and comparison passed (21.410 / 10.931 s); full replacement exhausted 30 s. Trace: origin12.18 s + dashboard9.43 s; report assertion had only100 ms before teardown. No report-result request preceded shutdown. | This is a failing harness defect, not an exempt base failure or evidence of a broken report. Slice1 owns its required repair. |
-| Moving only immutable queued Codex preview inputs into worker setup can preserve the complete replacement/retention journeys. | P2 scratch reused the existing Claude preview/run-artifact pattern plus SEED-287's `f228466a5` Codex variant. Both complete cases passed twice:8.873 / 6.756 s and7.314 / 5.418 s; full runner37.210 s includes preparation. `npm run typecheck:dashboard` passed. | Default timeouts and all scenario assertions unchanged. Three scratch files restored byte-for-byte. This settles the bounded repair approach, not suite-wide or sustained load reliability. |
-| Current tree/context/freshness routes reach the observations the migration must preserve. | P3 passed all three intact tree, diff-context and Refresh cases; runner 17.255 s, with each case retaining its original observations. | Execution still compares assertions and reruns all changed consumers; samples do not disposition the whole finding. |
-
-P0: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-review-baseline.json caffeinate -s -i npm run test:dashboard -- tests/navigation/side-panel-content-replacement.spec.ts tests/review/story-review-comparison.spec.ts tests/navigation/side-panel-width-kept.spec.ts --grep "a review, another story's review|the switch shows the same snapshot|a width chosen on the terminal is recovered" --workers=1`.
-
-P1: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-review-scratch.json caffeinate -s -i npm run test:dashboard -- tests/navigation/side-panel-content-replacement.spec.ts tests/review/story-review-comparison.spec.ts --grep "a review, another story's review|the switch shows the same snapshot" --workers=1`.
-The limited fluent prefix used existing worker `queuedCodexOriginReady`.
-
-P2: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-cold-setup-scratch.json caffeinate -s -i npm run test:dashboard -- tests/navigation/side-panel-content-replacement.spec.ts --workers=1 --repeat-each=2`.
-Scratch changes added `queuedCodexPreviewReady` in the common `pageTest` pool,
-shared Claude/Codex `preparePreviewInputs`, exposed `queuedCodexPreviewTest`
-from `preparationPage`, and used it in the intact replacement spec.
-
-P3: `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-review-reading-baseline.json caffeinate -s -i npm run test:dashboard -- tests/review/story-review-tree.spec.ts tests/review/story-review-diff-context.spec.ts tests/review/story-review-refresh.spec.ts --workers=1`.
-These observations reach actual fixture-backed browser operations, not listing
-only. They do not claim deliberate-fault discrimination for every assertion.
-Temporary proof records aid this session; the revision, setup, commands, results
-and limits above carry the retained evidence without relying on temporary files.
-
-Host decision:16 logical CPUs,48 GiB RAM,AC power,58% memory free; unrelated
-Python/test/deployment processes were active. One-minute load ranged about30–50,
-then32 at P2 collection. Chose one worker and AC `caffeinate -s -i`, sequenced
-owned browser checks and left unrelated processes alone. No sleep/wake event
-was found in the failed run's window. Reassess current load, memory and competing
-work before broad execution proof; these samples establish no universal threshold.
+[Premise rows, P0–P3 commands and original observations](preparation-evidence.md)
+retain the accepted planning basis and bounded cold-preparation candidate.
 
 ## Ordered slices
 
@@ -159,7 +127,7 @@ Include consuming entry/comparison and one-shot-race cases when their owner chan
 
 ### 4. Keep freshness and held-answer causality visible
 Type: Behavior
-Status: planned
+Status: done
 Proof: Refresh/commit/uncommitted-check cases preserve old/new snapshot and file
 facts, selected comparison/checks, request payload/counts and exact release order.
 
@@ -188,19 +156,11 @@ silently; use existing Terminal primitives only where this panel journey needs t
 Starting gate: `caffeinate -s -i npm run test:dashboard -- 'tests/navigation/side-panel-width' tests/navigation/side-panel-content-replacement.spec.ts tests/navigation/side-panel-content-switching.spec.ts tests/sessions/final-report-touch-divider.spec.ts tests/terminals/agent-terminal-maximize.spec.ts tests/intent/intent-story-review-return.spec.ts --workers=1`.
 Trace shared layout/close effects through narrow/touch/frontend consumers too.
 
-Execution proof: [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md), [slice 3](slice3-evidence.md).
+Execution proof: [slice 1](slice-evidence.md), [slice 2](slice2-evidence.md), [slice 3](slice3-evidence.md); [slice 4](slice4-evidence.md), with [prior failures](slice4-progress.md) and [AC resume](slice4-resume-evidence.md).
 
 ## Execution context
 
-Story Branch Mode resumes the established Take `750e9e4f2` in the owned checkout
-`/Users/terryyin/git/open-dough/.worktrees/express-review-and-side-panel-test-intent-throug`
-on `codex/express-review-and-side-panel-test-intent-throug`; starting revision
-`70021438b`, publisher `dashboard-territory.local-open-dough`, agent DavidKo-chan; remote/trunk `origin/main`.
-`npm ci` and `npm run typecheck:dashboard` passed against the current lockfile.
-No new numeric slice limit or replanning override was supplied; preserve planned authority.
-CI: GitHub Actions `ci.yml` (CI), `terryyin/open-dough` story branch; coordinator `seed300-review`, directory `/tmp/dough-ci-501/watch-7aTPQn`,
-pid72745, stream5814, yielded cell `g63:9`; claim trunk CI is unobserved.
-Host/power and proof decisions are retained in [slice evidence](slice-evidence.md).
+[Workspace, publication and observer identity](execution-context.md).
 
 ## Verification, current decisions and concern review
 
@@ -219,7 +179,9 @@ applies as written to every slice, delegation and repair handoff. A base failure
 is not exempt; slice1 repairs P0 before the dependent migration proceeds.
 
 Local gate: changed specs plus all affected transitive consumers and
-`npm run typecheck:dashboard` for shared TypeScript changes. Use the maintained
+`npm run typecheck:dashboard` for shared TypeScript changes. Moderate CPU usage
+in a moderately busy context is supported; no idle-machine or quiet-window
+prerequisite applies (developer clarification). Use the maintained
 [macOS sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos):
 on AC run long proof under `caffeinate -s -i`; on battery plug in or start fully
 awake with lid open under `caffeinate -i` and inspect sleep logs afterwards.
@@ -248,3 +210,18 @@ readiness is assessed against the final premise results and current source.
 Reported: slice 2 — "Coordinator inspection found board-scroll exact:true review-region lookup replaced by the partial-match reviewRegion helper."
 Story clause: "independent accessibility/geometry observations"
 Disposition: proved by slice 2: storyReviewMark.ts31–35 retains the caller exact option; board-scroll.spec.ts46 supplies exact:true; final 14-case proof passed, including both board viewports.
+
+### G2. Restore the cold held-choice race within the default budget
+Reported: slice 4 — "The held one-shot run/file race timed out at Hide files after cold setup and three native preparations; trace has no sleep or selector stall."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 4: slice4-resume-evidence.md records two independent cold runs with immutable-key chronology and the complete native/held/panel journey at the default timeout. Total elapsed improvement is not attributed wholly to the fixture change.
+
+### G3. Settle the final trunk-review Refresh timeout
+Reported: slice 4 — "The trunk-worktree case exhausted30s at final Refresh under recurring external CPU pressure; its origin was warm, so G2 is not its fix."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 4: slice4-evidence.md records inspected real Take/publish/mark/finalRefresh paths, distributed prior host latency and the complete53-case strict renewal under supported moderate-busy conditions; default timeout and source unchanged.
+
+### G4. Restore the complete phone touch retention proof
+Reported: slice 4 — "Timeout began during third native scroll while remaining code reported later final-label cancellation; errorstack alone misleading."
+Story clause: "preserves the default timeout and complete journeys"
+Disposition: proved by slice 4: slice4-evidence.md records the complete native/rotation/file/Refresh/commits/check/focus continuation,4-case strict proof and failed/full trace comparison under supported moderate-busy conditions, without reducing observations or extending timeout.

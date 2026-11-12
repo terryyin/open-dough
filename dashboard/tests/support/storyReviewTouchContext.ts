@@ -4,6 +4,7 @@
 // which viewport owns what no arrangement changes.
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { comparisonChoice } from "./storyReviewMark.ts";
+import { reviewRefresh } from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -134,7 +135,7 @@ async function keepReviewContextThroughPanelControls(
   const next = fileDiff(review, `Added ${longB}`);
   await expect(codePane(next)).toContainText("+second 0");
   expect(await scrollTopOf(codePane(next))).toBe(0);
-  await tapWhereShown(control(review, "Refresh"));
+  await tapWhereShown(reviewRefresh(review, { exact: true }));
   await expectReviewRead(review);
   await expect(reviewFeedback(review)).toHaveText(
     new RegExp(

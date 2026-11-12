@@ -1,3 +1,4 @@
+import { reviewRefresh } from "../support/reviewControls.ts";
 // A Trunk Mode story taken in a terminal (./story-review-trunk-worktree.spec.ts)
 // beside other worktrees of the project's checkout, each added by Git and
 // authored through the real per-worktree authorship
@@ -167,7 +168,7 @@ test("two worktrees holding the story's claim open a review that names both and 
   await expect(
     review.getByRole("button", { name: "Mark reviewed" }),
   ).toHaveCount(0);
-  await expect(review.getByRole("button", { name: "Refresh" })).toBeVisible();
+  await expect(reviewRefresh(review)).toBeVisible();
 
   // The boundary refuses to mark or read either worktree, with the same
   // words.

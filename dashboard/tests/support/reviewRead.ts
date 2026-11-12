@@ -1,3 +1,4 @@
+import { reviewRefresh } from "./reviewControls.ts";
 // A story review's reads as a reader waits for them: the snapshot its
 // opening, Refresh or reopening reads, a landed run's comparison, and the
 // chosen commits' range. Each read says so in the review's feedback from
@@ -40,6 +41,6 @@ export async function showCommits(review: Locator) {
 // Refreshes the review from its Refresh action, once it has read the story's
 // changes again.
 export async function refreshAndRead(review: Locator) {
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
+  await reviewRefresh(review, { exact: true }).click();
   await expectReviewRead(review);
 }

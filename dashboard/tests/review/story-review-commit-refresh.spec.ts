@@ -5,7 +5,7 @@ import { chooseCommit } from "../support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reviewRegion,
   comparisonChoice,
@@ -36,9 +36,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   const feedback = review.locator(".story-review-top").getByRole("status");
   writeAt(workspace, "second.txt", "second\n");
   commitAll(workspace, "second story commit");
-  let refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  const second = await refreshed;
+  const second = await refreshReview(review, { exact: true });
   const rows = review
     .getByRole("list", { name: "Story commits", exact: true })
     .getByRole("button");
@@ -61,9 +59,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
     expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
     writeAt(workspace, "third.txt", "third\n");
     commitAll(workspace, "third story commit");
-    refreshed = nextSnapshot(page);
-    await review.getByRole("button", { name: "Refresh", exact: true }).click();
-    await refreshed;
+    await refreshReview(review, { exact: true });
     await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
     await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
     await expect(review.getByRole("status")).toHaveCount(2);
@@ -83,9 +79,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   ).toBeVisible();
   writeAt(workspace, "fourth.txt", "fourth\n");
   commitAll(workspace, "fourth story commit");
-  refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  await refreshed;
+  await refreshReview(review, { exact: true });
   await expect(feedback).toHaveText(
     "Review refreshed: 2 changed files in the chosen range.",
   );
@@ -98,9 +92,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   ).toBeVisible();
   // Once both chosen ends reach trunk, the latest item becomes the default.
   git(workspace, "push", "--quiet", "origin", `${second.head}:main`);
-  refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  const landed = await refreshed;
+  const landed = await refreshReview(review, { exact: true });
   // The refreshed snapshot moves the chosen range, which is read again.
   await expectReviewRead(review);
   expect(landed.commits.map(({ subject }) => subject)).toEqual([
@@ -141,10 +133,8 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     dashboard.origin,
     storyReviewFileEndpoint,
   );
-  let refreshed = nextSnapshot(page);
   try {
-    await review.getByRole("button", { name: "Refresh", exact: true }).click();
-    const changed = await refreshed;
+    const changed = await refreshReview(review, { exact: true });
     expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
     expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
     await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
@@ -170,9 +160,7 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     }),
   ).toBeVisible();
   commitAll(workspace, "commit worktree changes");
-  refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  const committed = await refreshed;
+  const committed = await refreshReview(review, { exact: true });
   // The refreshed snapshot moves the chosen range, which is read again.
   await expectReviewRead(review);
   expect(committed.uncommitted).toBeUndefined();
@@ -186,9 +174,8 @@ test("Refresh updates virtual points, resets a vanished virtual end, and does no
     "Review refreshed: 4 changed files in the chosen range.",
   );
   writeAt(workspace, "again.txt", "new uncommitted changes\n");
-  refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh", exact: true }).click();
-  expect((await refreshed).uncommitted?.kind).toBe("uncommitted");
+  const again = await refreshReview(review, { exact: true });
+  expect(again.uncommitted?.kind).toBe("uncommitted");
   await expect(rows.first()).toHaveText("Uncommitted changes");
   await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
   await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");

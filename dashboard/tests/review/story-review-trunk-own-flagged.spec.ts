@@ -24,7 +24,7 @@ import {
 } from "../support/reviewTreeRows.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
-  nextSnapshot,
+  refreshReview,
   openStoryReview,
   reviewRegion,
   uncommittedCheck,
@@ -111,9 +111,7 @@ test("a file trunk rewrote where the story changed it is flagged as including tr
   });
 
   const { trunk, beforeStory } = publishRewrittenLine(origin, workspace);
-  const refreshed = nextSnapshot(page);
-  await review.getByRole("button", { name: "Refresh" }).click();
-  const later = await refreshed;
+  const later = await refreshReview(review);
   const expectFlaggedDiff = async () => {
     const diff = fileDiff(review, flagged);
     await expect(diff.locator(".story-review-removed")).toHaveText(["-c 3"]);
