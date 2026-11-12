@@ -2,79 +2,95 @@
 
 ## Launch and input
 
-- Reviewer: fresh general-purpose agent (`fe5c77bc-5716-4cb8-b68c-880414dc489b`), no conversation inheritance.
-- Input: only the selected story Goal, Scope, key examples and exclusions from
-  `.planning/seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks`.
+- Reviewer: fresh general-purpose agent (`16fafbd9-95bc-4367-b420-29cba7d96cf7`), no conversation inheritance.
+- Input: only the amended selected story Goal, Scope, key examples and exclusions from
+  `.planning/seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks`
+  (45-second target after Terry's authorized amendment).
 - Constraints given: read no other project files; change nothing; return numbered
   commitments with compound sub-ids; derive promises, not slice ownership.
+- Replaces the prior review that reflected the former 30-second promise.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | Dashboard maintainers get the remaining CI protection for Taken agent profiles, pending-Take reconciliation, and pinned deployment from one ordinary local command. | slice 4 | |
-| 2 | That command runs with one Playwright worker. | slice 4 | |
-| 3 | Elapsed time is under 30 seconds, counting startup, shared preparation, every maintained or credited replacement check, and teardown. | slice 4 | |
-| 4 | Each of those behaviors keeps its distinct protection. | slice 4 | |
-| 5 | Shorter checks also keep their margin under the default 30-second test timeout when the host is busy. | slice 4 | |
-| 6 | The remaining selection is exactly these three maintained CI checks. | slice 4 | |
-| 6.1 | `dashboard/tests/stories/taken-agent-profile.spec.ts` | slice 4 | |
-| 6.2 | `dashboard/tests/launches/responsive-session-reconciliation.spec.ts` | slice 4 | |
-| 6.3 | `dashboard/backend-tests/runtime/production-deployment.spec.ts` | slice 4 | |
-| 7 | Each Taken card shows its published agent profile, or says plainly that none is recorded or readable. | slice 2 | |
-| 8 | A Take's older snapshot arriving late and an unrelated revision keep it protected. | slice 3 | |
-| 9 | Its fully read accepted revision returns the Taken actions. | slice 3 | |
-| 10 | Deployment installs, builds, and serves its pinned commit in isolation after main advances. | slice 4 | |
-| 11.1 | Keep correct Taken owner/detail with the smallest useful board. | slice 2 | |
-| 11.2 | Keep mode observable with the smallest useful board. | slice 2 | |
-| 11.3 | Keep branch observable with the smallest useful board. | slice 2 | |
-| 11.4 | Keep tool/model observable with the smallest useful board. | slice 2 | |
-| 11.5 | Keep missing versus unreadable assignments observable with the smallest useful board. | slice 2 | |
-| 11.6 | Keep distinct portraits/icons observable with the smallest useful board. | slice 2 | |
-| 11.7 | Keep meaningful widths observable with the smallest useful board. | slice 2 | |
-| 11.8 | Keep accessibility observable with the smallest useful board. | slice 2 | |
-| 12.1 | Keep pending Take actions protected through stale/unrelated reads. | slice 3 | |
-| 12.2 | Keep pending Take actions protected through partial accepted reads. | slice 3 | |
-| 12.3 | Keep pending Take actions protected through comparison failure/recovery. | slice 3 | |
-| 12.4 | Keep pending Take actions protected through final complete snapshot. | slice 3 | |
-| 12.5 | Keep pending Take actions protected through persisted reconciliation across reload. | slice 3 | |
-| 13 | Retain the already improved real pinned-deployment case unchanged. | slice 4 | |
-| 14 | Main may advance after selection while the pinned case remains correct. | slice 4 | |
-| 15.1 | Isolated checkout/build/HTTP content remain correct for the pinned case. | slice 4 | |
-| 15.2 | Curated cartoons/icons remain correct for the pinned case. | slice 4 | |
-| 15.3 | Origin boundaries remain correct for the pinned case. | slice 4 | |
-| 15.4 | Process shutdown remains correct for the pinned case. | slice 4 | |
-| 16 | Its time counts in the selection; it is not a reduction target. | slice 4 | |
-| 17 | Reduce repeated inspections, repeated assertions, and the preparation these checks themselves request. | slice 2 | |
-| 18 | Each such removal names the surviving proof of the same promise. | slice 4 | |
-| 19.1 | Use shared MakeMe. | slice 2 | |
-| 19.2 | Use existing external fixtures. | slice 2 | |
-| 19.3 | Use real public boundaries. | slice 2 | |
-| 19.4 | Preserve ordinary CI selection. | slice 4 | |
-| 20 | Establish a matched whole-command baseline before the first reduction. | slice 1 | observed: PLAN.md Slice 1 baseline + proof/baseline-summary.json whole-command runs |
-| 21 | That baseline records per-check and outside-check seconds. | slice 1 | observed: proof/baseline-summary.json per-check and outside-check seconds; PLAN.md Slice 1 baseline table |
-| 22 | Record a load-independent count for each reduced check (for example trace steps, card inspections, viewport passes, fixture preparations). | slice 1 | observed: proof/baseline-summary.json attribution_run counts; proof/attribution-summary.json |
-| 23 | Judge the 30-second promise on a host that supports one worker as the retained baseline's did (one-minute load in single digits). | slice 4 | |
-| 24 | Three consecutive passing runs, each below 30 seconds. | slice 4 | |
-| 25 | While other work keeps the host busy, do not wait for it. | slice 4 | |
-| 26 | Alternate the baseline revision and the candidate under the same load, and record the loads. | slice 4 | |
-| 27 | Keep the result when the candidate's median elapsed is at most the baseline's median multiplied by 30 and divided by the quiet-host baseline, together with the reduced counts. | slice 4 | |
-| 28 | The quiet-host three-run check then remains owed to the first quiet opportunity and is reported as such, not claimed. | slice 4 | |
-| 29 | Run-wide startup that every Dashboard run pays regardless of selection counts in the elapsed time but is not changed here. | slice 1 | observed: proof/baseline-summary.json outside_check_s; PLAN.md stop probe (startup unchanged) |
-| 30 | If the matched baseline shows the promise cannot be met without changing that run-wide startup or the pinned case, that returns to Terry as a decision before further reduction. | slice 1 | observed: PLAN.md stop fired; slices 2-4 blocked for Terry |
-| 31 | The five extracted families owned by SEED-311–315: their work and timings do not belong in this selection, and no aggregate promise spans them. |  | E1 |
-| 32 | Local-only archived experiments are excluded. |  | E2 |
-| 33.1 | No new internal mocks may manufacture a saving. |  | E3 |
-| 33.2 | No new wall-clock sleeps may manufacture a saving. |  | E3 |
-| 33.3 | No new retries may manufacture a saving. |  | E3 |
-| 33.4 | No new skips may manufacture a saving. |  | E3 |
-| 33.5 | No new timeout inflation may manufacture a saving. |  | E3 |
-| 33.6 | No new special runner mode may manufacture a saving. |  | E3 |
-| 34 | Follow the failure policy linked at `../../AGENTS.md#failing-and-flaky-tests`. | slice 4 | |
-| 35 | A small published board shows the correct owner and detail; absent and malformed profiles remain distinct, with portrait/icon, viewport and accessibility proof. | slice 2 | |
-| 36 | A mark already proved at one width for one card is not inspected again for every card at every width unless the width changes what that card shows. | slice 2 | |
-| 37 | A pending Take remains protected through stale/unrelated and partial accepted snapshots; actions return only after the fully accepted snapshot is read; persisted reconciliation survives reload. | slice 3 | |
-| 38 | After a revision is selected and main advances, the real preview serves that selected revision and preserves source/build isolation, assets, origin policy, and shutdown boundaries. | slice 4 | |
-| 39 | On a quiet host, three consecutive passing ordinary one-worker runs of the three checks each finish below 30 seconds, including all setup and replacement proof. | slice 4 | |
-| 40 | On a busy host, the candidate and the baseline alternate under the same recorded load; the candidate's median meets the stated ratio and the reduced counts hold; the report says the quiet-host check is still owed. | slice 4 | |
-| 41 | A removed inspection whose promise no surviving check observes is restored; the saving does not count. | slice 4 | |
+| 1 | One ordinary local command with one Playwright worker covers the remaining CI protection for Taken agent profiles, pending-Take reconciliation and pinned deployment in under 45 seconds elapsed, including startup, shared preparation, every maintained or credited replacement check, and teardown. | slice 4 | |
+| 2 | Each of the three behaviors keeps its distinct protection. | slice 4 | |
+| 3 | Shorter checks keep margin under the default 30-second test timeout when the host is busy. | slice 4 | |
+| 4 | The remaining selection is exactly these three maintained CI checks. | slice 4 | |
+| 4a.1 | Each Taken card shows its published agent profile, or says plainly that none is recorded or readable. | slice 2 | |
+| 4a.2 | A Take's older snapshot arriving late and an unrelated revision keep it protected, and its fully read accepted revision returns the Taken actions. | slice 3 | |
+| 4a.3 | Deployment installs, builds, and serves its pinned commit in isolation after main advances. | slice 4 | |
+| 5.1 | Correct Taken owner/detail remains observable. | slice 2 | |
+| 5.2 | Mode remains observable. | slice 2 | |
+| 5.3 | Branch remains observable. | slice 2 | |
+| 5.4 | Tool/model remains observable. | slice 2 | |
+| 5.5 | Missing versus unreadable assignments remain observable (and distinct). | slice 2 | |
+| 5.6 | Distinct portraits/icons remain observable. | slice 2 | |
+| 5.7 | Meaningful widths remain observable. | slice 2 | |
+| 5.8 | Accessibility remains observable. | slice 2 | |
+| 5.9 | These are observable with the smallest useful board. | slice 2 | |
+| 6.1 | Pending Take actions stay protected through stale/unrelated reads. | slice 3 | |
+| 6.2 | Pending Take actions stay protected through partial accepted reads. | slice 3 | |
+| 6.3 | Comparison failure/recovery remains covered. | slice 3 | |
+| 6.4 | Final complete snapshot remains covered. | slice 3 | |
+| 6.5 | Persisted reconciliation across reload remains covered. | slice 3 | |
+| 7 | The already improved real pinned-deployment case is retained unchanged. | slice 4 | |
+| 8.1 | Main may advance after selection. | slice 4 | |
+| 8.2 | Isolated checkout/build/HTTP content remains correct. | slice 4 | |
+| 8.3 | Curated cartoons/icons remain correct. | slice 4 | |
+| 8.4 | Origin boundaries remain correct. | slice 4 | |
+| 8.5 | Process shutdown remains correct. | slice 4 | |
+| 9 | Pinned-deployment time counts in the selection elapsed total and is not a reduction target. | slice 4 | |
+| 10.1 | Reduce repeated inspections these checks themselves request. | slice 2 | |
+| 10.2 | Reduce repeated assertions these checks themselves request. | slice 2 | |
+| 10.3 | Reduce the preparation these checks themselves request. | slice 3 | |
+| 10.4 | Each removal names the surviving proof of the same promise. | slice 4 | |
+| 11.1 | Use shared MakeMe. | slice 2 | |
+| 11.2 | Use existing external fixtures. | slice 2 | |
+| 11.3 | Use real public boundaries. | slice 2 | |
+| 11.4 | Preserve ordinary CI selection. | slice 4 | |
+| 12 | A matched whole-command loaded baseline exists with per-check and outside-check seconds and load-independent counts, and is used before further reduction. | slice 1 | observed: PLAN.md Slice 1 baseline + proof/baseline-summary.json |
+| 13 | Until a quiet matched baseline for this selection is observed, quiet-host figures that stand in for the ratio remain the retained 45-case median. | slice 4 | |
+| 14.1 | Judge on a host that supports one worker as the retained baseline's did (one-minute load in single digits). | slice 4 | |
+| 14.2 | Three consecutive passing runs. | slice 4 | |
+| 14.3 | Each run below 45 seconds. | slice 4 | |
+| 15.1 | Do not wait for a quiet host while other work keeps the host busy. | slice 4 | |
+| 15.2 | Alternate the baseline revision and the candidate under the same load. | slice 4 | |
+| 15.3 | Record the loads. | slice 4 | |
+| 15.4 | Keep the result when the candidate's median elapsed ≤ (baseline median × 45 / quiet-host baseline), together with the reduced counts. | slice 4 | |
+| 15.5 | The quiet-host three-run check remains owed to the first quiet opportunity. | slice 4 | |
+| 15.6 | That owed quiet-host check is reported as owed, not claimed. | slice 4 | |
+| 16 | Run-wide startup that every Dashboard run pays regardless of selection counts in elapsed time and is not changed here. | slice 1 | observed: PLAN.md stop resolution; startup unchanged |
+| 17.1 | Former 30-second promise is superseded for this selection by Terry-authorized 45 seconds. | slice 4 | |
+| 17.2 | Browser reductions remain aimed at busy-host margin under the default test timeout. | slice 4 | |
+| 18.1 | Work of the five extracted families (SEED-311–315) does not belong in this selection. |  | E1 |
+| 18.2 | Timings of those families do not belong in this selection. |  | E1 |
+| 18.3 | No aggregate promise spans this selection and those families. |  | E1 |
+| 19 | Local-only archived experiments are excluded. |  | E2 |
+| 20.1 | No new internal mocks to manufacture a saving. |  | E3 |
+| 20.2 | No wall-clock sleeps to manufacture a saving. |  | E3 |
+| 20.3 | No retries to manufacture a saving. |  | E3 |
+| 20.4 | No skips to manufacture a saving. |  | E3 |
+| 20.5 | No timeout inflation to manufacture a saving. |  | E3 |
+| 20.6 | No special runner mode to manufacture a saving. |  | E3 |
+| 21 | Follow the project failure policy for failing and flaky tests. | slice 4 | |
+| 22.1 | Small published board shows correct owner and detail. | slice 2 | |
+| 22.2 | Absent and malformed profiles remain distinct. | slice 2 | |
+| 22.3 | Portrait/icon, viewport, and accessibility proof accompany that case. | slice 2 | |
+| 23 | A mark already proved at one width for one card is not re-inspected for every card at every width unless the width changes what that card shows. | slice 2 | |
+| 24.1 | Pending Take stays protected through stale/unrelated snapshots. | slice 3 | |
+| 24.2 | Pending Take stays protected through partial accepted snapshots. | slice 3 | |
+| 24.3 | Actions return only after the fully accepted snapshot is read. | slice 3 | |
+| 24.4 | Persisted reconciliation survives reload. | slice 3 | |
+| 25.1 | Real preview serves the selected revision after main advances. | slice 4 | |
+| 25.2 | Source/build isolation is preserved. | slice 4 | |
+| 25.3 | Assets are preserved. | slice 4 | |
+| 25.4 | Origin policy is preserved. | slice 4 | |
+| 25.5 | Shutdown boundaries are preserved. | slice 4 | |
+| 26 | Quiet host: three consecutive passing ordinary one-worker runs of the three checks each finish below 45 seconds, including all setup and replacement proof. | slice 4 | |
+| 27.1 | Candidate and baseline alternate under the same recorded load. | slice 4 | |
+| 27.2 | Candidate median meets the stated ratio and reduced counts hold. | slice 4 | |
+| 27.3 | Report states the quiet-host check is still owed. | slice 4 | |
+| 28.1 | A removed inspection whose promise no surviving check observes is restored. | slice 4 | |
+| 28.2 | That saving does not count. | slice 4 | |

@@ -20,7 +20,7 @@ scope: story
 
 Dashboard maintainers get the remaining CI protection for Taken agent
 profiles, pending-Take reconciliation and pinned deployment from one ordinary
-local command with one Playwright worker in under 30 seconds elapsed, counting
+local command with one Playwright worker in under 45 seconds elapsed, counting
 startup, shared preparation, every maintained or credited replacement check and
 teardown. Each behavior keeps its distinct protection. Shorter checks also keep
 their margin under the default 30-second test timeout when the host is busy.
@@ -56,26 +56,28 @@ Required behavior:
 
 Measure:
 
-- The selection has no matched whole-command baseline yet; establish one before
-  the first reduction, with per-check and outside-check seconds, and record a
-  load-independent count for each reduced check (for example trace steps, card
-  inspections, viewport passes, fixture preparations).
-- Judge the 30-second promise on a host that supports one worker as the retained
+- The selection has a matched whole-command loaded baseline with per-check and
+  outside-check seconds and load-independent counts; use it before further
+  reduction. Quiet-host figures that stand in for the ratio remain the retained
+  45-case median until a quiet matched baseline for this selection is observed.
+- Judge the 45-second promise on a host that supports one worker as the retained
   baseline's did (one-minute load in single digits): three consecutive passing
-  runs, each below 30 seconds.
+  runs, each below 45 seconds.
 - While other work keeps the host busy, do not wait for it. Alternate the
   baseline revision and the candidate under the same load, record the loads, and
   keep the result when the candidate's median elapsed is at most the baseline's
-  median multiplied by 30 and divided by the quiet-host baseline, together with
+  median multiplied by 45 and divided by the quiet-host baseline, together with
   the reduced counts. The quiet-host three-run check then remains owed to the
   first quiet opportunity and is reported as such, not claimed.
 
 Scope limits:
 
 - Run-wide startup that every Dashboard run pays regardless of selection counts
-  in the elapsed time but is not changed here. If the matched baseline shows the
-  promise cannot be met without changing it or the pinned case, that returns to
-  Terry as a decision before further reduction.
+  in the elapsed time but is not changed here. The pinned-deployment case remains
+  unchanged and is not a reduction target. After the matched baseline showed the
+  former 30-second promise unreachable without changing startup or the pinned
+  case, Terry authorized a different target: 45 seconds for this selection,
+  keeping browser reductions for busy-host margin under the default test timeout.
 - The five extracted families are owned by SEED-311–315. Their work and timings
   do not belong in this selection, and no aggregate promise spans them.
 - Local-only archived experiments are excluded.
@@ -97,7 +99,7 @@ special runner mode may manufacture a saving. Follow the
   selected revision and preserves source/build isolation, assets, origin policy
   and shutdown boundaries.
 - On a quiet host, three consecutive passing ordinary one-worker runs of the
-  three checks each finish below 30 seconds, including all setup and
+  three checks each finish below 45 seconds, including all setup and
   replacement proof.
 - On a busy host, the candidate and the baseline alternate under the same
   recorded load; the candidate's median meets the ratio above and the reduced
