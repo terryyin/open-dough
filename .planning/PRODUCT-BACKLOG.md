@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Make later-proof Intent comparison checks fast and stable under moderately high load](seeds/SEED-326-later-proof-comparison-checks-under-load.md#pass-later-proof-comparison-checks-under-load) — SEED-326#pass-later-proof-comparison-checks-under-load
 - [Review JUnit tests in Intent](seeds/SEED-325-junit-tests-in-intent.md#review-junit-tests-in-intent) — SEED-325#review-junit-tests-in-intent
 - [Make landed CI repeat checks pass under moderately high load](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load) — SEED-324#pass-landed-ci-repeat-checks-under-high-load
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects
