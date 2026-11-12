@@ -19,22 +19,22 @@ story's own words.
 | --- | --- | --- | --- |
 | 1 | Dashboard maintainers get faster feedback on automatic repeat after a landed CI result. | slice 5 | |
 | 2 | That feedback gives the same verdict under the machine's usual load as in CI. | slice 5 | |
-| 3a | Real receipt ingestion, collection and admission still prove exactly one rerun request. | slice 3 | |
-| 3b | That one rerun request survives a second server. | slice 3 | |
-| 3c | That one rerun request survives a restart. | slice 3 | |
+| 3a | Real receipt ingestion, collection and admission still prove exactly one rerun request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey :21-99, unchanged: await submitted then toEqual([71]) at :49-50, second server :47 and :68, restart :96-98 |
+| 3b | That one rerun request survives a second server. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey :21-99, unchanged: await submitted then toEqual([71]) at :49-50, second server :47 and :68, restart :96-98 |
+| 3c | That one rerun request survives a restart. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey :21-99, unchanged: await submitted then toEqual([71]) at :49-50, second server :47 and :68, restart :96-98 |
 | 4 | Each repeat outcome keeps a check that catches its own regression. | slice 4 | |
 | 5 | Ordinary CI continues to catch the same product regressions. | slice 5 | |
 | 6a | The family is the twelve cases of two specs; landed-ci-automatic-repeat.spec.ts has one lifecycle case and six outcome cases. | slice 1 | observed: PLAN.md Execution base: proof record selects 12; base landed-ci-automatic-repeat.spec.ts:14 lifecycle case and the six-variant loop at :94-102 |
 | 6b | landed-ci-repeat-verdict.spec.ts has five cases for a completed repeat whose provider conclusion is absent or unknown. | slice 1 | observed: base landed-ci-repeat-verdict.spec.ts:10-17: five cases for undefined, null, neutral, skipped and provider-future-state |
 | 7a | On main every case prepares five prior builds and a published story, ingests a receipt and waits for collection and admission. | slice 1 | observed: base specs: every case calls prepareRepeatScenario (five priors and a published story in ciFollowUpScenario.ts:59-62), scenario.ingest and a wait for the rerun request |
 | 7b | Eleven of them then differ in one provider answer each. | slice 1 | observed: base specs: eleven non-lifecycle cases each keyed by one provider fact; uncertain and verdict undefined and null state a later second fact, as the key examples do |
-| 8a.1 | Keep a real journey from receipt ingestion through collection and admission for the accepted request with its whole lifecycle (a thing only the real rerun request can show). | slice 3 | |
-| 8a.2 | Keep a real journey from receipt ingestion through collection and admission for the refused request. | slice 3 | |
-| 8a.3 | Keep a real journey from receipt ingestion through collection and admission for the request whose acceptance is uncertain. | slice 3 | |
-| 9a.1 | Prove the recovered outcome, which provider facts decide after an accepted request. | slice 3 | |
-| 9a.2 | Prove the failed outcome, which provider facts decide after an accepted request. | slice 3 | |
-| 9a.3 | Prove the cancelled outcome, which provider facts decide after an accepted request. | slice 3 | |
-| 9a.4 | Prove the partial proof outcome, which provider facts decide after an accepted request. | slice 3 | |
+| 8a.1 | Keep a real journey from receipt ingestion through collection and admission for the accepted request with its whole lifecycle (a thing only the real rerun request can show). | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey :21-99, unchanged: await submitted then toEqual([71]) at :49-50, second server :47 and :68, restart :96-98 |
+| 8a.2 | Keep a real journey from receipt ingestion through collection and admission for the refused request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts journey loop :101-148 for refused and uncertain, assertions unchanged; 403 at :117 and 503 at :118 answer the real rerun request |
+| 8a.3 | Keep a real journey from receipt ingestion through collection and admission for the request whose acceptance is uncertain. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts journey loop :101-148 for refused and uncertain, assertions unchanged; 403 at :117 and 503 at :118 answer the real rerun request |
+| 9a.1 | Prove the recovered outcome, which provider facts decide after an accepted request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 9a.2 | Prove the failed outcome, which provider facts decide after an accepted request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 9a.3 | Prove the cancelled outcome, which provider facts decide after an accepted request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 9a.4 | Prove the partial proof outcome, which provider facts decide after an accepted request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
 | 9a.5 | Prove the five absent or unknown conclusions, which provider facts decide after an accepted request. | slice 4 | |
 | 9b | These outcomes are proved where the dashboard reads those facts. | slice 4 | |
 | 9c.1 | These outcomes are proved without a published story of their own. | slice 4 | |
@@ -56,15 +56,15 @@ story's own words.
 | 14c | Reason: a count polled for 5 s after the receipt sees zero under load. | slice 4 | |
 | 14d | Reason: that polling failed three cases before the automatic-repeat spec was repaired. | slice 4 | |
 | 14e | Reason: the verdict spec still polls that way and failed in all four runs of unchanged main that included it during this refinement. | slice 4 | |
-| 15a.1 | A refused outcome comes from the provider's actual reply to the rerun request. | slice 3 | |
-| 15a.2 | An uncertain outcome comes from the provider's actual reply to the rerun request. | slice 3 | |
-| 15b.1 | Reason: recording a refusal as accepted is a fault in how that reply is handled. | slice 3 | |
-| 15b.2 | Reason: sending again after a reply is a fault in how that reply is handled. | slice 3 | |
-| 15c | Reason: a saved outcome does not exercise those faults. | slice 3 | |
-| 16a | Five prior builds stay behind every admission. | slice 3 | |
-| 16b | Reason: the product forms a reference from at least five included builds. | slice 3 | |
-| 16c | Preparation shrinks by not repeating it. | slice 3 | |
-| 16d | Preparation does not shrink by going below that minimum of five. | slice 3 | |
+| 15a.1 | A refused outcome comes from the provider's actual reply to the rerun request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts journey loop :101-148 for refused and uncertain, assertions unchanged; 403 at :117 and 503 at :118 answer the real rerun request |
+| 15a.2 | An uncertain outcome comes from the provider's actual reply to the rerun request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts journey loop :101-148 for refused and uncertain, assertions unchanged; 403 at :117 and 503 at :118 answer the real rerun request |
+| 15b.1 | Reason: recording a refusal as accepted is a fault in how that reply is handled. | slice 3 | observed: slice 3 fault controls: F8 fails the refused journey at :129, F2 at :142 with [71, 71]; the saved-request case arranges only accepted submissions and expects no rerun request at :212-216 |
+| 15b.2 | Reason: sending again after a reply is a fault in how that reply is handled. | slice 3 | observed: slice 3 fault controls: F8 fails the refused journey at :129, F2 at :142 with [71, 71]; the saved-request case arranges only accepted submissions and expects no rerun request at :212-216 |
+| 15c | Reason: a saved outcome does not exercise those faults. | slice 3 | observed: slice 3 fault controls: F8 fails the refused journey at :129, F2 at :142 with [71, 71]; the saved-request case arranges only accepted submissions and expects no rerun request at :212-216 |
+| 16a | Five prior builds stay behind every admission. | slice 3 | observed: the three journeys keep prepareRepeatScenario's five 100 s prior builds, cards read averageMs 100000 at :85 and :139; the saved-request case prepares none and admits nothing; ciFollowUpPriors.ts unchanged |
+| 16b | Reason: the product forms a reference from at least five included builds. | slice 3 | observed: the three journeys keep prepareRepeatScenario's five 100 s prior builds, cards read averageMs 100000 at :85 and :139; the saved-request case prepares none and admits nothing; ciFollowUpPriors.ts unchanged |
+| 16c | Preparation shrinks by not repeating it. | slice 3 | observed: the three journeys keep prepareRepeatScenario's five 100 s prior builds, cards read averageMs 100000 at :85 and :139; the saved-request case prepares none and admits nothing; ciFollowUpPriors.ts unchanged |
+| 16d | Preparation does not shrink by going below that minimum of five. | slice 3 | observed: the three journeys keep prepareRepeatScenario's five 100 s prior builds, cards read averageMs 100000 at :85 and :139; the saved-request case prepares none and admits nothing; ciFollowUpPriors.ts unchanged |
 | 17a | Every case in the family passes inside the default 30 s under local load 20–30 on 2 workers. | slice 5 | |
 | 17b | Each case passes with its 5 s observations. | slice 5 | |
 | 17c | No case gets a timeout allowance. | slice 5 | |
@@ -90,36 +90,36 @@ story's own words.
 | 24a | The 5 s observations of the admission spec, which also miss under load on main, belong to SEED-287 by Terry's routing on 2026-11-11. | slice 1 | observed: SEED-314 seed scope limits and PLAN.md Admission misses owned by SEED-287; routing commit 44f3e0186 is in the base |
 | 24b | SEED-287's scope names the cases. | slice 1 | observed: SEED-287-dashboard-journeys-within-default-timeout.md:117-131 names the admission cases and no-proof recovery :36 |
 | 24c | Two of that spec's five cases failed in the two two-worker runs of unchanged main at load 19–23, each waiting 5 s after the receipt for a collected history or card. | slice 1 | observed: recorded preparation evidence in the SEED-314 seed run table, PLAN.md Admission misses and SEED-287 :123-125; the three agree |
-| 25.1 | Accepted once, through restart: follow-up is off by default. | slice 3 | |
-| 25.2 | Accepted once: follow-up is turned on. | slice 3 | |
-| 25.3 | Accepted once: a new Done receipt whose CI took exactly 105 s against five 100 s prior builds is ingested. | slice 3 | |
-| 25.4 | Accepted once: the dashboard saves its intent before the provider replies. | slice 3 | |
-| 25.5 | Accepted once: the dashboard marks the intent accepted afterwards. | slice 3 | |
-| 25.6 | Accepted once: the same receipt again sends nothing more. | slice 3 | |
-| 25.7 | Accepted once: a second server sends nothing more. | slice 3 | |
-| 25.8 | Accepted once: the card shows the rerun in progress. | slice 3 | |
-| 25.9 | Accepted once: the card then shows "Possible CI slowdown" once the repeat takes 106 s. | slice 3 | |
-| 25.10 | Accepted once: the card shows original 105 s, repeat 106 s and average 100 s. | slice 3 | |
-| 25.11 | Accepted once: history still selects the original attempt. | slice 3 | |
-| 25.12 | Accepted once: after a restart the card is still slow. | slice 3 | |
-| 25.13 | Accepted once: after a restart the provider has received one request. | slice 3 | |
-| 26.1 | Refused: the provider answers the rerun request 403. | slice 3 | |
-| 26.2 | Refused: the card says the request was refused. | slice 3 | |
-| 26.3 | Refused: the card stays unverified. | slice 3 | |
-| 26.4 | Refused: the card shows original 120 s and average 100 s. | slice 3 | |
-| 26.5 | Refused: no second request follows. | slice 3 | |
-| 27.1 | Uncertain: the provider answers 503. | slice 3 | |
-| 27.2 | Uncertain: the card says acceptance is uncertain. | slice 3 | |
-| 27.3 | Uncertain: a 104 s repeat that appears later shows as repeat 104 s. | slice 3 | |
-| 27.4 | Uncertain: the card stays unverified (also after the later 104 s repeat). | slice 3 | |
-| 27.5 | Uncertain: no second request follows. | slice 3 | |
-| 28.1 | Recovered: an accepted request for a 120 s original against a 100 s average sees a full 104 s repeat. | slice 3 | |
-| 28.2 | Recovered: "CI timing returned to range". | slice 3 | |
-| 28.3 | Recovered: the outcome is recovered. | slice 3 | |
-| 29.1 | Failed: the repeat concludes with failure; unverified, naming failed. | slice 3 | |
-| 29.2 | Cancelled: the repeat is cancelled; unverified, naming cancelled. | slice 3 | |
-| 29.3 | Failed and cancelled: never measured as a pass. | slice 3 | |
-| 30 | Partial proof: the repeat's jobs are carried forward from the original; "Full comparable repeat is unverified". | slice 3 | |
+| 25.1 | Accepted once, through restart: follow-up is off by default. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.2 | Accepted once: follow-up is turned on. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.3 | Accepted once: a new Done receipt whose CI took exactly 105 s against five 100 s prior builds is ingested. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.4 | Accepted once: the dashboard saves its intent before the provider replies. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.5 | Accepted once: the dashboard marks the intent accepted afterwards. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.6 | Accepted once: the same receipt again sends nothing more. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.7 | Accepted once: a second server sends nothing more. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.8 | Accepted once: the card shows the rerun in progress. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.9 | Accepted once: the card then shows "Possible CI slowdown" once the repeat takes 106 s. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.10 | Accepted once: the card shows original 105 s, repeat 106 s and average 100 s. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.11 | Accepted once: history still selects the original attempt. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.12 | Accepted once: after a restart the card is still slow. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 25.13 | Accepted once: after a restart the provider has received one request. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts lifecycle journey, byte-unchanged from the base apart from imports: off then on :28-29, 105 s receipt :26 and :48, intent inside the hold :38-43, accepted :58-65, same receipt and second server :47-56 and :90, in-progress card :67-73, Possible CI slowdown with 105, 106 and 100 s :74-89, history :91-93, restart :96-98 |
+| 26.1 | Refused: the provider answers the rerun request 403. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts refused journey: 403 at :117, explanation :129, card kind and original and average :136-141, exact count :142 |
+| 26.2 | Refused: the card says the request was refused. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts refused journey: 403 at :117, explanation :129, card kind and original and average :136-141, exact count :142 |
+| 26.3 | Refused: the card stays unverified. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts refused journey: 403 at :117, explanation :129, card kind and original and average :136-141, exact count :142 |
+| 26.4 | Refused: the card shows original 120 s and average 100 s. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts refused journey: 403 at :117, explanation :129, card kind and original and average :136-141, exact count :142 |
+| 26.5 | Refused: no second request follows. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts refused journey: 403 at :117, explanation :129, card kind and original and average :136-141, exact count :142 |
+| 27.1 | Uncertain: the provider answers 503. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts uncertain journey: 503 at :118, explanation :129, 104 s repeat :124 and :131-135, unverified :134 and :140, exact count :142 |
+| 27.2 | Uncertain: the card says acceptance is uncertain. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts uncertain journey: 503 at :118, explanation :129, 104 s repeat :124 and :131-135, unverified :134 and :140, exact count :142 |
+| 27.3 | Uncertain: a 104 s repeat that appears later shows as repeat 104 s. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts uncertain journey: 503 at :118, explanation :129, 104 s repeat :124 and :131-135, unverified :134 and :140, exact count :142 |
+| 27.4 | Uncertain: the card stays unverified (also after the later 104 s repeat). | slice 3 | observed: landed-ci-automatic-repeat.spec.ts uncertain journey: 503 at :118, explanation :129, 104 s repeat :124 and :131-135, unverified :134 and :140, exact count :142 |
+| 27.5 | Uncertain: no second request follows. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts uncertain journey: 503 at :118, explanation :129, 104 s repeat :124 and :131-135, unverified :134 and :140, exact count :142 |
+| 28.1 | Recovered: an accepted request for a 120 s original against a 100 s average sees a full 104 s repeat. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 28.2 | Recovered: "CI timing returned to range". | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 28.3 | Recovered: the outcome is recovered. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 29.1 | Failed: the repeat concludes with failure; unverified, naming failed. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 29.2 | Cancelled: the repeat is cancelled; unverified, naming cancelled. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 29.3 | Failed and cancelled: never measured as a pass. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
+| 30 | Partial proof: the repeat's jobs are carried forward from the original; "Full comparable repeat is unverified". | slice 3 | observed: landed-ci-automatic-repeat.spec.ts saved-request case :150-217: recovered :173-178, failed :179-184, cancelled :185-190, partial proof :191-198; F4, F5, F6b and F7 each fail it by name (PLAN.md slice 3 accepted proof) |
 | 31.1 | No verdict: a completed repeat whose conclusion is absent says it has no provider verdict. | slice 4 | |
 | 31.2 | No verdict: a completed repeat whose conclusion is null says it has no provider verdict. | slice 4 | |
 | 31.3 | Unknown verdict: neutral says "CI reported" that value. | slice 4 | |
@@ -131,18 +131,18 @@ story's own words.
 | 31.9 | When a success verdict then arrives for a null conclusion, the 106 s repeat reads slow. | slice 4 | |
 | 32.1 | The original stays: each outcome keeps the original 120 s beside it. | slice 4 | |
 | 32.2 | The original stays: each outcome keeps the 100 s average beside it. | slice 4 | |
-| 32.3 | The original stays: turning follow-up off leaves the saved original readable. | slice 3 | |
-| 33a.1 | Honest proof: "an original at exactly 105 s is not admitted" fails a remaining check. | slice 3 | |
-| 33a.2 | Honest proof: "a later collection pass sends a second request" fails a remaining check. | slice 3 | |
-| 33a.3 | Honest proof: "a 106 s repeat is not slow" fails a remaining check. | slice 3 | |
-| 33a.4 | Honest proof: "a 104 s repeat stays slow" fails a remaining check. | slice 3 | |
-| 33a.5 | Honest proof: "a failed or cancelled repeat is measured as a pass" fails a remaining check. | slice 3 | |
-| 33a.6 | Honest proof: "carried-forward jobs count as a full repeat" fails a remaining check. | slice 3 | |
-| 33a.7 | Honest proof: "a refusal is saved as accepted" fails a remaining check. | slice 3 | |
-| 33a.8 | Honest proof: "a later passing repeat clears an uncertain acceptance" fails a remaining check. | slice 3 | |
+| 32.3 | The original stays: turning follow-up off leaves the saved original readable. | slice 3 | observed: landed-ci-automatic-repeat.spec.ts journey loop :143-147: off switch, then originalMs 120000 |
+| 33a.1 | Honest proof: "an original at exactly 105 s is not admitted" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.2 | Honest proof: "a later collection pass sends a second request" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.3 | Honest proof: "a 106 s repeat is not slow" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.4 | Honest proof: "a 104 s repeat stays slow" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.5 | Honest proof: "a failed or cancelled repeat is measured as a pass" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.6 | Honest proof: "carried-forward jobs count as a full repeat" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.7 | Honest proof: "a refusal is saved as accepted" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
+| 33a.8 | Honest proof: "a later passing repeat clears an uncertain acceptance" fails a remaining check. | slice 3 | observed: slice 3 fault controls on the candidate (PLAN.md slice 3 accepted proof): F1 lifecycle by the 30 s bound, F2 lifecycle :90 and refused :142, F3 lifecycle :77, F4, F5, F6b and F7 the saved-request case by name, F8 refused :129, F9 uncertain :129 |
 | 33a.9 | Honest proof: "an absent or unknown conclusion reads as failed" fails a remaining check. | slice 4 | |
 | 33b | Each of these fails a remaining check "as it fails one on main". | slice 4 | |
-| 33c | Main does not tell a cancelled repeat from a failed one, and this story promises no more there. | slice 3 | |
+| 33c | Main does not tell a cancelled repeat from a failed one, and this story promises no more there. | slice 3 | observed: slice 3 fault control F6a passes the saved-request case, as it passed the cancelled case on main |
 | 34 | Under load: at local load 20–30 on 2 workers every case in the family passes inside the default 30 s. | slice 5 | |
 | 35 | The comparison and the result worth keeping are set before the measured run. | slice 5 | |
 | 36a | At least a quarter less whole-command wall time on the family's ordinary one-worker selection, `npm run test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts --workers=1`. | slice 5 | |

@@ -394,7 +394,7 @@ Learnings for the remaining slices:
 
 ### 3. Provider-decided outcomes are read from saved accepted requests
 Type: Behavior
-Status: planned
+Status: done
 Proof: The automatic-repeat spec passes three consecutive times with four
 cases: the lifecycle journey, the refused journey, the uncertain journey and
 the saved-request case. F4, F5, F6b and F7 each fail the saved-request case at
@@ -441,6 +441,61 @@ provider receives no rerun request.
   `RepeatRequest`. The uncertain journey still reads a product-written request
   through to a measured 104 s repeat, and the lifecycle journey through to
   slow.
+
+Accepted proof, 2026-11-12, candidate `ad78d864` plus this slice's change;
+records and logs under `/Users/terryyin/.claude/jobs/7b8897aa/tmp/slice3/`:
+
+- The automatic-repeat spec holds four cases; three ingest a receipt. One
+  worker, three consecutive passes of 4 at load 23.3 → 17.3, 14.6 → 17.4 and
+  17.4 → 18.2: 36, 39 and 41 s (`cand-auto-final`, `-2`, `-3`), and three more
+  at load 30–42 in 57–62 s. Lifecycle 13.7–14.6 s, refused 7.4–10.8 s,
+  uncertain 8.0–11.2 s, saved requests 1.9–2.3 s. The family passed 9 of 9 in
+  117 s at load 28.7 → 24.8.
+- The lifecycle journey is unchanged apart from imports. The refused and
+  uncertain journeys keep every assertion; the card's expected kind is the
+  literal `"unverified"` both share.
+- Premise remainders: requests arranged through MakeMe reach their outcomes,
+  and four on one machine are each observed, with no prior build, story or
+  receipt there. A request the schema refuses (`rule.percent: 6`) leaves the
+  case failing at its first expectation.
+- Fault controls against the saved-request case, before the variants left the
+  loop: F4 fails "recovered", F5 "failed", F6b "cancelled", F7 "partial
+  proof", each reading slow; F6a passes. On the journeys: F8 fails refused at
+  `:129`, F9 uncertain at `:129`, F2 refused at `:142` and lifecycle at `:90`
+  with `[71, 71]`, F3 lifecycle at `:77`, F1 lifecycle by the 30 s bound with
+  no rerun request. F2 on the lifecycle journey passed twice and reached the
+  bound once in four further runs at load 29–43; the refused journey carries
+  it.
+- Consumers, the eight specs that import `ciFollowUpScenario.ts`, two
+  workers: candidate 24 of 24 at load 20.9 → 20.3, base 27 of 27 at
+  32.4 → 22.5. At load 24–35 the reconciliation spec's 5 s count polls
+  (`:26`, `:57`, `:92`) and `dashboard/tests/intent/intent-ci-follow-up.spec.ts:19`
+  at the 30 s bound failed on candidate and base alike in a paired window, and
+  both passed 5 of 5 at one worker.
+- `bash scripts/test.sh` on the ledger, reading and policy node tests exits 0;
+  `typecheck:dashboard` is clean.
+- The refactor pass put each saved request's run, provider fact and expected
+  outcome in one `repeats` table (the case is at `:150-220`), keyed the saved
+  ledger with the product's `followUpKey`, and left one `json` answer helper.
+  After it the family passed 9 of 9 in 104 s at load 18.5 → 33.1, and F4, F5,
+  F6b and F7 failed the saved-request case by name again at load 25–31.
+- SEED-287 committed its repair as `730543328` on its branch; `git merge-file`
+  of this slice's `ciFollowUpScenario.ts` against it reports no conflict.
+
+Learnings for the remaining slices:
+
+- Slice 4 states its requests with `saveRepeatRequests`, sets each run's
+  provider facts with `provider(run).setRepeat` and
+  `provider(run).providerVerdict`, and reads with `savedRepeatRequest`. A
+  saved accepted request starts with the explanation "accepted", so an
+  expectation waits for collection. A later pass observing an unsettled saved
+  request again (absent or null, then success) is slice 4's to show.
+- Compare consumers in paired candidate and base runs; a two-worker run with
+  the browser journeys ends about ten load points above its start.
+- Trunk queued SEED-319 on 2026-11-12 for the reconciliation, follow-up
+  reading, receipt boundary and comparison-run observations under load, to
+  start after SEED-287 lands. `intent-ci-follow-up.spec.ts:19` takes 22–23 s
+  at load 20–25 on base and candidate and is named by neither story.
 
 ### 4. Absent and unknown provider conclusions are read from saved accepted requests
 Type: Behavior
