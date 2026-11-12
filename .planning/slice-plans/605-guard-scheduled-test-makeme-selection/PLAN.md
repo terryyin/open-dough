@@ -2,6 +2,7 @@
 
 **Identity:** SEED-329#guard-scheduled-test-makeme-selection
 **Source:** [Guard scheduled-test MakeMe selection](../../seeds/SEED-329-use-shared-test-guidance.md#guard-scheduled-test-makeme-selection)
+**Source review:** [Independent commitments](source-review.md)
 
 ## Correction input
 
@@ -59,7 +60,7 @@
 ### 1. Fail when a scheduled test stops selecting MakeMe
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new focused test passes, and the scratch break check above fails it
 and then passes again after restoration.
 
@@ -106,3 +107,28 @@ Observed on 2026-11-12 in the SEED-329 execution workspace at
   configuration change or runner change.
 - Slice-plan refinement was not needed: one bounded Behavior slice with one
   focused proof loop, and no slice-specific concern was identified.
+
+## Execution context
+
+- Established Story Branch execution in `/Users/terryyin/git/open-dough/.worktrees/guard-scheduled-test-makeme-selection`, branch `codex/guard-scheduled-test-makeme-selection`; starting revision `77d66980a71c71c8f9cfd1ed794dca985d6eb1fc`.
+- Publisher `dashboard-territory.local-open-dough`, agent `joey-chan`; accepted claim and previously published base `3fc68398c74d644d2f1c45f667bb5184229b7243` on `origin/main`. The execution branch also holds this claim. Claim CI on trunk is unobserved by this coordinator.
+- Checkout setup: `npm ci` passed without lockfile changes; `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/makeme-selection.test.mjs` passed.
+- No numeric slice budget or exception is supplied. Existing planned refinement authority is retained; no scope expansion is authorized.
+- GitHub Actions workflow `ci.yml` verified active, display name `CI`, push-triggered. Execution target is `origin/codex/guard-scheduled-test-makeme-selection`.
+- Observer: coordinator `seed329-guard`, key `ci-watch-execution:terryyin/open-dough:codex/guard-scheduled-test-makeme-selection:seed329-guard`, directory `/tmp/dough-ci-501/watch-opx0vs`, PID `32610`, session `41523`, yielded cell `g149:14`; checkout is the execution workspace above.
+
+## Slice 1 accepted proof
+
+- Product: `tests/makeme-scheduled-selection.test.mjs` calls real job discovery,
+  checks selection against this repository's settings, and independently expects
+  MakeMe on, page objects off, and the shell/JavaScript syntax hints. Shell,
+  root Node and support Node jobs must all be present. No fixture supplies a
+  successful result. Only this check is added; preserved inputs are unchanged.
+- `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/makeme-scheduled-selection.test.mjs tests/makeme-selection.test.mjs` passed.
+- `PATH="/opt/homebrew/bin:$PATH" OPEN_DOUGH_TEST_DIR=/does-not-exist OPEN_DOUGH_TEST_SPLIT=invalid node --test tests/makeme-scheduled-selection.test.mjs` passed, proving discovery does not inherit a narrowed share or substitute directory.
+- `PATH="/opt/homebrew/bin:$PATH" node /tmp/seed329-guard-proof-d0933767/check.mjs` passed: legacy shell declaration, lost shell hint, lost JavaScript hint, MakeMe off and page objects on each failed the maintained test and named an offending path. Configuration was restored byte-for-byte; restored guard passed.
+- `PATH="/opt/homebrew/bin:$PATH" node /tmp/seed329-guard-proof-d0933767/check-new-job.mjs` passed: a new scheduled source outside current patterns failed with `tests/scheduled-selection-probe.mjs`; registry restored byte-for-byte and scratch removed.
+- `git diff --check` passed. Focused and scratch commands reached terminal success. No deferred proof, gaps, or expensive local checks are needed.
+- Consumer trace: `/tmp/seed329-guard-proof-d0933767/consumer-trace-base.md` and `consumer-trace-focused.md`. The real runner registry is exercised; unrelated scratch-project glob fixtures and historical records do not consume this added real-repository check.
+- Coordinator inspected the actual test, discovery/selector boundaries, scratch inputs and failure logs, matched the independent source review's journeys, and recorded each commitment's observation in the linked review. Source freshness on `origin/main` at `3fc68398c74d644d2f1c45f667bb5184229b7243` is unchanged. No named sibling coordination applies.
+- Independent refactor `/root/refactor_guard`: `none — already clean`, no edits or additional tests, `## REFACTOR COMPLETE`. Final sorted path membership assertion was inspected; no ordering promise is imposed. Accepted proof boundaries remain unchanged.
