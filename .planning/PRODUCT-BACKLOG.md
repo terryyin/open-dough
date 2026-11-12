@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Make landed CI repeat checks pass under moderately high load](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load) — SEED-324#pass-landed-ci-repeat-checks-under-high-load ([plan](slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md))
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects ([plan](slice-plans/582-review-test-intent/PLAN.md))
+- [Mark Recently done stories as reviewed](seeds/SEED-328-review-recently-done-stories.md#mark-recently-done-stories-as-reviewed) — SEED-328#mark-recently-done-stories-as-reviewed ([plan](slice-plans/602-mark-recently-done-stories-as-reviewed/PLAN.md))
 
 ## Backlog list
 
-- [Mark Recently done stories as reviewed](seeds/SEED-328-review-recently-done-stories.md#mark-recently-done-stories-as-reviewed) — SEED-328#mark-recently-done-stories-as-reviewed
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Express Terminal test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects) — SEED-300#express-terminal-test-intent-through-page-objects
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects
