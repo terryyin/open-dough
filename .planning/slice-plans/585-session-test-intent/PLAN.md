@@ -167,7 +167,7 @@ the sidebar alone. Proof 53/53 over 30 specs (`s2-proof-final.log`), refactor re
 
 ### 3. Read host figures through one cross-tier browser observation
 Type: Behavior
-Status: planned
+Status: done
 Proof: Entire `sessions/sessions-sidebar-host-status.spec.ts` and `frontend-tests/sessions-sidebar-host-status.spec.ts` cohorts. Keep accessible name/title, value, icon/non-action checks, literal unavailable/formatting cases, contrast, read counts and visibility/clock transitions. P2 supplies discrimination evidence.
 
 Behavior: Given synthetic or actual host answers, a controlled read changes the
@@ -175,6 +175,12 @@ figures and both tiers express expected counts/text/words through one browser
 owner without acquiring each other's fixtures. Expose the observed pure seam
 from `support/sessionHostStatus.ts`. Safe stop: both tiers remain independently
 runnable with existing transport and formatting proof.
+
+Result (slice 3): new browser-only `sessionsSidebarFigures.ts` owns the figure
+locators and `expectFigure`; both host-status tiers import it, `sessionHostStatus.ts`
+keeps sampling/setup. Two `expectFigure` and two `statusParts` copies plus an inline
+any-figure regex removed for about 30 helper lines; every count and word stays a call-
+site literal. Proof 6/6 (`slice3-host-status.log`), refactor rerun 4/4.
 
 ### 4. Follow Running Cursor discovery and selection
 Type: Behavior
