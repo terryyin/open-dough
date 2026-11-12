@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Read CI history at a glance in story comparison and test Proof](seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance) — SEED-331#read-ci-history-at-a-glance
 - [Run dashboard CI follow-up through a custom CI rebuild trigger](seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds) — SEED-330#invoke-custom-ci-rebuilds
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Express launch dialog and startup test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-launch-test-intent-through-page-objects) — SEED-300#express-launch-test-intent-through-page-objects
