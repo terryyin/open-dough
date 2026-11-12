@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Real controls and displayed source for a push run that did not exist on
 // first selection. Both routes use the same production server and memory.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -49,15 +50,13 @@ for (const control of ["Check again", "reselection"] as const) {
     });
     const reads = watchComparisonReads(page);
     let { panel } = await selectDoneStoryForCiComparison(page);
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Branch",
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(2),
-    ).toContainText("No build");
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-      "—",
+    await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+      "No build",
     );
+    await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("—");
     const refresh = async () => {
       if (control === "Check again") await checkComparisonAgain(page, panel);
       else ({ panel } = await selectDoneStoryForCiComparison(page));
@@ -70,28 +69,26 @@ for (const control of ["Check again", "reselection"] as const) {
       }),
     ];
     await refresh();
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").nth(2),
-    ).toContainText("still running");
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+      "still running",
+    );
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Branch",
     );
     runs = [...setup.runs, setup.exact];
     await refresh();
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Landed",
     );
-    const source = panel.locator(".intent-ci-comparison-identity").nth(2);
+    const source = comparisonReading(panel).identities.nth(2);
     await expect(source).toContainText(shortSha(setup.landingMerge));
     await expect(source).not.toContainText(shortSha(setup.completion));
     await expectExactSourceCue(source);
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-      "4 min",
-    );
+    await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
     await expect.poll(() => reads.finished.proof).toBe(7);
     const finalRequests = requests;
     await refresh();
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Landed",
     );
     await expect.poll(() => reads.finished.proof).toBe(10);

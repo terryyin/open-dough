@@ -47,7 +47,9 @@ or `At most 5 images`); the instruction, other images and Session choices stay.
 The same limits apply on Start session, Start execution and Start refinement.
 Image bytes stay in the browser until Start, when each file is posted as its
 own bounded raw body (same style as dictation audio, never through the 32 KB
-JSON launch body). Cancel and Escape send nothing, including no images; a
+JSON launch body). The filename travels in `x-launch-attachment-name` as a
+percent-encoded value so non–ISO-8859-1 characters (for example Chinese text)
+do not fail the browser Headers check before upload. Cancel and Escape send nothing, including no images; a
 reopened dialog shows none. The attachment boundary refuses the same unsuitable
 cases before writing a claim. A launch the boundary does not accept abandons
 any claims and leaves no attempt attachment folder. Existing changes in default

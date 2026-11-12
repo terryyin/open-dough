@@ -4,6 +4,7 @@
 import {
   launchAttachmentEndpoint,
   launchAttachmentNameHeader,
+  launchAttachmentNameHeaderValue,
 } from "./launchAttachments.ts";
 import type { AgentLaunchRequest } from "./launchRequest.ts";
 import { refusal } from "./agentLaunchClient.ts";
@@ -19,7 +20,9 @@ export async function withAttachmentClaims(
       method: "POST",
       headers: {
         "Content-Type": file.type || "application/octet-stream",
-        [launchAttachmentNameHeader]: file.name,
+        [launchAttachmentNameHeader]: launchAttachmentNameHeaderValue(
+          file.name,
+        ),
       },
       body: file,
     });

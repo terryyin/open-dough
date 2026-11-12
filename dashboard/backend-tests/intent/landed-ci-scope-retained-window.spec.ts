@@ -78,7 +78,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
   history.recording(shared, lastRetained.key, lastRetained.build, "equivalent");
   const before = history.please();
   expect(before.trunkOrder).toBeUndefined();
-  keepLandedCiHistory(dashboard.home, before);
+  await keepLandedCiHistory(dashboard.home, before);
 
   const newest = await resultToLand(dashboard, "retained-twenty-first.txt");
   const lastKey = "run/120/1";

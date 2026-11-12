@@ -26,13 +26,65 @@ export async function expectCandidatesRevision(
   ).toHaveCount(1);
 }
 
+// The shared page roots used by story and Project Intent readers.
+export const storySummary = (intent: Locator) =>
+  intent.getByRole("region", { name: "Selected story", exact: true });
+export const filesColumn = (intent: Locator) =>
+  intent.locator(".intent-locations");
+export const intentBrowser = (intent: Locator) =>
+  intent.locator(".intent-browser");
+export const intentPageFrame = (intent: Locator) =>
+  intent.locator(".intent-page-frame");
+export const projectIntentFrame = (intent: Locator) =>
+  intent.locator('.intent-page-frame[data-intent-context="project"]');
+export const storyIntentFrame = (intent: Locator) =>
+  intent.locator('.intent-page-frame[data-intent-context="story"]');
+export const intentModeViews = (intent: Locator) =>
+  intent.getByRole("tablist", { name: "Project Intent views" });
+export const filesScroll = (intent: Locator) =>
+  filesColumn(intent).evaluate((element) => element.scrollTop);
+
+// Scroll the Files column partway and observe its actual scroll event.
+export const scrollFilesHalfway = (intent: Locator) =>
+  filesColumn(intent).evaluate(
+    (element) =>
+      new Promise<number>((resolve) => {
+        element.addEventListener(
+          "scroll",
+          () => {
+            resolve(element.scrollTop);
+          },
+          { once: true },
+        );
+        element.scrollTo({
+          top: Math.floor((element.scrollHeight - element.clientHeight) / 2),
+        });
+      }),
+  );
+
+export const storyViews = (intent: Locator) =>
+  intent.getByRole("tablist", { name: "Selected story views" });
+
+type StoryTabName = "CI comparison" | "Changed tests" | "Intent coverage";
+
+// One of the selected story's views, in the row under its header.
+export const storyTab = (intent: Locator, name: StoryTabName) =>
+  storyViews(intent).getByRole("tab", { name, exact: true });
+
+export async function expectStoryTab(intent: Locator, name: StoryTabName) {
+  await expect(storyTab(intent, name)).toHaveAttribute("aria-selected", "true");
+}
+
+export async function chooseStoryTab(intent: Locator, name: StoryTabName) {
+  await storyTab(intent, name).click();
+  await expectStoryTab(intent, name);
+}
+
 type IntentModeName = "CI status" | "Optimization Candidates";
 
 // One of Project Intent's views.
 export function intentModeTab(intent: Locator, name: IntentModeName) {
-  return intent
-    .getByRole("tablist", { name: "Project Intent views" })
-    .getByRole("tab", { name, exact: true });
+  return intentModeViews(intent).getByRole("tab", { name, exact: true });
 }
 
 export async function expectIntentModeChosen(
@@ -50,15 +102,16 @@ export async function expectIntentModeChosen(
 export async function chooseOptimizationCandidates(intent: Locator) {
   await intentModeTab(intent, "Optimization Candidates").click();
   await expectIntentModeChosen(intent, "Optimization Candidates");
-  await expect(intent.locator(".intent-locations")).toBeHidden();
+  await expect(filesColumn(intent)).toBeHidden();
 }
 
 // From the selected story's header to Project Intent, which shows its
 // heading with the keyboard on Back to selected story.
 export const projectIntentLink = (intent: Locator) =>
-  intent
-    .getByRole("region", { name: "Selected story", exact: true })
-    .getByRole("button", { name: "Project Intent", exact: true });
+  storySummary(intent).getByRole("button", {
+    name: "Project Intent",
+    exact: true,
+  });
 export const backToStory = (intent: Locator) =>
   intent.getByRole("button", { name: "Back to selected story", exact: true });
 
@@ -79,13 +132,9 @@ export async function returnToStory(intent: Locator) {
 // Hide files / Show files for the locations column: in Project Intent's strip
 // on CI status, or ending a selected story's view row on Changed tests.
 export const intentModeBar = (intent: Locator) =>
-  intent.locator(
-    '.intent-page-frame[data-intent-context="project"] > .intent-page-tabbar',
-  );
+  projectIntentFrame(intent).locator(":scope > .intent-page-tabbar");
 export const storyViewBar = (intent: Locator) =>
-  intent.locator(
-    '.intent-page-frame[data-intent-context="story"] > .intent-page-tabbar',
-  );
+  storyIntentFrame(intent).locator(":scope > .intent-page-tabbar");
 export const filesToggle = (intent: Locator) =>
   intent
     .locator(".intent-page-tabbar")
@@ -96,7 +145,7 @@ export async function expectFilesShown(intent: Locator, shown: boolean) {
   const toggle = filesToggle(intent);
   await expect(toggle).toHaveText(shown ? "Hide files" : "Show files");
   await expect(toggle).toHaveAttribute("aria-expanded", String(shown));
-  const column = intent.locator(".intent-locations");
+  const column = filesColumn(intent);
   await expect(column).toHaveAttribute(
     "id",
     (await toggle.getAttribute("aria-controls")) ?? "",

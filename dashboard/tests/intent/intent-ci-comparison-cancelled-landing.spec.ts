@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Real cancelled-landing acquisition retains the selected later build and its
 // provenance through the authenticated comparison and rendered Landed row.
 
@@ -49,7 +50,7 @@ test("a cancelled landing merge uses the next trunk push's passing build as a la
   await expect(landed.identity).not.toContainText("run 304");
   await expect(landed.wall).toHaveText("4 min");
   // Branch versus Baseline stays readable; the trunk-side parent never stands in.
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+  await expect(comparisonReading(panel).wallTimes.nth(1)).toHaveText(
     "3 min 20 s",
   );
   expect(runListingsAt(page, later)).toEqual([1, 0, 0]);

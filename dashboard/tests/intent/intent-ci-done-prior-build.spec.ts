@@ -1,8 +1,15 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import { storySummary } from "../intentModePage.ts";
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The published execution endpoint, actual selected collection and retained
 // raw ancestors flow through the normal authenticated history reader.
 import { readFileSync, writeFileSync } from "node:fs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
 import { defaultMixedProofs } from "../support/storyCiComparisonEntryProofs.ts";
 import { wall } from "../support/storyCiComparisonFixture.ts";
@@ -37,7 +44,10 @@ test("Done wall time keeps the execution publication reference through restart, 
   github,
 }) => {
   const setup = await publishComparedStoryBranch(page, origin);
-  keepLandedCiHistory(dashboard.home, doneWallReferenceHistory(origin, setup));
+  await keepLandedCiHistory(
+    dashboard.home,
+    doneWallReferenceHistory(origin, setup),
+  );
   setup.serveRuns({
     [setup.baseline]: [
       wall(setup.baseline, 101, "2026-11-05T12:00:00Z", "2026-11-05T12:03:00Z"),
@@ -82,9 +92,7 @@ test("Done wall time keeps the execution publication reference through restart, 
     reader.origin,
   );
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   const history = panel.getByRole("region", {
     name: "Done CI wall time reference",
     exact: true,
@@ -100,41 +108,36 @@ test("Done wall time keeps the execution publication reference through restart, 
     "Branch",
     "Landed",
   ]);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "2 min",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("2 min");
   await expect(history.getByRole("img")).toHaveCount(0);
-  const evidence = history.getByRole("group", {
-    name: "Prior-build reference evidence",
-  });
-  await expect(evidence.getByText(/✓ Included/)).toHaveCount(5);
-  await expect(evidence.getByText(/× Excluded/)).toContainText("Slow outlier");
-  await expect(evidence.getByText(/◆ Selected/)).toContainText(
+  const samples = priorBuildReferenceReading(history);
+  const evidence = samples.evidence;
+  await expect(samples.included).toHaveCount(5);
+  await expect(samples.excluded).toContainText("Slow outlier");
+  await expect(samples.selected).toContainText(
     `exact revision ${shortSha(setup.completion)}`,
   );
   await history.locator("summary").focus();
   await page.keyboard.press("Tab");
-  await expect(
-    evidence.getByRole("link", { name: "Run 201 · attempt 1" }),
-  ).toBeFocused();
+  await expect(attemptLink(evidence, "Run 201 · attempt 1")).toBeFocused();
   await expectNoSidewaysScrollIn(page, history);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { selected, later: true }),
   );
   await history
     .getByRole("button", { name: "Refresh history", exact: true })
     .click();
-  await expect(evidence.getByText(/× Excluded/)).toContainText([
+  await expect(samples.excluded).toContainText([
     "Slow outlier",
     "No represented landing before the selected endpoint",
   ]);
   await expect(history).toContainText("Prior-build average · 1 min 43 s");
   await expect(history).toContainText("+17 s (+17%)");
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { selected, later: true, drop: 1 }),
   );
@@ -154,13 +157,12 @@ test("Done wall time keeps the execution publication reference through restart, 
       "The collected CI history could not be read",
     );
     await expect(history).toContainText("4 prior builds used");
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-      "2 min",
-    );
+    await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("2 min");
     await expect(
-      intent
-        .getByRole("region", { name: "Selected story", exact: true })
-        .getByRole("heading", { name: "Story A", exact: true }),
+      storySummary(intent).getByRole("heading", {
+        name: "Story A",
+        exact: true,
+      }),
     ).toBeVisible();
     writeFileSync(file, retained);
     await history
@@ -174,9 +176,7 @@ test("Done wall time keeps the execution publication reference through restart, 
   expect(ciCalls()).toHaveLength(before);
   await selectDoneStoryForCiComparison(page, reader.origin);
   await expect(history).toContainText("4 prior builds used");
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   const settled = ciCalls().length;
   await history
     .getByRole("button", { name: "Refresh history", exact: true })

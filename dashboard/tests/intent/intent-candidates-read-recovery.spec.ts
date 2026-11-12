@@ -13,6 +13,8 @@ import {
   openCandidates,
   opened,
   publishedCandidates,
+  readFailure,
+  readRetry,
 } from "../intentReadRecoveryPage.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
 
@@ -27,8 +29,8 @@ test.describe("with a short GitHub read bound", () => {
     githubFor(page).serve(openDough.repository, held.answer);
     const reads = countCandidatesReads(page);
     const timedOutAnswer = page.waitForResponse(candidatesRequest);
-    const record = await openCandidates(page);
-    const problem = record.getByRole("alert");
+    const record = await openCandidates(page, openDough.revision);
+    const problem = readFailure(record);
     try {
       await expect(problem).toContainText(
         "could not be read at this revision",
@@ -36,9 +38,7 @@ test.describe("with a short GitHub read bound", () => {
           timeout: 10_000,
         },
       );
-      await expect(
-        problem.getByRole("button", { name: "Retry" }),
-      ).toBeVisible();
+      await expect(readRetry(problem)).toBeVisible();
       const response = await timedOutAnswer;
       expect(response.status()).toBe(200);
       expect(await response.json()).toEqual({

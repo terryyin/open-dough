@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "./intentCodeBrowsePage.ts";
 // Intent's revision journeys: Pygardon published with Intent locations and
 // its jobs feature selected, on a paused clock, with a trunk that moves on
 // demand, and the Intent reads the page makes meanwhile.
@@ -30,10 +31,14 @@ export const jobsFeatures = {
 };
 
 // Intent's reads of the boundary from here on, as `<what>@<revision>`: the
-// locations, the Optimization Candidates record, or a file under the location.
+// locations, the Optimization Candidates record, or a file under sourceLocation
+// (the jobs-feature location by default).
 // The CI status homepage's reads follow the observed work, not Intent's
 // reading revision, and are not among them.
-export function intentReads(page: Page) {
+export function intentReads(
+  page: Page,
+  { sourceLocation = "e2e_test/" }: { readonly sourceLocation?: string } = {},
+) {
   const reads: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
@@ -41,7 +46,7 @@ export function intentReads(page: Page) {
     const params = url.searchParams;
     const what = params.get("intent") ?? params.get("path") ?? "";
     if (what.startsWith("ci-")) return;
-    if (params.has("intent") || what.startsWith("e2e_test/")) {
+    if (params.has("intent") || what.startsWith(sourceLocation)) {
       reads.push(`${what}@${params.get("revision")}`);
     }
   });
@@ -73,12 +78,9 @@ export async function openWithFeatureSelected(
   await openUntilRead(page, "/?project=pygardon&perspective=intent");
   const { intent } = parts(page);
   await expandIntentGroup(intent, "e2e_test/features");
-  const feature = intent.getByRole("button", {
-    name: featurePath,
-    exact: true,
-  });
+  const feature = sourceFile(intent, featurePath);
   await feature.click();
-  const source = intent.getByLabel(`${featurePath} source`);
+  const source = fileSource(intent, featurePath);
   await expect(source).toContainText("Scenario: Archive a job");
   const moveTrunk = async (
     revision: string,

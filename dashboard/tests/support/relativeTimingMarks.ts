@@ -108,7 +108,7 @@ export async function relativeFigures(
 }
 
 export async function markGeometry(cell: Locator): Promise<MarkGeometry> {
-  const mark = cell.locator(".intent-ci-time-mark");
+  const mark = timeMarks(cell);
   await expect(mark).toHaveCount(1);
   const actual = await mark.evaluate(observeRelativeFigures);
   if ("direction" in actual) return actual;
@@ -142,3 +142,20 @@ export const showPercent = (panel: Locator) =>
 
 export const percentages = (panel: Locator) =>
   panel.locator(".intent-ci-time-percent");
+
+// Expose marks for exact absence/cardinality contracts without hiding expectations.
+export const timeMarks = (figure: Locator) =>
+  figure.locator(".intent-ci-time-mark");
+
+export const relativePresentation = (scope: Locator) =>
+  timeMarks(scope).or(percentages(scope));
+
+// Percentage membership can be independent of row order, which callers prove separately.
+export async function expectPercentageValues(
+  scope: Locator,
+  values: readonly string[],
+) {
+  await expect
+    .poll(async () => (await percentages(scope).allTextContents()).sort())
+    .toEqual([...values].sort());
+}

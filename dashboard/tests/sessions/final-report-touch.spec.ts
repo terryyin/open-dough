@@ -17,7 +17,11 @@ import {
   readReportByTouch,
   reportGeometry,
 } from "../support/reportTouchPage.ts";
-import { tapWhereShown, pressWhereShown } from "../pageLayout.ts";
+import {
+  expectTopBarsShareHeight,
+  tapWhereShown,
+  pressWhereShown,
+} from "../pageLayout.ts";
 import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
@@ -74,6 +78,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       ).toBe(true);
       const initial = state();
       await expect(reading).toHaveText("Ready for review");
+      await expectTopBarsShareHeight(page, 2);
       const beforePage = await underlying();
       await readReportByTouch(panel, mark);
       await tapWhereShown(mark);

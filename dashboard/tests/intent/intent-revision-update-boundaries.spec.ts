@@ -23,7 +23,10 @@ import {
   pygardon,
   publishIntentProject,
 } from "../intentCodeBrowseFixtures.ts";
-import { locationFiles } from "../intentReadRecoveryPage.ts";
+import {
+  locationFiles,
+  showLatestRevision,
+} from "../intentReadRecoveryPage.ts";
 import { featurePath, publishedFeature } from "../intentJobsFeatureFixtures.ts";
 import {
   jobsFeatures,
@@ -46,9 +49,7 @@ test("an unusable settings file at the latest revision takes the reading's focus
     ...files,
     ".planning/open-dough.json": "{\n",
   });
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   const explanation = intent.locator(
     '[role="tabpanel"]:has(.intent-settings-problem)',
   );
@@ -78,9 +79,7 @@ test("choosing another project while an update is held shows only that project's
       params.get("revision") === c,
     releases,
   );
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   await expect.poll(latest.held).toBe(1);
   await expect(browserRevision(intent)).toContainText(
     shortRevision(pygardon.revision),

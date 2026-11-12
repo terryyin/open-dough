@@ -11,6 +11,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import type { RepositoryRevision } from "../../../tests/support/repositoryTestData.mjs";
+import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 
 export const branch = "claude/story-a";
@@ -190,28 +192,15 @@ export function nestedWorktree(origin: StartOrigin) {
   return { workspace };
 }
 
-// Two long files; the first has a line wider than the diff.
-export const longA = "long-a.txt";
-export const longB = "long-b.txt";
-
-// Many files, a name wider than the browser and long diffs.
-export function largeWorktree(origin: StartOrigin) {
+// Story A's worktree with one commit of the comparison a consumer describes
+// (./largeReviewFiles.ts).
+export function largeWorktree(
+  origin: StartOrigin,
+  revision: RepositoryRevision,
+) {
   const workspace = addStoryWorktree(origin.project);
-  for (const folder of ["many", "more"])
-    for (const at of [...Array(30).keys()])
-      writeAt(
-        workspace,
-        `${folder}/file-${String(at).padStart(2, "0")}.txt`,
-        `${folder} ${String(at)}\n`,
-      );
-  writeAt(
-    workspace,
-    `a-file-named-${"at-length-".repeat(6)}.txt`,
-    "long name\n",
-  );
-  writeAt(workspace, longA, `${lines("first", 200)}${wideLine}\n`);
-  writeAt(workspace, longB, lines("second", 200));
-  commitAll(workspace, "large changes");
+  writeRevisionFiles(workspace, revision);
+  commitAll(workspace, revision.name);
   return { workspace };
 }
 

@@ -12,7 +12,7 @@
 // shares (../../server/landedCiHistoryStore.ts), as collection left it or as
 // a case keeps it. Trunk's changes and CI are ./landedCiTrunk.ts's.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -20,12 +20,13 @@ import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   sharedDashboardBuild,
-  startDashboardServer,
   type DashboardServer,
 } from "./dashboardServer.ts";
+import { startLandedCiReader } from "./landedCiReader.ts";
 import { serveTrunkRuns as serveTrunkCiRuns } from "./landedCiTrunk.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { commit } from "./launchLanding.ts";
+import { keepMachineDocument } from "./machineDocument.ts";
 import { rawRequest } from "./rawHttp.ts";
 import {
   launched,
@@ -57,14 +58,7 @@ export async function restartAsLandedCiReader(
 ): Promise<DashboardServer> {
   const prebuilt = dashboard.outDir ?? sharedDashboardBuild;
   await dashboard.close();
-  return startDashboardServer({
-    mode,
-    ...(mode === "preview" ? { prebuilt } : {}),
-    github: dashboard.github,
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    extraEnv: { DOUGH_TEST_LANDED_CI_COLLECTION: "off" },
-  });
+  return startLandedCiReader(dashboard, origin, mode, prebuilt);
 }
 
 // An unattached Start session in an isolated workspace that may land, and
@@ -192,14 +186,13 @@ export function keptLandedCiHistory(home: string): {
 }
 
 // Keeps `history` as Open Dough's in the machine's history file, as
-// collection would have left it.
-export function keepLandedCiHistory(
+// collection would have left it: once a collecting server's write in flight
+// has ended, so that write cannot replace it with what it read before.
+export async function keepLandedCiHistory(
   home: string,
   history: ProjectHistory,
-): void {
-  const file = historyFile(home);
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, JSON.stringify({ "open-dough": history }));
+): Promise<void> {
+  await keepMachineDocument(historyFile(home), { "open-dough": history });
 }
 
 // What each landing the history keeps resolved to, by its receipt.

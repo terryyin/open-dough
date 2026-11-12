@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent asks the read boundary once for each answer fixed at the revision
 // shown (../../src/answerMemo.ts, ../../src/repositoryFileReads.ts): reopening a
 // feature reads its text no more, and leaving for Development and returning
@@ -84,8 +85,8 @@ test("reopening a feature and returning from Development ask nothing more and sh
   const { intent, development, intentChoice } = parts(page);
   await expandIntentGroup(intent, "e2e_test/features");
   const open = async (path: string, text: string) => {
-    await intent.getByRole("button", { name: path, exact: true }).click();
-    await expect(intent.getByLabel(`${path} source`)).toContainText(text);
+    await sourceFile(intent, path).click();
+    await expect(fileSource(intent, path)).toContainText(text);
   };
   await open(featurePath, "Scenario: Archive a job");
   await open(otherPath, "Report free space");
@@ -98,7 +99,7 @@ test("reopening a feature and returning from Development ask nothing more and sh
   await development.click();
   await expect(intent).toBeHidden();
   await intentChoice.click();
-  await expect(intent.getByLabel(`${otherPath} source`)).toContainText(
+  await expect(fileSource(intent, otherPath)).toContainText(
     "Report free space",
   );
   expect(locationsReads()).toBe(1);

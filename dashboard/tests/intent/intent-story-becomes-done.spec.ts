@@ -20,6 +20,7 @@ import {
   chooseStoryTab,
   intentDiff,
   storySummary,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -98,9 +99,7 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
     { kind: "published", completion: story.completion },
   );
   await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-  await expect(storySummary(intent).locator(".intent-story-done")).toHaveText(
-    "Done",
-  );
+  await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
   await chooseStoryTab(intent, "Changed tests");
   expect(await intentDiff(intent, modified)).toContain(

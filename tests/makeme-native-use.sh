@@ -3,7 +3,9 @@
 # shellcheck disable=SC1091,SC2034,SC2154
 set -euo pipefail
 # Explicit paid native probe. Usage: HOST mixed|opted-out|refactor ARTIFACT_DIRECTORY.
-# Ordinary npm test runs only the cheap harness contract, never paid inference.
+# Without arguments it runs only the cheap harness contract, never paid
+# inference. Ordinary npm test runs those two harness files as its own jobs and
+# does not start this wrapper (scripts/test-jobs.sh).
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 if (($# == 0)); then
   log=$(mktemp)

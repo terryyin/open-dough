@@ -53,7 +53,7 @@ for (const legacyUnavailable of [false, true]) {
       );
     const before = history.please();
     expect(before.builds["run/61/1"]).not.toHaveProperty("proofPending");
-    keepLandedCiHistory(home, before);
+    await keepLandedCiHistory(home, before);
     keepLaunchRecords(home, []);
     const text = collectedScopeFileSummary(
       {

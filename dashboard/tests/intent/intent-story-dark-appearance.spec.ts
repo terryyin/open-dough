@@ -1,10 +1,17 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../intentScopeHistoryPage.ts";
 // Dark system appearance for a selected Done story's Intent reading: CI
 // comparison, Changed tests with files shown/hidden, Intent coverage, cued
 // rows, diffs, and source stay legible; captures support visual review against
 // the approved dark mockup; live preference changes keep reading state.
 
 import path from "node:path";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import {
   expectChartMarkContrast,
   expectReadableContrast,
@@ -13,13 +20,11 @@ import {
   expectDarkSurface,
   expectLightSurface,
   expectNoAppearanceSwitch,
+  expectSourceReadable,
   setColorScheme,
+  sourceAppearance,
 } from "../systemAppearanceReading.ts";
-import {
-  expandIntentGroup,
-  fileReadingTab,
-  purposeRegion,
-} from "../intentPerspectivePage.ts";
+import { expandIntentGroup, fileReadingTab } from "../intentPerspectivePage.ts";
 import { expectCueState } from "../support/expectCiComparisonCues.ts";
 import {
   publishSummaryComparisonStory,
@@ -29,7 +34,11 @@ import {
   openSummaryComparison,
   selectDoneStoryForSummaryComparison,
 } from "../support/selectDoneStoryForSummaryComparison.ts";
-import { chooseStoryTab, intentFile } from "../support/intentStoryPage.ts";
+import {
+  chooseStoryTab,
+  intentFile,
+  intentDiffReading,
+} from "../support/intentStoryPage.ts";
 import { expectFilesShown, filesToggle } from "../intentModePage.ts";
 import { colourOf } from "../pageColours.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -110,8 +119,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     await file.focus();
     await expect(file).toBeFocused();
     await fileReadingTab(intent, "Purpose").click();
-    const purpose = purposeRegion(intent);
-    const diff = purpose.locator(".story-review-code");
+    const diff = intentDiffReading(intent).code;
     await expect(diff).toBeVisible();
     for (const kind of [
       ".story-review-added",
@@ -123,11 +131,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
 
     await intentFile(intent, unchangedPath).click();
     await fileReadingTab(intent, "Purpose").click();
-    const source = purposeRegion(intent).locator(".source-lines");
-    await expect(source).toBeVisible();
-    await expectReadableContrast(source.locator(".source-line-number").first());
-    const token = source.locator(".source-token").first();
-    if ((await token.count()) > 0) await expectReadableContrast(token);
+    await expectSourceReadable(intent, unchangedPath);
   });
 
   await test.step("Summary timing history marks stay readable on the dark chart", async () => {
@@ -206,12 +210,11 @@ test("a Done story's Intent evidence stays readable under the system dark appear
       },
     );
     const summary = await openSummaryComparison(intent, "dashboard/tests");
-    const history = summary.locator(".intent-scope-timing-history");
+    const history = scopeHistory(summary);
+    const reading = scopeHistoryReading(history);
     await expect(history).toBeVisible();
-    await expectReadableContrast(history.locator(".intent-ci-history-extent"));
-    await expectChartMarkContrast(
-      history.locator("circle.intent-ci-history-point").first(),
-    );
+    await expectReadableContrast(reading.extent);
+    await expectChartMarkContrast(reading.unselectedPoints.first());
   });
 
   await test.step("changing system appearance keeps the selected story and reading place", async () => {
@@ -219,9 +222,8 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     await expandIntentGroup(intent, "dashboard/tests");
     await intentFile(intent, unchangedPath).click();
     await fileReadingTab(intent, "Purpose").click();
-    const source = purposeRegion(intent).locator(".source-lines");
+    const { source, token } = sourceAppearance(intent, unchangedPath);
     await expect(source).toBeVisible();
-    const token = source.locator(".source-token").first();
     const darkColour =
       (await token.count()) > 0 ? await colourOf(token) : undefined;
 

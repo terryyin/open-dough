@@ -9,6 +9,7 @@ import {
 } from "./attachedTerminal.ts";
 import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
 import { terminalThemes } from "./terminalThemes.ts";
+import { heldTerminalText } from "./terminalText.ts";
 
 export type { TerminalEnding } from "./attachedTerminal.ts";
 
@@ -43,6 +44,11 @@ export function useAttachedTerminal(
   );
   // Capture the attachment at the tap, before a clipboard read can yield.
   const getPaste = useCallback(() => live.current?.paste, []);
+  // What the mounted terminal holds now, attached or not.
+  const getHeldText = useCallback(
+    () => live.current && heldTerminalText(live.current.terminal),
+    [],
+  );
   useEffect(() => {
     latestTheme.current = theme;
     if (live.current) live.current.terminal.options.theme = theme;
@@ -77,5 +83,5 @@ export function useAttachedTerminal(
     onAttachRefusal,
     takesKeyboard,
   ]);
-  return { insertText, getPaste };
+  return { insertText, getPaste, getHeldText };
 }

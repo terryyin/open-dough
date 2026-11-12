@@ -51,8 +51,8 @@ if ! curl --fail --silent --show-error --location --connect-timeout 5 --max-time
   "https://github.com/mvdan/sh/releases/download/v${SHFMT_VERSION}/shfmt_v${SHFMT_VERSION}_linux_amd64" \
   --output "${shfmt}"; then
   echo 'shfmt GitHub release acquisition failed; trying the pinned Docker Hub image.'
-  # Upstream shfmt v3.14.0, Linux amd64.
-  copy_image_tool shfmt docker.io/mvdan/shfmt@sha256:5c7db7d33c6bc40fde46fc1157e36baa712e6ffe15fe33ff809f1193b4044c31
+  # Upstream shfmt v3.14.1, Linux amd64.
+  copy_image_tool shfmt docker.io/mvdan/shfmt@sha256:18eb2bf53e31591b63bfc55cce8ad82ff7fd0ed53f506f71726be4942928b999
 fi
 chmod +x -- "${shfmt}"
 version=$("${shfmt}" --version)

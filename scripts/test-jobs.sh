@@ -86,10 +86,13 @@ else
   find "${test_dir}" -type f -name '*.sh' ! -path "${test_dir}/support/*" -print0 \
     > "${work_dir}/tests"
   while IFS= read -r -d '' test_file; do
-    # The one-shot aggregate remains available for explicit focused proof;
-    # its two discovered group wrappers own the same journeys in CI.
-    [[ ${test_file} != tests/git-publication-native-one-shot.sh ]] || continue
-    add_job shell "${test_file}"
+    # An aggregate remains available for explicit focused proof; separately
+    # discovered jobs own the same checks here: the one-shot's two group
+    # wrappers, and the MakeMe harness's two `node --test` files.
+    case ${test_file} in
+      tests/git-publication-native-one-shot.sh | tests/makeme-native-use.sh) ;;
+      *) add_job shell "${test_file}" ;;
+    esac
   done < "${work_dir}/tests"
 
   # `node-test-files` lists glob patterns, relative to the repository root, of

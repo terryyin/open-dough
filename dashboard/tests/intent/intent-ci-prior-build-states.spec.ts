@@ -1,3 +1,5 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Boundary states consume raw retained supplier observations through the
 // authenticated reader; no fixture supplies a calculated average.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -5,6 +7,8 @@ import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
   evidenceByKeyboard,
   historyOf,
   openJudgedCiStatus,
@@ -12,7 +16,7 @@ import {
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
 
-function keepMeasurements(
+async function keepMeasurements(
   home: string,
   values: readonly number[],
   selectedProof = true,
@@ -43,14 +47,14 @@ function keepMeasurements(
           .please(),
       );
   }
-  keepLandedCiHistory(home, history.inTrunkOrder(order).please());
+  await keepLandedCiHistory(home, history.inTrunkOrder(order).please());
 }
 
 test("five complete zeros give a zero reference and precise elapsed difference with explicitly unavailable percentage", async ({
   page,
   dashboard,
 }) => {
-  keepMeasurements(dashboard.home, [0, 0, 0, 0, 0, 1200]);
+  await keepMeasurements(dashboard.home, [0, 0, 0, 0, 0, 1200]);
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await openJudgedCiStatus(page);
   const history = historyOf(panel);
@@ -60,12 +64,10 @@ test("five complete zeros give a zero reference and precise elapsed difference w
   );
   await expect(history).toContainText("Median 0 s");
   await expect(history).toContainText("5 prior builds used · Nov 1–Nov 5");
-  await expect(
-    history.locator(".intent-ci-history-reference line"),
-  ).toHaveCount(1);
+  await expect(buildHistoryReading(history).referenceLine).toHaveCount(1);
   const builds = await evidenceByKeyboard(page, panel);
-  await expect(builds.getByRole("listitem")).toHaveCount(6);
-  await expect(builds.getByRole("listitem").first()).toContainText("0 s");
+  await expect(buildEvidenceRows(builds)).toHaveCount(6);
+  await expect(buildEvidenceRows(builds).first()).toContainText("0 s");
   await expectNoSidewaysScrollIn(page, history);
 });
 
@@ -73,7 +75,7 @@ test("selected missing proof keeps a usable prior average and available observed
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 120000],
     false,
@@ -86,19 +88,17 @@ test("selected missing proof keeps a usable prior average and available observed
   );
   await expect(history).toContainText("5 prior builds used");
   const builds = await evidenceByKeyboard(page, panel);
-  await expect(builds.getByRole("listitem").last()).toContainText("2 min");
-  await expect(
-    history
-      .getByRole("group", { name: "Prior-build reference evidence" })
-      .getByText(/◆ Selected/),
-  ).toHaveText(/Validated CI proof summary is not retained/);
+  await expect(buildEvidenceRows(builds).last()).toContainText("2 min");
+  await expect(priorBuildReferenceReading(history).selected).toHaveText(
+    /Validated CI proof summary is not retained/,
+  );
 });
 
 test("four post-filter values show their evidence and insufficient history without a numeric average or reference line", async ({
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 116000, 120000],
   );
@@ -111,22 +111,20 @@ test("four post-filter values show their evidence and insufficient history witho
   await expect(history).toContainText(
     "Difference unavailable: insufficient comparable history",
   );
-  await expect(history.locator(".intent-ci-history-reference")).toHaveCount(0);
+  await expect(buildHistoryReading(history).reference).toHaveCount(0);
   const builds = await evidenceByKeyboard(page, panel);
-  await expect(builds.getByRole("listitem")).toHaveCount(6);
-  await expect(builds.getByRole("listitem").nth(4)).toContainText("1 min 56 s");
-  await expect(
-    history
-      .getByRole("group", { name: "Prior-build reference evidence" })
-      .getByText(/× Excluded/),
-  ).toHaveText(/1 min 56 s.*Slow outlier/);
+  await expect(buildEvidenceRows(builds)).toHaveCount(6);
+  await expect(buildEvidenceRows(builds).nth(4)).toContainText("1 min 56 s");
+  await expect(priorBuildReferenceReading(history).excluded).toHaveText(
+    /1 min 56 s.*Slow outlier/,
+  );
 });
 
 test("refresh recomputes the displayed endpoint reference from the changed retained snapshot without display rounding", async ({
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 115000],
   );
@@ -134,7 +132,7 @@ test("refresh recomputes the displayed endpoint reference from the changed retai
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 1 min 40 s");
   await expect(history).toContainText("5 prior builds used");
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 115000, 130000],
   );
@@ -142,16 +140,16 @@ test("refresh recomputes the displayed endpoint reference from the changed retai
   await expect(history).toContainText("6 prior builds used");
   await expect(history).toContainText("Prior-build average · 1 min 43 s");
   await expect(history).toContainText("+27.5 s (+27%)");
-  await expect(
-    history.locator(".intent-ci-history-reference title"),
-  ).toHaveText("Prior-build average 1 min 43 s");
+  await expect(buildHistoryReading(history).referenceTitle).toHaveText(
+    "Prior-build average 1 min 43 s",
+  );
 });
 
 test("an invalid measured start keeps its original gap and readable receipt date beside an available prior reference", async ({
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 120000],
   );
@@ -177,15 +175,14 @@ test("an invalid measured start keeps its original gap and readable receipt date
     "Difference unavailable: CI wall time bounds are not recorded or invalid",
   );
   const builds = await evidenceByKeyboard(page, panel);
-  await expect(builds.getByRole("listitem").last()).toContainText(
+  await expect(buildEvidenceRows(builds).last()).toContainText(
     "CI wall time not recorded",
   );
-  const selected = history
-    .getByRole("group", { name: "Prior-build reference evidence" })
-    .getByText(/◆ Selected/);
+  const selected = priorBuildReferenceReading(history).selected;
   await expect(selected).toContainText("Nov 6");
   await expect(selected).toContainText("bounds are not recorded or invalid");
-  await expect(
-    selected.getByRole("link", { name: "Run 6 · attempt 1" }),
-  ).toHaveAttribute("href", "https://ci.invalid/runs/6");
+  await expect(attemptLink(selected, "Run 6 · attempt 1")).toHaveAttribute(
+    "href",
+    "https://ci.invalid/runs/6",
+  );
 });

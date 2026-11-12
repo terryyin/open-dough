@@ -1,3 +1,4 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
 // Project Intent's CI wall time history in CI status
 // (../../src/IntentCiHistory.tsx) while a landing's CI is pending, on a real
 // bare origin (../support/startOrigin.ts) whose dashboard collects the
@@ -16,6 +17,9 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { passTimeUntilCheckedAfterSettled } from "../autoRefreshJourney.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
+  showBuildHistoryEvidence,
   dayWords,
   historyOf,
   openProjectCiStatus,
@@ -130,8 +134,8 @@ test.describe("checking pending landings again", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     const panel = await openProjectCiStatus(page);
     const history = historyOf(panel);
-    const heading = history.getByRole("heading");
-    const builds = history.getByRole("list", { name: "Builds and evidence" });
+    const heading = buildHistoryReading(history).heading;
+    const builds = buildHistoryReading(history).evidence;
     const firstPoint = `Nov 5 · 6 min 5 s · exact revision ${shortSha(first.revision)} · Run 41 · attempt 1`;
     // The day the dashboard recorded it, on the reader's clock.
     const pendingGap = `${dayWords(second.at)} · Pending · CI queued or running · landed revision ${shortSha(second.revision)} · Run 42 · attempt 1`;
@@ -140,17 +144,16 @@ test.describe("checking pending landings again", () => {
       await expect(heading).toHaveText(
         "CI wall time history 1 measured build · Nov 5",
       );
-      await expect(
-        history.getByRole("img", { name: "CI wall time by build date" }),
-      ).toBeVisible();
-      await history.locator("summary").click();
-      await expect(builds.getByRole("listitem")).toHaveText([
+      await expect(buildHistoryReading(history).chart).toBeVisible();
+      await showBuildHistoryEvidence(history);
+      await expect(buildEvidenceRows(builds)).toHaveText([
         firstPoint,
         pendingGap,
       ]);
-      await expect(
-        builds.getByRole("link", { name: "Run 42 · attempt 1" }),
-      ).toHaveAttribute("href", "https://ci.invalid/runs/42");
+      await expect(attemptLink(builds, "Run 42 · attempt 1")).toHaveAttribute(
+        "href",
+        "https://ci.invalid/runs/42",
+      );
       await expectNoSidewaysScrollIn(page, history);
       await untilPageReadsAnswered(page);
       expect(reads).toEqual({ judgment: 1, history: 1 });
@@ -180,7 +183,7 @@ test.describe("checking pending landings again", () => {
       await passTimeUntilCheckedAfterSettled(page);
       await untilPageReadsAnswered(page);
       expect(reads).toEqual({ judgment: 1, history: 1 });
-      await expect(builds.getByRole("listitem")).toHaveText([
+      await expect(buildEvidenceRows(builds)).toHaveText([
         firstPoint,
         pendingGap,
       ]);
@@ -190,7 +193,7 @@ test.describe("checking pending landings again", () => {
       await advanceTrunk(origin);
       await passTimeUntilCheckedAfterSettled(page);
       await untilPageReadsAnswered(page);
-      await expect(builds.getByRole("listitem")).toHaveText([
+      await expect(buildEvidenceRows(builds)).toHaveText([
         firstPoint,
         `Nov 5 · 7 min 10 s · exact revision ${shortSha(second.revision)} · Run 42 · attempt 1`,
       ]);

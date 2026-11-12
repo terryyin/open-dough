@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // CI state transitions cannot own or discard the independent local reference.
 import { readFileSync, writeFileSync } from "node:fs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -15,7 +16,10 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
   github,
 }) => {
   const setup = await publishComparedStoryBranch(page, origin);
-  keepLandedCiHistory(dashboard.home, doneWallReferenceHistory(origin, setup));
+  await keepLandedCiHistory(
+    dashboard.home,
+    doneWallReferenceHistory(origin, setup),
+  );
   const unavailable = makeMe.aStoryCiComparison
     .with({
       kind: "unavailable",
@@ -53,7 +57,7 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
     name: "Done CI wall time reference",
     exact: true,
   });
-  await expect(panel.locator(".intent-ci-gap")).toContainText(
+  await expect(comparisonReading(panel).gap).toContainText(
     "CI comparison read failed",
   );
   await expect(history).toContainText("Prior-build average · 1 min 43 s");
@@ -65,16 +69,14 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
   });
   mode = "unavailable";
   await checkAgain.click();
-  await expect(panel.locator(".intent-ci-gap")).toHaveText(
+  await expect(comparisonReading(panel).gap).toHaveText(
     "Comparison evidence incomplete",
   );
   await expect(history).toContainText("Prior-build average · 1 min 43 s");
   await expect.poll(() => historyReads).toBe(2);
   mode = "real";
   await checkAgain.click();
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toBeVisible();
+  await expect(comparisonReading(panel).entryTable).toBeVisible();
   await expect.poll(() => historyReads).toBe(3);
   const actions = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
@@ -85,7 +87,7 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
     writeFileSync(file, "{broken local history");
     mode = "failed";
     await checkAgain.click();
-    await expect(panel.locator(".intent-ci-gap")).toContainText(
+    await expect(comparisonReading(panel).gap).toContainText(
       "CI comparison read failed",
     );
     await expect(history).toContainText("Prior-build average · 1 min 43 s");
@@ -103,15 +105,13 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
       .getByRole("button", { name: "Retry history", exact: true })
       .click();
     await expect(history.getByRole("alert")).toHaveCount(0);
-    await expect(panel.locator(".intent-ci-gap")).toContainText(
+    await expect(comparisonReading(panel).gap).toContainText(
       "CI comparison read failed",
     );
     await expect(intent).toHaveAttribute("data-selected-story", setup.identity);
     mode = "real";
     await checkAgain.click();
-    await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-      "4 min",
-    );
+    await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
     await expect(history).toContainText("Prior-build average · 1 min 43 s");
     expect(actions()).toHaveLength(before);
   } finally {

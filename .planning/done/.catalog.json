@@ -2,6 +2,60 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-316_prove-swipe-under-button-event-tracking.json",
+      "identity": "SEED-316#prove-swipe-under-button-event-tracking",
+      "completedAt": "2026-11-12T02:26:32.566Z",
+      "blob": "2abbef676f548a86c862684bfeb277ffe31c7667"
+    },
+    {
+      "fileName": "SEED-323_encode-launch-attachment-filenames-for-headers.json",
+      "identity": "SEED-323#encode-launch-attachment-filenames-for-headers",
+      "completedAt": "2026-11-12T02:08:22.692Z",
+      "blob": "b0dd434381cfb8a96798c4ea21ea94f97067cd1f"
+    },
+    {
+      "fileName": "SEED-318_remove-unused-taken-comparison-navigation.json",
+      "identity": "SEED-318#remove-unused-taken-comparison-navigation",
+      "completedAt": "2026-11-12T01:54:08.981Z",
+      "blob": "000e16a0b9b7256d29c7946351fa455f8e10fec4"
+    },
+    {
+      "fileName": "SEED-322_keep-sidebar-selected-board-cards-visible-below-fixed-header.json",
+      "identity": "SEED-322#keep-sidebar-selected-board-cards-visible-below-fixed-header",
+      "completedAt": "2026-11-12T01:50:59.437Z",
+      "blob": "060c83b799604ae33e5b0e0a05da651fbc60f0df"
+    },
+    {
+      "fileName": "SEED-300_express-dashboard-test-intent-through-page-objects.json",
+      "identity": "SEED-300#express-dashboard-test-intent-through-page-objects",
+      "completedAt": "2026-11-12T01:02:53.721Z",
+      "blob": "e05cac938a921afef3302052c220f8eea9e87b7d"
+    },
+    {
+      "fileName": "SEED-312_speed-up-touch-review-checks.json",
+      "identity": "SEED-312#speed-up-touch-review-checks",
+      "completedAt": "2026-11-11T17:46:00.721Z",
+      "blob": "f996622331b240e3872f728afe9b3656ea2c9054"
+    },
+    {
+      "fileName": "SEED-317_upgrade-all-dependencies.json",
+      "identity": "SEED-317#upgrade-all-dependencies",
+      "completedAt": "2026-11-11T16:30:21.966Z",
+      "blob": "adcdcac8348da22e96e3d5eca8924305667e11b8"
+    },
+    {
+      "fileName": "SEED-307_run-makeme-harness-once.json",
+      "identity": "SEED-307#run-makeme-harness-once",
+      "completedAt": "2026-11-11T16:01:28.982Z",
+      "blob": "1292e278b8d8127d85735e12fcf58baf23457a05"
+    },
+    {
+      "fileName": "SEED-316_select-and-copy-terminal-text-on-mobile.json",
+      "identity": "SEED-316#select-and-copy-terminal-text-on-mobile",
+      "completedAt": "2026-11-11T15:56:56.288Z",
+      "blob": "43df6943db515e8798c56920ac08cf4f28c5de3d"
+    },
+    {
       "fileName": "SEED-307_apply-shared-makeme-rules-per-entry.json",
       "identity": "SEED-307#apply-shared-makeme-rules-per-entry",
       "completedAt": "2026-11-11T13:38:25.650Z",
@@ -1980,18 +2034,6 @@
       "identity": "SEED-134#one-hour-mobile-dashboard-observation",
       "completedAt": "2026-10-13T05:19:28.255Z",
       "blob": "815f097bad734488a2aa5427098feec248f39ea3"
-    },
-    {
-      "fileName": "SEED-133_operate-dashboard-from-mobile-browser.json",
-      "identity": "SEED-133#operate-dashboard-from-mobile-browser",
-      "completedAt": "2026-10-13T01:14:57.021Z",
-      "blob": "3fbd57a55cade5cf294e2d063ee4bf98a2d65be4"
-    },
-    {
-      "fileName": "SEED-063_background-ci-failure-delivery.json",
-      "identity": "SEED-063#background-ci-failure-delivery",
-      "completedAt": "2026-10-12T23:55:32.494Z",
-      "blob": "16955965e73026dcce9304d2f25c719856207877"
     }
   ],
   "unreadable": []

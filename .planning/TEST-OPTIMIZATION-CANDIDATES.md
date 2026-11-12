@@ -5,7 +5,7 @@
 ### auto-refresh-rate-limit-real-waits
 
 - **Owner:** [SEED-315](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks),
-  extracted at Terry's early handoff; queued and Not ready, with no agent assigned.
+  planned in [plan 598](slice-plans/598-speed-up-provider-rate-limit-checks/PLAN.md).
 - **Affected test or fixture:** `dashboard/tests/observation/auto-refresh-rate-limit.spec.ts`,
   its one case, which has a case-local 45 s timeout allowance, and the
   rate-limited stream case
@@ -30,7 +30,7 @@
   directed-time-versus-pace distinction. The dashboard server's
   shared-observation clock seam (`dashboard/server/observationClock.ts`) does
   not reach the request owner.
-- **Decision or evidence needed:** a developer decision whether the request
-  owner, which is released payload code, may take a test-controlled clock, as
-  the dashboard server's reuse window does. With that clock the case can drop
-  its allowance and real waits, and the stream case its 6 s directed wait.
+- **Decision or evidence needed:** none. The maintained owner clock fixture
+  (`dashboard/tests/support/listingReuseWithOwnerClock.ts`) starts the
+  released owner unchanged with a controlled `Date`; plan 598 applies it to
+  both cases and measures the saving.

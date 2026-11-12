@@ -47,7 +47,7 @@ test("an old targetless retained receipt and its new explicit-target alias share
         .please(),
     )
     .please();
-  keepLandedCiHistory(path.join(origin.machine, "home"), history);
+  await keepLandedCiHistory(path.join(origin.machine, "home"), history);
   const server = await startServer();
   await followUpSettings(server, true);
   await scenario.ingest(server);

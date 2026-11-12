@@ -41,8 +41,16 @@ here. Project findings [DD-473](../../ProjectFindings.md#dd-473)
 21–27), [DD-476](../../ProjectFindings.md#dd-476) (whole runs at load 13–36)
 and [DD-479](../../ProjectFindings.md#dd-479)
 (`backend-tests/launches/start-origin-isolation.spec.ts:140`, 30.0 s at load
-37) are further cases of the same margin. The Intent CI comparison family
-belongs to SEED-286#fast-intent-ci-comparison-tests.
+37) are further cases of the same margin. SEED-312's DD-476 occurrence at
+load 33–49 also timed out or missed a 5 s observation in four review cases
+this story did not yet name:
+`backend-tests/review/story-review-completed-conflicts.spec.ts:73`,
+`tests/review/story-review-one-shot-choice-races.spec.ts:12`,
+`tests/review/story-review-one-shot-choice.spec.ts:13`, and
+`tests/review/story-review-completed-merge-edits.spec.ts:11`. They failed
+the same way on the base revision and on that story's code, and passed in
+hosted CI. The Intent CI comparison family belongs to
+SEED-286#fast-intent-ci-comparison-tests.
 
 <a id="fit-dashboard-journeys-in-default-timeout"></a>
 
@@ -73,8 +81,13 @@ verdicts without stretching deadlines.
   `production-deployment`, `agent-completion-recovery`); the watcher family's
   first-in-worker `beforeAll` and restart/policy-repair paths; the retired
   closure journey; and the routed findings/cases that share this margin
-  problem (`story-review-completed`, DD-473/DD-476/DD-479 routes, and the
-  three candidates moved from SEED-284).
+  problem (`story-review-completed`, DD-473/DD-476/DD-479 routes including
+  `story-review-story-branch-landed.spec.ts:27`,
+  `story-review-completed-conflicts.spec.ts:73`,
+  `story-review-one-shot-choice-races.spec.ts:12`,
+  `story-review-one-shot-choice.spec.ts:13`,
+  `story-review-completed-merge-edits.spec.ts:11`, and the three candidates
+  moved from SEED-284).
 - Remove each temporary case-local timeout allowance only after that case fits
   the default with margin. Allowances named for this story include touch
   review, production-deployment, agent-completion-recovery, and the temporary
@@ -160,11 +173,16 @@ or speedup unestablished.
 1. **Touch review without allowance.** Under local load 20–30 on 2 workers,
    the case "chooses a comparison and file and reads within each pane" passes
    inside the default 30 s; its 2026-11-09 case-local allowance is removed.
-2. **Named overdue cases under load.** The eight 2026-11-09 cases and
-   first-in-worker journeys that previously timed out or missed a 5 s
-   observation finish with margin inside the default 30 s and those
-   observations on a hosted shard about 1.5× slower overall and locally at
-   load 20–30 on 2 workers; production-deployment and
+2. **Named overdue cases under load.** The eight 2026-11-09 cases,
+   first-in-worker journeys, and the SEED-312 review-family cases
+   (`story-review-completed-conflicts.spec.ts:73`,
+   `story-review-one-shot-choice-races.spec.ts:12`,
+   `story-review-one-shot-choice.spec.ts:13`,
+   `story-review-completed-merge-edits.spec.ts:11`, alongside
+   `story-review-story-branch-landed.spec.ts:27`) that previously timed out
+   or missed a 5 s observation finish with margin inside the default 30 s
+   and those observations on a hosted shard about 1.5× slower overall and
+   locally at load 20–30 on 2 workers; production-deployment and
    agent-completion-recovery allowances are removed after they fit.
 3. **One live watcher failure deployment.** The failure journey proves that
    an unavailable origin leaves C serving and that checks resume when the
@@ -262,6 +280,11 @@ Primary homes for the scope above:
 [closure journeys](../../dashboard/tests/sessions/agent-completion-quiet.spec.ts),
 [reporting boundary](../../dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts),
 [touch review](../../dashboard/tests/review/story-review-touch.spec.ts),
+[story-branch landed](../../dashboard/tests/review/story-review-story-branch-landed.spec.ts),
+[completed conflicts](../../dashboard/backend-tests/review/story-review-completed-conflicts.spec.ts),
+[one-shot choice](../../dashboard/tests/review/story-review-one-shot-choice.spec.ts),
+[one-shot choice races](../../dashboard/tests/review/story-review-one-shot-choice-races.spec.ts),
+[completed merge edits](../../dashboard/tests/review/story-review-completed-merge-edits.spec.ts),
 [production deployment](../../dashboard/backend-tests/runtime/production-deployment.spec.ts).
 
 Compare focused before and after runs with the same selection, workers, cache

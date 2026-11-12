@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Retained integration: real Git/provider acquisition reaches Check again and
 // process memory, and actual shallow claim history recovers after unshallowing.
 // Fast read/provider memory rules and mounted controls own the other variants.
@@ -38,7 +39,7 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   const reads = watchComparisonReads(page);
 
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const identity = panel.locator(".intent-ci-comparison-identity");
+  const identity = comparisonReading(panel).identities;
   await expect(identity.nth(0)).toContainText("GitHub is unreachable");
   await expect(identity.nth(1)).toContainText(shortSha(setup.branchSide));
   await expect(identity.nth(2)).toContainText(shortSha(setup.completion));
@@ -47,12 +48,12 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   await checkComparisonAgain(page, panel);
   await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
   await expectSourceCue(identity.nth(0));
-  await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+  await expect(comparisonReading(panel).activeComparison).toHaveText(
     "Baseline compared with Landed",
   );
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)");
+  await expect(comparisonReading(panel).overallCounts).toHaveText(
+    "2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)",
+  );
   await expect(checkAgain).toBeEnabled();
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
 
@@ -66,9 +67,9 @@ test("Check again recovers a done Story Branch Baseline that failed once, then a
   await expect.poll(() => reads.finished.proof).toBe(proofs + 3);
   await expect(identity.nth(0)).toContainText(shortSha(setup.baseline));
   const again = await selectDoneStoryForCiComparison(page);
-  await expect(
-    again.panel.locator(".intent-ci-comparison-identity").nth(0),
-  ).toContainText(shortSha(setup.baseline));
+  await expect(comparisonReading(again.panel).identities.nth(0)).toContainText(
+    shortSha(setup.baseline),
+  );
   await expect.poll(() => reads.finished.proof).toBe(proofs + 6);
   expect(asked).toBe(askedBefore);
 });
@@ -93,7 +94,7 @@ test("unrecoverable published history shows the published-review explanation wit
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
   await expect(panel.getByRole("heading")).toHaveText("CI timing changes");
-  await expect(panel.locator(".intent-ci-gap")).toContainText(unrecoverable);
+  await expect(comparisonReading(panel).gap).toContainText(unrecoverable);
   await expect(panel.locator(".intent-ci-comparison")).toHaveCount(0);
   await expect(panel).not.toContainText("run ");
   await expect(panel).not.toContainText("+");
@@ -105,6 +106,6 @@ test("unrecoverable published history shows the published-review explanation wit
   git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
   await checkComparisonAgain(page, panel);
   await expect(panel.locator(".intent-ci-comparison")).not.toHaveCount(0);
-  await expect(panel.locator(".intent-ci-gap")).toHaveCount(0);
+  await expect(comparisonReading(panel).gap).toHaveCount(0);
   await expect(checkAgain).toBeEnabled();
 });

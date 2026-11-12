@@ -68,7 +68,7 @@ test("an unpositioned twenty-first landing waits without losing the known twenty
   for (const { landing, key, build } of known)
     history = history.recording(landing, key, build);
   const before = history.please();
-  keepLandedCiHistory(home, before);
+  await keepLandedCiHistory(home, before);
   const newest = await publishedLanding(origin, {
     title: "awaiting-local-order",
     receipt: "53000000-0000-4000-8000-000000000021",

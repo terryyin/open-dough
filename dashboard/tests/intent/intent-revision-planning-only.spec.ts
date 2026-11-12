@@ -1,3 +1,4 @@
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // The Project Intent browser names accepted locations even with no selected
 // file, and a planning-only refresh leaves identical tests at a newer source.
 
@@ -60,9 +61,7 @@ test("a planning-only update keeps a persistent browser revision with no file se
       params.get("revision") === revision,
     releases,
   );
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
   await expect.poll(latest.held).toBe(1);
   await expect(revisionNotice(intent)).toContainText("Updating…");
   await expect(browserRevision(intent)).toHaveText(

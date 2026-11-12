@@ -1,0 +1,78 @@
+/* The terminal's output in its Side panel (./agent-terminal.css): the live
+   screen and, while Select is on, the paused text over it
+   (./TerminalPausedText.tsx). The output takes the room the screen had and
+   the screen fills it, so the screen keeps its box whether or not it is
+   paused and the attachment is never resized by pausing. */
+.terminal-output {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* xterm layers its own parts; kept together, they all lie beneath the paused
+   text. */
+.terminal-output > .terminal-screen {
+  isolation: isolate;
+}
+
+/* Only coarse pointers have Select (the key toolbar), so only they can show
+   the paused text. */
+.terminal-paused-text {
+  display: none;
+}
+
+@media (any-pointer: coarse) {
+  /* Covers the screen's box exactly and opaquely, padded as the screen is,
+     in the terminal's colours, font and row height, so each row lies where
+     the terminal draws it and nothing moves or blinks behind it. It is
+     ordinary text holding everything the terminal holds: the device selects
+     it and scrolls through it, and a stroke that reaches its first or last
+     line does not go on to move the page behind the panel. */
+  .terminal-paused-text {
+    position: absolute;
+    inset: 0;
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.4rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    white-space: pre;
+    color: var(--terminal-foreground, #fff);
+    background: var(--terminal-background, #000);
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* The room the screen's box has below the terminal's rows stays below the
+     last line, so the latest rows also scroll to where the terminal shows
+     them. It is none once the visible area is smaller than the rows the
+     terminal showed. */
+  .terminal-paused-text::after {
+    display: block;
+    height: calc(100% - var(--terminal-shown-height, 100%));
+    content: "";
+  }
+
+  /* Where the terminal wrapped a line, the next row starts as the terminal
+     drew it. The break is drawn, not text, so the line copies whole. */
+  .terminal-paused-wrap::after {
+    content: "\A";
+  }
+
+  /* Where a row starts, for reading where the browser set it: a character
+     without width that is drawn, not text, so it is never copied. */
+  .terminal-paused-row-start::before {
+    content: "\200B";
+  }
+
+  /* Select reads as on while it pauses, also under the hover a tap leaves on
+     a touch key. */
+  .terminal-key-toolbar-key[aria-pressed="true"],
+  .terminal-key-toolbar-key[aria-pressed="true"]:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+}

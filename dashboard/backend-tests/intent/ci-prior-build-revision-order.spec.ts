@@ -65,7 +65,7 @@ test("the local history read orders unrecorded measured revisions and excludes a
       selection,
     );
   }
-  keepLandedCiHistory(dashboard.home, builder.please());
+  await keepLandedCiHistory(dashboard.home, builder.please());
   const before = github.calls.length;
   expect(await landedCiHistory(dashboard)).toMatchObject({
     status: 200,

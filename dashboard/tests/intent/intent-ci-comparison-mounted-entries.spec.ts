@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The actual comparison renders prepared canonical proof answers.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "../support/pageTest.ts";
@@ -26,18 +27,14 @@ test("expired entry proofs keep Branch and Landed wall times and explain absence
     makeMe.aCiProof.unavailable("expired").please(),
   ]);
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(1)).toHaveText(
+  await expect(comparisonReading(panel).wallTimes.nth(1)).toHaveText(
     "3 min 20 s",
   );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "4 min",
-  );
-  await expect(panel.locator(".intent-ci-comparison-entries")).toContainText(
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
+  await expect(comparisonReading(panel).entryEvidence).toContainText(
     "This run's CI proof summary has expired.",
   );
-  await expect(
-    panel.getByRole("table", { name: "CI entry timing comparison" }),
-  ).toHaveCount(0);
+  await expect(comparisonReading(panel).entryTable).toHaveCount(0);
 });
 
 test("entry rows retain counts, signed whole seconds and independent count and time cues", async ({
@@ -47,9 +44,7 @@ test("entry rows retain counts, signed whole seconds and independent count and t
   const facts = wallComparedFacts();
   const rendered = comparisonRenderFacts(facts, mixedEntryFacts());
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  const table = panel.getByRole("table", {
-    name: "CI entry timing comparison",
-  });
+  const table = comparisonReading(panel).entryTable;
   await expectUnsortedRows(table, ["dashboard/tests", "tests", "src/skills"]);
   await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
   await expectEntryRowCues(panel, comparedStoryEntryCues);
@@ -105,9 +100,7 @@ test("no duration and an untimed part keep exact accessible gap explanations ins
     ],
     ["src/skills", "added → 3 test files", "added", "30 s", "30 s"],
   ]);
-  const cells = panel
-    .getByRole("table", { name: "CI entry timing comparison" })
-    .locator("tbody tr");
+  const cells = comparisonReading(panel).entryTable.locator("tbody tr");
   await expect(
     cells.nth(0).getByRole("cell").nth(1),
   ).toHaveAccessibleDescription(

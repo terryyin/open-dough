@@ -9,6 +9,7 @@ import {
   chooseOptimizationCandidates,
   expectIntentModeChosen,
   openProjectIntent,
+  intentPageFrame,
 } from "../intentModePage.ts";
 import { parts } from "../dashboardPage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
@@ -38,7 +39,7 @@ test("each new selection opens the story at CI comparison, even one cleared and 
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(storySummary(intent)).toBeVisible();
-    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+    await expect(intentPageFrame(intent)).toHaveAttribute(
       "data-intent-context",
       "story",
     );
@@ -60,7 +61,7 @@ test("each new selection opens the story at CI comparison, even one cleared and 
     await expect(
       intent.getByRole("heading", { name: "No story selected", exact: true }),
     ).toBeVisible();
-    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+    await expect(intentPageFrame(intent)).toHaveAttribute(
       "data-intent-context",
       "project",
     );

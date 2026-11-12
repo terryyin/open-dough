@@ -12,6 +12,7 @@
 import { expect, test } from "../dashboardTest.ts";
 import {
   artifactId,
+  ciProofReading,
   openFailedRun,
   proofTable,
   run,
@@ -26,6 +27,7 @@ import {
 import {
   expectSortedBy,
   rowNames,
+  expectUnsortedRows,
   sortButton,
 } from "../support/expectSortedColumns.ts";
 
@@ -127,23 +129,28 @@ test("Proof sorts by Test execution time and Counts by click, Enter and Space, u
   );
   const table = proofTable(proof);
   // Declaration order, no header sorted, and no totals row.
-  await expect(rowNames(table)).toHaveText(["tests/a", "tests/b", "tests/c"]);
+  await expectUnsortedRows(table, ["tests/a", "tests/b", "tests/c"]);
   await expect(table.locator("tbody tr td:nth-of-type(2)")).toHaveText([
     "12.5 s",
     "340 ms",
     "Part 2 untimed",
   ]);
-  await expect(table.locator("th[aria-sort]")).toHaveCount(0);
   await expect(table.getByRole("row")).toHaveCount(4);
 
   const time = sortButton(table, "Test execution time");
   await time.click();
-  await expectSortedBy(table, "Test execution time", "ascending");
-  await expect(rowNames(table)).toHaveText(["tests/b", "tests/a", "tests/c"]);
+  await expectSortedBy(table, "Test execution time", "ascending", [
+    "tests/b",
+    "tests/a",
+    "tests/c",
+  ]);
   await time.click();
-  await expectSortedBy(table, "Test execution time", "descending");
   // The partial row stays last.
-  await expect(rowNames(table)).toHaveText(["tests/a", "tests/b", "tests/c"]);
+  await expectSortedBy(table, "Test execution time", "descending", [
+    "tests/a",
+    "tests/b",
+    "tests/c",
+  ]);
 
   // Tab reaches the next header from the one before it; Enter and Space
   // activate it.
@@ -152,13 +159,19 @@ test("Proof sorts by Test execution time and Counts by click, Enter and Space, u
   const countsButton = sortButton(table, "Counts");
   await expect(countsButton).toBeFocused();
   await page.keyboard.press("Enter");
-  await expectSortedBy(table, "Counts", "ascending");
   // 3 with 1 failed before 3 passed, then 4.
-  await expect(rowNames(table)).toHaveText(["tests/b", "tests/c", "tests/a"]);
+  await expectSortedBy(table, "Counts", "ascending", [
+    "tests/b",
+    "tests/c",
+    "tests/a",
+  ]);
   await page.keyboard.press("Space");
-  await expectSortedBy(table, "Counts", "descending");
   // Failed first among equal totals in either direction.
-  await expect(rowNames(table)).toHaveText(["tests/a", "tests/b", "tests/c"]);
+  await expectSortedBy(table, "Counts", "descending", [
+    "tests/a",
+    "tests/b",
+    "tests/c",
+  ]);
   await expect(table.getByRole("row")).toHaveCount(4);
 });
 
@@ -185,33 +198,28 @@ test("a multi-unit location sorts as one row by each unit's figures without summ
   await page.keyboard.press("Tab");
   await expect(time).toBeFocused();
   await page.keyboard.press("Enter");
-  await expectSortedBy(table, "Test execution time", "ascending");
   // Case times 500, 800, 5000; gap's file line stays with its row.
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Test execution time", "ascending", [
     "grouped/fast",
     "grouped/gap",
     "grouped/slow",
   ]);
   await expect(
-    table
-      .locator("tbody tr")
-      .nth(1)
-      .locator(".intent-ci-proof-unit-line")
-      .filter({ hasText: "Part 2 missing" }),
+    ciProofReading(table.locator("tbody tr").nth(1)).unitLines.filter({
+      hasText: "Part 2 missing",
+    }),
   ).toHaveAttribute("aria-label", "test files: Part 2 missing");
 
   await page.keyboard.press("Space");
-  await expectSortedBy(table, "Test execution time", "descending");
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Test execution time", "descending", [
     "grouped/slow",
     "grouped/gap",
     "grouped/fast",
   ]);
 
   await sortButton(table, "Counts").click();
-  await expectSortedBy(table, "Counts", "ascending");
   // Case totals 3, then 10/10; file breaks the 10-tie (2 before 4).
-  await expect(rowNames(table)).toHaveText([
+  await expectSortedBy(table, "Counts", "ascending", [
     "grouped/gap",
     "grouped/slow",
     "grouped/fast",

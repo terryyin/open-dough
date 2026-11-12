@@ -1,3 +1,5 @@
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
+import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // A completed story's unchanged file reads Purpose from its landed revision,
 // excluding later inventory, while Proof keeps the compact build comparison.
 // Changed-file Purpose and Proof journeys live in
@@ -13,12 +15,9 @@ import {
 } from "../intentPerspectivePage.ts";
 import { expectProofRowCues } from "../support/expectCiComparisonCues.ts";
 import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "../support/intentStoryPage.ts";
+import { intentFile, intentDiffReading } from "../support/intentStoryPage.ts";
 import { selectDoneStoryForChangedTests } from "../support/selectDoneStoryForSummaryComparison.ts";
-import {
-  expectFileComparisonRow,
-  unchangedFileRow,
-} from "../support/summaryComparisonFileExpectedRows.ts";
+import { unchangedFileRow } from "../support/summaryComparisonFileExpectedRows.ts";
 
 for (const variant of [undefined, "own-conflict-extra"] as const) {
   test(`a done story's unchanged file reads its landed source and compact Proof with ${variant ?? "clean merges"}`, async ({
@@ -43,14 +42,14 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
     );
     const purposeOnly = purposeRegion(intent);
     await expect(purposeOnly).toContainText("root 11");
-    await expect(purposeOnly.locator(".intent-source-meta")).toContainText(
-      `at revision ${setup.completion.slice(0, 7)}`,
-    );
+    await expect(
+      sourceRevision(intent, "dashboard/tests/root.spec.ts"),
+    ).toContainText(`at revision ${setup.completion.slice(0, 7)}`);
     expect(unchangedReads).toEqual([setup.completion]);
     await expect(
       intentFile(intent, "dashboard/tests/later.spec.ts"),
     ).toHaveCount(0);
-    await expect(purposeOnly.locator(".story-review-code")).toHaveCount(0);
+    await expect(intentDiffReading(intent).code).toHaveCount(0);
     await expect(purposeOnly.getByRole("table")).toHaveCount(0);
     await fileReadingTab(intent, "Proof").click();
     await untilPageReadsAnswered(page);

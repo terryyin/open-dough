@@ -34,7 +34,7 @@
     auto minmax(0, 0);
   height: 100dvh;
   overflow-y: auto;
-  padding: var(--space-2) var(--space-3) var(--space-3);
+  padding: 0 var(--space-3) var(--space-3);
   border-right: 1px solid var(--line);
   background: var(--raised-surface);
 }
@@ -78,13 +78,15 @@
   scroll-padding-block: var(--focus-ring-clearance);
 }
 
-/* The title row sits on the banner's row, at its control height: the heading,
-   then its status figures at the row's end. */
+/* The title row sits on the banner's row as one of the frame's top bars
+   (./styles.css), its line reaching the sidebar's sides: the heading, then
+   its status figures at the row's end. */
 .sessions-sidebar-title-row {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: var(--control-size);
+  margin-inline: calc(-1 * var(--space-3));
+  padding-inline: var(--space-3);
 }
 
 .sessions-sidebar-title-row > h2 {
@@ -229,7 +231,7 @@
     z-index: 4;
     width: min(18rem, 85vw);
     height: auto;
-    padding-top: calc(var(--banner-height, 0px) + var(--space-2));
+    padding-top: var(--banner-height, 0px);
     border-right: 1px solid var(--edge);
     box-shadow: var(--shadow-2);
   }

@@ -1,8 +1,13 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import { priorBuildReferenceReading } from "../priorBuildReferencePage.ts";
 // Settled retained producer observations and a collected selected attempt
 // traverse the normal authenticated history read, never a fixture average.
 import { shortSha } from "../../src/baseCiWording.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
+  buildEvidenceRows,
+  buildHistoryReading,
+  chartOf,
   evidenceByKeyboard,
   historyOf,
   openProjectCiStatus,
@@ -112,7 +117,7 @@ test("project history explains its five-build average, strict slow exclusion and
   }
   // Settled background history is the starting precondition; only the new
   // selected landing needs collection in this comparison journey.
-  keepLandedCiHistory(dashboard.home, retained.please());
+  await keepLandedCiHistory(dashboard.home, retained.please());
   await publishTrunk(
     page,
     origin,
@@ -174,31 +179,43 @@ test("project history explains its five-build average, strict slow exclusion and
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const calls = ciCalls().length;
   const builds = await evidenceByKeyboard(page, panel);
-  await expect(builds.getByRole("listitem")).toHaveCount(7);
-  await expect(builds.getByRole("listitem").nth(5)).toContainText("1 min 56 s");
-  const evidence = history.getByRole("group", {
-    name: "Prior-build reference evidence",
-  });
-  await expect(evidence.getByText(/✓ Included/)).toHaveCount(5);
-  await expect(evidence.getByText(/× Excluded/)).toHaveText(
-    /Nov 6.*1 min 56 s.*Slow outlier/,
-  );
-  await expect(evidence.getByText(/◆ Selected/)).toHaveText(/Nov 7.*2 min/);
-  await expect(evidence.getByText(/◆ Selected/)).toContainText(
+  await expect(buildEvidenceRows(builds)).toHaveCount(7);
+  await expect(buildEvidenceRows(builds).nth(5)).toContainText("1 min 56 s");
+  const samples = priorBuildReferenceReading(history);
+  await expect(samples.included).toHaveCount(5);
+  await expect(samples.excluded).toHaveText(/Nov 6.*1 min 56 s.*Slow outlier/);
+  await expect(samples.selected).toHaveText(/Nov 7.*2 min/);
+  await expect(samples.selected).toContainText(
     `exact revision ${shortSha(selectedLanding.revision)}`,
   );
-  await expect(evidence.getByText(/× Excluded/)).toContainText(
+  await expect(samples.excluded).toContainText(
     `exact revision ${shortSha(excludedLanding.revision)}`,
   );
   await expect(
-    evidence.getByRole("link", { name: "Run 106 · attempt 1" }),
+    attemptLink(samples.evidence, "Run 106 · attempt 1"),
   ).toHaveAttribute("href", "https://ci.invalid/runs/106");
-  await expect(
-    history.locator(".intent-ci-history-reference line"),
-  ).toHaveCount(1);
-  await expect(
-    history.locator(".intent-ci-history-reference title"),
-  ).toHaveText("Prior-build average 1 min 43 s");
+  await expect(buildHistoryReading(history).referenceLine).toHaveCount(1);
+  await expect(buildHistoryReading(history).referenceTitle).toHaveText(
+    "Prior-build average 1 min 43 s",
+  );
+  // The 103 s average is 3/15 of the way from the 100 s to the 115 s point.
+  // These raw coordinates independently check the displayed reference's placement.
+  const chart = await chartOf(history);
+  expect(chart.points).toHaveLength(7);
+  const hundred = chart.points[0];
+  const oneFifteen = chart.points[4];
+  if (hundred === undefined || oneFifteen === undefined)
+    throw new Error("The chart must retain the 100 s and 115 s measurements.");
+  const referenceY = Number(
+    await buildHistoryReading(history).referenceLine.getAttribute("y1"),
+  );
+  expect(referenceY).toBeCloseTo(
+    hundred.y + (oneFifteen.y - hundred.y) * (3 / 15),
+    6,
+  );
+  expect(
+    Number(await buildHistoryReading(history).referenceLine.getAttribute("y2")),
+  ).toBe(referenceY);
   expect(await landedCiHistory(reader)).toEqual(collected);
   expect(ciCalls()).toHaveLength(calls);
   await expectNoSidewaysScrollIn(page, history);

@@ -1,3 +1,14 @@
+import {
+  ciProofReading,
+  artifactId,
+  expectNoProofRows,
+  failedVerdict,
+  openFailedRun,
+  proofCalls,
+  run,
+  verdictOf,
+} from "../intentCiProofPage.ts";
+import { expectCiAnswer, judged, runUrl } from "../intentCiStatusPage.ts";
 // Why Intent's CI status tab shows no CI proof (../../src/IntentCiProof.tsx):
 // when the shown run's
 // summary has expired, cannot be read, is invalid, or is for another
@@ -14,16 +25,7 @@
 import { SUMMARY_READ_LIMIT_BYTES } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import { expect, test } from "../dashboardTest.ts";
 import { evidenceLabels, expectAttemptAt } from "../ciEvidenceLabelsPage.ts";
-import { judged, runUrl } from "../intentCiStatusPage.ts";
-import {
-  artifactId,
-  expectNoProofRows,
-  failedVerdict,
-  openFailedRun,
-  proofCalls,
-  run,
-  verdictOf,
-} from "../intentCiProofPage.ts";
+
 import type { OriginAnswer } from "../originAnswers.ts";
 import { tokenColour } from "../pageColours.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -65,9 +67,9 @@ test("each proof that cannot be shown gives one reason under Proof, the verdict 
         .please(),
     ],
   );
-  const reason = proof.locator(".intent-ci-proof-unavailable");
+  const reason = ciProofReading(proof).unavailable;
   await expect(reason).toHaveText("This run published no CI proof summary.");
-  await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
+  await expectCiAnswer(panel, failedVerdict);
   const verdict = await verdictOf(panel);
   const listed = () =>
     published.requests.filter(
@@ -187,10 +189,8 @@ test("a running result with no completed ancestor shows no completed run, so one
         .please(),
     ],
   );
-  await expect(panel.locator(".intent-ci-state")).toHaveText(
-    "Running at a1b2c3d (Add login)",
-  );
-  await expect(proof.locator(".intent-ci-proof-unavailable")).toHaveText([
+  await expectCiAnswer(panel, "Running at a1b2c3d (Add login)");
+  await expect(ciProofReading(proof).unavailable).toHaveText([
     "No completed GitHub Actions run is shown, so there is no CI proof to show.",
   ]);
   await expect(evidenceLabels(proof)).toHaveCount(0);

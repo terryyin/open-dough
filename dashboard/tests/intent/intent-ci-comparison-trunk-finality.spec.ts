@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Unique connection: real completed Trunk acquisition and the timing panel
 // reject an available later build. Fast selection/memory and production gap
 // rendering own their rules independently; this one read joins those owners.
@@ -41,7 +42,7 @@ test("a completed Trunk comparison shows No build without selecting the availabl
     ],
   });
   const { panel } = await selectDoneStoryForCiComparison(page);
-  const identities = panel.locator(".intent-ci-comparison-identity");
+  const identities = comparisonReading(panel).identities;
   await expect(identities.nth(1)).toHaveText(
     "Branch comparison is not applicable for a Trunk Mode story.",
   );
@@ -49,7 +50,5 @@ test("a completed Trunk comparison shows No build without selecting the availabl
   await expect(identities.nth(2)).not.toContainText(
     shortSha(builtPastCompletion),
   );
-  await expect(panel.locator(".intent-ci-comparison-wall").nth(2)).toHaveText(
-    "—",
-  );
+  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("—");
 });

@@ -9,6 +9,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../support/preparationPage.ts";
+import { longA, longB } from "../support/largeReviewFiles.ts";
 import { fileBrowser } from "../support/reviewContextLine.ts";
 import {
   openLargeReview,
@@ -19,11 +20,7 @@ import {
 import { treeFolder } from "../support/reviewTreeRows.ts";
 import { openReview } from "../support/reviewRead.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
-import {
-  longA,
-  longB,
-  nestedWorktree,
-} from "../support/storyReviewWorktree.ts";
+import { nestedWorktree } from "../support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 
 // The nested worktree's files in the browser's order.

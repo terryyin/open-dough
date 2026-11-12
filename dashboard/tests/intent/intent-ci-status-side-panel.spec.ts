@@ -1,3 +1,10 @@
+import {
+  expectCiScope,
+  expectCiAnswer,
+  chooseCiStatus,
+  ciPanel,
+} from "../intentCiStatusPage.ts";
+
 // The Side panel sets and clears the page's selected story, which Intent's
 // lens and CI status read (../../src/pageSidePanel.ts, ../../src/intentCiTarget.ts):
 // reading a Taken story's final report from its card selects and highlights
@@ -16,9 +23,9 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { parts, storyCardSessions } from "../dashboardPage.ts";
-import { chooseCiStatus, ciPanel } from "../intentCiStatusPage.ts";
+
 import { failing, running } from "../intentCiStoryBoard.ts";
-import { card, expectNamed, publishStoryCi } from "../intentCiStoryRecords.ts";
+import { card, publishStoryCi } from "../intentCiStoryRecords.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { sessionsOutsideDoneStories } from "../recentlyDoneColumn.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
@@ -54,7 +61,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   publishStoryCi(page);
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { development, intentChoice, intent } = parts(page);
-  await expectNamed(await chooseCiStatus(intent), "main");
+  await expectCiScope(await chooseCiStatus(intent), "main");
   await expect(intent).not.toHaveAttribute("data-selected-story");
   await development.click();
   const report = page.getByRole("region", { name: "Final report" });
@@ -81,10 +88,8 @@ test("the Side panel's content selects its story for Intent's lens and CI status
       "data-selected-story",
       `SEED-219#${failing.anchor}`,
     );
-    await expectNamed(panel, failing.branch);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Failed at fa11ed0 (Break the login)",
-    );
+    await expectCiScope(panel, failing.branch);
+    await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
     await development.click();
   });
 
@@ -98,7 +103,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
       "data-selected-story",
       `SEED-219#${running.anchor}`,
     );
-    await expectNamed(panel, running.branch);
+    await expectCiScope(panel, running.branch);
     await development.click();
   });
 
@@ -116,7 +121,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
       "data-selected-story",
       `SEED-219#${failing.anchor}`,
     );
-    await expectNamed(panel, failing.branch);
+    await expectCiScope(panel, failing.branch);
     await development.click();
   });
 
@@ -130,7 +135,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await expectSelected(card(page, failing.title), false);
     const panel = await onIntent();
     await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expectNamed(panel, "main");
+    await expectCiScope(panel, "main");
   });
 
   await test.step("closing that session's terminal with no story selected leaves Intent at project scope", async () => {
@@ -142,6 +147,6 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await expectSelected(card(page, running.title), false);
     const panel = await onIntent();
     await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expectNamed(panel, "main");
+    await expectCiScope(panel, "main");
   });
 });

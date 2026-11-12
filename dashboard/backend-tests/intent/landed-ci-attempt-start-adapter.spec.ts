@@ -67,7 +67,7 @@ test("legacy adapter timing refreshes the original opaque attempt, never the new
       timingBasis: undefined,
     })
     .please();
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     home,
     makeMe.aLandedCiHistory
       .inTrunkOrder([recorded.revision])

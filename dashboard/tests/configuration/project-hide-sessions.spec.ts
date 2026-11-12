@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../support/pageTest.ts";
@@ -163,7 +164,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   ).toContainText(
     "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
   );
-  await expect(intentMain.locator(".intent-locations")).toHaveCount(0);
+  await expect(filesColumn(intentMain)).toHaveCount(0);
   await entry(sessionTitle).click();
   await untilPublishedWorkRead(page);
   await expectProjectChoice(page, "Doughnut");

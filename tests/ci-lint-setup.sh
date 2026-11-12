@@ -67,7 +67,7 @@ case $1 in
         version='version: 0.11.0'
         [[ ${SOURCE_BEHAVIOR} != wrong-version ]] || version='version: 0.9.0'
         ;;
-      fixture-container:/bin/shfmt) version=v3.14.0 ;;
+      fixture-container:/bin/shfmt) version=v3.14.1 ;;
       *) exit 1 ;;
     esac
     printf '#!/bin/sh\necho "%s"\n' "${version}" > "$3"
@@ -96,7 +96,7 @@ for behavior in fallback wrong-version unavailable shfmt-unavailable stalled exp
   PATH="${temporary_dir}/bin:${PATH}" SOURCE_BEHAVIOR="${behavior}" \
     SOURCE_CALL="${temporary_dir}/source-call" SOURCE_PID="${temporary_dir}/source-pid" \
     SOURCE_BLOCKER="${temporary_dir}/stalled-download" FALLBACK_CALL="${temporary_dir}/fallback-call" \
-    OPEN_DOUGH_SETUP_DEADLINE_MS="${deadline}" SHELLCHECK_VERSION=0.11.0 SHFMT_VERSION=3.14.0 \
+    OPEN_DOUGH_SETUP_DEADLINE_MS="${deadline}" SHELLCHECK_VERSION=0.11.0 SHFMT_VERSION=3.14.1 \
     bash "${acquire}" > "${temporary_dir}/${behavior}.log" 2>&1 || outcome=$?
   if [[ ${behavior} == fallback ]]; then
     if ((outcome != 0)); then
@@ -105,9 +105,9 @@ for behavior in fallback wrong-version unavailable shfmt-unavailable stalled exp
       exit 1
     fi
     expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/koalaman/shellcheck@sha256:b9389b73c8f26f710a7171cb7d8848a34a9c1e07a7865e727c9ec4ce99f9a83f'
-    expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/mvdan/shfmt@sha256:5c7db7d33c6bc40fde46fc1157e36baa712e6ffe15fe33ff809f1193b4044c31'
+    expect_in_log "${temporary_dir}/fallback-call" -Fx -- 'create --platform linux/amd64 docker.io/mvdan/shfmt@sha256:18eb2bf53e31591b63bfc55cce8ad82ff7fd0ed53f506f71726be4942928b999'
     expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'version: 0.11.0'
-    expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'v3.14.0'
+    expect_in_log "${temporary_dir}/${behavior}.log" -Fx -- 'v3.14.1'
     continue
   fi
   if ((outcome == 0)); then

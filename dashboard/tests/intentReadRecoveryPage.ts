@@ -1,6 +1,6 @@
 // Shared inputs and page actions for Intent read recovery journeys.
 
-import { expect } from "./dashboardTest.ts";
+import { expect, type Locator } from "@playwright/test";
 import { expectSettledPage, parts } from "./dashboardPage.ts";
 import {
   openDoughSources,
@@ -24,6 +24,16 @@ import {
 import { publishes } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { intentSettingsText } from "./support/intentSettingsFile.ts";
+
+// Each caller scopes its failed source, locations or candidate read and supplies
+// the expected problem; the recovery protocol stays in that scenario.
+export const readFailure = (scope: Locator) => scope.getByRole("alert");
+
+export const readRetry = (scope: Locator) =>
+  scope.getByRole("button", { name: "Retry", exact: true });
+
+export const showLatestRevision = (scope: Locator) =>
+  scope.getByRole("button", { name: "Show latest", exact: true });
 
 export const opened = new Date("2026-11-05T08:00:00.000Z");
 export const locationsRequest = /[?&]intent=locations(&|$)/;
@@ -77,12 +87,12 @@ export function countCandidatesReads(page: Page) {
   return () => reads;
 }
 
-export async function openCandidates(page: Page) {
+export async function openCandidates(page: Page, expectedRevision: string) {
   await page.setViewportSize({ width: 1280, height: 900 });
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   await expect(intentLocationName(intent, "dashboard/tests")).toBeVisible();
   await chooseOptimizationCandidates(intent);
-  await expectCandidatesRevision(intent, openDough.revision);
+  await expectCandidatesRevision(intent, expectedRevision);
   return candidatesRecord(intent);
 }

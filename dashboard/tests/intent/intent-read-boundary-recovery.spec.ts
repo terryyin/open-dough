@@ -13,6 +13,7 @@ import {
   openDoughnut,
   opened,
   settingsPath,
+  readFailure,
 } from "../intentReadRecoveryPage.ts";
 import { httpErrorAnswer, noConnection } from "../originAnswers.ts";
 import { publishes } from "../support/fakeGitHub.ts";
@@ -54,7 +55,7 @@ for (const failure of ["settings", "listing"] as const) {
     });
     const reads = countLocationsReads(page);
     const intent = await openDoughnut(page);
-    await expect(intent.getByRole("alert")).toContainText(
+    await expect(readFailure(intent)).toContainText(
       failure === "settings"
         ? `${settingsPath} could not be read`
         : "GitHub answered HTTP 503",
@@ -66,6 +67,6 @@ for (const failure of ["settings", "listing"] as const) {
     await advanceRecoveryClock(page, 251);
     expect(reads()).toBe(2);
     await expect(intentLocationName(intent, "scripts")).toBeVisible();
-    await expect(intent.getByRole("alert")).toHaveCount(0);
+    await expect(readFailure(intent)).toHaveCount(0);
   });
 }

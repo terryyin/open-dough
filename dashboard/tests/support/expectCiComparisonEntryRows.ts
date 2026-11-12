@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Assert Intent's CI entry timing comparison table
 // (../../src/IntentCiComparison.tsx) shows the given Entry / Counts /
 // Baseline / Branch / Landed cells.
@@ -50,8 +51,6 @@ export async function expectCiComparisonEntryRows(
   panel: Locator,
   rows: readonly (readonly [string, string, string, string, string])[],
 ) {
-  const table = panel.getByRole("table", {
-    name: "CI entry timing comparison",
-  });
+  const table = comparisonReading(panel).entryTable;
   await expectProofTableRows(table, entryColumns, rows);
 }

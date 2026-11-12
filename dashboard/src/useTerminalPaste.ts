@@ -10,6 +10,7 @@ import {
 import {
   isImageAttachmentType,
   launchAttachmentNameHeader,
+  launchAttachmentNameHeaderValue,
   pastedImageName,
   type ImageAttachmentType,
 } from "./launchAttachments.ts";
@@ -63,7 +64,9 @@ async function storeImage(
         method: "POST",
         headers: {
           "Content-Type": type,
-          [launchAttachmentNameHeader]: pastedImageName(type),
+          [launchAttachmentNameHeader]: launchAttachmentNameHeaderValue(
+            pastedImageName(type),
+          ),
         },
         body: image,
       },

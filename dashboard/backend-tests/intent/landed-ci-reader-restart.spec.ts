@@ -27,7 +27,7 @@ test("reader restart keeps local evidence when an unrelated listener takes the s
     receipt: "62000000-0000-4000-8000-000000000001",
     at: "2026-11-05T10:00:00Z",
   });
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     path.join(origin.machine, "home"),
     makeMe.aLandedCiHistory
       .measuredLanding({

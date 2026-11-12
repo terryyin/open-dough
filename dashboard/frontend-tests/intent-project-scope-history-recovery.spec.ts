@@ -1,3 +1,8 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  scopeHistoryChart,
+} from "../tests/intentScopeHistoryPage.ts";
 // Cheap Project Intent refusal/absence and configured-trunk variants. The
 // integrated journey owns real collection; these routes exercise only the UI.
 import { makeMe } from "../../tests/support/makeMe.mjs";
@@ -72,11 +77,8 @@ test("configured trunk keeps its observed endpoint through failed and empty loca
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const summary = await openSummary(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  await expect(history.getByRole("alert")).toContainText(
+  const history = scopeHistory(summary);
+  await expect(scopeHistoryReading(history).failure).toContainText(
     "Local history unavailable",
   );
   await expect(history).toContainText(
@@ -84,14 +86,14 @@ test("configured trunk keeps its observed endpoint through failed and empty loca
   );
   await expect(summary.getByRole("table")).toBeVisible();
   failed = false;
-  await history.getByRole("button", { name: "Retry history" }).click();
+  await scopeHistoryReading(history).retry.click();
   await untilPageReadsAnswered(page);
-  await expect(history.getByRole("alert")).toHaveCount(0);
+  await expect(scopeHistoryReading(history).failure).toHaveCount(0);
   await expect(history).toContainText(
     "No dashboard-recorded landing history has been collected.",
   );
   await expect(history).toContainText("0 measured builds");
-  await expect(history.getByRole("img")).toHaveCount(0);
+  await expect(scopeHistoryReading(history).charts).toHaveCount(0);
   expect(endpoints).toEqual([frontendRevision, frontendRevision]);
   await expect(summary.getByRole("table")).toBeVisible();
   await expectNoSidewaysScrollIn(page, history);
@@ -150,25 +152,22 @@ test("project endpoint words mark a measured zero and explain partial-unit gaps 
   );
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const summary = await openSummary(parts(page).intent, "dashboard/tests");
-  const shown = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  await expect(shown.getByRole("listitem")).toHaveText(
+  const shown = scopeHistory(summary);
+  await expect(scopeHistoryReading(shown).rows).toHaveText(
     `Nov 7 · 0 ms · test cases · entry dashboard/tests · test files · Partial · missing part 2 · Observed trunk endpoint · Exact build ${shortSha(revision)} · Run 31 · attempt 1 · Represents ${shortSha(revision)} (observed trunk endpoint) (exact build)`,
   );
-  const chart = shown.getByRole("img", {
-    name: "Test execution time for test cases by build date; observed trunk endpoint marked",
-  });
-  await expect(chart).toBeVisible();
-  await expect(chart.locator(".intent-ci-history-selected")).toHaveText(
-    "Endpoint",
+  const chart = scopeHistoryChart(
+    shown,
+    "test cases",
+    "observed trunk endpoint",
   );
+  await expect(chart).toBeVisible();
+  await expect(scopeHistoryReading(chart).selected).toHaveText("Endpoint");
   await expect(chart.locator("path.intent-ci-history-point title")).toHaveText(
     "Nov 7 · 0 ms · test cases · Exact build · Observed trunk endpoint",
   );
   await expect(shown).toContainText(
     "No complete test execution times are available for test files.",
   );
-  await expect(shown.getByRole("img")).toHaveCount(1);
+  await expect(scopeHistoryReading(shown).charts).toHaveCount(1);
 });

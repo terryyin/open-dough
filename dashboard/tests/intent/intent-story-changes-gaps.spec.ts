@@ -26,6 +26,7 @@ import {
   intentModeTab,
   openProjectIntent,
   returnToStory,
+  intentPageFrame,
 } from "../intentModePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { expect, test } from "../support/preparationPage.ts";
@@ -41,6 +42,7 @@ import {
   storyOnly,
   storySummary,
   storyTitle,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 import { changed, publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
@@ -83,7 +85,7 @@ test("an active story with no workspace explains that no comparison is available
     "No comparison is available for this story: no workspace on this machine holds it. Intent shows the published tree without the story's changes.",
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
+  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
   await chooseStoryTab(intent, "Changed tests");
   await expectPublishedTreeUsable(intent);
 });
@@ -117,13 +119,13 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(detail.locator(".intent-story-problem")).toHaveText(
     "The worktree could not be read. Intent shows the published tree without them.",
   );
-  await expect(scoped.locator(".intent-story-revisions")).toHaveCount(0);
+  await expect(storyHeaderReading(intent).revisions).toHaveCount(0);
   await expectPublishedTreeUsable(intent);
 
   failing = false;
   await problem.getByRole("button", { name: "Retry" }).click();
   await expectStoryComparisonRead(intent);
-  await expect(detail.locator(".intent-story-revisions")).toBeVisible();
+  await expect(storyHeaderReading(intent).revisions).toBeVisible();
   await expect(problem).toHaveCount(0);
   await expect(storyOnly(intent)).not.toBeChecked();
   await expectOutsideCount(intent, 2);
@@ -141,15 +143,13 @@ test("without configured Intent locations the header names the selected story, C
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
   await expect(
-    intent.locator(".intent-page-frame > *").first(),
+    intentPageFrame(intent).locator(":scope > *").first(),
   ).toHaveAttribute("aria-label", "Selected story");
   await expect(storyTitle(intent)).toHaveText("Story A");
-  await expect(storySummary(intent).getByRole("status")).toHaveText(
+  await expect(storyHeaderReading(intent).status).toHaveText(
     "No comparison is available.",
   );
-  await expect(storySummary(intent).locator(".record-identity")).toHaveText(
-    "SEED-A#a",
-  );
+  await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
   await expect(storyOnly(intent)).toHaveCount(0);
   await expect(outsideCount(intent)).toHaveCount(0);
   await expectStoryTab(intent, "CI comparison");

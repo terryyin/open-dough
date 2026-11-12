@@ -141,7 +141,7 @@ test("new current reference and history eviction cannot rewrite the frozen decis
         .please(),
     );
   }
-  keepLandedCiHistory(server.home, builder.please());
+  await keepLandedCiHistory(server.home, builder.please());
   await expect
     .poll(() => landedCiHistory(server))
     .toMatchObject({ body: { reference: { averageMs: 300000 } } });
@@ -163,7 +163,7 @@ test("new current reference and history eviction cannot rewrite the frozen decis
   expect(await landedCiHistory(server)).toMatchObject({
     body: { reference: { selected: { key: "run/71/1", ms: 120000 } } },
   });
-  keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
+  await keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
   expect((await followUpSettings(server)).body.cards[0]).toMatchObject({
     kind: "slow",
     averageMs: 100000,

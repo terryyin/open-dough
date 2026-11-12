@@ -15,6 +15,7 @@ import {
   storyHeaderDetail,
   storyTab,
   storyTitle,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 
 test("a long story title shows once in full above the story's views, whichever is chosen", async ({
@@ -44,9 +45,9 @@ test("a long story title shows once in full above the story's views, whichever i
   expect(box.overflows).toBe(false);
   expect(box.lines).toBeGreaterThan(1);
 
-  const detail = await storyHeaderDetail(intent);
-  await expect(detail.locator(".record-identity")).toHaveText("SEED-A#a");
-  await expect(detail.locator(".intent-story-revisions")).toContainText(
+  await storyHeaderDetail(intent);
+  await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
+  await expect(storyHeaderReading(intent).revisions).toContainText(
     `Compared ${shortRevision(baseline)} with worktree `,
   );
 

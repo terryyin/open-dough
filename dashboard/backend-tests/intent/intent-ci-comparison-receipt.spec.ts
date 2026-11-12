@@ -24,7 +24,7 @@ for (const capture of ["unreadable launch", "unreadable history"] as const) {
     if (capture === "unreadable launch") {
       keepLaunchStoreText(directory, "unreadable capture");
     } else {
-      keepLandedCiHistory(directory, makeMe.aLandedCiHistory.please());
+      await keepLandedCiHistory(directory, makeMe.aLandedCiHistory.please());
       writeFileSync(
         path.join(directory, ".open-dough/dashboard/landed-ci-history.json"),
         "unreadable history",

@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Real GitHub acquisition reaches the named, historical comparison and entry rows.
 // Fast presentation rules live in ./intent-ci-comparison-mounted-*.spec.ts.
 
@@ -54,54 +55,36 @@ for (const variant of [undefined] as readonly (
       "CI entry timing comparison",
     ]);
     await expect(panel).toContainText(observedNotAttributedInFull);
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Landed",
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-overall-counts"),
-    ).toHaveText("2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)");
+    await expect(comparisonReading(panel).overallCounts).toHaveText(
+      "2,090 → 2,092 test cases (+2); 5 → 8 test files (+3)",
+    );
     // Checks 5 → 8 (+60%) make the overall count cue strong even though
     // tests only move +2 of 2,090.
-    await expectCueState(
-      panel.locator(".intent-ci-comparison-overall-counts"),
-      {
-        count: "more-strong",
-      },
-    );
+    await expectCueState(comparisonReading(panel).overallCounts, {
+      count: "more-strong",
+    });
     if (landedJobsUnavailable) {
-      await expect(
-        panel.locator(".intent-ci-comparison-overall-timing"),
-      ).toHaveCount(0);
+      await expect(comparisonReading(panel).overallTiming).toHaveCount(0);
     } else {
-      await expect(
-        panel.locator(".intent-ci-comparison-overall-timing"),
-      ).toHaveText("+17 s");
-      await expectCueState(
-        panel.locator(".intent-ci-comparison-overall-timing"),
-        {
-          duration: "none",
-          durationReason: "below threshold",
-        },
-      );
+      await expect(comparisonReading(panel).overallTiming).toHaveText("+17 s");
+      await expectCueState(comparisonReading(panel).overallTiming, {
+        duration: "none",
+        durationReason: "below threshold",
+      });
     }
-    await expect(
-      panel.locator(".intent-ci-comparison-overall-wall"),
-    ).toHaveText("+22 s");
+    await expect(comparisonReading(panel).overallWallTime).toHaveText("+22 s");
     // One signed change per comparable summary metric, each under its label.
     await expect(panel.locator(".intent-ci-comparison-metrics dt")).toHaveText(
       landedJobsUnavailable
         ? ["Counts", "CI wall time"]
         : ["Counts", "CI time without runner waits", "CI wall time"],
     );
-    const baselineIdentity = panel
-      .locator(".intent-ci-comparison-identity")
-      .nth(0);
-    const branchIdentity = panel
-      .locator(".intent-ci-comparison-identity")
-      .nth(1);
-    const landedIdentity = panel
-      .locator(".intent-ci-comparison-identity")
-      .nth(2);
+    const baselineIdentity = comparisonReading(panel).identities.nth(0);
+    const branchIdentity = comparisonReading(panel).identities.nth(1);
+    const landedIdentity = comparisonReading(panel).identities.nth(2);
     await expect(baselineIdentity).toContainText("No build at");
     await expect(baselineIdentity).toContainText(
       "the workflow at that revision could not be read",
@@ -124,14 +107,12 @@ for (const variant of [undefined] as readonly (
     await expect(
       panel.getByRole("columnheader", { name: "CI time without runner waits" }),
     ).toBeVisible();
-    await expect(panel.locator(".intent-ci-comparison-wall")).toHaveText([
+    await expect(comparisonReading(panel).wallTimes).toHaveText([
       "4 min 57 s",
       "13 min 27 s",
       "5 min 19 s",
     ]);
-    await expect(
-      panel.locator(".intent-ci-comparison-without-waits"),
-    ).toHaveText([
+    await expect(comparisonReading(panel).timesWithoutWaits).toHaveText([
       "4 min 55 s",
       "4 min 47 s",
       landedJobsUnavailable

@@ -73,7 +73,7 @@ test("a Done read uses its exact publication, excludes its shared equivalent att
       title === "execution" ? "equivalent" : future ? "later" : "exact",
     );
   }
-  keepLandedCiHistory(dashboard.home, builder.please());
+  await keepLandedCiHistory(dashboard.home, builder.please());
   const read = async (title: string) => {
     const query = new URLSearchParams({
       source: "open-dough",

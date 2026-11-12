@@ -27,6 +27,7 @@ import {
 import { openDough, openDoughSettings } from "./intentCodeBrowseFixtures.ts";
 import { intentLocationName } from "./intentPerspectivePage.ts";
 import { chooseStoryTab } from "./support/intentStoryPage.ts";
+import { storyIntentFrame } from "./intentModePage.ts";
 import { summaryRegion } from "./intentScopeProofPage.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import type { OriginAnswer } from "./originAnswers.ts";
@@ -155,11 +156,7 @@ export async function openIntent(
 
 // With a selected story, Summaries are read in its Changed tests view.
 export async function openSummary(intent: Locator, location: string) {
-  if (
-    (await intent
-      .locator('.intent-page-frame[data-intent-context="story"]')
-      .count()) > 0
-  )
+  if ((await storyIntentFrame(intent).count()) > 0)
     await chooseStoryTab(intent, "Changed tests");
   await intentLocationName(intent, location).click();
   const summary = summaryRegion(intent);
