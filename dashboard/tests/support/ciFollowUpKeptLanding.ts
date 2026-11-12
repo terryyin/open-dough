@@ -1,0 +1,195 @@
+// Landings the origin's machine keeps, each at a stage of its automatic CI
+// repeat, before a dashboard starts there: what a real receipt journey
+// (./ciFollowUpScenario.ts) leaves in the follow-up ledger
+// (../../server/ciFollowUpStore.ts), the landed CI history
+// (../../server/landedCiHistoryStore.ts) and the launch records, with the
+// provider's facts for each landing's run (./ciFollowUpRepeatRun.ts). A case
+// starts real collection and reading from the stage it states.
+//
+// `keepRepeatLanding` keeps Story A's landing, published as completed, after
+// five measured prior builds (./ciFollowUpKeptPriors.ts). `keepRepeats` keeps
+// any landings' ledger entries and serves their runs; saved requests for
+// landings no story published (./ciFollowUpSavedRequests.ts) state theirs to
+// it.
+import { mkdirSync, writeFileSync } from "node:fs";
+import { hostname } from "node:os";
+import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import {
+  followUpKey,
+  type FollowUpLedger,
+} from "../../server/ciFollowUpStore.ts";
+import { machineHome } from "../machineLaunchRecords.ts";
+import { completedPublishedStory } from "./completedPublishedStory.ts";
+import {
+  serveRepeatRuns,
+  storyLandingRun,
+  type providerRepeatRun,
+} from "./ciFollowUpRepeatRun.ts";
+import { followUpFile } from "./ciFollowUpScenario.ts";
+import type { FakeGitHub } from "./fakeGitHub.ts";
+import { keptPriors, keptProofOf } from "./ciFollowUpKeptPriors.ts";
+import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
+import { commonGitDir, git } from "./launchLanding.ts";
+import { keepMoreLaunchRecords } from "./launchStore.ts";
+import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+
+type LedgerEntry = FollowUpLedger["landings"][string];
+
+// One kept landing: the run of its landed revision, the ledger entry the
+// machine holds for it, and the provider's facts for that run.
+export type KeptRepeat = {
+  readonly run: number;
+  readonly entry: LedgerEntry;
+  readonly provider: ReturnType<typeof providerRepeatRun>;
+};
+
+// The stage a kept landing's repeat stands at. "eligible receipt": measured,
+// admitted while this machine has follow-up enabled, its allowance unspent.
+export type RepeatStage = "eligible receipt";
+
+// What the ledger entry of a landing at `stage` holds beside its receipt.
+const heldAt = (stage: RepeatStage): Pick<LedgerEntry, "request"> =>
+  ({ "eligible receipt": {} })[stage];
+
+// `kept` held by the origin's machine in that order, after the entries of
+// `earlier` receipts, with follow-up as the machine set it for Open Dough,
+// when it did; and the provider serving each kept landing's run: the
+// provider's facts for one of those runs.
+export function keepRepeats(
+  origin: StartOrigin,
+  github: FakeGitHub,
+  kept: readonly KeptRepeat[],
+  machine: {
+    readonly followUp?: "enabled";
+    readonly earlier?: readonly LedgerEntry[];
+  } = {},
+) {
+  const entries = [
+    ...(machine.earlier ?? []),
+    ...kept.map(({ entry }) => entry),
+  ];
+  const ledger: FollowUpLedger = {
+    projects:
+      machine.followUp === undefined
+        ? {}
+        : { "open-dough": { enabled: true, authority: hostname() } },
+    landings: Object.fromEntries(
+      entries.map((entry) => [followUpKey(entry.project, entry), entry]),
+    ),
+  };
+  const file = followUpFile({ home: machineHome(origin.machine) });
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify(ledger));
+  serveRepeatRuns(
+    github,
+    origin,
+    kept.map(({ provider }) => provider),
+  );
+  return (run: number) => {
+    const found = kept.find((each) => each.run === run);
+    if (found === undefined)
+      throw new Error(`No kept landing names run ${String(run)}.`);
+    return found.provider;
+  };
+}
+
+// Story A published as completed on the origin's trunk, and its landing as
+// the machine keeps it at `stage`: recorded for the story's execution,
+// measured by `run`, whose first attempt passed in `seconds`, after five prior
+// landings whose builds each passed in `averageSeconds`, every build with its
+// CI proof; follow-up enabled on this machine after those five and before the
+// story's receipt. `beside` are other landings the machine keeps. Answers the
+// provider's facts by run.
+export async function keepRepeatLanding(
+  origin: StartOrigin,
+  github: FakeGitHub,
+  facts: {
+    readonly stage: RepeatStage;
+    readonly run: number;
+    readonly seconds: number;
+    readonly averageSeconds: number;
+    readonly beside?: readonly KeptRepeat[];
+  },
+) {
+  const { stage, run, seconds, averageSeconds, beside = [] } = facts;
+  const home = machineHome(origin.machine);
+  const target = "refs/heads/main";
+  const story = await completedPublishedStory(
+    origin,
+    "trunk",
+    undefined,
+    undefined,
+    undefined,
+    { interleaved: false, retainWorkspace: true },
+  );
+  const completion = story.completion;
+  const capture = makeMe.aLaunchLanding
+    .capturedFrom({
+      repository: commonGitDir(origin.project),
+      identity: queuedIdentity,
+    })
+    .forLaunch(`11111111-0000-4000-8000-${String(run).padStart(12, "0")}`)
+    .deliveredAs({
+      delivery: "33333333-3333-4333-8333-333333333333",
+      receipt: `cccccccc-0000-4000-8000-${String(run).padStart(12, "0")}`,
+    })
+    .comparing({
+      base: git(origin.project, "rev-parse", `${completion}^`),
+      revision: completion,
+    })
+    .receivedAt(new Date().toISOString())
+    .please();
+  const priors = keptPriors(5, averageSeconds, target);
+  const provider = storyLandingRun(completion, run, seconds);
+  const { original } = provider;
+  const history = priors
+    .measuredIn(makeMe.aLandedCiHistory)
+    .recording(
+      capture,
+      `run/${String(run)}/1`,
+      makeMe.aKeptBuild
+        .with({
+          revision: completion,
+          state: "pass",
+          runUrl: original.url,
+          runId: run,
+          runAttempt: 1,
+          runBranch: "main",
+          startedAt: original.startedAt,
+          completedAt: original.completedAt,
+          proof: keptProofOf(completion, run),
+          proofPending: false,
+        })
+        .please(),
+    )
+    .inTrunkOrder([...priors.revisions, completion]);
+  await keepLandedCiHistory(home, history.please());
+  keepMoreLaunchRecords(home, [
+    ...priors.records,
+    makeMe.aLaunchRecord
+      .executing({ identity: queuedIdentity, title: "Story A" })
+      .launchedAt(minutesAgo(1))
+      .withLanding(capture)
+      .please(),
+  ]);
+  const entry = makeMe.aCiFollowUpEntry
+    .with({
+      project: "open-dough",
+      revision: completion,
+      target,
+      identity: queuedIdentity,
+      receipts: [capture.receipt],
+      eligible: true,
+      capture,
+      ...heldAt(stage),
+    })
+    .please();
+  const kept = [{ run, entry, provider }, ...beside];
+  return {
+    provider: keepRepeats(origin, github, kept, {
+      followUp: "enabled",
+      earlier: priors.ledgerEntries,
+    }),
+  };
+}

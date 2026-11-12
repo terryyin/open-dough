@@ -1,8 +1,10 @@
 // The provider's facts for one original run and its repeat, as GitHub answers
 // the dashboard's exact reads of that run: the run as it stands, each attempt,
-// each attempt's jobs, and the CI proof of the attempt it stands at. The
-// journey scenario (./ciFollowUpScenario.ts) states the run it admits, and
-// saved requests (./ciFollowUpSavedRequests.ts) the runs they name.
+// each attempt's jobs, and the CI proof of the attempt it stands at; and its
+// reply to a request to rerun that run. The journey scenario
+// (./ciFollowUpScenario.ts) states the run it admits, saved requests
+// (./ciFollowUpSavedRequests.ts) the runs they name, and a kept landing
+// (./ciFollowUpKeptLanding.ts) the run of its landed revision.
 import { apiJob } from "../../../src/skills/dough-execute-plan/scripts/github-actions-api-test-fixtures.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
@@ -52,6 +54,7 @@ export function providerRepeatRun(
   let full = true;
   let originalJobsReadable = true;
   let repeatProofReadable = true;
+  let rerunReply = 201;
   return {
     original,
     // The attempt the run stands at.
@@ -75,9 +78,16 @@ export function providerRepeatRun(
     repeatProofAvailable: (available: boolean) => {
       repeatProofReadable = available;
     },
-    // GitHub's answer to an exact read of this run, undefined for any other
-    // request.
+    // The HTTP status GitHub answers a request to rerun this run with: it
+    // accepts (201) unless the case states a refusal or a failure.
+    replyToRerun: (status: number) => {
+      rerunReply = status;
+    },
+    // GitHub's answer to an exact read of this run or a request to rerun it,
+    // undefined for any other request.
     answer: (request: GhRequest): OriginAnswer | undefined => {
+      if (request.kind === "actions-workflow-rerun" && request.runId === id)
+        return json({}, rerunReply);
       if (request.kind === "actions-current-run" && request.runId === id)
         return json(verdict.of(current));
       if (request.kind === "actions-run-attempt" && request.runId === id)
@@ -116,6 +126,20 @@ export function providerRepeatRun(
     },
   };
 }
+
+// The run that measured a story's landing at `revision` on `main`: workflow
+// 7001's run `id`, whose first attempt passed in `seconds`.
+export const storyLandingRun = (
+  revision: string,
+  id: number,
+  seconds: number,
+) =>
+  providerRepeatRun(revision, id, {
+    ...passedFrom("2026-11-10T06:00:00.000Z", seconds * 1000),
+    workflowId: 7001,
+    url: `https://github.com/terryyin/open-dough/actions/runs/${String(id)}`,
+    headBranch: "main",
+  });
 
 // `runs` as GitHub answers the origin's repository: each run's exact reads as
 // its facts stand, then trunk's Actions with those runs and their CI proof,

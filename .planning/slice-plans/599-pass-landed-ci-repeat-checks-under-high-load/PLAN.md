@@ -345,7 +345,7 @@ load at 9–39.
 
 ### 2. Provider replies are read from a kept eligible receipt
 Type: Behavior
-Status: planned
+Status: done
 Proof: The automatic-repeat spec passes three consecutive times with the
 refused and uncertain cases starting from a kept eligible receipt; neither
 calls `scenario.ingest`. F2 and F8 fail the refused case and F9 the uncertain
@@ -371,6 +371,93 @@ later pass sends nothing more.
 - "A later pass sends nothing more" waits for an event: the provider's answer
   to a read made after the reply, then the exact count.
 - The two journey variants leave only after their faults fail the new cases.
+
+#### Slice 2 record
+
+Observed on 2026-11-12, Node 24.21.0. Logs:
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice2/`.
+
+- **The stage owner.** `keepRepeatLanding(origin, github, { stage, run,
+  seconds, averageSeconds, beside })` in
+  `dashboard/tests/support/ciFollowUpKeptLanding.ts` keeps Story A's landing
+  at a stage; `"eligible receipt"` is the one stage so far, and a later stage
+  adds what its ledger entry holds in `heldAt`. `keepRepeats` in the same
+  module is the one writer of the ledger and the one place the provider is
+  served; `saveRepeatRequests` states its landings to it through
+  `heldRequest`. The prior builds are `ciFollowUpKeptPriors.ts`. The owner
+  would have passed 250 lines in place, so the arrangement took these two
+  modules. The provider's reply to the rerun request is
+  `providerRepeatRun(...).replyToRerun(status)`.
+- **Kept state.** History: five prior landings at revisions no repository
+  holds, each with its build and CI proof, the story's landing recorded from
+  its capture, and the trunk order. Ledger: follow-up enabled by this host,
+  the five priors without eligibility, the story's entry eligible with its
+  capture. Launch records: the five priors' and the story's, whose landing is
+  the capture. The journey also leaves a launch attempt and the record's
+  reporting context, which name a server's address; they are not kept. No
+  expectation depends on the launch records: a collection pass and the
+  off-switch read them, and slice 1 saw the same result without them.
+- **A later pass after a refusal.** After a refused reply the product reads
+  the provider no more, and after an uncertain reply only until the repeat
+  settles the request, so no read marks a later pass. The refused case keeps
+  a second landing's accepted request beside the story's (`heldRequest`, run
+  72, repeat not started): every pass reads run 72 before it spends receipts,
+  and the second such read after the saved reply shows a whole pass ended.
+- **Three consecutive passes**, the automatic-repeat spec, two workers: load
+  18.7 → 28.9, 28.9 → 32.8, 32.8 → 34.1; 4 of 4 each. Refused 16.4, 14.5 and
+  11.0 s (first in its worker in the first two), uncertain 8.7, 9.6 and
+  7.9 s. At load 4–5: refused 3.4–5.4 s, uncertain 2.6–3.6 s. One case of the
+  spec calls `scenario.ingest`.
+- **Faults**, one worker, load 4.4–6.5, each reverted before the next:
+
+  | Fault | Scratch edit | Fails |
+  | --- | --- | --- |
+  | F2 | Both `admitted.request !== undefined` guards dropped | Refused case, "rerun requests": `[71, 71, 71, 71]` for `[71]` |
+  | F8 | `submission.kind` saved as `accepted` when the reply is refused | Refused case, "saved reply": `accepted` for `refused` |
+  | F9 | The `submission.kind !== "accepted"` return never taken | Uncertain case, "stays unverified": `recovered`, "CI timing returned to range" |
+  | F18 | `saveFollowUpSetting`, turning off, deletes this project's entries that hold a request | Both cases, "follow-up off": no card |
+
+- **Kept state the product refuses.** The story's entry with `eligible:
+  "yes"`: both cases fail at "saved reply" with no request saved. A held
+  request with `workflowId: "7"`: the refused case fails at "saved reply" and
+  the saved-request case at "recovered".
+- **Consumers.** The eight specs that import `ciFollowUpScenario.ts`, base
+  `095f2bff9` then candidate, back to back:
+
+  | Workers | Base | Candidate |
+  | --- | --- | --- |
+  | 2 | 20 of 20, 46 s, load 6.2 → 7.4 | 20 of 20, 42 s, load 7.4 → 7.0 |
+  | 1 | 20 of 20, 79 s, load 6.0 → 5.0 | 20 of 20, 77 s, load 5.0 → 5.4 |
+
+  The node consumers passed (exit 0). Not compared at a load of 30–50.
+- **Consumer trace**, `--base ccc7ea6e6` with the exports of the changed
+  modules as terms (`slice2/consumer-trace.md`). Run:
+  `landed-ci-automatic-repeat.spec.ts`, `landed-ci-repeat-verdict.spec.ts`
+  (`saveRepeatRequests` and its readers). Reused, with their eight importing
+  specs run in the comparison: `ciFollowUpScenario.ts` (`providerRepeatRun`,
+  whose rerun reply it answers itself before asking the provider), and
+  `ciFollowUpLedgerFacts.mjs` with the three node tests. Excluded, the effect
+  does not reach them: every other listed file matches only a field name the
+  product already has (`workflowId`, `headBranch`, `runBranch`, `averageMs`,
+  `originalMs`, `repeatMs`, `proofPending`, `heldAt`) or imports
+  `machineLaunchRecords.ts`, which is unchanged; planning records and
+  evidence name the spec's path only.
+
+#### Slice 2 acceptance and refactor
+
+- Accepted: the refused case marks "a whole later pass" by the second read of
+  a waiting accepted request's run 72 after the saved refusal, because the
+  product reads the provider no more after a refusal.
+- The refactor pass gave the story landing's run facts one home
+  (`storyLandingRun` in `ciFollowUpRepeatRun.ts`, used by
+  `prepareRepeatScenario` at its provider construction only) and one reader of
+  rerun requests (`rerunRuns`; `rerunRequests` is gone, the verdict spec uses
+  `rerunRuns`). The eight specs importing `ciFollowUpScenario.ts` passed 20 of
+  20 afterwards at two workers, load 4.2 → 6.6.
+- For slice 3: `scenario.refuse` has no caller left and leaves with the
+  journey's edit; `keptPriors` takes real trunk revisions for the journey; the
+  automatic-repeat spec is at 246 lines, so the accepted-request case needs
+  the lifecycle case smaller or its own file.
 
 ### 3. One journey, and an accepted request's later reads from kept state
 Type: Behavior

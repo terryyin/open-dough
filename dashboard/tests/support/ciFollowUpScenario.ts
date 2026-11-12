@@ -1,6 +1,6 @@
 // Real publication, receipt ingestion and collection; only provider facts are synthetic.
 import { prepareRepeatPriors } from "./ciFollowUpPriors.ts";
-import { json, providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
+import { json, storyLandingRun } from "./ciFollowUpRepeatRun.ts";
 import type { CiFollowUpAnswer } from "../../src/ciFollowUp.ts";
 import type { FollowUpLedger } from "../../server/ciFollowUpStore.ts";
 import path from "node:path";
@@ -11,7 +11,7 @@ import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { completedPublishedStory } from "./completedPublishedStory.ts";
-import { passedFrom, trunkActions, usableProofOf } from "./landedCiTrunk.ts";
+import { trunkActions, usableProofOf } from "./landedCiTrunk.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
 import { postLanding } from "./startSessionLandingCapture.ts";
@@ -55,12 +55,7 @@ export async function prepareRepeatScenario(
     undefined,
     { interleaved: false, retainWorkspace: true },
   );
-  const provider = providerRepeatRun(story.completion, 71, {
-    ...passedFrom("2026-11-10T06:00:00.000Z", seconds * 1000),
-    workflowId: 7001,
-    url: "https://github.com/terryyin/open-dough/actions/runs/71",
-    headBranch: "main",
-  });
+  const provider = storyLandingRun(story.completion, 71, seconds);
   const original = provider.original;
   let submissionStatus = 201;
   let hold: (() => Promise<void>) | undefined;

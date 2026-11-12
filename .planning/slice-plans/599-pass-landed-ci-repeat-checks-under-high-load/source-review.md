@@ -31,16 +31,16 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | S4.3 | the accepted request is saved after the reply | slice 3 | |
 | S4.4 | the request the product wrote is read as a card | slice 3 | |
 | S5 | The other cases arrange what a machine already keeps | slice 5 | |
-| S5.1 | its follow-up ledger | slice 2 | |
-| S5.2 | landed CI history | slice 2 | |
-| S5.3 | launch records | slice 2 | |
-| S5.4 | and where a card is read the story's real published completion | slice 2 | |
+| S5.1 | its follow-up ledger | slice 2 | observed: dashboard/tests/support/ciFollowUpKeptLanding.ts keepRepeats writes the ledger from makeMe.aCiFollowUpEntry; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "saved reply" |
+| S5.2 | landed CI history | slice 2 | observed: ciFollowUpKeptPriors.ts keptPriors().measuredIn(makeMe.aLandedCiHistory) with makeMe.aKeptBuild; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts cards read averageMs 100000 and originalMs 120000 from it |
+| S5.3 | launch records | slice 2 | observed: ciFollowUpKeptLanding.ts keeps the landing's and priors' launch records through makeMe.aLaunchRecord, landedRecord and keepMoreLaunchRecords |
+| S5.4 | and where a card is read the story's real published completion | slice 2 | observed: ciFollowUpKeptLanding.ts keepRepeatLanding uses completedPublishedStory; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts exact one-card arrays |
 | S6 | then run real collection and reading in a real server | slice 5 | |
-| S7 | the provider's refused and uncertain replies, from an unspent eligible receipt the machine keeps, through the real rerun request | slice 2 | |
-| S7.1 | the provider's refused replies are covered | slice 2 | |
-| S7.2 | the provider's uncertain replies are covered | slice 2 | |
-| S7.3 | both start from an unspent eligible receipt the machine keeps | slice 2 | |
-| S7.4 | both go through the real rerun request | slice 2 | |
+| S7 | the provider's refused and uncertain replies, from an unspent eligible receipt the machine keeps, through the real rerun request | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| S7.1 | the provider's refused replies are covered | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| S7.2 | the provider's uncertain replies are covered | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
+| S7.3 | both start from an unspent eligible receipt the machine keeps | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| S7.4 | both go through the real rerun request | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | S8 | what a later collection pass and a restart do with an accepted request | slice 3 | |
 | S8.1 | a later collection pass is covered | slice 3 | |
 | S8.2 | a restart is covered | slice 3 | |
@@ -70,23 +70,23 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | S14 | An observation leaves a journey only after its fault fails the check that takes it over | slice 5 | |
 | S15 | SEED-314's faults F1–F11 keep an owner | slice 6 | |
 | S15.1 | F1 keeps an owner | slice 3 | |
-| S15.2 | F2 keeps an owner | slice 2 | |
+| S15.2 | F2 keeps an owner | slice 2 | observed: PLAN.md Slice 2 record: F2 fails the refused case at "rerun requests" ([71, 71, 71, 71]) |
 | S15.3 | F3 keeps an owner | slice 3 | |
 | S15.4 | F4 keeps an owner | slice 3 | |
 | S15.5 | F5 keeps an owner | slice 3 | |
 | S15.6 | F6 keeps an owner | slice 3 | |
 | S15.7 | F7 keeps an owner | slice 3 | |
-| S15.8 | F8 keeps an owner | slice 2 | |
-| S15.9 | F9 keeps an owner | slice 2 | |
+| S15.8 | F8 keeps an owner | slice 2 | observed: PLAN.md Slice 2 record: F8 fails the refused case at "saved reply" (accepted for refused) |
+| S15.9 | F9 keeps an owner | slice 2 | observed: PLAN.md Slice 2 record: F9 fails the uncertain case at its card (recovered for unverified) |
 | S15.10 | F10 keeps an owner | slice 6 | |
 | S15.11 | F11 keeps an owner | slice 6 | |
 | S16 | Kept state is arranged through shared MakeMe builders | slice 5 | |
-| S17 | builders are typed by the product's own ledger, history and record types | slice 2 | |
-| S17.1 | typed by the product's ledger type | slice 2 | |
-| S17.2 | typed by the product's history type | slice 2 | |
-| S17.3 | typed by the product's record type | slice 2 | |
-| S18 | and provider facts through the existing fake GitHub | slice 2 | |
-| S19 | A saved request the product's schema refuses fails its case | slice 2 | |
+| S17 | builders are typed by the product's own ledger, history and record types | slice 2 | observed: ciFollowUpKeptLanding.ts and ciFollowUpKeptPriors.ts: builders typed by the product's types, no casts; typecheck:dashboard clean |
+| S17.1 | typed by the product's ledger type | slice 2 | observed: dashboard/tests/support/ciFollowUpKeptLanding.ts keepRepeats writes the ledger from makeMe.aCiFollowUpEntry; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "saved reply" |
+| S17.2 | typed by the product's history type | slice 2 | observed: ciFollowUpKeptPriors.ts keptPriors().measuredIn(makeMe.aLandedCiHistory) with makeMe.aKeptBuild; dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts cards read averageMs 100000 and originalMs 120000 from it |
+| S17.3 | typed by the product's record type | slice 2 | observed: ciFollowUpKeptLanding.ts keeps the landing's and priors' launch records through makeMe.aLaunchRecord, landedRecord and keepMoreLaunchRecords |
+| S18 | and provider facts through the existing fake GitHub | slice 2 | observed: ciFollowUpRepeatRun.ts providerRepeatRun.replyToRerun and serveRepeatRuns over the existing fake GitHub |
+| S19 | A saved request the product's schema refuses fails its case | slice 2 | observed: PLAN.md Slice 2 record: a kept entry with eligible "yes", and a held request with workflowId "7", fail their cases at "saved reply" |
 | S20 | The one journey reads the request the product itself wrote through to a card, so a difference between what the product writes and what the builders arrange still fails a check | slice 3 | |
 | S21 | After a provider fact changes, a case waits for the event it depends on | slice 6 | |
 | S21.1 | alternative event: the provider's answer to the read | slice 6 | |
@@ -120,13 +120,13 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | E1.3 | or 25 s when it runs first in its worker | slice 6 | |
 | E1.4 | A run whose load before or after lies outside the profile is recorded and not counted | slice 6 | |
 | E2 | One journey: count the cases that ingest a receipt → one, where the base has five | slice 6 | |
-| E3 | A provider reply without a journey: kept five 100 s prior builds, a Done landing at 120 s, its unspent eligible receipt; a production dashboard starts there | slice 2 | |
-| E3.1 | 403: the provider receives exactly one rerun request for run 71 | slice 2 | |
-| E3.2 | 403: the card reads refused | slice 2 | |
-| E3.3 | 403: beside the 120 s original | slice 2 | |
-| E3.4 | 403: and the 100 s average | slice 2 | |
-| E3.5 | 503 and a later 104 s passing repeat: the card stays unverified | slice 2 | |
-| E3.6 | 503: and shows the 104 s repeat | slice 2 | |
+| E3 | A provider reply without a journey: kept five 100 s prior builds, a Done landing at 120 s, its unspent eligible receipt; a production dashboard starts there | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| E3.1 | 403: the provider receives exactly one rerun request for run 71 | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| E3.2 | 403: the card reads refused | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| E3.3 | 403: beside the 120 s original | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| E3.4 | 403: and the 100 s average | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
+| E3.5 | 503 and a later 104 s passing repeat: the card stays unverified | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
+| E3.6 | 503: and shows the 104 s repeat | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
 | E4 | The warning without a journey: Story A published as completed, an accepted request 105 s against 100 s, repeat passed in 106 s, card read on a phone | slice 4 | |
 | E4.1 | a red textual warning shows | slice 4 | |
 | E4.2 | Original 1 min 45 s | slice 4 | |
@@ -145,7 +145,7 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | E6 | Each promise still has a check that catches it: one deliberate product fault per promise in the coverage map → the named check runs | slice 5 | |
 | E6.1 | it fails | slice 5 | |
 | E6.2 | at an expectation that names the promise | slice 5 | |
-| E7 | A saved request that breaks the product's schema → its case runs → the case fails | slice 2 | |
+| E7 | A saved request that breaks the product's schema → its case runs → the case fails | slice 2 | observed: PLAN.md Slice 2 record: a kept entry with eligible "yes", and a held request with workflowId "7", fail their cases at "saved reply" |
 | E8 | Much faster: base and candidate run the four specs on one worker back to back under the same load, three passing observations each | slice 6 | |
 | E8.1 | the candidate's median wall time is at most two-thirds of the base's | slice 6 | |
 | E9 | Hosted CI | slice 6 | |

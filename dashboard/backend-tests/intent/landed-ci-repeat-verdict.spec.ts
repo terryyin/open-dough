@@ -4,7 +4,7 @@
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
-  rerunRequests,
+  rerunRuns,
   saveRepeatRequests,
   savedRepeatComparison,
   savedRepeatRequest,
@@ -79,5 +79,5 @@ test("saved accepted requests never invent a failure or a success from an absent
       decided,
     ).toBe(106000);
   }
-  expect(rerunRequests(github)).toEqual([]);
+  expect(rerunRuns(github)).toEqual([]);
 });
