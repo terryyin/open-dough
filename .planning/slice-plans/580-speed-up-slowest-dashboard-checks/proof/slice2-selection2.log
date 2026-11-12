@@ -1,0 +1,11 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › dashboard/backend-tests/runtime/production-deployment.spec.ts:61:1 › deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries (14.9s)
+  ✓  2 [chromium] › dashboard/tests/launches/responsive-session-reconciliation.spec.ts:46:1 › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works (17.7s)
+  ✓  3 [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable (9.1s)
+
+  3 passed (49.1s)
+real 50.00
+user 31.91
+sys 18.16

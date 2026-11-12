@@ -1,0 +1,1 @@
+LOAD_BEFORE=12:14  up 3 days,  5:10, 4 users, load averages: 17.23 23.78 27.87

@@ -1,0 +1,37 @@
+{
+  "slice": 2,
+  "revision_workspace_dirty": true,
+  "compared_to": "slice1 attribution at 658d1fef / ATTR trace 2026-11-12T03-41-13",
+  "host": "this Mac on AC; loaded; caffeinate -s -i",
+  "profile": {
+    "trace_steps_before": 991,
+    "trace_steps_after": 552,
+    "card_inspections_inspected_calls_before": 18,
+    "card_inspections_inspected_calls_after": 6,
+    "mark_step_inspected_before_4x2": 8,
+    "mark_step_inspected_after_unique_desktop": 3,
+    "viewport_passes_setViewportSize_before": 2,
+    "viewport_passes_setViewportSize_after": 2,
+    "mark_step_s_before": 4.394,
+    "mark_step_s_after": 1.202,
+    "list_profile_s_attr_before": 14.0,
+    "list_profile_s_focused_after": 8.5,
+    "list_profile_s_in_selection_after": 9.1
+  },
+  "proof": {
+    "focused_quiet_real_s": 29.93,
+    "focused_trace_list_real_s": 17.83,
+    "selection_list_real_s": 50.0,
+    "selection_list": {
+      "pinned_s": 14.9,
+      "pending_s": 17.7,
+      "profile_s": 9.1
+    },
+    "neighbors_list_real_s": 57.91,
+    "scratch": {
+      "A": "narrow mark wrong asset → fail",
+      "B": "skip lastInRotation inspect → mark count fail",
+      "C": "cursor host wrong asset → fail"
+    }
+  }
+}

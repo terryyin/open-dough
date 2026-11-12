@@ -1,0 +1,44 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable (12.7s)
+
+
+  1) [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable › a malformed profile is shown as unreadable and matched to no entry, while a preparation assignment is neither
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Show every agent\'s portrait' }).locator('.owner-mark')
+    Expected: 3
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Show every agent\'s portrait' }).locator('.owner-mark') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Show every agent\'s portrait' }).locator('.owner-mark')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      216 |     await expect(taken.locator(".story-card-owner .owner-mark")).toHaveCount(4);
+      217 |     for (const title of [trunkStory, branchStory, modelless, lastInRotation]) {
+    > 218 |       await expect(card(title).locator(".owner-mark")).toHaveCount(3);
+          |                                                        ^
+      219 |     }
+      220 |     await inspected(older);
+      221 |     await expect(card(older).locator(".owner-mark")).toHaveCount(0);
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/stories/taken-agent-profile.spec.ts:218:56
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/stories/taken-agent-profile.spec.ts:201:3
+
+    Error Context: dashboard/test-results/2026-11-12T04-17-05.084Z-35033/tests-stories-taken-agent--b1e3d-one-is-recorded-or-readable-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    dashboard/test-results/2026-11-12T04-17-05.084Z-35033/tests-stories-taken-agent--b1e3d-one-is-recorded-or-readable-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace dashboard/test-results/2026-11-12T04-17-05.084Z-35033/tests-stories-taken-agent--b1e3d-one-is-recorded-or-readable-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable

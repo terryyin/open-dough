@@ -1,0 +1,47 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable (21.7s)
+
+
+  1) [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable › each recorded mode and host has its own mark beside its label, clear of the portrait; narrow width keeps that clearance for one already-proved card
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Name the model when it is known' }).locator('.story-card-owner').locator('.owner-host').locator('img.owner-mark')
+    Expected pattern: /\/tool-avatars\/codex.png$/
+    Received string:  "/tool-avatars/cursor.png"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Name the model when it is known' }).locator('.story-card-owner').locator('.owner-host').locator('img.owner-mark') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Board' }).getByRole('region', { name: 'Taken', exact: true }).getByRole('article', { name: 'Name the model when it is known' }).locator('.story-card-owner').locator('.owner-host').locator('img.owner-mark')
+        14 × locator resolved to <img alt="" width="16" height="16" class="owner-mark" src="/tool-avatars/cursor.png"/>
+           - unexpected value "/tool-avatars/cursor.png"
+
+
+       at tests/agentPortrait.ts:81
+
+      79 |   await expect(mark).toBeVisible();
+      80 |   await expect(mark).toHaveAttribute("alt", "");
+    > 81 |   await expect(mark).toHaveAttribute("src", new RegExp(`/${file}$`));
+         |                      ^
+      82 |   await expect.poll(() => loadedWidth(mark)).toBeGreaterThan(0);
+      83 |   const source = await mark.evaluate(
+      84 |     (image) => (image as HTMLImageElement).currentSrc,
+        at expectMark (/Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/agentPortrait.ts:81:22)
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/stories/taken-agent-profile.spec.ts:150:7
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/stories/taken-agent-profile.spec.ts:137:3
+
+    Error Context: dashboard/test-results/2026-11-12T04-17-27.300Z-55583/tests-stories-taken-agent--b1e3d-one-is-recorded-or-readable-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    dashboard/test-results/2026-11-12T04-17-27.300Z-55583/tests-stories-taken-agent--b1e3d-one-is-recorded-or-readable-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace dashboard/test-results/2026-11-12T04-17-27.300Z-55583/tests-stories-taken-agent--b1e3d-one-is-recorded-or-readable-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › dashboard/tests/stories/taken-agent-profile.spec.ts:25:1 › each Taken card shows its published agent profile, or says plainly that none is recorded or readable
