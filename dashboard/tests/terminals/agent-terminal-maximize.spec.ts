@@ -8,6 +8,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   storyCardSessions,
   expectMembership,
@@ -59,8 +60,8 @@ test.describe("maximizing the terminal", () => {
     const { banner, board, backlog } = parts(page);
     const sidebar = sessionsSidebarParts(page);
     const pageColumn = page.locator(".page-column");
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const control = (name: string) =>
       panel.getByRole("button", { name, exact: true });
     const openIn = (place: Locator) =>

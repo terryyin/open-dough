@@ -7,6 +7,11 @@ import {
   openSessionsSidebar,
   sessionsSidebarParts,
 } from "../sessionsSidebarPage.ts";
+import {
+  expectTerminalIdentity,
+  expectTerminalText,
+  terminalPanel,
+} from "../terminalScreenPage.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { stoppedTracks } from "./voicePage.ts";
 
@@ -40,12 +45,12 @@ export async function openTerminalVoice(
     title: "Voice session B",
   });
   await openTakenBacklog(page, journey);
-  const panel = page.getByRole("region", { name: "Terminal", exact: true });
+  const panel = terminalPanel(page);
   const open = async (title = "Voice session A") => {
     await openSessionsSidebar(page);
     await sessionsSidebarParts(page).entry(title).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("Claude Code");
-    await expect(panel.getByRole("heading", { level: 2 })).toHaveText(title);
+    await expectTerminalText(panel, "Claude Code");
+    await expectTerminalIdentity(panel, title);
   };
   await open();
   return { panel, open, first, second };

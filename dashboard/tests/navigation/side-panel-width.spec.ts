@@ -6,6 +6,7 @@
 
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
 import { storyCardSessions } from "../dashboardPage.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   box,
   expectSideBySideInOrder,
@@ -37,7 +38,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const { card, session, terminal, review, divider, attaches } =
     await storyAWithSession(page, dashboard, origin);
   const reviewReads = recordReviewReads(page);
-  const rows = terminal.locator(".xterm-rows");
+  const rows = terminalScreenParts(terminal).rows;
   const sidebar = sessionsSidebarParts(page);
   const projectUrl = () => page.url();
 
@@ -135,7 +136,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const chosen = maximum - 8 * keyStep;
 
   await test.step("resizing keys do nothing while the terminal holds the keyboard", async () => {
-    await terminal.locator(".xterm-screen").click();
+    await terminalScreenParts(terminal).screen.click();
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowLeft");
     await expectWidth(terminal, chosen);

@@ -8,6 +8,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { expectSettledPage } from "../dashboardPage.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -50,7 +51,7 @@ test.describe("a Sessions sidebar choice in a hidden column", () => {
       backlog: [takenStory, readyStory, notRefinedStory],
     });
     const { button, entry } = sessionsSidebarParts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await button.click();
 
     await test.step("beside the sidebar, the developer shows Recently done, hiding Backlog", async () => {

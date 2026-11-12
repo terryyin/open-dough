@@ -1,4 +1,5 @@
 import { test, expect } from "../dashboardTest.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   openTerminalPrompts,
   openTerminalVoice,
@@ -26,7 +27,7 @@ for (const pointer of ["desktop", "phone"] as const) {
       if (pointer === "phone") await unfocusedPromptButtons(page);
       const { sent } = noteTerminalTraffic(page);
       const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
-      const input = panel.locator(".xterm-helper-textarea");
+      const input = terminalScreenParts(panel).input;
       const prompts = panel.getByRole("button", {
         name: "Prompts",
         exact: true,
@@ -63,7 +64,7 @@ for (const pointer of ["desktop", "phone"] as const) {
           .poll(() => sent.filter((text) => text === phrase))
           .toEqual([phrase]);
         await expect(input).toBeFocused();
-        await expect(panel.locator(".xterm-rows")).toContainText(
+        await expect(terminalScreenParts(panel).rows).toContainText(
           `${prefix}${phrase}`,
         );
         expect(
@@ -88,7 +89,7 @@ for (const pointer of ["desktop", "phone"] as const) {
     }) => {
       const { sent } = noteTerminalTraffic(page);
       const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
-      await panel.locator(".xterm-helper-textarea").focus();
+      await terminalScreenParts(panel).input.focus();
       await page.keyboard.press("Control+z");
       const status = panel.getByRole("status");
       await expect(status).toContainText("The terminal ended");
@@ -103,13 +104,15 @@ for (const pointer of ["desktop", "phone"] as const) {
         .getByRole("button", { name: "Open again", exact: true })
         .click();
       await expect.poll(() => dashboard.claudeAttaches()).toHaveLength(2);
-      await expect(panel.locator(".xterm-rows")).toContainText("Claude Code");
+      await expect(terminalScreenParts(panel).rows).toContainText(
+        "Claude Code",
+      );
       const recovered = await openTerminalPrompts(panel);
       await recovered
         .getByRole("menuitem", { name: "as recommended", exact: true })
         .click();
       await expect.poll(() => sent).toEqual(["\u001a", "as recommended"]);
-      await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+      await expect(terminalScreenParts(panel).input).toBeFocused();
       await expect(status).toBeEmpty();
       expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
     });

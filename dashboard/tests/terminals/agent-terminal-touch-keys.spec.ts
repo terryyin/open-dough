@@ -4,6 +4,7 @@
 // lives in ./agent-terminal-touch-composer.spec.ts.
 import { expect, test } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -57,8 +58,8 @@ test.describe("phone terminal key toolbar", () => {
     await tapWhereShown(sidebar.button);
     const { sent } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const toolbar = terminalKeyToolbar(panel);
     const primary = toolbar.locator(".terminal-key-toolbar-primary");
     await expect(rows).toContainText("Choose a color");
@@ -211,8 +212,8 @@ test.describe("desktop terminal without phone key toolbar", () => {
     await sidebar.button.click();
     const { sent } = noteTerminalTraffic(page);
     await sidebar.entry("Desktop terminal without phone keys").click();
-    const panel = page.getByRole("region", { name: "Terminal" });
-    await expect(panel.locator(".xterm-rows")).toContainText(
+    const panel = terminalPanel(page);
+    await expect(terminalScreenParts(panel).rows).toContainText(
       `attached ${native.shortId}`,
     );
     await expect(terminalKeyToolbar(panel)).toBeHidden();
@@ -223,7 +224,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
     await expect(hideKeyboardControl(panel)).toBeHidden();
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
     const text = "Desktop paste";
-    const input = panel.locator("textarea.xterm-helper-textarea");
+    const input = terminalScreenParts(panel).input;
     await expect(input).toBeFocused();
     // Supply the browser paste payload at xterm's input. The headless runner
     // can deliver an empty OS clipboard even after navigator.clipboard writes.
@@ -235,7 +236,7 @@ test.describe("desktop terminal without phone key toolbar", () => {
       );
     }, text);
     await expect.poll(() => sent).toEqual([text]);
-    await expect(panel.locator(".xterm-rows")).toContainText(text);
+    await expect(terminalScreenParts(panel).rows).toContainText(text);
     expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
   });
 });

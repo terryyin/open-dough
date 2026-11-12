@@ -12,6 +12,7 @@ import { expect, workingCursorTest as test } from "../support/cursorStart.ts";
 import { waitUntil } from "../support/waitUntil.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 
 const instruction = "keep this turn running";
 
@@ -51,7 +52,7 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   await expect(parts(page).adHocStarted).toHaveCount(0);
   const record = keptRecord(dashboard.home);
   const open = recent.getByRole("button", { name: "Open terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const { rows } = terminalScreenParts(panel);
   // The started session's terminal opens beside the page, which then shows
   // one column.
   await expect(

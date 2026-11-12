@@ -1,5 +1,6 @@
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   observeMicrophone,
   seedVoiceKey,
@@ -65,7 +66,7 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
   // Reload restores the actual recording API after the unsupported/refusal variants.
   await page.reload();
   await open();
-  await expect(panel.locator(".xterm-rows")).toContainText("Claude Code");
+  await expect(terminalScreenParts(panel).rows).toContainText("Claude Code");
   provider.setText("\u0003\n\u001b[2J");
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
@@ -77,7 +78,7 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
     "Transcription could not finish",
   );
   await expectTerminalDictationAvailable(panel, true);
-  await panel.locator(".xterm-helper-textarea").focus();
+  await terminalScreenParts(panel).input.focus();
   await page.keyboard.type("typed ");
   expect(sent).not.toContain("\u0003\n\u001b[2J");
   expect(provider.calls).toHaveLength(2);
@@ -85,11 +86,11 @@ test("terminal failures announce safe guidance, preserve ordinary typing and req
   await beginTerminalClip(page, panel);
   await stopTerminalClip(page, panel);
   await expect(panel.getByRole("status")).toBeEmpty();
-  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+  await expect(terminalScreenParts(panel).input).toBeFocused();
   // Native resize notices can appear between typed text and the transcript.
   // The submitted line below observes their exact combination.
-  await expect(panel.locator(".xterm-rows")).toContainText("typed");
-  await expect(panel.locator(".xterm-rows")).toContainText("retry");
+  await expect(terminalScreenParts(panel).rows).toContainText("typed");
+  await expect(terminalScreenParts(panel).rows).toContainText("retry");
   await page.keyboard.press("Enter");
   await expect
     .poll(() => dashboard.claudeAttaches().at(-1)?.lines)

@@ -2,6 +2,7 @@
 // status and main access stay visible, routine facts and lifecycle controls
 // disclose independently, and keyboard/narrow reading keeps both reachable.
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   parts,
   sessionNamedBy,
@@ -85,11 +86,8 @@ test.describe(() => {
       exact: true,
     });
     await open.click();
-    const terminal = page.getByRole("region", {
-      name: "Terminal",
-      exact: true,
-    });
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    const terminal = terminalPanel(page);
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     await terminal.getByRole("button", { name: "Close", exact: true }).click();
     await expect(open).toBeFocused();
 
@@ -163,8 +161,7 @@ workingCursorTest(
   "a working Cursor entry keeps its resume command selectable and reports copied, refused and unavailable clipboard access truthfully",
   async ({ page, origin }) => {
     const entry = await openTakenCursorSession(page, origin, "auto");
-    await page
-      .getByRole("region", { name: "Terminal" })
+    await terminalPanel(page)
       .getByRole("button", { name: "Close", exact: true })
       .click();
     await expect(sessionStateOf(entry)).toHaveText("Working");

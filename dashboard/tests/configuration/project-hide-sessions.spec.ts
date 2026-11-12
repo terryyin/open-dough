@@ -5,6 +5,7 @@ import { expect, test } from "../support/pageTest.ts";
 import { projectAddMachine } from "../support/projectAddMachine.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { identity } from "../agentLaunchBoundary.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectCompactProjectSelect,
@@ -84,7 +85,7 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   await expect(sidebar).toContainText(sessionTitle);
   await expect(entry(sessionTitle)).toBeVisible();
 
-  const terminal = page.getByRole("region", { name: "Terminal", exact: true });
+  const terminal = terminalPanel(page);
   await entry(sessionTitle).click();
   await expect(
     terminal.getByRole("heading", { name: sessionTitle, exact: true }),

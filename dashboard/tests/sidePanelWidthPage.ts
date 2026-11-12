@@ -9,6 +9,7 @@ import {
   storyReviewFileEndpoint,
 } from "../src/storyReviewContract.ts";
 import { box } from "./pageLayout.ts";
+import { terminalPanel, terminalScreenParts } from "./terminalScreenPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect } from "./support/preparationPage.ts";
 import { openBacklog } from "./support/sessionDialog.ts";
@@ -157,8 +158,8 @@ export async function printedSize(rows: Locator) {
 // lines, and CI's session prints a size line for each resize, so each try
 // scrolls many steps at a fixed short interval rather than backing off.
 export async function expectStillHolds(terminal: Locator, text: string) {
-  const rows = terminal.locator(".xterm-rows");
-  await terminal.locator(".xterm-screen").hover();
+  const { rows, screen } = terminalScreenParts(terminal);
+  await screen.hover();
   await expect(async () => {
     for (let step = 0; step < 10; step += 1)
       await terminal.page().mouse.wheel(0, -1000);
@@ -202,7 +203,7 @@ export async function storyAWithSession(
   return {
     card,
     session,
-    terminal: page.getByRole("region", { name: "Terminal" }),
+    terminal: terminalPanel(page),
     review: page.getByRole("region", { name: "Story review" }),
     divider: panelDivider(page),
     // The session's attachments so far.

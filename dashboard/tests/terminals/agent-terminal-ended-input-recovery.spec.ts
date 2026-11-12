@@ -3,6 +3,7 @@
 // transcript is then offered once by Insert transcript.
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   holdCompletedVoiceResponse,
   observeMicrophone,
@@ -60,8 +61,8 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
   await tapWhereShown(sidebar.button);
   const { sent } = noteTerminalTraffic(page);
   await tapWhereShown(sidebar.entry(title));
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const status = panel.getByRole("status");
   const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
   const insert = panel.getByRole("button", { name: "Insert transcript" });

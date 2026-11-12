@@ -1,6 +1,8 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 // Mark as done on a Recently done entry of a recorded Claude session whose
 // workspace is retired: where a press finds it, and the rename it retries.
+
+import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import { rmSync } from "node:fs";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
@@ -128,9 +130,7 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
           lines: [`/rename ${doneName}`],
         }),
       ]);
-      await expect(
-        page.getByRole("region", { name: "Terminal", exact: true }),
-      ).toHaveCount(0);
+      await expect(terminalPanel(page)).toHaveCount(0);
     });
   }
 });

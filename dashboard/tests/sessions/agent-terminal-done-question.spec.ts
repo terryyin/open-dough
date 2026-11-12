@@ -8,6 +8,7 @@
 // `claude` (./fixtures/fake-claude).
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   storyCardSessions,
@@ -55,13 +56,13 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await settled();
     await launch(notRefinedStory, "Execution");
     await storyCardSessions(card(notRefinedStory))
       .getByRole("button", { name: "Open terminal" })
       .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached ");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached ");
     await chooseProject(page, "Doughnut");
     await expectMembership(page, {
       taken: [],
@@ -88,7 +89,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
       page,
       columnsJourney,
     );
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
@@ -97,7 +98,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     await reloadUntilRead(page);
     await expect(sessionStateOf(listed)).toHaveText("Ready for review");
     await listed.getByRole("button", { name: "Open terminal" }).click();
-    await expect(panel.locator(".xterm-rows")).toContainText("attached");
+    await expect(terminalScreenParts(panel).rows).toContainText("attached");
 
     dashboard.claudeSessionBecomes(sessionId, "working");
     await setPageVisibility(page, "hidden");

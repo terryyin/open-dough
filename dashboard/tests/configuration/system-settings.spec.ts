@@ -8,6 +8,7 @@ import { processRunning } from "../support/processGroup.ts";
 import { settings, back } from "../support/systemSettingsPage.ts";
 import { expectFrameIconControl } from "../frameIconControl.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
 test.beforeEach(() => {
@@ -162,8 +163,8 @@ test("opening settings preserves one running native session and its attached ter
   await startSessionDialog(page, "Sample App")
     .getByRole("button", { name: "Start", exact: true })
     .click();
-  const terminal = page.getByRole("region", { name: "Terminal", exact: true });
-  const rows = terminal.locator(".xterm-rows");
+  const terminal = terminalPanel(page);
+  const rows = terminalScreenParts(terminal).rows;
   await expect(rows).toContainText("attached");
   await page.keyboard.type("before settings");
   await page.keyboard.press("Enter");
@@ -198,7 +199,7 @@ test("opening settings preserves one running native session and its attached ter
   await expect(
     page.getByRole("complementary", { name: "Sessions sidebar", exact: true }),
   ).toBeVisible();
-  await terminal.locator(".xterm-helper-textarea").focus();
+  await terminalScreenParts(terminal).input.focus();
   await page.keyboard.type("after settings");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo after settings");

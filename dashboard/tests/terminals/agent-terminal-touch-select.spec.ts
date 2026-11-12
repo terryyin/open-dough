@@ -8,6 +8,7 @@
 import { expect } from "../dashboardTest.ts";
 import { box, expectOnOneLine, tapWhereShown } from "../pageLayout.ts";
 import { phonePasteJourney, test } from "../terminalPastePage.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectLive,
   expectPaused,
@@ -39,7 +40,7 @@ test("Select pauses the shown lines in place as text, a copied range pastes back
   );
   const select = selectKey(panel);
   const paste = terminalKey(panel, "Paste");
-  const textarea = panel.locator("textarea.xterm-helper-textarea");
+  const textarea = terminalScreenParts(panel).input;
   const attach = () => dashboard.claudeAttaches()[0];
 
   await test.step("Select is one tap away, beside Paste", async () => {

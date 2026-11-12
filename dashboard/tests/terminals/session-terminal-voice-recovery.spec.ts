@@ -1,6 +1,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { test as base, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   observeMicrophone,
   seedVoiceKey,
@@ -83,7 +84,7 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   const session = dashboard.claudeAttaches()[0]?.id;
   const retained = panel.getByRole("textbox", { name: "Unsent transcript" });
   const insert = panel.getByRole("button", { name: "Insert transcript" });
-  const input = panel.locator(".xterm-helper-textarea");
+  const input = terminalScreenParts(panel).input;
   await completeWhileDisconnected(page, panel, terminalServer);
   await expect(retained).toHaveValue(transcript);
   await expect(panel.getByRole("status")).toContainText(
@@ -95,7 +96,7 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   expect(sent).toEqual([]);
   await terminalServer.start();
   await panel.getByRole("button", { name: "Reconnect", exact: true }).click();
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  await expect(terminalScreenParts(panel).rows).toContainText(
     `attached ${session}`,
   );
   await expect(retained).toHaveValue(transcript);
@@ -109,7 +110,7 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   await expect
     .poll(() => sent.filter((text) => text === transcript))
     .toEqual([transcript]);
-  await expect(panel.locator(".xterm-rows")).toContainText(transcript);
+  await expect(terminalScreenParts(panel).rows).toContainText(transcript);
   expect(dashboard.claudeAttaches().at(-1)?.id).toBe(session);
   expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([]);
   await page.keyboard.press("Backspace");
@@ -124,7 +125,7 @@ test("a retained transcript waits through reconnect, Insert offers it once, and 
   await terminalServer.start();
   await panel.getByRole("button", { name: "Reconnect", exact: true }).click();
   await expect(panel.getByRole("status")).toBeEmpty();
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  await expect(terminalScreenParts(panel).rows).toContainText(
     `attached ${session}`,
   );
   expect(sent.filter((text) => text === transcript)).toEqual([transcript]);
@@ -149,7 +150,7 @@ test("Discard sends no retained text and makes another capture available", async
   await expect(retained).toHaveValue(transcript);
   await terminalServer.start();
   await panel.getByRole("button", { name: "Reconnect", exact: true }).click();
-  await expect(panel.locator(".xterm-rows")).toContainText("attached ");
+  await expect(terminalScreenParts(panel).rows).toContainText("attached ");
   await expect(retained).toHaveValue(transcript);
   await panel.getByRole("button", { name: "Discard transcript" }).click();
   await expect(retained).toHaveCount(0);

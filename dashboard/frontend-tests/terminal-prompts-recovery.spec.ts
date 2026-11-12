@@ -11,6 +11,10 @@ import { openTerminalPrompts } from "../tests/support/terminalVoicePage.ts";
 import { sessionsSidebarParts } from "../tests/sessionsSidebarPage.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
+import {
+  terminalPanel,
+  terminalScreenParts,
+} from "../tests/terminalScreenPage.ts";
 
 for (const unavailable of ["connecting", "refused"] as const) {
   test(`${unavailable} input refuses presets, names recovery and requires a new choice`, async ({
@@ -77,7 +81,7 @@ for (const unavailable of ["connecting", "refused"] as const) {
     const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
     await sidebar.entry(title).click();
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const status = panel.getByRole("status");
     if (unavailable === "refused")
       await expect(status).toContainText(
@@ -97,13 +101,13 @@ for (const unavailable of ["connecting", "refused"] as const) {
       await panel
         .getByRole("button", { name: "Reconnect", exact: true })
         .click();
-    await expect(panel.locator(".xterm-rows")).toContainText("Claude Code");
+    await expect(terminalScreenParts(panel).rows).toContainText("Claude Code");
     const recovered = await openTerminalPrompts(panel);
     await recovered
       .getByRole("menuitem", { name: "as recommended", exact: true })
       .click();
     await expect.poll(() => sent).toEqual(["as recommended"]);
     await expect(status).toBeEmpty();
-    await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+    await expect(terminalScreenParts(panel).input).toBeFocused();
   });
 }

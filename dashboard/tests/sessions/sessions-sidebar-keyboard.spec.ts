@@ -8,6 +8,7 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -70,7 +71,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
       columnsJourney,
     );
     const { sidebar, button } = sessionsSidebarParts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     await expectMembership(page, queued);
     await settled();
 
@@ -102,7 +103,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
           .claudeAttaches()
           .find((attached) => attached.id === session.slice(0, 8));
       await expect.poll(() => attach()?.id).toBeDefined();
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         `attached ${session.slice(0, 8)}`,
       );
       expect(

@@ -1,13 +1,17 @@
 import { expect, test } from "../dashboardTest.ts";
 import { boardScroll, bottomOf, scrollYOf, wheelTo } from "../boardPage.ts";
 import {
+  closeTerminal,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   largeBacklog,
   publishLargeBacklog,
   queuedTitle,
   revision,
 } from "../accessibleBoard.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
-import { closeSidePanel } from "../pageLayout.ts";
 import { publishFiles } from "../publishedOrigin.ts";
 import { expectReadingTop } from "../readingPlace.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
@@ -110,16 +114,13 @@ for (const viewport of [
     const sidebar = sessionsSidebarParts(page);
     await sidebar.button.click();
     await sidebar.entry(title).click();
-    const terminal = page.getByRole("region", {
-      name: "Terminal",
-      exact: true,
-    });
-    await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+    const terminal = terminalPanel(page);
+    await expect(terminalScreenParts(terminal).rows).toContainText("attached");
     // Covering hides the Board; Close first, then read the revealed card
     // (./board-session-reading.spec.ts). Beside, the Board stays readable.
     if (viewport.width <= 800) {
       await expectCovering(terminal);
-      await closeSidePanel(terminal);
+      await closeTerminal(terminal);
       await expectReadingTop(card);
     } else {
       await expect(terminal.locator("textarea")).toBeFocused();

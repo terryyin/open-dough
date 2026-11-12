@@ -1,6 +1,7 @@
 // Destinations from Recently done sessions: Board reveal beyond the first ten
 // and a Codex final-report panel.
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   chooseProject,
   expectProjectChoice,
@@ -168,9 +169,7 @@ codexTest.describe("Recently done final-report destination", () => {
       await shown.open(notRefinedStory).click();
       const panel = page.getByRole("region", { name: "Final report" });
       await codexExpect(panel.locator(".final-report-text")).toHaveText(report);
-      await codexExpect(
-        page.getByRole("region", { name: "Terminal" }),
-      ).toHaveCount(0);
+      await codexExpect(terminalPanel(page)).toHaveCount(0);
     },
   );
 });

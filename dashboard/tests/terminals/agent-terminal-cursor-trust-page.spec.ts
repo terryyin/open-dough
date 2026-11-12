@@ -4,6 +4,7 @@ import { showColumn } from "../boardPage.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   heldOnWorkspaceTrust,
   instructedCursorRequest,
@@ -61,8 +62,8 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
     .getByRole("button", { name: "Open terminal" });
   await showColumn(page, "Taken");
   await open.click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const prompt = rows
     .locator("span")
     .filter({ hasText: "Workspace Trust Required" });
@@ -93,7 +94,7 @@ test("a fitted terminal restores the held trust rendition and hidden cursor on j
   await expect.poll(() => replays).toHaveLength(2);
   expect(cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(pid);
-  await panel.locator(".xterm-screen").click();
+  await terminalScreenParts(panel).screen.click();
   await page.keyboard.type("q");
   await expect.poll(() => cursor.input(pid)).toBe("q");
 });

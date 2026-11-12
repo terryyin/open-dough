@@ -11,6 +11,7 @@
 // terminal; the real one is never reached.
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -60,8 +61,8 @@ test.describe("Command+Shift+Escape and the terminal", () => {
       columnsJourney,
     );
     const { banner } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const control = (name: string) =>
       panel.getByRole("button", { name, exact: true });
     const keyboardInTerminal = () =>

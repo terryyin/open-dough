@@ -8,6 +8,7 @@
 // (./fixtures/fake-claude) echoes what is typed; the real one is never reached.
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
@@ -36,8 +37,8 @@ test("starting with nothing typed opens the session in the terminal with the key
   const dialog = page.getByRole("dialog", {
     name: "Start a session in Open Dough in Claude Code",
   });
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const { taken } = parts(page);
 
   // A window short enough that the Board scrolls well past 40 px both
@@ -63,14 +64,12 @@ test("starting with nothing typed opens the session in the terminal with the key
   const sessionId = await sessionNamedBy(entry);
   const title = await entry.getByRole("heading", { level: 3 }).textContent();
   await expect(panel).toHaveCount(1);
-  await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-    title ?? "",
-  );
+  await expect(terminalScreenParts(panel).heading).toHaveText(title ?? "");
   await expect(panel.locator(".side-panel-names p")).toHaveText(
     "Ad hoc session",
   );
   await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
-  await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+  await expect(terminalScreenParts(panel).input).toBeFocused();
   await page.keyboard.type("hello there");
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo hello there");

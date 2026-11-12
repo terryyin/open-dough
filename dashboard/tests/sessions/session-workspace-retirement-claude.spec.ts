@@ -3,6 +3,7 @@ import { readFileSync, rmSync } from "node:fs";
 import type { APIResponse } from "@playwright/test";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
+import { terminalPanel } from "../terminalScreenPage.ts";
 import {
   storyCardAttentionOf,
   storyCardSessions,
@@ -156,9 +157,7 @@ for (const context of ["preparation", "start"] as const) {
     const panel = page.getByRole("region", { name: "Final report" });
     await expect(panel.locator(".final-report-text")).toHaveText(report);
     await expect(panel).toContainText("saved workspace is missing");
-    await expect(
-      page.getByRole("region", { name: "Terminal", exact: true }),
-    ).toHaveCount(0);
+    await expect(terminalPanel(page)).toHaveCount(0);
     await expect(markAsDone(panel)).toHaveCount(0);
     expect(dashboard.claudeAttaches()).toEqual([]);
     expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(
@@ -211,7 +210,7 @@ for (const context of ["existing", "legacy"] as const) {
     await settled();
     const entry = storyCardSessions(card(notRefinedStory));
     await entry.getByRole("button", { name: "Open terminal" }).click();
-    const panel = page.getByRole("region", { name: "Terminal", exact: true });
+    const panel = terminalPanel(page);
     await expect(panel).toBeVisible();
     await expect
       .poll(() => dashboard.claudeAttaches().map((attach) => attach.id))

@@ -2,6 +2,8 @@ import { sessionActions } from "./support/sessionEntryDisclosure.ts";
 // Observations of sessions launched from active story cards. The launch
 // crosses the real page/boundary; expectations remember the returned native
 // identity and check one column entry through published membership changes.
+// Shared queued-card arrangement and blocked-Start observation live here so
+// each published Preparing, Taken and no-list journey keeps its own facts.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import {
@@ -19,6 +21,8 @@ import {
 } from "./launchJourney.ts";
 import { openStoryColumnsJourney, type Workflow } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import { openSessionStartReason } from "../src/agentLaunch.ts";
+import { openTerminalControl } from "./terminalScreenPage.ts";
 
 export function storyCardSessionListing(
   page: Page,
@@ -73,9 +77,7 @@ export function storyCardSessionListing(
         expect(entry).toHaveAccessibleName(storyCardSessionName(workflow)),
         expect(entry).toContainText(`Session ${session}`),
         expect(entry).toContainText(`${workflow} started in Claude Code`),
-        expect(
-          entry.getByRole("button", { name: "Open terminal" }),
-        ).toBeVisible(),
+        expect(openTerminalControl(entry)).toBeVisible(),
         expectUnique(key),
       ]),
     );
@@ -118,4 +120,42 @@ export async function launchEachQueuedStory(
   await launch(readyStory, "Execution");
   await launch(notRefinedStory, "Execution");
   await launch(takenStory, "Refinement");
+}
+
+// Launches on each queued card; each session is listed on its own card.
+export async function launchOnEachQueuedCard(
+  page: Page,
+  dashboard: DashboardServer,
+  columnsJourney: StoryColumnsJourney,
+) {
+  const opened = await openQueuedStoryCards(page, dashboard, columnsJourney);
+  const listing = storyCardSessionListing(
+    page,
+    opened.card,
+    opened.launch,
+    queuedStories,
+  );
+  await launchEachQueuedStory(listing.launchListed);
+  return { ...opened, ...listing };
+}
+
+export const openSessionDescription = new RegExp(
+  openSessionStartReason.replace(/[.]/g, "\\."),
+);
+
+// Read together: checking a Start action changes nothing on the page.
+export function expectStartsBlocked(
+  action: (title: string, workflow: Workflow) => Locator,
+  titles: readonly string[],
+) {
+  return Promise.all(
+    titles.flatMap((title) =>
+      (["Execution", "Refinement"] as const).flatMap((workflow) => [
+        expect(action(title, workflow)).toBeDisabled(),
+        expect(action(title, workflow)).toHaveAccessibleDescription(
+          openSessionDescription,
+        ),
+      ]),
+    ),
+  );
 }

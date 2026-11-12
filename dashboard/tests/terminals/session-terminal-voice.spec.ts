@@ -1,6 +1,7 @@
 import { test, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import { observeMicrophone, seedVoiceKey } from "../support/voicePage.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   beginTerminalClip,
   openTerminalVoice,
@@ -31,7 +32,7 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
   provider.hold();
   const { sent } = noteTerminalTraffic(page);
   const { panel } = await openTerminalVoice(page, dashboard, launchJourney);
-  const input = panel.locator(".xterm-helper-textarea");
+  const input = terminalScreenParts(panel).input;
   await expect(panel.getByRole("status")).toBeEmpty();
   await page.keyboard.type("Review ");
   // The explicit toolbar escape preserves ordinary native Tab and Escape.
@@ -89,8 +90,8 @@ test("keyboard dictation preserves typed input, offers one safe transcript, then
   await expect
     .poll(() => sent.filter((value) => value === transcript))
     .toEqual([transcript]);
-  await expect(panel.locator(".xterm-rows")).toContainText(transcript);
-  await expect(panel.locator(".xterm-rows")).toContainText("Review");
+  await expect(terminalScreenParts(panel).rows).toContainText(transcript);
+  await expect(terminalScreenParts(panel).rows).toContainText("Review");
   await expect(input).toBeFocused();
   expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
   await page.keyboard.press("Backspace");
@@ -118,7 +119,7 @@ test("terminal dictation preserves a transcript beyond the launch field limit wi
   await expect
     .poll(() => sent.filter((value) => value === text))
     .toEqual([text]);
-  await expect(panel.locator(".xterm-rows")).toContainText("end");
+  await expect(terminalScreenParts(panel).rows).toContainText("end");
   expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
   await page.keyboard.press("Enter");
   await expect.poll(() => dashboard.claudeAttaches()[0]?.lines).toEqual([text]);
@@ -162,8 +163,8 @@ test.describe("phone terminal microphone", () => {
     await expect
       .poll(() => sent.filter((value) => value === "the session header"))
       .toEqual(["the session header"]);
-    await expect(panel.locator(".xterm-rows")).toContainText("header");
-    await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
+    await expect(terminalScreenParts(panel).rows).toContainText("header");
+    await expect(terminalScreenParts(panel).input).toBeFocused();
     expect(dashboard.claudeAttaches()[0]?.lines).toEqual([]);
     await page.keyboard.type("X");
     await page.keyboard.press("Backspace");

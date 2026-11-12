@@ -2,6 +2,7 @@
 
 **Identity:** SEED-300#express-terminal-test-intent-through-page-objects
 **Source:** [Story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -114,7 +115,7 @@ competing test runner observed. It was fully awake on battery at 77%; bounded se
 concurrency on changed load, power or failed proof. These observations settle the common seam and discrimination
 premises; they do not claim all 65 callers or all recovery variants have passed a migration.
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 All types are Behavior: the evaluated outcome is how a developer can read and maintain the proof, with unchanged product
 behavior. Each slice includes its helper changes, caller migration, focused regression proof and cleanup. Source review
@@ -124,9 +125,25 @@ completion requires one shared mechanics owner across the final affected set.
 
 ### 1. Read one session's Terminal through shared controls
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story examples 1 and 6; source comparison and original output, identity,
 attach-count, record and reattachment assertions in affected callers.
+Accepted: Shared `dashboard/tests/terminalScreenPage.ts` owns ordinary screen/identity/open/close;
+fluent `Terminal.expectText` and support owners reuse it; inventory ordinary `.xterm-rows` /
+helper-textarea / Terminal region uses migrated (0 residual in `*.spec.ts`); listing arrange/blocked-Start
+in `storyCardSessionListing.ts` (161) with journeys in `agent-launch-story-card-sessions.spec.ts` (242).
+Native attach/record/reconnect stay caller-local. Implementation proof
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-terminal-slice1-proof.json caffeinate -i npm run test:dashboard --
+tests/terminals/agent-terminal-codex-page.spec.ts tests/terminals/agent-terminal-cursor-page.spec.ts
+tests/terminals/agent-terminal-cursor-launch-page.spec.ts tests/terminals/agent-terminal.spec.ts
+tests/terminals/agent-terminal-lifetime.spec.ts tests/navigation/side-panel-content-switching.spec.ts
+tests/navigation/side-panel-content-replacement.spec.ts tests/sessions/agent-launch-story-card-sessions.spec.ts
+tests/sessions/agent-launch-story-card-session-states.spec.ts --workers=1` → 15/15 expected, strict passed (~143s);
+`npm run typecheck:dashboard` passed. Refactor close/open/listing focus
+`/tmp/seed300-terminal-slice1-refactor-proof.json` → 18/18 expected (~84s). Consumer dispositions:
+proof-set and listing consumers **run**; support owners and mechanical inventory **reused**;
+paused-select/fit evaluate contracts and local page `closeTerminal` aliases (pre-refactor) **excluded**
+per contract; post-refactor shared `closeTerminal(panel)` consolidated. Source-review slice-1 ids observed.
 
 Behavior: A developer follows an opening, replacement or reconnect case → reads named Terminal output/identity
 operations → the expected session and text stay visible and native/record evidence still distinguishes detach from
@@ -240,3 +257,9 @@ slice obligations, not completed work.
 
 Preparation settled the shared seam across fixture tiers and demonstrated that independent sent-byte evidence detects a
 lost prompt insertion. All scratch source/test changes were reverted before recording preparation or committing.
+
+Slice 1: keep `openTerminalFromEntry` in `terminalScreenPage.ts` (do not re-import `startedSessionTerminal`) to avoid a
+circular module dependency. Multi-line shared-owner imports tip files over 250 — collapse imports when migrating.
+Side-panel Story review headings are not Terminal screen parts; do not route them through `terminalScreenParts`.
+Retain `expectNoTerminalText` for slice 2 negative text observations. Local page-level `closeTerminal(page)` helpers
+were a naming clash with the shared panel closer; prefer `closeTerminal(panel)` / renamed page wrappers.

@@ -5,6 +5,7 @@ import { launched } from "../agentTerminalBoundary.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { expectRowRestsShowing, scrollYOf } from "../boardPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -66,8 +67,8 @@ test.describe(`${name} terminal input`, () => {
     const opener = sidebar.entry(title);
     const { sent, sizes } = noteTerminalTraffic(page);
     await tapWhereShown(opener);
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const control = (label: string) =>
       panel.getByRole("button", { name: label, exact: true });
     const attaches = () => dashboard.claudeAttaches();

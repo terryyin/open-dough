@@ -4,6 +4,7 @@
 import { test as voiceTest, expect } from "../support/voiceTest.ts";
 import { voiceBrowserOptions } from "../support/voiceRecovery.ts";
 import { observeMicrophone, seedVoiceKey } from "../support/voicePage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   beginTerminalClip,
   stopTerminalClip,
@@ -92,8 +93,8 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
   // The section header is a disclosure row, not a 44px touch control.
   await shown.header.tap();
   await tapWhereShown(shown.open(notRefinedStory));
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   const status = panel.getByRole("status");
   await expect(rows).toContainText("retained startup draft");
   await expect(rows).not.toContainText("context left");

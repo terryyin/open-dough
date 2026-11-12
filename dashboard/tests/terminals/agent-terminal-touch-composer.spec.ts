@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test as base } from "../dashboardTest.ts";
 import { launched } from "../agentTerminalBoundary.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -82,8 +83,8 @@ test.describe("phone terminal composer Insert without submit", () => {
     await tapWhereShown(sidebar.button);
     const { sent } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(composerTitle));
-    const panel = page.getByRole("region", { name: "Terminal" });
-    const rows = panel.locator(".xterm-rows");
+    const panel = terminalPanel(page);
+    const { rows } = terminalScreenParts(panel);
     const draftText = "revise this longer phone instruction";
     await expect(rows).toContainText(`attached ${native.shortId}`);
     await expect(composeToggle(panel)).toHaveCount(0);

@@ -7,6 +7,7 @@
 
 import { expect, test } from "../dashboardTest.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -39,7 +40,7 @@ test.describe("beside the side panel", () => {
   }) => {
     dashboard.claudeScenario("launched");
     const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
-    const terminal = page.getByRole("region", { name: "Terminal" });
+    const terminal = terminalPanel(page);
     const { taken } = parts(page);
     // The view, beside a terminal whose screen scrolls on its own; the panel
     // header title truncates by design with disclosure (./SidePanelTitle.tsx).
@@ -61,7 +62,9 @@ test.describe("beside the side panel", () => {
       const project = startSessionDialog(page, "Open Dough");
       await startSession(page, "Open Dough").click();
       await project.getByRole("button", { name: "Start" }).click();
-      await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+      await expect(terminalScreenParts(terminal).rows).toContainText(
+        "attached",
+      );
       expect((await box(page.locator(".page-column"))).width).toBeCloseTo(
         54 * rem,
         0,
@@ -84,7 +87,9 @@ test.describe("beside the side panel", () => {
 
     await test.step("the side panel reopens: Taken and Recently done show again", async () => {
       await taken.getByRole("button", { name: "Open terminal" }).click();
-      await expect(terminal.locator(".xterm-rows")).toContainText("attached");
+      await expect(terminalScreenParts(terminal).rows).toContainText(
+        "attached",
+      );
       await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
     });
 

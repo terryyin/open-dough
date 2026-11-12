@@ -4,6 +4,11 @@ import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
 import { chooseProject, storyCardSessions, parts } from "../dashboardPage.ts";
 import {
+  expectTerminalIdentity,
+  terminalPanel,
+  terminalScreenParts,
+} from "../terminalScreenPage.ts";
+import {
   publishStoryColumnsJourney,
   notRefinedStory,
   notRefinedIdentity,
@@ -63,8 +68,8 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   const recent = parts(page)
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
-  const panel = page.getByRole("region", { name: "Terminal" });
-  const rows = panel.locator(".xterm-rows");
+  const panel = terminalPanel(page);
+  const { rows } = terminalScreenParts(panel);
   codexTerminalMode(native, "review");
   await recent.getByRole("button", { name: "Open terminal" }).click();
   await expect(rows).toContainText("Hooks need review");
@@ -72,7 +77,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   await expect(panel.getByRole("button", { name: "Mark as done" })).toHaveCount(
     1,
   );
-  await panel.locator(".xterm-screen").click();
+  await terminalScreenParts(panel).screen.click();
   await page.keyboard.press("Escape");
   await expect(rows).toContainText("GPT-6.1-Sol default");
   await expect(rows).not.toContainText("context left");
@@ -91,9 +96,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   ).toHaveLength(1);
   // A project change preserves the page's one current native attachment.
   await chooseProject(page, "Doughnut");
-  await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
-    notRefinedStory,
-  );
+  await expectTerminalIdentity(panel, notRefinedStory);
   expect(codexAttaches(native)).toHaveLength(1);
   await chooseProject(page, "Open Dough");
   await panel.getByRole("button", { name: "Close", exact: true }).click();
@@ -186,16 +189,18 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
     .filter({ hasText: native.threadId })
     .getByRole("button", { name: "Open terminal" })
     .click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText(
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText(
     "retained startup draft",
   );
-  await expect(panel.locator(".xterm-rows")).not.toContainText(
+  await expect(terminalScreenParts(panel).rows).not.toContainText(
     "Ask Codex to do anything",
   );
-  await expect(panel.locator(".xterm-rows")).not.toContainText("context left");
+  await expect(terminalScreenParts(panel).rows).not.toContainText(
+    "context left",
+  );
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-  await panel.locator(".xterm-screen").click();
+  await terminalScreenParts(panel).screen.click();
   await page.keyboard.press("Escape");
   await expect.poll(() => stored(dashboard.home)[0]?.doneAt).toBeUndefined();
 });

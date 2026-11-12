@@ -11,6 +11,7 @@ import path from "node:path";
 import { storyA } from "../../../tests/support/queued-repository.mjs";
 import { parts } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectContinuationThroughScope,
   expectContinuationWithoutScope,
@@ -80,8 +81,10 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   await page.reload();
   const attachesBeforeOpen = cursor.attaches().length;
   await entry.getByRole("button", { name: "Open terminal" }).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("Add a follow-up");
+  const panel = terminalPanel(page);
+  await expect(terminalScreenParts(panel).rows).toContainText(
+    "Add a follow-up",
+  );
   await expect
     .poll(() => cursor.attaches().length)
     .toBe(attachesBeforeOpen + 1);
@@ -190,7 +193,7 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   // still spawns nothing against the shared configuration.
   rmSync(scope, { recursive: true, force: true });
   await entry.getByRole("button", { name: "Open terminal" }).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
+  const panel = terminalPanel(page);
   await expect(panel).toContainText(scopeRefusal);
   await expect(panel).toContainText(
     "not continued with your shared Cursor configuration",

@@ -11,6 +11,7 @@
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
 
 import { expect, test } from "../dashboardTest.ts";
+import { terminalPanel, terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   expectProjectChoice,
   expectMembership,
@@ -61,7 +62,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     const { sidebar, button, entries, entry } = sessionsSidebarParts(page);
     const { roster } = rosterParts(page);
     const { backlog } = parts(page);
-    const panel = page.getByRole("region", { name: "Terminal" });
+    const panel = terminalPanel(page);
     const shownMark = page.getByText("Shown in terminal", { exact: true });
     const pygardonStoryCard = backlog.getByRole("article", {
       name: pygardonStory.title,
@@ -83,7 +84,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       await expect
         .poll(() => attachesOf(dashboard, sessions.pygardon).length)
         .toBe(1);
-      await expect(panel.locator(".xterm-rows")).toContainText(
+      await expect(terminalScreenParts(panel).rows).toContainText(
         `attached ${sessions.pygardon.slice(0, 8)}`,
       );
       expect(await keyboardInside(page, "Terminal")).toBe(true);

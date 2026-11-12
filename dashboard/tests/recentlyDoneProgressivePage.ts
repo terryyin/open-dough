@@ -12,6 +12,7 @@ import { shownEntries } from "./recentlyDoneColumn.ts";
 import { queuedTitle } from "./recentlyDoneRecords.ts";
 import { publishes, type FakeGitHub } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
+import { terminalPanel } from "./terminalScreenPage.ts";
 import {
   doneDirectory,
   keepProgressiveSessions,
@@ -88,8 +89,7 @@ export async function opened(
 }
 
 // The side panel's open terminal.
-export const terminalOf = (page: Page) =>
-  page.getByRole("region", { name: "Terminal" });
+export const terminalOf = (page: Page) => terminalPanel(page);
 
 export const revealAction = (recent: Locator) =>
   recent.getByRole("button", { name: /older entr(y|ies)$|^Reading done/ });

@@ -5,6 +5,7 @@ import path from "node:path";
 import type { Page } from "@playwright/test";
 import { expect } from "../dashboardTest.ts";
 import { tapWhereShown } from "../pageLayout.ts";
+import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
@@ -42,7 +43,7 @@ test("phone Paste offers text once, keeps focus as it was, and reports empty or 
   const { panel, rows, sent } = await openPasteTerminal(page, dashboard);
   const paste = terminalKey(panel, "Paste");
   const status = panel.getByRole("status");
-  const textarea = panel.locator("textarea.xterm-helper-textarea");
+  const textarea = terminalScreenParts(panel).input;
   await expect(terminalKey(panel, "More terminal keys")).toHaveAttribute(
     "aria-expanded",
     "false",
