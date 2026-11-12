@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Strengthen pending Take protection assertions](seeds/SEED-324-strengthen-pending-take-protection-assertions.md#strengthen-pending-take-protection-assertions) — SEED-324#strengthen-pending-take-protection-assertions
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Express Terminal test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects) — SEED-300#express-terminal-test-intent-through-page-objects
