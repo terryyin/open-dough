@@ -2,6 +2,7 @@
 
 **Identity:** SEED-327#strengthen-pending-take-protection-assertions
 **Source:** [Strengthen pending Take protection assertions](../../seeds/SEED-327-strengthen-pending-take-protection-assertions.md#strengthen-pending-take-protection-assertions)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -44,7 +45,7 @@ All promises belong to slice 1.
 
 ### 1. Observe full protection in every post-stale state of the pending Take check
 Type: Structure
-Status: planned
+Status: done
 Proof: The file-level command below passes with both checks; the scratch
 fault fails the pending Take check at the partly read Taken state and is
 reverted before commit.
@@ -65,6 +66,17 @@ the premises below). Product behavior is preserved and unchanged.
   `{!inspected && starting && offersStart && (`, run the focused command,
   observe the failure at `expectProtected` called for `takenStory`, then
   `git checkout -- dashboard/src/StoryCard.tsx`.
+
+Accepted proof (2026-11-12, load about 23–36, `env -u` prefix): the
+file-level command passed both checks (exit 0, 2 passed); typecheck passed;
+the scratch fault failed the focused check at `responsiveStart.ts:142`
+`toBeVisible` called from spec line 139 `expectProtected(takenStory)`, and
+`StoryCard.tsx` was restored with an empty diff. The clean focused check took
+8.8 s against the thin form's 8.7–9.2 s. The calls now sit at spec lines 114,
+124, and 139. Consumer trace (terms `expectActionsUnavailable`,
+`expectProtected`): `expectProtected` importers excluded because its
+definition is unchanged; `expectActionsUnavailable` had no code consumer
+outside this spec. Refactor pass: no edits.
 
 ## Consumer trace and local gates
 
@@ -133,3 +145,10 @@ removed import, which typecheck observes in slice 1.
   and implementation authority remain with the later execution instruction.
 - Slice-plan refinement was not needed: one bounded correction in one file
   with one proof loop; no remaining slice-specific concern was identified.
+
+## Story obligations
+
+### G1. Backlog-state detection not scratch-faulted (reported in slice 1 return)
+Reported: slice 1 — "no scratch fault was run against the Backlog card's links or Select story. Detection there rests on the assertion executing and passing on the correct product."
+Story clause: "Maintainers of the Dashboard's launch protection see a regression that drops source links or Select story from a protected card after the stale read, on the Backlog card and on the Taken card alike."
+Disposition: proved by slice 1: spec lines 114 and 124 call `expectProtected(story)` in the failed-comparison and unrelated-revision Backlog states (file-level run, 2 passed); the same `expectProtected` link assertion at `responsiveStart.ts:142` fails with "element(s) not found" when the link is absent (scratch-fault run, failure from spec line 139), and `selectStory(card)` `toBeEnabled` at `:133` with the one-enabled-button count at `:132` run in every state. Inspected path: both Backlog states render through the same protected StoryCard branch the stale-read call at line 102 already observes, so a drop there fails the executed assertion.
