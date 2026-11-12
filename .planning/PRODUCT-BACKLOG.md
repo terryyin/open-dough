@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Make dashboard journeys fit the default timeout under load](seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) — SEED-287#fit-dashboard-journeys-in-default-timeout ([plan](slice-plans/576-fit-dashboard-journeys-in-default-timeout/PLAN.md))
 - [Make later-proof Intent comparison checks fast and stable under moderately high load](seeds/SEED-326-later-proof-comparison-checks-under-load.md#pass-later-proof-comparison-checks-under-load) — SEED-326#pass-later-proof-comparison-checks-under-load ([plan](slice-plans/589-later-proof-comparison-checks-under-load/PLAN.md))
 - [Make landed CI repeat checks pass under moderately high load](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load) — SEED-324#pass-landed-ci-repeat-checks-under-high-load ([plan](slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md))
+- [Strengthen pending Take protection assertions](seeds/SEED-327-strengthen-pending-take-protection-assertions.md#strengthen-pending-take-protection-assertions) — SEED-327#strengthen-pending-take-protection-assertions ([plan](slice-plans/601-strengthen-pending-take-protection-assertions/PLAN.md))
 
 ## Backlog list
 
-- [Strengthen pending Take protection assertions](seeds/SEED-327-strengthen-pending-take-protection-assertions.md#strengthen-pending-take-protection-assertions) — SEED-327#strengthen-pending-take-protection-assertions
 - [Express review and Side panel test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-review-test-intent-through-page-objects) — SEED-300#express-review-test-intent-through-page-objects
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Express Terminal test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-terminal-test-intent-through-page-objects) — SEED-300#express-terminal-test-intent-through-page-objects

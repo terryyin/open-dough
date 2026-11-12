@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "jackson-chan",
+  "email": "jackson-chan@example.org",
+  "identity": "SEED-327#strengthen-pending-take-protection-assertions",
+  "mode": "story-branch",
+  "branch": "claude/strengthen-pending-take-protection-assertions",
+  "host": "claude",
+  "model": "opus"
+}
