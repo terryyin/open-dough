@@ -227,3 +227,17 @@ expectation was changed. Both observations belong to this owned workspace.
 - Generated standalone test-entry runtime updated through `node scripts/build-test-entry-rules.mjs`; installed copies untouched. Product, setup, assertions and literal command selections inspected; generated runtime regeneration check and legacy payload checks passed. Expensive-proof decision remained one worker on AC under the sleep guard, reconsidered by the implementation owner.
 
 - Independent dough-post-change-refactor return: none — already clean; no edits and no behavioral reruns, all accepted boundaries/setup/assertions unchanged, git diff --check passed, REFACTOR COMPLETE received. Final pre-delivery freshness again unchanged at trunk 095f2bff9ce186a48c94f94a39810f8b82767eae; no named coordination sibling affects this work.
+
+## Retrospective
+
+Related published implementation: `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`, following our claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`. Earlier/intervening sibling claims are excluded. Receipt accepted the implementation on `origin/codex/review-junit-tests-in-intent`, suffix base `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`, observer `/tmp/dough-ci-501/watch-Bw2hP0` reused. Applicable CI is pending, not claimed passing.
+
+Outcome/proof review: original source, ready plan, aggregate committed diff, shared untouched consumers and selected proof agree. The new published-source browser journey drove a red regression before implementation. Detailed membership variants stay at the authenticated boundary; one mixed Java/shell journey and a grammar-failure journey retain integrated Purpose/Proof and recovery proof. Node checks protect independent conventions and generated/installed callers. Existing selectors, safe-path union admission, reading revisions, tabs, overlays and SourceLines own the shared behavior; no duplicate domain rule, speculative framework, weakened constraint or refactor residue was found. Relevant Accepted ADRs 0001/0002/0008 remain satisfied. No corrective plan is needed.
+
+Direction and product advice: configured Java reading advances the backlog’s focus on reviewable test intent. No evidence supports expanding this story into semantic JUnit discovery, execution or result ingestion. Existing future work stays ordered; no new recommendation or product decision requires adoption.
+
+Process review remains selected by `skipProcessRetrospective: false` and deferred under the shared rule because `intentCoverage: true` will request one feature-story check at wrap-up. Complete it once with the report/dispositions and available execution history before cleanup; do not repeat product/proof review.
+
+## Execution complete
+
+Product advice: no change — the configured Java source outcome is delivered and its focused proof is sufficient; no correction or queue change is supported. Process review remains selected and deferred into wrap-up after Intent Coverage.
