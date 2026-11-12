@@ -47,14 +47,53 @@ succeeded, but the whole Summary sort case timed out30.950s. Chaifeng-chan's
 active SEED287 plan576 G7/G18 already owns that exact first-return timeout;
 preserve its repair and receive a completed published result before renewal.
 See [final gate evidence and owner](final-gate-evidence.md). Aggregate repair,
-that coordination gate and applicable CI remain pending. Process stays
+that coordination gate remained pending at publication. Process stays
 selected and deferred until Wrap Up has Intent Coverage report/dispositions.
 
 Final repair: G14 now has two preserved real-publication cases passing at
 24.021/26.634s, retry0; G16's body-identical cold Done journey passes24.503s
 with canonical readiness. Current11-case browser proof union and30 unchanged
 backend cases are traced in final-gate-evidence.md. Slice9 is reopened planned
-for G15 and the repaired candidate's hosted CI; progress publication retains it.
+for G15 and then-required hosted CI; progress publication retained it.
 Latest source check unchanged at257510b4648f7704e996e93629d809fdd0fc9785;
 incoming dependency/CI pins and generated matcher are outside this branch's
 current runtime and need their own integration proof when closure resumes.
+
+Final repair accepted3ef6abf40704755cb684a91c11f3b1f65e4a0a31, suffix basea48ca574,
+zero reconciliations, exact CI43065321086/1 success via await-revision. G16 is
+proved; G15 remains the coordination boundary. No complete-revision operation,
+trunk landing, Intent Coverage, deferred process review or wrap-up has occurred.
+Observer AUNYTD/coordinator seed300-stanly-continuation1 remains live for resume.
+Its finite eight-hour window is not a completion receipt; inspect its terminal
+state before recovering or replacing it if it ends while waiting for G15.
+Receipts: `/tmp/seed300-final-repair-publication.json` and
+`/tmp/seed300-final-repair-ci-receipt.json`. Post-receipt record edits stay owned
+and uncommitted until the open obligation permits a settled delivery boundary.
+
+## Resumed validation
+
+On23:43UTC resume the host generation had ended and PID21646 was gone without
+a terminal result. Exact AUNYTD stop returned stopped/coverage lost/unread0;
+prior exact CI43065321086/1 success remains retained evidence, not shutdown.
+Replacement branch observer: coordinator seed300-stanly-continuation2,
+cell g5:8, session79763, PID94136, `/tmp/dough-ci-501/watch-hFyaQ9`.
+Runtime canonical checkout and CI workflow351271804/ci.yml verified again.
+
+Source freshness unchanged at4a722dca19c9f27648d095a2e3a8aa98d3271bb8.
+SEED287 now published730543328235c2379303e7ec10f4e6e7f2d01124 and proved G7.
+PFE first tried its bounded native-Git selection in globalSetup, preserving the
+original Sort private CLI/Git/HTTP fixture and every assertion. That candidate
+still timed out31.493s: before-hooks12.273s, first comparison starts28.860s.
+Global setup was restored exactly. The narrower existing queuedClaudePreviewTest
+fits Sort's unchanged default Claude/preview/private-origin inputs; only its
+fixture import changes. Real immutable preparation stays in suite elapsed.
+
+Readiness-only exposed the complementary real-publication cost and failed at
+the second loop. The combined same-Git plus existing-readiness candidate now
+passes the unchanged whole Sort24.790s/default30/retry0 and26 exact-budget
+prefix/cleanup controls; typecheck0. Fresh independent refactor is complete,
+none — already clean; all consumer dispositions normalized. Root's separate
+unused-helper scratch passes17.039s/default/retry0 and restores exact source.
+Follow-up SEED-318#remove-unused-taken-comparison-navigation/plan596 is ready;
+published full identities/navigation remain stable despite concurrent numeric
+prefix reuse by unrelated mobile work. No backlog change yet. G15 is proved.

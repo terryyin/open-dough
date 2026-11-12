@@ -44,7 +44,7 @@ North Star change or human-owned product decision is needed.
 | Premise | Current evidence / consuming observation |
 | --- | --- |
 | Direct callers are absent | Whole-project current search and Git search at8ad return only the declaration; installed payload does not expose dashboard test helpers. Inspect namespace/computed imports again before deletion. |
-| Used operations retain behavior after removal | Candidate scratch removed only the unused export/imports; typecheck passed. The whole Summary journey timed out30.950s at its first A→B→A return, before later assertions. Exact original SHA256ab7969422158b9adbdc084cd730d950f514e4395d9544b24122fd63ec71c2f69 was restored in finally. This is no passing preservation claim. |
+| Used operations retain behavior after removal | Current candidate scratch removed only the unused export/imports; typecheck and complete unchanged Sort journey passed, case17.039s/default30/retry0. Both story loops and all sort/drill assertions ran. Exact original SHA256ab7969422158b9adbdc084cd730d950f514e4395d9544b24122fd63ec71c2f69 was restored in finally. |
 | Focused route is available | The exact Summary sort/drill/story-selection case has retained strict passing proof in slice8/refactor8 under this checkout and default budgets. It exercises the three used comparison helpers and their real Git/HTTP inputs. |
 
 ## Ordered slice
@@ -89,12 +89,13 @@ trigger is known for this removal. Never stash or overwrite another owner's work
 
 Refinement not needed: one cohesive Structure correction removes a concrete
 unused route, with no independent second outcome or speculative preparation.
-Remaining concern: candidate-removal preservation is unproved. The actual scratch
-run at16:38UTC on AC/one worker (load34.98/36.81/38.98) timed out in the existing
-Summary sort journey; typecheck passed and exact source restore succeeded.
-Evidence: `/tmp/seed318-preparation-preservation-{result,proof}.json` and log.
-The exact timeout repair is already owned by chaifeng-chan's active
-SEED-287#fit-dashboard-journeys-in-default-timeout, plan576 G7/G18, which records
-the same first-return timeout31.110s. Preserve that owner's work and receive its
-completed published repair before a current candidate-removal check. Not-ready;
-no execution or queue transition is authorized by this plan alone.
+No remaining preparation concern. The earlier scratch timed out30.950s; its
+negative evidence remains `/tmp/seed318-preparation-preservation-{result,proof}.json`.
+After completed supplier-component assessment and the current same-Git/preview
+readiness repair, the fresh candidate-removal check passed at00:17UTC: typecheck0,
+whole Sort case17.039s/default30/retry0, runner24.245s, runa75e8a79, AC100/one
+worker, preflight load57.56/49.08/42.37. Exact helper restore succeeded.
+Evidence `/tmp/seed300-unused-helper-ready-preservation-{result,proof}.json` and
+log. Rechecked current code imports are named; no namespace/computed caller of
+the dormant export exists. No implementation was retained or queue changed.
+Record the actual ready assessment; it grants no execution authority.

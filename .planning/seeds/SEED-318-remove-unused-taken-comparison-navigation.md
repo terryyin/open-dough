@@ -15,7 +15,7 @@ scope: bounded retrospective correction
 
 **Identity:** SEED-318#remove-unused-taken-comparison-navigation
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/596-remove-unused-taken-comparison-navigation/PLAN.md","assessment":"not-ready","reasons":["Candidate removal passed dashboard typecheck and restored exact source bytes, but its complete Summary sort journey timed out at the first A→B→A return. Chaifeng-chan already owns that exact timeout repair in active SEED-287 plan576 G7/G18; receive the completed published repair and observe candidate preservation before ready."],"basis":{"document":"1441b13e24e704e9bb9b246704bbd45d5b7d0130441df9e2e68fae250281b67f","plan":"8edbbb0d4e3f0ae3aae539af5776e7d0a923a49eca90235b0771ae88ab41ad45"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/596-remove-unused-taken-comparison-navigation/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1441b13e24e704e9bb9b246704bbd45d5b7d0130441df9e2e68fae250281b67f","plan":"93ff523934c47ca0687d538963185f0408298893c87489e67efe50955bad2f65"}}
 ```
 
 #### Goal

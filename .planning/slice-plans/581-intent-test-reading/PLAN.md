@@ -130,7 +130,7 @@ owners without duplicating selection or confusing Inspect with Selected story.
 
 ### 9. Follow retained CI evidence from the Done card
 Type: Behavior
-Status: planned
+Status: done
 Proof: Cohort 9 and affected consumers. Preserve exact original/repeat/reference
 timings, attempt URLs/IDs, saved membership and no new CI acquisition.
 Delivered at a48ca574; reopened for the final-gate repairs G14/G15. Retain all
@@ -237,9 +237,9 @@ Disposition: proved by slice 9: final-gate-evidence.md G14; two cohesive real-pu
 ### G15. Summary sort preservation encounters an already-owned timeout repair
 Reported: slice 9 — "Coordinator's candidate-removal scratch for the unused-helper follow-up passed typecheck but timed out30.950s at the first A→B→A Summary return. Exact helper bytes were restored; SEED287 plan576 G7/G18 already owns the same31.110s timeout repair under chaifeng-chan."
 Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
-Disposition: return
+Disposition: proved by slice 9: final-gate-evidence.md resumed G15; completed supplier same-Git component plus existing queued preview readiness preserve the entire original private CLI/Git/HTTP Sort fixture/body/both loops; actual Sort24.790s/default30/retry0,26 prefix/cleanup controls pass with their exact existing budgets, typecheck0; separate unused-helper scratch passes17.039s/default30 and restores exact source
 
 ### G16. Cold Done history setup consumes the final reselection budget
 Reported: slice 9 — "Renewing restart readers failed30225ms in intent-ci-done-prior-build at final Done reselection: cold origin5539ms and dashboard1215ms used7127ms of before-hooks. The aggregate's warm28564ms pass did not establish cold default-budget stability."
 Story clause: "Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site."
-Disposition: return
+Disposition: proved by slice 9: final-gate-evidence.md G16; body-identical canonical readiness cold case passes24.503s/default/retry0 and exact accepted repair3ef6abf40704755cb684a91c11f3b1f65e4a0a31 CI43065321086/1 succeeds; G15 remains open under its exact active repair owner

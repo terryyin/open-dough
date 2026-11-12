@@ -89,10 +89,10 @@ Proof `/tmp/seed300-final-done-readiness-proof.json`; actual preparation trace
 `/tmp/seed300-final-done-readiness-artifacts.jsonl`. Formatting/typecheck passed.
 No exact active Done repair owner was found; broad SEED287 scope was no exemption.
 
-Current browser proof candidate is11 unique positives across10files: eight
+Current browser proof is11 unique positives across10files: eight
 unchanged positives from81d032e0, fresh cold Done, and latest two Project cases.
-No single11-case green-command claim. Independent refactor, complete cross-tier
-consumer dispositions and the repaired publication's applicable CI remain due.
+No single11-case green-command claim. Independent refactor and cross-tier
+consumer dispositions are accepted below; the repaired publication's CI passed.
 
 ## Consumer and lifecycle acceptance
 
@@ -119,8 +119,12 @@ REFACTOR COMPLETE, no edits and no invalidated proof. It independently verified
 all30 backend matches and lifecycle ownership above. git diff --check passed;
 no extra runtime run was needed. Five source files are221/183/240/25/82 lines.
 
-G16 retains its return until applicable hosted proof of this repaired candidate;
-guarded publication is a progress increment, preserving planned slice9 and G15.
+Guarded progress publication accepted3ef6abf40704755cb684a91c11f3b1f65e4a0a31
+on the execution branch, suffix basea48ca574, with zero reconciliations. Formatter
+and normal check-only hooks passed; all five source hashes still match accepted
+proof. Exact await-revision receipt reports success for CI43065321086/1, with
+source exact and the same accepted SHA/target. G16 is proved. This branch CI
+success neither repairs G15 nor establishes trunk integration or closure.
 
 ## Review state
 
@@ -133,5 +137,76 @@ No backlog membership was changed. Process remains selected and deferred until
 Wrap Up receives its automatic Intent Coverage report and dispositions.
 
 The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies as
-written. G15 and hosted repair proof remain open; no execution-complete record
-or closure is claimed.
+written. G15 remains open; no execution-complete record or closure is claimed.
+The active plan, follow-up draft, worktree and live branch observer are retained
+for receipt of the already-owned repair and renewed affected validation.
+
+## Resumed G15 component assessment
+
+Supplier730543328235c2379303e7ec10f4e6e7f2d01124 now proves its G7 on its
+current setup. PFE tested only its bounded selected-native-Git component here,
+preserving the original Sort real CLI/Git/HTTP fixture and every loop/assertion.
+It was insufficient for this original fixture: run81dcb8a4 timed out31.493s,
+retry0/default30, runner37.761s/wall39.951s, load28.51→29.75, AC100/no sleep.
+Before-hooks used12.273s (origin5.195s/dashboard5.519s); initial comparison/sort
+started28.860s after start. First sort/drill passed, first story roundtrip began
+at30.008s. This is budget exhaustion, not evidence of a row-value mismatch.
+Evidence `/tmp/seed300-g15-selected-git-20261112/sort`.
+
+The unvalidated global change was restored byte-for-byte to3ef6; SHA256
+dc04b3b658e088271f5bd84e7af0f84dcd0f936590e01c799bf4f2d15b385205.
+Its broader26 PATH/cleanup observations were not run and are not required for
+the restored source. No global executable selection or declared-repository
+fixture conversion is retained. Existing queued Claude preview readiness is
+the narrower current owner for Sort's cold immutable origin/app/server inputs;
+same private fixtures, real publication and both original roundtrips remain.
+
+Readiness alone reduced private setup to0.718/1.588s but still timed out30.516s
+at the second loop, run16e68a2c/retry0/default30. Worker readiness8.823s and
+all cold artifacts were real and counted in runner46.503s; real publication
+still took13.056s. Both first-loop sort/drill and first full roundtrip passed.
+No independent layout error was established. Distinct negative candidates were
+not retried unchanged; their stage evidence selected the complementary pair.
+
+Current retained source combines only the exact bounded same-Git component
+and Sort's existing queuedClaudePreviewTest import. All other Sort bytes,
+private fixture/helper bodies, both loops and independent oracles are unchanged.
+The original Git and selected direct Git have matching version/exec/doc/config
+paths; earlier configured Git and later fixture prefixes retain priority.
+The current literal inventory, including promisified exec calls, finds only
+Git intersecting the selected developer-tool directory, across95 receivers.
+
+Combined runfcd53e0b strictly passes24.790s/default30/retry0 with all four
+original steps and both loops complete;5210ms case headroom. Real worker
+readiness11.004s is included in runner53.421s/wall57.731s, not hidden work.
+AC100/one worker; endpoint load52.76→68.41, not a controlled-load profile.
+Current26 Git/PATH/cleanup controls run2c60cdab pass once/retry0, typecheck0.
+25 use default30s; current countedGit recovery control retains its existing
+individual120s allowance and passes21.392s. No new timeout or waiver is added.
+All27 retained ZIPs have valid SHA/CRC/JSON; neither pass window has sleep.
+
+Installed combined trace has1078 dispositions:31run,57reused,990 exclusions,
+plus3 explicit supplemental rows and95 source-equivalent direct Git receivers.
+Functional proof reuse concerns the same actual Git/arguments/config and
+unchanged fixtures; old Mac timing-margin claims remain historical.
+Complete evidence `/tmp/seed300-g15-selected-git-20261112/REPORT.md` and linked
+trace/dispositions. No whole592 green-run or suite-speed improvement is claimed.
+
+The separate cleanup preparation scratch now passes typecheck and the whole
+Sort journey17.039s/default30/retry0, runa75e8a79/runner24.245s. It removed only
+the unused export/imports, then restored helper SHAab796942...2f69 exactly.
+`/tmp/seed300-unused-helper-ready-preservation-{result,proof}.json` retains it.
+Its existing full story identity and unique plan path stay unchanged; the new
+mobile story on main has a different full anchor, despite the shared318 prefix.
+Plan596 now records ready without authorizing execution or queue membership.
+
+Fresh independent refactor returned none — already clean/REFACTOR COMPLETE;
+no source edit or invalidated proof. It independently verified all95 receiver
+hashes, exact donor-component and original-Sort reconstruction. Nineteen record
+overlaps were normalized before acceptance:16 Dashboard receivers correctly
+run/reuse,3 independent Node rows exclude consistently; all1078 rows agree
+across Markdown/JSON with zero blanks. No additional runtime test was needed.
+Outcome/product review's affected conclusions remain: no production behavior,
+test-tier conversion or loss of independent source oracles; one coherent
+run-readiness owner and existing preview-input owner. Only the existing bounded
+unused-helper correction is advised, now ready for Wrap Up's disposition.

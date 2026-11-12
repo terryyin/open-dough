@@ -3,7 +3,10 @@
 // Column ordering and zoom rules live in ./intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
