@@ -3,7 +3,10 @@
 // the machine keeps with an accepted rerun request
 // (../support/ciFollowUpPageLanding.ts), as the page's collecting dashboard
 // saves what the provider's repeat becomes.
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { recheckingLandedCi } from "../support/landedCiHistory.ts";
 import { keepRepeatLandingForPage } from "../support/ciFollowUpPageLanding.ts";
 import {

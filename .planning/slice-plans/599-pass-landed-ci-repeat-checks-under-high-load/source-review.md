@@ -46,8 +46,8 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 | S6.1 | After a provider fact changes, a case waits for the event it depends on: the provider's answer to the read, the request's arrival, or the saved request changing. | slice 10 |  |
 | S6.2 | No case keeps a 5 s observation whose wait is one collection pass on a machine that keeps a full history. | slice 10 |  |
 | S7.1 | The admission, reconciliation, follow-up reading and receipt boundary specs use `prepareRepeatScenario` too. Each of their cases gives the result the base gives it in the same load window. | slice 3 | observed: PLAN.md Slice 3 record: the eight specs importing ciFollowUpScenario.ts, base 20 of 20 and candidate 21 of 21 at two workers and at one, back to back |
-| S8.1 | Amended 2026-11-12: It may change what a case pays before its own first step: the `origin` fixture's first use in a worker | slice 7 |  |
-| S8.2 | Amended 2026-11-12: when the run's app build is produced | slice 7 |  |
+| S8.1 | Amended 2026-11-12: It may change what a case pays before its own first step: the `origin` fixture's first use in a worker | slice 7 | observed: dashboard/tests/support/pageTest.ts queuedClaudeBoundaryReady and queuedClaudePreviewReady request the queued origin and server bundle for the named specs' workers; PLAN.md Slice 7 record: first-case origin 0.2–0.5 s |
+| S8.2 | Amended 2026-11-12: when the run's app build is produced | slice 7 | observed: pageTest.ts prepareServerInputs(…, "preview"): the app build is requested by the first page case's worker fixture; PLAN.md Slice 7 record: first page dashboard 1.0–1.8 s |
 | S8.3 | Amended 2026-11-12: and the published story and server each case arranges, through a kept published-story arrangement that cases share | slice 8 |  |
 | S8.4 | Amended 2026-11-12: Every spec that uses a changed fixture keeps its cases and assertions and gives the result it gave before. | slice 8 |  |
 | S9.1 | Amended 2026-11-12: `dashboard/tests/intent/intent-project-scope-timing-refresh.spec.ts` joins the named specs | slice 9 |  |
@@ -63,7 +63,7 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 | R8 | A flaky check is failing under the project's failing and flaky test policy until it is stable locally and in CI. | target CI |  |
 | L1 | No product behavior changes. The checks change, with their support modules. | slice 10 |  |
 | L2 | This story counts first-in-worker preparation in every case's time | slice 10 |  |
-| L3 | Amended 2026-11-12: and, since the amendment above, may change it | slice 7 |  |
+| L3 | Amended 2026-11-12: and, since the amendment above, may change it | slice 7 | observed: PLAN.md Slice 7 record: first-in-worker preparation moved to SEED-287's worker fixtures for the named specs; artifacts, startOrigin and global setup unchanged |
 | L4 | The cost of one fake `gh` call (a Node process per call) stays as it is. | slice 10 |  |
 | L5 | This story lowers the number of calls a case waits for. | slice 10 |  |
 | L6 | The repository node suite's follow-up policy, reading and ledger tests stay as they are | slice 3 | observed: PLAN.md coverage row C5: the node ledger test is credited for the second dashboard only, after F12 failed it; the file is unchanged |

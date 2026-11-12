@@ -2,7 +2,10 @@
 // They are read from saved accepted requests, which real collection observes
 // with no journey.
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
 import {
   rerunRuns,
   saveRepeatRequests,

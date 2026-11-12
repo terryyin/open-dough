@@ -39,24 +39,28 @@ export { expect } from "@playwright/test";
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
 
-async function preparePreviewInputs(host?: "claude" | "codex") {
-  const [artifacts, origins, app, server] = await Promise.all([
+// Requests what a worker's servers start from, so the first test waits for
+// none of it in its own time: the host's queued origin when it has one, the
+// server bundle, and the app build unless only boundary servers start.
+async function prepareServerInputs(
+  host: "claude" | "codex" | undefined,
+  serverMode: "preview" | "boundary",
+) {
+  const [artifacts, origins, app, bundle] = await Promise.all([
     import("./runArtifacts.ts"),
     import("./startOriginPreparation.ts"),
     import("./dashboardBuild.ts"),
     import("./serverBundle.ts"),
   ]);
-  await Promise.all([
-    ...(host === undefined
-      ? []
-      : [
-          artifacts.requestRunArtifact(
-            origins.startOriginArtifactKey(host, "queued"),
-          ),
-        ]),
-    artifacts.requestRunArtifact(app.dashboardAppArtifactKey),
-    artifacts.requestRunArtifact(server.serverBundleArtifactKey),
-  ]);
+  await Promise.all(
+    [
+      ...(host === undefined
+        ? []
+        : [origins.startOriginArtifactKey(host, "queued")]),
+      ...(serverMode === "preview" ? [app.dashboardAppArtifactKey] : []),
+      bundle.serverBundleArtifactKey,
+    ].map((key) => artifacts.requestRunArtifact(key)),
+  );
 }
 
 // Playwright's worker-only extension takes an empty test-fixture type.
@@ -68,6 +72,7 @@ export const test = base.extend<
     dashboardPreviewReady: undefined;
     queuedCodexOriginReady: undefined;
     queuedClaudePreviewReady: undefined;
+    queuedClaudeBoundaryReady: undefined;
     queuedCodexPreviewReady: undefined;
     publishedApplicationSourceReady: undefined;
   }
@@ -76,7 +81,7 @@ export const test = base.extend<
   dashboardPreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      await preparePreviewInputs();
+      await prepareServerInputs(undefined, "preview");
       await use(undefined);
     },
     { scope: "worker" },
@@ -102,7 +107,16 @@ export const test = base.extend<
   queuedClaudePreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      await preparePreviewInputs("claude");
+      await prepareServerInputs("claude", "preview");
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
+  // Boundary servers on the queued Claude origin open no app.
+  queuedClaudeBoundaryReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await prepareServerInputs("claude", "boundary");
       await use(undefined);
     },
     { scope: "worker" },
@@ -110,7 +124,7 @@ export const test = base.extend<
   queuedCodexPreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      await preparePreviewInputs("codex");
+      await prepareServerInputs("codex", "preview");
       await use(undefined);
     },
     { scope: "worker" },

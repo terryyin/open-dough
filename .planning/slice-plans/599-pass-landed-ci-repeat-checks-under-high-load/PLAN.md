@@ -1481,7 +1481,7 @@ global setup, which would fail the two on-demand artifact specs; slice 8's
 
 ### 7. A worker's first case starts from prepared origin and app build
 Type: Behavior
-Status: planned
+Status: done
 Proof: The named specs' first case in each worker spends no more in `origin`
 than a later case does, and the first page case no more in `dashboard`, each
 within 3 s, in two traced two-worker runs at load 30–50 or under burners;
@@ -1504,6 +1504,124 @@ own time for the queued origin, the server bundle or the app build.
   artifact specs and builds the app for backend-only selections.
 - A file already over 250 lines is not edited without its reorganization
   settled first; return it.
+
+#### Slice 7 record
+
+Observed on 2026-11-12, 18:20–18:36 local, on `a445b7854` with this slice's
+uncommitted change, Node 24.21.0, AC power throughout. Logs, traces, artifact
+traces and the scratch scripts (`run.sh`, `steps.py`, `fixtures.py`) are in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice7/`; nothing scratch entered
+the repository. Not committed, not published: hosted CI is not yet observed.
+
+**Design.** The owner stays `dashboard/tests/support/pageTest.ts`. Its
+`preparePreviewInputs` became `prepareServerInputs(host, "preview" |
+"boundary")`; the three existing worker fixtures request the same artifacts
+as before, and one sibling is added, `queuedClaudeBoundaryReady` (queued
+Claude origin and server bundle, no app build): no sibling requested that
+set (`queuedCodexOriginReady` asks for the Codex origin alone). Opt-in
+follows SEED-287's form, a test whose `originRepository` waits on the worker
+fixture:
+
+- `landedCiHistoryTest.ts` exports `queuedClaudeBoundaryTest` beside its
+  unchanged `test`; the three backend repeat specs import it as `test`.
+- `ciFollowUpSettledReading.ts` extends `queuedClaudePreviewTest` instead of
+  `test` of `preparationPage.ts`; its three specs are the Intent follow-up
+  specs and nothing else imports it.
+- `recently-done-ci-automatic-repeat.spec.ts` imports
+  `queuedClaudePreviewTest` as the opted-in specs do.
+
+Narrow over wide: `landedCiHistoryTest.ts`'s own `test` was left as it is.
+Opting the whole module in would move the first-use time of 25 other specs'
+cases; the per-spec opt-in is the form the existing opted-in specs use, and no
+named spec needs more. All worker-scoped fixtures stay declared in
+`pageTest.ts`, so the worker population is one. Line counts: `pageTest.ts`
+184, `landedCiHistoryTest.ts` 68, `ciFollowUpSettledReading.ts` 50, the four
+spec files 237, 74, 86 and 95. No product code, timeout, sleep, retry or
+skip.
+
+**Runs of the seven specs**, each
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE=<file> npm run --silent test:dashboard -- <the seven specs> --workers=2 --trace=on --reporter=list`,
+started by `run.sh` only at a one-minute load of 30–50. Thirty `yes`
+burners held the load (the natural load was 5.6 when the slice started);
+the last run had none.
+
+| Label | Load before → after | Result | Slowest case |
+| --- | --- | --- | --- |
+| `traced1` | 30.8 → 48.1, burners | 11 passed, 78 s | return 17.7 s |
+| `traced2` | 31.6 → 42.1, burners | 11 passed, 53 s | return 13.8 s |
+| `pass1` | 42.1 → 52.9, burners, ended outside the profile | 11 passed, 99 s | reading 25.3 s |
+| `pass2` | 45.7 → 67.9, burners, ended outside the profile | 11 passed, 136 s | return 26.4 s |
+| `pass3` | 48.7 → 31.3, no burner, the figure decaying from `pass2` | 11 passed, 30 s | return 9.3 s |
+
+Five consecutive passes at two workers. Seconds from the traces, by
+position; the worker fixture's time is in the trace and outside the case's
+reported duration (journey, `traced1`: trace 14.4 s, reported 10.7 s, worker
+fixture 3.7 s):
+
+| Run | Position | Worker fixture | `origin` | `dashboard` |
+| --- | --- | --- | --- | --- |
+| `traced1` | first backend case, each worker | 3.7, 3.7 (`queuedClaudeBoundaryReady`) | 0.3, 0.5 | none |
+| `traced1` | later backend cases (4) | 0 | 0.3–0.7 | none |
+| `traced1` | first page case, each worker | 6.0, 4.0 (`queuedClaudePreviewReady`) | 0.3, 0.3 | 1.8, 1.7 |
+| `traced1` | later page cases (3) | 0 | 0.4–0.5 | 1.3–1.6 |
+| `traced2` | first backend case, each worker | 2.1, 2.1 | 0.2, 0.2 | none |
+| `traced2` | later backend cases (4) | 0 | 0.3–1.1 | none |
+| `traced2` | first page case, each worker | 4.0, 2.8 | 0.2, 0.2 | 1.0, 1.1 |
+| `traced2` | later page cases (3) | 0 | 0.3–0.5 | 1.0–2.6 |
+
+In `pass2`, at load 46 → 68, the worker fixtures took 13.5 and 13.1 s
+(backend) and 11.1 and 8.3 s (page), still outside the cases: first
+`origin` 0.9 and 0.8 s against 0.3–1.1 s later, first `dashboard` 2.7 and
+2.8 s against 2.2–2.9 s later. The artifact trace of `traced1` shows the
+origin and bundle started by the first backend cases' worker fixture and
+the app build started only when the first page case's worker fixture asked
+for it (6.0 s), so a backend-only selection still builds no app.
+
+Reported durations, seconds:
+
+| Case | `traced1` | `traced2` | `pass1` | `pass2` | `pass3` |
+| --- | --- | --- | --- | --- | --- |
+| journey (`landed-ci-automatic-repeat:42`) | 10.7 | 6.0 | 15.3 | 16.0 | 3.4 |
+| refused (`:115`) | 10.4 | 4.7 | 15.6 | 14.7 | 3.0 |
+| uncertain (`:142`) | 12.2 | 6.8 | 7.8 | 11.1 | 3.6 |
+| saved outcomes (`:174`) | 3.4 | 2.2 | 3.5 | 4.8 | 1.4 |
+| accepted request | 11.1 | 5.4 | 5.5 | 11.3 | 3.3 |
+| verdict | 4.8 | 3.0 | 2.7 | 3.6 | 1.7 |
+| proof | 13.3 | 9.1 | 12.6 | 21.2 | 5.6 |
+| return | 17.7 | 13.8 | 20.3 | 26.4 | 9.3 |
+| reading | 11.5 | 11.3 | 25.3 | 16.0 | 7.2 |
+| settings | 4.0 | 3.2 | 11.5 | 5.9 | 2.3 |
+| warning | 12.1 | 11.1 | 21.0 | 16.6 | 6.3 |
+
+Two cases passed above 25 s, both in runs that ended above load 50: the
+reading case at 25.3 s (`pass1`: `dashboard` 2.1 s, 4.7 s of arrangement
+before `goto`, the Board and the card 9 s, the comparison 3.5 s) and the
+return case at 26.4 s (`pass2`: `dashboard` 2.8 s, arrangement and the
+Board about 10 s, three readings of the comparison). Neither spent time in
+this slice's preparation; the arrangement is slice 8's and the profile
+verdict slice 10's.
+
+**Consumers.** `consumer-trace.mjs --checkout "$PWD" --base a445b7854`
+(output kept as `consumer-trace.md` beside the logs), by group:
+
+| Consumers | Disposition |
+| --- | --- |
+| The three backend repeat specs, `recently-done-ci-automatic-repeat.spec.ts`, the three Intent follow-up specs (through `ciFollowUpSettledReading.ts`) | run: the five runs above |
+| The 25 other specs that import `landedCiHistoryTest.ts` | run: all 28 importers once at two workers, candidate 52 passed (load 13.8 → 9.3), then the 27 that exist on `8aa440077` in the base worktree, 51 passed (load 8.9 → 9.0); per-spec passing counts are equal, the one difference being `landed-ci-repeat-accepted-request.spec.ts`, which slice 3 added. Their files are unchanged |
+| `start-origin-demand.spec.ts`, `dashboard-artifact-demand.spec.ts` | run: 1 and 5 cases passed, unchanged files |
+| Takers of the three worker fixtures whose shared function changed: `queuedClaudePreviewReady` (`intent-project-scope-timing-refresh.spec.ts`, and the other specs through `queuedClaudePreviewTest`), `queuedCodexPreviewReady` (`tests/launches/agent-launch-preparation-codex.spec.ts`), `dashboardPreviewReady` (`intent-summary-story-comparison-sort.spec.ts` through `intentSummarySortTest.ts`), and `queuedCodexOriginReady`, unchanged (`backend-tests/launches/agent-launch-preparation-codex-retry.spec.ts`) | run: one spec for each fixture with the two demand specs, two workers, 20 passed (load 25.4 → 15.1). The other `queuedClaudePreviewTest` specs: reused, the same fixture and artifact keys the refresh spec and the four named page specs exercised |
+| Every other importer of `pageTest.ts` (372 files name it; every dashboard spec reaches it) | excluded: they take none of the changed fixtures; a worker fixture nobody asks for is not set up, and the added one is declared for every pool alike, so no worker population splits. Hosted CI runs them |
+| `originRepository` matches: `startOrigin.ts`, `preparationPage.ts`, `responsiveStart.ts`, `keptStartJourney.ts`, `storyDependencyFixture.ts`, `codexStart.ts`, `cursorStart.ts`, `startOriginTest.ts`, `storedReviewChoices.ts`, the specs that set it with `test.use`, and the `dough-test-optimization` scripts' own `originRepository` | excluded: the fixture's contract is unchanged; the new test wraps it as `queuedClaudePreviewTest` does, and no named spec sets it. The scripts' function is another symbol |
+| `eslint.config.mjs`, `processGroup.ts`, `voiceRecovery.ts`, `launchJourney.ts`, `pageRequestNoting.ts`, `page-teardown-drain.spec.ts`, the READMEs, `writing-journeys.md`, `project-test-findings.md`, `tests/ci-test-data.md`, `ciMakeMe.mjs` | excluded: they name `pageTest.ts` or `landedCiHistoryTestData.mjs` by path or in prose; nothing they state changed |
+| `.planning/` records, evidence and seeds, `ProjectFindings.md`, plan 582's mention of `preparePreviewInputs` | excluded: history; this record states the rename |
+
+`npm run --silent typecheck:dashboard`, `npx eslint` and
+`npx prettier --check` on the seven changed files: exit 0 each.
+
+Gaps: hosted CI on a published revision is not observed (nothing is
+committed); no traced run under natural load, the machine offered 5–14
+without burners; the other `queuedClaudePreviewTest` specs and the whole
+suite were not run locally.
 
 ### 8. Kept landings start from a kept published story
 Type: Behavior

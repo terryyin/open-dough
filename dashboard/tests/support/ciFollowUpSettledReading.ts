@@ -9,7 +9,7 @@ import { keepRepeatLandingForPage } from "./ciFollowUpPageLanding.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import { publishIntentTrunk } from "./intentStoryWorktree.ts";
 import { startLandedCiReader } from "./landedCiReader.ts";
-import { test as base } from "./preparationPage.ts";
+import { queuedClaudePreviewTest as base } from "./preparationPage.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
 export { expect } from "./preparationPage.ts";

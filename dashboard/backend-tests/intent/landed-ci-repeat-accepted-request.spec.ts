@@ -12,7 +12,10 @@ import {
   savedRepeatRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
 import { landedCiHistory } from "../../tests/support/landedCiHistory.ts";
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
 
 test.use({ serverMode: "boundary" });
 

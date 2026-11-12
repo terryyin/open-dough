@@ -6,7 +6,10 @@
 // decide after an accepted request from saved accepted requests
 // (a published story's: ./landed-ci-repeat-accepted-request.spec.ts): real
 // collection observes both with no journey.
-import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
+import {
+  expect,
+  queuedClaudeBoundaryTest as test,
+} from "../../tests/support/landedCiHistoryTest.ts";
 import { keepRepeatLanding } from "../../tests/support/ciFollowUpKeptLanding.ts";
 import { keepRecordedPriorsMeasured } from "../../tests/support/ciFollowUpKeptPriors.ts";
 import {
