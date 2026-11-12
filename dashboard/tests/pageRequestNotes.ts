@@ -50,6 +50,15 @@ export async function untilPageRequestsAnswered(page: Page): Promise<void> {
   await untilNotedAnswered(page, "requestsUnanswered");
 }
 
+// Waits as `untilPageRequestsAnswered` does, but for the waits the page holds
+// open on a running launch attempt's next change: a revision check, or a read
+// of the machine's sessions, is waited for with the reads it leads to.
+export async function untilPageAnsweredButChangeWaits(
+  page: Page,
+): Promise<void> {
+  await untilNotedAnswered(page, "requestsUnansweredButChangeWaits");
+}
+
 // With the page clock paused (`pausePageClockAt` in ./dashboardTest.ts),
 // lets one steady pace of page time pass once every request the page has
 // sent is answered, but for the waits it holds open on a running launch
@@ -58,7 +67,7 @@ export async function untilPageRequestsAnswered(page: Page): Promise<void> {
 // journey has already seen change outside the page, without waiting a real
 // pace.
 export async function passCheckPace(page: Page): Promise<void> {
-  await untilNotedAnswered(page, "requestsUnansweredButChangeWaits");
+  await untilPageAnsweredButChangeWaits(page);
   await page.clock.runFor(checkIntervalMs);
 }
 

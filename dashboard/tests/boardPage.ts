@@ -143,6 +143,11 @@ export async function wheelTo(page: Page, y: number) {
   await expect.poll(() => scrollYOf(page)).toBe(y);
 }
 
+// Wheels the Board to its end, as a developer reads down to it.
+export async function wheelToBoardEnd(page: Page) {
+  await wheelTo(page, await bottomOf(page));
+}
+
 // Where a part ends, measured from the top of the Board.
 async function endOf(part: Locator) {
   const { y, height } = await box(part);
@@ -161,7 +166,7 @@ export async function expectEndsWithShown(
   page: Page,
   shown: readonly ColumnName[],
 ) {
-  await wheelTo(page, await bottomOf(page));
+  await wheelToBoardEnd(page);
   const ends = await Promise.all([
     ...shown.map((column) => endOf(columnRegion(page, column))),
     ...(await columnPagingControls(page).all()).map(endOf),

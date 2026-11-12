@@ -272,7 +272,7 @@ About 290 mechanics sites removed; helpers +157 lines, whole change about
 
 ### 6. Reveal and retain Recently done ranges through one column owner
 Type: Behavior
-Status: planned
+Status: done
 Proof: C6 plus reached C1/review/retained-session consumers; preserve visible
 entry order/count, nested versus standalone entries, exact requested paths,
 held failures/retry, collapse focus, retained position and pending destination.
@@ -285,6 +285,27 @@ Extend existing column/progressive owners. Replace the reached `settle` helper's
 controlled clocks where time drives behavior. Retain request-count evidence
 rather than swapping the delay for an unconditional immediate check. Safe stop:
 all its callers use causal completion and the range/navigation journeys pass.
+
+Accepted (2026-11-13): the 500 ms `settle` delay is gone. Its 28 sites wait
+on `untilPageRests` (the Board rests and its reads are answered),
+`untilBoardRests`, `untilPageReadsAnswered` or `wheelToBoardEnd`, and a
+revision check uses `passTimeUntilChecked`. New and moved owners:
+- `recentlyDoneColumn.ts`: `revealAction`, `showLatestAction`.
+- `columnCountOf`.
+- `boardPage.ts`: `wheelToBoardEnd`.
+- `boardReading.ts`: `watchBoardScroll`, sharing one scrollend listener with `readWithKey`.
+
+Fault checks: an answer that extends the list after Show latest 10 failed both
+post-release checks. Without the new wait, it passed unnoticed or was blamed
+on the wrong step. Product files were restored byte-for-byte. Proof:
+- C6 39/39.
+- Consumers 13/13.
+- After refactor, 7/7.
+- Typecheck exit 0.
+
+About 60 mechanics sites removed (28 `settle`, 19 `.column-count`, Show
+latest, watchers, wheels); helpers about +36 lines. O2 refresh sites and the
+O6 read-latency and recently-done-stories credit sites were migrated.
 
 ### 7. Read arriving facts and retained cards through shared observations
 Type: Behavior

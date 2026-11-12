@@ -20,7 +20,11 @@ import {
   repository,
   revision,
 } from "../recentlyDoneProgressive.ts";
-import { recordsAsked, settle } from "../recentlyDoneProgressivePage.ts";
+import {
+  recordsAsked,
+  untilPageRests,
+} from "../recentlyDoneProgressivePage.ts";
+import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import {
   entries,
   firstTen,
@@ -92,13 +96,13 @@ test("while the sessions read asked after a project's addition is under way, no 
       recent.getByRole("article", { name: thirteenth.identity }),
     ).toBeVisible();
     await expect(recent).toContainText("Reading sessions…");
-    await settle(page);
+    await untilPageReadsAnswered(page);
     expect(asked()).toEqual([]);
 
     sessions.answer();
     await expectEntries(recent, firstTen.map(entryName));
     expect(asked().toSorted()).toEqual(storiesOf(firstTen).toSorted());
-    await settle(page);
+    await untilPageRests(page);
     expect(asked().toSorted()).toEqual(storiesOf(firstTen).toSorted());
   } finally {
     // A read still held would hold the page's teardown.
@@ -127,7 +131,7 @@ test("when the sessions read asked after a project's addition cannot be read, th
     await expect(
       recent.getByRole("article", { name: thirteenth.identity }),
     ).toBeVisible();
-    await settle(page);
+    await untilPageReadsAnswered(page);
     expect(asked()).toEqual([]);
 
     fail();

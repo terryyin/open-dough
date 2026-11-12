@@ -13,6 +13,7 @@ import {
 } from "../localTakenSessions.ts";
 import { columnPagingControl, rem, showColumn } from "../boardPage.ts";
 import {
+  columnCountOf,
   expectMembership,
   shortRevision,
   parts,
@@ -76,7 +77,7 @@ test("one Taken story with two sessions and one local session means two entries;
   );
   await showColumn(page, "Taken");
   const { taken, recentlyDone } = parts(page);
-  await expect(taken.locator(".column-count")).toHaveText("2 entries");
+  await expect(columnCountOf(taken)).toHaveText("2 entries");
   await expect(taken.locator("[data-story-card] .session-entry")).toHaveCount(
     2,
   );
@@ -105,7 +106,7 @@ test("one Taken story with two sessions and one local session means two entries;
       "data-shows-session",
       key,
     );
-  await expect(taken.locator(".column-count")).toHaveText("3 entries");
+  await expect(columnCountOf(taken)).toHaveText("3 entries");
   await showColumn(page, "Taken");
   for (const session of [
     local.session.sessionId,
@@ -121,7 +122,7 @@ test("one Taken story with two sessions and one local session means two entries;
     await expect(entry).toHaveCount(0);
   }
   await expect(localEntries(page)).toHaveCount(0);
-  await expect(taken.locator(".column-count")).toHaveText("0 entries");
+  await expect(columnCountOf(taken)).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
   await expect(recentlyDone.locator(".session-entry")).toHaveCount(3);
   await expect(parts(page).readRevision).toContainText(
@@ -159,9 +160,7 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   const recent = parts(page).recentlyDone.locator(
     `[data-shows-session="${key}"]`,
   );
-  await expect(parts(page).taken.locator(".column-count")).toHaveText(
-    "1 entry",
-  );
+  await expect(columnCountOf(parts(page).taken)).toHaveText("1 entry");
   await expect(parts(page).taken).not.toContainText("No Taken entries");
   await expect(recent).toHaveCount(0);
   const folder = path.join(dashboard.home, "git", "open-dough");
@@ -220,7 +219,7 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   await expect(entry).toHaveCount(0);
   const { taken } = parts(page);
   await expect(taken).toBeFocused();
-  await expect(taken.locator(".column-count")).toHaveText("0 entries");
+  await expect(columnCountOf(taken)).toHaveText("0 entries");
   await expect(taken).toContainText("No Taken entries are recorded.");
   expect(await savedRecords(dashboard)).toEqual([]);
 });

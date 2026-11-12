@@ -12,7 +12,7 @@
 import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
+import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
 import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   entryName,
@@ -22,9 +22,8 @@ import {
   isRecord,
   opened,
   recordsAsked,
-  revealAction,
-  settle,
   terminalOf,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -92,7 +91,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
     await expectEntries(recent, twenty);
     expect(recordsAskedAt(github, revisionB)).toEqual([held.path]);
     release();
-    await settle(page);
+    await untilPageRests(page);
     await expectEntries(recent, twenty);
     expect(recordsAsked(github)).toHaveLength(storiesThrough(20).length + 1);
   });
@@ -122,7 +121,7 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
     await expectEntries(recent, twenty);
     await page.setViewportSize({ width: 80 * rem, height: 900 });
     await expectEntries(recent, twenty);
-    await settle(page);
+    await untilPageRests(page);
     expect(recordsAsked(github)).toHaveLength(asked);
   });
 
@@ -162,7 +161,7 @@ test("choosing another project while a revealed batch is read shows that project
   await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
   view.release();
-  await settle(page);
+  await untilPageRests(page);
   await expect(shownProjectControl(page)).toBeFocused();
   await expect(recent).not.toContainText("progressive story");
   await chooseProject(page, "Open Dough");

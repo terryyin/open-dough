@@ -17,6 +17,8 @@ export function credit(holder: Locator) {
     preparing: holder.locator(".story-card-preparing"),
     activity: holder.locator(".preparing-activity"),
     agent: holder.locator(".owner-agent"),
+    // The agent's portrait beside its name.
+    portrait: holder.locator(".agent-portrait"),
     // The scan line: agent · human · host · model.
     line: holder.locator(".owner-line"),
     // The detail's and roster's summary: agent or mode · host · model.

@@ -15,13 +15,12 @@
 import { expect, test } from "../dashboardTest.ts";
 import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
+import { expectEntries, revealAction } from "../recentlyDoneColumn.ts";
 import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   recordsAsked,
-  revealAction,
-  settle,
   terminalOf,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -64,7 +63,7 @@ test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27
     await view.markedDone(2);
     await expect(view.done(2)).toBeFocused();
     await expectEntries(recent, names(10));
-    await settle(page);
+    await untilPageRests(page);
     expect(recordsAsked(github).toSorted()).toEqual(
       storiesThrough(11).toSorted(),
     );
@@ -173,7 +172,7 @@ test("the developer's own move before the entries before it are read keeps the k
   await expect(card).toBeFocused();
   view.release();
   await expectEntries(view.recent, names(destination));
-  await settle(page);
+  await untilPageRests(page);
   await expect(card).toBeFocused();
 });
 
@@ -196,7 +195,7 @@ test("choosing another project before the entries before it are read shows that 
   await chooseProject(page, "Pygardon");
   await expect(backlog).toContainText("A Pygardon story");
   view.release();
-  await settle(page);
+  await untilPageRests(page);
   await expect(shownProjectControl(page)).toBeFocused();
   await chooseProject(page, "Open Dough");
   await expectEntries(view.recent, names(10));

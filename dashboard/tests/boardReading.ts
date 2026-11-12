@@ -1,9 +1,9 @@
 // Reading down the long Board as a developer does: wheeling its own scroll
 // region by a distance, pressing its scrollbar track or a reading key, and
-// seeing where the reading stops, while the document itself stays still and
-// a column paging control stays in sight. The Board's scroll place and extent
-// are measured in ./boardPage.ts; journeys supply every expected place, key
-// and column.
+// seeing where the reading or another move stops, while the document itself
+// stays still and a column paging control stays in sight. The Board's scroll
+// place and extent, and wheeling to a place or its end, are in ./boardPage.ts;
+// journeys supply every expected place, key and column.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -52,22 +52,23 @@ export async function untilBoardRests(page: Page) {
 // ordinary document a journey compares the Board with.
 export type ReadingRegion = "board" | "document";
 
-// Presses a reading key, such as End or PageDown, as a developer does, and
-// waits until `region` reports `scrollend`: the key's scrolling has ended.
-// That ending is heard from before the press, so a quick scroll cannot end
-// unheard. The press follows two drawn frames, because native key scrolling
-// acts on the scroll place and extent the page last drew, which lag its
-// layout while the machine is busy. Journeys read where the region stopped.
-export async function readWithKey(
-  page: Page,
-  key: string,
-  region: ReadingRegion = "board",
-) {
+// Hears `region` from before a movement: whether it scrolled, and when its
+// scrolling ended (`scrollend`), so a quick scroll cannot end unheard.
+async function hearScrolling(page: Page, region: ReadingRegion) {
   const scroller =
     region === "document" ? page.locator(":root") : boardScroll(page);
-  const ending = await scroller.evaluateHandle((element, ofDocument) => {
+  return scroller.evaluateHandle((element, ofDocument) => {
     const target = ofDocument ? element.ownerDocument : element;
+    let moved = false;
+    target.addEventListener(
+      "scroll",
+      () => {
+        moved = true;
+      },
+      { once: true },
+    );
     return {
+      moved: () => moved,
       ended: new Promise<void>((resolve) => {
         target.addEventListener(
           "scrollend",
@@ -79,13 +80,44 @@ export async function readWithKey(
       }),
     };
   }, region === "document");
-  await page.evaluate(async () => {
-    for (let frame = 0; frame < 2; frame += 1)
-      await new Promise((drawn) => requestAnimationFrame(drawn));
-  });
+}
+
+// Runs in the page: returns once it has drawn two more frames.
+async function twoDrawnFrames() {
+  for (let frame = 0; frame < 2; frame += 1)
+    await new Promise((drawn) => requestAnimationFrame(drawn));
+}
+
+// Presses a reading key, such as End or PageDown, as a developer does, and
+// waits until `region` reports `scrollend`: the key's scrolling has ended.
+// The press follows two drawn frames, because native key scrolling acts on
+// the scroll place and extent the page last drew, which lag its layout while
+// the machine is busy. Journeys read where the region stopped.
+export async function readWithKey(
+  page: Page,
+  key: string,
+  region: ReadingRegion = "board",
+) {
+  const scrolling = await hearScrolling(page, region);
+  await page.evaluate(twoDrawnFrames);
   await page.keyboard.press(key);
-  await ending.evaluate(({ ended }) => ended);
-  await ending.dispose();
+  await scrolling.evaluate(({ ended }) => ended);
+  await scrolling.dispose();
+}
+
+// Watches the Board from before a movement, such as Show latest 10's smooth
+// move to the heading: the returned wait ends two drawn frames after it is
+// asked, or, when the Board scrolled, once that scrolling has ended. A place
+// read sooner can be a move short.
+export async function watchBoardScroll(page: Page) {
+  const scrolling = await hearScrolling(page, "board");
+  return async () => {
+    await page.evaluate(twoDrawnFrames);
+    await scrolling.evaluate(({ moved, ended }) =>
+      moved() ? ended : undefined,
+    );
+    await scrolling.dispose();
+  };
 }
 
 // The Board is read to its bottom: its scroll place is as far as it scrolls.

@@ -30,7 +30,7 @@ import {
   expectPagingControlInSight,
 } from "../boardReading.ts";
 import { heldFactGroups, moreDoneTitle } from "../publishedFactsArrival.ts";
-import { revealAction } from "../recentlyDoneProgressivePage.ts";
+import { revealAction } from "../recentlyDoneColumn.ts";
 import {
   at,
   publishedFiles,

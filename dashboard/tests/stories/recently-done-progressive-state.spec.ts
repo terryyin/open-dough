@@ -14,15 +14,19 @@ import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { standaloneSessionName } from "../dashboardPage.ts";
 import { rem, scrollYOf, showColumn } from "../boardPage.ts";
+import { untilBoardRests, watchBoardScroll } from "../boardReading.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
-import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
+import {
+  expectEntries,
+  revealAction,
+  showLatestAction,
+  shownEntries,
+} from "../recentlyDoneColumn.ts";
 import { terminalScreenParts } from "../terminalScreenPage.ts";
 import {
   recordsAsked,
-  revealAction,
-  settle,
   terminalOf,
-  watchBoardScroll,
+  untilPageRests,
 } from "../recentlyDoneProgressivePage.ts";
 import {
   destination,
@@ -39,9 +43,6 @@ import { expect, keptRecord, test } from "../support/cursorStart.ts";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
-const showLatest = (recent: Locator) =>
-  recent.getByRole("button", { name: "Show latest 10" });
-
 const heading = (recent: Locator) =>
   recent.getByRole("heading", { name: "Recently done" });
 
@@ -53,13 +54,13 @@ async function collapsedFromKeyboard(
   recent: Locator,
   total: number,
 ) {
-  await showLatest(recent).focus();
+  await showLatestAction(recent).focus();
   const scrolled = await watchBoardScroll(page);
   await page.keyboard.press("Enter");
   await expect(shownEntries(recent)).toHaveCount(10);
   await expect(heading(recent)).toBeInViewport();
   await expect(recent).toBeFocused();
-  await expect(showLatest(recent)).toHaveCount(0);
+  await expect(showLatestAction(recent)).toHaveCount(0);
   await expect(recent).toContainText(`Showing 10 of ${String(total)} entries.`);
   await expectEntries(recent, names(10));
   await scrolled();
@@ -76,7 +77,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   const { github, recent } = view;
   const terminal = terminalOf(page);
   await expect(revealAction(recent)).toHaveText("Show 10 of 24 older entries");
-  await expect(showLatest(recent)).toHaveCount(0);
+  await expect(showLatestAction(recent)).toHaveCount(0);
 
   await view
     .taken(destination)
@@ -93,7 +94,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
     await revealAction(recent).click();
     await expect(view.heldCard).toContainText("Reading done story…");
     await expect(revealAction(recent)).toHaveText("Reading done stories…");
-    await expect(showLatest(recent)).toBeVisible();
+    await expect(showLatestAction(recent)).toBeVisible();
     // Entries 21 to 30 are places 21 to 31, the open 27th not among them.
     await expect
       .poll(() => recordsAsked(github).toSorted())
@@ -112,10 +113,10 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   });
 
   await test.step("the held record answering afterwards neither extends the list nor scrolls", async () => {
-    await settle(page);
+    await untilBoardRests(page);
     const scrolled = await scrollYOf(page);
     view.release();
-    await settle(page);
+    await untilPageRests(page);
     await expectEntries(recent, names(10));
     await expect(recent).toBeFocused();
     expect(await scrollYOf(page)).toBe(scrolled);
@@ -126,7 +127,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   await test.step("a fresh reveal shows twenty, reusing what was read", async () => {
     await revealAction(recent).click();
     await expectEntries(recent, names(20));
-    await settle(page);
+    await untilPageRests(page);
     expect(recordsAsked(github)).toHaveLength(asked);
   });
 
@@ -208,11 +209,11 @@ test("Show latest 10 while a Running Cursor sessions row's done entry 27 is stil
   });
 
   await test.step("the held record answering afterwards neither extends the list nor brings the entry into view", async () => {
-    await settle(page);
+    await untilBoardRests(page);
     const before = (await revealsOf(page)).length;
     const scrolled = await scrollYOf(page);
     view.release();
-    await settle(page);
+    await untilPageRests(page);
     await expectEntries(recent, names(10));
     await expect(entry).toHaveCount(0);
     await expect(recent).toBeFocused();

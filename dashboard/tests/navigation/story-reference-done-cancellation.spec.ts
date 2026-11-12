@@ -3,8 +3,12 @@ import { expect } from "../dashboardTest.ts";
 import { test } from "../storyDependencyFixture.ts";
 import { parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
-import { settle } from "../recentlyDoneProgressivePage.ts";
+import {
+  expectEntries,
+  showLatestAction,
+  shownEntries,
+} from "../recentlyDoneColumn.ts";
+import { untilPageRests } from "../recentlyDoneProgressivePage.ts";
 import { showColumn } from "../boardPage.ts";
 import { pointerDownOn, storyCard } from "../storyCardControls.ts";
 import {
@@ -52,11 +56,11 @@ test("a developer's later move or latest-ten choice supersedes a pending Done re
   await followReference(consumer, farDone.identity);
   await expect(referenceNotice(page)).toContainText("Reading Open Dough");
   await showColumn(page, "Recently done");
-  const latest = recent.getByRole("button", { name: "Show latest 10" });
+  const latest = showLatestAction(recent);
   await latest.click();
-  await expect(recent.locator(":scope > ol > li > article")).toHaveCount(10);
+  await expect(shownEntries(recent)).toHaveCount(10);
   release();
-  await settle(page);
+  await untilPageRests(page);
   await expectEntries(recent, doneTitlesThrough(10));
   await expect(destination).toHaveCount(0);
   await expect(latest).toHaveCount(0);

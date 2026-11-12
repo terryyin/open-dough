@@ -1,9 +1,12 @@
 import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
 import { test } from "../storyDependencyFixture.ts";
-import { shortRevision, parts } from "../dashboardPage.ts";
+import { columnCountOf, shortRevision, parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import { expectEntries } from "../recentlyDoneColumn.ts";
-import { recordsAsked, settle } from "../recentlyDoneProgressivePage.ts";
+import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
+import {
+  recordsAsked,
+  untilPageRests,
+} from "../recentlyDoneProgressivePage.ts";
 import { noConnection } from "../originAnswers.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { storyCard } from "../storyCardControls.ts";
@@ -45,7 +48,7 @@ test("expired and unlisted references remain unavailable without fabricated bloc
     );
     await expect(doneDestination(recent, entry.identity)).toHaveCount(0);
   }
-  await settle(page);
+  await untilPageRests(page);
   expect(githubFor(page).calls.slice(before)).toEqual([]);
   expect(recordsAsked(githubFor(page)).toSorted()).toEqual(
     donePathsThrough(10).toSorted(),
@@ -154,8 +157,8 @@ for (const observation of ["unavailable", "failed"] as const) {
         shortRevision(healed),
       );
     }
-    await expect(recent.locator(".column-count")).toHaveText("35 entries");
-    await expect(recent.locator(":scope > ol > li > article")).toHaveCount(10);
+    await expect(columnCountOf(recent)).toHaveText("35 entries");
+    await expect(shownEntries(recent)).toHaveCount(10);
     await expect(doneDestination(recent, farDone.identity)).toHaveCount(0);
     await expect(
       consumer.getByRole("region", { name: "Detail for Story A" }),
