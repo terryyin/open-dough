@@ -40,7 +40,11 @@ words rather than a control, with the quieter **Unreview** beside it. Both
 actions offer the shared touch control height. Either keeps the card at its
 place with its sessions and other actions, the shown range, the entry count,
 the selected story and the Side panel as they were, leaves the keyboard on the
-action that then shows, and is announced once. The action is offered from the
+action that then shows, and is announced once. A change that could not be
+saved, because the machine could not write its local records or the dashboard
+was not reached, leaves the card showing the state last saved, with the
+keyboard on the action still shown, and says "The review state could not be
+saved." until the action is used again and saved. The action is offered from the
 identity the done catalog names, so a card whose record is still being read,
 or could not be read, offers it too; nothing shows until the project's states
 are first read. The state belongs to the story, by project and identity, not

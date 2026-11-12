@@ -146,7 +146,7 @@ waiting for `scrollend` (`watchBoardScroll`).
 
 ### 2. Say when the review state could not be saved
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new spec's failed-save check passes with slice 1's checks.
 
 Behavior: the machine document cannot be written, or the dashboard cannot be
@@ -155,6 +155,22 @@ card keeps showing the last saved state and says "The review state could not
 be saved." in its `status`, following the wording pattern of
 `dashboard/src/pageSessions.ts:113-121`; using the action again once writing
 works saves it and clears the message.
+
+Accepted proof (slice 2): `recently-done-review-state-failed-save.spec.ts`
+with both slice-1 specs, `board-height`, `accessible-board-touch` and
+`published-facts-reading`: 15 passed after merging the CI repair; backend
+admission spec 3 passed; typecheck passed. A directory at the document's path
+does not fail a save (the store moves an unreadable document aside), so the
+spec makes the test HOME's records directory read-only instead.
+
+Whole local suite (2026-11-12, battery, `caffeinate -i`, load 7–36 from other
+work, no sleep events): `npm test` exited 1 on one job,
+`src/skills/dough-execute-plan/scripts/workspace-publication.test.mjs`
+(TIMEOUT, safety deadline 180s, reported after 1357.8s — the watchdog itself
+ran 19 minutes late); alone through `bash scripts/test.sh` it passed in 118 s
+at load 36. `npm test` does not run the dashboard browser suite
+(`test:dashboard`); that whole suite was not run locally (battery at 22%) and
+is observed by branch CI's 13 dashboard shards.
 
 ## Consumer trace and local gates
 

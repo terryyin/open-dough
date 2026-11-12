@@ -1,6 +1,7 @@
 /* A done story card's review state (./StoryReviewStateAction.tsx): the
    Reviewed words beside Unreview, which is quieter than the card's other
-   actions; its touch height follows `.start-launch-button`'s. */
+   actions, and what it says when a change could not be saved; its touch
+   height follows `.start-launch-button`'s. */
 
 .story-review-state {
   /* Holds its spoken status, so a hidden Recently done clips it with the
@@ -25,4 +26,12 @@
    silent, it has no size. */
 .story-review-state-said {
   position: absolute;
+}
+
+/* Saying a change could not be saved, it takes its own line in the row. */
+.story-review-state-said.story-review-state-failed {
+  position: static;
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--problem);
 }

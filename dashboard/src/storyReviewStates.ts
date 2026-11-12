@@ -19,7 +19,12 @@ export type StoryReviewStates = {
   readonly change: (change: StoryReviewStateChange) => Promise<void>;
 };
 
-const failure = "The review state could not be read.";
+const notRead = "The review state could not be read.";
+
+// What a card says when Mark as reviewed or Unreview could not be saved (the
+// machine could not write its local records or the dashboard was not reached),
+// and a rejected change's message when the dashboard gives none.
+export const reviewStateNotSaved = "The review state could not be saved.";
 
 async function request(project: string, change?: StoryReviewStateChange) {
   return new Set(
@@ -27,7 +32,7 @@ async function request(project: string, change?: StoryReviewStateChange) {
       await localSettingRequest(
         `${storyReviewStateEndpoint}?id=${encodeURIComponent(project)}`,
         change,
-        failure,
+        change === undefined ? notRead : reviewStateNotSaved,
       ),
     ).reviewed,
   );
