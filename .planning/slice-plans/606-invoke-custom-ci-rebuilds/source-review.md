@@ -113,19 +113,7 @@ Reviewer: `/root/source_review`, fresh `fork_turns: none` launch in this executi
 
 ## Slice 1 acceptance
 
-Source trigger → expected → observed: an admitted exact slow GitHub landing
-still sends one full repeat only after durable intent. The held POST assertion
-in `landed-ci-automatic-repeat.spec.ts` observes `intent`, one run 71 POST,
-duplicate receipt/concurrent collection, progress, 106 s slow verdict, retained
-105 s original and no resend after restart. Frozen untagged GitHub request bytes
-read with `provider: github`, retain every field and remain spent in
-`ci-follow-up-ledger.test.mjs` (failed before schema normalization, passed after).
-`ciFollowUpProvider.ts` owns provider selection; its GitHub implementation owns
-prepare/submit/observe while collection owns allowance and evidence retention.
-Source-review C66/C68–C74 accepted here. C38/C39/C59/C60 allocated to slice 2,
-which adds the custom trigger and owes its corresponding observations; current
-GitHub proof is retained as preservation evidence. All other custom commitments,
-qualifications, journeys and exclusions retain their named later slice owner.
+Real admitted slow GitHub receipt → durable intent before one run71 POST → progress/106s slow verdict with105s original → restart never resends, observed in landed-ci-automatic-repeat.spec.ts. Legacy ledger test removes provider from actual saved bytes, preserves every frozen field on read and rejects another spend; it failed before normalization and passed after. Provider prepare/submit/observe owns CI operations; collection retains allowance/evidence. C66/C68–C74 accepted here; current custom ownership remains in the table.
 
 Terminal proof (all passed):
 
@@ -137,20 +125,7 @@ npm run typecheck:dashboard
 git diff --check
 ```
 
-Playwright selected 16 tests in seven extant specs, passed in 2.7 min. Supplier
-commit `5987387021227f7a89b1520917dcd3100564b0aa` removed the named
-receipt-boundary spec; the current automatic-repeat spec's real receipt,
-durable intent, duplicate, concurrency and restart assertions own that proof.
-This supplier behavior is already inherited at pinned trunk/base
-`1117582709db72b2c3bc842ef4e388d9e6866a8d`; no incoming named sibling change.
-Current load at proof launch 17.88, AC and ~14 GiB inactive memory; one worker,
-maintained sleep guard. All command owners observed terminal success.
-Consumer trace: `/tmp/seed330-slice1-consumer-trace.md`, produced with installed
-script against claim SHA and required effect terms plus fixture helpers;
-runtime ledger/admission/boundary/retention/read model/collection consumers and
-fixture consumers are covered by the commands above. Unrelated plan basename,
-historical report, unchanged acquisition and generic workflowId matches are
-excluded with dispositions in that inspectable trace. No unresolved gap.
+16 tests across seven extant specs passed2.7min. Supplier5987387021227f7a89b1520917dcd3100564b0aa removed receipt-boundary spec; current automatic-repeat real receipt/durable intent/duplicate/concurrency/restart assertions replace it. Already inherited at trunk/base1117582709db72b2c3bc842ef4e388d9e6866a8d; no incoming sibling change. AC/load17.88/~14GiB inactive, one guarded worker, terminal success. Trace /tmp/seed330-slice1-consumer-trace.md covers runtime ledger/admission/boundary/retention/read-model/collection and fixtures; unrelated plan/history/acquisition/genericworkflowId matches excluded with dispositions. No unresolved gap.
 
 ## Slice 2 acceptance
 
@@ -229,3 +204,17 @@ caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTOR
 ```
 
 Two passed20.6s; local AC load15.47/CPU52.2%idle/~1.8GiB unused, one guarded worker. Source freshness unchanged before retry. No failure waived or older candidate delivered.
+
+## Owned CI repair after slice 3
+
+Run43241818959/1 atd73d92f9 had complete inventory: one failed dashboard(9/13) project-visit CI assertion expected four story judgment calls but saw none. Controlled causal red kept real headers+firstbyte delivered/body held: exact no-calls assertion passed, helper incorrectly settled. Added body-delivery proxy regression, awaited response.body after existing status assertion, preserved all exact3/4 scoped calls, return reuse and final readings. The read-only journey now uses dashboardTest's same real preview/server/FakeGitHub boundary instead of unused preparation-origin setup. Earlier403 harness and preparation-deadline attempts were invalid causal evidence, explicitly fixed without timeout relaxation.
+
+```sh
+caffeinate -s -i npm run test:dashboard -- dashboard/tests/intent/intent-project-visit-ci.spec.ts --workers=1
+caffeinate -s -i npm run test:dashboard -- 'dashboard/tests/observation/auto-refresh.*\.spec\.ts' dashboard/tests/observation/shared-observer-check-reuse.spec.ts dashboard/tests/intent/intent-ci-status-story.spec.ts dashboard/tests/intent/intent-ci-status-kept.spec.ts dashboard/tests/intent/intent-ci-comparison-taken.spec.ts dashboard/tests/intent/intent-ci-wall-time-history-pending.spec.ts --workers=1
+git diff --check
+```
+
+Whole causal journey and20tests/13files terminal pass. Proof covers changed/unchanged200,502,held subsequent detail/backlog reads,branchmovement,focus,cancellation/isolation,visibility,directed rate limits/sharedreuse,CIjudgments/comparison/pendinghistory. Trace /tmp/dough-ci-header-body-consumer-trace.md disposes108 rows (13run,45reused CURRENT equivalent helper completion boundary,50unrelated exclusions); other product journeys not individually rerun. AC/load27.49/CPU49.35%idle/~789MiB unused, one guarded worker; no other owner's work touched. Freshness unchanged at newtrunk87a8a7178fd4319eba12b24a144c86f6c7199fb8; incoming review-story work does not alter failed spec/helper, named supplier already inherited. Slice4 quiescent/stashed under retained record. Independent refactor_ci2 returned `## REFACTOR COMPLETE`: none — already clean; no proof rerun, all108 consumer dispositions accepted at their stated helper boundary, no separate product-journey claim.
+
+CI repair2 mechanical delivery corrections: fresh context first required unchanged PLAN in ownedPaths, then formatting caught unused first HTTP callback parameter and a no-unused-expression close callback. Skip the unused tuple parameter and use an explicit if/else in the same accepted helper; runtime forwarding/cleanup/observations unchanged. Already traced within refactor_ci2's accepted path, prior behavior proof retained. No commit/publication on refused attempts.
