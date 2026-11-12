@@ -3,33 +3,28 @@
 // done story's card holding its sessions, the gaps in what could be read, the
 // one action that shows the next ten older entries, and, beside the heading
 // while more than ten show, the one that shows only the latest ten again
-// (`./RecentlyDoneRangeActions.tsx`). The keyboard in the list keeps a useful
-// place across a refresh (`./recentlyDoneFocus.ts`).
+// (`./RecentlyDoneRangeActions.tsx`). Each entry is a session or a done
+// story's card (`./RecentlyDoneEntry.tsx`); the cards share the project's CI
+// follow-ups and story review states, each read once per project. The
+// keyboard in the list keeps a useful place across a refresh
+// (`./recentlyDoneFocus.ts`).
 
-import { CiFollowUpCard, useCiFollowUps } from "./CiFollowUpViews.tsx";
-import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
+import { useCiFollowUps } from "./CiFollowUpViews.tsx";
 import { useRef } from "react";
-import type { CataloguedDoneRecord } from "../../src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import { launchRetentionDays } from "./agentLaunch.ts";
 import { entryCount } from "./columnSummary.ts";
 import { CreationEntry } from "./CreationEntry.tsx";
 import { columnMark } from "./columnPaging.ts";
-import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { ShowLatest, ShownRange } from "./RecentlyDoneRangeActions.tsx";
-import { readingDoneStory, type DoneDetail } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
-import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
-import {
-  recentlyDoneName,
-  type Listed,
-  type RecentlyDoneView,
-} from "./recentlyDoneView.ts";
-import { SessionEntry } from "./SessionEntry.tsx";
+import { recentlyDoneName, type RecentlyDoneView } from "./recentlyDoneView.ts";
+import { ListedEntry } from "./RecentlyDoneEntry.tsx";
 import { SessionList } from "./SessionLists.tsx";
 import { sessionKey } from "./sessionReference.ts";
+import { useStoryReviewStates } from "./storyReviewStates.ts";
 import "./agent-launch.css";
 import "./recently-done.css";
 
@@ -65,97 +60,6 @@ function DoneReadGaps({ view }: { readonly view: RecentlyDoneView }) {
   );
 }
 
-// What an entry's story card says until its record is read.
-function unreadWords(
-  detail: DoneDetail,
-  file: string,
-): { readonly words: string; readonly gap: boolean } | undefined {
-  switch (detail.status) {
-    case "read":
-      return undefined;
-    case "reading":
-      return { words: readingDoneStory, gap: false };
-    case "failed":
-      return { words: "This done story could not be read.", gap: true };
-    case "unreadable":
-      return { words: unreadableDoneRecord(file, detail.problem), gap: true };
-  }
-}
-
-function ListedEntry({
-  each,
-  detailOf,
-  revision,
-  sourceId,
-  project,
-  launches,
-  selectedIdentity,
-  onSelect,
-  ciFollowUps,
-}: {
-  readonly ciFollowUps: CiFollowUpAnswer | undefined;
-  readonly each: Listed;
-  readonly detailOf: (record: CataloguedDoneRecord) => DoneDetail;
-  // The revision the shown done records are read at.
-  readonly revision: string;
-  readonly sourceId: string;
-  readonly project: string;
-  readonly launches: MachineSessions;
-  readonly selectedIdentity: string | undefined;
-  readonly onSelect: (identity: string) => void;
-}) {
-  if (!("record" in each)) {
-    return (
-      <SessionEntry
-        record={each.session}
-        onStoryCard={false}
-        followUp={
-          <SessionFollowUp
-            record={each.session}
-            project={project}
-            sourceId={sourceId}
-            launches={launches}
-          />
-        }
-      />
-    );
-  }
-  const { record, sessions } = each;
-  const detail = detailOf(record);
-  return (
-    <DoneStoryCard
-      identity={record.identity}
-      completedAt={record.completedAt}
-      story={detail.status === "read" ? detail.story : undefined}
-      said={unreadWords(detail, record.fileName)}
-      sessions={sessions}
-      sourceId={sourceId}
-      launchRecords={launches.records}
-      selected={selectedIdentity === record.identity}
-      onSelect={onSelect}
-      ciFollowUp={
-        <CiFollowUpCard
-          answer={ciFollowUps}
-          identity={record.identity}
-          project={sourceId}
-        />
-      }
-      followUp={
-        detail.status === "read" && (
-          <StoryFollowUp
-            story={detail.story}
-            revision={revision}
-            sessions={sessions}
-            project={project}
-            sourceId={sourceId}
-            launches={launches}
-          />
-        )
-      }
-    />
-  );
-}
-
 export function RecentlyDone({
   view,
   sourceId,
@@ -169,6 +73,7 @@ export function RecentlyDone({
   readonly launches: MachineSessions;
 }) {
   const ciFollowUps = useCiFollowUps(sourceId);
+  const reviewStates = useStoryReviewStates(sourceId);
   const section = useRef<HTMLElement>(null);
   const { selectedIdentity, toggle } = useStorySelection(sourceId);
   const {
@@ -224,6 +129,7 @@ export function RecentlyDone({
               <ListedEntry
                 each={each}
                 ciFollowUps={ciFollowUps}
+                reviewStates={reviewStates}
                 detailOf={details.detailOf}
                 revision={view.revision}
                 sourceId={sourceId}
