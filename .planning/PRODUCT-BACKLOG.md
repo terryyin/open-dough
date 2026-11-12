@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Speed up Cursor session checks](seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) — SEED-313#speed-up-cursor-session-checks ([plan](slice-plans/593-speed-up-cursor-session-checks/PLAN.md))
 - [Speed up landed CI repeat checks](seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) — SEED-314#speed-up-landed-ci-repeat-checks ([plan](slice-plans/595-speed-up-landed-ci-repeat-checks/PLAN.md))
 - [Open the terminal only when no custom instruction is supplied](seeds/SEED-320-conditional-terminal-opening.md#open-terminal-only-without-a-custom-instruction) — SEED-320#open-terminal-only-without-a-custom-instruction ([plan](slice-plans/597-open-terminal-only-without-a-custom-instruction/PLAN.md))
-- [Speed up provider rate-limit checks](seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) — SEED-315#speed-up-provider-rate-limit-checks ([plan](slice-plans/598-speed-up-provider-rate-limit-checks/PLAN.md))
 
 ## Backlog list
 

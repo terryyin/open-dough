@@ -13,7 +13,7 @@ story is completed or dropped by this administrative handoff.
 | 2 | [SEED-312 — touch review](https://github.com/terryyin/open-dough/blob/03dff46c07c05315a026cafac77fccdbf30234bc/.planning/seeds/SEED-312-touch-review-checks.md#speed-up-touch-review-checks) | Former 7; real touch, pane/file and reading-position/viewport promises SC-50–51/54. |
 | 3 | [SEED-313 — Cursor sessions](../../seeds/SEED-313-cursor-session-checks.md#speed-up-cursor-session-checks) | Former 8; holding/replacement, recorded scope, refusal/no-spawn and revival SC-56–60. |
 | 4 | [SEED-314 — automatic repeat](../../seeds/SEED-314-landed-ci-repeat-checks.md#speed-up-landed-ci-repeat-checks) | Former 10; real receipt/collection/admission, threshold, exactly once, restart and distinct outcomes SC-64–69. |
-| 5 | [SEED-315 — provider rate limits](../../seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) | Former 5; deadline/recovery/cadence SC-42–46 and unresolved clock-authority G5. |
+| 5 | [SEED-315 — provider rate limits](https://github.com/terryyin/open-dough/blob/50fef3f8998ab463d05958acce039ea9204f2d4f/.planning/seeds/SEED-315-provider-rate-limit-checks.md#speed-up-provider-rate-limit-checks) | Former 5; deadline/recovery/cadence SC-42–46 and unresolved clock-authority G5. |
 | 6 | [SEED-303 — remaining checks](../../seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks) | Former 6/9 plus existing pin 2 and narrowed verification 11; profile SC-47–49/52–53/55, pending Take SC-61–63 and pin SC-36. |
 
 Former slice 1's baseline and repaired waits/preconditions, slice 2's source
