@@ -37,7 +37,10 @@ interrupted=
 # shellcheck disable=SC2329 # Invoked by the EXIT trap below.
 cleanup() {
   if [ -n "${child}" ]; then
-    kill -TERM "${child}" 2> /dev/null || :
+    # A just-forked child still runs this shell's TERM trap until it resets
+    # its traps and drops a TERM caught meanwhile; KILL cannot be caught, so
+    # the wait below cannot outlast a child that missed its signal.
+    kill -KILL "${child}" 2> /dev/null || :
     wait "${child}" 2> /dev/null || :
   fi
   if [ -n "${reply}" ]; then rm -rf "${reply}"; fi

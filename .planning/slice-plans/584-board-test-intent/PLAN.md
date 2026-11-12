@@ -307,6 +307,15 @@ About 60 mechanics sites removed (28 `settle`, 19 `.column-count`, Show
 latest, watchers, wheels); helpers about +36 lines. O2 refresh sites and the
 O6 read-latency and recently-done-stories credit sites were migrated.
 
+CI repair after slice 6 (run 43259996446/1,
+`authenticated-read-plugin-hooks.spec.ts:33`: a held `gh` was still alive
+after the server closed). The shell `fake-gh` exit cleanup sent TERM to a
+just-forked child, which can drop it while still running the parent's trap,
+so `gh` waited forever on `curl`. Cleanup now sends KILL. A direct
+reproduction left 16–33 of 600 stuck before the fix and none after. Proof
+after the fix: the focused trio ×20 passed 240/240, and the backend
+observation and runtime folders passed 307/307.
+
 ### 7. Read arriving facts and retained cards through shared observations
 Type: Behavior
 Status: planned
