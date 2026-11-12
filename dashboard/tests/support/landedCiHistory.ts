@@ -192,7 +192,10 @@ export function keptLandedCiHistory(home: string): {
 }
 
 // Keeps `history` as Open Dough's in the machine's history file, as
-// collection would have left it.
+// collection would have left it. This write does not take the machine JSON
+// lock: stop any collecting dashboard on `home` first (close it, or
+// `restartAsLandedCiReader`) so a concurrent `replaceMachineJson` cannot
+// restore the previous document over the kept history.
 export function keepLandedCiHistory(
   home: string,
   history: ProjectHistory,

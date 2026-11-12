@@ -86,18 +86,18 @@ test("new current reference and history eviction cannot rewrite the frozen decis
   const { keepLandedCiHistory } =
     await import("../../tests/support/landedCiHistory.ts");
   const scenario = await prepareRepeatScenario(origin, github, 120);
-  const server = await startServer();
-  await followUpSettings(server, true);
-  await scenario.ingest(server);
+  const collecting = await startServer();
+  await followUpSettings(collecting, true);
+  await scenario.ingest(collecting);
   await expect.poll(() => scenario.repeatCalls.length).toBe(1);
   scenario.setRepeat({ status: "in_progress" });
   await expect
-    .poll(() => followUpSettings(server))
+    .poll(() => followUpSettings(collecting))
     .toMatchObject({ body: { cards: [{ kind: "progress" }] } });
   const stored = (
     JSON.parse(
       readFileSync(
-        join(server.home, ".open-dough/dashboard/landed-ci-history.json"),
+        join(collecting.home, ".open-dough/dashboard/landed-ci-history.json"),
         "utf8",
       ),
     ) as Record<string, ProjectHistory>
@@ -141,7 +141,12 @@ test("new current reference and history eviction cannot rewrite the frozen decis
         .please(),
     );
   }
-  keepLandedCiHistory(server.home, builder.please());
+  // Unlocked keepLandedCiHistory must not race a live collector's
+  // replaceMachineJson, or the rewritten 300s average is lost and the poll
+  // stays at the collected 100s reference (CI shard flake).
+  await collecting.close();
+  keepLandedCiHistory(collecting.home, builder.please());
+  const server = await startServer();
   await expect
     .poll(() => landedCiHistory(server))
     .toMatchObject({ body: { reference: { averageMs: 300000 } } });
@@ -163,13 +168,8 @@ test("new current reference and history eviction cannot rewrite the frozen decis
   expect(await landedCiHistory(server)).toMatchObject({
     body: { reference: { selected: { key: "run/71/1", ms: 120000 } } },
   });
-  keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
-  expect((await followUpSettings(server)).body.cards[0]).toMatchObject({
-    kind: "slow",
-    averageMs: 100000,
-    originalMs: 120000,
-  });
   await server.close();
+  keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
   const restarted = await startServer();
   await expect
     .poll(() => landedCiHistory(restarted))
@@ -179,6 +179,7 @@ test("new current reference and history eviction cannot rewrite the frozen decis
   expect((await followUpSettings(restarted)).body.cards[0]).toMatchObject({
     kind: "slow",
     averageMs: 100000,
+    originalMs: 120000,
     repeatMs: 106000,
   });
   expect(scenario.repeatCalls).toEqual([71]);
