@@ -25,7 +25,7 @@ reproduced both historical overflows and passed the repaired journey. The
 [prior assessment](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#priority-assessment)
 records the original selection. [DD-473](#dd-473), [DD-479](#dd-479) and the
 dashboard load facet of [DD-476](#dd-476) remain covered by
-[SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+[SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
 [DD-486](#dd-486) records two late TypeScript refusals caught by the project's
 commit hook. No new local response was selected.
 
@@ -409,7 +409,7 @@ selects no new implementation story.
   - Observed effect: Three focused failures that the change did not cause, plus base and diff comparison runs to show that.
   - Inference: The journey's unloaded time is about half its timeout, so external load alone can push it past 30 s. Splitting the setup from the reviewed reading, or reusing a prepared integration, would restore margin. Load attribution rests on start and end load readings only (see DD-275).
 
-**Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+**Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
 
 ## Whole local suites under external load fail untouched journeys (dashboard response Taken)
 
@@ -448,7 +448,7 @@ selects no new implementation story.
 
 **Response:** The per-job deadline and bounded process cleanup landed in
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
-[SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
+[SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)
 is Taken and covers the dashboard load failures.
 
 ## `start-origin-isolation` successive preparations exceeded the 30 s default under external load (queued)
@@ -468,7 +468,7 @@ is Taken and covers the dashboard load failures.
   - Observed effect: One focused-run failure the change did not cause, plus an isolated rerun to classify it.
   - Inference: Its real working-tree installations take over a third of the timeout unloaded and most of it under load. Reusing one prepared installation across the successive preparations, or splitting them, would restore margin.
 
-**Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
+**Queued, not resolved:** covered by [SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
 
 ## A consumer selection built on the native import-closure tool drops crashed files (open, unqueued)
 
