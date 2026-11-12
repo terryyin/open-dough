@@ -72,11 +72,12 @@ export type LaunchAttempts = StartupRecoveries & {
   ): Promise<StartAnswer>;
   // Asks for an ad hoc session in the project, with the developer's optional
   // first message, following up `followUp` when given, and answers as
-  // `start` does.
+  // `start` does. `presentTerminal` is called with the started session only
+  // when the request carried no instruction.
   startAdHoc(
     sourceId: string,
     choices: LaunchChoices,
-    onLaunched: OnLaunched,
+    presentTerminal: OnLaunched,
     followUp?: FollowUpSource,
   ): Promise<StartAnswer>;
   // The project's ad hoc launch from this page in flight, or its last failed

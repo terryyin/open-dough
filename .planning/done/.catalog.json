@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-320_open-terminal-only-without-a-custom-instruction.json",
+      "identity": "SEED-320#open-terminal-only-without-a-custom-instruction",
+      "completedAt": "2026-11-12T04:05:18.357Z",
+      "blob": "c2faef3d8ed85ed7c519b102e5ffe0442ab146c0"
+    },
+    {
       "fileName": "SEED-316_prove-swipe-under-button-event-tracking.json",
       "identity": "SEED-316#prove-swipe-under-button-event-tracking",
       "completedAt": "2026-11-12T02:26:32.566Z",

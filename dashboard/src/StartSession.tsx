@@ -8,16 +8,21 @@
 // default main has existing changes there confirmed in the dialog before
 // anything starts (`LaunchExistingChanges`). The dialog closes once the local
 // service accepted the launch, leaving the keyboard on what says, beside the
-// button, that the startup goes on while the button waits for it. A started
-// session then opens in the page's terminal, with the keyboard in it unless
-// the developer moved it meanwhile (`keyboardRestsOn`), and Close returns
-// the keyboard to the button. A session whose terminal the developer already
-// opened themselves during the startup is left as they left it: closed stays
-// closed, open stays open (`presentTerminal`). The dialog's mechanics,
-// including the keyboard's return to the button when nothing was accepted,
-// belong to `LaunchDialog`. A launch that did not start, or may not have, says so
-// beside the button, which stays enabled to start again. Nothing here makes
-// a card or a story.
+// button, that the startup goes on while the button waits for it. A session
+// started with nothing typed waits for the developer, so it opens in the
+// page's terminal, with the keyboard in it unless the developer moved it
+// meanwhile (`keyboardRestsOn`), and Close returns the keyboard to the
+// button. A session whose terminal the developer already opened themselves
+// during the startup is left as they left it: closed stays closed, open
+// stays open (`presentTerminal`). A session started with a typed message
+// presents nothing: the Side panel stays as it is, the session's entry
+// offers Open terminal, and the button takes the keyboard back if it still
+// rests on the startup's progress (`startAdHoc` decides which, attached
+// images and a follow-up's context not counting as typed). The dialog's
+// mechanics, including the keyboard's return to the button when nothing was
+// accepted, belong to `LaunchDialog`. A launch that did not start, or may
+// not have, says so beside the button, which stays enabled to start again.
+// Nothing here makes a card or a story.
 //
 // An entry in Recently done that no longer offers Open terminal opens the
 // same dialog from its Follow up (`followUp`), with the same choices and

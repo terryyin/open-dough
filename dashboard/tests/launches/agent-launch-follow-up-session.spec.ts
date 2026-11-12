@@ -4,9 +4,11 @@
 // session and listing the context it supplies; Start sends that context with
 // the request to the synthetic `claude` (./fixtures/fake-claude), the new
 // session reads in Taken labelled by its request, and the source stays Done
-// and unchanged. A Done session that still offers Open terminal offers no
-// Follow up until its conversation is confirmed unavailable. The first
-// input's order with reporting and an established workspace:
+// and unchanged. With typed text the Side panel stays closed and the keyboard
+// returns to Follow up; with only whitespace the new session's terminal
+// opens with the keyboard. A Done session that still offers Open terminal
+// offers no Follow up until its conversation is confirmed unavailable. The
+// first input's order with reporting and an established workspace:
 // ../../backend-tests/launches/agent-launch-follow-up-boundary.spec.ts;
 // identity and retries: agent-launch-follow-up-identity.spec.ts there.
 
@@ -33,6 +35,8 @@ import {
 } from "../support/followUpSources.ts";
 import { radio } from "../support/sessionDialog.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
+import { launchWaitMs } from "../support/launchWait.ts";
+import { sidePanelContents } from "../support/sidePanelContents.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -59,7 +63,7 @@ const followUp = (entry: Locator, title: string) =>
 const contextList = (dialog: Locator) =>
   dialog.getByRole("list", { name: "Follow-up context" }).getByRole("listitem");
 
-test("a Done session whose workspace is gone offers Read final report and Follow up; Start sends the context with the request and leaves the source as it was", async ({
+test("a Done session whose workspace is gone offers Read final report and Follow up; Start sends the context with the request, opens nothing, returns the keyboard to Follow up and leaves the source as it was", async ({
   page,
   dashboard,
   launchJourney,
@@ -103,6 +107,12 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   await expect(started).toBeVisible();
   await expect(dialog).toBeHidden();
   await expect(started).not.toContainText(retiredTitle);
+  // The startup ended: its button is available again and holds the keyboard,
+  // and the Side panel is still closed.
+  await expect(followUp(entry, retiredTitle)).toBeFocused({
+    timeout: launchWaitMs,
+  });
+  await expect(sidePanelContents(page)).toHaveCount(0);
   expect(dashboard.claudeLaunchCalls()).toEqual([
     {
       argv: [
@@ -136,7 +146,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   ).toEqual(source);
 });
 
-test("a Done session that still opens its terminal offers no Follow up until its conversation is confirmed unavailable, then a blank follow-up sends the context alone", async ({
+test("a Done session that still opens its terminal offers no Follow up until its conversation is confirmed unavailable, then a whitespace-only follow-up sends the context alone and opens the new session's terminal", async ({
   page,
   dashboard,
   launchJourney,
@@ -169,9 +179,17 @@ test("a Done session that still opens its terminal offers no Follow up until its
   ]);
 
   dashboard.claudeScenario("launched");
+  await startSessionField(dialog).fill(" \t\n ");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
   await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+  // The context is not typed text: the terminal opens with the keyboard.
+  await expect(
+    sidePanelContents(page).locator(".xterm-helper-textarea"),
+  ).toBeFocused({
+    timeout: launchWaitMs,
+  });
+  await expect(sidePanelContents(page)).toHaveAccessibleName("Terminal");
   const [call] = dashboard.claudeLaunchCalls();
   expect(call?.argv.at(2)).toMatch(
     /^Open Dough · Ad hoc · \d{1,2} \w{3}, \d\d:\d\d$/,

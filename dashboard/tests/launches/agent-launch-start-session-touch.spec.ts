@@ -19,6 +19,7 @@ import {
   phoneLaunchTouchViewport,
   typeInstructionLine,
 } from "../touchLaunchPage.ts";
+import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
 
 const defaultMainEffects =
   "Default main · Automatically land The session runs in this project's folder on default main, with its existing changes; verified results land on origin without another review. Pressing Start authorizes that push.";
@@ -122,11 +123,10 @@ test.describe(`${name} touch session editing`, () => {
         ?.split("\n\nDashboard reporting context:")[0],
     ).toBe(draft);
     dashboard.releaseHeldClaude();
-    const terminal = page.getByRole("region", { name: "Terminal" });
-    await expect(terminal).toBeVisible({ timeout: 30_000 });
-    await closeSidePanel(terminal);
+    const entry = parts(page).taken.locator(".session-entry");
+    await closeSidePanel(await startedSessionTerminal(page, entry));
     await expect(parts(page).adHocStarted).toHaveCount(0);
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(entry).toHaveCount(1);
     await expect(launcher).toBeEnabled();
     expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
   });

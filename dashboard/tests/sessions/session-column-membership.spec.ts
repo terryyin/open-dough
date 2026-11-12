@@ -18,11 +18,6 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "../dashboardPage.ts";
-import {
-  startSession,
-  startSessionDialog,
-  startSessionField,
-} from "../launchStoryCardPage.ts";
 import { keepLaunchRecords } from "../support/launchStore.ts";
 import {
   briefDoneRenameWait,
@@ -38,6 +33,7 @@ import {
 } from "../recentlyDoneRecords.ts";
 import { keptSessions } from "../recentlyDoneSessions.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { startAdHocAndClose } from "../support/startedAdHocSession.ts";
 test.use({
   projectFolders: ["open-dough", "doughnut"],
   extraEnv: briefDoneRenameWait,
@@ -153,13 +149,8 @@ test("an actual no-story Start has one local Taken entry; direct Done refusal st
   dashboard.claudeScenario("launched");
   await publishMembership(page);
   await page.goto("/");
-  await startSession(page, "Open Dough").click();
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSessionField(dialog).fill("inspect local work");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await startAdHocAndClose(page, "Open Dough", "inspect local work");
   const terminal = page.getByRole("region", { name: "Terminal" });
-  await expect(terminal.locator(".xterm-rows")).toContainText("attached");
-  await terminal.getByRole("button", { name: "Close" }).click();
   const active = localEntries(page);
   await expect(active).toHaveCount(1);
   const native = await sessionNamedBy(active);
@@ -215,13 +206,7 @@ test("deleting its last local Taken entry returns the keyboard to Taken and sett
   dashboard.claudeScenario("launched");
   await publishMembership(page);
   await page.goto("/");
-  await startSession(page, "Open Dough").click();
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSessionField(dialog).fill("the only local session");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const panel = page.getByRole("region", { name: "Terminal" });
-  await expect(panel.locator(".xterm-rows")).toContainText("attached");
-  await panel.getByRole("button", { name: "Close" }).click();
+  await startAdHocAndClose(page, "Open Dough", "the only local session");
   dashboard.claudeListingFails(true);
   await reloadUntilRead(page);
   const entry = localEntries(page);

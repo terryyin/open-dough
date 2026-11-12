@@ -43,6 +43,7 @@ import {
   worktree,
   worktrees,
 } from "../support/startSessionLanding.ts";
+import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
 
 const inNew = "The session runs in a new workspace under .worktrees/";
 const carries =
@@ -161,10 +162,10 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   expect(git(origin.project, "branch", "--show-current")).toBe("main");
   expect(status(origin.project)).toBe("");
 
-  // The session opened in the page's terminal, whose toolbar names the
-  // session and no workspace. Once the worktree is gone, the entry says its
-  // saved workspace is missing and the final report names that worktree.
-  const terminal = page.getByRole("region", { name: "Terminal" });
+  // The session's terminal has a toolbar that names the session and no
+  // workspace. Once the worktree is gone, the entry says its saved workspace
+  // is missing and the final report names that worktree.
+  const terminal = await startedSessionTerminal(page, entry);
   await expect(terminal).toContainText(text);
   await expect(terminal).toContainText("Ad hoc session");
   await expect(terminal).not.toContainText(".worktrees");

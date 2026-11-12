@@ -142,9 +142,14 @@ At handoff the keyboard goes to what says the startup: the story's card, which
 its status describes, or Start session's progress, never the unavailable action.
 Every unavailable card action is described by the card's status; a Start waiting
 for this machine's first read is described by why. A settled launch presents its
-session on the card, or in the terminal for Start session, and moves the
-keyboard there only while it still rests where handoff left it. Start session
-leaves a terminal the developer opened during its startup as they left it,
-closed or open, and moves no keyboard. A polite “Startup announcements” log says
+session on the card, or in the terminal for a Start session or Follow up with
+nothing typed, and moves the keyboard there only while it still rests where
+handoff left it. Start session leaves a terminal the developer opened during
+its startup as they left it, closed or open, and moves no keyboard. A Start
+session or Follow up with typed text presents nothing: the Side panel stays as
+it is, open or closed, the session's entry in Taken and the Sessions sidebar
+offers Open terminal, and the launching button takes the keyboard back while
+it still rests on the startup's progress. Attached images and a follow-up's
+context are not typed text. A polite “Startup announcements” log says
 each story's move to in progress, waiting, needs reconciliation and reconciled
 once, however many reads find it unchanged.

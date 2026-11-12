@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 495. Removed numbers are never reused.
+- Highest allocated local number: 497. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -76,6 +76,15 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Published slice 2 `f31723244` linked delegation to new `test-entry-rules.md` before declaring that reference/runtime closure; CI run43010890708/1 test3/3 failed `tests/payload-declaration-links.sh`. Repair `e2806cc5e` added the complete closure and ran real install/update plus grouped/historical declaration readers. Recover proof at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/ci-repair-observations.md`.
   - Observed effect: one owned dependency-closure CI failure, paused next-slice work and an independent repair before resuming. The same run's watcher teardown budget defect had a separate accepted solution; it is not attributed to this omission.
   - Inference: linking promoted runtime prose makes its delivery inventory an immediate consumer; a later installation slice does not postpone that compatibility proof. Matches ODF-150's indirect-consumer omission; no new framework or duplicate finding is needed.
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: unknown (2026-11-12, about 09:55–10:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 changed `dashboard/tests/support/cursorSessionReading.ts` `openTakenCursorSession`. The implementation return listed its consumers as the Cursor session specs of the plan's premises table and ran those; the refactor agent's trace found `support/cursorSessionRecovery.ts` also calls it, reaching nine more specs (`cursor-session-recovery-wait`, `-restart`, `-replacement`, `cursor-runner-replacement`, `-controls`, `cursor-runner-helper-survival`, `cursor-session-scope-continuation`, `-noninterference`, `cursor-session-alerts`). The coordinator computed the transitive importers (22 specs) and ran them before publishing `43782e67d`.
+  - Observed effect: one extra 7-minute local run before publication; no failure reached CI from this cause.
+  - Inference: the implementer selected proof from the plan's list of failing specs, not from importers of the support module it changed; the consumer-trace output was dominated by plan-file matches.
+
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -619,6 +628,14 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 591 holds 112 rows for a three-slice story, among them U1 ("Context: the developer is reading on a small screen…"), nine X5 rows restating the story's automated-proof limit and seven trigger rows (K1.0–K7.0). The coordinator recorded one `observed:` per row through about 110 `record` invocations in three batches and re-recorded three rows when a later slice renamed a test helper.
   - Observed effect: every promise had an inspected location at acceptance, and the U11 row exposed one promise with no automated assertion. The context, trigger and proof-method rows added cells whose text restates setup or the story's own limit.
   - Inference: the reviewer brief asks for "trigger/journey examples and exclusions" beside commitments without separating which need an observation; the cost here is qualified, as no time was measured.
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at slice 2 acceptance)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 597 holds 44 rows for a two-slice story, among them 1.4 ("Reason for 1.3: a session started with nothing typed waits for the developer"), 3.3, 5.5 ("5.1 to 5.4 are existing behavior that is retained, not new behavior") and 9.3, which restate a reason or another row. The coordinator recorded 44 `observed:` cells in one batch; five (1.4, 5.5, 8.1, 8.2, 5.4) cite an unchanged product location because no assertion can observe a reason or an absence.
+  - Observed effect: every promise had a location at acceptance; the reason and restatement rows added cells that repeat neighbouring rows.
+
 
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 
@@ -656,3 +673,33 @@ asking what else the step's presence had detected.
   - Evidence: plan 592's premise row found that skipping the context journey's early commit choice fails the later Commits beat, so slice 4 moved the choice there and dropped the return to All changes. Neither the plan nor the first slice 4 return named an owner for "the chosen range survives leaving Commits", which the removed sequence had detected. At acceptance the coordinator returned the slice; fault FR failed the removed step on `d7622bc2b`, no touch case afterwards, and two desktop checks (`story-review-commit-ranges.spec.ts:80`, `story-review-commit-refresh.spec.ts:96`) found by running the review family (183 cases, 1,227 s at load 34–49).
   - Observed effect: one returned slice and a family run to find an owner the plan could have named; the same run surfaced five load-only failures in untouched review specs, recorded in `ProjectFindings.md` under DD-476.
   - Inference: the story's surviving-proof rule was applied to removed assertions and cases, not to behavior a removed step proved incidentally. Planning a removal could list each fault the step fails today, not only the assertion that motivated keeping part of it.
+
+## DD-496 — An intermittent local failure in a journey the slice changed was attributed to machine load, and hosted CI failed it on a deterministic cause
+
+A changed browser journey failed in some local runs at the 30 s test timeout while other, unchanged journeys timed out from fixture time under external load. Three agents classed it with them and the slice was published; the journey had its own defect.
+
+### Occurrences
+
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: 2026-11-12T02:17:28Z (hosted CI run of the failing job; local runs 09:10–10:10+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1's shared step `startedSessionTerminal` first waited for the session's Taken entry. `launches/agent-launch-start-session-touch.spec.ts:32` then failed locally in 2 of 4 implementer runs and both refactor-agent runs, each at that wait, under load averages 31–46; its trace showed fixtures taking 22–23 s. The plan Outcome, the refactor return and the coordinator's acceptance recorded it as load beside `responsive-session-access.spec.ts:44`. Hosted CI run 43139863774 failed only that journey at the same line. Cause: a terminal covering a narrow page sets `aria-hidden` on the page column (`dashboard/src/PageFrame.tsx`), so the role locator finds no entry while the terminal is shown; the wait passed only when the entry rendered first. Repair `b6f325ffb`.
+  - Observed effect: one owned CI failure, a stash and restore of slice 2's uncommitted work, and one repair commit.
+  - Inference: the failure's line was inside code the slice added, unlike the unchanged journeys that timed out in fixtures or polls; that difference was visible in the first failing log and was not used to separate it. The base-content comparison the coordinator ran for two other specs was not run for this one.
+
+## DD-497 — A plan premise that two entry points share a component stood in for observing the second entry point's keyboard outcome
+
+The plan settled "the page rule is one condition for Start session and Follow up alike" by noting that Follow up renders the same component, and promised the keyboard return for both. The second entry point sits inside a list with its own focus rescue.
+
+### Occurrences
+
+- Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
+  - Timestamp: unknown (2026-11-12, slice 2 implementation, about 10:15–10:40+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 597's premises table: "The scratch condition typechecked and changed the outcome. `dashboard/src/FollowUp.tsx` renders the same `StartSession`." Its planning scratch run asserted no keyboard position after an instructed Follow up. In slice 2 the implementer's new assertion found the keyboard on the source entry: Recently done's held-entry rescue (`dashboard/src/recentlyDoneFocus.ts`, a layout effect) ran before the launcher's return (`dashboard/src/launchDialogLauncher.ts`, then an effect). The implementer stopped that path; the coordinator kept the story's example and the fix landed in `708ce1ab4`.
+  - Observed effect: one implementer stop and resume, and a focus-timing change to every launch dialog that the plan had not sized.
+  - Inference: shared rendering settles what is requested, not what surrounds the component; the keyboard promise depended on the surroundings.

@@ -142,10 +142,12 @@ async function expectDirectionOpensBeneath(
   await expectNoSidewaysScrollIn(page, projectActions);
 }
 
-async function startWithTypedText(page: Page) {
+// Starts a session from the dialog. One with no typed text opens in the
+// terminal once it starts.
+async function startSessionWith(page: Page, text: string) {
   await tapWhereShown(startSession(page, "Open Dough"));
   const dialog = startSessionDialog(page, "Open Dough");
-  await startSessionField(dialog).fill("Review the current work.");
+  await startSessionField(dialog).fill(text);
   await tapWhereShown(
     dialog.getByRole("button", { name: "Start", exact: true }),
   );
@@ -166,7 +168,7 @@ test.describe("390×844 touch, held", () => {
     await expect(launcher).toBeVisible();
     const before = await rowAt(page, phone.portrait);
 
-    await startWithTypedText(page);
+    await startSessionWith(page, "");
     const progress = parts(page).projectActions.locator(
       ".start-session-answer",
     );
@@ -206,7 +208,7 @@ for (const { scenario, words, answer } of answers) {
         upright: await rowAt(page, phone.portrait),
       };
 
-      await startWithTypedText(page);
+      await startSessionWith(page, "Review the current work.");
       const shown = answer(page);
       await expect(shown).toBeVisible({ timeout: 30_000 });
 

@@ -19,6 +19,7 @@ import {
 } from "../support/dashboardServer.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
+import { startedSessionTerminal } from "../support/startedSessionTerminal.ts";
 
 test.use({ projectFolders: ["open-dough", "pygardon"] });
 
@@ -62,8 +63,8 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     );
     await startSessionField(dialog).fill(text);
     await dialog.getByRole("button", { name: "Start", exact: true }).click();
-    const panel = page.getByRole("region", { name: "Terminal" });
     const recent = page.locator(".board .session-entry");
+    const panel = await startedSessionTerminal(page, recent);
     await expect(panel.locator(".xterm-rows")).toContainText(
       "GPT-6.1-Sol default",
     );
@@ -149,7 +150,11 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       native.threadId,
     ]);
     await panel.getByRole("button", { name: "Close", exact: true }).click();
-    await expect(start).toBeFocused();
+    // Close returns the keyboard to what opened the terminal: the start
+    // itself with nothing typed, the entry's Open terminal otherwise.
+    await expect(
+      blank ? start : recent.getByRole("button", { name: "Open terminal" }),
+    ).toBeFocused();
     await expect
       .poll(() => codexEnded(native, attached?.pid ?? 0))
       .toBe("SIGHUP");
