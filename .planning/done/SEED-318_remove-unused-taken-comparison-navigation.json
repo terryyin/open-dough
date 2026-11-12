@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-318#remove-unused-taken-comparison-navigation",
+  "title": "Remove unused Taken comparison navigation",
+  "completedAt": "2026-11-12T01:54:08.981Z",
+  "developer": "Terry Yin",
+  "agent": "pyo-chan",
+  "host": "claude",
+  "model": "fable"
+}
