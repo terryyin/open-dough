@@ -2706,6 +2706,77 @@ cases come from the merge or from the burner-only load on 16 cores (the
 earlier counted runs had other work beside fewer burners): the base was not
 run in the profile. Hosted CI is not observed.
 
+##### Repair of G1 after the SEED-330 merge
+
+Observed on 2026-11-13, 01:48–02:12 local, on `0bec7cd57`, working tree
+clean throughout (no test or product file was changed), Node 24.21.0, AC
+power before every batch, every run under `caffeinate -s -i`. Logs, proof
+records, traces and scratch scripts (`att.sh`, `run.sh` with a worker
+watcher, `steps.py`, `cmp.py`, `log-gh.mjs`) are in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/g1-repair/`. The pre-merge
+revision `6753ad5a0` ran in a temporary detached worktree (`setup-native`
+`npm`, `browser`, `check`: exit 0), removed after.
+
+**Attribution: not the merge.** `att.sh` started HEAD and `6753ad5a0` at the
+same moment, two workers each, traced, under the same burners, once the load
+was 30–50:
+
+| Label | Specs | Load start → end | HEAD | Pre-merge |
+| --- | --- | --- | --- | --- |
+| `a1` | refresh and return, 22 burners | 30.73 → 35.14 | 4 passed; `:66` 12.4, `:39` 7.4, `:52` 11.3, `:118` 11.3 | 4 passed; 11.7, 7.2, 7.7, 11.5 |
+| `a2` | the whole selection, 20 burners | 30.81 → 40.57 | 11 of 13; `:52` 32.4 and `:118` 33.5 timed out; `:66` 28.3, `:39` 22.5, reading 23.6, proof 18.6 | 12 of 14; `:52` 32.6 and `:118` 33.1 timed out; `:39` 25.5, `:66` 24.4, proof 22.0, reading 21.9 |
+
+Per step the two revisions match within the run's spread: `a2` `:118` HEAD
+Board open 7.2 s, page reads at `:136` 11.9 s; pre-merge 8.6 s and 10.9 s;
+`:66` Board paging at `:75` 8.7 against 5.8 s, 3.6 against 3.3 s in `a1`.
+The merge changed neither spec nor their support except
+`ciFollowUpKeptLanding.ts`.
+
+**What slows the cases: CPU taken by other work, which the load figure does
+not measure.** `yes` burners started from a background shell ran at nice 5 at
+6–14% CPU each, the machine 57% idle (`top`): `x1`, 20 such burners, load
+30.00 → 31.73, the whole selection passed 13 of 13 in 55 s, max 8.8 s
+(`:118` 8.8, `:66` 8.6). Burners started from a foreground shell took about
+half a core each at once. `x2`, 20 foreground burners beside another
+session's 16 burners at nice 10 (about 70% CPU each; not this execution's,
+left running), load 30.93 → 47.94, counted, failed the figure: 13 passed,
+`:118` 28.1 s, `:52` 21.6, `:39` 19.5, proof 18.4, `:66` 16.4, warning 15.5,
+accepted request 10.6, reading 14.3. `a2`'s second copy of the selection is
+the same kind of contention. `k1` and `k3` match these, not `x1`.
+
+**Why no repair here.** In `x2` `:118` spends, inside its 28.1 s, 5.9 s in
+test-scoped fixtures (`origin` 1.4, `dashboard` 4.4), 3.5 s opening the Board
+(navigation, the Board's published read, the card), 5.7 s in the page reads
+at `:136`, 1.7 s in After Hooks, and 10.5 s in its own navigation and
+expectations; `keptSummaryComparisonStory` 8.8 s is outside. In `k1` the same
+parts were 5.8, 4.1, 7.0, 1.5 and about 12.5 s. A scratch copy of the case
+(`zz-scratch-g1.spec.ts`, removed) listed the 21 `gh` calls of `:136`: the
+Done story's CI comparison read (`actions-workflow`, eight `actions-runs`,
+`content`, two `tree`, `actions-run-artifacts` and `actions-artifact-zip` for
+runs 101–103 and artifacts 1001–1003, `actions-attempt-jobs` for 101–103).
+Every new selection opens CI comparison (`intentStoryTabs.tsx`), no address
+selects a Done story without a follow-up (`dashboardRouteUrl.ts`,
+`dashboardDestination.ts`), and those three acquisitions are what the case
+must let finish before it counts, so neither the Board nor that read can be
+skipped, and waiting on fewer reads is not equivalent. The first visit's
+Board paging is a cost only on the phone cases (`:66` 7.7 s in `k1`; the base
+journey opened its card by keyboard, which reveals the column, with no
+paging). Dividing `:118` at a navigation boundary leaves the Done open and
+its read in each half that returns to the Done landing after the refresh,
+about 25 s in `x2` by these sums. The floor is per-case fixed cost that grows
+with contention: the dashboard's start, the Board's read and the Done
+comparison read, each through `gh` calls, whose cost this plan excludes.
+
+Returned as a stop under step 4: under real contention at load 30–50 the
+refresh cases need 25–34 s on HEAD and on the pre-merge revision alike, and
+the 25 s figure with margin needs a decision this repair cannot make: what
+load source counts (burners at nice 5 from a background shell barely compete;
+`x1` passes with max 8.8 s), the cost of a `gh` call or of the Done
+comparison read, or the refresh spec's promise of returning to the Done
+landing after the refresh. Counted runs here: `x2` failed the figure; `x1`
+passed but is not offered as proof, since its burners did not load the CPU;
+`a2`'s HEAD side failed. No consecutive counted passes exist.
+
 #### Slice 10 acceptance and refactor
 
 - Accepted with obligations G1 and G2 proved. The refactor pass gave the
@@ -2748,6 +2819,22 @@ follow-up specs passed 41 of 41; the ledger node tests passed; faults F1, F14,
 F8b, F2, F8, F9, F3, F16, F17, F15, F19, the card's provisional rule, F20 and
 the schema refusal each failed their owner (F1 at the 30 s bound, as
 recorded).
+
+## Stopped for the developer's decision, 2026-11-13
+
+Slice 10 stays `done` with obligation G1 reopened as a `return`; the plan
+does not finish until it is settled. Key example 1 is met under natural load
+(e2, e4, e5 at 31–50 before the SEED-330 merge, slowest 18.1 s) but not under
+CPU-bound contention: with foreground `yes` burners at load 31 → 48 the
+refresh case `:118` took 28.1 s, and the same case timed out at 30 s on the
+pre-merge revision too, so the merge is not the cause. The background
+burners behind earlier counted burner runs ran at nice 5 and took 6–14% CPU
+each, so those runs did not measure contention. What remains per case is the
+dashboard start, the Board read and the Done comparison read (21 fake `gh`
+calls before the refresh case can count), and the story keeps the cost of one
+fake `gh` call out of scope. The decision needed: which load counts for key
+example 1, or whether the fake `gh` call cost or the refresh case's return to
+the Done landing comes into scope. Hosted CI passed on `4e3c2235e`.
 
 ## Story obligations
 
