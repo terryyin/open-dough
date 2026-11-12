@@ -127,8 +127,8 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
   const olderCrossProject = titles[40] ?? "";
   expect(olderCrossProject).not.toBe("");
   await test.step("choosing an older cross-project session selects it and brings its Board entry into view in its project", async () => {
-    await shown.entry(olderCrossProject).click();
-    await expect(shown.entry(olderCrossProject)).toHaveAttribute(
+    await shown.select(olderCrossProject).click();
+    await expect(shown.select(olderCrossProject)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -159,8 +159,8 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     const withoutRemoved = records.filter(
       (record) => record.request.title !== removedTitle,
     );
-    await shown.entry(removedTitle).focus();
-    await expect(shown.entry(removedTitle)).toBeFocused();
+    await shown.select(removedTitle).focus();
+    await expect(shown.select(removedTitle)).toBeFocused();
     keepLaunchStore(dashboard, byProjectOf([newer, ...withoutRemoved]));
     await passOnePace();
 
@@ -174,7 +174,7 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     expect(shownTitles).toHaveLength(45);
     const focused = page.locator(":focus");
     await expect(focused).toBeVisible();
-    await expect(shown.entry(removedTitle)).toHaveCount(0);
+    await expect(shown.select(removedTitle)).toHaveCount(0);
     // Focus left the removed control for a nearby entry or the section header.
     await expect(focused).not.toHaveText(removedTitle);
   });

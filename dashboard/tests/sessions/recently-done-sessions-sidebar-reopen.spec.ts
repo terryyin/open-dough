@@ -47,7 +47,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   const shown = await showRecentlyDone(page);
   await shown.open(title).click();
   await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
-  await expect(shown.entry(title)).toHaveCount(1);
+  await expect(shown.select(title)).toHaveCount(1);
 });
 
 test("a successful Cursor attach from Recently done removes the Done row", async ({
@@ -74,11 +74,11 @@ test("a successful Cursor attach from Recently done removes the Done row", async
   });
   await showThreeProjectPage(page, origin);
   const shown = await showRecentlyDone(page);
-  await expect(shown.entry(title)).toHaveCount(1);
+  await expect(shown.select(title)).toHaveCount(1);
   await shown.open(title).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
-  await expect(shown.entry(title)).toHaveCount(0);
+  await expect(shown.select(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),
   ).toHaveCount(1);
@@ -124,7 +124,7 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await expect(shown.button).toBeFocused();
   await shown.button.click();
   await expectSessionsSidebar(page, "open");
-  await expect(shown.entry(title)).toHaveCount(0);
+  await expect(shown.select(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),
   ).toHaveCount(1);

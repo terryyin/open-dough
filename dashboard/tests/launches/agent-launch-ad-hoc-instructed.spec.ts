@@ -10,7 +10,12 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { parts, sessionNamedBy, sessionStateOf } from "../dashboardPage.ts";
+import {
+  parts,
+  readFinalReport,
+  sessionNamedBy,
+  sessionStateOf,
+} from "../dashboardPage.ts";
 import {
   expectQuietAdHocActionsRow,
   openTakenBacklog,
@@ -54,11 +59,11 @@ test("an instructed Start session leaves the open final report in the Side panel
   ]);
   dashboard.claudeScenario("launched");
   await openTakenBacklog(page, launchJourney);
-  await parts(page)
-    .recentlyDone.getByRole("article", { name: new RegExp(retiredTitle) })
-    .getByRole("button", { name: "Read final report" })
-    .click();
-  const finalReport = page.getByRole("region", { name: "Final report" });
+  const { panel: finalReport } = await readFinalReport(
+    parts(page).recentlyDone.getByRole("article", {
+      name: new RegExp(retiredTitle),
+    }),
+  );
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(finalReport).toContainText(report);
   const terminalSockets = watchTerminalSockets(page);

@@ -3,7 +3,10 @@
 // (../../src/recentlyDoneSelection.ts) without rewriting Ad hoc. Reuses the
 // real completion publish path (../support/adHocCompletedAssociation.ts) and
 // Intent review helpers (../support/intentStoryPage.ts).
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { shortRevision } from "../dashboardParts.ts";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
@@ -59,13 +62,13 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
   await openSessionsSidebar(page);
   const shown = recentlyDoneParts(page);
   await shown.header.click();
-  await shown.entry(sessionTitle).click();
+  await shown.select(sessionTitle).click();
   const { intent } = parts(page);
   await expect(intent).toHaveAttribute("data-selected-story", linked.identity);
   await expect(storyTitle(intent)).toHaveText(linked.title, {
     timeout: 30_000,
   });
-  await expect(shown.entry(sessionTitle)).toHaveAttribute(
+  await expect(shown.select(sessionTitle)).toHaveAttribute(
     "title",
     /(^|\n)Open Dough · Ad hoc(\n|$)/,
   );

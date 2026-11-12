@@ -34,7 +34,7 @@ async function goElsewhereWhileChecking<T>(
   const held = await holdPygardonCatalog(page);
   const abandoned = pygardonCatalogAbandoned(page);
   try {
-    await shown.entry(linked.title).click();
+    await shown.select(linked.title).click();
     await held.asked;
     const went = await goElsewhere();
     await abandoned;
@@ -60,7 +60,7 @@ test("choosing another project while a linked row is still checked abandons the 
   await expectProjectChoice(page, "Doughnut");
   await expect(intentChoice).toBeChecked();
   await expect(intent).not.toHaveAttribute("data-selected-story");
-  await expect(shown.entry(linked.title)).toHaveAttribute(
+  await expect(shown.select(linked.title)).toHaveAttribute(
     "aria-pressed",
     "false",
   );
@@ -75,14 +75,14 @@ test("another row's Open while a linked row is still checked abandons the check,
   const { development, intentChoice, intent } = parts(page);
   await expect(development).toBeChecked();
 
-  const panel = await goElsewhereWhileChecking(page, shown, () =>
+  const opened = await goElsewhereWhileChecking(page, shown, () =>
     showReport(page, shown),
   );
 
   await expectProjectChoice(page, "Open Dough");
   await expect(development).toBeChecked();
-  await expect(panel.locator(".final-report-text")).toHaveText(report.message);
-  await expect(shown.entry(linked.title)).toHaveAttribute(
+  await expect(opened.reportText).toHaveText(report.message);
+  await expect(shown.select(linked.title)).toHaveAttribute(
     "aria-pressed",
     "false",
   );

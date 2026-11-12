@@ -26,6 +26,7 @@ import {
 } from "../sessionsTogglePage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
+import { sidePanelNamesOf } from "../dashboardPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 let journey: StoryColumnsJourney;
@@ -133,8 +134,8 @@ test.describe(`${name} session discovery`, () => {
     await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
       intended.title,
     );
-    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
-    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
+    await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     await expect(panel.locator(".xterm-rows")).toContainText(
       `attached ${record.session.sessionId.slice(0, 8)}`,
     );
@@ -144,8 +145,8 @@ test.describe(`${name} session discovery`, () => {
     // Selection at landscape width leaves the beside-page sidebar open;
     // rotation preserves that choice when it becomes an overlay.
     await expect(sidebar).toBeVisible();
-    await expect(panel.locator(".side-panel-names p")).toHaveText(/ session$/);
-    await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(/ session$/);
+    await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
     expect(
       dashboard
         .claudeAttaches()

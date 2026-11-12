@@ -6,8 +6,11 @@
 // ./recently-done-sessions-select-ad-hoc-development.spec.ts.
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { expect, test } from "../support/preparationPage.ts";
-import { parts } from "../dashboardPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../support/preparationPage.ts";
+import { finalReportParts, parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
 import { openSessionsSidebar } from "../sessionsSidebarPage.ts";
@@ -80,20 +83,20 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
   const row = shown.entries.filter({
     has: page.getByRole("heading", { name: sessionTitle }),
   });
+  const { reportText } = finalReportParts(page);
 
   await test.step("Open a report in the Side panel before selecting the ad hoc row", async () => {
     // Open routes to Development; return to Intent as select.spec does after
     // showReport, so Select keeps Intent with the report still visible.
     await shown.open(reportTitle).click();
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(reportMessage);
-    await expect(shown.entry(reportTitle)).toHaveAttribute(
+    await expect(reportText).toHaveText(reportMessage);
+    await expect(shown.select(reportTitle)).toHaveAttribute(
       "aria-current",
       "true",
     );
     await intentChoice.click();
     await expect(intent).toBeVisible();
-    await expect(panel.locator(".final-report-text")).toHaveText(reportMessage);
+    await expect(reportText).toHaveText(reportMessage);
   });
 
   await test.step("Select links the ad hoc row to Story A, keeps Intent and the Side panel report, and skips blanket Done bodies during association", async () => {
@@ -120,7 +123,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
         response.url().includes(completedStoryAssociationEndpoint) &&
         response.request().method() === "GET",
     );
-    await shown.entry(sessionTitle).click();
+    await shown.select(sessionTitle).click();
     await associationRequest;
     watchingLookup = true;
     const answered = await association;
@@ -136,7 +139,7 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     // bodies (no file, or any file other than the linked story) must not.
     for (const files of bodyRequestsDuringLookup)
       expect(files).toEqual([linkedDoneFile]);
-    await expect(shown.entry(sessionTitle)).toHaveAttribute(
+    await expect(shown.select(sessionTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -152,14 +155,13 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     });
     await expect(row).toHaveClass(/\bchosen\b/);
     await expect(choiceStatus(row)).toHaveCount(0);
-    await expect(shown.entry(sessionTitle)).toHaveAttribute(
+    await expect(shown.select(sessionTitle)).toHaveAttribute(
       "title",
       /(^|\n)Open Dough · Ad hoc(\n|$)/,
     );
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(reportMessage);
+    await expect(reportText).toHaveText(reportMessage);
     await expect(page.getByRole("region", { name: "Terminal" })).toHaveCount(0);
-    await expect(shown.entry(reportTitle)).toHaveAttribute(
+    await expect(shown.select(reportTitle)).toHaveAttribute(
       "aria-current",
       "true",
     );
@@ -193,15 +195,15 @@ test("selecting a completed ad hoc session from Intent selects its Done story, k
     await openSessionsSidebar(page);
     const after = recentlyDoneParts(page);
     await after.header.click();
-    await expect(after.entry(sessionTitle)).toBeVisible();
+    await expect(after.select(sessionTitle)).toBeVisible();
     await expect(after.entries).toHaveCount(3);
-    await after.entry(sessionTitle).click();
+    await after.select(sessionTitle).click();
     await expect(intent).toHaveAttribute(
       "data-selected-story",
       linked.identity,
     );
-    await after.entry("Standalone miss").click();
-    await expect(after.entry("Standalone miss")).toHaveAttribute(
+    await after.select("Standalone miss").click();
+    await expect(after.select("Standalone miss")).toHaveAttribute(
       "aria-pressed",
       "true",
     );

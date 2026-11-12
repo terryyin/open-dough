@@ -6,10 +6,12 @@ import path from "node:path";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
 import {
+  parts,
+  readFinalReport,
+  sessionStateOf,
+  sessionUnreadReportOf,
   storyCardAttentionOf,
   storyCardSessions,
-  parts,
-  sessionStateOf,
 } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -27,6 +29,7 @@ import {
 import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { markDone } from "../support/markDone.ts";
+import { closeSidePanel } from "../pageLayout.ts";
 import {
   productClosureEvidencePresent,
   workspaceMissing,
@@ -58,9 +61,8 @@ test("retired Cursor workspace opens retained report without opening terminal an
   await expect(
     entry.getByText(workspaceMissing, { exact: true }),
   ).toBeVisible();
-  await entry.getByRole("button", { name: "Read final report" }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  const { panel, reportText } = await readFinalReport(entry);
+  await expect(reportText).toHaveText(report);
   await expect(panel).toContainText(
     "Mark as done acknowledges this session; it does not complete the story.",
   );
@@ -70,15 +72,15 @@ test("retired Cursor workspace opens retained report without opening terminal an
   ).toHaveCount(0);
   // Reading is passive: it changes no read or done mark in the saved record.
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await entry.getByRole("button", { name: "Mark as read" }).click();
   await expect
     .poll(() => stored(dashboard.home)[0]?.reportRead)
     .toBe(record.completion?.receipt);
   await expect(sessionStateOf(entry)).toContainText("Completed with attention");
-  await expect(entry.locator(".session-unread-report")).toHaveCount(0);
-  await entry.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await expect(sessionUnreadReportOf(entry)).toHaveCount(0);
+  await readFinalReport(entry);
+  await expect(reportText).toHaveText(report);
   await markDone(panel);
   await expect(panel).toHaveCount(0);
   const doneAt = stored(dashboard.home)[0]?.doneAt;
@@ -89,8 +91,8 @@ test("retired Cursor workspace opens retained report without opening terminal an
     .recentlyDone.getByRole("article")
     .filter({ hasText: record.session.sessionId });
   await expect(recent).toContainText("Done");
-  await recent.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await readFinalReport(recent);
+  await expect(reportText).toHaveText(report);
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);
@@ -106,10 +108,9 @@ test("missing Cursor workspace with quiet empty completion keeps report and dire
   const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Read final report" })
-    .click();
-  const panel = page.getByRole("region", { name: "Final report" });
+  const { panel, reportText } = await readFinalReport(
+    storyCardSessions(card(notRefinedStory)),
+  );
   await expect(panel).toContainText(
     "Quiet completion was recorded with no attention message.",
   );
@@ -122,7 +123,7 @@ test("missing Cursor workspace with quiet empty completion keeps report and dire
     "No retained final report is available.",
   );
   await expect(panel).not.toContainText(productClosureEvidencePresent);
-  await expect(panel.locator(".final-report-text")).toHaveCount(0);
+  await expect(reportText).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);
@@ -149,10 +150,9 @@ test("missing Cursor workspace without completion states product closure, unavai
   const baseline = readFileSync(launchStoreFile(dashboard.home), "utf8");
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Read final report" })
-    .click();
-  const panel = page.getByRole("region", { name: "Final report" });
+  const { panel, reportText } = await readFinalReport(
+    storyCardSessions(card(notRefinedStory)),
+  );
   await expect(panel).toContainText(productClosureEvidencePresent);
   await expect(panel).toContainText(workspaceMissing);
   await expect(panel).toContainText("No final dashboard message was saved.");
@@ -162,7 +162,7 @@ test("missing Cursor workspace without completion states product closure, unavai
   await expect(panel).not.toContainText(
     "No retained final report is available.",
   );
-  await expect(panel.locator(".final-report-text")).toHaveCount(0);
+  await expect(reportText).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Terminal", exact: true }),
   ).toHaveCount(0);

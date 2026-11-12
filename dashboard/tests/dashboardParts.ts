@@ -123,6 +123,45 @@ export const sessionIdLineOf = (entry: Locator, sessionId: string) =>
 export const openTerminalOf = (entry: Locator) =>
   entry.getByRole("button", { name: "Open terminal", exact: true });
 
+// An entry's passive access where its session cannot be reopened: on a card,
+// in a column or in Recently done.
+export const readFinalReportOf = (entry: Locator) =>
+  entry.getByRole("button", { name: "Read final report", exact: true });
+
+// The Side panel's Final report: the report's own words, shown verbatim as
+// text; the body that takes the keyboard when the report opens; the frame
+// that scrolls it; and what its header names.
+export function finalReportParts(page: Page) {
+  const panel = page.getByRole("region", { name: "Final report" });
+  return {
+    panel,
+    reportText: panel.locator(".final-report-text"),
+    reportBody: panel.locator(".final-report-body"),
+    reportScroll: panel.locator(".final-report-scroll"),
+    ...sidePanelNamesOf(panel),
+  };
+}
+export type FinalReportParts = ReturnType<typeof finalReportParts>;
+
+// Presses the entry's Read final report and returns the Final report it
+// opens; the case states what that report must say.
+export async function readFinalReport(entry: Locator) {
+  await readFinalReportOf(entry).click();
+  return finalReportParts(entry.page());
+}
+
+// What a Side panel content's header (a Terminal or Final report) names: its
+// story title and its session's name, and where a session id would show,
+// which the header leaves out.
+export function sidePanelNamesOf(content: Locator) {
+  const names = content.locator(".side-panel-names");
+  return {
+    names,
+    sessionName: names.locator("p"),
+    shownSessionId: names.locator("code"),
+  };
+}
+
 // The session id a session entry names, on a card or in Recently done.
 export async function sessionNamedBy(record: Locator): Promise<string> {
   const id = await record

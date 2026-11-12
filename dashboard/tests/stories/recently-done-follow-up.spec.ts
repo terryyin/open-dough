@@ -16,6 +16,7 @@ import {
   parts,
   standaloneSessionName,
   openTerminalOf,
+  readFinalReportOf,
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
@@ -108,11 +109,11 @@ test("a done story whose sessions cannot be reopened, or that holds none, offers
     // Both the refinement's and the execution's worktrees were retired.
     for (const workflow of ["Refinement", "Execution"])
       await expect(
-        card
-          .getByRole("article", {
+        readFinalReportOf(
+          card.getByRole("article", {
             name: `${workflow} session for ${recoverStory.title}`,
-          })
-          .getByRole("button", { name: "Read final report" }),
+          }),
+        ),
       ).toBeVisible();
     await expect(openTerminalOf(card)).toHaveCount(0);
     await followUp(card, recoverStory).click();

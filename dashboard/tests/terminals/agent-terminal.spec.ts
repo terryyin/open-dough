@@ -22,6 +22,7 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   openTerminalOf,
+  sidePanelNamesOf,
 } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
@@ -124,10 +125,10 @@ test.describe("the terminal beside the page", () => {
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         notRefinedStory,
       );
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
       await expect(rows).toContainText(`attached ${shortId(first)}`);
       // The page, showing Backlog, stays on the left, and the terminal is to
@@ -171,10 +172,10 @@ test.describe("the terminal beside the page", () => {
       await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
         readyStory,
       );
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(rows).not.toContainText("echo yes, go on");
       await expect.poll(() => attachesEnded(first)).toBe(true);

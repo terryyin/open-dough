@@ -11,7 +11,12 @@
 // case in ./recently-done-sessions-select-touch.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
-import { parts, rosterParts, standaloneSessionName } from "../dashboardPage.ts";
+import {
+  parts,
+  rosterParts,
+  sessionEntriesIn,
+  standaloneSessionName,
+} from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
   adHoc,
@@ -34,7 +39,7 @@ test("selecting a linked done story in Development shows its project's Board wit
   const { shown } = await openSelectionPage(page, dashboard, undefined, {
     newer: { pygardon: 10 },
   });
-  const panel = await showReport(page, shown);
+  const opened = await showReport(page, shown);
   const card = parts(page).recentlyDone.getByRole("article", {
     name: linked.title,
     exact: true,
@@ -42,30 +47,30 @@ test("selecting a linked done story in Development shows its project's Board wit
 
   await test.step("Select shows Pygardon's Board and brings the selected done card into view", async () => {
     const read = pygardonCatalogRead(page);
-    await shown.entry(linked.title).click();
+    await shown.select(linked.title).click();
     await read;
     await expectProjectChoice(page, "Pygardon");
-    await expect(shown.entry(linked.title)).toHaveAttribute(
+    await expect(shown.select(linked.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
     await expectSelected(card, true);
     await expect(card).toBeInViewport();
     // The keyboard stays on the row, ready to choose again.
-    await expect(shown.entry(linked.title)).toBeFocused();
-    await expectDevelopmentKept(page, dashboard, panel);
+    await expect(shown.select(linked.title)).toBeFocused();
+    await expectDevelopmentKept(page, dashboard, opened);
   });
 
   await test.step("selecting the row again keeps the story selected and in view", async () => {
-    await shown.entry(linked.title).click();
-    await expect(shown.entry(linked.title)).toHaveAttribute(
+    await shown.select(linked.title).click();
+    await expect(shown.select(linked.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
     await expectProjectChoice(page, "Pygardon");
     await expectSelected(card, true);
     await expect(card).toBeInViewport();
-    await expectDevelopmentKept(page, dashboard, panel);
+    await expectDevelopmentKept(page, dashboard, opened);
   });
 });
 
@@ -76,16 +81,16 @@ test("selecting an older standalone session in Development reveals and marks its
   const { shown } = await openSelectionPage(page, dashboard, undefined, {
     newer: { doughnut: 10 },
   });
-  const panel = await showReport(page, shown);
+  const opened = await showReport(page, shown);
   const { recentlyDone } = parts(page);
   const entry = recentlyDone.getByRole("article", {
     name: standaloneSessionName("Ad hoc", adHoc.title),
   });
 
   await test.step("Select shows Doughnut's Board", async () => {
-    await shown.entry(adHoc.title).click();
+    await shown.select(adHoc.title).click();
     await expectProjectChoice(page, "Doughnut");
-    await expect(shown.entry(adHoc.title)).toHaveAttribute(
+    await expect(shown.select(adHoc.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -94,16 +99,16 @@ test("selecting an older standalone session in Development reveals and marks its
   await test.step("its entry, the eleventh of Doughnut's Recently done, is shown selected and in view", async () => {
     await expect(entry).toBeInViewport();
     // The ten newer Doughnut sessions stand before it.
-    await expect(
-      recentlyDone.locator("[data-shows-session]").nth(10),
-    ).toHaveAccessibleName(standaloneSessionName("Ad hoc", adHoc.title));
+    await expect(sessionEntriesIn(recentlyDone).nth(10)).toHaveAccessibleName(
+      standaloneSessionName("Ad hoc", adHoc.title),
+    );
     await expect(entry).toHaveClass(/\bselected-session\b/);
     await expect(entry).toContainText("Selected session");
     const ring = await entry.evaluate(
       (element) => getComputedStyle(element).boxShadow,
     );
     expect(ring).toMatch(/inset/);
-    await expectDevelopmentKept(page, dashboard, panel);
+    await expectDevelopmentKept(page, dashboard, opened);
   });
 });
 
@@ -118,7 +123,7 @@ test("selecting a standalone session from Development's agent roster shows its p
   const { roster } = rosterParts(page);
   const { recentlyDone } = parts(page);
   await expect(roster).toBeVisible();
-  await shown.entry(adHoc.title).click();
+  await shown.select(adHoc.title).click();
   await expectProjectChoice(page, "Doughnut");
   await expect(roster).toHaveCount(0);
   const entry = recentlyDone.getByRole("article", {

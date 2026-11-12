@@ -8,7 +8,11 @@ import { test, expect } from "../support/cursorStart.ts";
 import { launch, recordsOf } from "../agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import {
+  openTerminalOf,
+  parts,
+  sessionUnreadReportOf,
+} from "../dashboardPage.ts";
 import { markDone } from "../support/markDone.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
 
@@ -45,7 +49,7 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
     name: "Story A",
     exact: true,
   });
-  const terminal = card.getByRole("button", { name: "Open terminal" });
+  const terminal = openTerminalOf(card);
   await expect(terminal).toBeVisible();
   const before = cursor.calls().length;
   const receipt = JSON.parse(
@@ -63,7 +67,7 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
   )) as LaunchRecord[];
   expect(reported?.completion?.receipt).toBe(receipt.receipt);
   expect(reported?.doneAt).toBeUndefined();
-  await expect(card.locator(".session-unread-report")).toHaveCount(0);
+  await expect(sessionUnreadReportOf(card)).toHaveCount(0);
   expect(cursor.calls()).toHaveLength(before);
   await reloadUntilRead(page);
   await expect(terminal).toBeVisible();

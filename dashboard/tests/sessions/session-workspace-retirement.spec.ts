@@ -4,8 +4,13 @@ import { test, expect, stored } from "../support/codexLaunch.ts";
 import {
   expectProjectChoice,
   chooseProject,
-  storyCardSessions,
+  finalReportParts,
+  openTerminalOf,
   parts,
+  readFinalReport,
+  readFinalReportOf,
+  sessionEntriesIn,
+  storyCardSessions,
 } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -17,6 +22,8 @@ import { report, save, retained, passive } from "../support/retainedReport.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import { expectSelected } from "../storyCardSelection.ts";
+import { closeSidePanel } from "../pageLayout.ts";
+import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -38,24 +45,21 @@ test("card, Recently done and sidebar review the retained report with attention,
   const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("Ready for review");
   await expect(entry).toContainText("saved workspace is missing");
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(0);
-  const open = entry.getByRole("button", { name: "Read final report" });
+  await expect(openTerminalOf(entry)).toHaveCount(0);
+  const open = readFinalReportOf(entry);
   // The fixture's launch protects the story's card until a published read
   // after its outcome reconciles it.
   await expect(open).toBeEnabled();
   await open.focus();
   await page.keyboard.press("Enter");
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
-  await expect(panel.locator(".final-report-body")).toBeFocused();
+  const { panel, reportText, reportBody, sessionName, shownSessionId } =
+    finalReportParts(page);
+  await expect(reportText).toHaveText(report);
+  await expect(reportBody).toBeFocused();
   await expect(entry).toContainText("Shown in final report");
   await expectSelected(card(notRefinedStory), true);
-  await expect(panel.locator(".side-panel-names p")).toHaveText(
-    "Refinement session",
-  );
-  await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+  await expect(sessionName).toHaveText("Refinement session");
+  await expect(shownSessionId).toHaveCount(0);
   expect(await page.evaluate(() => "reportExecuted" in window)).toBe(false);
   await page.keyboard.press("Meta+Shift+Escape");
   await expect(panel).toHaveCount(0);
@@ -69,34 +73,26 @@ test("card, Recently done and sidebar review the retained report with attention,
   // With no active story card, its open session has the local Taken home
   // and the same passive report access.
   await show(journey.completed);
-  const local = parts(page)
-    .taken.locator(".session-entry")
-    .filter({ hasText: native.threadId });
-  await local.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    local.getByRole("button", { name: "Read final report" }),
-  ).toBeFocused();
+  const local = sessionEntriesIn(parts(page).taken).filter({
+    hasText: native.threadId,
+  });
+  await readFinalReport(local);
+  await expect(reportText).toHaveText(report);
+  await closeSidePanel(panel);
+  await expect(readFinalReportOf(local)).toBeFocused();
   await show(journey.queued);
   await expect(recent).toHaveCount(0);
   await expect(entry).toContainText(record.session.sessionId);
-  await page.getByRole("button", { name: "Sessions", exact: true }).click();
+  const sidebar = sessionsSidebarParts(page);
+  await sidebar.button.click();
   await chooseProject(page, "Doughnut");
-  const sidebar = page.getByRole("complementary", {
-    name: "Sessions sidebar",
-    exact: true,
-  });
-  const sideOpen = sidebar.getByRole("button", {
-    name: notRefinedStory,
-    exact: true,
-  });
+  const sideOpen = sidebar.entry(notRefinedStory);
   await sideOpen.click();
   await expectProjectChoice(page, "Open Dough");
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await expect(reportText).toHaveText(report);
   await expect(sideOpen).toHaveAttribute("aria-current", "true");
   await expect(entry).toContainText("Ready for review");
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
+  await closeSidePanel(panel);
   await expect(sideOpen).toBeFocused();
   await reloadUntilRead(page);
   await expect(entry).toContainText("Ready for review");
@@ -147,7 +143,7 @@ test("changing or closing selection cancels a held report and never shows its te
   const second = entries.filter({
     has: page.locator('code:text-is("next-retained-session")'),
   });
-  await first.getByRole("button", { name: "Read final report" }).click();
+  await readFinalReport(first);
   await fetchedAnswer;
   const protocol = native;
   protocol.threadId = next.session.sessionId;
@@ -168,24 +164,16 @@ test("changing or closing selection cancels a held report and never shows its te
     status: { type: "notLoaded" },
     turns: [{ id: "next-turn", status: "completed" }],
   });
-  await second.getByRole("button", { name: "Read final report" }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
-  await expect(panel.locator(".side-panel-names p")).toHaveText(
-    "Refinement session",
-  );
-  await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
-  await expect(panel.locator(".final-report-text")).toHaveText(
-    "Second conversation's own result",
-  );
+  const { panel, reportText, sessionName, shownSessionId } =
+    await readFinalReport(second);
+  await expect(sessionName).toHaveText("Refinement session");
+  await expect(shownSessionId).toHaveCount(0);
+  await expect(reportText).toHaveText("Second conversation's own result");
   release?.();
-  await expect(panel.locator(".final-report-text")).toHaveText(
-    "Second conversation's own result",
-  );
+  await expect(reportText).toHaveText("Second conversation's own result");
   await expect(panel).not.toContainText("a5df85d90a");
-  await panel.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(
-    second.getByRole("button", { name: "Read final report" }),
-  ).toBeFocused();
+  await closeSidePanel(panel);
+  await expect(readFinalReportOf(second)).toBeFocused();
   expect(stored(dashboard.home).map((value) => value.doneAt)).toEqual([
     undefined,
     undefined,

@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { machineSessions } from "../agentLaunchBoundary.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { parts, readFinalReport, storyCardSessions } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -37,16 +37,15 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   await expect(entry).toContainText("Ready for review");
   const protocol = native;
   protocol.readError = true;
-  await entry.getByRole("button", { name: "Read final report" }).click();
-  const panel = page.getByRole("region", { name: "Final report" });
+  const { panel, reportText } = await readFinalReport(entry);
   await expect(
     panel.getByRole("button", { name: "Retry report" }),
   ).toBeVisible();
-  await expect(panel.locator(".final-report-text")).toHaveCount(0);
+  await expect(reportText).toHaveCount(0);
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   protocol.readError = false;
   await panel.getByRole("button", { name: "Retry report" }).click();
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await expect(reportText).toHaveText(report);
   // A separate record arrives while this result is open; viewing cannot rewrite it.
   const records = stored(dashboard.home);
   const first = records[0];
@@ -72,8 +71,8 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
     .recentlyDone.getByRole("article")
     .filter({ hasText: native.threadId });
   await expect(recent).toContainText("Done");
-  await recent.getByRole("button", { name: "Read final report" }).click();
-  await expect(panel.locator(".final-report-text")).toHaveText(report);
+  await readFinalReport(recent);
+  await expect(reportText).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
   expect(
     stored(dashboard.home).find(

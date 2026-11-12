@@ -163,8 +163,8 @@ test("finds and opens the newest completed sessions across projects from a colla
     const attaches = dashboard.claudeAttaches().length;
     await expect(shown.open(newestTitle)).toHaveCount(1);
     await expect(shown.open(olderTitle)).toHaveCount(0);
-    await shown.entry(olderTitle).click();
-    await expect(shown.entry(olderTitle)).toHaveAttribute(
+    await shown.select(olderTitle).click();
+    await expect(shown.select(olderTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
     );

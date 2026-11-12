@@ -6,7 +6,14 @@
 import path from "node:path";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedStory } from "../launchJourney.ts";
-import { storyCardSessions, parts, openTerminalOf } from "../dashboardPage.ts";
+import {
+  openTerminalOf,
+  parts,
+  readFinalReport,
+  readFinalReportOf,
+  storyCardSessions,
+} from "../dashboardPage.ts";
+import { closeSidePanel } from "../pageLayout.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { passive as passiveReport } from "../support/retainedReport.ts";
 import {
@@ -63,9 +70,7 @@ test("predecessor without continuation gains no command; missing workspace prese
           entry.locator("p", { hasText: /^Continue in / }),
         ).toHaveCount(0);
         await expect(openTerminalOf(entry)).toHaveCount(0);
-        await expect(
-          entry.getByRole("button", { name: "Read final report" }),
-        ).toBeVisible();
+        await expect(readFinalReportOf(entry)).toBeVisible();
         await expect(
           entry.locator("p", { hasText: /^Workspace / }),
         ).toHaveCount(id === legacy.session.sessionId ? 0 : 1);
@@ -83,17 +88,15 @@ test("predecessor without continuation gains no command; missing workspace prese
   expect(stored(dashboard.home)).toEqual(before);
   passive(native.calls);
   for (const list of entries()) {
-    await list
-      .filter({
+    const { panel, reportText } = await readFinalReport(
+      list.filter({
         has: page.locator(`code:text-is("${missing.session.sessionId}")`),
-      })
-      .getByRole("button", { name: "Read final report" })
-      .click();
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(
+      }),
+    );
+    await expect(reportText).toHaveText(
       "The saved conversation's final report.",
     );
-    await panel.getByRole("button", { name: "Close", exact: true }).click();
+    await closeSidePanel(panel);
   }
   expect(stored(dashboard.home)).toEqual(before);
   passiveReport(native, 0);

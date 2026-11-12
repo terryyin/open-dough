@@ -49,6 +49,9 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         open,
         panel,
         reportText,
+        names,
+        sessionName,
+        shownSessionId,
         mark,
         question,
         choice,
@@ -59,12 +62,9 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       await expect(
         panel.getByRole("heading", { name: title }),
       ).toHaveAccessibleName(title);
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
-        / session$/,
-      );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sessionName).toHaveText(/ session$/);
+      await expect(shownSessionId).toHaveCount(0);
       await resizeUntilArranged(panel, { width: 390, height });
-      const names = panel.locator(".side-panel-names");
       const titleToggle = names.getByRole("button", {
         name: title,
         exact: true,
@@ -102,7 +102,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
         await expect(
           panel.getByRole("heading", { name: title }),
         ).toHaveAccessibleName(title);
-        await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+        await expect(shownSessionId).toHaveCount(0);
         await readReportByTouch(panel, question.getByRole("paragraph").first());
         for (const name of ["Mark as done", "Keep open"]) {
           await readReportByTouch(panel, choice(name));

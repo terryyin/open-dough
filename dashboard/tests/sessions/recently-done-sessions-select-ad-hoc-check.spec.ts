@@ -4,7 +4,10 @@
 // check/supersede coverage remains in ./recently-done-sessions-select-check.spec.ts
 // and ./recently-done-sessions-select-supersede.spec.ts.
 import type { Page, Route } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../support/preparationPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
@@ -95,21 +98,21 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
       isAssociation(new URL(request.url())),
     );
     try {
-      await shown.entry(linkedTitle).click();
+      await shown.select(linkedTitle).click();
       await held.asked;
       await expect(choiceStatus(linkedRow)).toHaveText(
         "Checking for its published done story…",
       );
-      await shown.entry(otherTitle).click();
+      await shown.select(otherTitle).click();
       await abandoned;
     } finally {
       held.release();
     }
-    await expect(shown.entry(otherTitle)).toHaveAttribute(
+    await expect(shown.select(otherTitle)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expect(shown.entry(linkedTitle)).toHaveAttribute(
+    await expect(shown.select(linkedTitle)).toHaveAttribute(
       "aria-pressed",
       "false",
     );
@@ -137,7 +140,7 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
         isAssociation(new URL(response.url())) &&
         response.request().method() === "GET",
     );
-    await shown.entry(linkedTitle).click();
+    await shown.select(linkedTitle).click();
     await failed;
     await expect(choiceStatus(linkedRow)).toContainText(
       "Its published done story could not be checked.",
@@ -154,7 +157,7 @@ test("an unanswered ad hoc association is superseded by another row, and a faile
         response.request().method() === "GET" &&
         response.ok(),
     );
-    await shown.entry(linkedTitle).click();
+    await shown.select(linkedTitle).click();
     await recovered;
     await expect(intent).toHaveAttribute(
       "data-selected-story",

@@ -1,7 +1,11 @@
 // A disposed socket cannot control a later mounted attachment of the same request.
 import { mkdirSync, readFileSync } from "node:fs";
 import { test, expect } from "../support/codexLaunch.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import {
+  finalReportParts,
+  openTerminalOf,
+  storyCardSessions,
+} from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -50,9 +54,7 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   });
   const { card, settled } = await openStoryColumnsJourney(page, journey);
   await settled();
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(card(notRefinedStory))).click();
   const panel = page.getByRole("region", { name: "Terminal", exact: true });
   const rows = panel.locator(".xterm-rows");
   await expect(rows).toContainText("original retained history");
@@ -86,9 +88,7 @@ test("a disposed attachment cannot redirect or write into a current retry of the
   await page.keyboard.press("Enter");
   await expect(rows).toContainText("echo current retry input");
   await expect(rows).not.toContainText("late disposed output");
-  await expect(page.getByRole("region", { name: "Final report" })).toHaveCount(
-    0,
-  );
+  await expect(finalReportParts(page).panel).toHaveCount(0);
   expect(resultReads).toBe(0);
   expect(readFileSync(launchStoreFile(dashboard.home), "utf8")).toBe(baseline);
 });

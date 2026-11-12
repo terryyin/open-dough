@@ -33,14 +33,21 @@ for (const { name, viewport, lines } of [
         Array(lines).keys(),
         (line) => `Read native report line ${line}.`,
       ).join("\n")}\nReport ending.`;
-      const { panel, reportText, native, since, state } =
-        await openUnfinishedReport(
-          page,
-          dashboard,
-          codexProtocol,
-          journey,
-          text,
-        );
+      const {
+        panel,
+        reportText,
+        reportScroll,
+        shownSessionId,
+        native,
+        since,
+        state,
+      } = await openUnfinishedReport(
+        page,
+        dashboard,
+        codexProtocol,
+        journey,
+        text,
+      );
       const initial = state();
       const divider = panel.getByRole("separator", { name: "Panel divider" });
       const before = await box(divider);
@@ -59,9 +66,7 @@ for (const { name, viewport, lines } of [
       await readReportByTouch(panel, reportText, "Report ending.");
       expect(await box(divider)).toEqual(before);
       expect(
-        await panel
-          .locator(".final-report-scroll")
-          .evaluate((element) => element.scrollTop),
+        await reportScroll.evaluate((element) => element.scrollTop),
       ).toBeGreaterThan(0);
       // Narrow-page column paging can occupy the exterior half already.
       // Reading preserves that arrangement and the inner half's hit target.
@@ -73,7 +78,7 @@ for (const { name, viewport, lines } of [
       await divider.focus();
       await page.keyboard.press("ArrowRight");
       await expectWidth(panel, width + 20 - keyStep);
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(shownSessionId).toHaveCount(0);
       await expect(reportText).toHaveText(text);
       expect(state()).toEqual(initial);
       passive(native, since);

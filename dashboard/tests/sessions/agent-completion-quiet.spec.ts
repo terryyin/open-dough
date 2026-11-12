@@ -1,4 +1,4 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
@@ -9,7 +9,7 @@ import { test, expect, stored } from "../support/codexStart.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { queuedIdentity, queuedTitle } from "../support/startOrigin.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, readFinalReport } from "../dashboardPage.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectInstalledCompletionGuidance } from "../support/installedCompletionGuidance.ts";
@@ -176,10 +176,7 @@ for (const closure of [
             "Native rename refused.",
           );
           await expect(
-            (await sessionActions(recent)).getByRole("button", {
-              name: "Mark as done",
-              exact: true,
-            }),
+            await sessionAction(recent, "Mark as done"),
           ).toBeVisible();
           nativeSession.renameError = undefined;
           const { delivery } = receipt;
@@ -217,12 +214,8 @@ for (const closure of [
         // Quiet completion has no explicit text; the native final report remains independently readable.
         keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
-        await recent.getByRole("button", { name: "Read final report" }).click();
-        await expect(
-          page
-            .getByRole("region", { name: "Final report" })
-            .locator(".final-report-text"),
-        ).toHaveText("Done.");
+        const { reportText } = await readFinalReport(recent);
+        await expect(reportText).toHaveText("Done.");
         expect(
           callsSince(beforeRead, "thread/read").some(
             (call) => call.params["includeTurns"] === true,

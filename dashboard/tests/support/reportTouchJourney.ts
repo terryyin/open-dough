@@ -6,7 +6,12 @@ import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeCodex } from "./fakeCodex.ts";
 import { retained, report, save, keepFinalReport } from "./retainedReport.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { storyCardSessions } from "../dashboardPage.ts";
+import {
+  finalReportParts,
+  readFinalReportOf,
+  sessionStateOf,
+  storyCardSessions,
+} from "../dashboardPage.ts";
 import { notRefinedStory, type StoryColumnsJourney } from "../launchJourney.ts";
 import { pageColumnProjectValue } from "../pageLayout.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
@@ -42,11 +47,11 @@ export async function openUnfinishedReport(
   await settled();
   const entry = storyCardSessions(card(notRefinedStory));
   await expect(entry).toContainText("saved workspace is missing");
-  const open = entry.getByRole("button", { name: "Read final report" });
+  const open = readFinalReportOf(entry);
   await open.focus();
   await page.keyboard.press("Enter");
-  const panel = page.getByRole("region", { name: "Final report" });
-  const reportText = panel.locator(".final-report-text");
+  const report = finalReportParts(page);
+  const { panel, reportText } = report;
   await expect(reportText).toHaveText(text);
   const mark = panel
     .locator(".side-panel-header")
@@ -83,13 +88,12 @@ export async function openUnfinishedReport(
     native,
     since,
     open,
-    panel,
-    reportText,
+    ...report,
     mark,
     question,
     choice,
     state,
     underlying,
-    reading: page.locator(".page-column .session-state"),
+    reading: sessionStateOf(page.locator(".page-column")),
   };
 }

@@ -4,7 +4,7 @@ import { sessionActions } from "../support/sessionEntryDisclosure.ts";
 import { rmSync } from "node:fs";
 import { test, expect } from "../dashboardTest.ts";
 import { stored } from "../support/codexLaunch.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionProblemOf } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
@@ -13,7 +13,7 @@ import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { recordedClaude as recorded, save } from "../support/retainedReport.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { markAsDone, markDone } from "../support/markDone.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
 test.beforeAll(async () => {
@@ -27,10 +27,10 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 // scrolled into view for a press moves with it (about 250px in measured
 // runs). A press whose mouse button comes up after such a move lands off its
 // control and asks nothing, so every journey here presses only on a settled
-// page (`settled`). This holds the details back long enough that the page is
-// certainly still reading them when the journey opens, whatever the runner's
-// speed, and checks that nothing still on its way moves a control the way a
-// press finds it once the page has settled.
+// page (`settled`). This holds the details back until the opened journey is
+// seen reading them, whatever the runner's speed, then lets them through and
+// checks that nothing still on its way moves a control the way a press finds
+// it once the page has settled.
 test("a Recently done entry's Mark as done stays where a settled page shows it", async ({
   page,
   dashboard,
@@ -40,28 +40,26 @@ test("a Recently done entry's Mark as done stays where a settled page shows it",
   record.doneAt = new Date(Date.now() - 60_000).toISOString();
   record.doneProblem = "Local done mark retained. Claude Code rename failed.";
   save(dashboard.home, [record]);
-  await page.route(
-    (url) =>
-      url.pathname === authenticatedReadEndpoint &&
-      [...url.searchParams.keys()].some(
+  const details = await holdAuthenticatedReadsWhere(
+    page,
+    (params) =>
+      [...params.keys()].some(
         (named) => !["source", "revision", "since"].includes(named),
       ),
-    async (route) => {
-      await new Promise((later) => setTimeout(later, 300));
-      await route.fallback();
-    },
+    [],
   );
-  const { settled } = await openStoryColumnsJourney(page, journey);
-  await sessionActions(
-    parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: record.session.sessionId }),
-  );
-  const control = markAsDone(
-    parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: record.session.sessionId }),
-  );
+  const entry = parts(page)
+    .recentlyDone.getByRole("article")
+    .filter({ hasText: record.session.sessionId });
+  let settled: () => Promise<void>;
+  try {
+    ({ settled } = await openStoryColumnsJourney(page, journey));
+    await expect.poll(details.held).toBeGreaterThan(0);
+    await sessionActions(entry);
+  } finally {
+    details.release();
+  }
+  const control = markAsDone(entry);
   await settled();
   await control.scrollIntoViewIfNeeded();
   const place = await control.boundingBox();
@@ -115,7 +113,7 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
         timeout: 20_000,
       });
       await expect(recent).not.toContainText(oldProblem);
-      await expect(recent.locator(".launch-problem")).toHaveText("");
+      await expect(sessionProblemOf(recent)).toHaveText("");
       expect(stored(dashboard.home)[0]).not.toHaveProperty("doneProblem");
       expect(
         dashboard

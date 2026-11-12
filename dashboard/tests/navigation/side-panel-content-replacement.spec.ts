@@ -11,7 +11,8 @@ import { sidePanelPages } from "../sidePanelPages.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import type { FakeCodex } from "../support/fakeCodexTypes.ts";
 import { holdReviewOf } from "../support/holdReviewResponse.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { expect } from "../dashboardTest.ts";
+import { queuedCodexPreviewTest as test } from "../support/preparationPage.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import {
   otherQueuedIdentity,
@@ -38,13 +39,14 @@ async function openStoriesAAndB({
   page,
   dashboard,
   origin,
-  native,
+  codexProtocol: native,
 }: {
   page: Page;
   dashboard: DashboardServer;
   origin: StartOrigin;
-  native: FakeCodex;
+  codexProtocol: FakeCodex | undefined;
 }) {
+  if (native === undefined) throw new Error("Missing native fixture");
   const { workspace: workspaceA } = storyWorktree(origin);
   const workspaceB = storyBWorktree(origin.project);
   keepLaunchRecords(dashboard, [
@@ -60,21 +62,20 @@ async function openStoriesAAndB({
   ]);
   const reviewReads = storyReviewReads(page);
   await openBacklog(page, origin);
-  return { reviewReads, journey: sidePanelPages(page) };
+  return { native, reviewReads, journey: sidePanelPages(page) };
 }
 
 test("a review, another story's review, and a final report replace each other in the one side panel", async ({
   page,
   dashboard,
   origin,
-  codexProtocol: native,
+  codexProtocol,
 }) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  const { reviewReads, journey } = await openStoriesAAndB({
+  const { native, reviewReads, journey } = await openStoriesAAndB({
     page,
     dashboard,
     origin,
-    native,
+    codexProtocol,
   });
 
   // Story A's first review read is held at the transport until released.
@@ -183,14 +184,13 @@ test("a review and a final report stay shown with their selection while the page
   page,
   dashboard,
   origin,
-  codexProtocol: native,
+  codexProtocol,
 }) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  const { reviewReads, journey } = await openStoriesAAndB({
+  const { native, reviewReads, journey } = await openStoriesAAndB({
     page,
     dashboard,
     origin,
-    native,
+    codexProtocol,
   });
 
   await journey.phase(

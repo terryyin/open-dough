@@ -7,7 +7,7 @@
 
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { finalReportParts, parts } from "../dashboardPage.ts";
 import { closeSidePanel, tapWhereShown } from "../pageLayout.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import {
@@ -36,13 +36,13 @@ test.describe("on coarse input", () => {
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
       expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
     };
-    await atLeastTouchSize(shown.entry(adHoc.title));
+    await atLeastTouchSize(shown.select(adHoc.title));
     await atLeastTouchSize(shown.open(report.title));
 
     // The section's own scrolling brings an older row in reach.
-    await shown.entry(adHoc.title).scrollIntoViewIfNeeded();
-    await tapWhereShown(shown.entry(adHoc.title));
-    await expect(shown.entry(adHoc.title)).toHaveAttribute(
+    await shown.select(adHoc.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.select(adHoc.title));
+    await expect(shown.select(adHoc.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -51,22 +51,18 @@ test.describe("on coarse input", () => {
       page.getByRole("region", { name: /^(Terminal|Final report)$/ }),
     ).toHaveCount(0);
 
-    await shown.entry(report.title).scrollIntoViewIfNeeded();
-    await tapWhereShown(shown.entry(report.title));
-    await expect(shown.entry(report.title)).toHaveAttribute(
+    await shown.select(report.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.select(report.title));
+    await expect(shown.select(report.title)).toHaveAttribute(
       "aria-pressed",
       "true",
     );
-    await expect(
-      page.getByRole("region", { name: "Final report" }),
-    ).toHaveCount(0);
+    const { panel, reportText } = finalReportParts(page);
+    await expect(panel).toHaveCount(0);
 
     await shown.open(report.title).scrollIntoViewIfNeeded();
     await tapWhereShown(shown.open(report.title));
-    const panel = page.getByRole("region", { name: "Final report" });
-    await expect(panel.locator(".final-report-text")).toHaveText(
-      report.message,
-    );
+    await expect(reportText).toHaveText(report.message);
     await expect(shown.sidebar).toBeHidden();
     await closeSidePanel(panel);
     await expect(shown.button).toBeFocused();
@@ -83,8 +79,8 @@ test.describe("on coarse input", () => {
     // The row's check reads the catalog; the Board's own read of it is still
     // under way when the overlay is closed.
     const boardRead = await holdPygardonCatalog(page, 1);
-    await shown.entry(linked.title).scrollIntoViewIfNeeded();
-    await tapWhereShown(shown.entry(linked.title));
+    await shown.select(linked.title).scrollIntoViewIfNeeded();
+    await tapWhereShown(shown.select(linked.title));
     await boardRead.asked;
     await expectProjectChoice(page, "Pygardon");
     await expect(shown.sidebar).toBeVisible();

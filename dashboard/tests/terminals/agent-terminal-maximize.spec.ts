@@ -14,6 +14,7 @@ import {
   parts,
   sessionNamedBy,
   openTerminalOf,
+  sidePanelNamesOf,
 } from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import {
@@ -161,10 +162,10 @@ test.describe("maximizing the terminal", () => {
         exact: true,
       });
       await expect(heading).toHaveAccessibleName(readyStory);
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       await expect(titleToggle).toHaveAttribute("aria-expanded", "false");
       await titleToggle.focus();
       await page.keyboard.press("Enter");

@@ -26,6 +26,7 @@ import {
   terminalKey,
   terminalKeyToolbar,
 } from "../touchTerminalPage.ts";
+import { sidePanelNamesOf } from "../dashboardPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -82,7 +83,7 @@ test.describe("phone terminal key toolbar", () => {
     await expect(terminalComposerDraft(panel)).toHaveCount(0);
     await expect(terminalKey(panel, "Ctrl+C")).toHaveCount(0);
     await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
-    await expect(panel.locator(".side-panel-names p")).toHaveText(
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
       "Execution session",
     );
     expect(dashboard.claudeAttaches()).toHaveLength(1);
@@ -181,7 +182,7 @@ test.describe("phone terminal key toolbar", () => {
         .poll(() => sent.slice(beforeInterrupt).join(""))
         .toBe("\u0003");
       await expect(panel.getByRole("button", { name: "Close" })).toBeVisible();
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
       expect(

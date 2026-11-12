@@ -19,6 +19,7 @@ import {
   sessionStateOf,
   standaloneSessionName,
   openTerminalOf,
+  readFinalReportOf,
   sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
@@ -78,9 +79,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
   const dialog = startSessionDialog(page, "Open Dough");
 
   await expect(sessionStateOf(entry)).toHaveText("Done");
-  await expect(
-    entry.getByRole("button", { name: "Read final report" }),
-  ).toBeVisible();
+  await expect(readFinalReportOf(entry)).toBeVisible();
   await followUp(entry, retiredTitle).click();
 
   await expect(dialog).toBeVisible();
@@ -137,9 +136,7 @@ test("a Done session whose workspace is gone offers Read final report and Follow
 
   // The source stays Done in Recently done with its actions, its record as kept.
   await expect(sessionStateOf(entry)).toHaveText("Done");
-  await expect(
-    entry.getByRole("button", { name: "Read final report" }),
-  ).toBeVisible();
+  await expect(readFinalReportOf(entry)).toBeVisible();
   await expect(followUp(entry, retiredTitle)).toBeVisible();
   expect(
     stored(dashboard.home).find(

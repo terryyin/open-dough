@@ -56,9 +56,11 @@ export function recentlyDoneParts(page: Page) {
     entries,
     // Their titles, in the order the section shows them.
     titles: entries.getByRole("heading", { level: 3 }),
-    // A row's Select control, named by its title, and its separate Open
-    // control, named by the access it opens and described by the title.
-    entry: (title: string) => region.getByRole("button", { name: title }),
+    // A row's Select control, named by its title: it selects the session or
+    // its done story and opens nothing. Its separate Open control is named by
+    // the access it opens (Open terminal or Read final report), described by
+    // the title.
+    select: (title: string) => region.getByRole("button", { name: title }),
     open: (title: string) =>
       entries
         .filter({ has: page.getByRole("button", { name: title }) })

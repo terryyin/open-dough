@@ -11,7 +11,11 @@
 import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expect, test } from "../dashboardTest.ts";
-import { parts, standaloneSessionName } from "../dashboardPage.ts";
+import {
+  parts,
+  readFinalReport,
+  standaloneSessionName,
+} from "../dashboardPage.ts";
 import { rem } from "../boardPage.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
 import { recordsAsked } from "../recentlyDoneProgressivePage.ts";
@@ -64,10 +68,9 @@ test("Mark as done in the Final report closes it and lands on entry 27 once entr
   const { github, recent } = view;
   const taken = parts(page).taken.getByRole("article", { name: entryName });
   const arrived = recent.getByRole("article", { name: entryName });
-  const panel = page.getByRole("region", { name: "Final report" });
   await expect(taken).toContainText("The saved workspace is missing.");
 
-  await taken.getByRole("button", { name: "Read final report" }).click();
+  const { panel } = await readFinalReport(taken);
   await expect(panel).toBeVisible();
   idleBetweenSteps(dashboard, sessionId);
   await markDoneAnyway(panel);

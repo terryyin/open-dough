@@ -18,6 +18,7 @@ import {
   sessionNamedBy,
   openTerminalOf,
   sessionEntriesIn,
+  sidePanelNamesOf,
 } from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
@@ -71,7 +72,7 @@ test("starting with nothing typed opens the session in the terminal with the key
   await expect(panel.getByRole("heading", { level: 2 })).toHaveText(
     title ?? "",
   );
-  await expect(panel.locator(".side-panel-names p")).toHaveText(
+  await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
     "Ad hoc session",
   );
   await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);

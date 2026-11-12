@@ -22,7 +22,13 @@ import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { parts, storyCardSessions } from "../dashboardPage.ts";
+import {
+  finalReportParts,
+  parts,
+  readFinalReportOf,
+  storyCardSessions,
+} from "../dashboardPage.ts";
+import { closeSidePanel } from "../pageLayout.ts";
 
 import { failing, running } from "../intentCiStoryBoard.ts";
 import { card, publishStoryCi } from "../intentCiStoryRecords.ts";
@@ -64,13 +70,11 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   await expectCiScope(await chooseCiStatus(intent), "main");
   await expect(intent).not.toHaveAttribute("data-selected-story");
   await development.click();
-  const report = page.getByRole("region", { name: "Final report" });
+  const { panel: report } = finalReportParts(page);
   // By keyboard: beside the panel, a lower card's control can sit below the
   // page's fold, where a pointer cannot reach it without scrolling.
   const readReport = async (title: string) => {
-    await storyCardSessions(card(page, title))
-      .getByRole("button", { name: "Read final report" })
-      .focus();
+    await readFinalReportOf(storyCardSessions(card(page, title))).focus();
     await page.keyboard.press("Enter");
   };
   // Intent, still on CI status, as the page now selects.
@@ -112,8 +116,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
     await expectSelected(card(page, failing.title), true);
     await expectSelected(card(page, running.title), false);
     await expect(report).toContainText(running.title);
-    await report.getByRole("button", { name: "Close", exact: true }).click();
-    await expect(report).toHaveCount(0);
+    await closeSidePanel(report);
     await expectSelected(card(page, failing.title), true);
     await expectSelected(card(page, running.title), false);
     const panel = await onIntent();

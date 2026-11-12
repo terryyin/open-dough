@@ -11,6 +11,7 @@ import {
   parts,
   sessionEntriesIn,
   sessionStateOf,
+  sidePanelNamesOf,
 } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
@@ -86,7 +87,7 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
     );
     await expect(recent.getByRole("heading")).toHaveText(label);
     await expect(panel.getByRole("heading")).toHaveText(label);
-    await expect(panel.locator(".side-panel-names p")).toHaveText(
+    await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
       "Ad hoc session",
     );
     await expect(recent).toContainText(

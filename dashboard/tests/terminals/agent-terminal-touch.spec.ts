@@ -11,7 +11,7 @@ import {
 } from "../launchJourney.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sidePanelNamesOf } from "../dashboardPage.ts";
 import { box, expectTopBarsShareHeight, tapWhereShown } from "../pageLayout.ts";
 import {
   expectBoardUnreachableBehindCovering,
@@ -72,10 +72,10 @@ test.describe(`${name} terminal input`, () => {
       panel.getByRole("button", { name: label, exact: true });
     const attaches = () => dashboard.claudeAttaches();
     const assertIdentity = async (count = 1) => {
-      await expect(panel.locator(".side-panel-names p")).toHaveText(
+      await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
         "Execution session",
       );
-      await expect(panel.locator(".side-panel-names code")).toHaveCount(0);
+      await expect(sidePanelNamesOf(panel).shownSessionId).toHaveCount(0);
       expect(attaches()).toHaveLength(count);
       expect(attaches().every(({ id }) => id === native.shortId)).toBe(true);
       // The three earlier sessions and this one; nothing launches again.

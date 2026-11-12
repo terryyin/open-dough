@@ -19,6 +19,7 @@ import {
   sessionNamedBy,
   openTerminalOf,
   sessionEntriesIn,
+  sidePanelNamesOf,
 } from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { expectServed } from "../agentPortrait.ts";
@@ -58,7 +59,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   await openTakenBacklog(page, launchJourney);
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
-  const names = panel.locator(".side-panel-names");
+  const names = sidePanelNamesOf(panel).names;
   const heading = panel.getByRole("heading", { level: 2 });
   const sessionRow = names.locator("p");
   const portrait = panel.locator(".agent-portrait");

@@ -227,7 +227,7 @@ proof. Proof 13/13 (`s5-proof.log`), refactor rerun 3/3.
 
 ### 6. Read retained selection and Final reports as distinct actions
 Type: Behavior
-Status: planned
+Status: done
 Proof: `recently-done-sessions-select*`, `session-unread-report*`, `final-report-touch*`, `agent-completion-*`, `session-workspace-retirement*` and report-reading Codex observation cases. Include reached fluent `navigation/side-panel-content-replacement`, retained sidebar navigation, `stories/recently-done-progressive-navigation-report` and `intent/intent-ci-status-side-panel` consumers. Preserve exact report text/title/session, unread/read state, receipts, store/filesystem/retirement, requests, attachment and focus.
 
 Behavior: Given a linked or standalone retained session, the developer follows
@@ -237,6 +237,18 @@ passively readable. Extend report/session owners while preserving exact-text
 versus containment strength and touch geometry. Helpers neither resume nor attach
 nor erase evidence. Safe stop: all findings have complete caller dispositions
 and before/after evidence with unchanged product behavior.
+
+Result (slice 6): `dashboardParts.ts` owns `readFinalReportOf`, `finalReportParts`
+(panel, exact `reportText`, body, scroll, header `sessionName`/`shownSessionId`),
+click-only `readFinalReport` and `sidePanelNamesOf`; the retained row's control is
+`select(title)` beside `open(title)`; the fluent `FinalReport.expectText` keeps its
+containment check on the same region. About 160 raw report, header, Close and Session
+entry sites removed across 55 files for about 45 helper lines. Before/after (retired
+workspace, held report): seven raw selectors → `readFinalReport(second)` with
+`sessionName`, `shownSessionId` and the exact "Second conversation's own result" at the
+call site, then `closeSidePanel`. Remaining raw sites are contract checks, different
+elements or sibling Terminal/launch workflows. G6 moved cold preparation out of seven
+specs' budgets; G7 replaced the only wall-clock wait. Proof 92/92 over 49 files.
 
 ## Verification, current decisions and concern review
 
@@ -306,3 +318,18 @@ Disposition: proved by slice 2: dashboard/tests/sessionsSidebarPage.ts expectCur
 Reported: slice 5 — "The cancel step's 150 px downward move after pointercancel now starts from the divider's centre rather than its top-left corner."
 Story clause: "shared controls expose the actual input and expected row/geometry/focus"
 Disposition: proved by slice 5: dashboard/tests/sessions/cursor-sessions-sidebar-resize.spec.ts "a cancelled drag ends" still grabs, cancels with pointerId 1, moves 150 px down and releases, asserting the split stays at start + 120 before and after release (13/13 s5-proof.log); the start point inside the divider does not change what a cancelled drag must ignore
+
+### G6. Side panel replacement first case nears its budget under load
+Reported: slice 6 — "navigation/side-panel-content-replacement.spec.ts:66 timed out at 30 s three times as the first case of a fresh run at load 31–46, at different untouched steps; the coordinator's solo rerun at load 27–39 passed with that case taking 26.1 s."
+Story clause: "Necessary proof-harness repair follows the project's failing/flaky-test policy."
+Disposition: proved by slice 6: side-panel-content-replacement.spec.ts now runs under preparationPage.ts queuedCodexPreviewTest, whose worker fixture prepares origin, build and bundle outside the test budget; traces showed the first case's 15.4 s of in-budget origin/dashboard fixtures fall to 6.5 s, and a fresh run at load 46→40 passed 6/6 with the first case at 16.0 s (g6-before.log, g6-after2.log); six more slice-6 Claude/Codex specs moved to the same per-host opt-in (g6-firstcases-after.log)
+
+### G7. Retirement spec waits on wall-clock time
+Reported: slice 6 — "sessions/session-workspace-retirement-claude-done.spec.ts holds a route with setTimeout(300), a wall-clock sleep the project forbids."
+Story clause: "Necessary proof-harness repair follows the project's failing/flaky-test policy."
+Disposition: proved by slice 6: session-workspace-retirement-claude-done.spec.ts holds the story-details reads with holdAuthenticatedReadsWhere, waits until the opened page is reading them (details.held > 0), opens Session actions, releases in finally, then checks the control stays put after settled(); 9/9 with --repeat-each=3 (g7-retirement.log)
+
+### G8. Preparation-page tests still count cold preparation in their budget
+Reported: slice 6 — "Plain preparationPage test consumers (148 specs) still fetch the queued origin, app build and server bundle inside their first case's 30 s budget; a shared fix would need to prepare both hosts per worker, a run-time trade-off for a human. intent-done-source-selection's first case also stays near budget (25.5 s at load 29–43) from its own git arrangement."
+Story clause: "test-speed promise"
+Disposition: excluded "test-speed promise"

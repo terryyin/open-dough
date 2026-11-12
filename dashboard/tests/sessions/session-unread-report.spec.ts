@@ -34,7 +34,6 @@ import {
   publishOrigin,
   recordOf,
   shortIdOf,
-  sidebarRow,
   takenStoryCard,
   test,
   titleA,
@@ -53,7 +52,7 @@ async function expectMarked(row: Locator, unmarked: Locator): Promise<void> {
 }
 
 const sidebarTitles = (page: Page) =>
-  sessionsSidebarParts(page).entries.locator("h3").allTextContents();
+  sessionsSidebarParts(page).titles.allTextContents();
 
 test("an unread report is its own mark beside the session's native reading", async ({
   page,
@@ -75,12 +74,12 @@ test("an unread report is its own mark beside the session's native reading", asy
   await pausePageClockAt(page, new Date());
   const { passOnePace } = await watchRecordReads(page);
   await page.goto("/");
-  const { button, badge } = sessionsSidebarParts(page);
+  const { button, badge, row } = sessionsSidebarParts(page);
   const cardA = takenStoryCard(page, titleA);
   const cardB = takenStoryCard(page, titleB);
   await button.click();
-  const rowA = sidebarRow(page, titleA);
-  const rowB = sidebarRow(page, titleB);
+  const rowA = row(titleA);
+  const rowB = row(titleB);
 
   // 1. Reported and natively done: ready, needing attention, marked apart.
   await expectSessionsSidebarSessionEntryShown(

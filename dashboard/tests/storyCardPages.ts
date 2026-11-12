@@ -7,7 +7,12 @@
 // runs the cues.
 
 import type { Locator } from "@playwright/test";
-import { parts, storyCardSessions, openTerminalOf } from "./dashboardParts.ts";
+import {
+  openTerminalOf,
+  parts,
+  readFinalReportOf,
+  storyCardSessions,
+} from "./dashboardParts.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import type { SidePanelPages } from "./sidePanelPages.ts";
 import { expectInspected, expectSelected } from "./storyCardSelection.ts";
@@ -89,10 +94,7 @@ export class StoryCard extends PageObject {
   readFinalReport() {
     return this.cue(
       `${this.#named}: Read final report`,
-      () =>
-        storyCardSessions(this.#card)
-          .getByRole("button", { name: "Read final report" })
-          .click(),
+      () => readFinalReportOf(storyCardSessions(this.#card)).click(),
       this.pages.finalReport,
     );
   }

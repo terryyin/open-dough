@@ -26,9 +26,12 @@ import {
   existingChangesHeading as heading,
   status,
 } from "../support/defaultCheckoutChanges.ts";
-import { parts, sessionEntriesIn } from "../dashboardPage.ts";
+import { parts, readFinalReport, sessionEntriesIn } from "../dashboardPage.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { openBacklog, originMain, radio } from "../support/sessionDialog.ts";
@@ -174,10 +177,8 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await page.reload();
   const kept = sessionEntriesIn(parts(page).taken);
   await expect(kept).toContainText("saved workspace is missing");
-  await kept.getByRole("button", { name: "Read final report" }).click();
-  await expect(
-    page.getByRole("region", { name: "Final report" }),
-  ).toContainText(`Saved workspace ${session.workspace}`);
+  const { panel } = await readFinalReport(kept);
+  await expect(panel).toContainText(`Saved workspace ${session.workspace}`);
 });
 
 test("with existing changes in default main, Isolated workspace · Automatically land starts at once with no text, in `.worktrees/session`, and leaves the changes untouched", async ({
