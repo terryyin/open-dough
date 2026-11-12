@@ -149,6 +149,20 @@ function detail(stop: Stop): string {
   return stop.error ? `: ${stop.error}` : "";
 }
 
+function sourceRefusal(stop: Stop): string {
+  // Installed start commands report these preparation blockers as text.
+  switch (stop.error) {
+    case "published approach is unselected; published preparation is absent":
+      return "This story still needs refinement. Choose Start refinement before starting execution.";
+    case "published preparation is absent":
+      return "This story has no published readiness assessment. Finish and publish its readiness assessment before starting execution.";
+    default:
+      return /not queued/.test(stop.error ?? "")
+        ? "The story is not queued in Backlog on origin, so it cannot be started."
+        : `The story's published source cannot be started${detail(stop)}.`;
+  }
+}
+
 // Why a start that cannot be established is refused, by the script's stop
 // `status`: the words after the card's "Launch failed:". `owner` is the Agent
 // holding the story, read from origin's Taken profiles when known.
@@ -158,10 +172,7 @@ const stopReasons: Record<
 > = {
   conflict: ({ owner }) =>
     `Taken by ${owner ?? "another agent"}, so this dashboard did not start it.`,
-  "source-refused": ({ stop }) =>
-    /not queued/.test(stop.error ?? "")
-      ? "The story is not queued in Backlog on origin, so it cannot be started."
-      : `The story's published source cannot be started${detail(stop)}.`,
+  "source-refused": ({ stop }) => sourceRefusal(stop),
   "source-conflict": ({ stop }) =>
     `The story's published source conflicts with origin${detail(stop)}.`,
   "invalid-request": ({ stop }) =>

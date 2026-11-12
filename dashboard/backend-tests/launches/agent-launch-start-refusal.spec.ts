@@ -2,8 +2,8 @@
 // answers "Launch failed:" with why (../../server/startResult.ts `refusal`),
 // over raw HTTP against the real installed `execution-start.mjs` and a real
 // bare origin (../../tests/support/startOrigin.ts): the story Taken by another agent,
-// the story not queued, an installed start command that gives no readable
-// result. The project whose origin is not the catalog repository is in
+// the story not queued or still needing refinement, and an installed start
+// command that gives no readable result. A project whose origin differs is in
 // ./agent-launch-start.spec.ts; the table's mapping of the remaining stop
 // statuses is ./execution-start-result.spec.ts.
 
@@ -11,6 +11,7 @@ import {
   queuedReadyRepository,
   storyA,
   storyB,
+  storySeed,
 } from "../../../tests/support/queued-repository.mjs";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
@@ -84,6 +85,28 @@ test.describe("execution start that cannot be established", () => {
   test("a story not queued in Backlog is not started", async () => {
     expect(await refused({ ...request, identity: "SEED-A#not-queued" })).toBe(
       "The story is not queued in Backlog on origin, so it cannot be started. Nothing was launched.",
+    );
+    expect(await origin.takenProfiles()).toEqual([]);
+  });
+
+  test("starting an unrefined story tells the developer to start refinement", async () => {
+    await origin.publishRevision({
+      message: "Publish a story needing refinement",
+      files: {
+        ".planning/seeds/A.md": storySeed(storyA, "A rough idea."),
+      },
+      storyStates: [
+        {
+          identity: storyA.identity,
+          href: storyA.href,
+          ...makeMe.aStoryPreparation
+            .with({ refinement: "not-refined", approach: "unselected" })
+            .please(),
+        },
+      ],
+    });
+    expect(await refused(request)).toBe(
+      "This story still needs refinement. Choose Start refinement before starting execution. Nothing was launched.",
     );
     expect(await origin.takenProfiles()).toEqual([]);
   });
