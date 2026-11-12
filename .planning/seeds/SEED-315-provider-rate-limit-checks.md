@@ -15,40 +15,85 @@ scope: story
 
 **Identity:** SEED-315#speed-up-provider-rate-limit-checks
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Queued by the early handoff; selected-story refinement and proof/saving criteria are unfinished, and the reserved request-owner clock decision remains unanswered. No execution authority is granted."],"basis":{"document":"b055a100b3b1917e5a6e18377b4519efaa0c0a51a0d3392af86989acf97afefa"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/598-speed-up-provider-rate-limit-checks/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a7cae822daaedd503e2dee0ed591ece2fc71b4127e4349d27ac62f098f83a1a8","plan":"f8e121bbf8abaf8211beb04b90bd7c0e5538be985fc9991239333b08c85aed32"}}
 ```
 
 #### Goal
 
-Dashboard maintainers verify provider-directed pacing quickly without waiting out real deadlines, while preserving the actual request-admission and visible recovery behavior.
+Dashboard maintainers verify provider-directed pacing quickly, without waiting
+out real deadlines. Ordinary CI continues to catch the same request-admission
+and visible recovery regressions.
 
-#### Scope to refine
+#### Scope
 
-- Prove no upstream read immediately before each directed deadline, recovery at the deadline and return to steady cadence, including reset beyond normal cadence.
-- Include the rate-limit page case, affected stream case and any actual request-owner admission proof credited with replacement in the same ordinary measurement.
-- The browser/observation clock does not control the separate released request-owner process. The earlier question about an opt-in clock-file seam remains unanswered; this extraction grants no clock, runtime-contract, release or installation authority.
-- Preserve default production time, routing, credentials and process ownership. Source/payload functional checks and release/promotion remain separate if a change is later authorized.
+- Keep the maintained promises of the
+  [rate-limit page case](../../dashboard/tests/observation/auto-refresh-rate-limit.spec.ts)
+  and the rate-limited case of the
+  [revision stream](../../dashboard/tests/observation/revision-stream-lost.spec.ts):
+  a directed wait (`Retry-After`, or a reset time once nothing remains) keeps
+  the last snapshot, names when checks resume, offers no Retry and reaches
+  GitHub with nothing before that time, even when the page is seen again; the
+  check at that time reads what was published and clears the failure; a reset
+  later than the steady pace is followed instead of the pace; the steady pace
+  then returns; a limited stream closes, stays closed until the directed time
+  and reopens with a full freshness bound.
+- Pass each directed wait by advancing the time of the actual request owner
+  instead of real time. The owner stays the released
+  [admission policy](../../src/skills/dough-execute-plan/scripts/github-request-admission.mjs)
+  run unchanged in its own process, started by the test with a
+  fixture-controlled `Date`, as the maintained
+  [owner clock fixture](../../dashboard/tests/support/listingReuseWithOwnerClock.ts)
+  already does for listing cooldown. Reuse or extend that fixture; keep one
+  owner-clock mechanism.
+- Released owner code, its runtime contract, release and installation do not
+  change, and no clock setting is added to it. Default production time,
+  routing, credentials and process ownership stay as they are. This settles the
+  request-owner clock question retained from SEED-303 without new authority.
+- A controlled owner serves only the case that controls it; other cases keep
+  the real clock.
+- Delete the page case's 45-second timeout allowance and both cases' real
+  waits for a directed time.
+- On keeping the saving, remove the `auto-refresh-rate-limit-real-waits` entry
+  from the [test optimization candidates](../TEST-OPTIMIZATION-CANDIDATES.md).
+- Preserve ordinary CI selection and equivalent behavioral protection. Use
+  shared MakeMe and existing external fixtures. No new internal mocks,
+  wall-clock sleeps, retries, skips, timeout inflation or special runner modes
+  to obtain a saving. Follow
+  [the failure policy](../../AGENTS.md#failing-and-flaky-tests).
 
-Preserve ordinary CI selection and equivalent behavioral protection. Exclude
-local-only archived experiments from the maintained selection. Use shared MakeMe
-and existing external fixtures. No new internal mocks, wall-clock sleeps,
-retries, skips, timeout inflation or special runner modes to obtain a saving.
-Follow [the failure policy](../../AGENTS.md#failing-and-flaky-tests).
+Not undertaken here: the backend read-boundary cases that pass one- and
+two-second directed waits in real time (backoff, cooldown, resumption, shared
+failures, shared request owner). They may adopt the same fixture later.
 
-#### Key examples to refine
+#### Key examples
 
-- Retry-After and reset directives prevent upstream reads until their exact deadlines, even if the page is seen again.
-- Advancing controlled time to a reset later than normal cadence admits the read and restores the expected snapshot.
-- Subsequent observations return to normal pace without an early upstream request.
+- GitHub answers a check with `Retry-After: 2`. The page reports the limit and
+  the resume time, shows no Retry and keeps snapshot A. Page time passes to
+  just before the directed time, hidden and seen again: no check and no `gh`
+  call. Owner and page time then reach the directed time: the page checks.
+- That check is answered as limited with a reset time later than the steady
+  pace. Page time passes the pace and reaches just before the reset: no check
+  and no `gh` call. With B published, owner and page time reach the reset: the
+  check reads B, the snapshot is B and the failure clears.
+- The following check comes one steady pace later, with no earlier upstream
+  request.
+- An open stream receives a limited answer directing six seconds. The stream
+  closes and nothing reopens or checks before the directed time. Owner and page
+  time reach it: the stream reopens, and lost freshness is reported only a full
+  bound after that reopening.
+- Owner time held before the directed time while page time passes it: the
+  owner refuses the read and GitHub is asked nothing. The admission under proof
+  is the owner's, not the page's schedule.
 
-#### Retained planning input — not executable
+#### Success measure
 
-Former slice 5 and unresolved G5 supply provisional planning input. The original page case cost 20.450–21.624 local case seconds, mostly approximately 20 seconds of real waiting; the related stream case also has a directed wait. Refinement must first resolve the reserved request-owner clock decision, then choose a proportionate real-boundary experiment.
-
-This story is queued, not assigned. Refine its goal, measurable saving, scope and
-examples before creating or realigning an executable plan. Old slice readiness
-does not transfer. It can deliver its own improvement if the other extracted
-stories are deferred; no dependency is inferred from priority or shared files.
+On the same ordinary one-worker selection of the two files, measured before on
+the execution base and after, with startup, fixtures and teardown paid, the
+page case's time falls by at least 15 seconds and the stream case's by at
+least 4 seconds, in repeated passing observations. Retained reference: the
+page case cost 20.450–21.624 local case seconds and 25.2–26.1 s in CI, about
+20 s of it real waiting; the stream case 10.1 s in CI, 6 s of it a directed
+wait. Under machine load, judge the before and after relative to each other.
 
 #### Provenance and evidence
 
