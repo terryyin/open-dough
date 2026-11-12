@@ -242,9 +242,18 @@ Command: `npm run test:dashboard -- tests/terminals/agent-terminal-touch-paste.s
 
 ### 5. Follow voice input without hiding its lifecycle
 Type: Behavior
-Status: planned
+Status: done
 Proof: Story example 5 and final example 6; provider calls/releases, track stop,
 retained transcript, session isolation and exact native submitted line.
+Accepted: `terminalVoicePage` owns dictate/stop/status/retained insert·discard; reuses screen
+prompts/status/reconnect; provider hold/release and modality stay call-site. Proof
+`/tmp/seed300-terminal-slice5-proof.json` 13/13 (~133s) voice* + ended + pending; typecheck passed.
+Residual direct `xterm-rows|xterm-helper-textarea` in `*.spec.ts` = 0. Inventory 65: voice/ended/pending
+**run**; slices 1–4 callers **reused** with prior proof; none excluded for residual selectors.
+Helper cost: ~+70 lines on voice owner justified by named lifecycle ops without lost distinct checks.
+Refactor: route ended/recovery call sites through `expectNoUnsentTranscript`/`expectVoiceStatus`/
+`expectTerminalInputFocused`; accepted proof reused (boundary unchanged). Source-review slice-5 ids
+observed. Exclusions X1–X5 held (test-only; no product/framework/fluent/speed/sibling-workflow migration).
 
 Behavior: A developer follows recording, provider answer and a later user choice → reads focused voice/input operations
 between explicit events → the case still proves safe insertion/retry, cancellation and no transcript entering a
@@ -303,3 +312,8 @@ trim headers so touch specs stay ≤250.
 Slice 4: keep Paste activation as `tapTerminalKey` vs `tapWhereShown(pasteKey)` when focus-as-was is under proof.
 Phone reconnect uses `tapWhereShown(reconnectControl(panel))`, not click-only `reconnectTerminal`. Clipboard helpers
 take payloads as arguments; do not fold release/retry into one helper.
+
+Slice 5: keep phone stop/insert as `tapWhereShown(stopRecordingControl|insertTranscriptControl)` — do not fold modality
+into `stopTerminalClip`/`insertRetainedTranscript`. Keyboard Dictate stays call-site; `beginTerminalClip` is the
+ordinary pointer path. Voice reuses screen status/prompts/reconnect outward; do not import voice from
+`terminalScreenPage`.

@@ -12,6 +12,7 @@ import {
 } from "../terminalScreenPage.ts";
 import {
   beginTerminalClip,
+  expectNoUnsentTranscript,
   stopTerminalClip,
 } from "../support/terminalVoicePage.ts";
 import { codexProtocol, stored } from "../support/codexLaunch.ts";
@@ -108,9 +109,7 @@ test("dictation, Paste, composer Insert and toolbar keys reach a held Codex fram
     await beginTerminalClip(page, panel);
     await stopTerminalClip(page, panel);
     await expect.poll(() => sent).toEqual([transcript]);
-    await expect(
-      panel.getByRole("textbox", { name: "Unsent transcript" }),
-    ).toHaveCount(0);
+    await expectNoUnsentTranscript(panel);
     await expect(status).not.toContainText("was not inserted");
   });
 
