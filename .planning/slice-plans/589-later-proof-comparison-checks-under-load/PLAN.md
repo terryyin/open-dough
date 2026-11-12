@@ -235,6 +235,18 @@ window):
 The three runs are consecutive. The slowest body, 16.2 s, is 3.8 s inside
 the restated limit; loads above about 41 were not observed.
 
+## Execution complete
+
+Product advice: no backlog change. The product review found no correction:
+the removed case's faults stay caught by the in-process judgment check, the
+"equivalent" case and `landed-ci-history-pending-sources.spec.ts`. Under
+load 37–40 every remaining real-server case still takes 8–16 s, spent in the
+shared landing fixture and 20–33 `gh` process starts; that is evidence for
+SEED-287 and SEED-324, which own load-sensitive dashboard checks, should
+either take a cheaper synthetic `gh` start in scope. Batching the product's
+revision lookups in `laterTrunkBuild.ts` remains unowned. The process review
+is deferred into wrap-up with the Intent Coverage check.
+
 ## Current decisions
 
 - On 12 November 2026 Terry accepted restating the load example from a
