@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Taken adapter stories show a completed provisional ancestor while a
 // newer attempt is running, without an Actions read or a branch-head API
 // request for the comparison itself.
@@ -123,14 +124,12 @@ for (const mode of ["story-branch"] as readonly ("story-branch" | "trunk")[]) {
     await expect(row).toContainText("provisional");
     await expect(row).toContainText("ancestor");
     await expect(row).toContainText("a later attempt is still running");
-    await expect(row.locator(".intent-ci-comparison-wall")).toHaveText(
-      "6 min 30 s",
+    await expect(comparisonReading(row).wallTimes).toHaveText("6 min 30 s");
+    await expect(comparisonReading(panel).wallTimes.first()).toHaveText(
+      "Not recorded",
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-wall").first(),
-    ).toHaveText("Not recorded");
-    await expect(
-      panel.locator(".intent-ci-comparison-identity").last(),
-    ).toHaveText(notLandedYetExplanation);
+    await expect(comparisonReading(panel).identities.last()).toHaveText(
+      notLandedYetExplanation,
+    );
   });
 }

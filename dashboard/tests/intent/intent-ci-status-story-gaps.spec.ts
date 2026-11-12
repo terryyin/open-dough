@@ -1,3 +1,11 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
+import {
+  expectCiScope,
+  ciStatusReading,
+  expectCiAnswer,
+  chooseCiStatus,
+} from "../intentCiStatusPage.ts";
+
 // Intent's CI status for a selected story without a branch to judge
 // (../../src/intentCiTarget.ts): a queued or Preparing story is named with no
 // published story branch; a Taken Trunk Mode story shows its provisional CI
@@ -12,7 +20,7 @@
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
-import { chooseCiStatus } from "../intentCiStatusPage.ts";
+
 import { publishMovingFiles } from "../publishedFiles.ts";
 import { doughnut } from "../intentCodeBrowseFixtures.ts";
 import {
@@ -27,7 +35,6 @@ import {
 import {
   branchJudgmentCalls,
   card,
-  expectNamed,
   publishStoryCi,
   toggleOnDevelopment,
 } from "../intentCiStoryRecords.ts";
@@ -35,7 +42,7 @@ import { openUntilRead } from "../pageRequestNotes.ts";
 
 // No state, no run, nothing to check again.
 async function expectNoStatus(panel: Locator) {
-  await expect(panel.locator(".intent-ci-state")).toHaveCount(0);
+  await expect(ciStatusReading(panel).state).toHaveCount(0);
   await expect(panel.getByRole("link")).toHaveCount(0);
   await expect(panel).not.toContainText(/passed|failed|running/i);
 }
@@ -48,10 +55,8 @@ test("a selected story without a published story branch is named and explained, 
   const calls = ci.published.requests;
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
-  await expectNamed(await chooseCiStatus(intent), "main");
-  await expect(intent.locator(".intent-ci-state")).toHaveText(
-    "Passed at 4774f60 (Add login)",
-  );
+  await expectCiScope(await chooseCiStatus(intent), "main");
+  await expectCiAnswer(intent, "Passed at 4774f60 (Add login)");
   const before = calls.length;
 
   await test.step("a selected done story shows its CI timing comparison, not a no-branch gap", async () => {
@@ -67,7 +72,7 @@ test("a selected story without a published story branch is named and explained, 
     // This synthetic board has no recoverable published completion in the
     // local checkout, so the comparison explains that gap rather than
     // inventing figures or judging another branch.
-    await expect(panel.locator(".intent-ci-gap")).toBeVisible();
+    await expect(comparisonReading(panel).gap).toBeVisible();
     await expectNoStatus(panel);
     await expect(panel).not.toContainText("Passed at");
     await expect(panel).not.toContainText("no published story branch");
@@ -86,7 +91,7 @@ test("a selected story without a published story branch is named and explained, 
     // Synthetic board has no recoverable published claim in the local
     // checkout, so the comparison explains that gap rather than inventing
     // figures or judging main as the story's branch.
-    await expect(panel.locator(".intent-ci-gap")).toBeVisible();
+    await expect(comparisonReading(panel).gap).toBeVisible();
     await expectNoStatus(panel);
     await expect(panel).not.toContainText("no published story branch");
   });
@@ -114,7 +119,7 @@ test("a selected story without a published story branch is named and explained, 
       await expect(panel.getByRole("heading")).toHaveText(
         `CI status of ${title}`,
       );
-      await expect(panel.locator(".intent-ci-gap")).toHaveText(why);
+      await expect(ciStatusReading(panel).gap).toHaveText(why);
       await expectNoStatus(panel);
       await expect(panel).not.toContainText("main");
     });
@@ -124,8 +129,8 @@ test("a selected story without a published story branch is named and explained, 
 
   await test.step("a recorded branch no longer published is said so by name", async () => {
     const panel = await toggleOnDevelopment(page, removed.title);
-    await expectNamed(panel, removed.branch);
-    await expect(panel.locator(".intent-ci-gap")).toHaveText(
+    await expectCiScope(panel, removed.branch);
+    await expect(ciStatusReading(panel).gap).toHaveText(
       `The recorded branch ${removed.branch} of ${removed.title} is no longer published, so it has no CI status.`,
     );
     await expectNoStatus(panel);
@@ -137,10 +142,8 @@ test("a selected story without a published story branch is named and explained, 
 
   await test.step("clearing the selection shows main again", async () => {
     const panel = await toggleOnDevelopment(page, removed.title);
-    await expectNamed(panel, "main");
-    await expect(panel.locator(".intent-ci-state")).toHaveText(
-      "Passed at 4774f60 (Add login)",
-    );
+    await expectCiScope(panel, "main");
+    await expectCiAnswer(panel, "Passed at 4774f60 (Add login)");
   });
 });
 
@@ -164,7 +167,7 @@ test("a selected story whose agent profiles cannot be read has an unknown branch
   const taken = "Doughnut's own taken story";
   const panel = await toggleOnDevelopment(page, taken);
   await expect(panel.getByRole("heading")).toHaveText(`CI status of ${taken}`);
-  await expect(panel.locator(".intent-ci-gap")).toContainText(
+  await expect(ciStatusReading(panel).gap).toContainText(
     `The story branch of ${taken} is unknown: the agent profiles could not be read`,
   );
   await expectNoStatus(panel);

@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 // Captures Intent tree CI cues for review (light/dark × desktop/phone).
 
 import type { Locator, Page } from "@playwright/test";
@@ -18,7 +19,7 @@ export async function captureTreeCiCueScreenshots(
   for (const shot of shots) {
     await page.setViewportSize({ width: shot.width, height: 844 });
     await page.emulateMedia({ colorScheme: shot.colorScheme });
-    await intent.locator(".intent-locations").screenshot({
+    await filesColumn(intent).screenshot({
       path: path.join(screenshotDir, `tree-ci-cues-${shot.name}.png`),
     });
   }

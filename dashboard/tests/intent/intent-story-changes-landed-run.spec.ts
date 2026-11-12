@@ -21,6 +21,7 @@ import {
   openReviewFromIntent,
   reviewDiff,
   selectTakenStoryInIntent,
+  storyHeaderReading,
 } from "../support/intentStoryPage.ts";
 import { changed, publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { git } from "../support/launchLanding.ts";
@@ -45,10 +46,10 @@ const landedRunHeading = (review: Locator) =>
 
 // The landed run's tree the story's header in Intent shows beside its
 // changes.
-const intentRunTree = async (intent: Locator) =>
-  (await storyHeaderDetail(intent))
-    .locator(".intent-story-revisions code")
-    .nth(1);
+const intentRunTree = async (intent: Locator) => {
+  await storyHeaderDetail(intent);
+  return storyHeaderReading(intent).revisions.locator("code").nth(1);
+};
 
 // Story A's runs landed through the real one-shot delivery, one per name in
 // order, and a launch record naming the workspace Story A is then taken in,

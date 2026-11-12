@@ -1,3 +1,4 @@
+import { filesColumn } from "../intentModePage.ts";
 // Intent's reading place is kept by the page for the project
 // (../../src/pageIntentReading.tsx): with a selected Taken story
 // (../support/intentStoryWorktree.ts) that also adds a long spec two folders
@@ -33,6 +34,7 @@ import {
   intentFile,
   selectTakenStoryInIntent,
   storyOnly,
+  intentDiffReading,
 } from "../support/intentStoryPage.ts";
 import {
   changeWithDeepSpec,
@@ -66,12 +68,11 @@ function intentReads(page: Page) {
 // Proof stays on its own tab, so settling comparison no longer changes the
 // Purpose reading pane's height.
 async function readDeepSpec(intent: Locator) {
-  const purpose = purposeRegion(intent);
   await storyOnly(intent).check();
   await folderToggle(intent, "out", true).click();
   await intentFile(intent, deepSpec).click();
-  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deepSpec);
-  await expect(purpose.locator(".story-review-code")).toHaveAttribute(
+  await expect(intentDiffReading(intent).name).toHaveText(deepSpec);
+  await expect(intentDiffReading(intent).code).toHaveAttribute(
     "aria-busy",
     "false",
   );
@@ -104,14 +105,13 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   await expectStoryTab(intent, "Changed tests");
   await expectStoryComparisonRead(intent);
 
-  const purpose = purposeRegion(intent);
   await expect(storyOnly(intent)).toBeChecked();
   await expect(intentFile(intent, deepSpec)).toHaveAttribute(
     "aria-pressed",
     "true",
   );
-  await expect(purpose.locator(".intent-story-diff-name")).toHaveText(deepSpec);
-  await expect(purpose.locator(".story-review-code")).toHaveAttribute(
+  await expect(intentDiffReading(intent).name).toHaveText(deepSpec);
+  await expect(intentDiffReading(intent).code).toHaveAttribute(
     "aria-busy",
     "false",
   );
@@ -164,7 +164,7 @@ test("another project shows none of the reading place, and choosing the project 
     "false",
   );
   await expect(
-    intent.locator('.intent-locations [aria-pressed="true"]'),
+    filesColumn(intent).locator('[aria-pressed="true"]'),
   ).toHaveCount(0);
   expect(await intentReadingScroll(intent)).toBe(0);
 });

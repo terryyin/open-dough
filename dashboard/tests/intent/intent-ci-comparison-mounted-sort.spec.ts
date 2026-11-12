@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Actual sortable headers over canonical endpoint proof, without acquisition setup.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test } from "../support/pageTest.ts";
@@ -20,9 +21,7 @@ test("Baseline sorts measured durations both ways and keeps gaps last", async ({
   const panel = await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "baseline", direction: "ascending" },
   });
-  const table = panel.getByRole("table", {
-    name: "CI entry timing comparison",
-  });
+  const table = comparisonReading(panel).entryTable;
   await expectRenderedSortedBy(table, "Baseline", "ascending", [
     "tests",
     "dashboard/tests",
@@ -47,9 +46,7 @@ test("Counts sorts counted-result totals in both directions", async ({
   const panel = await renderComparison(page, comparisonRenderer, rendered, {
     sort: { column: "counts", direction: "ascending" },
   });
-  const table = panel.getByRole("table", {
-    name: "CI entry timing comparison",
-  });
+  const table = comparisonReading(panel).entryTable;
   await expectRenderedSortedBy(table, "Counts", "ascending", [
     "src/skills",
     "tests",
@@ -126,9 +123,7 @@ for (const column of ["Branch", "Landed"] as const) {
         direction: "ascending",
       },
     });
-    const table = panel.getByRole("table", {
-      name: "CI entry timing comparison",
-    });
+    const table = comparisonReading(panel).entryTable;
     await expectRenderedSortedBy(table, column, "ascending", [
       "e/down",
       "e/small",

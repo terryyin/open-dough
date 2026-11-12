@@ -9,6 +9,8 @@ import {
   countCandidatesReads,
   openCandidates,
   opened,
+  readFailure,
+  readRetry,
 } from "../tests/intentReadRecoveryPage.ts";
 import { noticedResumeTime } from "../tests/limitNotice.ts";
 import { untilPageRequestsAnswered } from "../tests/pageRequestNotes.ts";
@@ -53,21 +55,21 @@ test("candidates wait for the standing GitHub limit after their shorter backoff 
     }
   });
 
-  const record = await openCandidates(page);
-  await expect(record.getByRole("alert")).toBeVisible();
+  const record = await openCandidates(page, frontendRevision);
+  await expect(readFailure(record)).toBeVisible();
   await advanceRecoveryClock(page, 15_250);
   expect(reads()).toBe(2);
   const resumesAt = await noticedResumeTime(page);
   await advanceRecoveryClock(page, 31_000);
   expect(reads()).toBe(2);
-  await expect(record.getByRole("alert")).toBeVisible();
+  await expect(readFailure(record)).toBeVisible();
 
   const now = await page.evaluate(() => Date.now());
   await advanceRecoveryClock(page, resumesAt - now - 1);
   expect(reads()).toBe(2);
   await advanceRecoveryClock(page, 251);
   expect(reads()).toBe(3);
-  await expect(record.getByRole("alert")).toHaveCount(0);
+  await expect(readFailure(record)).toHaveCount(0);
   await expect(
     record.getByRole("region", { name: "Pending candidates" }),
   ).toBeVisible();
@@ -113,9 +115,9 @@ test("candidate access refusal and unexpected answers wait for manual Retry", as
     });
   });
   const reads = countCandidatesReads(page);
-  const record = await openCandidates(page);
-  const problem = record.getByRole("alert");
-  const retry = problem.getByRole("button", { name: "Retry" });
+  const record = await openCandidates(page, frontendRevision);
+  const problem = readFailure(record);
+  const retry = readRetry(problem);
   await expect(retry).toBeVisible();
   await advanceRecoveryClock(page, 70_000);
   expect(reads()).toBe(1);

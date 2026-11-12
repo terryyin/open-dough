@@ -1,3 +1,7 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../tests/intentScopeHistoryPage.ts";
 // Same-head reads, snapshot timestamps and refresh failures use only local history.
 import { shortSha } from "../src/baseCiWording.ts";
 import { parts } from "../tests/dashboardPage.ts";
@@ -69,29 +73,19 @@ test("Check again refreshes the same observed head, while time-only checks and f
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   const { intent } = parts(page);
   const summary = await openSummary(intent, "dashboard/tests");
-  const history = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  const evidence = history.getByRole("list", {
-    name: "Test execution history evidence",
-  });
+  const history = scopeHistory(summary);
+  const evidence = scopeHistoryReading(history).evidence;
   await expect(evidence).toContainText("8.0 s");
   await expect(history).toContainText("History read");
-  const observed = await history
-    .locator("time")
-    .first()
-    .getAttribute("datetime");
-  const firstAnswer = await history
-    .locator("p")
-    .filter({ hasText: /^History read/ })
-    .locator("time")
-    .getAttribute("datetime");
+  const observed =
+    await scopeHistoryReading(history).endpointTime.getAttribute("datetime");
+  const firstAnswer =
+    await scopeHistoryReading(history).answeredAt.getAttribute("datetime");
   await untilPageReadsAnswered(page);
   await passCheckPace(page);
   await untilPageReadsAnswered(page);
   expect(endpoints).toEqual([revision]);
-  await expect(history.locator("time").first()).toHaveAttribute(
+  await expect(scopeHistoryReading(history).endpointTime).toHaveAttribute(
     "datetime",
     observed ?? "",
   );
@@ -113,18 +107,16 @@ test("Check again refreshes the same observed head, while time-only checks and f
   }
   await expect(evidence).toContainText("11.0 s");
   await expect(history).not.toContainText("Previously retrieved history");
-  await expect(
-    history
-      .locator("p")
-      .filter({ hasText: /^History read/ })
-      .locator("time"),
-  ).not.toHaveAttribute("datetime", firstAnswer ?? "");
+  await expect(scopeHistoryReading(history).answeredAt).not.toHaveAttribute(
+    "datetime",
+    firstAnswer ?? "",
+  );
 
   await activateIntentHome(intent);
   await home.getByRole("button", { name: "Check again", exact: true }).click();
   fail = true;
   await openSummary(intent, "dashboard/tests");
-  await expect(history.getByRole("alert")).toContainText(
+  await expect(scopeHistoryReading(history).failure).toContainText(
     "Matching history refresh failed",
   );
   await expect(evidence).toContainText("11.0 s");
@@ -132,9 +124,9 @@ test("Check again refreshes the same observed head, while time-only checks and f
   await expect(summary.getByRole("table")).toBeVisible();
   fail = false;
   duration = 9000;
-  await history.getByRole("button", { name: "Retry history" }).click();
+  await scopeHistoryReading(history).retry.click();
   await expect(evidence).toContainText("9.0 s");
-  await expect(history.getByRole("alert")).toHaveCount(0);
+  await expect(scopeHistoryReading(history).failure).toHaveCount(0);
   expect(endpoints).toEqual([revision, revision, revision, revision]);
 
   const next = "b".repeat(40);
@@ -146,7 +138,7 @@ test("Check again refreshes the same observed head, while time-only checks and f
   );
   expect(endpoints).toEqual([revision, revision, revision, revision, next]);
   await expect(evidence).toContainText("9.0 s");
-  await expect(history.locator("time").first()).not.toHaveAttribute(
+  await expect(scopeHistoryReading(history).endpointTime).not.toHaveAttribute(
     "datetime",
     observed ?? "",
   );

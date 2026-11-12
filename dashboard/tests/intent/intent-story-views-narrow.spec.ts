@@ -8,13 +8,17 @@ import {
   expectFilesShown,
   filesToggle,
   intentModeTab,
+  intentPageFrame,
 } from "../intentModePage.ts";
 import { parts } from "../dashboardPage.ts";
 import { ciPanel } from "../intentCiStatusPage.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { box } from "../partArrangement.ts";
-import { browserRevision } from "../intentPerspectivePage.ts";
+import {
+  browserRevision,
+  intentReadingPane,
+} from "../intentPerspectivePage.ts";
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -22,6 +26,7 @@ import {
   outsideCount,
   selectTakenStoryInIntent,
   storyTab,
+  storyViews,
 } from "../support/intentStoryPage.ts";
 
 test("narrow, a selected story's views and Hide files stay reachable by keyboard without widening the page", async ({
@@ -83,13 +88,11 @@ test("without a story the shared header, project views and reader fit narrow and
     await expect(
       intent.getByRole("heading", { name: "No story selected", exact: true }),
     ).toBeVisible();
-    await expect(intent.locator(".intent-page-frame")).toHaveAttribute(
+    await expect(intentPageFrame(intent)).toHaveAttribute(
       "data-intent-context",
       "project",
     );
-    await expect(
-      intent.getByRole("tablist", { name: "Selected story views" }),
-    ).toHaveCount(0);
+    await expect(storyViews(intent)).toHaveCount(0);
     const width = await page.evaluate(
       () => document.documentElement.clientWidth,
     );
@@ -115,7 +118,7 @@ test("without a story the shared header, project views and reader fit narrow and
     await page.keyboard.press("Enter");
     await expectFilesShown(intent, false);
     await expect(ciPanel(intent)).toBeVisible();
-    const reading = await box(intent.locator(".intent-reading"));
+    const reading = await box(intentReadingPane(intent));
     expect(reading.height).toBeGreaterThan(viewport.height <= 256 ? 30 : 100);
     await page.keyboard.press("Space");
     await expectFilesShown(intent, true);

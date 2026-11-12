@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Cancelled landing gaps keep Branch readable and show their exact reason.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "./pageTest.ts";
@@ -54,21 +55,19 @@ for (const [name, reason, forbidden] of [
       mixedEntryFacts(),
     );
     const panel = await renderComparison(page, comparisonRenderer, rendered);
-    const identity = panel.locator(".intent-ci-comparison-identity").last();
+    const identity = comparisonReading(panel).identities.last();
     await expect(identity).toContainText("Cancelled at ddddddd.");
     await expect(identity).toContainText(reason);
-    await expect(panel.locator(".intent-ci-comparison-active")).toHaveText(
+    await expect(comparisonReading(panel).activeComparison).toHaveText(
       "Baseline compared with Branch",
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-active-reason"),
-    ).toHaveText(`Landed is not used: ${reason}`);
-    await expect(panel.locator(".intent-ci-comparison-wall").last()).toHaveText(
+    await expect(comparisonReading(panel).fallbackReason).toHaveText(
+      `Landed is not used: ${reason}`,
+    );
+    await expect(comparisonReading(panel).wallTimes.last()).toHaveText("—");
+    await expect(comparisonReading(panel).timesWithoutWaits.last()).toHaveText(
       "—",
     );
-    await expect(
-      panel.locator(".intent-ci-comparison-without-waits").last(),
-    ).toHaveText("—");
     await expect(panel).not.toContainText(forbidden);
   });
 }

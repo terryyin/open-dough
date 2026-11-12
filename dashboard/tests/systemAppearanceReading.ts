@@ -12,6 +12,20 @@ import {
   expectReadableContrast,
 } from "./accessibleReading.ts";
 import { tokenColour } from "./pageColours.ts";
+import { fileSource, sourceLineNumbers } from "./intentCodeBrowsePage.ts";
+
+// Source contrast and preference changes observe the same selected file.
+export function sourceAppearance(intent: Locator, path: string) {
+  const source = fileSource(intent, path);
+  return { source, token: source.locator(".source-token").first() };
+}
+
+export async function expectSourceReadable(intent: Locator, path: string) {
+  const { source, token } = sourceAppearance(intent, path);
+  await expect(source).toBeVisible();
+  await expectReadableContrast(sourceLineNumbers(source).first());
+  if ((await token.count()) > 0) await expectReadableContrast(token);
+}
 
 export async function setColorScheme(
   page: Page,

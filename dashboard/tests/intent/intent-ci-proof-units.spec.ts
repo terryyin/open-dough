@@ -1,3 +1,4 @@
+import { expectFileProofRows } from "../intentFileProofPage.ts";
 // CI proof results in their units through Intent (../../src/IntentCiProof.tsx,
 // ../../src/IntentScopeProof.tsx, ../../src/IntentFileProof.tsx,
 // ../../src/ciProofUnits.ts): raw runner reports go through the collector's
@@ -14,7 +15,6 @@
 // ../../../src/skills/dough-test-optimization/scripts/ci-proof-units.test.mjs,
 // ../../../tests/support/dashboard-ci-proof-units-read.test.mjs.
 
-import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { expectProofRows, proofOf, run } from "../intentCiProofPage.ts";
 import { openDoughSettings } from "../intentCodeBrowseFixtures.ts";
@@ -24,7 +24,11 @@ import {
   fileReadingTab,
   proofRegion,
 } from "../intentPerspectivePage.ts";
-import { childName, scopeTable } from "../intentScopeProofPage.ts";
+import {
+  childName,
+  expectScopeUnitFigures,
+  expectScopeTableRows,
+} from "../intentScopeProofPage.ts";
 import {
   openIntent,
   openSummary,
@@ -97,59 +101,6 @@ const unitsSummary = () =>
     ],
   );
 
-const ownFigures = (summary: Locator, path: string, unit: string) =>
-  summary.getByRole("group", { name: `CI proof of ${path}: ${unit}` });
-
-// SCOPE's own figures in UNIT read FIGURES: Counts, Test execution time and
-// Parts.
-async function expectOwnUnitFigures(
-  summary: Locator,
-  path: string,
-  unit: string,
-  figures: readonly string[],
-) {
-  const group = ownFigures(summary, path, unit);
-  await expect(group.getByRole("term")).toHaveText([
-    "Counts",
-    "Test execution time",
-    "Parts",
-  ]);
-  await expect(group.getByRole("definition")).toHaveText([...figures]);
-}
-
-// The rows of PATH's Summary table, each its scope then its cells.
-async function expectUnitRows(
-  summary: Locator,
-  path: string,
-  rows: readonly (readonly string[])[],
-) {
-  const body = scopeTable(summary, path).locator("tbody").getByRole("row");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, [scope, ...cells]] of rows.entries()) {
-    await expect(body.nth(at).getByRole("rowheader")).toHaveText(scope ?? "");
-    await expect(body.nth(at).getByRole("cell")).toHaveText(cells);
-  }
-}
-
-// FILE's Proof reads ROWS: one per unit of results it shows.
-async function expectFileProof(
-  intent: Locator,
-  file: string,
-  rows: readonly (readonly [string, string])[],
-) {
-  await intentFile(intent, file).click();
-  await fileReadingTab(intent, "Proof").click();
-  const body = proofRegion(intent)
-    .getByRole("table", { name: `CI proof of ${file}` })
-    .locator("tbody")
-    .getByRole("row");
-  await expect(body).toHaveCount(rows.length);
-  for (const [at, cells] of rows.entries()) {
-    await expect(body.nth(at).getByRole("rowheader")).toHaveText(file);
-    await expect(body.nth(at).getByRole("cell")).toHaveText([...cells]);
-  }
-}
-
 test("one location's test cases and test files stay apart, never one count, through CI status, its Summary, a folder of two source files and each file's Proof, with time and gaps in the unit that reported them", async ({
   page,
 }) => {
@@ -186,17 +137,17 @@ test("one location's test cases and test files stay apart, never one count, thro
     await expect(summary.locator(".intent-summary-files")).toHaveText(
       "3 files",
     );
-    await expectOwnUnitFigures(summary, "dashboard/tests", "test cases", [
+    await expectScopeUnitFigures(summary, "dashboard/tests", "test cases", [
       "10 passed test cases",
       "1.5 s",
       "1 of 1 part present",
     ]);
-    await expectOwnUnitFigures(summary, "dashboard/tests", "test files", [
+    await expectScopeUnitFigures(summary, "dashboard/tests", "test files", [
       "1 passed and 1 failed test files",
       "1.0 s",
       "1 of 1 part present",
     ]);
-    await expectUnitRows(summary, "dashboard/tests", [
+    await expectScopeTableRows(summary, "dashboard/tests", [
       ["folder/", "5 passed test cases", "500 ms"],
       ["folder/", "1 failed test file", "300 ms"],
       ["check.spec.ts", "5 passed test cases", "1.0 s"],
@@ -213,19 +164,19 @@ test("one location's test cases and test files stay apart, never one count, thro
     await expect(summary.locator(".intent-summary-files")).toHaveText(
       "2 files",
     );
-    await expectOwnUnitFigures(
+    await expectScopeUnitFigures(
       summary,
       "dashboard/tests/folder",
       "test cases",
       ["5 passed test cases", "500 ms", "1 of 1 part present"],
     );
-    await expectOwnUnitFigures(
+    await expectScopeUnitFigures(
       summary,
       "dashboard/tests/folder",
       "test files",
       ["1 failed test file", "300 ms", "1 of 1 part present"],
     );
-    await expectUnitRows(summary, "dashboard/tests/folder", [
+    await expectScopeTableRows(summary, "dashboard/tests/folder", [
       ["a.spec.ts", "5 passed test cases", "500 ms"],
       ["b.spec.ts", "1 failed test file", "300 ms"],
     ]);
@@ -234,12 +185,22 @@ test("one location's test cases and test files stay apart, never one count, thro
   await test.step("each file's Proof shows the units it reported: both for one path, only a failed test file for a file without cases (examples 36, 37)", async () => {
     await expandIntentGroup(intent, "dashboard/tests");
     await expandIntentFolders(intent, "dashboard/tests");
-    await expectFileProof(intent, "dashboard/tests/check.spec.ts", [
-      ["5 passed test cases", "1.0 s"],
-      ["1 passed test file", "700 ms"],
-    ]);
-    await expectFileProof(intent, "dashboard/tests/folder/b.spec.ts", [
-      ["1 failed test file", "300 ms"],
-    ]);
+    await intentFile(intent, "dashboard/tests/check.spec.ts").click();
+    await fileReadingTab(intent, "Proof").click();
+    await expectFileProofRows(
+      proofRegion(intent),
+      "dashboard/tests/check.spec.ts",
+      [
+        ["dashboard/tests/check.spec.ts", "5 passed test cases", "1.0 s"],
+        ["dashboard/tests/check.spec.ts", "1 passed test file", "700 ms"],
+      ],
+    );
+    await intentFile(intent, "dashboard/tests/folder/b.spec.ts").click();
+    await fileReadingTab(intent, "Proof").click();
+    await expectFileProofRows(
+      proofRegion(intent),
+      "dashboard/tests/folder/b.spec.ts",
+      [["dashboard/tests/folder/b.spec.ts", "1 failed test file", "300 ms"]],
+    );
   });
 });

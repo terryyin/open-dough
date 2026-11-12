@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Adapter proof absence stays distinct from GitHub run wording.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { test, expect } from "./pageTest.ts";
@@ -25,7 +26,7 @@ test("adapter proof size limit is named separately for every endpoint", async ({
     makeMe.aCiProof.tooLarge(1024 * 1024).please(),
   ]);
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  const gaps = panel.locator(".intent-ci-comparison-entries");
+  const gaps = comparisonReading(panel).entryEvidence;
   for (const label of ["Baseline", "Branch", "Landed"])
     await expect(gaps).toContainText(
       `${label} — This attempt's CI proof is larger than the 1 MiB proof limit.`,
@@ -62,7 +63,7 @@ test("invalid adapter Baseline and ambiguous Branch and Landed retain their own 
     undefined,
   ]);
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  const gaps = panel.locator(".intent-ci-comparison-entries");
+  const gaps = comparisonReading(panel).entryEvidence;
   await expect(gaps).toContainText(
     "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2.",
   );
@@ -96,14 +97,14 @@ test("adapter builds with no recorded wall time keep exact source words and hide
     makeMe.aCiProof.unavailable("none", "no proof kept").please(),
   ]);
   const panel = await renderComparison(page, comparisonRenderer, rendered);
-  const builds = panel.locator(".intent-ci-comparison-identity");
+  const builds = comparisonReading(panel).identities;
   await expect(builds.first()).toHaveText(gap.explanation);
   for (const index of [1, 2]) {
     await expect(builds.nth(index)).toContainText("bbbbbbb");
     await expectExactSourceCue(builds.nth(index));
     await expect(builds.nth(index)).not.toContainText("attempt passed-retry");
-    await expect(
-      panel.locator(".intent-ci-comparison-wall").nth(index),
-    ).toHaveText("Not recorded");
+    await expect(comparisonReading(panel).wallTimes.nth(index)).toHaveText(
+      "Not recorded",
+    );
   }
 });

@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // Late HTTP answers cannot replace the selected story or its attempt's proof.
 import {
   test,
@@ -37,21 +38,21 @@ test("a held comparison for an old selection cannot replace the current story's 
     },
   });
   await updateComparison(page, next);
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").first(),
-  ).toContainText("ddddddd");
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("10 → 4 test cases (−6)");
+  await expect(comparisonReading(panel).identities.first()).toContainText(
+    "ddddddd",
+  );
+  await expect(comparisonReading(panel).overallCounts).toHaveText(
+    "10 → 4 test cases (−6)",
+  );
   const cancelled = await aborted;
   expect(cancelled.failure()?.errorText).toMatch(/abort|cancel/i);
   held.resolve({ json: first.answer });
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").first(),
-  ).toContainText("ddddddd");
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").first(),
-  ).not.toContainText("aaaaaaa");
+  await expect(comparisonReading(panel).identities.first()).toContainText(
+    "ddddddd",
+  );
+  await expect(comparisonReading(panel).identities.first()).not.toContainText(
+    "aaaaaaa",
+  );
   expect(comparisonServices.comparisons).toBe(2);
 });
 
@@ -86,15 +87,15 @@ test("a held endpoint proof for an old story cannot paint the current story's co
     },
   });
   await updateComparison(page, next);
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("10 → 4 test cases (−6)");
+  await expect(comparisonReading(panel).overallCounts).toHaveText(
+    "10 → 4 test cases (−6)",
+  );
   const cancelled = await aborted;
   expect(cancelled.failure()?.errorText).toMatch(/abort|cancel/i);
   held.resolve({ json: first.proof(1) });
-  await expect(
-    panel.locator(".intent-ci-comparison-overall-counts"),
-  ).toHaveText("10 → 4 test cases (−6)");
+  await expect(comparisonReading(panel).overallCounts).toHaveText(
+    "10 → 4 test cases (−6)",
+  );
   expect(comparisonServices.comparisons).toBe(2);
   expect(comparisonServices.proofs).toBe(6);
 });

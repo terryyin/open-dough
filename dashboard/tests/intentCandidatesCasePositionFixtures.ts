@@ -1,18 +1,12 @@
 // Doughnut case-position fixtures for Intent Purpose journeys
 // (`./intent/intent-test-optimization-candidates-case.spec.ts`,
 // `./intent/intent-purpose-case.spec.ts`): a unique Gherkin scenario and a
-// duplicated name that falls back to the file start, with opening the unique
-// one from the record and seeing Purpose positioned on it.
+// duplicated name that falls back to the file start.
 
-import { expect, type Locator } from "@playwright/test";
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import { doughnut, publishIntentProject } from "./intentCodeBrowseFixtures.ts";
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { doughnutFeatureSettings } from "./intentCandidatesOtherProjectFixtures.ts";
-import {
-  candidatesRecord,
-  chooseOptimizationCandidates,
-} from "./intentModePage.ts";
 
 export const doughnutCaseFeaturePath =
   "e2e_test/features/cli/case_position.feature";
@@ -75,27 +69,4 @@ export function publishDoughnutCasePosition(
     [testOptimizationCandidatesPath]: doughnutCaseCandidatesRecord,
     [doughnutCaseFeaturePath]: doughnutCaseFeatureSource,
   });
-}
-
-// Opens the unique scenario's file from the Optimization Candidates record.
-export async function openDoughnutRecordedCase(intent: Locator) {
-  await chooseOptimizationCandidates(intent);
-  await candidatesRecord(intent)
-    .getByRole("article", { name: "unique-scenario-once" })
-    .getByRole("button", { name: doughnutCaseFeaturePath, exact: true })
-    .click();
-}
-
-// Purpose shows the unique scenario as the current location, in view.
-export async function expectDoughnutCasePositioned(intent: Locator) {
-  const target = intent
-    .getByLabel(`${doughnutCaseFeaturePath} source`)
-    .locator(".source-line.is-target");
-  await expect(target).toHaveCount(1);
-  await expect(target).toHaveAttribute(
-    "data-line",
-    String(doughnutUniqueScenarioLine),
-  );
-  await expect(target).toHaveAttribute("aria-current", "location");
-  await expect(target).toBeInViewport();
 }

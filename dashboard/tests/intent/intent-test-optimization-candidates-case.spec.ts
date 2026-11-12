@@ -1,7 +1,14 @@
+import { intentReadingScroll } from "../intentPerspectivePage.ts";
+import {
+  expectSourceTargetLine,
+  fileSource,
+  sourceLineNumbers,
+  sourceTargetLine,
+  sourceFile,
+} from "../intentCodeBrowsePage.ts";
 // Intent opens a recorded test from the Optimization Candidates tab at its
 // identified case in the Intent tab's Purpose (SEED-192 commitments 23.1–23.3, 24, E4 configured variant).
 
-import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import {
@@ -29,15 +36,6 @@ import {
 } from "../intentCandidatesOtherProjectFixtures.ts";
 import { doughnut, openDough, pygardon } from "../intentCodeBrowseFixtures.ts";
 
-async function expectTargetLine(source: Locator, line: number) {
-  const target = source.locator(".source-line.is-target");
-  await expect(target).toHaveCount(1);
-  await expect(target).toHaveAttribute("data-line", String(line));
-  await expect(target).toHaveAttribute("aria-current", "location");
-  await expect(target).toBeInViewport();
-  await expect(target.locator(".source-line-number")).toHaveText(String(line));
-}
-
 test("Intent opens a configured Pygardon ::name case at its line in Purpose", async ({
   page,
 }) => {
@@ -56,13 +54,11 @@ test("Intent opens a configured Pygardon ::name case at its line in Purpose", as
   await expect(entry.locator(".intent-candidate-location-case")).toHaveText(
     `::${pygardonClipCase}`,
   );
-  await entry
-    .getByRole("button", { name: pygardonClipPath, exact: true })
-    .click();
+  await sourceFile(entry, pygardonClipPath).click();
 
-  const source = intent.getByLabel(`${pygardonClipPath} source`);
+  const source = fileSource(intent, pygardonClipPath);
   await expect(source).toContainText(`def ${pygardonClipCase}`);
-  await expectTargetLine(source, pygardonClipCaseLine);
+  await expectSourceTargetLine(source, pygardonClipCaseLine);
 });
 
 test("Intent opens a Gherkin scenario named exactly once at its line", async ({
@@ -83,13 +79,11 @@ test("Intent opens a Gherkin scenario named exactly once at its line", async ({
   await expect(entry.locator(".intent-candidate-location-case")).toHaveText(
     `::${doughnutUniqueScenario}`,
   );
-  await entry
-    .getByRole("button", { name: doughnutCaseFeaturePath, exact: true })
-    .click();
+  await sourceFile(entry, doughnutCaseFeaturePath).click();
 
-  const source = intent.getByLabel(`${doughnutCaseFeaturePath} source`);
+  const source = fileSource(intent, doughnutCaseFeaturePath);
   await expect(source).toContainText(`Scenario: ${doughnutUniqueScenario}`);
-  await expectTargetLine(source, doughnutUniqueScenarioLine);
+  await expectSourceTargetLine(source, doughnutUniqueScenarioLine);
 });
 
 test("Intent opens path:line at that line and a duplicate case name at the file start", async ({
@@ -111,16 +105,11 @@ test("Intent opens path:line at that line and a duplicate case name at the file 
     await expect(entry.locator(".intent-candidate-location-case")).toHaveText(
       `:${openDoughCaseLineNumber}`,
     );
-    await entry
-      .getByRole("button", {
-        name: openDoughSpecPaths.caseLine,
-        exact: true,
-      })
-      .click();
+    await sourceFile(entry, openDoughSpecPaths.caseLine).click();
 
-    const source = intent.getByLabel(`${openDoughSpecPaths.caseLine} source`);
+    const source = fileSource(intent, openDoughSpecPaths.caseLine);
     await expect(source).toContainText("line-anchored case");
-    await expectTargetLine(source, openDoughCaseLineNumber);
+    await expectSourceTargetLine(source, openDoughCaseLineNumber);
   });
 
   await test.step("duplicate case name opens at the file start with case text beside the link", async () => {
@@ -136,30 +125,19 @@ test("Intent opens path:line at that line and a duplicate case name at the file 
     await expect(entry.locator(".intent-candidate-location-case")).toHaveText(
       "::shared scenario",
     );
-    await entry
-      .getByRole("button", { name: doughnutCaseFeaturePath, exact: true })
-      .click();
+    await sourceFile(entry, doughnutCaseFeaturePath).click();
 
-    const source = intent.getByLabel(`${doughnutCaseFeaturePath} source`);
+    const source = fileSource(intent, doughnutCaseFeaturePath);
     await expect(source).toContainText("Scenario: shared scenario");
-    await expect(source.locator(".source-line.is-target")).toHaveCount(0);
-    await expect(source.locator(".source-line-number").first()).toHaveText("1");
-    await expect
-      .poll(() =>
-        page.locator(".intent-reading").evaluate((el) => el.scrollTop),
-      )
-      .toBe(0);
+    await expect(sourceTargetLine(source)).toHaveCount(0);
+    await expect(sourceLineNumbers(source).first()).toHaveText("1");
+    await expect.poll(() => intentReadingScroll(intent)).toBe(0);
 
     await chooseOptimizationCandidates(intent);
     const returned = candidatesRecord(intent).getByRole("article", {
       name: "duplicate-scenario-name",
     });
-    await expect(
-      returned.getByRole("button", {
-        name: doughnutCaseFeaturePath,
-        exact: true,
-      }),
-    ).toBeVisible();
+    await expect(sourceFile(returned, doughnutCaseFeaturePath)).toBeVisible();
     await expect(
       returned.locator(".intent-candidate-location-case"),
     ).toHaveText("::shared scenario");

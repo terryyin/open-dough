@@ -1,3 +1,7 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../tests/intentScopeHistoryPage.ts";
 // Real evidence provider updates retain observation identity and reject late replies.
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import { shortSha } from "../src/baseCiWording.ts";
@@ -65,10 +69,7 @@ test("a newer timestamp at the same head issues no history read, and a late old 
   const project = { ...facts, identity: undefined, work: initial };
   try {
     await mountComparison(page, comparisonServer, project);
-    const history = page.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
+    const history = scopeHistory(page);
     await expect.poll(() => requests).toEqual([first]);
     await updateComparison(page, {
       ...project,
@@ -77,7 +78,7 @@ test("a newer timestamp at the same head issues no history read, and a late old 
         .please(),
     });
     await givePageItsTurns(page);
-    await expect(history.locator("time").first()).toHaveAttribute(
+    await expect(scopeHistoryReading(history).endpointTime).toHaveAttribute(
       "datetime",
       "2026-11-11T07:00:00.000Z",
     );
@@ -95,12 +96,12 @@ test("a newer timestamp at the same head issues no history read, and a late old 
     await expect(history).toContainText(
       `Observed trunk endpoint main ${shortSha(next)}`,
     );
-    await expect(history.getByRole("listitem")).toContainText("11.0 s");
+    await expect(scopeHistoryReading(history).rows).toContainText("11.0 s");
     release?.();
     await oldAnswered;
     await untilPageReadsAnswered(page);
     await expect(history).not.toContainText("8.0 s");
-    await expect(history.getByRole("listitem")).toContainText("11.0 s");
+    await expect(scopeHistoryReading(history).rows).toContainText("11.0 s");
     expect(requests).toEqual([first, next]);
   } finally {
     release?.();

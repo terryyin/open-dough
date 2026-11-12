@@ -1,3 +1,9 @@
+import {
+  fileSource,
+  sourceFile,
+  sourceLineNumbers,
+  sourceText,
+} from "../intentCodeBrowsePage.ts";
 // Intent browses and reads configured Gherkin source at the observed revision
 // (../../src/IntentPerspective.tsx): Doughnut-like and Pygardon-like locations,
 // nested folders after expand, exact text with line numbers and Gherkin
@@ -60,29 +66,31 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await expect(
       intent.getByRole("button", { name: "recall", exact: true }),
     ).toBeVisible();
-    const feature = intent.getByRole("button", {
-      name: "e2e_test/features/recall/recall_note.feature",
-      exact: true,
-    });
+    const feature = sourceFile(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
+    );
     await expect(feature).toBeVisible();
     await expect(
       intent.getByRole("button", { name: /recall\.png/ }),
     ).toHaveCount(0);
     await feature.click();
-    const source = intent.getByLabel(
-      "e2e_test/features/recall/recall_note.feature source",
+    const source = fileSource(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
     );
     await expect(source).toContainText("Feature: Recall a note");
     await expect(source).toContainText("Given a notebook with a note titled");
-    await expect(source.locator(".source-line-number").first()).toHaveText("1");
+    await expect(sourceLineNumbers(source).first()).toHaveText("1");
     await expect(intent).toContainText(
       `at revision ${shortRevision(doughnut.revision)}`,
     );
   });
 
   await test.step("Gherkin keywords and steps are styled; line text equals the source; copy excludes line numbers", async () => {
-    const source = intent.getByLabel(
-      "e2e_test/features/recall/recall_note.feature source",
+    const source = fileSource(
+      intent,
+      "e2e_test/features/recall/recall_note.feature",
     );
     const keyword = sourceToken(source, /^Feature$/);
     const step = sourceToken(source, /^Given $/);
@@ -97,9 +105,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     expect(stepColour).not.toBe(plainColour);
     expect(keywordColour).toBe(stepColour);
 
-    const lineText = await source
-      .locator(".source-line-text")
-      .evaluateAll((els) => els.map((el) => el.textContent).join("\n"));
+    const lineText = await sourceText(source);
     expect(lineText).toBe(recallFeature);
 
     const selected = await source.evaluate((pre) => {
@@ -119,9 +125,7 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     await chooseProject(page, "Pygardon");
     await expect(intent).not.toContainText("Feature: Recall a note");
     await expect(
-      intent.getByRole("button", {
-        name: "e2e_test/features/recall/recall_note.feature",
-      }),
+      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
     ).toHaveCount(0);
     await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
     await expect(
@@ -137,13 +141,12 @@ test("Intent browses Doughnut and Pygardon Gherkin locations, reads exact text w
     ).toBeVisible();
     await expect(purposeRegion(intent)).toHaveCount(0);
     await expandIntentGroup(intent, "e2e_test/packaged/features");
-    await intent
-      .getByRole("button", {
-        name: "e2e_test/packaged/features/packaged.feature",
-      })
-      .click();
+    await sourceFile(
+      intent,
+      "e2e_test/packaged/features/packaged.feature",
+    ).click();
     await expect(
-      intent.getByLabel("e2e_test/packaged/features/packaged.feature source"),
+      fileSource(intent, "e2e_test/packaged/features/packaged.feature"),
     ).toContainText("Feature: Packaged feature");
     await expect(intent).toContainText(
       `at revision ${shortRevision(pygardon.revision)}`,

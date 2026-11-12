@@ -1,11 +1,6 @@
-// Proof table accessibility at narrow and zoomed windows: rows stay whole,
-// the reading pane never scrolls sideways, and keyboard navigation passes
-// sortable headers in their visible order. Multi-unit locations keep labeled
-// lines and full gap descriptions readable in that same boundary. Basic proof
-// behavior: ./intent-ci-proof.spec.ts.
-import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { expect, test } from "../dashboardTest.ts";
+import { intentReadingPane } from "../intentPerspectivePage.ts";
 import {
+  ciProofReading,
   artifactId,
   ciEntryName,
   expectProofRows,
@@ -15,9 +10,18 @@ import {
   proofTable,
   run,
 } from "../intentCiProofPage.ts";
+import { expectCiAnswer } from "../intentCiStatusPage.ts";
+// Proof table accessibility at narrow and zoomed windows: rows stay whole,
+// the reading pane never scrolls sideways, and keyboard navigation passes
+// sortable headers in their visible order. Multi-unit locations keep labeled
+// lines and full gap descriptions readable in that same boundary. Basic proof
+// behavior: ./intent-ci-proof.spec.ts.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { expect, test } from "../dashboardTest.ts";
+
 import { twiceZoomedWindow, zoomedWindow } from "../accessibleReading.ts";
 import { wordsBrokenApart } from "../wholeWords.ts";
-import { evidenceLabels } from "../ciEvidenceLabelsPage.ts";
+import { attemptLink, evidenceLabels } from "../ciEvidenceLabelsPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { summaryRegion } from "../intentScopeProofPage.ts";
 import {
@@ -89,9 +93,9 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     () => summaryZipAnswer(summary),
   );
   await expectProofRows(proof, rows);
-  const fileGap = proof
-    .locator(".intent-ci-proof-unit-line")
-    .filter({ hasText: "Part 2 missing" });
+  const fileGap = ciProofReading(proof).unitLines.filter({
+    hasText: "Part 2 missing",
+  });
   await expect(fileGap).toHaveAttribute("title", gapWhy);
   await expect(fileGap).toHaveAccessibleDescription(gapWhy);
   // A wider installed font lays the table out as Linux's fallback font does.
@@ -102,7 +106,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
   const table = proofTable(proof);
   const box = proof.locator(".intent-proof-table");
   const again = panel.getByRole("button", { name: "Check again" });
-  const link = proof.getByRole("link", { name: "Run 41 · attempt 1" });
+  const link = attemptLink(proof, "Run 41 · attempt 1");
   // How far the table's box scrolls sideways, and whether the box lies within
   // the reading pane and the page does not scroll sideways.
   const fit = () =>
@@ -129,7 +133,7 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     whole: string,
   ) => {
     await page.setViewportSize(window);
-    await expect(panel.locator(".intent-ci-state")).toHaveText(failedVerdict);
+    await expectCiAnswer(panel, failedVerdict);
     await expectProofRows(proof, rows);
     await expect(fileGap).toHaveAccessibleDescription(gapWhy);
     await table.scrollIntoViewIfNeeded();
@@ -169,6 +173,6 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     await expect(
       summaryRegion(intent).locator(".intent-summary-path"),
     ).toHaveText("dashboard/tests");
-    await expect(intent.locator(".intent-reading")).toBeFocused();
+    await expect(intentReadingPane(intent)).toBeFocused();
   });
 });

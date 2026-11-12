@@ -1,10 +1,11 @@
+import { timeMarks } from "../support/relativeTimingMarks.ts";
+import { expectFileComparisonRow } from "../intentFileProofPage.ts";
 // File Proof rules use real scope owners; Purpose and tab return stay integrated.
 import { test, expect } from "../support/pageTest.ts";
 import { renderComparison } from "../support/comparisonRendering.ts";
 import { comparisonRenderFacts } from "../support/comparisonRenderFacts.ts";
 import { summaryScopeFacts } from "../support/comparisonScopeFacts.ts";
 import {
-  expectFileComparisonRow,
   modifiedFileRow,
   addedFileRow,
   renamedFileRow,
@@ -106,6 +107,6 @@ for (const example of examples) {
     await expectFileComparisonRow(proof, example.path, example.row);
     await expectProofRowCues(proof, example.path, example.cues);
     if (example.name === "renamed across units")
-      await expect(proof.locator(".intent-ci-time-mark")).toHaveCount(0);
+      await expect(timeMarks(proof)).toHaveCount(0);
   });
 }

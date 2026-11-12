@@ -1,3 +1,7 @@
+import {
+  scopeHistory,
+  scopeHistoryReading,
+} from "../tests/intentScopeHistoryPage.ts";
 // Same-ID source configuration changes cannot inherit a different source's answer.
 import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
@@ -46,13 +50,8 @@ for (const changed of ["repository", "ref"] as const) {
       );
     });
     await mountComparison(page, comparisonServer, project);
-    const history = page.getByRole("region", {
-      name: "Test execution time history",
-      exact: true,
-    });
-    const evidence = history.getByRole("list", {
-      name: "Test execution history evidence",
-    });
+    const history = scopeHistory(page);
+    const evidence = scopeHistoryReading(history).evidence;
     await expect(evidence).toContainText("8.0 s");
     const source = makeMe.aPublishedSource
       .with({
@@ -70,7 +69,7 @@ for (const changed of ["repository", "ref"] as const) {
       },
       { source, work, identity: undefined, scope: project.scope },
     );
-    await expect(history.getByRole("alert")).toContainText(
+    await expect(scopeHistoryReading(history).failure).toContainText(
       "New source history unavailable",
     );
     await expect(evidence).toHaveCount(0);

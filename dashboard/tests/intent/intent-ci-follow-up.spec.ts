@@ -1,3 +1,6 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import { backToStory, projectIntentLink } from "../intentModePage.ts";
+import { selectStory } from "../storyCardSelection.ts";
 // Real collection first, then a fresh reader process and the card-to-Intent route.
 import { expect, test } from "../support/preparationPage.ts";
 import {
@@ -11,7 +14,12 @@ import {
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { publishIntentTrunk } from "../support/intentStoryWorktree.ts";
 import { chooseStoryTab } from "../support/intentStoryPage.ts";
-import { expectOriginalProofNavigation } from "../support/ciFollowUpReadingPage.ts";
+import {
+  ciFollowUpCard,
+  expectOriginalProofNavigation,
+  openCiFollowUp,
+  retainedCiFollowUpReading,
+} from "../support/ciFollowUpReadingPage.ts";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 
 test.use({ serverMode: "boundary", extraEnv: recheckingLandedCi });
@@ -75,29 +83,28 @@ test("the completed card opens both collected attempts and their frozen referenc
     const before = ciCalls().length;
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(reader.baseURL);
-    const card = page.getByRole("article", { name: "Story A", exact: true });
+    const card = ciFollowUpCard(page, "Story A");
+    const {
+      intent,
+      development,
+      intentChoice,
+      comparison,
+      original,
+      repeat,
+      reference,
+      referenceDisclosure,
+      refresh,
+    } = retainedCiFollowUpReading(page);
     await expect(card).toContainText("CI timing returned to range");
     await expect(card).toContainText("Done");
-    const route = card.getByRole("link", {
-      name: "Review original, repeat and saved reference",
-    });
-    await route.focus();
-    await page.keyboard.press("Enter");
-    const comparison = page.getByRole("region", {
-      name: "Retained CI follow-up comparison",
-    });
+    await openCiFollowUp(card, "keyboard");
     await expect(comparison).toContainText("CI timing returned to range");
-    await expect(
-      page.getByRole("main", { name: "Intent", exact: true }),
-    ).toHaveAttribute("data-selected-story", scenario.identity);
+    await expect(intent).toHaveAttribute(
+      "data-selected-story",
+      scenario.identity,
+    );
     await expect(comparison).toContainText(scenario.story.completion);
     await expect(comparison).toContainText("Workflow ci.yml · ID 7001");
-    const original = comparison.getByRole("region", {
-      name: "Original CI attempt",
-    });
-    const repeat = comparison.getByRole("region", {
-      name: "Repeat CI attempt",
-    });
     await expect(original).toContainText(scenario.story.completion);
     await expect(repeat).toContainText(scenario.story.completion);
     await expect(original).toContainText("Workflow ci.yml · ID 7001");
@@ -114,9 +121,7 @@ test("the completed card opens both collected attempts and their frozen referenc
       "Saved provisional rule: repeat once at or above 5%",
     );
     await expect(comparison).toContainText("5 prior builds used");
-    const evidence = comparison.getByRole("group", {
-      name: "Prior-build reference evidence",
-    });
+    const evidence = reference.evidence;
     await expect(evidence.locator("p")).toHaveCount(7);
     await expect(evidence).toContainText("✓ Included");
     await expect(evidence).toContainText("◆ Selected");
@@ -126,12 +131,12 @@ test("the completed card opens both collected attempts and their frozen referenc
     );
     await expect(evidence).toContainText("run/6/1");
     await expect(evidence).toContainText("run/71/1");
-    const first = original.getByRole("link", { name: "Run 71 · attempt 1" });
+    const first = attemptLink(original, "Run 71 · attempt 1");
     await expect(first).toHaveAttribute(
       "href",
       "https://github.com/terryyin/open-dough/actions/runs/71/attempts/1",
     );
-    const second = repeat.getByRole("link", { name: "Run 71 · attempt 2" });
+    const second = attemptLink(repeat, "Run 71 · attempt 2");
     await expect(second).toHaveAttribute(
       "href",
       "https://github.com/terryyin/open-dough/actions/runs/71/attempts/2",
@@ -140,67 +145,54 @@ test("the completed card opens both collected attempts and their frozen referenc
     await page.keyboard.press("Tab");
     await expect(second).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(comparison.locator("summary")).toBeFocused();
+    await expect(referenceDisclosure).toBeFocused();
     for (const link of await evidence.getByRole("link").all()) {
       await page.keyboard.press("Tab");
       await expect(link).toBeFocused();
     }
     await expectNoSidewaysScrollIn(page, comparison);
     expect(ciCalls()).toHaveLength(before);
-    await expectOriginalProofNavigation(page);
+    await expectOriginalProofNavigation(page, {
+      location: "dashboard/tests",
+      file: "dashboard/tests/a.spec.ts",
+      originalAttempt: "Run 71 · attempt 1",
+      repeatAttempt: "Run 71 · attempt 2",
+      originalUrl:
+        "https://github.com/terryyin/open-dough/actions/runs/71/attempts/1",
+      passedCases: "2092 passed test cases",
+      absentFraming: "story branch of",
+    });
     expect(ciCalls()).toHaveLength(before);
-    await page
-      .getByRole("button", { name: "Refresh retained follow-up" })
-      .click();
+    await refresh.click();
     await expect(comparison).toContainText("Saved prior-build reference");
     await page.reload();
     await expect(comparison).toContainText("CI timing returned to range");
     expect(ciCalls()).toHaveLength(before);
-    await chooseStoryTab(
-      page.getByRole("main", { name: "Intent", exact: true }),
-      "Changed tests",
-    );
+    await chooseStoryTab(intent, "Changed tests");
     await page.goBack();
     await expect(card).toContainText("CI timing returned to range");
-    await card
-      .getByRole("link", {
-        name: "Review original, repeat and saved reference",
-      })
-      .click();
+    await openCiFollowUp(card, "pointer");
     await expect(comparison).toContainText("2 min");
     expect(ciCalls()).toHaveLength(before);
     expect(scenario.repeatCalls).toEqual([71]);
     // An explicit new selection in Development yields to normal Intent.
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.getByRole("radio", { name: "Development", exact: true }).check();
-    await page
-      .getByRole("article", { name: "Story B", exact: true })
-      .getByRole("button", { name: "Select story", exact: true })
-      .click();
+    await development.check();
+    await selectStory(
+      page.getByRole("article", { name: "Story B", exact: true }),
+    ).click();
     await expect
       .poll(() => new URL(page.url()).searchParams.get("followUp"))
       .toBeNull();
-    await expect(
-      page.getByRole("radio", { name: "Development", exact: true }),
-    ).toBeChecked();
-    await page.getByRole("radio", { name: "Intent", exact: true }).check();
-    await expect(
-      page.getByRole("main", { name: "Intent", exact: true }),
-    ).toHaveAttribute("data-selected-story", "SEED-B#b");
+    await expect(development).toBeChecked();
+    await intentChoice.check();
+    await expect(intent).toHaveAttribute("data-selected-story", "SEED-B#b");
     await expect(comparison).toHaveCount(0);
-    await page.getByRole("radio", { name: "Development", exact: true }).check();
-    await card
-      .getByRole("link", {
-        name: "Review original, repeat and saved reference",
-      })
-      .click();
+    await development.check();
+    await openCiFollowUp(card, "pointer");
     await expect(comparison).toBeVisible();
-    await page
-      .getByRole("button", { name: "Project Intent", exact: true })
-      .click();
-    await expect(
-      page.getByRole("button", { name: "Back to selected story", exact: true }),
-    ).toBeVisible();
+    await projectIntentLink(intent).click();
+    await expect(backToStory(intent)).toBeVisible();
     await expect(comparison).toHaveCount(0);
   } finally {
     await reader.close();

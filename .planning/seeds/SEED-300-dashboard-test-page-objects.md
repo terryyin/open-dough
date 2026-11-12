@@ -43,7 +43,6 @@ new plans, not an invented slice history.
 
 | Order | Receiving story | Findings | Preparation / scheduling |
 | --- | --- | --- | --- |
-| 1 | [Express Intent test reading through page objects](#express-dashboard-test-intent-through-page-objects) | 7 | Refined first plan; retains original queue position |
 | 2 | [Express review and Side panel test intent through page objects](#express-review-test-intent-through-page-objects) | 3 | Provisional plan; selected for queue |
 | 3 | [Express Terminal test intent through page objects](#express-terminal-test-intent-through-page-objects) | 1 | Provisional plan; selected for queue |
 | 4 | [Express Board and published-read test intent through page objects](#express-board-test-intent-through-page-objects) | 6 | Provisional plan; queued 2026-11-11 |
@@ -203,121 +202,6 @@ North Star direction needs no addition for this test-side change.
   MakeMe for domain data and the existing causal waits. Run the changed
   specs and the applicable dashboard gates under the project's
   [failing and flaky test policy](../../AGENTS.md#failing-and-flaky-tests).
-
-<a id="express-dashboard-test-intent-through-page-objects"></a>
-
-### Express Intent test reading through page objects
-
-**Identity:** SEED-300#express-dashboard-test-intent-through-page-objects
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/581-intent-test-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9cc3ee7f898078773bcfe34b8c4389aeaf79df6d2a4a7f7bae6b9c316eb191dd","plan":"d1379fee0506467a3fdaed9734bfecc2ade2a37e83a0103e131ee5aced957e88"}}
-```
-
-#### Goal
-
-A developer reading Intent tests can follow CI evidence, source choices and retained reading without reconstructing browser mechanics. Shared Intent controls have one maintained owner across integrated, static-rendered and live-mounted callers.
-
-#### Scope
-
-Resolve the seven Intent findings below, including their same-sequence and selector siblings. Preserve expected rows, units, dates, gaps, reference membership, unsupported-comparison absence, selected source/revision, keyboard/focus and request/held-answer evidence at the call site. The first story delivers its reading and ownership improvement independently of the deferred families.
-
-**Plan:** [Mapped plan](../slice-plans/581-intent-test-reading/PLAN.md)
-
-#### Key examples
-
-- Integrated and static-rendered comparisons show the same table → a developer
-  reads their scenarios → both use one reading owner with explicit expected
-  rows, order, units and unsupported-comparison absence. Static sort/percent
-  options remain fixture inputs; live cases activate the real controls.
-- A CI answer is kept while its next read is held → the scenario observes it,
-  releases the answer and reads the replacement → both expected answers and
-  their causal ordering remain explicit outside the reading helper.
-- A selected source line survives a revision notice or failed read → the
-  scenario retries or releases a held replacement → its expected file, target
-  line, revision, focus and retained reading place remain independently proved.
-- A Done card leads to retained CI follow-up → pointer or keyboard follows
-  original/repeat/reference evidence → exact timings, attempt links, saved
-  membership and absence of new acquisition stay at the call site.
-
-#### Audit findings owned by this story
-
-- **CI comparison and Summary.** Integrated and mounted specs each reach into
-  the comparison's identity, wall time, active time, gaps, and table markup.
-  The mounted legacy and units specs even define their own `fileProofRows`.
-  Give comparison metrics, entry tables and Summary rows a shared reading API
-  usable by both test setups. Keep the expected values, order, and absence of
-  unsupported comparisons in each case.
-  [Integrated counts](../../dashboard/tests/intent/intent-ci-comparison-count-gaps.spec.ts#L61),
-  [adapter outcomes](../../dashboard/tests/intent/intent-ci-comparison-adapter.spec.ts#L97),
-  [retry and gaps](../../dashboard/tests/intent/intent-ci-comparison-mounted-retry.spec.ts#L32),
-  [mounted legacy](../../dashboard/tests/intent/intent-ci-comparison-mounted-legacy.spec.ts#L16),
-  [mounted units](../../dashboard/tests/intent/intent-ci-comparison-mounted-units.spec.ts#L23).
-
-- **CI sorting and relative presentation.** Summary and comparison tests
-  separately locate rows and sort state, gather percentage marks, and drive
-  keyboard activation of the time presentation controls. Name the table,
-  sort, and display-mode operations across mounted and integrated specs.
-  [Comparison drilldown](../../dashboard/tests/intent/intent-ci-comparison-drilldown-relative.spec.ts#L33),
-  [relative comparison](../../dashboard/tests/intent/intent-ci-comparison-relative.spec.ts#L101),
-  [Summary sort](../../dashboard/tests/intent/intent-summary-ci-proof-sort.spec.ts#L75),
-  [mounted Summary percentages](../../dashboard/tests/intent/intent-summary-story-comparison-mounted-relative.spec.ts#L171).
-
-- **CI status and Proof.** Many cases already open the view through
-  `intentCiStatusPage.ts` and `intentCiProofPage.ts`, then reconstruct the
-  displayed state, time, checking and gap locators. Extend those owners for
-  freshness, kept answers, scope and proof rows, so the test can say which
-  answer the user still sees while a read is outstanding.
-  [Freshness](../../dashboard/tests/intent/intent-ci-status-freshness.spec.ts#L57),
-  [kept status](../../dashboard/tests/intent/intent-ci-status-kept.spec.ts#L105),
-  [story gaps](../../dashboard/tests/intent/intent-ci-status-story-gaps.spec.ts#L59),
-  [adapter reasons](../../dashboard/tests/intent/intent-ci-proof-adapter-reasons.spec.ts#L85),
-  [unit rows](../../dashboard/tests/intent/intent-ci-proof-units.spec.ts#L103).
-
-- **Timing history.** The CI wall-time, prior-build and scope histories repeat
-  disclosure, sample selection, SVG point/reference-line access, and reading
-  of the selected observation. Expose those observations through the history
-  helpers, with expected dates, values, gaps and reference placement in the
-  scenarios that prove them.
-  [CI wall-time ordering](../../dashboard/tests/intent/intent-ci-wall-time-history-order.spec.ts#L58),
-  [prior-build reference](../../dashboard/tests/intent/intent-ci-prior-build-average.spec.ts#L191),
-  [scope history reading](../../dashboard/frontend-tests/intent-scope-timing-history-reading.spec.ts#L143),
-  [scope history units](../../dashboard/frontend-tests/intent-scope-timing-history-units.spec.ts#L148).
-
-- **Locations, source and recovery.** Code and Gherkin browsers, Purpose,
-  revision notices and candidate journeys rebuild source rows, target lines,
-  selected-file and reading-place probes. Share the operations for choosing a
-  location, reading the target line, retaining the reading place, and seeing
-  or retrying a failed read. Keep the request, hold, and revision sequence
-  visible where it determines the outcome.
-  [Source browse](../../dashboard/tests/intent/intent-code-browse-sources.spec.ts#L99),
-  [Gherkin browse](../../dashboard/tests/intent/intent-gherkin-browse.spec.ts#L77),
-  [Purpose target line](../../dashboard/tests/intent/intent-purpose-case.spec.ts#L59),
-  [revision notice](../../dashboard/tests/intent/intent-revision-notice.spec.ts#L57),
-  [candidate source](../../dashboard/tests/intent/intent-test-optimization-candidates-case.spec.ts#L32),
-  [integrated recovery](../../dashboard/tests/intent/intent-read-recovery.spec.ts#L45),
-  [frontend candidate recovery](../../dashboard/frontend-tests/intent-candidates-read-recovery.spec.ts#L56).
-
-- **Story Intent and perspective changes.** The existing tab and tree helpers
-  leave the story header, revision evidence, file selection, diff and
-  scroll retention to individual specs. Share these across changed-tests,
-  Done, project visit and source selection cases. Include narrow views and
-  Files sidebar behavior, with keyboard and expected focus explicit.
-  [Story changes](../../dashboard/tests/intent/intent-story-changes.spec.ts#L69),
-  [Done reading after refresh](../../dashboard/tests/intent/intent-done-project-refresh-reading.spec.ts#L63),
-  [project visit](../../dashboard/tests/intent/intent-project-visit.spec.ts#L68),
-  [reading place](../../dashboard/tests/intent/intent-reading-place.spec.ts#L68),
-  [Files sidebar](../../dashboard/tests/intent/intent-sidebar-toggle.spec.ts#L51),
-  [narrow story views](../../dashboard/tests/intent/intent-story-views-narrow.spec.ts#L32).
-
-- **Retained CI follow-up.** The Done card and retained comparison journeys
-  repeat entry through the card, navigation between Development and Intent,
-  and reading the original, repeat and saved reference. Extend the existing
-  follow-up reading helper to own those operations, including the attempt
-  links and keyboard path. Keep the expected timings, attempt IDs, reference
-  membership and absence of new CI acquisition explicit.
-  [Retained comparison](../../dashboard/tests/intent/intent-ci-follow-up.spec.ts#L61),
-  [Done card follow-up](../../dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts#L49),
-  [existing Proof helper](../../dashboard/tests/support/ciFollowUpReadingPage.ts#L14).
 
 <a id="express-review-test-intent-through-page-objects"></a>
 

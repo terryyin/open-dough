@@ -16,6 +16,7 @@
 // runs after every worker has exited: whatever of the run is still running
 // then is ended and named, and the run fails (./runProcesses.ts).
 
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -41,6 +42,26 @@ import {
 import { startOriginArtifacts } from "./startOriginPreparation.ts";
 import { comparisonMountArtifact } from "./comparisonMountArtifact.ts";
 
+// Apple's /usr/bin/git launches the selected developer tool on every call.
+// Use that same Git directly for this run's many real Git operations. Keep
+// caller-preferred PATH entries ahead of it, as well as fixture PATH prefixes.
+function bindSelectedGit(): void {
+  if (process.platform !== "darwin") return;
+  const search = (process.env["PATH"] ?? "").split(path.delimiter);
+  const launcher = search.indexOf("/usr/bin");
+  if (launcher === -1) return;
+  if (
+    execFileSync("which", ["git"], { encoding: "utf8" }).trim() !==
+    "/usr/bin/git"
+  )
+    return;
+  const selected = execFileSync("xcrun", ["--find", "git"], {
+    encoding: "utf8",
+  }).trim();
+  search.splice(launcher, 0, path.dirname(selected));
+  process.env["PATH"] = search.join(path.delimiter);
+}
+
 export default async function globalSetup(): Promise<() => Promise<void>> {
   const runId = identifyRun();
   runFixtureExecutablesOnce();
@@ -53,6 +74,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   // Playwright runs the returned teardown after a graceful interruption.
   // Exit also covers interruption while asynchronous setup is still pending.
   process.once("exit", remove);
+  bindSelectedGit();
   const closeArtifacts = await startRunArtifacts(
     new Map([
       [

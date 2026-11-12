@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent's Purpose shows only what was read for the selected file,
 // and the selection outlives reads of the same revision
 // (../../src/IntentBrowser.tsx, ../../src/IntentPerspective.tsx): while another
@@ -44,9 +45,9 @@ test("selecting another feature never shows the previous feature's text in Purpo
   const { intent, intentChoice } = parts(page);
   await intentChoice.click();
   await expandIntentGroup(intent, "e2e_test/features");
-  await intent.getByRole("button", { name: otherPath, exact: true }).click();
+  await sourceFile(intent, otherPath).click();
   const purpose = purposeRegion(intent);
-  await expect(intent.getByLabel(`${otherPath} source`)).toContainText(
+  await expect(fileSource(intent, otherPath)).toContainText(
     "Report free space",
   );
 
@@ -78,13 +79,13 @@ test("selecting another feature never shows the previous feature's text in Purpo
   }, featurePath);
 
   const jobsRead = await holdAuthenticatedReadsOf(page, featurePath, releases);
-  await intent.getByRole("button", { name: featurePath, exact: true }).click();
+  await sourceFile(intent, featurePath).click();
   await expect.poll(jobsRead.held).toBe(1);
   await expect(purpose).toContainText(`Reading ${featurePath}…`);
   await expect(intent).not.toContainText("Report free space");
 
   jobsRead.release();
-  await expect(intent.getByLabel(`${featurePath} source`)).toContainText(
+  await expect(fileSource(intent, featurePath)).toContainText(
     "Scenario: Archive a job",
   );
   const labelled = await page.evaluate(
@@ -112,8 +113,8 @@ test("a feature selected while startup detail completes stays selected with its 
   await page.goto("/?project=pygardon&perspective=intent");
   const { intent } = parts(page);
   await expandIntentGroup(intent, "e2e_test/features");
-  await intent.getByRole("button", { name: featurePath, exact: true }).click();
-  const source = intent.getByLabel(`${featurePath} source`);
+  await sourceFile(intent, featurePath).click();
+  const source = fileSource(intent, featurePath);
   await expect(source).toContainText("Scenario: Archive a job");
   await expect.poll(detail.held).toBeGreaterThan(0);
   expect(locationsReads()).toBe(1);
@@ -124,9 +125,10 @@ test("a feature selected while startup detail completes stays selected with its 
     "aria-expanded",
     "true",
   );
-  await expect(
-    intent.getByRole("button", { name: featurePath, exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(sourceFile(intent, featurePath)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(source).toContainText("Scenario: Archive a job");
   expect(locationsReads()).toBe(1);
 });

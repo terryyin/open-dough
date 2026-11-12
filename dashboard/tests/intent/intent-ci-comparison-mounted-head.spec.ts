@@ -1,3 +1,4 @@
+import { comparisonReading } from "../intentCiComparisonPage.ts";
 // The actual evidence owner follows a Taken story's newly observed trunk head.
 import {
   test,
@@ -28,25 +29,25 @@ test("a Taken comparison keeps the same observed tip and reads again once that t
     }),
   });
   const panel = await mountComparison(page, comparisonServer, taken);
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("bbbbbbb");
+  await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+    "bbbbbbb",
+  );
   await expect.poll(() => comparisonServices.proofs).toBe(2);
   await updateComparison(page, {
     ...taken,
     work: makeMe.aPublishedWork.with({ ...taken.work }).please(),
   });
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("bbbbbbb");
+  await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+    "bbbbbbb",
+  );
   expect(comparisonServices.comparisons).toBe(1);
   const changedWork = makeMe.aPublishedWork
     .with({ ...taken.work, revision: facts.answer.landed.revision })
     .please();
   await updateComparison(page, { ...taken, work: changedWork });
-  await expect(
-    panel.locator(".intent-ci-comparison-identity").nth(2),
-  ).toContainText("ccccccc");
+  await expect(comparisonReading(panel).identities.nth(2)).toContainText(
+    "ccccccc",
+  );
   await expect.poll(() => comparisonServices.proofs).toBe(3);
   expect(comparisonServices.comparisons).toBe(2);
   await expect(

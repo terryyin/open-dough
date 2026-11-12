@@ -8,9 +8,12 @@
 
 import type { Locator, Page, Request } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
-import { expect } from "./dashboardTest.ts";
 import { parts } from "./dashboardPage.ts";
-import { chooseCiStatus } from "./intentCiStatusPage.ts";
+import {
+  chooseCiStatus,
+  expectCiScope,
+  expectKeptCiAnswer,
+} from "./intentCiStatusPage.ts";
 import {
   failing,
   planningOnly,
@@ -206,21 +209,17 @@ export async function toggleOnDevelopment(
   return chooseCiStatus(intent);
 }
 
-export async function expectNamed(panel: Locator, branch: string) {
-  await expect(
-    panel.getByRole("heading", { name: `CI status of ${branch}`, exact: true }),
-  ).toBeVisible();
-}
-
 export async function expectKeptStoryCi(
   panel: Locator,
   branch: string,
   state: string,
 ) {
-  await expectNamed(panel, branch);
-  await expect(panel.locator(".intent-ci-state")).toHaveText(state);
-  await expect(panel.getByRole("status")).toContainText("Previously retrieved");
-  await expect(panel.locator(".intent-ci-checking")).toBeVisible();
+  await expectCiScope(panel, branch);
+  await expectKeptCiAnswer(panel, {
+    state,
+    freshness: "Previously retrieved",
+    checking: true,
+  });
 }
 
 // Observe only the fresh CI read's completion or cancellation. The trunk's

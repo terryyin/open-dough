@@ -1,3 +1,9 @@
+import {
+  expectLabelledEntrySource,
+  fileSource,
+  sourceFile,
+  sourceLineText,
+} from "../intentCodeBrowsePage.ts";
 // Intent lists and reads configured code test source at the observed revision
 // (../../src/IntentPerspective.tsx): include-pattern matches, helpers/product
 // omitted, group headers, and exact text with kind styling. Doughnut and
@@ -21,7 +27,7 @@ import {
   publishIntentProject,
   shellCheck,
 } from "../intentCodeBrowseFixtures.ts";
-import { expectLabelledEntrySource } from "../intentCodeBrowsePage.ts";
+
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test("Intent lists matched code test files under include patterns, omits helpers and product files, and reads exact text with the observed revision", async ({
@@ -110,33 +116,26 @@ test("Intent lists matched code test files under include patterns, omits helpers
     for (const [group, file] of groupedSources) {
       await expect(intentFolderName(intent, group)).toBeVisible();
       await expect(
-        intent.getByRole("button", {
-          name: `dashboard/tests/${group}/${file}`,
-          exact: true,
-        }),
+        sourceFile(intent, `dashboard/tests/${group}/${file}`),
       ).toBeVisible();
     }
     await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
-        exact: true,
-      }),
+      sourceFile(
+        intent,
+        "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
+      ),
     ).toBeVisible();
     await expect(
-      intent.getByRole("button", {
-        name: "dashboard/tests/intentPerspectivePage.ts",
-        exact: true,
-      }),
+      sourceFile(intent, "dashboard/tests/intentPerspectivePage.ts"),
     ).toHaveCount(0);
 
-    await intent
-      .getByRole("button", {
-        name: "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
-        exact: true,
-      })
-      .click();
-    const source = intent.getByLabel(
-      "dashboard/tests/intent/intent-gherkin-browse.spec.ts source",
+    await sourceFile(
+      intent,
+      "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
+    ).click();
+    const source = fileSource(
+      intent,
+      "dashboard/tests/intent/intent-gherkin-browse.spec.ts",
     );
     await expect(source).toContainText(
       'import { test } from "@playwright/test";',
@@ -159,6 +158,7 @@ test("Intent lists matched code test files under include patterns, omits helpers
       "Dashboard Frontend Test",
       "touch-reading-observation.spec.ts",
       "pageLayout.ts",
+      browseSpec.split("\n"),
     );
   });
 
@@ -181,23 +181,17 @@ test("Intent lists matched code test files under include patterns, omits helpers
     for (const [group, file] of backendGroupedSources) {
       await expect(intentFolderName(intent, group)).toBeVisible();
       await expect(
-        intent.getByRole("button", {
-          name: `${locationPath}/${group}/${file}`,
-          exact: true,
-        }),
+        sourceFile(intent, `${locationPath}/${group}/${file}`),
       ).toBeVisible();
     }
     await expect(
-      intent.getByRole("button", {
-        name: `${locationPath}/launches/ownRecordContinuation.ts`,
-        exact: true,
-      }),
+      sourceFile(intent, `${locationPath}/launches/ownRecordContinuation.ts`),
     ).toHaveCount(0);
     const intentSpec = `${locationPath}/intent/authenticated-read-intent-locations.spec.ts`;
-    await intent.getByRole("button", { name: intentSpec, exact: true }).click();
-    await expect(
-      intent.getByLabel(`${intentSpec} source`).locator(".source-line-text"),
-    ).toHaveText(browseSpec.split("\n"));
+    await sourceFile(intent, intentSpec).click();
+    await expect(sourceLineText(fileSource(intent, intentSpec))).toHaveText(
+      browseSpec.split("\n"),
+    );
   });
 
   await test.step("Ex 4 shell: top-level *.sh listed; support scripts omitted; selecting shows kind styling", async () => {
@@ -205,26 +199,11 @@ test("Intent lists matched code test files under include patterns, omits helpers
     await expect(shellHeading).toContainText("shell");
     await expect(shellHeading).toContainText("*.sh");
     await expandIntentGroup(intent, "tests");
-    await expect(
-      intent.getByRole("button", {
-        name: "tests/compare-versions.sh",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(
-      intent.getByRole("button", {
-        name: "tests/support/x.sh",
-        exact: true,
-      }),
-    ).toHaveCount(0);
+    await expect(sourceFile(intent, "tests/compare-versions.sh")).toBeVisible();
+    await expect(sourceFile(intent, "tests/support/x.sh")).toHaveCount(0);
 
-    await intent
-      .getByRole("button", {
-        name: "tests/compare-versions.sh",
-        exact: true,
-      })
-      .click();
-    const source = intent.getByLabel("tests/compare-versions.sh source");
+    await sourceFile(intent, "tests/compare-versions.sh").click();
+    const source = fileSource(intent, "tests/compare-versions.sh");
     await expect(source).toContainText("echo ok");
     await expectKeywordAndStringColours(source, /^echo$/, /^ok$/);
   });

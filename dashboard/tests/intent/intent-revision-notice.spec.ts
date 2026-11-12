@@ -1,3 +1,6 @@
+import { filesColumn } from "../intentModePage.ts";
+import { sourceFile } from "../intentCodeBrowsePage.ts";
+import { showLatestRevision } from "../intentReadRecoveryPage.ts";
 // Newer revisions wait behind one polite notice, read nothing until **Show
 // latest**, which keeps the reading while the latest locations are read, then
 // the selection by path; Development follows them meanwhile; a deleted
@@ -13,6 +16,9 @@ import {
   intentGroupToggle,
   purposeRegion,
   revisionNotice,
+  expectReadingOffset,
+  intentReadingPane,
+  scrollIntentReadingHalfway,
 } from "../intentPerspectivePage.ts";
 import { holdAuthenticatedReadsWhere } from "../holdAuthenticatedReads.ts";
 import { pygardon } from "../intentCodeBrowseFixtures.ts";
@@ -54,19 +60,14 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
     page,
     files,
   );
-  const pane = intent.locator(".intent-reading");
-  await pane.evaluate((element) => {
-    element.scrollTo({ top: 300, behavior: "instant" });
-  });
-  const scrolled = await pane.evaluate((element) => element.scrollTop);
-  expect(scrolled).toBeGreaterThan(0);
+  const scrolled = await scrollIntentReadingHalfway(intent);
   // The expanded group, the selected feature and the pane's scroll stay.
   const expectReadingKept = async () => {
     await expect(
       intentGroupToggle(intent, "e2e_test/features"),
     ).toHaveAttribute("aria-expanded", "true");
     await expect(feature).toHaveAttribute("aria-pressed", "true");
-    expect(await pane.evaluate((element) => element.scrollTop)).toBe(scrolled);
+    await expectReadingOffset(intent, scrolled);
   };
   const focused = () =>
     page.evaluate(() => document.activeElement?.textContent ?? "");
@@ -110,7 +111,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
       params.get("intent") === "locations" && params.get("revision") === c,
     releases,
   );
-  await notice.getByRole("button", { name: "Show latest" }).click();
+  await showLatestRevision(notice).click();
   await expect.poll(latest.held).toBe(1);
   await expect(notice).toContainText("Updating…");
   await expect(browserRevision(intent)).toContainText(
@@ -179,22 +180,18 @@ test("a selected feature the latest revision deleted is explained, with nothing 
     Object.entries(files).filter(([path]) => path !== featurePath),
   );
   await moveTrunk(revision, remaining);
-  await revisionNotice(intent)
-    .getByRole("button", { name: "Show latest" })
-    .click();
+  await showLatestRevision(revisionNotice(intent)).click();
 
   await expect(purposeRegion(intent)).toContainText(
     `${featurePath} is not in revision ${shortRevision(revision)}`,
   );
   await untilPageReadsAnswered(page);
+  await expect(sourceFile(intent, otherPath)).toBeVisible();
   await expect(
-    intent.getByRole("button", { name: otherPath, exact: true }),
-  ).toBeVisible();
-  await expect(
-    intent.locator('.intent-locations [aria-pressed="true"]'),
+    filesColumn(intent).locator('[aria-pressed="true"]'),
   ).toHaveCount(0);
   await expect(intent.getByLabel(/ source$/)).toHaveCount(0);
-  await expect(intent.locator(".intent-reading")).toBeFocused();
+  await expect(intentReadingPane(intent)).toBeFocused();
   await expect(browserRevision(intent)).toContainText(shortRevision(revision));
   expect(reads.slice(2)).toEqual([`locations@${revision}`]);
 });

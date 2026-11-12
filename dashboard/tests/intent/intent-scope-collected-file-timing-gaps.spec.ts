@@ -1,3 +1,9 @@
+import { attemptLink } from "../ciEvidenceLabelsPage.ts";
+import {
+  scopeHistory,
+  scopeHistoryReading,
+  scopeHistoryChart,
+} from "../intentScopeHistoryPage.ts";
 // Real collected artifacts distinguish entry-only, partial and absent-unit
 // history while a Done file keeps earlier supported evidence in Proof.
 import { shortSha } from "../../src/baseCiWording.ts";
@@ -10,7 +16,10 @@ import {
   collectingLandedCi,
   resultToLand,
 } from "../support/landedCiHistory.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { observeRetainedScopeOrder } from "../support/scopeHistoryCollectedOrder.ts";
 import { openCollectedHistoryStory } from "../support/scopeHistoryCollectedPage.ts";
 import {
@@ -105,37 +114,28 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;
   const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const entryHistory = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  await expect(entryHistory.getByRole("listitem").first()).toContainText(
+  const entryHistory = scopeHistory(summary);
+  await expect(scopeHistoryReading(entryHistory).rows.first()).toContainText(
     "700 ms · test cases",
   );
-  await expect(entryHistory.getByRole("listitem").first()).toContainText(
+  await expect(scopeHistoryReading(entryHistory).rows.first()).toContainText(
     "70 ms · test files",
   );
   await childName(summary, "folder/").first().click();
-  const folder = summary.getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  await expect(folder.getByRole("listitem").nth(0)).toContainText(
+  const folder = scopeHistory(summary);
+  await expect(scopeHistoryReading(folder).rows.nth(0)).toContainText(
     "No file breakdown in this build's CI proof",
   );
-  await expect(folder.getByRole("listitem").nth(1)).toContainText(
+  await expect(scopeHistoryReading(folder).rows.nth(1)).toContainText(
     "Partial: part 2 of 2 missing",
   );
-  await expect(folder.getByRole("listitem").nth(1)).toContainText(
+  await expect(scopeHistoryReading(folder).rows.nth(1)).toContainText(
     "20 ms · test files",
   );
   await childName(summary, "a.spec.ts").first().click();
   await fileReadingTab(intent, "Proof").click();
-  const history = proofRegion(intent).getByRole("region", {
-    name: "Test execution time history",
-    exact: true,
-  });
-  const rows = history.getByRole("listitem");
+  const history = scopeHistory(proofRegion(intent));
+  const rows = scopeHistoryReading(history).rows;
   await expect(rows).toHaveCount(3);
   await expect(rows.nth(0)).toContainText(
     "No file breakdown in this build's CI proof",
@@ -156,15 +156,11 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
   await expect(rows.nth(2)).toContainText(shortSha(setup.completion));
   await expect(history).toContainText("2 measured builds · Nov 5–Nov 6");
   await expect(history).not.toContainText(shortSha(newest.revision));
-  const files = history.getByRole("img", {
-    name: "Test execution time for test files by build date; selected landing marked",
-  });
+  const files = scopeHistoryChart(history, "test files");
   await expect(files).toBeVisible();
   await expect(files.getByText("Selected gap", { exact: true })).toBeVisible();
   await expect(
-    history
-      .getByRole("list", { name: "Test execution history evidence" })
-      .getByRole("link", { name: "Run 205 · attempt 1" }),
+    attemptLink(scopeHistoryReading(history).evidence, "Run 205 · attempt 1"),
   ).toHaveAttribute("href", "https://ci.invalid/runs/205");
   expect(ciCalls()).toHaveLength(before);
 });

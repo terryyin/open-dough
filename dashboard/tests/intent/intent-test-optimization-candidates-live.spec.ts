@@ -1,3 +1,4 @@
+import { fileSource, sourceFile } from "../intentCodeBrowsePage.ts";
 // Intent reads a project's live Test Optimization Candidates record
 // (../../src/IntentCandidatesRecord.tsx) on its Optimization Candidates tab:
 // each live candidate under Live candidates with its five facts, its affected
@@ -96,14 +97,9 @@ test("Intent shows each live candidate with its five facts, and a live record wi
     ]);
     await expect(record).not.toContainText("This record has no");
 
-    await candidate
-      .getByRole("button", {
-        name: openDoughSpecPaths.watcherFailures,
-        exact: true,
-      })
-      .click();
+    await sourceFile(candidate, openDoughSpecPaths.watcherFailures).click();
     await expect(
-      intent.getByLabel(`${openDoughSpecPaths.watcherFailures} source`),
+      fileSource(intent, openDoughSpecPaths.watcherFailures),
     ).toContainText('test("browses"');
   });
 

@@ -3,7 +3,10 @@
 // Column ordering and zoom rules live in ./intent-summary-story-comparison-mounted-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedClaudePreviewTest as test,
+} from "../support/preparationPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { scopeTable } from "../intentScopeProofPage.ts";
@@ -18,7 +21,7 @@ import {
 } from "../support/selectDoneStoryForSummaryComparison.ts";
 import {
   expectSortedBy,
-  rowNames,
+  expectUnsortedRows,
   sortButton,
 } from "../support/expectSortedColumns.ts";
 import {
@@ -69,9 +72,6 @@ async function selectStoryFromDevelopment(
   await expect(intent).toBeVisible();
 }
 
-const unsorted = (table: Locator) =>
-  expect(table.locator("th[aria-sort]")).toHaveCount(0);
-
 test("Summary keeps its sort through drilling and story selection, falling back for missing columns and restoring it on return", async ({
   page,
   origin,
@@ -86,8 +86,7 @@ test("Summary keeps its sort through drilling and story selection, falling back 
     const landed = sortButton(table, "Landed");
     await landed.click();
     await landed.click();
-    await expectSortedBy(table, "Landed", "descending");
-    await expect(rowNames(table)).toHaveText(landedDescending);
+    await expectSortedBy(table, "Landed", "descending", landedDescending);
   });
 
   await test.step("a child folder's comparison opens in the same layout, still sorted by Landed descending", async () => {
@@ -106,26 +105,22 @@ test("Summary keeps its sort through drilling and story selection, falling back 
     await expect(
       summary.getByRole("columnheader", { name: "Landed" }),
     ).toHaveCount(0);
-    await unsorted(table);
-    await expect(rowNames(table)).toHaveText(storyBChildren);
+    await expectUnsortedRows(table, storyBChildren);
 
     await selectStoryFromDevelopment(page, "Recently done", "Story A");
     await openSummaryComparison(intent, entry);
-    await expectSortedBy(table, "Landed", "descending");
-    await expect(rowNames(table)).toHaveText(landedDescending);
+    await expectSortedBy(table, "Landed", "descending", landedDescending);
   });
 
   await test.step("a Test execution time sort chosen in one run's Summary gives way to the tree's order in the comparison", async () => {
     await selectStoryFromDevelopment(page, "Backlog", "Story B");
     await openSummary(intent, entry);
-    await unsorted(table);
-    await expect(rowNames(table)).toHaveText(storyBChildren);
+    await expectUnsortedRows(table, storyBChildren);
     await sortButton(table, "Test execution time").click();
     await expectSortedBy(table, "Test execution time", "ascending");
 
     await selectStoryFromDevelopment(page, "Recently done", "Story A");
     await openSummaryComparison(intent, entry);
-    await expect(rowNames(table)).toHaveText(entryChildren);
-    await unsorted(table);
+    await expectUnsortedRows(table, entryChildren);
   });
 });

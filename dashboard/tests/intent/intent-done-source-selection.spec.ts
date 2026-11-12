@@ -1,3 +1,5 @@
+import { filesColumn } from "../intentModePage.ts";
+import { sourceRevision } from "../intentCodeBrowsePage.ts";
 // Selecting another Done story while Intent stays mounted must not lend it
 // the prior story's source during either comparison or locations reading.
 // Both stories complete through the real CLI; the Sessions sidebar provides
@@ -113,7 +115,7 @@ test("a newly selected Done story shows only its own historical source after hel
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("a 11");
   await expect(
-    purposeRegion(intent).locator(".intent-source-meta"),
+    sourceRevision(intent, "dashboard/tests/a.spec.ts"),
   ).toContainText(first.completion.slice(0, 7));
 
   let releaseComparison: () => void = () => undefined;
@@ -147,7 +149,7 @@ test("a newly selected Done story shows only its own historical source after hel
   await expect(storyTitle(intent)).toHaveText(storyB.title);
   await expect.poll(() => comparisonHeld).toBeGreaterThan(0);
   await chooseStoryTab(intent, "Changed tests");
-  await expect(intent.locator(".intent-locations")).toHaveCount(0);
+  await expect(filesColumn(intent)).toHaveCount(0);
   await expect(
     intent.getByRole("tabpanel", { name: "Changed tests" }),
   ).toContainText("Reading the story's historical Intent locations…");
@@ -155,7 +157,7 @@ test("a newly selected Done story shows only its own historical source after hel
 
   releaseComparison();
   await expect.poll(() => locations.held()).toBeGreaterThan(0);
-  await expect(intent.locator(".intent-locations")).toHaveCount(0);
+  await expect(filesColumn(intent)).toHaveCount(0);
   await expect(purposeRegion(intent)).toHaveCount(0);
   locations.release();
   await expandIntentGroup(intent, "second/tests");

@@ -2,13 +2,7 @@
 // (../intent/intent-summary-story-comparison-file.spec.ts): a selected file's
 // one compared row names its story change after its path.
 
-import type { Locator } from "@playwright/test";
-import {
-  comparisonTableColumns,
-  expectProofTableRows,
-} from "../intentScopeProofPage.ts";
-
-type FileComparisonRow = readonly [string, string, string, string, string];
+import type { FileComparisonRow } from "../intentFileProofPage.ts";
 
 export const modifiedFileRow: FileComparisonRow = [
   "dashboard/tests/folder/a.spec.ts modified",
@@ -51,21 +45,3 @@ export const unchangedFileRow: FileComparisonRow = [
   "0 ms",
   "0 ms",
 ];
-
-export async function expectFileComparisonRow(
-  proof: Locator,
-  path: string,
-  row: FileComparisonRow,
-) {
-  const table = proof.getByRole("table", { name: `CI proof of ${path}` });
-  await expectProofTableRows(
-    table,
-    [
-      "Scope",
-      ...comparisonTableColumns.map((name) =>
-        name === "Branch" || name === "Landed" ? `${name} vs baseline` : name,
-      ),
-    ],
-    [row],
-  );
-}
