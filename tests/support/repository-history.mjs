@@ -11,6 +11,7 @@ import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import {
   commitDeclaredRevision,
   configureIdentity,
+  declaredParents,
   integrationDeveloper,
 } from "./repository-revision-commit.mjs";
 
@@ -169,12 +170,7 @@ export async function buildRepository(
       integration,
       revision,
       checkoutIdentity,
-      revision.parents?.map((parent) => {
-        const commit = commits.get(parent);
-        if (!commit)
-          throw new Error(`Unknown parent ${parent} for ${revision.name}`);
-        return commit;
-      }),
+      declaredParents(revision, commits),
     );
     const tags = await tagRevision(integration, revision);
     if (hasGraph) graphTags.push(...tags);
@@ -214,12 +210,7 @@ export async function buildRepository(
       execution,
       revision,
       workspace.checkoutIdentity ?? checkoutIdentity,
-      revision.parents?.map((parent) => {
-        const commit = commits.get(parent);
-        if (!commit)
-          throw new Error(`Unknown parent ${parent} for ${revision.name}`);
-        return commit;
-      }),
+      declaredParents(revision, commits),
     );
     await tagRevision(execution, revision);
     commits.set(revision.name, candidateSha);

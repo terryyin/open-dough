@@ -8,7 +8,8 @@
 // is a copy that already holds it: such a case publishes no story itself.
 // Nothing is kept between runs; the done record's completion time is the
 // worker's. What only a real completion shows stays with the specs of
-// ./completedPublishedStory.ts.
+// ./completedPublishedStory.ts. The summary comparison story is the same
+// kind of history, declared in ./intentSummaryStoryComparisonRepository.ts.
 import { agentIdentity } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -20,6 +21,7 @@ import {
   takeRevision,
 } from "../../../tests/support/queued-repository.mjs";
 import { intentTrunkRevision } from "./intentStoryWorktree.ts";
+import { declaredSummaryComparisonHistory } from "./intentSummaryStoryComparisonRepository.ts";
 import { startOrigin, type StartOrigin } from "./startOrigin.ts";
 import {
   dashboardDeveloper,
@@ -29,8 +31,9 @@ import {
 
 // The trunk Story A was taken from: Stories A and B queued and Ready, or that
 // with Intent's settings and sources published after it
-// (./intentStoryWorktree.ts).
-export type KeptStoryTrunk = "queued" | "intent";
+// (./intentStoryWorktree.ts), or the summary comparison's trunk, from which
+// it was delivered through a story branch with Intent test changes.
+export type KeptStoryTrunk = "queued" | "intent" | "summary comparison";
 
 const claimantName = "Yui";
 const claimant = agentIdentity(claimantName);
@@ -86,7 +89,10 @@ function completedStoryRepository(trunk: KeptStoryTrunk): StartRepository {
 export async function prepareKeptStory(
   trunk: KeptStoryTrunk,
 ): Promise<StartRepository> {
-  const description = completedStoryRepository(trunk);
+  const description =
+    trunk === "summary comparison"
+      ? declaredSummaryComparisonHistory()
+      : completedStoryRepository(trunk);
   const started = await startOrigin(description);
   try {
     keepStartedOrigin("claude", description, started.origin);
@@ -99,7 +105,7 @@ export async function prepareKeptStory(
 // What a test extends itself with (`test.extend(…)`) so that each case's
 // origin starts from the worker's kept story, after whatever the test's own
 // `originRepository` waits for. Playwright reads a fixture's dependencies
-// from its parameter names, so each trunk's states its worker fixture.
+// from its parameter names, so each trunk's opt-in names its worker fixture.
 export const startingFromKeptStory = {
   originRepository: async (
     {
@@ -124,9 +130,26 @@ export const startingFromKeptIntentStory = {
     await use(keptIntentStory);
   },
 };
+export const startingFromKeptSummaryComparisonStory = {
+  originRepository: async (
+    {
+      originRepository,
+      keptSummaryComparisonStory,
+    }: {
+      originRepository: StartRepository;
+      keptSummaryComparisonStory: StartRepository;
+    },
+    use: (description: StartRepository) => Promise<void>,
+  ) => {
+    await Promise.resolve(originRepository);
+    await use(keptSummaryComparisonStory);
+  },
+};
 
-// The completion of the kept story `origin` started from: the revision that
-// published Story A's done record on its trunk.
+// The completion of the kept story on the queued or Intent trunk that
+// `origin` started from: the revision that published Story A's done record
+// on that trunk. The summary comparison's endpoints are read by name
+// (./intentSummaryStoryComparisonRepository.ts).
 export async function keptStoryCompletion(origin: StartOrigin) {
   const completion = (
     await origin.originGit(

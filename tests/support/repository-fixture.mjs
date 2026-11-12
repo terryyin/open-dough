@@ -13,6 +13,7 @@ import { locateSnapshot } from "./repository-snapshot.mjs";
 
 export {
   commitDeclaredRevision,
+  declaredParents,
   integrationDeveloper,
 } from "./repository-revision-commit.mjs";
 export {

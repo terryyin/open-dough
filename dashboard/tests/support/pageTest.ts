@@ -78,6 +78,7 @@ export const test = base.extend<
     publishedApplicationSourceReady: undefined;
     keptStory: StartRepository;
     keptIntentStory: StartRepository;
+    keptSummaryComparisonStory: StartRepository;
   }
 >({
   // Reading-only previews need the app and boundaries, with no installed origin.
@@ -148,9 +149,10 @@ export const test = base.extend<
     { scope: "worker" },
   ],
   // Story A published as completed and kept (./keptPublishedStory.ts), on the
-  // queued trunk and on Intent's: the worker that takes one prepares it
-  // before its first such case and answers the description those cases'
-  // origins start from, so none publishes the story in its own time.
+  // queued trunk, on Intent's and on the summary comparison's: the worker
+  // that takes one prepares it before its first such case and answers the
+  // description those cases' origins start from, so none publishes the story
+  // in its own time.
   keptStory: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
@@ -164,6 +166,14 @@ export const test = base.extend<
     async ({}, use) => {
       const { prepareKeptStory } = await import("./keptPublishedStory.ts");
       await use(await prepareKeptStory("intent"));
+    },
+    { scope: "worker" },
+  ],
+  keptSummaryComparisonStory: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
+      await use(await prepareKeptStory("summary comparison"));
     },
     { scope: "worker" },
   ],

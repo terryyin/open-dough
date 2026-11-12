@@ -1,5 +1,7 @@
-// The shared native producer for scoped history: explicit runner facts become
-// actual CLI summary bytes, with independent case and file evidence.
+// Scoped history's runner facts per file under dashboard/tests: the actual
+// CLI summary bytes the shared native producer makes of them, with
+// independent case and file evidence, and the proof collection keeps of them.
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { ProofRun } from "./ciProofArtifacts.ts";
 import { collectedSummary, playwrightRecord } from "./ciProofCollected.ts";
 
@@ -63,4 +65,50 @@ export function collectedScopeFileSummary(
           },
         ]),
   ]);
+}
+
+// The proof collection keeps of a run with these facts: under `entry`, the
+// case evidence of its files and the file evidence of those with a file time,
+// in the units named.
+export function keptScopeFileProof(
+  run: { readonly revision: string; readonly runId: number },
+  files: readonly ScopeFileTiming[],
+  {
+    entry = "dashboard/tests",
+    units = ["case", "file"],
+  }: {
+    readonly entry?: string;
+    readonly units?: readonly ("case" | "file")[];
+  } = {},
+) {
+  const held = files
+    .map(([file, caseMs, fileMs]) => ({
+      path: `dashboard/tests/${file}`,
+      caseMs,
+      fileMs,
+    }))
+    .filter(({ path }) => path.startsWith(`${entry}/`));
+  return makeMe.aCiProof
+    .forRun(run)
+    .entries([
+      makeMe.aCiProofEntry
+        .at(entry)
+        .holding(
+          ...units.map((unit) =>
+            makeMe.aCiProofEvidence
+              .inUnit(unit)
+              .brokenDown(
+                ...held.flatMap(({ path, caseMs, fileMs }) => {
+                  const durationMs = unit === "case" ? caseMs : fileMs;
+                  return durationMs === undefined
+                    ? []
+                    : [{ path, passed: 1, durationMs }];
+                }),
+              )
+              .please(),
+          ),
+        )
+        .please(),
+    ])
+    .please();
 }

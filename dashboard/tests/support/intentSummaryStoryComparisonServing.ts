@@ -8,6 +8,7 @@ import { git } from "./storyReviewWorktree.ts";
 import {
   serveActionsFor,
   wall,
+  type ComparisonProofServe,
   type StoryCiComparisonSetup,
 } from "./storyCiComparisonFixture.ts";
 import { breakdownProofs } from "./intentSummaryStoryComparisonProofs.ts";
@@ -22,10 +23,14 @@ type Endpoints = Pick<
   | "branch"
 >;
 
+// The story's runs answer the breakdown summaries as their proofs unless the
+// caller passes `proofs`; one that serves its own proofs next passes none
+// (`{}`), so the breakdown summaries are not produced for nothing.
 export async function serveSummaryComparisonStory(
   page: Page,
   origin: Pick<StartOrigin, "origin">,
   endpoints: Endpoints,
+  proofs: Record<number, ComparisonProofServe> = breakdownProofs(endpoints),
 ): Promise<StoryCiComparisonSetup> {
   const { baseline, branchSide, completion } = endpoints;
   const committed = await publishCommittedOrigin(page, {
@@ -48,7 +53,7 @@ export async function serveSummaryComparisonStory(
         wall(completion, 103, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
       ],
     },
-    breakdownProofs({ baseline, branchSide, completion }),
+    proofs,
   );
   return { identity: queuedIdentity, ...endpoints, ...actions };
 }

@@ -182,7 +182,7 @@ applies as written to every delegation and repair handoff.
 
 Commands, from the repository root, with Homebrew Bash first on `PATH`:
 
-- Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts tests/intent/intent-ci-follow-up-proof.spec.ts tests/intent/intent-ci-follow-up-return.spec.ts`,
+- Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts tests/intent/intent-ci-follow-up-proof.spec.ts tests/intent/intent-ci-follow-up-return.spec.ts tests/intent/intent-project-scope-timing-refresh.spec.ts`,
   plus any spec file a slice adds for a divided case, with `--workers=1` or
   `--workers=2` and `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<file>` for durations.
   A run that writes a proof record passes no `--reporter`: `--reporter=list`
@@ -1904,7 +1904,7 @@ reads it, and sharing them would edit `completedStoryInput.ts` under
 
 ### 9. The project scope timing refresh cases start from kept history
 Type: Behavior
-Status: planned
+Status: done
 Proof: `intent-project-scope-timing-refresh.spec.ts`, and any file its cases
 divide into, pass three consecutive times at two workers; neither case
 starts a collecting server or publishes a comparison story it does not read.
@@ -1926,6 +1926,195 @@ evidence read as today, with no collection and one server.
 - Collected history through an uncollected trunk head stays with
   `intent-project-scope-timing-history.spec.ts`; credit it only where a
   fault shows it catches the observation.
+
+#### Slice 9 record
+
+Observed on 2026-11-12, 20:32–21:14 local, on `20d63a685` with this slice's
+uncommitted change, Node 24.21.0, AC power throughout; natural load until
+21:14, then 24 `yes` burners started and stopped by `run.sh` for `b1`–`b3`
+when the natural load fell to 4–6. Logs, traces, fault logs and the scratch scripts
+(`run.sh`, `fault.py`, `cons.sh`, `steps.py`, `fixtures.py`, `summ.sh`) are in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice9/`; nothing scratch entered
+the repository. Not committed, not published.
+
+**Design.** Both cases now start from what a machine keeps and read it in one
+dashboard that collects nothing; the cases read the published comparison
+story (its Changed tests, Summary and file Proof, and the Done comparison
+whose reads `acquisitions()` waits out), so the story stays, kept instead of
+published:
+
+- The story is the declared comparison history that sort already
+  materializes. `intentSummaryStoryComparisonRepository.ts` now exports that
+  description (`declaredSummaryComparisonHistory`) and its endpoints in a
+  checkout started from it (`declaredSummaryComparisonEndpointsIn`, each named
+  revision the commit whose message is its name);
+  `materializeDeclaredSummaryComparisonRepository` builds from the same two,
+  so sort reads what it read before. No third arrangement.
+- Slice 8's owner keeps it: `KeptStoryTrunk` gains `"summary comparison"`,
+  `pageTest.ts` a worker fixture `keptSummaryComparisonStory`, and
+  `keptPublishedStory.ts` the opt-in `startingFromKeptSummaryComparisonStory`.
+  The declared history has merges (the story branch's integration and the
+  landing), so `initializeStartOrigin` now commits a shared description's
+  later revisions with the parents they name, as `materializeRepository`
+  does; no start-origin description had `parents` before, so every other
+  description commits as it did. `fixture-origins.md` says so. The declared
+  form was chosen over `materializeDeclaredSummaryComparisonRepository` per
+  case because that form builds no start origin (the case needs
+  `origin.originGit` and `origin.project` to move the head) and cost
+  3.7–4.5 s per case in sort's trace (slice 8), as much as the publication.
+- `projectScopeHistoryFixture.ts` (140 lines) owns the rest: its `test` is
+  `queuedClaudePreviewTest` started from the kept story with the `dashboard`
+  fixture as `startLandedCiReader`, the only server; `readKeptProjectHistory`
+  serves the story (`serveSummaryComparisonStory`) and the runs live
+  (`serveCollectedScopeFileRuns`, kept for run 104's live proof), keeps the
+  history of the three landings through `makeMe.aLandedCiHistory`
+  (`inTrunkOrder` of the project's first-parent order, `measuredLanding` and
+  `proofFor` with the case and file units of each run's files), and opens the
+  Done story. No launch record is kept: they fed collection only.
+- `serveSummaryComparisonStory` takes the proofs it serves first as an
+  optional `proofs`, defaulting to the breakdown proofs it served before, so
+  its other callers are unchanged. The fixture passes none: the collected
+  summaries it serves next replaced them before any read, and producing them
+  spawned the real CLI producer three times per case (about 1.2–1.6 s at load
+  30–38).
+- The spec (206 lines) keeps both cases in one file: no `test.use` remains and
+  neither file nears 250 lines. Its diff (`git diff -w`) changes the imports,
+  the arrangement call and its facts (`workflow`, `title`, `retainedRunIds`
+  dropped), and drops the `try`/`finally` that closed the second reader; no
+  expectation changed. Lines 151–160 (return, reopen Project, Proof tab,
+  endpoint, three rows; the diagnosis's 160–169) stay: the
+  Project-side restore fault below fails `:118` there and `:52` passes.
+
+Line counts: the spec 206, `projectScopeHistoryFixture.ts` 142,
+`intentSummaryStoryComparisonServing.ts` 58,
+`intentSummaryStoryComparisonRepository.ts` 184, `keptPublishedStory.ts` 168,
+`pageTest.ts` 217, `startOriginInitialization.ts` 98, `fixture-origins.md`
+27. `autoRefreshJourney.ts` unchanged. No product code, timeout, sleep,
+retry or skip. `grep` of the spec and its fixture finds no
+`recheckingLandedCi`, `collectingLandedCi`, `serverMode`, boundary mode,
+`publishSummaryComparisonStory`, `completedPublishedStory` or
+`startDashboardServer`.
+
+**Runs at two workers**, each
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE=<file> npm run --silent test:dashboard -- tests/intent/intent-project-scope-timing-refresh.spec.ts --workers=2 --trace=on --reporter=list`,
+started by `run.sh` only at a load of 30–50. Both cases are first in their
+workers in every run. The worker fixtures are outside the reported durations.
+
+| Label | Code | Load before → after | `:52` | `:118` | `keptSummaryComparisonStory` | Comparison settles |
+| --- | --- | --- | --- | --- | --- | --- |
+| `before` | unedited spec | 33.6 → 38.0 | 21.6 s | 22.4 s | none | 3.2–3.3 s |
+| `t2` | this change | 31.1 → 38.3 | 17.5 s | 19.9 s | 5.8, 5.7 s | 4.0, 4.3 s |
+| `t3` | with timing steps only | 30.5 → 30.9 | 22.1 s | 26.0 s | 5.0, 4.8 s | 6.0, 5.8 s |
+| `p2` | this change | 30.1 → 34.1 | 12.8 s | 14.2 s | 3.9, 3.8 s | 3.5, 3.4 s |
+| `p3` | this change | 34.1 → 35.5 | 11.8 s | 13.5 s | 4.2, 4.0 s | 2.9, 2.8 s |
+| `p4` | this change | 34.8 → 35.3 | 12.7 s | 14.7 s | 4.2, 4.0 s | 3.4, 3.4 s |
+| `b1` | final, 24 burners | 30.8 → 39.4 | 20.2 s | 22.3 s | 5.1, 4.9 s | 3.5, 3.6 s |
+| `b2` | final, 24 burners | 39.4 → 43.6 | 20.1 s | 22.2 s | 4.9, 4.6 s | 5.7, 5.1 s |
+| `b3` | final, 24 burners | 43.6 → 43.0 | 13.4 s | 14.8 s | 5.9, 5.4 s | 3.0, 2.4 s |
+
+`b1`–`b3` are three consecutive passes of the final code, under burners;
+`p2`–`p4` three consecutive passes before the `proofs` change (with `t2` and
+`t3`, five); a `p1` waited five minutes below load 30 and started no run.
+Serving the story and runs took 1.0–2.5 s in `b1`–`b3` against 3.0–4.3 s
+before the `proofs` change. A first attempt (`try1`, untraced, load 35.7 → 46.3)
+failed both cases at the 30 s bound with every observation still ahead or
+passing: the two workers prepared the kept story at once (8.2 s each) and the
+Done comparison took 10.9 s to answer (`ci-comparison` read). `t3` passed
+`:118` at 26.0 s, over the 25 s figure, at a load figure of 30.5 → 30.9:
+in its trace `origin` 0.4 s, `dashboard` 0.8 s, serving the story and runs
+3.2 s (`serveSummaryComparisonStory` 1.6 s, `serveCollectedScopeFileRuns`
+1.6 s: seven spawns of the real CLI producer, three of them for the proofs
+the `proofs` change no longer produces), the Board to Recently done 3.1 s, the comparison
+5.8 s, then the journey 10 s. What remains in a case is that serving, the
+server start, the Board, the comparison's 30 provider calls and the journey;
+the publication, the collecting server, collection and the second reader are
+gone. The verdict is slice 10's.
+
+**Faults**, `fault.py <name>`: one scratch edit, the refresh spec at one
+worker with `--reporter=list`, the file's bytes restored; `git diff --stat --
+dashboard/server dashboard/src` empty after each and at the end. They ran
+before the `proofs` change, which changes no answer a page reads.
+
+| Observation | Edit | Case, expectation, received | Load |
+| --- | --- | --- | --- |
+| Endpoint moves to the new head | `useObservedTrunkEndpoint` (`src/IntentCiEvidence.tsx`) changes its endpoint only while it has none | `:118` at `:182` "Observed trunk endpoint main `<next>`": the latest's sha; `:52` passed | 29.1 → 29.7 |
+| … with "no matching collected observation" | `historyEndpointOf` (`server/ciHistoryEndpoint.ts`) answers `retained` for `uncollected` | `:118` at `:191`: the note absent | 29.7 → 25.6 |
+| CI evidence stays at `Revision <latest>` | the judged scope evidence (`src/IntentScopeEvidence.tsx`) names the observed trunk endpoint's revision as its run's | `:118` at `:190`: `Revision <next>` with "Tree at `<latest>`" | 28.1 → 35.4 |
+| Three `Run N` rows remain | `historyEndpointOf` keeps no cohort when no landing is at the endpoint | `:118` at `:192`: 0 for 3 | 24.9 → 27.0 |
+| The endpoint datetime changes | `useObservedTrunkEndpoint` keeps its first `at` when the head changes | `:118` at `:193`: the same datetime | 27.0 → 25.2 |
+| No acquisition of artifacts 1001–1003 | each history read (`server/intentCiHistoryRead.ts`) starts acquiring every kept build's artifact with a fresh `ciProofArtifactReader()`, not awaited | `:52` at `:115`: 19 for 9; `:118` at `:197`: 19 for 5 | 35.4 → 32.8 |
+| Return to `Selected landing <completion>` with two rows | `historyEndpointOf` takes every positioned landing, not those through the selected one | `:52` at `:73` and `:118` at `:205` (the return): 3 for 2 | 20.3 → 15.7 |
+| First case's return and restore | the story scope's `selection` is kept in a fresh map (`useKeptReading`, `src/pageIntentReading.tsx`) | `:52` at `:100`: `aria-pressed` "false"; `:118` passed | 15.7 → 18.1 |
+| Project-side restore, lines 151–160 | the Project scope's `selection` is kept in a fresh map | `:118` at `:153`: no Proof tab; `:52` passed | 18.1 → 26.8 |
+
+Edits tried that did not produce their regression, recorded and not used:
+`revisionLabel(revision)` in `EvidenceNamed` (the Project tree stays at the
+latest revision, so both revisions are equal; 2 passed, 25.6 → 24.9);
+judging only the head commit in `judgeBranchCi` (2 passed, 26.6 → 33.8, not
+pursued); `readCiProofArtifact` remembering no summary and the comparison
+reader remembering no answer (2 passed each, 25.2 → 20.3 and 39.7 → 33.1: no
+proof or comparison is read again after counting starts); the history
+acquisition awaited (`:52` at `:115`, 15 for 8; `:118` at the 30 s bound,
+the serial acquisitions slowing every read; 33.8 → 39.7). Five of the
+recorded fault runs started or ended above load 27; each failed at its
+expectation.
+
+**What left real collection and its owner.** Collection turning three recorded
+landings and their served summaries into measured kept builds with proofs.
+Owner: `intent-project-scope-timing-history.spec.ts:42` (collected history
+through an uncollected trunk head). Fault: `needsCollectedProof`
+(`server/landedCiCollectedProof.ts`) is always false. The owner fails at `:89`,
+the retained proof of run 101 `undefined` for `"summary"`; both refresh cases
+pass, as they no longer depend on collection. Load 26.8 → 27.1. Every other
+observation of the refresh cases is still read from the product's history
+store and route, now from kept history, and is caught there by the faults
+above.
+
+**Consumers.** `consumer-trace.mjs --checkout "$PWD" --base 20d63a685 --term
+declaredSummaryComparisonHistory --term declaredSummaryComparisonEndpointsIn
+--term materializeDeclaredSummaryComparisonRepository --term KeptStoryTrunk
+--term prepareKeptStory --term startingFromKeptSummaryComparisonStory --term
+keptSummaryComparisonStory --term initializeStartOrigin --term
+readCollectedProjectHistory --term readKeptProjectHistory --term
+serveSummaryComparisonStory`, no scratch file in the tree (`consumer-trace.md`
+beside the logs), by group:
+
+| Consumers | Disposition |
+| --- | --- |
+| `intent-summary-story-comparison-sort.spec.ts` through `intentSummarySortTest.ts` (`materializeDeclaredSummaryComparisonRepository`) | run: candidate then base worktree (`8aa440077`) back to back, two workers: 1 passed in 15.8 s (load 33.2 → 32.9) and 1 passed in 17.7 s (32.9 → 32.3) |
+| The importers of `keptPublishedStory.ts` (the seven repeat specs, through `ciFollowUpKeptLanding.ts` and `ciFollowUpSettledReading.ts`), `startOrigin.ts`'s `initializeStartOrigin` as the kept stories and the run-wide origins use it (`start-origin-demand`, `start-origin-isolation`, `dashboard-artifact-demand`, `story-reference-navigation`, whose later revisions each case pushes), and the collection owner `intent-project-scope-timing-history.spec.ts` | run: one two-worker run, 24 passed, load 33.0 → 25.3, 86 s; slice 8 recorded the same cases passing |
+| `serveSummaryComparisonStory`'s other callers: sort, and `publishSummaryComparisonStory` (`intentSummaryStoryComparisonFixture.ts`) with its 18 spec files | run: sort, `intent-scope-prior-build-states.spec.ts` and `intent-project-scope-timing-history.spec.ts`, two workers, candidate then base back to back: 3 passed (load 39.9 → 30.2) and 3 passed (30.2 → 24.0); the rest reused: they pass no `proofs` and get the same breakdown proofs |
+| `projectScopeHistoryFixture.ts`, `autoRefreshJourney.ts` | the refresh spec is the fixture's only importer (the runs above); `autoRefreshJourney.ts` unchanged |
+| Every other importer of `pageTest.ts` (371) and of `startOrigin.ts` | excluded: the added worker fixture is set up only for a test that names it and is declared for every pool alike; no other start-origin description names `parents`, so `initializeStartOrigin` commits theirs as before. Hosted CI runs them |
+| Matches of `branchSide`, `laterWithoutBuild`, `claimant`, `EndpointName`, `originRepository`, `../support/landedCiHistory.ts`, `./intentSummaryStoryComparisonFixture.ts` | excluded: other uses of the same names, or imports the refresh files dropped from modules that did not change |
+| `.planning/` records, `dashboard/tests/fixture-origins.md` | the plan and this record; the fixture document changed as above |
+
+`npm run --silent typecheck:dashboard`, `npx eslint` and `npx prettier
+--check` on the seven changed source files, `fixture-origins.md` and this
+plan: exit 0 each.
+
+Source-review commitments. S9.1: the spec joins the named specs in the
+[Verification](#verification) selection line, and it stays one file. S9.3:
+the collection that left the refresh cases keeps its owner,
+`intent-project-scope-timing-history.spec.ts`, which the collection fault fails
+at `:89`.
+
+Gaps: no run above load 44; `t3` passed one case at 26.0 s before the
+`proofs` change; after this slice the share of `try1`'s failures that remains
+is the product's comparison read and the Board, slice 10's to measure in the
+profile; hosted CI is not observed.
+
+#### Slice 9 acceptance and refactor
+
+- Accepted. The refactor pass gave resolving a declared revision's parents
+  one home (`declaredParents` in `tests/support/repository-revision-commit.mjs`,
+  used by `repository-history.mjs` and `startOriginInitialization.ts`) and
+  the kept scope proof one home (`keptScopeFileProof` in
+  `scopeHistoryProofs.ts`, used by the refresh fixture and
+  `scopePriorReferenceHistory.ts`); the built proofs and histories are the
+  same, and no expectation changed. The repository node tests, the refresh,
+  prior-build, sort, start-origin and scope-proof consumers passed at load
+  12–20.
 
 ### 10. The fit under load and the saving are measured and kept
 Type: Behavior

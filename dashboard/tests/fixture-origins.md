@@ -7,8 +7,9 @@ The harness adds `.gitignore` and the installed skills to the description's
 first commit. The runner packs the default and the shared queued description
 once per requested layout, Claude or Codex/Cursor, from current working-tree
 skills (`support/startOriginPreparation.ts`). A description sharing their
-first revision starts from that origin, its checkout pushing the later ones;
-another is materialized privately on that installation, once per process.
+first revision starts from that origin, its checkout pushing the later ones,
+each on the parents it names; another is materialized privately on that
+installation, once per process.
 A worker may also keep the origin one start of a description left
 (`keepStartedOrigin`), as it does for the kept published story
 (`support/keptPublishedStory.ts`); later starts of that description in the
