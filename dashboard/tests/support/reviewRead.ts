@@ -5,7 +5,6 @@
 // boundary may take up to its read bound to answer.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { reviewFeedback } from "./reviewContextLine.ts";
 import { openStoryReview, reviewRegion } from "./storyReviewMark.ts";
 
@@ -16,9 +15,7 @@ const reading =
 export async function expectReviewRead(review: Locator) {
   const feedback = reviewFeedback(review);
   await expect(feedback).toBeAttached();
-  await expect(feedback).not.toContainText(reading, {
-    timeout: storyReviewWaitMs,
-  });
+  await expect(feedback).not.toContainText(reading);
 }
 
 // Opens the card's review from its Review changes action, once it has read

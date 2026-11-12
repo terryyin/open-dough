@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 499. Removed numbers are never reused.
+- Highest allocated local number: 503. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -179,6 +179,16 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: excessive generated output and repeated retrieval under existing disposable-research guidance; command handles and proof remained intact.
   - Inference: agent output-scoping deviation, not missing instructions; no isolated elapsed/token saving measured.
 
+- Execution: SEED-325#review-junit-tests-in-intent (plan 600; first implementation `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`)
+  - Timestamp: unknown (2026-11-12 execution; exact read/trace-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: 0.3.97 (checkout-bound installed guidance at accepted claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`)
+  - Evidence: dashboard launch `64396061-305e-4f4d-bc38-7f06de9b3f38`; coordinator first-delegation reference batch reported 11,733 original tokens with truncation; the complete consumer-trace read reported 60,774 original tokens with truncation, followed by bounded symbol/consumer and assertion reads. The trace is recoverable at the implementation revision above under `.planning/slice-plans/600-review-junit-tests-in-intent/consumer-trace.md`.
+  - Observed effect: raw generated output and broad batches omitted passages and required targeted recovery; semantic proof and running-command ownership remained intact.
+  - Inference: recurrence of an agent output-scoping deviation under existing retrieval guidance; isolated elapsed/token saving is unmeasured.
+
+
 ## ODF-314 — An implementation return omits delegated proof rows and needs a second round <a id="odf-314"></a>
 
 Former local code: DD-257. [Meaning, evidence and response](docs/maintainer/findings/ODF-314.md).
@@ -338,6 +348,13 @@ Former local code: DD-391. [Evidence and current response](docs/maintainer/findi
   - Evidence: after a staged-whitespace stop, fresh retry returned staging failure for already-staged deleted source dashboard/tests/intent/intent-scope-timing-history-reading.spec.ts (three frontend moves). Classifying those old sources as stagedPaths and existing/new files as ownedPaths accepted `2e8d46e0`; `/tmp/seed310-slice1-preparation.json` and `e37801b5:.planning/slice-plans/581-show-trunk-test-scope-timing-history/execution-context.md` retain recovery context.
   - Observed effect: one staging refusal and input-classification retry before publication, with no lost deletion/source/proof. Inference: same already-absent-index condition as the existing finding, not every unstaged deletion.
 
+- Execution: SEED-287#fit-dashboard-journeys-in-default-timeout
+  - Timestamp: unknown (2026-11-12 operation; exact staging-event time not separately retained)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound managed guidance inherited with maincaf48c6)
+  - Evidence: `/tmp/seed287-completion-progress-delivery-20261112.json` returned staging128 for already-removed `.planning/agents/bastiaan-chan.json`; the corrected preparation retains18 deleted paths in stagedPaths and361 existing paths in ownedPaths, publishing `694e6d9192e388e1a702d151854b2e85486871fa`.
+  - Observed effect: one pre-commit refusal and a manifest-only retry; formatter reran, no deletion or accepted65-attempt proof was lost. Same literal-add/already-absent-index condition as ODF-337, not evidence that unstaged deletions generally fail.
+
 ## ODF-396 — Planning basenames overwhelm a test-local consumer trace
 
 Former local code: DD-404. [Evidence and current response](docs/maintainer/findings/ODF-396.md).
@@ -422,6 +439,16 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: `28c1118c5:.planning/slice-plans/581-intent-test-reading/final-gate-evidence.md`; `/tmp/seed300-g15-selected-git-20261112/combined-consumer-trace.md`, `git-command-source-equivalence.json` and `consumer-evidence-normalization.json`. The final1078-row trace has31run/57reused/990excluded; generic PLAN.md and case-insensitive PATH/data-path matches supplied many lexical-only rows.
   - Observed effect: independent review found16 real Dashboard Git receivers excluded in the primary table but already covered by the95-receiver supplement, plus3 independent-Node rows needing consistent exclusion. All19 overlaps were normalized across artifacts before publication, with no source edit, runtime rerun or missed proof established. Bounded coordinator reads avoided the historical truncation symptom; isolated trace/normalization effort was not measured.
   - Inference: matches ODF-396's broad planning/generic-term noise; parallel effect records also needed manual consistency work. Narrow record/data matches away from executable effects and check shared path/effect dispositions together, while retaining real indirect consumers.
+
+- Execution: SEED-325#review-junit-tests-in-intent (plan 600; first implementation `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`)
+  - Timestamp: unknown (2026-11-12 execution; exact read/trace-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: 0.3.97 (checkout-bound installed guidance at accepted claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`)
+  - Evidence: `4980feb6d:.planning/slice-plans/600-review-junit-tests-in-intent/consumer-trace.md` has 832 lines and 23 direct consumers marked run, alongside generic PLAN.md/source-review.md/README.md terms and many historical/unchanged-install exclusions. The trace also led to a real regenerated standalone runtime and legacy MakeMe payload check.
+  - Observed effect: many lexical-only dispositions surrounded useful selector/grammar consumers; acceptance needed bounded follow-up reads. All reached behavior had passing proof; no missed consumer was established.
+  - Inference: same planning-basename expansion; separate record-reference discovery from product-effect tracing without weakening indirect proof. No counterfactual cost reduction was measured.
+
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
@@ -645,6 +672,23 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 598 holds 91 rows for a two-slice test-speed story, among them M7 and M8 (the Success measure's "Retained reference" figures), X2 ("They may adopt the same fixture later."), ten S3 rows for one "do not change" sentence and six S7 rows for one "No new … to obtain a saving" list. The coordinator recorded one `observed:` per row through about 90 `record` invocations in two batches.
   - Observed effect: every promise had an inspected location at acceptance. The reference-figure, permission and negated-means rows received cells that restate the diff's absence of a change or the plan's run table.
   - Inference: same cause as the first occurrence; cost qualified, no time measured.
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (spent plan 589 recoverable at before-cleanup `4368ce5b9d63f1de43040488fd110fe81bd9eeb2`; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+  - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at three acceptances)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 589 held 60 rows for a three-slice test story, among them four dated observation rows (O1–O3.2), S4.3 ("Terry named \"moderately high CPU load\" without a figure") and six restriction rows for one "no timeout overrides, `test.slow()`, sleeps, retries or skips" sentence.
+  - Observed effect: every promise had a location at acceptance; the S2.3b row exposed one promise owned only by composition, recorded as an obligation. The observation, qualification and negated-means rows received cells restating the plan's premises or the diff's absence of a change.
+
+- Execution: SEED-325#review-junit-tests-in-intent (plan 600; first implementation `4980feb6d2aabb7fafc087942c1e28c8c2b86e04`)
+  - Timestamp: unknown (2026-11-12 execution; exact read/trace-event times not retained)
+  - Tool: Codex
+  - Model: gpt-6.1-sol (execution profile)
+  - Open Dough release: 0.3.97 (checkout-bound installed guidance at accepted claim `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`)
+  - Evidence: `4980feb6d:.planning/slice-plans/600-review-junit-tests-in-intent/source-review.md` retains 76 C/Q/J/X rows for one slice, including eight deferred-capability exclusions and separate no-fixed-Maven/no-fixed-Gradle qualifications. Coordinator accepted them through 76 sequential `record` operations; multiple rows cite the same inspected production diff or journey.
+  - Observed effect: every source promise had an inspected location; qualification and exclusion rows also required observation cells restating existing selection or absence of deferred implementation. No missed source promise was found.
+  - Inference: recurrence of the source-review extraction/observation-granularity issue; no isolated cost or benefit of a different grain was measured.
+
 
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 
@@ -751,3 +795,64 @@ A neighbor run at one worker on a saturated host timed out a case that does not 
   - Evidence: slice 1 return, `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…" at 30.4 s, load about 70; repair return with phase timings (walk and `gh` starts about 10 s of 15.5 s at load 45) and `449a0b919889ea357dca764eb73075b7485fdf31`; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` entry `later-comparison-walk-gh-starts`.
   - Observed effect: one implementation delegation of about 13 minutes and one refactor pass delivered a 1–2 s saving that end-to-end runs cannot show (the same case ran 4.4–17.7 s across loads 20–43). The remaining margin needs a product or suite-wide decision and is kept as a live candidate.
   - Inference: the diagnosis was necessary to learn where the time goes; whether a test-only repair should follow when the diagnosis names product cost is a judgment the policy leaves to the executor. One occurrence.
+
+## DD-500 — A story promised an absolute case time at a load profile whose premises were measured only on a quiet host
+
+The story's load example promised a slowest case body under 10 s at one-minute load 30–50. Its premises and baselines were observed at load 4–7, and the one loaded baseline was the case the story removes. The unchanged sibling cases were never timed at the promised load.
+
+### Occurrences
+
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (spent plan 589 recoverable at before-cleanup `4368ce5b9d63f1de43040488fd110fe81bd9eeb2`; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+  - Timestamp: 2026-11-12T14:19:27+08:00 (end of the diagnostic run)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 589 "Decisive premises" ("one-minute load 4–7") and "Current decisions" ("The load range, the 10 s margin and the 1.5 ratio are refinement's figures"); slice 3's load observation at `3befd9f85`: 14.5 and 14.0 s for the two "equivalent" cases at load 36.8–38.3, with about 6 s in the shared `origin` fixture and 9–11 s in 20–33 `gh` starts, both excluded by the story's scope limits.
+  - Observed effect: execution stopped for the developer after two delivered slices; the example was restated to 20 s, the source review was obtained again, and three counted runs then passed with a slowest body of 16.2 s. Two load-raising sessions of 30 helpers ran instead of one.
+  - Inference: one loaded run of the unchanged file during refinement, as cheap as the premises that were observed, would have shown the floor before the figure was promised. One occurrence; the related cost in DD-499 came from the same file under load.
+
+## DD-501 — A fresh source review after a one-clause amendment returned different ids for unchanged commitments
+
+After the developer restated one key example, the required fresh source-only review renumbered the story's unchanged clauses, so every allocation and recorded observation had to be carried to a new id by hand.
+
+### Occurrences
+
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (spent plan 589 recoverable at before-cleanup `4368ce5b9d63f1de43040488fd110fe81bd9eeb2`; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+  - Timestamp: unknown (2026-11-12, between 14:25 and 14:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 589 held 60 rows before the amendment and 66 after; the amended story differs in one example (10 s to 20 s). The second reviewer split or renamed rows whose text was unchanged (S2.1a→S2.1, S2.5a–d→S2.7–S2.10, X2.1→X2, R2.1–R2.5→R2–R6, E3→E3.1 and E3.2, new G0 and O0). The coordinator wrote a one-off mapping script; its first run failed on a cell-parsing error before writing.
+  - Observed effect: 47 recorded observations and two obligation links were re-keyed; obligation ids G1 and G2 were renamed OB1 and OB2 because the new review used G1 and G2 for Goal clauses. No observation was lost.
+  - Inference: the review brief gives the reviewer no prior ids, and the replacement rule has no path that keeps rows whose source text is unchanged. Cost is qualified; no time was measured. One occurrence.
+
+## DD-502 — Named-sibling reconciliation entered Git before the backlog adapter
+
+Originally DD-500 on the story branch at `3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c`; assigned DD-502 during integration because trunk had independently allocated DD-500 and DD-501.
+
+The coordinator ran a raw no-commit merge that combined the product backlog and done records, although the installed backlog guidance requires its Git adapter from the start. A later semantic check can establish the resulting bytes but cannot retroactively supply the skipped pre-commit gate. The existing adapter guidance is explicit; no defect in its reconciliation algorithm is evidenced here.
+
+### Occurrences
+
+- Execution: SEED-287#fit-dashboard-journeys-in-default-timeout
+  - Timestamp: unknown (2026-11-12 reconciliation; exact invocation time not retained separately)
+  - Tool: Codex
+  - Open Dough release: unknown (checkout-bound managed guidance inherited with maincaf48c6)
+  - Evidence: coordinator tool history used `git merge --no-commit --no-ff caf48c6fa41b6a45dcdad4eac35cda9a858b2047`; published composition `694e6d91` has parents08d2903c/caf48c6. Post-publication shared `mergeBacklogs(fd164,08d,caf)` produced exactly its backlog (15 entries,13 compatible transitions), `/tmp/seed287-published-backlog-merge-20261112/validation.json`; real catalog-done verified343 records already canonical.
+  - Observed effect: the adapter was not the invocation path, despite a clean backlog result; no lost membership, priority, record or catalog is observed. Later integration uses the installed history-preserving publisher/backlog adapter.
+  - Inference: the coordinator reached backlog-specific guidance after reconciliation, rather than at that Git boundary. Apply the existing adapter entry point before future combining operations; this one occurrence does not establish a general guidance or tooling defect.
+
+## DD-503 — A load timeout in the checked journey was attributed and profiled before the coordinator looked for the Taken story that already owned it
+
+During wrap-up, Intent Coverage left the restored run unverified after the probed journey hit the 30 s default under host load. The coordinator reran it, compared it against the base under the same load, and traced it. Only after that did it find that a Taken story names this journey and owns its fix under load.
+
+### Occurrences
+
+- Execution: SEED-327#strengthen-pending-take-protection-assertions (spent plan 601 recoverable at before-cleanup `d59553452a5ac800fec0acd60481cf37d0470098`; first implementation `93b411f88ab2d58021fda29e2a1d980d8f362c17`)
+  - Timestamp: 2026-11-12T07:06:00Z (approximate; local reruns started 15:06+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: the Intent Coverage report's two restored runs of `responsive-session-reconciliation.spec.ts:44` timed out at 32.1 s and 32.0 s (load about 21–26). The coordinator then ran three reruns (one timeout), set up a base worktree at `aa8ac5f89`, ran six alternating base/exec runs (base 15.0–29.8 s; exec 13.7–31.6 s, one timeout) and one traced run, and only then read trunk's backlog. Taken SEED-287#fit-dashboard-journeys-in-default-timeout (plan 576; agent chaifeng-chan) names `responsive-session-reconciliation` under local load 20–30. Earlier, the slice 1 return had reported this journey at 28.8 s of its 30 s budget (load 36) and blamed a parallel typecheck; acceptance did not look for an owner.
+  - Observed effect: about ten focused runs and one scratch worktree setup, roughly 10 minutes. The result was the coordination boundary the failure policy already names: no repair, owner reported.
+  - Inference: the base comparison was still needed for attribution. Searching the backlog for the spec name could have found the owner first and saved the profiling. This has happened once.

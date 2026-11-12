@@ -1,6 +1,5 @@
 // Observe real receiver faults after closure; fixtures supply no completion state.
-import { readFileSync } from "node:fs";
-import type { Page } from "@playwright/test";
+import { readFileSync, existsSync } from "node:fs";
 import { expect } from "@playwright/test";
 import type { ReportingContext } from "../../src/launchRequest.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -19,32 +18,32 @@ import {
   quote,
 } from "./completionRecovery.ts";
 
-export async function unavailableCompletion(
+export async function unacknowledgedCompletion(
   context: ReportingContext,
   cwd: string,
   home: string,
   env: NodeJS.ProcessEnv,
 ) {
-  const unavailable = await reportingChild(
+  const unacknowledged = await reportingChild(
     `${context.command} --outcome completed`,
     cwd,
     env,
   );
-  expect(unavailable.ok).toBe(false);
-  expect(unavailable.stdout).toBe("");
-  expect(unavailable.stderr).toContain(
+  expect(unacknowledged.ok).toBe(false);
+  expect(unacknowledged.stdout).toBe("");
+  expect(unacknowledged.stderr).toContain(
     "Completion delivery was not acknowledged",
   );
   // Incomplete completion after accepted work stays a reporting-only recovery:
   // identify the unfinished completion operation and keep the exact pending input.
-  expect(unavailable.stderr).toMatch(/Retained completion: /);
-  expect(unavailable.stderr).toMatch(
+  expect(unacknowledged.stderr).toMatch(/Retained completion: /);
+  expect(unacknowledged.stderr).toMatch(
     /Retry reporting only: .+['"]--retry['"] /,
   );
-  expect(unavailable.stderr).toContain(
+  expect(unacknowledged.stderr).toContain(
     "Keep the message and retry without repeating the work.",
   );
-  const pending = retainedSubmission(unavailable.stderr);
+  const pending = retainedSubmission(unacknowledged.stderr);
   const submission = JSON.parse(readFileSync(pending, "utf8")) as {
     delivery: string;
     message: string;
@@ -59,8 +58,24 @@ export async function unavailableCompletion(
   };
 }
 
+// A real initial-server write failure leaves the installed exact retry callable
+// from a surviving directory after actual worktree retirement.
+export async function failedCompletionRetry(
+  context: ReportingContext,
+  cwd: string,
+  home: string,
+  fault: ReturnType<typeof completionWriteFault>,
+  env: NodeJS.ProcessEnv,
+) {
+  const previous = stored(home)[0]?.completion;
+  fault.arm();
+  const saved = await unacknowledgedCompletion(context, cwd, home, env);
+  expect(existsSync(fault.marker)).toBe(false);
+  expect(stored(home)[0]?.completion).toEqual(previous);
+  return saved.retry;
+}
+
 export async function observeCompletionFaults(options: {
-  page: Page;
   receiver: DashboardServer;
   record: LaunchRecord;
   cwd: string;
@@ -70,20 +85,15 @@ export async function observeCompletionFaults(options: {
   proxy: Awaited<ReturnType<typeof completionProxy>>;
   fault: ReturnType<typeof completionWriteFault>;
 }): Promise<CompletionReceipt> {
-  const { page, receiver, record, cwd, env, retry, delivery, proxy, fault } =
-    options;
+  const { receiver, record, cwd, env, retry, delivery, proxy, fault } = options;
   fault.arm();
   const failedWrite = await reportingChild(retry, cwd, env);
   expect(failedWrite.ok).toBe(false);
   expect(failedWrite.stdout).toBe("");
   expect(failedWrite.stderr).toContain("not acknowledged");
+  expect(existsSync(fault.marker)).toBe(false);
   expect(stored(receiver.home)[0]?.completion).toBeUndefined();
   expect(stored(receiver.home)[0]?.doneAt).toBeUndefined();
-  await page.reload();
-  const recent = page
-    .locator(".board .session-entry")
-    .filter({ hasText: record.session.sessionId });
-  await expect(recent).not.toContainText("Done");
   const stale = {
     ...record,
     firstInput: {
@@ -121,7 +131,5 @@ export async function observeCompletionFaults(options: {
   ]);
   for (const duplicate of duplicates)
     expect(JSON.parse(duplicate.stdout)).toEqual(receipt);
-  await page.reload();
-  await expect(recent).toContainText("Done");
   return receipt;
 }

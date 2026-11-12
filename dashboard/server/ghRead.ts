@@ -64,6 +64,12 @@ const github = new GitHubRequests({
   maxBufferBytes: maxAnswerBytes,
 });
 
+// Closing the boundary ends this process's current owner connection before
+// individual waits release turns. Another consumer's connection stays open.
+export function disconnectGh(): void {
+  github.disconnect();
+}
+
 // How a request names the API host and login this process asks under now,
 // without a secret; undefined while their endpoint cannot be established.
 // Revision checks key their shared listing by this (`./revisionChecks.ts`).

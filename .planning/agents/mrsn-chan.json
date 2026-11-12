@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mrsn-chan",
+  "email": "mrsn-chan@example.org",
+  "identity": "SEED-328#mark-recently-done-stories-as-reviewed",
+  "mode": "story-branch",
+  "branch": "claude/mark-recently-done-stories-as-reviewed",
+  "host": "claude",
+  "model": "opus"
+}

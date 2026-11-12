@@ -22,6 +22,7 @@ const languageLoaders = {
   typescript: () => import("@shikijs/langs/typescript"),
   tsx: () => import("@shikijs/langs/tsx"),
   javascript: () => import("@shikijs/langs/javascript"),
+  java: () => import("@shikijs/langs/java"),
   python: () => import("@shikijs/langs/python"),
   shellscript: () => import("@shikijs/langs/shellscript"),
 } as const;
@@ -52,6 +53,7 @@ export function sourceLanguage(hint: string, path: string): string | undefined {
   switch (hint) {
     case "gherkin":
     case "javascript":
+    case "java":
     case "python":
     case "shell":
       return hint;

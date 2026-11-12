@@ -3,10 +3,13 @@
 import type { Page } from "@playwright/test";
 import { agentAcceptEndpoint } from "../src/agentLaunch.ts";
 
-export async function nextAcceptedAttemptId(page: Page): Promise<string> {
+export async function nextAcceptedAttemptId(
+  page: Page,
+  endpoint = agentAcceptEndpoint,
+): Promise<string> {
   const response = await page.waitForResponse(
     (response) =>
-      response.url().endsWith(agentAcceptEndpoint) &&
+      response.url().endsWith(endpoint) &&
       response.request().method() === "POST",
   );
   const accepted = (await response.json()) as { attempt: { id: string } };

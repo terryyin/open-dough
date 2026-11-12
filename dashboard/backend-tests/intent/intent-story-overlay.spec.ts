@@ -176,3 +176,48 @@ test("a sources location places a story's added matching file as added, and a no
   });
   expect(overlay.outside).toBe(1);
 });
+
+test("Java changes use configured membership for placement, including unpublished additions and deletions", () => {
+  const java = makeMe.anIntentLocation
+    .at("backend/src/test/java")
+    .ofKind("java", ["**/*Test.java"])
+    .selecting("backend/src/test/java/com/example/CalculatorTest.java")
+    .please();
+  const overlay = intentStoryOverlay(
+    [java],
+    [
+      makeMe.aReviewedFile
+        .with({
+          kind: "modified",
+          path: "backend/src/test/java/com/example/CalculatorTest.java",
+        })
+        .please(),
+      makeMe.aReviewedFile
+        .with({
+          kind: "added",
+          path: "backend/src/test/java/com/example/NewTest.java",
+        })
+        .please(),
+      makeMe.aReviewedFile
+        .with({
+          kind: "deleted",
+          path: "backend/src/test/java/com/example/OldTest.java",
+        })
+        .please(),
+      makeMe.aReviewedFile
+        .with({
+          kind: "added",
+          path: "backend/src/test/java/com/example/Fixture.java",
+        })
+        .please(),
+    ],
+  );
+  expect(placed(overlay, [java])).toEqual({
+    "backend/src/test/java (changes)": [
+      "com/example/CalculatorTest.java [modified]",
+      "com/example/NewTest.java [added] (unpublished)",
+      "com/example/OldTest.java [deleted] (unpublished)",
+    ],
+  });
+  expect(overlay.outside).toBe(1);
+});

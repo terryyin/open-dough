@@ -8,7 +8,7 @@
 import { PageObject } from "./fluentPageObject.ts";
 import { control } from "./sidePanelWidthPage.ts";
 import { expect } from "./support/preparationPage.ts";
-import { storyReviewWaitMs } from "../src/storyReviewContract.ts";
+import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
 import { reviewRegion } from "./support/storyReviewMark.ts";
 
@@ -49,10 +49,9 @@ export class StoryReview extends PageObject {
   // The changed files list is named by its count, so it appears once the
   // review has read its comparison, which the boundary may take up to its
   // read bound to answer.
-  #expectListed(list: string) {
-    return expect(this.#files(list)).toBeVisible({
-      timeout: storyReviewWaitMs,
-    });
+  async #expectListed(list: string) {
+    await untilPageRequestsAnswered(this.page);
+    await expect(this.#files(list)).toBeVisible();
   }
 
   // The changed files list, by its name.

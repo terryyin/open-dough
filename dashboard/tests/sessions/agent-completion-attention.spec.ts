@@ -7,6 +7,8 @@ import { existsSync, writeFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { machineSessions } from "../agentLaunchBoundary.ts";
+import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
@@ -22,7 +24,10 @@ import {
   sharedDashboardBuild,
 } from "../support/dashboardServer.ts";
 import { markDoneAnyway } from "../support/markDone.ts";
-import { reloadUntilRead } from "../pageRequestNotes.ts";
+import {
+  reloadUntilRead,
+  untilPageRequestsAnswered,
+} from "../pageRequestNotes.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
 
@@ -59,7 +64,12 @@ test("installed attention report stays open, durable and readable through column
   await queued.getByRole("button", { name: "Start execution" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
+  const acceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  // The final startup change asks for an immediate read. Finish that page
+  // work before measuring the records reads at their steady polling pace.
+  await settledOutcome(dashboard, await acceptance);
+  await untilPageRequestsAnswered(page);
   // Real Git/workspace/session creation can take longer on a loaded machine.
   await expect
     .poll(

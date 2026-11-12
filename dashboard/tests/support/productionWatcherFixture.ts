@@ -6,24 +6,20 @@ import { projectConfigurationFile } from "./projectConfiguration.ts";
 import { localPublishedMainFixture } from "./publishedMainFixture.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
-// Publish the runtime and workflow used by the full dashboard journeys.
-export const watcherApplicationSource = [
-  ".github/workflows/ci.yml",
-  ".githooks",
-  ".gitignore",
-  "VERSION",
-  "assets",
-  "dashboard/index.html",
-  "dashboard/public",
-  "dashboard/server",
-  "dashboard/src",
-  "dashboard/tsconfig*.json",
-  "dashboard/vite.config.mts",
-  "package.json",
-  "package-lock.json",
-  "scripts",
-  "src",
-];
+// Real deployment builds run beside another worker. Keep their two native
+// Rolldown pools bounded unless the caller chose their concurrency.
+export function productionBuildEnvironment(
+  environment: NodeJS.ProcessEnv,
+): NodeJS.ProcessEnv {
+  const env = { ...environment };
+  if (
+    env["ROLLDOWN_WORKER_THREADS"] === undefined &&
+    env["TOKIO_WORKER_THREADS"] === undefined
+  )
+    env["ROLLDOWN_WORKER_THREADS"] = "2";
+  env["RAYON_NUM_THREADS"] ??= "2";
+  return env;
+}
 
 export async function configureWatcherApplication(
   fixture: Awaited<ReturnType<typeof localPublishedMainFixture>>,
@@ -60,12 +56,6 @@ export async function configureWatcherApplication(
   return { configuration, configured, env };
 }
 
-const watcherSource = [
-  "scripts/watch-dashboard.mjs",
-  "dashboard/server/chosenPort.mjs",
-  "dashboard/server/production*.mjs",
-  "src/skills/dough-execute-plan/scripts/ci-workflow-path-policy.mjs",
-];
 const watchScript = "node scripts/watch-dashboard.mjs";
 
 export function unpublishedWatcherFixture() {
@@ -109,10 +99,6 @@ export async function productionFailureFixture() {
     await writeFile(configuration, "[]");
     // Use the installed runtime for the watcher-owned runner. Each deployment
     // still builds and serves its own published source in an isolated checkout.
-    const runner = "dashboard/server/hosts/cursor/runnerProcess.ts";
-    const runnerEntry = path.join(fixture.development, runner);
-    await mkdir(path.dirname(runnerEntry), { recursive: true });
-    await symlink(path.join(repoRoot, runner), runnerEntry);
     await symlink(
       path.join(repoRoot, "node_modules"),
       path.join(fixture.development, "node_modules"),
@@ -128,7 +114,7 @@ async function watcherFixture(files: Record<string, string>) {
   const starting = makeMe.aRepository
     .withRevision("Watcher source", { backlog: null, files })
     .please().revisions[0];
-  const fixture = await localPublishedMainFixture(watcherSource);
+  const fixture = await localPublishedMainFixture(true, "application");
   try {
     await fixture.commit(starting.files ?? {}, starting.name);
     return fixture;

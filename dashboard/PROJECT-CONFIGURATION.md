@@ -68,10 +68,12 @@ to the path; omitting the label preserves the path title.
 
 The kind selects which files Intent can list and the syntax grammar of the same
 name: `gherkin` (`.feature`), `typescript` (`.ts`, `.tsx`), `javascript`
-(`.js`, `.mjs`, `.cjs`), `python` (`.py`), or `shell` (`.sh`, `.bash`). An
+(`.js`, `.mjs`, `.cjs`), `java` (`.java`), `python` (`.py`), or `shell` (`.sh`, `.bash`). An
 optional `include` list of path patterns relative to the location narrows that
 set (`*` stays in one folder; `**` crosses folders). Without `include`, Intent
-lists every file of the kind under the folder.
+lists every file of the kind under the folder. Java selection uses these
+configured paths and patterns, with no JUnit annotation or build-tool discovery;
+helpers and unfamiliar test names remain eligible when the selection includes them.
 
 A location can instead declare its files as source entries, for one folder
 holding different kinds of test source:
@@ -83,7 +85,8 @@ extension filter applies, so a new filename convention needs only a new
 pattern. A file takes the hint of the first entry, in declaration order,
 whose pattern matches it. Hints use the kind names above (`typescript` still
 highlights `.tsx` as TSX). A file whose entry has no hint, or a hint Intent
-has no grammar for, such as `java`, stays listed and reads as plain text.
+has no grammar for, stays listed and reads as plain text. Java hints use the
+same Java styling as `kind: "java"`.
 When `sources` is present it alone selects the location's files; `kind` and
 `include` are then not read. A `sources` list that is not a non-empty list of
 such entries leaves that location out, as a malformed `include` does. The

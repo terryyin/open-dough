@@ -11,7 +11,12 @@
 
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
-import { passCheckPace } from "../pageRequestNotes.ts";
+import {
+  passCheckPace,
+  untilPageRequestsAnswered,
+} from "../pageRequestNotes.ts";
+import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
 import {
   countMachineReads,
   indicatorOf,
@@ -188,7 +193,9 @@ for (const typed of ["", "why is CI slow?"]) {
       page,
       dialog.getByRole("button", { name: "Start", exact: true }),
     );
+    const acceptance = nextAcceptedAttemptId(page);
     await page.keyboard.press("Enter");
+    const attemptId = await acceptance;
 
     await expect(dialog).toBeHidden();
     const progress = page.locator(".start-session-answer");
@@ -200,9 +207,11 @@ for (const typed of ["", "why is CI slow?"]) {
     const otherHide = await inspectByKeyboard(page, other);
 
     dashboard.releaseHeldClaude();
+    expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
+    await untilPageRequestsAnswered(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     // The startup has ended once Start session is offered again.
-    await expect(button).toBeEnabled({ timeout: 30_000 });
+    await expect(button).toBeEnabled();
     await expect(panel).toHaveCount(typed === "" ? 1 : 0);
     const entry = parts(page).taken.locator(".session-entry").first();
     if (typed === "") await expect(entry).toContainText("Shown in terminal");

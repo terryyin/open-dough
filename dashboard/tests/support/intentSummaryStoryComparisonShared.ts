@@ -2,12 +2,11 @@
 // comparison publishers (./intentSummaryStoryComparisonFixture.ts,
 // ./intentSummaryStoryComparisonVariantPublishers.ts).
 
-import { mkdirSync, rmSync } from "node:fs";
-import path from "node:path";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 import { intentSettings } from "./intentStoryWorktree.ts";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { commitAll, lines, writeAt } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 export const summaryComparisonChanges = {
@@ -18,9 +17,10 @@ export const summaryComparisonChanges = {
   renamed: "Renamed tests/old.sh → dashboard/tests/renamed.spec.ts",
 } as const;
 
-// Trunk's files: Intent settings and the sources the summary compares.
-export function publishSummaryComparisonTrunk(project: string) {
-  writeRevisionFiles(project, {
+// One domain shape for the CLI publisher and the declared sort history.
+export const summaryComparisonTrunkRevision = makeMe.aRepository
+  .withRevision("locations", {
+    backlog: null,
     files: {
       ".planning/open-dough.json": intentSettingsText(intentSettings),
       "dashboard/tests/folder/a.spec.ts": lines("a"),
@@ -30,31 +30,30 @@ export function publishSummaryComparisonTrunk(project: string) {
       "tests/old.sh": lines("old"),
       "tests/check.sh": lines("check"),
     },
-  });
+  })
+  .please().revisions[0];
+
+export const summaryComparisonChangeRevision = makeMe.aRepository
+  .withRevision("changed tests", {
+    backlog: null,
+    files: {
+      "dashboard/tests/folder/a.spec.ts": `${lines("a")}changed\n`,
+      "dashboard/tests/added.spec.ts": "added\n",
+      "dashboard/tests/renamed.spec.ts": `${lines("old")}renamed\n`,
+    },
+    remove: ["dashboard/tests/gone.spec.ts", "tests/old.sh"],
+  })
+  .please().revisions[0];
+
+// Trunk's files: Intent settings and the sources the summary compares.
+export function publishSummaryComparisonTrunk(project: string) {
+  writeRevisionFiles(project, summaryComparisonTrunkRevision);
   commitAll(project, "intent locations for summary comparison");
   push(project);
 }
 
 export function changeSummaryComparisonTests(workspace: string) {
-  writeAt(
-    workspace,
-    "dashboard/tests/folder/a.spec.ts",
-    `${lines("a")}changed\n`,
-  );
-  writeAt(workspace, "dashboard/tests/added.spec.ts", "added\n");
-  rmSync(path.join(workspace, "dashboard/tests/gone.spec.ts"));
-  mkdirSync(
-    path.dirname(path.join(workspace, "dashboard/tests/renamed.spec.ts")),
-    {
-      recursive: true,
-    },
-  );
-  git(workspace, "mv", "tests/old.sh", "dashboard/tests/renamed.spec.ts");
-  writeAt(
-    workspace,
-    "dashboard/tests/renamed.spec.ts",
-    `${lines("old")}renamed\n`,
-  );
+  writeRevisionFiles(workspace, summaryComparisonChangeRevision);
   // completedPublishedStory commits these with "story implementation".
 }
 

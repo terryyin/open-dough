@@ -46,7 +46,8 @@ export async function prepareRepeatScenario(
   seconds = 105,
   priorSeconds: readonly number[] = [100, 100, 100, 100, 100],
 ) {
-  const prior = prepareRepeatPriors(origin, github, priorSeconds);
+  const priors = prepareRepeatPriors(origin, github, priorSeconds);
+  const prior = priors.runs;
   const story = await completedPublishedStory(
     origin,
     "trunk",
@@ -92,6 +93,8 @@ export async function prepareRepeatScenario(
     original,
     story,
     prior,
+    collectPriors: (server: DashboardServer) =>
+      priors.untilCollected(server.home),
     repeatCalls,
     identity: queuedIdentity,
     setRepeat: provider.setRepeat,

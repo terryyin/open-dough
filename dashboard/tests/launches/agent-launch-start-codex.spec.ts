@@ -8,9 +8,9 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import { expectCodexRetryProgress } from "../support/codexRetryPage.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
-import { test, expect, stored } from "../support/codexStart.ts";
+import { pausePageClockAt } from "../dashboardTest.ts";
+import { test as base, expect, stored } from "../support/codexStart.ts";
 import { expectExecutionInput } from "../support/codexStartAssertions.ts";
-import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import {
   changedReviewRevision,
@@ -18,6 +18,7 @@ import {
 } from "../support/startOrigin.ts";
 import {
   openUntilRead,
+  passCheckPace,
   reloadUntilRead,
   untilPageRequestsAnswered,
 } from "../pageRequestNotes.ts";
@@ -25,10 +26,15 @@ import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
 // Story A's seed changed after its readiness review.
-test.use({
-  originRepository: queuedReadyRepository()
-    .withRevision("changed review", changedReviewRevision)
-    .please(),
+const test = base.extend({
+  originRepository: async ({ queuedCodexPreviewReady }, use) => {
+    await Promise.resolve(queuedCodexPreviewReady);
+    await use(
+      queuedReadyRepository()
+        .withRevision("changed review", changedReviewRevision)
+        .please(),
+    );
+  },
 });
 
 test("Codex card start publishes one claim and retries its retained workspace before creating one conversation", async ({
@@ -45,6 +51,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     revision: original,
     repository: "terryyin/open-dough",
   });
+  await pausePageClockAt(page, new Date());
   await openUntilRead(page);
   const { backlog, taken, readRevision } = parts(page);
   const queued = backlog.getByRole("article", { name: "Story A", exact: true });
@@ -81,7 +88,6 @@ test("Codex card start publishes one claim and retries its retained workspace be
   // The answer follows the Take's real publication and Codex's refusal.
   await expect(queued.locator(".launch-problem")).toContainText(
     "Codex refused to create a conversation.",
-    { timeout: launchWaitMs },
   );
   const [profile] = await origin.takenProfiles();
   expect(profile).toMatchObject({
@@ -132,7 +138,9 @@ test("Codex card start publishes one claim and retries its retained workspace be
   ]);
 
   published.advanceTo(revision);
-  await reloadUntilRead(page);
+  // Read the Take here; the final reload still proves persistence.
+  await passCheckPace(page);
+  await untilPageRequestsAnswered(page);
   await expectSettledPage(page);
   await expect(readRevision).toContainText(shortRevision(revision));
   await expectStartNote(
@@ -167,26 +175,22 @@ test("Codex card start publishes one claim and retries its retained workspace be
   const retryAcceptance = nextAcceptedAttemptId(page);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   const retryAttemptId = await retryAcceptance;
-  await creating;
-  delete native.afterCreation;
   const observer = await expectCodexRetryProgress(
     page,
     claimed,
     dashboard,
     "execution",
+    creating,
   );
+  delete native.afterCreation;
   native.holdCreation = false;
   native.release();
   await observer.close();
   await settledOutcome(dashboard, retryAttemptId);
   await untilPageRequestsAnswered(page);
   const sessions = claimed.getByRole("list", { name: "Sessions" });
-  await expect(sessions).toContainText("Execution started in Codex", {
-    timeout: launchWaitMs,
-  });
-  await expect(sessions).toContainText("First input accepted", {
-    timeout: launchWaitMs,
-  });
+  await expect(sessions).toContainText("Execution started in Codex");
+  await expect(sessions).toContainText("First input accepted");
   const [record] = stored(dashboard.home);
   expectExecutionInput(
     record,
