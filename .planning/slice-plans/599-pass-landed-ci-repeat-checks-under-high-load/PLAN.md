@@ -1116,7 +1116,7 @@ both miss, and the measuring stopped there for the coordinator.
 
 ### 6. The shared costs and their kept forms are on record
 Type: Behavior
-Status: planned
+Status: done
 Proof: The plan records, each from a traced run with its command and load:
 what the `origin` fixture does on its first use in a worker and which part
 of it later uses skip; where the run's app build is requested and what
@@ -1155,6 +1155,329 @@ arrangement:
 
 A premise that does not hold stops the slice that consumes it and returns to
 the coordinator with what it would take.
+
+#### Slice 6 record
+
+Observed on 2026-11-12, 17:54–18:10 local, on `d231348ce`, Node 24.21.0, AC
+power throughout (battery 11%, charging). Every run was started by
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice6b/run.sh` only at a
+one-minute load of 30–50, under natural load: this probe started no burner
+(other worktrees' suites and another checkout's `yes` burners held the load).
+Command of every run, from the repository root:
+`caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE=<slice6b>/artifacts-<label>.jsonl [ZZ_SCRATCH_599_EAGER=app,server-bundle,start-origin-claude-queued] npm run --silent test:dashboard -- <specs> --workers=<n> --trace=on --reporter=list`.
+Logs `<label>.log`, traces `traces-<label>/`, artifact traces and the scratch
+code (`scratch/`) are in that directory, with `steps.py` (trace steps by
+depth) and `importers.py` (spec files that import a module, transitively, by
+family). "Selection" is the seven repeat specs and the refresh spec. Scratch
+code is deleted from the repository.
+
+| Label | Specs, workers | Load before → after | Result |
+| --- | --- | --- | --- |
+| `kept1` | scratch `backend-tests/intent/zz-scratch-599-s6-kept.spec.ts`, 2 | 48.0 → 70.2, ended outside the profile | 6 passed, 66 s |
+| `kept2` | the same, 1 | 49.7 → 38.7 | 6 passed, 64 s |
+| `pagebase` | `intent-ci-follow-up-return`, `-proof`, `landed-ci-repeat-accepted-request`, `landed-ci-repeat-verdict`, 2 | 36.0 → 36.0 | 4 passed, 35 s |
+| `pageeager` | the same with `ZZ_SCRATCH_599_EAGER`, 2 | 35.0 → 36.3 | 4 passed, 29 s |
+| `refresh1` | the refresh spec and scratch `tests/intent/zz-scratch-599-s6-refresh.spec.ts`, 2 | 37.0 → 34.6 | 4 passed, 41 s |
+| `selbase` | the selection, unchanged, 2 | 30.3 → 49.0 | 11 of 13, exit 1, 139 s: both refresh cases at the 30 s bound |
+| `seleager` | the selection with `ZZ_SCRATCH_599_EAGER`, 2 | 49.0 → 48.3, 58.9 seen during the run | 12 of 13, exit 1, 168 s: the refresh case at `:126` at the bound |
+| `refresh2` | as `refresh1`, 2 | 44.4 → 39.0 | 4 passed, 66 s |
+
+The refresh failures are this story's known loaded failures, recorded here;
+slices 7–10 own their repair.
+
+**1. The origin's first use.**
+
+- Cause. `startOrigin` → `initializeStartOrigin` → `preparedStartOrigin`
+  asks the runner for the run artifact `start-origin-claude-queued`
+  (`startOriginPreparation.ts`, `runArtifacts.ts`). The runner builds it on
+  the first request of the run: `prepareStartOrigin` materializes the queued
+  repository with the five installed skills read from `src/skills` into its
+  first commit, then `git clone --bare --no-local`, removes the remote and
+  sets `maintenance.auto`. Artifact trace, start to complete: 4.6 s
+  (`kept1`), 4.6 s (`pagebase`), 4.0 s (`selbase`). Both workers' first
+  cases wait on that one build: `origin` 4.9 and 5.0 s (`kept1`,
+  `pagebase`). Later uses skip the build and pay only the per-case part:
+  `cpSync` of the prepared bare origin, `git clone --no-hardlinks` into the
+  project and two config calls, 0.3–0.6 s, 1.1–1.5 s when the load is at
+  48–59. No template is kept between runs; the artifact is removed with the
+  run. The first backend case also asks for the `server-bundle` artifact
+  (esbuild of the server entries): 0.8 s in each of the three runs.
+- What SEED-287 and its predecessors already did here: `8c55a30c5` prepared
+  origins once and copied them per case; `52d5f8339`, `019b0e250` and
+  `944355f3a` made the origin, the app build and the server bundle
+  on-demand run artifacts, with
+  `backend-tests/launches/start-origin-demand.spec.ts` and
+  `backend-tests/runtime/dashboard-artifact-demand.spec.ts` asserting which
+  requests start which preparation; `08d208fd0` starts the story-columns
+  prefix in global setup without awaiting it; `9739dd6eb` added the
+  worker-scoped fixtures `dashboardPreviewReady`, `queuedClaudePreviewReady`,
+  `queuedCodexPreviewReady` and `queuedCodexOriginReady`
+  (`dashboard/tests/support/pageTest.ts`, `preparePreviewInputs`), which
+  request the origin, app and bundle before a test starts. 19 spec files opt
+  in through `queuedClaudePreviewTest` or `queuedCodexPreviewTest`; the
+  refresh spec is one. The seven repeat specs use the plain `test` of
+  `preparationPage.ts`, `landedCiHistoryTest.ts` and
+  `ciFollowUpSettledReading.ts` and so pay inside the case. A worker fixture
+  has its own time: in `refresh1` the unedited refresh cases, each first in
+  its worker, spent 4.6 and 4.7 s in `queuedClaudePreviewReady`; their
+  traces run 18.1 and 19.7 s and their reported durations are 13.6 and
+  15.3 s.
+- Scratch arrangement. Global setup awaits the three artifacts before
+  workers start (`scratch/globalSetup-eager.patch.txt`). `pagebase` →
+  `pageeager`, natural load 35–36: the first backend cases' `origin` fell
+  from 4.9 and 5.0 s to under 0.5 s (no step of 0.5 s in either trace), the
+  verdict case from 9.1 to 2.8 s and the accepted-request case from 14.4 to
+  6.7 s; global setup built the three in 4.7 s side by side against
+  4.6 + 0.8 + 4.6 s on demand, and the run took 29 s against 35 s. In
+  `seleager` at load 49–59 the same preparation took 17.3 s before any case
+  and the first cases' `origin` was 1.3–1.5 s.
+- Consumers and what holds it back. `startOriginPreparation.ts`,
+  `dashboardBuild.ts`, `runArtifacts.ts` and `pageTest.ts` reach every
+  dashboard spec file through the shared fixtures; `startOrigin.ts` is
+  imported, directly or not, by 487 spec files (`tests/intent` 97,
+  `tests/sessions` 76, `tests/launches` 65, `backend-tests/launches` 45,
+  `tests/review` 43, `backend-tests/intent` 42, `backend-tests/review` 31,
+  `tests/navigation` 27, `tests/terminals` 19, `backend-tests/sessions` 15,
+  `frontend-tests` 14, `tests/stories` 9, three other families 4).
+  Awaiting in global setup reverses the on-demand decision of `52d5f8339`
+  and `019b0e250`: a selection that opens no page would build the app, a
+  Codex-only selection the Claude origin, and the two demand specs count
+  requests and starts per artifact, so an unconditional request fails them.
+  On hosted CI each shard is its own runner and already builds what its
+  cases ask for; an awaited build moves that time ahead of the shard's
+  first case and adds it where a shard asks for none. The worker fixture
+  has none of these costs: the first case still waits, outside its own
+  time. It needs a boundary-server variant (origin and bundle, no app) for
+  the specs of `landedCiHistoryTest.ts` (28 files).
+
+**2. The app build.**
+
+- Cause. The `app` run artifact is `npm run build:dashboard -- --outDir
+  <temporary>` (`buildDashboardTo`), started by the first
+  `sharedDashboardBuild()` of the run, which the first preview server calls
+  (`fixtureServerMode`, `startLandedCiReader`). Artifact trace, start to
+  complete: 4.6 s (`pagebase`), 3.4 s (`selbase`). The first page case's
+  `dashboard` fixture took 5.7 s (`pagebase`) and 5.5 and 4.7 s (`selbase`,
+  both workers' first page cases waiting on the one build), against 1.2–1.8 s
+  for a later case.
+- Scratch arrangement: the same awaited request in global setup. `pagebase`
+  → `pageeager`: the first page case's `Before Hooks` fell from 6.4 to
+  1.7 s, its `dashboard` from 5.7 to 0.9 s, and the case from 14.7 to
+  10.3 s.
+- Consumers and what holds it back: as for the origin. Every preview server
+  of the suite reads `sharedDashboardBuild` (`dashboardBuild.ts` has 8 direct
+  importers, `dashboardServer.ts` among them). A backend-only
+  selection must still build no app; `dashboardPreviewReady` and
+  `queuedClaudePreviewReady` are the existing owners of "ready before the
+  case".
+
+**3. A kept published story.**
+
+- Cause, by step, from the scratch spec (the accepted-request case with
+  `keepRepeatLanding`'s steps named, `scratch/zzScratch599Kept.ts`). A case
+  that is not first, one worker, load 49.7 → 38.7 (`kept2`): `origin`
+  0.5 s; `completedPublishedStory` 1.8 s (`publishTake` 0.8 s: the declared
+  Take committed and pushed, `git worktree add`, three config calls; the
+  implementation commit 0.4 s; the installed `product-backlog.mjs complete`,
+  commit, `rev-parse` and push 0.7 s; about 20 `git` and `node` subprocesses,
+  counted by reading); the
+  history, launch records, ledger and provider 0.1 s; `startServer` 1.3 s;
+  first wait reached at 3.7 s and answered at 4.6 s; the case 7.5 s. Two
+  workers, load 48 → 70 (`kept1`): publication 1.7–1.8 s, `startServer`
+  2.7–3.2 s. In `seleager` at load 49–59 the refused, uncertain and
+  accepted-request cases reached their first wait 9.5, 8.3 and about 8 s
+  after `Before Hooks`. The first measured run's 11.6–15.5 s are these same
+  steps under a heavier machine at a lower load figure: the publication is
+  35–55% of the time between `Before Hooks` and the first wait (1.8 of
+  3.2 s in `kept2`, 1.8 of 4.6–5.1 s in `kept1`) and the server start the
+  rest.
+- Scratch arrangement. A declared completed history in place of the CLI
+  completion: `queuedReadyRepository()` with three more revisions,
+  `takeRevision` (Yui, Trunk Mode, publisher `another-publisher`), the
+  implementation authored by the agent, and a completion that removes the
+  agent profile, leaves Story B queued and adds `makeMe.aDoneRecord`
+  (`scratch/zz-scratch-599-s6-kept.spec.ts`), given to the `origin` fixture
+  as `originRepository`; the completion is `git rev-parse main`. The
+  product accepts it: the accepted-request case's assertions pass
+  unchanged, six of six in both runs, so `landingCompletesStory` and
+  `completedFollowUps` are satisfied. Two forms:
+  - Prepared once per process and copied (first revision not the run-wide
+    one): the case that is not first took 5.1 s against 7.5 s, saving
+    2.4 s; it reached its first wait at 2.0 s against 3.7 s and its answer
+    at 2.9 s against 4.6 s (`kept2`). The first case in each worker pays
+    the private preparation: 6.7 s with one worker, 13.7 and 15.5 s with
+    two workers preparing at once at load 48 → 70.
+  - Later revisions committed per case onto the run-wide queued origin
+    (what `initializeStartOrigin` does when the first revision is shared):
+    `origin` 1.4–1.5 s and no publication, 7.3 s against 7.5 s. No first
+    use.
+- What the product reads of the completion: `git` in the project folder
+  only. `completedFollowUps` → `publishedStoryEndpoints` fetches `origin`,
+  reads the done record at `origin/main`, the commit that added it and the
+  claim history; `landingCompletesStory` checks ancestry of the capture's
+  base, that the base lacks the done record, and the same completion
+  endpoints in `capture.repository`. So the commits must exist in the
+  project and its origin; no cheaper form than real commits serves.
+- Absolute paths and identity. A per-case copy made by the `origin` fixture
+  holds none from its template: the prepared origin is a bare clone with no
+  remote, the project is cloned per case with its own `insteadOf` origin,
+  and `commonGitDir(origin.project)`, the machine home, the launch records,
+  ledger and history are written per case after the copy. A copy of a
+  finished project checkout would break: its `origin` remote and
+  `url.<origin>.insteadOf`, the `.worktrees/completed-a` worktree's
+  administrative paths (`retainWorkspace: true` keeps it; no kept-landing
+  case reads it), and `extensions.worktreeConfig`. The declared form has no
+  worktree. The done record's `completedAt` is the time of declaration:
+  per process it is recent enough for Recently done; an artifact kept
+  between runs would age out of it.
+- Consumers. `ciFollowUpKeptLanding.ts`: 7 spec files (`backend-tests/intent`
+  3, `tests/intent` 4), which are this story's. `completedPublishedStory.ts`:
+  84 spec files (`tests/intent` 52, `backend-tests/intent` 12,
+  `backend-tests/review` 11, `tests/sessions` 4, `backend-tests/sessions` 3,
+  `tests/review` 2), unchanged if the kept form is a repository description
+  beside it. A run-wide third description in `startOriginPreparation.ts`
+  touches the file every origin consumer imports and the artifact list the
+  demand specs read. Holding back: the per-process form costs each worker
+  6.7–15.5 s once, more than it saves in a selection of seven cases on two
+  workers, so the kept story must be a run artifact or the per-case commits;
+  hosted shards are fresh processes and pay it once each.
+
+**4. Kept history for the refresh cases.**
+
+- Cause, unedited spec. Each case: `queuedClaudePreviewReady` (worker
+  fixture, outside the case's time) 4.6–4.7 s when first; `origin` and the
+  collecting boundary `dashboard` 1.2 s; then
+  `publishSummaryComparisonStory`, the recorded landings, the served runs
+  and the second, reading server, about 6 s at load 37 → 35 (`refresh1`),
+  12.8–13.2 s at 44 → 39 (`refresh2`), 16.5 and 21.7 s when both cases ran
+  at once late in `selbase`; then `openCollectedHistoryStory` with the
+  collection of three proofs beside it, 3–7 s; the journey itself 2.6–4.1 s.
+- Scratch arrangement (`scratch/zz-scratch-599-s6-refresh.spec.ts`): the
+  `dashboard` fixture is `startLandedCiReader({ github }, origin,
+  "preview")`, the only server; `publishSummaryComparisonStory`,
+  `recordScopeHistoryLandings` and `serveCollectedScopeFileRuns` as today;
+  the history through `makeMe.aLandedCiHistory.inTrunkOrder(<first-parent
+  order of the project>)` with one `measuredLanding` and one
+  `proofFor(<run>, makeMe.aCiProof…)` per landing (runs 101, 103, 104, the
+  case and file units of `folder/a.spec.ts`), kept with
+  `keepLandedCiHistory`. Both cases' bodies are unchanged and pass, twice:
+  the endpoint moves to the new head with "no matching collected
+  observation", CI evidence stays at the latest revision, three run rows
+  remain, the endpoint datetime changes, no acquisition of artifacts
+  1001–1003, the return to the selected landing reads two rows, and the
+  first case's Project visit, return, selected file, Proof tab and reading
+  place. The premise holds.
+- Seconds. `refresh1`, load 37 → 35: 13.6 and 14.9 s against 13.6 and
+  15.3 s, a saving of 0–0.4 s: publication 4.5–4.8 s, kept history
+  0.9–1.1 s, opening the story 3.7–4.3 s. `refresh2`, load 44 → 39: 21.0
+  and 21.9 s against 27.3 and 30.1 s, a saving of 6.3–8.2 s, the unedited
+  cases first in their workers and the scratch cases not: publication
+  6.4–6.8 s, kept history 1.4–2.2 s, opening the story 5.3–6.1 s. Kept
+  history removes the second server and the wait for collection; it does
+  not remove the publication, which is the larger share, and the scratch
+  cases stay over 15 s at load 39–44.
+- Which observations need a collected proof or
+  `publishSummaryComparisonStory`, and the single fault for each (not run;
+  slice 9 runs them):
+
+  | Observation | Needs | Fault that would fail it |
+  | --- | --- | --- |
+  | Done history reads "Selected landing", two rows 8.0 s and 11.0 s, and not the latest revision | The published story's commits and the kept builds; no collection | The scope history route ignores `through` and answers every kept landing |
+  | Project history reads "Observed trunk endpoint main" at the latest revision with three rows, the third 9.0 s | The kept history; the published trunk head | The Project scope history stops at the selected landing |
+  | After the head moves: the endpoint names the new head with "no matching collected observation" and three run rows remain | The origin's real head and the page's revision check; no collection | A head without a kept build drops the kept rows |
+  | CI evidence stays at the latest revision's run | A live acquisition of run 104's proof through the provider (`serveCollectedScopeFileRuns`), not kept history | The Project proof follows the uncollected head |
+  | The endpoint datetime changes | The page's observation of the new head | The endpoint keeps its first observation time |
+  | No acquisition of the three earlier artifacts | The provider's call record | History navigation reacquires a build's artifact |
+  | Return to the story restores the selected file, Proof tab and reading place (first case), and two rows (both) | The published story's changed files (`publishSummaryComparisonStory`'s Intent sources) | Returning from Project Intent resets the story's file selection |
+
+  What leaves real collection: that a collecting dashboard turns three
+  recorded landings and their served summaries into those kept builds. Its
+  candidate owner is `intent-project-scope-timing-history.spec.ts`, to be
+  shown by the fault "collection keeps no proof for a measured build".
+- Consumers. `projectScopeHistoryFixture.ts`: the refresh spec only.
+  `intentSummaryStoryComparisonFixture.ts`: 22 spec files, all
+  `tests/intent`. A declared comparison story already has an owner,
+  `materializeDeclaredSummaryComparisonRepository` with
+  `intentSummarySortTest.ts` (one spec); it builds no start origin, so the
+  refresh cases' `origin.originGit` and `origin.project` uses would need it
+  joined to the `origin` fixture. Not scratched.
+
+**Premises.**
+
+- Origin first use: holds. One run artifact built on first request; producible
+  before cases start. Two owners are possible and they differ: awaiting in
+  global setup (measured) reverses the on-demand decision and its two
+  specs; the existing worker fixture keeps it. Slice 7's proof reads the
+  same under either.
+- App build: holds, with the same choice.
+- Kept published story: holds as a declared history, not as a copied
+  checkout. It removes 1.7–1.8 s of a 7.5 s case at load 39–50, 46% of the
+  time to the first wait and 37% of the time to its answer. Slice 8's "at
+  most half the time slice 6 recorded" is not met by this alone: the
+  server start (1.3 s, 2.7–3.2 s on two workers) remains.
+- Kept history for the refresh cases: holds for what reads. It does not by
+  itself bring either case under 15 s; the publication remains.
+
+**Projection.**
+
+- Key example 1, no case over 15 s and 25 s first in its worker, at load
+  30–50 on two workers: not plausible from slices 7–9 as written. With the
+  origin, app and bundle already prepared (`seleager`, natural load 49–59)
+  the cases took: journey 22.5 s, refused 21.8 s, uncertain 23.9 s,
+  accepted request 20.1 s, proof 19.3 s, return 26.4 s, reading 17.0 s,
+  refresh 26.4 s and over 30 s; only saved outcomes 6.4 s, verdict 8.0 s,
+  settings 6.4 s and warning 11.3 s fit. Slice 8 takes at most the
+  publication from seven of them, 35–55% of 8–9.5 s, about 3–5 s:
+  uncertain about 19–21 s, accepted request about 15–17 s, return about
+  21–23 s. At the lighter `selbase` (30 → 49) the cases that pay no first
+  use were already over: reading 16.7 s, warning 26.1 s, return 20.8 s
+  with 4.7 s of build wait. What remains after 7–9 is every case's own
+  server start (1.3–5.7 s), three collection-pass waits of 0.9–2.9 s each
+  in a backend case, and in a page case `goto`, the Board paged to
+  Recently done and the card (4–7 s) before the first observation, with
+  1–2.3 s of teardown counted in the duration. The same load figure also
+  does not fix the cost: publication took 1.8 s at load 39–50 today and
+  the same steps 11.6–15.5 s at 36–44 in the first measured run. Reaching
+  the figure needs a decision outside these slices: a bound stated against
+  a reference case of the same run instead of seconds, or page cases that
+  open the comparison without the Board, or shorter cases still.
+- Key example 8, candidate median at most two-thirds of the base at one
+  worker: not plausible. At load 4–12 the base's seven cases ran in 33.9 s
+  and the candidate's eleven in 42.2 s. The refresh spec adds about 24 s
+  to both (12–14 s a case at load 17). Base about 58 s; two-thirds is
+  about 38.6 s. Candidate: 42.2 s, less 2–4 s if preparation runs side by
+  side in global setup (none under the worker fixture), less 2–3 s for
+  seven kept stories (about 0.6 s each at that load, less one
+  preparation), plus about 23.5 s of refresh with kept history, or about
+  20.5 s with a declared story as well: 57–61 s, a ratio of 0.98–1.05.
+  The gap is about 20 s. At a low load a journey's provider calls cost
+  little and each of the six added cases pays its own origin, server and
+  page; the division that serves key example 1 works against key example
+  8. Changing the comparison (under load, or by fake `gh` calls, 238
+  against 154) is a seed edit.
+
+Gaps: no run under burners (the natural load stayed in the profile); the
+worker-fixture form for the repeat specs was observed on the refresh spec
+and not scratched for them; a run-wide kept-story artifact and a declared
+comparison story joined to the `origin` fixture were not scratched; the
+faults of the table above were not run; hosted CI was not consulted.
+
+#### Slice 6 acceptance, and the stop it brings
+
+Accepted as a probe: each of the four costs has a measured cause and a
+scratch form that removes it. Its projection stops slices 7–10 for the
+developer: with origin, app build and bundle prepared, a kept story, and the
+refresh cases on kept history, the measured cases still take 17–26 s at
+natural load 49–59 and about 15–23 s after slice 8, so key example 1's 15 s
+figure is out of reach; and at one worker the candidate projects to 0.98–1.05
+of the merged-trunk base once the refresh spec is counted on both sides, so
+key example 8's two-thirds is out of reach. What remains per case is the
+server start, the collection passes, entering the page through the Board and
+teardown, none of which these slices remove. Slices 7–9 stay `planned` and
+unstarted until the story's figures are decided. For slice 7 the probe
+favours the worker fixtures SEED-287 added in `pageTest.ts` over an awaited
+global setup, which would fail the two on-demand artifact specs; slice 8's
+"half the time" would read 37–46%.
 
 ### 7. A worker's first case starts from prepared origin and app build
 Type: Behavior
