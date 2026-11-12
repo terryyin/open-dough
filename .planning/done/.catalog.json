@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-322_keep-sidebar-selected-board-cards-visible-below-fixed-header.json",
+      "identity": "SEED-322#keep-sidebar-selected-board-cards-visible-below-fixed-header",
+      "completedAt": "2026-11-12T01:50:59.437Z",
+      "blob": "060c83b799604ae33e5b0e0a05da651fbc60f0df"
+    },
+    {
       "fileName": "SEED-312_speed-up-touch-review-checks.json",
       "identity": "SEED-312#speed-up-touch-review-checks",
       "completedAt": "2026-11-11T17:46:00.721Z",
@@ -2004,18 +2010,6 @@
       "identity": "SEED-134#one-hour-mobile-dashboard-observation",
       "completedAt": "2026-10-13T05:19:28.255Z",
       "blob": "815f097bad734488a2aa5427098feec248f39ea3"
-    },
-    {
-      "fileName": "SEED-133_operate-dashboard-from-mobile-browser.json",
-      "identity": "SEED-133#operate-dashboard-from-mobile-browser",
-      "completedAt": "2026-10-13T01:14:57.021Z",
-      "blob": "3fbd57a55cade5cf294e2d063ee4bf98a2d65be4"
-    },
-    {
-      "fileName": "SEED-063_background-ci-failure-delivery.json",
-      "identity": "SEED-063#background-ci-failure-delivery",
-      "completedAt": "2026-10-12T23:55:32.494Z",
-      "blob": "16955965e73026dcce9304d2f25c719856207877"
     }
   ],
   "unreadable": []
