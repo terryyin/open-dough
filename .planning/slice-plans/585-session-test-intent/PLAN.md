@@ -1,119 +1,223 @@
-# Express Session discovery and report test intent
+# Express session discovery and report test intent
 
 **Identity:** SEED-300#express-session-test-intent-through-page-objects
 **Source:** [Story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects)
 
-This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
+## Goal, scope and evaluation
 
-## Goal and provisional scope
+A developer reading session tests in Intent can follow the session found,
+selected, acted on or read. Shared session/report controls have one browser
+owner; scenarios retain independent facts and causal evidence.
 
-A developer can follow which session a case discovers, acts on or reads,
-without rebuilding shared row, sidebar and report mechanics. Receive the
-original findings **Session rows, actions and membership**; **Sessions sidebar
-and Running Cursor sessions**; **Final report, retained sessions and workspace
-retirement**, including every affected sibling caller and both frontend and
-integrated host-status readers.
+Resolve all three allocated findings and affected same-control/sequence siblings:
+Session rows/actions/membership (slice 1), Sessions sidebar/Running Cursor
+(slices 2–5), and Final report/retained sessions/workspace retirement (slice 6).
+Preserve every distinct behavior check and frontend/integrated tier. No product
+behavior change, speed or case-count promise, universal fluent conversion, new
+framework, or unrelated sibling workflow migration is included.
 
-The original audit was at `7eab3d6ca`; current inspection was at `9779b93c1`.
-There was no original executable plan: these slices provisionally receive
-findings, not invented original slices. Refinement must confirm examples,
-proof ownership and caller inventory before making this executable.
+Evaluation baseline: audit `7eab3d6ca`, reconciled with source at
+`0c8463348062fcce9f2fa3d9b9e8879bacd10e9f` on 2026-11-12. Execution retains a
+before/after for each finding: named user actions and independent outcomes,
+selector/sequence edit sites removed, and added helper cost. The gain must
+justify that cost; passing tests or relocating locators alone is insufficient.
+Each slice owns its caller/finding dispositions, comparison, implementation,
+proof and cleanup. Record those results here during execution. A direct
+contract observation can remain direct with an evidence-backed reason.
 
-Preserve session IDs, exact report text, states and badges, placement, separate
-observations of the same session in different surfaces, and retirement evidence.
-Selecting a session and opening its Final report remain distinct operations.
-Terminal controls belong to the Terminal story; reuse their accepted owner
-without moving native/PTY evidence into this story's reading helpers.
+## Architecture and existing solutions
 
-## Architecture and existing owners
-
-Reuse `dashboard/tests/sessionsSidebarPage.ts`,
-`recentlyDoneSessionsSidebarPage.ts`, `runningCursorSessionsPage.ts`,
-`cursorSessionsSidebarResizePage.ts`, `storyCardSessionListing.ts`,
-`support/sessionEntryDisclosure.ts`, `support/sessionHostStatus.ts`,
-`support/unreadReportPage.ts`, `support/reportTouchPage.ts` and
-`finalReportPages.ts`, with the existing mark-done helpers owning their causal
-answer waits. Host-status display assertions can be shared without sharing
-frontend synthetic setup with integrated servers.
-
+Follow Accepted [ADR 0001 — Ubiquitous language](../../../docs/adrs/0001-ubiquitous-language-accepted.md),
+[ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
 [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-distinguishes Session entry from Story card, local session evidence from story
-membership, and selecting a retained session from changing the Side panel.
-Preserve those meanings. Evaluate clarity, selector edit sites and helper cost
-against the audit under [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+and [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+Index and in-file statuses agree; no relevant supersession or conflict was found.
+The North Star's [Agent launch as a requested assignment](../../NORTH-STAR.md#agent-launch-as-a-requested-assignment)
+keeps machine-local sessions distinct from published membership. Existing
+structure supports this work; no new architectural topic or decision is needed.
 
-No inspected expected owner exceeds 250 lines; `sessionsSidebarPage.ts` has
-238 and `runningCursorSessionsPage.ts` has 232. Keep open, Recently done,
-Running Cursor, resizing and report responsibilities on their existing seams.
+PFE result: extend procedural/component owners and share them with fluent callers:
 
-## Provisional slices and proof ownership
+- `dashboardParts.ts` owns `storyCardSessions`, `sessionStateOf`, `sessionNamedBy`;
+  `dashboardPage.ts` re-exports them. Extend the former seam rather than growing
+  the 250-line facade. `storyCardSessionListing.ts`, `support/sessionEntryDisclosure.ts`
+  and `support/markDone.ts` own listing, disclosure and causal Done-answer waits.
+  Preserve a separately invocable non-waiting operation for held answers.
+- `sessionsSidebarPage.ts` (238 lines) owns open-list parts/reading;
+  `recentlyDoneSessionsSidebarPage.ts` (189) owns retained-list parts. Separate
+  layout/geometry from entry reading if growth requires it, preserving callers.
+- `support/sessionHostStatus.ts` mixes integrated setup with browser figures.
+  Expose pure figure parts/assertions for both tiers, accepting expected
+  count/text/words. Host sampling and setup keep their fixtures. The integrated
+  real-host case currently uses production formatting to relate its answer to
+  display; retain that transport observation alongside frontend literal formatting
+  checks. Do not introduce production-derived expectations into shared readers.
+- `runningCursorSessionsPage.ts` (232) mixes native fixtures with list controls.
+  Modularize its pure `runningCursorParts`/`openRunningList` seam independently,
+  retaining exports. Frontend callers must not acquire a runner.
+  `cursorSessionsSidebarResizePage.ts` (125) owns divider mechanics/geometry.
+- `recentlyDoneSelectionReport.ts`, `support/unreadReportPage.ts`,
+  `support/reportTouchPage.ts` and `finalReportPages.ts` have separate setup,
+  selection, touch and fluent roles. Share report-scoped browser reading, keeping
+  exact-text observations distinct from the fluent containment observation.
+  Callers supply expected text/title/session; Side panel frame controls retain
+  their existing owner. No omnibus session object or fluent framework is needed.
 
-Commands illustrate proof cohorts until refinement verifies actual selections
-and transitive consumers. Each slice resolves its receiving finding/callers and
-retains independent assertions with a representative source comparison.
+Expected edits already exceeding the 250-line check have these slice 1 decisions:
 
-### 1. Express Session entry actions and placement through shared owners
+| File at inspected revision | Cohesive reorganization and preserved proof |
+| --- | --- |
+| `sessions/agent-launch-story-card-sessions.spec.ts` — 272 | Move queued-card launch/listing and blocked-start observations into existing `storyCardSessionListing.ts`. Preserve Preparing, Taken, removed-story and Done transitions, reloads and separate uniqueness assertions. Run the whole spec and listing consumers. |
+| `sessions/agent-launch-attention.spec.ts` — 257 | Separate Backlog/Preparing attention from Taken/project/local-session scenarios into capability-named specs; share setup through existing `storyCardOpenSessions.ts` (163 lines). Preserve all cases and scenario expectations. Run resulting specs and attention consumers. |
+
+Recheck actual expected edits and sizes before implementation. Growth beyond the
+check receives cohesive restructuring in its owning Behavior, not arbitrary cuts.
+
+## Decisive premises and preparation observations
+
+Observations used this owned worktree at `0c8463348062fcce9f2fa3d9b9e8879bacd10e9f`
+on 2026-11-12. Trial source and injected faults were restored byte-for-byte before
+preparation writes. These are bounded observations, not completed slices.
+
+| Premise / consuming operation | Observation and result | Remaining boundary |
+| --- | --- | --- |
+| The actual integrated proof route builds/launches its fixture here. | Initial P1 stopped when server-bundle `mkdtemp` encountered missing local `node_modules`. `npm ci --silent` repaired checkout setup; P1 then passed 17/17 in 61.244 s. | Execution installs dependencies in its own checkout; parent resolution alone is insufficient. No failure was waived. |
+| Browser controls can be shared across tiers without sharing startup. | P1 trial extracted `statusParts`/`expectFigure` into one browser-only module and `runningCursorParts`/`openRunningList` from native setup, retaining exports. Both frontend specs and integrated host-status/Cursor navigation passed. Trial `npm run typecheck:dashboard` passed. | Other callers remain execution's sweep; this is no suite-wide completion claim. |
+| Shared figures detect an independent display-contract fault in both tiers. | P2 changed only the rendered figure title to `Broken figure title`. Both selected host-status cases failed at the shared title assertion against caller words. | Never weaken expectations to preserve reuse. |
+| Retained-row proof distinguishes Select from Open. | P2 also made retained Select invoke `onOpen`. The linked-story case failed because Intent became unchecked. Its prior/restored passes exercised Select, retained report, separate Open, attachment and focus observations. | Keep separate operations, not a helper that selects and opens together. |
+| Proof loops reach membership, keyboard/paging, resizing and passive report access. | P3 restored product behavior with trial extractions still applied: 25/25 passed in 87.147 s across 11 files, including P1 plus membership, keyboard, retained paging and Cursor resizing. | Execution still owns every changed/transitively affected case and before/after evaluation. |
+
+Literal commands from this workspace; temporary proof JSONs retain run details:
+
+```sh
+# P1: 17 cases, seven files
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-session-scratch.json caffeinate -i npm run test:dashboard -- tests/sessions/compact-session-entry.spec.ts tests/sessions/sessions-sidebar-host-status.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts tests/sessions/cursor-sessions-sidebar-navigation.spec.ts frontend-tests/cursor-runner-sessions-ui.spec.ts tests/sessions/recently-done-sessions-select.spec.ts tests/sessions/session-workspace-retirement.spec.ts --workers=1
+# P2: deliberate faults, all three expected failures
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-session-discrimination.json caffeinate -i npm run test:dashboard -- tests/sessions/sessions-sidebar-host-status.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts tests/sessions/recently-done-sessions-select.spec.ts --grep 'counts active and waiting|an unread host figure|selecting a linked done story from Intent' --workers=1
+# P3: restored behavior, 25 cases
+OPEN_DOUGH_DASHBOARD_PROOF_RECORD=/tmp/seed300-session-restored.json caffeinate -i npm run test:dashboard -- tests/sessions/compact-session-entry.spec.ts tests/sessions/sessions-sidebar-host-status.spec.ts frontend-tests/sessions-sidebar-host-status.spec.ts tests/sessions/cursor-sessions-sidebar-navigation.spec.ts frontend-tests/cursor-runner-sessions-ui.spec.ts tests/sessions/recently-done-sessions-select.spec.ts tests/sessions/session-workspace-retirement.spec.ts tests/sessions/session-column-membership.spec.ts tests/sessions/sessions-sidebar-keyboard.spec.ts tests/sessions/recently-done-sessions-sidebar-paging.spec.ts tests/sessions/cursor-sessions-sidebar-resize.spec.ts --workers=1
+```
+
+Host choice before launch: Territory.local, 16 logical CPUs, 48 GiB RAM, load
+4.78/6.44/8.88, about 2.55 GiB free plus inactive memory. Dashboard preview and
+other agents were active. Battery 77%, machine awake. Bounded cohorts used one
+worker under `caffeinate -i`; no timeout or promise changed. Recheck power/load
+and competing work before larger execution cohorts. Durations describe this
+host/selection only.
+
+## Outside-in proof ownership and ordered slices
+
+Bare spec stems below name files in `dashboard/tests/sessions/`; other integrated
+paths are relative to `dashboard/tests/`. `frontend-tests/` names that separate
+tier. Named specs are initial cohorts, extended by effect/consumer trace. Story examples 1–5 map to slices 1, 2, 3, 4–5 and 6; example 6 and shared
+acceptance belong to every slice and its finding disposition.
+
+### 1. Read Session entry actions and membership through shared owners
 Type: Behavior
 Status: planned
-Proof: Reuse row/disclosure/mark-done operations for open, inspect,
-confirm/cancel, Done/Delete and placement. Preserve separate surface checks and
-expected state/session facts. Illustrative: `npm run test:dashboard -- 'tests/sessions/compact-session-entry.spec.ts' 'tests/sessions/agent-launch-story-card-(sessions|delete)' 'tests/sessions/session-column-membership.spec.ts' 'tests/sessions/session-unread-report.spec.ts' 'tests/sessions/cursor-session-recovery-stops.spec.ts'`.
+Proof: `compact-session-entry`, `agent-launch-story-card-{sessions,session-states,delete,delete-problems,done}`, `agent-launch-attention`, `session-column-membership`, `session-management-touch`, `cursor-session-recovery-stops`, `session-unread-report` and `recently-done-{active-story-sessions,story-sessions}` specs. Retain session IDs, states/badges, confirmation/refusal, cross-surface uniqueness and kept-record assertions.
 
-Behavior: A developer reads a Session entry case → follows named actions and
-placement observations → the source explains which session changes where,
-and unchanged UI plus kept-record checks distinguish the same outcomes.
+Behavior: Given a compact or multiply represented session, a developer follows
+named disclosures/lifecycle actions and sees which session changes where, with
+unchanged input, focus and placement contracts. Extend entry/listing/Done owners,
+retain caller facts, and apply the oversized-spec decisions. Cancellation and
+held-answer send/release remain separate. Safe stop: entry scenarios are readable
+and green without sidebar/report migration; existing public callers still work.
 
-### 2. Express Sessions sidebar reading and host figures across both tiers
+### 2. Follow sidebar navigation and retained reading place
 Type: Behavior
 Status: planned
-Proof: Share row/keyboard/paging/retained-scroll observations and the duplicated
-host-figure contract; expected count and accessible words stay caller-supplied.
-Frontend fixtures remain independent. Illustrative:
-`npm run test:dashboard -- 'tests/sessions/sessions-sidebar' 'tests/sessions/recently-done-sessions-sidebar' 'frontend-tests/sessions-sidebar-host-status.spec.ts'`.
+Proof: `sessions-sidebar-{keyboard,navigation,navigation-cases,order,reading,row,state-edge,stays-as-left,touch}` and `recently-done-sessions-sidebar*` specs, plus reached frame/sidebar and `navigation/board-paging-sessions-sidebar` callers. Retain exact keys, focus/row order, older paging, retained scroll and no-unintended-action evidence.
 
-Behavior: A developer reads sidebar navigation or host-status cases → follows
-shared sidebar observations around explicit keys and clock/read events → the
-source states retained position and shown figures, with original checks passing.
+Behavior: Given open or Recently done sessions beyond the available room, the
+developer follows named sidebar navigation around explicit keys, view changes
+and read events, with expected destination and retained position visible.
+Extend open/retained list owners, preserving distinct selection/report access
+for slice 6. Safe stop: navigation improvements stand independently.
 
-### 3. Express Running Cursor discovery and resize through its existing owner
+### 3. Read host figures through one cross-tier browser observation
 Type: Behavior
 Status: planned
-Proof: Share repeated list opening, selection and resize observations; retain
-input modality, geometry, focus and native runner/session evidence. Illustrative:
-`npm run test:dashboard -- 'tests/sessions/cursor-sessions-sidebar' 'frontend-tests/cursor-runner-sessions-ui.spec.ts'` plus discovered Running Cursor callers.
+Proof: Entire `sessions/sessions-sidebar-host-status.spec.ts` and `frontend-tests/sessions-sidebar-host-status.spec.ts` cohorts. Keep accessible name/title, value, icon/non-action checks, literal unavailable/formatting cases, contrast, read counts and visibility/clock transitions. P2 supplies discrimination evidence.
 
-Behavior: A developer reads a Running Cursor case → follows named list and
-resize operations → the source exposes the selected session and reachable
-controls, and unchanged UI/native checks still distinguish them.
+Behavior: Given synthetic or actual host answers, a controlled read changes the
+figures and both tiers express expected counts/text/words through one browser
+owner without acquiring each other's fixtures. Expose the observed pure seam
+from `support/sessionHostStatus.ts`. Safe stop: both tiers remain independently
+runnable with existing transport and formatting proof.
 
-### 4. Express retained selection and Final report reading distinctly
+### 4. Follow Running Cursor discovery and selection
 Type: Behavior
 Status: planned
-Proof: Report/session owners expose panel title, session identity, exact report
-and read/open/close actions. Keep retirement/attachment, completion receipts and
-independent record evidence explicit. Illustrative:
-`npm run test:dashboard -- 'tests/sessions/recently-done-sessions-select.spec.ts' 'tests/sessions/final-report-touch.spec.ts' 'tests/sessions/agent-completion-attention.spec.ts' 'tests/sessions/session-workspace-retirement'`.
+Proof: `cursor-sessions-sidebar-{navigation,layout}`, `cursor-runner-sessions*`, and `frontend-tests/cursor-runner-sessions-ui.spec.ts`, extended to extracted-control consumers. Retain held answers, request ownership/peak, ask-gap clocks, runner states, chosen UUID/client, terminal destination and native calls/attachment evidence.
 
-Behavior: A developer reads a retained-session/report case → follows distinct
-selection and report-opening operations → the source states what selection,
-text and retired-workspace evidence persist, with original checks passing.
+Behavior: Given a native held client or synthetic held answer, the developer
+follows shared list expansion/discovery/selection while the case still explains
+demand, collapse/visibility and the chosen session's destination. Separate browser
+controls from native setup, preserving exports. Safe stop: frontend starts no
+runner and integrated native evidence stays explicit.
 
-## Refinement and verification still required
+### 5. Read Running Cursor resize and reachability through its owner
+Type: Behavior
+Status: planned
+Proof: `cursor-sessions-sidebar-{resize,resize-lasting,size-kept,size-unkept}`, including `cursorSessionsSidebarFormerHeightCases.ts` scenarios and retained three-list room/touch callers. Keep pointer/key/touch modality, numeric bounds, stored/retained height, focus, geometry and absence of launch/attach/Done/Delete/runner-control requests.
 
-Resume `dough-story-refinement`, realign this same plan, then run slice-plan
-refinement and record the assessment. This provisional plan supplies no
-readiness, Take or execution authority. Observe current caller cohorts and
-cross-tier reuse through the consuming operation before readiness.
+Behavior: Given expanded overflowing lists, the developer reads named divider
+operations and expected geometry/focus through resize, collapse, restore and
+reload. Extend existing resize/list-layout owners; measurements remain
+independent. Safe stop: resizing changes no session and needs no report migration.
 
-Use changed specs plus transitive consumers and `npm run typecheck:dashboard`
-for shared TypeScript edits. A broader local gate needs a changed shared
-fixture/consumer or another requirement; CI configuration alone does not impose
-a full local suite. Use MakeMe for domain data while leaving driving facts,
-exact inputs and independent expectations at the call site. Preserve tiers,
-causal waits, controlled clocks, helds and native/HTTP/Git/record evidence.
-Follow the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
-as written in every delegation and repair handoff. Keep default timeouts;
-no wall-clock sleeps or `test.slow()`.
-For long macOS runs start fully awake: on AC use `caffeinate -s -i`; on battery
-plug in or keep the lid open under `caffeinate -i` and inspect sleep logs under
-[machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+### 6. Read retained selection and Final reports as distinct actions
+Type: Behavior
+Status: planned
+Proof: `recently-done-sessions-select*`, `session-unread-report*`, `final-report-touch*`, `agent-completion-*`, `session-workspace-retirement*` and report-reading Codex observation cases. Include reached fluent `navigation/side-panel-content-replacement`, retained sidebar navigation, `stories/recently-done-progressive-navigation-report` and `intent/intent-ci-status-side-panel` consumers. Preserve exact report text/title/session, unread/read state, receipts, store/filesystem/retirement, requests, attachment and focus.
+
+Behavior: Given a linked or standalone retained session, the developer follows
+Select and separate report Open/Close/Read operations and sees the required
+Selected story, perspective and Side panel retained. A retired workspace remains
+passively readable. Extend report/session owners while preserving exact-text
+versus containment strength and touch geometry. Helpers neither resume nor attach
+nor erase evidence. Safe stop: all findings have complete caller dispositions
+and before/after evidence with unchanged product behavior.
+
+## Verification, current decisions and concern review
+
+- Each slice runs changed specs and transitive consumers, using `npm run
+  test:dashboard -- <actual spec paths or quoted Playwright path regexes>
+  --workers=1`. Braces above describe filenames, not executable Playwright
+  selectors. Inspect changed selections with `--list`; preserve cases on moves.
+- Capture original scenarios before edits; inspect setup and assertions. Run
+  installed `consumer-trace.mjs --checkout <workspace> --base HEAD --term <effect>`
+  for changed paths/exports, retired selectors and whole-surface observations.
+  Follow helper exports to enclosing journeys and give each consumer a
+  run/reused/excluded disposition. Include launch/recovery, frame/sidebar,
+  progressive Done navigation, Intent and fluent Side panel entry points reached
+  by session/report mechanics. Their unrelated workflows remain with siblings;
+  shared code is no blocking story dependency.
+- Run `npm run typecheck:dashboard` for shared TypeScript edits and the maintained
+  formatting/lint gate for changed files. Hosted CI alone imposes no full local
+  suite; a changed shared fixture/consumer can justify broader local proof.
+  Published CI failures stay owned through applicable final CI.
+- Use MakeMe for domain data; inputs, independent expectations, held releases
+  and controlled-clock steps stay in scenarios. The installed selector resolved
+  the three trial specs with both convention flags false; AGENTS.md and this
+  story still govern. Recheck actual/new paths before test edits; configuration
+  conversion is outside this story.
+- Carry the [failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
+  as written, by this link or verbatim, into every delegation and repair handoff.
+  No failure is excluded for predating the story. Preserve another active repair
+  owner's files. Keep default timeouts; no wall-clock sleeps, `test.slow()` or
+  suite/file/group/hook timeout overrides.
+- Local gate: start fully awake; on AC use `caffeinate -s -i`; on battery plug
+  in or keep the lid open under `caffeinate -i`, following the maintained
+  [macOS sleep guard and power condition](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+  Inspect sleep logs when required; sleep invalidates rather than excuses a run.
+- No numeric slice-time limit is supplied. Six cohesive Behavior/proof loops
+  include restructuring and cleanup. Their common model is scoped browser
+  actions/observations with caller facts; the lists keep their domain-specific
+  rules and fixture lifecycles. No speculative common framework is warranted.
+- Slice-plan refinement was not needed after construction split independent host
+  figures and Cursor resize from navigation. No remaining slice-specific concern
+  was identified in this bounded review. No human decision or blocking dependency
+  remains. Record readiness against final story/plan digests; this preparation
+  grants no Take or execution authority.

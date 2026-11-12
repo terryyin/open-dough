@@ -470,26 +470,85 @@ execution prerequisite on another story.
 
 **Identity:** SEED-300#express-session-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/585-session-test-intent/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement and same-plan realignment; mapped slices are provisional."],"basis":{"document":"b99940224770c06e559d6ef014fedbc7518ad99d7ebc82807396c0e50e54fb4a","plan":"0176a2d534b3a6311e870baa8bbad0048a1f756fb96ffa0c5d86148a50eaed28"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/585-session-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"92ca878355e8a8dc660f27a09cb7ab9ef4811eda45acde8bf1053fe56b04ea16","plan":"9834ff6f6c5c4a607c09f63018b08029ef5d3150487d2e0dde0543d527aad931"}}
 ```
 
 #### Goal
 
-A developer can follow session membership, discovery and report reading across the Board and sidebars while shared session controls have one browser owner.
+A developer reading session tests in Intent can follow which session is
+found, selected, acted on or read across the Board and Sessions sidebar.
+Shared session controls and observations have one browser owner, reducing
+mechanics edit sites while each scenario still explains the behavior it proves.
 
 #### Scope
 
-Resolve session rows/actions/membership, Sessions sidebar/Running Cursor, and Final report/retained-session/retirement findings plus sibling callers. Preserve selecting versus opening a report, independent readings of one session in different surfaces, expected host figures, exact report/session facts, keyboard/focus and retired-workspace evidence. Frontend setup remains independent of integrated servers.
+Resolve the three audit findings below and current same-control or
+same-sequence sibling callers:
 
-**Plan:** [Mapped plan](../slice-plans/585-session-test-intent/PLAN.md)
+- Express Session entry disclosure, state/attention, open, Done/Delete,
+  confirmation/cancellation and column placement through shared session owners.
+  Keep independent observations of the same session in a Story card, Column
+  and Sessions sidebar when their agreement is the promise.
+- Express open and Recently done sidebar navigation, keyboard focus, paging,
+  retained scroll and host figures through suitable shared observations.
+  Counts, CPU/disk values and accessible words remain caller facts; controlled
+  reads and clocks still explain when a reading changes.
+- Express Running Cursor discovery, selection, reachability and resizing
+  through shared browser controls. Frontend synthetic answers remain separate
+  from integrated runner setup and native attachment evidence.
+- Express retained-session selection separately from opening its Terminal or
+  Final report. Share report identity, title, exact text and read/open/close
+  mechanics while preserving passive access after workspace retirement,
+  attention/read state, completion receipts and independent filesystem,
+  request and native-session observations.
 
-#### Preparation hold
+Required preservation constraints prevent abstractions from concealing a
+regression: keep session identity, expected state/badges and placement, report
+text, exact key/touch/pointer input and focus expectations, held answers and
+release order, and native/HTTP/Git/record evidence explicit where they
+separate outcomes. Domain setup stays with MakeMe. Browser observations must
+not manufacture expected facts from the production value being checked or
+complete a held read as an incidental wait. Accessibility and geometry contract
+checks retain their independent expectations.
 
-Awaiting story refinement — not ready for slice-plan refinement or execution.
-The mapped plan is provisional input. Resume with `dough-story-refinement` on
-this identity, clarify its Goal, Scope and Key examples, then realign the same
-plan before slice-plan refinement and readiness assessment. This is not an
-execution prerequisite on another story.
+Scope limits: no dashboard behavior change, test-speed promise, fewer-case
+promise, universal fluent conversion or new page-object framework. Unrelated
+Terminal, launch, Board, review and settings workflows remain with their
+stories; shared session/report controls in those callers are included. Reuse
+existing owners without making those stories execution prerequisites. Necessary
+proof-harness repair follows the project's failing/flaky-test policy.
+
+**Plan:** [Executable plan](../slice-plans/585-session-test-intent/PLAN.md)
+
+#### Key examples
+
+1. A compact entry hides technical details and lifecycle actions independently
+   → the user discloses, opens, confirms or cancels an action → named session
+   operations expose those steps while the case still specifies its native
+   session, state, focus and resulting membership in each relevant surface.
+2. Open and Recently done lists contain more sessions than fit → the user walks
+   them by keyboard, pages older entries or changes view and returns → shared
+   sidebar operations express the destination and retained reading place;
+   exact keys, expected order/count and no-unintended-action evidence stay in
+   the scenario.
+3. Frontend synthetic and integrated host-status cases read the same figures
+   → a controlled host/session read changes or is unavailable → one browser
+   observation checks the caller's count, text, accessible name and title;
+   fixtures keep their tiers and the case still explains read timing.
+4. A Running Cursor list has a held native client, or a frontend held answer
+   → the user expands, chooses, collapses or resizes the list → shared controls
+   expose the actual input and expected row/geometry/focus, while native
+   attachment and frontend request ownership remain separately observed.
+5. A retained row is linked to a completed story, or is standalone → the user
+   selects it, then separately opens its report → selection preserves the
+   required perspective, Selected story and existing Side panel; opening shows
+   the chosen session's exact report. A retired workspace remains passively
+   readable without resuming or attaching a conversation.
+6. A maintainer reviews the migration → each finding and affected sibling has
+   an evidence-backed disposition and representative before/after → user
+   actions and expected outcomes are clearer, shared mechanics have fewer
+   edit sites, and that gain justifies the added helper cost. Every distinct
+   behavior check and existing test tier remains represented.
 
 #### Audit findings owned by this story
 
