@@ -988,38 +988,12 @@ this story's four specs: it goes to Terry with a recommendation at the
 execution handoff. The base worktree at the merged trunk revision is
 `/Users/terryyin/.claude/jobs/296b888d/tmp/base-merged` (`8aa440077`).
 
-### 6. The fit under load and the saving are measured and kept
-Type: Behavior
-Status: planned
-Proof: Three consecutive counted two-worker runs of the selection at a
-one-minute load of 30–50 pass; from their proof records and traces no case
-exceeds 15 s, or 25 s when first in its worker. One case calls
-`scenario.ingest` across the selection, against five on the base. Paired
-one-worker base and candidate runs, three passing observations each: the
-candidate's median wall time is at most two-thirds of the base's. Supporting
-count: fake `gh` calls summed over one one-worker run, base and candidate. The
-diff adds no `test.setTimeout`, expectation timeout, `test.slow`, sleep,
-retry, skip or runner mode, and no shard weight names the specs. Hosted CI
-passes on the published revision.
+#### First measured run, 2026-11-12, before the amendment
 
-Behavior: The base worktree and the finished candidate run under like
-conditions → the comparison is recorded in this plan → the fit in the profile
-and the saving are observed with every preparation and teardown paid.
-
-- Slice 1 saw the base fail two cases at load 15.5 → 25.3 and pass a minute
-  later at 21.1 → 18.5, so no load guarantees a passing base. Take the
-  pairs in a window where it passes; a base that gives no three passing
-  observations is recorded with its failures, the comparison uses the base
-  runs that passed, and a miss is not rounded up: record and stop for the
-  coordinator's decision.
-- A candidate case that fails or exceeds its figure in the profile is a
-  failing test under the policy above, repaired before this slice is done.
-  Where the excess is first-in-worker preparation alone, measured from the
-  case's `Before Hooks` step, SEED-287's active execution owns that repair:
-  preserve its files, write no duplicate, and report that owner and the
-  remaining gate as the coordination boundary.
-
-#### Slice 6 record
+Run as slice 6 of the plan as it then stood, on `109d87f44` against the
+merged-trunk base `8aa440077`. Both figures missed; Terry then widened the
+story (see [Current decisions](#current-decisions)) and slices 6–10 replace
+that slice.
 
 Observed on 2026-11-12, 17:16–17:37 local, Node 24.21.0, candidate
 `109d87f44`, base worktree `base-merged` at `8aa440077`. Logs, proof records
@@ -1140,40 +1114,159 @@ both miss, and the measuring stopped there for the coordinator.
   worktrees stay; kept failure directories are under each worktree's ignored
   `dashboard/test-results/`.
 
-## Stopped for the developer's decision, 2026-11-12
+### 6. The shared costs and their kept forms are on record
+Type: Behavior
+Status: planned
+Proof: The plan records, each from a traced run with its command and load:
+what the `origin` fixture does on its first use in a worker and which part
+of it later uses skip; where the run's app build is requested and what
+producing it before the first case would change; what a kept-landing case
+spends between its first line and its first observation, by step
+(`completedPublishedStory`, the server start, the kept files); and the same
+for the two cases of `intent-project-scope-timing-refresh.spec.ts`. For each
+of the four it records one scratch arrangement that removes the cost and the
+seconds it saved in a run at load 30–50 or under burners, and names the
+specs that use the fixture it would change. Scratch code is deleted.
 
-Slice 6 is not done and stays `planned`. Slices 1–5 are delivered on the
-story branch only; nothing is on trunk. Key examples 1 and 8 miss as
-measured in the Slice 6 record, and the plan's rule for a miss is to record
-it and stop:
+Behavior: The branch as slice 5 left it → the probe runs → each fixed cost
+has a measured cause and a measured kept form, and any of slices 7–9 a false
+premise reaches is revised before it starts.
 
-- Key example 1: two counted two-worker runs in the profile failed (10 of 11
-  under burners, 6 of 11 under natural load). The run's first case in each
-  worker pays 7.6–23.9 s in the `origin` fixture and the first page case in
-  each worker 9.5–14.2 s waiting for the app build; apart from that, a case
-  pays 11–15 s of arrangement and server start before its first observation
-  under natural load.
-- Key example 8: at one worker the candidate's median is 42.2 s against the
-  merged-trunk base's 33.9 s, a ratio of 1.24 where two-thirds was the result
-  worth keeping. The base already holds SEED-287's faster journeys, and the
-  candidate has 11 cases, each paying its own arrangement, where the base
-  has 7.
-- G1 stays open with slice 6.
+This is an authorized early probe. Four premises, each as one scratch
+arrangement:
 
-The decision needed is the story's: whether its scope may take in the shared
-preparation it excludes (the `origin` fixture's first use, the app build's
-timing, and a kept published-story arrangement that every case pays for),
-whether its figures change, or whether the branch is not worth keeping under
-ADR 0010. No further measured run was started: the machine was on battery.
+- **The origin's first use.** The run's first case in each worker paid
+  7.6 s under burners and 23.6–23.9 s under natural load in `origin`, later
+  cases 0.5–2.0 s → find what the first use builds (a template repository,
+  installed CLI, clones) and whether it can be produced once before cases
+  start, or kept between runs.
+- **The app build.** The first page case in each worker waited 9.5–14.2 s in
+  `dashboard` for `sharedDashboardBuild` → produce it before any case starts
+  (the runner's own setup) and observe the first page case's `Before Hooks`.
+- **A kept published story.** A kept-landing case spent 11.6–15.5 s before
+  its first wait under natural load → copy a story published once per worker
+  for each case, as `queuedOriginRepository` copies its origin, and find what
+  holds an absolute path (remotes, launch records, the capture's repository).
+- **Kept history for the refresh cases.** Both refresh cases start from
+  `keepLandedCiHistory` in one non-collecting server → the endpoint move, the
+  three rows and the return to the selected landing still read; find which
+  of its observations need a collected proof and which fault each one fails
+  under.
+
+A premise that does not hold stops the slice that consumes it and returns to
+the coordinator with what it would take.
+
+### 7. A worker's first case starts from prepared origin and app build
+Type: Behavior
+Status: planned
+Proof: With slice 6's settled forms in place, three consecutive two-worker
+runs of the selection at load 30–50: the first case in each worker spends no
+more than a later case does in `origin`, and the first page case no more in
+`dashboard`, each within 3 s. Every spec that uses a changed fixture, named
+by the consumer trace, keeps its cases and assertions; the dashboard suite's
+families that use them give their previous results locally at two workers,
+and hosted CI passes on the published revision with no longer total. The
+consumer-trace record gives every located consumer a disposition.
+
+Behavior: A two-worker run starts under load → its first backend case and
+its first page case start → neither waits for preparation another case
+would not pay.
+
+- Change the shared fixture at its owner (the `origin` fixture's first use,
+  the build's producer); no case-local workaround and no second fixture.
+- The whole dashboard suite consumes these fixtures: run the families the
+  trace names before publishing, once, under the sleep guard.
+
+### 8. Kept landings start from a kept published story
+Type: Behavior
+Status: planned
+Proof: The seven repeat specs pass three consecutive times at two workers.
+A kept-landing case reaches its first observation in at most half the time
+slice 6 recorded for it at the same load. The journey still publishes and
+completes its story for real. Faults F2, F8, F9, F15, F18, F3, F16, F17,
+F19 and F20–F24 each still fail their owner, rerun for every case whose
+arrangement path changed.
+
+Behavior: A machine keeps a landing at a stage of its repeat for a published
+completion → a case starts → the published story it reads was published once
+and kept, and the case pays for its own landing and server only.
+
+- The kept story has one owner beside `completedPublishedStory`, used by
+  `keepRepeatLanding`; no second arrangement of a landing.
+- What only a real completion shows stays with the journey and with
+  `completedPublishedStory`'s own checks.
+
+### 9. The project scope timing refresh cases start from kept history
+Type: Behavior
+Status: planned
+Proof: `intent-project-scope-timing-refresh.spec.ts`, and any file its cases
+divide into, pass three consecutive times at two workers; neither case
+starts a collecting server or publishes a comparison story it does not read.
+Each observation the cases keep (the endpoint moves to the new head with "no
+matching collected observation", CI evidence stays at the latest revision,
+three run rows remain, the endpoint datetime changes, no acquisition, the
+return to the selected landing with two rows, and the first case's return
+and restore) fails under one deliberate product fault. Each observation that
+left real collection has a named owner among maintained checks, shown by its
+fault failing that owner.
+
+Behavior: A machine keeps the history of three builds and their landings →
+a non-collecting dashboard opens Project Intent, a revision check moves the
+endpoint, and the reader returns to the selected landing → the same rows and
+evidence read as today, with no collection and one server.
+
+- Reuse `keepLandedCiHistory` and `makeMe.aLandedCiHistory` as the
+  neighbouring scope-history specs do.
+- Collected history through an uncollected trunk head stays with
+  `intent-project-scope-timing-history.spec.ts`; credit it only where a
+  fault shows it catches the observation.
+
+### 10. The fit under load and the saving are measured and kept
+Type: Behavior
+Status: planned
+Proof: Three consecutive counted two-worker runs of the selection (the seven
+repeat specs and the refresh spec with any file it divided into) at a
+one-minute load of 30–50 pass, at least one under natural load when the
+machine offers it; from their proof records and traces no case exceeds 15 s,
+or 25 s when first in its worker. One case calls `scenario.ingest` across the
+repeat specs, against five on the base. Paired one-worker runs of the base
+(`8aa440077`, its four repeat specs and the refresh spec) and the candidate,
+three passing observations each: the candidate's median wall time is at most
+two-thirds of the base's. Supporting count: fake `gh` calls summed over one
+passing one-worker run on each side. The diff adds no `test.setTimeout`,
+expectation timeout, `test.slow`, sleep, retry, skip or runner mode, and no
+shard weight names the specs. Hosted CI passes on the published revision.
+
+Behavior: The base worktree and the finished candidate run under like
+conditions → the comparison is recorded in this plan → the fit in the profile
+and the saving are observed with every preparation and teardown paid.
+
+- The machine is on AC power and fully awake under `caffeinate -s -i`; a run
+  on battery is not counted.
+- No load guarantees a passing base. Take the pairs in a window where it
+  passes; a base that gives no three passing observations is recorded with
+  its failures, the comparison uses the base runs that passed, and a miss is
+  not rounded up: record and stop for the coordinator's decision.
+- A candidate case that fails or exceeds its figure in the profile is a
+  failing test under the policy above, repaired before this slice is done.
+  Shared preparation is this story's since the amendment.
 
 ## Story obligations
 
 ### G1. Page cases first in their worker reach the bound at load 27–49
 Reported: slice 4 — "With both cases first in their workers at load 27 → 49 the warning case took 28.2–29.7 s and failed once at the 30 s bound; Before Hooks took 25.8 s."
 Story clause: "every case passes each time; no case takes more than 15 s, or 25 s when it runs first in its worker"
-Disposition: receiving slice 6
+Disposition: receiving slice 10
 
 ## Current decisions
+
+- **Amended by Terry on 2026-11-12, after the first measured run missed key
+  examples 1 and 8.** The story may change shared preparation (the `origin`
+  fixture's first use, the app build's timing, a kept published-story
+  arrangement), the comparison base is trunk as merged (`8aa440077`), and
+  `intent-project-scope-timing-refresh.spec.ts` joins the named specs. The
+  seed carries the amendment; slices 6–10 replace the former slice 6. No
+  measured run starts on battery.
 
 - One model, a kept landing at a stage, serves every non-journey case. No
   per-case fixture.
