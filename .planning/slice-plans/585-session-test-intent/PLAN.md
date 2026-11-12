@@ -250,6 +250,32 @@ call site, then `closeSidePanel`. Remaining raw sites are contract checks, diffe
 elements or sibling Terminal/launch workflows. G6 moved cold preparation out of seven
 specs' budgets; G7 replaced the only wall-clock wait. Proof 92/92 over 49 files.
 
+## Execution complete
+
+Product advice:
+- Before integration, reconcile with trunk: since the claim, the review story
+  (67bb91d54) and Terminal story (2137dfd0d) landed parallel owners for the same
+  Open terminal, Read final report, Final report text and Side panel Close controls
+  (`sessionEntryAccess.ts`, `finalReportPages.ts` `finalReportText`/`readReportUntilText`,
+  `sidePanelFrame.ts`, `terminalScreenPage.ts`); merging trunk conflicts in 77 files.
+  Keep one owner per control and keep bbcbbc3's causal Startup recovery wait over
+  trunk's retry-until-text loop for the same flake; prove the merged state on branch
+  CI first.
+- Pass a literal open-session description into `storyCardSessionListing.ts`
+  `expectStartsBlocked` instead of deriving it from production `openSessionStartReason`
+  (story: observations must not manufacture expected facts from production values).
+- Small residue for the same reconciliation: remaining hand-built Mark as done / Keep
+  open / Session actions sites (session-attribution, final-report-touch,
+  agent-terminal-done, retirement-attach, agent-session-cursor-done,
+  session-management-touch, reportTouchJourney), the unused `runningCursorParts`
+  re-export, dead `hostStatusAnswer`, `native-host-fixtures.md` naming
+  `launchEachQueuedStory`, the frontend host-status spec importing `unreadSessions`
+  from integrated support, and the Sessions heading/list locators defined in three
+  sidebar owners.
+- G8: cold preparation still counted inside 148 preparation-page tests' first-case
+  budget is a latent flaky-test risk under the failure policy, not only speed; queue it
+  as its own story.
+
 ## Verification, current decisions and concern review
 
 - Each slice runs changed specs and transitive consumers, using `npm run
