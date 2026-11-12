@@ -11,10 +11,10 @@
 // case states (./ciFollowUpRepeatStage.ts). `keepRepeats` keeps
 // any landings' ledger entries and serves their runs; saved requests for
 // landings no story published (./ciFollowUpSavedRequests.ts) state theirs to
-// it.
-import { mkdirSync, writeFileSync } from "node:fs";
+// it. A dashboard may already run on the machine, as a page's does: the
+// provider answers before the ledger names its runs, and the ledger is kept
+// as that dashboard's own writers keep it (./machineDocument.ts).
 import { hostname } from "node:os";
-import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   followUpKey,
@@ -25,6 +25,7 @@ import { completedPublishedStory } from "./completedPublishedStory.ts";
 import {
   serveRepeatRuns,
   storyLandingRun,
+  type OtherAnswers,
   type providerRepeatRun,
 } from "./ciFollowUpRepeatRun.ts";
 import { heldAt, type RepeatStage } from "./ciFollowUpRepeatStage.ts";
@@ -37,6 +38,7 @@ import {
 } from "./ciFollowUpKeptPriors.ts";
 import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
+import { keepMachineDocument } from "./machineDocument.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
 
@@ -52,9 +54,10 @@ export type KeptRepeat = {
 
 // `kept` held by the origin's machine in that order, after the entries of
 // `earlier` receipts, with follow-up as the machine set it for Open Dough,
-// when it did; and the provider serving each kept landing's run: the
-// provider's facts for one of those runs.
-export function keepRepeats(
+// when it did; and the provider serving each kept landing's run, with
+// `otherwise` for the repository's other answers: the provider's facts for
+// one of those runs.
+export async function keepRepeats(
   origin: StartOrigin,
   github: FakeGitHub,
   kept: readonly KeptRepeat[],
@@ -62,6 +65,7 @@ export function keepRepeats(
     readonly followUp?: "enabled";
     readonly earlier?: readonly LedgerEntry[];
   } = {},
+  otherwise?: OtherAnswers,
 ) {
   const entries = [
     ...(machine.earlier ?? []),
@@ -76,13 +80,15 @@ export function keepRepeats(
       entries.map((entry) => [followUpKey(entry.project, entry), entry]),
     ),
   };
-  const file = followUpFile({ home: machineHome(origin.machine) });
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, JSON.stringify(ledger));
   serveRepeatRuns(
     github,
     origin,
     kept.map(({ provider }) => provider),
+    otherwise,
+  );
+  await keepMachineDocument(
+    followUpFile({ home: machineHome(origin.machine) }),
+    ledger,
   );
   return (run: number) => {
     const found = kept.find((each) => each.run === run);
@@ -97,7 +103,8 @@ export function keepRepeats(
 // measured by `run`, whose first attempt passed in `seconds`, after five prior
 // landings whose builds each passed in `averageSeconds`, every build with its
 // CI proof; follow-up enabled on this machine after those five and before the
-// story's receipt. `beside` are other landings the machine keeps. Answers the
+// story's receipt. `beside` are other landings the machine keeps, and
+// `otherwise` the repository's answers beside the provider's. Answers the
 // provider's facts by run.
 export async function keepRepeatLanding(
   origin: StartOrigin,
@@ -108,6 +115,7 @@ export async function keepRepeatLanding(
     readonly seconds: number;
     readonly averageSeconds: number;
     readonly beside?: readonly KeptRepeat[];
+    readonly otherwise?: OtherAnswers;
   },
 ) {
   const { stage, run, seconds, averageSeconds, beside = [] } = facts;
@@ -203,9 +211,12 @@ export async function keepRepeatLanding(
     .please();
   const kept = [{ run, entry, provider }, ...beside];
   return {
-    provider: keepRepeats(origin, github, kept, {
-      followUp: "enabled",
-      earlier: priors.ledgerEntries,
-    }),
+    provider: await keepRepeats(
+      origin,
+      github,
+      kept,
+      { followUp: "enabled", earlier: priors.ledgerEntries },
+      facts.otherwise,
+    ),
   };
 }

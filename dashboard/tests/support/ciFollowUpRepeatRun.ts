@@ -10,7 +10,7 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { OriginAnswer } from "../originAnswers.ts";
 import type { CiRunAnswer } from "./baseCiActions.ts";
 import { providerVerdict } from "./ciFollowUpProviderVerdict.ts";
-import type { FakeGitHub } from "./fakeGitHub.ts";
+import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
 import type { GhRequest } from "./ghRequest.ts";
 import {
   passedFrom,
@@ -143,15 +143,23 @@ export const storyLandingRun = (
     headBranch: "main",
   });
 
-// `runs` as GitHub answers the origin's repository: each run's exact reads as
-// its facts stand, then trunk's Actions with those runs and their CI proof,
-// and the origin's `main` as published.
+// What answers a request that no run and no read of trunk's Actions answers:
+// the origin's `main` as published, or whatever answered the repository until
+// now, as a page's committed origin (../committedOrigin.ts) keeps answering
+// the page's own reads beneath the provider.
+export type OtherAnswers = "published main" | "as served before";
+
+// `runs` as GitHub answers the origin's repository from now on: each run's
+// exact reads as its facts stand, then trunk's Actions with those runs and
+// their CI proof, and `otherwise` for the rest.
 export function serveRepeatRuns(
   github: FakeGitHub,
   origin: StartOrigin,
   runs: readonly ReturnType<typeof providerRepeatRun>[],
+  otherwise: OtherAnswers = "published main",
 ): void {
-  github.serve("terryyin/open-dough", async (call) => {
+  let before: RepositoryAnswerer | undefined;
+  const replaced = github.serve("terryyin/open-dough", async (call) => {
     const exact = runs
       .map((run) => run.answer(call.request))
       .find((answer) => answer !== undefined);
@@ -163,7 +171,8 @@ export function serveRepeatRuns(
     const latest = runs.map((run) => run.latest());
     return (
       trunkActions(latest, proofs)(call.argv, main) ??
-      publishes({ revision: main })(call)
+      (before ?? publishes({ revision: main }))(call)
     );
   });
+  if (otherwise === "as served before") before = replaced;
 }

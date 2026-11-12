@@ -35,7 +35,7 @@ test("saved accepted requests never invent a failure or a success from an absent
   ] as const;
   const named = (verdict: string | null | undefined) =>
     `conclusion ${verdict === undefined ? "absent" : String(verdict)}`;
-  const provider = saveRepeatRequests(
+  const provider = await saveRepeatRequests(
     origin,
     github,
     repeats.map(({ run }) => ({ run, ...accepted })),

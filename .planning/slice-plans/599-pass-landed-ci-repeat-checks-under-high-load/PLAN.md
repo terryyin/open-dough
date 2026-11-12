@@ -621,9 +621,20 @@ Observed on 2026-11-12, Node 24.21.0. Logs:
 - For slice 5: the kept reference has no excluded outlier row and no
   `difference` yet.
 
+#### Trunk merged after slice 3
+
+Trunk at `8aa440077` (with SEED-287's `c744f46d1`) is merged into the story
+branch as `fb3c669d6`, through the backlog merge adapter, with no conflict.
+On the merged state: `typecheck:dashboard` clean; the nine specs that import
+the repeat scenario or the kept-landing owner passed 21 of 21 at two workers
+(load 4.2 → 11.3) and at one (11.3 → 9.3); the three node consumers passed.
+The base worktree at `095f2bff9` no longer matches what the branch contains:
+slice 6 compares against trunk at the revision last merged, in a new base
+worktree.
+
 ### 4. The machine setting and the phone warning are read without a journey
 Type: Behavior
-Status: planned
+Status: done
 Proof: The recently-done spec passes three consecutive times with two cases
 and no `scenario.ingest`. F13 fails the settings case; F3, F16 and F19 fail
 the warning case. The spec holds no poll of `repeatCalls.length`.
@@ -642,6 +653,119 @@ regression or its cause", Done, without sideways scroll.
 - Reuse slice 3's accepted-request stage and slice 1's working page
   arrangement.
 - The page's own refresh keeps the controlled clock the case has today.
+
+#### Slice 4 record
+
+Observed on 2026-11-12, Node 24.21.0. Logs:
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice4/`.
+
+- **The two cases.** `recently-done-ci-automatic-repeat.spec.ts` (107 lines)
+  holds the settings case and the warning case, both at a 390 × 844
+  viewport. Neither calls `scenario.ingest` and the spec holds no
+  `repeatCalls`. The settings case arranges nothing: the row needs no
+  request. The warning case is `publishCommittedOrigin` at the origin's
+  `main`, followed, then `keepRepeatLanding(origin, github, { stage:
+  "accepted request", run: 71, seconds: 105, averageSeconds: 100, otherwise:
+  "as served before" })`.
+- **Serving over an answerer.** `serveRepeatRuns` takes `otherwise`:
+  `"published main"` (the default, as before) or `"as served before"`, which
+  keeps the answerer `github.serve` returned for every request no run and no
+  trunk Actions read answers. `keepRepeats` and `keepRepeatLanding` pass it
+  on. It is stated, not automatic: the journey serves the scenario's
+  provider over the kept waiting request's, and an automatic fallback there
+  would send each answerer to the other. The committed origin is published
+  before the story completes; it follows `main`, so the page reads the
+  completion once it lands.
+- **Writing while a server runs.** `keepRepeats` serves the provider first
+  and then keeps the ledger through `keepMachineDocument`, so a running
+  dashboard never reads an accepted request whose run nothing answers, nor a
+  ledger written outside the lock. It is async; `saveRepeatRequests` is
+  async with it and its three callers await it. Arranging before the server
+  starts was not chosen: the `dashboard` fixture starts before the case
+  body, and a fixture of this case's own would be a second arrangement. The
+  launch records are still appended in place (`keepMoreLaunchRecords`), as
+  page specs that keep records beside a running dashboard do
+  (`recentlyDoneSessionsSidebarPage.ts`); no expectation reads them.
+- **Waits.** After each provider change the case waits for the saved
+  request: "progress saved" (`outcome.kind`), then "repeat saved"
+  (`outcome.settled`), read from the ledger file. The page then reads its
+  cards again under the controlled clock (`page.clock.runFor(15000)`).
+- **On a phone.** With the viewport at 390 from the start the Board shows
+  one column and Recently done lies outside the window (its warning at
+  x 742–1048). The base's resize at the end left it there: `toBeVisible`
+  and `expectNoSidewaysScrollIn(page, card)` pass on a clipped column. The
+  case pages to the column (`showColumn(page, "Recently done")`) and expects
+  the warning whole in the viewport (`toBeInViewport({ ratio: 1 })`) beside
+  the sideways-scroll check.
+- **Three consecutive passes**, two workers, each case first in its worker:
+  load 15.6 → 19.5, 19.5 → 21.2, 21.2 → 23.7; 2 of 2 each. Settings 10.3,
+  9.1 and 10.8 s; warning 16.6, 14.5 and 16.9 s. One worker, load
+  23.7 → 22.2: settings 10.4 s first, warning 8.0 s second. At load 6–12
+  before the column paging: warning 7.4–11.7 s.
+- **In the profile**, one pass with 16 burners, two workers, proof record
+  `slice4/loaded2-proof.json`, load 39.2 → 38.5: settings 14.2 s, warning
+  21.3 s, each first in its worker. Not counted: one pass with 48 burners,
+  load 33.2 → 51.6, where the warning case reached the 30 s bound in
+  `showColumn` with 21.5 s in `Before Hooks` (`origin` 9.5 s, `dashboard`
+  11.1 s) and 8.9 s of its body run; the settings case passed in 25.7 s. The
+  warning case second in its worker is not measured in the profile.
+- **Faults**, one worker, on the spec's final form, each reverted before the
+  next; `git diff --stat -- dashboard/server dashboard/src` empty
+  afterwards. Each failed at the named expectation, none at the case bound.
+  Logs `slice4/final-F13.log`, `-F3`, `-F16`, `-F19`, `-FW`.
+
+  | Fault | Scratch edit | Fails | Load |
+  | --- | --- | --- | --- |
+  | F13 | `enabled: setting?.enabled ?? true` in `ciFollowUpBoundary.ts` | The settings case, "off until enabled": the row reads "Automatic CI follow-up: On" | 34.0 → 27.9 |
+  | F3 | `slow` always false in `observeRepeat` | The warning case, "slow card": "CI timing returned to range" | 27.0 → 26.7 |
+  | F16 | The in-progress branch answers `unverified` | The warning case, "progress saved": `unverified` for `progress` | 26.7 → 31.5 |
+  | F19 | `card.kind === "slow"` never matches before the caution in `CiFollowUpViews.tsx` | The warning case, "caution": the warning ends at its review link | 26.6 → 31.8 |
+  | Wide warning | `.ci-follow-up-slow` gains `min-width: 480px` | The warning case, "warning whole on the phone": viewport ratio 0.64. Before the column paging the case passed under it | 27.0 → 24.3 |
+
+  On an earlier form of the spec, before the column paging and the
+  refactor pass, load 11–18:
+
+  | Fault | Scratch edit | Fails |
+  | --- | --- | --- |
+  | F19, the colour | The card's class names `unverified` for a slow card | The warning case, "red warning": `rgb(29, 29, 27)` |
+  | F2 | Both `admitted.request !== undefined` guards dropped | The journey and the refused case, "rerun requests"; the accepted-request case, "no second request". Not the warning case: its repeat has begun before a pass can prepare a request |
+- **Consumers.** The nine specs that import the repeat scenario, the kept
+  landing, the saved requests or the provider's run, two workers, load
+  11.5 → 19.0: 22 of 22 in 1.8 min, with `intent-ci-follow-up.spec.ts`
+  unchanged.
+- **Consumer trace**, `--base fb3c669d6` with `keepRepeats`,
+  `serveRepeatRuns`, `keepRepeatLanding`, `saveRepeatRequests` and
+  `OtherAnswers` as terms (`slice4/consumer-trace.md`). Run:
+  `landed-ci-automatic-repeat.spec.ts`, `landed-ci-repeat-verdict.spec.ts`,
+  `landed-ci-repeat-accepted-request.spec.ts`,
+  `recently-done-ci-automatic-repeat.spec.ts`. Reused, run in the nine:
+  `ciFollowUpScenario.ts` (imports `json` and `storyLandingRun`, unchanged)
+  with `intent-ci-follow-up.spec.ts` and the four other specs that import
+  it; `ciFollowUpKeptPriors.ts` and `ciFollowUpRepeatStage.ts`, unchanged.
+  Excluded, the effect does not reach them: files that match `realHistory`
+  or `averageSeconds` as their own option or field, `committedOrigin.ts`
+  among them, which is unchanged; files that match only `PLAN.md`; planning
+  records, evidence and findings that name a spec's path.
+- For slice 5: a reader case publishes the committed origin first and states
+  `otherwise: "as served before"` to the kept landing; a settled stage is a
+  third `RepeatStage`. The phone reading there needs the same look: a
+  column the Board has paged away passes `toBeVisible`.
+- For slice 6: first-in-worker preparation was 21.5 s of the one uncounted
+  failure; the warning case took 8.0 s second in its worker at load 23.
+
+#### Slice 4 acceptance and refactor
+
+- Accepted with the five fault controls rerun on the spec's final form. The
+  refactor pass changed one arrangement line (`originMain`).
+- The base's phone check passed on a Board column the phone had paged away;
+  the warning case now shows the column and expects the whole warning in the
+  viewport.
+- Open, owned by slice 6 (G1): in the refactor pass's three reruns at load
+  27 → 49 from other work, with both cases first in their workers, the cases
+  took 15.0–29.0 s and 28.2–29.7 s and the warning case failed once at the
+  30 s bound in "progress saved". Before Hooks took 25.8 s in that run
+  (`origin` 9.8 s, `dashboard` 14.6 s). SEED-287 has landed and closed, at
+  load 20–30, so no active execution owns first-in-worker preparation now.
 
 ### 5. The Intent reading starts from a settled request
 Type: Behavior
@@ -700,6 +824,13 @@ and the saving are observed with every preparation and teardown paid.
   case's `Before Hooks` step, SEED-287's active execution owns that repair:
   preserve its files, write no duplicate, and report that owner and the
   remaining gate as the coordination boundary.
+
+## Story obligations
+
+### G1. Page cases first in their worker reach the bound at load 27–49
+Reported: slice 4 — "With both cases first in their workers at load 27 → 49 the warning case took 28.2–29.7 s and failed once at the 30 s bound; Before Hooks took 25.8 s."
+Story clause: "every case passes each time; no case takes more than 15 s, or 25 s when it runs first in its worker"
+Disposition: receiving slice 6
 
 ## Current decisions
 

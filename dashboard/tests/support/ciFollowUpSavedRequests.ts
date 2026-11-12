@@ -66,7 +66,7 @@ export function heldRequest(facts: SavedRepeat): KeptRepeat {
 
 // `saved` held by the origin's machine, in that order, and the provider
 // serving each request's run: the provider's facts for one of those runs.
-export const saveRepeatRequests = (
+export const saveRepeatRequests = async (
   origin: StartOrigin,
   github: FakeGitHub,
   saved: readonly SavedRepeat[],

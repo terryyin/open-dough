@@ -51,7 +51,7 @@ test("a Done receipt at exactly 105 seconds against five kept 100 second prior b
   );
   // The waiting request, kept before follow-up is enabled, and the scenario's
   // provider served again over the one that answers its run.
-  saveRepeatRequests(origin, github, [waiting]);
+  await saveRepeatRequests(origin, github, [waiting]);
   scenario.serve();
   const server = await startServer();
   expect((await followUpSettings(server)).body.enabled, "off").toBe(false);
@@ -211,7 +211,7 @@ test("saved accepted requests read the outcome their provider repeat decides bes
       outcome: unverified("Full comparable repeat is unverified"),
     },
   ] as const;
-  const provider = saveRepeatRequests(
+  const provider = await saveRepeatRequests(
     origin,
     github,
     repeats.map(({ run }) => ({ run, ...accepted })),

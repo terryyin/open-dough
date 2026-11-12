@@ -49,10 +49,10 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | S8.5 | the original kept in history | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts "a kept accepted request asks for no rerun…": "original kept" run/71/1 at 105000; F17 fails it |
 | S8.6 | no second request | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts "a kept accepted request asks for no rerun…": "no second request" and "rerun requests" []; F2 fails it three runs of three |
 | S8.7 | from a saved accepted request as the saved-request cases already do | slice 3 | observed: dashboard/tests/support/ciFollowUpRepeatStage.ts stage "accepted request" through keepRepeatLanding and keepRepeats, the saved-request owner |
-| S9 | the machine setting and the red Done warning with its totals on a phone, from a saved request for a published completion | slice 4 | |
-| S9.1 | the machine setting | slice 4 | |
-| S9.2 | the red Done warning with its totals on a phone | slice 4 | |
-| S9.3 | both from a saved request for a published completion | slice 4 | |
+| S9 | the machine setting and the red Done warning with its totals on a phone, from a saved request for a published completion | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts: the settings case and the phone warning case, no scenario.ingest |
+| S9.1 | the machine setting | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts "automatic CI follow-up is off on a machine until its user enables it in Settings…": "off until enabled", "on once enabled", "provisional rule"; F13 fails it |
+| S9.2 | the red Done warning with its totals on a phone | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts "a kept accepted request reads its repeat in progress, then at 106 seconds a red textual Done warning…" at 390 px: "red warning", totals, "Done" |
+| S9.3 | both from a saved request for a published completion | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case: keepRepeatLanding stage accepted request for the published completion; the settings row reads the machine setting and needs no request |
 | S10 | the Intent reading of both attempts and their frozen reference | slice 5 | |
 | S10.1 | the Intent reading of both attempts | slice 5 | |
 | S10.2 | and their frozen reference | slice 5 | |
@@ -127,14 +127,14 @@ Explicit exclusions returned: no product behavior changes; SEED-287 owns the adm
 | E3.4 | 403: and the 100 s average | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | E3.5 | 503 and a later 104 s passing repeat: the card stays unverified | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
 | E3.6 | 503: and shows the 104 s repeat | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
-| E4 | The warning without a journey: Story A published as completed, an accepted request 105 s against 100 s, repeat passed in 106 s, card read on a phone | slice 4 | |
-| E4.1 | a red textual warning shows | slice 4 | |
-| E4.2 | Original 1 min 45 s | slice 4 | |
-| E4.3 | Repeat 1 min 46 s | slice 4 | |
-| E4.4 | Saved average 1 min 40 s | slice 4 | |
-| E4.5 | "does not prove a regression or its cause" | slice 4 | |
-| E4.6 | without sideways scroll | slice 4 | |
-| E4.7 | No receipt was ingested | slice 4 | |
+| E4 | The warning without a journey: Story A published as completed, an accepted request 105 s against 100 s, repeat passed in 106 s, card read on a phone | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case arrangement: Story A published as completed, accepted request 105 s against 100 s, setRepeat 106 s, viewport 390 by 844 |
+| E4.1 | a red textual warning shows | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "red warning" rgb(220, 38, 38); F19 by colour fails it |
+| E4.2 | Original 1 min 45 s | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "original": Original 1 min 45 s |
+| E4.3 | Repeat 1 min 46 s | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "repeat": Repeat 1 min 46 s |
+| E4.4 | Saved average 1 min 40 s | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "saved average": Saved average 1 min 40 s |
+| E4.5 | "does not prove a regression or its cause" | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "caution"; F19 fails it |
+| E4.6 | without sideways scroll | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts warning case "warning whole on the phone" (toBeInViewport ratio 1) and expectNoSidewaysScrollIn; a 480 px warning fails it |
+| E4.7 | No receipt was ingested | slice 4 | observed: dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts: no scenario.ingest in the spec; warning case "no rerun request" [] |
 | E5 | The reading without acquiring CI: settled recovered request, 120 s then 100 s, frozen reference of five prior builds used and one 116 s outlier excluded, non-collecting dashboard, phone | slice 5 | |
 | E5.1 | both attempts are read | slice 5 | |
 | E5.2 | their links are read | slice 5 | |
