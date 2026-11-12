@@ -234,3 +234,13 @@ verbatim in every delegation or repair handoff. Keep default test timeouts and
 shared MakeMe data. Start long macOS runs awake: on AC use `caffeinate -s -i`;
 on battery plug in or keep the lid open under `caffeinate -i` and inspect sleep
 afterwards per [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+
+## Execution complete
+
+Product advice: Reasoned no-change for new backlog work. Keep assimilation
+narrow: this family's held preconditions use public `heldCursorExecutions`;
+incidental second Taken Open terminal in the stale phase is not required when
+list + one join + spawn counts already discriminate. Sibling SEED-303 family
+speed-ups stay independently queued. Aligns with ADR 0010 measured improvement
+and near-future intent-protection-at-justified-cost direction. Process review
+deferred into wrap-up (`intentCoverage: true`).
