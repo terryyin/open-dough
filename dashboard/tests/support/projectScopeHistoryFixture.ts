@@ -15,9 +15,10 @@ import { startingFromKeptSummaryComparisonStory } from "./keptPublishedStory.ts"
 import { keepLandedCiHistory } from "./landedCiHistory.ts";
 import { startLandedCiReader } from "./landedCiReader.ts";
 import { commonGitDir } from "./launchLanding.ts";
+import { chooseStoryTab } from "./intentStoryPage.ts";
 import { queuedClaudePreviewTest } from "./preparationPage.ts";
-import { openCollectedHistoryStory } from "./scopeHistoryCollectedPage.ts";
-import { serveCollectedScopeFileRuns } from "./scopeHistoryCollection.ts";
+import { openDoneStoryIntent } from "./scopeHistoryCollectedPage.ts";
+import { serveCollectedScopeProofs } from "./scopeHistoryCollection.ts";
 import {
   keptScopeFileProof,
   type ScopeFileTiming,
@@ -42,7 +43,7 @@ type Point = "baseline" | "branchSide" | "completion" | "latest";
 
 // The machine keeps each landing's build of `runs` measured with its proof;
 // the provider answers every run of `runs` live. Opens the Done story's
-// Changed tests once its comparison has read.
+// Changed tests.
 export async function readKeptProjectHistory(
   page: Page,
   dashboard: DashboardServer,
@@ -61,7 +62,7 @@ export async function readKeptProjectHistory(
     ])[];
   },
 ) {
-  // Its runs' proofs are the collected summaries served next.
+  // Its runs' proofs are the summaries served next.
   const setup = await serveSummaryComparisonStory(
     page,
     origin,
@@ -70,11 +71,24 @@ export async function readKeptProjectHistory(
   );
   const latest = await originMain(origin);
   const revisions = { ...setup, latest };
-  serveCollectedScopeFileRuns(
+  // Each run's proof as the machine keeps it. The provider serves its summary,
+  // so no case spawns the summary producer; producing it stays with collection.
+  const runs = facts.runs.map(([point, runId, startedAt, files]) => {
+    const revision = revisions[point];
+    const proof = keptScopeFileProof({ revision, runId }, files);
+    return { point, runId, startedAt, revision, proof };
+  });
+  serveCollectedScopeProofs(
     setup,
-    facts.runs.map(
-      ([point, run, at, files]) => [revisions[point], run, at, files] as const,
-    ),
+    runs.map(({ point, runId, startedAt, revision, proof }) => {
+      if (proof.kind !== "summary") throw new Error(`No proof of ${point}`);
+      return [
+        revision,
+        runId,
+        startedAt,
+        JSON.stringify(proof.summary),
+      ] as const;
+    }),
   );
   const history = makeMe.aLandedCiHistory.inTrunkOrder(
     git(
@@ -86,10 +100,9 @@ export async function readKeptProjectHistory(
     ).split("\n"),
   );
   for (const { point, at, receipt } of facts.landings) {
-    const run = facts.runs.find((candidate) => candidate[0] === point);
+    const run = runs.find((candidate) => candidate.point === point);
     if (run === undefined) throw new Error(`No run builds ${point}`);
-    const [, runId, startedAt, files] = run;
-    const revision = revisions[point];
+    const { runId, startedAt, revision, proof } = run;
     history
       .measuredLanding({
         receipt,
@@ -101,14 +114,14 @@ export async function readKeptProjectHistory(
         startedAt,
         completedAt: new Date(Date.parse(startedAt) + 60_000).toISOString(),
       })
-      .proofFor(
-        `run/${String(runId)}/1`,
-        keptScopeFileProof({ revision, runId }, files),
-      );
+      .proofFor(`run/${String(runId)}/1`, proof);
   }
   await keepLandedCiHistory(dashboard.home, history.please());
   await pausePageClockAt(page, new Date());
   await page.setViewportSize({ width: 1280, height: 700 });
-  const { intent } = await openCollectedHistoryStory(page, dashboard.origin);
+  // The Done comparison's reads go on while the case reads Changed tests; a
+  // case waits for the page's reads before it counts acquisitions.
+  const { intent } = await openDoneStoryIntent(page, dashboard.origin);
+  await chooseStoryTab(intent, "Changed tests");
   return { setup, latest, intent };
 }

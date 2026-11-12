@@ -2118,7 +2118,7 @@ profile; hosted CI is not observed.
 
 ### 10. The fit under load and the saving are measured and kept
 Type: Behavior
-Status: planned
+Status: done
 Proof: Three consecutive counted two-worker runs of the selection (the seven
 repeat specs and the refresh spec with any file it divided into) at a
 one-minute load of 30–50 pass, at least one under natural load when the
@@ -2145,13 +2145,440 @@ and the saving are observed with every preparation and teardown paid.
   failing test under the policy above, repaired before this slice is done.
   Shared preparation is this story's since the amendment.
 
+#### Slice 10 record
+
+Observed on 2026-11-12, 21:40–22:50 local, on `3e29132d4` with this slice's
+uncommitted repairs, Node 24.21.0, AC power throughout (`pmset` read before
+every timed run; battery 80%, AC attached). Logs, proof records, traces and
+the scratch scripts (`run.sh`, `summ.py`, `fixtures.py`, `lines.py`,
+`one.sh`, `pairs.sh`, `fault.py`, `fault-intent.py`) are in
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice10/`; nothing scratch entered
+the repository. Not committed, not published. The base is the worktree
+`base-merged` at `8aa440077`, unmodified. Other worktrees' suites, a JVM and
+`gh` loaded the machine throughout; one of them drove the one-minute load
+from 32 to 141 during `c1`.
+
+Every profile run was started by `run.sh <label> <burners> 2` only at a
+one-minute load of 30–50 and only on AC power, with the command
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<label>-proof.json caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard -- <the eight spec files of the Verification selection line> --workers=2 --trace=on`
+(no `--reporter`, so the configured reporter wrote the proof record).
+Durations below are the proof record's; positions are inferred from start
+and end times per worker (`summ.py`) and agree with the traces (`fixtures.py`).
+
+**Repairs (G1).** The first counted run failed the figure and a later counted
+run failed outright, so three cases were repaired, each by doing less:
+
+- `r1` (load 30.4 → 46.2, 16 burners, counted): 13 of 13 passed, but
+  `intent-project-scope-timing-refresh.spec.ts:118` took 25.9 s. Its trace:
+  3.8 s between the fixtures and `goto` with no page step, which was
+  `serveCollectedScopeFileRuns` spawning the real summary producer eight
+  times (a fragment and a summary per run, `spawnSync`). Repair in
+  `projectScopeHistoryFixture.ts` (119 lines): the provider serves each run's
+  summary as `JSON.stringify` of the proof the machine keeps for that run
+  (`keptScopeFileProof`, the same builder its history uses) through
+  `serveCollectedScopeProofs`; no case spawns the producer, whose output stays
+  with collection's own specs. After it the same gap was 0.2 s (`fx1`, load
+  29.9 → 28.1). The nine refresh faults of the Slice 9 record, rerun
+  (`fault.py`, one worker, load 24.3 → 32.3), each failed at the same
+  expectation as in slice 9, none at the bound: ENDPOINT `:118` at `:182`;
+  NOTE `:191`; EVIDENCE3 `:190`; ROWS `:192` (0 for 3); DATETIME `:193`;
+  HISTACQ2 `:52` at `:115` (19 for 9) and `:118` at `:197` (19 for 5);
+  THROUGH `:52` at `:73` and `:118` at `:205` (3 for 2); RESTORE `:52` at
+  `:100`; PROJECTRESTORE `:118` at `:153`. Three consecutive passes of the
+  spec at two workers (`ref1`–`ref3`, load 18.6 → 15.3): 8.0–9.8 s.
+- `c3` (load 30.6 → 42.2, 18 burners, counted, failed): the return case
+  failed at "same after reload" (`:55`, the comparison not yet rendered 5 s
+  after `page.reload()`, at 30.0 s), `:52` timed out at `:92`, and proof
+  (30.8 s) and reading (28.1 s) passed over 25 s. The traces put 8.8–9.6 s of
+  each Intent case in paging the phone Board to Recently done and 3.2 s in
+  the first comparison read; `:52` was first in a new worker
+  (`keptSummaryComparisonStory` 16.6 s, outside its duration) and spent
+  16.5 s from `goto` to the settled Done comparison. Repairs:
+  - `ciFollowUpReadingPage.ts` (182 lines): `gotoCiFollowUp` opens a
+    comparison at its own address (`?project=open-dough&perspective=intent&followUp=<identity>&landing=<revision>`,
+    what the card's link leaves and a reload reads) and `reloadCiFollowUp`
+    reloads it, each waiting for the dashboard's answer to the page's read
+    of the retained comparison, the event `refreshCiFollowUp` already waited
+    for (now one `comparisonAnswered`).
+  - `intent-ci-follow-up-proof.spec.ts` (69 lines): the proof case opens the
+    comparison at its address; the card that opens it stays the reading
+    case's (C18).
+  - `intent-ci-follow-up-return.spec.ts` (114 lines): divided at the
+    navigation boundary into two cases over one arrangement. `:39`, opened at
+    its address on the phone: evidence rows on first render, refresh and
+    reload read the same comparison, no CI request from refresh or reload
+    (C19 first render, refresh, reload). `:66`, opened from the card on the
+    phone: a revisit from the card reads the same comparison with no CI
+    request, then the Development selection, normal Intent, the card
+    reopening it and project Intent at 1440 px (C19 revisit, C21). The
+    expectations and their labels are the old case's, plus "evidence rows
+    opened from the card" before `:66` reads the comparison's text.
+  Faults rerun (`fault-intent.py`, one worker, the three Intent specs, load
+  13.3 → 11.3), each at its labelled expectation, none at the bound: F20 the
+  return `:39` "evidence rows on first render" and `:66` "evidence rows
+  opened from the card" (0 for 6), the reading "evidence rows" (0 for 7);
+  F21 proof "no CI request from proof navigation", return `:39` "no CI
+  request from refresh", `:66` "no CI request from revisit", reading "no CI
+  request from first render"; F22 proof "the original's proof in Summary";
+  F23 return `:66` "the selection leaves the comparison's address"
+  (`SEED-A#a`); F24 reading "Tab reaches the repeat's link". Three
+  consecutive passes of the three specs at two workers (`int1`–`int3`, load
+  11.5 → 24.6): 4 of 4 each, 6.4–17.6 s.
+
+`git diff --stat -- dashboard/server dashboard/src` was empty after every
+fault and at the end. `npm run --silent typecheck:dashboard`, `npx eslint`
+and `npx prettier --check` on the four changed files: exit 0. No changed
+file nears 250 lines; `ciMakeMe.mjs` is untouched; no `test.setTimeout`,
+expectation timeout, `test.slow`, sleep, retry or skip was added.
+
+Consumers, `consumer-trace.mjs --checkout "$PWD" --base 3e29132d4 --term
+serveCollectedScopeProofs --term keptScopeFileProof --term
+readKeptProjectHistory --term refreshCiFollowUp --term reloadCiFollowUp
+--term gotoCiFollowUp` (`consumer-trace.md` beside the logs):
+
+| Consumers | Disposition |
+| --- | --- |
+| The refresh spec (the fixture's only importer), the three Intent follow-up specs, `recently-done-ci-automatic-repeat.spec.ts` (imports `ciFollowUpReadingPage.ts`; its helpers are unchanged) | run: the profile runs below |
+| `intent-scope-collected-file-timing-gaps.spec.ts`, `scopeHistoryCollection.ts`, `scopeHistoryProofs.ts`, `scopePriorReferenceHistory.ts` | excluded: they match `serveCollectedScopeProofs` or `keptScopeFileProof`, which did not change; only the fixture calls them differently |
+| The backend repeat specs and `ciFollowUpKeptLanding.ts`, `ciFollowUpRepeatStage.ts`, `ciFollowUpSavedRequests.ts`, `ciFollowUpSettledReading.ts`, `ciFollowUpLedgerFacts.mjs` | excluded: they match the field names `averageSeconds` and `repeatSeconds`, unchanged |
+| `SEED-300` seed, this plan | excluded: prose naming a changed file |
+
+**Key example 1.** Profile runs, two workers, each case's duration in
+seconds; "first" is the first case of its worker process:
+
+| Label | Load before → after | Load source | Counted | Result |
+| --- | --- | --- | --- | --- |
+| `r1` | 30.40 → 46.24 | 16 burners | yes, failed the figure | 13 passed, 109 s; `:118` 25.9 s |
+| `c1` | 31.96 → 141.12 | 20 burners, then other work | no: after above 50 | 9 of 13, 303 s; return, `:52`, `:118` at the bound |
+| `c2` | 48.33 → 30.43 | natural, the figure decaying from a spike of 124 | yes, passed (refresh repair only) | 13 passed, 63 s; max 13.4 s |
+| `c3` | 30.64 → 42.15 | 18 burners | yes, failed | 10 of 13, 166 s (above) |
+| `c4` | 30.06 → 42.06 | 16 burners | yes, passed | 14 passed, 83 s; max 16.6 s |
+| `c5` | 37.31 → 45.53 | 12 burners | yes, passed | 14 passed, 91 s; max 18.3 s |
+| `c6` | 41.06 → 34.96 | 10 burners | yes, passed | 14 passed, 82 s; max 15.8 s |
+
+`c4`, `c5` and `c6` are three consecutive counted passes of the repaired
+selection, with no failing counted run between; `c5` and `c6` each started
+12 s after the previous run's end, and each run's burners were stopped at its end
+(`pgrep -x yes` empty). The natural-load counted pass, `c2`, preceded the
+Intent repairs and `c3`'s failure, so it is not one of the three.
+
+| Case | `c4` | `c5` | `c6` |
+| --- | --- | --- | --- |
+| journey (`landed-ci-automatic-repeat:45`), first | 6.8 | 8.0 | 8.8 |
+| refused (`:118`), first | 4.7 | 6.2 | 7.0 |
+| uncertain (`:147`) | 6.3 | 6.6 | 5.2 |
+| saved outcomes (`:184`) | 2.5 | 2.4 | 2.1 |
+| accepted request | 5.6 | 6.3 | 6.1 |
+| verdict | 3.3 | 3.3 | 3.6 |
+| proof, the worker's first page case | 7.1 | 6.1 | 7.5 |
+| return refresh and reload (`:39`), the worker's first page case | 6.7 | 6.3 | 7.9 |
+| return revisit and selection (`:66`) | 11.0 | 11.9 | 12.0 |
+| reading | 8.3 | 9.7 | 10.1 |
+| refresh `:52` | 15.5 | 15.4 | 13.2 |
+| refresh `:118` | 16.6 | 18.3 | 15.8 |
+| settings | 3.3 | 4.9 | 3.5 |
+| warning | 8.8 | 9.2 | 8.4 |
+
+The worker fixtures are outside these durations: the first backend cases'
+`queuedClaudeBoundaryReady` 3.5–5.4 s, `keptStory` 1.1–1.5 s, the first page
+cases' `queuedClaudePreviewReady` 1.9–4.1 s and `keptIntentStory` 1.6–2.0 s,
+each refresh case's `keptSummaryComparisonStory` 5.2–6.3 s. With them, every
+case's trace span, from its first fixture to its teardown, is at most 24.2 s
+(`c5` `:118`; 22.9 s in `c4`, 21.1 s in `c6`). No wait after a provider
+change took more than 1.9 s in these runs (`slice6/polls.py` over the
+traces).
+
+**Key example 2.** One case calls `scenario.ingest` across the candidate's
+repeat specs (`landed-ci-automatic-repeat.spec.ts:81`); five do in the base's
+four (`landed-ci-automatic-repeat.spec.ts:49`, `:122` in its loop of two
+outcomes, `recently-done-ci-automatic-repeat.spec.ts:47`,
+`intent-ci-follow-up.spec.ts:60`). The refresh spec calls none on either side.
+
+**Key example 8.** `pairs.sh pair 3`: `one.sh base` then `one.sh cand`, back
+to back, one worker, natural load, the wall time of the whole command, a
+proof record and `slice6/count-gh.mjs` preloaded (`NODE_OPTIONS=--import`)
+in every run. Base: the four repeat specs and the refresh spec, 9 cases;
+candidate: the eight files, 14 cases. All six runs passed every case.
+
+| Pair | Base | Candidate | Fake `gh` calls, base / candidate |
+| --- | --- | --- | --- |
+| 1 | 77.1 s, load 27.90 → 20.08 | 58.5 s, 20.08 → 13.64 | 337 / 253 |
+| 2 | 73.5 s, 13.64 → 14.41 | 68.8 s, 14.41 → 12.14 | 350 / 250 |
+| 3 | 81.5 s, 12.14 → 14.23 | 73.9 s, 14.23 → 21.28 | 345 / 257 |
+| Median | 77.1 s | 68.8 s | |
+
+The candidate's median is 0.892 of the base's (68.8 / 77.1), inside the
+1.10 figure. Each passing candidate run made fewer fake `gh` calls than each
+passing base run (250–257 against 337–350).
+
+**Diff review**, `git diff 8aa440077...HEAD -- dashboard tests` and this
+slice's uncommitted change: no added `test.setTimeout`, expectation
+`timeout:`, `test.slow`, sleep or `waitForTimeout`, retry, `skip`, `fixme`,
+`only` or runner mode (`describe.configure`, `repeatEach`); no Playwright
+configuration, `.github` or script outside the test trees changed. `git diff
+--stat 8aa440077...HEAD -- dashboard/server dashboard/src` is empty. `grep
+-rn` of each of the eight spec names under `dashboard/longest-first*` finds
+nothing. One expectation timeout reached the selection without being added:
+`openCollectedHistoryStory` (`scopeHistoryCollectedPage.ts:31`–`:37`,
+`readWaitLimitMs + 15_000`), unchanged since before `8aa440077` and used by
+the refresh fixture and five other scope-history specs. The correction below
+(obligation G2) removes it; no expectation or `waitForResponse` timeout
+remains in the selection's path.
+
+Waits that follow a provider change, each the default 5 s expectation or
+the test's own bound:
+
+- journey: the held rerun request's arrival (`holdSubmission`, `await
+  submitted`); the saved request changing to accepted ("accepted saved
+  after the reply"); the provider's answer to the second read of run 72
+  (`aWholePass`).
+- refused: the saved request changing ("saved reply"), then `aWholePass`.
+- uncertain: "saved reply", then after the 104 s repeat the saved request
+  settling ("repeat read").
+- saved outcomes and verdict: each saved outcome changing; in the verdict
+  case again after the verdicts become success.
+- accepted request: `aWholePass`, then "progress read" and "repeat read" on
+  the saved request.
+- warning: "progress saved" and "repeat saved" on the saved request; the
+  page's own card read after `page.clock.runFor(15000)`.
+- Intent cases change no provider fact; `gotoCiFollowUp`,
+  `refreshCiFollowUp` and `reloadCiFollowUp` wait for the dashboard's answer
+  to the comparison read. The refresh cases move the trunk head, not a
+  provider fact, and wait on `passTimeUntilCheckedAfterSettled` and
+  `untilPageReadsAnswered`.
+
+The collecting servers recheck every 200 ms (`recheckingLandedCi`), so no
+bare 5 s observation rides one collection pass: the longest poll in `c4`–`c6`
+was 1.9 s.
+
+**Source-review commitments.**
+
+- G1, E1.1–E1.4, S1.1, S1.2: `c4`–`c6` above, under burners; after the G2
+  correction, `e2`, `e4` and `e5` below, under natural load. G1's obligation
+  can close on the latter.
+- G2, G3, R1–R7, E9.2: the diff review. G3: the inherited expectation
+  timeout named above is gone after the G2 correction below; every case of
+  the selection runs on the default 5 s expectations.
+- G4: the slowest case 18.3 s against the 25 s figure and the 30 s bound;
+  24.2 s with its worker fixtures.
+- G5, L5: one journey (key example 2); 250–257 fake `gh` calls against
+  337–350 for the same specs; the refresh cases no longer spawn the
+  producer, the proof case no longer pages the Board.
+- S1.3: the 30–50 range and the figures are the preparation's reading,
+  unchanged here.
+- S2.1, E2.1: key example 2.
+- S4.5: SEED-314's F1–F11 keep their owners by the plan's "Faults F1–F11"
+  premise row and the Slice 2–8 records (F2, F8, F9 rerun in slice 8). The
+  verdict spec differs from `095f2bff9` only by its imports,
+  `queuedClaudeBoundaryTest`, `await saveRepeatRequests` and `rerunRuns`,
+  so F10 and F11 stand by citation and were not rerun.
+- S6.1, S6.2: the wait list above.
+- S9.2, E1.8, E8.7: the refresh spec's two cases are in every profile run and
+  both pairs' selections; 13.2–18.3 s in `c4`–`c6`.
+- E1.5: no case over 25 s in `c4`–`c6`. E1.6, E1.7: `c1` recorded and not
+  counted.
+- E8.1–E8.6: the base is `8aa440077`. For the corrected candidate the
+  comparison is the simultaneous pairs below: 0.943 of the base's median
+  with fewer fake `gh` calls. The back-to-back pairs 4–6, under unequal
+  loads, are kept as measured.
+- L1: no product change; faults reverted, product diff empty.
+- L2: first-in-worker preparation is in every case's trace span (at most
+  24.2 s), and outside the proof record's duration by slice 7's worker
+  fixtures.
+- L4: `count-gh.mjs` counts, it changes no call; the fake `gh` is unchanged.
+- E9.1, R8: hosted CI is the coordinator's to observe; nothing is published.
+
+Gaps: no counted pass of the repaired selection under natural load. After
+`c6`, `c7` waited 22:37–22:48 for the natural load to reach 30 and started
+no run (it stayed at 15–22); the one natural-load counted run, `c2`, passed
+before the Intent repairs. The reported durations exclude worker
+fixtures, so the 25 s figure was read on them and the spans are given
+beside; hosted CI is not observed. The natural-load gap is closed by the
+correction's runs below.
+
+##### Correction for obligation G2, the refresh cases' expectation timeout
+
+Observed on 2026-11-12, 22:50–00:00 local, same checkout and conditions, logs
+in the same directory (`g2*`, `d*`, `e*`, `pair4-*`, `pair5-*`). `c4`–`c6`
+above are the runs before this correction.
+
+- **Owner choice.** `openCollectedHistoryStory` itself, for all its users.
+  Its contract is "finish the story's existing comparison reads before a case
+  counts history navigation", and that is one event for every user: every
+  read the page sent answered and leading to no further read, which
+  `untilPageReadsAnswered` (`../pageRequestNotes.ts`) already waits for in
+  every page of `pageTest.ts` (it notes reads in every context). A refresh-only
+  open would have left the same override under the five other scope-history
+  specs and given the contract two forms. `scopeHistoryCollectedPage.ts`
+  (45 lines) now expects the panel visible, waits on
+  `untilPageReadsAnswered`, then expects no reading status and the entry
+  table, each on the default 5 s; `readWaitLimitMs` is no longer imported.
+- **A counted failure after it, and its repair (G1).** `d2` (natural load
+  48.91 → 46.45, counted): 14 passed, but refresh `:52` took 26.4 s and
+  `:118` 31.0 s; `d1` before it (natural, 38.07 → 61.11, not counted) timed
+  out `:118`. In both traces the open's wait for the comparison and endpoint
+  proof reads took 7.1–10.4 s, the product's Done comparison read over the
+  fake provider. The refresh cases read nothing of that panel: they count
+  acquisitions only after their own `untilPageReadsAnswered` (`:84`,
+  `:136`). So the open was divided at its seam: `openDoneStoryIntent` selects
+  the Done story's card and opens its Intent, `openCollectedHistoryStory`
+  calls it and then waits the comparison out as above, and the refresh
+  fixture (`projectScopeHistoryFixture.ts`, 123 lines) calls
+  `openDoneStoryIntent` and chooses Changed tests while the comparison's reads
+  go on. One owner of the open, one of the wait; nothing copied. First run of
+  it, natural load 44.47 → 42.34: `:52` 11.2 s, `:118` 14.1 s.
+- **Faults**, the nine refresh faults of the Slice 9 record, after each of
+  the two changes (`g2faults/`, load 32.3 → 34.2 with one ENDPOINT run at
+  the bound while failing `:182` at load 28 → 34, rerun at 35.4 → 37.3 and
+  failing at `:182` alone; `g2faults2/`, load 38.3 → 28.5): each failed at
+  the same line as in slice 9 and none at the bound. HISTACQ2 `:52` at `:115`
+  (19 for 9) and `:118` at `:197` (19 for 5); ENDPOINT `:182`; NOTE `:191`;
+  EVIDENCE3 `:190`; ROWS `:192` (0 for 3); DATETIME `:193`; THROUGH `:73` and
+  `:205` (3 for 2); RESTORE `:100`; PROJECTRESTORE `:153`. Product diff empty
+  after each.
+- **The other users of the open**, the five scope-history specs
+  (`intent-scope-collected-file-timing-gaps`, `-file-timing-history`,
+  `-collected-timing-history`, `intent-scope-prior-build-states`,
+  `-prior-build-average`), two workers, candidate then the base worktree back
+  to back: at load 21.10 → 27.46 the candidate passed 5 of 5 (13.5–23.4 s)
+  and at 27.03 → 36.41 the base 5 of 5 (18.9–23.8 s). An earlier pair at a
+  higher load failed on both sides: candidate 3 of 5 at 23.71 → 31.86
+  (`prior-build-average` at the Board's "the row rests", before the open's
+  changed lines; `prior-build-states` at the entry table after the
+  comparison read answered "could not be reached"), base 0 of 5 at 31.86 →
+  34.63. Three of the five set `test.setTimeout(60_000)` themselves; they are
+  outside this story's named specs and their loaded failures on the base
+  are for the developer, with the four already routed. After the seam split
+  `openCollectedHistoryStory` makes the same calls in the same order.
+- **Profile runs**, natural load, no burner, `run.sh <label> 0 2`:
+
+  | Label | Load before → after | Counted | Result |
+  | --- | --- | --- | --- |
+  | `d1` | 38.07 → 61.11 | no: after above 50 | 13 of 14; `:118` at the bound, `:52` 31.4 s |
+  | `d2` | 48.91 → 46.45 | yes, failed the figure | 14 passed; `:52` 26.4 s, `:118` 31.0 s |
+  | `e1` | 30.69 → 51.50 | no: after above 50 | 14 passed, max 16.4 s |
+  | **`e2`** | 49.96 → 39.17 | yes | 14 passed, max 18.1 s |
+  | `e3` | 36.33 → 28.32 | no: after below 30 | 14 passed, max 19.7 s |
+  | **`e4`** | 31.19 → 45.19 | yes | 14 passed, max 15.0 s |
+  | **`e5`** | 45.26 → 42.15 | yes | 14 passed, max 15.3 s |
+
+  `e2`, `e4` and `e5` are three consecutive counted passes, all under
+  natural load, with no failing counted run between (`e3` was not counted).
+  Each was started within 30 s of the previous run's end, so each run's load
+  figure includes the previous run's decaying share beside other work's.
+
+  | Case | `e2` | `e4` | `e5` |
+  | --- | --- | --- | --- |
+  | journey, first | 11.7 | 9.7 | 10.6 |
+  | refused, first | 7.6 | 6.5 | 7.2 |
+  | uncertain | 7.7 | 6.1 | 8.8 |
+  | saved outcomes | 3.8 | 3.0 | 3.5 |
+  | accepted request | 6.2 | 4.6 | 9.4 |
+  | verdict | 4.5 | 3.5 | 5.3 |
+  | proof, the worker's first page case | 9.3 | 8.4 | 7.0 |
+  | return `:39`, the worker's first page case | 9.8 | 8.6 | 7.7 |
+  | return `:66` | 14.2 | 15.0 | 11.1 |
+  | reading | 10.6 | 11.4 | 9.2 |
+  | refresh `:52` | 13.4 | 11.4 | 12.0 |
+  | refresh `:118` | 18.1 | 14.3 | 15.3 |
+  | settings | 4.9 | 4.0 | 3.6 |
+  | warning | 11.1 | 10.1 | 9.3 |
+
+  Trace spans with worker fixtures and teardown: at most 24.1 s (`e2`
+  `:118`), 19.7 s (`e4`) and 20.3 s (`e5`). Worker fixtures, outside the
+  durations: `queuedClaudeBoundaryReady` 5.0–11.0 s, `keptStory` 1.8–2.5 s,
+  `queuedClaudePreviewReady` 2.7–9.2 s, `keptIntentStory` 2.7–3.5 s,
+  `keptSummaryComparisonStory` 5.0–6.6 s. The longest wait after a provider
+  change was 2.0 s.
+- **Key example 8 after the correction.** The change shortens the
+  candidate's refresh cases only; the base's selection is untouched (the
+  base worktree has its own helper). The candidate's refresh cases changed
+  by more than a second, so more pairs were taken with `pairs.sh`, base then
+  candidate back to back, one worker, the same command as above:
+
+  | Pair | Base | Candidate | Fake `gh` calls, base / candidate |
+  | --- | --- | --- | --- |
+  | `pair4-1` | 164.7 s, load 35.60 → 47.15, failed: its refresh `:126` at the bound (31.3 s) | 155.4 s, 47.15 → 38.88, passed | 343 / 250 |
+  | `pair5-1` | 129.4 s, 27.38 → 34.65, passed | 155.0 s, 34.65 → 29.26, passed | 353 / 255 |
+  | `pair6-1` | 132.8 s, 25.60 → 25.42, passed | 119.4 s, 25.42 → 27.79, passed | 349 / 251 |
+
+  In `pair5-1` the candidate took 1.198 of the base (155.0 / 129.4), over the
+  1.10 figure; in `pair6-1` 0.899 (119.4 / 132.8). Over these three pairs
+  the candidate's median is 155.0 s and the median of the base's two passing
+  runs 131.1 s, a ratio of 1.182: a miss at load 25–47, where pairs 1–3 at
+  load 12–28 gave 0.892. The candidate's cases themselves sum to less than the
+  base's in both passing pairs (103.0 against 119.8 s, 93.3 against
+  121.0 s); its excess is wall time outside its cases, 52.0 s in `pair5-1`
+  and 26.1 s in `pair6-1` against the base's 9.6 and 11.8 s: the worker
+  fixtures that prepare the kept stories and the preview inputs before the
+  first case that takes each, which grow with the load. Fewer fake `gh`
+  calls holds in every pair. Recorded as measured and returned to the
+  coordinator; not repaired here.
+- The five other users of the open again after the seam split, candidate,
+  two workers, load 23.17 → 18.16: 5 of 5, 10.7–14.5 s.
+- `npm run --silent typecheck:dashboard`, `npx eslint` and `npx prettier
+  --check` on `scopeHistoryCollectedPage.ts` and
+  `projectScopeHistoryFixture.ts`: exit 0. No timeout override was added
+  anywhere.
+
+##### Key example 8 on the corrected candidate, simultaneous pairs
+
+Observed on 2026-11-13, 00:04–00:14 local, on the corrected candidate (this
+slice's uncommitted change with the G2 correction), natural load, no burner,
+AC power throughout. These pairs are the key example 8 comparison for the
+corrected candidate. Pairs 1–6 above stay as they were: pairs 1–3 measured
+the candidate before the G2 correction, and in pairs 4–6 base and candidate
+ran back to back under different loads.
+
+`simpairs.sh sim 6` started `one.sh base simN` (the `base-merged` worktree at
+`8aa440077`, its four repeat specs and the refresh spec, 9 cases) and
+`one.sh cand simN` (the eight files, 14 cases) at the same moment, as slice
+8's `pair2.sh` did, so both saw the same load. Each ran one worker under
+`caffeinate -s -i` with a proof record and `slice6/count-gh.mjs` preloaded.
+Pairs continued until three pairs had passed on both sides. "Case time" is
+the sum of the proof record's case durations; "outside" is the wall time
+less that sum (worker fixtures, worker start and teardown).
+
+| Pair | Load at start | Base: wall, case, outside, end load | Candidate: wall, case, outside, end load | Fake `gh` calls, base / candidate |
+| --- | --- | --- | --- | --- |
+| `sim1` | 22.71 | 133.1 s, 126.8, 6.3, 34.03; passed | 125.5 s, 101.8, 23.7, 28.99; passed | 345 / 252 |
+| `sim2` | 34.03 | 160.1 s, 155.1, 5.0, 28.52; passed | 145.5 s, 121.7, 23.8, 29.19; passed | 345 / 257 |
+| `sim3` | 28.52 | 147.0 s, 136.4, 10.6, 33.72; failed: `intent-ci-follow-up.spec.ts:27` at the bound (30.8 s) | 141.2 s, 109.5, 31.7, 35.78; passed | 350 / 257 |
+| `sim4` | 33.72 | 129.4 s, 123.5, 5.9, 34.08; passed | 122.4 s, 99.7, 22.7, 35.20; passed | 344 / 252 |
+
+The comparison uses `sim1`, `sim2` and `sim4`, where both sides passed. The
+base's median is 133.1 s and the candidate's 125.5 s, a ratio of 0.943
+(125.5 / 133.1), inside the 1.10 figure. Each of those passing candidate
+runs made fewer fake `gh` calls than each passing base run (252–257 against
+344–345). `sim3` is recorded and not used: its base failed on its Intent
+journey at the 30 s bound. The candidate's cases take less time than the
+base's in every pair (99.7–121.7 s against 123.5–155.1 s). Its time outside
+cases is larger (22.7–31.7 s against 5.0–10.6 s): the worker fixtures that
+prepare the three kept stories and the preview inputs. Under the same load
+that difference is smaller than what the cases save.
+
+#### Slice 10 acceptance and refactor
+
+- Accepted with obligations G1 and G2 proved. The refactor pass gave the
+  comparison read's answer one wait in `ciFollowUpReadingPage.ts`
+  (`untilComparisonAnswered`, used by open, reload and refresh), built each
+  kept scope proof once in the refresh fixture, and corrected comments that
+  the split and kept proofs had made untrue. No expectation changed; the
+  proof, return and refresh specs passed 5 of 5 at load 27.5.
+
 ## Story obligations
 
 ### G1. Page cases first in their worker reach the bound at load 27–49
 Reported: slice 4 — "With both cases first in their workers at load 27 → 49 the warning case took 28.2–29.7 s and failed once at the 30 s bound; Before Hooks took 25.8 s."
 Story clause: "every case passes each time; no case takes more than 25 s"
-Disposition: receiving slice 10
+Disposition: proved by slice 10: PLAN.md Slice 10 record, correction for G2, counted runs e2, e4 and e5 at natural load 31–50: 14 of 14 each, none over 18.1 s, trace spans with worker fixtures at most 24.1 s
 
+
+### G2. The refresh cases wait with an expectation timeout of readWaitLimitMs + 15 s
+Reported: slice 10 — "openCollectedHistoryStory, which the refresh fixture uses, expects the comparison panel, its readings and its entry table with { timeout: readWaitLimitMs + 15_000 }"
+Story clause: "the default 5 s expectations"
+Disposition: proved by slice 10: PLAN.md Slice 10 record, correction for G2: openCollectedHistoryStory waits on untilPageReadsAnswered with default expectations; the refresh fixture opens through openDoneStoryIntent; no timeout override in the selection's path
+Commitment: G3
 ## Current decisions
 
 - **Amended by Terry on 2026-11-12, after the first measured run missed key

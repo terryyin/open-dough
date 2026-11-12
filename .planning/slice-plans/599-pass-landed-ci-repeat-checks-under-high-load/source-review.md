@@ -12,17 +12,17 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| G1 | Maintainers get a passing verdict from the landed CI repeat and follow-up checks named above while other work holds the machine at a one-minute load of 30–50 | slice 10 |  |
-| G2 | with the default 30 s case timeout | slice 10 |  |
-| G3 | the default 5 s expectations | slice 10 |  |
-| G4 | and wide margin | slice 10 |  |
-| G5 | Each check gets there by doing much less | slice 10 |  |
+| G1 | Maintainers get a passing verdict from the landed CI repeat and follow-up checks named above while other work holds the machine at a one-minute load of 30–50 | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| G2 | with the default 30 s case timeout | slice 10 | observed: PLAN.md Slice 10 record diff review: no test.setTimeout or case timeout override in the selection; every case under the default 30 s |
+| G3 | the default 5 s expectations |  | G2 |
+| G4 | and wide margin | slice 10 | observed: PLAN.md Slice 10 record: slowest case 18.1 s against the 25 s figure; trace spans with worker fixtures at most 24.1 s |
+| G5 | Each check gets there by doing much less | slice 10 | observed: PLAN.md Slice 10 record: one receipt journey against five; 252–257 fake gh calls against 344–345 per one-worker run (simultaneous pairs) |
 | G6 | one case keeps the real receipt-to-request journey | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…" is the only case calling scenario.ingest in the two backend specs |
 | G7 | every other case starts from the state that journey leaves on a machine | slice 5 | observed: grep: one scenario.ingest across the seven selection specs, in landed-ci-automatic-repeat.spec.ts; every other case keeps a landing or saved requests |
-| S1.1 | Load profile: A one-minute load average of 30–50 before and after a run | slice 10 |  |
-| S1.2 | Load profile: on two workers | slice 10 |  |
-| S1.3 | Load profile (qualification): This is the range in which these checks failed, and this preparation's reading of "moderately high CPU usage"; Terry named no figure. | slice 10 |  |
-| S2.1 | Across the four named specs, at most one case takes a real receipt through ingestion, collection and admission to the provider's rerun request. Five do today. | slice 10 |  |
+| S1.1 | Load profile: A one-minute load average of 30–50 before and after a run | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| S1.2 | Load profile: on two workers | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| S1.3 | Load profile (qualification): This is the range in which these checks failed, and this preparation's reading of "moderately high CPU usage"; Terry named no figure. | slice 10 | observed: PLAN.md Slice 10 record: the counted runs use the 30–50 one-minute profile |
+| S2.1 | Across the four named specs, at most one case takes a real receipt through ingestion, collection and admission to the provider's rerun request. Five do today. | slice 10 | observed: PLAN.md Slice 10 record: one scenario.ingest, landed-ci-automatic-repeat.spec.ts:81, against five on the base |
 | S2.2 | a Done receipt at exactly 105 s against five 100 s prior builds leads to exactly one rerun request for run 71 | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "one rerun request" and "rerun requests" [71]; F1 fails it by the bound |
 | S2.3 | the intent is saved before the request is sent | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "intent saved before the request is sent"; F14 fails it |
 | S2.4 | the accepted request is saved after the reply | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "accepted saved after the reply"; F8b fails it |
@@ -38,45 +38,45 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 | S4.2 | The plan holds a coverage map of those promises | slice 1 | observed: PLAN.md "Coverage map": 22 rows C1–C22, unchanged by slice 1 |
 | S4.3 | and one deliberate product fault per promise | slice 1 | observed: PLAN.md "Verification" fault table F1–F24; every coverage row names its fault |
 | S4.4 | An observation leaves a journey only after its fault fails the check that takes it over. | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
-| S4.5 | SEED-314's faults F1–F11 keep an owner. | slice 10 |  |
+| S4.5 | SEED-314's faults F1–F11 keep an owner. | slice 10 | observed: PLAN.md Decisive premises, Faults F1–F11 row, and the slice 2–8 fault records; the verdict spec's expectations are unchanged since 095f2bff9 |
 | S5.1 | Kept state is arranged through shared MakeMe builders typed by the product's own ledger, history and record types | slice 5 | observed: ciFollowUpKeptLanding.ts, ciFollowUpKeptPriors.ts, ciFollowUpRepeatStage.ts, ciFollowUpSavedRequests.ts: makeMe builders only |
 | S5.2 | and provider facts through the existing fake GitHub | slice 2 | observed: ciFollowUpRepeatRun.ts providerRepeatRun.replyToRerun and serveRepeatRuns over the existing fake GitHub |
 | S5.3 | A saved request the product's schema refuses fails its case. | slice 2 | observed: PLAN.md Slice 2 record: a kept entry with eligible "yes", and a held request with workflowId "7", fail their cases at "saved reply" |
 | S5.4 | The one journey reads the request the product itself wrote through to a card, so a difference between what the product writes and what the builders arrange still fails a check. | slice 3 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a Done receipt at exactly 105 seconds…": "accepted request's card" read from the request the product wrote; F15 fails it |
-| S6.1 | After a provider fact changes, a case waits for the event it depends on: the provider's answer to the read, the request's arrival, or the saved request changing. | slice 10 |  |
-| S6.2 | No case keeps a 5 s observation whose wait is one collection pass on a machine that keeps a full history. | slice 10 |  |
+| S6.1 | After a provider fact changes, a case waits for the event it depends on: the provider's answer to the read, the request's arrival, or the saved request changing. | slice 10 | observed: PLAN.md Slice 10 record wait list: each wait after a provider change names its event; the longest was 2.0 s |
+| S6.2 | No case keeps a 5 s observation whose wait is one collection pass on a machine that keeps a full history. | slice 10 | observed: PLAN.md Slice 10 record wait list: each wait after a provider change names its event; the longest was 2.0 s |
 | S7.1 | The admission, reconciliation, follow-up reading and receipt boundary specs use `prepareRepeatScenario` too. Each of their cases gives the result the base gives it in the same load window. | slice 3 | observed: PLAN.md Slice 3 record: the eight specs importing ciFollowUpScenario.ts, base 20 of 20 and candidate 21 of 21 at two workers and at one, back to back |
 | S8.1 | Amended 2026-11-12: It may change what a case pays before its own first step: the `origin` fixture's first use in a worker | slice 7 | observed: dashboard/tests/support/pageTest.ts queuedClaudeBoundaryReady and queuedClaudePreviewReady request the queued origin and server bundle for the named specs' workers; PLAN.md Slice 7 record: first-case origin 0.2–0.5 s |
 | S8.2 | Amended 2026-11-12: when the run's app build is produced | slice 7 | observed: pageTest.ts prepareServerInputs(…, "preview"): the app build is requested by the first page case's worker fixture; PLAN.md Slice 7 record: first page dashboard 1.0–1.8 s |
 | S8.3 | Amended 2026-11-12: and the published story and server each case arranges, through a kept published-story arrangement that cases share | slice 8 | observed: dashboard/tests/support/keptPublishedStory.ts: one story published per worker (pageTest.ts keptStory, keptIntentStory) and copied per case through the origin fixture; keepRepeatLanding reads keptStoryCompletion; each case still starts its own server (PLAN.md Slice 8 record) |
 | S8.4 | Amended 2026-11-12: Every spec that uses a changed fixture keeps its cases and assertions and gives the result it gave before. | slice 8 | observed: PLAN.md Slice 8 record: no expectation changed in the seven specs; faults F2–F24 fail their owners at the same labels; the consumers table, with paired base runs of the publishIntentTrunk specs |
 | S9.1 | Amended 2026-11-12: `dashboard/tests/intent/intent-project-scope-timing-refresh.spec.ts` joins the named specs | slice 9 | observed: PLAN.md Verification selection line names dashboard/tests/intent/intent-project-scope-timing-refresh.spec.ts; Slice 9 record: both cases start from kept history in one non-collecting dashboard |
-| S9.2 | Amended 2026-11-12: its two cases pass in the same profile with the same figures | slice 10 |  |
+| S9.2 | Amended 2026-11-12: its two cases pass in the same profile with the same figures | slice 10 | observed: PLAN.md Slice 10 record: the refresh spec runs in every counted run and pair; its two cases took 11.4–18.1 s in e2, e4, e5 |
 | S9.3 | Amended 2026-11-12: Each observation that leaves real collection for kept history keeps an owner among maintained checks, shown by a deliberate product fault. | slice 9 | observed: PLAN.md Slice 9 record: needsCollectedProof always false fails intent-project-scope-timing-history.spec.ts:42 at :89 while both refresh cases pass; each kept observation fails under its own fault |
-| R1 | keep the default case timeout | slice 10 |  |
-| R2 | and the default expectation timeout | slice 10 |  |
-| R3 | no timeout overrides to absorb load | slice 10 |  |
-| R4 | no `test.slow()` to absorb load | slice 10 |  |
-| R5 | no sleeps to absorb load | slice 10 |  |
-| R6 | no retries to absorb load | slice 10 |  |
-| R7 | no skips to absorb load | slice 10 |  |
+| R1 | keep the default case timeout | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
+| R2 | and the default expectation timeout | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
+| R3 | no timeout overrides to absorb load | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
+| R4 | no `test.slow()` to absorb load | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
+| R5 | no sleeps to absorb load | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
+| R6 | no retries to absorb load | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
+| R7 | no skips to absorb load | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |
 | R8 | A flaky check is failing under the project's failing and flaky test policy until it is stable locally and in CI. | target CI |  |
-| L1 | No product behavior changes. The checks change, with their support modules. | slice 10 |  |
-| L2 | This story counts first-in-worker preparation in every case's time | slice 10 |  |
+| L1 | No product behavior changes. The checks change, with their support modules. | slice 10 | observed: PLAN.md Slice 10 record: git diff --stat 8aa440077...HEAD -- dashboard/server dashboard/src is empty |
+| L2 | This story counts first-in-worker preparation in every case's time | slice 10 | observed: PLAN.md Slice 10 record: worker-fixture time recorded per run beside case durations; trace spans including it at most 24.1 s |
 | L3 | Amended 2026-11-12: and, since the amendment above, may change it | slice 7 | observed: PLAN.md Slice 7 record: first-in-worker preparation moved to SEED-287's worker fixtures for the named specs; artifacts, startOrigin and global setup unchanged |
-| L4 | The cost of one fake `gh` call (a Node process per call) stays as it is. | slice 10 |  |
-| L5 | This story lowers the number of calls a case waits for. | slice 10 |  |
+| L4 | The cost of one fake `gh` call (a Node process per call) stays as it is. | slice 10 | observed: PLAN.md Slice 10 record: the fake gh call is unchanged |
+| L5 | This story lowers the number of calls a case waits for. | slice 10 | observed: PLAN.md Slice 10 record: one receipt journey against five; 252–257 fake gh calls against 344–345 per one-worker run (simultaneous pairs) |
 | L6 | The repository node suite's follow-up policy, reading and ledger tests stay as they are | slice 3 | observed: PLAN.md coverage row C5: the node ledger test is credited for the second dashboard only, after F12 failed it; the file is unchanged |
 | L7 | and are credited only where the coverage map names the promise they already own | slice 3 | observed: PLAN.md coverage row C5: the node ledger test is credited for the second dashboard only, after F12 failed it; the file is unchanged |
-| E1.1 | Amended 2026-11-12: Other work holds the one-minute load at 30–50 | slice 10 | |
-| E1.2 | Amended 2026-11-12: the four named specs run on two workers | slice 10 | |
-| E1.3 | Amended 2026-11-12: three times in a row | slice 10 | |
-| E1.4 | Amended 2026-11-12: every case passes each time | slice 10 | |
-| E1.5 | Amended 2026-11-12: no case takes more than 25 s | slice 10 | |
-| E1.6 | Amended 2026-11-12: A run whose load before or after lies outside the profile is recorded | slice 10 | |
-| E1.7 | Amended 2026-11-12: A run whose load before or after lies outside the profile is not counted | slice 10 | |
-| E1.8 | Amended 2026-11-12: the named specs include the project scope timing refresh spec | slice 10 | |
-| E2.1 | The four specs → count the cases that ingest a receipt → one, where the base has five. | slice 10 |  |
+| E1.1 | Amended 2026-11-12: Other work holds the one-minute load at 30–50 | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| E1.2 | Amended 2026-11-12: the four named specs run on two workers | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| E1.3 | Amended 2026-11-12: three times in a row | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| E1.4 | Amended 2026-11-12: every case passes each time | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| E1.5 | Amended 2026-11-12: no case takes more than 25 s | slice 10 | observed: PLAN.md Slice 10 record, correction for G2: counted runs e2, e4, e5 at natural load 31–50, two workers, 14 of 14 each, slowest 18.1 s |
+| E1.6 | Amended 2026-11-12: A run whose load before or after lies outside the profile is recorded | slice 10 | observed: PLAN.md Slice 10 record: runs e1, e3 and c1 recorded with their loads and not counted |
+| E1.7 | Amended 2026-11-12: A run whose load before or after lies outside the profile is not counted | slice 10 | observed: PLAN.md Slice 10 record: runs e1, e3 and c1 recorded with their loads and not counted |
+| E1.8 | Amended 2026-11-12: the named specs include the project scope timing refresh spec | slice 10 | observed: PLAN.md Slice 10 record: the refresh spec runs in every counted run and pair; its two cases took 11.4–18.1 s in e2, e4, e5 |
+| E2.1 | The four specs → count the cases that ingest a receipt → one, where the base has five. | slice 10 | observed: PLAN.md Slice 10 record: one scenario.ingest, landed-ci-automatic-repeat.spec.ts:81, against five on the base |
 | E3.1 | 403 → a production dashboard starts there → the provider receives exactly one rerun request for run 71 | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | E3.2 | and the card reads refused beside the 120 s original and the 100 s average | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request the provider refuses…": stage eligible receipt, replyToRerun(403), "saved reply" refused, "refused card" originalMs 120000 averageMs 100000, "rerun requests" [71] |
 | E3.3 | With 503 and a later 104 s passing repeat, the card stays unverified | slice 2 | observed: dashboard/backend-tests/intent/landed-ci-automatic-repeat.spec.ts "a kept eligible receipt whose rerun request gets no definitive reply…": replyToRerun(503), setRepeat 104 s, "stays unverified" repeatMs 104000, "rerun requests" [71] |
@@ -89,12 +89,12 @@ Explicit exclusions returned: no product behavior changes; no timeout override, 
 | E5.2 | and the provider receives no CI request from first render, reload or revisit | slice 5 | observed: dashboard/tests/intent/intent-ci-follow-up.spec.ts (reading): "no CI request from first render"; F21 fails it |
 | E6.1 | One deliberate product fault per promise in the coverage map → the named check runs → it fails at an expectation that names the promise. | slice 5 | observed: PLAN.md Slice 2–5 records: each coverage-map fault failed its owner at a labelled expectation before the journey's observation left (F1 by the bound, a recorded decision) |
 | E7.1 | A saved request that breaks the product's schema → its case runs → the case fails. | slice 2 | observed: PLAN.md Slice 2 record: a kept entry with eligible "yes", and a held request with workflowId "7", fail their cases at "saved reply" |
-| E8.1 | Amended 2026-11-12: The base and the candidate run the named specs on one worker | slice 10 | |
-| E8.2 | Amended 2026-11-12: back to back under the same load | slice 10 | |
-| E8.3 | Amended 2026-11-12: three passing observations each | slice 10 | |
-| E8.4 | Amended 2026-11-12: the candidate's median wall time is no more than 10% above the base's | slice 10 | |
-| E8.5 | Amended 2026-11-12: over one passing run the candidate makes fewer provider calls than the base | slice 10 | |
-| E8.6 | Amended 2026-11-12: The base is trunk as merged into the story branch, which holds SEED-287's faster journeys | slice 10 | |
-| E8.7 | Amended 2026-11-12: the named specs include the project scope timing refresh spec | slice 10 | |
-| E9.1 | The same spec paths pass in hosted CI on the published revision | slice 10 |  |
-| E9.2 | with no added timeout, sleep, retry, skip or runner mode | slice 10 |  |
+| E8.1 | Amended 2026-11-12: The base and the candidate run the named specs on one worker | slice 10 | observed: PLAN.md Slice 10 record, simultaneous pairs on the corrected candidate: base 133.1 s, candidate 125.5 s median, ratio 0.943; gh calls 252–257 against 344–345 |
+| E8.2 | Amended 2026-11-12: back to back under the same load | slice 10 | observed: PLAN.md Slice 10 record, simultaneous pairs on the corrected candidate: base 133.1 s, candidate 125.5 s median, ratio 0.943; gh calls 252–257 against 344–345 |
+| E8.3 | Amended 2026-11-12: three passing observations each | slice 10 | observed: PLAN.md Slice 10 record, simultaneous pairs on the corrected candidate: base 133.1 s, candidate 125.5 s median, ratio 0.943; gh calls 252–257 against 344–345 |
+| E8.4 | Amended 2026-11-12: the candidate's median wall time is no more than 10% above the base's | slice 10 | observed: PLAN.md Slice 10 record, simultaneous pairs on the corrected candidate: base 133.1 s, candidate 125.5 s median, ratio 0.943; gh calls 252–257 against 344–345 |
+| E8.5 | Amended 2026-11-12: over one passing run the candidate makes fewer provider calls than the base | slice 10 | observed: PLAN.md Slice 10 record, simultaneous pairs on the corrected candidate: base 133.1 s, candidate 125.5 s median, ratio 0.943; gh calls 252–257 against 344–345 |
+| E8.6 | Amended 2026-11-12: The base is trunk as merged into the story branch, which holds SEED-287's faster journeys | slice 10 | observed: PLAN.md Slice 10 record, simultaneous pairs on the corrected candidate: base 133.1 s, candidate 125.5 s median, ratio 0.943; gh calls 252–257 against 344–345 |
+| E8.7 | Amended 2026-11-12: the named specs include the project scope timing refresh spec | slice 10 | observed: PLAN.md Slice 10 record: the refresh spec runs in every counted run and pair; its two cases took 11.4–18.1 s in e2, e4, e5 |
+| E9.1 | The same spec paths pass in hosted CI on the published revision | target CI |  |
+| E9.2 | with no added timeout, sleep, retry, skip or runner mode | slice 10 | observed: PLAN.md Slice 10 record diff review: git diff 8aa440077...HEAD adds no timeout override, test.slow, sleep, retry, skip or runner mode |

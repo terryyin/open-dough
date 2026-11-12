@@ -12,10 +12,10 @@ import {
 } from "../support/ciFollowUpSettledReading.ts";
 import {
   expectOriginalProofNavigation,
-  openCiFollowUp,
+  gotoCiFollowUp,
   retainedCiFollowUpReading,
-  shownCiFollowUpCard,
 } from "../support/ciFollowUpReadingPage.ts";
+import { queuedIdentity } from "../support/startOrigin.ts";
 
 test.use({ viewport: { width: 390, height: 844 } });
 
@@ -28,7 +28,7 @@ test("the original attempt's proof is navigable from Changed tests of a settled 
   // Story A's run 71 first passed in 120 s against five prior builds of 100 s
   // each and its repeat in 100 s; the CI proof kept of each attempt counts
   // 2092 passed test cases at dashboard/tests.
-  await keepSettledRepeat(page, origin, github, {
+  const { completion } = await keepSettledRepeat(page, origin, github, {
     run: 71,
     seconds: 120,
     repeatSeconds: 100,
@@ -41,8 +41,12 @@ test("the original attempt's proof is navigable from Changed tests of a settled 
     ],
   });
   const before = actionsRequests(github);
-  await page.goto(dashboard.baseURL);
-  await openCiFollowUp(await shownCiFollowUpCard(page, "Story A"), "pointer");
+  // The comparison's own address; the card that opens it is read in
+  // ./intent-ci-follow-up.spec.ts.
+  await gotoCiFollowUp(page, dashboard.baseURL, {
+    identity: queuedIdentity,
+    revision: completion,
+  });
   const { comparison } = retainedCiFollowUpReading(page);
   await expect(comparison, "comparison opened").toContainText(
     "File and folder Proof below describes the original selected landing",

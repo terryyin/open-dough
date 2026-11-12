@@ -82,17 +82,47 @@ export function retainedCiFollowUpReading(page: Page) {
   };
 }
 
-// Presses the comparison's own refresh and waits for the dashboard's answer
-// to the read of the retained comparison it sends.
-export async function refreshCiFollowUp(page: Page) {
+// Does `act`, which makes the page read a retained comparison, and waits for
+// the dashboard's answer to that read.
+async function untilComparisonAnswered(
+  page: Page,
+  act: () => Promise<unknown>,
+) {
   const answered = page.waitForResponse((response) => {
     const read = new URL(response.url());
     return (
       read.pathname === ciFollowUpEndpoint && read.searchParams.has("identity")
     );
   });
-  await retainedCiFollowUpReading(page).refresh.click();
+  await act();
   await answered;
+}
+
+// Presses the comparison's own refresh.
+export const refreshCiFollowUp = (page: Page) =>
+  untilComparisonAnswered(page, () =>
+    retainedCiFollowUpReading(page).refresh.click(),
+  );
+
+// Reloads the page on the comparison's address.
+export const reloadCiFollowUp = (page: Page) =>
+  untilComparisonAnswered(page, () => page.reload());
+
+// Opens the retained comparison of `identity`'s landing at `revision` in the
+// project's Intent by its address, as a reload of the card's link does.
+export function gotoCiFollowUp(
+  page: Page,
+  baseURL: string,
+  landing: { readonly identity: string; readonly revision: string },
+) {
+  const address = new URL(baseURL);
+  address.search = new URLSearchParams({
+    project: "open-dough",
+    perspective: "intent",
+    followUp: landing.identity,
+    landing: landing.revision,
+  }).toString();
+  return untilComparisonAnswered(page, () => page.goto(address.toString()));
 }
 
 export async function expectOriginalProofNavigation(
