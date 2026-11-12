@@ -57,6 +57,8 @@ export function providerRepeatRun(
   let rerunReply = 201;
   return {
     original,
+    // The first attempt's one job.
+    job,
     // The attempt the run stands at.
     latest: () => current,
     setRepeat: (facts: RepeatFacts) => {

@@ -7,7 +7,8 @@
 // starts real collection and reading from the stage it states.
 //
 // `keepRepeatLanding` keeps Story A's landing, published as completed, after
-// five measured prior builds (./ciFollowUpKeptPriors.ts). `keepRepeats` keeps
+// five measured prior builds (./ciFollowUpKeptPriors.ts), at the stage the
+// case states (./ciFollowUpRepeatStage.ts). `keepRepeats` keeps
 // any landings' ledger entries and serves their runs; saved requests for
 // landings no story published (./ciFollowUpSavedRequests.ts) state theirs to
 // it.
@@ -26,9 +27,14 @@ import {
   storyLandingRun,
   type providerRepeatRun,
 } from "./ciFollowUpRepeatRun.ts";
+import { heldAt, type RepeatStage } from "./ciFollowUpRepeatStage.ts";
 import { followUpFile } from "./ciFollowUpScenario.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
-import { keptPriors, keptProofOf } from "./ciFollowUpKeptPriors.ts";
+import {
+  keptPriors,
+  keptProofOf,
+  landingsNoRepositoryHolds,
+} from "./ciFollowUpKeptPriors.ts";
 import { keepLandedCiHistory, minutesAgo } from "./landedCiHistory.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
@@ -43,14 +49,6 @@ export type KeptRepeat = {
   readonly entry: LedgerEntry;
   readonly provider: ReturnType<typeof providerRepeatRun>;
 };
-
-// The stage a kept landing's repeat stands at. "eligible receipt": measured,
-// admitted while this machine has follow-up enabled, its allowance unspent.
-export type RepeatStage = "eligible receipt";
-
-// What the ledger entry of a landing at `stage` holds beside its receipt.
-const heldAt = (stage: RepeatStage): Pick<LedgerEntry, "request"> =>
-  ({ "eligible receipt": {} })[stage];
 
 // `kept` held by the origin's machine in that order, after the entries of
 // `earlier` receipts, with follow-up as the machine set it for Open Dough,
@@ -140,29 +138,38 @@ export async function keepRepeatLanding(
     })
     .receivedAt(new Date().toISOString())
     .please();
-  const priors = keptPriors(5, averageSeconds, target);
+  const priors = keptPriors(
+    landingsNoRepositoryHolds(5),
+    averageSeconds,
+    target,
+  );
   const provider = storyLandingRun(completion, run, seconds);
-  const { original } = provider;
+  const key = `run/${String(run)}/1`;
+  const { startedAt, completedAt, workflowId } = provider.original;
+  if (
+    startedAt === undefined ||
+    completedAt === undefined ||
+    workflowId === undefined
+  )
+    throw new Error("A story landing's run names its workflow and bounds.");
+  const original = makeMe.aKeptBuild
+    .with({
+      revision: completion,
+      state: "pass",
+      runUrl: provider.original.url,
+      runId: run,
+      runAttempt: 1,
+      runBranch: "main",
+      startedAt,
+      completedAt,
+      timingBasis: "attempt-start",
+      proof: keptProofOf(completion, run),
+      proofPending: false,
+    })
+    .please();
   const history = priors
     .measuredIn(makeMe.aLandedCiHistory)
-    .recording(
-      capture,
-      `run/${String(run)}/1`,
-      makeMe.aKeptBuild
-        .with({
-          revision: completion,
-          state: "pass",
-          runUrl: original.url,
-          runId: run,
-          runAttempt: 1,
-          runBranch: "main",
-          startedAt: original.startedAt,
-          completedAt: original.completedAt,
-          proof: keptProofOf(completion, run),
-          proofPending: false,
-        })
-        .please(),
-    )
+    .recording(capture, key, original)
     .inTrunkOrder([...priors.revisions, completion]);
   await keepLandedCiHistory(home, history.please());
   keepMoreLaunchRecords(home, [
@@ -182,7 +189,16 @@ export async function keepRepeatLanding(
       receipts: [capture.receipt],
       eligible: true,
       capture,
-      ...heldAt(stage),
+      ...heldAt(stage, {
+        original,
+        workflowId,
+        reference: priors.referenceFor(completion, {
+          key,
+          date: startedAt,
+          ms: seconds * 1000,
+        }),
+        job: provider.job,
+      }),
     })
     .please();
   const kept = [{ run, entry, provider }, ...beside];

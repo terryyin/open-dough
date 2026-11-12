@@ -110,8 +110,8 @@ after this plan. "Fault" names the control in [Verification](#verification).
 | C1 | Follow-up is off until the machine enables it | Lifecycle journey; phone journey (settings row) | The journey (settings read); the phone settings case | F13 |
 | C2 | A Done receipt at exactly 105 s against five 100 s builds gets one rerun request for run 71 | Lifecycle journey | The journey | F1 |
 | C3 | The intent is saved before the request is sent | Lifecycle journey (held submission) | The journey | F14 |
-| C4 | The accepted request is saved after the reply | Lifecycle journey | The journey | F8 |
-| C5 | A repeated acceptance and a second dashboard on the machine send nothing more | Lifecycle journey | The journey keeps the repeated acceptance; the second dashboard moves to `tests/support/ci-follow-up-ledger.test.mjs` "two independent processes serialize spend" only if F12 fails it, otherwise it stays in the journey | F2, F12 |
+| C4 | The accepted request is saved after the reply | Lifecycle journey | The journey | F8b |
+| C5 | A repeated acceptance and a second dashboard on the machine send nothing more | Lifecycle journey | The journey keeps the repeated acceptance; the second dashboard is `tests/support/ci-follow-up-ledger.test.mjs` "two independent processes serialize spend", which F12 fails (slice 3) | F2, F12 |
 | C6 | The request the product wrote reads as a card | Lifecycle journey (progress, slow) | The journey (the accepted card) | F15 |
 | C7 | An in-progress repeat reads "CI rerun in progress" | Lifecycle journey; phone journey | Accepted-request case; phone warning case | F16 |
 | C8 | A 106 s repeat reads slow with 105 s, 106 s and the 100 s average | Lifecycle journey; phone journey | Accepted-request case; phone warning case | F3 |
@@ -221,6 +221,7 @@ F1–F11 are plan 595's, in `dashboard/server/ciFollowUpObservation.ts`,
 | F6b | A cancelled repeat is measured as a pass | The cancelled branch never matches and `cancelled` passes |
 | F7 | Carried-forward jobs count as a full repeat | `fullRepeatJobs` is not consulted |
 | F8 | A refusal is saved as accepted | A refused reply is treated as accepted in `collectCiFollowUps` |
+| F8b | An accepted reply is not saved | `updateRepeat` is skipped when the reply is accepted (slice 3: F8 cannot fail a journey whose provider accepts) |
 | F9 | A later passing repeat clears an uncertain acceptance | Drop the `submission.kind !== "accepted"` return after measurement |
 | F10 | A repeat with no verdict reads as failed | The absent-conclusion branch counts as failed |
 | F11 | An unknown conclusion reads as failed | `failed` is always true |
@@ -461,7 +462,7 @@ Observed on 2026-11-12, Node 24.21.0. Logs:
 
 ### 3. One journey, and an accepted request's later reads from kept state
 Type: Behavior
-Status: planned
+Status: done
 Proof: The automatic-repeat spec passes three consecutive times. One case in
 it calls `scenario.ingest`. F1, F8, F14 and F15 fail the journey; F3, F16,
 F17 and F2 fail the accepted-request case, each by promise. F12's result
@@ -488,6 +489,137 @@ provider receives no rerun request.
   for prior builds at `prepareRepeatPriors`' real trunk commits (9 calls from
   receipt to request against 25) and found it false at revisions no
   repository holds. Keep those commits and replace only their collection.
+
+#### Slice 3 record
+
+Observed on 2026-11-12, Node 24.21.0. Logs:
+`/Users/terryyin/.claude/jobs/296b888d/tmp/slice3/`.
+
+- **The division.** The lifecycle case is two cases. The journey stays in
+  `landed-ci-automatic-repeat.spec.ts` and is the one case there that calls
+  `scenario.ingest`. The accepted request's later reads are
+  `dashboard/backend-tests/intent/landed-ci-repeat-accepted-request.spec.ts`:
+  both in one file would pass 250 lines, and the new file holds what a
+  dashboard reads after an accepted request for a published completion. The
+  [Verification](#verification) selection includes it. No shard weight or CI
+  configuration names either spec.
+- **The journey's prior builds.** `keepRecordedPriorsMeasured(origin,
+  revisions, seconds)` in `ciFollowUpKeptPriors.ts` keeps the landings the
+  machine's launch records hold at `prepareRepeatPriors`' trunk commits as
+  measured, through the same `keptPriors` that serves the kept landing;
+  `keptPriors` takes its landings, and `landingsNoRepositoryHolds(count)` are
+  the ones at revisions no repository holds. `prepareRepeatPriors` and its
+  return are unchanged.
+- **The stage.** `"accepted request"` joins `"eligible receipt"` in
+  `ciFollowUpRepeatStage.ts`, where `heldAt` now lives: the request as
+  collection saves it after an accepted reply, through
+  `makeMe.aCiRepeatRequest`, naming the kept original build, its job and the
+  reference `keptPriors(...).referenceFor` freezes (five included rows, the
+  selected row, sample count, median, average, from and to; no `difference`).
+  `keepRepeatLanding(origin, github, { stage: "accepted request", run: 71,
+  seconds: 105, averageSeconds: 100 })` is the whole arrangement.
+- **A whole pass.** Every collection pass reads an unsettled accepted
+  request's run once before it spends receipts. `aWholePass` waits for the
+  second read of the run of a waiting request no pass can spend on: another
+  landing's accepted request for run 72 (`heldRequest`), which no story
+  published and the history keeps no build of. The journey, the
+  accepted-request case and the refused case each keep it and then count
+  rerun requests. The journey keeps it with `saveRepeatRequests` before the
+  server starts and serves the scenario's provider again over it
+  (`scenario.serve()`). The landing's own run 71 does not mark a pass: under
+  F2 a pass reads it (`actions-current-run`), asks for the workflow, reads it
+  again while preparing the request, reads the attempt and its jobs, and only
+  then sends, so its second read came before the rerun request. On the
+  correct product the waiting request adds one provider call a pass: the
+  journey went from 13 calls to 18 and the accepted-request case from 9 to
+  15, with case times unchanged at load 4–5 (4.0–4.4 s and 2.9–3.1 s).
+  The accepted-request case starts with the repeat not begun: with the repeat
+  already at attempt 2 the product prepares no request, and F2 passed.
+- **C5 and F12.** F12, `admitted.request !== undefined` dropped from
+  `spendRepeat`'s guard, fails
+  `tests/support/ci-follow-up-ledger.test.mjs` "two independent processes
+  serialize spend" with `[true, true]` for `[false, true]`, and
+  "interruption after durable spend". The second dashboard leaves the
+  journey; that node test owns it, unchanged. The journey keeps the repeated
+  acceptance.
+- **Faults**, one worker, both specs, each reverted before the next; `git
+  diff --stat -- dashboard/server dashboard/src` empty afterwards. Load
+  3–27.
+
+  | Fault | Scratch edit | Fails |
+  | --- | --- | --- |
+  | F1 | `>=` becomes `>` in `reachesFollowUpThreshold` | The journey, at the 30 s bound, waiting for the held request |
+  | F8 | A refused reply saved as `accepted` | The refused case, "saved reply". Not the journey: its provider accepts |
+  | F8, the journey's | An accepted reply is not saved (`updateRepeat` skipped when the reply is accepted) | The journey, "accepted saved after the reply": `intent` for `accepted` |
+  | F14 | `spendRepeat` moved after `repeatGitHubWorkflow` | The journey, "intent saved before the request is sent": `nothing saved` |
+  | F15 | `completedFollowUps` selects no landing that holds a request | The journey, "accepted request's card"; also the refused, uncertain and accepted-request cases at their cards |
+  | F3 | `slow` always false in `observeRepeat` | The accepted-request case, "slow card" |
+  | F16 | The in-progress branch answers `unverified` | The accepted-request case, "progress read": `unverified` for `progress` |
+  | F17 | `withOriginalFollowUpSamples` takes `request.outcome.repeat` before `request.original` | The accepted-request case, "original kept" |
+  | F2 | Both `admitted.request !== undefined` guards dropped | The accepted-request case, "no second request": `[71]` for `[]`; the journey and the refused case, "rerun requests"; each in three of three runs, load 3.9–4.7 |
+  | F9 | The `submission.kind !== "accepted"` return never taken | The uncertain case, "stays unverified" |
+  | F18 | Turning off deletes entries that hold a request | The refused and uncertain cases, "follow-up off" |
+
+  F17 as named, collection keeping the repeat's attempt, has no single edit:
+  a kept landing's build is not collected again, on the base journey
+  either. The edit above is the nearest that makes history select the
+  repeat. F4, F5, F6b and F7 stay settled by citation: the saved-request
+  case and `keepRepeats` are unchanged.
+- **Three consecutive passes**, both specs, two workers: load 3.5 → 3.7,
+  3.7 → 3.9, 3.9 → 5.0; 5 of 5 each. Journey 4.0, 4.0 and 4.3 s,
+  accepted-request case 2.8, 3.4 and 3.4 s. An earlier form passed at load
+  14.7 → 19.5 with the journey at 11.7 s and the accepted-request case at
+  8.0 s. With the waiting request as the marker, both specs and the verdict
+  spec, two workers: load 4.8 → 5.2, 5.2 → 5.0, 5.0 → 5.4; 6 of 6 each.
+  Journey 4.1, 4.0 and 4.4 s, accepted-request case 2.9, 2.9 and 3.1 s. Not
+  run at a load of 30–50.
+- **Consumers.** The eight specs that import `ciFollowUpScenario.ts`, base
+  `095f2bff9` then candidate with the new spec, back to back:
+
+  | Workers | Base | Candidate |
+  | --- | --- | --- |
+  | 2 | 20 of 20, 40 s, load 4.9 → 6.3 | 21 of 21, 40 s, load 6.3 → 5.5 |
+  | 1 | 20 of 20, 73 s, load 5.5 → 4.4 | 21 of 21, 74 s, load 4.4 → 4.3 |
+
+  The node consumers passed (exit 0).
+- **Consumer trace**, `--base 5fa058c0d` with the changed exports as terms
+  (`slice3/consumer-trace.md`). Run: `landed-ci-automatic-repeat.spec.ts`,
+  `landed-ci-repeat-accepted-request.spec.ts`,
+  `landed-ci-repeat-verdict.spec.ts`. Reused, run in the comparison: the six
+  other specs that call `prepareRepeatScenario`, none of which called
+  `refuse`; `ciFollowUpLedgerFacts.mjs` and the three node tests. Excluded,
+  the effect does not reach them: files that import the unchanged
+  `landedCiHistory.ts`; files that match a field name the product already
+  has, a `refuse(` or `heldAt` of their own, or the card's words; planning
+  records and evidence that name the spec's path or its former title.
+- **SEED-287's branch**, `codex/make-dashboard-journeys-fit-the-default-timeout`
+  at `061775e97`, changes `ciFollowUpScenario.ts` and `ciFollowUpPriors.ts`
+  since the merge base `caf48c6fa` and none of this slice's other paths.
+  `git merge-file` of this slice's `ciFollowUpScenario.ts`, with
+  `scenario.refuse` removed, against theirs: no conflict, `collectPriors`
+  kept. `ciFollowUpPriors.ts` is unchanged here.
+- For slice 4: a page case states `stage: "accepted request"`; the kept
+  landing serves the provider through `serveRepeatRuns`, which still has no
+  fallback answerer. `repeatCards(server)` reads the cards.
+
+#### Slice 3 acceptance
+
+- Accepted: F8 keeps its owner in the refused case; the journey's C4 is
+  caught by F8b. The accepted-request case starts with the repeat not begun,
+  waits a whole pass and expects no rerun, then reads progress and the 106 s
+  repeat: with the repeat already in progress at start, F2 could not fail it.
+- A fresh server on the kept accepted request is the restart the story names
+  "from a saved accepted request".
+- SEED-287 landed on trunk during this slice (`c744f46d1`, on trunk at
+  `474669608`). Its change to `ciFollowUpScenario.ts` and
+  `ciFollowUpPriors.ts` adds `collectPriors` and `untilCollected` and leaves
+  what `prepareRepeatScenario` arranges as it was; `git merge-file` of this
+  slice's two files against it is clean. Trunk is merged into the story
+  branch after this slice, before slice 4, and the selection and the
+  scenario's consumers run again on the merged state. Slice 6's base is then
+  the merged trunk revision, in a new base worktree.
+- For slice 5: the kept reference has no excluded outlier row and no
+  `difference` yet.
 
 ### 4. The machine setting and the phone warning are read without a journey
 Type: Behavior

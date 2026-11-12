@@ -11,10 +11,11 @@ import type { RepeatRequest } from "../../server/ciFollowUpStore.ts";
 import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { keepRepeats, type KeptRepeat } from "./ciFollowUpKeptLanding.ts";
 import { providerRepeatRun } from "./ciFollowUpRepeatRun.ts";
-import { readFollowUpLedger } from "./ciFollowUpScenario.ts";
+import { followUpSettings, readFollowUpLedger } from "./ciFollowUpScenario.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import { passedBetween } from "./landedCiTrunk.ts";
+import { expect } from "./pageTest.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 
 // One saved request: the run whose first attempt took `seconds` against an
@@ -99,20 +100,35 @@ export function savedRepeatComparison(
   };
 }
 
+// The cards the server reads now for Open Dough's published completions.
+export const repeatCards = async (server: DashboardServer) =>
+  (await followUpSettings(server)).body.cards;
+
 // The runs the provider was asked to rerun, in the order it was asked.
 export const rerunRuns = (github: FakeGitHub) =>
   github.calls.flatMap(({ request }) =>
     request.kind === "actions-workflow-rerun" ? [request.runId] : [],
   );
 
-// The provider's reads of `run` as it stands among the calls that reached it
-// after its first `after`: a collecting dashboard reads the run of every
-// request it still waits on once in each collection pass, before that pass
-// spends any receipt.
-export const laterReadsOf = (github: FakeGitHub, run: number, after: number) =>
-  github.calls
-    .slice(after)
-    .filter(
-      ({ request }) =>
-        request.kind === "actions-current-run" && request.runId === run,
-    ).length;
+// Waits until a whole collection pass, its reads and its spending, has ended
+// after the provider's first `after` calls. A collecting dashboard reads the
+// run of every request it still waits on once in each pass, before that pass
+// spends any receipt: the second such read of `run` belongs to a pass that
+// began once a whole pass had ended. `run` is the run of a waiting request
+// for a landing no pass can spend on (`heldRequest`, its repeat not started),
+// so a pass reads it that once whatever it spends: a pass preparing a rerun
+// request reads the run it is about to rerun again before it asks.
+export async function aWholePass(
+  github: FakeGitHub,
+  run: number,
+  after = 0,
+): Promise<void> {
+  const reads = () =>
+    github.calls
+      .slice(after)
+      .filter(
+        ({ request }) =>
+          request.kind === "actions-current-run" && request.runId === run,
+      ).length;
+  await expect.poll(reads, "a whole pass").toBeGreaterThanOrEqual(2);
+}

@@ -57,7 +57,6 @@ export async function prepareRepeatScenario(
   );
   const provider = storyLandingRun(story.completion, 71, seconds);
   const original = provider.original;
-  let submissionStatus = 201;
   let hold: (() => Promise<void>) | undefined;
   const repeatCalls: number[] = [];
   let fallback: RepositoryAnswerer | undefined;
@@ -66,7 +65,7 @@ export async function prepareRepeatScenario(
     if (request.kind === "actions-workflow-rerun") {
       repeatCalls.push(request.runId);
       await hold?.();
-      return json({}, submissionStatus);
+      return json({}, 201);
     }
     const exact = provider.answer(request);
     if (exact !== undefined) return exact;
@@ -98,9 +97,6 @@ export async function prepareRepeatScenario(
     setRepeat: provider.setRepeat,
     originalJobsAvailable: provider.originalJobsAvailable,
     repeatProofAvailable: provider.repeatProofAvailable,
-    refuse(status: number) {
-      submissionStatus = status;
-    },
     holdSubmission(until: () => Promise<void>) {
       hold = until;
     },
