@@ -8,6 +8,7 @@ import {
   requestOf,
 } from "../../tests/support/ciFollowUpAdapterAssertions.ts";
 import type { Answers } from "../../tests/intentCiAdapterFixture.ts";
+import { retainedHistory } from "../../tests/support/collectedScopeHistory.ts";
 
 test.use({ serverMode: "boundary" });
 const submissions: readonly [string, Partial<Answers>, string][] = [
@@ -98,11 +99,38 @@ test("interruption retains intent and never resends or attributes a later attemp
   github,
   startServer,
 }) => {
-  const scenario = await prepareAdapterRepeatScenario(origin, github);
-  scenario.holdRebuild();
-  const first = await ingest(scenario, startServer);
-  expect(requestOf(first)?.submission.kind).toBe("intent");
+  const scenario = await prepareAdapterRepeatScenario(origin, github, {
+    rebuild: false,
+  });
+  const first = await startServer();
+  await scenario.collectPriors(first);
+  await scenario.ingest(first);
+  await expect
+    .poll(() =>
+      Object.values(retainedHistory(first.home)?.builds ?? {}).some(
+        (build) =>
+          build.revision === scenario.story.completion &&
+          build.proof?.kind === "summary",
+      ),
+    )
+    .toBe(true);
   await first.close();
+  scenario.adapter.enableRebuild();
+  scenario.holdRebuild();
+  const controller = new AbortController();
+  const collection = scenario.collectFollowUps(
+    first,
+    undefined,
+    "production",
+    controller.signal,
+  );
+  try {
+    await expect.poll(() => scenario.adapter.rebuildRequests()).toHaveLength(1);
+    expect(requestOf(first)?.submission.kind).toBe("intent");
+  } finally {
+    controller.abort();
+    await collection;
+  }
   expect(requestOf(first)?.submission.kind).toBe("intent");
   scenario.setRepeat(106);
   scenario.releaseRebuild();

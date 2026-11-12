@@ -91,6 +91,9 @@ export async function collectCiFollowUps(
       // An interruption here deliberately spends the allowance without sending.
       if (ended()) return;
       const submission = await provider.submit(request, signal);
+      // A command may translate cancellation into an uncertain reply. The
+      // stopped collection still leaves its durable intent for the next owner.
+      if (ended()) return;
       const { explanation } = submission;
       await updateRepeat(key, (saved) => ({
         ...saved,

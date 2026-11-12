@@ -187,10 +187,11 @@ export async function prepareAdapterRepeatScenario(
       server: DashboardServer,
       history?: ProjectHistory,
       environment = "production",
+      signal?: AbortSignal,
     ) {
       const module = (name: string) =>
         new URL(`../../server/${name}.ts`, import.meta.url).href;
-      await promisify(execFile)(
+      const collected = promisify(execFile)(
         process.execPath,
         [
           "--experimental-transform-types",
@@ -204,11 +205,22 @@ export async function prepareAdapterRepeatScenario(
         initializeProjectConfiguration(${JSON.stringify(environment)});
         const projects = ${JSON.stringify(environment)} === 'production' ? publishedProjects() : JSON.parse(readFileSync(projectConfigurationFile('production'),'utf8'));
         const source = projects.find(s => s.id === 'open-dough');
-        await collectCiFollowUps(source, ${history === undefined ? "await keptLandedCiHistory(source.id)" : JSON.stringify(history)}, new AbortController().signal);
+        const controller = new AbortController();
+        ${signal === undefined ? "" : 'process.stdin.once("data", () => controller.abort());'}
+        await collectCiFollowUps(source, ${history === undefined ? "await keptLandedCiHistory(source.id)" : JSON.stringify(history)}, controller.signal);
+        process.stdin.destroy();
       `,
         ],
         { env: { ...process.env, HOME: server.home, NODE_NO_WARNINGS: "1" } },
       );
+      const interrupt = () => collected.child.stdin?.end("interrupt");
+      signal?.addEventListener("abort", interrupt, { once: true });
+      if (signal?.aborted) interrupt();
+      try {
+        await collected;
+      } finally {
+        signal?.removeEventListener("abort", interrupt);
+      }
     },
   };
 }
