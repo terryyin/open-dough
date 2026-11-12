@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "terry-chan",
-  "email": "terry-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-324#pass-landed-ci-repeat-checks-under-high-load",
-  "host": "claude",
-  "model": "fable"
-}
