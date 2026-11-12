@@ -1,0 +1,8 @@
+kind=C
+index=2
+revision=a55582cdf18c5bd758820071d8390954efc32782
+root=/Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks
+started=2026-11-12T04:55:32Z
+ended=2026-11-12T04:56:11Z
+exit=0
+real_s=38.43

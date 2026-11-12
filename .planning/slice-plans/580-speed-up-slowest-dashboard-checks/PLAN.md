@@ -58,9 +58,9 @@ credited as proof.
 | Taken owner/detail, mode, branch, tool/model, missing versus unreadable, portraits/icons, widths, accessibility | 2 | The Taken profile check and each named surviving proof (slice 2 removal table) |
 | Every removed inspection names the surviving proof of its promise | 2, 3 | Removal tables in proof/slice2-observations.md and proof/slice3-observations.md; scratch faults make survivors fail |
 | Pending Take protection through stale/unrelated, partial, comparison failure/recovery, final snapshot, reload | 3 | The pending-Take check |
-| Pinned deployment unchanged | 4 | Its spec has no diff against the baseline revision and passes in every credited run |
-| Ordinary CI selection preserved; no mocks, sleeps, retries, skips, timeout inflation or runner mode | 2, 3, 4 | Diff review and discovery of the three titles through the unchanged command |
-| Under 45 seconds, or the busy-host ratio with the quiet-host check owed | 4 | The measure above |
+| Pinned deployment unchanged | 4 | Spec diff 0 bytes vs `658d1fef`; passed in every candidate run that reached it (`proof/slice4-pinned-unchanged.txt`) |
+| Ordinary CI selection preserved; no mocks, sleeps, retries, skips, timeout inflation or runner mode | 2, 3, 4 | Diff review; `--list` discovers three titles (`proof/slice4-discovery.log`); no special runner mode |
+| Under 45 seconds, or the busy-host ratio with the quiet-host check owed | 4 | Busy 5+5 ratio met (candidate median 46.97 ≤ 57.48); quiet three-run still owed (`proof/slice4-summary.json`) |
 
 ## Decisive premises
 
@@ -176,7 +176,7 @@ Counts 663→635; `expectProtected` 5→1; reloads 2; compares length 3 —
 ### 4. Verify the remaining selection against the 45-second promise
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: The measure in "Selection and measurement" on the final revision,
 against slice 1. The pinned-deployment spec is unchanged. The three titles are
@@ -188,29 +188,23 @@ Behavior: The reduced checks and the unchanged pinned case run in one ordinary
 command → maintainers get the same protection below 45 seconds, or the
 recorded ratio with the owed check named.
 
+#### Slice 4 measure (status remains planned)
+Busy alternating ratio **pass** (candidate median 46.97 ≤ 57.48); quiet
+three-run **owed**. Pinned unchanged; 3/3 titles discovered. Details:
+[proof/slice4-observations.md](./proof/slice4-observations.md),
+[proof/slice4-summary.json](./proof/slice4-summary.json).
+
 ## Current decisions
 
-- Terry's five-story extraction set this scope; SEED-311–315 own their families
-  and no dependency follows from queue order.
-- The pinned-deployment case and run-wide startup count in the elapsed time and
-  are not changed.
-- Under external load, measurement is relative and does not wait for a quiet
-  host; the quiet-host three-run check stays owed until observed.
-- After slice 1's former 30 s stop, Terry authorized a different target: 45 s
-  for this selection, keeping browser reductions for busy-host margin under the
-  default test timeout. Story Goal, Measure, Key examples and this plan now
-  use 45 s / ratio×45.
-- A fresh source-only review is required again after that story amendment,
-  before the next planned delegation.
-- Expensive proof (slice 1 baseline): completed under recorded load; quiet-host
-  three-run check remains owed; only a loaded baseline exists for this
-  selection.
+- SEED-311–315 own extracted families; pinned and run-wide startup unchanged.
+- Terry authorized 45 s after the former 30 s stop; ratio uses ×45.
+- Under load, use busy ratio; quiet three-run stays owed (Q1) until observed.
+- Slice 1/4 expensive proof: loaded baseline and busy 5+5 ratio recorded in
+  `proof/`; quiet matched three-run still owed.
 
 ## Concern evidence
 
-Slice-plan refinement was not needed: four slices, one outcome and proof loop
-each. Former 30 s stop resolved by Terry's 45 s target; no other slice-specific
-concern in this review.
+Four slices, one proof loop each. Former 30 s stop resolved by 45 s target.
 
 ## Local gates
 
@@ -240,3 +234,9 @@ Reported: slice 1 — "No manufactured savings through mocks, sleeps, retries, s
 Story clause: "No new internal mocks, wall-clock sleeps, retries, skips, timeout inflation or special runner mode may manufacture a saving."
 Disposition: excluded "No new internal mocks, wall-clock sleeps, retries, skips, timeout inflation or special runner mode may manufacture a saving."
 Commitment: 20.1, 20.2, 20.3, 20.4, 20.5, 20.6
+
+### Q1. Quiet-host three-run below 45s remains owed
+Reported: slice 4 — "Quiet three consecutive below 45s still owed after busy-ratio pass."
+Story clause: "The quiet-host three-run check then remains owed to the first quiet opportunity and is reported as such, not claimed."
+Disposition: excluded "The quiet-host three-run check then remains owed to the first quiet opportunity and is reported as such, not claimed."
+Commitment: 14.1, 14.2, 14.3, 26

@@ -1,0 +1,8 @@
+kind=B
+index=2
+revision=658d1fef810cbf911ef2a993b2104a45234f81c4
+root=/tmp/seed303-slice4-baseline-658d1fef
+started=2026-11-12T04:55:02Z
+ended=2026-11-12T04:55:32Z
+exit=0
+real_s=29.81

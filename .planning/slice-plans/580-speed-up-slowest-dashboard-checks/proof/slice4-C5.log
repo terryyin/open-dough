@@ -1,0 +1,29 @@
+FAIL: dashboard/tests/launches/responsive-session-reconciliation.spec.ts:54 › tests/launches/responsive-session-reconciliation.spec.ts › a Take's older snapshot arriving late and an unrelated revision keep it protected; its accepted revision, fully read, returns the Taken actions while the session works (failed)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoMatchObject[2m([22m[32mexpected[39m[2m)[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 1[39m
+
+    [2m  Object {[22m
+    [32m-   "kind": "published",[39m
+    [31m+   "kind": "unknown",[39m
+    [2m  }[22m
+
+    Call Log:
+    - Test timeout of 30000ms exceeded
+        at /Users/terryyin/git/open-dough/.worktrees/speed-up-the-remaining-dashboard-checks/dashboard/tests/launches/responsive-session-reconciliation.spec.ts:100:6
+    at dashboard/tests/launches/responsive-session-reconciliation.spec.ts:100
+       98 |       timeout: 30_000,
+       99 |     })
+    > 100 |     .toMatchObject({ kind: "published" });
+          |      ^
+      101 |   const accepted = (await origin.originGit("rev-parse", "main")).trim();
+      102 |   expect((await attempts(dashboard))[0]?.publication).toEqual({
+      103 |     kind: "published",
+  error-context: dashboard/test-results/2026-11-12T05-05-44.427Z-31046/tests-launches-responsive--e92c7-ons-while-the-session-works-chromium/error-context.md
+  trace: dashboard/test-results/2026-11-12T05-05-44.427Z-31046/tests-launches-responsive--e92c7-ons-while-the-session-works-chromium/trace.zip
+
+Kept: dashboard/test-results/2026-11-12T05-05-44.427Z-31046
+real 133.43
+user 39.57
+sys 22.79
