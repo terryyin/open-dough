@@ -88,7 +88,7 @@ Behavior: [Original accepted flow](completed-slice-details.md#slice-12).
 
 ### 13. Named default margins and bounded completion proof hold
 Type: Behavior
-Status: planned
+Status: done
 Proof: [Authorized completion](completion-verification.md); [current scoped136/118 proof](current-load-evidence.md); [Codex renewal](codex-current-load-evidence.md).
 
 Behavior: renew changed integration boundaries, retain matched default-budget proof, and require complete composition CI; final trunk CI belongs to closure.
@@ -112,7 +112,7 @@ Disposition: owner changed "No further full-local rerun or comparable whole-suit
 ### G3. Hosted margin and shard comparison
 Reported: slice 1 — "Only retained baseline CI is available; no implementation speedup or hosted margin has been proved."
 Story clause: "on a hosted shard about 1.5× slower overall"
-Disposition: receiving slice 13
+Disposition: proved by slice 13: hosted-evidence.md#completed-composition694e6d91; exact43169503834/1 all18jobs/all13parts green, named maximum18263ms/default30, slowest265s versus prior271s; 1.5× sensitivity is qualified, final trunk CI remains lifecycle C193
 
 ### G4. Full-baseline budget defects remain owned
 Reported: slice 1 — "The unchanged full baseline exposed two Intent comparison and five launch case-budget failures; no repair is claimed."
@@ -235,3 +235,7 @@ Disposition: proved by slice 13: [bounded Codex correction](codex-current-load-e
 Local integration proof: awake/on AC with `caffeinate -s -i` per the
 [maintained sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos).
 [Execution context and focused gates](execution-context.md#execution-notes) retain the complete notes.
+
+## Execution complete
+
+Product advice: no additional product work.

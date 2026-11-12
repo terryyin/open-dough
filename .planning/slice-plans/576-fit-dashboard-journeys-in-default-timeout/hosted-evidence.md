@@ -97,3 +97,20 @@ Human15ee review-family routes and pendingfd touch/history composition require
 new branch proof. Source-only178 commitments are allocated; local27 renewal is
 prepared, unrun. The ended9hDF3Y observer lost discovery after a request timeout;
 restore publication coverage before relying on new CI. G3/G11 remain open.
+
+## Completed composition694e6d91
+
+Exact run43169503834/1 passes all18jobs/all13dashboard parts:2660passes and
+eight unchanged skip identities. All13 retained report ZIPs/embedded report
+ZIPs/JSON/commit/run metadata validate. The118 original named cases retain
+117passes/one existing Linux skip; named+renewed141 have maximum18263ms,
+leaving11737ms under30. Named1098 browser step spans maximum1095ms (HTML
+durations, not configured-timeout metadata); first-worker beforeAll max20259ms.
+
+Slowest complete dashboard job265s versus the same13-part prior08d job271s;
+this is an observed non-growth bound, not a causal speedup claim. At1.5× the
+maximum named case would be27394.5ms: sensitivity only, not another observed
+run. Actual configured defaults come from source and local trace headers.
+Schema2/five-entry proof summary is verified for this exact revision/attempt.
+Raw reader/jobs/reports/parser/qualified-acceptance:
+`/tmp/seed287-hosted-43169503834/`. This settles G3; final trunk CI stays pending.

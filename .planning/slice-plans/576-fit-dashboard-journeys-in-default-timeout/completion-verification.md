@@ -68,7 +68,7 @@ duplicate and one unused import passed typecheck before the corrected selections
 That failed setup/log remains in `responsive-all/`; no unchanged rerun is a fix.
 
 This evidence settles G1/G18/G19/G23. G2/G11 use the authorized changed promise;
-G3 awaits this composition's full hosted proof. Retained before/after results do
+G3 is settled by exact composition CI43169503834/1; final trunk CI remains required. Retained before/after results do
 not become a current local whole-suite price or a normalized speedup. All owned
 source files stay under250; unchanged accepted main records/managed artifacts
 remain accepted input and receive no manual restructuring.
