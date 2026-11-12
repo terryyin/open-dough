@@ -2,10 +2,11 @@
 // Receipt acceptance precedes collection; observe the actual rerun POST.
 // What provider facts decide after an accepted request is read from saved
 // accepted requests, which real collection observes with no journey.
-import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { expect, test } from "../../tests/support/landedCiHistoryTest.ts";
 import {
+  rerunRequests,
   saveRepeatRequests,
+  savedRepeatComparison,
   savedRepeatRequest,
 } from "../../tests/support/ciFollowUpSavedRequests.ts";
 import {
@@ -202,22 +203,12 @@ test("saved accepted requests read the outcome their provider repeat decides bes
     await expect
       .poll(() => savedRepeatRequest(server, run)?.outcome, reads)
       .toMatchObject(outcome);
-  for (const { run } of repeats) {
-    const request = savedRepeatRequest(server, run);
-    expect(request).toMatchObject({
-      original: { runId: run, runAttempt: 1 },
-      reference: { averageMs: 100000 },
+  for (const { run } of repeats)
+    expect(savedRepeatComparison(server, run)).toEqual({
+      run,
+      attempt: 1,
+      originalMs: 120000,
+      averageMs: 100000,
     });
-    expect(
-      historyWallTimeMs(
-        request?.original.startedAt,
-        request?.original.completedAt,
-      ),
-    ).toBe(120000);
-  }
-  expect(
-    github.calls.filter(
-      ({ request }) => request.kind === "actions-workflow-rerun",
-    ),
-  ).toEqual([]);
+  expect(rerunRequests(github)).toEqual([]);
 });

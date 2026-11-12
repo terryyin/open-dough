@@ -13,6 +13,7 @@ import {
   type FollowUpLedger,
   type RepeatRequest,
 } from "../../server/ciFollowUpStore.ts";
+import { historyWallTimeMs } from "../../src/landedCiHistory.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
 import { providerRepeatRun, serveRepeatRuns } from "./ciFollowUpRepeatRun.ts";
 import { followUpFile, readFollowUpLedger } from "./ciFollowUpScenario.ts";
@@ -101,3 +102,28 @@ export const savedRepeatRequest = (
   Object.values(readFollowUpLedger(server).landings).find(
     (landing) => landing.request?.original.runId === run,
   )?.request;
+
+// What that request keeps of its comparison whatever its repeat decides: the
+// attempt it names as the original, that attempt's wall time and the average
+// it was compared with.
+export function savedRepeatComparison(
+  server: Pick<DashboardServer, "home">,
+  run: number,
+) {
+  const request = savedRepeatRequest(server, run);
+  return {
+    run: request?.original.runId,
+    attempt: request?.original.runAttempt,
+    originalMs: historyWallTimeMs(
+      request?.original.startedAt,
+      request?.original.completedAt,
+    ),
+    averageMs: request?.reference.averageMs,
+  };
+}
+
+// The rerun requests the provider received.
+export const rerunRequests = (github: FakeGitHub) =>
+  github.calls.filter(
+    ({ request }) => request.kind === "actions-workflow-rerun",
+  );

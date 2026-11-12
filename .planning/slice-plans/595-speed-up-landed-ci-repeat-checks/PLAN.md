@@ -499,7 +499,7 @@ Learnings for the remaining slices:
 
 ### 4. Absent and unknown provider conclusions are read from saved accepted requests
 Type: Behavior
-Status: planned
+Status: done
 Proof: The family command passes three consecutive times with five cases: the
 four of slice 3 and one saved-request case in the verdict spec. F10 fails that
 case at the absent or null conclusion, and F11 at neutral, skipped and the
@@ -520,6 +520,53 @@ reads slow with its 106 s repeat. The provider receives no rerun request.
   unit and adds only the conclusions.
 - The five journey cases leave only after F10 and F11 fail the saved-request
   case.
+
+Accepted proof, 2026-11-12, candidate `9ee2e451` plus this slice's change;
+records and logs under `/Users/terryyin/.claude/jobs/7b8897aa/tmp/slice4/`:
+
+- The verdict spec holds one case, "saved accepted requests never invent a
+  failure or a success from an absent or unknown completed repeat verdict",
+  with no `repeatCalls` in the file. The family holds five cases; three
+  ingest a receipt.
+- Family, one worker, three consecutive passes of 5 at load 14.5 → 31.9,
+  31.9 → 34.2 and 34.2 → 26.6: 55, 56 and 54 s (`cand-family-gate-{4,5,6}`).
+  Ten earlier runs at load 26–48 passed 2: the lifecycle journey reached the
+  30 s bound in seven, and the refused or uncertain journey missed `:129` or
+  the bound in four. The verdict case passed in every run. The three journeys
+  took 17–29 s at load 30–48 and 8–15 s at load 15–23.
+- A later collection pass observes an unsettled saved request again: the
+  absent and the null one read "has no provider verdict", then slow with a
+  106 s repeat once the provider reports success, 2.0–3.0 s after the change
+  at load 30–35.
+- Fault controls against the verdict case, with the journey cases still in
+  the file: F10 fails "conclusion absent" reading "The observed repeat failed
+  (undefined)", and narrowed to null it fails "conclusion null"; F11 fails
+  "conclusion neutral", and narrowed it fails "conclusion skipped" and
+  "conclusion provider-future-state"; F3 fails "conclusion absent, then
+  success", and narrowed "conclusion null, then success". F10 and F3 failed
+  it again after the refactor pass.
+- The refactor pass gave both saved-request cases `savedRepeatComparison` for
+  the original and average and `rerunRequests` for the count; a scratch
+  `originalMs: 121000` fails the comparison. `prepareRepeatScenario` is
+  without its `providerVerdict` member, which no spec used; `git merge-file`
+  against SEED-287's `730543328` still reports no conflict.
+  `typecheck:dashboard` is clean.
+- Consumers, the eight specs that import `ciFollowUpScenario.ts`, two
+  workers. No window at load 20–30 held for a pair: at load 26.6 → 40.4 the
+  candidate passed 9 of 20, and at 40.4 → 44.8 the base passed 13 of 27, each
+  failing 5 s observations after the receipt in the follow-up reading,
+  admission, receipt boundary and reconciliation specs and the 30 s bound in
+  `intent-ci-follow-up.spec.ts:19`. The base also failed four automatic-repeat
+  and three verdict cases. The candidate alone failed
+  `dashboard/tests/intent/recently-done-ci-automatic-repeat.spec.ts:14` at its
+  5 s poll of the rerun count (`:44`), the same wait the base verdict cases
+  miss; it passed on the candidate at load 20.9 → 20.3 in slice 3. Slice 5's
+  load window repeats this pair.
+
+A removed journey case read the card for an absent or unknown conclusion. The
+saved-request case reads the saved request, as
+[Current decisions](#current-decisions) records; cards stay with the three
+journeys.
 
 ### 5. The saving and the fit under load are measured and kept
 Type: Behavior
@@ -545,6 +592,13 @@ observations and stop for the coordinator's decision on keeping the smaller
 gain or continuing. A candidate case that exceeds 30 s or misses a 5 s
 observation in the load profile is a failing test under the policy above,
 repaired before this slice is done.
+
+## Story obligations
+
+### G1. No case shows a card for an absent or unknown conclusion
+Reported: slice 4 — "No remaining case shows a card for an absent or unknown conclusion; cards stay with the three journeys."
+Story clause: "Each repeat outcome keeps a check that catches its own regression."
+Disposition: no user cost "Each repeat outcome keeps a check that catches its own regression.": the card shows the saved request's outcome, which the verdict case reads where collection saves it and F10, F11 and F3 fail by conclusion; the lifecycle, refused and uncertain journeys still read a card from a saved outcome, and the story's success measure places these outcomes at the saved request because that machine shows no card.
 
 ## Current decisions
 

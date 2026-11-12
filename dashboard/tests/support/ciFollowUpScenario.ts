@@ -101,7 +101,6 @@ export async function prepareRepeatScenario(
     repeatCalls,
     identity: queuedIdentity,
     setRepeat: provider.setRepeat,
-    providerVerdict: provider.providerVerdict,
     originalJobsAvailable: provider.originalJobsAvailable,
     repeatProofAvailable: provider.repeatProofAvailable,
     refuse(status: number) {
