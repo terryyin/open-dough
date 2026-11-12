@@ -3,7 +3,7 @@
 // unconfirmed-stop journeys live in ./agent-session-cursor-stop.spec.ts.
 import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 import type { Page } from "@playwright/test";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { openRunningList } from "../runningCursorSessionsPage.ts";
 import {
   launchSecondHeldSession,
@@ -34,7 +34,7 @@ workingCursorTest(
     const panel = page.getByRole("region", { name: "Terminal" });
     if ((await panel.count()) > 0) await closeTerminal(page);
 
-    const entries = parts(page).taken.locator(".session-entry");
+    const entries = sessionEntriesIn(parts(page).taken);
     await expect(entries).toHaveCount(2);
     const scopedEntry = entries.filter({ hasText: cursor.sessionId });
     const otherEntry = entries.filter({ hasText: stopOneSecondId });

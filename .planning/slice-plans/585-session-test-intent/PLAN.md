@@ -2,6 +2,7 @@
 
 **Identity:** SEED-300#express-session-test-intent-through-page-objects
 **Source:** [Story](../../seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects)
+**Source review:** [Source review](source-review.md)
 
 ## Goal, scope and evaluation
 
@@ -105,16 +106,16 @@ worker under `caffeinate -i`; no timeout or promise changed. Recheck power/load
 and competing work before larger execution cohorts. Durations describe this
 host/selection only.
 
-## Outside-in proof ownership and ordered slices
+## Ordered slices
 
-Bare spec stems below name files in `dashboard/tests/sessions/`; other integrated
+Outside-in proof ownership: bare spec stems below name files in `dashboard/tests/sessions/`; other integrated
 paths are relative to `dashboard/tests/`. `frontend-tests/` names that separate
 tier. Named specs are initial cohorts, extended by effect/consumer trace. Story examples 1–5 map to slices 1, 2, 3, 4–5 and 6; example 6 and shared
 acceptance belong to every slice and its finding disposition.
 
 ### 1. Read Session entry actions and membership through shared owners
 Type: Behavior
-Status: planned
+Status: done
 Proof: `compact-session-entry`, `agent-launch-story-card-{sessions,session-states,delete,delete-problems,done}`, `agent-launch-attention`, `session-column-membership`, `session-management-touch`, `cursor-session-recovery-stops`, `session-unread-report` and `recently-done-{active-story-sessions,story-sessions}` specs. Retain session IDs, states/badges, confirmation/refusal, cross-surface uniqueness and kept-record assertions.
 
 Behavior: Given a compact or multiply represented session, a developer follows
@@ -123,6 +124,22 @@ unchanged input, focus and placement contracts. Extend entry/listing/Done owners
 retain caller facts, and apply the oversized-spec decisions. Cancellation and
 held-answer send/release remain separate. Safe stop: entry scenarios are readable
 and green without sidebar/report migration; existing public callers still work.
+
+Result (slice 1): Shared Session entry owners now live in `dashboardParts.ts`
+(`sessionEntriesIn`, `sessionEntryShowing`, `sessionIdLineOf`, `openTerminalOf`,
+unread/problem readers), `support/sessionEntryDisclosure.ts` (disclosure controls,
+`deleteRecordQuestion`, `askToDeleteRecord`), `support/markDone.ts` (`keepOpen`) and
+`storyCardSessionListing.ts` (queued-card launch, `expectStartsBlocked`). The audited
+cohort plus 91 sibling files moved: 206+113 raw locator sites removed, 2 kept with
+reason, about 61 helper lines added; the attention spec split into
+`agent-launch-attention{,-taken}.spec.ts`; full-config `--list` unchanged (2674).
+Before/after (compact entry cancellation): six-line `entry.getByRole("button",
+{ name: "Keep open"/"Mark as done", exact: true })` sequence → `markAsDone(entry)`,
+`keepOpen(doneQuestion(entry))` with keys and focus still inline. Proof: 28/28 cohort
+(`s1-proof2.log`), 88 changed/consumer specs in four batches; whole-test timeouts at
+load 42–56 in untouched setup waits passed reruns at lower load (CI owns the verdict
+under the failure policy). Later slices also move their families' raw Session entry
+sites onto these owners.
 
 ### 2. Follow sidebar navigation and retained reading place
 Type: Behavior
@@ -221,3 +238,20 @@ and before/after evidence with unchanged product behavior.
   was identified in this bounded review. No human decision or blocking dependency
   remains. Record readiness against final story/plan digests; this preparation
   grants no Take or execution authority.
+
+## Story obligations
+
+### G1. Session entry sibling callers still build the shared controls by hand
+Reported: slice 1 — "Acceptance found about 80 test files outside the initial cohort (launches/, terminals/, stories/, review/, navigation/, the remaining sessions/ specs and their helpers) still locating Open terminal, the two disclosures, Delete record, Keep open, .session-entry, data-shows-session and .session-state directly."
+Story clause: "Resolve the three audit findings below and current same-control or same-sequence sibling callers"
+Disposition: proved by slice 1: 206 raw Session entry locator sites in 91 dashboard/tests files moved onto openTerminalOf, sessionEntriesIn, sessionEntryShowing, sessionStateOf, sessionUnreadReportOf, sessionDetailsControl, askToDeleteRecord, sessionAction and keepOpen with 0 raw sites added; deliberate exceptions are non-entry elements, the local-entry child selector in localTakenSessions.ts and stronger regex absence checks; all 88 changed and consumer specs passed (s1r-batch logs, two load timeouts in untouched setup waits passed 8 reruns); sidebar, Running Cursor and report families remain with slices 2–6
+
+### G2. Blocked-Start observation duplicated in the session-states spec
+Reported: slice 1 — "agent-launch-story-card-session-states.spec.ts keeps its own expectStartsBlocked loop for the same disabled Start sequence now owned by storyCardSessionListing.ts."
+Story clause: "Resolve the three audit findings below and current same-control or same-sequence sibling callers"
+Disposition: proved by slice 1: dashboard/tests/sessions/agent-launch-story-card-session-states.spec.ts expectEveryStartBlocked calls storyCardSessionListing.ts expectStartsBlocked(action, queued.backlog) and keeps only the not-refined description check inline; passed in s1r batch run
+
+### G3. Done-card closed-entry absence check uses exact control names
+Reported: slice 1 — "recently-done-story-sessions replaced the non-exact /Open terminal|More session actions/ absence check with two exact-name absence checks through the shared owners."
+Story clause: "Every distinct behavior check and existing test tier remains represented"
+Disposition: proved by slice 1: dashboard/tests/sessions/recently-done-story-sessions.spec.ts asserts openTerminalOf(closedFirst) and sessionActionsControl(closedFirst) toHaveCount(0), the product's only names for those controls (same exact names every other caller asserts), passing in s1-proof2.log

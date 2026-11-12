@@ -7,7 +7,7 @@
 // runs the cues.
 
 import type { Locator } from "@playwright/test";
-import { parts, storyCardSessions } from "./dashboardParts.ts";
+import { parts, storyCardSessions, openTerminalOf } from "./dashboardParts.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import type { SidePanelPages } from "./sidePanelPages.ts";
 import { expectInspected, expectSelected } from "./storyCardSelection.ts";
@@ -101,10 +101,7 @@ export class StoryCard extends PageObject {
   openTerminal() {
     return this.cue(
       `${this.#named}: Open terminal`,
-      () =>
-        storyCardSessions(this.#card)
-          .getByRole("button", { name: "Open terminal" })
-          .click(),
+      () => openTerminalOf(storyCardSessions(this.#card)).click(),
       this.pages.terminal,
     );
   }

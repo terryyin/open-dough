@@ -10,7 +10,7 @@ import { agentDoneEndpoint } from "../../src/doneMark.ts";
 import { markDoneUnresolved } from "../../src/pageSessions.ts";
 import { markDoneWaitMs } from "../../src/sessionRecordRequests.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import { storyCardSessions, openTerminalOf } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   readyStory,
@@ -54,7 +54,7 @@ test.describe("pending Mark as done from the terminal", () => {
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(listed).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
@@ -91,7 +91,7 @@ test.describe("pending Mark as done from the terminal", () => {
     const listed = storyCardSessions(card(readyStory));
     await settled();
     await launch(readyStory, "Execution");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(listed).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const [session] = dashboard.claudeListing();
     idleBetweenSteps(dashboard, String(session?.["sessionId"]));
@@ -144,9 +144,7 @@ test.describe("pending Mark as done from the terminal", () => {
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();
     await launch(readyStory, "Execution");
-    await storyCardSessions(card(readyStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalOf(storyCardSessions(card(readyStory))).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await page.route(`**${agentDoneEndpoint}`, (route) =>
       route.abort("failed"),

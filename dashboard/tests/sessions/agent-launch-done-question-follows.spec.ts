@@ -11,7 +11,12 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { setPageVisibility } from "../autoRefreshJourney.ts";
-import { storyCardSessions, parts, sessionStateOf } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionStateOf,
+  openTerminalOf,
+} from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import {
@@ -128,7 +133,7 @@ test("in the terminal, the open question follows the session's reading and goes 
     dashboard,
     origin,
   );
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(entry).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("attached");
   const before = dashboard.claudeStopCalls().length;

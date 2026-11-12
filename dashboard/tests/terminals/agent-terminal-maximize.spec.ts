@@ -6,13 +6,14 @@
 // reopening starts split. This page's dashboard attaches only synthetic Claude
 // (./fixtures/fake-claude).
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessions,
   expectMembership,
   parts,
   sessionNamedBy,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import {
@@ -63,8 +64,6 @@ test.describe("maximizing the terminal", () => {
     const rows = panel.locator(".xterm-rows");
     const control = (name: string) =>
       panel.getByRole("button", { name, exact: true });
-    const openIn = (place: Locator) =>
-      place.getByRole("button", { name: "Open terminal" });
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -79,7 +78,7 @@ test.describe("maximizing the terminal", () => {
     const second = await sessionNamedBy(storyCardSessions(card(readyStory)));
     const attachCount = () => dashboard.claudeAttaches().length;
 
-    await openIn(storyCardSessions(card(notRefinedStory))).click();
+    await openTerminalOf(storyCardSessions(card(notRefinedStory))).click();
     await expect(rows).toContainText(`attached ${shortId(first)}`);
     await page.keyboard.type("keep this line");
     await page.keyboard.press("Enter");
@@ -200,7 +199,7 @@ test.describe("maximizing the terminal", () => {
       await sidebar.button.click();
       await expect(sidebar.sidebar).toBeHidden();
 
-      await openIn(storyCardSessions(card(readyStory))).click();
+      await openTerminalOf(storyCardSessions(card(readyStory))).click();
       await expect(rows).toContainText(`attached ${shortId(second)}`);
       await expect(control("Maximize")).toBeVisible();
       await expect(banner).toBeVisible();

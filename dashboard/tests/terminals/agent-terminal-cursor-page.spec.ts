@@ -4,7 +4,7 @@
 // the developer uses here.
 import { keptLaunchRecords } from "../support/launchStore.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -44,13 +44,13 @@ test("closing a working Cursor terminal and reopening it shows the same turn", a
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const recent = parts(page).taken.locator(".session-entry");
+  const recent = sessionEntriesIn(parts(page).taken);
   // Close while the startup still goes on could see the start present the
   // session's terminal again.
   const panel = await startedSessionTerminal(page, recent);
   await expect(parts(page).adHocStarted).toHaveCount(0);
   const record = keptRecord(dashboard.home);
-  const open = recent.getByRole("button", { name: "Open terminal" });
+  const open = openTerminalOf(recent);
   const rows = panel.locator(".xterm-rows");
   // The started session's terminal opens beside the page, which then shows
   // one column.

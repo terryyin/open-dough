@@ -26,7 +26,7 @@ import {
   existingChangesHeading as heading,
   status,
 } from "../support/defaultCheckoutChanges.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 import { expect, test } from "../support/preparationPage.ts";
 import { expectReportingBlock } from "../support/reportingInputAssertions.ts";
@@ -172,7 +172,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   await terminal.getByRole("button", { name: "Close", exact: true }).click();
   rmSync(session.workspace, { recursive: true });
   await page.reload();
-  const kept = parts(page).taken.locator(".session-entry");
+  const kept = sessionEntriesIn(parts(page).taken);
   await expect(kept).toContainText("saved workspace is missing");
   await kept.getByRole("button", { name: "Read final report" }).click();
   await expect(

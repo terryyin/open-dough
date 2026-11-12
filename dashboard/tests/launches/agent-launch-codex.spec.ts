@@ -11,7 +11,11 @@ import {
   showOptions,
 } from "../launchStoryCardPage.ts";
 import { notRefinedStory, notRefinedIdentity } from "../launchJourney.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  openTerminalOf,
+  sessionStateOf,
+} from "../dashboardPage.ts";
 import { parts } from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { markDone } from "../agentLaunchBoundary.ts";
@@ -104,10 +108,8 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   await expect(codex).toContainText("First input accepted");
   // Fresh shared polling replaces launch-time unknown.
   await reloadUntilRead(page);
-  await expect(codex.locator(".session-state")).toHaveText("Working");
-  await expect(
-    codex.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(1);
+  await expect(sessionStateOf(codex)).toHaveText("Working");
+  await expect(openTerminalOf(codex)).toHaveCount(1);
   await expect(
     (await sessionActions(codex)).getByRole("button", { name: "Mark as done" }),
   ).toHaveCount(1);

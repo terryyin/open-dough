@@ -9,7 +9,7 @@
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { storyA } from "../../../tests/support/queued-repository.mjs";
-import { parts } from "../dashboardPage.ts";
+import { parts, openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
 import { reloadUntilRead } from "../pageRequestNotes.ts";
 import {
   expectContinuationThroughScope,
@@ -55,7 +55,7 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   cursor.changeSharedModel("composer-2.5");
   const sharedAfterChange = cursor.sharedConfig();
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
   const attachesBefore = cursor.attaches().length;
   await entry.getByRole("button", { name: "Recover" }).click();
@@ -79,7 +79,7 @@ test("recovery and terminal open resume a scoped session through its recorded sc
   await endHeldClient(page, cursor, dashboard.home);
   await page.reload();
   const attachesBeforeOpen = cursor.attaches().length;
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(entry).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("Add a follow-up");
   await expect
@@ -118,7 +118,7 @@ test("cannot-load replacement for a scoped session keeps the scope and sends no 
   cursor.setAttachMode("cannot-load");
   cursor.queueCreateChatId(replacementId);
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
   await entry.getByRole("button", { name: "Recover" }).click();
   await expectNormalizedReading(entry, "Awaiting first instruction", false);
@@ -169,7 +169,7 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   const sharedBefore = cursor.sharedConfig();
   await endHeldClient(page, cursor, dashboard.home);
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
 
   // Unreadable: the scope's configuration is no longer a readable file.
@@ -189,7 +189,7 @@ test("a missing or unreadable recorded scope refuses recovery and terminal open,
   // Missing: the whole scope is gone, so terminal open also refuses and
   // still spawns nothing against the shared configuration.
   rmSync(scope, { recursive: true, force: true });
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(entry).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel).toContainText(scopeRefusal);
   await expect(panel).toContainText(
@@ -215,7 +215,7 @@ test("a Default session's recovery carries no scope, exactly as before", async (
   if (record === undefined) throw new Error("Missing record.");
   await endHeldClient(page, cursor, dashboard.home);
   await reloadUntilRead(page);
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expectReadingWithoutScreenLabel(entry, agentNotRunningLabel);
   const attachesBefore = cursor.attaches().length;
   await entry.getByRole("button", { name: "Recover" }).click();

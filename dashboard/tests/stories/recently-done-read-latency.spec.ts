@@ -11,6 +11,7 @@ import {
   isHeldCatalog,
   openedWithHeldDoneRecord,
 } from "./recentlyDoneReadLatencyFixture.ts";
+import { openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
 
 test("a slow done-record read never holds back a Taken card's owner, preparation, or clock, and done cards fill in when it answers", async ({
   page,
@@ -39,13 +40,11 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     await expect(recent.locator(".column-count")).toHaveText("4 entries");
     await expect(closed).toHaveCount(1);
     await expect(
-      recent
-        .getByRole("article", { name: executed.identity })
-        .locator(".session-entry"),
+      sessionEntriesIn(
+        recent.getByRole("article", { name: executed.identity }),
+      ),
     ).toHaveCount(1);
-    await expect(
-      closed.getByRole("button", { name: "Open terminal" }),
-    ).toBeEnabled();
+    await expect(openTerminalOf(closed)).toBeEnabled();
   });
 
   await test.step("the record's answer shows the done cards, with no read problem", async () => {
@@ -58,10 +57,9 @@ test("a slow done-record read never holds back a Taken card's owner, preparation
     ]);
     await expect(closed).toHaveCount(1);
     await expect(
-      recent
-        .locator(".done-story")
-        .filter({ hasText: executed.title })
-        .locator(".session-entry"),
+      sessionEntriesIn(
+        recent.locator(".done-story").filter({ hasText: executed.title }),
+      ),
     ).toHaveCount(1);
     await expect(card).toContainText("Current slice started 12 min ago");
     await expect(problem).toHaveCount(0);
@@ -92,10 +90,8 @@ test("a done-record read still unanswered at the wait bound is the Recently done
   ]);
   const unread = recent.getByRole("article", { name: executed.identity });
   await expect(unread).toContainText("This done story could not be read.");
-  await expect(unread.locator(".session-entry")).toHaveCount(1);
-  await expect(
-    closed.getByRole("button", { name: "Open terminal" }),
-  ).toBeEnabled();
+  await expect(sessionEntriesIn(unread)).toHaveCount(1);
+  await expect(openTerminalOf(closed)).toBeEnabled();
   await expect(card.locator(".owner-line")).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );
@@ -118,9 +114,7 @@ test("a done catalog read still unanswered at the wait bound is the Recently don
   await expect(recent).toContainText(
     "Done stories could not be read. GitHub did not answer within 30 seconds while reading the done catalog.",
   );
-  await expect(
-    closed.getByRole("button", { name: "Open terminal" }),
-  ).toBeEnabled();
+  await expect(openTerminalOf(closed)).toBeEnabled();
   await expect(card.locator(".owner-line")).toContainText(
     "Akiho-chan · Fixture Committer · Claude Code",
   );

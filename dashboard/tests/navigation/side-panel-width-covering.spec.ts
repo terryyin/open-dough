@@ -10,7 +10,7 @@ import {
   narrowWindow,
   expectFocusedAndIndicated,
 } from "../accessibleReading.ts";
-import { parts, storyCardSessions } from "../dashboardPage.ts";
+import { parts, storyCardSessions, openTerminalOf } from "../dashboardPage.ts";
 import {
   box,
   closeSidePanel,
@@ -45,9 +45,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
   );
   const { banner, board } = parts(page);
 
-  await storyCardSessions(card)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(card)).click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   const room = await split(page, terminal);
   const chosen = Math.floor(room.pageColumn + room.sidePanel - usableMinimum);
@@ -108,9 +106,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await page.setViewportSize(wideWindow);
     await pressWhereShown(control(review, "Close"));
     await expect(review).toHaveCount(0);
-    await storyCardSessions(card)
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalOf(storyCardSessions(card)).click();
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
     await expectWidth(terminal, chosen);
     await pressWhereShown(control(terminal, "Maximize"));
@@ -137,9 +133,7 @@ test("beside the open sidebar with too little room, the panel covers the page co
   const sidebar = sessionsSidebarParts(page);
   const { banner } = parts(page);
 
-  await storyCardSessions(card)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(card)).click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   await sidebar.button.click();
   await expect(sidebar.sidebar).toBeVisible();

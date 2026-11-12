@@ -21,7 +21,7 @@ import {
   recordsOf,
 } from "../agentLaunchBoundary.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import {
   startSession,
   startSessionDialog,
@@ -152,7 +152,7 @@ test("an Isolated workspace start that outlasts its wait names its worktree and 
   expect(block).toBe(sessionBlock(session));
   expectReportingBlock(reporting, record.request, dashboard);
   expect(developer).toEqual([text]);
-  await expect(parts(page).taken.locator(".session-entry")).toContainText(
+  await expect(sessionEntriesIn(parts(page).taken)).toContainText(
     `Workspace ~/git/open-dough/.worktrees/${slug}`,
   );
 

@@ -4,15 +4,13 @@
 // Open terminal, as a developer would. A journey whose promise is the
 // presentation itself does not use this.
 import { expect, type Locator, type Page } from "@playwright/test";
+import { openTerminalOf } from "../dashboardParts.ts";
 import { expectQuietAdHocActionsRow } from "../launchStoryCardPage.ts";
 import { launchWaitMs } from "./launchWait.ts";
 
 // Opens the terminal of the session `entry` lists, as a developer would.
 export async function openEntryTerminal(entry: Locator) {
-  const open = entry.getByRole("button", {
-    name: "Open terminal",
-    exact: true,
-  });
+  const open = openTerminalOf(entry);
   // Keyboard focus first reveals a Board column the Side panel pages out.
   await open.focus();
   await open.click();

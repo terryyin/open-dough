@@ -13,7 +13,7 @@ import {
 } from "../../src/machineSessionsRevision.ts";
 import { attempts } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -49,7 +49,7 @@ test("a launched ad hoc start leaves the overview and its page presents the sess
 
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-helper-textarea")).toBeFocused();
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
   await expect(startSession(page, "Open Dough")).toBeEnabled();
 
   // The regular answer no longer carries the settled attempt; the history

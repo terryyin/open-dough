@@ -1,4 +1,7 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import {
+  deleteRecordQuestion,
+  sessionAction,
+} from "../support/sessionEntryDisclosure.ts";
 import { launchStoreFile } from "../support/launchStore.ts";
 // A card's Delete record… that is overtaken, refused, or fails says so and
 // never brings a deleted entry back (the delete itself is
@@ -73,11 +76,8 @@ async function unknownSession(
     session,
     pace,
     stored: () => readFileSync(storedFile, "utf8"),
-    deleteButton: (await sessionActions(entry)).getByRole("button", {
-      name: "Delete record…",
-    }),
-    confirm: entry.getByRole("button", { name: "Delete record", exact: true }),
-    keep: entry.getByRole("button", { name: "Keep" }),
+    deleteButton: await sessionAction(entry, "Delete record…"),
+    ...deleteRecordQuestion(entry),
     status: entry.getByRole("status"),
   };
 }
@@ -89,13 +89,13 @@ test("the question and Delete record… go when a later read lists the session a
 }) => {
   const s = await unknownSession(page, dashboard, launchJourney);
   await s.deleteButton.click();
-  await expect(s.entry.getByText(question)).toBeVisible();
+  await expect(s.question).toHaveAccessibleName(question);
 
   dashboard.claudeListingFails(false);
   await s.pace.passOnePace();
 
   await expect(sessionStateOf(s.entry)).toHaveText("Working");
-  await expect(s.entry.getByText(question)).toHaveCount(0);
+  await expect(s.question).toHaveCount(0);
   await expect(s.deleteButton).toHaveCount(0);
   await expect(s.confirm).toHaveCount(0);
   expect(s.stored()).toContain(s.session);
@@ -109,13 +109,13 @@ test("a click that finds the state known keeps the record and says so beside the
   const s = await unknownSession(page, dashboard, launchJourney);
   dashboard.claudeListingFails(false);
   await s.deleteButton.click();
-  await expect(s.entry.getByText(question)).toBeVisible();
+  await expect(s.question).toHaveAccessibleName(question);
 
   await s.confirm.click();
 
   await expect(s.status).toContainText("This session's state is now known");
   await expect(sessionStateOf(s.entry)).toHaveText("Working");
-  await expect(s.entry.getByText(question)).toHaveCount(0);
+  await expect(s.question).toHaveCount(0);
   await expect(s.deleteButton).toHaveCount(0);
   await expect(s.inRecent).toHaveCount(0);
   expect(s.stored()).toContain(s.session);
@@ -128,13 +128,7 @@ test("an unwritable record file reports its first failure in the persistent card
   launchJourney,
 }) => {
   const s = await unknownSession(page, dashboard, launchJourney);
-  const entry = s.entry;
-  const status = entry.getByRole("status");
-  const confirm = entry.getByRole("button", {
-    name: "Delete record",
-    exact: true,
-  });
-  const keep = entry.getByRole("button", { name: "Keep" });
+  const { status, confirm, keep } = s;
   await expect(status).toHaveCount(1);
   await expect(status).toBeEmpty();
   expect(
@@ -153,11 +147,7 @@ test("an unwritable record file reports its first failure in the persistent card
       return true;
     }),
   ).toBe(true);
-  await (
-    await sessionActions(entry)
-  )
-    .getByRole("button", { name: "Delete record…" })
-    .click();
+  await s.deleteButton.click();
   const directory = path.join(dashboard.home, ".open-dough", "dashboard");
   chmodSync(directory, 0o500);
   try {
@@ -169,7 +159,7 @@ test("an unwritable record file reports its first failure in the persistent card
     await expect(status).toContainText("EACCES");
     await expect(status).toHaveAttribute("data-known", "empty-entry-status");
     await expect(status).toBeVisible();
-    await expect(entry.getByText(question)).toBeVisible();
+    await expect(s.question).toHaveAccessibleName(question);
     await expect(confirm).toBeEnabled();
     await expect(keep).toBeEnabled();
     await expect(confirm).toBeFocused();

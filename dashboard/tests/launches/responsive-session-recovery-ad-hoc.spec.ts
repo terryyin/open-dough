@@ -10,7 +10,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
 import { attempts, continueAttempt, launch } from "../agentLaunchBoundary.ts";
-import { expectSettledPage, parts } from "../dashboardPage.ts";
+import {
+  expectSettledPage,
+  parts,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { recoveryOf } from "../responsiveRecovery.ts";
 import { expect, stored, test } from "../support/codexLaunch.ts";
@@ -68,12 +72,10 @@ test("an unconfirmed blank ad hoc session is recovered under Startup recovery wi
   // the blank conversation persisted, not a new published story.
   const session = stored(dashboard.home)[0]?.session.sessionId;
   expect(session).toBeDefined();
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1);
   await expect(entry).toContainText(`Session ${String(session)}`);
-  await expect(parts(page).recentlyDone.locator(".session-entry")).toHaveCount(
-    0,
-  );
+  await expect(sessionEntriesIn(parts(page).recentlyDone)).toHaveCount(0);
 
   delete native.beforeRead;
   await recovery

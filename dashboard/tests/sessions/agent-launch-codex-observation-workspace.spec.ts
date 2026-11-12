@@ -6,7 +6,7 @@
 import path from "node:path";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedStory } from "../launchJourney.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { storyCardSessions, parts, openTerminalOf } from "../dashboardPage.ts";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { passive as passiveReport } from "../support/retainedReport.ts";
 import {
@@ -62,9 +62,7 @@ test("predecessor without continuation gains no command; missing workspace prese
         await expect(
           entry.locator("p", { hasText: /^Continue in / }),
         ).toHaveCount(0);
-        await expect(
-          entry.getByRole("button", { name: "Open terminal" }),
-        ).toHaveCount(0);
+        await expect(openTerminalOf(entry)).toHaveCount(0);
         await expect(
           entry.getByRole("button", { name: "Read final report" }),
         ).toBeVisible();

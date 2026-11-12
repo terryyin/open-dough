@@ -7,7 +7,7 @@
 // `claude` is never reached.
 
 import type { Locator, Page } from "@playwright/test";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { storyCardSessions, parts, openTerminalOf } from "../dashboardPage.ts";
 import { watchPageErrors } from "../pageErrors.ts";
 import { pressWhereShown } from "../pageLayout.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
@@ -32,9 +32,7 @@ const storyA = (page: Page) =>
   parts(page).backlog.getByRole("article", { name: "Story A" });
 
 async function openTerminal(page: Page) {
-  await storyCardSessions(storyA(page))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(storyA(page))).click();
   const terminal = page.getByRole("region", { name: "Terminal" });
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   return terminal;

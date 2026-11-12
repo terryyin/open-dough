@@ -1,8 +1,9 @@
 // Sessions already open on the story cards of a paused page, kept in the
 // machine's launch store and listed by the synthetic `claude` before the page
 // first reads them, so a journey starts with them without replaying Start:
-// the attention journey (./sessions/agent-launch-attention.spec.ts) and the
-// card session-state journey
+// the attention journeys (./sessions/agent-launch-attention.spec.ts and
+// ./sessions/agent-launch-attention-taken.spec.ts) and the card session-state
+// journey
 // (./sessions/agent-launch-story-card-session-states.spec.ts). The production
 // records reader joins the two, so listing failure and recovery stay real.
 
@@ -16,10 +17,20 @@ import {
   agentVerifyEndpoint,
 } from "../src/launchOutcome.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import {
+  identityA,
+  identityB,
+} from "../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { parts, sessionNamedBy, storyCardSessionOf } from "./dashboardPage.ts";
-import type { StoryColumnsJourney } from "./launchJourney.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+  readyStory,
+  takenStory,
+  type StoryColumnsJourney,
+} from "./launchJourney.ts";
 import { expectSessionShown, watchRecordReads } from "./sessionStatePace.ts";
 import type { Workflow } from "./storyColumnsPage.ts";
 import {
@@ -39,6 +50,33 @@ export type OpenSession = {
   readonly workflow: Workflow;
   readonly state: ClaudeSessionChange;
 };
+
+// Open Dough's three sessions, each working when the page opens on the
+// Backlog: an Execution on the ready and the not-refined story and a
+// Refinement on Story A.
+export const openDoughWorkingSessions: readonly OpenSession[] = [
+  {
+    project: "open-dough",
+    identity: identityB,
+    title: readyStory,
+    workflow: "Execution",
+    state: "working",
+  },
+  {
+    project: "open-dough",
+    identity: notRefinedIdentity,
+    title: notRefinedStory,
+    workflow: "Execution",
+    state: "working",
+  },
+  {
+    project: "open-dough",
+    identity: identityA,
+    title: takenStory,
+    workflow: "Refinement",
+    state: "working",
+  },
+];
 
 // The Start requests a page sends for a launch, from acceptance through
 // reconciliation.

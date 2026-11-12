@@ -16,6 +16,7 @@ import {
   expectMembership,
   parts,
   sessionNamedBy,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import {
@@ -71,7 +72,7 @@ test.describe("Command+Shift+Escape and the terminal", () => {
     await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
     const session = await sessionNamedBy(entry);
-    const opener = entry.getByRole("button", { name: "Open terminal" });
+    const opener = openTerminalOf(entry);
     const attaches = () =>
       dashboard
         .claudeAttaches()

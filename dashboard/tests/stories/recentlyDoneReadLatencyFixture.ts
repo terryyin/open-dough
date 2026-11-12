@@ -10,7 +10,12 @@
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, githubFor, pausePageClockAt } from "../dashboardTest.ts";
-import { expectMembership, parts, shortRevision } from "../dashboardPage.ts";
+import {
+  expectMembership,
+  parts,
+  shortRevision,
+  sessionEntryShowing,
+} from "../dashboardPage.ts";
 import { publishes } from "../support/fakeGitHub.ts";
 import type { GhRequest } from "../support/ghRequest.ts";
 import { holdingAnswer } from "../support/heldGitHubAnswer.ts";
@@ -130,7 +135,7 @@ export async function openedWithHeldDoneRecord(
   return {
     card: taken.getByRole("article", { name: afterTake }),
     recent: recentlyDone,
-    closed: recentlyDone.locator(`[data-shows-session="claude:${closedId}"]`),
+    closed: sessionEntryShowing(recentlyDone, `claude:${closedId}`),
     problem,
     release,
   };

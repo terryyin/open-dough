@@ -12,7 +12,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { launch } from "../agentLaunchBoundary.ts";
-import { standaloneSessionName } from "../dashboardPage.ts";
+import { standaloneSessionName, openTerminalOf } from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { placedAt } from "../recentlyDoneProgressive.ts";
 import { expectEntries, shownEntries } from "../recentlyDoneColumn.ts";
@@ -73,10 +73,7 @@ test("Show latest 10 during a held reveal keeps the terminal open, and the late 
   await expect(revealAction(recent)).toHaveText("Show 10 of 24 older entries");
   await expect(showLatest(recent)).toHaveCount(0);
 
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(view.taken(destination)).click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   await showColumn(page, "Recently done");
 

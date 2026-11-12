@@ -2,7 +2,7 @@
 // Recently done entry of the mixed-host story.
 import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
-import { storyCardSessions, parts } from "./dashboardPage.ts";
+import { storyCardSessions, parts, openTerminalOf } from "./dashboardPage.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import type { CodexSession } from "../src/agentLaunch.ts";
 import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
@@ -40,7 +40,5 @@ export async function expectMixedContinuation(
   await expect(claude.locator("p", { hasText: /^Continue in / })).toHaveCount(
     0,
   );
-  await expect(
-    claude.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalOf(claude)).toBeVisible();
 }

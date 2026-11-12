@@ -16,6 +16,8 @@ import {
   expectMembership,
   parts,
   sessionNamedBy,
+  openTerminalOf,
+  sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
   notRefinedStory,
@@ -144,8 +146,8 @@ test("starting with text sends it in the Open Dough folder, and the session read
   await startSessionField(dialog).fill(`  ${text}  `);
   await dialog.getByRole("button", { name: "Start" }).click();
 
-  const entry = parts(page).taken.locator(".session-entry");
-  await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
+  const entry = sessionEntriesIn(parts(page).taken);
+  await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
   await expect(entry).toHaveCount(1);
   await expect(dialog).toBeHidden();
   await expect(entry).toHaveAccessibleName(`Ad hoc session for ${text}`);
@@ -155,9 +157,7 @@ test("starting with text sends it in the Open Dough folder, and the session read
     "Local: launched from this dashboard on this machine.",
   );
   await expect(entry).toContainText(`Session ${await sessionNamedBy(entry)}`);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalOf(entry)).toBeVisible();
   await expect(entry.locator(".record-identity")).toHaveCount(0);
   const launchedAt = Date.parse(
     (await entry.locator("time").getAttribute("datetime")) ?? "",
@@ -201,7 +201,7 @@ for (const blank of ["", "   "]) {
     await startSessionField(dialog).fill(blank);
     await dialog.getByRole("button", { name: "Start" }).click();
 
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     const [call] = dashboard.claudeLaunchCalls();
     expect(call?.argv).toHaveLength(3);
     const record = await expectNoSessionEstablishment(dashboard);

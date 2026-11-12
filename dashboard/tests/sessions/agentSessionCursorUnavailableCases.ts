@@ -1,11 +1,11 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Cases registered by ./agent-session-cursor.spec.ts.
 
 import { cursorRunnerSentence } from "../../src/cursorRunnerSessions.ts";
 
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 
 import { occupyRunner } from "../support/cursorRunnerJourney.ts";
 import {
@@ -36,7 +36,7 @@ test("a stopped runner says so, shows no screen label, and starts no agent", asy
   const attaches = cursor.attaches().length;
   await stopCursorRunner(dashboard.home);
   await reloadUntilRead(page);
-  const again = parts(page).taken.locator(".session-entry");
+  const again = sessionEntriesIn(parts(page).taken);
   await expect(again).toHaveCount(1);
   await expectReadingWithoutScreenLabel(
     again,
@@ -60,7 +60,7 @@ test("an unreachable runner says so, shows no screen label, and starts no agent"
   const release = await occupyRunner(dashboard.home);
   try {
     await reloadUntilRead(page);
-    const again = parts(page).taken.locator(".session-entry");
+    const again = sessionEntriesIn(parts(page).taken);
     await expect(again).toHaveCount(1);
     await expectReadingWithoutScreenLabel(
       again,
@@ -86,11 +86,7 @@ test("a recorded session the runner does not hold shows the agent is not running
     dashboard.home,
   );
   await expect(again).not.toHaveClass(/needs-attention/);
-  await expect(
-    (await sessionActions(again)).getByRole("button", {
-      name: "Delete record…",
-    }),
-  ).toHaveCount(1);
+  await expect(await sessionAction(again, "Delete record…")).toHaveCount(1);
   const answer = await projectedSessions(page);
   expect(cursorRecord(answer, cursor.sessionId)?.sessionState).toEqual({
     kind: "unknown",

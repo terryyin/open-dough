@@ -12,7 +12,12 @@ import {
 } from "../support/historicalCreditReads.ts";
 import { openSessionAttributionBoard } from "../support/sessionAttributionFixture.ts";
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  openTerminalOf,
+  sessionStateOf,
+} from "../dashboardPage.ts";
 import {
   publishPreparingJourney,
   storyA,
@@ -125,9 +130,7 @@ test("a retained session keeps its allocation credit after release and a later p
   await expect(
     duplicate.getByRole("button", { name: "Mark as read" }),
   ).toBeVisible();
-  await expect(
-    duplicate.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalOf(duplicate)).toBeVisible();
   await expect(
     (await sessionActions(duplicate)).getByRole("button", {
       name: "Mark as done",
@@ -172,10 +175,8 @@ test("a retained session keeps its allocation credit after release and a later p
   await sessionDetails(original);
   await expect(original).toContainText(historical);
   await expect(original).toContainText("Model: Fable (requested)");
-  await expect(original.locator(".session-state")).toHaveText("Working");
-  await expect(
-    original.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(sessionStateOf(original)).toHaveText("Working");
+  await expect(openTerminalOf(original)).toBeVisible();
   await expect(card.locator(".preparing-activity")).toHaveCount(0);
   await sessionDetails(legacySession);
   await expect(legacySession).toContainText(unknown);

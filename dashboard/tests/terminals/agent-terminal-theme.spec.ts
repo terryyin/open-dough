@@ -12,7 +12,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, openTerminalOf, sessionEntriesIn } from "../dashboardPage.ts";
 import { back, settings } from "../support/systemSettingsPage.ts";
 import {
   computedPalettes,
@@ -56,8 +56,8 @@ test("the page's terminal shows the theme chosen in System settings, live withou
   await openTakenBacklog(page, launchJourney);
   const panel = page.getByRole("region", { name: "Terminal", exact: true });
   const rows = panel.locator(".xterm-rows");
-  const entry = parts(page).taken.locator(".session-entry");
-  const openTerminal = entry.getByRole("button", { name: "Open terminal" });
+  const entry = sessionEntriesIn(parts(page).taken);
+  const openTerminal = openTerminalOf(entry);
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })

@@ -8,7 +8,7 @@ import { sessionKey } from "../../src/sessionReference.ts";
 import { readCursorRunnerLastHeld } from "../../server/hosts/cursor/runnerPaths.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import { recordedScope } from "./cursorScopeAssertions.ts";
 import { keptRecords } from "./cursorSessionRecovery.ts";
@@ -83,7 +83,7 @@ export async function openHeldCursorExecutions(
   }
   expect(cursor.sharedConfig()).toBe(sharedBefore);
   await openUntilRead(page);
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(
     executions.length,
   );
 }

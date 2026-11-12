@@ -20,6 +20,7 @@ import {
   sessionsRevisionHeader,
 } from "../../src/machineSessionsRevision.ts";
 import { parts } from "../dashboardPage.ts";
+import { sessionDetailsControl } from "../support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../dashboardTest.ts";
 import { givePageItsTurns } from "../pageRequestNotes.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
@@ -133,7 +134,7 @@ async function shownRetained(page: Page) {
   await sidebar.header.click();
   await sidebar.button.click();
   const entry = recent.filter({ hasText: "Retained session 2" });
-  const details = entry.getByRole("button", { name: "Session details" });
+  const details = sessionDetailsControl(entry);
   await details.click();
   await expect(details).toHaveAttribute("aria-expanded", "true");
   const report = entry.getByRole("button", {

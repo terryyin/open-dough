@@ -9,7 +9,11 @@
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -117,9 +121,9 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
 
   const expectWords = async () => {
     await openSessionsSidebar(page);
-    const entry = taken.locator(".session-entry");
+    const entry = sessionEntriesIn(taken);
     await expect(entry).toHaveCount(1);
-    await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
+    await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
     await expect(entry).toContainText("Ad hoc");
     await expect(entry).toContainText(requested("Sonnet"));
     const tooltip = sessionsSidebarSessionEntryTooltipOf(
@@ -132,6 +136,6 @@ test("an ad hoc session launched on Sonnet says so in Taken and in the sidebar, 
 
   await expectWords();
   await reloadUntilRead(page);
-  await expect(taken.locator(".session-entry")).toHaveCount(1);
+  await expect(sessionEntriesIn(taken)).toHaveCount(1);
   await expectWords();
 });

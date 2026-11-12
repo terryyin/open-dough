@@ -1,4 +1,4 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { sessionAction } from "../support/sessionEntryDisclosure.ts";
 // Mark as done on a session its story's card lists, on the committed
 // story-columns origin (../launchJourney.ts), through the same page operation as
 // the terminal's (./agent-terminal-done.spec.ts): on a session Claude
@@ -14,7 +14,9 @@ import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessionOf,
   expectMembership,
+  openTerminalOf,
   parts,
+  sessionEntriesIn,
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
@@ -85,14 +87,8 @@ test.describe("marking a card's session done", () => {
       await expect(entry).toContainText(
         "Claude Code rename failed: The session is no longer running, so it was not renamed.",
       );
-      await expect(
-        (await sessionActions(entry)).getByRole("button", {
-          name: "Mark as done",
-        }),
-      ).toBeEnabled();
-      await expect(
-        entry.getByRole("button", { name: "Open terminal" }),
-      ).toHaveCount(0);
+      await expect(await sessionAction(entry, "Mark as done")).toBeEnabled();
+      await expect(openTerminalOf(entry)).toHaveCount(0);
       expect(dashboard.claudeAttaches()).toEqual([]);
       expect(dashboard.claudeStopCalls()).toEqual([]);
     });
@@ -117,7 +113,7 @@ test.describe("marking a card's session done", () => {
     await launch(readyStory, "Execution");
     const entry = storyCardSessionOf(card(readyStory), "Execution");
     await expect(entry).toHaveCount(1);
-    const recent = parts(page).recentlyDone.locator(".session-entry");
+    const recent = sessionEntriesIn(parts(page).recentlyDone);
     await expect(recent).toHaveCount(0);
     // The project folder moves away, so the boundary refuses the mark.
     const folder = path.join(dashboard.home, "git", "open-dough");
@@ -130,11 +126,7 @@ test.describe("marking a card's session done", () => {
     );
     await expect(entry).toHaveCount(1);
     await expect(recent).toHaveCount(0);
-    await expect(
-      (await sessionActions(entry)).getByRole("button", {
-        name: "Mark as done",
-      }),
-    ).toBeEnabled();
+    await expect(await sessionAction(entry, "Mark as done")).toBeEnabled();
     expect(dashboard.claudeStopCalls()).toEqual([]);
   });
 });

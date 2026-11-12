@@ -1,4 +1,4 @@
-import { sessionActions } from "../support/sessionEntryDisclosure.ts";
+import { askToDeleteRecord } from "../support/sessionEntryDisclosure.ts";
 // Deleting the record of the session the page's one terminal shows
 // (../terminals/agent-terminal.spec.ts), on the committed story-columns origin
 // (../launchJourney.ts): while the listing cannot be read the session is State
@@ -20,6 +20,7 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -63,19 +64,12 @@ test.describe("deleting the record of the session the terminal shows", () => {
     await page.reload();
     await settled();
     await expect(sessionStateOf(entry)).toContainText("State unknown");
-    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(entry).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(page.getByText("Shown in terminal")).not.toHaveCount(0);
     await expectSelected(card(readyStory), true);
 
-    await (
-      await sessionActions(entry)
-    )
-      .getByRole("button", { name: "Delete record…" })
-      .click();
-    await entry
-      .getByRole("button", { name: "Delete record", exact: true })
-      .click();
+    await (await askToDeleteRecord(entry)).confirm.click();
 
     await expect(panel).toHaveCount(0);
     await expect(entry).toHaveCount(0);

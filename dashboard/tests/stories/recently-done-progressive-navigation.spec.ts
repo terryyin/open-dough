@@ -13,7 +13,12 @@
 // `gh` calls reaching the fake GitHub show which records were read.
 
 import { expect, test } from "../dashboardTest.ts";
-import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
+import {
+  shownProjectControl,
+  chooseProject,
+  parts,
+  openTerminalOf,
+} from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import {
@@ -88,10 +93,7 @@ test("Mark as done on a Taken entry lands on it as entry 27 once entries 1 to 27
     await revealAction(recent).click();
     await expectEntries(recent, names(35));
     const asked = recordsAsked(github).length;
-    await view
-      .done(destination)
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalOf(view.done(destination)).click();
     const terminal = terminalOf(page);
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
     await expect(view.taken(destination)).toHaveCount(1);
@@ -110,10 +112,7 @@ test("Mark as done in its terminal closes the panel and lands on entry 27 once e
   await page.setViewportSize({ width: 80 * rem, height: 900 });
   const view = await openedWithHeldStory(page, dashboard);
   const terminal = terminalOf(page);
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(view.taken(destination)).click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   await view.markedDone(destination, terminal);
   await expect(terminal).toHaveCount(0);
@@ -139,10 +138,7 @@ test("marking the session done in its covering terminal, with Recently done page
   const view = await openedWithHeldStory(page, dashboard);
   const terminal = terminalOf(page);
   await showColumn(page, "Taken");
-  await view
-    .taken(destination)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(view.taken(destination)).click();
   await expect(terminal.locator(".xterm-rows")).toContainText("attached");
   await expect(view.recent).not.toBeInViewport();
   await view.markedDone(destination, terminal);

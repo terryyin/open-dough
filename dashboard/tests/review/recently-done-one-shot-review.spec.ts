@@ -6,7 +6,12 @@ import { completedExecution } from "../support/oneShotExecutionReview.ts";
 import { readReview } from "../support/launchLandingReview.ts";
 import { git } from "../support/launchLanding.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionStateOf,
+  sessionUnreadReportOf,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { showColumn, columnPagingControl, rem } from "../boardPage.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
 import { noConnection } from "../originAnswers.ts";
@@ -93,7 +98,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
   await expect(
     backlog.getByRole("article", { name: "Story A", exact: true }),
   ).toHaveCount(0);
-  await expect(taken.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(taken)).toHaveCount(0);
   await expect(columnPagingControl(page, "Recently done")).toHaveText(
     "Recently done 1 entry",
   );
@@ -103,8 +108,8 @@ test("a completed queued one-shot is reviewable from its published done card aft
     queuedIdentity,
   );
   await expect(recent.locator(".column-count")).toHaveText("1 entry");
-  await expect(card.locator(".session-entry")).toHaveCount(1);
-  await expect(card.locator(".session-state")).toHaveText(
+  await expect(sessionEntriesIn(card)).toHaveCount(1);
+  await expect(sessionStateOf(card)).toHaveText(
     "Done: Native session is still working",
   );
   const review = await inspectDelivered(page, card, receipt, origin.origin);
@@ -162,12 +167,12 @@ test("an unfinished attention session outside its done card still supplies revie
     exact: true,
   });
   await expect(unread).toContainText("Reading done story…");
-  await expect(unread.locator(".session-entry")).toHaveCount(0);
-  await expect(taken.locator(".session-entry")).toHaveCount(1);
-  await expect(taken.locator(".session-unread-report")).toHaveText(
+  await expect(sessionEntriesIn(unread)).toHaveCount(0);
+  await expect(sessionEntriesIn(taken)).toHaveCount(1);
+  await expect(sessionUnreadReportOf(taken)).toHaveText(
     "Unread report: Unfinished work",
   );
-  await expect(taken.locator(".session-entry")).toContainText(
+  await expect(sessionEntriesIn(taken)).toContainText(
     "Live observation unavailable: Continue this conversation in Codex",
   );
   const review = await inspectDelivered(page, unread, receipt, origin.origin);
@@ -189,7 +194,7 @@ test("an unfinished attention session outside its done card still supplies revie
   await recent.getByRole("button", { name: "Retry done stories" }).click();
   const card = recent.getByRole("article", { name: "Story A", exact: true });
   await expect(card).toBeVisible();
-  await expect(card.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(recent.locator(".column-count")).toHaveText("1 entry");
   await readReview(page, card);
   await expect(

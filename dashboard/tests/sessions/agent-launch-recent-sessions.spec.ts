@@ -22,6 +22,7 @@ import {
   parts,
   standaloneSessionName,
   sessionNamedBy,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
 import {
@@ -100,9 +101,7 @@ test.describe("retained launches in their current column homes", () => {
         await expect(entry).toContainText(
           `Session ${sessionIds[index] ?? "?"}`,
         );
-        await expect(
-          entry.getByRole("button", { name: "Open terminal" }),
-        ).toBeVisible();
+        await expect(openTerminalOf(entry)).toBeVisible();
       }
     };
     const queued = [takenStory, readyStory, notRefinedStory];

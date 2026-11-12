@@ -13,6 +13,7 @@ import {
   storyCardSessions,
   expectMembership,
   sessionStateOf,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
 import {
@@ -58,9 +59,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     const panel = page.getByRole("region", { name: "Terminal" });
     await settled();
     await launch(notRefinedStory, "Execution");
-    await storyCardSessions(card(notRefinedStory))
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalOf(storyCardSessions(card(notRefinedStory))).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached ");
     await chooseProject(page, "Doughnut");
     await expectMembership(page, {
@@ -96,7 +95,7 @@ test.describe("Mark as done in the terminal asks by the session's current readin
     dashboard.claudeSessionBecomes(sessionId, "done-live");
     await reloadUntilRead(page);
     await expect(sessionStateOf(listed)).toHaveText("Ready for review");
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(listed).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
 
     dashboard.claudeSessionBecomes(sessionId, "working");

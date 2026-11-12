@@ -4,7 +4,12 @@
 // done session outside the card's protected frame. Uses the real bare origin
 // of ../responsiveStart.ts.
 
-import { storyCardSessions, parts, sessionNamedBy } from "../dashboardPage.ts";
+import {
+  storyCardSessions,
+  parts,
+  sessionNamedBy,
+  openTerminalOf,
+} from "../dashboardPage.ts";
 import { expect } from "../dashboardTest.ts";
 import { inspectByKeyboard, marksOf } from "../responsiveAccess.ts";
 import { startExecution } from "../responsiveRecovery.ts";
@@ -47,7 +52,7 @@ test("a refinement settling on its card leaves a task begun meanwhile focused; s
     story.getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled({ timeout: 30_000 });
   await expect(otherHide).toBeFocused();
-  await entry.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(entry).click();
   await expect(entry).toContainText("Shown in terminal");
 
   idleBetweenSteps(dashboard, await sessionNamedBy(entry));

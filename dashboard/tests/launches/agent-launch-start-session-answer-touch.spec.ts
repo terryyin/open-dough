@@ -10,7 +10,7 @@ import {
   startSessionDialog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import {
   box,
   closeSidePanel,
@@ -184,7 +184,7 @@ test.describe("390×844 touch, held", () => {
     const terminal = page.getByRole("region", { name: "Terminal" });
     await expect(terminal).toBeVisible({ timeout: 30_000 });
     await closeSidePanel(terminal);
-    await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
     await expect(parts(page).adHocStarted).toHaveCount(0);
     await expect(progress).toHaveCount(0);
   });

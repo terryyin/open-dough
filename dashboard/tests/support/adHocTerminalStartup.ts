@@ -4,7 +4,12 @@ import type { Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { sessionsAudienceParameter } from "../../src/machineSessionsRevision.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
-import { parts, sessionNamedBy } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionNamedBy,
+  openTerminalOf,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
@@ -92,13 +97,13 @@ export async function openWhileStarting(
     .getByRole("button", { name: "Start session in Open Dough" })
     .click();
   await dialog.getByRole("button", { name: "Start" }).click();
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
   await expect(entry).toHaveCount(1, { timeout: 20_000 });
   const sessionId = await sessionNamedBy(entry);
   await expect(
     parts(page).projectActions.getByText("Local startup in progress."),
   ).toBeVisible();
-  const openTerminal = entry.getByRole("button", { name: "Open terminal" });
+  const openTerminal = openTerminalOf(entry);
   // The browser requests attachment before the synthetic host has necessarily
   // started or written its record. Observe that causal request so an immediate
   // Close never races a later record of the original process.

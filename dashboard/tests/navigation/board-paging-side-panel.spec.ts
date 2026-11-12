@@ -6,7 +6,7 @@
 // narrow window pages the columns is ./board-paging.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
-import { storyCardSessions, parts } from "../dashboardPage.ts";
+import { storyCardSessions, parts, openTerminalOf } from "../dashboardPage.ts";
 import {
   openTakenBacklog,
   startSession,
@@ -83,7 +83,7 @@ test.describe("beside the side panel", () => {
     });
 
     await test.step("the side panel reopens: Taken and Recently done show again", async () => {
-      await taken.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalOf(taken).click();
       await expect(terminal.locator(".xterm-rows")).toContainText("attached");
       await expectShown(["Taken", "Recently done"], ["Backlog 2 entries"]);
     });

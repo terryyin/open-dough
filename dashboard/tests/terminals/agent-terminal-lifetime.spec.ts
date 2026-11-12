@@ -17,6 +17,7 @@ import {
   chooseProject,
   storyCardSessions,
   expectMembership,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
 import {
@@ -89,7 +90,7 @@ test.describe("the terminal's lifetime", () => {
 
     await launch(notRefinedStory, "Execution");
     const listed = storyCardSessions(card(notRefinedStory));
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(listed).click();
     await expect(rows).toContainText("attached ");
     const [attach] = dashboard.claudeAttaches();
     const shortId = attach?.id ?? "";

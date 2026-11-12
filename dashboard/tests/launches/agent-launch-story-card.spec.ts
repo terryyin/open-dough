@@ -17,6 +17,7 @@ import {
   storyCardSessionName,
   storyCardSessions,
   sessionStateOf,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import { instructionField, openTakenBacklog } from "../launchStoryCardPage.ts";
 
@@ -170,9 +171,7 @@ test("starting sends the instruction after the execution command in the Open Dou
   expect(launchedAt).toBeLessThanOrEqual(Date.now());
 
   await expect(entry).toContainText(/Session [0-9a-f]{8}-/);
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalOf(entry)).toBeVisible();
 
   expect(dashboard.claudeLaunchCalls()).toEqual(
     launched(

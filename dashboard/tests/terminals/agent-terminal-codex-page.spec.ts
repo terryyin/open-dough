@@ -2,7 +2,12 @@
 import type { Page } from "@playwright/test";
 import { test, expect, stored } from "../support/codexLaunch.ts";
 import { launch, refinementRequest } from "../agentLaunchBoundary.ts";
-import { chooseProject, storyCardSessions, parts } from "../dashboardPage.ts";
+import {
+  chooseProject,
+  storyCardSessions,
+  parts,
+  openTerminalOf,
+} from "../dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
   notRefinedStory,
@@ -66,7 +71,7 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
   codexTerminalMode(native, "review");
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(recent).click();
   await expect(rows).toContainText("Hooks need review");
   expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
   await expect(panel.getByRole("button", { name: "Mark as done" })).toHaveCount(
@@ -102,18 +107,14 @@ test("rendered readiness preserves hook review and done intent, then keyboard/re
     .poll(() => codexEnded(native, codexAttaches(native)[0]?.pid ?? 0))
     .toBe("SIGHUP");
   codexTerminalMode(native, "ready");
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(card(notRefinedStory))).click();
   await expect(rows).toContainText("original retained history");
   await page.reload();
   await expect(panel).toHaveCount(0);
   await expect
     .poll(() => codexEnded(native, codexAttaches(native)[1]?.pid ?? 0))
     .toBe("SIGHUP");
-  await storyCardSessions(card(notRefinedStory))
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(card(notRefinedStory))).click();
   await expect(rows).toContainText("original retained history");
   const port = Number(new URL(dashboard.baseURL).port);
   let restarted: DashboardServer | undefined;
@@ -181,11 +182,11 @@ test("a native startup title/composer and an incomplete repaint cannot clear don
   }));
   await settledAfterBoundaryLaunch(page);
   codexTerminalMode(native, "partial");
-  await parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: native.threadId })
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(
+    parts(page)
+      .recentlyDone.getByRole("article")
+      .filter({ hasText: native.threadId }),
+  ).click();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText(
     "retained startup draft",

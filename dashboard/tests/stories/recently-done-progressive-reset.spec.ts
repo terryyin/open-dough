@@ -10,7 +10,12 @@
 // GitHub show which records were read, and at which revision.
 
 import { expect, test } from "../dashboardTest.ts";
-import { shownProjectControl, chooseProject, parts } from "../dashboardPage.ts";
+import {
+  shownProjectControl,
+  chooseProject,
+  openTerminalOf,
+  parts,
+} from "../dashboardPage.ts";
 import { rem, showColumn } from "../boardPage.ts";
 import { expectEntries } from "../recentlyDoneColumn.ts";
 import {
@@ -99,10 +104,11 @@ test("an old revision's late record answer changes nothing; the terminal, panel 
 
   await test.step("opening a terminal, resizing its panel, closing it, opening and closing the sidebar, and a narrow window keep twenty, reading nothing", async () => {
     const terminal = terminalOf(page);
-    await parts(page)
-      .taken.getByRole("article", { name: entryName(entryAt(destination)) })
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalOf(
+      parts(page).taken.getByRole("article", {
+        name: entryName(entryAt(destination)),
+      }),
+    ).click();
     await expect(terminal.locator(".xterm-rows")).toContainText("attached");
     await expectEntries(recent, twenty);
     await panelDivider(page).focus();

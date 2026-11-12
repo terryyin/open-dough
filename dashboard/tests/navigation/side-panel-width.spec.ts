@@ -5,7 +5,7 @@
 // Geometry observes the rendered page; only the synthetic Claude is reached.
 
 import { expectFocusedAndIndicated } from "../accessibleReading.ts";
-import { storyCardSessions } from "../dashboardPage.ts";
+import { storyCardSessions, openTerminalOf } from "../dashboardPage.ts";
 import {
   box,
   expectSideBySideInOrder,
@@ -41,9 +41,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   const sidebar = sessionsSidebarParts(page);
   const projectUrl = () => page.url();
 
-  await storyCardSessions(card)
-    .getByRole("button", { name: "Open terminal" })
-    .click();
+  await openTerminalOf(storyCardSessions(card)).click();
   await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
   await page.keyboard.type("keep this line");
   await page.keyboard.press("Enter");
@@ -220,9 +218,7 @@ test("mouse and keyboard choose one bounded width that the terminal and a review
   await test.step("closing and reopening the terminal uses the chosen width, attached anew", async () => {
     await pressWhereShown(control(review, "Close"));
     await expect(review).toHaveCount(0);
-    await storyCardSessions(card)
-      .getByRole("button", { name: "Open terminal" })
-      .click();
+    await openTerminalOf(storyCardSessions(card)).click();
     await expect(rows).toContainText(`attached ${session.slice(0, 8)}`);
     await expectWidth(terminal, kept);
     await expectDividerSays(page, kept);

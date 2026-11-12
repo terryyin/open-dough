@@ -13,7 +13,12 @@ import {
   openTakenBacklog,
   startSessionField,
 } from "../launchStoryCardPage.ts";
-import { parts, sessionNamedBy } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionNamedBy,
+  openTerminalOf,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { openWhileStarting } from "../support/adHocTerminalStartup.ts";
 
@@ -58,7 +63,7 @@ test("starting with nothing typed opens the session in the terminal with the key
   await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Start" }).click();
 
-  const entry = taken.locator(".session-entry");
+  const entry = sessionEntriesIn(taken);
   await expect(entry).toHaveCount(1);
   const sessionId = await sessionNamedBy(entry);
   const title = await entry.getByRole("heading", { level: 3 }).textContent();
@@ -91,9 +96,7 @@ test("starting with nothing typed opens the session in the terminal with the key
   await expect(panel).toHaveCount(0);
   await expect(button).toBeFocused();
   await expect(entry).not.toContainText("Shown in terminal");
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalOf(entry)).toBeVisible();
   expect(dashboard.claudeAttaches().map((attach) => attach.id)).toEqual([
     sessionId.slice(0, 8),
   ]);

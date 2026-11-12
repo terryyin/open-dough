@@ -14,7 +14,12 @@ import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
-import { parts, sessionNamedBy } from "../dashboardPage.ts";
+import {
+  parts,
+  sessionNamedBy,
+  openTerminalOf,
+  sessionEntriesIn,
+} from "../dashboardPage.ts";
 import { recordsOf } from "../agentLaunchBoundary.ts";
 import { expectServed } from "../agentPortrait.ts";
 import { avatarPng } from "../avatarAnswers.ts";
@@ -57,7 +62,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
   const heading = panel.getByRole("heading", { level: 2 });
   const sessionRow = names.locator("p");
   const portrait = panel.locator(".agent-portrait");
-  const entry = parts(page).taken.locator(".session-entry");
+  const entry = sessionEntriesIn(parts(page).taken);
 
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
@@ -89,7 +94,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
       .poll(() => recordsOf(dashboard, "open-dough"))
       .toEqual([expect.objectContaining(record)]);
     await page.reload();
-    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(entry).click();
     await expect(rows).toContainText(`attached ${sessionId.slice(0, 8)}`);
   };
 

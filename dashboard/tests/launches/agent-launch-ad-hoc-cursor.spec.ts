@@ -16,7 +16,7 @@ import { expectAdHocReportingInput } from "../support/reportingInputAssertions.t
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, openTerminalOf } from "../dashboardPage.ts";
 import { startSessionField, startedSession } from "../launchStoryCardPage.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
@@ -81,9 +81,7 @@ for (const text of ["", "why is the CI slow?"]) {
     );
     await expect(recent.getByRole("heading")).toHaveText(title);
     await expect(recent).toContainText(cursor.sessionId);
-    await expect(
-      recent.getByRole("button", { name: "Open terminal" }),
-    ).toHaveCount(1);
+    await expect(openTerminalOf(recent)).toHaveCount(1);
     if (blank) {
       await expect(recent).toContainText("Opened without an instruction");
       await expect(recent).toContainText("Conversation created in Cursor");

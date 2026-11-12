@@ -1,5 +1,5 @@
 import { expect, test } from "../support/preparationPage.ts";
-import { parts } from "../dashboardPage.ts";
+import { parts, sessionEntriesIn } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { readReview, refreshReview } from "../support/launchLandingReview.ts";
@@ -27,7 +27,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
     name: "Story A",
     exact: true,
   });
-  await expect(card.locator(".session-entry")).toHaveCount(0);
+  await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(
     card.getByRole("button", { name: "Review changes" }),
   ).toBeVisible();

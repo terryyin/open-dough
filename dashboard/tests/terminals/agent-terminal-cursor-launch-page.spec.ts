@@ -25,6 +25,7 @@ import {
 import { launchWaitMs } from "../support/launchWait.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { watchTerminalSockets } from "../support/terminalSockets.ts";
+import { openTerminalOf } from "../dashboardPage.ts";
 
 const instruction = "hold this launch";
 const notice =
@@ -67,7 +68,7 @@ test("an instructed Cursor start takes its instruction with no terminal joined, 
   expect(cursor.attaches()[0]?.args).not.toContain(instruction);
   await expect.poll(() => cursor.input(pid)).toContain(instruction);
 
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(recent).click();
   await expect(rows).toContainText("ctrl+c to stop");
   await expect(rows).toContainText("Add a follow-up");
   await expect(rows).not.toContainText(notice);
@@ -80,7 +81,7 @@ test("an instructed Cursor start takes its instruction with no terminal joined, 
   await panel.getByRole("button", { name: "Close", exact: true }).click();
   await expect(panel).toHaveCount(0);
   expect(processRunning(pid)).toBe(true);
-  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await openTerminalOf(recent).click();
   await expect(rows).toContainText("ctrl+c to stop");
   expect(cursor.attaches()).toHaveLength(1);
   expect(cursor.attaches()[0]?.pid).toBe(pid);

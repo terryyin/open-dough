@@ -17,6 +17,7 @@ import {
   standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
+  openTerminalOf,
 } from "../dashboardPage.ts";
 import {
   notRefinedStory,
@@ -89,7 +90,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
 
     // Opening its terminal again reopens it, without waiting for the next
     // read of the records.
-    await entry.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(entry).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     await expect(listed).toHaveCount(1);
     await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
@@ -106,7 +107,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
 
     // Reload closed the attachment. With a terminal open again, this mark
     // types the rename into it rather than opening another.
-    await listed.getByRole("button", { name: "Open terminal" }).click();
+    await openTerminalOf(listed).click();
     await expect(panel.locator(".xterm-rows")).toContainText("attached");
     const opened = dashboard.claudeAttaches().length;
     // Attached, it runs again.

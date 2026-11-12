@@ -18,6 +18,8 @@ import {
   parts,
   sessionStateOf,
   standaloneSessionName,
+  openTerminalOf,
+  sessionEntriesIn,
 } from "../dashboardPage.ts";
 import {
   openTakenBacklog,
@@ -158,17 +160,13 @@ test("a Done session that still opens its terminal offers no Follow up until its
   await openTakenBacklog(page, launchJourney);
   const entry = entryOf(page, quietTitle);
 
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toBeVisible();
+  await expect(openTerminalOf(entry)).toBeVisible();
   await expect(followUp(entry, quietTitle)).toHaveCount(0);
 
   dashboard.claudeSessionBecomes(sessionId, "forgotten");
   await page.reload();
   await expect(followUp(entry, quietTitle)).toBeVisible();
-  await expect(
-    entry.getByRole("button", { name: "Open terminal" }),
-  ).toHaveCount(0);
+  await expect(openTerminalOf(entry)).toHaveCount(0);
   await followUp(entry, quietTitle).click();
   const dialog = startSessionDialog(page, "Open Dough");
   await expect(dialog).toContainText(`Follows up ${quietTitle}`);
@@ -182,7 +180,7 @@ test("a Done session that still opens its terminal offers no Follow up until its
   await startSessionField(dialog).fill(" \t\n ");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
-  await expect(parts(page).taken.locator(".session-entry")).toHaveCount(1);
+  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
   // The context is not typed text: the terminal opens with the keyboard.
   await expect(
     sidePanelContents(page).locator(".xterm-helper-textarea"),
