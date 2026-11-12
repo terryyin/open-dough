@@ -17,7 +17,7 @@ Preserve allowance/deduplication, GitHub behavior, production guard, read-only `
 
 ## Architecture and existing solutions
 
-Follow [one CI repeat across providers](../../NORTH-STAR.md#one-ci-repeat-across-providers).
+Follow [the shared follow-up provider boundary](../../../docs/dashboard-ci-follow-up.md).
 PFE findings:
 
 - **Timing and decision reuse.** `wallTimeReadingOf` and `wallTimeReferenceOf`
@@ -208,9 +208,9 @@ All premises are settled. Pygardon's rebuild story owns its missing proof; fixtu
 
 ## Execution context
 
-Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `d5a3a90511ce217261a186e23348e433a0b5fa34`; retained publication suffix base `148eea4b194e7dc37496e5d27ba539685c27fef2`. Readiness remains **Changed since readiness review**; no renewed review.
+Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; owned workspace (creation ref names this identity) `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `7f85a3f8f10784c920207596922ad5e28c8c5c58`; retained publication suffix base `d5a3a90511ce217261a186e23348e433a0b5fa34`. Execution completion receipt: not_required_basis at d5a3a905 success, shutdown confirmed, no unread events. Management context `/Users/terryyin/git/open-dough/.git`; creation ref `refs/worktree/dough/created-for/SEED-330#invoke-custom-ci-rebuilds` verified; no pending lifecycle commitments. Readiness remains **Changed since readiness review**; no renewed review.
 
-Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Product/proof retrospective completed with no correction; process review is selected by skipProcessRetrospective=false and deferred under the owner procedure until wrap-up supplies the configured Intent Coverage report/dispositions. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
+Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Product/proof retrospective completed with no correction. Deferred process review completed after Intent Coverage Caught at7f85a3f8; retain existing omitted-entry regression, no follow-up. ODF-150/ODF-396 occurrences recorded within940-line process log; full coverage report/disposition retained outside cleanup at /tmp/seed330-intent-coverage-combined.txt. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
 
 CI observer: Codex cell `g165:11`, session `92679`, coordinator `ruuf-chan`, PID `31050`, directory `/tmp/dough-ci-501/watch-hUTID2`; repository `terryyin/open-dough`, target story branch, GitHub Actions `ci.yml` verified active (351271804, CI). Runtime: this checkout's installed `.agents/skills/dough-execute-plan`. Trunk claim `pendingCi: unobserved`.
 

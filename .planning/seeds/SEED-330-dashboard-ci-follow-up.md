@@ -130,7 +130,7 @@ Boundaries:
 
 Generalise the delivered GitHub Actions follow-up into one repeat flow with a
 provider seam, under
-[the North Star's one CI repeat across providers](../NORTH-STAR.md#one-ci-repeat-across-providers).
+[the shared follow-up provider boundary](../../docs/dashboard-ci-follow-up.md).
 
 #### Refinement observations
 

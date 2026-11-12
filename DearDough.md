@@ -85,6 +85,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: one extra 7-minute local run before publication; no failure reached CI from this cause.
   - Inference: the implementer selected proof from the plan's list of failing specs, not from importers of the support module it changed; the consumer-trace output was dominated by plan-file matches.
 
+- Execution: SEED-330#invoke-custom-ci-rebuilds (plan 606; first implementation `5bad29b07b263aa42a777fa8fbc1d24de03b102e`)
+  - Timestamp: unknown (2026-11-12 CI event; exact occurrence time not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.97 (checkout-bound installed VERSION at established claim `1117582709db72b2c3bc842ef4e388d9e6866a8d`)
+  - Evidence: Slice 2 `b2899a8f5` extracted `ci-command-attempt.mjs`, imported by promoted `ci-proof-read.mjs`, without its payload declaration. CI run43235536671/1 failed four native evidence families. The repair reproduced both those omissions and actual installed `ERR_MODULE_NOT_FOUND`; `b51be060e2efde855d8cdb27d51bee0d7cd6667b` added the declaration and installed-reader proof in both roots after fresh install/update and unavailable release source. Plan606 source-review at that repair retains exact commands; 17 focused checks passed.
+  - Observed effect: one owned published CI failure paused in-flight slice3, which was preserved and restored around an independent repair. Source transport/proof tests alone had not established installed dependency closure.
+  - Inference: Matches the existing indirect-consumer omission: extracting a promoted runtime dependency immediately reaches the assembled payload and native fixture identity, regardless of the later documentation slice. No claim of measured isolated cost or released-user impact.
+
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
@@ -456,6 +464,14 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Evidence: `4980feb6d:.planning/slice-plans/600-review-junit-tests-in-intent/consumer-trace.md` has 832 lines and 23 direct consumers marked run, alongside generic PLAN.md/source-review.md/README.md terms and many historical/unchanged-install exclusions. The trace also led to a real regenerated standalone runtime and legacy MakeMe payload check.
   - Observed effect: many lexical-only dispositions surrounded useful selector/grammar consumers; acceptance needed bounded follow-up reads. All reached behavior had passing proof; no missed consumer was established.
   - Inference: same planning-basename expansion; separate record-reference discovery from product-effect tracing without weakening indirect proof. No counterfactual cost reduction was measured.
+
+- Execution: SEED-330#invoke-custom-ci-rebuilds (plan 606; first implementation `5bad29b07b263aa42a777fa8fbc1d24de03b102e`)
+  - Timestamp: unknown (2026-11-12 trace/read events; exact event times not retained)
+  - Tool: Codex
+  - Open Dough release: 0.3.97 (checkout-bound installed VERSION at established claim `1117582709db72b2c3bc842ef4e388d9e6866a8d`)
+  - Evidence: Slice2 trace `/tmp/seed330-slice2-consumer-trace.md` had701 disposed rows; slice3 had550 (10 enclosing observations,540 exclusions), independent refactor3 had584, and slice4 had614. Automatically derived PLAN/source-review basenames and generic fields supplied many lexical/history exclusions. A coordinator whole slice1 trace read reported47,358 original tokens and truncation before targeted filtering; later traces were read by bounded purpose/path. Proof summaries/commands are recoverable at `7f85a3f8f10784c920207596922ad5e28c8c5c58:.planning/slice-plans/606-invoke-custom-ci-rebuilds/source-review.md`.
+  - Observed effect: hundreds of exclusions and repeated targeted retrieval accompanied useful runtime/payload tracing. Later small refactor traces had18/108 consumers in narrower scopes; they are not equivalent replacement measurements.
+  - Inference: Planning-basename noise recurred. Isolated trace effort/token savings are unmeasured, and this row does not claim a missed product consumer from that noise.
 
 
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script

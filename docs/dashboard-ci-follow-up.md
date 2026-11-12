@@ -52,6 +52,13 @@ never attributed as a newly accepted repeat. A nonzero exit, timeout, oversized
 output or invalid answer is uncertain and never resent. The read-only execution
 observer never calls this trigger.
 
+One shared flow owns admission, spending the allowance, outcome retention and the
+review. Its selected provider prepares and freezes the original evidence,
+submits the one request, then observes and judges the exact repeat's comparability.
+Both providers feed the same saved-reference verdict. Saved requests retain
+shared decision fields plus provider-specific identity and evidence; historical
+untagged requests remain readable as GitHub Actions requests.
+
 Request intent or acceptance is distinct from an observed CI outcome. A new
 attempt number alone cannot prove a full repeat: carried-forward jobs or
 ambiguous attempts retain an unverified explanation. Custom discovery must list
