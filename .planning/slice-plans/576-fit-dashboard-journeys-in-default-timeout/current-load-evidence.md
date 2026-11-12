@@ -75,3 +75,29 @@ future published composition, same whole command/setup/selection correspondence,
 no synthetic work or load-ratio speedup. New private baseline setup npm183/browser/
 check passes; no new full SUT yet. Historical invalid4a evidence/costs are retained.
 The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies as written.
+
+## User-directed session stop
+
+Terry then asked to reduce scope and conclude promptly, with other tasks waiting.
+Root stopped the exact owned full controller by verifiedPID61072/SIGTERM; all
+controller/wrapper/npm/runner PIDs ended and admission released. Full proof is
+censored:2064passed/one failed/one existing Replay skip, two active-at-stop and
+597unattempted of2665. No completed full price or current full-pass claim.
+G24 owns the Codex retained-retry30s budget failure (reported35104ms). Its validated
+trace and read-only diagnosis are retained under `/tmp/seed287-current-load-codex-start-*20261112*`.
+The proposed controlled-clock source check is unimplemented and margin unproved.
+No further repair, full baseline, trunk timing/weight work or review was started.
+All code remains published atf228, whose exactCI43141104091/1 and scoped27 proof
+remain accepted for their observed boundaries. The active story/plan/worktree
+are preserved; no execution-complete, Done, landing or retirement is claimed.
+CI observerp9a2sG stopped with unread0; acceptedCI remains independently retained.
+
+## Resumed bounded correction
+
+The later `resume` instruction reopened only the bounded Codex repair while the
+reduced-scope choice remains pending. [Codex evidence](codex-current-load-evidence.md)
+retains the failed first experiment, causal correction and three consecutive
+whole-two-file passes. Actual natural load fell to6.771–15.779; no43-load pass or
+load-normalized saving is claimed. The original censored full result remains.
+Full-local comparison and the retained-Land/trunk-weight checkpoint remain open;
+no further full or baseline run was launched, and slice13 remains planned.

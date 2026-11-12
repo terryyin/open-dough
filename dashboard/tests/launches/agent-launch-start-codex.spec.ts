@@ -8,7 +8,8 @@ import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import { expectCodexRetryProgress } from "../support/codexRetryPage.ts";
 import { shortRevision, expectSettledPage, parts } from "../dashboardPage.ts";
-import { test, expect, stored } from "../support/codexStart.ts";
+import { pausePageClockAt } from "../dashboardTest.ts";
+import { test as base, expect, stored } from "../support/codexStart.ts";
 import { expectExecutionInput } from "../support/codexStartAssertions.ts";
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import {
@@ -17,6 +18,7 @@ import {
 } from "../support/startOrigin.ts";
 import {
   openUntilRead,
+  passCheckPace,
   reloadUntilRead,
   untilPageRequestsAnswered,
 } from "../pageRequestNotes.ts";
@@ -24,10 +26,15 @@ import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
 
 // Story A's seed changed after its readiness review.
-test.use({
-  originRepository: queuedReadyRepository()
-    .withRevision("changed review", changedReviewRevision)
-    .please(),
+const test = base.extend({
+  originRepository: async ({ queuedCodexPreviewReady }, use) => {
+    await Promise.resolve(queuedCodexPreviewReady);
+    await use(
+      queuedReadyRepository()
+        .withRevision("changed review", changedReviewRevision)
+        .please(),
+    );
+  },
 });
 
 test("Codex card start publishes one claim and retries its retained workspace before creating one conversation", async ({
@@ -44,6 +51,7 @@ test("Codex card start publishes one claim and retries its retained workspace be
     revision: original,
     repository: "terryyin/open-dough",
   });
+  await pausePageClockAt(page, new Date());
   await openUntilRead(page);
   const { backlog, taken, readRevision } = parts(page);
   const queued = backlog.getByRole("article", { name: "Story A", exact: true });
@@ -130,7 +138,9 @@ test("Codex card start publishes one claim and retries its retained workspace be
   ]);
 
   published.advanceTo(revision);
-  await reloadUntilRead(page);
+  // Read the Take here; the final reload still proves persistence.
+  await passCheckPace(page);
+  await untilPageRequestsAnswered(page);
   await expectSettledPage(page);
   await expect(readRevision).toContainText(shortRevision(revision));
   await expectStartNote(

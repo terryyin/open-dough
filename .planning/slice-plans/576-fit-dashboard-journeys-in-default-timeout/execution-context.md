@@ -181,3 +181,24 @@ retains the one ordinary initial-read60000 guard separately; no test/code change
 Current combined136/118 preserves109 prior attempts and all historical negatives.
 Slice13 stays planned for hosted/current full-price/trunk duties. Root owns next
 format/stage/hook/managed progress delivery; source/refactor returns stay matched.
+
+## Session stop at developer request
+
+Terry asks reduced work and prompt conclusion. FullAFTER31809/owner61072 is now
+terminal interrupted/SIGTERM, admission released, no further SUT; G24 retains the
+one real Codex retry failure and exact trace. Full price/comparison/trunk duties
+are unfinished. Source f228 is unchanged; only these local stop records change.
+CI p9a2sG stop confirms unread0/coverageended; current f228 exactCI stays green.
+No new implementation/retrospective/cleanup/Done/landing. Preserve active source,
+plan/worktree and read-only diagnosis; report unfinished session honestly.
+
+## Resumed bounded Codex delivery
+
+`resume` reopens the G24 repair; the preceding stop remains historical.
+[Codex evidence](codex-current-load-evidence.md) owns both failures and six fresh
+passing observations. Root owns independent refactor, hooks and branch progress
+publication. The expensive full/baseline/trunk campaign remains unstarted.
+Observer `/tmp/dough-ci-501/watch-vAEIPA`, PID3366/session4163/Codex cellg23:10,
+coordinator `seed287-codex`, has nativeREADY/finite8h coverage for this branch.
+Never poll that session/cell; managed delivery uses this exact observer owner.
+No execution-complete, retrospective, Done, landing or retirement is claimed.

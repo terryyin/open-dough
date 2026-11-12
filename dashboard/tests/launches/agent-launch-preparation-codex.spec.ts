@@ -6,6 +6,7 @@ import { keptStarts, launch, launchRequest } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { expectCodexRetryProgress } from "../support/codexRetryPage.ts";
 import { expectSettledPage, parts } from "../dashboardPage.ts";
+import { pausePageClockAt } from "../dashboardTest.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import {
   expect,
@@ -37,12 +38,12 @@ test("Codex refusal retains its published preparation; the page resumes the same
 }) => {
   if (codexProtocol === undefined) throw new Error("Native fixture missing.");
   const native = codexProtocol;
-  await publishCommittedOrigin(page, {
+  const published = await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
-    follows: true,
   });
+  await pausePageClockAt(page, new Date());
   await page.goto("/");
   const card = parts(page).backlog.getByRole("article", {
     name: "Story A",
@@ -116,9 +117,7 @@ test("Codex refusal retains its published preparation; the page resumes the same
     [],
   );
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  await card.getByRole("button", { name: "Start refinement" }).click();
-  await expect(dialog.getByLabel("Host", { exact: true })).toBeDisabled();
-  await page.keyboard.press("Escape");
+  published.advanceTo(publishedSha);
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({

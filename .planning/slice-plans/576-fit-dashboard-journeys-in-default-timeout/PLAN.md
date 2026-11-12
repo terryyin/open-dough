@@ -221,6 +221,11 @@ Story clause: "the SEED-312 review-family cases"
 Disposition: return
 Commitment: C024, C025, C027, C028, C029, C030, C031, C134, C135, C136, C137, C138
 
+### G24. Current natural-load Codex retained retry exceeds the case budget
+Reported: slice 13 — "Full f228 failed agent-launch-start-codex.spec.ts:33 at35104ms: its30s case expired during retained retry, expected launching but actual preparing."
+Story clause: "Dashboard journeys finish with margin inside the default 30 s case budget"
+Disposition: proved by slice 13: [bounded Codex correction](codex-current-load-evidence.md) retains both failed attempts and three consecutive corrected whole-file passes/default30s/default5s; actual natural load6.771–15.779, maximum case19150ms. This is not renewed full-suite proof or a saving measured against the earlier39–50 load.
+
 ## Plan concern assessment
 
 [Current assessment and remaining gates](design-and-proof.md#current-plan-assessment).
