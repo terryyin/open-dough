@@ -1,21 +1,22 @@
-// Starting an instructed Cursor session opens the terminal on that same
-// client. The page shows its output and accepts typing. There is no
-// launch-wait notice and no second agent. Closing and opening again shows
-// that run. A session started before the page first read the machine's
-// sessions, and so before it knew which hosts have a terminal here, still
-// opens its terminal.
+// An instructed Cursor session takes its instruction with no terminal joined.
+// Its entry's Open terminal then joins that same client: the page shows its
+// output and accepts typing. There is no launch-wait notice and no second
+// agent. Closing and opening again shows that run. A session started with
+// nothing typed before the page first read the machine's sessions, and so
+// before it knew which hosts have a terminal here, still opens its terminal.
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { startSessionField, startedSession } from "../launchStoryCardPage.ts";
 import { expect, workingCursorTest as test } from "../support/cursorStart.ts";
 import { keptCursor } from "../support/keptCursorTurn.ts";
 import { processRunning } from "../support/processGroup.ts";
+import { watchTerminalSockets } from "../support/terminalSockets.ts";
 
 const instruction = "hold this launch";
 const notice =
   "Cursor is still working on this session's launch prompt. The terminal opens when it finishes.";
 
-test("an instructed Cursor start shows that run and accepts typing", async ({
+test("an instructed Cursor start takes its instruction with no terminal joined, and Open terminal joins that run and accepts typing", async ({
   page,
   dashboard,
   origin,
@@ -29,6 +30,7 @@ test("an instructed Cursor start shows that run and accepts typing", async ({
     follows: true,
   });
   await page.goto("/");
+  const terminalSockets = watchTerminalSockets(page);
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
     .click();
@@ -37,19 +39,25 @@ test("an instructed Cursor start shows that run and accepts typing", async ({
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
 
+  // The startup ended and Cursor took the instruction; no terminal joined.
   const recent = await startedSession(page);
   await expect(recent).toContainText("First input accepted");
   const panel = page.getByRole("region", { name: "Terminal" });
   const rows = panel.locator(".xterm-rows");
-  await expect(rows).toContainText("ctrl+c to stop");
-  await expect(rows).toContainText("Add a follow-up");
-  await expect(rows).not.toContainText(notice);
+  await expect(panel).toHaveCount(0);
+  expect(terminalSockets).toEqual([]);
   await expect.poll(() => cursor.attaches()).toHaveLength(1);
   const pid = cursor.attaches()[0]?.pid ?? 0;
   expect(processRunning(pid)).toBe(true);
   expect(cursor.calls().map((call) => call.args)).toEqual([["create-chat"]]);
   expect(cursor.attaches()[0]?.args).not.toContain(instruction);
+  await expect.poll(() => cursor.input(pid)).toContain(instruction);
 
+  await recent.getByRole("button", { name: "Open terminal" }).click();
+  await expect(rows).toContainText("ctrl+c to stop");
+  await expect(rows).toContainText("Add a follow-up");
+  await expect(rows).not.toContainText(notice);
+  expect(terminalSockets).toHaveLength(1);
   await panel.locator(".xterm-screen").click();
   await page.keyboard.type("later");
   await expect.poll(() => cursor.input(pid)).toContain("later");
@@ -68,7 +76,7 @@ test("an instructed Cursor start shows that run and accepts typing", async ({
   expect(recorded.firstInput?.instruction).toContain(instruction);
 });
 
-test("a session started before the page first read the machine's sessions still opens its terminal", async ({
+test("a session started with nothing typed before the page first read the machine's sessions still opens its terminal", async ({
   page,
   origin,
 }) => {
@@ -97,7 +105,7 @@ test("a session started before the page first read the machine's sessions still 
     .click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
-  await startSessionField(dialog).fill(instruction);
+  await expect(startSessionField(dialog)).toHaveValue("");
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();
   expect(held).toBeGreaterThan(0);

@@ -150,7 +150,11 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       native.threadId,
     ]);
     await panel.getByRole("button", { name: "Close", exact: true }).click();
-    await expect(start).toBeFocused();
+    // Close returns the keyboard to what opened the terminal: the start
+    // itself with nothing typed, the entry's Open terminal otherwise.
+    await expect(
+      blank ? start : recent.getByRole("button", { name: "Open terminal" }),
+    ).toBeFocused();
     await expect
       .poll(() => codexEnded(native, attached?.pid ?? 0))
       .toBe("SIGHUP");

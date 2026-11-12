@@ -1,14 +1,14 @@
 // Controlled page-clock setup for terminal journeys while launch outcomes
 // remain withheld. Operations and transport observations stay in this harness.
-import type { Page, WebSocket } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import { sessionsAudienceParameter } from "../../src/machineSessionsRevision.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
 import { parts, sessionNamedBy } from "../dashboardPage.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import type { LaunchJourney } from "../launchJourney.ts";
 import { watchRecordReads } from "../sessionStatePace.ts";
+import { isTerminalSocket, watchTerminalSockets } from "./terminalSockets.ts";
 
 // While withheld, the page reads every launch attempt of this machine as still
 // starting, though its session may already be listed: the window between the
@@ -102,13 +102,8 @@ export async function openWhileStarting(
   // The browser requests attachment before the synthetic host has necessarily
   // started or written its record. Observe that causal request so an immediate
   // Close never races a later record of the original process.
-  const terminalSockets: WebSocket[] = [];
-  const isTerminal = (socket: WebSocket) =>
-    new URL(socket.url()).pathname === agentTerminalEndpoint;
-  page.on("websocket", (socket) => {
-    if (isTerminal(socket)) terminalSockets.push(socket);
-  });
-  const opening = page.waitForEvent("websocket", isTerminal);
+  const terminalSockets = watchTerminalSockets(page);
+  const opening = page.waitForEvent("websocket", isTerminalSocket);
   await openTerminal.click();
   await opening;
   await expect(panel).toHaveCount(1);

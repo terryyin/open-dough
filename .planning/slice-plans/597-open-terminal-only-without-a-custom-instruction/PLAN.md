@@ -130,7 +130,7 @@ through the shared step, joining the kept client.
 
 ### 2. An instructed start keeps the current view; a blank one opens the terminal
 Type: Behavior
-Status: planned
+Status: done
 Proof: Browser journeys in `dashboard/tests/terminals/` and
 `dashboard/tests/launches/`, each key example observed once:
 
@@ -169,6 +169,26 @@ settled launch's presentation), `dashboard/LAUNCH-START.md` and
 Cursor launch paragraph of `dashboard/AGENT-LAUNCH-HOSTS.md`, and the comments
 in `dashboard/src/agentLaunchClient.ts` and `dashboard/server/terminalHandoff.ts`
 that say Start session opens the terminal.
+
+Outcome: `startAdHoc` (`dashboard/src/launchStarts.ts`) states the rule once
+and passes the page's presentation on only for a request sent with no
+instruction; the `presentTerminal` call in `StartSession.tsx` is unchanged.
+Learning: an instructed Follow up left the keyboard on the source entry,
+because Recently done's held-entry rescue (`dashboard/src/recentlyDoneFocus.ts`,
+a layout effect) took it before the launcher's return ran. The launcher
+(`dashboard/src/launchDialogLauncher.ts`) now places the keyboard in a layout
+effect, which also puts it in the terminal after a whitespace-only Follow up.
+Proof, external load 44–51, two workers: the 121-spec selection gave 318
+passed, 4 failed by the 30 s test timeout or a 5 s Git poll
+(`launches/responsive-session-access.spec.ts:44`,
+`sessions/cursor-runner-helper-survival.spec.ts:24`,
+`sessions/cursor-runner-replacement-controls.spec.ts:32`, each passing alone
+afterwards, and `sessions/agent-session-cursor-stop-several.spec.ts:23`, which
+fails locally at this load on the base product too). Negative control with
+the rule forced to present: all six instructed journeys failed and every blank
+one passed. No journey substitutes a host without a Dashboard terminal; that
+guard in `dashboard/src/pageSidePanel.ts` is unchanged. Hosted CI of the story
+branch is the verdict for the four.
 
 ## Proof ownership
 

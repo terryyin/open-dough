@@ -55,29 +55,37 @@ export function useLaunchStarts(launch: Launch) {
   );
 
   // An ad hoc session carries no story policy, only its own unattached one
-  // when chosen, and the source it follows up, if any.
+  // when chosen, and the source it follows up, if any. A request sent with no
+  // instruction starts a session that waits for the developer, so the page
+  // presents its terminal once it starts (`presentTerminal`), and a Cursor
+  // start asks the server to keep its client for that terminal. A request
+  // with an instruction presents nothing and asks for no terminal. Attached
+  // images and a follow-up's context are not an instruction.
   const startAdHoc = useCallback(
     (
       sourceId: string,
       choices: LaunchChoices,
-      onLaunched: OnLaunched,
+      presentTerminal: OnLaunched,
       followUp?: FollowUpSource,
-    ) =>
-      launch(
+    ) => {
+      const settings = requestedSettings(choices);
+      const presents = settings.instruction === undefined;
+      return launch(
         adHocKey(sourceId, followUp),
         {
           source: sourceId,
           workflow: "ad-hoc",
-          ...requestedSettings(choices),
+          ...settings,
           ...(choices.unattached === undefined
             ? {}
             : { policy: choices.unattached }),
           ...(followUp === undefined ? {} : { followUp }),
         },
-        onLaunched,
-        choices.host === "cursor",
+        presents ? presentTerminal : () => undefined,
+        presents && choices.host === "cursor",
         choices.images,
-      ),
+      );
+    },
     [launch],
   );
 
