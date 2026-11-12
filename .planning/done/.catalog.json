@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-322_keep-sidebar-selected-board-cards-visible-below-fixed-header.json",
+      "identity": "SEED-322#keep-sidebar-selected-board-cards-visible-below-fixed-header",
+      "completedAt": "2026-11-12T01:50:59.437Z",
+      "blob": "060c83b799604ae33e5b0e0a05da651fbc60f0df"
+    },
+    {
       "fileName": "SEED-300_express-dashboard-test-intent-through-page-objects.json",
       "identity": "SEED-300#express-dashboard-test-intent-through-page-objects",
       "completedAt": "2026-11-12T01:02:53.721Z",
