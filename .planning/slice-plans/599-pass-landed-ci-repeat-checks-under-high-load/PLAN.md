@@ -2,6 +2,7 @@
 
 **Identity:** SEED-324#pass-landed-ci-repeat-checks-under-high-load
 **Source:** [Story](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -68,7 +69,11 @@ PFE, kept history and records: `makeMe.aLandedCiHistory`
 types.
 
 PFE, provider facts: `providerRepeatRun` and `serveRepeatRuns` in
-`dashboard/tests/support/ciFollowUpRepeatRun.ts`. Reuse unchanged.
+`dashboard/tests/support/ciFollowUpRepeatRun.ts`. Reuse. `github.serve` keeps
+one answerer per repository, so a page case serves the provider after
+`publishCommittedOrigin` with the replaced answerer as its fallback, as
+`scenario.serve()` does; `serveRepeatRuns` gains that fallback when slice 4
+or 5 needs it (slice 1).
 
 PFE, the published completion: `completedPublishedStory` (real CLI completion,
 0.5–3.1 s observed). Reuse; a card is selected by it
@@ -82,7 +87,8 @@ from those lines so the two merge.
 
 PFE, the reader: `restartAsLandedCiReader` and `startLandedCiReader`
 (`dashboard/tests/support/landedCiReader.ts`). Reuse `startLandedCiReader`
-directly where no collecting server ran first.
+directly where no collecting server ran first; it uses only the server's
+`github` and `outDir`, so slice 5 narrows that parameter instead of casting.
 
 Common rule for every slice: a case pays for a journey only for what the
 journey alone can show, and an observation leaves a journey only after a
@@ -153,11 +159,11 @@ before recording. Direct runs used
 | --- | --- | --- | --- |
 | The four specs fail under load on the base | The story; slice 6's comparison | The four specs, `--workers=2 --trace=on`, load 25.1 → 30.0 | Settled: 5 of 7 passed in 107 s. Intent journey 31.8 s, at the bound in its keyboard tab loop, page first opened at 22.2 s. Phone journey 31.5 s, at the bound in its progress poll (`:52`) after a 4.9 s rerun-count poll and a 13.2 s `dashboard` fixture. Lifecycle 29.6 s and refused 27.4 s, each first in its worker with 8.9 s of `origin` fixture; uncertain 16.7 s; saved-request cases 4.8 and 6.4 s |
 | A journey's time is provider calls | Every slice's approach | Scratch spec with laps and `github.calls` by kind, one worker, load 27.4 → 51.1 | Settled: 30 calls by the first outcome: 16 for five prior builds (3.9–4.9 s), 9 from receipt to rerun request (3.4–4.2 s with priors already kept, 8.6 s without), 5 for the outcome pass (4.6–5.3 s after the provider changed). Scenario 3.1–5.5 s; server and switch 2.0–2.9 s, 7.4 s for the run's first case |
-| An unspent eligible receipt admits without ingestion | Slice 2 approach and sizing | Scratch case: a real journey to an accepted request; server closed; `request` deleted from the ledger entry (leaving `eligible`, `capture`, `receipts`, `identity`); provider set to 403; second `startServer()` | Settled for a journey's own bytes: second rerun request 2.9 s after the server started, after 5 calls (`actions-workflow`, `-current-run`, `-run-attempt`, `-attempt-jobs`, `-workflow-rerun`), load 49.4 → 42.4; refused card 0.6 s later. Unverified: that state arranged through MakeMe, kept history and records, with no journey. Slice 1 |
+| An unspent eligible receipt admits without ingestion | Slice 2 approach and sizing | Slice 1 scratch case `backend-tests/intent/zz-scratch-599-p1.spec.ts` (`startServer` of `landedCiHistoryTest.ts`), all before any server: `completedPublishedStory(origin, "trunk", …, { interleaved: false, retainWorkspace: true })`; the capture through `makeMe.aLaunchLanding.capturedFrom({ repository: commonGitDir(origin.project), identity: queuedIdentity }).forLaunch(…).deliveredAs({ delivery, receipt }).comparing({ base: <completion>^, revision: completion }).receivedAt(now)`; the history through `makeMe.aLandedCiHistory`: five `.measuredLanding({ receipt, revision, receivedAt, target: "refs/heads/main", runId, startedAt, completedAt })` at revisions no repository holds (`"0…01"`–`"0…05"`), each with `.proofFor(key, { kind: "summary", summary: usableProofOf(run).summary })`, then `.recording(capture, "run/71/1", makeMe.aKeptBuild.with({ revision, state: "pass", runUrl, runId: 71, runAttempt: 1, runBranch: "main", startedAt, completedAt, proof, proofPending: false }))` and `.inTrunkOrder([...priors, completion])`, kept with `keepLandedCiHistory(machineHome(origin.machine), …)`; the ledger written to `followUpFile({ home })` as `{ projects: { "open-dough": { enabled: true, authority: hostname() } }, landings: { [followUpKey("open-dough", capture)]: makeMe.aCiFollowUpEntry.with({ project: "open-dough", revision, target, identity: queuedIdentity, receipts: [receipt], eligible: true, capture }) } }`; the provider as `providerRepeatRun(completion, 71, { ...passedFrom("2026-11-10T06:00:00.000Z", 120000), workflowId: 7001, url, headBranch: "main" })` under one answerer that answers `actions-workflow-rerun` with 403, then `provider.answer`, then `trunkActions([provider.latest()], provider.proofs())`, then `publishes`. Then `startServer()`. Command `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard -- backend-tests/intent/zz-scratch-599-p1.spec.ts --workers=1 --reporter=list`. Load 32.2 → 36.5, and again 11.2 → 9.7 | Settled: one rerun request for run 71, 1.9 s after the server started (0.9 s at load 11), after exactly 5 calls (`actions-workflow`, `-current-run`, `-run-attempt`, `-attempt-jobs`, `-workflow-rerun`); refused card 0.5 s later with `originalMs: 120000`, `averageMs: 100000`, `kind: "unverified"`; the saved request `refused` with the product's own reference (`sampleCount: 5`, six evidence rows); the original still read after follow-up was turned off; no second request. Case 14.6 s first in its worker at load 32–36, 6.0 s at load 11. No launch record and no launch attempt is kept; the prior builds need no commit, because the kept `trunkOrder` already places the landing. A kept build without `proof` would be asked for its proof and excluded from the average (`needsCollectedProof`, `wallTimeReadingOf`; read, not run). Not run: the 503 reply and its later 104 s repeat from this stage |
 | A card needs a published completion and a saved request, no journey | Slices 3–4 approach | Scratch case: `completedPublishedStory`, one accepted request for its completion through `repeatLedgerFacts()` and `aCiFollowUpEntry` with `identity`, `serveRepeatRuns`, `setRepeat({ seconds: 106 })`, `startServer()`, poll `followUpSettings` | Settled: slow card with `originalMs`, `averageMs`, `repeatMs: 106000` 3.5 s after the server started, 5 calls, case 10.0 s at load 39.7 → 50.2 |
-| A page-fixture server already running observes a request saved later | Slice 4 approach | Scratch page case with `extraEnv: recheckingLandedCi`; request saved after the `dashboard` fixture started; poll `followUpSettings(dashboard)` | Settled for the settings read: slow 0.8 s after saving, 7 calls, load 18.0. Unverified: the card rendered in the page. Two arrangements that called `publishCommittedOrigin` before saving made no provider call in 19 s and showed no card; cause not found. Slice 1 |
-| Five prior builds kept, not collected, admit a new receipt | Slice 3 sizing (the journey inside 15 s) | The priors-first laps above | Proxy only: with priors already collected by the same server the receipt-to-request wait is 3.4–4.2 s. Unverified: prior builds kept through `makeMe.aLandedCiHistory` and `keepLandedCiHistory` with their records, and whether `readLandingOrder` needs their commits on trunk. Slice 1 |
-| A settled request with its reference and kept proof reads in a non-collecting server with no journey | Slice 5 approach | None | Unverified: which kept files the comparison, the reference evidence and the original's proof navigation read (`dashboard/server/ciFollowUpReading.ts` reads the request and its builds; the proof route is unread). Slice 1 |
+| A page-fixture server already running observes a request saved later | Slice 4 approach | Slice 1 scratch case `tests/intent/zz-scratch-599-p3.spec.ts`, `test` of `preparationPage.ts` with `extraEnv: recheckingLandedCi`, the `dashboard` fixture already running: the kept landing of the "unspent eligible receipt" row at 105 s with the accepted request added to its ledger entry (`makeMe.aCiRepeatRequest.with({ repository: "terryyin/open-dough", workflow: "ci.yml", workflowId: 7001, original: <the kept build>, reference: <frozen: endpoint, selected, evidence, sampleCount, medianMs, averageMs, from, to, difference>, rule, originalJobs: [makeMe.aGitHubJob…], requestedAt, submission: { kind: "accepted", explanation }, outcome: { kind: "unverified", explanation } })`), no launch record; then `publishCommittedOrigin(page, { repoDir: origin.origin, revision: completion, repository, follows: true, realHistory: true })`; then the provider's answerer served over it, keeping the answerer `github.serve` returned as its fallback (what `scenario.serve()` does); `setRepeat({ status: "in_progress" })`, poll `followUpSettings(dashboard)` for `progress`, `page.clock.install()`, `page.goto`, the card; `setRepeat({ seconds: 106 })`, poll for `slow`, `page.clock.runFor(15000)`, the card. Command `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard -- tests/intent/zz-scratch-599-p3.spec.ts --workers=1 --reporter=list`. Load 39.4 → 29.6, and again 11.2 → 9.7 | Settled: the Recently done card of Story A reads "CI rerun in progress", then "Possible CI slowdown" with the red warning (`rgb(220, 38, 38)`), "Original 1 min 45 s", "Repeat 1 min 46 s", "Saved average 1 min 40 s" and Done; no rerun request. Case 7.4 s at load 39 → 30, 5.8 s at load 11; progress read 0.7–0.8 s after the save, each card within 1.0 s of its read. The same with a Done launch record (`makeMe.aLaunchRecord.executing(…).launchedAt(…).landedAt(completion, { receipt, identity }).markedDoneAt(…)`) also renders the card: the record is not needed. Why a slow card stayed away: `github.serve` keeps one answerer for the repository, and `publishCommittedOrigin` and `serveRepeatRuns` each replace it. Committed origin after the provider: 32 `actions-current-run` calls, none answered by the provider, the request stays "The requested repeat could not be observed; timing is unverified", 5.1 s. `serveRepeatRuns` after the committed origin: collection reads `slow` in 0.8–1.4 s and the page lists no article at all, because the page's `content` and `listing` reads fall to `publishes`. Not reproduced: a pass that makes no provider call at all; the earlier arrangements are not on record. Not run: the phone viewport, the sideways-scroll check and the caution text. The ledger was written in place while the server collected; `keepMachineDocument` holds the lock a running server's writers hold |
+| Five prior builds kept, not collected, admit a new receipt | Slice 3 sizing (the journey inside 15 s) | Slice 1 scratch cases in `backend-tests/intent/zz-scratch-599-p2.spec.ts`. First: `prepareRepeatScenario(origin, github)` unchanged, then, before any server, its priors kept through `makeMe.aLandedCiHistory`: for `scenario.prior[index]`, `.measuredLanding({ receipt: "bbbbbbbb-0000-4000-8000-0000000000NN" with NN = prior.length - index, revision: run.headSha, receivedAt: minutesAgo(NN), target: "refs/heads/main", runId: run.id, startedAt, completedAt })` with `.proofFor("run/<id>/1", { kind: "summary", summary: usableProofOf(run).summary })`, `.inTrunkOrder(prior revisions)`, `keepLandedCiHistory`; then `startServer()`, `followUpSettings(server, true)`, `scenario.ingest(server)`, wait on `holdSubmission`. Second: the same five builds kept at revisions no repository holds, the story published, the same ingestion. Command `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard -- backend-tests/intent/zz-scratch-599-p2.spec.ts --workers=1 --reporter=list`. Load 38.0 → 38.2, and again 11.2 → 9.7 | Settled for prior builds whose commits are on trunk: no call before ingestion, 9 calls from receipt to rerun request (`actions-workflow`, `-runs`, `-run-artifacts`, `-artifact-zip`, `-workflow`, `-current-run`, `-run-attempt`, `-attempt-jobs`, `-workflow-rerun`), receipt to request 1.7 s at load 38 and 1.2 s at load 11, the saved reference with `sampleCount: 5`, `averageMs: 100000`; case 9.6 s first in its worker at load 38. Beside it, a journey that collects its priors made 28 calls to the request with six priors (`journey-bytes/calls.json`) and 25 with five (16 + 9, the "provider calls" row). False for prior builds at revisions no repository holds: the ingested landing is kept `{ kind: "pending", waitsFor: "order" }` and no request is sent. `readLandingOrder` must find the new landing and every measured prior in one local repository; the kept `trunkOrder` cannot place a landing it does not hold. So the journey keeps `landedTrunk`'s real commits (`prepareRepeatPriors`) and replaces only their collection. Enabling follow-up after the history is kept writes each prior an `eligible: false` ledger entry, as the journey does today. Not run: the 105 s threshold, the held submission and the second dashboard over kept priors |
+| A settled request with its reference and kept proof reads in a non-collecting server with no journey | Slice 5 approach | Slice 1 scratch case `tests/intent/zz-scratch-599-p4.spec.ts`: `test` of `preparationPage.ts` with its `dashboard` fixture replaced by `startLandedCiReader({ github }, origin, "preview")`, so no collecting server ever runs; `publishIntentTrunk(origin.project)`; the published story; the ledger alone, with `projects: { "open-dough": { enabled: false, authority: hostname() } }` and the entry of the "unspent eligible receipt" row whose request is `submission: accepted`, `original` the 120 s kept build with its `proof`, `reference` frozen with six priors (five `included`, `run/6/1` at 116 s `excluded` with `reason: "Slow outlier: more than 15% above the median"`, `run/71/1` `selected`, `sampleCount: 5`), and `outcome: { settled: true, kind: "recovered", explanation: "CI timing returned to range", observed: { runId: 71, runAttempt: 2, revision, workflowId: 7001, status, conclusion, runUrl, startedAt, completedAt }, repeat: <attempt 2 kept build, 100 s, with its proof> }`; no history file, no launch record; `publishCommittedOrigin` then the provider over it. Command `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard -- tests/intent/zz-scratch-599-p4.spec.ts --workers=1 --reporter=list`. Load 10.6 → 11.2, and again 11.2 → 9.7 | Settled: the card reads "CI timing returned to range" and Done; the comparison reads both attempts with revision, workflow, start times, wall times, differences and completeness, both exact attempt links, the saved rule, "5 prior builds used", seven evidence rows with the outlier's reason, focus from attempt 1 to attempt 2 to the reference disclosure, no sideways scroll at 390 px; `expectOriginalProofNavigation` passes unchanged ("2092 passed test cases", the original's link, no repeat link); refresh, reload and back return the same comparison. Actions calls 0 before and 0 after; 13 `gh` calls in all, of kinds `ref`, `content`, `listing`, `tree`. Case 16.0 s first in its worker (8.4 s from arrangement to the last expectation), 7.2 s after another case. The reading and the proof navigation read the ledger entry only: `original.proof` and `outcome.repeat.proof` are the proof (`dashboard/server/ciFollowUpReading.ts`). Not run: the tab loop over the evidence links, the Development selection and return (C21), and the same case with the history file kept |
 | Faults F1–F11 fail their named owners | Coverage rows C2, C5, C8, C11, C12, C14, C15 | Retained: SEED-314's plan 595 at `165d803c`, slices 3–4 accepted proof; `git diff --stat 165d803c HEAD` is empty for both backend specs, `dashboard/tests/support/ciFollowUp{Scenario,SavedRequests,RepeatRun,Priors,ProviderVerdict}.ts`, `dashboard/server/ciFollowUp*`, `dashboard/src/ciFollowUp*` and `ciFollowUpLedgerFacts.mjs` | Settled by citation: F1 lifecycle by the bound; F2 lifecycle and refused with `[71, 71]`; F3 lifecycle; F4, F5, F6b, F7 the saved-request case by outcome; F8 refused; F9 uncertain; F10, F11 the verdict case by conclusion. Above load 40 F2 on the lifecycle journey passed once; read it on the refused owner |
 | No shard weight names the four specs | Slice 6 | `grep -rn` of the four spec names under `dashboard/longest-first*` | Settled: no match |
 | The repeat script reports load and runs at two workers | Slice 6 route | Read `scripts/dashboard-repeat.sh` header: local default worker count, load before and after per run, `--load` burners; plan 595 ran it with these spec paths | Settled for the route by citation (plan 595, "Run 1 under burners: exit 1, 182 s, load 22.38 -> 40.25") |
@@ -176,6 +182,8 @@ Commands, from the repository root, with Homebrew Bash first on `PATH`:
 - Selection: `npm run --silent test:dashboard -- backend-tests/intent/landed-ci-automatic-repeat.spec.ts backend-tests/intent/landed-ci-repeat-verdict.spec.ts tests/intent/recently-done-ci-automatic-repeat.spec.ts tests/intent/intent-ci-follow-up.spec.ts`,
   plus any spec file a slice adds for a divided case, with `--workers=1` or
   `--workers=2` and `OPEN_DOUGH_DASHBOARD_PROOF_RECORD=<file>` for durations.
+  A run that writes a proof record passes no `--reporter`: `--reporter=list`
+  replaces the configured reporter that writes it.
   Three consecutive passes after a change to a case or its support.
 - From an agent shell, prefix direct runs with
   `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`.
@@ -238,7 +246,7 @@ the named regression and records it.
 
 ### 1. The base and the kept-state premises are on record
 Type: Behavior
-Status: planned
+Status: done
 Proof: The plan records the base revision, whether the paths named in
 [Architecture and reuse](#architecture-and-reuse) differ from `7cf81190b`,
 whether the base holds SEED-287's `collectPriors`, and one proof record of the
@@ -276,6 +284,64 @@ A premise that does not hold stops the slices that consume it. Where the
 state can only come from a journey's own bytes, record that and stop for the
 coordinator: the story's "at most one journey" would no longer be reachable
 for that case.
+
+#### Slice 1 record
+
+Observed on 2026-11-12, Node 24.21.0, while other work held the one-minute
+load at 9–39.
+
+- **Base.** Main at Take, `095f2bff9`. `git diff --stat 7cf81190b 095f2bff9`
+  is empty for the four specs, `dashboard/tests/support`, `tests/support`,
+  `dashboard/server` and `dashboard/src`: every path named in
+  [Architecture and reuse](#architecture-and-reuse) is as the preparation
+  read it, at the line counts named there. The base does not hold SEED-287's
+  `collectPriors` (`git grep collectPriors 095f2bff9 -- dashboard tests`: no
+  match).
+- **Base worktree.** `/Users/terryyin/.claude/jobs/296b888d/tmp/base-599`,
+  detached at `095f2bff9`; `node scripts/setup-native.mjs npm`, `browser` and
+  `check` each exited 0 ("npm acquisition complete", Chromium 158.0.8127.18).
+  It stays for slices 2, 3 and 6.
+- **The seven cases on the base, two workers.** A proof record needs the
+  configured reporter: `--reporter=list` replaces it and no record is written.
+
+  | Case | With `--reporter=list`, load 15.5 → 25.3 | Proof record, load 21.1 → 18.5 |
+  | --- | --- | --- |
+  | Lifecycle journey | passed, 29.8 s | passed, 24.1 s |
+  | Refused journey | passed, 27.1 s | passed, 22.6 s |
+  | Uncertain journey | passed, 16.3 s | passed, 11.7 s |
+  | Saved-request outcomes | passed, 4.8 s | passed, 3.5 s |
+  | Verdict saved requests | passed, 6.1 s | passed, 3.9 s |
+  | Intent journey | failed at the 30 s bound, 31.5 s, in `refresh.click()` (`intent-ci-follow-up.spec.ts:166`) | passed, 19.4 s |
+  | Phone journey | failed at the 30 s bound, 31.1 s, in `warning.scrollIntoViewIfNeeded()` (`recently-done-ci-automatic-repeat.spec.ts:73`) | passed, 14.8 s |
+
+  First run: 5 of 7 passed in 1.5 min, exit 1, log
+  `/Users/terryyin/.claude/jobs/296b888d/tmp/base-599-run-w2.log`. Second
+  run: 7 of 7 in 56.2 s, exit 0, record
+  `/Users/terryyin/.claude/jobs/296b888d/tmp/base-599-proof-w2.json`. The
+  base failed two cases below a load of 30, and passed one minute later at a
+  like load: slice 6 cannot count on a load under 30 for a passing base.
+- **The four premises.** Each row of
+  [Decisive premises](#decisive-premises) now holds its scratch case, command,
+  load and result. Three hold as planned. The fourth holds for prior builds
+  whose commits are on trunk and is false for prior builds at revisions no
+  repository holds; slice 3's journey keeps real trunk commits, so no slice
+  stops. Every case passed twice. The scratch specs are deleted from the
+  workspace.
+- **One arrangement served all four.** A kept landing at a stage (prior
+  builds only, eligible receipt, accepted request, settled request) is the
+  history file, the ledger file and the provider's answerer, written before
+  or after a server starts. No launch record, launch attempt or journey is
+  needed at any stage, and the settled reading needs no history file.
+  Scratch copy, not repository code:
+  `/Users/terryyin/.claude/jobs/296b888d/tmp/slice1-scratch/` (`README.txt`,
+  `specs/zzScratch599.ts`, the four specs, `laps.jsonl`, and
+  `journey-bytes/`, the files a real journey left).
+- **Orderings later slices keep.** In a page case `publishCommittedOrigin`
+  comes first and the provider's answerer is served over it with the replaced
+  answerer as its fallback. The ledger's project entry names
+  `authority: hostname()`. The capture's `repository` is the origin project's
+  common Git directory and its `base` the completion's parent, which
+  `landingCompletesStory` reads. Every kept build carries its proof summary.
 
 ### 2. Provider replies are read from a kept eligible receipt
 Type: Behavior
@@ -331,9 +397,10 @@ provider receives no rerun request.
 
 - Both behaviors are one proof loop: the lifecycle case divides into them, and
   nothing leaves the journey before its fault fails the accepted-request case.
-- The journey's prior builds are kept, not collected, when slice 1 settled
-  that premise. Otherwise it keeps `prepareRepeatScenario`'s collection and
-  slice 6 measures whether it fits; record which.
+- The journey's prior builds are kept, not collected: slice 1 settled that
+  for prior builds at `prepareRepeatPriors`' real trunk commits (9 calls from
+  receipt to request against 25) and found it false at revisions no
+  repository holds. Keep those commits and replace only their collection.
 
 ### 4. The machine setting and the phone warning are read without a journey
 Type: Behavior
@@ -402,7 +469,8 @@ Behavior: The base worktree and the finished candidate run under like
 conditions → the comparison is recorded in this plan → the fit in the profile
 and the saving are observed with every preparation and teardown paid.
 
-- The base passes this selection only below a load of about 30. Take the
+- Slice 1 saw the base fail two cases at load 15.5 → 25.3 and pass a minute
+  later at 21.1 → 18.5, so no load guarantees a passing base. Take the
   pairs in a window where it passes; a base that gives no three passing
   observations is recorded with its failures, the comparison uses the base
   runs that passed, and a miss is not rounded up: record and stop for the
