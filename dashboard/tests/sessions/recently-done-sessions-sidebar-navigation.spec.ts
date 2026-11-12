@@ -9,7 +9,7 @@ import {
 } from "../dashboardPage.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { recentlyDoneParts } from "../recentlyDoneSessionsSidebarPage.ts";
+import { showRecentlyDone } from "../recentlyDoneSessionsSidebarPage.ts";
 import {
   destination,
   names,
@@ -107,9 +107,7 @@ test("choosing a Done session beyond Board's first ten from Pygardon reveals its
     await chooseProject(page, "Pygardon");
     await expect(backlog).toContainText("A Pygardon story");
 
-    const shown = recentlyDoneParts(page);
-    await shown.button.click();
-    await shown.header.click();
+    const shown = await showRecentlyDone(page);
     await expect(shown.entry(instruction)).toHaveCount(1);
     const before = (await revealsOf(page)).length;
     await shown.open(instruction).click();
@@ -161,9 +159,7 @@ codexTest.describe("Recently done final-report destination", () => {
       ]);
       const { settled } = await openStoryColumnsJourney(page, journey);
       await settled();
-      const shown = recentlyDoneParts(page);
-      await shown.button.click();
-      await shown.header.click();
+      const shown = await showRecentlyDone(page);
       await expect(shown.entry(notRefinedStory)).toHaveCount(1);
       await shown.open(notRefinedStory).click();
       const panel = page.getByRole("region", { name: "Final report" });

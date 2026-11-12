@@ -25,6 +25,7 @@ import {
   expandThreeCrowded,
   roomOfThree,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
 
 test.use({
@@ -104,7 +105,7 @@ test("both optional sections share one room: expand, resize, scroll, short windo
     await expect(shown.sidebar).toBeVisible();
     // Entry titles are cut by design (./sessions-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [
-      ".sessions-sidebar-session-entry-title",
+      sessionsSidebarTitleCut,
       ...compactProjectSelectCut,
     ]);
     await expectEveryControlReachable(shown.sidebar);

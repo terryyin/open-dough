@@ -18,7 +18,10 @@ import {
   expectNoSidewaysScrollAndWholeText,
   pressWhereShown,
 } from "../pageLayout.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import {
   control,
   dragDivider,
@@ -77,7 +80,7 @@ test("at a narrow window the panel covers the page with no Maximize, and a wide 
     await expectNoSidewaysScrollAndWholeText(page, [
       ...scrollsOnItsOwn,
       // The sidebar's entries are cut by design, read whole by their tooltip.
-      ".sessions-sidebar-session-entry-title",
+      sessionsSidebarTitleCut,
       // The panel header title truncates by design with disclosure
       // (./SidePanelTitle.tsx), read whole once activated.
       ".side-panel-title-toggle",

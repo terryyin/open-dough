@@ -8,6 +8,10 @@ import {
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
+import {
+  sessionsSidebarDetailsOf,
+  sessionsSidebarElapsedOf,
+} from "../sessionsSidebarPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 
@@ -45,14 +49,13 @@ test.describe("touch Session details for Done entries", () => {
     await shown.header.click();
     const row = shown.entries.filter({ hasText: title });
     await expect(row).toHaveCount(1);
-    await expect(row.locator("time")).toHaveAttribute(
+    await expect(sessionsSidebarElapsedOf(row)).toHaveAttribute(
       "aria-label",
       /^Completed \d+m ago$/,
     );
-    const disclosure = row.locator("summary", { hasText: "Session details" });
+    const { disclosure, facts: details } = sessionsSidebarDetailsOf(row);
     await expect(disclosure).toBeVisible();
     await tapWhereShown(disclosure);
-    const details = row.locator(".sessions-sidebar-session-entry-facts");
     const completedWords = `Completed ${await browserLocaleString(page, doneAt)}`;
     const launchedWords = `Launched ${await browserLocaleString(page, launchedAt)}`;
     await expect(

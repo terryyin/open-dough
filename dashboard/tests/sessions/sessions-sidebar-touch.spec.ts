@@ -14,7 +14,12 @@ import {
   pageColumnProjectValue,
   tapWhereShown,
 } from "../pageLayout.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarDetailsOf,
+  sessionsSidebarElapsedOf,
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
@@ -64,23 +69,21 @@ test.describe(`${name} session discovery`, () => {
     );
     const opened = await openStoryColumnsJourney(page, journey);
     await opened.settled();
-    const { sidebar, button, badge, entries, entry } =
+    const { sidebar, button, badge, entries, entry, row } =
       sessionsSidebarParts(page);
     // Closed: working (ordinary) then attention (intended) stay whole in view.
     await expectClosedToggleCounts(page, 1, 1);
     await expectClosedToggleCountsFit(page);
     await tapWhereShown(button);
     await expect(entries).toHaveCount(2);
-    const row = entries.filter({ hasText: intended.title });
-    const disclosure = row.locator("summary", { hasText: "Session details" });
+    const intendedRow = row(intended.title);
+    const { disclosure, facts: details } =
+      sessionsSidebarDetailsOf(intendedRow);
     await expect(disclosure).toBeVisible();
     await tapWhereShown(disclosure);
-    const details = row.locator(".sessions-sidebar-session-entry-facts");
-    const launchedAt = await row
-      .locator("time")
-      .evaluate((time) =>
-        new Date(time.getAttribute("datetime") ?? "").toLocaleString(),
-      );
+    const launchedAt = await sessionsSidebarElapsedOf(intendedRow).evaluate(
+      (time) => new Date(time.getAttribute("datetime") ?? "").toLocaleString(),
+    );
     for (const text of [
       intended.title,
       intended.identity,
@@ -111,7 +114,7 @@ test.describe(`${name} session discovery`, () => {
     // The fully readable count sits over the corner of its control, so
     // that parent's scrollWidth is not a text-clipping measurement.
     await expectNoSidewaysScrollAndWholeText(page, [
-      ".sessions-sidebar-session-entry-title",
+      sessionsSidebarTitleCut,
       ...compactProjectSelectCut,
     ]);
     await page.setViewportSize(landscape);

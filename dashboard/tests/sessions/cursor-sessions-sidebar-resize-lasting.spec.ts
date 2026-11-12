@@ -29,6 +29,7 @@ import {
   runningCursorParts,
   showPage,
 } from "../runningCursorSessionsPage.ts";
+import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { publishOnePygardonStory } from "../pygardonProject.ts";
 
@@ -109,7 +110,7 @@ test("where the window is too short for both floors, the divider offers no range
       await expect(divider).toBeDisabled();
       // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
       await expectNoSidewaysScrollAndWholeText(page, [
-        ".sessions-sidebar-session-entry-title",
+        sessionsSidebarTitleCut,
         ...compactProjectSelectCut,
       ]);
       for (const area of [list, body])

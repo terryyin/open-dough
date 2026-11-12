@@ -1,7 +1,7 @@
 // What became of the page-wide Command shortcuts (`../src/pageShortcuts.ts`)
-// a journey presses.
+// a journey presses, and where the keyboard is before and after.
 
-import type { Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 type Taken = Record<string, boolean[]>;
 
@@ -46,3 +46,33 @@ export async function watchCommandShortcut(page: Page, shortcut: string) {
       shortcut,
     );
 }
+
+// Marks the element holding the keyboard, so a later check can tell the
+// keyboard is still on that very element; answers its tag name, or "" when
+// only the page holds the keyboard.
+export function markKeyboardPlace(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const focused = document.activeElement;
+    if (!(focused instanceof HTMLElement) || focused === document.body) {
+      return "";
+    }
+    focused.dataset.keyboardWasHere = "yes";
+    return focused.tagName;
+  });
+}
+
+// The keyboard is still on the element `markKeyboardPlace` marked.
+export async function expectKeyboardAtMark(page: Page): Promise<void> {
+  expect(
+    await page.evaluate(
+      () =>
+        document.activeElement instanceof HTMLElement &&
+        document.activeElement.dataset.keyboardWasHere === "yes",
+    ),
+    "the keyboard left the element it was on",
+  ).toBe(true);
+}
+
+// Whether the keyboard is on an element inside this part of the page.
+export const keyboardWithin = (scope: Locator) =>
+  scope.evaluate((element) => element.contains(document.activeElement));

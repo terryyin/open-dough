@@ -7,6 +7,7 @@ import {
   chooseProject,
   expectMembership,
   parts,
+  sessionEntriesIn,
   standaloneSessionName,
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
@@ -20,6 +21,8 @@ import {
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
 import {
+  expectCurrentEntry,
+  expectSessionsSidebar,
   expectSessionsSidebarSessionEntryShown,
   sessionsSidebarParts,
 } from "../sessionsSidebarPage.ts";
@@ -57,7 +60,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       dashboard,
       columnsJourney,
     );
-    const { sidebar, button, entry } = sessionsSidebarParts(page);
+    const { button, entry, row } = sessionsSidebarParts(page);
     const { taken, backlog } = parts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await button.click();
@@ -76,10 +79,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       await expectRevealsSince(page, 0, sessionName, "smooth");
       await expect(local.getByText("Shown in terminal")).toBeVisible();
       await expect(local).toHaveCSS("outline-style", "solid");
-      await expect(entry(removedStory.title)).toHaveAttribute(
-        "aria-current",
-        "true",
-      );
+      await expectCurrentEntry(page, removedStory.title);
       for (const title of [takenStory, readyStory, notRefinedStory]) {
         await expect(card(title)).toHaveCSS("outline-style", "none");
       }
@@ -89,11 +89,8 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
 
     await test.step("the Session unavailable entry shows Doughnut's stories and reveals its card, opening no terminal and marking nothing", async () => {
       const attaches = dashboard.claudeAttaches().length;
-      const unavailable = sidebar
-        .getByRole("listitem")
-        .filter({ hasText: doughnutSharedTitle });
       await expectSessionsSidebarSessionEntryShown(
-        unavailable,
+        row(doughnutSharedTitle),
         "Session unavailable",
         "unsettled",
       );
@@ -111,7 +108,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       await expect(panel).toHaveCount(0);
       expect(dashboard.claudeAttaches()).toHaveLength(attaches);
       await expect(page.getByText("Shown in terminal")).toHaveCount(0);
-      await expect(sidebar.locator("[aria-current]")).toHaveCount(0);
+      await expectCurrentEntry(page);
     });
   });
 
@@ -139,7 +136,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const panel = page.getByRole("region", { name: "Terminal" });
     const sessionName = standaloneSessionName("Refinement", notRefinedStory);
     const local = parts(page).taken.getByRole("article", { name: sessionName });
-    await expect(recentlyDone.locator(".session-entry")).toHaveCount(0);
+    await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
     await expect(
       board.locator("[data-story-card]").filter({
         has: page.getByRole("heading", {
@@ -162,10 +159,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     await expectRevealsSince(page, revealed, sessionName, "smooth");
     await expect(local.getByText("Shown in terminal")).toBeVisible();
     await expect(local).toHaveCSS("outline-style", "solid");
-    await expect(entry(notRefinedStory)).toHaveAttribute(
-      "aria-current",
-      "true",
-    );
+    await expectCurrentEntry(page, notRefinedStory);
   });
 
   test("on a narrow window, under reduced motion, opening an entry closes the sidebar over the page and moves to the story at once", async ({
@@ -183,9 +177,10 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     // Narrow covering: Close restores the full Board before Board assertions.
     await page.setViewportSize({ width: 700, height: 900 });
     await button.click();
-    await expect(sidebar).toBeVisible();
+    await expectSessionsSidebar(page, "open");
 
     await entry(pygardonStory.title).click();
+    // The covering panel hides the banner, so only the sidebar is read here.
     await expect(sidebar).toBeHidden();
     await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
     await expect
@@ -198,7 +193,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     // Covering hides the Board; Close, then the restored full Board shows the
     // card (wholly — it fits once the half-height stack is gone).
     await closeSidePanel(panel);
-    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await expectSessionsSidebar(page, "closed");
     await expect(button).toBeFocused();
     await expectWhollyInView(page, pygardonStory.title);
     // With enough Board room for the same card, it still shows whole.
@@ -226,7 +221,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     // Sidebar still open beside the panel can cover the page column; close it
     // so project radios stay reachable while the session stays open.
     if (await sidebar.isVisible()) await button.click();
-    await expect(sidebar).toBeHidden();
+    await expectSessionsSidebar(page, "closed");
     await showProject("Doughnut");
     await expectMembership(page, {
       taken: [],

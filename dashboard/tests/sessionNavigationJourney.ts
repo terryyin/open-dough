@@ -27,6 +27,7 @@ import {
   pygardonRevision,
   pygardonStory,
 } from "./pygardonProject.ts";
+import { keyboardWithin } from "./pageShortcutsPage.ts";
 import { openStoryColumnsJourney } from "./storyColumnsPage.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 
@@ -86,9 +87,7 @@ export const historyLength = (page: Page) =>
 
 // Whether the keyboard is inside the named region.
 export const keyboardInside = (page: Page, name: string) =>
-  page
-    .getByRole("region", { name })
-    .evaluate((element) => element.contains(document.activeElement));
+  keyboardWithin(page.getByRole("region", { name }));
 
 // Clicks `control` and returns how many reveals the page had made at its
 // pointer press, the developer's own move that ends an earlier part's keeping

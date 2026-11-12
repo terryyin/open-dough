@@ -3,9 +3,10 @@
 import { launch } from "../agentLaunchBoundary.ts";
 import {
   pageReadReopened,
-  recentlyDoneParts,
+  showRecentlyDone,
   showThreeProjectPage,
 } from "../recentlyDoneSessionsSidebarPage.ts";
+import { expectSessionsSidebar } from "../sessionsSidebarPage.ts";
 import { keepLaunchStore } from "../support/launchStore.ts";
 import { rem } from "../boardPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
@@ -43,9 +44,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
   // real attach win the race, clear Done, and flake this assertion.
   await page.routeWebSocket(new RegExp(agentTerminalEndpoint), () => {});
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   await shown.open(title).click();
   await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
   await expect(shown.entry(title)).toHaveCount(1);
@@ -74,9 +73,7 @@ test("a successful Cursor attach from Recently done removes the Done row", async
     ],
   });
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   await expect(shown.entry(title)).toHaveCount(1);
   await shown.open(title).click();
   const panel = page.getByRole("region", { name: "Terminal" });
@@ -111,12 +108,10 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
     ],
   });
   await showThreeProjectPage(page, origin);
-  const shown = recentlyDoneParts(page);
-  await shown.button.click();
-  await expect(shown.sidebar).toBeVisible();
-  await shown.header.click();
+  const shown = await showRecentlyDone(page);
   const reopened = pageReadReopened(page, held);
   await shown.open(title).click();
+  // The covering panel hides the banner, so only the sidebar is read here.
   await expect(shown.sidebar).toBeHidden();
   const panel = page.getByRole("region", { name: "Terminal" });
   await expect(panel.locator(".xterm-rows")).toContainText("ctrl+c to stop");
@@ -128,7 +123,7 @@ test("on a narrow window, closing the panel after a successful reopen returns fo
   await expect(panel).toHaveCount(0);
   await expect(shown.button).toBeFocused();
   await shown.button.click();
-  await expect(shown.sidebar).toBeVisible();
+  await expectSessionsSidebar(page, "open");
   await expect(shown.entry(title)).toHaveCount(0);
   await expect(
     shown.openEntries.getByRole("button", { name: title }),

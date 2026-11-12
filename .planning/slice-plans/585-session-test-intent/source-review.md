@@ -29,11 +29,11 @@ items. Ids below are the reviewer's, with kind omitted.
 | 4.5 | Express Session entry confirmation/cancellation through shared session owners | slice 1 | observed: agent-launch-story-card-delete.spec.ts asserts asked.question toHaveAccessibleName(question), Keep and Escape as separate steps with stored() kept; keepOpen(doneQuestion) in compact and touch; held answers stay separate in delete-problems; passed s1-proof2.log |
 | 4.6 | Express Session entry column placement through shared session owners | slice 1 | observed: sessionEntryShowing(board\|taken\|recentlyDone, key) with literal column counts in session-column-membership and recently-done-active-story-sessions; passed s1-proof2.log |
 | 4.7 | Keep independent observations of the same session in a Story card, Column and Sessions sidebar when their agreement is the promise | slice 1 | observed: agent-launch-story-card-delete.spec.ts still checks card, Recently done and sidebar entries separately; story-card-sessions keeps separate Board and Recently done counts; passed s1-proof2.log |
-| 5.1 | Express open sidebar navigation through suitable shared observations | slice 2 | |
-| 5.2 | Express Recently done sidebar navigation through suitable shared observations | slice 2 | |
-| 5.3 | Express keyboard focus through suitable shared observations | slice 2 | |
-| 5.4 | Express paging through suitable shared observations | slice 2 | |
-| 5.5 | Express retained scroll through suitable shared observations | slice 2 | |
+| 5.1 | Express open sidebar navigation through suitable shared observations | slice 2 | observed: sessions/sessions-sidebar-navigation.spec.ts reads expectSessionsSidebar and expectCurrentEntry(page, pygardonStory.title) then readyStory, with attaches, history and keyboardInside inline; navigation-cases uses row(title) and expectCurrentEntry; passed s2-proof-final.log (53/53) |
+| 5.2 | Express Recently done sidebar navigation through suitable shared observations | slice 2 | observed: showRecentlyDone/expectRecentlyDone(shown, 'expanded'\|'collapsed') and recentlyDoneParts.titles in recently-done-sessions-sidebar{,-navigation,-reopen,-projects,-paging-board}.spec.ts; passed s2-proof-final.log |
+| 5.3 | Express keyboard focus through suitable shared observations | slice 2 | observed: sessions/sessions-sidebar-keyboard.spec.ts: inspect.focus → markKeyboardPlace → Meta+b → expectSessionsSidebar(page,'open') → expectKeyboardAtMark, keys and typed bytes inline; passed s2-proof-final.log |
+| 5.4 | Express paging through suitable shared observations | slice 2 | observed: sessions/recently-done-sessions-sidebar-paging.spec.ts uses revealRecentlyDoneThrough, shown.titles and byProjectOf with 40/45/20 counts and tie order inline; passed s2-proof-final.log |
+| 5.5 | Express retained scroll through suitable shared observations | slice 2 | observed: recently-done-sessions-sidebar-paging collapse/hide/project change keeps toHaveCount(45) with expectRecentlyDone collapsed and expectSessionsSidebar closed; sessions-sidebar-stays-as-left checks open/closed across project, terminal, reload with storage keys inline; passed s2-proof-final.log |
 | 5.6 | Express host figures through suitable shared observations | slice 3 | |
 | 5.7 | Counts, CPU/disk values and accessible words remain caller facts | slice 3 | |
 | 5.8 | Controlled reads and clocks still explain when a reading changes | slice 3 | |
@@ -54,7 +54,7 @@ items. Ids below are the reviewer's, with kind omitted.
 | 8.1 | Keep session identity explicit where it separates outcomes | slice 1 | observed: claude:<id> keys, sessionIdLineOf(entry, native) and Session <id> stay at call sites in compact-session-entry and agent-launch-story-card-sessions; passed s1-proof2.log |
 | 8.2 | Keep expected state/badges and placement explicit where they separate outcomes | slice 1 | observed: literal state words, column counts ('2 entries') and expectMembership unchanged at call sites in session-column-membership and agent-launch-story-card-session-states; passed s1-proof2.log |
 | 8.3 | Keep report text explicit where it separates outcomes | slice 6 | |
-| 8.4 | Keep exact key/touch/pointer input and focus expectations explicit where they separate outcomes | slice 2 | |
+| 8.4 | Keep exact key/touch/pointer input and focus expectations explicit where they separate outcomes | slice 2 | observed: page.keyboard.press and tapWhereShown inputs and toBeFocused expectations remain at call sites in sessions-sidebar-keyboard, -navigation, -navigation-cases, -touch and recently-done-sessions-sidebar-reopen; passed s2-proof-final.log |
 | 8.5 | Keep held answers and release order explicit where they separate outcomes | slice 4 | |
 | 8.6 | Keep native/HTTP/Git/record evidence explicit where it separates outcomes | slice 6 | |
 | 9 | Domain setup stays with MakeMe | slice 6 | |
@@ -71,7 +71,7 @@ items. Ids below are the reviewer's, with kind omitted.
 | 15 | Reuse existing owners without making those stories execution prerequisites | slice 6 | |
 | 16 | Necessary proof-harness repair follows the project's failing/flaky-test policy | slice 6 | |
 | E1 | A compact entry hides technical details and lifecycle actions independently → the user discloses, opens, confirms or cancels an action → named session operations expose those steps, while the case still specifies its native session, state, focus and resulting membership in each relevant surface | slice 1 | observed: compact-session-entry.spec.ts Mark-as-done cancellation reads markAsDone(entry).click → keepOpen(doneQuestion(entry)) focused → Escape → markAsDone focused, with native session, state and membership kept in the case; passed s1-proof2.log |
-| E2 | Open and Recently done lists contain more sessions than fit → the user walks them by keyboard, pages older entries, or changes view and returns → shared sidebar operations express the destination and retained reading place; exact keys, expected order/count and no-unintended-action evidence stay in the scenario | slice 2 | |
+| E2 | Open and Recently done lists contain more sessions than fit → the user walks them by keyboard, pages older entries, or changes view and returns → shared sidebar operations express the destination and retained reading place; exact keys, expected order/count and no-unintended-action evidence stay in the scenario | slice 2 | observed: paging scenario: showRecentlyDone → revealRecentlyDoneThrough → shown.titles with literal order/counts, collapse and return keep 45; keyboard walk keeps exact keys and expectKeyboardAtMark; passed s2-proof-final.log |
 | E3 | Frontend synthetic and integrated host-status cases read the same figures → a controlled host/session read changes or is unavailable → one browser observation checks the caller's count, text, accessible name and title; fixtures keep their tiers and the case still explains read timing | slice 3 | |
 | E4 | A Running Cursor list has a held native client, or a frontend held answer → the user expands, chooses, collapses or resizes the list → shared controls expose the actual input and expected row/geometry/focus, while native attachment and frontend request ownership remain separately observed | slice 5 | |
 | E5 | A retained row is linked to a completed story, or is standalone → the user selects it, then separately opens its report → selection preserves the required perspective, Selected story and existing Side panel; opening shows the chosen session's exact report | slice 6 | |
@@ -103,7 +103,7 @@ items. Ids below are the reviewer's, with kind omitted.
 | A8.1 | Held-read tests still show which action happens before the answer | slice 4 | |
 | A8.2 | ...which user choice supersedes it | slice 4 | |
 | A8.3 | ...and what stays selected after release | slice 4 | |
-| A9 | Touch and keyboard tests still identify the actual input and expected focus | slice 2 | |
+| A9 | Touch and keyboard tests still identify the actual input and expected focus | slice 2 | observed: sessions-sidebar-touch and recently-done-sessions-sidebar-touch still tap through tapWhereShown with focus expectations inline; passed s2-proof-final.log |
 | A10 | Keep Git, HTTP, host and record evidence at the boundary it observes, along with the assertions that distinguish outcomes | slice 6 | |
 | A11.1 | Preserve each distinct behavior check | slice 6 | |
 | A11.2 | Preserve the existing test tiers | slice 6 | |

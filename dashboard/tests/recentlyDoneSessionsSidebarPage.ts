@@ -24,7 +24,10 @@ import {
   runningCursorParts,
   showPage,
 } from "./runningCursorSessionsPage.ts";
-import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";
+import {
+  openSessionsSidebar,
+  sessionsSidebarParts,
+} from "./sessionsSidebarPage.ts";
 import { expect, keptRecord } from "./support/cursorStart.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
 import type { FakeCursor } from "./support/fakeCursor.ts";
@@ -51,6 +54,8 @@ export function recentlyDoneParts(page: Page) {
     list: sidebar.locator(".sessions-sidebar-sessions"),
     body: region.locator(".recently-done-sessions-body"),
     entries,
+    // Their titles, in the order the section shows them.
+    titles: entries.getByRole("heading", { level: 3 }),
     // A row's Select control, named by its title, and its separate Open
     // control, named by the access it opens and described by the title.
     entry: (title: string) => region.getByRole("button", { name: title }),
@@ -64,6 +69,34 @@ export function recentlyDoneParts(page: Page) {
     }),
     running: runningCursorParts(page),
   };
+}
+
+export type RecentlyDoneParts = ReturnType<typeof recentlyDoneParts>;
+
+// Opens the Sessions sidebar and expands Recently done sessions, pressing
+// Sessions and the section header only where either is still closed.
+export async function showRecentlyDone(page: Page): Promise<RecentlyDoneParts> {
+  const shown = recentlyDoneParts(page);
+  await openSessionsSidebar(page);
+  if ((await shown.header.getAttribute("aria-expanded")) !== "true")
+    await shown.header.click();
+  await expectRecentlyDone(shown, "expanded");
+  return shown;
+}
+
+// The section is expanded, showing its body, or collapsed without one, and
+// its header says the same.
+export async function expectRecentlyDone(
+  shown: RecentlyDoneParts,
+  expected: "expanded" | "collapsed",
+): Promise<void> {
+  await expect(shown.header).toHaveAttribute(
+    "aria-expanded",
+    String(expected === "expanded"),
+  );
+  await (expected === "expanded"
+    ? expect(shown.body).toBeVisible()
+    : expect(shown.body).toHaveCount(0));
 }
 
 // Resolves on the page's sessions read that shows `held` reopened. Only the
@@ -173,8 +206,7 @@ export async function expandThreeCrowded(
   const heldRows = shown.running.region.getByRole("button", {
     name: /Open Dough/,
   });
-  await shown.button.click();
-  await shown.header.click();
+  await showRecentlyDone(page);
   await shown.running.header.click();
   await expect(shown.openEntries).toHaveCount(crowd + 1);
   await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);

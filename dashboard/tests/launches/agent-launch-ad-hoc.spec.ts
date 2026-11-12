@@ -178,12 +178,10 @@ test("starting with text sends it in the Open Dough folder, and the session read
     ).toHaveCount(2);
   }
 
-  const { button, entries } = sessionsSidebarParts(page);
+  const { button, entries, titles } = sessionsSidebarParts(page);
   await button.click();
   await expect(entries).toHaveCount(1);
-  await expect(entries.first().getByRole("heading", { level: 3 })).toHaveText(
-    text,
-  );
+  await expect(titles.first()).toHaveText(text);
   await expectTooltipLine(entries.first(), "Open Dough · Ad hoc");
 });
 

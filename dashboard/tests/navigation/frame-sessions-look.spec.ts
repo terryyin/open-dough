@@ -20,7 +20,10 @@ import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
 } from "../pageLayout.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  sessionsSidebarParts,
+  sessionsSidebarTitleCut,
+} from "../sessionsSidebarPage.ts";
 import {
   expectClosedToggleCounts,
   expectClosedToggleCountsFit,
@@ -37,7 +40,6 @@ const work = {
   identity: "SEED-901#frame-look",
   title: `A long story title that the narrow sidebar cuts ${"and goes on ".repeat(4)}to its end`,
 };
-const cutTitles = ".sessions-sidebar-session-entry-title";
 const panelTitle = ".side-panel-title-toggle";
 const terminalScreen = ".terminal-screen";
 
@@ -83,7 +85,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
         await page.setViewportSize(size);
         await expect(sidebar).toBeVisible();
         await expectNoSidewaysScrollAndWholeText(page, [
-          cutTitles,
+          sessionsSidebarTitleCut,
           ...compactProjectSelectCut,
         ]);
       }
@@ -121,7 +123,7 @@ test.describe("the Sessions sidebar and terminal in the frame's look", () => {
           })
           .toBe(true);
         await expectNoSidewaysScrollAndWholeText(page, [
-          cutTitles,
+          sessionsSidebarTitleCut,
           panelTitle,
           terminalScreen,
           ...compactProjectSelectCut,

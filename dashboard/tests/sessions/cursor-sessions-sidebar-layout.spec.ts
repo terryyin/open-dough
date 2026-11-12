@@ -28,6 +28,7 @@ import {
   showPage,
   wheelToEnd,
 } from "../runningCursorSessionsPage.ts";
+import { sessionsSidebarTitleCut } from "../sessionsSidebarPage.ts";
 import { expect, keptRecord, test } from "../support/cursorStart.ts";
 
 test.use({ cursorScreen: "working" });
@@ -149,7 +150,7 @@ test("collapsed below the session list, expanded into two lists sharing the room
     await expect(sidebar).toBeVisible();
     // An entry's title is cut by design (./sessions-sidebar-row.spec.ts).
     await expectNoSidewaysScrollAndWholeText(page, [
-      ".sessions-sidebar-session-entry-title",
+      sessionsSidebarTitleCut,
       ...compactProjectSelectCut,
     ]);
     for (const area of [list, body]) {

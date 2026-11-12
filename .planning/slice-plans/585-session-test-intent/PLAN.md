@@ -143,7 +143,7 @@ sites onto these owners.
 
 ### 2. Follow sidebar navigation and retained reading place
 Type: Behavior
-Status: planned
+Status: done
 Proof: `sessions-sidebar-{keyboard,navigation,navigation-cases,order,reading,row,state-edge,stays-as-left,touch}` and `recently-done-sessions-sidebar*` specs, plus reached frame/sidebar and `navigation/board-paging-sessions-sidebar` callers. Retain exact keys, focus/row order, older paging, retained scroll and no-unintended-action evidence.
 
 Behavior: Given open or Recently done sessions beyond the available room, the
@@ -151,6 +151,19 @@ developer follows named sidebar navigation around explicit keys, view changes
 and read events, with expected destination and retained position visible.
 Extend open/retained list owners, preserving distinct selection/report access
 for slice 6. Safe stop: navigation improvements stand independently.
+
+Result (slice 2): `sessionsSidebarPage.ts` gained `expectSessionsSidebar`,
+`expectCurrentEntry`, `titles`, `row`, elapsed/details readers (layout moved to new
+`sessionsSidebarLayout.ts`); `recentlyDoneSessionsSidebarPage.ts` gained
+`showRecentlyDone`, `expectRecentlyDone`, `titles`; paging owns `byProjectOf`;
+`pageShortcutsPage.ts` owns `markKeyboardPlace`/`expectKeyboardAtMark`/`keyboardWithin`.
+About 150 raw visibility, `aria-expanded`/`aria-current`, header-click, heading and
+`activeElement` sites removed across 33 files for about 60 helper lines. Before/after
+(keyboard): spec-local `markFocused`/`stillFocused` evaluates plus paired sidebar and
+toggle checks → `markKeyboardPlace` → `Meta+b` → `expectSessionsSidebar(page, "open")`
+→ `expectKeyboardAtMark` (179 → 157 lines). Learning: while a side panel covers the
+page the banner is hidden from the accessibility tree, so covering-page callers read
+the sidebar alone. Proof 53/53 over 30 specs (`s2-proof-final.log`), refactor rerun 4/4.
 
 ### 3. Read host figures through one cross-tier browser observation
 Type: Behavior
@@ -255,3 +268,8 @@ Disposition: proved by slice 1: dashboard/tests/sessions/agent-launch-story-card
 Reported: slice 1 — "recently-done-story-sessions replaced the non-exact /Open terminal|More session actions/ absence check with two exact-name absence checks through the shared owners."
 Story clause: "Every distinct behavior check and existing test tier remains represented"
 Disposition: proved by slice 1: dashboard/tests/sessions/recently-done-story-sessions.spec.ts asserts openTerminalOf(closedFirst) and sessionActionsControl(closedFirst) toHaveCount(0), the product's only names for those controls (same exact names every other caller asserts), passing in s1-proof2.log
+
+### G4. Current-entry observation requires exactly one current row
+Reported: slice 2 — "expectCurrentEntry's exactly-one-current check could fail a future scenario where a Recently done row is also aria-current while expanded; no current scenario does that."
+Story clause: "shared sidebar operations express the destination and retained reading place"
+Disposition: proved by slice 2: dashboard/tests/sessionsSidebarPage.ts expectCurrentEntry asserts the named entry's aria-current and a single current row, which every current open-list caller expects (s2-proof-final.log 53/53); a later scenario needing two current rows would state that in its own assertion

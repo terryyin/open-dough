@@ -6,11 +6,11 @@
 // (./fixtures/fake-claude), which records each line entered in its terminal;
 // the real one is never reached.
 
-import type { Page } from "@playwright/test";
 import { expect, test } from "../dashboardTest.ts";
 import {
   storyCardSessionOf,
   expectMembership,
+  openTerminalOf,
   parts,
   sessionNamedBy,
 } from "../dashboardPage.ts";
@@ -21,9 +21,17 @@ import {
   takenStory,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
-import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
+import {
+  expectSessionsSidebar,
+  sessionsSidebarParts,
+} from "../sessionsSidebarPage.ts";
 import { openStoryColumnsJourney } from "../storyColumnsPage.ts";
-import { watchCommandShortcut } from "../pageShortcutsPage.ts";
+import {
+  expectKeyboardAtMark,
+  keyboardWithin,
+  markKeyboardPlace,
+  watchCommandShortcut,
+} from "../pageShortcutsPage.ts";
 
 test.use({ projectFolders: ["open-dough", "doughnut"] });
 
@@ -31,26 +39,6 @@ const queued = {
   taken: [],
   backlog: [takenStory, readyStory, notRefinedStory],
 };
-
-// The element holding the keyboard, marked so a later reading can tell it is
-// still the same one.
-async function markFocused(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const focused = document.activeElement;
-    if (!(focused instanceof HTMLElement) || focused === document.body) {
-      return "";
-    }
-    focused.dataset.keyboardWasHere = "yes";
-    return focused.tagName;
-  });
-}
-
-const stillFocused = (page: Page) =>
-  page.evaluate(
-    () =>
-      document.activeElement instanceof HTMLElement &&
-      document.activeElement.dataset.keyboardWasHere === "yes",
-  );
 
 test.describe("Command+B and the Sessions sidebar", () => {
   let columnsJourney: StoryColumnsJourney;
@@ -69,7 +57,6 @@ test.describe("Command+B and the Sessions sidebar", () => {
       page,
       columnsJourney,
     );
-    const { sidebar, button } = sessionsSidebarParts(page);
     const panel = page.getByRole("region", { name: "Terminal" });
     await expectMembership(page, queued);
     await settled();
@@ -80,14 +67,13 @@ test.describe("Command+B and the Sessions sidebar", () => {
         name: "Inspect story",
       });
       await inspect.focus();
-      expect(await markFocused(page)).toBe("BUTTON");
+      expect(await markKeyboardPlace(page)).toBe("BUTTON");
       await page.keyboard.press("Meta+b");
-      await expect(sidebar).toBeVisible();
-      await expect(button).toHaveAttribute("aria-expanded", "true");
-      expect(await stillFocused(page)).toBe(true);
+      await expectSessionsSidebar(page, "open");
+      await expectKeyboardAtMark(page);
       await page.keyboard.press("Meta+b");
-      await expect(sidebar).toBeHidden();
-      expect(await stillFocused(page)).toBe(true);
+      await expectSessionsSidebar(page, "closed");
+      await expectKeyboardAtMark(page);
       await expectMembership(page, queued);
       expect(await commandB()).toEqual([true, true]);
     });
@@ -96,7 +82,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
       await launch(readyStory, "Execution");
       const entry = storyCardSessionOf(card(readyStory), "Execution");
       const session = await sessionNamedBy(entry);
-      await entry.getByRole("button", { name: "Open terminal" }).click();
+      await openTerminalOf(entry).click();
       const attach = () =>
         dashboard
           .claudeAttaches()
@@ -105,19 +91,15 @@ test.describe("Command+B and the Sessions sidebar", () => {
       await expect(panel.locator(".xterm-rows")).toContainText(
         `attached ${session.slice(0, 8)}`,
       );
-      expect(
-        await panel.evaluate((element) =>
-          element.contains(document.activeElement),
-        ),
-      ).toBe(true);
-      await markFocused(page);
+      expect(await keyboardWithin(panel)).toBe(true);
+      await markKeyboardPlace(page);
 
       await page.keyboard.press("Meta+b");
-      await expect(sidebar).toBeVisible();
-      expect(await stillFocused(page)).toBe(true);
+      await expectSessionsSidebar(page, "open");
+      await expectKeyboardAtMark(page);
       await page.keyboard.press("Meta+b");
-      await expect(sidebar).toBeHidden();
-      expect(await stillFocused(page)).toBe(true);
+      await expectSessionsSidebar(page, "closed");
+      await expectKeyboardAtMark(page);
 
       await page.keyboard.type("x");
       await page.keyboard.press("Control+b");
@@ -135,7 +117,7 @@ test.describe("Command+B and the Sessions sidebar", () => {
       page,
       columnsJourney,
     );
-    const { sidebar, button } = sessionsSidebarParts(page);
+    const { button } = sessionsSidebarParts(page);
     const { preparationHelp } = parts(page);
     await expectMembership(page, queued);
     await settled();
@@ -149,25 +131,21 @@ test.describe("Command+B and the Sessions sidebar", () => {
       await expect(dialog).toBeVisible();
       await page.keyboard.press("Meta+b");
       await expect(dialog).toBeVisible();
-      await expect(
-        dialog.evaluate((element) => element.contains(document.activeElement)),
-      ).resolves.toBe(true);
-      await expect(button).toHaveAttribute("aria-expanded", "false");
-      await expect(sidebar).toBeHidden();
+      expect(await keyboardWithin(dialog)).toBe(true);
+      await expectSessionsSidebar(page, "closed");
       await page.keyboard.press("Escape");
       await expect(dialog).toBeHidden();
     });
 
     await test.step("the badge legend, with the sidebar open", async () => {
       await button.click();
-      await expect(sidebar).toBeVisible();
+      await expectSessionsSidebar(page, "open");
       const legend = page.getByRole("dialog", { name: "Preparation badges" });
       await preparationHelp.click();
       await expect(legend).toBeVisible();
       await page.keyboard.press("Meta+b");
       await expect(legend).toBeVisible();
-      await expect(button).toHaveAttribute("aria-expanded", "true");
-      await expect(sidebar).toBeVisible();
+      await expectSessionsSidebar(page, "open");
       await legend.getByRole("button", { name: "Close", exact: true }).click();
       await expect(legend).toBeHidden();
     });
