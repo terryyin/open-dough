@@ -25,7 +25,10 @@ export const mixedSettings = makeMe.intentSettings
     makeMe.anIntentLocation.at("e2e_test/features").ofKind("gherkin").please(),
     makeMe.anIntentLocation.at("no_such_dir").ofKind("gherkin").please(),
     makeMe.anIntentLocation.at("empty_features").ofKind("gherkin").please(),
-    makeMe.anIntentLocation.at("frontend/src").ofKind("java").please(),
+    makeMe.anIntentLocation
+      .at("frontend/src")
+      .ofKind("unfamiliar-language")
+      .please(),
     makeMe.anIntentLocation
       .at("scripts")
       .ofKind("javascript", ["**/*.test.mjs"])

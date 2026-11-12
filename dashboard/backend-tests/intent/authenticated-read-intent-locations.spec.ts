@@ -165,7 +165,7 @@ test.describe("authenticated Intent locations read (development environment)", (
                   .please(),
                 makeMe.anIntentLocation
                   .at("frontend/src")
-                  .ofKind("java")
+                  .ofKind("unfamiliar-language")
                   .please(),
               ],
             },
@@ -203,7 +203,7 @@ test.describe("authenticated Intent locations read (development environment)", (
         },
         {
           path: "frontend/src",
-          kind: "java",
+          kind: "unfamiliar-language",
           files: [],
           problem: "unsupported-kind",
         },

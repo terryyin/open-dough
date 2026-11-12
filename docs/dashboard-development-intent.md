@@ -8,8 +8,8 @@ Development is the first-visit default perspective: the stories or agent
 roster, near-future direction, Start session and published-state
 qualifications. Intent replaces that content with the project's Purpose and
 Proof reading surface. When the selected project's
-`.planning/open-dough.json` publishes `intent.locations` of kind `gherkin`,
-Intent lists each location's nested `.feature` files in a collapsible tree
+`.planning/open-dough.json` publishes `intent.locations`,
+Intent lists each location's configured files in a collapsible tree
 whose folders start collapsed. Locations and folders share separate toggle
 and name controls: a toggle (open/closed book for a location, folder for a
 folder) expands without changing the selection or reading pane; an
@@ -32,7 +32,10 @@ expansion shows only in the toggle. With a story comparison, file rows and
 location headers whose path is a compared entry show the same count-border
 and duration-tint cues, with Proof's words in their accessible names; folder
 rows do not. Selecting a file still reads its exact published text with line
-numbers and Gherkin syntax styling at Intent's reading revision. A location
+numbers and its kind's syntax styling at Intent's reading revision, including
+Java/JUnit source selected by `kind: "java"` (`.java` with optional `include`
+patterns). Java membership follows configuration, with no annotation discovery;
+source availability supplies no CI result. A location
 may instead declare `sources` entries, each with `include` patterns and an
 optional `syntax` hint ([project configuration](../dashboard/PROJECT-CONFIGURATION.md)):
 a file any entry's pattern matches is listed, with no extension filter, and

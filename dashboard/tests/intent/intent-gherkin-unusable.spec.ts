@@ -74,7 +74,9 @@ test("Intent names empty, missing, and unsupported locations while others browse
     summary = intent.getByRole("region", { name: "Summary" });
     await expect(summary).toContainText("frontend/src");
     await expect(summary).toContainText("0 files");
-    await expect(summary).toContainText("Kind java is not yet supported.");
+    await expect(summary).toContainText(
+      "Kind unfamiliar-language is not yet supported.",
+    );
 
     await intentLocationName(intent, "scripts").click();
     summary = intent.getByRole("region", { name: "Summary" });
@@ -126,9 +128,11 @@ test("Intent names empty, missing, and unsupported locations while others browse
     ).toBeVisible();
   });
 
-  await test.step("kind java says it is not yet supported, naming it; others still browse", async () => {
+  await test.step("kind unfamiliar-language says it is not yet supported, naming it; others still browse", async () => {
     await expandIntentGroup(intent, "frontend/src");
-    await expect(intent).toContainText("Kind java is not yet supported.");
+    await expect(intent).toContainText(
+      "Kind unfamiliar-language is not yet supported.",
+    );
     await expandIntentGroup(intent, "e2e_test/features");
     await expect(
       sourceFile(intent, "e2e_test/features/usable/usable.feature"),

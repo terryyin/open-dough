@@ -111,6 +111,58 @@ test("omitted, false and non-boolean flags never enable a convention", () => {
   }
 });
 
+test("Java membership preserves independent guidance opt-ins for kinds and explicit sources", () => {
+  const java = makeMe.anIntentLocation
+    .at("java-tests")
+    .ofKind("java", ["**/*Test.java"])
+    .withRules({ makeMe: true })
+    .please();
+  const explicit = makeMe.anIntentLocation
+    .at("java-tests")
+    .withSources({ include: ["**/*Examples.java"], syntax: "java" })
+    .withRules({ pageObjects: true })
+    .please();
+  const allJava = makeMe.anIntentLocation
+    .at("helpers")
+    .ofKind("java")
+    .withRules({ pageObjects: true })
+    .please();
+  assert.deepEqual(
+    selectTestEntryRules(settingsWith(java, explicit, allJava), [
+      "java-tests/com/example/CalculatorTest.java",
+      "java-tests/com/example/CalculatorExamples.java",
+      "java-tests/com/example/Fixture.java",
+      "java-tests/com/example/CalculatorTest.JAVA",
+      "helpers/Fixture.java",
+      "helpers/Fixture.txt",
+    ]).sources,
+    [
+      {
+        path: "java-tests/com/example/CalculatorTest.java",
+        makeMe: true,
+        pageObjects: false,
+      },
+      {
+        path: "java-tests/com/example/CalculatorExamples.java",
+        makeMe: false,
+        pageObjects: true,
+      },
+      {
+        path: "java-tests/com/example/Fixture.java",
+        makeMe: false,
+        pageObjects: false,
+      },
+      {
+        path: "java-tests/com/example/CalculatorTest.JAVA",
+        makeMe: false,
+        pageObjects: false,
+      },
+      { path: "helpers/Fixture.java", makeMe: false, pageObjects: true },
+      { path: "helpers/Fixture.txt", makeMe: false, pageObjects: false },
+    ],
+  );
+});
+
 test("missing configuration is off; malformed and unreadable settings remain unresolved", async (t) => {
   const project = mkdtempSync(join(tmpdir(), "test-entry-rules-"));
   t.after(() => rmSync(project, { recursive: true, force: true }));

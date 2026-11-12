@@ -3,6 +3,8 @@
 **Identity:** SEED-325#review-junit-tests-in-intent
 **Source:** [Review JUnit tests in Intent](../../seeds/SEED-325-junit-tests-in-intent.md#review-junit-tests-in-intent)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and scope
 
 A developer can browse configured Java/JUnit source alongside other supported
@@ -63,7 +65,7 @@ their future passing result is not claimed by this preparation.
 
 ### 1. Browse and read configured Java tests through the shared Intent flow
 Type: Behavior
-Status: planned
+Status: done
 Proof: All rows above; focused commands below. Start the new listing/opening
 regression against the unsupported current kind and observe its failure before
 enabling Java. Do not publish a red intermediate state.
@@ -205,3 +207,23 @@ stopped before browser assertions: this new worktree lacked local dependencies,
 so server-bundle creation could not make its directory under `node_modules`.
 Checkout-local locked setup corrected that environment failure; no test
 expectation was changed. Both observations belong to this owned workspace.
+
+## Execution context
+
+- Established Story Branch execution in `/Users/terryyin/git/open-dough/.worktrees/review-junit-tests-in-intent`, branch `codex/review-junit-tests-in-intent`; originating and execution checkout are this workspace. Optional default checkout: `/Users/terryyin/git/open-dough`, preserved.
+- Identity `SEED-325#review-junit-tests-in-intent`; publisher `dashboard-territory.local-open-dough`; agent `aki-chan`; starting revision `caf48c6fa41b6a45dcdad4eac35cda9a858b2047`. Accepted claim and initial published base/candidate: `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea` on `origin/main`; increments target `origin/codex/review-junit-tests-in-intent`. Claim CI: unobserved on trunk. No second start.
+- Checkout-local `npm ci` succeeded with unchanged lockfile; `npm run typecheck:dashboard` succeeded. The pre-commit hook is understood and check-only: staged lint, then dashboard typecheck for staged scripts. Selective formatter: `npm run format`.
+- CI source: GitHub Actions `ci.yml` (verified active workflow `CI`, ID 351271804), push-triggered. Installed runtime belongs to this exact checkout. Codex observer coordinator `seed325-aki`, directory `/tmp/dough-ci-501/watch-Bw2hP0`, PID 3144, stream session 22735, yielded cell `g42:10`, target `terryyin/open-dough:codex/review-junit-tests-in-intent`.
+- Replanning retains the existing planned-work authority; no numeric slice hard limit or target was supplied. This remains one bounded proof loop.
+- Test-entry selection resolved intended Java browser/backend specs and existing implicated specs with both per-entry flags false. Repository AGENTS still requires shared MakeMe arrangements. New paths must be checked before authoring.
+- Expensive proof decision: local macOS host, AC power, load 3.54/3.62/6.72 with reclaimable memory and background indexing. Other active SEED-287/326 worktrees may share capacity; no overlapping heavy suite was observed in the bounded process inspection. Run only the named focused cohort with one worker under `caffeinate -s -i`; implementation agent owns each command through its terminal result. Reconsider on contention or failures; do not relax timeouts or reduce promised coverage.
+- ADR index and relevant Accepted ADRs 0001, 0002 and 0008 agree with the shared-owner approach; no conflict or exception.
+
+## Slice 1 acceptance
+
+- Original source and source-only review compared with the actual product, MakeMe setup and observing assertions. Every returned id is observed in the linked source review; no source promise was narrowed and no gap remains. Named sibling coordination: none in the selected source/plan (SEED-287/326 are capacity context only). Freshness returned unchanged at trunk `095f2bff9ce186a48c94f94a39810f8b82767eae`, base `75c9981a0d5116d770c3e4eba3058a0f7cd9ddea`.
+- Expected pre-change red: the real-publication Java browser journey failed because CalculatorTest.java was absent; evidence `dashboard/test-results/2026-11-12T05-53-38.727Z-93047`. Subsequent new-test expectation/setup and generated-runtime failures were corrected; final required proof is passing, with no running commands.
+- Accepted proof: `node --test tests/support/test-entry-rules*.test.mjs` (19 passed); `npm run typecheck:dashboard` (pass); `caffeinate -s -i npm run test:dashboard -- --workers=1 'tests/intent/intent-code-browse' 'tests/intent/intent-gherkin-(groups|unusable)' 'backend-tests/intent/authenticated-read-intent-(locations|selection|java)' 'backend-tests/intent/intent-(story-overlay|location-syntax).spec.ts' 'tests/intent/intent-story-changes' 'frontend-tests/dashboard-system-appearance.spec.ts'` (40 tests in 19 files, pass); `PATH="/opt/homebrew/bin:$PATH" npm test -- tests/makeme-payload.test.mjs` (pass); `git diff --check` (pass). Commands ran in this checkout; setup/assertion locations and consumer dispositions are retained in source-review.md and consumer-trace.md.
+- Generated standalone test-entry runtime updated through `node scripts/build-test-entry-rules.mjs`; installed copies untouched. Product, setup, assertions and literal command selections inspected; generated runtime regeneration check and legacy payload checks passed. Expensive-proof decision remained one worker on AC under the sleep guard, reconsidered by the implementation owner.
+
+- Independent dough-post-change-refactor return: none — already clean; no edits and no behavioral reruns, all accepted boundaries/setup/assertions unchanged, git diff --check passed, REFACTOR COMPLETE received. Final pre-delivery freshness again unchanged at trunk 095f2bff9ce186a48c94f94a39810f8b82767eae; no named coordination sibling affects this work.
