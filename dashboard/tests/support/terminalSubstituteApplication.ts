@@ -66,20 +66,26 @@ export function conversationLine(number: number): string {
   return `conversation line ${String(number).padStart(3, "0")}`;
 }
 
+// Pointer tracking the application announces with the alternate screen, in
+// SGR form. `?1003h` is any-motion (as Claude Code was observed to); `?1000h`
+// is button-event and `?1002h` is drag.
+export type SelfScrollingTracking = "?1000h" | "?1002h" | "?1003h";
+
 // An application that has taken over the screen and scrolls its own output,
-// announcing itself as Claude Code was observed to: the alternate screen and
-// tracking of any pointer event, reported in SGR form. It draws a window of
-// `shown` numbered lines ending at the latest of `lines` and a draft row
-// below it. Each wheel report redraws the window one line earlier or later.
-// Other pointer reports, such as a tap's movement, press and release, change
-// nothing. Any other input is typed into the draft, an escape shown as `^[`,
-// so a key the page sent changes the draft row.
+// announcing the alternate screen and the `tracking` the test states. It
+// draws a window of `shown` numbered lines ending at the latest of `lines`
+// and a draft row below it. Each wheel report redraws the window one line
+// earlier or later. Other pointer reports, such as a tap's movement, press
+// and release, change nothing. Any other input is typed into the draft, an
+// escape shown as `^[`, so a key the page sent changes the draft row.
 export function selfScrollingApplication({
   lines,
   shown,
+  tracking = "?1003h",
 }: {
   readonly lines: number;
   readonly shown: number;
+  readonly tracking?: SelfScrollingTracking;
 }): TerminalApplication {
   const latest = lines - shown + 1;
   let first = latest;
@@ -90,7 +96,7 @@ export function selfScrollingApplication({
       (...[, row]) => `${conversationLine(first + row)}${escape}[K\r\n`,
     ).join("")}> ${draft}${escape}[K`;
   return {
-    opening: `${escape}[?1049h${escape}[?1003h${escape}[?1006h${draw()}`,
+    opening: `${escape}[?1049h${escape}[${tracking}${escape}[?1006h${draw()}`,
     answer(input) {
       const wheel = wheelReport.exec(input);
       if (wheel !== null) {

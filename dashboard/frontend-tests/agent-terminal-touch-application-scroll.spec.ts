@@ -158,3 +158,53 @@ test("a swipe sends nothing to an application that took over the screen without 
   await input.press("x");
   await expect.poll(() => sent).toEqual(["x"]);
 });
+
+// One page open per tracking mode: one stroke, one wheel report per whole
+// row, earlier conversation lines, and nothing else. Place, draft and return
+// stay with the any-motion journey above.
+for (const tracking of ["?1000h", "?1002h"] as const) {
+  test(`a swipe scrolls an application that announces ${tracking}`, async ({
+    page,
+    frontendServices,
+  }) => {
+    const lines = 60;
+    const shown = 10;
+    const latest = lines - shown + 1;
+    const steps = 5;
+    const { rows, screen, input, sent, sizes } =
+      await openFrontendTerminalByTouch(
+        page,
+        frontendServices,
+        launch()
+          .inCodexSession({
+            sessionId: `swipe-${tracking.slice(1)}`,
+            continuation: {
+              workspace: "/work/swipe",
+              endpoint: "ws://codex",
+            },
+          })
+          .please(),
+        {
+          application: selfScrollingApplication({ lines, shown, tracking }),
+        },
+      );
+    await expect(rows).toContainText(conversationLine(lines));
+    await expect(rows).toContainText(conversationLine(latest));
+    const travel = await travelOverRows(
+      screen,
+      reportedSize(sizes).rows,
+      steps,
+    );
+    const before = sent.length;
+    await scrollByTouch(page, screen, travel);
+    await expect.poll(() => sent.length).toBe(before + steps);
+    for (const report of sent.slice(before)) {
+      const [, button] = wheelReport.exec(report) ?? [];
+      expect(button, `wheel report, not ${JSON.stringify(report)}`).toBe("64");
+    }
+    await expect(rows).toContainText(conversationLine(latest - steps));
+    await expect(rows).not.toContainText(conversationLine(lines));
+    await input.press("!");
+    expect(sent.slice(before + steps)).toEqual(["!"]);
+  });
+}

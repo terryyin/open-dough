@@ -2,6 +2,7 @@
 
 **Identity:** SEED-316#prove-swipe-under-button-event-tracking
 **Source:** [Correction story](../../seeds/SEED-316-mobile-terminal-text-selection.md#prove-swipe-under-button-event-tracking)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -65,7 +66,7 @@ this slice under the failure policy.
 
 ### 1. A swipe under button-event and drag tracking is proved
 Type: Structure
-Status: planned
+Status: done
 Proof: In `dashboard/frontend-tests/agent-terminal-touch-application-scroll.spec.ts`,
 a terminal whose application announces `?1000h`, and one whose application
 announces `?1002h`, each receive one wheel report per whole row of a finger
@@ -81,6 +82,19 @@ modes the swipe decision names have no page open of their own, so deleting
 either from the decision leaves every test green. Product behavior is
 unchanged and is proved preserved by the existing application-scroll and
 scrollback tests in the same command.
+
+Accepted proof (2026-11-12):
+- `selfScrollingApplication` takes optional `tracking` (`?1000h`|`?1002h`|`?1003h`,
+  default `?1003h`); cheap mode cases in
+  `agent-terminal-touch-application-scroll.spec.ts`.
+- Focused command: 7 passed. `npm run typecheck:dashboard`: pass.
+  `npm run test:dashboard -- frontend-tests/agent-terminal-touch`: 16 passed.
+- Negative controls verified in execution; `terminalTouchScroll.ts` restored.
+- Source commitments 1, 2.1–2.3, 3, 4 observed in `source-review.md`.
+- Post-change refactor: none — already clean.
+
+Learnings: default `?1003h` kept existing callers green; cheap mode cases are
+enough for the Structure gap without repeating place/draft/return.
 
 ## Verification and delivery gates
 
