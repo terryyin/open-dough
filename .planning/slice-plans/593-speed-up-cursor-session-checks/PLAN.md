@@ -131,7 +131,7 @@ for coordinator delivery.
 
 ### 3. Keep revival lean and confirm the family saving
 Type: Behavior
-Status: planned
+Status: done
 Proof: Keep one real runner+PTY/UI revival journey that still observes stale
 holding, replacement, automatic revive without Recover, preserved
 identity/scope/workspace and visible running state. Reduce only incidental
@@ -142,6 +142,10 @@ baseline, with every credited replacement check included. Reconcile coverage,
 neighboring last-held/controls cases as needed, and applicable hosted CI.
 Behavior: The maintained Cursor session selection retains equivalent
 protection → one ordinary command returns the stated faster feedback.
+Progress: Stale phase keeps list-of-two + one real PTY join +
+PID/call/attach equality; drops second Taken Open terminal. Three
+consecutive family runs exit 0 with `real` 39.76 / 35.88 / 40.39
+(≥10 s vs matched baseline 94.61). Status left for coordinator delivery.
 
 ## Current decisions
 
