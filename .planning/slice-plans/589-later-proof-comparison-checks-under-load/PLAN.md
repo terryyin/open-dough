@@ -49,7 +49,7 @@ env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
   line 31 (3.0 s against 1.1 s after server start), 3.0 s against 2.7–2.8 s
   for the provider wait; at load 45 the line-31 "later" body took 15.5 s.
 - Load: three consecutive two-worker runs at load 30–50, slowest case body
-  under 10 s.
+  under 20 s.
 
 ## Promise ownership
 
@@ -63,7 +63,7 @@ env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
 | A provider wait holds a later read, repeats ask nothing, and it recovers under the same owner once the owner clock ends the wait | 2 | The "later" provider-wait case, kept, without extra revisions |
 | Coverage map and one fault control per promise | 1, 2 | Table in `dashboard/tests/intent-ci-comparison-proof.md`; each scratch fault's failing check recorded in this plan |
 | Speed target and no call per walked revision | 2 | The measure above |
-| Load profile, three consecutive passes, slowest under 10 s | 3 | Logs and loads recorded in this plan |
+| Load profile, three consecutive passes, slowest under 20 s | 3 | Logs and loads recorded in this plan |
 | Hosted CI passes with unchanged verdicts and a lower file time | 3 | The CI run on the published revision |
 | Candidate `later-comparison-walk-gh-starts` resolved; proof guide aligned | 2 | The two documents' diff |
 
@@ -176,13 +176,13 @@ cases), typecheck and the candidate-record tests pass.
 
 ### 3. Pass at the promised load and in hosted CI
 Type: Behavior
-Status: planned
+Status: done
 Proof: Recorded loads, logs and case times for three consecutive runs, then
 the hosted CI verdict and file time on the published revision.
 
 Behavior: The one-minute load is 30–50 → the file runs three times in a row
 on two workers → every case passes each time and the slowest case body is
-under 10 s; the published revision passes hosted CI with the remaining
+under 20 s; the published revision passes hosted CI with the remaining
 cases' verdicts unchanged and the file's recorded time below 38 s.
 
 - Raise load only with CPU-bound processes started from the job's temporary
@@ -196,7 +196,7 @@ cases' verdicts unchanged and the file's recorded time below 38 s.
 
 Load observation (12 November 2026, `3befd9f85`, AC power under
 `caffeinate -s -i`, 30 CPU-bound helpers over external load, all stopped by
-recorded PID): awaiting story review.
+recorded PID), before Terry restated the example:
 
 | Run | Load before → after | Result | equivalent recovers | equivalent provider wait | later provider wait |
 | --- | --- | --- | --- | --- | --- |
@@ -205,7 +205,7 @@ recorded PID): awaiting story review.
 
 The verdicts are stable and inside the default timeout, but the slowest case
 body is not under 10 s, so the three-run count stopped at one (obligation
-G2). In the diagnostic run the first case on each worker spent 5.8–6.0 s in
+OB2). In the diagnostic run the first case on each worker spent 5.8–6.0 s in
 the `origin` fixture, and each test function took 9–11 s between its expect
 steps: the real-server requests and 20–33 `gh` process starts. Both
 "equivalent" cases are slower than the remaining "later" case. The remaining
@@ -221,8 +221,26 @@ succeeded on the story branch. Its `dashboard-times` record the pending-proof
 file at 12.9 s (38.4 s in `dashboard/longest-first-additions`), the judgment
 check at 0.0 s and the six finality cases at 0.1 s.
 
+Counted runs (12 November 2026, after the restatement to 20 s; 30 helpers
+over external load of about 18, stopped by recorded PID; plain list
+reporter; on battery under `caffeinate -s -i`, no sleep or wake in the
+window):
+
+| Run | Load before → after | Result | equivalent recovers | equivalent provider wait | later provider wait |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 37.14 → 38.36 | 3 passed | 13.9 s | 14.3 s | 9.3 s |
+| 2 | 38.33 → 40.49 | 3 passed | 16.2 s | 16.2 s | 8.5 s |
+| 3 | 40.49 → 40.28 | 3 passed | 14.2 s | 14.5 s | 7.6 s |
+
+The three runs are consecutive. The slowest body, 16.2 s, is 3.8 s inside
+the restated limit; loads above about 41 were not observed.
+
 ## Current decisions
 
+- On 12 November 2026 Terry accepted restating the load example from a
+  slowest case body under 10 s to under 20 s, after the observation recorded
+  under slice 3. The counted run and the diagnostic run above predate the
+  restatement; three new consecutive runs are owed.
 - Terry asked on 12 November 2026 for a different testing approach that is
   fast and stable under moderately high CPU load. The load range, the 10 s
   margin and the 1.5 ratio are refinement's figures; Terry gave none.
@@ -254,15 +272,15 @@ and shared MakeMe data. Start long macOS runs awake: on AC use
 
 ## Story obligations
 
-### G1. No real-server check shows a later point after a proof wait
+### OB1. No real-server check shows a later point after a proof wait
 Reported: slice 2 — "No maintained check shows a later-provenance point in the public history after a proof wait in a real server."
 Story clause: "the public landed history shows the pending gap waiting for proof, then the measured point with `later` provenance once proof answers"
 Disposition: proved by slice 2: ci-comparison-finality-later-judgment.spec.ts asserts the recovered slot's later selection after the proof wait, and landed-ci-history-pending-sources.spec.ts asserts the public later point; the path between them, provenanceOf in landedCiMeasuredBuilds.ts, reads only the slot's selection, and scratch faults on the walk's selection and on that projection each fail one of the two. The story keeps real-server history inside the walk, where this gap waits for a later build
-Commitment: S2.3b
+Commitment: S2.5
 
 
-### G2. Slowest case body exceeds 10 s at the promised load
+### OB2. Slowest case body exceeds 10 s at the promised load
 Reported: slice 3 — "Every case passed, but the slowest case took 14.5 s at one-minute load 36.8–38.3, against the promised under 10 s."
-Story clause: "the slowest case body stays under 10 s"
-Disposition: return
+Story clause: "the slowest case body stays under 20 s"
+Disposition: owner changed "the slowest case body stays under 20 s"
 Commitment: E4.2

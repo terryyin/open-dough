@@ -154,8 +154,11 @@ until it is stable locally and in CI.
   and a malformed listing → the in-process judgment check → pending, waiting
   for proof of run 201 attempt 1, with no process start.
 - Load average 30–50, two workers → run the file three times in a row →
-  every case passes each time and the slowest case body stays under 10 s, a
-  third of the 30 s default.
+  every case passes each time and the slowest case body stays under 20 s,
+  two thirds of the 30 s default. Terry restated this from 10 s on
+  2026-11-12: at load 37–39 the cases passed with a slowest body of
+  14.5–17.1 s, spent in the shared landing fixture and `gh` starts that the
+  scope limits exclude.
 - The change is published → hosted CI passes the file's remaining cases and
   the rule checks with unchanged verdicts, and the file's recorded time
   falls from about 38 s.
