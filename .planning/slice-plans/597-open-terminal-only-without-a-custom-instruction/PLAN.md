@@ -190,6 +190,13 @@ one passed. No journey substitutes a host without a Dashboard terminal; that
 guard in `dashboard/src/pageSidePanel.ts` is unchanged. Hosted CI of the story
 branch is the verdict for the four.
 
+## Story obligations
+
+### G1. No journey observes a Cursor start that sends a prompt and still opens the terminal
+Reported: slice 2 — "Found at the execution review: with instructed Cursor starts no longer presenting the terminal, no browser journey starts Cursor with a follow-up's context or attached images and no typed text, the one case where the page's terminal joins a held client that was given a prompt."
+Story clause: "a start with images or context and no typed text opens the terminal"
+Disposition: proved by slice 2: dashboard/tests/terminals/agent-terminal-cursor-launch-page.spec.ts "a Cursor start with nothing typed and an attached image presents the terminal of the client that took the image list" — the start presents the terminal, one terminal socket, one handoff request, one `cursor-agent` on the same pid that took the image list; with the handoff forced off only the handoff-request assertion fails, because no host declares a detached idle rule, so the hold has no page-visible effect today
+
 ## Proof ownership
 
 | Promise | Slice | Proof |
