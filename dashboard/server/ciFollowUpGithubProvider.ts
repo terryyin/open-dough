@@ -15,6 +15,8 @@ export function githubRepeatProvider(
     prepare: (decision, signal) =>
       prepareCiRepeat(source, workflow, decision, signal),
     async submit(request, signal) {
+      if (request.provider !== "github")
+        throw new Error("Expected a GitHub repeat request");
       const runId = request.original.runId;
       if (runId === undefined)
         throw new Error("The original run identity is incomplete");
@@ -28,6 +30,10 @@ export function githubRepeatProvider(
           : `${submission.kind === "refused" ? "CI repeat request refused" : "Request acceptance is uncertain"}: ${submission.reason}${submission.status === undefined ? "" : ` (HTTP ${submission.status})`}`;
       return { kind: submission.kind, explanation };
     },
-    observe: (request, signal) => observeRepeat(source, request, signal),
+    observe: (request, signal) => {
+      if (request.provider !== "github")
+        throw new Error("Expected a GitHub repeat request");
+      return observeRepeat(source, request, signal);
+    },
   };
 }

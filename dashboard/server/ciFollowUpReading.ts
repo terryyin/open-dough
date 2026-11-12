@@ -24,7 +24,17 @@ function attemptOf(
   );
   return {
     revision: build.revision,
-    workflowId: request.workflowId,
+    ...(request.provider === "github"
+      ? { workflowId: request.workflowId }
+      : {
+          ...(build.adapterAttempt === undefined
+            ? {}
+            : { adapterAttempt: build.adapterAttempt }),
+          ...(request.check === undefined ? {} : { check: request.check }),
+          ...(request.context === undefined
+            ? {}
+            : { context: request.context }),
+        }),
     ...(build.runId === undefined ? {} : { runId: build.runId }),
     ...(build.runAttempt === undefined ? {} : { runAttempt: build.runAttempt }),
     ...(runUrl === undefined ? {} : { runUrl }),
@@ -54,9 +64,18 @@ function repeatOf(request: RepeatRequest): CiFollowUpAttempt | undefined {
   );
   return {
     revision: observed.revision,
-    workflowId: observed.workflowId,
-    runId: observed.runId,
-    runAttempt: observed.runAttempt,
+    ...(observed.workflowId === undefined
+      ? {}
+      : { workflowId: observed.workflowId }),
+    ...(observed.runId === undefined ? {} : { runId: observed.runId }),
+    ...(observed.runAttempt === undefined
+      ? {}
+      : { runAttempt: observed.runAttempt }),
+    ...(observed.adapterAttempt === undefined
+      ? {}
+      : { adapterAttempt: observed.adapterAttempt }),
+    ...(observed.check === undefined ? {} : { check: observed.check }),
+    ...(observed.context === undefined ? {} : { context: observed.context }),
     ...(runUrl === undefined ? {} : { runUrl }),
     ...(observed.startedAt === undefined
       ? {}
@@ -82,8 +101,9 @@ export function retainedFollowUpOf(
     at: landing.at,
     revision: landing.revision,
     repository: request.repository,
-    workflow: request.workflow,
-    workflowId: request.workflowId,
+    ...(request.provider === "github"
+      ? { workflow: request.workflow, workflowId: request.workflowId }
+      : {}),
     requestedAt: request.requestedAt,
     kind: request.outcome.kind,
     explanation: request.outcome.explanation,

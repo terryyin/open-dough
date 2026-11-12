@@ -34,15 +34,30 @@ const sharedRepeatRequestSchema = z.object({
   submission: z.object({
     kind: z.enum(["intent", "accepted", "refused", "uncertain"]),
     explanation: z.string().optional(),
+    attempt: z
+      .object({
+        runId: z.union([z.string(), z.number()]),
+        attemptId: z.union([z.string(), z.number()]),
+        sha: z.string(),
+      })
+      .optional(),
   }),
   outcome: z.object({
     settled: z.boolean().optional(),
     observed: z
       .object({
-        runId: z.number(),
-        runAttempt: z.number(),
+        runId: z.number().optional(),
+        runAttempt: z.number().optional(),
+        adapterAttempt: z
+          .object({
+            runId: z.union([z.string(), z.number()]),
+            attemptId: z.union([z.string(), z.number()]),
+          })
+          .optional(),
+        check: z.string().optional(),
+        context: z.string().optional(),
         revision: z.string(),
-        workflowId: z.number(),
+        workflowId: z.number().optional(),
         status: z.string().optional(),
         conclusion: z.string().nullable().optional(),
         runUrl: z.string().optional(),
@@ -63,7 +78,18 @@ export const githubRepeatRequestSchema = sharedRepeatRequestSchema.extend({
   workflowId: z.number(),
   originalJobs: z.array(jobSchema).min(1),
 });
-export const repeatRequestSchema = githubRepeatRequestSchema;
+export const adapterRepeatRequestSchema = sharedRepeatRequestSchema.extend({
+  provider: z.literal("adapter"),
+  branch: z.string(),
+  check: z.string().optional(),
+  context: z.string().optional(),
+});
+export const repeatRequestSchema = z.union([
+  githubRepeatRequestSchema,
+  adapterRepeatRequestSchema,
+]);
+export type GithubRepeatRequest = z.infer<typeof githubRepeatRequestSchema>;
+export type AdapterRepeatRequest = z.infer<typeof adapterRepeatRequestSchema>;
 export type RepeatRequest = z.infer<typeof repeatRequestSchema>;
 export type RepeatJob = z.infer<typeof jobSchema>;
 const landingSchema = z.object({

@@ -3,13 +3,13 @@ import { createGitHubActions } from "../../src/skills/dough-execute-plan/scripts
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { completedJobs, repeatDecisionOf } from "./ciFollowUpDecision.ts";
 import { exactRepeatRun, sameRun } from "./ciFollowUpGithub.ts";
-import { followUpRule, type RepeatRequest } from "./ciFollowUpStore.ts";
+import { followUpRule, type GithubRepeatRequest } from "./ciFollowUpStore.ts";
 export async function prepareCiRepeat(
   source: PublishedSource,
   workflow: string,
   decision: NonNullable<ReturnType<typeof repeatDecisionOf>>,
   signal: AbortSignal,
-): Promise<RepeatRequest | string> {
+): Promise<GithubRepeatRequest | string> {
   const { original, reference } = decision;
   const runId = original.runId,
     attempt = original.runAttempt;
@@ -50,7 +50,7 @@ export async function prepareCiRepeat(
   });
   if (jobs === undefined || signal.aborted)
     return "Original exact-attempt jobs are incomplete or carried forward; a full comparable repeat cannot be established";
-  const request: RepeatRequest = {
+  const request: GithubRepeatRequest = {
     provider: "github",
     ...requestIdentity,
     repository: source.repository,

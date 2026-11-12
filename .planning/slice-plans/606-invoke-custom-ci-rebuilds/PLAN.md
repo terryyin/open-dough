@@ -7,30 +7,13 @@
 
 ## Goal and scope
 
-A custom CI project that declares `ciRebuild` gets the production
-dashboard's one-repeat slowdown check on qualifying landings: one `rebuild`
-request naming the original attempt, observation of the exact new attempt
-through `discover` and `proof`, the same 5% verdict against the saved
-reference, the same cards and review. Refused, uncertain and non-comparable
-results stay unverified and are never resent. The contract is documented for
-projects to implement and proved here with a fixture provider.
+A custom project declaring `ciRebuild` gets the production dashboard's one-repeat slowdown check: request the original attempt once, follow the exact accepted identity through `discover`/`proof`, compare against the frozen reference using the existing 5% rule, and show the same cards/review. Refused, uncertain and non-comparable results remain unverified and never resend. Document the contract and prove it with a fixture provider.
 
-Unchanged: the 5% rule and saved reference, allowance, deduplication, card
-wording, GitHub Actions' built-in trigger, the development-dashboard guard,
-and the observer's read-only `ciAdapter` contract. Excluded: thresholds,
-adaptive repeats, backfill, cross-machine coordination, any change to
-Intent's proof-completeness rule, and Pygardon's trigger, proof completeness
-and real end-to-end check, which its
-[rebuild trigger story](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261107-dashboard-ci-rebuilds.md#provide-dashboard-ci-rebuilds)
-owns (Terry's decision of 2026-11-12).
+Preserve allowance/deduplication, GitHub behavior, production guard, read-only `ciAdapter`, thresholds/reference and Intent proof completeness. Exclude adaptive repeats, backfill and cross-machine coordination. Pygardon's [rebuild story](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261107-dashboard-ci-rebuilds.md#provide-dashboard-ci-rebuilds) owns its trigger, proof-completeness repair and released-dashboard integration (Terry, 2026-11-12). The selected source remains authoritative for every promise.
 
 ## Prerequisite
 
-[Follow-up by default](../../seeds/SEED-330-dashboard-ci-follow-up.md#make-ci-follow-up-automatic)
-(plan 604, Taken) removes the per-project setting and machine designation.
-This story's examples follow up a custom project with no setting, and today's
-setting refuses custom providers, so it starts on trunk after that story
-lands. Slice 1 then generalises the code as trunk holds it.
+[Follow-up by default](../../seeds/SEED-330-dashboard-ci-follow-up.md#make-ci-follow-up-automatic) is satisfied at integration `4f791771554d7a9f757f2db098b37c18e2a1514d`; this execution inherits its automatic receipt admission without a project setting or machine designation. The seed retains the supplier evidence.
 
 ## Architecture and existing solutions
 
@@ -113,7 +96,7 @@ trace for `repeatRequestSchema`, `RepeatRequest`, `prepareCiRepeat`,
 ### 2. A slow custom landing gets one rebuild and a verdict
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `landed-ci-adapter-repeat.spec.ts` accepted and adapter-only cases;
 the accepted case fails with the provider unselected (adapter projects still
 skipped).
@@ -199,11 +182,7 @@ applies as written and accompanies every delegation and repair handoff.
 
 ## Decisive premises and observations
 
-Observed on 2026-11-12 in this preparation's workspace at
-`ca9add8a368acb42455d6134a1638b8686a6e934`, read-only, through an esbuild
-bundle of `dashboard/server/ciWallTimeReference.ts` and
-`dashboard/src/ciFollowUpRule.ts` run with Node over this machine's
-`~/.open-dough/dashboard/landed-ci-history.json`.
+Observed read-only on 2026-11-12 at preparation revision `ca9add8a368acb42455d6134a1638b8686a6e934`: Node ran an esbuild bundle of `dashboard/server/ciWallTimeReference.ts` and `dashboard/src/ciFollowUpRule.ts` over this machine's `~/.open-dough/dashboard/landed-ci-history.json`.
 
 | Premise | Consuming operation and observed form | Result and remainder |
 | --- | --- | --- |
@@ -212,9 +191,7 @@ bundle of `dashboard/server/ciWallTimeReference.ts` and
 | Pygardon offers a retry that names the new attempt | Read of Pygardon `scripts/pygardon-ci-adapter.mjs --retry`, `docs/ci-incomplete-attempt-recovery.md` and `POST /api/ci/attempts/{id}/retry` at Pygardon `ecc0bfaee` | Answers `attempt_id` and state `queued`/`running`; existing work for the revision is answered instead of new work; unresolved admission exits 3. No `ciRebuild` declaration or `rebuild` operation yet; Pygardon's adapter answers `discover`, `diagnose`, `proof`, `jobs` |
 | Adapter proof reads serve the repeat's measurement | Read of `landedCiCollectedProof.ts` and `ciAdapterProof.ts` | `collectedProofOf` asks the adapter's `proof` for adapter attempts. Slice 2's spec observes it end to end |
 
-No premise remains open for this story. The first finding is Pygardon's to
-fix in its rebuild story; until then its landings cannot qualify, which this
-story's fixture proof does not depend on.
+All premises are settled. Pygardon's rebuild story owns its missing proof; fixture proof here is independent of its current inability to qualify.
 
 ## Current decisions
 
@@ -228,15 +205,11 @@ story's fixture proof does not depend on.
 
 ## Plan concern assessment
 
-Slice-plan refinement was not needed: four slices each own one proof loop
-(seam preserving behavior, accepted path, rejection paths, review and
-contract). No slice-specific concern remains. Plan 604's landing is recorded
-as this story's prerequisite, not as a concern.
-
+Four bounded proof loops remain appropriate: seam preservation, accepted path, rejection paths, review/contract. No slice-specific concern; prerequisite satisfied above.
 
 ## Execution context
 
-Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Previous published base/candidate: claim SHA. Readiness remains **Changed since readiness review**; no renewed review.
+Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `5bad29b07b263aa42a777fa8fbc1d24de03b102e`; retained publication suffix base `1117582709db72b2c3bc842ef4e388d9e6866a8d`. Readiness remains **Changed since readiness review**; no renewed review.
 
 Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
 
@@ -244,4 +217,25 @@ CI observer: Codex cell `g165:11`, session `92679`, coordinator `ruuf-chan`, PID
 
 Local expensive proof: AC, awake, initial load 37.01; slice-1 launch 17.88/~14 GiB inactive memory, one worker under `caffeinate -s -i`. Other owners include SEED-324 repeat checks and page-object worktrees; leave their resources untouched. Command owners recheck load/memory before expensive work, reconsider on failure/contention, and follow to terminal result. No whole local suite required.
 
-Slice 1 acceptance, literal passing proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
+Slices 1–2 acceptance, literal proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
+
+## Story obligations
+
+### G1. Custom review still labels its check as a workflow
+Reported: slice 2 — "The read model carries adapter evidence, but the frontend still labels Workflow; provider-neutral review remains for slice 4."
+Story clause: "The review shows each attempt's run and attempt identity, check, revision, bounds, wall time, proof completeness and provider link when one was listed."
+Disposition: receiving slice 4
+Commitment: C44
+
+
+### G2. Observe omitted original proof declaration rejection
+Reported: slice 2 — "Product requires original declared proof identities as a subset, but the negative case omitting one original declared entry remains for slice 3."
+Story clause: "proof as complete as the original's."
+Disposition: receiving slice 3
+Commitment: C35
+
+### G3. Confirm distinct attempt across numeric and text identity forms
+Reported: slice 2 — "Coordinator inspection found strict attemptId equality while proof and discovery ambiguity use text identity; assess numeric 1 versus string 1 when the original is absent from later discovery and prove a same attempt cannot qualify as distinct."
+Story clause: "a different `attemptId` from the original"
+Disposition: receiving slice 3
+Commitment: C28

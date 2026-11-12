@@ -1,6 +1,6 @@
 // Exact GitHub identities for admission and later-attempt observation.
 import { readGitHubActions } from "../../src/skills/dough-execute-plan/scripts/ci-github-actions.mjs";
-import type { RepeatRequest } from "./ciFollowUpStore.ts";
+import type { GithubRepeatRequest } from "./ciFollowUpStore.ts";
 
 export type RunSnapshot = {
   id?: number;
@@ -26,7 +26,7 @@ export async function exactRepeatRun(
 }
 export function sameRun(
   run: RunSnapshot,
-  request: Pick<RepeatRequest, "original" | "workflowId">,
+  request: Pick<GithubRepeatRequest, "original" | "workflowId">,
   attempt: number,
 ): boolean {
   return (

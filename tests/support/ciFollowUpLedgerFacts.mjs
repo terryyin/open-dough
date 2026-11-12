@@ -71,5 +71,7 @@ export function repeatLedgerFacts({
       outcome: { kind: "unverified", explanation: submission.kind },
     })
     .please();
+  if (request.provider !== "github")
+    throw new Error("GitHub ledger facts require a GitHub request");
   return { project: "project", landing, request };
 }
