@@ -17,6 +17,8 @@ export type Answers = {
   readonly rebuild?: unknown;
   readonly rebuildHeld?: boolean;
   readonly rebuildStderr?: string;
+  // Exact stdout for malformed and oversized transport answers.
+  readonly rebuildStdout?: string;
   // Default job graph answer, with optional answers by the requested attempt ID.
   readonly jobs?: unknown;
   readonly jobsByAttemptId?: Readonly<Record<string, unknown>>;
@@ -65,6 +67,10 @@ if (request.operation === "rebuild" && answers.rebuildStderr !== undefined) {
   process.exit(2);
 }
 if (request.operation === "rebuild" && answers.rebuildHeld === true) await released("rebuild");
+if (request.operation === "rebuild" && answers.rebuildStdout !== undefined) {
+  process.stdout.write(answers.rebuildStdout);
+  process.exit(0);
+}
 const answer = request.operation === "rebuild" ? answers.rebuild : request.operation === "proof"
   ? attemptAnswer(answers.proofByAttemptId, answers.proof)
   : request.operation === "jobs"

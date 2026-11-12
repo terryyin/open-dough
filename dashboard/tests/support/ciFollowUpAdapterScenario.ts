@@ -16,11 +16,28 @@ import type { StartOrigin } from "./startOrigin.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { expect } from "./pageTest.ts";
+import type { Answers } from "../intentCiAdapterFixture.ts";
+
+type AdapterAttempt = ReturnType<
+  ReturnType<typeof makeMe.aCiAdapterAttempt.with>["please"]
+>;
+type RepeatChanges = Partial<AdapterAttempt> & {
+  without?: readonly ("startedAt" | "completedAt")[];
+};
+type ScenarioOptions = {
+  rebuild?: boolean;
+  originalAttemptId?: string | number;
+  repeatIdentity?: { runId: string | number; attemptId: string | number };
+};
 
 export async function prepareAdapterRepeatScenario(
   origin: StartOrigin,
   github: FakeGitHub,
-  { rebuild = true } = {},
+  {
+    rebuild = true,
+    originalAttemptId = "attempt:original",
+    repeatIdentity,
+  }: ScenarioOptions = {},
 ) {
   const shared = await prepareRepeatScenario(origin, github);
   const home = path.join(origin.machine, "home");
@@ -29,7 +46,7 @@ export async function prepareAdapterRepeatScenario(
   const original = makeMe.aCiAdapterAttempt
     .passed({
       runId: "pipeline/original",
-      attemptId: "attempt:original",
+      attemptId: originalAttemptId,
       sha: shared.story.completion,
       branch: "main",
       check: "all-checks",
@@ -56,24 +73,36 @@ export async function prepareAdapterRepeatScenario(
   const accepted = {
     runId: "pipeline/repeat",
     attemptId: "attempt:repeat",
+    ...repeatIdentity,
     sha: original.sha,
   };
-  let repeat:
-    | ReturnType<ReturnType<typeof makeMe.aCiAdapterAttempt.with>["please"]>
-    | undefined;
+  let repeat: AdapterAttempt | undefined;
   let held = false;
+  let includeOriginal = true;
+  let overrides: Partial<Answers> = {};
+  const proofs: Record<string, unknown> = {};
   const answer = () => {
     adapter.answer({
-      discover: { main: [...(repeat ? [repeat] : []), original, ...prior] },
+      discover: {
+        main: [
+          ...(repeat ? [repeat] : []),
+          ...(includeOriginal ? [original] : []),
+          ...prior,
+        ],
+      },
       proof: { unavailable: "No proof for an unnamed attempt" },
-      proofByAttemptId: Object.fromEntries(
-        [...prior, original, ...(repeat ? [repeat] : [])].map((a) => [
-          a.attemptId,
-          testsSummary(String(a.attemptId), a.sha),
-        ]),
-      ),
+      proofByAttemptId: {
+        ...Object.fromEntries(
+          [...prior, original, ...(repeat ? [repeat] : [])].map((a) => [
+            a.attemptId,
+            testsSummary(String(a.attemptId), a.sha),
+          ]),
+        ),
+        ...proofs,
+      },
       rebuild: { result: "accepted", attempt: accepted },
       rebuildHeld: held,
+      ...overrides,
     });
   };
   answer();
@@ -83,6 +112,18 @@ export async function prepareAdapterRepeatScenario(
     original,
     accepted,
     home,
+    answerWith(changes: Partial<Answers>) {
+      overrides = { ...overrides, ...changes };
+      answer();
+    },
+    setProof(attemptId: string | number, proof: unknown) {
+      proofs[String(attemptId)] = proof;
+      answer();
+    },
+    omitOriginal() {
+      includeOriginal = false;
+      answer();
+    },
     advanceBranch() {
       git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
       const revision = commit(origin.project, "after-done.txt");
@@ -104,25 +145,30 @@ export async function prepareAdapterRepeatScenario(
     releaseRebuild() {
       adapter.releaseRebuild();
     },
-    setRepeat(seconds?: number) {
-      repeat = makeMe.aCiAdapterAttempt
-        .with({
-          ...accepted,
-          branch: "main",
-          check: "all-checks",
-          context: "push",
-          outcome: seconds === undefined ? "pending" : "success",
-          url: "https://ci.invalid/repeat",
-          ...(seconds === undefined
-            ? {}
-            : {
-                startedAt: "2026-11-10T07:00:00Z",
-                completedAt: new Date(
-                  Date.parse("2026-11-10T07:00:00Z") + seconds * 1000,
-                ).toISOString(),
-              }),
-        })
-        .please();
+    setRepeat(
+      seconds?: number,
+      { without = [], ...changes }: RepeatChanges = {},
+    ) {
+      const facts: AdapterAttempt = {
+        ...accepted,
+        branch: "main",
+        check: "all-checks",
+        context: "push",
+        outcome: seconds === undefined ? "pending" : "success",
+        url: "https://ci.invalid/repeat",
+        ...(seconds === undefined
+          ? {}
+          : {
+              startedAt: "2026-11-10T07:00:00Z",
+              completedAt: new Date(
+                Date.parse("2026-11-10T07:00:00Z") + seconds * 1000,
+              ).toISOString(),
+            }),
+        ...changes,
+      };
+      if (without.includes("startedAt")) delete facts.startedAt;
+      if (without.includes("completedAt")) delete facts.completedAt;
+      repeat = makeMe.aCiAdapterAttempt.with(facts).please();
       answer();
     },
     async collectPriors(server: DashboardServer) {

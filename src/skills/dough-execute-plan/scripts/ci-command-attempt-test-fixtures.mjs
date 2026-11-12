@@ -17,6 +17,7 @@ for await (const chunk of process.stdin) input += chunk;
 writeFileSync('request.json', input);
 const answer = readFileSync('answer.json', 'utf8');
 if (answer === 'hold') createServer().listen(0, '127.0.0.1');
+else if (answer === 'exit') { process.stderr.write('admission unknown'); process.exit(2); }
 else process.stdout.write(answer);
 `,
   );

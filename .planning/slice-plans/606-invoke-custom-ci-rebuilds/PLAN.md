@@ -58,7 +58,7 @@ PFE findings:
 | Existing GitHub follow-up and saved GitHub requests behave as before behind the seam (unchanged) | 1 | The follow-up specs and ledger tests named in slice 1 pass unchanged; a ledger case reads a request saved in today's GitHub shape |
 | A qualifying custom landing with `ciRebuild` sends one `rebuild` naming the original attempt, shows progress, then slow at 106 s or returned to range at 98 s (1) | 2 | New `dashboard/backend-tests/intent/landed-ci-adapter-repeat.spec.ts` through real receipt ingestion with the adapter project fixture |
 | A custom project with only `ciAdapter` gets no request and keeps its readings (5) | 2 | Same spec: the adapter-only case records no `rebuild` request while its landed history still collects |
-| Refused, uncertain (timeout, nonzero exit, bad answer) and non-comparable results show their unverified explanations and are never resent (2, 3, 4) | 3 | Cases in the same spec; each asserts one `rebuild` request across later collections and a restart |
+| Refused, uncertain (timeout, nonzero exit, bad answer) and non-comparable results show their unverified explanations and are never resent (2, 3, 4) | 3 | Cases in `landed-ci-adapter-repeat-{rejections,comparability}.spec.ts`; each asserts one `rebuild` request across later collections and a restart |
 | The review shows both custom attempts' identity, check, bounds, wall time, proof completeness and link against the saved reference (1) | 4 | `dashboard/tests/intent/intent-ci-follow-up.spec.ts` adapter case through the review route |
 | The contract and guidance describe the trigger (scope) | 4 | `custom-ci-rebuild.md`, `custom-ci.md`, `docs/dashboard-ci-follow-up.md`, `dashboard/PROJECT-CONFIGURATION.md` reviewed against shipped behavior |
 
@@ -128,9 +128,9 @@ spec set, and the typecheck.
 ### 3. Refused, uncertain and non-comparable rebuilds stay unverified
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the refused, uncertain and non-comparable cases in
-`landed-ci-adapter-repeat.spec.ts`, each with one recorded `rebuild` request
+`landed-ci-adapter-repeat-{rejections,comparability}.spec.ts`, each with one recorded `rebuild` request
 after later collections and a dashboard restart.
 
 Behavior: the trigger answers refused with a reason → the card shows the
@@ -141,6 +141,8 @@ attempt is attributed. The accepted attempt is listed with another `sha` or
 explanation, no slow or in-range verdict. Reuse the existing explanation
 wording where the meaning is the same; add only provider-neutral wording the
 GitHub explanations lack.
+
+Keep accepted journeys in their current spec. Submission outcomes and accepted-attempt comparability have separate focused specs above; keep concrete condition/expectation matrices visible in those specs and share only ingest/restart mechanics. Extend scenario controls within their fixture responsibility.
 
 ### 4. Review custom attempts and document the trigger
 
@@ -153,7 +155,7 @@ reference** shows each attempt's `runId`/`attemptId`, check, revision, bounds,
 wall time, proof completeness and the listed link, with signed differences
 against the saved average, and no GitHub workflow wording.
 
-- Write `src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md`: the
+- Write `src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md` and declare it in the shared promoted payload: the
   declaration, request, three results, failure-as-uncertain, never-resent,
   full comparable repeat, and that `discover` must list the accepted attempt
   under the answered identity, including while queued. Write it for the agent
@@ -206,7 +208,7 @@ Four bounded proof loops remain appropriate: seam preservation, accepted path, r
 
 ## Execution context
 
-Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `5bad29b07b263aa42a777fa8fbc1d24de03b102e`; retained publication suffix base `1117582709db72b2c3bc842ef4e388d9e6866a8d`. Readiness remains **Changed since readiness review**; no renewed review.
+Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `b51be060e2efde855d8cdb27d51bee0d7cd6667b`; retained publication suffix base `b2899a8f5b97b91f0d60d06890d5f068741c3931`. Readiness remains **Changed since readiness review**; no renewed review.
 
 Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
 
@@ -214,7 +216,7 @@ CI observer: Codex cell `g165:11`, session `92679`, coordinator `ruuf-chan`, PID
 
 Local expensive proof: AC, awake, initial load 37.01; slice-1 launch 17.88/~14 GiB inactive memory, one worker under `caffeinate -s -i`. Other owners include SEED-324 repeat checks and page-object worktrees; leave their resources untouched. Command owners recheck load/memory before expensive work, reconsider on failure/contention, and follow to terminal result. No whole local suite required.
 
-Slices 1–2 acceptance, literal proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
+Slices 1–3 acceptance, literal proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
 
 ## Story obligations
 
@@ -228,15 +230,13 @@ Commitment: C44
 ### G2. Observe omitted original proof declaration rejection
 Reported: slice 2 — "Product requires original declared proof identities as a subset, but the negative case omitting one original declared entry remains for slice 3."
 Story clause: "proof as complete as the original's."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: landed-ci-adapter-repeat-comparability.spec.ts original declares tests+integration,repeat partial or omits integration with tests complete,retained helper proves unverified/no-resend/restart
 Commitment: C35
-
 ### G3. Confirm distinct attempt across numeric and text identity forms
 Reported: slice 2 — "Coordinator inspection found strict attemptId equality while proof and discovery ambiguity use text identity; assess numeric 1 versus string 1 when the original is absent from later discovery and prove a same attempt cannot qualify as distinct."
 Story clause: "a different `attemptId` from the original"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: landed-ci-adapter-repeat-comparability.spec.ts original numeric1 preserved on wire,accepted text1 with original absent stays unverified/unattributed/no-resend after restart
 Commitment: C28
-
 ### G4. Installed proof reader lacked extracted transport module
 Reported: slice 2 — "CI run43235536671 attempt1 failed four native evidence families; installed-use red then reproduced missing ci-command-attempt.mjs because the promoted payload declaration omitted it."
 Story clause: "The dashboard follows the accepted attempt through the existing `discover` and `proof` reads."
