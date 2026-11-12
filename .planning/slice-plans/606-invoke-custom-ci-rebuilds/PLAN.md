@@ -164,6 +164,10 @@ against the saved average, and no GitHub workflow wording.
 - Update `docs/dashboard-ci-follow-up.md` and
   `dashboard/PROJECT-CONFIGURATION.md` for the custom trigger.
 
+## Execution complete
+
+Product advice: no change. The custom rebuild contract, saved-reference verdicts, honest non-comparable outcomes, review and standalone guide delivery meet the original examples. The six published implementation/repair commits are attributable; unrelated incoming review-story work is excluded. Real receipt/transport/persistence proof composes with settled review proof; no bounded correction identified. Pygardon's separate integration ownership remains the existing follow-up. Applicable CI is still owned by the execution completion operation.
+
 ## Verification and local gates
 
 Focused checks per slice as listed. No whole local suite is required by this
@@ -204,13 +208,13 @@ All premises are settled. Pygardon's rebuild story owns its missing proof; fixtu
 
 ## Execution context
 
-Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `148eea4b194e7dc37496e5d27ba539685c27fef2`; retained publication suffix base `d73d92f9b31e3ed6c8823f8005f87c2dc26ac68d`. Readiness remains **Changed since readiness review**; no renewed review.
+Established start verified 2026-11-12: `SEED-330#invoke-custom-ci-rebuilds`, publisher `dashboard-territory.local-open-dough`, agent `ruuf-chan`, Story Branch Mode; reused owned workspace `/Users/terryyin/git/open-dough/.worktrees/run-dashboard-ci-follow-up-through-a-custom-ci-r`, branch `codex/run-dashboard-ci-follow-up-through-a-custom-ci-r`; origin/main claim accepted at `1117582709db72b2c3bc842ef4e388d9e6866a8d`, starting revision `653de1a896eb7267d3756d7db7964e6a2cad17ce`. Current accepted story-branch base/candidate: `d5a3a90511ce217261a186e23348e433a0b5fa34`; retained publication suffix base `148eea4b194e7dc37496e5d27ba539685c27fef2`. Readiness remains **Changed since readiness review**; no renewed review.
 
-Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
+Checkout setup `npm ci` (unchanged lock) and `npm run typecheck:dashboard` passed. Preserve existing replanning authority; no numeric slice budget supplied. Product/proof retrospective completed with no correction; process review is selected by skipProcessRetrospective=false and deferred under the owner procedure until wrap-up supplies the configured Intent Coverage report/dispositions. Increment target is origin's story branch; default checkout `/Users/terryyin/git/open-dough` and unrelated worktrees remain preserved.
 
 CI observer: Codex cell `g165:11`, session `92679`, coordinator `ruuf-chan`, PID `31050`, directory `/tmp/dough-ci-501/watch-hUTID2`; repository `terryyin/open-dough`, target story branch, GitHub Actions `ci.yml` verified active (351271804, CI). Runtime: this checkout's installed `.agents/skills/dough-execute-plan`. Trunk claim `pendingCi: unobserved`.
 
-Local expensive proof: AC, awake, initial load 37.01; slice-1 launch 17.88/~14 GiB inactive memory, one worker under `caffeinate -s -i`. Other owners include SEED-324 repeat checks and page-object worktrees; leave their resources untouched. Command owners recheck load/memory before expensive work, reconsider on failure/contention, and follow to terminal result. No whole local suite required.
+Local expensive proof: AC, awake, initial load 37.01; slice-1 launch 17.88/~14 GiB inactive memory, one worker under `caffeinate -s -i`. Other owners include SEED-324 repeat checks and page-object worktrees; leave their resources untouched. Command owners recheck load/memory before expensive work, reconsider on failure/contention, and follow to terminal result. No whole local suite required. Final local gates passed: `PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run lint`, `caffeinate -s -i npm run typecheck:dashboard`, `git diff --check`; AC, load29.17/CPU48.3%idle/~2.2GiB unused, serial guarded commands.
 
 Slices 1–4 acceptance, literal proof, supplier-spec substitution and consumer dispositions are retained in [source review acceptance](source-review.md#slice-1-acceptance). Source freshness unchanged at pinned trunk `1117582709db72b2c3bc842ef4e388d9e6866a8d`; named supplier already inherited. Independent `refactor1` returned `## REFACTOR COMPLETE`: none — already clean; no edits/tests, accepted proof unchanged.
 
