@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-312_speed-up-touch-review-checks.json",
+      "identity": "SEED-312#speed-up-touch-review-checks",
+      "completedAt": "2026-11-11T17:46:00.721Z",
+      "blob": "f996622331b240e3872f728afe9b3656ea2c9054"
+    },
+    {
       "fileName": "SEED-317_upgrade-all-dependencies.json",
       "identity": "SEED-317#upgrade-all-dependencies",
       "completedAt": "2026-11-11T16:30:21.966Z",
@@ -12,6 +18,12 @@
       "identity": "SEED-307#run-makeme-harness-once",
       "completedAt": "2026-11-11T16:01:28.982Z",
       "blob": "1292e278b8d8127d85735e12fcf58baf23457a05"
+    },
+    {
+      "fileName": "SEED-316_select-and-copy-terminal-text-on-mobile.json",
+      "identity": "SEED-316#select-and-copy-terminal-text-on-mobile",
+      "completedAt": "2026-11-11T15:56:56.288Z",
+      "blob": "43df6943db515e8798c56920ac08cf4f28c5de3d"
     },
     {
       "fileName": "SEED-307_apply-shared-makeme-rules-per-entry.json",

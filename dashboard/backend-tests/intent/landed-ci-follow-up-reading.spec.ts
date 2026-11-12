@@ -178,7 +178,7 @@ test("saved samples, exclusions and workflow survive window eviction and a newer
     Object.entries(ledger.landings).reverse(),
   );
   writeFileSync(followUpFile(server), JSON.stringify(ledger));
-  keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
+  await keepLandedCiHistory(server.home, makeMe.aLandedCiHistory.please());
   const reader = await restartAsLandedCiReader(server, origin, "boundary");
   try {
     const calls = github.calls.filter(({ request }) =>

@@ -70,7 +70,7 @@ test("a retained final no-proof equivalent skip recovers on the next collection 
     82,
     passedFrom(timeAfter(expiredSkip.at, -6 * minuteMs), 5 * minuteMs),
   );
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     home,
     makeMe.aLandedCiHistory
       .inTrunkOrder([

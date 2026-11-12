@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 489. Removed numbers are never reused.
+- Highest allocated local number: 495. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -262,6 +262,15 @@ Former local code: DD-334. [Meaning, evidence and response](docs/maintainer/find
   - Observed effect: commit and publication were withheld for one mechanical repair, proof and preparation loop of about two minutes before accepted `67b8c207b`.
   - Inference: late authored-file lint feedback recurred under briefs reserving the formatter and hook-owned lint to the coordinator. The saving from an earlier read-only check is unmeasured.
 
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+  - Timestamp: unknown (2026-11-11, minutes before publication of `19442de20`, whose hosted run started 20:58:54+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
+  - Evidence: launch `1c7a1eb2-5a2b-46f1-b563-577760ee7210`; slice 1's first guarded fresh returned `preparation-failed`, `operation: formatting`, two `no-control-regex` errors in new `dashboard/tests/support/terminalSubstituteApplication.ts` after accepted proof and the independent refactor. Both briefs forbade hook-owned lint. The coordinator rebuilt the two patterns with `new RegExp`, reran the spec and typecheck, and the retry published. The slice 2 and 3 briefs then asked for a read-only `npx prettier --check` / `npx eslint` on owned files; neither slice's guarded fresh refused.
+  - Observed effect: one mechanical repair, one 21-second proof rerun and one preparation retry before the first publication; none in the two later slices of the same execution.
+  - Inference: within this one execution the read-only check coincided with no late refusal; two slices do not measure the saving.
+
 ## ODF-362 — Post-change refactor compressed PLAN.md Story obligations under the file-size gate
 
 Former local code: DD-349. [Meaning, evidence and response](docs/maintainer/findings/ODF-362.md).
@@ -380,6 +389,15 @@ Former local code: DD-404. [Evidence and current response](docs/maintainer/findi
   - Observed effect: implementation acceptance required many concrete planning/history or unchanged-install exclusions beside real declaration, workflow and test consumers. All affected boundaries had proof; no missed consumer is established. The six-row refactor was a smaller three-helper scope, not an equivalent replacement for the whole-slice trace.
   - Inference: the same planning-basename expansion recurred. Separating record-reference discovery from product-effect tracing remains a candidate; isolated trace time/token cost and counterfactual savings were not measured.
 
+- Execution: SEED-312#speed-up-touch-review-checks (plan 592; first implementation `205452d94e139561afe62ad7d3e65d42bba68063`)
+  - Timestamp: unknown (execution 2026-11-11 20:44 to about 2026-11-12 01:30 +08:00; exact event time not retained)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: slice 2's implementation return reports a 611-row consumer trace of which 466 rows matched only `PLAN.md` / `source-review.md`; the slice 2, 3 and 4 refactor returns, run with `--base HEAD` while the coordinator's plan records were uncommitted, each report the same flood beside one real run consumer, `dashboard/tests/review/story-review-touch.spec.ts`. Accepted dispositions are recoverable in the plan's slice notes at `cd20723f7`.
+  - Observed effect: four traces of a test-helper change were mostly planning-record rows that each needed an exclusion; no missed consumer is established.
+  - Inference: recurrence of planning-basename noise in installed 0.3.96; the uncommitted plan and source review enter the trace's derived terms. Isolated cost is unmeasured.
+
 ## ODF-427 — A Story Branch keep-worktree landing hand-writes its publication script
 
 Former local code: DD-425. [Evidence and current response](docs/maintainer/findings/ODF-427.md).
@@ -408,6 +426,15 @@ Former local code: DD-431. [Evidence and current response](docs/maintainer/findi
   - Evidence: Slice 1 acceptance recorded observations against the deadline proof files; the post-change refactor split continuation cases into `test-runner-deadline-continuation.test.mjs` before publish `15ebf14d`. Slice 2 acceptance then recorded cutoff rows; its refactor split `test-runner-deadline-cutoff-proof.test.mjs` / helpers before publish `968d5cde`. Coordinator transcripts show “Updating observations for the split proof files” / plan verification updates before each delivery.
   - Observed effect: Two retargeting rounds in one execution; nothing stale was published because the coordinator rewrote the citations before each increment.
   - Inference: Same structural gap as prior ODF-428 rows — acceptance writes `observed:` paths before the required refactor pass, so proof-file splits invalidate them unless retargeted at delivery.
+
+- Execution: SEED-312#speed-up-touch-review-checks (plan 592; first implementation `205452d94e139561afe62ad7d3e65d42bba68063`)
+  - Timestamp: unknown (execution 2026-11-11 20:44 to about 2026-11-12 01:30 +08:00; exact event time not retained)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: acceptance recorded `observed:` cells and the plan's Surviving proof table by `file:line`. The slice 3 refactor, slice 4, and slice 4's returned correction each moved those lines in `storyReviewTouchContext.ts` and `storyReviewTouchJourney.ts`; the coordinator or the implementing agent renumbered the records each time (plan history `d7622bc2b`, `b9d7cb61a`).
+  - Observed effect: three renumbering rounds in one five-slice execution, one of them delegated to the slice 4 agent; nothing stale was published.
+  - Inference: the same gap in a wider form: any later slice, not only the refactor pass, invalidates line-located observations. Citing the named expectation or helper instead of a line would survive those moves.
 
 <a id="dd-442--a-shallow-historical-checkout-still-inherited-the-host-git-object-store"></a> DD-442 — A shallow historical checkout still inherited the host Git object store. [Project evidence](docs/maintainer/project-maintenance-findings.md#dd-442).
 
@@ -453,6 +480,14 @@ A Take-ready plan headed its only slice under `## Slice`. The obligations / plan
   - Evidence: Take base `921ad3c98` PLAN.md has `## Slice`; published tip `8fa1b522` has `## Slices`. Coordinator transcript `058c51db-7e9f-4095-86f9-2783c98271b9` renamed the heading before the successful `story-obligations.mjs list --slice 1`. Reader regex: `^## +(?:Ordered slices|Slices) *$`. Sibling Taken plan 568 still has `## Slice` at line 112.
   - Observed effect: one allocation stop and a one-line plan edit before slice 1 delegation; no product or CI effect.
   - Inference: Readiness / Take did not run the same slices-section parser execution uses. Distinct from lettered-slice ODF-431 and pending-status ODF-456.
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+  - Timestamp: unknown (2026-11-11, before the first implementation delegation, about 20:30+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
+  - Evidence: Take base `19e0e454a` PLAN.md has `## Ordered slices and proof ownership`; `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`; published `19442de20` has `## Ordered slices`. Plans 589 and 590 at that base carry the same longer heading (`589-…/PLAN.md:92`, `590-…/PLAN.md:87`). The seed's recorded assessment was `ready`.
+  - Observed effect: one refusal and a one-line plan edit before slice 1 delegation.
+  - Inference: same reader contract as the singular-heading occurrence, reached through a descriptive suffix instead; matching rests on that shared contract.
 
 ## DD-488 — Guarded slice delivery rejects its retained Markdown hard break
 
@@ -501,3 +536,99 @@ integration. The installed mode guard agrees with the specific branch procedure.
   - Evidence: `703fc242c84631550a54061cfd53ac8163f10da2:.agents/skills/dough-execute-plan/references/wrap-up-closure-publication.md`, opening paragraphs versus “Observe Story Branch integration”; the same revision's `.agents/skills/dough-story-wrap-up/SKILL.md` requires before-cleanup publication specifically in Trunk Mode. Coordinator and read-only closure preflight inspected the installed delivery guard, which enforces story-branch delivery to the recorded execution branch and refuses main.
   - Observed effect: two readers had to reconcile the generic wording against the mode-specific procedure and executable guard. They retained branch publication followed by history-preserving trunk integration, without changing the established mode or asking for new authority. No wrong-target push or integration failure is attributed to this discrepancy.
   - Inference: qualify the generic opening by its applicable mode and align it with the specific Story Branch sequence. This is a guidance-consistency proposal, distinct from ODF-333's trunk-before-execution-completion cycle; no guidance change is authorized by this review.
+
+## DD-490 — Linking further commitments to an obligation leaves its Commitment field naming only the first
+
+`story-obligations.mjs record --commitment <id> --obligation <entry>` with entry fields writes the entry and its `Commitment:` line for that one id. Later `record --commitment <other> --obligation <entry>` calls set the review rows but leave the entry's `Commitment:` line unchanged, so the next `list` refuses `mismatched-commitment` until the line is edited by hand.
+
+### Occurrences
+
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+  - Timestamp: unknown (2026-11-11, before the first implementation delegation, about 20:30+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
+  - Evidence: five `record` calls linked S1.7, S1.8, S1.9, X5.2 and X5.9 to O1, each returning `ok: true`; the plan then read `Commitment: S1.7` and `list --slice 1` returned four `mismatched-commitment` problems naming the other rows. The coordinator rewrote the line to list all five.
+  - Observed effect: one refusal and one hand edit of the plan, the kind of edit the `record` operation exists to avoid.
+
+## DD-491 — A proof limitation accepted at slice acceptance returned as a queued correction after Intent Coverage
+
+At slice acceptance the coordinator returned the proof for the state the story's example names and explicitly let two further states the plan's decision enumerates stand as a named limitation. The wrap-up Intent Coverage check then confirmed that limitation as a missing test path, and closure had to create a correction story, a plan, a premise observation, a readiness record and a queue entry for it.
+
+### Occurrences
+
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+  - Timestamp: unknown (2026-11-11; acceptance about 20:50+08:00, Intent Coverage report 23:51+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
+  - Evidence: plan 591 decision 1 names `vt200`, `drag` and `any`; the coordinator's return of slice 1 asked for the `any` case and said `vt200` and `drag` "may stay as members of the same list without their own page opens"; the plan's slice 1 `Accepted:` text records it. Intent Coverage at `7981c2cce` removed `"vt200"`: maintained spec 2 passed, scratch witness failed. Closure wrote `SEED-316#prove-swipe-under-button-event-tracking` and plan 596 and ran one more scratch witness for `drag`.
+  - Observed effect: a second planned work item for two page opens of an existing test, estimated by the returning agent at about four seconds each.
+  - Inference: the coordinator weighed test run time and not the closure cost of an evidenced gap. Whether acceptance should hold every state a plan decision enumerates is a judgment this record does not settle.
+
+## DD-492 — A plan promised an existing layout family would stay green without measuring the room a new pinned control needs
+
+The plan's proof named the phone toolbar's measuring specs as preserved consumers and its premises observed selection, copying and scrolling, but no premise measured whether a fourth pinned key fits the narrowest proof viewport. Implementation found it does not, and the trade-off reached the developer only at the completion handoff.
+
+### Occurrences
+
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+  - Timestamp: unknown (2026-11-11, slice 2 implementation between about 21:15 and 22:30+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
+  - Evidence: plan 591 slice 2 "Preserved consumers: the `tests/terminals/agent-terminal-touch*` family"; the slice 2 return measured the lane before Enter at 228 pixels before and 172 after at a 390-pixel viewport, and unchanged `agent-terminal-touch-keys.spec.ts` failed "Down is cut by what clips it". The story fixes **Select** beside **Paste**, so the coordinator kept it, the keys spec gained two sideways strokes, and the plan and handoff carry the layout choice.
+  - Observed effect: slice 2's implementation took about 77 minutes of agent time, part of it on this diagnosis and on timeouts from other worktrees' load; one existing spec was adapted; one product choice is left with the developer after delivery.
+  - Inference: a width measurement in preparation, as cheap as the premises that were observed, would have put the choice before the developer at refinement. The share of the 77 minutes due to this premise is not separable from the load-related share.
+
+## DD-493 — A source-only review numbers context and proof-method statements as commitments that each need an observation
+
+The source-only reviewer returned every clause of the story's Goal, Scope, key examples, UI and scope limits as a numbered commitment, including a context sentence and statements about what automated proof covers. Each row needs an allocation and, before its slice's check passes, an `observed:` cell.
+
+### Occurrences
+
+- Execution: SEED-316#select-and-copy-terminal-text-on-mobile (spent plan 591 recoverable at before-cleanup `ebaf16f6336d2d9111f95984b907a006b67f3c04`; first implementation `19442de208fdc14881c3ad75a77e321cd71441bf`)
+  - Timestamp: unknown (2026-11-11; review returned about 20:25+08:00, observations recorded at each of three acceptances)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (checkout-bound installed `.claude/skills/dough-update/VERSION` at accepted Take `19e0e454a`)
+  - Evidence: `source-review.md` beside plan 591 holds 112 rows for a three-slice story, among them U1 ("Context: the developer is reading on a small screen…"), nine X5 rows restating the story's automated-proof limit and seven trigger rows (K1.0–K7.0). The coordinator recorded one `observed:` per row through about 110 `record` invocations in three batches and re-recorded three rows when a later slice renamed a test helper.
+  - Observed effect: every promise had an inspected location at acceptance, and the U11 row exposed one promise with no automated assertion. The context, trigger and proof-method rows added cells whose text restates setup or the story's own limit.
+  - Inference: the reviewer brief asks for "trigger/journey examples and exclusions" beside commitments without separating which need an observation; the cost here is qualified, as no time was measured.
+
+## DD-494 — A story's "still proves" example named a result the base's checks never asserted
+
+Former branch-local code: DD-490 in `03dff46c0`; renumbered during integration to preserve the unrelated finding already published on trunk.
+
+A test-speed story promised that its faster checks "still" prove a behavior.
+The base's journey did not assert all of it, so the plan's rule that cases only
+lose work could not satisfy the story's own example.
+
+### Occurrences
+
+- Execution: SEED-312#speed-up-touch-review-checks (plan 592; first implementation `205452d94e139561afe62ad7d3e65d42bba68063`)
+  - Timestamp: unknown (execution 2026-11-11 20:44 to about 2026-11-12 01:30 +08:00; exact event time not retained)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: the story's key example reads "Rotating to landscape and back keeps the file, the comparison and both reading places"; its source evidence, `.planning/evidence/SEED-303-early-handoff/coverage-map.md` row 37, says "both pane positions"; at base `58442ace8` `keepReviewContextThroughTouch` compared only the code pane's place across rotation, Maximize and Restore. The source-only review's per-clause commitments 14d, 14f and 14g exposed the gap at slice 4 acceptance; the slice was returned and `expectKept` added in `b9d7cb61a`.
+  - Observed effect: one returned slice, about an hour of agent time under machine load, and four added assertions the plan had ruled out; the product kept the place in every arrangement, so no defect was found.
+  - Inference: refinement took the example's result from a coverage summary without a premise row checking the base assertion. Per-clause source-review ids caught it, but only at the last code slice.
+
+## DD-495 — A planned step removal named no owner for a fault the step detected only in passing
+
+Former branch-local code: DD-491 in `03dff46c0`; renumbered during integration to preserve the unrelated finding already published on trunk.
+
+A plan removed a setup step after proving which assertion needed it, without
+asking what else the step's presence had detected.
+
+### Occurrences
+
+- Execution: SEED-312#speed-up-touch-review-checks (plan 592; first implementation `205452d94e139561afe62ad7d3e65d42bba68063`)
+  - Timestamp: unknown (execution 2026-11-11 20:44 to about 2026-11-12 01:30 +08:00; exact event time not retained)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: plan 592's premise row found that skipping the context journey's early commit choice fails the later Commits beat, so slice 4 moved the choice there and dropped the return to All changes. Neither the plan nor the first slice 4 return named an owner for "the chosen range survives leaving Commits", which the removed sequence had detected. At acceptance the coordinator returned the slice; fault FR failed the removed step on `d7622bc2b`, no touch case afterwards, and two desktop checks (`story-review-commit-ranges.spec.ts:80`, `story-review-commit-refresh.spec.ts:96`) found by running the review family (183 cases, 1,227 s at load 34–49).
+  - Observed effect: one returned slice and a family run to find an owner the plan could have named; the same run surfaced five load-only failures in untouched review specs, recorded in `ProjectFindings.md` under DD-476.
+  - Inference: the story's surviving-proof rule was applied to removed assertions and cases, not to behavior a removed step proved incidentally. Planning a removal could list each fault the step fails today, not only the assertion that motivated keeping part of it.

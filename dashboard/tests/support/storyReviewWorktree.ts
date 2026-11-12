@@ -11,11 +11,9 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import type { RepositoryRevision } from "../../../tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../tests/support/repository-revision-files.mjs";
-import { largeReviewRevision } from "./largeReviewFiles.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-
-export { longA, longB } from "./largeReviewFiles.ts";
 
 export const branch = "claude/story-a";
 
@@ -194,14 +192,13 @@ export function nestedWorktree(origin: StartOrigin) {
   return { workspace };
 }
 
-// Many files, a name wider than the browser and long diffs. Reading journeys
-// can state a different wide line without changing other large comparisons.
-export function largeWorktree(origin: StartOrigin, firstWideLine = wideLine) {
+// Story A's worktree with one commit of the comparison a consumer describes
+// (./largeReviewFiles.ts).
+export function largeWorktree(
+  origin: StartOrigin,
+  revision: RepositoryRevision,
+) {
   const workspace = addStoryWorktree(origin.project);
-  const revision = largeReviewRevision(
-    `${lines("first", 200)}${firstWideLine}\n`,
-    lines("second", 200),
-  );
   writeRevisionFiles(workspace, revision);
   commitAll(workspace, revision.name);
   return { workspace };

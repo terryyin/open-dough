@@ -45,7 +45,7 @@ test("each Done scope compares its own collected time through restart, accessibl
   github,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     scopePriorReferenceHistory(origin, setup, [100, 100, 100, 100, 115, 116]),
   );

@@ -41,12 +41,12 @@ export function phonePasteJourney() {
     await opened.settled();
     const sidebar = sessionsSidebarParts(page);
     await tapWhereShown(sidebar.button);
-    const { sent } = noteTerminalTraffic(page);
+    const { sent, sizes } = noteTerminalTraffic(page);
     await tapWhereShown(sidebar.entry(title));
     const panel = page.getByRole("region", { name: "Terminal" });
     const rows = panel.locator(".xterm-rows");
     await expect(rows).toContainText(`attached ${native.shortId}`);
     await expect(rows).toContainText("Claude Code");
-    return { panel, rows, sent, native };
+    return { panel, rows, sent, sizes, native };
   };
 }

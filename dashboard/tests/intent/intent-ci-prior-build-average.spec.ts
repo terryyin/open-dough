@@ -112,7 +112,7 @@ test("project history explains its five-build average, strict slow exclusion and
   }
   // Settled background history is the starting precondition; only the new
   // selected landing needs collection in this comparison journey.
-  keepLandedCiHistory(dashboard.home, retained.please());
+  await keepLandedCiHistory(dashboard.home, retained.please());
   await publishTrunk(
     page,
     origin,

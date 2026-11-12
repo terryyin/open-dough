@@ -13,6 +13,7 @@ import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import { tapWhereShown } from "../pageLayout.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
 import {
+  bringKeyIntoView,
   composeToggle,
   expectMinTouchTarget,
   focusByTouch,
@@ -127,6 +128,9 @@ test.describe("phone terminal key toolbar", () => {
     await test.step("arrows change menu selection; swipe leaves sent and selection alone; Down twice then Enter confirms", async () => {
       await focusByTouch(panel);
       const beforeArrows = [...sent];
+      // Beside Enter, Paste, Select and More this phone's lane holds three
+      // whole keys; a stroke brings Down in beside Up.
+      await bringKeyIntoView(panel, "Down");
       await tapTerminalKey(panel, "Down");
       await expect(rows).toContainText("› Blue");
       await expect(rows).not.toContainText("› Red");
@@ -170,6 +174,8 @@ test.describe("phone terminal key toolbar", () => {
       await expect(composeToggle(panel)).toBeVisible();
       await expectMinTouchTarget(composeToggle(panel));
       const beforeInterrupt = sent.length;
+      // The opened keys are wider than this phone; the toolbar scrolls.
+      await bringKeyIntoView(panel, "Ctrl+C");
       await tapTerminalKey(panel, "Ctrl+C");
       await expect
         .poll(() => sent.slice(beforeInterrupt).join(""))

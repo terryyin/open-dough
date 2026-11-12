@@ -53,7 +53,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
       ])
       .please();
   };
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     scopePriorReferenceHistory(origin, setup, [0, 0, 0, 0, 0], {
       selectedProof: proof(false),
@@ -84,7 +84,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
     await intentFile(intent, summaryComparisonChanges.modified).click();
     await intentLocationName(intent, "dashboard/tests").click();
   };
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     scopePriorReferenceHistory(origin, setup, [0, 0, 0, 0, 0], {
       selectedProof: proof(true),
@@ -104,7 +104,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   await expect(partial).not.toContainText("1.2 s");
   // No terminal signature: keep both declared units and a different owner's
   // complete reading, without choosing either as a combined reference.
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     scopePriorReferenceHistory(origin, setup, [100, 100, 100, 100, 100, 100], {
       selectedProof: makeMe.aCiProof.unavailableBecause("expired").please(),

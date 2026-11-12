@@ -1,7 +1,7 @@
 # Slice13 final-gate progress
 
 Slice13 remains planned. This record preserves failed proof and selected repair;
-G16/G17 are repaired; G1/G2/G3/G7/G8/G11/G18 and source69 remain owned by13.
+This section is historical. [Current candidate proof](current-baseline-evidence.md#complete-local-candidate) and PLAN.md own the settled gates; incoming312 reopens G1/G3; G2/G11 stay open.
 The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies as written.
 
 ## Named pressure allocation and latest failure
@@ -240,3 +240,11 @@ Hook typecheck then stopped before commit on CodexFacts' narrower optional notic
 Its JSDoc now derives canonical product continuation fields, retaining optional
 builder args/defaults. Independent review confirmed type-only/no runtime or
 proof change across both builder routes. Formatter/hooks must pass on retry.
+
+Current15ee source review retains178 commitments/97 allocated to13. Pendingfd
+renewal27/19unique is prepared but unrun; named1.1m retains943157 spent. Natural
+load≤20 before workers and stable22–25 gate preserve actual whole-child20–30.
+Default30/default5/retry0 and current G1/G2/G3/G11/G18/G19/G23 remain required.
+Headroom-only60distinct ended33.396/zeroSUT. Terry then authorizes proceeding at
+current natural load; same27/2workers/default30/5, zero syntheticCPU, all costs
+retained. Fresh214 source commitments allocated; G1/G2/G3/G11/G18/G19/G23 open.

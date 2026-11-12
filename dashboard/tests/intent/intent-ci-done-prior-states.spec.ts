@@ -13,7 +13,10 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
   github,
 }) => {
   const setup = await publishComparedStoryBranch(page, origin);
-  keepLandedCiHistory(dashboard.home, doneWallReferenceHistory(origin, setup));
+  await keepLandedCiHistory(
+    dashboard.home,
+    doneWallReferenceHistory(origin, setup),
+  );
   const { panel } = await selectDoneStoryForCiComparison(page);
   const history = panel.getByRole("region", {
     name: "Done CI wall time reference",
@@ -45,7 +48,7 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
     .please().builds["run/103/1"];
   if (selected === undefined)
     throw new Error("Selected raw measurement is missing");
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { selected }),
   );
@@ -61,7 +64,7 @@ test("uncollected and incomplete selected evidence retain the prior reference, w
       .getByRole("group", { name: "Prior-build reference evidence" })
       .getByText(/◆ Selected/),
   ).toContainText("Validated CI proof summary is not retained");
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     doneWallReferenceHistory(origin, setup, { drop: 6, later: true }),
   );

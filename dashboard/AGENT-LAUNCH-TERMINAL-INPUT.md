@@ -55,10 +55,12 @@ itself; text already offered is never resent.
 
 On coarse-pointer / soft-keyboard use, tap the terminal to focus its ordinary
 input, edit with the browser keyboard and submit with Enter. A key toolbar
-above the soft keyboard supplies Esc, Tab, arrows, Enter and Paste. Expand
-**More** for less-frequent controls such as Ctrl+C. Sequence keys use the
-same terminal → WebSocket → PTY path as typing. Toolbar taps preserve the
-soft keyboard’s current visibility.
+above the soft keyboard supplies Esc, Tab, arrows, Enter, Paste and Select.
+Expand **More** for less-frequent controls such as Ctrl+C. Where the phone is
+narrower than the keys, the keys before Enter scroll sideways in a lane of
+their own and the expanded toolbar scrolls sideways as a whole. Sequence keys
+use the same terminal → WebSocket → PTY path as typing. Toolbar taps preserve
+the soft keyboard’s current visibility.
 **Paste** reads the phone clipboard and offers its text as one terminal paste
 with control sequences removed and no trailing Enter. If the browser cannot
 read the clipboard, open Compose and use the keyboard’s own Paste. If the
@@ -74,8 +76,32 @@ selection, autocorrection and dictation; deliberate Insert offers the draft
 once through the same attachment `insert` path dictation uses, without a
 trailing Enter, and deliberate Enter submits. An unavailable attachment keeps
 the unsent draft for another deliberate Insert and never auto-replays it.
-Direct typing remains available. One-finger swipe moves terminal scrollback
-only; it does not send Up/Down or move an option-menu selection—toolbar arrows
+**Select**, beside **Paste**, pauses the terminal in place as ordinary page
+text, without the terminal’s colors or text styles, and **Select** reads as
+on. The paused text holds every line the terminal holds at that moment: its
+screen and any scrollback it keeps. It opens with the lines the terminal was
+showing where they were and scrolls by ordinary touch to the first and the
+last line, so one selection can span more than a screen. An application that
+has taken over the screen leaves the terminal that screen only: swipe to the
+output wanted, then **Select**. The device’s own selection and Copy work on
+the text; the dashboard adds no selection gesture, highlight or Copy control.
+Copied text matches the screen. Each row lies where the terminal drew it; a
+line the terminal itself wrapped over several rows copies as one line, as a
+desktop terminal selection does, while line breaks and indentation an
+application drew stay in the copy. Landscape gives longer rows. Tapping
+**Select** again returns the live terminal at the place it showed, with its
+current output. Pausing and returning send the session nothing, keep the same
+attachment at the same size and leave the soft keyboard as it was; output that
+arrived meanwhile shows on return. What a disconnected or ended attachment
+still holds pauses the same way. The paused text fits the visible area as the
+terminal does.
+Direct typing remains available. One-finger swipe scrolls the output wherever
+it is held. Where the terminal holds it, the swipe moves terminal scrollback
+and sends the session nothing. Where the session’s application has taken over
+the screen and takes the wheel, as Claude Code does, the swipe gives it wheel
+input where the finger went down, one step per row of travel, as a desktop
+wheel would. The terminal’s reported pointer tracking decides, not the host.
+A swipe never sends Up/Down or moves an option-menu selection—toolbar arrows
 navigate menus and the application cursor. When the soft keyboard opens,
 closes or the device rotates, the Side panel terminal region, toolbar and
 composer actions fit the visible area (including an explicit Hide keyboard
@@ -90,6 +116,8 @@ orientation or reducing visible height fits that same attachment without
 launching or reconnecting it. Closing and reopening follow the
 [embedded terminal lifecycles](AGENT-LAUNCH-TERMINALS.md#embedded-terminals-and-local-record-actions). Local Chromium touch viewport proof covers phone/tablet portrait,
 landscape and a 240-pixel visible height, including toolbar keys, composer
-Insert, soft-keyboard fit, Backspace, Enter and actual
+Insert, soft-keyboard fit, Backspace, Enter, a range of the paused text
+copied by the platform and pasted back, and actual
 browser-to-WebSocket-to-PTY replies. It does not establish physical iOS
-keyboard, predictive-IME or remote connectivity behavior.
+keyboard, predictive-IME, long-press selection or remote connectivity
+behavior.

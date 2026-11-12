@@ -65,3 +65,35 @@ Retained hosted baseline for suite comparison: passing `main` run42795867875
 at `31a826c77` (story CI evidence). Keep wall time and summed case time separate.
 Historical slowest dashboard job11/12 wall321s; reporter295.014s. The required
 current-trunk thirteen-part collection and redistribution remain separate.
+
+## Current published candidate
+
+Exact accepted730543328235c2379303e7ec10f4e6e7f2d01124 passes CI43098913374/1:
+all18 jobs and all13 dashboard shards succeed. Ordinary managed progress await
+returned exact requested SHA/target/attempt success; receipt
+`/tmp/seed287-current-ci-7305433-await-20261112.log`. It is closed, not a new
+completion wait. All13 report ZIPs pass CRC/embedded-JSON checks and each carries
+the exact candidate/run metadata. Intent proof summary schema2 has all five
+expected entries with complete parts.
+
+Dashboard2651:2643expected/eight existing skips, zero unexpected/flaky/errors.
+All eight skip identities/descriptions match retained43028669492; none added.
+Named105:104expected/one existing Linux native-helper skip; maximum23124ms
+leaves6876ms. Browser982 default5s observations maximum1310ms/error0;
+watcher beforeAll hooks maximum23228ms. Actual restart is23124ms, SIGHUP1504ms,
+first activation16779ms and policy observations2300/4198ms. This settles G3/G8
+for the published candidate with every real native/build/cleanup assertion kept.
+
+Slowest dashboard job283s versus previous accepted287s/original retained321s;
+maximum reporter235.718215s. These are actual operational prices. Inherited
+thirteen-shard layout, changed dependencies and selection confound a precise
+story-only ratio. Branch artifacts are not the required TRUNK weight basis.
+All current thirteen complete passing trunk artifacts, weight refresh and
+separately measured redistribution remain G11 after the explicit retained-Land
+checkpoint. Detailed immutable provider/proof/parsed comparisons:
+`/tmp/seed287-hosted-43098913374/`.
+
+Human15ee review-family routes and pendingfd touch/history composition require
+new branch proof. Source-only178 commitments are allocated; local27 renewal is
+prepared, unrun. The ended9hDF3Y observer lost discovery after a request timeout;
+restore publication coverage before relying on new CI. G3/G11 remain open.

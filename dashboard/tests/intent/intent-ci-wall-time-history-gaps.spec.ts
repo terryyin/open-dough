@@ -47,7 +47,7 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     revision: `e${String(n)}`.repeat(20),
     receivedAt: at(day(n)),
   });
-  keepLandedCiHistory(
+  await keepLandedCiHistory(
     dashboard.home,
     makeMe.aLandedCiHistory
       // Synthetic retained positions, independent of receipt dates.

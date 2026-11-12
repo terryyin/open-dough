@@ -55,7 +55,7 @@ test("an exact unavailable Done endpoint explains retention, absence and unknown
     );
   }
   const before = github.calls.length;
-  keepLandedCiHistory(dashboard.home, builder.please());
+  await keepLandedCiHistory(dashboard.home, builder.please());
   expect(await read(6)).toMatchObject({
     selectedRevision: rev(6),
     availability: "uncollected",
@@ -88,7 +88,7 @@ test("an exact unavailable Done endpoint explains retention, absence and unknown
       completedAt: "2026-11-05T10:01:40Z",
     })
     .please();
-  keepLandedCiHistory(dashboard.home, onlyLater);
+  await keepLandedCiHistory(dashboard.home, onlyLater);
   expect(await read(0)).toMatchObject({
     selectedRevision: rev(0),
     availability: "outside-retention",

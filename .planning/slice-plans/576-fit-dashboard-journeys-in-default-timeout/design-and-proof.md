@@ -88,9 +88,7 @@ UI. No production caching, timeout increase, new scheduler or parallel suite.
 | Full local comparison, slice 13 | Captured strict-failing baseline 4,845.851 s shell / 4,843.154 s runner, admission separate; variable sampled load 5.39–44.54. Preserve failures and qualify comparability; rerun only for a stated changed-condition hypothesis, never until green. |
 
 ## Original CI evidence from the seed
-
 Captured 2026-11-10; retained verbatim from the selected seed’s evidence section.
-
 
 The two most common observed patterns were state or request assertions made
 while asynchronous work was still settling (11 jobs) and exhausted time
@@ -204,25 +202,26 @@ remaining proof; return before another variant if this one fails.
 
 ## Current plan assessment
 
-Earlier accepted proof remains retained. Slice12 and its exact full CI5e721503
-settled the original transport/shutdown/runner/pacing repairs. Slice13's later
-valid-pressure failures returned G7/G18; the final44 plus compatible46 then
-pass all90 named cases at defaults, with every scoped browser observation5s.
-Exact published9739dd6e passes all17 hosted jobs; slowest shard287s against321s.
-The internal whole7 shell keeper target remains refuted, as retained in
-incoming-watcher-evidence.md; no whole7 speedup is claimed.
+Slices1–12 are delivered;13 stays planned. Accepted7305433 incorporates4a and
+passes exact18-job/13-shard CI43098913374/1 plus the strict complete local2651
+selection under actual22.19–26.86. Current115 focused attempts/105 unique retain
+default30/default5, including three consecutive whole-five admission passes.
+Candidate730 has proof; incoming312 reopens touch G1/hosted G3. Other gates retain their
+accepted repaired observations. New15ee human routes reopen G23; fresh178-item
+source-only review is historical. Terry now authorizes current-load proof; fresh
+214 commitments allocated/112 to13. Same27 uses no synthetic load/default30/5. See [local proof/comparison](current-baseline-evidence.md#complete-local-candidate),
+[hosted proof](hosted-evidence.md#current-published-candidate) and
+[native/setup proof](native-git-setup-evidence.md).
 
-Human amendment44f3e0186 adds the five repeat-admission cases and their three
-consecutive loaded passes. The source-only review is refreshed to159 items.
-The queued full gate was cancelled with zero SUT/load work, and accepted main
-467ab91f is being reconciled to bring its repeat-admission feature into this
-branch. No merged-candidate proof or local full-suite comparison is claimed.
-Thirteen slices remain;13 owns G1/G2/G3/G7/G8/G11/G18/G19/G20, renewed affected
-pressure/default proof, comparable whole-suite and trunk gates. Accepted main
-uses thirteen shards; its final complete artifact set remains required at the
-human checkpoint. See [current amendment and PFE](amended-source-evidence.md),
-[final validation](final-validation-evidence.md) and
-[observation evidence](final-observation-evidence.md).
+G2 remains open: historical failed/different-context4845.851s is no current
+threshold. The fixed reconstructed4a BEFORE became overloaded even with synthetic
+work off and was stopped with partial evidence/costs preserved; no comparable
+complete BEFORE price or whole-suite speedup is claimed. Reconsider expensive
+proof only after changed host conditions. Named312 reconciliation holds delivery.
+G11 still requires all13 complete
+passing TRUNK parts, weights and separately observed redistribution after the
+explicit retained-Land checkpoint. No trunk landing or execution-complete record.
+The earlier internal whole7 shell target remains refuted; no whole7 saving claim.
 
 ## Source goal and scope
 

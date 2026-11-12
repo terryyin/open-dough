@@ -12,7 +12,7 @@ import {
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
 
-function keepMeasurements(
+async function keepMeasurements(
   home: string,
   values: readonly number[],
   selectedProof = true,
@@ -43,14 +43,14 @@ function keepMeasurements(
           .please(),
       );
   }
-  keepLandedCiHistory(home, history.inTrunkOrder(order).please());
+  await keepLandedCiHistory(home, history.inTrunkOrder(order).please());
 }
 
 test("five complete zeros give a zero reference and precise elapsed difference with explicitly unavailable percentage", async ({
   page,
   dashboard,
 }) => {
-  keepMeasurements(dashboard.home, [0, 0, 0, 0, 0, 1200]);
+  await keepMeasurements(dashboard.home, [0, 0, 0, 0, 0, 1200]);
   await page.setViewportSize({ width: 390, height: 844 });
   const panel = await openJudgedCiStatus(page);
   const history = historyOf(panel);
@@ -73,7 +73,7 @@ test("selected missing proof keeps a usable prior average and available observed
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 120000],
     false,
@@ -98,7 +98,7 @@ test("four post-filter values show their evidence and insufficient history witho
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 116000, 120000],
   );
@@ -126,7 +126,7 @@ test("refresh recomputes the displayed endpoint reference from the changed retai
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 115000],
   );
@@ -134,7 +134,7 @@ test("refresh recomputes the displayed endpoint reference from the changed retai
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 1 min 40 s");
   await expect(history).toContainText("5 prior builds used");
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 115000, 130000],
   );
@@ -151,7 +151,7 @@ test("an invalid measured start keeps its original gap and readable receipt date
   page,
   dashboard,
 }) => {
-  keepMeasurements(
+  await keepMeasurements(
     dashboard.home,
     [100000, 100000, 100000, 100000, 100000, 120000],
   );

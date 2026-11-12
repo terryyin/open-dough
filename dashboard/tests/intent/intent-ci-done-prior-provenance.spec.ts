@@ -43,7 +43,7 @@ for (const selection of ["equivalent", "later"] as const) {
       });
       setup.serveProofs(laterProof(304, measured));
     }
-    keepDoneWallProvenanceHistory(dashboard.home, origin, setup, {
+    await keepDoneWallProvenanceHistory(dashboard.home, origin, setup, {
       revision: measured,
       runId,
       selection,

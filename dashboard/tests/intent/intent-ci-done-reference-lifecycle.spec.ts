@@ -15,7 +15,10 @@ test("initial failed and unavailable CI comparisons keep the local prior referen
   github,
 }) => {
   const setup = await publishComparedStoryBranch(page, origin);
-  keepLandedCiHistory(dashboard.home, doneWallReferenceHistory(origin, setup));
+  await keepLandedCiHistory(
+    dashboard.home,
+    doneWallReferenceHistory(origin, setup),
+  );
   const unavailable = makeMe.aStoryCiComparison
     .with({
       kind: "unavailable",

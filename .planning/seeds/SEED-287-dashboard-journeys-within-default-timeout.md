@@ -11,38 +11,21 @@ scope: story
 
 ## Why this matters
 
-Plan 502 removed the timeout allowances of dashboard cases that cost at most
-15 s in hosted CI, but several journeys still run close to the 30 s default
-or their 5 s observations. On 2026-11-09 hosted run 42557657479 timed out an
-Intent CI comparison case on a dashboard shard that took 1.48× as long
-overall (files up to 2.5×). Locally at load 13–36 (a VM plus other
-worktrees' suites), the phone touch review journey timed out in 5 of 8
-repeats. A final dashboard run at load 17–23 then timed out or missed a 5 s
-observation in eight more cases: `agent-launch-preparation-codex(-retry)`,
-`responsive-session-access`, `responsive-session-reconciliation`,
-`responsive-session-recovery-restart`, `side-panel-content-replacement`,
-`production-deployment` (past its 45 s allowance) and
-`agent-completion-recovery`. All sixteen tests in those files passed at one
-worker. A case that runs first in its worker also pays the run's on-demand
-fixture preparation (10.7–26.4 s), and each fake `gh` call starts a Node
-process (p50 57–94 ms at load 21–24). Terry authorized a case-local allowance
-for the touch review case on 2026-11-09; this story removes the need. Three
-test optimization candidates moved here when SEED-284 converted Open Dough's
-record on 2026-11-09: `story-review-touch-reading-strokes`,
-`production-deployment-pinned-build` and `hosted-margin-dashboard-journeys`.
-Their evidence is at `144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md`.
-That conversion's run of the commented specs at 2 workers and load 24–27
-also timed out `production-watcher.spec.ts`'s first-in-worker `beforeAll`
-past 30 s (12.9 s first step alone) and both variants of
-`backend-tests/review/story-review-completed.spec.ts:27` at 30.4 s (30.0 s
-alone at load 16–18; 14.4 s for its 5 cases in hosted CI); Terry routed both
-here. Project findings [DD-473](../../ProjectFindings.md#dd-473)
-(`review/story-review-story-branch-landed.spec.ts:27`, 31.7–34.4 s at load
-21–27), [DD-476](../../ProjectFindings.md#dd-476) (whole runs at load 13–36)
-and [DD-479](../../ProjectFindings.md#dd-479)
-(`backend-tests/launches/start-origin-isolation.spec.ts:140`, 30.0 s at load
-37) are further cases of the same margin. The Intent CI comparison family
-belongs to SEED-286#fast-intent-ci-comparison-tests.
+Plan502 removed allowances from cases costing at most15s in hosted CI, but
+remaining journeys approach the30s case and5s observation budgets. Hosted run
+42557657479 had a shard1.48× slower overall (files up to2.5×). On2026-11-09,
+local load13–36 caused the phone reading journey to fail5of8 repeats; a later
+load17–23 gate missed the eight cases named below. Their sixteen tests passed
+at one worker. Cold first-worker preparation cost10.7–26.4s, and each fake gh
+call cost57–94ms at load21–24. Terry's temporary touch allowance is to be removed.
+
+SEED284 moved the touch-reading, pinned-deployment and hosted-margin candidates
+here; evidence remains at144981e5f:.planning/TEST-OPTIMIZATION-CANDIDATES.md.
+Its two-worker load24–27 run also exceeded30s in watcher beforeAll and both
+completed-review variants. DD-473/DD-476/DD-479 route the same margin problem.
+The [original diagnostic inventory](../slice-plans/576-fit-dashboard-journeys-in-default-timeout/design-and-proof.md#original-ci-evidence-from-the-seed)
+and Git7305433's original Why retain their exact observations and source links.
+SEED286 owns the separate Intent CI comparison family.
 
 <a id="fit-dashboard-journeys-in-default-timeout"></a>
 
@@ -73,8 +56,13 @@ verdicts without stretching deadlines.
   `production-deployment`, `agent-completion-recovery`); the watcher family's
   first-in-worker `beforeAll` and restart/policy-repair paths; the retired
   closure journey; and the routed findings/cases that share this margin
-  problem (`story-review-completed`, DD-473/DD-476/DD-479 routes, and the
-  three candidates moved from SEED-284).
+  problem (`story-review-completed`, DD-473/DD-476/DD-479 routes including
+  `story-review-story-branch-landed.spec.ts:27`,
+  `story-review-completed-conflicts.spec.ts:73`,
+  `story-review-one-shot-choice-races.spec.ts:12`,
+  `story-review-one-shot-choice.spec.ts:13`,
+  `story-review-completed-merge-edits.spec.ts:11`, and the three candidates
+  moved from SEED-284).
 - Remove each temporary case-local timeout allowance only after that case fits
   the default with margin. Allowances named for this story include touch
   review, production-deployment, agent-completion-recovery, and the temporary
@@ -160,11 +148,16 @@ or speedup unestablished.
 1. **Touch review without allowance.** Under local load 20–30 on 2 workers,
    the case "chooses a comparison and file and reads within each pane" passes
    inside the default 30 s; its 2026-11-09 case-local allowance is removed.
-2. **Named overdue cases under load.** The eight 2026-11-09 cases and
-   first-in-worker journeys that previously timed out or missed a 5 s
-   observation finish with margin inside the default 30 s and those
-   observations on a hosted shard about 1.5× slower overall and locally at
-   load 20–30 on 2 workers; production-deployment and
+2. **Named overdue cases under load.** The eight 2026-11-09 cases,
+   first-in-worker journeys, and the SEED-312 review-family cases
+   (`story-review-completed-conflicts.spec.ts:73`,
+   `story-review-one-shot-choice-races.spec.ts:12`,
+   `story-review-one-shot-choice.spec.ts:13`,
+   `story-review-completed-merge-edits.spec.ts:11`, alongside
+   `story-review-story-branch-landed.spec.ts:27`) that previously timed out
+   or missed a 5 s observation finish with margin inside the default 30 s
+   and those observations on a hosted shard about 1.5× slower overall and
+   locally at load 20–30 on 2 workers; production-deployment and
    agent-completion-recovery allowances are removed after they fit.
 3. **One live watcher failure deployment.** The failure journey proves that
    an unavailable origin leaves C serving and that checks resume when the
@@ -207,7 +200,21 @@ Primary homes for the scope above:
 [closure journeys](../../dashboard/tests/sessions/agent-completion-quiet.spec.ts),
 [reporting boundary](../../dashboard/backend-tests/sessions/agent-completion-quiet-closure.spec.ts),
 [touch review](../../dashboard/tests/review/story-review-touch.spec.ts),
+[story-branch landed](../../dashboard/tests/review/story-review-story-branch-landed.spec.ts),
+[completed conflicts](../../dashboard/backend-tests/review/story-review-completed-conflicts.spec.ts),
+[one-shot choice](../../dashboard/tests/review/story-review-one-shot-choice.spec.ts),
+[one-shot choice races](../../dashboard/tests/review/story-review-one-shot-choice-races.spec.ts),
+[completed merge edits](../../dashboard/tests/review/story-review-completed-merge-edits.spec.ts),
 [production deployment](../../dashboard/backend-tests/runtime/production-deployment.spec.ts).
+
+Human execution amendment, 2026-11-12: Terry asks, “I think you will have to
+proceed with this average load because the other tasks are likely to finish
+anytime soon. So please adjust things proportionally.” For remaining local
+proof, use the contemporaneous natural host load instead of waiting for20–30.
+Adjust planning estimates proportionally to observed conditions; retain actual
+load and raw elapsed times. Keep two workers, real default30s cases and5s
+observations, all coverage and failure duties. Do not turn a load ratio into
+an observed speedup or a substitute for comparable before/after conditions.
 
 Compare focused before and after runs with the same selection, workers, cache
 conditions, and comparable load. Include the replacement proof in the family

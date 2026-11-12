@@ -428,6 +428,15 @@ selects no new implementation story.
   - Observed effect: about 5.5 hours of whole-suite time and two developer decisions; the gate was finally judged by one-worker reruns and hosted CI.
   - Inference: at this load the local whole-suite verdict mostly measures the machine; DD-473 is one such journey. Without a per-job deadline, a hung job blocks every worktree's whole runs. SEED-287 and SEED-286 address the journeys' cost.
 
+- Execution: SEED-312#speed-up-touch-review-checks (plan 592; first implementation `205452d94e139561afe62ad7d3e65d42bba68063`)
+  - Timestamp: unknown (between 2026-11-11 23:03 and 2026-11-12 00:41 +08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.96 (installed `.claude/skills/dough-update/VERSION` in the execution checkout)
+  - Evidence: A review-family run (`npm run --silent test:dashboard -- tests/review --workers=2`, 183 cases) at load 34–49 failed five cases the change does not reach, and they failed again at one worker: `backend-tests/review/story-review-completed-conflicts.spec.ts:73`, `tests/review/story-review-completed-merge-edits.spec.ts:11`, `tests/review/story-review-one-shot-choice-races.spec.ts:12`, `tests/review/story-review-one-shot-choice.spec.ts:13` and `tests/review/story-review-story-branch-landed.spec.ts:27` (DD-473's journey). Four passed the 30 s case budget and one a 5 s observation, with 2–4 s of Before Hooks. The same five files at one worker failed six cases on the base `58442ace8` (load 37 → 34) and the same five on the candidate (load 34 → 42). Hosted CI passed on `205452d94`, `d7622bc2b` and `b9d7cb61a`. In the touch spec itself, the case that runs first in its worker passed 30 s at two workers above load 36 on base and candidate alike, with 13–16 s of Before Hooks.
+  - Observed effect: base and candidate attribution runs, and a two-worker comparison in which each side needed five attempts for three passes.
+  - Inference: the same load-only class at one worker, above the 20–30 load that SEED-287 promises. Four of the five cases are not named in SEED-287's story.
+
 **Response:** The per-job deadline and bounded process cleanup landed in
 [SEED-289#name-a-test-job-past-its-deadline](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
 [SEED-287#fit-dashboard-journeys-in-default-timeout](.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)

@@ -238,6 +238,13 @@ plus four stricter1s. Admission72 outer polls max2634.283ms/error0. Complete
 artifact. Named943157/1000000 leaves56843, all33958 latest units completed,
 workers20 joined/admission released/busy0. Separate full1000000 stays0.
 Terminal `/tmp/seed287-pinned4-pressure-20261112/summary.json` and all historical
-failed/over-budget observations remain; full local/hosted/trunk gates stay open.
+failed/over-budget observations remain. [Current full local/hosted settlement](current-baseline-evidence.md#complete-local-candidate) supersedes the former pending gate; G2/G11 stay open.
 
 The [failure policy](../../../AGENTS.md#failing-and-flaky-tests) applies as written.
+
+Human15ee review routes add whole8 to the pending touch/desktop/history renewal:
+27 attempts/19unique; fresh178 source commitments allocated,97 in slice13.
+Before any SUT, finite named ceiling1100000 retains943157 spent/156843 remaining;
+old1000000/56843 and19-attempt freeze are historical. New controller preserves
+natural≤20 launch, stable22–25 admission, whole-child20–30/default30/default5.
+G1/G2/G3/G11/G18/G19/G23 stay open; no renewed runtime proof yet.
