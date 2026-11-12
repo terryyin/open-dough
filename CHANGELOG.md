@@ -1,3 +1,14 @@
+## 0.3.98 - 2026-11-13
+
+- Production dashboards automatically follow up qualifying new Done landings. GitHub Actions and custom CI projects with `ciAdapter` and `ciRebuild` can request one full repeat of the original revision. The review shows both attempts against the saved timing reference. Refused, uncertain, and incomparable outcomes keep their explanation and the dashboard sends no second request.
+- Ship the custom CI rebuild guide and the shared attempt transport used by the dashboard and installed CI proof readers. Open Dough verifies the contract with a fixture provider. Pygardon's trigger, proof updates, and real-provider check are tracked in its project.
+- Mark stories as reviewed in Recently done, explain when a story needs refinement before execution, and recognize configured Java test sources in the shared Intent test selector.
+- Cancel a closing dashboard's GitHub reads together and retain each call until its process exits. Reduce setup for dashboard checks of landed CI repeats and scoped timing history.
+
+The managed payload adds two files and revises ten. No payload paths are retired.
+
+The self-installation baseline, payload declaration, public installation, execution payload update, native evidence identity fixtures, and 18 focused Node tests passed locally. [Hosted trunk CI passed all 18 jobs at `fe0b17631`](https://github.com/terryyin/open-dough/actions/runs/43328451716). The subsequent changes before release metadata are planning records. Under ADR 0005, this release reuses Codex, Cursor, and Claude Code integration evidence for the existing installer, discovery, and hook mechanisms. Freshness-ordering and oversized-file native checks remain separately pending for their unchanged guidance.
+
 ## 0.3.97 - 2026-11-12
 
 - Add opt-in MakeMe and browser page-object guidance per Intent test entry. Execute Plan passes the selected conventions to test authors, and Post Change Refactor applies them to implicated changed tests. Each convention is selected independently using the same file membership as Intent.
