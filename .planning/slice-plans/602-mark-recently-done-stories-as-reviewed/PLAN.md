@@ -2,6 +2,7 @@
 
 **Identity:** SEED-328#mark-recently-done-stories-as-reviewed
 **Source:** [Mark Recently done stories as reviewed](../../seeds/SEED-328-review-recently-done-stories.md#mark-recently-done-stories-as-reviewed)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -64,7 +65,8 @@ showing when a story was reviewed; clearing the state on later work.
 
 ## Outside-in proof ownership
 
-New spec `dashboard/tests/stories/recently-done-review-state.spec.ts`,
+New specs `dashboard/tests/stories/recently-done-review-state.spec.ts` (keeping the state) and
+`recently-done-review-state-offer.spec.ts` (which cards offer it, touch height),
 arranging done records through `makeMe.aDoneRecord` as
 `dashboard/tests/recentlyDoneRecords.ts` does, finding cards as
 `recently-done-follow-up.spec.ts` does, and restarting as
@@ -92,7 +94,7 @@ existing peers, following the project's page-object and MakeMe guidance.
 
 ### 1. Mark a done story reviewed and unreview it, kept per story on this machine
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new spec's slice-1 checks and the backend refusal spec pass; the
 done-card families command below stays green; typecheck passes.
 
@@ -116,6 +118,23 @@ catalog identity, so an unread or failed record's card offers it too.
 - Document the behavior in `dashboard/STORY-CARDS.md` and add the
   distinguishing sentence to `dashboard/STORY-REVIEW-MARKS.md`.
 
+Accepted proof (slice 1): both new specs 6 passed; done-card families 41
+passed; extra consumers (`story-reference-done`, `responsive-session-reconciliation`,
+`project-configuration`, `agent-launch-recent-delete`, `compact-session-entry`,
+`sessions/recently-done`) 53 passed; `dashboard/backend-tests/` 1311 passed,
+1 skipped; backend `review/story-review-state-admission.spec.ts` 3 passed after
+refactor; typecheck passed. Per-commitment observations are in
+[source-review.md](source-review.md).
+
+Learnings for slice 2: the store is `dashboard/server/storyReviewStates.ts`
+(`~/.open-dough/dashboard/story-review-states.json`); the client hook
+`useStoryReviewStates` (`dashboard/src/storyReviewStates.ts`) already rejects
+`change` on a failed save, and `StoryReviewStateAction.tsx` currently swallows
+that rejection. The control shows nothing until the first read answers. An
+unreadable document is moved aside to `.unreadable` by the next save; a
+failed-read record answer fails the whole first read batch, so failed and held
+records need separate tests.
+
 ### 2. Say when the review state could not be saved
 Type: Behavior
 Status: planned
@@ -137,7 +156,7 @@ actions"` and `--term "Mark as reviewed"`), and give each listed consumer a
 disposition.
 
 ```sh
-npm run --silent test:dashboard -- --workers=4 --reporter=list dashboard/tests/stories/recently-done-review-state.spec.ts
+npm run --silent test:dashboard -- --workers=4 --reporter=list dashboard/tests/stories/recently-done-review-state.spec.ts dashboard/tests/stories/recently-done-review-state-offer.spec.ts
 npm run --silent test:dashboard -- --workers=4 --reporter=list dashboard/tests/stories/recently-done dashboard/tests/review/story-review-completed dashboard/tests/review/recently-done-one-shot-review dashboard/tests/navigation/story-card-selection dashboard/tests/review/story-review-mark.spec.ts
 npm run --silent test:dashboard -- --reporter=list dashboard/backend-tests/
 npm run typecheck:dashboard
@@ -200,3 +219,17 @@ first observed by the slice's spec.
 - Slice-plan refinement was not needed: two Behavior slices, each one
   outcome with one proof loop, exercising one model (an entry per reviewed
   story); no remaining slice-specific concern was identified.
+
+## Story obligations
+
+### G1. Deferred promises stay outside this story
+Reported: slice 1 — "Sharing, an unreviewed count or filter, marking from the story review, review time and clearing on later work are not delivered."
+Story clause: "Deferred promises (considered, not delivered here; nothing prevents them)"
+Disposition: excluded "Deferred promises (considered, not delivered here; nothing prevents them)"
+Commitment: 15, 16a, 16b, 17a, 17b, 18
+
+### G2. Working through everything that needs review is larger than this story
+Reported: slice 1 — "This story makes the judgment recordable and visible on each shown card only."
+Story clause: "The broader ambition, working through everything that still needs review, is larger than this story"
+Disposition: excluded "The broader ambition, working through everything that still needs review, is larger than this story"
+Commitment: 4

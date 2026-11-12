@@ -1,0 +1,19 @@
+/* A done story card's review state (./StoryReviewStateAction.tsx): the
+   Reviewed words beside Unreview, which is quieter than the card's other
+   actions; its touch height follows `.start-launch-button`'s. */
+
+.story-review-state {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.story-review-state-reviewed {
+  font-weight: 600;
+}
+
+.story-review-state .story-review-state-undo {
+  color: var(--quiet);
+  border-color: var(--line);
+}

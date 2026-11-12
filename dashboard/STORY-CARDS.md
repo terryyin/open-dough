@@ -32,3 +32,27 @@ none. The highlight is the card's only selection mark. Selecting never opens or
 closes detail, and stays available while the story starts. The
 dependency explanation opens in place from the card's **Dependencies** summary
 (see [Blocking story dependencies](README.md#blocking-story-dependencies)).
+
+A done story card in Recently done also holds the story's review state among
+its Story actions, after **Review changes**. An unreviewed story offers **Mark
+as reviewed** and shows no badge; a reviewed one says **Reviewed**, a status in
+words rather than a control, with the quieter **Unreview** beside it. Both
+actions offer the shared touch control height. Either keeps the card at its
+place with its sessions and other actions, the shown range, the entry count,
+the selected story and the Side panel as they were, leaves the keyboard on the
+action that then shows, and is announced once. The action is offered from the
+identity the done catalog names, so a card whose record is still being read,
+or could not be read, offers it too; nothing shows until the project's states
+are first read. The state belongs to the story, by project and identity, not
+to a session, launch or workspace, so a story completed on another machine
+starts unreviewed. It is kept on the machine serving the dashboard in
+`~/.open-dough/dashboard/story-review-states.json`
+(`server/storyReviewStates.ts`), an entry meaning reviewed, and a missing or unreadable file reads as nothing
+reviewed. It is local evidence, never a published story fact: nothing is
+written to the project's repository. Each page reads it once per project and
+again at the shared revision check interval, so every page of that server
+shows a change at its next read; the page making a change shows it at once.
+Its request is a same-origin GET or POST to
+`/__project-configuration/story-review-states?id=<project>`, the POST naming
+the story identity and the state, never a path. Backlog and Taken cards,
+session entries, the Sessions sidebar and Intent show no review state.
