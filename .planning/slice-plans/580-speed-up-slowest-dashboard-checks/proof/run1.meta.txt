@@ -1,0 +1,5 @@
+=== run1 start 2026-11-12T03:28:40Z ===
+11:28  up 3 days,  4:25, 4 users, load averages: 39.16 43.28 46.56
+exit=1
+=== run1 end 2026-11-12T03:30:56Z ===
+11:30  up 3 days,  4:27, 4 users, load averages: 74.83 53.92 50.21

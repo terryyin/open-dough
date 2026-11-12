@@ -1,0 +1,457 @@
+[
+  {
+    "label": "profile",
+    "trace_steps": 991,
+    "fixtures": [
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 922.1
+      },
+      {
+        "title": "Fixture \"dashboard\"",
+        "dur_ms": 635.0
+      },
+      {
+        "title": "Fixture \"dashboard\"",
+        "dur_ms": 201.7
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 43.6
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 10.0
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 6.9
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 6.5
+      },
+      {
+        "title": "Fixture \"github\"",
+        "dur_ms": 2.2
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 1.5
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 1.0
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 0.8
+      },
+      {
+        "title": "Fixture \"github\"",
+        "dur_ms": 0.2
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 0.1
+      },
+      {
+        "title": "Fixture \"baseURL\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"screen\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"serverMode\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"preholdRevisionStreamSlots\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"baseURL\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"cursorRunner\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"launchWaitEnd\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"observationClock\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"revisionCheckReuseMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"extraEnv\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"codexProtocol\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"userAgent\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"pathPrefix\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"machine\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"startTimeoutMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"readTimeoutMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"viewport\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"isMobile\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"launchTimeoutMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"projectFolders\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"hasTouch\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"deviceScaleFactor\"",
+        "dur_ms": 0.0
+      }
+    ],
+    "test_steps": [
+      {
+        "title": "each recorded mode and host has its own mark beside its label, clear of the portrait, at desktop and narrow widths",
+        "dur_ms": 4394.3
+      },
+      {
+        "title": "each recorded agent has its own approved portrait beside its name, and the owner text is unchanged",
+        "dur_ms": 1957.9
+      },
+      {
+        "title": "a queued entry shows its preparation assignment as Preparing, never as an owner",
+        "dur_ms": 1405.2
+      },
+      {
+        "title": "a malformed profile is shown as unreadable and matched to no entry, while a preparation assignment is neither",
+        "dur_ms": 1287.5
+      },
+      {
+        "title": "hovering a portrait shows it larger from where it stands",
+        "dur_ms": 876.6
+      },
+      {
+        "title": "a Trunk Mode profile shows its agent, credited human, tool, and model on the card, and its mode and trunk only in detail",
+        "dur_ms": 510.2
+      },
+      {
+        "title": "a Story Branch Mode profile shows its branch as context, never as work on trunk",
+        "dur_ms": 293.6
+      },
+      {
+        "title": "a profile that does not record the model says so",
+        "dur_ms": 199.2
+      },
+      {
+        "title": "every recorded developer's scan line names its human, tool, and model, with gaps as text, and leaves mode and branch to the detail",
+        "dur_ms": 30.4
+      },
+      {
+        "title": "a Taken entry without a profile shows that its owner is not recorded",
+        "dur_ms": 18.7
+      },
+      {
+        "title": "the profile directory is listed at the revision, and only profile files are read",
+        "dur_ms": 5.5
+      }
+    ],
+    "hooks": [
+      {
+        "title": "After Hooks",
+        "dur_ms": 1147.3
+      },
+      {
+        "title": "Before Hooks",
+        "dur_ms": 693.5
+      }
+    ],
+    "methods": {
+      "fixture": 36,
+      "pw:api": 436,
+      "hook": 2,
+      "expect": 506,
+      "test.step": 11
+    }
+  },
+  {
+    "label": "pending",
+    "trace_steps": 663,
+    "fixtures": [
+      {
+        "title": "Fixture \"dashboard\"",
+        "dur_ms": 4743.9
+      },
+      {
+        "title": "Fixture \"origin\"",
+        "dur_ms": 3753.5
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 464.9
+      },
+      {
+        "title": "Fixture \"browser\"",
+        "dur_ms": 374.3
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 150.7
+      },
+      {
+        "title": "Fixture \"origin\"",
+        "dur_ms": 128.0
+      },
+      {
+        "title": "Fixture \"dashboard\"",
+        "dur_ms": 92.7
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 55.2
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 17.0
+      },
+      {
+        "title": "Fixture \"github\"",
+        "dur_ms": 3.2
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 1.4
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 0.4
+      },
+      {
+        "title": "Fixture \"github\"",
+        "dur_ms": 0.2
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 0.1
+      },
+      {
+        "title": "Fixture \"baseURL\"",
+        "dur_ms": 0.1
+      },
+      {
+        "title": "Fixture \"machine\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"originRepository\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"serverMode\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"page\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"baseURL\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"cursorRunner\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"machine\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"startTimeoutMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"userAgent\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"observationClock\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"preholdRevisionStreamSlots\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"context\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"launchWaitEnd\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"launchTimeoutMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"revisionCheckReuseMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"extraEnv\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"projectFolders\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"readTimeoutMs\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"pathPrefix\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"codexProtocol\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"viewport\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"screen\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"isMobile\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"hasTouch\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"deviceScaleFactor\"",
+        "dur_ms": 0.0
+      }
+    ],
+    "test_steps": [],
+    "hooks": [
+      {
+        "title": "Before Hooks",
+        "dur_ms": 9103.6
+      },
+      {
+        "title": "After Hooks",
+        "dur_ms": 688.4
+      }
+    ],
+    "methods": {
+      "fixture": 41,
+      "pw:api": 529,
+      "hook": 2,
+      "expect": 91
+    }
+  },
+  {
+    "label": "pinned",
+    "trace_steps": 45,
+    "fixtures": [
+      {
+        "title": "Fixture \"request\"",
+        "dur_ms": 53.3
+      },
+      {
+        "title": "Fixture \"request\"",
+        "dur_ms": 4.5
+      },
+      {
+        "title": "Fixture \"userAgent\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"screen\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"isMobile\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"viewport\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"hasTouch\"",
+        "dur_ms": 0.0
+      },
+      {
+        "title": "Fixture \"deviceScaleFactor\"",
+        "dur_ms": 0.0
+      }
+    ],
+    "test_steps": [],
+    "hooks": [
+      {
+        "title": "After Hooks",
+        "dur_ms": 58.6
+      },
+      {
+        "title": "Before Hooks",
+        "dur_ms": 8.6
+      }
+    ],
+    "methods": {
+      "pw:api": 11,
+      "fixture": 8,
+      "hook": 2,
+      "expect": 24
+    }
+  }
+]

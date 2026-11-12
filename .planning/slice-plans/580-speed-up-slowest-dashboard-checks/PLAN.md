@@ -3,6 +3,7 @@
 **Identity:** SEED-303#speed-up-slowest-dashboard-checks
 
 **Source:** [Remaining story](../../seeds/SEED-303-speed-up-slowest-dashboard-checks.md#speed-up-slowest-dashboard-checks)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -66,17 +67,46 @@ credited as proof.
 | Premise | Consuming operation | Observation | Result | Remainder |
 | --- | --- | --- | --- | --- |
 | The command selects exactly the three checks | Every slice's run | The command above with `--reporter=list`, this workspace at `81bf54e11`, 12 November 2026 | 3 cases listed and run: pinned deployment, pending Take, Taken profile | None |
-| The three checks pass at the baseline revision | Slice 1 baseline | Same command, default timeout, one-minute load 46 and 53 | Pinned passed (54.4 s, 56.6 s); both browser checks ended at the 30-second test timeout. With `--timeout=300000 --trace=on` at load 61→43: 3/3 passed in 165.05 s | Unverified host condition: a default-timeout pass needs lower load. Slice 1 observes it |
-| The quiet-host baseline leaves the promise reachable without changing run-wide startup or the pinned case | Slices 2–4 sizing | Retained quiet-host case durations 9.03 s, 8.07 s and 7.97 s (5.87 s in the latest retained run); about 16 s outside cases in the 45- and 24-case commands | Unmeasured for this selection. Cases alone sum to 23–25 s, so the promise holds only if this selection's outside-check time and the reductions fit | Open; slice 1 is the probe that settles it |
-| The profile check's time is dominated by repeated inspection | Slice 2 | Traced run above | 988 trace steps; mark inspection at two widths 10.8 s of 26.9 s (four cards × two widths, each with host mark, detail, mode mark); portrait step 3.6 s | Which inspections another check already owns is settled per removal in slice 2 |
-| The pending-Take check's preparation is a large share | Slice 3 | Traced run above | 18.3 s of 53.3 s in the `origin` (9.1 s) and `dashboard` (8.7 s) fixtures; the profile check's `dashboard` fixture took 1.2 s, so part of that 8.7 s may be first-use run artifacts rather than this check's own preparation | Slice 1 separates first-use artifacts from the check's own preparation |
+| The three checks pass at the baseline revision | Slice 1 baseline | Take/current `658d1fef`, default timeout, recorded load ~39–55 one-minute averages; evidence in [proof/](./proof/) | Run 1: pinned 35.45 s passed; pending and profile each hit the 30 s default timeout (load before ~39/43/47, after ~75/54/50). Runs 2–3: 3/3 passed (91.92 s / 78.72 s) under similar load. Attribution with `--timeout=300000 --trace=on --reporter=list`: 3/3 in 78.45 s | Loaded baseline only; default-timeout pass is flaky under this load. Quiet-host three-run check still owed |
+| The quiet-host baseline leaves the promise reachable without changing run-wide startup or the pinned case | Slices 2–4 sizing | Slice 1 loaded cohort plus quiet stand-ins from the retained 45-case median (pending 9.033 s, profile 8.065 s, pinned 7.969 s, outside ~16.350 s) | Stop fires: even with quiet stand-ins, outside+pinned leave budget 5.681 s for the two browser checks, below half their quiet current (8.549 s). Loaded passing run 3 already has outside+pinned = 36.62 s | Closed for sizing: slices 2–4 wait on Terry (startup, pinned, or different target) |
+| The profile check's time is dominated by repeated inspection | Slice 2 | Slice 1 attribution `test.trace` (paired by `callId`) | 991 trace steps; 18 `inspected()` card inspections (8 in the 4×2 mark loop); 2 viewport passes; mark step 4.394 s; portrait step 1.958 s of ~14.0 s list duration | Which inspections another check already owns is settled per removal in slice 2; reductions wait on Terry after stop |
+| The pending-Take check's preparation is a large share | Slice 3 | Slice 1 attribution `test.trace` | Before Hooks 9.104 s; `origin` fixture 3.753 s (own); first `dashboard` fixture 4.744 s of which ~4.109 s is first-use versus profile's later `dashboard` 0.635 s; 663 trace steps; 2 reloads; compares list length 3 | Reductions wait on Terry after stop |
+
+## Slice 1 baseline (loaded; quiet owed)
+
+Only a loaded baseline exists for this three-check selection at
+`658d1fef810cbf911ef2a993b2104a45234f81c4`. Quiet-host figures that stand in for
+the ratio and stop probe are the retained 45-case median from
+[test-timing-breakdown.md](../../evidence/SEED-303-early-handoff/test-timing-breakdown.md):
+pending 9.033 s, profile 8.065 s, pinned 7.969 s (alternate 24-case pinned
+5.873 s), outside-check ~16.350 s. Evidence:
+[proof/baseline-summary.json](./proof/baseline-summary.json), per-run
+`runN.json` / `runN.log` / loads, and
+[proof/attribution-summary.json](./proof/attribution-summary.json).
+
+| Run | Whole `real` s | Pinned s | Pending s | Profile s | Outside-check s | Strict | One-minute load before → after |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| 1 | 136.31 | 35.45 | 33.20 (timeout) | 33.19 (timeout) | 34.47 | failed | ~31/44/47 → ~75/54/50 |
+| 2 | 91.92 | 30.14 | 24.82 | 15.23 | 21.72 | passed | ~49/52/50 → ~59/52/50 |
+| 3 | 78.72 | 22.35 | 27.04 | 15.05 | 14.27 | passed | ~55/52/50 → ~44/50/50 |
+| attr | 78.45 | 25.8 | 21.7 | 14.0 | 16.95 | passed (raised timeout) | ~34/45/48 → see `trace.load-*` |
+
+First-use versus own fixtures (attribution order pinned → pending → profile):
+pending `dashboard` 4.744 s includes ~4.109 s first-use relative to profile's
+later `dashboard` 0.635 s; pending `origin` 3.753 s is this check's own
+preparation; profile's own post-first-use `dashboard` is 0.635 s.
+
+Stop probe: budget = 30 − (outside + pinned). Loaded run 3 budget −6.62 s.
+Quiet stand-in budget 5.681 s < half of quiet browser current 8.549 s. **Stop
+fires — slices 2–4 wait on Terry** (change run-wide startup, change the pinned
+case, or a different target). Slice 1 status stays planned for that decision.
 
 ## Slices
 
 ### 1. Establish the matched baseline and where its time goes
 Type: Behavior
 
-Status: planned
+Status: done
 
 Proof: Three runs of the selection command at the Take revision with proof
 records, logs and loads; one traced attribution run. This plan then records
@@ -84,6 +114,7 @@ whole-command elapsed, per-check seconds, outside-check seconds, first-use
 artifact time separated from each check's own fixtures, and the counts for the
 profile check (trace steps, card inspections, viewport passes) and the
 pending-Take check (trace steps, fixture preparations, reloads, comparisons).
+Observed under recorded load at `658d1fef` — see [Slice 1 baseline](#slice-1-baseline-loaded-quiet-owed). Stop fired; not marked done.
 
 Behavior: The unchanged selection runs → the plan holds a comparable baseline
 and the quiet-host figure the ratio uses, or says that only a loaded baseline
@@ -95,6 +126,7 @@ needs a change this story excludes. Record the figures and stop slices 2–4 for
 Terry's decision between changing run-wide startup, changing the pinned case,
 or a different target. A default-timeout failure in these runs follows the
 failure policy below; classify it with recorded loads before any reduction.
+**Fired:** see stop probe in Slice 1 baseline; slices 2–4 blocked for Terry.
 
 ### 2. Prove Taken profile details with fewer inspections
 Type: Behavior
@@ -158,12 +190,22 @@ recorded ratio with the owed check named.
   host; the quiet-host three-run check stays owed until observed.
 - A fresh source-only review is obtained at the first planned delegation, as
   execution requires; the archived review describes the former scope.
+- Expensive proof (slice 1 baseline): host is this Mac on AC; one-minute load
+  before launch ~43/53/50; choice is run the three default-timeout selection
+  runs plus one traced attribution under recorded load without waiting for
+  quiet; owner is the slice 1 implementation agent; reconsider if a
+  default-timeout failure needs load classification, or if contention makes
+  the attempt unusable before another unchanged overloaded repeat.
+- Slice 1 stop fired under both the loaded cohort and quiet stand-ins. Slices
+  2–4 must not start until Terry chooses among changing run-wide startup,
+  changing the pinned case, or a different target. Quiet-host three-run check
+  remains owed; only a loaded baseline exists for this selection.
 
 ## Concern evidence
 
 Slice-plan refinement was not needed: the four slices each hold one outcome and
-one proof loop. Remaining concern: the reachability premise for slices 2–4 is
-open and bounded by slice 1's probe and stop. No other slice-specific concern
+one proof loop. Reachability premise for slices 2–4 is settled as unreachable
+without an excluded change: slice 1 stop fired. No other slice-specific concern
 was identified in this review.
 
 ## Local gates
@@ -174,3 +216,23 @@ verbatim in every delegation or repair handoff. Keep default test timeouts and
 shared MakeMe data. Start long macOS runs awake: on AC use `caffeinate -s -i`;
 on battery plug in or keep the lid open under `caffeinate -i` and inspect sleep
 logs, following [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+
+## Story obligations
+
+### E1. Extracted families stay outside this selection
+Reported: slice 1 — "The five extracted families owned by SEED-311–315 do not belong in this selection."
+Story clause: "The five extracted families are owned by SEED-311–315. Their work and timings do not belong in this selection, and no aggregate promise spans them."
+Disposition: excluded "The five extracted families are owned by SEED-311–315. Their work and timings do not belong in this selection, and no aggregate promise spans them."
+Commitment: 31
+
+### E2. Local-only archived experiments stay excluded
+Reported: slice 1 — "Local-only archived experiments are excluded from this selection."
+Story clause: "Local-only archived experiments are excluded."
+Disposition: excluded "Local-only archived experiments are excluded."
+Commitment: 32
+
+### E3. Manufactured savings stay excluded
+Reported: slice 1 — "No manufactured savings through mocks, sleeps, retries, skips, timeout inflation or special runner mode."
+Story clause: "No new internal mocks, wall-clock sleeps, retries, skips, timeout inflation or special runner mode may manufacture a saving."
+Disposition: excluded "No new internal mocks, wall-clock sleeps, retries, skips, timeout inflation or special runner mode may manufacture a saving."
+Commitment: 33.1, 33.2, 33.3, 33.4, 33.5, 33.6
