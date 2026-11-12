@@ -427,7 +427,7 @@ repair follows the project's failing/flaky-test policy.
 
 **Identity:** SEED-300#express-board-test-intent-through-page-objects
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e9b268d68c30ba3523cd5f3d3eafc62c55f499081346de375177fee88440e9d6","plan":"86d6bf4a32b3211f138dac9f894714add84d55787bf9c094a9e9cf7d8ae560a0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/584-board-test-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"209f91a50aa25a8f55a6d5af7aac2ad3e550e7b82f0c497eb65a7e700a309cd2","plan":"86d6bf4a32b3211f138dac9f894714add84d55787bf9c094a9e9cf7d8ae560a0"}}
 ```
 
 #### Goal
