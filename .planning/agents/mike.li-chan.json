@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "mike.li-chan",
+  "email": "mike.li-chan@example.org",
+  "identity": "SEED-315#speed-up-provider-rate-limit-checks",
+  "mode": "story-branch",
+  "branch": "claude/speed-up-provider-rate-limit-checks",
+  "host": "claude",
+  "model": "fable"
+}
