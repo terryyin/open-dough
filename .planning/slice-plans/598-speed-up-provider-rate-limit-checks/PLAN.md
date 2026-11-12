@@ -126,6 +126,18 @@ Behavior: An open stream is answered as limited for six seconds → owner and
 page time reach the directed time → the stream reopens then, with a full
 freshness bound from reopening and catch-up to B, and no real wait.
 
+## Execution complete
+
+Product advice: no change to this story. One supported recommendation for the
+developer to decide: the "later proof recovers" Intent comparison case
+(`intent-ci-comparison-pending-proof.spec.ts`) spends most of its time in the
+product's sequential later-build walk, about 100 fake `gh` starts, and can
+approach the 30-second default on a saturated host; recording it as a test
+optimization candidate would keep that measured cost owned. The backend
+read-boundary cases that still pass one- and two-second waits through
+`untilReported` could adopt the owner clock, but each saves little and no
+evidence yet makes that worthwhile.
+
 ## Current decisions
 
 - PFE: one owner-clock mechanism. Extend the existing fixture in place; do
