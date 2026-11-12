@@ -18,7 +18,7 @@ rule count alone does not measure the developer's feedback path.
 | Exceptional acquisition | `intent-ci-comparison-cancelled-landing.spec.ts`, `intent-ci-comparison-taken.spec.ts` and `intent-ci-comparison-adapter-taken.spec.ts`: cancelled later-build, pushed-head and adapter Taken connections |
 | Navigation and preferences | `intent-ci-comparison-drilldown-relative.spec.ts`, `intent-ci-comparison-relative.spec.ts`, `intent-summary-story-comparison-file.spec.ts`, `-renamed.spec.ts`, `-sort.spec.ts` and `-source.spec.ts`: built-app scope navigation, keyboard/Purpose/Review, source pinning and cross-story preference continuity |
 | Held reads and retry | `intent-ci-comparison-locations.spec.ts` and `intent-ci-comparison-retry.spec.ts`: comparison visibility during held/failing reads, actual API and upstream request accounting, same-process recovery and real shallow-history recovery |
-| Landed recovery connections | Backend `intent-ci-comparison-pending-proof.spec.ts`, `intent-ci-comparison-receipt.spec.ts` and `landed-ci-history-comparison-run.spec.ts` retain malformed bytes/default parsers, public history/provenance, provider admission/PID and persisted receipt lifetime. Browser `intent-ci-comparison-missing-run.spec.ts`, `-pending-proof.spec.ts` and `-trunk-finality.spec.ts` retain actual controls, timing/source cues and Trunk NoBuild despite an available later build. |
+| Landed recovery connections | Backend `intent-ci-comparison-pending-proof.spec.ts` keeps three real-server connections: an equivalent landing's malformed listing bytes through the default parsers to the public pending gap, the measured point and final reuse; and, for each provenance, a provider-directed wait under the request owner's controlled clock and one owner process. `intent-ci-comparison-receipt.spec.ts` and `landed-ci-history-comparison-run.spec.ts` retain the persisted receipt lifetime and public history. A later landing's proof wait past the revision walk has no real-server case; see the [later pending-proof coverage map](#later-pending-proof-coverage-map). Browser `intent-ci-comparison-missing-run.spec.ts`, `-pending-proof.spec.ts` and `-trunk-finality.spec.ts` retain actual controls, timing/source cues and Trunk NoBuild despite an available later build. |
 | Retained review records | `backend-tests/review/story-review-stored-*.spec.ts`: actual store replacement, stable reporting identity, newest captured preference, deletion and retention; `tests/review/story-review-one-shot-choice-refresh.spec.ts` connects stored records to displayed Refresh choices |
 
 Backend filenames above are under `dashboard/backend-tests/intent/`; browser
@@ -93,7 +93,7 @@ npm run test:dashboard -- \
 
 Measure native launch/capture preservation separately with
 `npm run test:dashboard -- tests/review/recently-done-one-shot-review.spec.ts tests/review/story-review-one-shot.spec.ts`.
-The last four ordinary selectors retain nine backend connections omitted by
+The last four ordinary selectors retain eight backend connections omitted by
 the broad `ci-comparison` prefix; include them when comparing whole feedback.
 
 Each rule must take less than 1,000 ms including its arrangement, actions,
@@ -139,12 +139,30 @@ per test. Native sort snapshots include unfiltered SVG metadata/cardinality and
 actual Playwright-visible SVGs. Hidden/zero-area/detached/duplicate arrows and
 wrong direction/cell controls retain fault detection. Live readiness remains.
 
-The malformed-provider connection keeps all29 real later revisions and its
-old-receipt pending-history→measured-point join. It makes one pending read then
-actual recovery/final reuse; the fast branded-artifact owner retains two pending
-reads and exact listing/archive counts. Removing duplicate traversal fixed the
-observed30s failure without changing the default. The failed219.41s loaded run
-and narrow29.493s focused repair pass remain qualified historical evidence.
+### Later pending-proof coverage map
+
+No real-server case builds history past the 30-revision walk. A later
+landing whose end is past the walk is arranged as supplied history and judged
+in process; the real server keeps only what needs real bytes, a real request
+owner or the public history. Each promise has one owning check and one fault
+that makes it fail.
+
+| Promise | Owning check | Fault that fails it |
+| --- | --- | --- |
+| Unanswered proof keeps a later landing pending past the walk and after the landing hour | `ci-comparison-finality-later-judgment.spec.ts`, with the six cases of `ci-comparison-finality-unanswered.spec.ts` | `stillAwaited` ignores `proofUnanswered`, or drops pending after the landing hour: both files fail. The walk reports its end as the head at its bound: only the judgment check fails |
+| The pending gap waits for proof of the represented run | Later: the judgment check's `landedSlotResolution` answer. Public history: the "equivalent proof recovers after a malformed artifact listing" case and `landed-ci-history-pending-proof.spec.ts` | The same `stillAwaited` faults |
+| Real malformed listing bytes reach pending through the default parsers | The "equivalent proof recovers after a malformed artifact listing" case. The parser takes no provenance | An unreadable listing answered without its unanswered mark: the case's pending-gap read fails, as do both "malformed listing" finality cases and the judgment check |
+| The measured point carries `later` provenance once proof answers | The judgment check's recovered slot; `landed-ci-history-pending-sources.spec.ts` for the public later point | The later walk selects its build as `equivalent`: both fail. The history maps a `later` selection to `equivalent`: the pending-sources case fails |
+| Final answers reuse proof without another `gh` call | The "equivalent proof recovers after a malformed artifact listing" case. Later memory: `ci-comparison-finality-unanswered.spec.ts` and `ci-comparison-memory-later.spec.ts` | The comparison reader ignores its kept answer: all three fail |
+| A provider wait holds a later read, repeats ask nothing, and the read recovers under the same owner once the owner clock ends the wait | The "later proof held by a provider-directed wait" case | The request owner asks again during a standing wait: the first read is no longer `unavailable`. The wait outlasts the owner clock: the recovered read is not the build |
+
+A later malformed-listing case ended at the trunk head was removed, not
+kept: there the history gap waits for a later build with no run, it passes
+with the unanswered mark ignored, and the equivalent case and the in-process
+later cases catch every fault it caught. The public history shows a later
+point after a later-build wait (`landed-ci-history-pending-sources.spec.ts`);
+a later point after a proof wait is the judgment check's recovered slot plus
+that projection, which reads only the slot's selection.
 
 The pre-integration native-variant checkpoint has248 cases:201 rules and47
 prospectively mapped connections, including review Refresh and incoming

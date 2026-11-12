@@ -118,7 +118,7 @@ names `landed-ci-history-pending-sources.spec.ts` for the real-server point.
 
 ### 2. Retire history past the walk from the real-server cases
 Type: Behavior
-Status: planned
+Status: done
 Proof: The focused command; scratch call counts for each remaining case; the
 ratio in the measure; `npm run typecheck:dashboard`. Fault table, each fault
 a reverted scratch edit with the named failing check: malformed listing
@@ -147,6 +147,32 @@ fails its named check under its fault.
   coverage map; resolve `later-comparison-walk-gh-starts` in
   `.planning/TEST-OPTIMIZATION-CANDIDATES.md`; leave
   `dashboard/longest-first-additions` to its recorded-run source.
+
+Accepted proof (12 November 2026): the "later" line-31 case is removed. A
+scratch head-ended variant passed with a malformed listing treated as
+answered, and every fault it failed under is caught by the "equivalent" case
+or the in-process later checks; the parser and the comparison reader take no
+provenance. The file has three cases. One run, one worker, load 4.9–5.0:
+
+| Case | Body | `gh` calls | `actions-runs` |
+| --- | --- | --- | --- |
+| equivalent recovers | 3.9 s | 33 | 14 |
+| equivalent provider wait | 2.9 s | 20 | 8 |
+| later provider wait | 3.2 s (ratio 1.10) | 20 | 8 |
+
+Reverted scratch faults and the failing check:
+
+| Fault | Failing check and assertion |
+| --- | --- |
+| Unreadable listing answered without its unanswered mark (`ciProofArtifact.ts`) | "equivalent" malformed case, pending-gap poll |
+| The comparison reader ignores its kept answer (`intentCiComparisonRead.ts`) | The same case, final `toEqual(recovered)` |
+| The request owner asks during a standing wait | "later" provider-wait case, first read no longer `unavailable`; its repeat-count assertion is not reached |
+| The wait outlasts the owner clock | "later" provider-wait case, recovered build |
+| The later walk selects its build as `equivalent` | Judgment check, "later" provider-wait case, `landed-ci-history-pending-sources.spec.ts` |
+| The history maps a `later` selection to `equivalent` | `landed-ci-history-pending-sources.spec.ts` only |
+
+No fault was run against the same-owner-process assertion. Neighbours (16
+cases), typecheck and the candidate-record tests pass.
 
 ### 3. Pass at the promised load and in hosted CI
 Type: Behavior
@@ -197,3 +223,12 @@ and shared MakeMe data. Start long macOS runs awake: on AC use
 `caffeinate -s -i`; on battery plug in or keep the lid open under
 `caffeinate -i` and inspect sleep logs, following
 [machine sleep on macOS](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+
+
+## Story obligations
+
+### G1. No real-server check shows a later point after a proof wait
+Reported: slice 2 — "No maintained check shows a later-provenance point in the public history after a proof wait in a real server."
+Story clause: "the public landed history shows the pending gap waiting for proof, then the measured point with `later` provenance once proof answers"
+Disposition: proved by slice 2: ci-comparison-finality-later-judgment.spec.ts asserts the recovered slot's later selection after the proof wait, and landed-ci-history-pending-sources.spec.ts asserts the public later point; the path between them, provenanceOf in landedCiMeasuredBuilds.ts, reads only the slot's selection, and scratch faults on the walk's selection and on that projection each fail one of the two. The story keeps real-server history inside the walk, where this gap waits for a later build
+Commitment: S2.3b
