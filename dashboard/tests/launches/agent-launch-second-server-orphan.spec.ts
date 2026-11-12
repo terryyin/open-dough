@@ -1,23 +1,33 @@
 // Both servers observe a real installed start on one machine; a server-only
 // death leaves the held script alive until its real push completes.
-import { attempts, continueAttempt } from "../agentLaunchBoundary.ts";
+import {
+  accept,
+  attempts,
+  continueAttempt,
+  launchRequest,
+} from "../agentLaunchBoundary.ts";
+import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { answerOf, type Problem } from "../keptExecutionStart.ts";
 import { storyCardSessions, parts } from "../dashboardPage.ts";
 import { expect, pausePageClockAt } from "../dashboardTest.ts";
-import { expectProtected, openStories, test } from "../responsiveStart.ts";
+import { expectProtected, test } from "../responsiveStart.ts";
 import {
   expectRecoveryOffered,
   expectStaticallyProtected,
   recoveryOf,
-  startExecution,
   worktrees,
 } from "../responsiveRecovery.ts";
-import { passCheckPace, reloadUntilRead } from "../pageRequestNotes.ts";
+import {
+  openUntilRead,
+  passCheckPace,
+  reloadUntilRead,
+} from "../pageRequestNotes.ts";
 import { keptAttempts, settledOutcome } from "../acceptedAttempts.ts";
 import {
   sharedDashboardBuild,
   startDashboardServer,
 } from "../support/dashboardServer.ts";
+import { queuedIdentity } from "../support/startOrigin.ts";
 
 test.use({
   projectFolders: ["open-dough"],
@@ -33,8 +43,24 @@ test("a server killed before the warning leaves a live script running; its exit 
 }) => {
   const push = origin.holdPushes();
   await pausePageClockAt(page, new Date());
-  const { story } = await openStories(page, origin);
-  await startExecution(page, story);
+  await publishCommittedOrigin(page, {
+    repoDir: origin.origin,
+    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    repository: "terryyin/open-dough",
+    follows: true,
+  });
+  // The start journeys own initial card/dialog admission. Opening this page
+  // overlaps the actual installed start whose orphaned worker is observed.
+  const acceptance = await answerOf<{ kind: string }>(
+    accept(dashboard, {
+      ...launchRequest,
+      identity: queuedIdentity,
+      title: "Story A",
+    }),
+  );
+  expect(acceptance.kind).toBe("accepted");
+  await openUntilRead(page);
+  const story = parts(page).backlog.getByRole("article", { name: "Story A" });
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
   const [accepted] = await attempts(dashboard);
   if (accepted?.worker === undefined)

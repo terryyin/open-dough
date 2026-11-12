@@ -15,6 +15,7 @@ test("eligible105-second receipt prepared before enablement stays old after acce
 }) => {
   const scenario = await prepareRepeatScenario(origin, github, 105);
   const server = await startServer();
+  await scenario.collectPriors(server);
   const submission = await scenario.ingest(server, { prepareOnly: true });
   await followUpSettings(server, true);
   expect((await postLanding(server, submission, false)).status).toBe(200);
@@ -39,6 +40,7 @@ test("a new104-second Done original is collected with sufficient history without
 }) => {
   const scenario = await prepareRepeatScenario(origin, github, 104);
   const server = await startServer();
+  await scenario.collectPriors(server);
   await followUpSettings(server, true);
   await scenario.ingest(server);
   await expect
@@ -63,6 +65,7 @@ test("an otherwise eligible receipt for Taken work does not authorize a Done fol
   const scenario = await prepareRepeatScenario(origin, github, 105);
   await origin.takenByAnotherAgent("SEED-B#b");
   const server = await startServer();
+  await scenario.collectPriors(server);
   await followUpSettings(server, true);
   await scenario.ingest(server, { identity: "SEED-B#b" });
   await expect
@@ -87,6 +90,7 @@ test("an unspent eligible receipt disabled while original jobs are unavailable s
   const scenario = await prepareRepeatScenario(origin, github);
   scenario.originalJobsAvailable(false);
   const server = await startServer();
+  await scenario.collectPriors(server);
   await followUpSettings(server, true);
   await scenario.ingest(server);
   await expect

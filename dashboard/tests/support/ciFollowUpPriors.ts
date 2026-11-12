@@ -1,6 +1,8 @@
 // Published predecessor facts for the repeat scenario's actual collector.
 import type { StartOrigin } from "./startOrigin.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
+import { retainedHistory } from "./collectedScopeHistory.ts";
+import { expect } from "./pageTest.ts";
 import {
   landedTrunk,
   recordedOnTrunk,
@@ -41,5 +43,36 @@ export function prepareRepeatPriors(
     () =>
       Object.fromEntries(prior.map((run) => [run.id ?? 0, usableProofOf(run)])),
   );
-  return prior;
+  return {
+    runs: prior,
+    // A defined observation may still be pending. Establish each actual
+    // complete predecessor before the current receipt observation starts.
+    async untilCollected(home: string) {
+      const newestFirst = trunk.landings
+        .map((landing, index) => ({ landing, run: prior[index] }))
+        .reverse();
+      for (const { landing, run } of newestFirst) {
+        if (run?.id === undefined) throw new Error("Missing predecessor run");
+        const key = `run/${String(run.id)}/1`;
+        await expect
+          .poll(() => retainedHistory(home))
+          .toMatchObject({
+            landings: {
+              [landing.receipt]: {
+                observed: { kind: "build", build: key, selection: "exact" },
+              },
+            },
+            builds: {
+              [key]: {
+                revision: run.headSha,
+                state: "pass",
+                startedAt: run.startedAt,
+                completedAt: run.completedAt,
+                proof: { kind: "summary" },
+              },
+            },
+          });
+      }
+    },
+  };
 }

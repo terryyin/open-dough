@@ -9,9 +9,12 @@ import path from "node:path";
 import { launch } from "../agentLaunchBoundary.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import {
+  expect,
+  queuedCodexPreviewTest as test,
+} from "../support/preparationPage.ts";
 import { stored } from "../support/codexLaunch.ts";
-import { queuedIdentity, otherQueuedIdentity } from "../support/startOrigin.ts";
+import { queuedIdentity } from "../support/startOrigin.ts";
 import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
 import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { settledOutcome } from "../acceptedAttempts.ts";
@@ -100,18 +103,6 @@ test("Codex retained retry refuses lost workspace without replacing its preparat
   const discovery = new Set(["initialize", "initialized", "model/list"]);
   expect(added.filter(({ method }) => !discovery.has(method))).toEqual([]);
   expect(stored(dashboard.home)).toEqual([]);
-  // Refusing this retained identity does not impose global preparation uniqueness.
-  const independent = await launch(dashboard, {
-    ...request,
-    identity: otherQueuedIdentity,
-    title: "Story B",
-  });
-  expect(independent.body).toContain('"kind":"launched"');
-  expect(await origin.takenProfiles()).toHaveLength(2);
-  expect(
-    native.calls.filter(({ method }) => method === "turn/start"),
-  ).toHaveLength(1);
-  expect(JSON.parse(readFileSync(startsFile, "utf8"))).toEqual(
-    JSON.parse(startBytes),
-  );
+  // The backend workspace variant proves the independent Story B launch and
+  // unchanged retained start; this page path owns the visible refusal above.
 });

@@ -35,11 +35,12 @@ write_check() {
   printf '#!/usr/bin/env bash\nset -euo pipefail\n%s\n' "$2" > "${checks}/$1"
 }
 
-# Each blocking check announces ready first, then prints a line, then opens a
-# FIFO no one writes. Ready comes first so a mid-start TERM cannot hide that
-# the check already started. Its command line carries the check's unique path.
+# Announce with Bash builtins: an external marker can leave Bash waiting on
+# its child when INT arrives, which Bash can disregard if that child exits
+# normally. Ready precedes output and the FIFO no one writes, so a mid-start
+# TERM still records the started check by its unique command path.
 write_blocking_check() {
-  write_check "$1" "touch -- '${temporary_dir}/$1.ready'
+  write_check "$1" ": > '${temporary_dir}/$1.ready'
 echo $1-printed
 read -r _ < '${blocked}'"
 }

@@ -11,6 +11,7 @@ export async function expectCodexRetryProgress(
   card: Locator,
   dashboard: DashboardServer,
   workflow: "execution" | "refinement",
+  creationRequested: Promise<void>,
 ): Promise<Page> {
   await expect
     .poll(() => runningStarts(dashboard))
@@ -34,5 +35,8 @@ export async function expectCodexRetryProgress(
   await expect(retryCard).toContainText(words);
   await observer.reload();
   await expect(retryCard).toContainText(words);
+  // Progress reads overlap native setup; release only after its held request
+  // has actually reached the native boundary.
+  await creationRequested;
   return observer;
 }

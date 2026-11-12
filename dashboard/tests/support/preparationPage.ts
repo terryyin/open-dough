@@ -80,3 +80,14 @@ export const queuedClaudePreviewTest = test.extend({
     await use(originRepository);
   },
 });
+
+// Codex reading journeys need their own queued installation plus the same preview.
+export const queuedCodexPreviewTest = test.extend({
+  originRepository: async (
+    { queuedCodexPreviewReady, originRepository },
+    use,
+  ) => {
+    await Promise.resolve(queuedCodexPreviewReady);
+    await use(originRepository);
+  },
+});

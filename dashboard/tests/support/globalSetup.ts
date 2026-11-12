@@ -41,6 +41,7 @@ import {
 } from "./runProcesses.ts";
 import { startOriginArtifacts } from "./startOriginPreparation.ts";
 import { comparisonMountArtifact } from "./comparisonMountArtifact.ts";
+import { publishedMainSourceArtifact } from "./publishedMainSource.ts";
 
 // Apple's /usr/bin/git launches the selected developer tool on every call.
 // Use that same Git directly for this run's many real Git operations. Keep
@@ -94,6 +95,8 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
       ],
       ...startOriginArtifacts(),
       comparisonMountArtifact(),
+      publishedMainSourceArtifact(),
+      publishedMainSourceArtifact(undefined, "application"),
       storyColumnsPrefixArtifact(),
     ]),
   ).catch(async (error: unknown) => {

@@ -56,6 +56,7 @@ import { parseRequestedRevisionStream } from "./requestedRevisionStream.ts";
 import { RevisionStreamObservation } from "./revisionStreamObservation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProject } from "./projectConfiguration.ts";
+import { disconnectGh } from "./ghRead.ts";
 // The endpoint paths, shared with the browser.
 import {
   authenticatedAvatarEndpoint,
@@ -185,6 +186,7 @@ export function installAuthenticatedReadMiddleware(
     avatars: new AvatarImages(),
   };
   const streams = new RevisionStreamObservation(boundary);
+  let closed = false;
   const handler: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "", "http://placeholder");
     if (
@@ -193,6 +195,14 @@ export function installAuthenticatedReadMiddleware(
       url.pathname !== authenticatedReadDiagnosticsEndpoint
     ) {
       next();
+      return;
+    }
+    if (closed) {
+      respond(
+        res,
+        { kind: "refused", status: 503, message: "This dashboard is closing." },
+        "",
+      );
       return;
     }
     if (url.pathname === authenticatedReadEndpoint) {
@@ -219,6 +229,9 @@ export function installAuthenticatedReadMiddleware(
   };
   middlewares.use(handler);
   return () => {
+    if (closed) return;
+    closed = true;
+    disconnectGh();
     streams.close();
     for (const controller of boundary.tracked) {
       controller.abort();

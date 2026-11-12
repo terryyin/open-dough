@@ -3,6 +3,7 @@
 // siblings resume. Companion to ./cursor-runner-replacement.spec.ts.
 import path from "node:path";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { parts } from "../dashboardPage.ts";
@@ -22,9 +23,8 @@ import { expectReadingWithoutScreenLabel } from "../support/cursorSessionReading
 import {
   agentNotRunningLabel,
   keptRecords,
-  launchSecondHeldSession,
-  startScopedCursorExecution,
 } from "../support/cursorSessionRecovery.ts";
+import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 import { expect, test } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 
@@ -32,14 +32,10 @@ const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
 replacementTest(
   "done, never-held, and one failing revive leave Recover only where revival failed",
   async ({ page, dashboard, origin, cursor }) => {
-    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
-    await launchSecondHeldSession(
-      page,
-      origin,
-      cursor,
-      dashboard.home,
-      secondSessionId,
-    );
+    await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+      { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+      { story: storyB, sessionId: secondSessionId },
+    ]);
     const records = keptRecords(dashboard.home);
     const scoped = records.find(
       (record) => record.session.sessionId === cursor.sessionId,

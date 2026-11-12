@@ -9,10 +9,7 @@ import {
   developmentDashboard,
 } from "../support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../support/publishedMainFixture.ts";
-import {
-  configureWatcherApplication,
-  watcherApplicationSource,
-} from "../support/productionWatcherFixture.ts";
+import { configureWatcherApplication } from "../support/productionWatcherFixture.ts";
 import { processRunning } from "../support/processGroup.ts";
 import { waitForWatcherTerminal } from "./productionWatcherClient.ts";
 import {
@@ -36,7 +33,7 @@ export class ProductionWatcherMachine {
   watcher: ProductionWatcher | undefined;
 
   async start(browser: Browser) {
-    const fixture = await localPublishedMainFixture(watcherApplicationSource);
+    const fixture = await localPublishedMainFixture(true, "application");
     this.fixture = fixture;
     const banner = path.join(fixture.development, bannerPath);
     const pinnedBanner = (await readFile(banner, "utf8")).replace(

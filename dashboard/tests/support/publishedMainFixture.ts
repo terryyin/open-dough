@@ -1,10 +1,9 @@
 // Disposable origin/main publication with the actual current dashboard/package
 // scripts. Every repository, deployment directory, and machine HOME belongs to
-// this test. Fixtures that need GitHub answers also own their synthetic
-// `gh` and request owner (./fakeGh.ts).
+// this test. Published-answer callers also own their synthetic `gh`; local
+// watcher callers need no GitHub answerer.
 import { execFile } from "node:child_process";
 import {
-  cpSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -21,7 +20,10 @@ import {
   installFakeGh,
   type FakeGhPaths,
 } from "./fakeGh.ts";
-import { repoRoot } from "./repositoryRoot.ts";
+import {
+  materializePublishedMainSource,
+  type PublishedMainSourceProfile,
+} from "./publishedMainSource.ts";
 
 const exec = promisify(execFile);
 
@@ -35,23 +37,22 @@ export type PublishedMainFixture = Awaited<
 
 export function publishedMainFixture(
   fullSource = false,
-  sourcePaths: readonly string[] = [],
+  sourceProfile: PublishedMainSourceProfile = "repository",
 ) {
-  return createPublishedMainFixture(fullSource, sourcePaths, installFakeGh);
+  return createPublishedMainFixture(fullSource, sourceProfile, installFakeGh);
 }
 
-// The real-Git fixture for CLI cases that supply no GitHub data.
-export function localPublishedMainFixture(sourcePaths?: readonly string[]) {
-  return createPublishedMainFixture(
-    sourcePaths !== undefined,
-    sourcePaths ?? [],
-    () => undefined,
-  );
+// Local watcher journeys own no GitHub answerer; their source profile is unchanged.
+export function localPublishedMainFixture(
+  fullSource = false,
+  sourceProfile: PublishedMainSourceProfile = "repository",
+) {
+  return createPublishedMainFixture(fullSource, sourceProfile, () => undefined);
 }
 
 async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
   fullSource: boolean,
-  sourcePaths: readonly string[],
+  sourceProfile: PublishedMainSourceProfile,
   gitHub: (root: string) => Gh,
 ) {
   const root = mkdtempSync(path.join(tmpdir(), "dough-published-main-"));
@@ -79,36 +80,9 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
   const git = async (...args: string[]) =>
     (await exec("git", args, { cwd: development, env })).stdout.trim();
   try {
-    if (fullSource) {
-      // The live working tree: new names included, deleted tracked paths not.
-      // Agent avatar images are left out: the page loads them by URL, so no
-      // build or check needs them, and their size would otherwise be copied,
-      // hashed, fetched, and built into every deployment.
-      const listed = async (...args: string[]) =>
-        (
-          await exec("git", ["ls-files", "-z", ...args, "--", ...sourcePaths], {
-            cwd: repoRoot,
-          })
-        ).stdout
-          .split("\0")
-          .filter(Boolean);
-      const deleted = new Set(await listed("--deleted"));
-      for (const file of await listed(
-        "--cached",
-        "--others",
-        "--exclude-standard",
-      )) {
-        if (
-          deleted.has(file) ||
-          file.startsWith("dashboard/public/agent-avatars/")
-        )
-          continue;
-        const destination = path.join(development, file);
-        mkdirSync(path.dirname(destination), { recursive: true });
-        cpSync(path.join(repoRoot, file), destination);
-      }
-    }
-    await git("init", "--quiet", "-b", "main");
+    if (fullSource)
+      await materializePublishedMainSource(development, env, sourceProfile);
+    else await git("init", "--quiet", "-b", "main");
     await git("config", "user.name", "Published main fixture");
     await git("config", "user.email", "fixture@example.invalid");
     await git("config", "maintenance.auto", "false");
@@ -126,11 +100,10 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
         "-m",
         message,
       );
-    // Streams the whole source straight into one pack instead of thousands of
-    // loose objects, which dominated setup while other workers did the same.
-    // Only this first addition is affected; contents and commits are not.
-    await git("-c", "core.bigFileThreshold=1", "add", "--all");
-    await record("Fixture source", "--allow-empty");
+    if (!fullSource) {
+      await git("add", "--all");
+      await record("Fixture source", "--allow-empty");
+    }
     // Commits exactly the requested path changes on local main.
     const commit = async (changes: PathChanges, message: string) => {
       const paths = Object.keys(changes);

@@ -3,6 +3,7 @@ import { launchResultSchema } from "../../src/launchOutcome.ts";
 import type { submitCompletion } from "../../server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
 import { execFile } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { promisify } from "node:util";
 import { test, expect, stored } from "../support/codexStart.ts";
 import { launch } from "../agentLaunchBoundary.ts";
@@ -14,6 +15,18 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectInstalledCompletionGuidance } from "../support/installedCompletionGuidance.ts";
 import { withInstalledCompletionClosure } from "../support/installedCompletionClosure.ts";
 import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { keepFinalReport } from "../support/retainedReport.ts";
+import {
+  completionWriteFault,
+  countedGit,
+} from "../support/completionRecovery.ts";
+import { failedCompletionRetry } from "../support/completionRecoveryFaults.ts";
+
+test.use({
+  extraEnv: async ({ origin }, use) => {
+    await use(completionWriteFault(origin.machine).env);
+  },
+});
 
 const exec = promisify(execFile);
 for (const closure of [
@@ -68,6 +81,7 @@ for (const closure of [
     });
     expect(invalid.status).toBe(400);
     expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
+    const git = await countedGit(origin.machine);
     await withInstalledCompletionClosure(
       origin,
       workspace,
@@ -75,6 +89,19 @@ for (const closure of [
       async (final) => {
         expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined(); // Even actual retirement is not success reporting.
         const before = native.calls.length;
+        const gitBefore = readFileSync(git.log, "utf8");
+        let command = `${context.command} --outcome completed`;
+        if (closure === "Story Branch Wrap Up") {
+          expect(gitBefore).toMatch(/push/);
+          expect(gitBefore).toMatch(/worktree remove/);
+          command = await failedCompletionRetry(
+            context,
+            origin.machine,
+            dashboard.home,
+            completionWriteFault(origin.machine),
+            git.env,
+          );
+        }
         if (closure === "Trunk Wrap Up")
           nativeSession.renameError = {
             code: -32000,
@@ -82,11 +109,10 @@ for (const closure of [
           };
         const receipt = JSON.parse(
           (
-            await exec(
-              "bash",
-              ["-c", `${context.command} --outcome completed`],
-              { cwd: origin.machine },
-            )
+            await exec("bash", ["-c", command], {
+              cwd: origin.machine,
+              env: git.env,
+            })
           ).stdout,
         ) as Awaited<ReturnType<typeof submitCompletion>>;
         expect(receipt).toMatchObject({
@@ -112,6 +138,24 @@ for (const closure of [
           .toEqual([
             { threadId: native.threadId, name: `done-${record.session.name}` },
           ]);
+        if (closure === "Story Branch Wrap Up") {
+          const nativeBeforeRetry = native.calls.length;
+          const duplicate = await exec("bash", ["-c", command], {
+            cwd: origin.machine,
+            env: git.env,
+          });
+          expect(JSON.parse(duplicate.stdout)).toEqual(receipt);
+          expect(
+            callsSince(
+              nativeBeforeRetry,
+              "thread/name/set",
+              "turn/interrupt",
+              "turn/start",
+              "thread/resume",
+            ),
+          ).toEqual([]);
+          expect(readFileSync(git.log, "utf8")).toBe(gitBefore);
+        }
         await publishCommittedOrigin(page, {
           repoDir: origin.origin,
           revision: final,
@@ -168,23 +212,7 @@ for (const closure of [
           0,
         );
         // Quiet completion has no explicit text; the native final report remains independently readable.
-        nativeSession.history = [
-          {
-            id: "native-final",
-            status: "completed",
-            items: [
-              {
-                type: "agentMessage",
-                id: "native-reply",
-                phase: "final_answer",
-                text: "Done.",
-                memoryCitation: null,
-                delivery: null,
-                questions: null,
-              },
-            ],
-          },
-        ];
+        keepFinalReport(nativeSession, workspace, "Done.");
         const beforeRead = native.calls.length;
         await recent.getByRole("button", { name: "Read final report" }).click();
         await expect(
@@ -205,7 +233,7 @@ for (const closure of [
         await reloadUntilRead(page);
         await expect(recent).toContainText("Done");
       },
-      process.env,
+      git.env,
       context.landingContext,
       async () => {
         // A retained increment has a real landing, but its story is still Taken.

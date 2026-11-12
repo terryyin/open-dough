@@ -143,11 +143,19 @@ test("the next published main replaces production at the same URL and leaves the
   );
   served = replaced;
 });
-test("stopping the watcher ends production and its checkouts and leaves development, the runner and its client", async ({
+test("SIGHUP quietly ends production and its checkouts and leaves development, the runner and its client", async ({
   request,
 }) => {
   const watcher = machine.running();
   const { fixture, developmentPage } = started();
+  const retired = waitForEmptyDirectory(
+    watcher,
+    productionDeployments(fixture.home),
+  );
+  watcher.signal("SIGHUP");
+  await retired;
+  await watcher.exited;
+  expect(watcher.output()).not.toContain("Production dashboard could not run");
   await watcher.stop();
   machine.watcher = undefined;
   await expectProductionEnded(request, served, fixture.home);
@@ -162,11 +170,6 @@ test("stopping the watcher ends production and its checkouts and leaves developm
 test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
   request,
 }) => {
-  // Real restart install/build used 27.3s of the 30s default in hosted CI
-  // run 42781560636 before SIGINT shutdown; sibling deployment activation
-  // measured 32.1s. Removing this allowance belongs to
-  // SEED-287#fit-dashboard-journeys-in-default-timeout.
-  test.setTimeout(90_000);
   const { fixture, productionPage } = started();
   const deployments = productionDeployments(fixture.home);
   const current = await fixture.publish(

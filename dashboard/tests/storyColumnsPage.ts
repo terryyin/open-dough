@@ -81,7 +81,8 @@ export async function openStoryColumnsJourney(
     launch: async (title: string, workflow: Workflow) => {
       // After a project switch the Backlog card can arrive after settlement
       // words; wait for the Start control itself rather than a short enable.
-      await expect(action(title, workflow)).toBeEnabled({ timeout: 30_000 });
+      await untilPageRequestsAnswered(page);
+      await expect(action(title, workflow)).toBeEnabled();
       await action(title, workflow).click();
       const dialog = page.getByRole("dialog", {
         name: `Start ${workflow} in Claude Code`,

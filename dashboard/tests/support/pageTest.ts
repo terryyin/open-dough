@@ -39,34 +39,78 @@ export { expect } from "@playwright/test";
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
 
+async function preparePreviewInputs(host?: "claude" | "codex") {
+  const [artifacts, origins, app, server] = await Promise.all([
+    import("./runArtifacts.ts"),
+    import("./startOriginPreparation.ts"),
+    import("./dashboardBuild.ts"),
+    import("./serverBundle.ts"),
+  ]);
+  await Promise.all([
+    ...(host === undefined
+      ? []
+      : [
+          artifacts.requestRunArtifact(
+            origins.startOriginArtifactKey(host, "queued"),
+          ),
+        ]),
+    artifacts.requestRunArtifact(app.dashboardAppArtifactKey),
+    artifacts.requestRunArtifact(server.serverBundleArtifactKey),
+  ]);
+}
+
 // Playwright's worker-only extension takes an empty test-fixture type.
 export const test = base.extend<
   object,
   {
     launchJourney: LaunchJourney;
     comparisonRenderer: ComparisonRenderer;
+    dashboardPreviewReady: undefined;
     queuedCodexOriginReady: undefined;
     queuedClaudePreviewReady: undefined;
+    queuedCodexPreviewReady: undefined;
+    publishedApplicationSourceReady: undefined;
   }
 >({
-  // Queued Claude previews need these immutable inputs before their private origin.
-  // Worker setup keeps its default budget; all work stays in suite elapsed.
+  // Reading-only previews need the app and boundaries, with no installed origin.
+  dashboardPreviewReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await preparePreviewInputs();
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
+  // Only readers of the real published app request this immutable source.
+  // Its cold preparation stays in run elapsed, within the default worker budget.
+  publishedApplicationSourceReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      const [
+        { requestRunArtifact },
+        { publishedApplicationSourceArtifactKey },
+      ] = await Promise.all([
+        import("./runArtifacts.ts"),
+        import("./publishedMainSource.ts"),
+      ]);
+      await requestRunArtifact(publishedApplicationSourceArtifactKey);
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
+  // Each host's preview needs its queued origin and the same immutable app inputs.
   queuedClaudePreviewReady: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      const [artifacts, origins, app, server] = await Promise.all([
-        import("./runArtifacts.ts"),
-        import("./startOriginPreparation.ts"),
-        import("./dashboardBuild.ts"),
-        import("./serverBundle.ts"),
-      ]);
-      await Promise.all([
-        artifacts.requestRunArtifact(
-          origins.startOriginArtifactKey("claude", "queued"),
-        ),
-        artifacts.requestRunArtifact(app.dashboardAppArtifactKey),
-        artifacts.requestRunArtifact(server.serverBundleArtifactKey),
-      ]);
+      await preparePreviewInputs("claude");
+      await use(undefined);
+    },
+    { scope: "worker" },
+  ],
+  queuedCodexPreviewReady: [
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await preparePreviewInputs("codex");
       await use(undefined);
     },
     { scope: "worker" },

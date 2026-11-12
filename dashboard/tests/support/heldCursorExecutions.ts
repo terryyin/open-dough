@@ -1,6 +1,7 @@
 // Real scoped and Default executions as preconditions for runner lifetime
 // journeys. Their card/model UI stays in the launch and scope journeys.
 import { realpathSync } from "node:fs";
+import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import type { storyA } from "../../../tests/support/queued-repository.mjs";
 import { sessionKey } from "../../src/sessionReference.ts";
@@ -38,15 +39,16 @@ export async function openHeldCursorExecutions(
   const sharedBefore = cursor.sharedConfig();
   for (const { story, sessionId, model } of executions) {
     cursor.queueCreateChatId(sessionId);
-    const launched = await launch(dashboard, {
-      source: "open-dough",
-      host: "cursor",
-      workflow: "execution",
-      identity: story.identity,
-      title: story.title,
-      instruction: "Implement the selected slice.",
-      ...(model === undefined ? {} : { model }),
-    });
+    const request = makeMe.aLaunchRequest
+      .executing({
+        source: "open-dough",
+        host: "cursor",
+        identity: story.identity,
+        title: story.title,
+      })
+      .withInstruction("Implement the selected slice.");
+    if (model !== undefined) request.requestingModel(model);
+    const launched = await launch(dashboard, request.please());
     expect(launched.status).toBe(200);
     expect(JSON.parse(launched.body)).toMatchObject({ kind: "launched" });
     await expect

@@ -46,6 +46,8 @@ export function startConsumer(environment, teardown) {
     failed,
     ask,
     reached: () => ask(refusedUnasked).settled,
+    disconnect: () =>
+      child.stdin.write(`${JSON.stringify({ disconnect: true })}\n`),
     kill: () => child.kill("SIGKILL"),
   };
 }
@@ -59,7 +61,12 @@ if (isDirectCliEntry(import.meta.url, process.argv[1])) {
   });
   const waits = new Map();
   createInterface(process.stdin).on("line", (line) => {
-    const { ask, cancel, args } = JSON.parse(line);
+    const { ask, cancel, args, disconnect } = JSON.parse(line);
+    if (disconnect) {
+      github.disconnect();
+      for (const wait of waits.values()) wait.abort(new Error("left"));
+      return;
+    }
     if (cancel !== undefined) {
       waits.get(cancel).abort(new Error("left"));
       return;

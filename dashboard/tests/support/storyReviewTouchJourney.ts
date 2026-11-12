@@ -169,7 +169,9 @@ export async function chooseComparisonAndReadByTouch(
     "the long line's beginning is read within the diff",
   ).toBe(true);
   await expect.poll(() => scrollTopOf(code)).toBeGreaterThan(0);
-  const length = wideLine.length + 1;
+  const renderedLine = await wide.innerText();
+  expect(renderedLine).toBe(`+${wideLine}`);
+  const length = renderedLine.length;
   expect((await codePartGeometry(wide, length - 15, length)).visible).toBe(
     false,
   );

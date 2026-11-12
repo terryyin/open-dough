@@ -1,24 +1,20 @@
-// A settled start reconciles with published state
-// (../../src/startupReconciliation.ts): the real installed starts publish to a
-// real bare origin (../support/startOrigin.ts) that the page reads as GitHub
-// would, following its pushes (../committedOrigin.ts), and GitHub's comparison
-// of two commits is answered from that origin's own history. Only a fully
-// read snapshot of the accepted revision, or of one that contains it, returns
-// the story's actions once its native outcome settled: an older snapshot
-// arriving late or an unrelated revision keeps them unavailable, while the
-// published column and facts show as read. The session goes on working. Once
-// reconciled, a reload reconciles it again without asking GitHub.
+// Real installed starts publish to the bare origin read through GitHub fixtures.
+// A fully read accepted snapshot or descendant restores actions after native
+// startup settles; older and unrelated snapshots keep protection. The session
+// keeps working, and reconciliation survives reload without another comparison.
+// See ../../src/startupReconciliation.ts and ../support/startOrigin.ts.
 
 import type { Locator } from "@playwright/test";
 import { attempts } from "../agentLaunchBoundary.ts";
+import { nextAcceptedAttemptId } from "../acceptedAttemptPage.ts";
+import { settledOutcome } from "../acceptedAttempts.ts";
 import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
 } from "../autoRefreshJourney.ts";
-import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, storyCardSessions } from "../dashboardPage.ts";
-import { openUntilRead, reloadUntilRead } from "../pageRequestNotes.ts";
+import { givePageItsTurns, reloadUntilRead } from "../pageRequestNotes.ts";
+import { storyCardSessions } from "../dashboardPage.ts";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import { expect } from "../dashboardTest.ts";
 import {
@@ -31,6 +27,7 @@ import {
   commitOn,
   expectProtected,
   openStories,
+  openStory,
   test,
 } from "../responsiveStart.ts";
 
@@ -60,27 +57,15 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const push = origin.holdPushes();
   dashboard.claudeScenario("held");
   await pausePageClock(page);
-  // This journey never uses Story B; skip waiting for it after the board loads.
-  const published = await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: before,
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  await openUntilRead(page);
-  const { backlog, taken } = parts(page);
-  const story = backlog.getByRole("article", { name: "Story A" });
-  const takenStory = taken.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await expect(story).toBeVisible();
+  const { published, story, takenStory } = await openStory(page, origin);
 
   await story.getByRole("button", { name: "Start execution" }).click();
+  const acceptance = nextAcceptedAttemptId(page);
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
+  const attemptId = await acceptance;
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
 
   // A check asked before the Take is published, and the fresh read the
@@ -103,8 +88,15 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
     kind: "published",
     revision: accepted,
   });
+  expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
+  await givePageItsTurns(page);
+  await expect(storyCardSessions(story)).toHaveCount(1);
+  await expect(story).toContainText(waiting);
+  await expectProtected(story);
+
+  // The held reads answer with the revision before the Take. Every read they
+  // lead to is answered before `main` moves, so none lands late.
   releaseRef();
-  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
   );
@@ -200,10 +192,12 @@ test("a refinement's announcement, read before its session settles, keeps the st
   const { published, story } = await openStories(page, origin);
 
   await story.getByRole("button", { name: "Start refinement" }).click();
+  const acceptance = nextAcceptedAttemptId(page);
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
+  const attemptId = await acceptance;
   await expect
     .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
       timeout: 30_000,
@@ -221,7 +215,9 @@ test("a refinement's announcement, read before its session settles, keeps the st
   await expectProtected(story);
 
   dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  expect((await settledOutcome(dashboard, attemptId)).kind).toBe("launched");
+  await givePageItsTurns(page);
+  await expect(storyCardSessions(story)).toHaveCount(1);
   await expect(story).not.toContainText("Local startup in progress");
   await expect(story).not.toContainText(waiting);
   const startRefinement = story.getByRole("button", {

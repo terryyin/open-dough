@@ -28,7 +28,7 @@
  * notice kept once native observation ended, when the case needs one.
  * @typedef {{
  *   sessionId: string,
- *   continuation: { workspace: string, endpoint: string, args?: string[], notice?: string },
+ *   continuation: Omit<NonNullable<CodexSession["continuation"]>, "args"> & { args?: string[] },
  * }} CodexFacts
  */
 

@@ -4,16 +4,14 @@
 // ./cursor-runner-replacement.spec.ts.
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { storyA, storyB } from "../../../tests/support/queued-repository.mjs";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import { cursorRunnerSpawnHelper } from "../../server/hosts/cursor/runnerSpawnHelper.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import { openRunningList } from "../runningCursorSessionsPage.ts";
 import { makeRecordedHelperProofMissing } from "../support/cursorRunnerRecordedAddress.ts";
-import {
-  keptRecords,
-  launchSecondHeldSession,
-  startScopedCursorExecution,
-} from "../support/cursorSessionRecovery.ts";
+import { keptRecords } from "../support/cursorSessionRecovery.ts";
+import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 import { expect, workingCursorTest } from "../support/cursorStart.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { processRunning } from "../support/processGroup.ts";
@@ -28,14 +26,10 @@ workingCursorTest(
       cursorRunnerSpawnHelper() === undefined,
       "this install's node-pty ships no separate terminal helper",
     );
-    await startScopedCursorExecution(page, origin, cursor, dashboard.home);
-    await launchSecondHeldSession(
-      page,
-      origin,
-      cursor,
-      dashboard.home,
-      helperGoneSecondId,
-    );
+    await openHeldCursorExecutions(page, dashboard, origin, cursor, [
+      { story: storyA, sessionId: cursor.sessionId, model: "gpt-5.2" },
+      { story: storyB, sessionId: helperGoneSecondId },
+    ]);
     const heldPids = cursor.attaches().map((each) => each.pid);
     expect(heldPids).toHaveLength(2);
     const runnerBefore = readCursorRunnerAddress(dashboard.home);

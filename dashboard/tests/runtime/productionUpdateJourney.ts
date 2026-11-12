@@ -14,7 +14,7 @@ import { localPublishedMainFixture } from "../support/publishedMainFixture.ts";
 import { startWatcherNativeCodex } from "../support/watcherNativeCodex.ts";
 import {
   configureWatcherApplication,
-  watcherApplicationSource,
+  productionBuildEnvironment,
 } from "../support/productionWatcherFixture.ts";
 import { processRunning } from "../support/processGroup.ts";
 import {
@@ -96,7 +96,7 @@ export function productionUpdateJourney() {
   // activation through `activated()`, so the shared hook holds only the
   // preparation.
   test.beforeAll(async ({ browser }) => {
-    fixture = await localPublishedMainFixture(watcherApplicationSource);
+    fixture = await localPublishedMainFixture(true, "application");
     const workflow = await readFile(
       path.join(fixture.development, ciWorkflowPath),
       "utf8",
@@ -129,10 +129,11 @@ export function productionUpdateJourney() {
     if (host.status === "rejected") throw host.reason;
     native = host.value;
     if (dependencies.status === "rejected") throw dependencies.reason;
-    const { env, drainEvents } = await observeLaunchAdmission(
+    const { env: observed, drainEvents } = await observeLaunchAdmission(
       fixture.home,
       native.env,
     );
+    const env = productionBuildEnvironment(observed);
     const configurationIdentity = (await stat(configuration)).ino;
     const dev = await developmentDashboard(fixture.development, env);
     development = dev.command;
