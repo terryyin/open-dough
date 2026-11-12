@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 499. Removed numbers are never reused.
+- Highest allocated local number: 501. Removed numbers are never reused.
 - Recovery: `abc1e0a2cee4912f1c87fb15f929772f6c52ce0e:DearDough.md` contains the full pre-cleanup log and links to earlier recovery revisions.
 - Occurrence history is partial.
 
@@ -645,6 +645,13 @@ The source-only reviewer returned every clause of the story's Goal, Scope, key e
   - Evidence: `source-review.md` beside plan 598 holds 91 rows for a two-slice test-speed story, among them M7 and M8 (the Success measure's "Retained reference" figures), X2 ("They may adopt the same fixture later."), ten S3 rows for one "do not change" sentence and six S7 rows for one "No new … to obtain a saving" list. The coordinator recorded one `observed:` per row through about 90 `record` invocations in two batches.
   - Observed effect: every promise had an inspected location at acceptance. The reference-figure, permission and negated-means rows received cells that restate the diff's absence of a change or the plan's run table.
   - Inference: same cause as the first occurrence; cost qualified, no time measured.
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (plan 589; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+  - Timestamp: unknown (2026-11-12; review returned before the first delegation, observations recorded at three acceptances)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 589 held 60 rows for a three-slice test story, among them four dated observation rows (O1–O3.2), S4.3 ("Terry named \"moderately high CPU load\" without a figure") and six restriction rows for one "no timeout overrides, `test.slow()`, sleeps, retries or skips" sentence.
+  - Observed effect: every promise had a location at acceptance; the S2.3b row exposed one promise owned only by composition, recorded as an obligation. The observation, qualification and negated-means rows received cells restating the plan's premises or the diff's absence of a change.
 
 ## DD-494 — A story's "still proves" example named a result the base's checks never asserted
 
@@ -751,3 +758,33 @@ A neighbor run at one worker on a saturated host timed out a case that does not 
   - Evidence: slice 1 return, `intent-ci-comparison-pending-proof.spec.ts:31` "later proof recovers…" at 30.4 s, load about 70; repair return with phase timings (walk and `gh` starts about 10 s of 15.5 s at load 45) and `449a0b919889ea357dca764eb73075b7485fdf31`; `.planning/TEST-OPTIMIZATION-CANDIDATES.md` entry `later-comparison-walk-gh-starts`.
   - Observed effect: one implementation delegation of about 13 minutes and one refactor pass delivered a 1–2 s saving that end-to-end runs cannot show (the same case ran 4.4–17.7 s across loads 20–43). The remaining margin needs a product or suite-wide decision and is kept as a live candidate.
   - Inference: the diagnosis was necessary to learn where the time goes; whether a test-only repair should follow when the diagnosis names product cost is a judgment the policy leaves to the executor. One occurrence.
+
+## DD-500 — A story promised an absolute case time at a load profile whose premises were measured only on a quiet host
+
+The story's load example promised a slowest case body under 10 s at one-minute load 30–50. Its premises and baselines were observed at load 4–7, and the one loaded baseline was the case the story removes. The unchanged sibling cases were never timed at the promised load.
+
+### Occurrences
+
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (plan 589; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+  - Timestamp: 2026-11-12T14:19:27+08:00 (end of the diagnostic run)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: plan 589 "Decisive premises" ("one-minute load 4–7") and "Current decisions" ("The load range, the 10 s margin and the 1.5 ratio are refinement's figures"); slice 3's load observation at `3befd9f85`: 14.5 and 14.0 s for the two "equivalent" cases at load 36.8–38.3, with about 6 s in the shared `origin` fixture and 9–11 s in 20–33 `gh` starts, both excluded by the story's scope limits.
+  - Observed effect: execution stopped for the developer after two delivered slices; the example was restated to 20 s, the source review was obtained again, and three counted runs then passed with a slowest body of 16.2 s. Two load-raising sessions of 30 helpers ran instead of one.
+  - Inference: one loaded run of the unchanged file during refinement, as cheap as the premises that were observed, would have shown the floor before the figure was promised. One occurrence; the related cost in DD-499 came from the same file under load.
+
+## DD-501 — A fresh source review after a one-clause amendment returned different ids for unchanged commitments
+
+After the developer restated one key example, the required fresh source-only review renumbered the story's unchanged clauses, so every allocation and recorded observation had to be carried to a new id by hand.
+
+### Occurrences
+
+- Execution: SEED-326#pass-later-proof-comparison-checks-under-load (plan 589; first implementation `2202c53fb2d3a4e26599b450d8bb00d9311f1ca3`)
+  - Timestamp: unknown (2026-11-12, between 14:25 and 14:45+08:00)
+  - Tool: Claude Code
+  - Model: claude-fable-5-2
+  - Open Dough release: 0.3.97 (checkout-bound installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: `source-review.md` beside plan 589 held 60 rows before the amendment and 66 after; the amended story differs in one example (10 s to 20 s). The second reviewer split or renamed rows whose text was unchanged (S2.1a→S2.1, S2.5a–d→S2.7–S2.10, X2.1→X2, R2.1–R2.5→R2–R6, E3→E3.1 and E3.2, new G0 and O0). The coordinator wrote a one-off mapping script; its first run failed on a cell-parsing error before writing.
+  - Observed effect: 47 recorded observations and two obligation links were re-keyed; obligation ids G1 and G2 were renamed OB1 and OB2 because the new review used G1 and G2 for Goal clauses. No observation was lost.
+  - Inference: the review brief gives the reviewer no prior ids, and the replacement rule has no path that keeps rows whose source text is unchanged. Cost is qualified; no time was measured. One occurrence.

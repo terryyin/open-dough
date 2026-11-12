@@ -156,10 +156,10 @@ that makes it fail.
 | Final answers reuse proof without another `gh` call | The "equivalent proof recovers after a malformed artifact listing" case. Later memory: `ci-comparison-finality-unanswered.spec.ts` and `ci-comparison-memory-later.spec.ts` | The comparison reader ignores its kept answer: all three fail |
 | A provider wait holds a later read, repeats ask nothing, and the read recovers under the same owner once the owner clock ends the wait | The "later proof held by a provider-directed wait" case | The request owner asks again during a standing wait: the first read is no longer `unavailable`. The wait outlasts the owner clock: the recovered read is not the build |
 
-A later malformed-listing case ended at the trunk head was removed, not
-kept: there the history gap waits for a later build with no run, it passes
+There is no real-server later malformed-listing case. Ended at the trunk
+head, its history gap would wait for a later build with no run, it would pass
 with the unanswered mark ignored, and the equivalent case and the in-process
-later cases catch every fault it caught. The public history shows a later
+later cases catch every fault it could catch. The public history shows a later
 point after a later-build wait (`landed-ci-history-pending-sources.spec.ts`);
 a later point after a proof wait is the judgment check's recovered slot plus
 that projection, which reads only the slot's selection.
