@@ -10,6 +10,7 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 source "${source_dir}/tests/helpers/installed-wait-entrypoint-fixture.bash"
 source "${source_dir}/tests/helpers/installed-ci-reuse-fixture.bash"
+source "${source_dir}/tests/helpers/installed-ci-proof-fixture.bash"
 fixture="${temporary_dir}/source"
 older="${temporary_dir}/older"
 node "${source_dir}/tests/support/release-source.mjs" "${fixture}" << 'JSON'
@@ -64,11 +65,15 @@ assert_upgraded_execution_payload() {
     # Exercise the installed runtime entrypoint in the platform layout.
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
     assert_installed_ci_reuse "${canonical_root}"
+    assert_installed_ci_proof "${target}/${root}"
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)
     [[ "${receipt}" == 'CI_OBSERVER '* ]]
     manual="${canonical_root}/manuals/custom-ci.md"
     [[ -f "${manual}" ]]
     grep -Fq 'runnable-custom-ci-adapter:start' "${manual}"
+    grep -Fq '(custom-ci-rebuild.md)' "${manual}"
+    cmp "${newer}/src/skills/dough-execute-plan/manuals/custom-ci-rebuild.md" \
+      "${canonical_root}/manuals/custom-ci-rebuild.md"
     assert_installed_publication_modules "${target}/${root}"
   done
   assert_managed_host_hooks "${target}" "${newer}"
@@ -171,3 +176,6 @@ assert_update_refuses_host_hook_conflict "${conflict_target}" --force
 # after the remembered release source is no longer available.
 mv -- "${fixture}" "${temporary_dir}/source-unavailable"
 assert_installed_wait_entrypoints "${target}"
+for root in .agents/skills .claude/skills; do
+  assert_installed_ci_proof "${target}/${root}"
+done

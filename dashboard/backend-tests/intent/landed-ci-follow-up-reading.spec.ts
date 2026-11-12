@@ -152,6 +152,8 @@ test("saved samples, exclusions and workflow survive window eviction and a newer
   if (original?.request === undefined)
     throw new Error("Collected repeat request missing");
   const request = original.request;
+  if (request.provider !== "github")
+    throw new Error("Expected a GitHub reading input");
   // These canonical snapshots are reading inputs, not collection/classification proof.
   ledger.landings["newer-reading-input"] = makeMe.aCiFollowUpEntry
     .with({

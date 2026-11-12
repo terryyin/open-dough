@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Make landed CI repeat checks pass under moderately high load](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#pass-landed-ci-repeat-checks-under-high-load) — SEED-324#pass-landed-ci-repeat-checks-under-high-load ([plan](slice-plans/599-pass-landed-ci-repeat-checks-under-high-load/PLAN.md))
 - [Express session discovery and report test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-session-test-intent-through-page-objects) — SEED-300#express-session-test-intent-through-page-objects ([plan](slice-plans/585-session-test-intent/PLAN.md))
 - [Express Board and published-read test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-board-test-intent-through-page-objects) — SEED-300#express-board-test-intent-through-page-objects ([plan](slice-plans/584-board-test-intent/PLAN.md))
-- [Run dashboard CI follow-up through a custom CI rebuild trigger](seeds/SEED-330-dashboard-ci-follow-up.md#invoke-custom-ci-rebuilds) — SEED-330#invoke-custom-ci-rebuilds ([plan](slice-plans/606-invoke-custom-ci-rebuilds/PLAN.md))
 
 ## Backlog list
 

@@ -12,7 +12,7 @@
 // and attempt for this process's lifetime beside the GitHub Actions summary
 // memory (`./ciProofArtifact.ts`); every other answer is asked of the
 // adapter again.
-import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { readCommandProof } from "../../src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import {
   readCiAdapterSummary,
   type CiAdapterSummaryRead,

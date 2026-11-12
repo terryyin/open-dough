@@ -7,7 +7,15 @@ import { runUrlSchema } from "./landedCiHistory.ts";
 
 const attemptSchema = z.object({
   revision: z.string(),
-  workflowId: z.number(),
+  adapterAttempt: z
+    .object({
+      runId: z.union([z.string(), z.number()]),
+      attemptId: z.union([z.string(), z.number()]),
+    })
+    .optional(),
+  check: z.string().optional(),
+  context: z.string().optional(),
+  workflowId: z.number().optional(),
   runId: z.number().optional(),
   runAttempt: z.number().optional(),
   runUrl: runUrlSchema.optional(),
@@ -25,8 +33,8 @@ export const ciFollowUpReadingSchema = z.object({
   at: z.iso.datetime({ offset: true }),
   revision: z.string(),
   repository: z.string(),
-  workflow: z.string(),
-  workflowId: z.number(),
+  workflow: z.string().optional(),
+  workflowId: z.number().optional(),
   requestedAt: z.string(),
   kind: z.enum(["unverified", "progress", "slow", "recovered"]),
   explanation: z.string(),
