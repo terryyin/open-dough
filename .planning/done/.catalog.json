@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-331_make-ci-glance-wording-and-status-one-rule.json",
+      "identity": "SEED-331#make-ci-glance-wording-and-status-one-rule",
+      "completedAt": "2026-11-13T12:45:50.854Z",
+      "blob": "cbe61794fa050a042c9674b5e2721c87f7228394"
+    },
+    {
       "fileName": "SEED-331_read-ci-history-at-a-glance.json",
       "identity": "SEED-331#read-ci-history-at-a-glance",
       "completedAt": "2026-11-13T08:37:04.837Z",

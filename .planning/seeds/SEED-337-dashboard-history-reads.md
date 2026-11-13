@@ -37,7 +37,8 @@ CI evidence when they need it.
   or reference evidence retrieves the detail for that inspection. Preserve the
   meaning of measurements, gaps, and provenance. The selected-story and scoped
   chart responses belong to
-  [SEED-331](SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance).
+  SEED-331#read-ci-history-at-a-glance, now done
+  ([done record](../done/SEED-331_read-ci-history-at-a-glance.json)).
 - Use compact subsets of Session, retained launch, CI build, timing, and
   evidence concepts. Preserve identities, names, units, and meanings, with the
   minimum necessary translation under
