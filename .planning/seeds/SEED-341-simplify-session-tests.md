@@ -82,3 +82,15 @@ selection and paging, final reports and touch, workspace retirement,
 completion reporting, and Running Cursor. Remove case-table loops, shorten
 cases through builder and page-object defaults, and move pure rules to
 backend or frontend tests while keeping a few end-to-end journeys.
+
+#### Starting evidence
+
+On 2026-11-13 the 112 session specs averaged 60 lines per case. The longest
+cases (150–206 lines) are in `agent-launch-codex-observation`,
+`agent-completion-quiet`, `agent-completion-attention`,
+`agent-launch-recent-delete`, `recently-done-sessions-select-ad-hoc`,
+`session-attribution`, `sessions-sidebar`, `session-management-touch`,
+`recently-done-sessions-sidebar` and `recently-done-sessions-sidebar-paging`.
+Existing browser-free rule tests beside `session-reading-rule.spec.ts` in
+`dashboard/backend-tests/sessions/` show the receiving tier for pure rules.
+Refinement should split this into stories small enough to finish quickly.
