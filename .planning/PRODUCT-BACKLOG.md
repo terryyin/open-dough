@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Run and observe product-wide end-to-end tests](seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests) — SEED-334#run-and-observe-product-wide-end-to-end-tests ([plan](slice-plans/608-product-wide-end-to-end-tests/PLAN.md))
 - [Answer fake GitHub reads without a process per call](seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process) — SEED-332#answer-fake-gh-reads-in-process ([plan](slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md))
 - [Read CI history at a glance in story comparison and test Proof](seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance) — SEED-331#read-ci-history-at-a-glance ([plan](slice-plans/609-read-ci-history-at-a-glance/PLAN.md))
+- [Simplify session state and attention tests](seeds/SEED-341-simplify-session-tests.md#simplify-session-state-tests) — SEED-341#simplify-session-state-tests
 
 ## Backlog list
 

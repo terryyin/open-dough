@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "stanly-chan",
+  "email": "stanly-chan@example.org",
+  "identity": "SEED-341#simplify-session-state-tests",
+  "mode": "story-branch",
+  "branch": "claude/to-the-changes-to-the-test-files-especially-the",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
