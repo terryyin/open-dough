@@ -391,6 +391,14 @@ execution prerequisite on another story.
   [responsive access](../../dashboard/tests/launches/responsive-session-access.spec.ts#L100),
   [recovery verification](../../dashboard/tests/launches/responsive-session-recovery-verification.spec.ts#L93),
   [frontend startup words](../../dashboard/frontend-tests/startup-host-words.spec.ts#L52).
+  Two siblings of this finding remain. `recoveryOf` is a pure alias of
+  `parts(page).startupRecovery` in both `responsiveRecovery.ts` and
+  `claudeVerification.ts`. `agent-launch-claude-verification`,
+  `agent-launch-claude-own-record-verification`,
+  `responsive-session-reconciliation` and its `-refusals` spec each build
+  `openSessionDescription` from production `openSessionStartReason`. The
+  shared `describedBy` in `storyCardSessionListing.ts` takes the
+  caller-written note instead.
 
 <a id="express-settings-test-intent-through-page-objects"></a>
 
