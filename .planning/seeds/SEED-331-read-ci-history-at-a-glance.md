@@ -149,3 +149,36 @@ to review the four layouts, chart marks, and file timing unit switch. Its sample
 timings and abbreviated tables are illustrative. During story wrap-up, after
 implementation and review, delete the mockup and its remaining links with the
 spent story records. Git preserves the reference for recovery.
+
+<a id="make-ci-glance-wording-and-status-one-rule"></a>
+
+### Make CI glance wording and failed status one rule
+
+**Identity:** SEED-331#make-ci-glance-wording-and-status-one-rule
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/613-make-ci-glance-wording-and-status-one-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0821f77df37b918e7dffc0670ad72c99346d1aa1c6b48d2ec7d84564d8121cc0","plan":"8a82852da4ad0e167c8bf309735bd24397db6c2452a36bd3f517fe234253ab67"}}
+```
+
+Correction from the execution retrospective of
+SEED-331#read-ci-history-at-a-glance. Its plan holds the findings, provenance
+and proof.
+
+#### Goal
+
+A developer reading CI history in a Done story and in its test Summaries and
+file Proof meets one vocabulary for the same marks and statuses, and a build
+the dashboard knows failed always reads as failed, so the glance reads the
+same wherever it appears.
+
+#### Scope
+
+Make the Done wall-time and scope history readouts use one selection word,
+one prior-average line label, one brief pending wording and a brief missing
+identity status. Carry the failed status from where the build state is known
+instead of matching reason strings. Correct the CI and scope reference docs'
+sentences about the removed date span, evidence and exclusion reasons.
+Consolidate the overlapping glance specs the review named. Response
+compatibility, top-level CI status history and the follow-up reading stay as
+they are.
+
+Plan: [correction plan](../slice-plans/613-make-ci-glance-wording-and-status-one-rule/PLAN.md)

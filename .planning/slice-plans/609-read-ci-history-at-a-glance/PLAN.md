@@ -212,6 +212,24 @@ unchanged follow-up and top-level history specs. The capability is
 `history=glance` on selected reads only; the Done glance is filtered
 through the landing on the server; scope gaps carry a typed status.
 
+## Execution complete
+
+Product advice:
+- Queue the retrospective correction
+  [Make CI glance wording and failed status one rule](../../seeds/SEED-331-read-ci-history-at-a-glance.md#make-ci-glance-wording-and-status-one-rule)
+  ([plan](../613-make-ci-glance-wording-and-status-one-rule/PLAN.md)):
+  the Done wall-time and scope views word the selected mark, average line,
+  pending and missing-identity statuses differently; failed status is still
+  decided by matching two reason strings; four doc sentences describe what
+  the glance no longer shows; several glance specs overlap.
+- The UX North Star's timing-history section
+  (`docs/dashboard-ux-ui-north-star.md`) now describes built behavior; wrap-up
+  assimilation should remove what the code and docs explain.
+- The Taken SEED-332 plan (`610-answer-fake-gh-reads-in-process`) still names
+  `dashboard/tests/intent/intent-scope-prior-build-average.spec.ts`, which
+  this story replaced with `intent-scope-glance.spec.ts`; its execution should
+  retarget that reference.
+
 ## Gates and delivery
 
 - Follow [the failing and flaky test policy](../../../AGENTS.md#failing-and-flaky-tests)
