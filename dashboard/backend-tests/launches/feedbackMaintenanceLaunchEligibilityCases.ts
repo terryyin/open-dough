@@ -1,16 +1,19 @@
 // Cases registered by ./feedback-maintenance-launch.spec.ts.
 
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
-import { launch, markDone } from "../agentLaunchBoundary.ts";
-import { expect, test } from "../dashboardTest.ts";
-import { noConnection, publishMovingOrigin } from "../publishedOrigin.ts";
+import { launch, markDone } from "../../tests/agentLaunchBoundary.ts";
+import { expect, test } from "../../tests/dashboardTest.ts";
+import {
+  noConnection,
+  publishMovingOrigin,
+} from "../../tests/publishedOrigin.ts";
 
-import { rawRequest } from "../support/rawHttp.ts";
-import { diagnosticsUrl } from "../support/readDiagnostics.ts";
+import { rawRequest } from "../../tests/support/rawHttp.ts";
+import { diagnosticsUrl } from "../../tests/support/readDiagnostics.ts";
 
-import { afterFurtherListings } from "../support/sessionAlerts.ts";
-import { startOrigin } from "../support/startOrigin.ts";
-import { dayFromToday } from "../support/feedbackMaintenanceDue.ts";
+import { afterFurtherListings } from "../../tests/support/sessionAlerts.ts";
+import { startOrigin } from "../../tests/support/startOrigin.ts";
+import { dayFromToday } from "../../tests/support/feedbackMaintenanceDue.ts";
 import {
   afterFurtherChecks,
   invocation,
@@ -21,7 +24,7 @@ import {
   turnOff,
   turnOn,
   watchListDue,
-} from "../support/feedbackMaintenanceServer.ts";
+} from "../../tests/support/feedbackMaintenanceServer.ts";
 
 test("not yet due, turned off, no due block, or a failed read starts nothing and notifies nothing; the failed read shows in the read diagnostics", async ({
   github,

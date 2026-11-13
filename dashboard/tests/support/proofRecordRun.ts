@@ -6,6 +6,7 @@ import path from "node:path";
 import type { DashboardProofRecord } from "./proofRecordTypes.ts";
 import { spawnGroupLeader, endGroup } from "./processGroup.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+import { dashboardTestMatch } from "./testFiles.mjs";
 
 export const proofFixtures = path.join(
   repoRoot,
@@ -33,6 +34,16 @@ export function readProof(file: string | undefined): DashboardProofRecord {
   return JSON.parse(readFileSync(file, "utf8")) as DashboardProofRecord;
 }
 
+// The umbrella share (`OPEN_DOUGH_DASHBOARD_SPLIT`) that does not select
+// `target`, so a nested focused run proves it ignores the umbrella's split.
+export function umbrellaSplitExcluding(target: string): string {
+  return dashboardTestMatch(new URL("../../", import.meta.url), "1/2").some(
+    (pattern: RegExp) => pattern.test(target),
+  )
+    ? "2/2"
+    : "1/2";
+}
+
 export function startProofCommand(
   command: string,
   args: readonly string[],
@@ -44,8 +55,8 @@ export function startProofCommand(
       ([name]) =>
         !name.startsWith("TEST_") &&
         !name.startsWith("PW_") &&
-        // Either runner's share, record and times (./runnerConfig.mjs).
-        !/^OPEN_DOUGH_DASHBOARD(?:_FRONTEND)?_(?:SPLIT|PROOF_RECORD|TIMES)$/.test(
+        // Every runner's share, record and times (./runnerConfig.mjs).
+        !/^OPEN_DOUGH_DASHBOARD(?:_FRONTEND|_BACKEND)?_(?:SPLIT|PROOF_RECORD|TIMES)$/.test(
           name,
         ) &&
         name !== "FORCE_COLOR" &&

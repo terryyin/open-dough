@@ -3,8 +3,9 @@
 Run `npm run test:dashboard` from the repository root. One Playwright run and
 shard selection covers integrated browser journeys, **Dashboard Frontend Test**
 (`../frontend-tests/`) and **Dashboard Backend Test** (`../backend-tests/`).
-`npm run test:dashboard:frontend` runs **Dashboard Frontend Test** alone under
-its own configuration ([frontend-tests README](../frontend-tests/README.md)).
+`npm run test:dashboard:frontend` and `npm run test:dashboard:backend` run each
+focused group alone under its own configuration ([frontend](../frontend-tests/README.md),
+[backend](../backend-tests/README.md)).
 See [journey writing](writing-journeys.md) for waits, clocks, commands and fake
 GitHub answers; [native-host fixtures](native-host-fixtures.md) for synthetic
 hosts; the per-run [proof record](proof-record.md), the caller-owned
@@ -54,9 +55,9 @@ Boundary and preview use the run's bundled `runnerMain.mjs`; dev and public
 production keep source. `../backend-tests/runtime/serving-modes.spec.ts` proves both real Vite
 servers mount the same boundaries and use those entries.
 
-`../backend-tests/` holds every spec that opens no page, whatever it drives; a
-frontend-only page spec belongs in `../frontend-tests/`; an integrated page
-journey belongs here. All three roots are one suite, run and sharded together
+`../backend-tests/` holds every spec that opens no page, whatever it drives,
+and the test runtime's own contracts; a frontend-only page spec belongs in
+`../frontend-tests/`; an integrated page journey belongs here. All three roots are one suite, run and sharded together
 (below).
 
 ## Where a check goes
@@ -211,7 +212,7 @@ and their assignment to exactly one shard.
 Run from the repository root; `npm run test:dashboard -- tests/intent/`,
 `npm run test:dashboard -- backend-tests/` or
 `-- --grep 'published Board'` selects files or tests
-(`npm run test:dashboard:frontend` selects within the frontend group alone), and `npx playwright
+(`npm run test:dashboard:frontend` or `:backend` selects within its group alone), and `npx playwright
 test` from `tests/` finds no configuration, so it would run without the
 build, the quiet reporter and the run's identity. Local runs default to two
 workers, CI runs every core.

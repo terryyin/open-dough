@@ -3,18 +3,17 @@
 // refused first launch (../keptStartJourney.ts). That Taken card offers Start
 // execution with "Started here, no session yet", and no other Taken card
 // does. Start there opens the session in the same workspace, never a second
-// claim, and the offer goes.
+// claim, and the offer goes. The refused launch's answer and kept start at
+// the boundary: ../../backend-tests/launches/agent-launch-start-taken-refused.spec.ts.
 
 import { readFileSync, realpathSync } from "node:fs";
 import { keptLaunchRecords } from "../support/launchStore.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
 import path from "node:path";
-import { keptStarts, launch } from "../agentLaunchBoundary.ts";
 import { expect } from "../dashboardTest.ts";
 import { expectStartNote } from "../storyCardControls.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 import { queuedIdentity } from "../support/startOrigin.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
 import {
   reachKeptStart,
   startAction,
@@ -101,50 +100,4 @@ test("a Taken card offers Start with the words while this machine keeps a start 
   await expectSettledPage(page);
   await expect(takenStoryCard).toBeVisible();
   await expect(startAction(takenStoryCard)).toHaveCount(0);
-});
-
-test("a refused session launch after a published claim answers the Agent and workspace, the machine names the kept start until a session starts", async ({
-  dashboard,
-  origin,
-}) => {
-  const request = makeMe.aLaunchRequest
-    .executing({ identity: queuedIdentity, title: "Story A" })
-    .please();
-  expect(await keptStarts(dashboard)).toEqual([]);
-  dashboard.claudeScenario("refused");
-  const failed = JSON.parse((await launch(dashboard, request)).body) as {
-    kind: string;
-    reason: string;
-    explanation: string;
-  };
-  const agent = String(
-    (await origin.takenProfiles()).find(
-      (each) => each["identity"] === queuedIdentity,
-    )?.["agent"],
-  );
-  expect(failed).toMatchObject({ kind: "failed", reason: "refused" });
-  expect(failed.explanation).toMatch(
-    new RegExp(
-      `^Claude Code refused to start a session in ${workspaceShown}\\..* Taken by ${agent}; no session started\\. Workspace ${workspaceShown}\\.$`,
-    ),
-  );
-  expect(await keptStarts(dashboard)).toEqual([
-    {
-      host: "claude",
-      workflow: "execution",
-      source: "open-dough",
-      identity: queuedIdentity,
-      workspace: workspaceShown,
-      branch: "claude/story-a",
-      agent,
-    },
-  ]);
-
-  dashboard.claudeScenario("launched");
-  const second = JSON.parse((await launch(dashboard, request)).body) as {
-    kind: string;
-  };
-  expect(second.kind).toBe("launched");
-  expect(await keptStarts(dashboard)).toEqual([]);
-  expect(await origin.takenProfiles()).toHaveLength(1);
 });

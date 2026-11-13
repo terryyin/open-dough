@@ -118,5 +118,37 @@
  "tests/support/mountedComparisonTakenCases.ts": {
   "to": "frontend-tests/intent/mountedComparisonTakenCases.ts",
   "slice": 1
+ },
+ "tests/runtime/quiet-reporter.spec.ts": {
+  "to": "backend-tests/runtime/quiet-reporter.spec.ts",
+  "slice": 2
+ },
+ "tests/runtime/page-teardown-drain.spec.ts": {
+  "to": "backend-tests/runtime/page-teardown-drain.spec.ts",
+  "slice": 2
+ },
+ "tests/runtime/settled-page.spec.ts": {
+  "to": "backend-tests/runtime/settled-page.spec.ts",
+  "slice": 2
+ },
+ "tests/runtime/observation-measurements.spec.ts": {
+  "to": "backend-tests/runtime/observation-measurements.spec.ts",
+  "slice": 2
+ },
+ "tests/sessions/cursor-runner-sessions-sharing.spec.ts": {
+  "to": "backend-tests/sessions/cursor-runner-sessions-sharing.spec.ts",
+  "slice": 2
+ },
+ "tests/sessions/cursor-session-alerts.spec.ts": {
+  "to": "backend-tests/sessions/cursor-session-alerts.spec.ts",
+  "slice": 2
+ },
+ "tests/sessions/session-alerts-delivery.spec.ts": {
+  "to": "backend-tests/sessions/session-alerts-delivery.spec.ts",
+  "slice": 2
+ },
+ "tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts": {
+  "to": "backend-tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts",
+  "slice": 2
  }
 }

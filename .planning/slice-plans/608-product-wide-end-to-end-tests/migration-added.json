@@ -1,21 +1,21 @@
 [
  {
-  "spec": "backend-tests/intent/proof-record-entry.spec.ts",
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
   "title": "Dashboard Frontend Test normal npm records only its own selection under its own settings",
   "slice": 1,
   "proves": "frontend runner npm/direct-config invocation, own settings and output"
  },
  {
-  "spec": "backend-tests/intent/proof-record-entry.spec.ts",
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
   "title": "Dashboard Frontend Test direct config from another working directory records only its own selection under its own settings",
   "slice": 1,
   "proves": "frontend runner npm/direct-config invocation, own settings and output"
  },
  {
-  "spec": "backend-tests/intent/proof-record-entry.spec.ts",
-  "title": "Dashboard Frontend Test runs started beside each other and the umbrella keep their own run directories and records",
-  "slice": 1,
-  "proves": "concurrent frontend and umbrella runs keep separate run directories and records"
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "focused runs started beside each other and the umbrella keep their own run directories and records",
+  "slice": 2,
+  "proves": "concurrent frontend×2, backend×2 and umbrella runs keep separate run directories and records (replaces slice 1's frontend-only case)"
  },
  {
   "spec": "backend-tests/observation/run-processes.spec.ts",
@@ -28,5 +28,35 @@
   "title": "a shared real Dashboard Frontend Test app build can interrupt while workers are waiting",
   "slice": 1,
   "proves": "frontend run interruption cleanup"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "Dashboard Backend Test normal npm records only its own selection under its own settings",
+  "slice": 2,
+  "proves": "backend runner npm invocation, own selection, settings and output"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "Dashboard Backend Test direct config from another working directory records only its own selection under its own settings",
+  "slice": 2,
+  "proves": "backend runner direct-config invocation from another working directory, own selection, settings and output"
+ },
+ {
+  "spec": "backend-tests/runtime/runner-ownership.spec.ts",
+  "title": "Dashboard Backend Test's setup registers no comparison mount, so a spec asking for one fails naming it",
+  "slice": 2,
+  "proves": "backend setup registers only its own artifacts; an unregistered request fails naming it"
+ },
+ {
+  "spec": "backend-tests/observation/run-processes.spec.ts",
+  "title": "Dashboard Backend Test: a run's own teardown ends a process its workers could not reach and fails naming it",
+  "slice": 2,
+  "proves": "backend run teardown sweep"
+ },
+ {
+  "spec": "backend-tests/runtime/dashboard-artifact-demand.spec.ts",
+  "title": "a shared real Dashboard Backend Test app build can interrupt while workers are waiting",
+  "slice": 2,
+  "proves": "backend run interruption cleanup"
  }
 ]

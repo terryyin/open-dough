@@ -130,7 +130,7 @@
 6.3	tests/navigation/story-card-dependency-selection.spec.ts
 6.2	backend-tests/observation/authenticated-read-incident-record-lifecycle.spec.ts
 6.2	backend-tests/observation/authenticated-read-incident-record-stalls.spec.ts
-6.2	tests/sessions/cursor-runner-sessions-sharing.spec.ts
+6.2	backend-tests/sessions/cursor-runner-sessions-sharing.spec.ts
 6.1	tests/intent/intent-entry-folder-summaries-folders.spec.ts
 6.0	tests/intent/intent-read-reuse-story.spec.ts
 6.0	tests/launches/agent-launch-start-session-existing-changes-attachments.spec.ts

@@ -1,11 +1,12 @@
 import { openTerminalControl } from "../terminalScreenPage.ts";
 // Cursor lists native model choices after Default, validates the prompted run,
 // and preserves the configured model. The fixture records native argv; sibling
-// launch journeys prove that Default sends no --model.
+// launch journeys prove that Default sends no --model. The launch boundary's
+// refusals of an unlisted model, an unsupported effort or an unestablished
+// scope: ../../backend-tests/launches/agent-launch-cursor-model-admission.spec.ts.
 import path from "node:path";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
-import { launch } from "../agentLaunchBoundary.ts";
 import { startSessionField } from "../launchStoryCardPage.ts";
 import {
   expectChosenModelScope,
@@ -203,45 +204,4 @@ test("an unreadable Cursor list is explained, Retry rereads it, and Default stil
   );
 });
 
-test("a launch naming a model Cursor does not list is refused before create-chat", async ({
-  dashboard,
-  cursor,
-}) => {
-  const refused = await launch(dashboard, {
-    source: "open-dough",
-    host: "cursor",
-    workflow: "ad-hoc",
-    model: "not-a-listed-model",
-    instruction: "Do work",
-  });
-  expect(refused.status).toBe(400);
-  expect(JSON.parse(refused.body)).toMatchObject({
-    error:
-      "The selected Cursor model is no longer available. Choose another model or use your Cursor setting.",
-  });
-  expect(cursor.modelReads()).toHaveLength(1);
-  expect(cursor.calls()).toEqual([]);
-});
-
-test("a chosen-model launch whose scope cannot be established is refused before create-chat", async ({
-  dashboard,
-  cursor,
-}) => {
-  cursor.breakSharedConfig();
-  const refused = await launch(dashboard, {
-    source: "open-dough",
-    host: "cursor",
-    workflow: "ad-hoc",
-    model: "gpt-5.2",
-    instruction: "Do work",
-  });
-  expect(JSON.parse(refused.body)).toMatchObject({
-    kind: "failed",
-    explanation: expect.stringContaining(
-      "could not be copied into a configuration for this session",
-    ),
-  });
-  expect(cursor.calls()).toEqual([]);
-  expect(cursor.attaches()).toEqual([]);
-});
 import "./cursorEffortDialogCases.ts";

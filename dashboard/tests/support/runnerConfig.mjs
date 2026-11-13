@@ -1,9 +1,10 @@
 // What every dashboard Playwright configuration does for its own run before
 // Playwright starts it, and the run options they share. Each configuration
-// (../../playwright.config.ts, ../../frontend.playwright.config.ts) names its
-// own settings prefix and output directory and keeps its own selection and
-// global setup, so no run reads another runner's split, times, proof record,
-// deadline or output directory.
+// (../../playwright.config.ts, ../../frontend.playwright.config.ts,
+// ../../backend.playwright.config.ts) names its own settings prefix and
+// output directory and keeps its own global setup, so no run reads another
+// runner's split, times, proof record, deadline or output directory. A
+// focused runner also selects only its own root's specs (prepareFocusedRun).
 import { availableParallelism } from "node:os";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -11,8 +12,10 @@ import { fileURLToPath } from "node:url";
 import { acquireLocalSuite } from "../../../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
+import { dashboardTestMatch } from "./testFiles.mjs";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
+const dashboard = new URL("../../", import.meta.url);
 
 /**
  * `<prefix>_SPLIT`, `_TIMES`, `_PROOF_RECORD`, `_DEADLINE_MS` and
@@ -148,5 +151,33 @@ export async function prepareDashboardRun(variables, outputs) {
         : [quietReporter],
       use: { trace: "retain-on-failure" },
     },
+  };
+}
+
+/**
+ * Prepares a focused runner's run: it reads only `<prefix>_*` settings,
+ * keeps its run directories under its own `root` of `dashboard/`, and
+ * selects only that root's specs, dealt by its own `<prefix>_SPLIT`. Spec
+ * labels stay relative to `dashboard/`, so the split deals them by the
+ * seconds `longest-first` records for them.
+ * @param {string} prefix
+ * @param {string} root
+ * @returns {Promise<{
+ *   options: import("@playwright/test").PlaywrightTestConfig,
+ *   testMatch: RegExp[],
+ * }>}
+ */
+export async function prepareFocusedRun(prefix, root) {
+  const variables = runnerVariables(prefix);
+  const run = await prepareDashboardRun(
+    variables,
+    fileURLToPath(new URL(`${root}/`, dashboard)),
+  );
+  return {
+    options: run.options,
+    testMatch: dashboardTestMatch(dashboard, run.split, {
+      roots: [root],
+      splitVariable: variables.split,
+    }),
   };
 }

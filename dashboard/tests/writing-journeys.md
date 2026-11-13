@@ -51,10 +51,11 @@ milliseconds. A failing run's kept `trace.zip` holds it in the `*.network`
 records of each `/__authenticated-read` answer, which shows where a slow
 read spent its time; the browser's time beyond `total` was spent outside the
 handler. To record traces of a passing run, add `--trace on --reporter=dot`.
-The run's global setup (`support/globalSetup.ts`) runs the synthetic `gh`,
-`claude`, and `terminal-notifier` once before any worker starts, because macOS
-assesses a new executable on its first run and a fresh checkout's first
-reads would otherwise wait on it.
+The run's global setup (`support/serviceRunSetup.ts`, for the umbrella and
+**Dashboard Backend Test**) runs the synthetic `gh`, `claude`, and
+`terminal-notifier` once before any worker starts, because macOS assesses a
+new executable on its first run and a fresh checkout's first reads would
+otherwise wait on it.
 
 ## Time the product waits is stepped, not waited out
 
@@ -206,8 +207,9 @@ teardown is the backstop: global setup gives the run an identity,
 `OPEN_DOUGH_DASHBOARD_RUN_ID`, that every process of the run inherits, and
 once the workers have exited the teardown ends every process still carrying
 it and fails the run naming each (`support/runLifecycle.ts`, shared by
-`support/globalSetup.ts` and **Dashboard Frontend Test**'s
-`support/frontendGlobalSetup.ts`; `support/runProcesses.ts`). A named process is a leak to stop where it
+`support/globalSetup.ts` and the focused runners'
+`support/frontendGlobalSetup.ts` and `support/backendGlobalSetup.ts`;
+`support/runProcesses.ts`). A named process is a leak to stop where it
 starts, never a reason to widen the sweep; processes of other runs, other
 checkouts and this machine's own dashboard carry no such identity and are
 left alone. `../backend-tests/observation/run-processes.spec.ts` proves each of the three, and

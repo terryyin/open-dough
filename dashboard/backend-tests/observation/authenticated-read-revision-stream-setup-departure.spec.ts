@@ -147,8 +147,13 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
     const server = await setupDepartureServer();
     try {
       const before = server.github.calls.length;
-      let responseEnded = false;
       const url = new URL(streamUrl(server.origin, `&at=${revisionA}`));
+      // The response's end (or the connection's), however long the pending
+      // resolution takes to settle after the boundary closes.
+      let responseEnded: () => void = () => {};
+      const ended = new Promise<void>((resolve) => {
+        responseEnded = resolve;
+      });
       const req = http.request(
         {
           agent: false,
@@ -159,15 +164,11 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
           headers: { Origin: server.origin },
         },
         (res) => {
-          res.on("end", () => {
-            responseEnded = true;
-          });
+          res.on("end", responseEnded);
           res.resume();
         },
       );
-      req.on("error", () => {
-        responseEnded = true;
-      });
+      req.on("error", responseEnded);
       req.end();
 
       await waitAuthReached(server.holdPath);
@@ -175,8 +176,7 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
       releaseAuth(server.holdPath);
       await new Promise((resolve) => setTimeout(resolve, paceMs * 4));
       expect(matchingRefsSince(server.github, before)).toBe(0);
-      const ended = await waitUntil(() => responseEnded, { timeoutMs: 5_000 });
-      expect(ended).toBe(true);
+      await ended;
     } finally {
       await server.close();
     }

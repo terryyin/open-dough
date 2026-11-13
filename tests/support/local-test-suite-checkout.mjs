@@ -20,9 +20,9 @@ const framework = pathToFileURL(
 
 // The runner tooling a controlled suite runs, copied from this repository:
 // what `copy_runner` copies, the budget and reporter helpers, the dashboard
-// suite selection and run preparation, and the umbrella and Dashboard
-// Frontend Test Playwright configurations importing this repository's
-// framework. Read once per process.
+// suite selection and run preparation, and the umbrella, Dashboard Frontend
+// Test and Dashboard Backend Test Playwright configurations importing this
+// repository's framework. Read once per process.
 let runnerLayer;
 export function suiteRunnerLayer() {
   if (runnerLayer) return runnerLayer;
@@ -72,6 +72,9 @@ export function suiteRunnerLayer() {
         "dashboard/frontend.playwright.config.mts": withFramework(
           "dashboard/frontend.playwright.config.ts",
         ),
+        "dashboard/backend.playwright.config.mts": withFramework(
+          "dashboard/backend.playwright.config.ts",
+        ),
       },
       executables: [...runner.executables, ...helpers.executables],
     };
@@ -115,11 +118,16 @@ import config from './playwright.config.mts';
 export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
   timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,
-        "dashboard/controlled-frontend.config.mts": `
-import config from './frontend.playwright.config.mts';
+        ...Object.fromEntries(
+          ["frontend", "backend"].map((runner) => [
+            `dashboard/controlled-${runner}.config.mts`,
+            `
+import config from './${runner}.playwright.config.mts';
 export default { ...config, projects: [{name:'controlled'}], testMatch: /probe[.]spec[.]mts$/,
   timeout: 120_000, reporter: 'line', use: {}, globalSetup: './controlled-setup.mjs' };
 `,
+          ]),
+        ),
         "dashboard/controlled-setup.mjs": `
 import {writeFileSync} from 'node:fs';
 import {releaseLocalSuites} from '../scripts/local-test-suite.mjs';

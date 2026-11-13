@@ -5,7 +5,9 @@
 
 # Auth is local and precedes ordinary PID/signal setup. Only the optional
 # held-auth observer needs Node; watch before marking arrival to avoid a
-# release between observing the file and installing the watcher.
+# release between observing the file and installing the watcher. macOS can
+# deliver the directory event late or not at all under load, so the observer
+# also looks for the release itself at a short interval.
 if [ "${1-}" = auth ]; then
   if [ -n "${FAKE_GH_AUTH_HOLD-}" ]; then
     exec node - "${FAKE_GH_AUTH_HOLD}" << 'NODE'
@@ -17,10 +19,12 @@ const finish = () => {
   if (finished || fs.existsSync(hold)) return;
   finished = true;
   watcher.close();
+  clearInterval(looking);
   process.stdout.write(process.env.GH_TOKEN || "");
   process.exitCode = process.env.GH_TOKEN ? 0 : 1;
 };
 const watcher = fs.watch(path.dirname(hold), finish);
+const looking = setInterval(finish, 20);
 fs.writeFileSync(`${hold}.reached`, "");
 finish();
 NODE

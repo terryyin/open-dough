@@ -22,11 +22,9 @@ const fixtures = path.join(
   repoRoot,
   "dashboard/tests/fixtures/artifact-demand",
 );
-const setup = path.join(repoRoot, "dashboard/tests/support/globalSetup.ts");
-const frontendSetup = path.join(
-  repoRoot,
-  "dashboard/tests/support/frontendGlobalSetup.ts",
-);
+const setupOf = (file: string) =>
+  path.join(repoRoot, "dashboard/tests/support", file);
+const setup = setupOf("globalSetup.ts");
 
 type Trace = { event: string; key: string; directory?: string };
 type Consumer = { pid: number; directory?: string; error?: string };
@@ -209,17 +207,16 @@ function proveArtifact(
   }
 }
 
-proveArtifact(
-  {
-    name: "app build",
-    key: dashboardAppArtifactKey,
-    preload: "buildGate.mjs",
-    spec: "app.proof.ts",
-    partial: "partial",
-    error: /Vite app build failed at the proof gate/,
-  },
-  ["complete", "fail", "interrupt"],
-);
+const appBuild = {
+  name: "app build",
+  key: dashboardAppArtifactKey,
+  preload: "buildGate.mjs",
+  spec: "app.proof.ts",
+  partial: "partial",
+  error: /Vite app build failed at the proof gate/,
+};
+
+proveArtifact(appBuild, ["complete", "fail", "interrupt"]);
 
 proveArtifact(
   {
@@ -233,17 +230,13 @@ proveArtifact(
   ["complete", "fail"],
 );
 
-// Dashboard Frontend Test's own setup shares the app build the same way and
+// Each focused runner's own setup shares the app build the same way and
 // removes it when interrupted.
-proveArtifact(
-  {
-    name: "Dashboard Frontend Test app build",
-    key: dashboardAppArtifactKey,
-    preload: "buildGate.mjs",
-    spec: "app.proof.ts",
-    partial: "partial",
-    error: /Vite app build failed at the proof gate/,
-    setup: frontendSetup,
-  },
-  ["interrupt"],
-);
+for (const [runner, file] of [
+  ["Dashboard Frontend Test", "frontendGlobalSetup.ts"],
+  ["Dashboard Backend Test", "backendGlobalSetup.ts"],
+] as const)
+  proveArtifact(
+    { ...appBuild, name: `${runner} app build`, setup: setupOf(file) },
+    ["interrupt"],
+  );

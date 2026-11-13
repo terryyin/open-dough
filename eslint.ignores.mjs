@@ -11,5 +11,7 @@ export default [
   "dashboard/playwright-report/",
   "dashboard/frontend-tests/test-results/",
   "dashboard/frontend-tests/playwright-report/",
+  "dashboard/backend-tests/test-results/",
+  "dashboard/backend-tests/playwright-report/",
   "**/dough-execute-plan/scripts/test-entry-rules-runtime.mjs",
 ];

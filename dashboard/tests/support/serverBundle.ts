@@ -15,9 +15,17 @@ export function sharedServerBundle(): Promise<string | undefined> {
   return requestRunArtifact(serverBundleArtifactKey);
 }
 
+// The run's one server bundle, prepared on first request (./runArtifacts.ts).
+export function serverBundleArtifact() {
+  return [
+    serverBundleArtifactKey,
+    { create: createServerBundleDirectory, prepare: bundleServerEntries },
+  ] as const;
+}
+
 // Bare imports resolve from the repository's node_modules as from source.
 // Global setup owns removing this run's directory, including on interruption.
-export function createServerBundleDirectory(): string {
+function createServerBundleDirectory(): string {
   return mkdtempSync(
     path.join(repoRoot, "node_modules", ".dough-server-bundle-"),
   );
@@ -34,7 +42,7 @@ const keepImportMeta = {
   },
 };
 
-export async function bundleServerEntries(
+async function bundleServerEntries(
   directory: string,
   signal: AbortSignal,
 ): Promise<void> {

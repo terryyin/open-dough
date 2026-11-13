@@ -1,4 +1,4 @@
-// The shared settled-page wait (`expectSettledPage` in ../dashboardPage.ts)
+// The shared settled-page wait (`expectSettledPage` in ../../tests/dashboardPage.ts)
 // returns only once the board show their cards and no card still reads its
 // preparation. The page, its local authenticated read boundary, and the fake
 // GitHub behind it are the usual ones; the test holds two of the page's reads
@@ -10,11 +10,15 @@
 // was asked after it and passes at once in that state.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
-import { expectSettledPage, parts } from "../dashboardPage.ts";
-import { recordsAt } from "../autoRefreshJourney.ts";
-import { publishMovingOrigin } from "../publishedOrigin.ts";
-import { backlogA, dashboardStory, revisionA } from "../refreshJourney.ts";
+import { expect, test } from "../../tests/dashboardTest.ts";
+import { expectSettledPage, parts } from "../../tests/dashboardPage.ts";
+import { recordsAt } from "../../tests/autoRefreshJourney.ts";
+import { publishMovingOrigin } from "../../tests/publishedOrigin.ts";
+import {
+  backlogA,
+  dashboardStory,
+  revisionA,
+} from "../../tests/refreshJourney.ts";
 
 // Holds the page's local authenticated reads that `held` picks until
 // released, and says when the first of them reached its handler.

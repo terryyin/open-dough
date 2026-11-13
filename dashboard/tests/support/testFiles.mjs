@@ -9,7 +9,8 @@ import {
 } from "../../../scripts/share-deal.mjs";
 
 // The roots `npm run test:dashboard` discovers. A runner owning one group
-// names its own roots (../../frontend.playwright.config.ts).
+// names its own roots (../../frontend.playwright.config.ts,
+// ../../backend.playwright.config.ts).
 export const dashboardRoots = ["tests", "frontend-tests", "backend-tests"];
 
 // The specs under `roots` of the common dashboard `directory`, as paths

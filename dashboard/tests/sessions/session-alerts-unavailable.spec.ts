@@ -4,7 +4,9 @@
 // probe or notification of the Open Dough notification sender did not work,
 // says nothing while it does, and loses the note at the next read of the
 // machine's sessions after a notification worked again. A closed sidebar
-// shows no note and the Sessions button is as before. The synthetic `claude`
+// shows no note and the Sessions button is as before. The refusal's reading
+// and recovery at the server:
+// ../../backend-tests/sessions/session-alerts-refused.spec.ts. The synthetic `claude`
 // (./fixtures/fake-claude) and the sender (./fixtures/fake-terminal-notifier)
 // are all the server reaches; a real notification is never raised.
 
@@ -12,7 +14,6 @@ import type { Page } from "@playwright/test";
 import { expect, test as base } from "../support/pageTest.ts";
 import {
   alertsAnswered,
-  alertsSettled,
   launch,
   launchRequest,
   machineSessions,
@@ -24,7 +25,6 @@ import {
 } from "../support/dashboardServer.ts";
 import type { FakeClaudeOptions } from "../support/fakeClaude.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
-import { afterFurtherListings, becomes } from "../support/sessionAlerts.ts";
 
 const test = base.extend<{
   notifier: FakeClaudeOptions["notifier"];
@@ -164,32 +164,3 @@ for (const mode of ["older", "unknown-version"] as const) {
     });
   });
 }
-
-test.describe("a notification refused after successful diagnostics", () => {
-  test.use({ notifier: "send-failing" });
-  test("explains refusal without raw stderr and recovers on the next transition", async ({
-    server,
-  }) => {
-    await alertsSettled(server);
-    const response = await launch(server, launchRequest);
-    const session = (
-      JSON.parse(response.body) as {
-        record: { session: { sessionId: string } };
-      }
-    ).record.session.sessionId;
-    // Let the working baseline settle before the attention transition.
-    await afterFurtherListings(server);
-    server.claudeSessionBecomes(session, "blocked");
-    await expect
-      .poll(() => alertsAnswered(server))
-      .toEqual({ available: false, reason: refused });
-    expect(server.notifierCalls()).toHaveLength(1);
-    server.notifierBecomes("working");
-    await becomes(server, session, "working");
-    server.claudeSessionBecomes(session, "blocked");
-    // The retry's diagnostics answer available before its notification ends.
-    await expect.poll(() => server.notifierCalls().length).toBe(2);
-    await alertsSettled(server);
-    expect(server.notifierProbes()).toHaveLength(4);
-  });
-});

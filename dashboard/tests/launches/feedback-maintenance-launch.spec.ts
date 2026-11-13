@@ -2,30 +2,26 @@
 // (../../server/feedbackMaintenanceCheck.ts): with the standing authorization on
 // and Open Dough's published watch list due, one unattached session starts in
 // Open Dough's folder with the cycle's invocation and the reporting context,
-// listed as "Feedback maintenance", and nothing is notified; restarts, later
-// checks, an ended or deleted session, and an open one start nothing more for
-// that due date. The cycle's own completion report settles it as any ad hoc
-// session's does. Not due, off, no block, a failed read, or a developer's
-// open session with the same invocation start nothing. Real start, launch,
-// installed reporting command, store and gh path; Claude, GitHub and the
-// notification sender are fakes. Checks run every 100 ms; "nothing more" is
-// asserted only after the server has asked GitHub, or listed the sessions,
-// again, never after a sleep.
+// listed as "Feedback maintenance", and nothing is notified; restarts and
+// later checks start nothing more for that due date. The cycle's own
+// completion report settles it as any ad hoc session's does. An attention
+// report, an ended or deleted session, and when nothing starts:
+// ../../backend-tests/launches/feedback-maintenance-launch.spec.ts. Real
+// start, launch, installed reporting command, store and gh path; Claude,
+// GitHub and the notification sender are fakes. Checks run every 100 ms;
+// "nothing more" is asserted only after the server has asked GitHub, or
+// listed the sessions, again, never after a sleep.
 
 import { queuedReadyRepository } from "../../../tests/support/queued-repository.mjs";
 import type { Page } from "@playwright/test";
-import {
-  attempts,
-  deleteRecord,
-  openDoughFolder,
-} from "../agentLaunchBoundary.ts";
+import { openDoughFolder } from "../agentLaunchBoundary.ts";
 import { expect, test } from "../dashboardTest.ts";
 import { publishMovingOrigin } from "../publishedOrigin.ts";
 import { sessionsSidebarParts } from "../sessionsSidebarPage.ts";
 import type { DashboardServer } from "../support/dashboardServer.ts";
 
 import { reportingThrough } from "../support/reportedLaunch.ts";
-import { afterFurtherListings, messages } from "../support/sessionAlerts.ts";
+import { afterFurtherListings } from "../support/sessionAlerts.ts";
 import { startOrigin } from "../support/startOrigin.ts";
 import { dayFromToday } from "../support/feedbackMaintenanceDue.ts";
 import {
@@ -123,56 +119,3 @@ test("a reached due date starts one Feedback maintenance session in Open Dough's
     origin.cleanup();
   }
 });
-
-test("an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again", async ({
-  github,
-}) => {
-  const origin = await startOrigin(queuedReadyRepository().please());
-  const moving = await publishMovingOrigin(github);
-  pushWatchList(moving, watchListDue(dayFromToday(-1)));
-  const server = await serverOn(origin, github);
-  try {
-    server.claudeScenario("launched");
-    turnOn(origin);
-    const input = await launchedInput(server);
-    const [record] = await maintenanceRecords(server);
-    const session = record?.session.sessionId ?? "";
-
-    const report = reportingThrough(origin, input);
-    await report({
-      message: "Terry Talks has no findings record; one response needs you.",
-    });
-    await expect.poll(() => server.notifierCalls().length).toBe(1);
-    await afterFurtherListings(server);
-    expect(server.notifierCalls()).toHaveLength(1);
-    expect((await maintenanceRecords(server))[0]?.doneAt).toBeUndefined();
-    expect(server.claudeLaunchCalls()).toHaveLength(1);
-
-    // The session ends without the date advancing and its record is deleted:
-    // its launch attempt still serves the date, which is not launched again.
-    server.claudeSessionBecomes(session, "forgotten");
-    const deleted = await deleteRecord(server, {
-      source: "open-dough",
-      session,
-    });
-    expect(JSON.parse(deleted.body)).toEqual({ kind: "deleted" });
-    expect(await maintenanceRecords(server)).toEqual([]);
-    expect(
-      (await attempts(server)).map(({ request }) => request),
-    ).toContainEqual(
-      expect.objectContaining({ maintenance: expect.anything() }),
-    );
-    await afterFurtherChecks(moving);
-    expect(server.claudeLaunchCalls()).toHaveLength(1);
-    // The ended session may alert as unavailable, as any session does; the
-    // report is still notified once and no start is notified.
-    expect(
-      messages(server).filter((message) => message !== "Session unavailable"),
-    ).toEqual(["Unread report: Completed with attention"]);
-  } finally {
-    await server.close();
-    origin.cleanup();
-  }
-});
-
-import "./feedbackMaintenanceLaunchEligibilityCases.ts";

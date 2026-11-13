@@ -1,9 +1,10 @@
 // The lifecycle every dashboard run's global setup owns, whichever group it
-// runs (./globalSetup.ts, ./frontendGlobalSetup.ts): it registers the
-// artifacts that run's workers may request, and its teardown, after every
-// worker has exited, settles and removes them, ends and names whatever of the
-// run is still running (./runProcesses.ts), applies the run's own `guard`,
-// and releases the local full-suite admission the configuration took.
+// runs (./globalSetup.ts, ./frontendGlobalSetup.ts, ./backendGlobalSetup.ts):
+// it registers the artifacts that run's workers may request, and its
+// teardown, after every worker has exited, settles and removes them, ends
+// and names whatever of the run is still running (./runProcesses.ts),
+// applies the run's own `guard`, and releases the local full-suite admission
+// the configuration took.
 
 import { releaseLocalSuites } from "../../../scripts/local-test-suite.mjs";
 import { startRunArtifacts } from "./runArtifacts.ts";

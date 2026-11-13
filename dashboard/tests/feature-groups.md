@@ -19,7 +19,7 @@ add a browser feature group.
 | `intent/` | Purpose browsing, Proof, CI judgments, timing and optimization candidates. |
 | `navigation/` | Destinations, selection, history, paging, panels and focus. |
 | `observation/` | Published-source consistency, freshness, refresh and read recovery. |
-| `runtime/` | Serving, production updates, browser identity and test harness operation. |
+| `runtime/` | Serving, production updates and browser identity. |
 
 Choose the feature whose behavior the test proves, irrespective of an older
 filename prefix. For example, marking a session Done belongs to Sessions even

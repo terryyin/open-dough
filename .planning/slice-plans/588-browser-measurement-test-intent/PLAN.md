@@ -83,7 +83,7 @@ retain native dispatch calls, frame observations, reading predicate, exact
 movement and cleanup. Inspect runtime observation-measurements callers and
 retain direct browser-turn/trace/metadata/drain evidence that serves the
 contract. Illustrative:
-`npm run test:dashboard -- 'frontend-tests/touch-reading-observation.spec.ts' 'tests/runtime/observation-measurements.spec.ts'`.
+`npm run test:dashboard -- 'frontend-tests/touch-reading-observation.spec.ts' 'backend-tests/runtime/observation-measurements.spec.ts'`.
 
 Behavior: A developer reads a touch-observation case → follows the direct
 utility call and independent frame/event evidence → setup ownership improves

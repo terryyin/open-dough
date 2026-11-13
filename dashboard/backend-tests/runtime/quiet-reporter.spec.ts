@@ -1,12 +1,12 @@
-// The browser suite's reporter (../support/quietReporter.ts), proven by
-// running Playwright itself on a temporary config whose specs are the
-// substitutes in ./fixtures/quiet-reporter: a passing run prints nothing
+// The dashboard runners' reporter (../../tests/support/quietReporter.ts),
+// proven by running Playwright itself on a temporary config whose specs are
+// the substitutes in ../../tests/fixtures/quiet-reporter: a passing run prints nothing
 // and leaves no output directory, a failure is named with its error and
 // trace and its report is kept in the run's output directory, output from
 // a passing spec or from the run itself fails the run, and a run that
 // reaches its deadline names it while keeping what completed.
 
-import { expect, test } from "../support/pageTest.ts";
+import { expect, test } from "../../tests/support/pageTest.ts";
 import {
   existsSync,
   mkdtempSync,
@@ -17,8 +17,8 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { runInnerPlaywright } from "../support/innerPlaywright.ts";
-import { repoRoot } from "../support/repositoryRoot.ts";
+import { runInnerPlaywright } from "../../tests/support/innerPlaywright.ts";
+import { repoRoot } from "../../tests/support/repositoryRoot.ts";
 
 const substitutes = path.join(
   repoRoot,

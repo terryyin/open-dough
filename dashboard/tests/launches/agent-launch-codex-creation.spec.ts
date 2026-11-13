@@ -1,7 +1,9 @@
 // Protocol evidence decides whether Start may reuse the saved first input.
 // Accepted input and lost observation are separate durable facts, including
-// confirmed records saved by the previous dashboard's pending-text bug.
-import { chmodSync, readFileSync } from "node:fs";
+// confirmed records saved by the previous dashboard's pending-text bug. An
+// identity that cannot be recorded:
+// ../../backend-tests/launches/agent-launch-codex-creation-boundary.spec.ts.
+import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import {
@@ -132,50 +134,6 @@ test("lost creation identity persists reconciliation requirement across server r
   } finally {
     await restarted.close();
   }
-});
-
-test("failed identity recording prevents first input and explains the exact known continuation", async ({
-  dashboard,
-  codexProtocol: protocol,
-}) => {
-  const native = protocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  const directory = path.join(dashboard.home, ".open-dough/dashboard");
-  native.threadId = "known id's identity";
-  native.afterCreation = () => {
-    chmodSync(directory, 0o555);
-  };
-  try {
-    const result = await answerOf(dashboard);
-    expect(result.kind).toBe("uncertain");
-    expect(result.explanation).toContain(native.threadId);
-    expect(result.explanation).toContain("No first input was submitted");
-    expect(result.explanation).toContain("could not be saved");
-    expect(result.explanation).toContain("'codex' 'resume' '--remote'");
-    const command = result.explanation.split("`")[1];
-    expect(command).toBeDefined();
-    execFileSync("/bin/sh", ["-c", command ?? ""], {
-      env: { ...process.env, ...native.env },
-      stdio: "pipe",
-    });
-    expect(
-      JSON.parse(readFileSync(native.env["FAKE_CODEX_CLI_LOG"] ?? "", "utf8")),
-    ).toEqual([
-      "resume",
-      "--remote",
-      `unix://${native.env["FAKE_CODEX_SOCKET"]}`,
-      "--cd",
-      path.join(dashboard.home, "git/open-dough"),
-      native.threadId,
-    ]);
-    expect(callsTo(native, "turn/start")).toHaveLength(0);
-    expect(await machineSessions(dashboard)).toEqual([]);
-    await expect.poll(() => native.sockets.size).toBe(0);
-  } finally {
-    chmodSync(directory, 0o755);
-  }
-  expect(await answerOf(dashboard)).toMatchObject({ kind: "uncertain" });
-  expect(callsTo(native, "thread/start")).toHaveLength(1);
 });
 
 test("confirmation clears pending evidence; legacy reload is truthful and connection loss retains continuation context", async ({

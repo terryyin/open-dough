@@ -129,14 +129,14 @@ record/deadline/run stamp, admission, run options) and `runLifecycle.ts`
 teardown. Lifecycle proof in `backend-tests/intent/proof-record-entry.spec.ts`
 (direct config from another CWD, concurrent frontend×2 + umbrella outputs),
 `dashboard-artifact-demand`/`run-processes` (interruption, teardown sweep) and
-`tests/support/local-test-suite-frontend.test.mjs` (admission).
+`tests/support/local-test-suite-focused-runners.test.mjs` (admission; renamed in slice 2).
 Learnings: the frontend runner still deals by the shared `dashboard/longest-first`
 (labels relative to `dashboard/`); slice 4 gives each producer its own list. The
 remaining 573 integrated specs are pending inventory (obligation G1).
 
 ### 2. Run focused dashboard boundary and harness checks independently
 Type: Behavior
-Status: planned
+Status: done
 Proof: Backend JSON selection and actual focused endpoint/runtime cases;
 source freshness, concurrent origins and failure cleanup remain observed.
 
@@ -149,6 +149,27 @@ Keep true external substitutes explicit. Update backend placement/invocation
 and per-journey boundary descriptions. Prove direct-config/non-root-CWD use,
 concurrent outputs, interruption cleanup and full-suite admission here.
 The old CI umbrella still selects these destinations through slice 4.
+
+Accepted proof (2026-11-13): `npm run test:dashboard:backend` →
+`dashboard/backend.playwright.config.ts` (shared `prepareFocusedRun` in
+`runnerConfig.mjs`; setup `backendGlobalSetup.ts` with `serviceRunSetup.ts`;
+unregistered artifacts answer 404 naming the run's setup). Native lists:
+umbrella 1,032 specs / 2,727 cases (every base case once plus 10 new proof
+cases, `migration-reconciliation-slice-2.json`), backend 414 / 1,399, frontend
+52 / 153. Full backend run 1,398 passed, 1 opt-in skip. Moved: 7 whole specs
+(3 session, 4 runtime harness), one registering module, and 29 server-boundary
+cases split from 17 integrated specs (`migration-case-moves.json`); 63/63 and
+38/38. Lifecycle cases now live in `backend-tests/runtime/runner-ownership.spec.ts`
+(both focused runners, direct config, concurrent frontend×2 + backend×2 +
+umbrella) with `run-processes`, `dashboard-artifact-demand` and
+`tests/support/local-test-suite-focused-runners.test.mjs`. A flaky held-auth
+release in `fixtures/fake-gh` (macOS `fs.watch` latency) was repaired and
+proved with `--repeat-each=5`.
+Learnings: of the remaining 566 integrated specs, 546 open a page in every case
+and 17 keep page journeys after their server cases split out; 3 are
+production-watcher chains (`migration-classification.json`). Slice 3 decides
+workflow versus detailed UI for them (G1). The first full backend run at load
+~30 failed 12 timing-bound cases that passed in the clean run (G2).
 
 ### 3. Run representative workflows from product-wide sources
 Type: Behavior
@@ -273,3 +294,15 @@ Reported: slice 1 — "The remaining 573 tests/ specs are not inventoried by beh
 Story clause: "move detailed UI, server and harness checks to their focused owner"
 Disposition: receiving slice 3
 Commitment: 2c.1
+
+
+### G2. Load-sensitive backend cases fail at high host load
+Reported: slice 2 — "Several backend cases are sensitive to load because of fixed 5 s expect.poll bounds and the 30 s case budget (landed-ci repeat/follow-up, production-deployment/publication). They passed in a clean run but failed at load around 30."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: receiving slice 4
+Commitment: R4
+
+### G3. Moved backend session specs still wait on wall-clock time
+Reported: slice 2 — "cursor-runner-sessions-sharing (delay(reuseMs+200)) and cursor-session-alerts (awaitAlertPolls, a 350 ms wait) moved unchanged and still wait on wall-clock time. Fixing them needs a controlled reuse/alert clock in the server, which is a product change."
+Story clause: "throughout the migration, including failures attributed to the prior layout"
+Disposition: no user cost "understand their purpose and observed results in Intent and CI": the waits predate this story and were relocated byte-for-byte; both specs pass under the backend runner and in the umbrella, so the move changes neither their observed results nor their stability; replacing the waits needs a server-side controlled clock outside this story's runner migration.

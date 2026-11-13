@@ -1,0 +1,181 @@
+[
+ {
+  "spec": "tests/launches/agent-launch-ad-hoc-codex-recovery.spec.ts",
+  "title": "other read failures and mismatched context keep blank recovery uncertain; only the known refusal establishes persistence",
+  "to": "backend-tests/launches/agent-launch-ad-hoc-codex-recovery-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-codex-creation.spec.ts",
+  "title": "failed identity recording prevents first input and explains the exact known continuation",
+  "to": "backend-tests/launches/agent-launch-codex-creation-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-codex-recheck.spec.ts",
+  "title": "direct verification refuses an uncertain Codex start and keeps its attempt",
+  "to": "backend-tests/launches/agent-launch-codex-verify-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-codex-reconciliation.spec.ts",
+  "title": "unreadable, missing, empty, unrelated and wrong-workspace history never authorize an uncertain resend",
+  "to": "backend-tests/launches/agent-launch-codex-reconciliation-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-continuation.spec.ts",
+  "title": "an attempt a closed server left unsettled blocks a fresh start of its story and is resumed only by its own continuation, without a second input",
+  "to": "backend-tests/launches/agent-launch-continuation-interrupted.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-creation-gates.spec.ts",
+  "title": "unreadable evidence refuses Codex before native creation but admits Claude and preserves the file",
+  "to": "backend-tests/launches/agent-launch-creation-gates-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-cursor-model.spec.ts",
+  "source": "tests/launches/cursorEffortDialogCases.ts",
+  "title": "Cursor effort admission refuses unsupported pairs and accepts a composed listed id",
+  "to": "backend-tests/launches/agent-launch-cursor-model-admission.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-cursor-model.spec.ts",
+  "title": "a launch naming a model Cursor does not list is refused before create-chat",
+  "to": "backend-tests/launches/agent-launch-cursor-model-admission.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-cursor-model.spec.ts",
+  "title": "a chosen-model launch whose scope cannot be established is refused before create-chat",
+  "to": "backend-tests/launches/agent-launch-cursor-model-admission.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-options.spec.ts",
+  "title": "the shipped definition is valid and gives every option and focus a summary",
+  "to": "backend-tests/launches/agent-launch-options-rules.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-start-session-existing-changes.spec.ts",
+  "title": "the boundary takes an unattached policy and confirmation, checks a request naming no policy as Default main, refuses a tracking choice, and keeps no confirmation",
+  "to": "backend-tests/launches/agent-launch-start-session-existing-changes-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-start-session-failed.spec.ts",
+  "title": "a native refusal keeps the established session, and Continue resumes its workspace, landing choice and handoff",
+  "to": "backend-tests/launches/agent-launch-start-session-failed-boundary.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-start-session-isolated-boundary.spec.ts",
+  "title": "Codex › starts with the worktree as its working directory and the same block",
+  "to": "backend-tests/launches/agent-launch-start-session-isolated-codex.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-start-session-recovery.spec.ts",
+  "title": "a start lost with its server before it made its workspace is resumed by Continue in the kept workspace, existing changes in default main unasked",
+  "to": "backend-tests/launches/agent-launch-start-session-lost.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-start-session-recovery.spec.ts",
+  "title": "a start lost with its server after it made its workspace is resumed by Continue in the kept workspace, existing changes in default main unasked",
+  "to": "backend-tests/launches/agent-launch-start-session-lost.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/agent-launch-start-taken.spec.ts",
+  "title": "a refused session launch after a published claim answers the Agent and workspace, the machine names the kept start until a session starts",
+  "to": "backend-tests/launches/agent-launch-start-taken-refused.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/feedback-maintenance-launch.spec.ts",
+  "source": "tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts",
+  "title": "not yet due, turned off, no due block, or a failed read starts nothing and notifies nothing; the failed read shows in the read diagnostics",
+  "to": "backend-tests/launches/feedback-maintenance-launch.spec.ts",
+  "toSource": "backend-tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/feedback-maintenance-launch.spec.ts",
+  "source": "tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts",
+  "title": "a developer's open session with the cycle's invocation is the machine's feedback maintenance session: nothing more starts while it is open",
+  "to": "backend-tests/launches/feedback-maintenance-launch.spec.ts",
+  "toSource": "backend-tests/launches/feedbackMaintenanceLaunchEligibilityCases.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/launches/feedback-maintenance-launch.spec.ts",
+  "title": "an attention report notifies once and keeps the session open with no second launch; ended and deleted without the date advancing, it is not launched again",
+  "to": "backend-tests/launches/feedback-maintenance-launch.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/agent-completion-quiet-claude.spec.ts",
+  "title": "a server closed during the wait leaves the pending mark and hangs up its attachment",
+  "to": "backend-tests/sessions/agent-completion-quiet-rename.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/agent-completion-quiet-claude.spec.ts",
+  "title": "within a wait the session outlasts › Mark as done during the wait takes it over: one rename runs and the reported write is dropped",
+  "to": "backend-tests/sessions/agent-completion-quiet-rename.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/agent-completion-quiet-claude.spec.ts",
+  "title": "within a short wait › a turn that outlasts the wait keeps the local mark and names that cause; Mark as done renames it once idle",
+  "to": "backend-tests/sessions/agent-completion-quiet-rename.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts-unavailable.spec.ts",
+  "title": "a notification refused after successful diagnostics › explains refusal without raw stderr and recovers on the next transition",
+  "to": "backend-tests/sessions/session-alerts-refused.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts.spec.ts",
+  "title": "a session that starts needing the developer raises one macOS notification › raises one for each other reading: ready for review, failed, stopped, unavailable, and not recognized",
+  "to": "backend-tests/sessions/session-alerts.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts.spec.ts",
+  "title": "a session that starts needing the developer raises one macOS notification › raises nothing when Claude Code's listing cannot be read",
+  "to": "backend-tests/sessions/session-alerts.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts.spec.ts",
+  "title": "a session that starts needing the developer raises one macOS notification › never raises one for a session marked done, even when it stops",
+  "to": "backend-tests/sessions/session-alerts.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts.spec.ts",
+  "title": "a session that starts needing the developer raises one macOS notification › stays quiet for a session a restarted server finds already needing the developer, and raises one when it leaves and re-enters",
+  "to": "backend-tests/sessions/session-alerts.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts.spec.ts",
+  "title": "a session that starts needing the developer raises one macOS notification › raises one for a session launched after the server started only once it needs the developer",
+  "to": "backend-tests/sessions/session-alerts.spec.ts",
+  "slice": 2
+ },
+ {
+  "spec": "tests/sessions/session-alerts.spec.ts",
+  "title": "a session that starts needing the developer raises one macOS notification › closing the server ends a notifier it started and stops reading the sessions",
+  "to": "backend-tests/sessions/session-alerts.spec.ts",
+  "slice": 2
+ }
+]

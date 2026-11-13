@@ -54,6 +54,7 @@ function launch(t, cwd, args, extra = {}, command = process.execPath) {
     "NO_COLOR",
     "OPEN_DOUGH_DASHBOARD_SPLIT",
     "OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT",
+    "OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT",
     "OPEN_DOUGH_TEST_DIR",
     "OPEN_DOUGH_TEST_JOBS",
     "OPEN_DOUGH_TEST_SLOT_GATE",
@@ -135,7 +136,8 @@ export function repository(t, project, observation, env = {}, args = []) {
   );
 }
 
-// `config` is the controlled umbrella or `controlled-frontend.config.mts`.
+// `config` is the controlled umbrella or a focused runner's
+// `controlled-<runner>.config.mts`.
 export function dashboard(
   t,
   project,

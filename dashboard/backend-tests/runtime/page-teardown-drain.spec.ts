@@ -1,4 +1,4 @@
-// The shared page-test base (../support/pageTest.ts) finishes a page's
+// The shared page-test base (../../tests/support/pageTest.ts) finishes a page's
 // intercepted reads before the context is torn down, so a spec needs no
 // teardown of its own for them.
 //
@@ -9,7 +9,7 @@
 
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import { expect, test as base } from "../support/pageTest.ts";
+import { expect, test as base } from "../../tests/support/pageTest.ts";
 
 const events: string[] = [];
 

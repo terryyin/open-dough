@@ -26,8 +26,8 @@ coordinator's slice allocation.
 | T1.2 | E2E Test's responsibility: representative product workflows from a supported entry point through the participating components to an observable outcome | slice 3 | |
 | T2.1 | Entry **Dashboard Frontend Test**: sources `dashboard/frontend-tests/`, command `npm run test:dashboard:frontend` | slice 1 | observed: package.json test:dashboard:frontend → dashboard/frontend.playwright.config.ts; native --list selects 153 cases, frontend-tests only (coordinator rerun); full run 153/153 strict pass |
 | T2.2 | Dashboard Frontend Test's responsibility: focused presentation, interaction and recovery with controlled backend answers | slice 1 | observed: dashboard/tests/support/frontendGlobalSetup.ts registers only app + comparison-mount builds (no dashboard server/fake hosts); moved specs use pageTest.ts controlled DOM rendering; backend-tests/intent/proof-record-entry.spec.ts "Dashboard Frontend Test … records only its own selection under its own settings" |
-| T3.1 | Entry **Dashboard Backend Test**: sources `dashboard/backend-tests/`, command `npm run test:dashboard:backend` | slice 2 | |
-| T3.2 | Dashboard Backend Test's responsibility: focused server behavior, variants, failures and test-runtime contracts at their stable public boundaries | slice 2 | |
+| T3.1 | Entry **Dashboard Backend Test**: sources `dashboard/backend-tests/`, command `npm run test:dashboard:backend` | slice 2 | observed: package.json test:dashboard:backend → dashboard/backend.playwright.config.ts; native list 414 specs / 1,399 cases, backend-tests only (sameMultiset with umbrella, migration-reconciliation-slice-2.json); full run 1,398 passed + 1 opt-in skip; backend-tests/runtime/runner-ownership.spec.ts "Dashboard Backend Test {normal npm\|direct config from another working directory} records only its own selection under its own settings" |
+| T3.2 | Dashboard Backend Test's responsibility: focused server behavior, variants, failures and test-runtime contracts at their stable public boundaries | slice 2 | observed: dashboard/tests/support/backendGlobalSetup.ts registers only server bundle, app build, start origins, published main sources, story-columns; runArtifacts.ts 404 "this run's setup does not register it"; dashboard-artifact-demand.spec.ts "Dashboard Backend Test's setup registers no comparison mount, so a spec asking for one fails naming it"; backend-tests/README.md names real collaborators vs substitutes |
 | 1a | Replace `test:dashboard` and its umbrella grouping with independent runners for the three groups, locally | slice 4 | |
 | 1b | Replace `test:dashboard` and its umbrella grouping with independent runners for the three groups, in CI | slice 4 | |
 | 1c.1 | E2E setup can change independently of the focused groups | slice 4 | |
@@ -45,8 +45,8 @@ coordinator's slice allocation.
 | 2a | Review the inventory by the behavior each case proves | slice 3 | |
 | 2b | Keep representative integrations in E2E | slice 3 | |
 | 2c.1 | Move detailed UI checks to their focused owner |  | G1 |
-| 2c.2 | Move detailed server checks to their focused owner | slice 2 | |
-| 2c.3 | Move detailed harness checks to their focused owner | slice 2 | |
+| 2c.2 | Move detailed server checks to their focused owner | slice 2 | observed: migration-moves.json + migration-case-moves.json: 3 whole server specs to backend-tests/sessions, feedbackMaintenanceLaunchEligibilityCases.ts to backend-tests/launches, 29 server-boundary cases split from 17 integrated specs into focused backend specs (assertions unchanged, e.g. agent-launch-start-taken-refused.spec.ts); 63/63 backend + 38/38 trimmed integrated |
+| 2c.3 | Move detailed harness checks to their focused owner | slice 2 | observed: quiet-reporter, page-teardown-drain, settled-page, observation-measurements moved to backend-tests/runtime/ and run under test:dashboard:backend (full run pass) |
 | 2d.1 | Account for every maintained spec, naming its destination and surviving proof | slice 4 | |
 | 2d.2 | Account for every maintained case, naming its destination and surviving proof | slice 4 | |
 | 2d.3 | Account for every test-registering helper, naming its destination and surviving proof | slice 4 | |
@@ -118,7 +118,7 @@ coordinator's slice allocation.
 | R1b | Tagged proof must fail clearly when its pinned release cannot be verified | slice 5 | |
 | R2 | ADR 0003: tagged content is immutable, with no branch fallback | slice 5 | |
 | R3 | ADR 0008: evidence keeps the unknown, missing and changed scope distinctions | slice 6 | |
-| R4 | Apply the project's failing and flaky test policy throughout the migration, including failures attributed to the prior layout | slice 6 | |
+| R4 | Apply the project's failing and flaky test policy throughout the migration, including failures attributed to the prior layout |  | G2 |
 | KE1.1 | An isolated project has Open Dough installed from published tag `v0.3.97`, with the resolved revision and installed version recorded | slice 5 | |
 | KE1.2 | The developer runs the E2E command and starts story preparation from the dashboard | slice 5 | |
 | KE1.3 | The installed preparation command publishes the assignment to the project's bare origin | slice 5 | |

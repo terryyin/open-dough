@@ -10,9 +10,11 @@ and registering module goes. Later slices reconcile against it.
 | --- | --- |
 | `migration-manifest.jsonl` | One JSON record per line: one `inputs` record, then one `spec` record per selected spec and one `case` record per declared case, at the base revision |
 | `migration-moves.json` | Old path → `{ to, slice }` for every moved spec and registering module (paths relative to `dashboard/`) |
+| `migration-case-moves.json` | `{ spec, source?, title, to, toSource?, slice }` for each case that left a spec that stayed: its new spec, and its new source when that is a moved module |
+| `migration-classification.json` | Integrated spec → purpose note, for each spec read and left for a later slice |
 | `migration-added.json` | New proof cases a slice wrote (not migrated), with what each proves |
-| `migration-reconciliation-slice-1.json` | Slice 1's native lists checked against the manifest |
-| `migration-manifest.mjs` | The generator and reconciler |
+| `migration-reconciliation-slice-<n>.json` | Slice n's native lists checked against the manifest |
+| `migration-manifest.mjs`, `migration-reconcile.mjs` | The generator and the reconciler; `migration-cases.mjs` holds what they share, including each record's destination |
 
 ## Records
 
@@ -41,8 +43,10 @@ production components or the built app with controlled answers, or DOM content;
 not recognized and the spec must be read.
 
 `destination` is the moved path, the unchanged path for specs already under
-`frontend-tests/` or `backend-tests/`, or `pending: slice 2/3 inventory` for an
-integrated-root case not yet assigned.
+`frontend-tests/` or `backend-tests/`, `pending: slice 3 — <purpose note>`
+for an integrated spec read and left for slice 3, or `pending: slice 2/3
+inventory` for one not yet read. A case moved out of a spec that stayed
+carries its new spec as its own `destination`.
 
 ## Commands
 
@@ -53,26 +57,35 @@ npm run test:dashboard -- --list --reporter=json > base-list.json
 node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-manifest.mjs \
   --list base-list.json --revision a9ddb54a786d7d64d2bf63500f93cec1c9c5952d \
   --moves .planning/slice-plans/608-product-wide-end-to-end-tests/migration-moves.json \
+  --case-moves .planning/slice-plans/608-product-wide-end-to-end-tests/migration-case-moves.json \
+  --classes .planning/slice-plans/608-product-wide-end-to-end-tests/migration-classification.json \
   --out .planning/slice-plans/608-product-wide-end-to-end-tests/migration-manifest.jsonl
 ```
 
-Regenerating from a detached base worktree gave a byte-identical manifest.
+Regenerating from a detached base worktree gave a byte-identical manifest;
+with slice 1's moves alone the current generator still writes slice 1's
+manifest byte for byte. Slice 2's regeneration changed only `destination`
+(and `slice`) fields: 573 spec records and the 29 moved case records.
 After a migration edit:
 
 ```sh
 npm run test:dashboard -- --list --reporter=json > after-list.json
 npm run test:dashboard:frontend -- --list --reporter=json > frontend-list.json
-node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-manifest.mjs \
+npm run test:dashboard:backend -- --list --reporter=json > backend-list.json
+node .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconcile.mjs \
   --manifest .planning/slice-plans/608-product-wide-end-to-end-tests/migration-manifest.jsonl \
   --moves .planning/slice-plans/608-product-wide-end-to-end-tests/migration-moves.json \
-  --after after-list.json --frontend frontend-list.json \
+  --case-moves .planning/slice-plans/608-product-wide-end-to-end-tests/migration-case-moves.json \
+  --after after-list.json --frontend frontend-list.json --backend backend-list.json \
   --added .planning/slice-plans/608-product-wide-end-to-end-tests/migration-added.json \
-  --after-out .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconciliation-slice-1.json
+  --after-out .planning/slice-plans/608-product-wide-end-to-end-tests/migration-reconciliation-slice-2.json
 ```
 
 It exits 1 unless every base case is selected exactly once at its destination,
-no case appears beyond those and the listed new proof cases, and the frontend
-runner selects exactly the umbrella's `frontend-tests/` cases.
+no case appears beyond those and the listed new proof cases, and each focused
+runner selects exactly the umbrella's cases under its root. Slice 1 ran the
+same check from `migration-manifest.mjs` before the reconciler had its own
+file.
 
 ## Totals
 
@@ -81,6 +94,8 @@ runner selects exactly the umbrella's `frontend-tests/` cases.
 | Base | 1,015: 598 `tests`, 27 `frontend-tests`, 390 `backend-tests` | 2,717: 1,319 / 55 / 1,343 |
 | After slice 1, umbrella | 1,015: 573 / 52 / 390 | 2,722: 1,221 / 153 / 1,348 (all 2,717 base cases once, plus 5 new backend lifecycle proofs) |
 | After slice 1, `test:dashboard:frontend` | 52 | 153, all `chromium` |
+| After slice 2, umbrella | 1,032: 566 / 52 / 414 | 2,727: 1,175 / 153 / 1,399 (all 2,717 base cases once, plus 10 new lifecycle proofs) |
+| After slice 2, `test:dashboard:backend` | 414 | 1,399, all `chromium` |
 
 Slice 1 moved 25 mounted-comparison presentation specs (98 cases) and the five
 `mountedComparison*Cases.ts` registering modules to `frontend-tests/intent/`;
@@ -89,5 +104,14 @@ Slice 1 moved 25 mounted-comparison presentation specs (98 cases) and the five
 reconciliation find loss or double selection; the moved cases' behavior is
 proved by running them, under both runners.
 
-The remaining 573 `tests/` specs are `pending: slice 2/3 inventory`; none is
-left with a `frontend:` boundary, and 75 are `unclassified`.
+Slice 2 moved 46 base cases to `backend-tests/`: seven whole specs (four test
+runtime contracts to `runtime/`, three browser-free session specs to
+`sessions/`, 17 cases), the `feedbackMaintenanceLaunchEligibilityCases.ts`
+module, and 29 server-boundary cases split from 17 integrated specs that keep
+their page cases (`migration-case-moves.json`). Whole-spec timing rows were
+relabelled in place; split specs keep their rows and their new backend specs
+are unrecorded until a refresh. It read every case of the 573 integrated specs
+for a page and recorded the 566 left in `tests/` in
+`migration-classification.json`: 546 open a page in every case, 17 are
+browser journeys whose server cases moved, and 3 are serial production-watcher
+chains whose no-page steps stay with the chain.

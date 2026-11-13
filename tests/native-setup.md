@@ -56,9 +56,9 @@ Use `npm test` for the whole shell/Node suite, or name the checks being verified
 as described in [the runner guide](README.md). Repeating unchanged checks does
 not run npm setup, browser downloads or a system package manager. When
 `package-lock.json` changes, repeat both acquisition stages before checking.
-Every dashboard suite run builds production assets from the current checkout
-into its own temporary directory (`dashboard/tests/support/globalSetup.ts`),
-leaving `dashboard/dist` alone; retaining prerequisites does not retain a
+Every dashboard suite run that serves the app builds production assets from
+the current checkout into its own temporary directory
+(`dashboard/tests/support/dashboardBuild.ts`), leaving `dashboard/dist` alone; retaining prerequisites does not retain a
 stale app build. Real failures retain their normal reports and exit status;
 tests are never retried to turn them green.
 

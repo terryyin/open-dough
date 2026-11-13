@@ -1,14 +1,9 @@
-// Native creation admission runs through real HTTP and durable machine evidence.
-import { readFileSync } from "node:fs";
+// Native creation admission runs through real HTTP and durable machine evidence;
+// unreadable evidence:
+// ../../backend-tests/launches/agent-launch-creation-gates-boundary.spec.ts.
 import { test, expect } from "../support/codexLaunch.ts";
-import { launch } from "../agentLaunchBoundary.ts";
 import { machineHome } from "../machineLaunchRecords.ts";
-import {
-  keepLaunchStore,
-  keepLaunchStoreText,
-  keptLaunchStore,
-  launchStoreFile,
-} from "../support/launchStore.ts";
+import { keepLaunchStore, keptLaunchStore } from "../support/launchStore.ts";
 import type { CreationRecord } from "../../src/launchCreation.ts";
 import { rawRequest } from "../support/rawHttp.ts";
 import {
@@ -20,41 +15,6 @@ import { makeMe } from "../../../tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
 // Stand-in host inspection-args UI: dashboard/frontend-tests/agent-launch-creation-gates.spec.ts.
-
-test("unreadable evidence refuses Codex before native creation but admits Claude and preserves the file", async ({
-  dashboard,
-  machine,
-  codexProtocol,
-}) => {
-  if (machine === undefined || codexProtocol === undefined)
-    throw new Error("Missing native machine fixture.");
-  const unreadable = "{ unreadable launch evidence";
-  keepLaunchStoreText(machineHome(machine), unreadable);
-  const request = makeMe.aLaunchRequest
-    .adHoc({ instruction: "Inspect safely." })
-    .please();
-  const refused = JSON.parse(
-    (await launch(dashboard, { ...request, host: "codex" })).body,
-  ) as { kind: string; reason?: string; explanation: string };
-  expect(refused).toMatchObject({ kind: "uncertain", reason: "unconfirmed" });
-  expect(refused.explanation).toContain("Codex");
-  expect(refused.explanation).toContain("native Codex history");
-  expect(refused.explanation).not.toContain("--remote");
-  expect(
-    codexProtocol.calls.filter((call) => call.method === "thread/start"),
-  ).toHaveLength(0);
-  expect(readFileSync(launchStoreFile(machineHome(machine)), "utf8")).toBe(
-    unreadable,
-  );
-  dashboard.claudeScenario("launched");
-  expect(
-    JSON.parse((await launch(dashboard, { ...request, host: "claude" })).body),
-  ).toMatchObject({ kind: "launched" });
-  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
-  expect(
-    readFileSync(`${launchStoreFile(machineHome(machine))}.unreadable`, "utf8"),
-  ).toBe(unreadable);
-});
 
 test("a saved creation whose host lacks recovery stays visible with unavailable advice and no borrowed command", async ({
   dashboard,

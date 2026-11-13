@@ -111,10 +111,11 @@ test("a run that times out while a production process runs leaves none of its pr
   expect(run.remaining).toEqual([]);
 });
 
-// The umbrella's and Dashboard Frontend Test's setups share this sweep.
+// The umbrella's and each focused runner's setups share this sweep.
 for (const [runner, globalSetup] of [
   ["", "globalSetup.ts"],
   ["Dashboard Frontend Test: ", "frontendGlobalSetup.ts"],
+  ["Dashboard Backend Test: ", "backendGlobalSetup.ts"],
 ] as const)
   test(`${runner}a run's own teardown ends a process its workers could not reach and fails naming it`, async () => {
     // The inner run uses the suite's global setup to take its own run identity

@@ -1,10 +1,10 @@
-// Codex Recheck rereads startup evidence without requesting native verification;
-// a direct verification request is refused without changing the attempt.
+// Codex Recheck rereads startup evidence without requesting native verification
+// (a direct verification request:
+// ../../backend-tests/launches/agent-launch-codex-verify-boundary.spec.ts).
 import { agentVerifyEndpoint } from "../../src/agentLaunch.ts";
 import { openTakenBacklog } from "../launchStoryCardPage.ts";
 import { notRefinedIdentity, notRefinedStory } from "../launchJourney.ts";
 import { attempts, launch } from "../agentLaunchBoundary.ts";
-import { rawRequest } from "../support/rawHttp.ts";
 import { test, expect } from "../support/codexLaunch.ts";
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 
@@ -68,30 +68,4 @@ test("Recheck rereads evidence and published state without verifying a Codex sta
   expect(
     codexProtocol.calls.filter((call) => call.method === "turn/start"),
   ).toHaveLength(1);
-});
-
-test("direct verification refuses an uncertain Codex start and keeps its attempt", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  if (codexProtocol === undefined) throw new Error("Missing native fixture.");
-  const native = codexProtocol;
-  native.refuseInput = true;
-  expect(JSON.parse((await launch(dashboard, request)).body)).toMatchObject({
-    kind: "uncertain",
-  });
-  const [before] = await attempts(dashboard);
-  const answer = await rawRequest({
-    url: `${dashboard.baseURL}${agentVerifyEndpoint}`,
-    method: "POST",
-    headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-    body: JSON.stringify({ source: "open-dough", attempt: before?.id }),
-  });
-  expect(answer.status).toBe(200);
-  expect(JSON.parse(answer.body)).toEqual({
-    kind: "unresolved",
-    explanation:
-      "This start is not a story launch whose session alone may or may not have started, so its host was not asked.",
-  });
-  expect(await attempts(dashboard)).toEqual([before]);
 });

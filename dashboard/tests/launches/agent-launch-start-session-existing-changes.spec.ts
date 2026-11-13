@@ -9,20 +9,15 @@
 // untouched, the developer's text and reporting context, and no story, Take,
 // or assignment. Switching to automatic
 // landing preserves the choice through Back and carries its established block.
-// Clean default launches belong to ./agent-launch-ad-hoc.spec.ts.
+// Clean default launches belong to ./agent-launch-ad-hoc.spec.ts; the launch
+// boundary's policy and confirmation rules to
+// ../../backend-tests/launches/agent-launch-start-session-existing-changes-boundary.spec.ts.
 
 import { execFileSync } from "node:child_process";
-import { appendFileSync, realpathSync } from "node:fs";
+import { appendFileSync } from "node:fs";
 import path from "node:path";
 import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
-import {
-  accept,
-  attempts,
-  keptStarts,
-  launch,
-  recordsOf,
-} from "../agentLaunchBoundary.ts";
-import { makeMe } from "../../../tests/support/makeMe.mjs";
+import { attempts, keptStarts, recordsOf } from "../agentLaunchBoundary.ts";
 import {
   startSession,
   startSessionDialog,
@@ -168,58 +163,4 @@ test("existing changes warn before a session starts, Back keeps the text, Cancel
   expect(await keptStarts(dashboard)).toEqual([]);
   expect(await originMain(origin)).toBe(before);
   expect(await origin.takenProfiles()).toEqual([]);
-});
-
-test("the boundary takes an unattached policy and confirmation, checks a request naming no policy as Default main, refuses a tracking choice, and keeps no confirmation", async ({
-  dashboard,
-  origin,
-}) => {
-  const request = makeMe.aLaunchRequest.adHoc({ instruction: text }).please();
-  const defaults = { workspace: "default-checkout", landing: "review" };
-  dirty(origin.project);
-  dashboard.claudeScenario("launched");
-
-  // A tracking choice is not an unattached session's to make.
-  const tracked = await accept(dashboard, {
-    ...request,
-    policy: { ...defaults, tracking: "one-shot" },
-  });
-  expect(tracked.status).toBe(400);
-
-  // With or without the default policy named, nothing starts unconfirmed, and
-  // a confirmation of something else confirms nothing.
-  const found: { kind: string; count: number; fingerprint: string }[] = [];
-  for (const asked of [
-    request,
-    { ...request, policy: defaults },
-    { ...request, policy: defaults, existingChanges: "0".repeat(64) },
-  ]) {
-    const answer = await accept(dashboard, asked);
-    expect(answer.status).toBe(200);
-    found.push(JSON.parse(answer.body) as (typeof found)[number]);
-  }
-  expect(new Set(found.map(({ fingerprint }) => fingerprint)).size).toBe(1);
-  for (const answer of found)
-    expect(answer).toMatchObject({ kind: "existing-changes", count: 4 });
-  expect(dashboard.claudeLaunchCalls()).toEqual([]);
-  expect(await attempts(dashboard)).toEqual([]);
-
-  const confirmed = await launch(dashboard, {
-    ...request,
-    policy: defaults,
-    existingChanges: found[0]?.fingerprint,
-  });
-  expect(confirmed.status).toBe(200);
-  const answer = JSON.parse(confirmed.body) as {
-    kind: string;
-    record?: Recorded;
-  };
-  expect(answer.kind).toBe("launched");
-  expect(answer.record?.request).toMatchObject({ instruction: text });
-  expect(answer.record?.request).not.toHaveProperty("existingChanges");
-  const [call] = dashboard.claudeLaunchCalls();
-  expect(call?.cwd).toBe(realpathSync(origin.project));
-  expect(call?.argv.at(-1)).not.toContain("Established");
-  for (const attempt of (await attempts(dashboard)) as Recorded[])
-    expect(attempt.request).not.toHaveProperty("existingChanges");
 });

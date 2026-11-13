@@ -1,16 +1,16 @@
 // Regression proof for test observations whose inputs span browser/server turns.
 // This supplies only raw gh argv, never dashboard facts.
 
-import { expect, githubFor, test } from "../dashboardTest.ts";
-import { expectHeldGroups } from "../publishedFactsIsolationAssertions.ts";
+import { expect, githubFor, test } from "../../tests/dashboardTest.ts";
+import { expectHeldGroups } from "../../tests/publishedFactsIsolationAssertions.ts";
 import {
   canonicalPath,
   factsAt,
   revisionA,
-} from "../publishedFactsIsolation.ts";
-import { profilePath, repository } from "../sliceClockRecords.ts";
-import type { GhCall } from "../support/fakeGitHub.ts";
-import { parseRequest } from "../support/ghRequest.ts";
+} from "../../tests/publishedFactsIsolation.ts";
+import { profilePath, repository } from "../../tests/sliceClockRecords.ts";
+import type { GhCall } from "../../tests/support/fakeGitHub.ts";
+import { parseRequest } from "../../tests/support/ghRequest.ts";
 
 test("a held group has reached its raw handlers only after every listed profile arrives", async ({
   page,
