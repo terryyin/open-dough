@@ -1,6 +1,5 @@
-// Raw retained attempts before a real published Done endpoint, each a scope
-// duration or a failed build. The selected proof is acquired by the normal
-// collector in the receiving journey.
+// Raw retained attempts before a Done endpoint, each a scope duration or a
+// failed build, and the selected landing's build kept with `selectedProof`.
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
 import type { StoryCiComparisonSetup } from "./storyCiComparisonFixture.ts";
@@ -14,11 +13,11 @@ export function scopePriorReferenceHistory(
   setup: StoryCiComparisonSetup,
   values: readonly (number | "failed")[],
   options: {
-    selectedProof?: CiProof;
+    selectedProof: CiProof;
     priorIdentities?: Readonly<
       Record<number, { entry: string; units: readonly ("case" | "file")[] }>
     >;
-  } = {},
+  },
 ) {
   const order = git(
     origin.project,
@@ -72,31 +71,29 @@ export function scopePriorReferenceHistory(
       ),
     );
   }
-  if (options.selectedProof !== undefined) {
-    history.recording(
-      makeMe.aLaunchLanding
-        .capturedFrom({
-          identity: setup.identity,
-          repository: commonGitDir(origin.project),
-        })
-        .comparing({ base: setup.baseline, revision: setup.completion })
-        .deliveredAs({ receipt: "selected-scope", delivery: "selected-scope" })
-        .receivedAt("2026-11-07T10:10:00Z")
-        .please(),
-      "run/103/1",
-      makeMe.aKeptBuild
-        .with({
-          revision: setup.completion,
-          state: "pass",
-          runId: 103,
-          runAttempt: 1,
-          runUrl: "https://ci.invalid/runs/103",
-          startedAt: "2026-11-07T10:00:00Z",
-          completedAt: "2026-11-07T10:01:00Z",
-          proof: options.selectedProof,
-        })
-        .please(),
-    );
-  }
+  history.recording(
+    makeMe.aLaunchLanding
+      .capturedFrom({
+        identity: setup.identity,
+        repository: commonGitDir(origin.project),
+      })
+      .comparing({ base: setup.baseline, revision: setup.completion })
+      .deliveredAs({ receipt: "selected-scope", delivery: "selected-scope" })
+      .receivedAt("2026-11-07T10:10:00Z")
+      .please(),
+    "run/103/1",
+    makeMe.aKeptBuild
+      .with({
+        revision: setup.completion,
+        state: "pass",
+        runId: 103,
+        runAttempt: 1,
+        runUrl: "https://ci.invalid/runs/103",
+        startedAt: "2026-11-07T10:00:00Z",
+        completedAt: "2026-11-07T10:01:00Z",
+        proof: options.selectedProof,
+      })
+      .please(),
+  );
   return history.please();
 }

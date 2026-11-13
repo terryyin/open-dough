@@ -39,25 +39,25 @@ for 4.1–4.4.
 | 6.2 | the CI reference doc's "Four show their evidence"; | slice 1 | observed: docs/dashboard-development-intent-ci-reference.md: 'Fewer show Insufficient history, with the observations still charted.' |
 | 6.3 | the scope reference doc's "explicit unavailable difference"; | slice 1 | observed: docs/dashboard-development-intent-scope-reference.md: 'whose average shows beside the selected status without a change' |
 | 6.4 | the scope reference doc's "retain their specific exclusion reasons". | slice 1 | observed: docs/dashboard-development-intent-scope-reference.md: 'stay out of the average; the chart still shows each build as a point or a gap with its brief reason' |
-| 7 | "Consolidate the overlapping glance specs the review named": | slice 3 |  |
-| 7.1 | `intent-ci-done-prior-states.spec.ts` repeats three mounted states of `intent-ci-compact-readout.spec.ts`; | slice 3 |  |
-| 7.2 | full mark Tab walkthroughs run in both chart-marks specs and `intent-scope-glance.spec.ts`; | slice 3 |  |
-| 7.3 | the default-answer membership check repeats in `ci-history-slim-response.spec.ts` (two tests) and `ci-history-glance-compatibility.spec.ts`; | slice 3 |  |
-| 7.4 | the zero-average branch is proved in three browser specs plus `tests/support/ci-prior-build-reference.test.mjs`. | slice 3 |  |
+| 7 | "Consolidate the overlapping glance specs the review named": | slice 3 | observed: slice 3: see 7.1–7.4; family run of 40 CI-history spec files passed (59 tests) |
+| 7.1 | `intent-ci-done-prior-states.spec.ts` repeats three mounted states of `intent-ci-compact-readout.spec.ts`; | slice 3 | observed: intent-ci-done-prior-states.spec.ts keeps one collector-backed state 'a collected selected landing without its proof summary…read without CI' (github.calls unchanged); other states only in frontend-tests/intent-ci-compact-readout.spec.ts, which gained the no-chart-outside-history check |
+| 7.2 | full mark Tab walkthroughs run in both chart-marks specs and `intent-scope-glance.spec.ts`; | slice 3 | observed: full Tab walkthrough only in frontend-tests/intent-ci-history-chart-marks.spec.ts (expectMarksByTab over all readouts); project spec Tabs to its endpoint only; intent-scope-glance asserts marks count, selected readout and failed mark |
+| 7.3 | the default-answer membership check repeats in `ci-history-slim-response.spec.ts` (two tests) and `ci-history-glance-compatibility.spec.ts`; | slice 3 | observed: default-answer membership, median and run links only in backend-tests/intent/ci-history-glance-compatibility.spec.ts through the frozen readers; removed from both ci-history-slim-response.spec.ts tests |
+| 7.4 | the zero-average branch is proved in three browser specs plus `tests/support/ci-prior-build-reference.test.mjs`. | slice 3 | observed: zero average once in browser: intent-ci-compact-readout.spec.ts 'a zero prior average keeps the elapsed change without a percentage'; unit: tests/support/ci-prior-build-reference.test.mjs zero-median test |
 | X1 | "Response compatibility … stay[s] as [it is]." | slice 2 | observed: only optional failed fields added; ci-history-slim-response.spec.ts passes with unchanged assertions |
 | X2 | Project Intent's top-level CI status history lists stay as they are. | slice 1 | observed: IntentCiHistory.tsx unchanged; dashboard/frontend-tests/intent-project-ci-history-chart-marks.spec.ts passes unchanged |
-| X3 | The follow-up reading stays as it is, including its membership. | slice 3 |  |
+| X3 | The follow-up reading stays as it is, including its membership. | slice 3 | observed: intent-ci-follow-up.spec.ts unchanged, 7 evidence rows, passed in the family run |
 | X4.1 | Prior promise stands: "the same compact reading order and marks across the views". | slice 1 | observed: both chart-marks frontend specs and dashboard/tests/intent/intent-scope-glance.spec.ts Tab walkthrough pass with marks and order unchanged |
 | X4.2 | Prior promise stands: brief status labels. | slice 1 | observed: brief words: 'Selected landing', 'Pending · CI queued or running', 'Scope identity unavailable' replace sentences/raw enums |
 | X4.3 | Prior promise stands: "no view keeps its own chart or metric copy". | slice 1 | observed: scope inlined average label removed: IntentScopeTimingHistoryUnits.tsx passes averageMs to the shared chart layout and uses shared gap words |
-| X5.1 | Done and scope glance layout kept. | slice 3 |  |
-| X5.2 | Done and scope glance marks kept. | slice 3 |  |
-| X5.3 | Readouts by pointer kept. | slice 3 |  |
-| X5.4 | Readouts by keyboard kept. | slice 3 |  |
-| X5.5 | Readouts by touch kept. | slice 3 |  |
-| X5.6 | Light/dark kept. | slice 3 |  |
-| X5.7 | Retry kept. | slice 3 |  |
-| X5.8 | Retention kept. | slice 3 |  |
+| X5.1 | Done and scope glance layout kept. | slice 3 | observed: stacked order and no-sideways-scroll assertions kept in intent-scope-glance.spec.ts and intent-ci-done-glance.spec.ts |
+| X5.2 | Done and scope glance marks kept. | slice 3 | observed: intent-ci-history-chart-marks.spec.ts expectMarkedScopeHistoryDrawn; intent-ci-done-glance 9 marks, failed, unavailable, dashed average; intent-scope-glance failed mark |
+| X5.3 | Readouts by pointer kept. | slice 3 | observed: intent-ci-history-chart-marks.spec.ts inspectMark pointer; intent-ci-done-glance inspectMark |
+| X5.4 | Readouts by keyboard kept. | slice 3 | observed: intent-ci-history-chart-marks.spec.ts Tab walkthrough; intent-scope-glance chooseTimingUnit keyboard |
+| X5.5 | Readouts by touch kept. | slice 3 | observed: intent-ci-history-chart-marks.spec.ts touch test; intent-scope-glance tap on unit and mark |
+| X5.6 | Light/dark kept. | slice 3 | observed: intent-project-ci-history-chart-marks.spec.ts light/dark; dark checks in intent-scope-glance and intent-ci-done-glance |
+| X5.7 | Retry kept. | slice 3 | observed: intent-ci-compact-readout.spec.ts 'a failed history read keeps the last history…' |
+| X5.8 | Retention kept. | slice 3 | observed: intent-ci-compact-readout.spec.ts 'Outside retained history' step plus no-chart assertion |
 | X6 | The `history=glance` contents are kept. | slice 2 | observed: ci-history-slim-response.spec.ts passes unchanged; glance adds optional reference.selected.failed only |
 | X7 | The default response stays unchanged for pages opened before deployment (frozen readers stay frozen). | slice 2 | observed: ci-history-glance-compatibility.spec.ts (frozen previousScopeHistoryOf parses a default answer carrying failed: true) and ci-history-reader-compatibility.spec.ts pass; default reason strings unchanged; previousCiHistoryReader untouched |
 | X8.1 | Reference math unchanged. | slice 2 | observed: priorBuildReferenceOf only copies failed onto selected; ci-prior-build-reference.test.mjs and ci-prior-build-boundaries.test.mjs pass |

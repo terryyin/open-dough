@@ -104,7 +104,7 @@ still parse it.
 
 ### 3. Keep one proof per glance behavior
 Type: Structure
-Status: planned
+Status: done
 Proof: The consolidated specs keep each named behavior observed once in the
 browser plus integration proof: Done states (one collector-backed state plus
 "comparison stays readable, no CI calls"), one full mark Tab walkthrough, one
@@ -169,3 +169,16 @@ none.
   `intent-scope-glance.spec.ts` now draws a failed sixth prior instead of the
   116 ms outlier; outlier exclusion stays proved in the prior-build reference
   tests and specs.
+- Slice 3 (accepted 2026-11-13): the journeys' time went to setup and the
+  server's `ci-comparison` read, not to assertions, so dropping the Tab
+  walkthrough alone could not fix the timeouts. The Done glance, Done prior
+  states, scope glance and scope prior-build states journeys now start from
+  the worker-kept summary-comparison story
+  (`startingFromKeptSummaryComparisonStory`); the scope journeys read kept
+  history through `projectScopeHistoryFixture.ts` without collecting.
+  Measured at 2 workers, interleaved with HEAD 1f7d11a7 at load 22–27: scope
+  glance mean 21.4 s (max 31.0, timed out) → 14.1 s (max 19.4); Done glance
+  16.2 s (max 26.8) → 11.9 s (max 15.4). After refactor at load 9–18:
+  scope glance 8.8–20.1 s, scope prior-build states 7.8–19.4 s. Real
+  collection of a Done entry's selected artifact stays proved by
+  `intent-scope-collected-file-timing-history.spec.ts`.

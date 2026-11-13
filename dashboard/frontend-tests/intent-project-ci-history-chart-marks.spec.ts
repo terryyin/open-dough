@@ -2,8 +2,9 @@
 // timing history for the configured trunk, in the whole app: each build's
 // timing or status by shape and readout under the observed trunk endpoint's
 // words, painted readably in light and dark appearance, with whole duration
-// labels at the narrowest supported width. The Done story's chart, and touch,
-// are in ./intent-ci-history-chart-marks.spec.ts.
+// labels at the narrowest supported width. The Done story's chart, its walk
+// through every mark by keyboard, and touch are in
+// ./intent-ci-history-chart-marks.spec.ts.
 import {
   expectFocusedAndIndicated,
   zoomedWindow,
@@ -23,7 +24,6 @@ import { expect, test } from "../tests/support/frontendApp.ts";
 import {
   expectMarkedScopeHistoryDrawn,
   failedReadout,
-  readoutsBefore,
   serveMarkedScopeHistory,
 } from "../tests/support/scopeHistoryMarksScenario.ts";
 import { setColorScheme } from "../tests/systemAppearanceReading.ts";
@@ -62,7 +62,8 @@ test("a Project Intent scope history chart marks the observed trunk endpoint's b
   }
   await inspectMark(chart, failedReadout, "pointer");
   await page.mouse.move(0, 0);
-  await expectMarksByTab(page, chart, [...readoutsBefore, endpoint]);
+  // Tab reaches the endpoint's mark, whose readout and focus show.
+  await expectMarksByTab(page, chart, [endpoint]);
   await expectFocusedAndIndicated(page, chart.mark(endpoint));
 });
 

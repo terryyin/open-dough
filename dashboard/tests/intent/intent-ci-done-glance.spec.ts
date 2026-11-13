@@ -1,7 +1,8 @@
 // A Done story's CI comparison reads its landing against recent builds at a
 // glance: the wall-time history between the endpoints and the entry table,
 // with the compact readout and the shared chart through the published
-// landing, from real retained history through the authenticated read.
+// landing, from real retained history through the authenticated read of the
+// Done story the worker keeps (../support/keptPublishedStory.ts).
 import { shortSha } from "../../src/baseCiWording.ts";
 import { inspectMark } from "../ciHistoryChartPage.ts";
 import { comparisonReading } from "../intentCiComparisonPage.ts";
@@ -12,17 +13,27 @@ import {
   priorBuildReferenceReading,
 } from "../priorBuildReferencePage.ts";
 import { doneWallReferenceHistory } from "../support/doneWallReferenceHistory.ts";
+import { declaredSummaryComparisonEndpointsIn } from "../support/intentSummaryStoryComparisonRepository.ts";
+import { serveSummaryComparisonStory } from "../support/intentSummaryStoryComparisonServing.ts";
+import { startingFromKeptSummaryComparisonStory } from "../support/keptPublishedStory.ts";
 import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
-import { expect, test } from "../support/preparationPage.ts";
+import { expect, queuedClaudePreviewTest } from "../support/preparationPage.ts";
 import { selectDoneStoryForCiComparison } from "../support/selectDoneStoryForCiComparison.ts";
-import { publishComparedStoryBranch } from "../support/storyCiComparisonDoneFixture.ts";
+
+const test = queuedClaudePreviewTest.extend(
+  startingFromKeptSummaryComparisonStory,
+);
 
 test("a Done landing's CI wall time reads against its recent builds between the endpoints and the entry table", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const setup = await publishComparedStoryBranch(page, origin);
+  const setup = await serveSummaryComparisonStory(
+    page,
+    origin,
+    declaredSummaryComparisonEndpointsIn(origin.project),
+  );
   // Six comparable priors average 8 min 24 s around a failed build and a
   // build that published no proof; later landings follow the selected one.
   await keepLandedCiHistory(

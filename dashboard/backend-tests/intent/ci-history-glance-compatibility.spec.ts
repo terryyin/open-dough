@@ -1,7 +1,8 @@
 // A Done or scoped history page opened before the glance capability existed
-// keeps reading the full default answer it understands, through the real
-// local authenticated boundary, while the current Done and scope readers ask
-// for the glance explicitly and keep the same chart data and figures.
+// keeps reading the full default answer it understands, with its membership,
+// median and run links, through the real local authenticated boundary, while
+// the current Done and scope readers ask for the glance explicitly and keep
+// the same chart data and figures.
 import {
   readIntentCiDoneWallTimeHistory,
   readIntentCiScopeHistory,
@@ -23,7 +24,7 @@ import {
 
 test.use({ serverMode: "boundary" });
 
-test("previous Done and scoped readers keep parsing the full default answers; the current readers ask for the glance and keep the chart data", async ({
+test("previous Done and scoped readers keep parsing the full default answers with membership, median and run links; the current readers ask for the glance and keep the chart data", async ({
   dashboard,
   github,
 }) => {
@@ -38,15 +39,30 @@ test("previous Done and scoped readers keep parsing the full default answers; th
     await historyAnswer(dashboard.origin, doneHistoryQuery),
     revision,
   );
-  expect(previousDone?.reference?.evidence).toContainEqual(selected);
+  expect(previousDone?.reference).toMatchObject({
+    evidence: expect.arrayContaining([
+      selected,
+      expect.objectContaining({ key: "run/8/1", status: "excluded" }),
+    ]),
+    medianMs: 100000,
+  });
+  expect(previousDone?.entries.map((entry) => entry.revision)).toContain(
+    laterRevision,
+  );
+  expect(JSON.stringify(previousDone?.entries)).toContain('"runUrl"');
   const previousScope = previousScopeHistoryOf(
     await historyAnswer(dashboard.origin, scopeHistoryQuery),
     glanceScope,
     revision,
   );
-  expect(previousScope?.references?.[0]?.reference.evidence).toContainEqual(
-    selected,
-  );
+  expect(previousScope?.references?.[0]?.reference).toMatchObject({
+    evidence: expect.arrayContaining([selected]),
+    medianMs: 100,
+  });
+  expect(previousScope?.entries[0]).toMatchObject({
+    landings: [{ revision: "01".repeat(20) }],
+    build: { runUrl: "https://ci.invalid/runs/1" },
+  });
   // Without their membership the glance answers would be unreadable to them.
   const glanceOf = (query: Record<string, string>) =>
     historyAnswer(dashboard.origin, { ...query, history: "glance" });
