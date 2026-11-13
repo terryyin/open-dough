@@ -36,6 +36,14 @@ hold a workflow beginning elsewhere when that workflow exists.
 | **Dashboard Frontend Test** | `dashboard/frontend-tests/`; `npm run test:dashboard:frontend` | Focused presentation, interaction, and recovery with controlled backend answers. |
 | **Dashboard Backend Test** | `dashboard/backend-tests/`; `npm run test:dashboard:backend` | Focused server behavior, variants, failures, and test-runtime contracts at their stable public boundaries. |
 
+**Interim group (owner change by Terry, 2026-11-13).** Detailed UI checks that
+still need new controlled backend answers stay in `dashboard/tests/` as the
+interim **Dashboard Integrated UI Test** group, run by
+`npm run test:dashboard:integrated` with its own runner and CI producer. This
+story still retires `test:dashboard` and its umbrella grouping.
+[Focus detailed dashboard UI checks on controlled answers](#focus-detailed-dashboard-ui-checks)
+moves those checks to Dashboard Frontend Test and removes the interim group.
+
 1. Replace `test:dashboard` and its umbrella grouping with independent runners
    for these three groups, locally and in CI. E2E setup, workers, shards,
    duration inputs, output and proof ownership can change independently of the
@@ -186,3 +194,35 @@ the earlier start-only pass did not clear those failures. Existing focused CI
 action/history/comparison checks passed for independent parts, missing reports,
 file attribution and changed-scope gaps; migrated hosted proof remains execution
 acceptance work.
+
+<a id="focus-detailed-dashboard-ui-checks"></a>
+
+### Focus detailed dashboard UI checks on controlled answers
+
+**Identity:** SEED-334#focus-detailed-dashboard-ui-checks
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** A developer reading or changing dashboard presentation,
+  interaction or recovery gets that feedback from Dashboard Frontend Test with
+  controlled backend answers, instead of from slower integrated journeys, and
+  E2E Test keeps only representative product workflows.
+- **Evaluation.** Every check in the interim **Dashboard Integrated UI Test**
+  group (`dashboard/tests/`) runs in Dashboard Frontend Test with controlled
+  answers, or in E2E Test or Dashboard Backend Test where its assertion needs
+  that boundary, with each observed rule and meaningful integration proof
+  preserved. The interim group, its command and its CI producer are gone.
+- **Inputs.** The run that split this story classified 204 detailed-UI specs
+  and 59 mixed specs, with per-case splits, effort and conversion batches
+  (configuration settings, launch dialog and start, sessions and terminals,
+  story review, Intent CI/proof/history, board and navigation), in
+  `.planning/slice-plans/608-product-wide-end-to-end-tests/migration-purpose.json`
+  and `migration-conversion-batches.json` at commit
+  `8d6106164276275f83c6ab5a8738fd09df11c8a5`.
+- **Boundary.** Coordinate with the queued SEED-300 page-object stories that
+  touch the same specs. Speed optimization stays out of scope.
+- **Value / learning.** Completes purpose-owned test groups; the substitute
+  answers it adds are reusable for later focused UI checks.
+- **Safe stopping point.** Each conversion batch, with its interim specs
+  removed, is complete on its own.

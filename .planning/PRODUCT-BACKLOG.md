@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Focus detailed dashboard UI checks on controlled answers](seeds/SEED-334-product-wide-end-to-end-tests.md#focus-detailed-dashboard-ui-checks) — SEED-334#focus-detailed-dashboard-ui-checks
 - [Answer fake GitHub reads without a process per call](seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process) — SEED-332#answer-fake-gh-reads-in-process
 - [Read CI history at a glance in story comparison and test Proof](seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance) — SEED-331#read-ci-history-at-a-glance
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage

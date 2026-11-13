@@ -173,7 +173,7 @@ workflow versus detailed UI for them (G1). The first full backend run at load
 
 ### 3. Run representative workflows from product-wide sources
 Type: Behavior
-Status: planned
+Status: done
 Proof: Compare the refreshed manifest against native runner JSON; run moved
 journeys and all affected shared-fixture consumers, including registration
 modules. Existing CI must publish the new paths correctly in this slice.
@@ -194,7 +194,7 @@ sources, and selects every destination exactly once across all old shards;
 discovery roots, mapped timing labels and proof expectations agree. Prove
 helper attribution from the produced report. Slice 4 removes this umbrella.
 
-Progress (2026-11-13, published with hosted observation pending): `npm run test:e2e`
+Accepted proof (2026-11-13): `npm run test:e2e`
 → `e2e/playwright.config.ts` (prefix `OPEN_DOUGH_E2E`, setup
 `dashboard/tests/support/e2eGlobalSetup.ts`, `chromium-deployments` for the
 production chains). All 566 remaining integrated specs were read by purpose
@@ -214,20 +214,30 @@ sizing assumption: detailed UI checks could reach the frontend group with
 existing controlled answers. 204 detailed-UI and 59 mixed specs need new
 substitutes (settings, launch, sessions/terminals WebSockets, story review,
 Intent CI/proof/history, board/navigation), 145 of them large; batches and
-per-case splits are in `migration-conversion-batches.json`. They stay selected
-once in `dashboard/tests/` until a scope decision; G1 stays open.
+per-case splits are in `migration-conversion-batches.json`. Terry chose
+(2026-11-13) to split them out: SEED-334's interim **Dashboard Integrated UI
+Test** group keeps them (slice 4), and SEED-334#focus-detailed-dashboard-ui-checks,
+first in the backlog, converts them (G1 owner changed). Hosted CI on `8d61061`
+(run 43374366861) passed and its summary publishes `e2e`: 559 passed, 1 other,
+13 parts, 306 files including the 4 registering modules under `e2e/`.
 
-### 4. Run and publish three independently owned test groups
+### 4. Run and publish independently owned test groups
 Type: Behavior
 Status: planned
-Proof: All three native JSON lists and actual runs; runner isolation regression;
+Proof: All four native JSON lists and actual runs; runner isolation regression;
 CI action/declaration/frontend-artifact replays; an actual hosted migrated run
 showing producer matrices, counts, outcomes, durations and file attribution.
 
 Behavior: CI runs the independently runnable groups → each producer owns its
 setup/workers/shards/timing/proof outputs → changing E2E settings leaves both
 focused selections and settings intact. Reuse local runner proof from 1–3;
-retire `test:dashboard` and the umbrella config.
+retire `test:dashboard` and the umbrella config. Per Terry's 2026-11-13 owner
+change, the 264 specs left in `dashboard/tests/` become the interim
+**Dashboard Integrated UI Test** group: `npm run test:dashboard:integrated`
+with its own config (reuse `prepareFocusedRun`), setup, CI producer and
+labelled Intent entry, removed later by
+SEED-334#focus-detailed-dashboard-ui-checks. Repair or prove stable the
+load-sensitive cases owned here (G2, G8) under the failure policy.
 Give each CI producer its own matrix/allocation and report destinations;
 change fragments, `ci-proof.needs`, expected part counts and timing inputs
 in the same green change. Keep summary/frontend artifact names supported by
@@ -315,7 +325,7 @@ Accepted prerequisite repair, 2026-11-13, based on `8f70215aca94`:
 ### G1. Detailed UI checks remain in the integrated root
 Reported: slice 1 — "The remaining 573 tests/ specs are not inventoried by behavior yet. The manifest marks them pending: slice 2/3 inventory."
 Story clause: "move detailed UI, server and harness checks to their focused owner"
-Disposition: receiving slice 3
+Disposition: owner changed "moves those checks to Dashboard Frontend Test and removes the interim group"
 Commitment: 2c.1
 
 
@@ -323,7 +333,7 @@ Commitment: 2c.1
 Reported: slice 2 — "Several backend cases are sensitive to load because of fixed 5 s expect.poll bounds and the 30 s case budget (landed-ci repeat/follow-up, production-deployment/publication). They passed in a clean run but failed at load around 30."
 Story clause: "throughout the migration, including failures attributed to the prior layout"
 Disposition: receiving slice 4
-Commitment: R4
+Commitment: R3b
 
 ### G3. Moved backend session specs still wait on wall-clock time
 Reported: slice 2 — "cursor-runner-sessions-sharing (delay(reuseMs+200)) and cursor-session-alerts (awaitAlertPolls, a 350 ms wait) moved unchanged and still wait on wall-clock time. Fixing them needs a controlled reuse/alert clock in the server, which is a product change."
