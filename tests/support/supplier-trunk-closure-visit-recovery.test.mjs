@@ -1,9 +1,8 @@
 // Recovery of Trunk Mode `finish` around a selected supplier's visit: an
 // execution worktree lost before the visit settled keeps the closure at the
 // visit with nothing pushed, completed or retired; a settled SHA whose
-// observer ended stops at observation until `deliver` from the worktree
-// establishes and registers this coordinator's own, after which the settled
-// SHA completes and the resources retire.
+// observer ended recovers completion through `execution-completion-recovery`
+// while the worktree still exists, then retires.
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -132,7 +131,7 @@ test("finish for a selected supplier whose worktree is gone before the visit set
   assert.equal(await branchSha(fixture), acceptedSha);
 });
 
-test("a settled consumer publication whose observer ended stops at observation until deliver establishes this coordinator's own, then completes and retires", async (t) => {
+test("a settled consumer publication whose observer ended recovers completion while the worktree exists, then retires", async (t) => {
   const handed = await handTrunkVisit(t);
   const { fixture, acceptedSha, observer } = handed;
   await judgeConsumers(handed.setup, handed.visit, acceptedSha, question);
@@ -146,40 +145,21 @@ test("a settled consumer publication whose observer ended stops at observation u
     [acceptedSha]: "success",
     [consumerSha]: "success",
   });
-  const settled = [...selectedTrunkSupplier, "--visit-settled", consumerSha];
-
-  const ended = await finishThroughCli(fixture, {
-    beforeCleanup: handed.evidence,
-    final: acceptedSha,
-    extra: settled,
-  });
-  assert.equal(ended.code, 1);
-  assert.equal(ended.result.step, "observation");
-  assert.equal(ended.result.pushCount, 0);
-  assert.equal(ended.result.completion, null);
-  assert.equal(ended.result.cleanup, "not-performed");
   assert.equal(existsSync(fixture.execution), true);
-  assert.equal(await branchSha(fixture), consumerSha);
-
-  const reestablished = await deliverThroughCli(fixture, { base: consumerSha });
-  assert.equal(reestablished.delivered.publication, "accepted");
-  assert.notEqual(reestablished.delivered.observation.directory, observer);
-  assert.equal(await lsRemoteSha(fixture.origin, main), consumerSha);
 
   const finished = await finishThroughCli(fixture, {
     beforeCleanup: handed.evidence,
     final: acceptedSha,
-    extra: settled,
+    extra: [...selectedTrunkSupplier, "--visit-settled", consumerSha],
   });
   assert.equal(finished.code, 0, finished.stderr);
   assert.equal(finished.result.pushCount, 0);
-  assert.equal(
-    finished.result.observation.directory,
-    reestablished.delivered.observation.directory,
-  );
+  assert.notEqual(finished.result.observation.directory, observer);
   assert.equal(finished.result.completion.requestedSha, consumerSha);
   assert.equal(finished.result.completion.verdict, "success");
   assert.equal(finished.result.completion.shutdown.status, "confirmed");
   assert.equal(finished.result.cleanup.worktree, "removed");
   assert.equal(existsSync(fixture.execution), false);
+  assert.equal(await branchSha(fixture), "");
+  assert.equal(await lsRemoteSha(fixture.origin, main), consumerSha);
 });

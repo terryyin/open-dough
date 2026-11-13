@@ -8,11 +8,9 @@ import { markdownSection as section } from "../../../../tests/support/markdown-s
 const skills = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const read = (path) => readFileSync(join(skills, path), "utf8");
 
-const monitor = read("dough-execute-plan/references/ci-monitor.md");
 const waitMechanics = read(
   "dough-execute-plan/references/ci-completion-wait.md",
 );
-const completion = `${monitor}\n${waitMechanics}`;
 const finish = read("dough-execute-plan/references/finish-or-stop.md");
 const otherCompletion = read(
   "dough-execute-plan/references/other-completion-paths.md",
@@ -28,27 +26,36 @@ const attention = read("dough-land/references/completion-attention.md");
 
 test("review overlaps pending CI and one completion operation owns final handoff", () => {
   assert.match(
-    monitor,
+    waitMechanics,
     /begin (?:it|the retrospective) as soon as implementation is[\s\S]+delivered[\s\S]+CI pending/,
   );
-  assert.match(monitor, /invoke[\s\S]+exactly one[\s\S]+completion action/);
+  assert.match(
+    waitMechanics,
+    /invoke[\s\S]+exactly one[\s\S]+completion action/,
+  );
   assert.match(waitMechanics, /complete-revision[\s\S]+FULL_ACCEPTED_SHA/);
   assert.match(
     waitMechanics,
     /Do not run a\s+separate stop[\s\S]+normal\s+completion path/,
   );
-  assert.match(monitor, /`--skip-retro`[\s\S]+(?:review[\s\S]+)?omission/);
-  assert.match(completion, /never\s+retries\s+until\s+green/);
-  assert.match(
-    monitor,
-    /repair[\s\S]+authority[\s\S]+incomplete[\s\S]+work[\s\S]+no[\s\S]+completion marker/,
-  );
-  assert.match(monitor, /invalidates only affected review conclusions/);
-  assert.doesNotMatch(completion, /complete-revision[^\n]+HEAD/);
-  assert.match(monitor, /Local-only work[\s\S]+create[s]?[\s\S]+no[\s\S]+wait/);
   assert.match(
     waitMechanics,
-    /supplies only the local[\s\S]+command and receipt[\s\S]+mechanics/,
+    /`--skip-retro`[\s\S]+(?:review[\s\S]+)?omission/,
+  );
+  assert.match(waitMechanics, /never\s+retries\s+until\s+green/);
+  assert.match(
+    waitMechanics,
+    /repair[\s\S]+authority[\s\S]+incomplete[\s\S]+work[\s\S]+no[\s\S]+completion marker/,
+  );
+  assert.match(waitMechanics, /invalidates only affected review conclusions/);
+  assert.doesNotMatch(waitMechanics, /complete-revision[^\n]+HEAD/);
+  assert.match(
+    waitMechanics,
+    /Local-only work[\s\S]+create[s]?[\s\S]+no[\s\S]+wait/,
+  );
+  assert.match(
+    waitMechanics,
+    /owns when[\s\S]+completion operation is required[\s\S]+command and receipt mechanics/,
   );
   assert.match(
     waitMechanics,
@@ -161,11 +168,11 @@ test("Trunk Mode and Story Branch closure share one completion operation before 
   );
   assert.match(storyWrapUp, /Local-only[\s\S]+does not push/);
   assert.match(
-    monitor,
+    waitMechanics,
     /wrap-up closure on the[\s\S]+authorized[\s\S]+target[\s\S]+Story Branch trunk integration/,
   );
   assert.match(
-    monitor,
+    waitMechanics,
     /[Ii]ntermediate[\s\S]+closure publications create no[\s\S]+wait/,
   );
 });

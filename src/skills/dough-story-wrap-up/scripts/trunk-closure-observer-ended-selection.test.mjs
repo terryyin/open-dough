@@ -3,13 +3,26 @@
 // workers. The ended observers whose records hold a CI verdict for the closure
 // decide, one as several: one of them when those verdicts agree, none when
 // they differ, and a record that holds no verdict (nothing yet, or a cancelled
-// attempt) neither identifies one nor counts against one. Selection beside a
-// live observer is proven in `trunk-closure-observer-selection.test.mjs`.
+// attempt) neither identifies one nor counts against one. An ended record that
+// holds the closure's verdict still settles through `finish` without recovery;
+// with the worktree gone and no verdict, lost coverage is unchanged. Selection
+// beside a live observer is proven in `trunk-closure-observer-selection.test.mjs`.
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { publishJson } from "../../dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
-import { siblingCheckouts } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
+import { completeThroughCli } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-cli-test-fixtures.mjs";
+import {
+  acceptedIncrement,
+  coverage,
+  siblingCheckouts,
+} from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
+import { git } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-test-fixtures.mjs";
+import {
+  assertCompletedAndStopped,
+  closureBesideSibling,
+} from "./trunk-closure-owner-test-fixtures.mjs";
 import {
   attempt,
   claimed,
@@ -18,6 +31,11 @@ import {
   observersOf,
   states,
 } from "./trunk-closure-observer-selection-test-fixtures.mjs";
+import {
+  branchSha,
+  commitFinalClosure,
+  releaseCi,
+} from "./trunk-closure-test-fixtures.mjs";
 
 // `count` ended observers of the coordinator that each registered `sha`, in
 // the order closure lists them, with what selecting among them returns.
@@ -162,4 +180,71 @@ test("closure selects the ended observer whose record holds a verdict beside end
   // A cancelled attempt of the basis holds no verdict either.
   recordedBasis("incomplete");
   assertEndedGap(await select(), listed);
+});
+
+test("finish settles on its coordinator's ended observer that holds the closure's verdict without establishing another", async (t) => {
+  const journey = await closureBesideSibling(t, "claude");
+  const { fixture, publisher } = journey;
+  const beforeCleanup = await acceptedIncrement(fixture);
+  const final = await commitFinalClosure(fixture);
+  const { delivered } = await journey.deliver(beforeCleanup);
+  assert.equal(delivered.receipt.sha, final);
+  assert.equal(delivered.observation.directory, publisher);
+  releaseCi(fixture, { [final]: "success" });
+  const completed = await completeThroughCli(fixture, publisher, final);
+  assert.equal(completed.verdict, "success");
+  assert.equal(completed.shutdown.status, "confirmed");
+  const pushes = await journey.pushes();
+
+  const finished = await journey.finish({
+    beforeCleanup,
+    final,
+    extra: ["--created-for-work"],
+  });
+
+  assert.equal(finished.code, 0, finished.stderr);
+  assert.equal(finished.result.observation.directory, publisher);
+  assertCompletedAndStopped(finished.result, publisher, final);
+  assert.equal(finished.result.cleanup.worktree, "removed");
+  assert.equal(pushes(), 0);
+  journey.assertSiblingUntouched();
+});
+
+test("finish whose worktree is gone and whose ended observer holds no closure verdict reports lost coverage unchanged", async (t) => {
+  const journey = await closureBesideSibling(t, "claude");
+  const { fixture, publisher } = journey;
+  const beforeCleanup = await acceptedIncrement(fixture);
+  const final = await commitFinalClosure(fixture);
+  const { delivered } = await journey.deliver(beforeCleanup);
+  assert.equal(delivered.receipt.sha, final);
+  assert.equal(delivered.observation.directory, publisher);
+  await fixture.stopObserver(publisher);
+  assert.deepEqual(coverage(publisher), [final]);
+  await git(fixture.integration, "worktree", "remove", fixture.execution);
+  assert.equal(existsSync(fixture.execution), false);
+
+  const ended = await journey.ambientRerunFromManagement({
+    beforeCleanup,
+    final,
+  });
+
+  assert.equal(ended.code, 1);
+  assert.equal(ended.result.ok, false);
+  assert.equal(ended.result.step, "observation");
+  assert.equal(ended.result.publication, "accepted");
+  assert.equal(ended.result.acceptedSha, final);
+  assert.equal(ended.result.observation.state, "unobserved");
+  assert.equal(ended.result.observation.ownership, "ended");
+  assert.match(
+    ended.result.observation.reason,
+    new RegExp(
+      `${publisher} ended \\(.*its observer at ${publisher} registered this revision and its record holds no CI verdict for it.*next \`deliver\` from the execution worktree establishes its own.*rerunning this finish.*worktree is gone.*lost`,
+    ),
+  );
+  assert.deepEqual(ended.result.observation.directories, [publisher]);
+  assert.equal(ended.result.completion, null);
+  assert.equal(ended.result.cleanup, "not-performed");
+  assert.equal(existsSync(fixture.execution), false);
+  assert.equal(await branchSha(fixture), final);
+  journey.assertSiblingUntouched();
 });

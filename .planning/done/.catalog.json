@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-343_recover-ci-completion-observation.json",
+      "identity": "SEED-343#recover-ci-completion-observation",
+      "completedAt": "2026-11-13T16:52:29.490Z",
+      "blob": "ebfdec82854ab3ba9e317c537cc51d01f286a90e"
+    },
+    {
       "fileName": "SEED-331_make-ci-glance-wording-and-status-one-rule.json",
       "identity": "SEED-331#make-ci-glance-wording-and-status-one-rule",
       "completedAt": "2026-11-13T12:45:50.854Z",

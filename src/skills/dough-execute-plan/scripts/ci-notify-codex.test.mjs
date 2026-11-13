@@ -139,6 +139,7 @@ test("documented Codex host binding reports bounded unavailability from one fail
   assert.equal(notifications.length, 1);
   assert.equal(notifications[0].type, "CI_MONITOR_UNAVAILABLE");
   assert.equal(notifications[0].key, key);
+  assert.equal(notifications[0].cause, "observation_error");
   assert.equal(notifications[0].reason, `Error: ${reason}`.slice(-1000));
   assert.equal(notifications[0].reason.length, 1000);
 });
@@ -198,6 +199,7 @@ test("documented Codex host binding reports lost observation, not finished, when
   assert.equal(notifications.length, 2);
   assert.equal(notifications[1].type, "CI_MONITOR_UNAVAILABLE");
   assert.equal(notifications[1].key, key);
+  assert.equal(notifications[1].cause, "observation_error");
   assert.match(notifications[1].reason, /terminal/);
 
   assert.equal(stores.length, 1);

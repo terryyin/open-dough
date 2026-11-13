@@ -73,11 +73,12 @@ test("Claude Code reuses one execution observer through pushes and stops its exa
   publishMailboxEvent(attached.directory, {
     type: "CI_MONITOR_UNAVAILABLE",
     repo: "owner/repo",
-    reason: "fixture lost coverage",
+    reason: "Execution observation budget expired after 5000 ms.",
+    cause: "budget_expired",
   });
   assert.match(
     (await replay.boundary()).hookSpecificOutput.additionalContext,
-    /"type":"CI_MONITOR_UNAVAILABLE"/,
+    /"type":"CI_MONITOR_UNAVAILABLE".*"cause":"budget_expired"/s,
   );
 
   publishMailboxEvent(attached.directory, {

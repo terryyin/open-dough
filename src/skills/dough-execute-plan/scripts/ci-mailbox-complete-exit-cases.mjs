@@ -87,9 +87,11 @@ test("explicit stop returns only after a worker showing a transient command whil
 test("completion does not confirm shutdown for a worker whose liveness stays unknown past the exit wait", async (t) => {
   // The transient command outlasts the one-second exit wait, so the observer
   // is neither known gone nor known running when the receipt is written.
+  // Keep the stub alive for the whole receipt and supply the transient
+  // command through readCommand: process.title is not reliably visible to ps.
   const { storage, directory } = await mailboxWithStubWorker(
     t,
-    publishThenExitSource({ exitingCommand: "[node]", exitDelayMs: 2500 }),
+    publishThenExitSource({ exitDelayMs: null }),
   );
   registerPushedRevision(directory, sha);
   publishRevisionRecord(
@@ -103,7 +105,10 @@ test("completion does not confirm shutdown for a worker whose liveness stays unk
       .please(),
   );
 
-  const result = await completeRevision(directory, sha, { storage });
+  const result = await completeRevision(directory, sha, {
+    storage,
+    readCommand: () => "[node]",
+  });
   assert.equal(result.verdict, "success");
   assert.equal(result.shutdown.status, "unconfirmed");
   assert.equal(result.shutdown.limitation, "observer_liveness_unknown");
@@ -119,8 +124,8 @@ const check = () => {
   if (existsSync(join(directory, "stop"))) process.exit(1);
 };
 watch(directory, check);
+setInterval(check, 20);
 check();
-setInterval(() => {}, 1000);
 `,
   );
 

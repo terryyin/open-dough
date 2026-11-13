@@ -107,8 +107,14 @@ test("registrations do not shorten the retry after a poll error, and three error
     { milliseconds: 30_000, aborted: false },
   ]);
   assert.deepEqual(
-    events.map(({ type, reason }) => ({ type, reason })),
-    [{ type: "CI_MONITOR_UNAVAILABLE", reason: "provider outage 3" }],
+    events.map(({ type, reason, cause }) => ({ type, reason, cause })),
+    [
+      {
+        type: "CI_MONITOR_UNAVAILABLE",
+        reason: "provider outage 3",
+        cause: "observation_error",
+      },
+    ],
   );
 });
 
@@ -132,11 +138,12 @@ test("registrations cannot extend observation past its budget", async () => {
   });
   assert.equal(polls, 5);
   assert.deepEqual(
-    events.map(({ type, reason }) => ({ type, reason })),
+    events.map(({ type, reason, cause }) => ({ type, reason, cause })),
     [
       {
         type: "CI_MONITOR_UNAVAILABLE",
         reason: "Execution observation budget expired after 5000 ms.",
+        cause: "budget_expired",
       },
     ],
   );

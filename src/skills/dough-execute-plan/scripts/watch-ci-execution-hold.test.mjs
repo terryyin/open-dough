@@ -147,17 +147,24 @@ test("a wait longer than the observation budget ends at the budget, whose expiry
 
   assert.deepEqual(pauses, [59_000]);
   assert.deepEqual(
-    events.map(({ type, waitSeconds, reason }) => ({
+    events.map(({ type, waitSeconds, reason, cause }) => ({
       type,
       waitSeconds,
       reason,
+      cause,
     })),
     [
-      { type: "CI_MONITOR_THROTTLED", waitSeconds: 3600, reason: undefined },
+      {
+        type: "CI_MONITOR_THROTTLED",
+        waitSeconds: 3600,
+        reason: undefined,
+        cause: undefined,
+      },
       {
         type: "CI_MONITOR_UNAVAILABLE",
         waitSeconds: undefined,
         reason: "Execution observation budget expired after 60000 ms.",
+        cause: "budget_expired",
       },
     ],
   );
