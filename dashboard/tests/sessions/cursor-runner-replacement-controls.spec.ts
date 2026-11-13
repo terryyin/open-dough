@@ -16,7 +16,6 @@ import {
   failSessionId,
   secondSessionId,
   thirdSessionId,
-  writeKeptRecords,
   writeLastHeld,
 } from "../support/cursorRunnerReplacement.ts";
 import { expectReadingWithoutScreenLabel } from "../support/cursorSessionReading.ts";
@@ -26,6 +25,7 @@ import {
 } from "../support/cursorSessionRecovery.ts";
 import { openHeldCursorExecutions } from "../support/heldCursorExecutions.ts";
 import { expect, test } from "../support/cursorStart.ts";
+import { keepMoreLaunchRecordsBesideServer } from "../support/launchStore.ts";
 import { launchWaitMs } from "../support/launchWait.ts";
 
 const replacementTest = test.extend({ cursorSubmitPaintMs: 300 });
@@ -75,7 +75,12 @@ replacementTest(
       })
       .launchedAt(new Date(Date.now() - 90_000).toISOString())
       .please();
-    writeKeptRecords(dashboard.home, [scoped, other, doneRecord, failRecord]);
+    // The page may still be noting its held starts reconciled, which
+    // rewrites these records too.
+    await keepMoreLaunchRecordsBesideServer(dashboard.home, [
+      doneRecord,
+      failRecord,
+    ]);
     // last-held names the still-revivable scoped session, a finished one,
     // and a failing workspace — not the hung-up never-held session.
     writeLastHeld(dashboard.home, [

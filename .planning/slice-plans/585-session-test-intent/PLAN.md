@@ -318,6 +318,13 @@ requests first; `holdPygardonCatalog`, the select-check/supersede/touch/ad-hoc-c
 specs and review-cue's read counts use it with `pausePageClockAt`. Each hazard was
 reproduced first; proof 30/30, 25/25, 16/16, 10/10, 5/5 under load 6–61.
 
+CI repair (run 43373017415 on 35af1a2): `cursor-runner-replacement-controls` rewrote
+`agent-launches.json` without the server's lock while the page's startup reconciliation
+replaced it, losing the injected records. It and `storedReviewChoices.ts` now append
+through `keepMoreLaunchRecordsBesideServer`, built on the lock-held
+`changeMachineDocument`. Forced interleaving failed 6/6 before and passed 6/6 after;
+20/20 and 12/12 at four workers.
+
 ## Execution complete
 
 Product advice:
