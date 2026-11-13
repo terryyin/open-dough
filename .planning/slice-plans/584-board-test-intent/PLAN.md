@@ -482,6 +482,43 @@ its imports, and that list lacked the new `browserArgs.ts`. Adding it fixed
 the run (`bash scripts/test.sh tests/support/local-test-suite.test.mjs` quiet
 pass). Every other job in that run, including all 13 dashboard shards, passed.
 
+## Execution complete
+
+Retrospective (2026-11-13): outcome review found no bounded correction. Process
+review is deferred into wrap-up, after Intent Coverage. The reviewer's concern
+about the O7 route hold was observed at load 23–50 (median 37) with
+`published-facts-isolation` ×20: the route-hold case passed 20/20 (max 9 s).
+One other case, spec:157, ran out of its 30 s budget in 1/120 at ambient load
+33–39, above the decided profile (O9).
+
+Product advice:
+- Integration: merging trunk conflicts in `board-scroll.spec.ts` and the
+  `recently-done-progressive-{navigation,reset,state}` specs, where trunk's
+  review sibling added `maximizeSidePanel`/`restoreSidePanel` and
+  `openTerminalControl`. Resolve toward trunk's owners and keep this branch's
+  `revealAction`/`showLatestAction` moves. Keep both `intent-project-visit-ci`
+  repairs (trunk 148eea4b1 and 8dfed316).
+- The session story (Taken, plan 585) should recheck its PFE against the
+  owners added here: `boardReading`, `recentlyDoneColumn`, `storyCard` and
+  `pointerDownOn`, `agentCredit`, `retainedFacts`. It can relocate the
+  placement residue rather than copy it: `expectRoute` in
+  `agentRosterRecords.ts`, `untilPageRests` in `recentlyDoneProgressivePage.ts`,
+  `notifiedCard` beside `storyCard`. Smooth reveals are now instant, so
+  retained-scroll proofs must not rely on motion.
+- The launch and settings siblings should start from `projectTab`,
+  `storyCard`, `agentCredit`, `storyCardFacts` and `bannerReading`. The
+  browser-measurement sibling should state whether any measurement needs
+  smooth scrolling and, if so, give that spec its own `launchOptions` group
+  that spreads nothing.
+- SEED-332 should keep both `fake-gh` fixes (KILL cleanup, file-watching auth
+  hold) whichever lands second. Attach the cold fixture-startup and O9
+  load-only timeouts to it as evidence; no new story. Re-measure cold dashboard
+  fixture startup at load about 32 after SEED-332 lands before proposing a
+  SEED-324-style worker-scoped story.
+- `browserArgs.ts` only works if every `launchOptions` override spreads it.
+  This is documented, not enforced.
+- No backlog reordering or new story now.
+
 ## Proof commands and execution gates
 
 For each Cn regex below, run `caffeinate -i npm run test:dashboard -- '<regex>' --workers=1`
