@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "chaifeng-chan",
+  "email": "chaifeng-chan@example.org",
+  "identity": "SEED-343#recover-ci-completion-observation",
+  "mode": "story-branch",
+  "branch": "cursor/recover-ci-completion-after-the-observer-expires",
+  "host": "cursor",
+  "model": "auto"
+}

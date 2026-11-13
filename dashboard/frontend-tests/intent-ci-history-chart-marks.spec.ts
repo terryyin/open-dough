@@ -32,7 +32,7 @@ import {
 } from "../tests/support/scopeHistoryMarksScenario.ts";
 import type { Page } from "@playwright/test";
 
-const selected = "Nov 8 · Selected · 1.5 s";
+const selected = "Nov 8 · Selected landing · 1.5 s";
 
 async function openDoneChart(
   page: Page,

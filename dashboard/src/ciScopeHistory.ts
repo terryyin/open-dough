@@ -12,9 +12,7 @@ import {
   priorBuildFiguresSchema,
   priorBuildReferenceSchema,
 } from "./ciPriorBuildReference.ts";
-
-// The gap reason a failed measured build gives every requested unit.
-export const failedBuildReason = "Failed CI build";
+import { timingGapStatusSchema } from "./ciFailedBuild.ts";
 
 export type ScopeHistoryEndpoint = {
   readonly revision: string;
@@ -83,6 +81,8 @@ export const ciScopeHistoryEntrySchema = z.discriminatedUnion("kind", [
       kind: z.literal("gap"),
       readings: readingsSchema.refine(onlyGaps),
       reason: z.string().min(1).optional(),
+      // The dashboard knows the build failed (`./ciFailedBuild.ts`).
+      failed: z.literal(true).optional(),
     })
     .refine((entry) => entry.reason !== undefined || entry.readings.length > 0),
 ]);
@@ -113,7 +113,7 @@ export type CiScopeHistory = z.infer<typeof ciScopeHistorySchema>;
 // How a build without timing for a unit reads: a failed build, or any other
 // unavailable timing, with its reason.
 const typedGapSchema = z.object({
-  status: z.enum(["failed", "unavailable"]),
+  status: timingGapStatusSchema,
   reason: gapReadingSchema.shape.reason,
 });
 // Each unit's reading without the entry it was read from, a gap typed.

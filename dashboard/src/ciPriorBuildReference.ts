@@ -16,9 +16,15 @@ const evidenceSchema = z.object({
   ...measurement,
   status: z.enum(["included", "excluded", "selected"]),
 });
+// The selected measurement, typed failed when the dashboard knows its build
+// failed (`./ciFailedBuild.ts`).
+const selectedSchema = z.object({
+  ...measurement,
+  failed: z.literal(true).optional(),
+});
 export const priorBuildReferenceSchema = z.object({
   endpoint: z.string(),
-  selected: z.object(measurement).optional(),
+  selected: selectedSchema.optional(),
   evidence: z.array(evidenceSchema),
   sampleCount: z.number().int().nonnegative(),
   medianMs: z.number().nonnegative().optional(),
@@ -46,7 +52,7 @@ export const priorBuildFiguresSchema = priorBuildReferenceSchema.pick({
   difference: true,
 });
 export type PriorBuildFigures = z.infer<typeof priorBuildFiguresSchema>;
-export type PriorBuildSample = z.infer<z.ZodObject<typeof measurement>> & {
+export type PriorBuildSample = z.infer<typeof selectedSchema> & {
   readonly revision?: string;
   readonly landings: readonly string[];
 };
@@ -197,6 +203,7 @@ export function priorBuildReferenceOf({
             ...(selected.reason === undefined
               ? {}
               : { reason: selected.reason }),
+            ...(selected.failed === true ? { failed: true } : {}),
           },
         }),
     evidence,

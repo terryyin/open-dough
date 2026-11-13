@@ -1,6 +1,7 @@
 // Endpoint meaning travels with the shared scope history, readout and chart.
 // A measured CI ancestor never replaces the project's observed trunk head.
 import { doneWallTimeAvailabilityWords } from "./ciDoneWallTimeHistory.ts";
+import { selectedLandingWords } from "./ciHistoryWords.ts";
 import type {
   ScopeHistoryGlance,
   ScopeHistoryEndpoint,
@@ -47,10 +48,10 @@ export function scopeHistoryContextOf(
 }
 
 export const scopeHistoryEndpointWords = (context: ScopeHistoryContext) =>
-  context.kind === "done" ? "Selected landing" : "Observed trunk endpoint";
+  context.kind === "done" ? selectedLandingWords : "Observed trunk endpoint";
 
 export const scopeHistorySelectionWords = (context: ScopeHistoryContext) =>
-  context.kind === "done" ? "Selected" : "Endpoint";
+  context.kind === "done" ? selectedLandingWords : "Endpoint";
 
 export const scopeHistoryReason = (
   context: ScopeHistoryContext,

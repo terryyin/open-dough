@@ -12,13 +12,12 @@ import {
   pointLandingsWords,
   pointWallTimeWords,
 } from "./ciHistoryWords.ts";
-import {
-  gapStatus,
-  type HistoryChartBuild,
-  type HistoryChartSeries,
+import type {
+  HistoryChartBuild,
+  HistoryChartSeries,
 } from "./ciHistoryChart.ts";
+import { gapStatus, isKnownFailed } from "./ciFailedBuild.ts";
 import type { PriorBuildFigures } from "./ciPriorBuildReference.ts";
-import { wholeSecondWords } from "./ciProofTimeWords.ts";
 import { evidenceOfEntry } from "./landedCiBuildKey.ts";
 import {
   entryDate,
@@ -26,22 +25,11 @@ import {
   type MeasuredEntry,
 } from "./landedCiHistory.ts";
 
-// The prior-build average as the chart's dashed line.
-export const averageLineOf = (
-  reference: PriorBuildFigures | undefined,
-): HistoryChartSeries["reference"] =>
-  reference?.averageMs === undefined
-    ? undefined
-    : {
-        ms: reference.averageMs,
-        label: `Prior-build average ${wholeSecondWords(reference.averageMs)}`,
-      };
-
 export function landedHistorySeries(
   entries: readonly MeasuredEntry[],
   options: {
     readonly label?: string;
-    readonly reference?: HistoryChartSeries["reference"];
+    readonly averageMs?: number | undefined;
     readonly isSelected?: (entry: MeasuredEntry) => boolean;
   } = {},
 ): HistoryChartSeries {
@@ -65,14 +53,13 @@ export function landedHistorySeries(
       key,
       date: entryDate(entry),
       selected,
-      ...gapStatus(entry.reason === "failed", gapReasonWords(entry)),
+      ...gapStatus(isKnownFailed(entry), gapReasonWords(entry)),
     };
   });
-  const { reference } = options;
   return {
     label: options.label ?? "CI wall time by build date",
     builds,
-    ...(reference === undefined ? {} : { reference }),
+    averageMs: options.averageMs,
   };
 }
 
@@ -83,14 +70,11 @@ export function doneWallTimeSeries(
   reference: PriorBuildFigures,
 ): HistoryChartSeries {
   const { selected } = reference;
-  return {
-    ...landedHistorySeries(entries, {
-      label: "CI wall time by build date; selected landing marked",
-      reference: averageLineOf(reference),
-      isSelected: (entry) =>
-        selected !== undefined &&
-        evidenceOfEntry(entry, [selected]) !== undefined,
-    }),
-    selectedLabel: "Selected landing",
-  };
+  return landedHistorySeries(entries, {
+    label: "CI wall time by build date; selected landing marked",
+    averageMs: reference.averageMs,
+    isSelected: (entry) =>
+      selected !== undefined &&
+      evidenceOfEntry(entry, [selected]) !== undefined,
+  });
 }

@@ -7,11 +7,8 @@ import { buildDateWords, standInBuildWords } from "./ciHistoryWords.ts";
 import { declaredUnits, unitName, type DeclaredUnit } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { ScopeHistoryGlance, ScopeGlanceEntry } from "./ciScopeHistory.ts";
-import {
-  gapStatus,
-  isMeasured,
-  type HistoryChartBuild,
-} from "./ciHistoryChart.ts";
+import { isMeasured, type HistoryChartBuild } from "./ciHistoryChart.ts";
+import { gapStatus } from "./ciFailedBuild.ts";
 import { IntentCiHistoryChart } from "./IntentCiHistoryChart.tsx";
 import {
   scopeHistoryEndpointWords,
@@ -58,7 +55,6 @@ function UnitHistory({
   const comparison = history.references?.find(
     (candidate) => candidate.unit === unit,
   );
-  const averageMs = comparison?.reference.averageMs;
   const builds = history.entries.map((entry): HistoryChartBuild => {
     const reading = entry.readings.find((each) => each.unit === unit);
     const common = {
@@ -107,14 +103,7 @@ function UnitHistory({
             precise: true,
             selectedLabel: scopeHistorySelectionWords(context),
             builds,
-            ...(averageMs === undefined
-              ? {}
-              : {
-                  reference: {
-                    ms: averageMs,
-                    label: `Prior-build average: ${executionTimeWords(averageMs)}`,
-                  },
-                }),
+            averageMs: comparison?.reference.averageMs,
           }}
         />
       )}

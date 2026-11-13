@@ -154,6 +154,8 @@ test("brief statuses name a pending, missing, out-of-retention or insufficient h
       await expect(history.status).toHaveCount(0);
     else await expect(history.status).toHaveText(expected.status);
   }
+  // Without a measured build there is no chart.
+  await expect(history.chart.box).toHaveCount(0);
   // Four comparable observations and the selected landing stay charted.
   step = 4;
   await history.refresh.click();

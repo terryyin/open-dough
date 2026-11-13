@@ -12,10 +12,9 @@ export function scopeHistoryReferencesOf(
 ) {
   const selectedKey = entries.find((entry) => entry.selected)?.key;
   return [...expected].map(([unit, signature]) => {
+    // Without the endpoint's scope identity no prior build compares with it.
     const reason =
-      signature === undefined
-        ? "Selected scope identity unavailable: no comparable reference can be established; historical units and owning entries remain separate"
-        : undefined;
+      signature === undefined ? "Scope identity unavailable" : undefined;
     return {
       unit,
       ...(reason === undefined ? {} : { reason }),
@@ -35,6 +34,9 @@ export function scopeHistoryReferencesOf(
               ? {}
               : { revision: entry.build.revision }),
             ...(reading?.kind === "point" ? { ms: reading.ms } : {}),
+            ...(entry.kind === "gap" && entry.failed === true
+              ? { failed: true }
+              : {}),
             ...(reason !== undefined && !entry.selected
               ? {
                   reason:

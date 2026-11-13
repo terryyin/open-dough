@@ -2,13 +2,17 @@
 // its test entry into a folder and a test file: each Summary reads its history
 // before the child table, and file Proof's Test cases / Test file choice
 // changes the selected value, average and chart scale together, by keyboard
-// and touch, in light and dark appearance. Raw retained priors and the normal
-// collector's selected artifact feed the real authenticated history read.
+// and touch, in light and dark appearance. Raw retained priors and the
+// selected landing's proof, as a machine keeps them, feed the real
+// authenticated history read of the Done story the worker keeps
+// (../support/projectScopeHistoryFixture.ts). Collecting them is
+// ./intent-scope-collected-file-timing-history.spec.ts's.
 import { shortSha } from "../../src/baseCiWording.ts";
 import { expectReadableContrast } from "../accessibleReading.ts";
 import {
   centreOf,
-  expectMarksByTab,
+  expectFailedMarkPainted,
+  expectMarkOver,
   inspectMark,
 } from "../ciHistoryChartPage.ts";
 import { fileProofTable } from "../intentFileProofPage.ts";
@@ -31,35 +35,18 @@ import {
   expectChangeCue,
   priorBuildReferenceReading,
 } from "../priorBuildReferencePage.ts";
-import type { DashboardServer } from "../support/dashboardServer.ts";
-import { publishSummaryComparisonStory } from "../support/intentSummaryStoryComparisonFixture.ts";
-import {
-  keepLandedCiHistory,
-  recheckingLandedCi,
-  restartAsLandedCiReader,
-} from "../support/landedCiHistory.ts";
-import {
-  expect,
-  queuedClaudePreviewTest as test,
-} from "../support/preparationPage.ts";
+import { declaredSummaryComparisonEndpointsIn } from "../support/intentSummaryStoryComparisonRepository.ts";
+import { serveSummaryComparisonStory } from "../support/intentSummaryStoryComparisonServing.ts";
+import { keepLandedCiHistory } from "../support/landedCiHistory.ts";
+import { expect } from "../support/preparationPage.ts";
+import { test } from "../support/projectScopeHistoryFixture.ts";
 import { openCollectedHistoryStory } from "../support/scopeHistoryCollectedPage.ts";
-import {
-  recordScopeHistoryLandings,
-  retainedProofs,
-  serveCollectedScopeFileRuns,
-} from "../support/scopeHistoryCollection.ts";
+import { serveKeptScopeProofs } from "../support/scopeHistoryCollection.ts";
+import { keptScopeFileProof } from "../support/scopeHistoryProofs.ts";
 import { scopePriorReferenceHistory } from "../support/scopePriorReferenceHistory.ts";
 import { openSummaryComparison } from "../support/selectDoneStoryForSummaryComparison.ts";
 
-test.use({
-  extraEnv: recheckingLandedCi,
-  viewport: { width: 390, height: 844 },
-  hasTouch: true,
-});
-const readers: DashboardServer[] = [];
-test.afterEach(async () => {
-  await Promise.all(readers.splice(0).map((reader) => reader.close()));
-});
+test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
 test("drilling from a Done story's test entry to a folder and a test file reads each scope's execution time history before its table", async ({
   page,
@@ -67,42 +54,32 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   origin,
   github,
 }) => {
-  const setup = await publishSummaryComparisonStory(page, origin);
-  // Six priors per test case of a.spec.ts, c.spec.ts at twice and root.spec.ts
-  // at three times; each test file outcome takes a tenth. The last prior is a
-  // slow outlier, so five priors make each average.
+  const setup = await serveSummaryComparisonStory(
+    page,
+    origin,
+    declaredSummaryComparisonEndpointsIn(origin.project),
+  );
+  // Five priors per test case of a.spec.ts, c.spec.ts at twice and root.spec.ts
+  // at three times, each test file outcome a tenth, make each average; the
+  // sixth prior build failed.
+  const priorBuilds = [100, 100, 100, 100, 115, "failed"] as const;
+  const selectedProof = keptScopeFileProof(
+    { revision: setup.completion, runId: 103 },
+    [
+      ["folder/a.spec.ts", 120, 12],
+      ["folder/nested/c.spec.ts", 240, 24],
+      ["folder/ghost.spec.ts", 360, 36],
+      ["root.spec.ts", 720, 72],
+    ],
+  );
+  serveKeptScopeProofs(setup, [
+    [setup.completion, 103, "2026-11-07T10:00:00Z", selectedProof],
+  ]);
   await keepLandedCiHistory(
     dashboard.home,
-    scopePriorReferenceHistory(origin, setup, [100, 100, 100, 100, 115, 116]),
+    scopePriorReferenceHistory(origin, setup, priorBuilds, { selectedProof }),
   );
-  serveCollectedScopeFileRuns(setup, [
-    [
-      setup.completion,
-      103,
-      "2026-11-07T10:00:00Z",
-      [
-        ["folder/a.spec.ts", 120, 12],
-        ["folder/nested/c.spec.ts", 240, 24],
-        ["folder/ghost.spec.ts", 360, 36],
-        ["root.spec.ts", 720, 72],
-      ],
-    ],
-  ]);
-  recordScopeHistoryLandings(dashboard, origin, setup.identity, [
-    {
-      revision: setup.completion,
-      at: "2026-11-07T10:10:00Z",
-      workflow: "execution",
-      receipt: "10000000-0000-4000-8000-000000000002",
-      title: "Story A execution",
-    },
-  ]);
-  await expect
-    .poll(() => retainedProofs(dashboard.home)["run/103/1"]?.kind)
-    .toBe("summary");
-  const reader = await restartAsLandedCiReader(dashboard, origin, "preview");
-  readers.push(reader);
-  const { intent } = await openCollectedHistoryStory(page, reader.origin);
+  const { intent } = await openCollectedHistoryStory(page, dashboard.origin);
   const ciCalls = () =>
     github.calls.filter(({ request }) => request.kind.startsWith("actions-"));
   const before = ciCalls().length;
@@ -130,17 +107,18 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   ])
     await expect(history).not.toContainText(removed);
   await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);
-  // Every build by keyboard, oldest first, through the selected landing.
+  // Six prior builds and the selected landing, which the readout names.
   const entryChart = scopeHistoryChart(history, "test cases");
-  await expectMarksByTab(page, entryChart, [
-    "Nov 1 · 600 ms",
-    "Nov 2 · 600 ms",
-    "Nov 3 · 600 ms",
-    "Nov 4 · 600 ms",
-    "Nov 5 · 690 ms",
-    "Nov 6 · 696 ms",
-    "Nov 7 · Selected · 1.4 s",
-  ]);
+  await expect(entryChart.marks).toHaveCount(7);
+  await expect(entryChart.readout).toHaveText(
+    "Nov 7 · Selected landing · 1.4 s",
+  );
+  // The failed build is its red × below the axis, under its mark.
+  await expectMarkOver(entryChart, "Nov 6 · Failed build", entryChart.failed);
+  await expectFailedMarkPainted(page, entryChart);
+  await expect(entryChart.averageLabel).toHaveText(
+    "Prior-build average 618 ms",
+  );
 
   await childName(summary, "folder/").first().click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(
@@ -172,6 +150,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     change: "vs. prior average · +17 ms (+17%)",
   });
   // The dashed 103 ms average lies between its Nov 1/100 ms and Nov 5/115 ms marks.
+  await expect(cases.averageLabel).toHaveText("Prior-build average 103 ms");
   const [low, high, average] = await Promise.all(
     [
       cases.mark("Nov 1 · 100 ms"),
@@ -212,7 +191,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
 
   // The keyboard returns to Test cases; Purpose and the return stay offered.
   await chooseTimingUnit(fileHistory, "Test cases", "keyboard");
-  await expect(cases.readout).toHaveText("Nov 7 · Selected · 120 ms");
+  await expect(cases.readout).toHaveText("Nov 7 · Selected landing · 120 ms");
   await expect(
     file.getByRole("button", { name: "View story CI comparison", exact: true }),
   ).toBeVisible();

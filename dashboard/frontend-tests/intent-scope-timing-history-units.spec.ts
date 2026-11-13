@@ -111,7 +111,7 @@ test("one collected attempt charts case and file timing one unit at a time, each
   await expect(cases.measured).toHaveCount(1);
   await expect(cases.selected).toHaveCount(1);
   await expect(cases.mark("Nov 4 · 100 ms")).toHaveCount(1);
-  await expect(cases.readout).toHaveText("Nov 5 · Selected · 0 ms");
+  await expect(cases.readout).toHaveText("Nov 5 · Selected landing · 0 ms");
   // No prior-build reference was answered, so no compact readout is shown.
   await expect(reading.readout).toHaveCount(0);
 
@@ -127,7 +127,7 @@ test("one collected attempt charts case and file timing one unit at a time, each
   await expect(files.unavailable).toHaveCount(1);
   await expect(files.mark("Nov 4 · 1.0 s")).toHaveCount(1);
   await expect(files.readout).toHaveText(
-    "Nov 5 · Selected · No timing · Part 2 untimed",
+    "Nov 5 · Selected landing · No timing · Part 2 untimed",
   );
   await expect(files.mark("Nov 4 · 1.1 s")).toHaveCount(0);
   await expectComparisonScopeRows(

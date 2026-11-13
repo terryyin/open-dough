@@ -96,7 +96,7 @@ test("earlier supported owning-entry segments stay readable beside a selected pr
   await expect(chart.mark("Nov 4 · 1.2 s")).toHaveCount(1);
   await expect(chart.mark("Nov 5 · 2.4 s")).toHaveCount(1);
   await expect(chart.readout).toHaveText(
-    "Nov 6 · Selected · No timing · CI proof summary expired",
+    "Nov 6 · Selected landing · No timing · CI proof summary expired",
   );
   await expect(chart.unavailable).toHaveCount(1);
   await expect(chart.selected).toHaveCount(0);

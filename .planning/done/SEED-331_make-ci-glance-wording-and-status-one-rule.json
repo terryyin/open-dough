@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-331#make-ci-glance-wording-and-status-one-rule",
+  "title": "Make CI glance wording and failed status one rule",
+  "completedAt": "2026-11-13T12:45:50.854Z",
+  "developer": "Terry Yin",
+  "agent": "ziqing-chan",
+  "host": "claude",
+  "model": "opus"
+}
