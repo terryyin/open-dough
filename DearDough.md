@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 511. Removed numbers are never reused.
-- Recovery: `9f56540bd83b175a2ab974aad8d6ce1e9f8c66ec:DearDough.md` contains the exact log before the latest retention (including the three oldest ODF-150 occurrences replaced then) and its recovery link to earlier revisions.
+- Highest allocated local number: 512. Removed numbers are never reused.
+- Recovery: `fa84adcf12094840d13d2c8191b58bcb79fbb945:DearDough.md` contains the exact log before the latest retention (including the three oldest ODF-150 occurrences, SEED-298, SEED-285 and SEED-307, replaced then) and its recovery link to earlier revisions.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -32,29 +32,6 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
 ### Occurrences
 
 
-- Execution: SEED-298#insert-common-prompts-in-the-dashboard-terminal (plan 574; first implementation `0e258a2f7441b8a253f54860f0b9e56ed56a984d`)
-  - Timestamp: unknown
-  - Tool: Codex
-  - Open Dough release: 0.3.94
-  - Evidence: Original delivery added two dashboard specs without the pre-push shard preview required by `dashboard/tests/shards.md`. Final trunk CI run 42807295291, shard 4, hit its suite deadline after 371 passed tests; three cases never started. The maintained preview revealed 102 unrecorded specs. An unpublished refresh candidate used passing main run 42803799326; publication then found `f06b46597` had refreshed from a failed partial source. Reconciliation preserves its product changes and refreshes all 960 current specs from all twelve artifacts of its successful main run 42808747192, with exact-once selection. The two new specs were on shards 8/9, so they are not attributed as the direct failure cause.
-  - Observed effect: one owned CI failure and a reconciled timing-record repair before closure; focused terminal proof missed the suite-discovery/allocation consumer. Shard 4 also had a broad 1.740 median slowdown; neither infrastructure nor the refresh as its sole cause was claimed. Final hosted margin remained a required CI gate before closure.
-
-- Execution: SEED-285#retry-a-slow-landed-ci-build (plan 569; first implementation `8aeda2ade7baf09656cd6823e3031ebbf1a797ce`)
-  - Timestamp: unknown (2026-11-10 execution)
-  - Tool: Codex
-  - Open Dough release: 0.3.94 (checkout-bound installed guidance)
-  - Evidence: CI run 42800107133/1 at `8aeda2ade` failed native identity from a new shared MakeMe runtime import of the dashboard timing marker. Native fixture roots intentionally copy tests and src. Repair `0fb7f0226` removed that runtime dependency and retained independent test-domain timing facts; plan 569 `ci-repair-1.md` preserves diagnostics and native proof. Later owned runs42832244638/1 and42845502760/1 exposed the enclosing settings touch journey's last-fact/action adjacency assumption after the new follow-up setting; plan569 `ci-repair-3.md` retains the exact failing baseline and seven-case repaired proof with unchanged strict touch checks.
-  - Observed effect: an owned published failure required pause, independent repair/proof and restoration of in-flight slice 2. No installation boundary was widened.
-  - Inference: shared builders' fixture-materialization consumers belong in the changed import contract's proof; full dashboard timing proof could not expose the absent dashboard tree.
-
-
-- Execution: SEED-307#apply-shared-page-object-rules-per-entry (plan 590; first implementation `48fd7667f08c15e5121be38593e11fb659f20298`)
-  - Timestamp: unknown (2026-11-11 execution; exact event time not retained)
-  - Tool: Codex
-  - Open Dough release: 0.3.95 (checkout-bound installed VERSION at accepted Take `80d20ed9e`)
-  - Evidence: Published slice 2 `f31723244` linked delegation to new `test-entry-rules.md` before declaring that reference/runtime closure; CI run43010890708/1 test3/3 failed `tests/payload-declaration-links.sh`. Repair `e2806cc5e` added the complete closure and ran real install/update plus grouped/historical declaration readers. Recover proof at `fd9612e2891d4ca12bfc6bbd83718ec6b51326cb:.planning/slice-plans/590-apply-shared-page-object-rules-per-entry/ci-repair-observations.md`.
-  - Observed effect: one owned dependency-closure CI failure, paused next-slice work and an independent repair before resuming. The same run's watcher teardown budget defect had a separate accepted solution; it is not attributed to this omission.
-  - Inference: linking promoted runtime prose makes its delivery inventory an immediate consumer; a later installation slice does not postpone that compatibility proof. Matches ODF-150's indirect-consumer omission; no new framework or duplicate finding is needed.
 - Execution: SEED-320#open-terminal-only-without-a-custom-instruction (spent plan 597 recoverable at before-cleanup `f595336fb608dcfebfaa01685141db1b61fbcaf6`; first implementation `43782e67d4ae1a68a3d5e1cffaafbc13e2a588e6`)
   - Timestamp: unknown (2026-11-12, about 09:55–10:10+08:00)
   - Tool: Claude Code
@@ -79,6 +56,14 @@ Former local code: DD-259. [Meaning, evidence and response](docs/maintainer/find
   - Evidence: Slice 2 `b2899a8f5` extracted `ci-command-attempt.mjs`, imported by promoted `ci-proof-read.mjs`, without its payload declaration. CI run43235536671/1 failed four native evidence families. The repair reproduced both those omissions and actual installed `ERR_MODULE_NOT_FOUND`; `b51be060e2efde855d8cdb27d51bee0d7cd6667b` added the declaration and installed-reader proof in both roots after fresh install/update and unavailable release source. Plan606 source-review at that repair retains exact commands; 17 focused checks passed.
   - Observed effect: one owned published CI failure paused in-flight slice3, which was preserved and restored around an independent repair. Source transport/proof tests alone had not established installed dependency closure.
   - Inference: Matches the existing indirect-consumer omission: extracting a promoted runtime dependency immediately reaches the assembled payload and native fixture identity, regardless of the later documentation slice. No claim of measured isolated cost or released-user impact.
+- Execution: SEED-331#read-ci-history-at-a-glance (plan 609; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
+  - Timestamp: unknown (2026-11-13, slice 4 published about 16:00+08:00; CI failure reported shortly after)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `VERSION`)
+  - Evidence: slice 4 `56dde3c` added `wallTimeReferenceOf` overloads so an explicit endpoint always returns a reference. Its consumer trace listed `server/ciFollowUpDecision.ts` as run through follow-up specs, and delivery formatting linted only changed files. CI run 43387096022 job `lint` failed `no-unnecessary-condition` at `ciFollowUpDecision.ts:29,32`; repair `45e6965` removed the now-dead guards.
+  - Observed effect: one owned CI failure and repair publication; behavior proof of the consumer passed, its static check did not run.
+  - Inference: a narrowed type reaches untouched callers' lint, which selective formatting skips; running the check-only full lint when a changed signature narrows would have caught it.
 
 
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
@@ -998,3 +983,18 @@ The coordinator offered `--disable-smooth-scrolling` to the developer as "Key sc
   - Evidence: coordinator stop message `/Users/terryyin/.claude/jobs/7c2dd325/tmp/stop-message-2.md` (option 1 text); slice 9 agent probes `slice9b-instant*.log` and `slice9b-programmatic-*.log` in that directory; plan 584 slice 9 decision paragraphs; `story-reference-scroll-completion.spec.ts` failed 3/3 with the flag and passed 3/3 without it.
   - Observed effect: the developer approved an option whose stated scope was wrong; two extra human decisions followed; no wrong change landed, because the agent stopped before proof and publication.
   - Inference: the diagnosis measured the flag only on key scrolling. The coordinator turned that measurement into the option's scope without checking what else the setting changes.
+
+## DD-512 — Acceptance observed a cross-view "same reading" promise through the shared component while the views' words differed
+
+A story promised the same compact reading and marks across Done and scope views. Slice acceptance recorded the promise observed because both views render the shared readout and chart, without comparing the words each view supplies. Possibly related to DD-497 (shared component standing in for an outcome), which concerned a plan premise rather than acceptance.
+
+### Occurrences
+
+- Execution: SEED-331#read-ci-history-at-a-glance (plan 609; first implementation `147fb83afa7f3e6a517862bb286bdb6e314f79cb`)
+  - Timestamp: unknown (2026-11-13, slice 3 acceptance about 15:00+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.98 (checkout-bound installed `VERSION`)
+  - Evidence: source-review commitment H1.1 was recorded `observed` at slice 3 on "expectScopeReadout uses the compactReadout lines that intent-ci-done-glance.spec.ts asserts". The retrospective's aggregate review found Done marks say "Selected landing" and scope "Selected" (`landedCiHistorySeries.ts:95`, `intentScopeHistoryContext.ts:52`), different average-line labels and pending wording; correction SEED-331#make-ci-glance-wording-and-status-one-rule was queued.
+  - Observed effect: one queued correction story after closure instead of a slice-3 return.
+  - Inference: a promise of identical wording across views needs both views' words compared side by side; a shared component only guarantees the layout.

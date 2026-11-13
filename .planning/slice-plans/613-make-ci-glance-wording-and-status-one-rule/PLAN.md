@@ -86,7 +86,11 @@ Status: planned
 Proof: `tests/support` server tests for scope timing and the glance
 projection; `ci-history-slim-response.spec.ts`; chart-marks and compact
 readout specs unchanged and passing; a focused test showing a reworded
-failure reason still reads failed.
+failure reason still reads failed; one failed build added to the real-server
+scope drill-down fixture of `intent-scope-glance.spec.ts` with its red ×
+mark asserted (Intent Coverage at fa84adc caught a flipped failed status
+only at `ci-history-slim-response.spec.ts:148`; no real-server journey drew
+the mark).
 
 Carry the typed failed status from scope timing and the reference's selected
 sample, with one owner for the failed-build rule; move `failedBuildWords` out

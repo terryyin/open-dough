@@ -156,7 +156,7 @@ spent story records. Git preserves the reference for recovery.
 
 **Identity:** SEED-331#make-ci-glance-wording-and-status-one-rule
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/613-make-ci-glance-wording-and-status-one-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0821f77df37b918e7dffc0670ad72c99346d1aa1c6b48d2ec7d84564d8121cc0","plan":"8a82852da4ad0e167c8bf309735bd24397db6c2452a36bd3f517fe234253ab67"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/613-make-ci-glance-wording-and-status-one-rule/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0821f77df37b918e7dffc0670ad72c99346d1aa1c6b48d2ec7d84564d8121cc0","plan":"07101be5d29b0641a09c717deb66beb701ae2e727fa895789d3fee9fedd74e29"}}
 ```
 
 Correction from the execution retrospective of
