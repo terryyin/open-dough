@@ -10,7 +10,7 @@ Story Branch Mode; established owned worktree `/Users/terryyin/git/open-dough/.w
 
 Checkout readiness: locked `npm ci` and `npm run typecheck:dashboard` passed. Formatter is changed-files-only `npm run format`; the check-only pre-commit hook runs staged lint and dashboard typecheck for scripts. No generated payload update: author guidance in `src/skills` only.
 
-CI: GitHub Actions `ci.yml` (verified workflow `CI`, ID 351271804), observing the execution branch. Coordinator `seed342-viktor`; cell `g92:13`, session 63487, directory `/tmp/dough-ci-501/watch-OrVuNu`, PID 910. Claim CI on trunk is unobserved. Slice 1 accepted on the execution branch at `0e5785c3c19875ccb025340b8a45f239231bbee5`, suffix base `de4da5c4a48418becb30b10deedc68c17e7e2237`; observer registration reused. Installed runtime is checkout-bound at `.agents/skills/dough-execute-plan`.
+CI: GitHub Actions `ci.yml` (verified workflow `CI`, ID 351271804), observing the execution branch. Coordinator `seed342-viktor`; cell `g92:13`, session 63487, directory `/tmp/dough-ci-501/watch-OrVuNu`, PID 910. Claim CI on trunk is unobserved. Slice 1 accepted on the execution branch at `0e5785c3c19875ccb025340b8a45f239231bbee5`, suffix base `de4da5c4a48418becb30b10deedc68c17e7e2237`; observer registration reused. Slice 2 accepted at `677c4d21edbcdfef48b6f38cc81ef1f22ef3ae86`, suffix base `0e5785c3c19875ccb025340b8a45f239231bbee5`, with the same observer. Installed runtime is checkout-bound at `.agents/skills/dough-execute-plan`.
 
 ## Goal and scope
 
@@ -97,7 +97,7 @@ plan 610) and report each left reference at execution completion.
 ### 3. Show supplier titles in Dependencies
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: dashboard specs above; consumer trace over `storyReference.ts`,
 `StoryCardDependencies.tsx` and the changed label
 
@@ -144,3 +144,21 @@ Slice 1: full `npm run lint` passed; independent refactor returned none — alre
 Slice 2 acceptance (`records-only`): 25 unique changed links, 36 occurrences in 13 audited files. `python3 /tmp/seed342-slice2-validate.py` and `git diff --check` passed. Manifest `/tmp/seed342-slice2-links.json` records each label, source line, exact current or retained target and title. Frontmatter, fenced facts and line counts unchanged; SEED-336 stays 327 lines and SEED-053 253. Distinct retained page-object sections, completed review cue and external Doughnut targets checked. Whole-seed walkthrough: `[Keep dashboard status current with SSE](SEED-336-live-dashboard-status.md)`, matching H1. Consumer trace `/tmp/seed342-slice2-consumer-trace.md` used the prior published base and SEED-331, SEED-333, both SEED-300 identities and SEED-145 effect terms; every row dispositioned. No executable consumer asserts these prose labels; direct manifest checks own proof. Freshness unchanged at claim trunk; no incoming sibling changes.
 
 Required execution-completion attention: plan slice 2 leaves Taken references with their owners. SEED-332 seed lines 18, 21, 24, 47, 68 (provenance 5–6 unchanged); SEED-324 correction seed lines 17, 33, 37; plan 607 lines 11–12, 16, 68, 70, 148, 153. Details `/tmp/seed342-slice2-held-references.md`. Plan 610 preserved; no additional audited references.
+
+
+Slice 3 acceptance: active titles resolve across Taken and Backlog by exact recorded identity; completed titles reuse `useDoneDetails` in the recorded explanation, only after opening. Rendered labels change; `follow({ project, identity })`, schemas and recovery remain unchanged. `docs/dashboard-navigation.md:238` describes targets, so needs no edit. Coordinator inspected same-seed href/focus assertions, project-specific same-identity title/href, held identity-to-title transition, failed attempts 1/2/3, exact before/after disclosure record sets, successful blob reuse and unavailable→recorded closed/no-read→open/one-read assertions. Source review rows map each promise.
+
+Proof: `/tmp/seed342-slice3-proof.md` retains complete literal commands and inspected setup/assertion locations. Initial 24-test/11-file affected run had 23 passes and one old failed-record count assertion; requested title read adds an earlier failed attempt. The test now observes title failure, navigation failure and explicit Done retry independently (1/2/3). Full Done plus malformed, start-eligibility and canonical arrival/failure/recovery consumers passed 16 tests in 6 files. After explanation lifecycle extraction, `caffeinate -s -i npm run test:dashboard -- dashboard/tests/navigation/story-reference-done.spec.ts dashboard/tests/stories/story-dependencies-malformed.spec.ts dashboard/tests/observation/published-facts-arrival.spec.ts dashboard/tests/observation/published-facts-failures.spec.ts dashboard/tests/observation/transient-detail-recovery.spec.ts --workers=1` passed 15 tests. Earlier same-seed, cross-column/project, keyboard/touch, selection, navigation and startup proof remains compatible. Final `npm run typecheck:dashboard` and `git diff --check` passed.
+
+Consumer trace `/tmp/seed342-slice3-consumer-trace.md` at base `677c4d21edbcdfef48b6f38cc81ef1f22ef3ae86` includes exported reference/disclosure helpers, canonical-facts observations and title/read effects; all 761 rows dispositioned. Direct Board, navigation and Done consumers plus canonical arrival/failure/recovery ran; workflow/schema/backend, installed guidance and independent fixtures have explicit exclusions. No uncovered affected consumer. Current edited dashboard files ≤217 lines before coordinator formatting.
+
+Expensive proof decision: local macOS, AC; one worker under `caffeinate -s -i`, default budgets. Initial load 26.90/free42%, final reconsideration 23.36/free51%; another execution's product-wide E2E work preserved. No deferred required observation; all commands reached terminal results. Freshness unchanged at `de4da5c4a`, no incoming named sibling changes.
+
+Delivery freshness: unchanged source at pinned trunk `07407e12b40115862205041f03e27851b361cfb2`; incoming `07407e12b` changes only DearDough.md/ProjectFindings.md, no attributable named-sibling product change or proof impact. Independent slice 3 refactor returned none — already clean, no edits or tests; proof and consumer trace remain valid. Read-only formatting preview keeps all dashboard files ≤240 lines.
+
+## Story obligations
+
+### G1. Replacement disclosure could inherit stale open state
+Reported: slice 3 — "A temporary unavailable/not-recorded state could leave stale open state and read a new supplier title before its replacement disclosure opened."
+Story clause: "Label each supplier with its story title, read by the recorded identity from the project's active work or the supplier's done record"
+Disposition: proved by slice 3: `story-reference-done.spec.ts` replacement-disclosure journey; unavailable facts unmount the recorded explanation, restored closed disclosure reads zero new supplier records after request quiescence, opening shows its title with one read (final 15-test pass).

@@ -7,7 +7,7 @@ import { expect } from "../dashboardTest.ts";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { shortRevision, parts } from "../dashboardPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
-import { test, twoDependencies, supplierB } from "../storyDependencyFixture.ts";
+import { test, twoDependencies } from "../storyDependencyFixture.ts";
 import { notFoundAnswer } from "../originAnswers.ts";
 import { pausePageClock, passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { expectReadingTop } from "../readingPlace.ts";
@@ -74,7 +74,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   const consumer = storyCard(parts(page).backlog, "Story A");
   const supplier = storyCard(parts(page).backlog, "Story B");
   await openDependencies(consumer);
-  await followReference(consumer, supplierB.identity);
+  await followReference(consumer, "Story B");
   await expect(
     supplier.getByRole("region", { name: "Detail for Story B" }),
   ).toBeVisible();
@@ -90,7 +90,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   expect(new URL(page.url()).hostname).toBe("127.0.0.1");
   await selectStory(supplier).click();
   await expectSelected(supplier, true);
-  await followReference(consumer, supplierB.identity);
+  await followReference(consumer, "Story B");
   await expectDestinationCue(page, supplier, { motion: true });
   await expectSelected(supplier, true);
   await expect(
@@ -99,7 +99,7 @@ test("a dependency opens its active story, keeping the dashboard and inspection 
   await expectReadingTop(supplier);
   await passPartOfCue(page, 1000);
   const fadingTime = await holdDestinationCueWhileFading(supplier, 1000);
-  await followReference(consumer, supplierB.identity);
+  await followReference(consumer, "Story B");
   await expectDestinationCue(page, supplier, { motion: true });
   await expectDestinationCueRestarted(supplier, fadingTime);
   await expectSelected(supplier, true);
@@ -178,7 +178,7 @@ test("a reference reveals a starting story without opening its protected inspect
   const before = dashboard.claudeLaunchCalls().length;
   const consumer = storyCard(parts(page).backlog, "Story A");
   await openDependencies(consumer);
-  await followReference(consumer, "SEED-B#b");
+  await followReference(consumer, "Story B");
   await expect(supplier).toBeFocused();
   await expect(
     supplier.getByRole("region", { name: "Detail for Story B" }),
@@ -207,7 +207,7 @@ test("an identified active block with unreadable detail still opens with its exi
   const consumer = storyCard(parts(page).backlog, "Story A");
   await expect(dependencySummary(consumer)).toBeVisible();
   await openDependencies(consumer);
-  await followReference(consumer, "SEED-B#b");
+  await followReference(consumer, "Story B");
   const supplier = storyCard(parts(page).backlog, "Story B");
   const detail = supplier.getByRole("region", { name: "Detail for Story B" });
   await expect(detail.locator(".preparation-problem").first()).toBeVisible();

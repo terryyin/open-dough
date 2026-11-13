@@ -9,12 +9,7 @@ import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
 } from "./pageLayout.ts";
-import {
-  supplierB,
-  reason,
-  condition,
-  decision,
-} from "./storyDependencyFixture.ts";
+import { reason, condition, decision } from "./storyDependencyFixture.ts";
 import {
   dependencyList,
   dependencySummary,
@@ -42,11 +37,11 @@ export async function expectDependencyAccessibly(
   await expect(list).toContainText("Waiting");
   await expect(list).toContainText("Decision needed");
   await expect(list).toContainText(decision);
-  await expect(storyReference(card, supplierB.identity)).toHaveAttribute(
+  await expect(storyReference(card, "Story B")).toHaveAttribute(
     "href",
     `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/B.md#b`,
   );
-  await followReference(card, supplierB.identity, "keyboard");
+  await followReference(card, "Story B", "keyboard");
   const supplier = storyCard(parts(page).board, "Story B");
   await expect(supplier).toBeFocused();
   await expect(

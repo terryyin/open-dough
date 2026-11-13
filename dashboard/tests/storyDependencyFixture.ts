@@ -7,10 +7,13 @@ import { makeMe } from "../../tests/support/makeMe.mjs";
 import {
   queuedSeedWithDependencies,
   readyStoryState,
+  reviewedStorySeed,
+  storyB,
   roughStoryC,
   storyA,
   storySeed,
 } from "../../tests/support/queued-repository.mjs";
+import { direction } from "../../tests/support/product-backlog-fixture.mjs";
 import type {
   RevisionFacts,
   StoryState,
@@ -156,5 +159,23 @@ export function twoDependencies(
     // The review judges Story A with its agreements in place.
     storyStates:
       review === undefined ? [] : [{ ...readyStoryState(consumer), ...review }],
+  };
+}
+
+// Two separately identified suppliers share Story B's canonical seed.
+export const secondInSeedB = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-B#second",
+    href: "seeds/B.md#second",
+    title: "Second story in seed B",
+  })
+  .please();
+
+export function suppliersInOneSeed(): RevisionFacts {
+  return {
+    backlog: { direction, queued: [storyA, storyB, secondInSeedB] },
+    files: {
+      ".planning/seeds/B.md": `${reviewedStorySeed(storyB)}\n<a id="second"></a>\n\n### Second story in seed B\n\n**Identity:** SEED-B#second\n\nAnother outcome.\n`,
+    },
   };
 }

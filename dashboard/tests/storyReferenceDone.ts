@@ -24,6 +24,7 @@ function entryAt(index: number) {
 }
 export const nearDone = entryAt(2);
 export const farDone = entryAt(26);
+export const laterDone = entryAt(30);
 export const expiredDone = {
   kind: "story" as const,
   place: 31 * 24,
@@ -37,6 +38,10 @@ export const unlisted = {
 };
 export const donePathsThrough = (count: number) =>
   doneEntries.slice(0, count).map(({ path }) => path);
+// Opening Dependencies also asks for the catalogued suppliers beyond the shown range.
+export const donePathsWithSuppliersThrough = (count: number) => [
+  ...new Set([...donePathsThrough(count), farDone.path, expiredDone.path]),
+];
 export const doneTitlesThrough = (count: number) =>
   doneEntries.slice(0, count).map(({ title }) => title);
 
