@@ -10,7 +10,7 @@ remain available. A horizontal dashed line marks the displayed endpoint's
 The retained window holds 20 distinct measured builds total. An endpoint
 that occupies one of those builds leaves at most 19 prior builds; older
 endpoints may leave fewer. On Open Dough that window may span only about a
-day. The view reports the actual number used and their actual date span.
+day. The compact readout reports how many prior builds the average used.
 Retention is unchanged, and excluded or missing evidence is never replaced
 by older provider data.
 
@@ -40,10 +40,11 @@ median, then take the arithmetic mean of the remaining values. Use unrounded
 measurements throughout, without iterative filtering. Complete fast values
 and measured zero remain eligible; a zero median excludes positive values
 and retains zeros. At least five post-filter samples are required to show
-an average or difference. Four show their evidence and insufficient comparable
-history. These initial calibration choices limit unusually slow samples'
-influence and avoid presenting one or two runs as a stable reference; they
-are not a validated statistical confidence interval or a slowdown judgment.
+an average or difference. Fewer show **Insufficient history**, with the
+observations still charted. These initial calibration choices limit unusually
+slow samples' influence and avoid presenting one or two runs as a stable
+reference; they are not a validated statistical confidence interval or a
+slowdown judgment.
 
 For prior values 100, 100, 100, 100, 115 and 116 seconds, the median is 100;
 115 stays and 116 is excluded. The five-build average is 103 seconds. A selected
@@ -61,7 +62,11 @@ percentage change against that average. The change shows only when both are
 usable. Its sign carries the direction in either appearance, and the figure
 repeats it in the faster or slower CI cue colour. A build that stands in for
 the selected landing is named briefly (**Reused equivalent first-parent
-build**, **Later trunk build, includes later changes**).
+build**, **Later trunk build, includes later changes**). In a Done story the
+wall-time and scope charts read alike: the selected build's mark reads
+**Selected landing**, the dashed line **Prior-build average** with its value,
+and a gap its status in the same brief words, such as **No timing · Pending ·
+CI queued or running**.
 
 A Done CI comparison shows its wall-time history between the Baseline, Branch
 and Landed endpoints and the by-entry table: a brief status when the history

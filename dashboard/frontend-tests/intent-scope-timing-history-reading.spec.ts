@@ -132,7 +132,7 @@ test("a failed local entry history read keeps the selected Done story and compar
   );
   // The history reads above the comparison it leaves intact.
   const chart = scopeHistoryChart(history, "test cases");
-  await expect(chart.readout).toHaveText("Nov 6 · Selected · 0 ms");
+  await expect(chart.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(chart.mark("Nov 5 · 1.2 s")).toHaveCount(1);
   await expect(chart.marks).toHaveCount(2);
   await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);

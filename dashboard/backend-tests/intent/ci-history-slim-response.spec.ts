@@ -1,8 +1,9 @@
 // A selected Done or scoped history read that names the glance capability
 // answers the chart data and compact figures the glance views read, as a
 // projection of the same retained history's default answer, through the real
-// local authenticated boundary; without the capability the answer keeps its
-// membership, median and run links. Browsing reads no CI.
+// local authenticated boundary. The default answer's membership, median and
+// run links are in ./ci-history-glance-compatibility.spec.ts. Browsing reads
+// no CI.
 import {
   doneHistoryQuery,
   failedRevision,
@@ -10,7 +11,6 @@ import {
   historyAnswer,
   keepGlanceHistory,
   landedEndpoint,
-  laterRevision,
   scopeHistoryQuery,
 } from "../support/retainedGlanceHistory.ts";
 import { expect, test } from "../../tests/support/preparationPage.ts";
@@ -41,17 +41,6 @@ test("the glance capability sends the Done chart through its landing and compact
     ...doneHistoryQuery,
     history: "glance",
   })) as Answer;
-
-  // Without the capability the answer is the full one, newer landing,
-  // membership, median and run links included.
-  expect(full.reference).toMatchObject({
-    evidence: expect.arrayContaining([
-      expect.objectContaining({ key: "run/8/1", status: "excluded" }),
-    ]),
-    medianMs: 100000,
-  });
-  expect(full.entries.map(({ revision }) => revision)).toContain(laterRevision);
-  expect(JSON.stringify(full.entries)).toContain('"runUrl"');
 
   expect(glance).toEqual({
     selectedRevision: landedEndpoint.revision,
@@ -111,15 +100,6 @@ test("the glance capability sends scoped dated readings, typed gaps, segments an
     ...scopeHistoryQuery,
     history: "glance",
   })) as Answer & { readonly references: readonly unknown[] };
-
-  expect(full.references[0]?.reference).toMatchObject({
-    evidence: expect.any(Array),
-    medianMs: 100,
-  });
-  expect(full.entries[0]).toMatchObject({
-    landings: [{ revision: "01".repeat(20) }],
-    build: { runUrl: "https://ci.invalid/runs/1" },
-  });
 
   expect(glance).toMatchObject({
     path: glanceScope,

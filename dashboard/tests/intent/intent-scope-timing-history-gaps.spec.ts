@@ -21,6 +21,8 @@ import { entryComparisonRows } from "../support/summaryComparisonExpectedRows.ts
 import { makeMe } from "../../../tests/support/makeMe.mjs";
 import { expectNoSidewaysScrollIn } from "../pageLayout.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { scopeHistoryGlanceOf } from "../../server/ciHistoryGlance.ts";
+import { scopeHistoryOf } from "../../server/ciScopeHistory.ts";
 
 test("unverified local landing order explains the partial cohort while the selected known measurement remains readable", async ({
   page,
@@ -58,7 +60,7 @@ test("unverified local landing order explains the partial cohort while the selec
   );
   const chart = scopeHistoryChart(history, "test cases");
   await expect(chart.marks).toHaveCount(1);
-  await expect(chart.readout).toHaveText("Nov 8 · Selected · 0 ms");
+  await expect(chart.readout).toHaveText("Nov 8 · Selected landing · 0 ms");
   await expect(history).not.toContainText(shortSha(unknownRevision));
   await expectComparisonScopeRows(
     summary,
@@ -72,27 +74,26 @@ test("a pending selected build reads its brief status without presenting a measu
   origin,
 }) => {
   const setup = await publishSummaryComparisonStory(page, origin);
-  const collected = makeMe.aScopeHistoryGlance
-    .with({
-      path: "dashboard/tests",
-      selectedRevision: setup.completion,
-      availability: "retained",
-      entries: [
-        {
-          key: "pending/51/2",
-          kind: "gap",
-          date: "2026-11-06T10:00:00Z",
-          selected: true,
-          landings: [{ selected: true }],
-          readings: [],
-          gap: {
-            status: "unavailable",
-            reason: "Pending · CI queued or running",
-          },
-        },
-      ],
+  // The selected landing's build is queued or running, as the server's glance
+  // projection of its retained history answers it.
+  const receivedAt = "2026-11-06T10:00:00Z";
+  const retained = makeMe.aLandedCiHistory
+    .pendingLanding({
+      receipt: "10000000-0000-4000-8000-000000000051",
+      revision: setup.completion,
+      receivedAt,
+      waitsFor: "build",
+      runId: 51,
     })
     .please();
+  const collected = scopeHistoryGlanceOf(
+    scopeHistoryOf(
+      retained,
+      "dashboard/tests",
+      { revision: setup.completion, at: receivedAt },
+      [setup.completion],
+    ),
+  );
   await page.route(
     /\/__authenticated-read\?.*intent=ci-history.*scope=/,
     (route) => route.fulfill({ json: collected }),

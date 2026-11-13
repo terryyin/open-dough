@@ -4,7 +4,7 @@
 // on the duration axis, a measured zero included; builds without timing sit
 // on their own row below it, and every such build breaks the line, as does a
 // change of compatible segment.
-import { buildDateWords } from "./ciHistoryWords.ts";
+import { buildDateWords, selectedLandingWords } from "./ciHistoryWords.ts";
 import { executionTimeWords, wholeSecondWords } from "./ciProofTimeWords.ts";
 import {
   isMeasured,
@@ -78,7 +78,7 @@ export type ChartMark = {
 };
 
 export type ChartLayout = {
-  // How the series names its selected build ("Selected" by default).
+  // How the series names its selected build ("Selected landing" by default).
   readonly selectedLabel: string;
   readonly plotLeft: number;
   readonly plotEnd: number;
@@ -87,6 +87,8 @@ export type ChartLayout = {
     readonly y: number;
     readonly words: string;
   }[];
+  // The dashed average line in the series' timing words: "Prior-build
+  // average 8 min 24 s", or precisely "Prior-build average 103 ms".
   readonly reference?: { readonly y: number; readonly label: string };
   // Every build in history order, oldest first.
   readonly marks: readonly ChartMark[];
@@ -125,7 +127,7 @@ export function chartLayout(
   const tickValues = timeTicks(
     [
       ...builds.filter(isMeasured).map((point) => point.ms),
-      ...(series.reference === undefined ? [] : [series.reference.ms]),
+      ...(series.averageMs === undefined ? [] : [series.averageMs]),
     ],
     precise,
   );
@@ -148,7 +150,7 @@ export function chartLayout(
       : plotLeft +
         ((Date.parse(date) - earliest) / (latest - earliest)) *
           (plotEnd - plotLeft);
-  const selectedLabel = series.selectedLabel ?? "Selected";
+  const selectedLabel = series.selectedLabel ?? selectedLandingWords;
   const selected = (is: boolean | undefined) =>
     is === true ? `${selectedLabel} · ` : "";
   const marks = builds.map((build): ChartMark => ({
@@ -178,12 +180,12 @@ export function chartLayout(
     plotLeft,
     plotEnd,
     ticks: tickValues.map((ms) => ({ ms, y: y(ms), words: timeLabel(ms) })),
-    ...(series.reference === undefined
+    ...(series.averageMs === undefined
       ? {}
       : {
           reference: {
-            y: y(series.reference.ms),
-            label: series.reference.label,
+            y: y(series.averageMs),
+            label: `Prior-build average ${timeLabel(series.averageMs)}`,
           },
         }),
     marks,

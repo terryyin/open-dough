@@ -116,6 +116,32 @@ export function serveCollectedScopeFileRuns(
   );
 }
 
+// Serve each run's proof as the machine keeps it: the provider answers its
+// summary, so no case spawns the summary producer.
+export function serveKeptScopeProofs(
+  setup: StoryCiComparisonSetup,
+  observations: readonly (readonly [
+    revision: string,
+    runId: number,
+    startedAt: string,
+    proof: CiProof,
+  ])[],
+) {
+  serveCollectedScopeProofs(
+    setup,
+    observations.map(([revision, runId, startedAt, proof]) => {
+      if (proof.kind !== "summary")
+        throw new Error(`No summary of run ${String(runId)}`);
+      return [
+        revision,
+        runId,
+        startedAt,
+        JSON.stringify(proof.summary),
+      ] as const;
+    }),
+  );
+}
+
 // Serve each run's serialized summary through the same Actions boundary: the
 // producer's actual output, or the summary of a proof the machine keeps.
 export function serveCollectedScopeProofs(

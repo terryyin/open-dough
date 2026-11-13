@@ -86,6 +86,10 @@ const provenanceWordsOf: Readonly<Record<Provenance, string>> = {
   later: "later trunk build",
 };
 
+// The landing a Done story's histories read through, as their readouts and
+// chart marks name it.
+export const selectedLandingWords = "Selected landing";
+
 // A selected measurement's brief status when another build stands for its
 // landing, in a history readout and its compact metrics.
 export const standInBuildWords: Readonly<

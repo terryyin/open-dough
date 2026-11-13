@@ -90,7 +90,7 @@ test("a later trunk build that supplies the selected timing stays named in the r
     "Nov 4 · 1.2 s · test cases · Reused equivalent first-parent build",
     "Nov 8 · 2.4 s · test cases · Later trunk build, includes later changes · Selected landing",
   ]);
-  await expect(chart.readout).toHaveText("Nov 8 · Selected · 2.4 s");
+  await expect(chart.readout).toHaveText("Nov 8 · Selected landing · 2.4 s");
   await expect(history).not.toContainText(shortSha(later));
   await expectNoSidewaysScrollIn(page, history);
 });

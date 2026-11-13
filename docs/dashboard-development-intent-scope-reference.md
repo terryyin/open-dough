@@ -109,11 +109,13 @@ the faster/slower cue colour. Fewer than five values show **Insufficient
 history** with the observations still charted. A zero average permits elapsed
 difference but no percentage.
 When selected timing is partial or unmeasured, its evidenced scope identity can
-still retain a matching earlier reference, with an explicit unavailable
-difference. Missing selected identity keeps labelled historical units and owning
-entry segments but establishes no combined reference; current trunk or an older
-owner never supplies a substitute identity. Changed owners/units, absent paths,
-missing breakdown and incomplete timing retain their specific exclusion reasons.
+still retain a matching earlier reference, whose average shows beside the
+selected status without a change. Missing selected identity keeps labelled
+historical units and owning entry segments but establishes no combined
+reference: the average reads **Scope identity unavailable**; current trunk or an
+older owner never supplies a substitute identity. Changed owners/units, absent
+paths, missing breakdown and incomplete timing stay out of the average; the
+chart still shows each build as a point or a gap with its brief reason.
 
 The chart and readout carry the reading by pointer, keyboard, touch and screen
 reader.

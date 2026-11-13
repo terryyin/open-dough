@@ -53,7 +53,7 @@ async function keepMeasurements(
   await keepLandedCiHistory(home, history.inTrunkOrder(order).please());
 }
 
-test("five complete zeros give a zero reference and precise elapsed difference with explicitly unavailable percentage", async ({
+test("five complete zeros give a zero reference with its median, line and each build's evidence", async ({
   page,
   dashboard,
 }) => {
@@ -62,9 +62,6 @@ test("five complete zeros give a zero reference and precise elapsed difference w
   const panel = await openJudgedCiStatus(page);
   const history = historyOf(panel);
   await expect(history).toContainText("Prior-build average · 0 s");
-  await expect(history).toContainText(
-    "+1.2 s (percentage unavailable: average is zero)",
-  );
   await expect(history).toContainText("Median 0 s");
   await expect(history).toContainText("0 s · 5 prior builds used");
   await expect(buildHistoryReading(history).referenceLine).toHaveCount(1);

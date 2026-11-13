@@ -13,7 +13,7 @@ import {
 } from "../src/ciPriorBuildReference.ts";
 import { historyWallTimeMs } from "../src/landedCiHistory.ts";
 import { gapReasonWords } from "../src/ciHistoryGapWords.ts";
-import { failedBuildWords } from "../src/ciHistoryChart.ts";
+import { failedBuildWords, isKnownFailed } from "../src/ciFailedBuild.ts";
 import { historyEntries } from "./landedCiHistoryEntries.ts";
 import type { KeptBuild, ProjectHistory } from "./landedCiHistoryStore.ts";
 
@@ -22,9 +22,10 @@ const measuredDateSchema = z.iso.datetime({ offset: true });
 export function wallTimeReadingOf(build: KeptBuild | undefined): {
   readonly ms?: number;
   readonly reason?: string;
+  readonly failed?: true;
 } {
   if (build === undefined) return { reason: "Measured build is not retained" };
-  if (build.state !== "pass") return { reason: failedBuildWords };
+  if (isKnownFailed(build)) return { reason: failedBuildWords, failed: true };
   if (!hasAttemptTiming(build)) return { reason: unverifiedAttemptTiming };
   const ms = historyWallTimeMs(build.startedAt, build.completedAt);
   if (ms === undefined)
@@ -105,6 +106,7 @@ export function wallTimeReferenceOf(
           gap === undefined
             ? "Landing measurement unavailable"
             : gapReasonWords(gap),
+        ...(gap !== undefined && isKnownFailed(gap) ? { failed: true } : {}),
       });
       continue;
     }

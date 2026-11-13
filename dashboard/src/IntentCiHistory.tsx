@@ -27,7 +27,7 @@ import {
   IntentCiPriorBuildReference,
   PriorBuildReferenceEvidence,
 } from "./IntentCiPriorBuildReference.tsx";
-import { averageLineOf, landedHistorySeries } from "./landedCiHistorySeries.ts";
+import { landedHistorySeries } from "./landedCiHistorySeries.ts";
 import { useId } from "react";
 import { shortSha } from "./baseCiWording.ts";
 import {
@@ -177,7 +177,7 @@ export function IntentCiHistory({
               </dl>
               <IntentCiHistoryChart
                 series={landedHistorySeries(entries, {
-                  reference: averageLineOf(shown.reference),
+                  averageMs: shown.reference?.averageMs,
                 })}
               />
             </>

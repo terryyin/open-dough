@@ -18,7 +18,7 @@ import { commonGitDir } from "./launchLanding.ts";
 import { chooseStoryTab } from "./intentStoryPage.ts";
 import { queuedClaudePreviewTest } from "./preparationPage.ts";
 import { openDoneStoryIntent } from "./scopeHistoryCollectedPage.ts";
-import { serveCollectedScopeProofs } from "./scopeHistoryCollection.ts";
+import { serveKeptScopeProofs } from "./scopeHistoryCollection.ts";
 import {
   keptScopeFileProof,
   type ScopeFileTiming,
@@ -71,24 +71,21 @@ export async function readKeptProjectHistory(
   );
   const latest = await originMain(origin);
   const revisions = { ...setup, latest };
-  // Each run's proof as the machine keeps it. The provider serves its summary,
-  // so no case spawns the summary producer; producing it stays with collection.
+  // Each run's proof as the machine keeps it; producing it stays with
+  // collection.
   const runs = facts.runs.map(([point, runId, startedAt, files]) => {
     const revision = revisions[point];
     const proof = keptScopeFileProof({ revision, runId }, files);
     return { point, runId, startedAt, revision, proof };
   });
-  serveCollectedScopeProofs(
+  serveKeptScopeProofs(
     setup,
-    runs.map(({ point, runId, startedAt, revision, proof }) => {
-      if (proof.kind !== "summary") throw new Error(`No proof of ${point}`);
-      return [
-        revision,
-        runId,
-        startedAt,
-        JSON.stringify(proof.summary),
-      ] as const;
-    }),
+    runs.map(({ runId, startedAt, revision, proof }) => [
+      revision,
+      runId,
+      startedAt,
+      proof,
+    ]),
   );
   const history = makeMe.aLandedCiHistory.inTrunkOrder(
     git(

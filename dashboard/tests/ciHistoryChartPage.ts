@@ -32,6 +32,7 @@ export function historyChart(scope: Locator, name: string) {
     unavailable: drawing.locator(".intent-ci-history-unavailable"),
     line: drawing.locator(".intent-ci-history-line"),
     average: drawing.locator(".intent-ci-history-reference line"),
+    averageLabel: drawing.locator(".intent-ci-history-reference title"),
     grid: drawing.locator(".intent-ci-history-grid"),
     axisLabels: drawing.locator("g:has(> .intent-ci-history-grid) > text"),
   };
@@ -100,14 +101,19 @@ const paintOf = (shape: Locator) =>
     return { fill: style.fill, stroke: style.stroke };
   });
 
+// In the current appearance: a failed build's × in the failure colour.
+export async function expectFailedMarkPainted(page: Page, chart: HistoryChart) {
+  const failed = await paintOf(chart.failed.first());
+  expect(failed.stroke).toBe(await tokenColour(page, "--problem"));
+  expect(failed.fill).toBe("none");
+}
+
 // In the current appearance: a failed build's × in the failure colour, an
 // unavailable timing's mark hollow on the chart's own surface, and the
 // failed, unavailable, measured and selected marks and the readout readable
 // against it.
 export async function expectMarksPainted(page: Page, chart: HistoryChart) {
-  const failed = await paintOf(chart.failed.first());
-  expect(failed.stroke).toBe(await tokenColour(page, "--problem"));
-  expect(failed.fill).toBe("none");
+  await expectFailedMarkPainted(page, chart);
   const hollow = await paintOf(chart.unavailable.first());
   const surface = await backgroundOf(chart.box);
   expect(hollow.fill).toBe(surface);
