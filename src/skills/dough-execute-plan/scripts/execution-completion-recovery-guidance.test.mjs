@@ -89,3 +89,15 @@ test("Story Branch integration names recovery for branch tip and integrated SHA"
   );
   assert.match(storyBranchIntegration, /do not poll either target by hand/);
 });
+
+test("Trunk Mode finish guidance names recovery when observers have ended", () => {
+  const finish = section(integrationObservation, "Finish Trunk Mode closure");
+  assert.match(
+    finish,
+    /`step: "observation"`[\s\S]+execution-completion-recovery\.mjs complete/,
+  );
+  assert.match(
+    finish,
+    /none holds a verdict[\s\S]+execution-completion-recovery\.mjs complete/,
+  );
+});

@@ -217,7 +217,7 @@ rule.
 
 ### 5. Trunk Mode closure completes on the same recovery
 Type: Behavior
-Status: planned
+Status: done
 Proof: The updated `trunk-closure-owner-ended-record.test.mjs` and
 `trunk-closure-observer-ended-selection.test.mjs`. One `finish` after the
 coordinator's observers ended completes the final closure on a replacement and
@@ -321,6 +321,7 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
   `ci-completion-recovery.md` so the finish-row read of `ci-completion-wait.md`
   stays under the 30KB tool-result budget.
 - Slice 4: keep dist(B,L) < dist(M,L) in fixtures or branch-listed M wins on equal distance; fold merge gh into instrumented GitHub fixture.
+- Slice 5: Trunk finish calls recoverExecutionCompletion for Claude/Cursor; Codex ended-stream gap stays for slice 6.
 
 
 ## Story obligations

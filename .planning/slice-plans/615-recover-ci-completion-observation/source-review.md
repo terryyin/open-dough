@@ -17,7 +17,7 @@ limits), Key examples 1–7, Architecture, and Completion evidence from
 | 6 | A budget-expiry `CI_MONITOR_UNAVAILABLE` says that the budget expired. | slice 2 | observed: watch-ci-execution-wake.test.mjs budget expiry CI_MONITOR_UNAVAILABLE cause budget_expired |
 | 7 | Budget expiry is distinct from a transport loss such as Doughnut’s HTTP 502 or TLS handshake timeout (ODF-121). | slice 2 | observed: watch-ci-execution-wake.test.mjs provider outage cause observation_error distinct from budget_expired |
 | 8.1 | Guidance at every completion point names the one managed recovery for an ended observer: execution/review handoff | slice 3 | observed: ci-completion-wait.md and budget-expiry event name execution-completion-recovery.mjs complete |
-| 8.2 | Guidance at every completion point names the one managed recovery for an ended observer: Trunk Mode `finish` | slice 5 |  |
+| 8.2 | Guidance at every completion point names the one managed recovery for an ended observer: Trunk Mode `finish` | slice 5 | observed: wrap-up-closure-publication finish table names recovery; trunk-closure-owner-ended-record |
 | 8.3 | Guidance at every completion point names the one managed recovery for an ended observer: Story Branch integration | slice 4 | observed: wrap-up-closure-publication + story-branch-integration name recovery; guidance test |
 | 9 | Receipts and reports keep the two causes (budget expiry vs transport loss) distinguishable. | slice 2 | observed: ci-mailbox-completion-cause.test.mjs receipt observation.detail.cause; ci-notify-codex.test.mjs notify text |
 | 10 | The recovery covers the already accepted SHA on its authorized target only. | slice 3 | observed: recovery registers only --accepted-sha on --target-ref |
@@ -55,8 +55,8 @@ limits), Key examples 1–7, Architecture, and Completion evidence from
 | 42 | Recovery never registers or completes another target. | slice 3 | observed: explicit target-ref only |
 | 43 | Recovery never uses another coordinator’s observer. | slice 3 | observed: coordinator owner input scopes observer |
 | 44 | Completion evidence must describe this execution’s accepted publication. | slice 3 | observed: completion evidence for accepted publication SHA |
-| 45 | An unresolved receipt never grants retirement. | slice 5 |  |
-| 46 | Wrap-up’s existing gate requires success with confirmed shutdown. | slice 5 |  |
+| 45 | An unresolved receipt never grants retirement. | slice 5 | observed: unresolved receipt still fails retirement gate |
+| 46 | Wrap-up’s existing gate requires success with confirmed shutdown. | slice 5 | observed: retirement requires success+confirmed shutdown |
 | 47 | No change to the eight-hour budget. |  | X1 |
 | 48 | No renewal of observation at each slice publication. |  | X1 |
 | 49 | Mid-story expiry already reattaches at the next delivery; this story’s completion recovery closes the remaining gap (qualification of scope, not a new mid-story behavior). |  | X2 |
@@ -69,7 +69,7 @@ limits), Key examples 1–7, Architecture, and Completion evidence from
 | 56 | No paid native host runs; fixtures substitute both providers. |  | X8 |
 | 57 | There is one recovery and effective-evidence owner. | slice 3 | observed: one recovery owner execution-completion-recovery.mjs |
 | 58 | Start from the existing `deliver` / `finish` continuation, the CI mailbox completion operation and the shared applicability classifier. | slice 3 | observed: composes establishObservation + register + completeRevision |
-| 59 | Execution handoff, Trunk Mode closure and Story Branch integration all reach that same owner. | slice 5 |  |
+| 59 | Execution handoff, Trunk Mode closure and Story Branch integration all reach that same owner. | slice 5 | observed: finish calls recoverExecutionCompletion for Claude/Cursor ended observers |
 | 60 | Provider-specific acquisition stays at the existing GitHub Actions and command adapter boundary (ADR 0006, one authoritative home per rule). | slice 4 | observed: provider acquisition stays at existing adapter boundary |
 | 61 | Record the delivered recovery, its containing release, and this story’s GitHub Actions and command-adapter proof outcomes at ODF-259. | reporting |  |
 | 62 | Link the relevant outcome from ODF-298 (closure continuation). | reporting |  |

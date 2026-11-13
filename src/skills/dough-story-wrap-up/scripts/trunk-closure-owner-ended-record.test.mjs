@@ -1,8 +1,9 @@
 // Trunk Mode closure whose coordinator holds no live observer and one ended
 // observer that registered the final closure, through the installed `finish`
-// with real workers and a bare remote: that observer settles the closure only
-// by a CI verdict its record holds. A sibling coordinator's live observer of
-// the same target is never registered on, completed, or stopped for it.
+// with real workers and a bare remote: finish recovers completion on a
+// replacement when that ended record holds no CI verdict. A sibling
+// coordinator's live observer of the same target is never registered on,
+// completed, or stopped for it.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
@@ -11,7 +12,6 @@ import {
 } from "../../dough-execute-plan/scripts/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import {
   assertCompletedAndStopped,
-  assertUnresolvedCoverage,
   closureBesideSibling,
 } from "./trunk-closure-owner-test-fixtures.mjs";
 import {
@@ -19,7 +19,7 @@ import {
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
 
-test("finish whose coordinator's one observer registered the final closure and ended with only a cancelled attempt reports it ended with the deliver step and retires nothing; its rerun after that deliver completes on the new observer and retires", async (t) => {
+test("finish whose coordinator's one observer registered the final closure and ended with only a cancelled attempt completes on a replacement and retires; its rerun repeats the receipt without another observer", async (t) => {
   const journey = await closureBesideSibling(t, "claude");
   const { fixture, publisher } = journey;
   const beforeCleanup = await acceptedIncrement(fixture);
@@ -37,30 +37,40 @@ test("finish whose coordinator's one observer registered the final closure and e
   await fixture.stopObserver(publisher);
   assert.deepEqual(coverage(publisher), [final]);
   const pushes = await journey.pushes();
-
-  const ended = await finish();
-  await assertUnresolvedCoverage(fixture, ended, {
-    final,
-    ownership: "ended",
-    reason: new RegExp(
-      `${publisher} ended \\(.*its observer at ${publisher} registered this revision and its record holds no CI verdict for it.*next \`deliver\` from the execution worktree establishes its own.*rerunning this finish`,
-    ),
-  });
-  assert.deepEqual(ended.result.observation.directories, [publisher]);
-  journey.assertSiblingUntouched();
-
-  const own = await established();
-  assert.equal(own.state, "attached", own.reason);
-  assert.notEqual(own.directory, publisher);
   releaseCi(fixture, { [final]: "success" });
-  const rerun = await finish();
-  assert.equal(rerun.code, 0, rerun.stderr);
-  assert.equal(rerun.result.observation.directory, own.directory);
-  assert.deepEqual(coverage(own.directory), [final]);
-  assertCompletedAndStopped(rerun.result, own.directory, final);
-  assert.equal(rerun.result.cleanup.worktree, "removed");
+
+  const finished = await finish();
+  assert.equal(finished.code, 0, finished.stderr);
+  const own = finished.result.observation.directory;
+  assert.notEqual(own, publisher);
+  assert.equal(
+    finished.result.observation.state,
+    "attached",
+    finished.result.observation.reason,
+  );
+  assert.deepEqual(coverage(own), [final]);
+  assertCompletedAndStopped(finished.result, own, final);
+  assert.equal(finished.result.cleanup.worktree, "removed");
   assert.deepEqual(coverage(publisher), [final]);
   assert.equal(pushes(), 0);
-  // That delivery added its readiness probe and its observer; finish none.
+  // Recovery added its readiness probe and its observer; finish none more.
+  journey.assertSiblingUntouched(4);
+
+  const again = await journey.rerunFromManagement(
+    { beforeCleanup, final },
+    journey.owner,
+  );
+  assert.equal(again.code, 0, again.stderr);
+  assert.equal(again.result.pushCount, 0);
+  assert.equal(again.result.observation.directory, own);
+  assert.equal(again.result.completion.requestedSha, final);
+  assert.equal(again.result.completion.verdict, "success");
+  assert.equal(again.result.completion.shutdown.status, "confirmed");
+  assert.deepEqual(
+    [again.result.cleanup.worktree, again.result.cleanup.branch],
+    ["already-absent", "already-absent"],
+  );
+  assert.deepEqual(coverage(publisher), [final]);
+  assert.deepEqual(coverage(own), [final]);
   journey.assertSiblingUntouched(4);
 });
