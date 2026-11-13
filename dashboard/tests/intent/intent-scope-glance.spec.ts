@@ -139,8 +139,11 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     "Nov 4 · 600 ms",
     "Nov 5 · 690 ms",
     "Nov 6 · 696 ms",
-    "Nov 7 · Selected · 1.4 s",
+    "Nov 7 · Selected landing · 1.4 s",
   ]);
+  await expect(entryChart.averageLabel).toHaveText(
+    "Prior-build average 618 ms",
+  );
 
   await childName(summary, "folder/").first().click();
   await expect(summary.locator(".intent-summary-path")).toHaveText(
@@ -172,6 +175,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     change: "vs. prior average · +17 ms (+17%)",
   });
   // The dashed 103 ms average lies between its Nov 1/100 ms and Nov 5/115 ms marks.
+  await expect(cases.averageLabel).toHaveText("Prior-build average 103 ms");
   const [low, high, average] = await Promise.all(
     [
       cases.mark("Nov 1 · 100 ms"),
@@ -212,7 +216,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
 
   // The keyboard returns to Test cases; Purpose and the return stay offered.
   await chooseTimingUnit(fileHistory, "Test cases", "keyboard");
-  await expect(cases.readout).toHaveText("Nov 7 · Selected · 120 ms");
+  await expect(cases.readout).toHaveText("Nov 7 · Selected landing · 120 ms");
   await expect(
     file.getByRole("button", { name: "View story CI comparison", exact: true }),
   ).toBeVisible();

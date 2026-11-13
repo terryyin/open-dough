@@ -164,7 +164,7 @@ test("a Done entry shows collector-acquired test timing through its middle landi
   const cases = scopeHistoryChart(history, "test cases");
   await expect(cases.marks).toHaveCount(2);
   await expect(cases.mark("Nov 5 · 1.2 s")).toHaveCount(1);
-  await expect(cases.readout).toHaveText("Nov 6 · Selected · 0 ms");
+  await expect(cases.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(history).not.toContainText(shortSha(newest.revision));
   await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);
   await chooseTimingUnit(history, "Test files", "keyboard");

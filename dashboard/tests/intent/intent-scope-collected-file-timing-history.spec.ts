@@ -177,7 +177,9 @@ test("a Done folder and file keep their collected history through Proof and Purp
     const cases = scopeHistoryChart(history, "test cases");
     await expect(cases.marks).toHaveCount(2);
     await expect(cases.mark(`Nov 5 · ${prior}`)).toHaveCount(1);
-    await expect(cases.readout).toHaveText(`Nov 6 · Selected · ${selected}`);
+    await expect(cases.readout).toHaveText(
+      `Nov 6 · Selected landing · ${selected}`,
+    );
     await expect(history).not.toContainText(shortSha(newest.revision));
     await expectNoSidewaysScrollIn(page, history);
     expect(ciCalls()).toHaveLength(before);
@@ -209,7 +211,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
   await chooseTimingUnit(history, "Test file", "pointer");
   const files = scopeHistoryChart(history, "test files");
   await expect(files.mark("Nov 5 · 10 ms")).toHaveCount(1);
-  await expect(files.readout).toHaveText("Nov 6 · Selected · 0 ms");
+  await expect(files.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(
     file.getByRole("table", {
       name: "CI proof of dashboard/tests/folder/a.spec.ts",
@@ -226,7 +228,7 @@ test("a Done folder and file keep their collected history through Proof and Purp
     "aria-pressed",
     "true",
   );
-  await expect(files.readout).toHaveText("Nov 6 · Selected · 0 ms");
+  await expect(files.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(storyTitle(intent)).toHaveText("Story A");
   await expect(
     intentFile(intent, summaryComparisonChanges.modified),

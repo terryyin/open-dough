@@ -69,7 +69,9 @@ export function scopeHistoryOf(
         : {}),
     };
     if (observed.kind !== "build") {
-      entries.push(scopeHistoryGapOf(landing, represented, units));
+      entries.push(
+        scopeHistoryGapOf({ ...landing, observed }, represented, units),
+      );
       previousSignatures.clear();
       continue;
     }

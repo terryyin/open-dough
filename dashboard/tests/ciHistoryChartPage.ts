@@ -32,6 +32,7 @@ export function historyChart(scope: Locator, name: string) {
     unavailable: drawing.locator(".intent-ci-history-unavailable"),
     line: drawing.locator(".intent-ci-history-line"),
     average: drawing.locator(".intent-ci-history-reference line"),
+    averageLabel: drawing.locator(".intent-ci-history-reference title"),
     grid: drawing.locator(".intent-ci-history-grid"),
     axisLabels: drawing.locator("g:has(> .intent-ci-history-grid) > text"),
   };

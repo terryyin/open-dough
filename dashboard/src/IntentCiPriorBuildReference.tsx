@@ -9,6 +9,7 @@ import {
   landingWords,
   plainWords,
   pointLandingsWords,
+  selectedLandingWords,
   standsForWords,
 } from "./ciHistoryWords.ts";
 import {
@@ -50,7 +51,7 @@ export function IntentCiPriorBuildReference({
   reference,
   precise = false,
   unavailableReason,
-  endpointLabel = "Selected landing",
+  endpointLabel = selectedLandingWords,
   selectedNote,
   reasonWords = (reason: string) => reason,
 }: {

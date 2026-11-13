@@ -144,7 +144,7 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
   await expect(cases.marks).toHaveCount(3);
   await expect(cases.mark(`Nov 4 · ${noBreakdown}`)).toHaveCount(1);
   await expect(cases.mark(`Nov 5 · ${partial}`)).toHaveCount(1);
-  await expect(cases.readout).toHaveText("Nov 6 · Selected · 0 ms");
+  await expect(cases.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
   await expect(history).not.toContainText(shortSha(newest.revision));
   // The file outcome has no selected timing: its status, and no change.
   await chooseTimingUnit(history, "Test file", "keyboard");
@@ -154,7 +154,9 @@ test("a collected file explains breakdown and partial gaps and keeps earlier fil
   await expect(reading.change).toHaveCount(0);
   const files = scopeHistoryChart(history, "test files");
   await expect(files.mark("Nov 5 · 20 ms")).toHaveCount(1);
-  await expect(files.readout).toHaveText(`Nov 6 · Selected · ${absent}`);
+  await expect(files.readout).toHaveText(
+    `Nov 6 · Selected landing · ${absent}`,
+  );
   await expect(files.unavailable).toHaveCount(2);
   expect(ciCalls()).toHaveLength(before);
 });

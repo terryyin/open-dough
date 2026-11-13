@@ -30,7 +30,8 @@ export type HistoryChartSeries = {
   readonly builds: readonly HistoryChartBuild[];
   readonly precise?: boolean;
   readonly selectedLabel?: string;
-  readonly reference?: { readonly ms: number; readonly label: string };
+  // The prior-build average, drawn as the dashed line.
+  readonly averageMs?: number | undefined;
 };
 
 export const isMeasured = (

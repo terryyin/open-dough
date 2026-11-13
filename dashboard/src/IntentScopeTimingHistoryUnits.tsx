@@ -58,7 +58,6 @@ function UnitHistory({
   const comparison = history.references?.find(
     (candidate) => candidate.unit === unit,
   );
-  const averageMs = comparison?.reference.averageMs;
   const builds = history.entries.map((entry): HistoryChartBuild => {
     const reading = entry.readings.find((each) => each.unit === unit);
     const common = {
@@ -107,14 +106,7 @@ function UnitHistory({
             precise: true,
             selectedLabel: scopeHistorySelectionWords(context),
             builds,
-            ...(averageMs === undefined
-              ? {}
-              : {
-                  reference: {
-                    ms: averageMs,
-                    label: `Prior-build average: ${executionTimeWords(averageMs)}`,
-                  },
-                }),
+            averageMs: comparison?.reference.averageMs,
           }}
         />
       )}

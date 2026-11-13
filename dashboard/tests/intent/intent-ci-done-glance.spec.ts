@@ -73,6 +73,7 @@ test("a Done landing's CI wall time reads against its recent builds between the 
   await expect(chart.marks).toHaveCount(9);
   await expect(chart.selected).toHaveCount(1);
   await expect(chart.average).toHaveCSS("stroke-dasharray", /\d/);
+  await expect(chart.averageLabel).toHaveText("Prior-build average 8 min 24 s");
   await expect(chart.failed).toHaveCount(1);
   await expect(chart.unavailable).toHaveCount(1);
   await expect(chart.readout).toHaveText(

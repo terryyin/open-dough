@@ -2,6 +2,7 @@
 
 **Identity:** SEED-331#make-ci-glance-wording-and-status-one-rule
 **Source:** [Correction story](../../seeds/SEED-331-read-ci-history-at-a-glance.md#make-ci-glance-wording-and-status-one-rule)
+**Source review:** [source-review.md](source-review.md)
 
 ## Source and provenance
 
@@ -70,7 +71,7 @@ eligibility and retention unchanged. ADR 0008: derived local read.
 
 ### 1. Read one vocabulary in Done and scope glances
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extended `intent-ci-done-glance.spec.ts` and `intent-scope-glance.spec.ts`
 assert the same selection word and average label; `intent-scope-timing-history-gaps.spec.ts`
 fixture from the real projection (`scopeHistoryGlanceOf`) or server wording
@@ -79,7 +80,9 @@ asserts a brief missing-identity status.
 
 Behavior: Given one Done story, its wall-time and scope history marks, dashed
 line and pending and missing-identity statuses read with the same brief
-words; scope reuses `averageLineOf` (precise option) and the shared gap
+words; the shared chart layout labels the dashed line from the series'
+`averageMs` in its own timing words, "Selected landing" is defined once
+(`selectedLandingWords`), and scope gap reasons use the shared gap
 vocabulary. Correct the four doc sentences in the same slice.
 
 ### 2. Read a failed build as failed from its known state
@@ -106,7 +109,10 @@ Proof: The consolidated specs keep each named behavior observed once in the
 browser plus integration proof: Done states (one collector-backed state plus
 "comparison stays readable, no CI calls"), one full mark Tab walkthrough, one
 default-answer membership check, zero-average once in the browser plus the
-unit test.
+unit test. The consolidated `intent-scope-glance.spec.ts` and
+`intent-ci-done-glance.spec.ts` journeys stay well inside the default test
+timeout under this machine's usual external load (see Learnings), with the
+measured before/after times recorded.
 
 ## Gates and delivery
 
@@ -136,3 +142,21 @@ none.
   clearer existing dashboard term; keep wording consistent across views.
 
 ## Learnings
+
+- Slice 1 (accepted 2026-11-13): chosen words are "Selected landing", the
+  chart layout's "Prior-build average <time>", the Done gap words (e.g.
+  "Pending · CI queued or running", "Cancelled") for scope gaps too, and
+  "Scope identity unavailable". The default (non-glance) scope answer carries
+  the new brief reason strings with its shape unchanged; no reader matches the
+  old strings and the frozen-reader compatibility specs pass.
+- Stability defect owned by slice 3: `intent-scope-glance.spec.ts` (10–16 s
+  alone) and `intent-ci-done-glance.spec.ts` hit the default 30 s test timeout
+  under external load 24–57 at 2–3 workers (scope glance inside
+  `openCollectedHistoryStory` / the Proof tab click; done glance in shared
+  `tests/support/selectDoneStoryForCiComparison.ts:21`); base f258e463b
+  behaves alike and both pass serially. Slice 3 makes these journeys cheaper
+  as part of its consolidation and proves the margin under load.
+- Slice 2 also covers a final `failed` scope gap (a landing whose retained
+  observation is final with reason `failed`): it reads "No timing · Failed"
+  with status unavailable today, the same string-decided status the slice
+  removes.

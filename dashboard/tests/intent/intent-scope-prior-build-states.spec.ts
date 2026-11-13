@@ -117,7 +117,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   await revisit();
   await childName(summary, "folder/").first().click();
   const unidentified =
-    "Prior-build average · Selected scope identity unavailable: no comparable reference can be established; historical units and owning entries remain separate · 0 prior builds used";
+    "Prior-build average · Scope identity unavailable · 0 prior builds used";
   await expectScopeReadout(history, {
     selected: `${landing} · No timing · Expired CI proof summary`,
     average: unidentified,
@@ -132,9 +132,7 @@ test("zero, partial selected timing and missing terminal identity retain honest 
   await expect(history).toContainText(unidentified);
   await intentFile(intent, summaryComparisonChanges.modified).click();
   await fileReadingTab(intent, "Proof").click();
-  await expect(proofRegion(intent)).toContainText(
-    "no comparable reference can be established",
-  );
+  await expect(proofRegion(intent)).toContainText(unidentified);
   await expect(storyTitle(intent)).toHaveText("Story A");
   expect(ciCalls()).toHaveLength(before);
 });
