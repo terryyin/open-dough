@@ -1,6 +1,7 @@
-// Cards count local attention independently of published story membership:
-// Backlog and Preparing cards here; a Taken card, another project and a
-// story in no list are ./agent-launch-attention-taken.spec.ts.
+// Backlog and Preparing cards count the sessions that need attention, apart
+// from what origin publishes. Taken cards, other projects and stories in no
+// list are ./agent-launch-attention-taken.spec.ts; which states need
+// attention is ../../backend-tests/sessions/session-reading-rule.spec.ts.
 
 import { expect, test } from "../dashboardTest.ts";
 import { expectMembership } from "../dashboardPage.ts";
@@ -13,10 +14,7 @@ import {
 } from "../launchJourney.ts";
 import { expectNotReloaded, markNotReloaded } from "../sessionStatePace.ts";
 import { attentionCountsOn, publishedFactsOf } from "../storyCardAttention.ts";
-import {
-  openDoughWorkingSessions,
-  openWithOpenSessions,
-} from "../storyCardOpenSessions.ts";
+import { openWithOpenSessions } from "../storyCardOpenSessions.ts";
 import { expectCursorRunnerStandIn } from "../support/cursorRunnerJourney.ts";
 
 // Cursor operations are outside this journey's proof; the harness
@@ -37,7 +35,7 @@ test.describe("a story's card counts the sessions that need attention", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("counts each card's affected sessions in Backlog and Preparing, never an unknown one or while the listing cannot be read", async ({
+  test("counts each card's sessions needing attention in Backlog and Preparing, and none while the listing cannot be read", async ({
     page,
     dashboard,
   }) => {
@@ -47,15 +45,9 @@ test.describe("a story's card counts the sessions that need attention", () => {
       board,
       card,
       expectNothingStarted,
-      shows,
       becomes,
       queued,
-    } = await openWithOpenSessions(
-      page,
-      dashboard,
-      columnsJourney,
-      openDoughWorkingSessions,
-    );
+    } = await openWithOpenSessions(page, dashboard, columnsJourney);
     const expectCounted = attentionCountsOn(board, card);
     await expectCounted({});
     expectCursorRunnerStandIn(dashboard.home);
@@ -68,16 +60,12 @@ test.describe("a story's card counts the sessions that need attention", () => {
       becomes(takenStory, "Refinement", "forgotten");
       await passOnePace();
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
-      await shows(readyStory, "Execution", "Needs input: input needed", true);
-      await shows(notRefinedStory, "Execution", "Ready for review", true);
-      await shows(takenStory, "Refinement", "Session unavailable", false);
     });
 
     await test.step("an affected session stays counted, and none while the listing cannot be read", async () => {
       becomes(readyStory, "Execution", "stopped");
       await passOnePace();
       await expectCounted({ [readyStory]: one, [notRefinedStory]: one });
-      await shows(readyStory, "Execution", "Session stopped", true);
 
       dashboard.claudeListingFails(true);
       await passOnePace();

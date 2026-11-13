@@ -1,26 +1,13 @@
-// A card keeps listing its sessions whatever Claude Code lists of them: a
-// session Ready for review, stopped, needing input, or unavailable stays on
-// its card beside the Start actions, which stay disabled for an open session
-// and keep their notes in their accessible description; an unavailable one
-// has no Open terminal, and every one is State unknown with Open terminal
-// while the listing cannot be read, shown in the open page once its steady
-// pace of page time passes, with no new read of the published work. A
-// restarted dashboard server, a reload, and a project switch keep every entry
-// and its state. What each state shows is
-// ./agent-launch-session-state-pace.spec.ts. Origin alone still places
-// every story. The page opens with the three sessions already open
-// (../storyCardOpenSessions.ts), so nothing is started. The server keeps its
-// HOME, the launch store, and the synthetic `claude`'s state
-// (./fixtures/fake-claude) in a machine directory, so a restart answers the
-// same records and sessions; the real `claude` is never reached.
+// An open session stays on its card beside its blocked Starts whatever Claude
+// Code lists of it: through an unreadable listing, with no new read of the
+// published work, and through a server restart, a reload and a project
+// switch. The server keeps its machine directory, so a restart answers the
+// same records and sessions. What each state reads is
+// ../../backend-tests/sessions/session-reading-rule.spec.ts.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import {
-  identityA,
-  identityB,
-} from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-fixtures.mjs";
 import { test as base, expect } from "../dashboardTest.ts";
 import {
   chooseProject,
@@ -32,17 +19,13 @@ import {
 } from "../dashboardPage.ts";
 import { doughnutSharedTitle } from "../doughnutProject.ts";
 import {
-  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
   readyStory,
   takenStory,
   type StoryColumnsJourney,
 } from "../launchJourney.ts";
-import {
-  openWithOpenSessions,
-  type OpenSession,
-} from "../storyCardOpenSessions.ts";
+import { openWithOpenSessions } from "../storyCardOpenSessions.ts";
 import {
   expectStartsBlocked,
   describedBy,
@@ -52,7 +35,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../support/dashboardServer.ts";
-import type { ClaudeSessionChange } from "../support/fakeClaude.ts";
+import type { FakeGitHub } from "../support/fakeGitHub.ts";
 import { expectNotReloaded, markNotReloaded } from "../sessionStatePace.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import { readsBesideChecks } from "../originObservation.ts";
@@ -62,9 +45,21 @@ import { openTerminalControl } from "../terminalScreenPage.ts";
 const openSessionNote =
   "This story has an open session. Mark it done or delete its record to start another.";
 
-const projectFolders = ["open-dough"];
+// The same machine directory serves the page before and after a restart.
+const serve = (github: FakeGitHub, machine: string, port?: number) =>
+  startDashboardServer({
+    mode: "preview",
+    prebuilt: sharedDashboardBuild,
+    github,
+    machine,
+    projectFolders: ["open-dough"],
+    ...(port === undefined ? {} : { port }),
+  });
 
-const test = base.extend<{ machine: string }>({
+const test = base.extend<{
+  machine: string;
+  restartDashboard: () => Promise<void>;
+}>({
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
   machine: async ({}, use) => {
@@ -73,15 +68,18 @@ const test = base.extend<{ machine: string }>({
     rmSync(machine, { recursive: true, force: true });
   },
   dashboard: async ({ github, machine }, use) => {
-    const server = await startDashboardServer({
-      mode: "preview",
-      prebuilt: sharedDashboardBuild,
-      github,
-      machine,
-      projectFolders,
-    });
+    const server = await serve(github, machine);
     await use(server);
     await server.close();
+  },
+  restartDashboard: async ({ dashboard, github, machine }, use) => {
+    let restarted: DashboardServer | undefined;
+    await use(async () => {
+      await dashboard.close();
+      const port = Number(new URL(dashboard.baseURL).port);
+      restarted = await serve(github, machine, port);
+    });
+    await restarted?.close();
   },
 });
 
@@ -96,149 +94,82 @@ test.describe("a card's sessions whatever Claude Code lists", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("a ready-for-review, stopped, blocked, unavailable, or unknown session stays on its card with its state beside the Start actions, through a restart, a reload, and a project switch", async ({
+  test("an open session stays on its card with its state through an unreadable listing, a restart, a reload and a project switch", async ({
     page,
     dashboard,
     github,
-    machine,
+    restartDashboard,
   }) => {
-    // Open Dough's three sessions, each working when the page opens on the
-    // Backlog, the change each then undergoes, and the state its card entry
-    // shows then; the blocked session still runs.
-    const sessions: readonly (OpenSession & {
-      change: ClaudeSessionChange;
-      shows: string;
-    })[] = [
-      {
-        project: "open-dough",
-        identity: notRefinedIdentity,
-        title: notRefinedStory,
-        workflow: "Execution",
-        state: "working",
-        change: "done-exited",
-        shows: "Ready for review",
-      },
-      {
-        project: "open-dough",
-        identity: identityB,
-        title: readyStory,
-        workflow: "Execution",
-        state: "working",
-        change: "forgotten",
-        shows: "Session unavailable",
-      },
-      {
-        project: "open-dough",
-        identity: identityA,
-        title: takenStory,
-        workflow: "Refinement",
-        state: "working",
-        change: "stopped",
-        shows: "Session stopped",
-      },
-    ];
     const {
       passOnePace,
       settled,
       action,
       entryOf,
-      expectOpen,
+      shows,
+      expectSameSessions,
       expectNothingStarted,
       becomes,
       queued: backlog,
-    } = await openWithOpenSessions(page, dashboard, columnsJourney, sessions);
+    } = await openWithOpenSessions(page, dashboard, columnsJourney);
     const queued = { taken: [], backlog };
-    // Every card with an open session keeps both Starts unavailable, with
-    // their notes still in the accessible description; the not-refined
-    // story's Start execution also keeps its not-ready note first.
-    const expectEveryStartBlocked = async () => {
-      await expectStartsBlocked(action, queued.backlog, openSessionNote);
+    const listed = storyCardSessions(page.locator("body"));
+    const expectShown = async () => {
+      await expect(listed).toHaveCount(3);
+      await expectSameSessions();
+      await shows(notRefinedStory, "Execution", "Ready for review", true);
+      await shows(readyStory, "Execution", "Session unavailable", false);
+      await shows(takenStory, "Refinement", "Session stopped", true);
+      await expect(
+        openTerminalControl(entryOf(readyStory, "Execution")),
+      ).toHaveCount(0);
+      await expectStartsBlocked(action, backlog, openSessionNote);
       await expect(
         action(notRefinedStory, "Execution"),
       ).toHaveAccessibleDescription(
         new RegExp(`${notReadyNote}.*${describedBy(openSessionNote).source}`),
       );
     };
-    const expectShown = async () => {
-      for (const session of sessions) {
-        const entry = entryOf(session.title, session.workflow);
-        await expect(sessionStateOf(entry)).toHaveText(session.shows);
-        await expect(openTerminalControl(entry)).toHaveCount(
-          session.shows === "Session unavailable" ? 0 : 1,
-        );
-        // The same session the page opened with, now listed as changed,
-        // after every restart, reload, and project switch.
-        await expectOpen({ ...session, state: session.change });
-      }
-      await expect(storyCardSessions(page.locator("body"))).toHaveCount(
-        sessions.length,
-      );
-      await expectEveryStartBlocked();
-    };
 
-    // Claude Code's listing cannot be read, and then every session changes.
     dashboard.claudeListingFails(true);
-    for (const { title, workflow, change } of sessions) {
-      becomes(title, workflow, change);
-    }
+    becomes(notRefinedStory, "Execution", "done-exited");
+    becomes(readyStory, "Execution", "forgotten");
+    becomes(takenStory, "Refinement", "stopped");
 
-    await test.step("while Claude Code's listing cannot be read, every session stays on its card as State unknown with Open terminal, in the open page with no new read of the published work", async () => {
+    await test.step("an unreadable listing keeps every entry as State unknown with Open terminal, reading no published work", async () => {
       const asked = github.calls.length;
       await markNotReloaded(page);
       await passOnePace();
-      for (const { title, workflow } of sessions) {
-        const entry = entryOf(title, workflow);
-        await expect(sessionStateOf(entry)).toContainText("State unknown");
-        await expect(openTerminalControl(entry)).toBeVisible();
-      }
-      await expect(storyCardSessions(page.locator("body"))).toHaveCount(
-        sessions.length,
+      await expect(sessionStateOf(listed)).toHaveText(
+        Array(3).fill(/State unknown/),
       );
+      await expect(openTerminalControl(listed)).toHaveCount(3);
       await untilPageReadsAnswered(page);
       await expectNotReloaded(page);
       await expect(parts(page).readRevision).toContainText(
         shortRevision(columnsJourney.queued),
       );
-      // GitHub is asked at most whether the heads moved.
       expect(readsBesideChecks(github.calls.slice(asked))).toEqual([]);
       dashboard.claudeListingFails(false);
     });
 
-    const port = Number(new URL(dashboard.baseURL).port);
-    let restarted: DashboardServer | undefined;
-    try {
-      await test.step("a restarted dashboard server, a reload, and a project switch keep every entry and its state", async () => {
-        await dashboard.close();
-        restarted = await startDashboardServer({
-          mode: "preview",
-          prebuilt: sharedDashboardBuild,
-          github,
-          machine,
-          projectFolders,
-          port,
-        });
-        await page.reload();
-        await expectMembership(page, queued);
-        await settled();
-        await expectShown();
+    await test.step("a restarted server, a reload, and a project switch keep every entry and its state", async () => {
+      await restartDashboard();
+      await page.reload();
+      await settled();
+      await expectShown();
 
-        await chooseProject(page, "Doughnut");
-        await expectMembership(page, {
-          taken: [],
-          backlog: [doughnutSharedTitle],
-        });
-        await expect(storyCardSessions(page.locator("body"))).toHaveCount(0);
-        await chooseProject(page, "Open Dough");
-        await expectMembership(page, queued);
-        await settled();
-        await expectShown();
+      await chooseProject(page, "Doughnut");
+      await expectMembership(page, {
+        taken: [],
+        backlog: [doughnutSharedTitle],
       });
-    } finally {
-      await restarted?.close();
-    }
+      await expect(listed).toHaveCount(0);
+      await chooseProject(page, "Open Dough");
+      await settled();
+      await expectShown();
+    });
 
-    // Session state never moves a story: origin alone places each one, and
-    // nothing was started, before or after the restart.
+    // Origin alone places each story, and nothing was started.
     await expectMembership(page, queued);
     expectNothingStarted();
   });

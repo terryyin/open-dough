@@ -40,15 +40,13 @@ import {
 import type { ClaudeSessionChange } from "./support/fakeClaude.ts";
 import { keepLaunchStore } from "./support/launchStore.ts";
 
-// A Claude session already open on a story's card when the page opens: the
-// project that keeps it, the story it works on, its workflow, and the state
-// Claude Code lists it in.
+// A Claude session already open and working on a story's card when the page
+// opens: the project that keeps it, the story it works on, and its workflow.
 export type OpenSession = {
   readonly project: string;
   readonly identity: string;
   readonly title: string;
   readonly workflow: Workflow;
-  readonly state: ClaudeSessionChange;
 };
 
 // Open Dough's three sessions, each working when the page opens on the
@@ -60,21 +58,18 @@ export const openDoughWorkingSessions: readonly OpenSession[] = [
     identity: identityB,
     title: readyStory,
     workflow: "Execution",
-    state: "working",
   },
   {
     project: "open-dough",
     identity: notRefinedIdentity,
     title: notRefinedStory,
     workflow: "Execution",
-    state: "working",
   },
   {
     project: "open-dough",
     identity: identityA,
     title: takenStory,
     workflow: "Refinement",
-    state: "working",
   },
 ];
 
@@ -97,14 +92,13 @@ function keepOpenSessions(
   const now = Date.now();
   const byProject: Record<string, LaunchRecord[]> = {};
   const sessionOf = new Map<string, string>();
-  sessions.forEach(({ project, identity, title, workflow, state }, index) => {
+  sessions.forEach(({ project, identity, title, workflow }, index) => {
     const startedAt = now - (sessions.length - index) * 1_000;
     const sessionId = dashboard.claudeListsSession({
       name: title,
       cwd: path.join(dashboard.home, "git", project),
       startedAt,
     });
-    if (state !== "working") dashboard.claudeSessionBecomes(sessionId, state);
     const story = { identity, title, source: project };
     const launch =
       workflow === "Execution"
@@ -129,7 +123,7 @@ export async function openWithOpenSessions(
   page: Page,
   dashboard: DashboardServer,
   columnsJourney: StoryColumnsJourney,
-  sessions: readonly OpenSession[],
+  sessions: readonly OpenSession[] = openDoughWorkingSessions,
 ) {
   const sessionOf = keepOpenSessions(dashboard, sessions);
   const startsAsked: string[] = [];
@@ -158,17 +152,21 @@ export async function openWithOpenSessions(
   ) => expectSessionShown(entryOf(title, workflow), words, needsAttention);
   const sessionIdOf = (title: string, workflow: Workflow) =>
     sessionOf.get(`${title} ${workflow}`) ?? "?";
-  // The shown card's entry names the session kept for it, working as
-  // listed when it was listed working.
-  const expectOpen = async ({ title, workflow, state }: OpenSession) => {
-    if (state === "working") await shows(title, workflow, "Working", false);
+  // The shown card's entry names the session kept for it.
+  const expectSameSession = async ({ title, workflow }: OpenSession) => {
     expect(await sessionNamedBy(entryOf(title, workflow))).toBe(
       sessionIdOf(title, workflow),
     );
   };
-  for (const session of sessions) {
-    if (session.project === "open-dough") await expectOpen(session);
-  }
+  const expectOpen = async (session: OpenSession) => {
+    await shows(session.title, session.workflow, "Working", false);
+    await expectSameSession(session);
+  };
+  const openDough = sessions.filter(({ project }) => project === "open-dough");
+  const expectSameSessions = async () => {
+    for (const session of openDough) await expectSameSession(session);
+  };
+  for (const session of openDough) await expectOpen(session);
   // Claude Code lists the story's session in this workflow anew.
   const becomes = (
     title: string,
@@ -193,6 +191,7 @@ export async function openWithOpenSessions(
     action,
     entryOf,
     expectOpen,
+    expectSameSessions,
     expectNothingStarted,
     shows,
     becomes,

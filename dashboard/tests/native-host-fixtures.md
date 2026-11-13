@@ -120,12 +120,13 @@ which sessions a card lists, newest first, in each column;
 `agent-launch-story-card-open-session.spec.ts` that those Starts stay unavailable
 while an open session remains, return after Mark as done or Delete record, and
 a dialog opened beforehand is refused; `agent-launch-story-card-session-states.spec.ts`
-that an entry stays on its card in every state, without Open terminal when
-unavailable and with it when unknown, and survives a restarted server, a
-reload, and a project switch; `agent-launch-session-state-pace.spec.ts` what
-each native state shows on its active card entry within one read pace, with
-no Recently done duplicate; and the two attention files how many of a
-card's sessions need attention.
+that an entry stays on its card whatever its state and survives an unreadable
+listing, a restarted server, a reload, and a project switch;
+`agent-launch-session-state-pace.spec.ts` that a host change shows on its
+active card entry within one read pace; and the two attention files how many
+of a card's sessions need attention. What each native state reads, and
+whether it needs attention or offers Open terminal, is the browser-free
+`../backend-tests/sessions/session-reading-rule.spec.ts`.
 The ad hoc session started from Start session is walked by
 `agent-launch-ad-hoc-boundary.spec.ts` (the boundary: label, arguments,
 refusals, the record), `agent-launch-ad-hoc.spec.ts` (the button, dialog, and

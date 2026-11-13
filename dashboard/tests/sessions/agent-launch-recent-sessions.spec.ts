@@ -8,7 +8,7 @@
 // is reading them. That entries stay through Preparing, the
 // Take, and completion is ./agent-launch-story-card-sessions.spec.ts, and each
 // entry's state is
-// ./agent-launch-session-state-pace.spec.ts. The page's own dashboard
+// ../../backend-tests/sessions/session-reading-rule.spec.ts. The page's own dashboard
 // server launches the synthetic `claude` (./fixtures/fake-claude); the real
 // one is never reached.
 
