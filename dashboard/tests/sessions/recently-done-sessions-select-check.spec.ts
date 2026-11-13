@@ -7,8 +7,9 @@
 // session's access as they were.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
+import { routeNextReads } from "../nextActionReads.ts";
 import { catalogPublications } from "../catalogProjectRecords.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { doneRecordFileName } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -40,6 +41,8 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { development, intentChoice, intent } = parts(page);
   await intentChoice.click();
@@ -77,7 +80,7 @@ test("an unanswered check is superseded by a later choice, and a failed one leav
   });
 
   await test.step("a failed catalog read says so apart from a miss and leaves project and story alone", async () => {
-    await page.route(isPygardonCatalog, (route) =>
+    await routeNextReads(page, isPygardonCatalog, (route) =>
       route.fulfill({
         status: 502,
         json: { error: "GitHub could not be reached." },
@@ -111,6 +114,8 @@ test("a catalog naming the story's done record unreadable, or not describing the
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard, undefined, {
     unreadableLinkedRecord: true,
   });
@@ -137,7 +142,7 @@ test("a catalog naming the story's done record unreadable, or not describing the
 
   await test.step("a catalog that does not describe the done records: the row repeats Board Recently done's gap problem and repair", async () => {
     const gap = "done catalog is not published beside the 1 done records";
-    await page.route(isPygardonCatalog, (route) =>
+    await routeNextReads(page, isPygardonCatalog, (route) =>
       route.fulfill({
         json: { revision: catalogPublications.pygardon.revision, gap },
       }),

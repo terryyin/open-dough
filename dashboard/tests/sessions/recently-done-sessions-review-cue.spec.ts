@@ -1,5 +1,5 @@
 // Shown Recently done rows expose their linked story's outstanding local review.
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { linked, openSelectionPage } from "../recentlyDoneSelectionJourney.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
 import { expectSessionReviewCue } from "../recentlyDoneSessionsSidebarPage.ts";
@@ -54,6 +54,9 @@ test("equal identities use their own project's review state; every shown matchin
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time, so only the
+  // reads the shown rows lead to are counted.
+  await pausePageClockAt(page, new Date());
   await keepReviewCueProjects(page, dashboard);
   let catalogs = 0;
   page.on("request", (request) => {
@@ -88,6 +91,9 @@ test("a newly revealed batch resolves the same published story without per-row c
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time, so only the
+  // reads the shown batches lead to are counted.
+  await pausePageClockAt(page, new Date());
   await keepReviewCueProjects(page, dashboard);
   const older = Array.from(Array(24).keys(), (index) =>
     cueSession(dashboard, `Older review session ${String(index)}`, index + 100),

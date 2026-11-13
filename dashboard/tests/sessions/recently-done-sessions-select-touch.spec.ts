@@ -6,7 +6,7 @@
 // kinds of row live in ./recently-done-sessions-select-development.spec.ts.
 
 import type { Locator } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { closeSidePanelToBoard, tapWhereShown } from "../pageLayout.ts";
 import { expectProjectChoice } from "../projectChoice.ts";
@@ -17,7 +17,6 @@ import {
   report,
 } from "../recentlyDoneSelectionJourney.ts";
 import { expectDevelopmentKept } from "../recentlyDoneSelectionReport.ts";
-import { untilPageRequestsAnswered } from "../pageRequestNotes.ts";
 import { holdPygardonCatalog } from "../pygardonCatalogReads.ts";
 import { expectSelected } from "../storyCardSelection.ts";
 import { phoneLaunchTouchViewport } from "../touchLaunchPage.ts";
@@ -74,15 +73,14 @@ test.describe("on coarse input", () => {
     page,
     dashboard,
   }) => {
+    // The shown rows' recurring catalog read waits for page time.
+    await pausePageClockAt(page, new Date());
     const { shown } = await openSelectionPage(page, dashboard, tapWhereShown, {
       // Its done card stands behind six newer Pygardon sessions.
       newer: { pygardon: 6 },
     });
     // The row's check reads the catalog; the Board's own read of it is still
     // under way when the overlay is closed.
-    // Initial shown-row observation is independent of this click. Settle it
-    // before passing Select's read and holding the subsequent Board read.
-    await untilPageRequestsAnswered(page);
     const boardRead = await holdPygardonCatalog(page, 1);
     await shown.select(linked.title).scrollIntoViewIfNeeded();
     await tapWhereShown(shown.select(linked.title));

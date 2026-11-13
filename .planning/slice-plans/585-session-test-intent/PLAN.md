@@ -309,6 +309,15 @@ specs plus refactor 4/4 (`s8/run-aa..ac.log`, `s8r/run.log`). `session-unread-re
 timed out cold at load ~54 (10.3 s in origin preparation) and passed 3/3 at load 18–20;
 that cold-preparation cost is SEED-335's.
 
+CI repair (run 43367039962 on 8db756d): trunk's shown-rows reader
+(`useShownDoneLinks`, 40e6e66c0) reads the Pygardon catalog and ad hoc association
+records on open and every 15 s, so `select-supersede`'s catalog hold caught the
+reader's read and waited out its budget. New `nextActionReads.ts` owns holding and
+routing the next action's reads: it requires paused page time and settles page
+requests first; `holdPygardonCatalog`, the select-check/supersede/touch/ad-hoc-check
+specs and review-cue's read counts use it with `pausePageClockAt`. Each hazard was
+reproduced first; proof 30/30, 25/25, 16/16, 10/10, 5/5 under load 6–61.
+
 ## Execution complete
 
 Product advice:

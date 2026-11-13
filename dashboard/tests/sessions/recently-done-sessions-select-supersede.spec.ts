@@ -6,7 +6,7 @@
 // in ./recently-done-sessions-select-check.spec.ts.
 
 import type { Page } from "@playwright/test";
-import { expect, test } from "../dashboardTest.ts";
+import { expect, pausePageClockAt, test } from "../dashboardTest.ts";
 import { parts } from "../dashboardPage.ts";
 import { chooseProject, expectProjectChoice } from "../projectChoice.ts";
 import {
@@ -48,6 +48,8 @@ test("choosing another project while a linked row is still checked abandons the 
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { intentChoice, intent } = parts(page);
   await intentChoice.click();
@@ -71,6 +73,8 @@ test("another row's Open while a linked row is still checked abandons the check,
   page,
   dashboard,
 }) => {
+  // The shown rows' recurring catalog read waits for page time.
+  await pausePageClockAt(page, new Date());
   const { shown, row } = await openSelectionPage(page, dashboard);
   const { development, intentChoice, intent } = parts(page);
   await expect(development).toBeChecked();
