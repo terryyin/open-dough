@@ -176,7 +176,7 @@ errors → its `CI_MONITOR_UNAVAILABLE` event, its terminal record, and any
 
 ### 3. Recover completion on a replacement observer
 Type: Behavior
-Status: planned
+Status: done
 Proof: Examples 1 and 6 and preserved failure, through the recovery CLI
 process against a mailbox ended in-process (see the premise rows) with a fake
 `gh`. The receipt identity, the ended mailbox's unchanged records, one live
@@ -314,6 +314,9 @@ command-adapter proof outcomes from slices 3–4. Link the outcome from
 - CI repair on `79238f1` (run 43442318159/1): Rolldown server-bundle must set
   `output.codeSplitting: false` with `output.file` when the graph has dynamic
   imports; that harness defect failed every dashboard shard and concurrent-runs.
+- Slice 3: record predecessors before the first `completeRevision` or the
+  exclusive deadline claim is fresh; in-process budget end needs a config-free
+  observe root with a controlled clock, not the fixture command-adapter root.
 
 
 ## Story obligations

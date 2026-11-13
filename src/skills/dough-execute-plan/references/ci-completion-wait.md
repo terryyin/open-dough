@@ -53,6 +53,15 @@ revision:
 node '/ABSOLUTE/RESOLVED/SKILL/scripts/ci-mailbox.mjs' complete-revision '/EXACT/RECORDED/MAILBOX' FULL_ACCEPTED_SHA
 ```
 
+When this coordinator's observer for that target has ended before the accepted
+SHA has a completion receipt — including a budget-expiry notice that names
+`execution-completion-recovery.mjs complete` — run that one managed recovery
+instead of polling by hand or inventing a second receipt. It takes the same
+owner input as `resume` (`--workspace`, `--accepted-sha`, `--target-ref`,
+`--repo`, `--host`, and the host session or Codex stream flags), re-establishes
+this coordinator's observation of that SHA on its authorized target, and ends
+in the ordinary `CI_OBSERVER` completion receipt below.
+
 The command stays silent while waiting and keeps its ten-minute foreground bound.
 Before waiting it exclusively records the first completion start and a sixty-minute
 overall deadline for this mailbox and accepted SHA. Resuming, caller interruption,

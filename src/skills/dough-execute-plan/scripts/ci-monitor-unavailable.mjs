@@ -5,6 +5,10 @@ export const observationCause = Object.freeze({
   observationError: "observation_error",
 });
 
+// Named in the budget-expiry notice and in completion guidance.
+export const completionRecoveryCommand =
+  "execution-completion-recovery.mjs complete";
+
 export function monitorUnavailableEvent({
   repo,
   branch,
@@ -20,6 +24,9 @@ export function monitorUnavailableEvent({
     ...(workflow === undefined ? {} : { workflow }),
     reason: String(reason).slice(0, 600),
     ...(cause === undefined ? {} : { cause }),
+    ...(cause === observationCause.budgetExpired
+      ? { recovery: completionRecoveryCommand }
+      : {}),
     ...rest,
   };
 }
