@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep one-time browser test preparation out of case budgets](seeds/SEED-335-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets) — SEED-335#keep-one-time-test-preparation-out-of-case-budgets
 - [Read CI history at a glance in story comparison and test Proof](seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance) — SEED-331#read-ci-history-at-a-glance
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Express launch dialog and startup test intent through page objects](seeds/SEED-300-dashboard-test-page-objects.md#express-launch-test-intent-through-page-objects) — SEED-300#express-launch-test-intent-through-page-objects

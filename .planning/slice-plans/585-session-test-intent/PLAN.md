@@ -285,6 +285,8 @@ suite 2695/2712 with all 14 load timeouts passing on rerun (`s7-run2..5`), refac
 and 12/12 (`s7r-proof.log`, `s7r-quiet-repeat.log`), note callers 5/5 (`s7-note.log`);
 `--list` 2712 equals trunk. Four launch-family specs still derive `openSessionDescription`
 from production; they belong to the launch story.
+The cold-preparation risk recorded as G8 is queued first as
+[SEED-335#keep-one-time-test-preparation-out-of-case-budgets](../../seeds/SEED-335-test-preparation-outside-case-budgets.md#keep-one-time-test-preparation-out-of-case-budgets).
 
 ## Verification, current decisions and concern review
 
