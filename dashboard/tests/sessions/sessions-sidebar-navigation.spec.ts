@@ -101,7 +101,8 @@ test.describe("opening a Sessions sidebar Session entry", () => {
         backlog: pygardonBacklogTitles,
       });
       await expect(pygardonStoryCard).toBeInViewport();
-      // Brought into view smoothly, and kept there as the page settled.
+      // Asked to be brought into view smoothly, and kept there as the page
+      // settled.
       await expectRevealsSince(page, 0, pygardonStory.title, "smooth");
       await expectSelected(pygardonStoryCard, true);
       await expect(

@@ -105,8 +105,8 @@ export async function readWithKey(
   await scrolling.dispose();
 }
 
-// Watches the Board from before a movement, such as Show latest 10's smooth
-// move to the heading: the returned wait ends two drawn frames after it is
+// Watches the Board from before a movement, such as Show latest 10's move
+// to the heading: the returned wait ends two drawn frames after it is
 // asked, or, when the Board scrolled, once that scrolling has ended. A place
 // read sooner can be a move short.
 export async function watchBoardScroll(page: Page) {

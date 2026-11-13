@@ -409,7 +409,7 @@ about +55 lines; the slice is about −80 lines.
 
 ### 9. Prove native reading keys under the decided load
 Type: Behavior
-Status: planned
+Status: done
 Proof: in-profile repeat proof (one worker, external load ≈28–36,
 `--repeat-each=40` or more) of `board-reading`, `board-native-reading` and
 `accessible-board-scroll` key journeys, with unchanged-form comparisons at
@@ -424,6 +424,57 @@ Terry before it lands. Runs need ambient load at or below the profile; check
 `uptime` first.
 Safe stop: the key journeys pass in profile, or the diagnosis evidence and the
 remaining decision are recorded for Terry.
+
+Diagnosis (2026-11-13, about 1 h 25 min of runs, load governed to 28–36).
+- **HEAD with `yes`-only load:** passed 120/120, at both one and four workers.
+- **HEAD with two concurrent Playwright runs plus `yes` (load 28–36):** failed 2/240, both in `accessible-board-scroll`, both at the first End from body.
+- **Failure mode:** every failure is a body-to-Board handoff key. The focus moves, the Board stays at 0, and either `scrollend` fires without movement or no further frame comes at all.
+- **Chromium source:** an aborted compositor smooth-scroll animation counts as finished. It fires `scrollend` and leaves the offset unchanged.
+- **Variants:** `--disable-smooth-scrolling` passed 120/120; a compositor-ready wait (`animation.ready`) also passed 120/120. Neither differs significantly from HEAD at this rate (Fisher p ≈ 0.25–0.5), and neither does slice 2's 3/80 vs 0/80.
+- **Working tree:** nothing kept; it is at HEAD.
+
+Decision needed (Terry), recommended first:
+1. A suite-wide `--disable-smooth-scrolling` launch argument, proved with 160 or more `accessible-board-scroll` samples under mixed load.
+2. A test-side compositor-ready wait, needing the same proof.
+3. A scoped exception for this browser-level flake.
+
+Terry chose option 1 (2026-11-13): add a suite-wide
+`--disable-smooth-scrolling` launch argument and prove it under the
+competing-load profile (two Playwright runs plus `yes`, load 28–36) with 160
+or more `accessible-board-scroll` samples, then rerun C1, C2 and the combined
+cohorts.
+
+The flag also makes the app's programmatic smooth reveals instant
+(`keepInView`, the Recently done range actions). So the suite no longer
+exercises a smooth reveal still in progress, the class of defect fixed in
+`2c3f18105` and caught by `recently-done-sessions-select-touch`. Terry
+accepted that loss on 2026-11-13 and kept the flag suite-wide.
+
+Evidence: `/Users/terryyin/.claude/jobs/7c2dd325/tmp/slice9-*`, `s9acc-*`.
+
+Accepted (2026-11-13): `support/browserArgs.ts` holds
+`--disable-smooth-scrolling`. `playwright.config.ts` sets it for every
+browser, and `board-scroll` and the voice fixtures spread it into their own
+launch options. `accessible-board-scroll`'s first End now uses `readWithKey`,
+and `story-reference-scroll-completion.spec.ts` is removed (O8, Terry).
+
+Proof under competing load (runs b1–b6, two Playwright runs plus `yes`): no
+body-to-Board handoff-key failure.
+- `accessible-board-scroll` first End: 280/280.
+- `board-reading`: 160/160.
+- `board-native-reading`: 160/160.
+- Background End presses: 2418/2418.
+
+Only about 78, 41 and 43 of those samples fell inside the 28–36 band; most
+ran above it. Other proof:
+- C1 19/19; C2 16/16.
+- Combined 302/306. The failures were the deleted spec and three timeouts at load 33–40 (O9).
+- Smooth-reveal and voice specs 69/69.
+- Typecheck exit 0.
+
+`accessible-board-scroll`'s Shift+Tab walk ran out of its 30 s budget at
+load 55+ (O9). No browser proof now covers `pageMovement.ts` handling a
+reveal still in motion (accepted with O8).
 
 ## Proof commands and execution gates
 
@@ -506,7 +557,7 @@ Disposition: proved by slice 8: published-facts-reading, readingPlace, branch-pr
 ### O3. Body-to-Board reading keys sometimes scroll nothing within the decided load profile
 Reported: slice 2 — "In profile, every remedied failure is at a body-to-Board handoff key (End from body; Meta+ArrowUp after blur): 3/80 remedied versus 0/80 unchanged on the same two specs."
 Story clause: "Necessary test/harness repair follows the project's failing/flaky-test policy."
-Disposition: receiving slice 9
+Disposition: proved by slice 9: with --disable-smooth-scrolling (playwright.config.ts via browserArgs.ts), mixed competing-load runs b1–b6 had no body-to-Board handoff-key failure — accessible-board-scroll first End 280/280 handed off and scrolled (now readWithKey), board-reading 160/160, board-native-reading 160/160, background End records 2418/2418; probe slice9b-instant.log shows End complete two frames after keydown, so no smooth animation exists to abort
 
 ### O4. Raw project-tab radio locators remain outside navigation
 Reported: slice 3 — "Raw `project.getByRole("radio",{name,exact:true})` sites remain outside navigation: in this story's later territory: `stories/story-readiness`, `stories/direction-disclosure`, the `observation/*` project-read/transient/auto-refresh/shared-observer/read-failure specs, `storyReadinessRefresh.ts`, `doughnutJourney.ts`, `limitedReadingJourney.ts`, `publishedFactsIsolationJourney.ts`; in sibling families: `responsiveStart.ts` and `launches/responsive-session-recovery-restart`, which are launch-family and also omit `exact`."
@@ -527,3 +578,13 @@ Disposition: proved by slice 8: named credit/badge/progress sites use agentCredi
 Reported: slice 7 — "`published-facts-isolation.spec.ts` L108–114 delays the profiles request with `setTimeout(resolve, 1_000)` in a route handler. AGENTS.md says never wait for wall-clock time."
 Story clause: "Use MakeMe for domain data and observable waits or controlled clocks."
 Disposition: proved by slice 8: published-facts-isolation releases a route hold after observed preparation and canonical-link focus; fault (no wait for independent reads) failed 3/3; spec 6/6
+
+### O8. A distinct behavior check is removed with smooth scrolling off
+Reported: slice 9 — "`story-reference-scroll-completion.spec.ts` fails every time with `--disable-smooth-scrolling`. That spec exists to test a smooth reveal that is still under way."
+Story clause: "with every distinct behavior check and existing test tier preserved"
+Disposition: owner changed "which only checked a reveal still in motion, is removed rather than preserved"
+
+### O9. Some journeys exceed the test timeout only above the decided load
+Reported: slice 9 — "The combined run had 3 timeouts, all at an estimated load of about 33–40 during an outside load surge. Each passed 3/3 at idle, with and without the flag."
+Story clause: "Necessary test/harness repair follows the project's failing/flaky-test policy."
+Disposition: owner changed "failures seen only above that load are outside this story"

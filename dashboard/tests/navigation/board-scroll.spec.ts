@@ -19,6 +19,7 @@ import {
   panelDivider,
 } from "../sidePanelWidthPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
+import { dashboardBrowserArgs } from "../support/browserArgs.ts";
 import { openBacklog } from "../support/sessionDialog.ts";
 import { keepLaunchRecord } from "../support/storyLaunchRecord.ts";
 import {
@@ -28,7 +29,12 @@ import {
 } from "../support/storyReviewWorktree.ts";
 
 // Exercise the browser's actual scrollbar; Playwright normally hides it.
-test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"] } });
+test.use({
+  launchOptions: {
+    args: dashboardBrowserArgs,
+    ignoreDefaultArgs: ["--hide-scrollbars"],
+  },
+});
 
 for (const viewport of [
   { width: 1400, height: 420 },

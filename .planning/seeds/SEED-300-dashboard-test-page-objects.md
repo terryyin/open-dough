@@ -366,6 +366,15 @@ their reached shared-control callers, preserving their other workflow ownership.
 Necessary test/harness repair follows the project's failing/flaky-test policy.
 No new product rejection constraint or dependency on a sibling story is added.
 
+Terry (2026-11-13): the dashboard suite starts Chromium without smooth
+scrolling, so a body-to-Board reading key cannot end an aborted smooth-scroll
+animation without moving. Programmatic smooth reveals are then instant, and
+`story-reference-scroll-completion.spec.ts`, which only checked a reveal
+still in motion, is removed rather than preserved.
+Terry (2026-11-12): proof holds under moderate to somewhat high CPU load,
+one test worker with external load up to about 32 on the 16-core host;
+failures seen only above that load are outside this story.
+
 **Plan:** [Executable plan](../slice-plans/584-board-test-intent/PLAN.md)
 
 #### Key examples

@@ -168,8 +168,8 @@ for (const viewport of [
     await expect(
       dialog.getByRole("heading", { name: "Preparation badges" }),
     ).toBeInViewport({ ratio: 1 });
-    // Keyboard scrolling is animated. A busy browser drops an End pressed
-    // while Home's scroll is still finishing, so End waits until Home has
+    // Native key scrolling acts on the scroll place the page last drew,
+    // which lags while the browser is busy, so End waits until Home has
     // reached the top and the frames after it have been drawn.
     await expect
       .poll(() => content.evaluate((element) => element.scrollTop))
