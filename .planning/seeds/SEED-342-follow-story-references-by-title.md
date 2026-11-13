@@ -15,7 +15,7 @@ scope: story
 
 **Identity:** SEED-342#follow-story-references-by-title
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/613-follow-story-references-by-title/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c811245962bb8ae0abefedbc8477d93ea5fc293301c6596617b13e00760534bb","plan":"bf9730a44c1478cee3cf539feb185187252e106ccf4577dbc62e17f683d3c3e0"}}
 ```
 
 #### Goal
@@ -24,39 +24,55 @@ Developers reading a story, plan, or dashboard dependency can tell what another
 story is about and reach that exact story in one click, even when several
 stories share a seed or the referenced story has completed.
 
-#### Scope to refine
+#### Scope
 
-- State the prose convention once in [Work item identity](../../src/skills/dough-product-backlog/references/identity.md#the-contract)
-  and link to it from [Seed format](../../src/skills/dough-story-decomposition/references/seed-format.md)
-  and the [executable plan format](../../src/skills/dough-story-refinement/references/planning.md#write-an-executable-plan).
-  Use the story title and exact anchor. For a removed story section, link to the
-  section at a retained revision. When the reference is to the whole seed, use
-  the seed title. Resolve ambiguous references from evidence or flag them for
-  clarification.
-- Apply the convention to the still-relevant references in the audit below.
-  Recheck current story ownership and destinations before editing. Coordinate
-  any changes to Taken stories or their plans with their owners and respect
-  the existing readiness review rules. Update older prose as it is touched.
-- Show the supplier story title in the dashboard's **Dependencies** panel.
-  Use the existing project and story identity to follow the link to an active
-  or Recently done story. Where the title cannot be resolved, retain a usable
-  reference using the recorded identity and preserve existing recovery behavior.
-  Keep the backlog format and structured identities and dependency facts.
+- **Guidance, kept short.** Extend contract item 3 of
+  [Work item identity](../../src/skills/dough-product-backlog/references/identity.md#the-contract)
+  ("The link is navigation, not identity") by about one sentence, addressed to
+  the agent writing the reference under
+  [ADR 0006](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md):
+  label a story link with the story's title and point it at the story's anchor;
+  label a whole-seed link with the seed's title; link a removed section at a
+  revision that still has it; resolve an unclear target from evidence or flag
+  it. Add no new section or paragraph. [Seed format](../../src/skills/dough-story-decomposition/references/seed-format.md)
+  and the [executable plan format](../../src/skills/dough-story-refinement/references/planning.md#write-an-executable-plan)
+  reach it through their existing Work item identity links, at most by
+  retargeting a link they already have, not by restating the rule.
+- **Audited references.** Apply the convention to the still-relevant references
+  below. Recheck current story ownership and destinations before editing.
+  Coordinate changes to Taken stories or their plans with their owners and
+  respect the existing readiness review rules. Other older prose changes only
+  when it is touched for another reason.
+- **Dashboard Dependencies.** Label each supplier with its story title, read
+  by the recorded identity from the project's active work or the supplier's
+  done record, and
+  keep following the link to that active or Recently done story. When no title
+  is available, label it with the recorded identity; existing recovery
+  behavior stays. Update [Dashboard navigation](../../docs/dashboard-navigation.md)
+  only where it describes the label.
+- **Scope limits.** The backlog format, structured identities, and the
+  dependency record (supplier identity and href) stay as they are; no title is
+  stored in dependency facts or the done catalog.
 
-#### Key examples to refine
+#### Key examples
 
-1. A reference to [Read CI history at a glance in story comparison and test Proof](SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance)
-   displays that title and opens its section. Two references into the page-object
-   seed distinguish review and Side panel work from session discovery and report
-   work, and each opens its own section at the retained revision.
+1. A plan that mentions another story writes
+   [Read CI history at a glance in story comparison and test Proof](SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance):
+   the reader sees the title and lands on its section. Two references into the
+   page-object seed distinguish review and Side panel work from session
+   discovery and report work, and each opens its own section at the retained
+   revision.
 2. A reader follows **Spot completed stories that need review** from the live
    dashboard status seed and reaches the completed story section at a retained
-   revision. A reference to the full live dashboard status seed opens the parent
-   document under its title.
-3. In **Dependencies**, two suppliers sharing a seed show their respective
-   titles. Following each reaches its own story in the correct project. A
-   completed supplier still opens its Recently done card. A title that cannot
-   be read does not silently send the developer to a sibling story.
+   revision. A reference to the whole live dashboard status seed opens it under
+   its seed title.
+3. The guidance diff adds about one sentence to Work item identity and no new
+   paragraph anywhere else; an agent reading only the contract item can write
+   example 1's reference.
+4. In **Dependencies**, two suppliers sharing a seed show their own titles, and
+   each opens its own story in the correct project. A completed supplier opens
+   its Recently done card. A supplier whose title is unavailable shows its
+   identity and still opens that exact story, never a sibling.
 
 #### Audited references
 
