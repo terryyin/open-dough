@@ -4,6 +4,8 @@
 
 **Source:** [Close the landed CI repeat checks' coverage gaps and tidy their support](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
 
+**Source review:** [Independent source commitments](source-review.md)
+
 ## Provenance
 
 Execution retrospective of
@@ -369,7 +371,7 @@ From an agent shell, prefix direct runs with
 
 ### 1. The Intent phone reading checks its whole comparison for sideways scroll
 Type: Behavior
-Status: planned
+Status: done
 Proof: `tests/intent/intent-ci-follow-up.spec.ts` passes three consecutive
 times at two workers with `expectNoSidewaysScrollIn(page, comparison)` after
 the three `expectWholeOnPhone` checks. F26 fails it at "scrolls sideways
@@ -531,3 +533,62 @@ No remaining slice-specific concern was identified in this review. P1–P5
 are settled above. All slices remain planned: the probes are preparation
 evidence, not delivered checks or implementation. Execution retains the
 required loaded selection and the project's failing/flaky-test policy.
+
+## Execution context
+
+Established story-branch execution, owned workspace
+`/Users/terryyin/git/open-dough/.worktrees/close-the-landed-ci-repeat-checks-coverage-gaps`,
+branch `codex/close-the-landed-ci-repeat-checks-coverage-gaps`, publisher
+`dashboard-territory.local-open-dough`, agent `darren-chan`. Accepted claim
+`36df77116cbcf8779eaa7ff6700ab647c39d8fdf` on `origin/main`; the remote
+execution branch holds the same claim. Starting revision
+`7aeca218b046dc685cab8587662f85d8669b0b19`. Integration/default checkout
+is `/Users/terryyin/git/open-dough`; execution never writes its carried changes.
+Claim CI is unobserved on trunk. Replanning retains the existing plan’s
+planning authority; no new scope or slice limit is introduced.
+
+Checkout setup: locked `npm ci --no-audit --no-fund` succeeded; applicable
+command is `npm run --silent typecheck:dashboard`. Check-only commit hook
+owns staged lint and dashboard typecheck. Selective formatting is
+`npm run --silent format`; no generation or project-summary mutation is
+triggered by these test/support edits.
+
+Expensive-proof decision: this local AC macOS host initially has natural load
+69–76 and about 3,600 free pages, with other worktrees running browser
+checks. Sequence our own work, retain default bounds, and use only bounded
+focused proof until lower natural load supports the prescribed two-worker
+repetitions. Fault controls require load about 27 or lower; the counted final
+load profile requires natural 30–50 before and after. Each implementation
+owner rechecks before launching/repeating and returns missing proof without
+weakening it. No unrelated host workload is stopped. Long proof uses
+`caffeinate -s -i` while on AC as required by
+[the maintained sleep guard](../../../tests/local-test-resources.md#machine-sleep-on-macos).
+
+Observer: GitHub Actions `terryyin/open-dough`, execution branch
+`codex/close-the-landed-ci-repeat-checks-coverage-gaps`, verified active selector
+`ci.yml` (workflow 351271804, display name CI). Codex coordinator
+`darren-seed324`, yielded cell `g264:18`, session `32283`, PID `27121`,
+directory `/tmp/dough-ci-501/watch-pye7Ih`; runtime is the exact execution
+checkout’s `.agents/skills/dough-execute-plan`. Checkout typecheck succeeded.
+
+### Slice 1 accepted proof
+
+The 390 px settled reading keeps all three part checks and now measures every
+descendant of the whole comparison with the existing `expectNoSidewaysScrollIn`.
+Setup is `keepSettledRepeat`; the actual rendered comparison comes from
+`retainedCiFollowUpReading`. Three consecutive runs of
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm run --silent test:dashboard -- tests/intent/intent-ci-follow-up.spec.ts --workers=2 --reporter=list`
+selected one case and passed (10.3, 8.1, 11.5 s). Natural load was
+60.84 → 41.42, 41.42 → 44.31, and 44.31 → 46.25.
+
+P3’s F26 discrimination is reused: unchanged product, fixture, helper and locked
+dependencies between `2a607e93b` and this claim (only unrelated
+`intent-project-visit-ci.spec.ts` changed); the added assertion is identical.
+P3 observed three part checks pass then the whole comparison fail with `["P"]`
+at “scrolls sideways inside.” No fault edit is retained. Consumer trace
+`/tmp/seed324-slice1-effect-trace.md` accounts for all six matches: unchanged
+product/locator owner, comment-only sibling links and historical records have
+no changed runtime boundary. The added local assertion exports no operation.
+Root inspected the setup and helper’s browser measurements. Source freshness
+was unchanged at trunk `a0490eb7a66a3a337723d087a088812ac7c95ec0`; incoming
+guidance/preparation commits change no named sibling product behavior.
