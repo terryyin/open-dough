@@ -11,8 +11,10 @@ scope: story
 
 ## Why this matters
 
-Every dashboard check reads GitHub through a fake `gh` that starts a Node
-process for each call. Under CPU-bound contention that cost dominates: in
+Dashboard checks read GitHub through a fake `gh`. The original report named
+a Node process per call; by this preparation, `e7a9265c4` had replaced that
+client with shell and curl. Each API call still starts processes and creates
+temporary transport files. Under CPU-bound contention that cost matters: in
 SEED-324's measurements with foreground CPU burners at load 31–48, the project
 scope timing refresh case spent most of its 28 s waiting for the Done
 comparison read's 21 calls, and both refresh cases reached the 30 s bound on
@@ -35,7 +37,7 @@ specs (`intent-scope-collected-file-timing-gaps`,
 
 **Identity:** SEED-332#answer-fake-gh-reads-in-process
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Not refined: the per-call cost by phase, the answers that depend on a process boundary, and hosted CI's shards are unmeasured"],"basis":{"document":"78cbed940a8a18f00ae509da3ea150316b11c4efd9c1baee35d43702d7f60aa6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"851cf739b7adcad05b4e68d95b7723aad2e7c3ff95c4d2a5d4cba6dc2d16ff08","plan":"bcdd1a766bc54fea1f765e1b56aa28eec010039997d96ca39402135b62d74e00"}}
 ```
 
 #### Goal
@@ -48,7 +50,53 @@ case timeout under CPU-bound contention at a one-minute load of 30–50.
 #### Scope
 
 - The fake `gh` the dashboard checks use, and how a dashboard server under
-  test reaches it.
-- No product behavior changes; the product's own `gh` boundary stays as it is.
-- To refine: what a call costs today by phase, which answers depend on a
-  process boundary, and how hosted CI's shards are affected.
+  test reaches it. Ordinary simulated API calls answer in an already-running
+  test process without starting a process for each call. Starting a private
+  request owner or resolving its login may still use processes.
+- Preserve the real authenticated read boundary and request-owner admission,
+  outstanding-call sharing, rate-limit interpretation, cancellation and
+  shutdown. Reuse the existing fake GitHub's answerers and `gh` response
+  conversion, including exact argv, binary bodies, HTTP status and headers,
+  nonzero exits, held answers and provider actions that the current checks use.
+- Keep the native CLI path for checks whose observation requires actual
+  process creation, PIDs, signals, owner replacement or orphan cleanup. Those
+  observations are independently necessary proof of the production process
+  boundary; simulated PIDs or removed assertions would lose that proof.
+- Preserve test isolation between machines, request owners, simultaneous
+  servers and hosted shards. A fake transport failure must not reach live
+  GitHub or fall back to the machine's real `gh`.
+- Evaluate the named loaded failures and SEED-324's landed CI repeat checks
+  with two local workers, default case timeouts and unchanged observations.
+  Record natural load and actual CPU contention; burners are diagnostic
+  evidence, not the natural-load acceptance required by
+  [local test resources](../../tests/local-test-resources.md#load-while-measuring).
+  Hosted CI retains its thirteen shards, CPU-derived worker count and current
+  deadlines; compare recorded shard times and require the changed suite to pass.
+- Scope limits: no product behavior changes or production `gh` transport
+  changes; no timeout increases, removed journeys, reduced assertions,
+  new GitHub answer model, or general test-runner redesign. No numeric
+  speedup is promised beyond removing per-call process creation and meeting
+  the existing default timeout under the stated load.
+
+#### Key examples
+
+- A Done comparison needs 21 GitHub reads while the machine has natural
+  CPU-bound load 30–50. Opening it and refreshing Project Intent complete
+  within each case's default 30 s budget; no simulated API read launches
+  its own subprocess.
+- A fake GitHub holds one shared read while two consumers wait. One leaves,
+  the other still receives the answer after release. When the last waiter
+  leaves or the server closes, the held transport ends and teardown leaves
+  no request or owner behind.
+- A response contains binary bytes, or a non-success HTTP status with
+  headers and stderr. The ordinary transport presents the same answer as
+  the installed synthetic CLI. A rate-limit response still changes request
+  admission through the real owner, and a workflow repeat is still recorded
+  by the same fake provider.
+- A subprocess-lifecycle check holds a real `gh`, closes its consumer and
+  observes its PID disappear and its SIGTERM record. It continues using
+  the native CLI path and keeps those assertions.
+- Two servers use separate fake GitHubs with different answers, while a
+  restart or a deliberately shared owner preserves its own scope. Reads
+  remain isolated, including on a hosted shard; missing or closed fake
+  endpoints fail locally.
