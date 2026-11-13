@@ -73,6 +73,12 @@ was made only after real network turns (`checksAskedWhilePassing`, or
 `expect.poll`), and give each scenario its own revisions: the boundary answers
 a repeated pinned revision from memory without calling `gh`.
 
+`passTimeUntilChecked` settles outstanding page reads before advancing time,
+so a read's deadline cannot arm detail recovery and suspend revision checks.
+Use `passTimeUntilCheckedWhileReadsOutstanding` when page time must pass
+while an already-started read stays held; show why the journey keeps it open.
+A read started by the next check itself still uses the default step.
+
 Reuse windows, such as `checkReuseMs`, and launch waits run on server time
 (`support/serverTimeControls.ts`). With `observationClock`, use
 `dashboard.advanceObservationClock` to pass a window, or fix an exact deadline

@@ -143,3 +143,9 @@ Process selected by `skipProcessRetrospective: false`, deferred under the instal
 ## Execution complete
 
 Product advice: no change. Test-journey pacing now has the safe default and a deliberate outstanding-read alternative; relevant existing journeys retain their observations. No new product work is justified.
+
+## Wrap-up inputs
+
+Intent Coverage at `254a06c8cbf03bbf3e364315226f1fda7de46b5c`: Caught, faulted next check took 28,250ms versus 15,250ms maximum; baseline/restored passed, scratch removed. Verbatim report and no-follow-up disposition retained in `/tmp/seed344-intent-coverage-disposed.txt`, to persist through the Done record. Checked helper/test remain unchanged.
+
+Deferred process review completed from coordinator conversation/tool results and coverage report/disposition: isolated locked setup, terminal proof ownership, scratch restoration and cleanup succeeded; no new supported process finding or correction. Product/proof review reused unchanged. Lasting test-journey rule assimilated into `dashboard/tests/writing-journeys.md` (247 lines); no temporary North Star topic or unique rule remains only in spent records.
