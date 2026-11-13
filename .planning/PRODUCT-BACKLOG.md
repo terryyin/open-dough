@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Run and observe product-wide end-to-end tests](seeds/SEED-334-product-wide-end-to-end-tests.md#run-and-observe-product-wide-end-to-end-tests) — SEED-334#run-and-observe-product-wide-end-to-end-tests ([plan](slice-plans/608-product-wide-end-to-end-tests/PLAN.md))
 - [Answer fake GitHub reads without a process per call](seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process) — SEED-332#answer-fake-gh-reads-in-process ([plan](slice-plans/610-answer-fake-gh-reads-in-process/PLAN.md))
 - [Read CI history at a glance in story comparison and test Proof](seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance) — SEED-331#read-ci-history-at-a-glance ([plan](slice-plans/609-read-ci-history-at-a-glance/PLAN.md))
+- [Follow story references by title](seeds/SEED-342-follow-story-references-by-title.md#follow-story-references-by-title) — SEED-342#follow-story-references-by-title ([plan](slice-plans/613-follow-story-references-by-title/PLAN.md))
 
 ## Backlog list
 
@@ -50,5 +51,4 @@ intent introduced or affected by a newly developed story.
 - [Express browser measurement test intent through shared setup](seeds/SEED-300-dashboard-test-page-objects.md#express-browser-measurement-test-intent) — SEED-300#express-browser-measurement-test-intent
 - [Limit first-layer test cases to ten lines](seeds/SEED-301-limit-first-layer-test-cases-to-ten-lines.md#limit-first-layer-test-cases-to-ten-lines) — SEED-301#limit-first-layer-test-cases-to-ten-lines
 - [Hold landed CI follow-up observations under load](seeds/SEED-319-landed-ci-follow-up-observations-under-load.md#hold-landed-ci-follow-up-observations-under-load) — SEED-319#hold-landed-ci-follow-up-observations-under-load
-- [Follow story references by title](seeds/SEED-342-follow-story-references-by-title.md#follow-story-references-by-title) — SEED-342#follow-story-references-by-title
 - [Run Open Dough tasks in the cloud](seeds/SEED-339-dashboard-cloud-agent-launches.md#run-open-dough-tasks-in-the-cloud) — SEED-339#run-open-dough-tasks-in-the-cloud
